@@ -1,0 +1,47 @@
+{
+  "raw_private_evidence_sha256": "05131882b05b61a885193cfc4482f405a342ce747c0cd9d37c56fd3b518119f6",
+  "redaction": "Personal home path component replaced; descriptors and observed outcomes retained",
+  "result": {
+    "helper_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9",
+    "record_exit": 0,
+    "stderr": "",
+    "normal_cache_length": 234,
+    "dacl_observations": [
+      {
+        "kind": "directory",
+        "path": "\\\\?\\C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-acl-xq59bdm5\\private\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component",
+        "get_acl_status": 0,
+        "sddl": "D:PAI(A;OICI;FA;;;OW)",
+        "convert_ok": true
+      },
+      {
+        "kind": "directory",
+        "path": "\\\\?\\C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-acl-xq59bdm5\\private\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\records",
+        "get_acl_status": 0,
+        "sddl": "D:PAI(A;OICI;FA;;;OW)",
+        "convert_ok": true
+      },
+      {
+        "kind": "directory",
+        "path": "\\\\?\\C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-acl-xq59bdm5\\private\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\copies",
+        "get_acl_status": 0,
+        "sddl": "D:PAI(A;OICI;FA;;;OW)",
+        "convert_ok": true
+      },
+      {
+        "kind": ".json",
+        "path": "\\\\?\\C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-acl-xq59bdm5\\private\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\records\\a82458113385fa12013cb8fa82f4f8633c4b0bee78bc6a6020ccb8fc02046c1d.json",
+        "get_acl_status": 0,
+        "sddl": "D:PAI(A;;FA;;;OW)",
+        "convert_ok": true
+      },
+      {
+        "kind": ".bin",
+        "path": "\\\\?\\C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-acl-xq59bdm5\\private\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\long-cache-component\\copies\\a82458113385fa12013cb8fa82f4f8633c4b0bee78bc6a6020ccb8fc02046c1d.bin",
+        "get_acl_status": 0,
+        "sddl": "D:PAI(A;;FA;;;OW)",
+        "convert_ok": true
+      }
+    ]
+  }
+}

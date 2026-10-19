@@ -1,6 +1,7 @@
 ---
 name: scope-guardian-reviewer
 description: Single-lens reviewer for a plan / spec / requirements document - guards against scope creep, unbounded phases, and missing cut-lines, keeping the plan shippable. Use as one lens inside the plan-review pipeline. Read-only; returns structured findings.
+model: opus
 tools: Read, Glob, Grep
 ---
 

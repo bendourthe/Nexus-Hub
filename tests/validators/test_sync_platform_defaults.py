@@ -841,3 +841,42 @@ def test_real_fallback_matches_the_real_declared_values():
         "settings"
     ]
     assert claude_integration._FALLBACK_SETTINGS == declared
+
+
+@pytest.mark.parametrize("shape", ["compact-array", "mixed-indent"])
+def test_noncanonical_hook_template_is_rejected_without_rewrite(
+    tmp_path: Path, shape: str
+):
+    """A consistency check cannot authorize rewriting unrelated hook bytes."""
+    path = tmp_path / "catalog/hooks/settings.json"
+    path.parent.mkdir(parents=True)
+    if shape == "compact-array":
+        original = json.dumps(FAKE_TEMPLATE, separators=(",", ":")) + "\n"
+    else:
+        original = (
+            json.dumps(FAKE_TEMPLATE, indent=2).replace('  "model":', '     "model":')
+            + "\n"
+        )
+    path.write_text(original, encoding="utf-8", newline="")
+    before = path.read_bytes()
+    artifact = {
+        "path": "catalog/hooks/settings.json",
+        "keys": ["env.CLAUDE_CODE_SUBAGENT_MODEL"],
+    }
+
+    with pytest.raises(sync.SourceError, match="noncanonical"):
+        sync.apply_merge_keys(
+            {"env": {"CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"}}, artifact, tmp_path
+        )
+
+    assert path.read_bytes() == before
+
+
+def test_subagent_default_is_an_alias_and_reaches_both_declared_artifacts():
+    data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
+    entry = data["platforms"]["claude"]
+    assert entry["settings"]["env"]["CLAUDE_CODE_SUBAGENT_MODEL"] == "sonnet"
+    assert "CLAUDE_CODE_SUBAGENT_MODEL_FORCE" not in entry["settings"]["env"]
+    artifacts = {item["path"]: item for item in entry["derived_artifacts"]}
+    for path in ("catalog/hooks/settings.json", "scripts/lib/integrations/claude.py"):
+        assert "env.CLAUDE_CODE_SUBAGENT_MODEL" in artifacts[path]["keys"]

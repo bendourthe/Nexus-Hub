@@ -25,7 +25,7 @@ Use this skill for:
 - All subtasks are strictly sequential with no parallelism opportunity
 - The codebase has tight coupling that makes disjoint write scopes impossible
 
-**When NOT to go multi-agent (the gate before this skill).** This skill is the *coordination plan* for work that has already been judged worth splitting. The prior decision -- single agent vs. subagents vs. agent teams vs. Dynamic Workflows -- belongs to [[agent-orchestration-primitives]]. Apply its "start single, escalate only on a measured problem" gate first: if you cannot name a concrete problem a single agent cannot solve (context overflow, embarrassing parallelism, independent verification, specialized concurrent lenses), stay single-agent and do not open this skill. In particular, **do not parallelize code-writing**: parallel agents writing production code make incompatible interface and naming assumptions, and the merge cost exceeds the parallelism gain. Use subagents to explore and answer questions, not to write code alongside the main agent.
+**When NOT to go multi-agent (the gate before this skill).** This skill is the *coordination plan* for work that has already been judged worth splitting. The prior decision -- single agent vs. subagents vs. agent teams vs. Dynamic Workflows -- belongs to [[agent-orchestration-primitives]]. Apply its "start single, escalate only on a measured problem" gate first: if you cannot name a concrete problem a single agent cannot solve (context overflow, embarrassing parallelism, independent verification, specialized concurrent lenses), stay single-agent and do not open this skill. Independent production writers are allowed only through that skill's conditional gate, with the exclusive scopes and pre-agreed contracts below. Coupled or unknown work stays sequential.
 
 **Trigger phrases**: "multi-agent", "parallel agents", "delegate to agents", "concurrent execution", "agent coordination", "split across agents", "subagent", "write scope", "agent conflict", "parallel delegation"
 
@@ -162,10 +162,14 @@ Each subagent must have a clear role, a defined set of files it is allowed to mo
 **Write-Scope Rules** (critical for conflict prevention):
 
 1. **Disjoint ownership**: No two agents may have overlapping write scopes. If Agent A owns `src/api/`, no other agent may modify files in `src/api/`.
-2. **Read access is universal**: Any agent can read any file. Only writes are scoped.
+2. **Reads declare dependencies**: Reading is allowed, but a concurrent writer must not change another worker's declared read inputs. Include semantic implementation read paths in compatibility assessment; unknown semantic reads require sequencing. Generic broad validation reads a pinned isolated snapshot and is re-established on the refreshed final candidate; it never substitutes for live integration proof.
 3. **Shared files require sequencing**: If two agents must modify the same file (e.g., `package.json`), they must run sequentially, not in parallel.
 4. **Scope declaration is mandatory**: Every agent prompt must explicitly list the files or directories the agent is allowed to modify.
 5. **Persistent-memory write exclusion**: Parallel top-level sessions on one machine are the same identity and may all write persistent agent memory. A spawned subagent must never write, because it cannot judge what is already known and its entries would arrive duplicated and out of context. A spawning agent MUST include this exact line in the subagent prompt: `Do not write to persistent agent memory. You are a spawned subagent; only the parent session may record memory.`
+
+**Minor-version whole-plan workers:**
+
+[[implement-phase]] owns automatic dispatch and the native completion contract owns admission. Give each admitted worker its exact plan, controller/session, linked worktree, branch, base, complete read/write claims, prerequisite commits, phase testing cadence and implementation-ready return contract. Tell it that it is not alone, must not revert others' changes, and must propose shared known-gaps/CHANGELOG/version/trackers deltas without writing them. A worker with real coordinator-owned implementation tasks pending reports `READY_FOR_COORDINATOR`, keeping those original task IDs unchecked until applied and tested; that is not deferred generic validation. A worker owns its implementation and tests, local phase commits and plan-specific evidence; only the coordinator writes signed state and publishes. Keep one aggregate spend cap and shared review/stabilization limits, retain returned handles for resume, and honor actual harness capacity. An implementation-ready or interrupted worker still owns its claims until native verified-merge retirement. Missing tools or unresolved compatibility produce an explicit serial fallback, not simulated dispatch.
 
 **Communication topology (parent / sibling / child):**
 

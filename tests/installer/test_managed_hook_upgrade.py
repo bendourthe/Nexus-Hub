@@ -15,6 +15,7 @@ import pytest
 
 from scripts import check_installer_smoke as smoke
 from scripts.check_installer_smoke import EXPECTED_WORKSPACE_ARTIFACTS, HTML_HOOK_STEM
+from scripts.ci.verify_scenarios import isolated_environment
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HOOK_STEM_PATTERN = re.compile(r"(?P<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)")
@@ -166,12 +167,15 @@ def _verify_existing_settings_upgrade(
     settings_path = settings_dir / "settings.json"
     initial_settings = _existing_settings(existing_hooks)
     settings_path.write_text(json.dumps(initial_settings), encoding="utf-8")
-    env = os.environ.copy()
+    boundary = home.parent / "fixture-env"
+    boundary.mkdir()
+    env = isolated_environment(boundary)
     env.update(
         {
             "HOME": str(home),
             "USERPROFILE": str(home),
-            "NEXUS_HUB_NO_AUTOSEED": "1",
+            "CLAUDE_CONFIG_DIR": str(home / ".claude"),
+            "NEXUS_HUB_HOME": str(home / ".nexus-hub"),
         }
     )
     if extra_env:

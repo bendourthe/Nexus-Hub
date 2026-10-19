@@ -80,7 +80,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # the catalog's <category>/ layer and surface each command as a skill too.
         "skills_subdir": "skills",
         "flatten_skills_layout": True,
-        # Subagents: catalog/agents/*.md (plain .md + frontmatter) copied verbatim.
+        # Subagents keep their prompts and metadata except Claude-only model aliases.
         "agents_subdir": "agents",
         # Project-scoped slash commands (in addition to the global ~/.cursor/commands/).
         "commands_subdir": "commands",
@@ -273,15 +273,15 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                 ctx, self.key, src_commands, skills_dst, catalog_skill_names(src_skills)
             )
         )
-        # Subagents: catalog/agents/*.md copied verbatim (Cursor reads .md + frontmatter).
+        # Subagents retain their prompts but omit Claude-only model aliases.
         agents_subdir = self.config.get("agents_subdir")
         if agents_subdir:
-            actions.append(
-                self._copy_tree(
-                    ctx.repo_root / "catalog" / "agents",
-                    cursor_root / agents_subdir,
-                    ctx,
-                    self.key,
+            from ._catalog_adapters import agents_dropping_keys
+
+            actions.extend(
+                agents_dropping_keys(
+                    ctx, self.key, ctx.repo_root / "catalog" / "agents",
+                    cursor_root / agents_subdir, ("model",),
                 )
             )
         if self.config.get("hooks_supported"):

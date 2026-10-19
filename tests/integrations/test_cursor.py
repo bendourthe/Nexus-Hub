@@ -7,7 +7,7 @@ parity_verification_v3_15_0 in the sibling .json):
     with the codex integration)
   - every catalog command emitted as a skill in .cursor/skills AND mirrored to the
     project-scoped .cursor/commands/ (in addition to the global ~/.cursor/commands/)
-  - subagents copied verbatim to .cursor/agents
+  - subagent prompts delivered to .cursor/agents with Claude-only model aliases removed
   - a Cursor-schema hooks.json (version 1) + the git-guardrails script, gated on
     hooks_supported
   - the pre-existing rules (.cursor/rules/*.mdc) + root AGENTS.md surfaces preserved
@@ -82,7 +82,7 @@ def test_cursor_workspace_commands_as_skills_and_project_commands(install_ctx: I
 
 
 def test_cursor_workspace_writes_agents(install_ctx: InstallContext):
-    """Subagents land at .cursor/agents as verbatim .md files (Cursor reads .md)."""
+    """Subagents land at .cursor/agents as native .md files."""
     get("cursor").install(install_ctx)
     agents_dir = install_ctx.target_root / ".cursor" / "agents"
     assert agents_dir.is_dir(), "subagents dir not written"

@@ -3,12 +3,15 @@
 import importlib.util
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
+
+from scripts.ci.verify_scenarios import isolated_environment
 # playwright is installed only by the CI render job, which also sets
 # NEXUS_REQUIRE_RENDER=1. Everywhere else these modules skip rather than erroring
 # at collection, which is what took the whole presentify suite down in PR #202.
@@ -73,21 +76,11 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
             "specialized-domains",
             "--yes",
         ]
-    # Even a workspace install writes the shared ~/.nexus-hub tree (scripts,
-    # VERSION, permissions manifest), so every home the installers can resolve
-    # is redirected: PowerShell reads USERPROFILE, not HOME (v4.13.1 BG-2).
-    profile = tmp_path / "profile"
-    for folder in (profile, tmp_path / "appdata", tmp_path / "localappdata"):
-        folder.mkdir()
-    env = {
-        **os.environ,
-        "HOME": str(profile),
-        "USERPROFILE": str(profile),
-        "APPDATA": str(tmp_path / "appdata"),
-        "LOCALAPPDATA": str(tmp_path / "localappdata"),
-        "NEXUS_HUB_HOME": str(profile / ".nexus-hub"),
-        "GIT_CONFIG_GLOBAL": str(profile / ".gitconfig"),
-    }
+    # Reuse the smoke runner's complete boundary, including inert editor CLIs.
+    # Redirecting HOME alone still discovers installed editors through PATH.
+    install_env = tmp_path / "install-env"
+    install_env.mkdir()
+    env = isolated_environment(install_env)
     result = subprocess.run(
         command,
         check=False,
@@ -169,3 +162,33 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
         assert not page.locator("[data-dv-deck]").is_visible()
         assert not errors
         browser.close()
+
+
+@pytest.mark.parametrize("editor", ["code", "cursor"])
+def test_offline_installer_environment_does_not_invoke_host_editors(tmp_path, monkeypatch, editor):
+    host = tmp_path / "host-editor"
+    host.mkdir()
+    marker = tmp_path / "host-editor-called"
+    launcher = host / (editor + ".cmd" if os.name == "nt" else editor)
+    command = f'@echo called>>"{marker}"\n@exit /b 1\n' if os.name == "nt" else f'#!/bin/sh\nprintf called > {shlex.quote(str(marker))}\nexit 1\n'
+    launcher.write_text(command, encoding="utf-8")
+    launcher.chmod(0o755)
+    monkeypatch.setenv("PATH", str(host) + os.pathsep + os.environ.get("PATH", ""))
+
+    def invoke(path, env):
+        argv = [str(path), "--list-extensions"]
+        if os.name == "nt":
+            script = "& '" + str(path).replace("'", "''") + "' --list-extensions; exit $LASTEXITCODE"
+            argv = ["powershell", "-NoProfile", "-Command", script]
+        return subprocess.run(argv, env=env, capture_output=True, check=False, timeout=30)
+
+    invoke(launcher, dict(os.environ))
+    assert marker.read_text(encoding="utf-8").strip() == "called"
+    marker.unlink()
+    work = tmp_path / "isolated"
+    work.mkdir()
+    env = isolated_environment(work)
+    selected = shutil.which(editor, path=env["PATH"])
+    assert selected and Path(selected).parent == work / "editor-boundary"
+    assert invoke(selected, env).returncode == 1
+    assert not marker.exists()

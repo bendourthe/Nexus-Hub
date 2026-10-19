@@ -134,6 +134,10 @@ For `/implement`, start with the plan's selected-provider map cell and verify it
 
 Present the generic tier, effort, concrete model when verified, all five signal readings, map freshness, and best-effort official citations. A plan's phase fields remain generic even when the current implementation recommendation names a concrete model.
 
+### Subagent model costs
+
+Subagent model order is invocation, definition `model`, `CLAUDE_CODE_SUBAGENT_MODEL`, then session. Environment `inherit` means unset; definition `inherit` selects the session. Explore/Plan need `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, which overrides pins. Savings require a tier reduction; frontier-to-frontier routing alone proves none. [Vendor reference](https://code.claude.com/docs/en/sub-agents#choose-a-model).
+
 ### Step 6: Apply the switch per the platform profile
 
 Switching is a three-tier spectrum, not uniform automation (see the routing profiles). The posture is **confirm, then auto-execute**: present the recommendation, get approval, then act per the platform's `can_script_switch`:

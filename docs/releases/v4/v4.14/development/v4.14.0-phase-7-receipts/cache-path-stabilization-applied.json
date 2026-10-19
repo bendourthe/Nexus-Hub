@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "copy": "edit_guard.py",
+      "path": "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py",
+      "before_sha256": "4bd7e046f80699cf287e2a82932ba4747e0a348f41a88e6963c0b2699d93bb05",
+      "after_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9"
+    },
+    {
+      "copy": "test_user_edit_guard.py",
+      "path": "catalog/hooks/tests/test_user_edit_guard.py",
+      "before_sha256": "d5c55423f980365e7dd2b38f3be0470835d93dd7936b35cfeca1dacac462e5fa",
+      "after_sha256": "007a74a94929aedf3a599294bceff7a50ce6abef9c9e4d75be6ee00c90771a8b"
+    }
+  ],
+  "guard": "Official installed helper; serialized checks and immediate records",
+  "new_guard_accepts": 0,
+  "permission_policy_changed": false,
+  "target_key_or_accept_logic_changed": false,
+  "final_profiles": "pending",
+  "hosted_integration": "pending"
+}

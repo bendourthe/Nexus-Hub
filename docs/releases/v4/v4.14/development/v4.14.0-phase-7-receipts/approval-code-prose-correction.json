@@ -1,0 +1,90 @@
+{
+  "created_utc": "2026-10-19T02:24:35.723Z",
+  "status": "focused_native_correction_verified_hosted_validation_pending",
+  "base_head": "688845e03407d86374cf988c6f2f546f361ad25a",
+  "cause": "real approval_binding.render -> approval_page.render_page -> _assert_plain rejects generated opaque HMAC5KTV in paste field",
+  "before": {
+    "exit": 1,
+    "summary": "1 failed, 5 passed, 153 deselected in 4.53s",
+    "source_sha256": "2a2e7b6fc4ef4d4f63cd95f2761cbb53a0d1c00dbfdf02d0fe13b191f81d8a82",
+    "deterministic_fixture": {
+      "key": "public bytes(range(32))",
+      "nonce": "00000000000000000000000000092ec9",
+      "actual_compute_code": "HMAC5KTV"
+    },
+    "log": "approval-token-collision-before-oct19.log"
+  },
+  "correction": {
+    "exact_source_delta_verified": true,
+    "description": "Language lint neutralizes only exact verified (approval CODE) fields; displayed code, stored template equality, code generation, canonical page, digests, signing, capture and consume remain unchanged."
+  },
+  "after": {
+    "linux": {
+      "actual_exit": 0,
+      "summary": "161 passed in 25.50s",
+      "scope": [
+        "entire tests/validators/test_approval_page.py",
+        "original test_deferral_only_for_named_types_and_not_own_tasks two cases"
+      ],
+      "log": "approval-token-collision-after-oct19.log",
+      "xml": "approval-token-collision-linux-oct19/approval-token-collision-after-oct19.xml"
+    },
+    "windows": {
+      "actual_exit": 0,
+      "summary": "20 passed, 141 deselected in 12.84s",
+      "selection": "opaque or generated_code_collision or deferral_only_for_named_types",
+      "log": "approval-token-collision-windows-oct19.log"
+    },
+    "lint": {
+      "actual_exit": 0,
+      "command": "ruff check --target-version py310 scripts/approval_page.py tests/validators/test_approval_page.py"
+    },
+    "diff_check": {
+      "actual_exit": 0
+    },
+    "guard": {
+      "exit": 0,
+      "new_accepts": 0
+    }
+  },
+  "sources": {
+    "scripts/approval_page.py": {
+      "bare_lf": 0,
+      "bytes": 43819,
+      "crlf": 895,
+      "sha256": "4610466f481034dd6f2a9601fae4b18d7bd99989eb028c20c6cf6bf5d3284eca"
+    },
+    "tests/validators/test_approval_page.py": {
+      "bare_lf": 0,
+      "bytes": 52521,
+      "crlf": 990,
+      "sha256": "7a67976d1620c62a9b89e8f1be873bb29a324e244401255d0194c279ccc79e76"
+    }
+  },
+  "negative_controls": [
+    "HMAC in real summary prose remains rejected",
+    "HMAC and exact token text outside approval fields remain rejected",
+    "altered stored paste, altered code and extra words remain rejected",
+    "real consume rejects missing or extra-word captures",
+    "real consume rejects changed approval classes and reused code",
+    "real exact capture succeeds with original generated code and authority"
+  ],
+  "boundaries": {
+    "production_record_writes": 0,
+    "installed_helper_edits": 0,
+    "worker_publication": 0,
+    "new_guard_accepts": 0,
+    "code_generation_digests_signatures_and_capture_unchanged": true
+  },
+  "raw_private_evidence_sha256": "0b9f02d3283a232226c6fcb9b5acd2de19b752947a7a29059bd43207432eba43",
+  "hosted_failure": {
+    "commit": "688845e03407d86374cf988c6f2f546f361ad25a",
+    "url": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39185496974/job/117847008869",
+    "test": "test_deferral_only_for_named_types_and_not_own_tasks[External CI outage.-True]",
+    "terminal_checks": 44,
+    "successful_checks": 40,
+    "independent_failure_groups": 2,
+    "aggregate_failures": 2
+  },
+  "evidence_reuse": "Full-profile proof remains scoped to unchanged inputs. These focused Linux and Windows checks revalidate the changed rendering boundary; current-head hosted validation remains required."
+}

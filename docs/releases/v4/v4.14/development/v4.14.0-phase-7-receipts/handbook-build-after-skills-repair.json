@@ -1,0 +1,64 @@
+{
+  "documents": [
+    {
+      "id": "overview",
+      "output": "docs/handbooks/overview.html",
+      "before_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b",
+      "after_sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f",
+      "sole_byte_change": "Embedded handbook-record build digest for scripts/dual_view.py",
+      "build_exit": 0,
+      "check_exit": 0,
+      "build_command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/overview/model.json",
+        "--out",
+        "docs/handbooks/overview.html",
+        "--root",
+        "."
+      ],
+      "check_command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/overview/model.json",
+        "--out",
+        "docs/handbooks/overview.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "build_record_sha256": "877fb987343fecd35634f9529d623608f271e4784c25ed800654de7bca31496c"
+    },
+    {
+      "id": "distribution",
+      "output": "docs/handbooks/distribution.html",
+      "before_sha256": "9781047ee32684d41b11bf4bfa5b0e8489d49c9b2c849a291f1b0efcefe8a703",
+      "after_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c",
+      "sole_byte_change": "Embedded handbook-record build digest for scripts/dual_view.py",
+      "build_exit": 0,
+      "check_exit": 0,
+      "build_command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        "."
+      ],
+      "check_command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "build_record_sha256": "0f41260fc9a8d29b1dda6a50157d19c945f384a6fbc59c34616f31b9f30cc530"
+    }
+  ],
+  "accepts": 0,
+  "only_markup_change": "Embedded builder provenance digest; exact reverse-substitution restores the prior known output hashes."
+}

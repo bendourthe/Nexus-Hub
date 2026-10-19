@@ -1,0 +1,46 @@
+{
+  "status": "APPLIED WITH ORIGINAL CRLF PRESERVED",
+  "source_ref": "DoD4 / Phase4 subtask4.2 / T014-T017 and T026",
+  "files": [
+    {
+      "path": "catalog/skills/developer-experience/interface-review/SKILL.md",
+      "original_raw_sha256": "0f255a85b7d7027e340631e866b664c5a45cdd6317e2f087b0d8b583bfccec99",
+      "final_raw_sha256": "267ba957592070d7bccca0bc749356e6c235d5ac1ab8896938a14a57db8f0d3d",
+      "final_LF_normalized_sha256": "84731b2f959a0deacb4554fd8d157babbc1f29bd05e2e2ed3cedc2710a0301c7",
+      "final_bytes": 10080
+    },
+    {
+      "path": "tests/validators/test_ui_cluster_contract.py",
+      "original_raw_sha256": "7ffb27df03210a8011d0ce6e321434df023630461c8d12c2ea3639aa958bbd0f",
+      "final_raw_sha256": "2b0be9fa1b07d0b144f323d9154393819aedffecd2c9824650bd693dc81eb9c4",
+      "final_LF_normalized_sha256": "acd11e00f267ad8019f994652b1cb7e2dfcedff97b97782b0ce5c2f4f38563c1",
+      "final_bytes": 2090
+    }
+  ],
+  "regression": {
+    "old_placement": "RED:1 assertion failure in0.22s after excluding fenced examples",
+    "corrected_candidate": "GREEN:1pass0.13s",
+    "actual_tree_checks": [
+      {
+        "command": "-m pytest tests/validators/test_ui_cluster_contract.py -q",
+        "exit": 0,
+        "output": ".                                                                        [100%]\n1 passed in 0.11s"
+      },
+      {
+        "command": "-m ruff check tests/validators/test_ui_cluster_contract.py --output-format concise",
+        "exit": 0,
+        "output": "All checks passed!"
+      },
+      {
+        "command": "scripts/check_registry_entries.py --check --strict",
+        "exit": 0,
+        "output": "registry entries: structure and reachability agree with the catalog"
+      }
+    ]
+  },
+  "independent_review": "Old placement independently failed and corrected placement passed the complete aggregate in memory; same single checkbox/frontmatter and literal outer Verification confirmed",
+  "size": "Skill raw bytes10080, unchanged from original; normalized semantic delta is only checkbox relocation",
+  "new_guard_accepts": 0,
+  "CI_files_changed": 0,
+  "counter": "Global deep-pass3/3 is not reset; this additional in-scope correction follows explicit user full-minor repair instruction"
+}

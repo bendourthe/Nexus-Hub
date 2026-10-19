@@ -1,0 +1,312 @@
+{
+  "base": "d577e11037b25647aa466da4c01e1ecdadfe6aeb",
+  "scope": "final-review-scope.json",
+  "N": 193,
+  "K": 47,
+  "all_ten_personas_reviewed_all_bundles": true,
+  "all_initial_and_final_raw_hashes_matched": true,
+  "mode": "report-only",
+  "depth": "full",
+  "headline_cap": 20,
+  "scoring_order": [
+    "fingerprint and dedup",
+    "same-fingerprint independent promotion",
+    "weak-advisory demotion",
+    "late confidence gate"
+  ],
+  "dedup_count": 0,
+  "promotion_count": 0,
+  "demotion_count": 0,
+  "demotion_reason": "The two testing findings have deterministic surviving mutation controls, not weak advisory support.",
+  "gate_survivors": [
+    {
+      "title": "Reject multiple JSON documents before merging core settings",
+      "severity": "P1",
+      "file": "scripts/installer.sh",
+      "line": 930,
+      "confidence": 100,
+      "persona": "correctness",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Require one object per settings/template role and preserve rejected inputs without writes.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/installer.sh|132|reject multiple json documents before merging core settings"
+    },
+    {
+      "title": "Ambient package destinations escape the disposable bootstrap target",
+      "severity": "P2",
+      "file": "scripts/ci/verify_scenarios.py",
+      "line": 57,
+      "confidence": 100,
+      "persona": "security",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Disable inherited pip and uv destination/configuration routes while preserving constraints and index settings.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/verify_scenarios.py|8|ambient package destinations escape the disposable bootstrap target"
+    },
+    {
+      "title": "Assert the documented Opus tier for reasoning-sensitive agents",
+      "severity": "P2",
+      "file": "tests/validators/test_agent_model_pinning.py",
+      "line": 30,
+      "confidence": 100,
+      "persona": "testing",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Assert documented Opus pins and reject a valid but incorrect model alias.",
+      "verifier_class": "deterministic",
+      "fingerprint": "tests/validators/test_agent_model_pinning.py|4|assert the documented opus tier for reasoning sensitive agents"
+    },
+    {
+      "title": "Exercise the Presentify aggregate's rejection branches",
+      "severity": "P2",
+      "file": "tests/ci/test_ci_reconciliation.py",
+      "line": 89,
+      "confidence": 100,
+      "persona": "testing",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Execute the actual YAML gate against unsuccessful, unknown and legitimately skipped dependency results.",
+      "verifier_class": "deterministic",
+      "fingerprint": "tests/ci/test_ci_reconciliation.py|12|exercise the presentify aggregate s rejection branches"
+    },
+    {
+      "title": "Normalize JSON slash escapes without quadratic backtracking",
+      "severity": "P3",
+      "file": "scripts/installer.ps1",
+      "line": 525,
+      "confidence": 100,
+      "persona": "performance",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Prevent restarting inside a backslash run and preserve odd-run normalization.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/installer.ps1|75|normalize json slash escapes without quadratic backtracking"
+    },
+    {
+      "title": "Secret redaction can corrupt metadata JSON syntax",
+      "severity": "P2",
+      "file": "scripts/ci/reporting.py",
+      "line": 291,
+      "confidence": 100,
+      "persona": "adversarial",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Redact string values before JSON serialization and retain keys and native types.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/reporting.py|41|secret redaction can corrupt metadata json syntax"
+    },
+    {
+      "title": "Metadata redaction can emit invalid environment.json",
+      "severity": "P1",
+      "file": "scripts/ci/reporting.py",
+      "line": 291,
+      "confidence": 100,
+      "persona": "api-contract",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "suggested_fix": "Redact string values before JSON serialization and retain schema keys and native types.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/reporting.py|41|metadata redaction can emit invalid environment json"
+    }
+  ],
+  "suppressed": [
+    {
+      "title": "Concurrent local offline profiles may execute another checkout's image",
+      "severity": "P2",
+      "file": "scripts/ci/profiles.py",
+      "line": 768,
+      "confidence": 50,
+      "persona": "reliability",
+      "requires_verification": true,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "If a real shared-daemon collision is established, use an invocation-specific image identity.",
+      "verifier_class": "evidence-based",
+      "fingerprint": "scripts/ci/profiles.py|109|concurrent local offline profiles may execute another checkout s image"
+    }
+  ],
+  "stage6": "No surviving finding has confidence below 100 or requires_verification=true; suppressed Docker candidate does not reach validation.",
+  "presentation_groups": 6,
+  "metadata_duplicate_note": "Two independently verified metadata findings have different normalized titles/fingerprints. Both raw findings survive; one remediation addresses their shared root cause without claiming fingerprint promotion.",
+  "considered_but_rejected": {
+    "correctness": [
+      "All 23 pins are intentional; cheaper default applies to unpinned custom agents.",
+      "Non-Claude adapters remove Claude-only model metadata and preserve prompts.",
+      "Historical failed/proposed receipts are not completion claims."
+    ],
+    "maintainability": [
+      "Mirrored native ownership state machines follow the established parity convention.",
+      "Thin workflow summary/publication steps do not justify a new generic framework.",
+      "Domain UI skills hand measurement ownership to interface-review."
+    ],
+    "testing": [
+      "Bootstrap nonzero tolerance is inherited and explicitly bounded.",
+      "Copied source-free doctor controls exercise real text and JSON entry points.",
+      "Pending full/remote/manual observations are explicitly unclaimed."
+    ],
+    "project-standards": [
+      "Proposed effort decision truthfully awaits qualification and release.",
+      "No new skill requires registry registration.",
+      "No gap has been prematurely migrated."
+    ],
+    "security": [
+      "All six smoke editor launchers are inert and shared tool PATH remains.",
+      "Inherited Git repository/config selectors are removed.",
+      "UV_TARGET and UV_PREFIX were ignored by the installed uv; no escape asserted for them."
+    ],
+    "reliability": [
+      "Current process-tree timeout control reaps a redirected grandchild.",
+      "Malformed, array-root and unsupported doctor inputs preserve settings.",
+      "Existing seed-record write-failure behavior is documented and warns."
+    ],
+    "performance": [
+      "Strict overlay scanning is cold and bounded for the shipped 34 rules; no ordinary-use regression established.",
+      "Fixture copying is bounded to about 1.48 MB and 66 files.",
+      "The fixed five-slide handbook cancels animation and disconnects observers."
+    ],
+    "adversarial": [
+      "Bootstrap acceptance deliberately retains the existing extraction/version contract.",
+      "Linked or malformed seed records do not gain overwrite authority.",
+      "Required gate result allowlists reject unexpected states."
+    ],
+    "agent-native": [
+      "Doctor is discoverable in CLI help with JSON/target/integration options.",
+      "Design lint exposes a runnable command and editable configuration.",
+      "Native profiles and scenarios can run outside GitHub."
+    ],
+    "api-contract": [
+      "Retiring only a recorded legacy seed is intentional and documented.",
+      "Doctor settings_notes is an additive JSON field.",
+      "No existing workflow job identifier was removed."
+    ]
+  },
+  "qualification_limits": [
+    "Review is source/diff coverage, not a full-gate pass.",
+    "PNG coverage varies by lens and does not replace existing actual-browser proof.",
+    "No publication, integration or release was performed."
+  ],
+  "findings_normalized": [
+    {
+      "title": "Reject multiple JSON documents before merging core settings",
+      "severity": "P1",
+      "file": "scripts/installer.sh",
+      "line": 930,
+      "confidence": 100,
+      "persona": "correctness",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Require one object per settings/template role and preserve rejected inputs without writes.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/installer.sh|132|reject multiple json documents before merging core settings"
+    },
+    {
+      "title": "Ambient package destinations escape the disposable bootstrap target",
+      "severity": "P2",
+      "file": "scripts/ci/verify_scenarios.py",
+      "line": 57,
+      "confidence": 100,
+      "persona": "security",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Disable inherited pip and uv destination/configuration routes while preserving constraints and index settings.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/verify_scenarios.py|8|ambient package destinations escape the disposable bootstrap target"
+    },
+    {
+      "title": "Assert the documented Opus tier for reasoning-sensitive agents",
+      "severity": "P2",
+      "file": "tests/validators/test_agent_model_pinning.py",
+      "line": 30,
+      "confidence": 100,
+      "persona": "testing",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Assert documented Opus pins and reject a valid but incorrect model alias.",
+      "verifier_class": "deterministic",
+      "fingerprint": "tests/validators/test_agent_model_pinning.py|4|assert the documented opus tier for reasoning sensitive agents"
+    },
+    {
+      "title": "Exercise the Presentify aggregate's rejection branches",
+      "severity": "P2",
+      "file": "tests/ci/test_ci_reconciliation.py",
+      "line": 89,
+      "confidence": 100,
+      "persona": "testing",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Execute the actual YAML gate against unsuccessful, unknown and legitimately skipped dependency results.",
+      "verifier_class": "deterministic",
+      "fingerprint": "tests/ci/test_ci_reconciliation.py|12|exercise the presentify aggregate s rejection branches"
+    },
+    {
+      "title": "Normalize JSON slash escapes without quadratic backtracking",
+      "severity": "P3",
+      "file": "scripts/installer.ps1",
+      "line": 525,
+      "confidence": 100,
+      "persona": "performance",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Prevent restarting inside a backslash run and preserve odd-run normalization.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/installer.ps1|75|normalize json slash escapes without quadratic backtracking"
+    },
+    {
+      "title": "Secret redaction can corrupt metadata JSON syntax",
+      "severity": "P2",
+      "file": "scripts/ci/reporting.py",
+      "line": 291,
+      "confidence": 100,
+      "persona": "adversarial",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Redact string values before JSON serialization and retain keys and native types.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/reporting.py|41|secret redaction can corrupt metadata json syntax"
+    },
+    {
+      "title": "Metadata redaction can emit invalid environment.json",
+      "severity": "P1",
+      "file": "scripts/ci/reporting.py",
+      "line": 291,
+      "confidence": 100,
+      "persona": "api-contract",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "suggested_fix": "Redact string values before JSON serialization and retain schema keys and native types.",
+      "verifier_class": "deterministic",
+      "fingerprint": "scripts/ci/reporting.py|41|metadata redaction can emit invalid environment json"
+    },
+    {
+      "title": "Concurrent local offline profiles may execute another checkout's image",
+      "severity": "P2",
+      "file": "scripts/ci/profiles.py",
+      "line": 768,
+      "confidence": 50,
+      "persona": "reliability",
+      "requires_verification": true,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "If a real shared-daemon collision is established, use an invocation-specific image identity.",
+      "verifier_class": "evidence-based",
+      "fingerprint": "scripts/ci/profiles.py|109|concurrent local offline profiles may execute another checkout s image"
+    }
+  ],
+  "normalization_note": "Reviewer finding fields and recommendations are consolidated summaries, not byte-for-byte copies of their raw payloads. Exact original titles drive fingerprints; original payloads remain in the session messages. No independent-title promotion is claimed."
+}

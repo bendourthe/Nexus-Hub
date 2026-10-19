@@ -824,7 +824,12 @@ _DIAGNOSTIC_PREFIX = {
 }
 
 
-def _render_doctor_report(report: DoctorReport, json_mode: bool, quiet: bool) -> None:
+def _render_doctor_report(
+    report: DoctorReport,
+    json_mode: bool,
+    quiet: bool,
+    settings_notes: list[str] | None = None,
+) -> None:
     if json_mode:
         payload = {
             "integrations_checked": report.integrations_checked,
@@ -843,13 +848,19 @@ def _render_doctor_report(report: DoctorReport, json_mode: bool, quiet: bool) ->
                 for f in report.findings
             ],
         }
+        if settings_notes:
+            payload["settings_notes"] = settings_notes
         print(json.dumps(payload, indent=2, default=str))
         return
     if quiet:
         return
+    for note in settings_notes or []:
+        print(note)
     counts = report.counts()
     summary = ", ".join(f"{k}:{v}" for k, v in sorted(counts.items())) or "(no records)"
-    print(f"[doctor] checked {len(report.integrations_checked)} integration(s) -> {summary}")
+    print(
+        f"[doctor] checked {len(report.integrations_checked)} integration(s) -> {summary}"
+    )
     for f in report.findings:
         if f.diagnostic == DIAGNOSTIC_OK:
             continue
@@ -873,23 +884,39 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     """
     target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
+    from scripts.lib.integrations.claude import effort_override_note
+
+    requested = (
+        [k.strip() for k in args.integrations.split(",") if k.strip()]
+        if args.integrations
+        else None
+    )
+    note = effort_override_note() if not requested or "claude" in requested else None
+    settings_notes = [note] if note else []
     if not manifest_path.exists():
         if args.json:
-            print(json.dumps({"error": "no manifest", "manifest_path": str(manifest_path)}))
+            print(
+                json.dumps(
+                    {
+                        "error": "no manifest",
+                        "manifest_path": str(manifest_path),
+                        **(
+                            {"settings_notes": settings_notes} if settings_notes else {}
+                        ),
+                    }
+                )
+            )
         else:
+            for message in settings_notes:
+                print(message)
             print(
                 f"[doctor] no manifest at {manifest_path} -- run install first",
                 file=sys.stderr,
             )
         return 1
     manifest = InstallManifest.load(manifest_path)
-    requested = (
-        [k.strip() for k in args.integrations.split(",") if k.strip()]
-        if args.integrations
-        else None
-    )
     report = lifecycle_doctor(manifest, requested)
-    _render_doctor_report(report, args.json, args.quiet)
+    _render_doctor_report(report, args.json, args.quiet, settings_notes)
     _report_selector_drift(manifest, args)
     return 1 if report.has_issues() else 0
 

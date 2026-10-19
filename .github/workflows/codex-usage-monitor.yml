@@ -15,10 +15,11 @@ on:
     paths:
       - 'extensions/codex-usage-monitor/**'
       - '.github/workflows/codex-usage-monitor.yml'
+      - 'scripts/ci/**'
 
 # Cancel superseded runs of the same ref (the single largest action-minute saver).
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
 # contents is the complete requirement.
 permissions:
   contents: read
@@ -31,9 +32,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: extensions/codex-usage-monitor
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -47,10 +45,21 @@ jobs:
         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
         # them; ttf2woff2 is used only by the local icon generator, not this job.
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --prefix extensions/codex-usage-monitor
 
-      - name: Compile (tsc)
-        run: npm run compile
+      - name: Repository-native codex-usage-monitor profile
+        run: python scripts/ci/run.py --profile full --only codex-usage-monitor --reports-dir reports
 
-      - name: Unit tests with coverage (Vitest)
-        run: npm run test:coverage
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: codex-usage-monitor-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

@@ -936,7 +936,10 @@ class SkillsIntegration(IntegrationBase):
             # guardrails, so a focused install must not be less safe than the
             # default one.
             surface = {"commands_subdir": "command", "agents_subdir": "agent"}.get(cfg_key)
-            dropped = self.config.get("agents_drop_frontmatter")
+            dropped = tuple(self.config.get("agents_drop_frontmatter", ()))
+            # Catalog model aliases belong to Claude, not other providers.
+            if self.key != "claude":
+                dropped += ("model",)
             if cfg_key == "agents_subdir" and dropped:
                 # Local import breaks the base <-> _catalog_adapters import cycle.
                 from ._catalog_adapters import agents_dropping_keys

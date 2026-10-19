@@ -1,0 +1,32 @@
+{
+  "mode": "quick report-only",
+  "scope": "Three settings in two unapplied CI files; no new runtime logic",
+  "findings": [],
+  "independent_lenses": [
+    "correctness",
+    "maintainability",
+    "testing",
+    "project-standards"
+  ],
+  "evidence_read_only": true,
+  "reviewers_ran_tests": false,
+  "considered_but_rejected": [
+    {
+      "candidate": "Broad ordinary-file formatting bypass",
+      "reason": "Anchored exact active/archive Phase7 receipt subtree and diff/patch suffix; Python and sibling-subtree controls remain corrected."
+    },
+    {
+      "candidate": "Unconstrained PyYAML dependency",
+      "reason": "Existing workflow PIP_CONSTRAINT and canonical pyyaml==6.0.3 remain unchanged."
+    },
+    {
+      "candidate": "Another formatter changes frozen bytes",
+      "reason": "Retained payload LF-only; unchanged mixed-line-ending hook has no current conflict."
+    },
+    {
+      "candidate": "YAML anchor abstraction or second version pin",
+      "reason": "Adds machinery or duplicate policy for two existing exclusion fields and an existing canonical dependency."
+    }
+  ],
+  "pending": "Actual approved application, final local requalification and green integration; native Windows startup finding remains separate."
+}

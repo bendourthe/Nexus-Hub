@@ -1,6 +1,7 @@
 ---
 name: feasibility-reviewer
 description: Single-lens reviewer for a plan / spec / requirements document - checks technical feasibility, hidden complexity, dependency and sequencing risk, and unrealistic assumptions before code is written. Use as one lens inside the plan-review pipeline. Read-only; returns structured findings.
+model: opus
 tools: Read, Glob, Grep
 ---
 

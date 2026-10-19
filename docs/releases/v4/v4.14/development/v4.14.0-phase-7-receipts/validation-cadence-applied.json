@@ -1,0 +1,143 @@
+{
+  "artifact_kind": "derived_change_record",
+  "observed_utc": "2026-10-18T23:04:04.314861+00:00",
+  "status": "applied_actual_source_checks_passed",
+  "request": "Use focused phase checks and complete-plan long validation as the plan/implement standard, then continue v4.14.",
+  "files": [
+    {
+      "path": "catalog/commands/implement.md",
+      "before_sha256": "237c6c3942dede3bd4be9a277af58e3b5328f312a60d002041f4750d870481fb",
+      "after_sha256": "c517b46d17f936827738a31368cb349f0c8d41b85a84e2251a01c736b4bc61b6"
+    },
+    {
+      "path": "catalog/commands/plan.md",
+      "before_sha256": "6f62b93ade217e914818629f61ddc0c7e5c6f3f2dd3b147ad1320a174a0e7e03",
+      "after_sha256": "c5d9839d85aaf0fe4ef01f45ebb6051c347784df308a8b1f5cb2d1d40630e360"
+    },
+    {
+      "path": "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+      "before_sha256": "9d403100ec003340b4c9bbd90b10ac2a930855bf6e5e5a27067546298f2d7f26",
+      "after_sha256": "485c6dad85ee0dbd4bce3ccba36ba7b0f047e3497711d4993e59e8bd1e0f75bb"
+    },
+    {
+      "path": "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+      "before_sha256": "6d78440a06c74f105fc3eaebd7894141ea777fcb88db45fac4df8d46e92b53db",
+      "after_sha256": "337b7f0cc5529a2e26428331daf5deb0913c79b739d7d4a464c7448418f05520"
+    },
+    {
+      "path": "catalog/skills/workflow/implement-phase/SKILL.md",
+      "before_sha256": "c0c46633274fcb4e11474768fbc76fb861255ff5c8112322cf1a18e2812145c3",
+      "after_sha256": "91f491c6be22e945772a97aada68eec547c852577e5e5df2db2a0699929ce733"
+    },
+    {
+      "path": "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+      "before_sha256": "436b42f01c8afb0a6e05dda842900410788e362567902bf17ab84445a26f7131",
+      "after_sha256": "6281d834f43e52bbc441b5f3ac30567528354b278b9bdedf1bd53fb1284fc8b2"
+    },
+    {
+      "path": "catalog/skills/workflow/implementation-plan/SKILL.md",
+      "before_sha256": "e1f663296ed084b05407aa488017fb126dde81886cfe926125d8596db359e482",
+      "after_sha256": "67a4c05cfbd5f66256de67693bbace16deecb8c76ca278d8b155d2a946996d2a"
+    },
+    {
+      "path": "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+      "before_sha256": "26fcd78d8deb5343750e14e87f9eae5253546dbeb26fa5bd3e0308b580e3b483",
+      "after_sha256": "45548a9ad5e286f88b7ed04821b85fd0aedaca75b483a5b84d9fb2fa2bee17b2"
+    },
+    {
+      "path": "docs/decisions/implemented/process/2026-09-23-scope-nonfinal-phase-tests-to-blast-radius.md",
+      "before_sha256": "852c931d786799cc85c501ebff5349897aa3dd12d3a5158bc231da6171f96e25",
+      "after_sha256": "1763284f491294bd3d5b6eebeb47d874b7635ada0fd6333ff9cce1cb61c5f55c"
+    },
+    {
+      "path": "docs/decisions/implemented/process/2026-10-18-complete-plan-validation-cadence.md",
+      "before_sha256": null,
+      "after_sha256": "3de3a940749ff9101bcc0017f33394ea4b7754e690b33a334c5a37768b04f74e"
+    },
+    {
+      "path": "docs/policy/ci-cd-lifecycle-contract.md",
+      "before_sha256": "65ef93e3ed80ebba9cb060c498601347abd731f3a0f25dc12c5c45865d6412c4",
+      "after_sha256": "adc33f3ddfc37d04c139db47a44e5fed6629bb83a247d74bd54e265165299bbe"
+    },
+    {
+      "path": "tests/skills/test_cicd_lifecycle_contract.py",
+      "before_sha256": "7acf23580d05975e2e67bf64ef32e516067eed1d16cac84d1554f8d2ff13bd6b",
+      "after_sha256": "ccff43b56412e4a3651cf679b32e86df03ef50b0a5936dd331abec6149e7440a"
+    },
+    {
+      "path": "tests/skills/test_implement_lifecycle_contract.py",
+      "before_sha256": "3b8a7f003994826e6a956d80760c78fc93e2b77d9d0a947027c1915d68212f07",
+      "after_sha256": "c5582a70bea658a52cfc6d736e17f162ee9a4ac98b0a54c7102ceadc30a9e694"
+    },
+    {
+      "path": "tests/skills/test_installer_parity_lifecycle.py",
+      "before_sha256": "7a80253f677fd5d49d64dc1614d8bb2fe7c63a9030b3156e431fc65796668fbe",
+      "after_sha256": "85cbd48aec9f3ddb2640a9c8f4dd615242c6262c509ae15582940ec98e4dd24e"
+    },
+    {
+      "path": "tests/skills/test_plan_lifecycle_contract.py",
+      "before_sha256": "4306f41d700f8f231335d48949ede5704c1ae681fd901d181dc9ef765e1ffa67",
+      "after_sha256": "34fce51ab48dabe1ba6a5040cdf09652fbc7da0140bf9c3d4fee29d01137c6a5"
+    }
+  ],
+  "hash_representation": "working_tree_bytes_before_git_text_normalization",
+  "candidate_verification": {
+    "passed": 385,
+    "failed": 0,
+    "skipped": 0,
+    "mutation_controls_rejected": 8,
+    "decision_records_valid": 82,
+    "ruff_exit": 0,
+    "format_scope": "changed test blocks only; AST unchanged"
+  },
+  "prior_full_qualification": {
+    "commands_passed": 65,
+    "commands_failed": 0,
+    "pytest_passed_executions": 12199,
+    "pytest_skipped": 88,
+    "original_report_sha256": "088e80d474725cd9b193aaa1f60623214198b9424d0c14a9d307872a619c1097",
+    "representation": "Earlier complete run on the pre-policy tree; this record does not relabel it a fresh unfiltered run after the policy change."
+  },
+  "workflow_files_modified_by_this_change": [],
+  "frozen_plans_modified_by_this_change": false,
+  "signed_run_record_modified_by_this_change": false,
+  "guard_accepts_used_by_this_change": 0,
+  "current_native_acceptance_waived": false,
+  "actual_source_verification": {
+    "junit_counts": {
+      "tests": 385,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "junit_sha256": "b2b6f21cd70dd18b69f896c7ba5a36cb17955be7ed1b31a516dc8fab0afbeaf0",
+    "fast_commands": 17,
+    "fast_all_pass": true,
+    "fast_summary_sha256": "d64e5dbe80f0de2847b4b1e0dae79f0b2d41e7b1e1815bb931a1f50cd4fbdc81",
+    "expected_changed_paths": [
+      "catalog/commands/implement.md",
+      "catalog/commands/plan.md",
+      "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+      "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+      "catalog/skills/workflow/implement-phase/SKILL.md",
+      "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+      "catalog/skills/workflow/implementation-plan/SKILL.md",
+      "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+      "docs/decisions/implemented/process/2026-09-23-scope-nonfinal-phase-tests-to-blast-radius.md",
+      "docs/policy/ci-cd-lifecycle-contract.md",
+      "tests/skills/test_cicd_lifecycle_contract.py",
+      "tests/skills/test_implement_lifecycle_contract.py",
+      "tests/skills/test_installer_parity_lifecycle.py",
+      "tests/skills/test_plan_lifecycle_contract.py"
+    ],
+    "expected_new_paths": [
+      "docs/decisions/implemented/process/2026-10-18-complete-plan-validation-cadence.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/validation-cadence-applied.json"
+    ],
+    "unexpected_changed_missing_or_new_paths": [],
+    "hash_scope": "All frozen native inputs remain identical; only the reviewed policy and its tests plus the policy receipt differ.",
+    "handbook_check": "pass",
+    "decision_records_valid": 82,
+    "ruff_exit": 0
+  }
+}

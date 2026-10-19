@@ -1,6 +1,7 @@
 ---
 name: code-reviewer
 description: Comprehensive code review focused on correctness, maintainability, and SOLID principles. Use on completed feature branches, PRs, or individual files before merge. Produces structured findings with severity ratings and actionable recommendations.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

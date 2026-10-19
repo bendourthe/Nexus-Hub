@@ -29,6 +29,10 @@ on_windows = pytest.mark.skipif(not WINDOWS, reason="console windows exist only 
 
 # Prints the child's console window handle (0 = no window) and how many processes
 # share its console (0 = no console at all).
+# A venv redirector can create a new console after Windows detached it.
+# Measure creation flags on the underlying interpreter, without that extra hop.
+PYTHON = getattr(sys, "_base_executable", sys.executable)
+
 PROBE = (
     "import ctypes; k = ctypes.windll.kernel32; ids = (ctypes.c_uint * 4)(); "
     "print(int(k.GetConsoleWindow() or 0), k.GetConsoleProcessList(ids, 4))"
@@ -36,7 +40,7 @@ PROBE = (
 
 
 def _probe(**kwargs: object) -> tuple[int, int]:
-    out = subprocess.run([sys.executable, "-c", PROBE], capture_output=True, text=True,
+    out = subprocess.run([PYTHON, "-c", PROBE], capture_output=True, text=True,
                          check=True, timeout=60, **kwargs).stdout.split()
     return int(out[0]), int(out[1])
 
@@ -62,7 +66,7 @@ def test_the_checker_run_from_a_detached_process_opens_no_window() -> None:
         f"rc, out, _ = ck._run_with_stderr([sys.executable, '-c', {PROBE!r}], ck.Budget(60)); "
         "print(out.strip())"
     )
-    out = subprocess.run([sys.executable, "-c", script, str(SCRIPTS)], capture_output=True, text=True,
+    out = subprocess.run([PYTHON, "-c", script, str(SCRIPTS)], capture_output=True, text=True,
                          check=True, timeout=120, stdin=subprocess.DEVNULL,
                          creationflags=subprocess.DETACHED_PROCESS).stdout.split()
     assert int(out[0]) == 0, "a child of the detached checker opened a console window"

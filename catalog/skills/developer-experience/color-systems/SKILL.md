@@ -30,6 +30,9 @@ Use when the user mentions a color system, palette, OKLCH, contrast pair, gamut,
 
 ## Instructions
 
+Design-system lint: hand off to `interface-review` for the runnable contract and coverage record; keep this skill's domain rules here. Follow the verifier taxonomy owned by [[multi-agent-code-review]].
+
+
 ### 1. Prefer OKLCH for new scales
 
 HSL lightness is not perceptually even: the same `L` on yellow and on blue does not look equally bright. OKLCH lightness is built to match perceived brightness, so a 10-step scale can share one L ramp across hues.

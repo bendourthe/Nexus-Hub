@@ -14,6 +14,12 @@ SOURCES = {
     "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
     "tests-windows": "ci-windows-reports",
     "tests-windows-installer": "ci-windows-installer-reports",
+    "tests-windows-installer-core": "ci-windows-installer-core-reports",
+    "bootstrap": ("ci-bootstrap-reports-ubuntu-latest", "ci-bootstrap-reports-macos-latest"),
+    "bootstrap-windows": "ci-bootstrap-windows-reports",
+    "install-smoke": tuple("ci-registry-smoke-reports-" + host for host in ("ubuntu-latest", "macos-latest", "windows-latest")),
+    "installer-smoke": tuple("ci-workspace-smoke-reports-" + host for host in ("ubuntu-latest", "macos-latest", "windows-latest")),
+    "claude-plugin-load": "ci-host-plugin-reports",
 }
 
 

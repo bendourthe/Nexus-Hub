@@ -1,0 +1,30 @@
+{
+  "ci_head": "5734e0e21c00ffd5e287e7c683d2a611236f4aaa",
+  "job_url": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39099626463/job/117593089552",
+  "ci_result": "294 passed,1 failed in197.14s;rich-profile PowerShell startup exits70 before installer harness",
+  "error": "Index was out of range (startIndex)",
+  "image": "windows-2025-vs2026/20261007.264",
+  "image_manifest": "https://github.com/actions/runner-images/blob/win25-vs2026/20261007.264/images/windows/Windows2025-VS2026-Readme.md",
+  "image_powershell": "7.6.6",
+  "local_probes": [
+    {
+      "runtime": "7.6.7",
+      "parent": "PowerShell7",
+      "cases": 3,
+      "passed": 3,
+      "seconds": 17.46
+    },
+    {
+      "runtime": "7.6.6",
+      "parent": "PowerShell7",
+      "cases": 3,
+      "passed": 3,
+      "seconds": 4.03,
+      "official_archive_sha256": "02fe458be20493fbdf43f61ea20610b811ee6c738ab1676c61b9cfcd1a33c860"
+    }
+  ],
+  "reproduced": false,
+  "source_or_test_fix_applied": false,
+  "test_skipped_or_assertions_weakened": false,
+  "disposition": "Open separate environment finding. Do not rerun the red check or claim repaired without local causal reproduction. Earlier synthetic startup probes used literal Unicode escape text and are not actual Unicode-path proof; the actual test-module probes above do exercise Unicode."
+}

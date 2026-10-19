@@ -258,7 +258,13 @@ def test_repository_is_colocated() -> None:
 def test_workflow_invokes_the_script_and_is_unfiltered() -> None:
     """The required `colocation` context must stay unconditionally produced."""
     wf = (REPO_ROOT / ".github/workflows/doc-colocation.yml").read_text(encoding="utf-8")
-    assert "scripts/check_doc_colocation.py" in wf
+    assert "scripts/ci/run.py --profile full --only doc-colocation" in wf
+    from scripts.ci.profiles import DOC_COLOCATION
+
+    assert DOC_COLOCATION.scope_key is None
+    command, = DOC_COLOCATION.commands
+    assert command.argv[1:] == ["scripts/check_doc_colocation.py", "--verbose"]
+    assert not command.platforms
     assert "paths:" not in wf, "workflow-level path filtering leaves the required check Pending forever"
 
 

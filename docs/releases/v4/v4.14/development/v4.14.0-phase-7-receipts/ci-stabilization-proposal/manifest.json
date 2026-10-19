@@ -1,0 +1,26 @@
+{
+  "applied": false,
+  "head": "5734e0e21c00ffd5e287e7c683d2a611236f4aaa",
+  "files": [
+    {
+      "path": ".pre-commit-config.yaml",
+      "before_sha256": "892385a2c77afbff102cee2ee91b498ac9563cd2101ce637948366533d5cf027",
+      "after_sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+      "before_copy": "pre-commit.before",
+      "candidate_copy": "pre-commit.candidate"
+    },
+    {
+      "path": ".github/workflows/presentify-extractor.yml",
+      "before_sha256": "12bc9169404682064f56e9f1aaa0adb2e4037a50e5be51f038894d0a2c5f078e",
+      "after_sha256": "eee2159892123f8b83741546562a2a3283cdd8b5716f23cbae972f7dd91ace33",
+      "before_copy": "presentify-extractor.before",
+      "candidate_copy": "presentify-extractor.candidate"
+    }
+  ],
+  "frozen_receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-ps1.diff",
+  "frozen_receipt_sha256": "f3f69b2c6ef795d0ec314e1c334128cafdf26772c7da5a7bad1ca1e4cc2fe4ea",
+  "scope": "Three settings in two CI files: exact Phase7 retained patch subtree excluded from two mutating formatters; existing pinned PyYAML added to render dependencies",
+  "semantic_differences": 3,
+  "pins": "scripts/ci/requirements-py311.txt pyyaml==6.0.3",
+  "new_guard_accepts": 0
+}

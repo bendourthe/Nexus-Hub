@@ -14,7 +14,8 @@ Surfaces (re-verified 2026-07-21, v3.15.0 Phase 3, against https://opencode.ai/d
     (project) -- Markdown files with YAML frontmatter, the filename being the agent
     id; ``mode`` is OPTIONAL and defaults to ``all``. The catalog's ``agents/*.md``
     files (``name`` / ``description`` / ``tools`` frontmatter) load with the
-    ``tools`` line removed: OpenCode uses ``description`` + the filename, defaults
+    ``tools`` line and Claude-only ``model`` alias removed: OpenCode uses
+    ``description`` + the filename, defaults
     ``mode: all`` since it is absent, and applies its own ``permission`` model, so
     the agent PROMPT body is delivered verbatim. Since OpenCode 1.18 the Claude-style
     ``tools`` string is a configuration error rather than an ignored key (v4.13.2).

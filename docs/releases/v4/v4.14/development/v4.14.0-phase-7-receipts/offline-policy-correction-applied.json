@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-10-17T06:16:38.514277+00:00",
+  "path": "extensions/nexus-code-search/tests/test_offline_policy.py",
+  "before_sha256": "45b5e57e814afcd309040599c9e6c4c8db02a7b8f268c7507c4c40a1c33aa3ac",
+  "after_sha256": "96fcd394b9b9b9fca5499d59369234abc6a0b110194e53bb8adf29bdebf0ad4c",
+  "patch_sha256": "fda483819843d56325161038d26e7eae41218b07893d065fa804a0b971a9137d",
+  "scope": "One existing test function, typed temporary pytest import-path fixture and canonical profile assertions. OriginalCRLF retained. No workflow, engine, configuration, permission or secret byte changed.",
+  "authorization": "Existing explicit user request to add/update necessary tests. Exact skill owners restrict fresh blocker to workflow/pipeline, permission and secret changes; this ordinary test-only repair is covered. No blocker6created.",
+  "review": {
+    "correctness": "No findings; old extension-cwd import fails, final extension-cwd and repository caller pass; sys.path restored.",
+    "standards": "No findings; exact two-line fixture delta and unchanged assertions verified."
+  },
+  "candidate_controls": {
+    "six_weakened_mutations_rejected": true,
+    "ruff": "pass",
+    "prior_linux_385_and_benchmark": "passed before import fixture correction; not final-after-byte proof"
+  },
+  "application": {
+    "guard_read": 0,
+    "guard_check": 0,
+    "guard_record": 0,
+    "accepts": 0
+  },
+  "remaining": "Run actual native policy file, actual canonical offline group, full profile and green integration. Full session11573was stillbeforeextensionpartition at application."
+}

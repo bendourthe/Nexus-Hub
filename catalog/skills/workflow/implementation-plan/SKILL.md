@@ -153,6 +153,14 @@ is indistinguishable from a skipped check.
 |---|---|---|
 | vX.Y.Z <slug> | content / ordering / no impact / unknown | [what changes for THIS plan] |]
 
+## Implementation dependencies and ownership
+
+[REQUIRED. Apply [[plan-queue-assessment]] to list actual implementation prerequisites and their proving merged commits, complete repository-relative read paths and exclusive write paths including tests, this plan file and plan-specific evidence, plus coordinator-owned metadata deltas. Use literal file paths or directory paths ending in `/`, never globs. Task-derived touched paths are only a lower bound. Record candidate concurrent groups and any unknown compatibility. Release order is semantic-version order and is not an implementation dependency.]
+
+`{"depends_on": [], "read_paths": [], "write_paths": []}`
+
+[The coordinator owns shared known-gaps ledgers, CHANGELOG, version/release metadata and docs/todos. Workers propose those deltas separately, leaving any original implementation tasks unchecked until the coordinator applies and tests the changes. Native admission validates claims through the completion contract; [[implement-phase]] owns automatic dispatch, bounded capacity and ordered publication.]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -254,15 +262,10 @@ implementation; an absolute invites a wrong edit to make the number match.
 
 #### N.X -- Testing and Stabilization
 
-**Objective**: Generate and run all tests for this phase. Iterate until the phase is
-stable before advancing to Phase N+1.
+**Objective**: Run focused tests and cheap checks for this phase, preserving the complete-plan validation gate in the final phase.
 
 **Prompt**:
-> Generate automated tests for everything built in Phase N. This should include:
-> [list the specific kinds of automated tests appropriate for this phase: unit tests, integration
-> tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
-> iterate until all automated tests pass and the implementation is stable. Do not proceed to
-> Phase N+1 until this phase is fully tested and verified.
+> Add or update focused tests for genuinely new behavior in Phase N, and run the affected tests plus the repository's cheap fast checks. Use [[cicd-integration]] for test selection and evidence reuse. Fix failures in this scope before advancing. Defer the full suite, project coverage collection, broad platform validation, E2E sweeps, performance benchmarks and coverage-driven augmentation to the final phase after all implementation tasks are complete. A specific expensive check runs earlier only when it is this phase's explicit deliverable or a named risk needs that check before dependent work; record the scope and reason.
 > Exercise the phase's declared Verification Expectation through [[functional-verification]] and record the observed result. The plan names the artifact, action, and expected observation; the delegated skill owns the procedure.
 > Then record this phase's CI IMPACT against `[[cicd-architect]]` without running remote CI:
 > name any new command, dependency, environment variable, test path, or artifact this phase
@@ -273,7 +276,7 @@ stable before advancing to Phase N+1.
 > still be written.
 > Do not ask the user to manually exercise an incomplete feature, and do not emit human or
 > manual testing suggestions on a non-final phase. Those belong only in the last phase.
-> After all automated tests pass, run `/generate-session-history` to document Phase N, then
+> After the focused tests pass, run `/generate-session-history` to document Phase N, then
 > create ONE local commit scoped to this phase.
 > Do NOT push, do NOT open a pull request, and do NOT start remote CI. Branch publication and
 > remote validation belong to the final phase only.
@@ -293,7 +296,7 @@ stable before advancing to Phase N+1.
 ### Phase N Exit Checklist
 
 - [ ] All sub-tasks completed
-- [ ] All tests passing (unit, integration, and any phase-specific tests)
+- [ ] Focused phase tests and cheap checks pass; comprehensive validation is scheduled once after all implementation tasks are complete
 - [ ] No known regressions from prior phases
 - [ ] Verification expectation exercised and its observable result recorded
 - [ ] CI impact recorded against the canonical contract, with no remote CI run
@@ -348,6 +351,10 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Publication is terminal | The final phase owns the plan's single branch publication, the integration pull request, and the wait for required checks. Release work starts only after that integration result is green and merged. |
 
 ---
+
+## Parallel implementation metadata
+
+Generate the required dependency and ownership section from the queue assessment before decomposition. Specify complete source, test and evidence claims, the contract between concurrent plans, and each unknown that requires serial execution. Independent whole-plan implementation may precede earlier releases; publication remains ordered. Preserve the focused intermediate checks and complete-plan final validation below. For an already approved frozen plan, write the refreshed assessment as a release-scoped sidecar and pass its claims to native admission; do not change the frozen plan prose.
 
 ## Instructions
 
@@ -480,6 +487,9 @@ Create no branch. Commit the plan and its tracker entry on the integration branc
 | "The implementer can pick the vendor while they code the slice" | That hides a blocking decision inside an implementation ticket. Mark it `decision:` and resolve it before the slices it unblocks, or two phases ship incompatible forks. |
 
 ## Verification
+
+- [ ] `## Implementation dependencies and ownership` lists actual prerequisites, complete literal read/write claims, coordinator-owned deltas, candidate concurrent groups and unknown compatibility, or an assessment sidecar supplies these for a frozen plan.
+- [ ] Implementation concurrency is assessed independently of semantic-version release order; no task requires an unrelated earlier release merely to start implementation.
 
 - [ ] Plan type, version, and slug all resolved and confirmed with the user
 - [ ] All discovery questions answered (optional "additional context" question may be skipped)

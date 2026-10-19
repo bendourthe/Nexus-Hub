@@ -1,0 +1,2221 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -457,6 +457,51 @@
+           if-no-files-found: warn
+           retention-days: 7
+ 
++  tests-windows-installer-core:
++    # PowerShell 7 has a different JSON reader; 5.1 remains in its existing job.
++    needs: changes
++    runs-on: windows-latest
++    timeout-minutes: 30
++    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
++    steps:
++      - name: Enable Git long paths before checkout
++        if: runner.os == 'Windows'
++        shell: pwsh
++        run: git config --global core.longpaths true
++
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
++
++      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
++        with:
++          python-version: '3.11'
++          cache: 'pip'
++          cache-dependency-path: |
++            scripts/ci/requirements-windows.in
++            scripts/ci/requirements-py311.txt
++
++      - name: Install test dependencies
++        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
++
++      - name: PowerShell 7 installer boundary group
++        # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
++        # here, so a developer running `make ci-platform` on Windows gets the
++        # same edition under test as CI does.
++        run: python scripts/ci/run.py --profile platform --only windows-installer-core --reports-dir reports
++
++      - name: Publish the run summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain Windows reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-windows-installer-core-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+   bootstrap:
+     # Exercise the dual-mode self-fetching bootstrap end to end on a clean
+     # machine (no pre-existing clone). The bash entry point runs the FULL
+@@ -488,63 +533,26 @@
+         with:
+           python-version: '3.11'
+ 
+-      - name: Build a GitHub-shaped catalog tarball from the checkout
+-        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+-
+-      - name: bash standalone bootstrap end-to-end (no prior clone) + nexus-hub --version
+-        run: |
+-          set -uo pipefail
+-          # macOS mktemp needs an explicit template; this form is GNU- and BSD-safe.
+-          home="$(mktemp -d "${TMPDIR:-/tmp}/nexus-ci.XXXXXX")/home"
+-          mkdir -p "$home"
+-          HOME="$home" NEXUS_HUB_FORCE_STANDALONE=1 NEXUS_HUB_TARBALL="$RUNNER_TEMP/catalog.tar.gz" \
+-            bash install.sh < /dev/null || echo "core installer exited non-zero (rc=$?); asserting artifacts"
+-          test -f "$home/.nexus-hub/src/scripts/installer.sh" \
+-            || { echo "FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src"; exit 1; }
+-          test -d "$home/.nexus-hub" \
+-            || { echo "FAIL: ~/.nexus-hub not populated"; exit 1; }
+-          echo "OK: standalone bootstrap populated $home/.nexus-hub"
+-          launcher="$home/.nexus-hub/bin/nexus-hub"
+-          core="$home/.nexus-hub/src/scripts/nexus_hub_cli.py"
+-          export NEXUS_HUB_HOME="$home/.nexus-hub"
+-          if [ -x "$launcher" ]; then
+-            ver="$("$launcher" --version)" \
+-              || { echo "FAIL: nexus-hub launcher --version exited non-zero"; exit 1; }
+-            echo "launcher: $ver"
+-          elif [ -f "$core" ]; then
+-            echo "WARN: launcher not installed; checking the extracted CLI core"
+-            ver="$(python3 "$core" --version)" \
+-              || { echo "FAIL: nexus_hub_cli.py --version exited non-zero"; exit 1; }
+-            echo "core: $ver"
+-          else
+-            echo "FAIL: neither the nexus-hub launcher nor the CLI core is present"; exit 1
+-          fi
+-          printf '%s\n' "$ver" | grep -qE 'nexus-hub [0-9]+\.[0-9]+\.[0-9]+' \
+-            || { echo "FAIL: unexpected --version output: $ver"; exit 1; }
+-          echo "OK: nexus-hub --version works ($ver)"
+-
+-      - name: bash missing-tool simulation exits non-zero with a clear message
+-        run: |
+-          set -uo pipefail
+-          bash_bin="$(command -v bash)"
+-          out="$(PATH='' NEXUS_HUB_FORCE_STANDALONE=1 "$bash_bin" install.sh 2>&1)" && rc=0 || rc=$?
+-          printf '%s\n' "$out"
+-          test "$rc" -ne 0 || { echo "FAIL: expected a non-zero exit"; exit 1; }
+-          printf '%s\n' "$out" | grep -qi curl || { echo "FAIL: message did not name curl/wget"; exit 1; }
+-          echo "OK: missing-tool path exits $rc with a clear message"
+-
+-      - name: PowerShell bootstrap AST parse + precheck (pwsh)
+-        shell: pwsh
+-        run: |
+-          $errs = $null
+-          $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path ./install.ps1).Path, [ref]$null, [ref]$errs)
+-          if ($errs -and $errs.Count -gt 0) { $errs | ForEach-Object { Write-Host $_.Message }; exit 1 }
+-          Write-Host "install.ps1 AST OK"
+-          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
+-          $env:NEXUS_HUB_PRECHECK_ONLY = '1'
+-          pwsh -NoProfile -File ./install.ps1
+-          if ($LASTEXITCODE -ne 0) { Write-Host "FAIL: precheck exit $LASTEXITCODE"; exit 1 }
+-          Write-Host "OK: pwsh precheck passed"
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
++        with:
++          node-version: '22'
++
++      - name: Repository-native bootstrap-smoke profile
++        run: python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-bootstrap-reports-${{ matrix.os }}
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   bootstrap-windows:
+     # The `irm | iex` standalone flow is a Windows-native path that only a
+@@ -571,43 +579,26 @@
+         with:
+           python-version: '3.11'
+ 
+-      - name: Build a GitHub-shaped catalog tarball from the checkout
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
++        with:
++          node-version: '22'
++
++      - name: Repository-native bootstrap-smoke profile
++        run: python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
+         shell: bash
+-        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+-
+-      - name: PowerShell standalone bootstrap end-to-end + nexus-hub --version
+-        shell: powershell
+-        run: |
+-          $nxHome = Join-Path $env:RUNNER_TEMP ("nexus-home-" + [System.Guid]::NewGuid().ToString("N"))
+-          New-Item -ItemType Directory -Force -Path $nxHome | Out-Null
+-          $env:USERPROFILE = $nxHome
+-          $env:HOME = $nxHome
+-          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
+-          $env:NEXUS_HUB_TARBALL = (Join-Path $env:RUNNER_TEMP 'catalog.tar.gz')
+-          # Windows PowerShell 5.1 is the documented floor and the `irm | iex`
+-          # default on Windows. Tolerate the core installer's exit code; the
+-          # extraction and version assertions below are the real gate.
+-          & .\install.ps1
+-          Write-Host "bootstrap rc=$LASTEXITCODE (asserting artifacts below)"
+-          $nx = Join-Path $nxHome '.nexus-hub'
+-          if (-not (Test-Path (Join-Path $nx 'src\scripts\installer.ps1'))) { Write-Host 'FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src'; exit 1 }
+-          if (-not (Test-Path $nx)) { Write-Host 'FAIL: ~/.nexus-hub not populated'; exit 1 }
+-          Write-Host "OK: standalone bootstrap populated $nx"
+-          $env:NEXUS_HUB_HOME = $nx
+-          $launcher = Join-Path $nx 'bin\nexus-hub.cmd'
+-          $core = Join-Path $nx 'src\scripts\nexus_hub_cli.py'
+-          if (Test-Path $launcher) {
+-            $ver = (& $launcher --version | Out-String).Trim()
+-            Write-Host "launcher: $ver"
+-          } elseif (Test-Path $core) {
+-            Write-Host 'WARN: launcher not installed; checking the extracted CLI core'
+-            $ver = (& python $core --version | Out-String).Trim()
+-            Write-Host "core: $ver"
+-          } else {
+-            Write-Host 'FAIL: neither the nexus-hub launcher nor the CLI core is present'; exit 1
+-          }
+-          if ("$ver" -notmatch 'nexus-hub \d+\.\d+\.\d+') { Write-Host "FAIL: unexpected --version output: $ver"; exit 1 }
+-          Write-Host "OK: nexus-hub --version works ($ver)"
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-bootstrap-windows-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   install-smoke:
+     # Prove the catalog lands at each platform's real read-path and that the
+@@ -636,60 +627,22 @@
+         with:
+           python-version: '3.11'
+ 
+-      - name: Global registry install into a throwaway HOME, then verify read-paths (bash)
+-        if: runner.os != 'Windows'
++      - name: Repository-native registry-smoke profile
++        run: python scripts/ci/run.py --profile platform --only registry-smoke --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
+         shell: bash
+-        run: |
+-          set -uo pipefail
+-          home="$(mktemp -d "${TMPDIR:-/tmp}/nx-smoke.XXXXXX")/home"
+-          mkdir -p "$home"
+-          HOME="$home" python scripts/lib/integrations/runner.py install --scope global \
+-            --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
+-          out="$(HOME="$home" python scripts/lib/integrations/runner.py verify --target "$home" 2>&1 || true)"
+-          printf '%s\n' "$out"
+-          for expect in \
+-            "Claude -- commands:ok, skills:ok" \
+-            "Codex / ChatGPT -- ~/.agents/skills:ok" \
+-            "Gemini IDE -- GEMINI.md:ok" \
+-            "Antigravity 2.0 IDE (global) -- skills:ok" \
+-            "OpenCode -- skills:ok"; do
+-            printf '%s\n' "$out" | grep -qF "$expect" \
+-              || { echo "FAIL: read-path not populated: $expect"; exit 1; }
+-          done
+-          echo "OK: global platform read-paths populated on ${{ matrix.os }}"
+-
+-      - name: Project auto-seed smoke (Linux only) - init seeds .agents/workflows
+-        if: runner.os == 'Linux'
+-        shell: bash
+-        run: |
+-          set -uo pipefail
+-          repo="$(mktemp -d "${TMPDIR:-/tmp}/nx-proj.XXXXXX")/proj"
+-          mkdir -p "$repo"
+-          git -C "$repo" init -q
+-          python scripts/lib/integrations/runner.py init --target "$repo" --quiet
+-          test -n "$(ls -A "$repo/.agents/workflows" 2>/dev/null)" \
+-            || { echo "FAIL: init did not populate .agents/workflows in the current repo"; exit 1; }
+-          echo "OK: project auto-seed populated .agents/workflows"
+-
+-      - name: Global registry install into a throwaway HOME, then verify read-paths (PowerShell)
+-        if: runner.os == 'Windows'
+-        shell: powershell
+-        run: |
+-          $h = Join-Path $env:RUNNER_TEMP ("nx-" + [System.Guid]::NewGuid().ToString("N"))
+-          New-Item -ItemType Directory -Force -Path $h | Out-Null
+-          $env:USERPROFILE = $h; $env:HOME = $h
+-          & python scripts\lib\integrations\runner.py install --scope global --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
+-          $out = (& python scripts\lib\integrations\runner.py verify --target $h | Out-String)
+-          Write-Host $out
+-          foreach ($expect in @(
+-            "Claude -- commands:ok, skills:ok",
+-            "Codex / ChatGPT -- ~/.agents/skills:ok",
+-            "Gemini IDE -- GEMINI.md:ok",
+-            "Antigravity 2.0 IDE (global) -- skills:ok",
+-            "OpenCode -- skills:ok")) {
+-            if ($out -notmatch [regex]::Escape($expect)) { Write-Host "FAIL: read-path not populated: $expect"; exit 1 }
+-          }
+-          Write-Host "OK: global platform read-paths populated (Windows)"
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-registry-smoke-reports-${{ matrix.os }}
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   installer-smoke:
+     # Run the REAL platform-native installers into redirected HOME and workspace
+@@ -716,48 +669,30 @@
+         with:
+           python-version: '3.11'
+ 
+-      - name: Real workspace install and shared assertions (POSIX)
+-        if: runner.os != 'Windows'
++      - name: Install native macOS attribution test dependencies
++        if: runner.os == 'macOS'
++        run: python -m pip install --quiet pytest PyYAML
++
++      - name: Repository-native workspace-smoke profile
++        run: python scripts/ci/run.py --profile platform --only workspace-smoke --reports-dir reports
++
++      - name: Native macOS attribution profile
++        if: runner.os == 'macOS'
++        run: python scripts/ci/run.py --profile platform --only macos-attribution --reports-dir reports/attribution
++
++      - name: Publish native profile summary
++        if: always()
+         shell: bash
+-        run: |
+-          set -euo pipefail
+-          smoke_root="$RUNNER_TEMP/nexus-installer-smoke"
+-          home="$smoke_root/home"
+-          workspace="$smoke_root/workspace"
+-          mkdir -p "$home" "$workspace"
+-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_HOME="$home/.nexus-hub" \
+-            python scripts/nexus_hub_cli.py org connect "$PWD/configs/examples/org-bundle-example" --force
+-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_NO_AUTOSEED=1 \
+-            bash scripts/installer.sh --workspace "$workspace" --platforms claude --yes
+-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_HOME="$home/.nexus-hub" \
+-            python scripts/check_installer_smoke.py --home "$home" --workspace "$workspace"
+-
+-      - name: Real workspace install and shared assertions (Windows PowerShell 5.1)
+-        if: runner.os == 'Windows'
+-        shell: powershell
+-        run: |
+-          $smokeRoot = Join-Path $env:RUNNER_TEMP 'nexus-installer-smoke'
+-          $smokeHome = Join-Path $smokeRoot 'home'
+-          $workspace = Join-Path $smokeRoot 'workspace'
+-          New-Item -ItemType Directory -Force -Path $smokeHome, $workspace | Out-Null
+-          $env:USERPROFILE = $smokeHome
+-          $env:HOME = $smokeHome
+-          $env:NEXUS_HUB_HOME = Join-Path $smokeHome '.nexus-hub'
+-          $env:NEXUS_HUB_NO_AUTOSEED = '1'
+-          $orgBundle = (Resolve-Path 'configs\examples\org-bundle-example').Path
+-          & python scripts\nexus_hub_cli.py org connect $orgBundle --force
+-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+-          & powershell -NoProfile -ExecutionPolicy Bypass -File scripts\installer.ps1 -Workspace $workspace -Platforms claude -Yes
+-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+-          & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
+-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+-
+-      - name: User attribution through native macOS Git and installer
+-        if: runner.os == 'macOS'
+-        shell: bash
+-        run: |
+-          python -m pip install --quiet pytest PyYAML
+-          python -m pytest -q tests/test_git_attribution.py -k 'not powershell'
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-workspace-smoke-reports-${{ matrix.os }}
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   claude-plugin-load:
+     # This catches the achieved-property defect that manifest schema checks,
+@@ -779,27 +714,22 @@
+       - name: Install the Claude Code host with its native binary
+         run: npm install --global @anthropic-ai/claude-code@2.1.280
+ 
+-      - name: Install and verify Nexus-Hub from an isolated host configuration
+-        env:
+-          CLAUDE_CONFIG_DIR: ${{ runner.temp }}/nexus-claude-plugin-${{ github.run_id }}-${{ github.job }}
+-        run: |
+-          set -euo pipefail
+-          mkdir -p "${CLAUDE_CONFIG_DIR}"
+-          claude plugin marketplace add ./
+-          claude plugin install nexus-hub@nexus-hub
+-          listing="${CLAUDE_CONFIG_DIR}/plugin-list.json"
+-          claude plugin list --json | tee "${listing}"
+-          python - "${listing}" <<'PY'
+-          import json
+-          import sys
+-          from pathlib import Path
+-
+-          installed = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+-          matches = [item for item in installed if item.get("id") == "nexus-hub@nexus-hub"]
+-          if len(matches) != 1 or matches[0].get("enabled") is not True:
+-              raise SystemExit("nexus-hub@nexus-hub is not installed and enabled")
+-          print("OK: nexus-hub@nexus-hub is installed and enabled")
+-          PY
++      - name: Repository-native host-plugin-load profile
++        run: python scripts/ci/run.py --profile platform --only host-plugin-load --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: ci-host-plugin-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   report:
+     needs:
+@@ -809,6 +739,12 @@
+       - guide-render
+       - tests-windows
+       - tests-windows-installer
++      - tests-windows-installer-core
++      - bootstrap
++      - bootstrap-windows
++      - install-smoke
++      - installer-smoke
++      - claude-plugin-load
+     if: always()
+     runs-on: ubuntu-latest
+     timeout-minutes: 15
+@@ -835,6 +771,12 @@
+           RESULT_GUIDE_RENDER: ${{ needs['guide-render'].result }}
+           RESULT_TESTS_WINDOWS: ${{ needs['tests-windows'].result }}
+           RESULT_TESTS_WINDOWS_INSTALLER: ${{ needs['tests-windows-installer'].result }}
++          RESULT_TESTS_WINDOWS_INSTALLER_CORE: ${{ needs['tests-windows-installer-core'].result }}
++          RESULT_BOOTSTRAP: ${{ needs.bootstrap.result }}
++          RESULT_BOOTSTRAP_WINDOWS: ${{ needs['bootstrap-windows'].result }}
++          RESULT_INSTALL_SMOKE: ${{ needs['install-smoke'].result }}
++          RESULT_INSTALLER_SMOKE: ${{ needs['installer-smoke'].result }}
++          RESULT_CLAUDE_PLUGIN_LOAD: ${{ needs['claude-plugin-load'].result }}
+         run: |
+           python scripts/ci/run.py --profile report --reports-dir reports \
+             --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
+@@ -844,7 +786,18 @@
+             --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \
+             --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \
+             --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS \
+-            --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER
++            --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER \
++            --expect-artifact ci-windows-installer-core-reports=$RESULT_TESTS_WINDOWS_INSTALLER_CORE \
++            --expect-artifact ci-bootstrap-reports-ubuntu-latest=$RESULT_BOOTSTRAP \
++            --expect-artifact ci-bootstrap-reports-macos-latest=$RESULT_BOOTSTRAP \
++            --expect-artifact ci-bootstrap-windows-reports=$RESULT_BOOTSTRAP_WINDOWS \
++            --expect-artifact ci-registry-smoke-reports-ubuntu-latest=$RESULT_INSTALL_SMOKE \
++            --expect-artifact ci-registry-smoke-reports-macos-latest=$RESULT_INSTALL_SMOKE \
++            --expect-artifact ci-registry-smoke-reports-windows-latest=$RESULT_INSTALL_SMOKE \
++            --expect-artifact ci-workspace-smoke-reports-ubuntu-latest=$RESULT_INSTALLER_SMOKE \
++            --expect-artifact ci-workspace-smoke-reports-macos-latest=$RESULT_INSTALLER_SMOKE \
++            --expect-artifact ci-workspace-smoke-reports-windows-latest=$RESULT_INSTALLER_SMOKE \
++            --expect-artifact ci-host-plugin-reports=$RESULT_CLAUDE_PLUGIN_LOAD
+ 
+       - name: Publish aggregate summary
+         if: always()
+@@ -898,6 +851,7 @@
+       - guide-render
+       - tests-windows
+       - tests-windows-installer
++      - tests-windows-installer-core
+       - bootstrap
+       - bootstrap-windows
+       - install-smoke
+@@ -917,6 +871,7 @@
+           R_guide_render: ${{ needs['guide-render'].result }}
+           R_tests_windows: ${{ needs['tests-windows'].result }}
+           R_tests_windows_installer: ${{ needs['tests-windows-installer'].result }}
++          R_tests_windows_installer_core: ${{ needs['tests-windows-installer-core'].result }}
+           R_bootstrap: ${{ needs.bootstrap.result }}
+           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
+           R_install_smoke: ${{ needs['install-smoke'].result }}
+diff --git a/.github/workflows/claude-usage-monitor.yml b/.github/workflows/claude-usage-monitor.yml
+--- a/.github/workflows/claude-usage-monitor.yml
++++ b/.github/workflows/claude-usage-monitor.yml
+@@ -15,10 +15,11 @@
+     paths:
+       - 'extensions/claude-usage-monitor/**'
+       - '.github/workflows/claude-usage-monitor.yml'
++      - 'scripts/ci/**'
+ 
+ # Cancel superseded runs of the same ref (the single largest action-minute saver).
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -31,9 +32,6 @@
+   build-and-test:
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+-    defaults:
+-      run:
+-        working-directory: extensions/claude-usage-monitor
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+@@ -47,10 +45,22 @@
+         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+         # them; ttf2woff2 is used only by the local icon generator, not this job.
+-        run: npm ci --ignore-scripts
++        run: npm ci --ignore-scripts --prefix extensions/claude-usage-monitor
+ 
+-      - name: Compile (tsc)
+-        run: npm run compile
++      - name: Repository-native claude-usage-monitor profile
++        run: python scripts/ci/run.py --profile full --only claude-usage-monitor --reports-dir reports
+ 
+-      - name: Unit tests with coverage (Vitest)
+-        run: npm run test:coverage
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: claude-usage-monitor-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+diff --git a/.github/workflows/code-search.yml b/.github/workflows/code-search.yml
+--- a/.github/workflows/code-search.yml
++++ b/.github/workflows/code-search.yml
+@@ -16,13 +16,14 @@
+     paths:
+       - 'extensions/nexus-code-search/**'
+       - '.github/workflows/code-search.yml'
++      - 'scripts/ci/**'
+       - 'scripts/ci/requirements.in'
+       - 'scripts/ci/requirements-py311.txt'
+ 
+ # Cancel superseded runs of the same ref so only the latest commit's run
+ # survives (the single largest action-minute saver).
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -39,33 +40,20 @@
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+-      - name: Build the offline test image
+-        run: |
+-          docker build --tag nexus-code-search-offline --build-context ci=scripts/ci --file - extensions/nexus-code-search <<'DOCKERFILE'
+-          # syntax=docker/dockerfile:1
+-          FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
+-          WORKDIR /workspace
+-          COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
+-          ENV PIP_CONSTRAINT=/package/requirements-py311.txt
+-          RUN apt-get update \
+-              && apt-get install --yes --no-install-recommends git=1:2.47.3-0+deb13u1 \
+-              && rm -rf /var/lib/apt/lists/*
+-          COPY pyproject.toml README.md /package/
+-          COPY src /package/src
+-          COPY tests /package/tests
+-          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+-          DOCKERFILE
++      - name: Repository-native code-search-offline profile
++        run: python scripts/ci/run.py --profile full --only code-search-offline --reports-dir reports
+ 
+-      - name: Full suite and benchmark with egress denied
+-        run: |
+-          docker run --rm --network none \
+-            --env NEXUS_CODE_SEARCH_BLOCK_NETWORK=1 \
+-            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+-            nexus-code-search-offline bash -c '
+-            set -euo pipefail
+-            test -d /sys/class/net/lo
+-            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
+-            python -m pytest extensions/nexus-code-search/tests/ -q -p no:cacheprovider
+-            cd extensions/nexus-code-search
+-            python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md
+-          '
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: code-search-offline-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+diff --git a/.github/workflows/codex-usage-monitor.yml b/.github/workflows/codex-usage-monitor.yml
+--- a/.github/workflows/codex-usage-monitor.yml
++++ b/.github/workflows/codex-usage-monitor.yml
+@@ -15,10 +15,11 @@
+     paths:
+       - 'extensions/codex-usage-monitor/**'
+       - '.github/workflows/codex-usage-monitor.yml'
++      - 'scripts/ci/**'
+ 
+ # Cancel superseded runs of the same ref (the single largest action-minute saver).
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -31,9 +32,6 @@
+   build-and-test:
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+-    defaults:
+-      run:
+-        working-directory: extensions/codex-usage-monitor
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+@@ -47,10 +45,22 @@
+         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+         # them; ttf2woff2 is used only by the local icon generator, not this job.
+-        run: npm ci --ignore-scripts
++        run: npm ci --ignore-scripts --prefix extensions/codex-usage-monitor
+ 
+-      - name: Compile (tsc)
+-        run: npm run compile
++      - name: Repository-native codex-usage-monitor profile
++        run: python scripts/ci/run.py --profile full --only codex-usage-monitor --reports-dir reports
+ 
+-      - name: Unit tests with coverage (Vitest)
+-        run: npm run test:coverage
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: codex-usage-monitor-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+diff --git a/.github/workflows/copilot-usage-monitor.yml b/.github/workflows/copilot-usage-monitor.yml
+--- a/.github/workflows/copilot-usage-monitor.yml
++++ b/.github/workflows/copilot-usage-monitor.yml
+@@ -21,6 +21,7 @@
+     paths:
+       - 'extensions/copilot-usage-monitor/**'
+       - '.github/workflows/copilot-usage-monitor.yml'
++      - 'scripts/ci/**'
+ 
+ # Read-only: the job builds, tests, and packages, and publishes nothing.
+ permissions:
+@@ -35,9 +36,6 @@
+   build-and-test:
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+-    defaults:
+-      run:
+-        working-directory: extensions/copilot-usage-monitor
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+@@ -51,18 +49,22 @@
+         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+         # them; ttf2woff2 is used only by the local icon generator, not this job.
+-        run: npm ci --ignore-scripts
++        run: npm ci --ignore-scripts --prefix extensions/copilot-usage-monitor
+ 
+-      - name: Compile (tsc)
+-        run: npm run compile
++      - name: Repository-native copilot-usage-monitor profile
++        run: python scripts/ci/run.py --profile full --only copilot-usage-monitor --reports-dir reports
+ 
+-      - name: Unit tests with coverage (Vitest)
+-        run: npm run test:coverage
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+ 
+-      - name: Package VSIX
+-        run: npm run package
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: copilot-usage-monitor-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+-      - name: Verify packaged contents
+-        # Required runtime assets present; coverage reports, sources, tests, and
+-        # credential-shaped files absent (mirrors cursor-usage-monitor.yml, WN-32).
+-        run: npm run verify:package
+diff --git a/.github/workflows/cursor-usage-monitor.yml b/.github/workflows/cursor-usage-monitor.yml
+--- a/.github/workflows/cursor-usage-monitor.yml
++++ b/.github/workflows/cursor-usage-monitor.yml
+@@ -22,6 +22,7 @@
+       - 'extensions/cursor-usage-monitor/**'
+       - 'tests/fixtures/cursor-usage/**'
+       - '.github/workflows/cursor-usage-monitor.yml'
++      - 'scripts/ci/**'
+ 
+ # Read-only: the job builds and tests, and publishes nothing.
+ permissions:
+@@ -36,9 +37,6 @@
+   build-and-test:
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+-    defaults:
+-      run:
+-        working-directory: extensions/cursor-usage-monitor
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+@@ -52,23 +50,10 @@
+         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+         # them; ttf2woff2 is used only by the local icon generator, not this job.
+-        run: npm ci --ignore-scripts
++        run: npm ci --ignore-scripts --prefix extensions/cursor-usage-monitor
+ 
+-      - name: Compile (tsc)
+-        run: npm run compile
+-
+-      - name: Unit tests with V8 coverage (Vitest)
+-        # vitest.config.mts carries the coverage thresholds, so a coverage
+-        # regression fails this step rather than being reported and ignored.
+-        run: npm run test:coverage
+-
+-      - name: Package VSIX
+-        run: npm run package
+-
+-      - name: Verify packaged contents
+-        # Required runtime assets present; coverage reports, sources, tests, and
+-        # credential-shaped files absent.
+-        run: npm run verify:package
++      - name: Repository-native cursor-usage-monitor profile
++        run: python scripts/ci/run.py --profile full --only cursor-usage-monitor --reports-dir reports
+ 
+       - name: Upload VSIX artifact
+         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+@@ -76,6 +61,20 @@
+           name: cursor-usage-monitor-vsix
+           path: extensions/cursor-usage-monitor/*.vsix
+           if-no-files-found: error
++          retention-days: 7
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: cursor-usage-monitor-reports
++          path: reports/
++          if-no-files-found: warn
+           retention-days: 7
+ 
+   e2e-cursor-profile:
+@@ -91,28 +90,34 @@
+           name: cursor-usage-monitor-vsix
+           path: packed-vsix
+ 
+-      - name: Install into throwaway Cursor profile or skip-with-note
+-        # GitHub-hosted ubuntu-latest runners do not ship the Cursor CLI.
+-        # When `cursor` is absent, document the degrade and require the local
+-        # live-smoke checklist instead of failing the workflow. When present
+-        # (self-hosted or future images), install into an isolated user-data
+-        # directory and assert the extension id is listed.
++      - name: Repository-native optional Cursor profile
++        run: python scripts/ci/run.py --profile platform --only cursor-profile --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: cursor-profile-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
++  cursor-required:
++    needs: [build-and-test, e2e-cursor-profile]
++    if: always()
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    steps:
++      - name: Require build and selected optional-host scenario
++        env:
++          R_build: ${{ needs['build-and-test'].result }}
++          R_profile: ${{ needs['e2e-cursor-profile'].result }}
+         run: |
+           set -euo pipefail
+-          VSIX="$(ls -1 packed-vsix/*.vsix | head -n 1)"
+-          echo "Packaged VSIX: ${VSIX}"
+-          if ! command -v cursor >/dev/null 2>&1; then
+-            echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
+-            echo "Required local verification: docs/archives/v3/v3.15/development/cursor-usage-live-smoke.md"
+-            exit 0
+-          fi
+-          PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"
+-          mkdir -p "${PROFILE_DIR}"
+-          cursor --user-data-dir "${PROFILE_DIR}" --install-extension "${VSIX}" --force
+-          cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | tee "${RUNNER_TEMP}/cursor-extensions.txt"
+-          grep -qx 'nexus-hub.cursor-usage-monitor' "${RUNNER_TEMP}/cursor-extensions.txt"
+-          if cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | grep -E 'nexus-hub\.(claude|codex|github)-usage-monitor'; then
+-            echo "VS Code-only monitors must not appear in the Cursor profile" >&2
+-            exit 1
+-          fi
+-          echo "Cursor profile E2E install verified."
++          test "$R_build" = success
++          test "$R_profile" = success
+diff --git a/.github/workflows/doc-colocation.yml b/.github/workflows/doc-colocation.yml
+--- a/.github/workflows/doc-colocation.yml
++++ b/.github/workflows/doc-colocation.yml
+@@ -35,7 +35,7 @@
+   workflow_dispatch:
+ 
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -51,12 +51,20 @@
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+-      - name: Comparison / adoption-plan co-location check
+-        # v3.17.7: the inline bash implementation moved to
+-        # scripts/check_doc_colocation.py. It carried three fail-open defects
+-        # (only the highest major scanned, a dangling seed passing, and relative
+-        # `Seeded from` paths skipped entirely) that could not be unit-tested in
+-        # a `run:` block. The script is a repo-internal guard: no installer copy
+-        # step, no .ps1 sibling. It also runs in `make validate`, so the check is
+-        # now reproducible locally instead of CI-only.
+-        run: python scripts/check_doc_colocation.py --verbose
++      - name: Repository-native doc-colocation profile
++        run: python scripts/ci/run.py --profile full --only doc-colocation --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: doc-colocation-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+diff --git a/.github/workflows/gemini-usage-monitor.yml b/.github/workflows/gemini-usage-monitor.yml
+--- a/.github/workflows/gemini-usage-monitor.yml
++++ b/.github/workflows/gemini-usage-monitor.yml
+@@ -15,10 +15,11 @@
+     paths:
+       - 'extensions/gemini-usage-monitor/**'
+       - '.github/workflows/gemini-usage-monitor.yml'
++      - 'scripts/ci/**'
+ 
+ # Cancel superseded runs of the same ref (the single largest action-minute saver).
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -31,9 +32,6 @@
+   build-and-test:
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+-    defaults:
+-      run:
+-        working-directory: extensions/gemini-usage-monitor
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+ 
+@@ -47,10 +45,22 @@
+         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+         # them; ttf2woff2 is used only by the local icon generator, not this job.
+-        run: npm ci --ignore-scripts
++        run: npm ci --ignore-scripts --prefix extensions/gemini-usage-monitor
+ 
+-      - name: Compile (tsc)
+-        run: npm run compile
++      - name: Repository-native gemini-usage-monitor profile
++        run: python scripts/ci/run.py --profile full --only gemini-usage-monitor --reports-dir reports
+ 
+-      - name: Unit tests with coverage (Vitest)
+-        run: npm run test:coverage
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: gemini-usage-monitor-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
+diff --git a/.github/workflows/nexus-memory.yml b/.github/workflows/nexus-memory.yml
+--- a/.github/workflows/nexus-memory.yml
++++ b/.github/workflows/nexus-memory.yml
+@@ -17,6 +17,7 @@
+     paths:
+       - 'extensions/nexus-memory/**'
+       - '.github/workflows/nexus-memory.yml'
++      - 'scripts/ci/**'
+       - 'scripts/ci/requirements.in'
+       - 'scripts/ci/requirements-py311.txt'
+ 
+@@ -44,7 +45,22 @@
+             extensions/nexus-memory/pyproject.toml
+             scripts/ci/requirements-py311.txt
+       - run: pip install -e "extensions/nexus-memory/[dev]"
+-      - run: python -m pytest extensions/nexus-memory/tests/ -q
++      - name: Repository-native memory-tests profile
++        run: python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: memory-native-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   test-network-blocked:
+     name: Test with outbound network blocked
+@@ -52,29 +68,22 @@
+     timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+-      - name: Build the offline test image
+-        run: |
+-          docker build --tag nexus-memory-offline --build-context ci=scripts/ci --file - extensions/nexus-memory <<'DOCKERFILE'
+-          # syntax=docker/dockerfile:1
+-          FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
+-          WORKDIR /workspace
+-          COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
+-          ENV PIP_CONSTRAINT=/package/requirements-py311.txt
+-          COPY pyproject.toml README.md /package/
+-          COPY src /package/src
+-          COPY tests /package/tests
+-          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+-          DOCKERFILE
+-      - name: Full suite with egress denied
+-        run: |
+-          docker run --rm --network none \
+-            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+-            nexus-memory-offline bash -c '
+-            set -euo pipefail
+-            test -d /sys/class/net/lo
+-            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
+-            python -m pytest extensions/nexus-memory/tests/ -q -p no:cacheprovider
+-          '
++      - name: Repository-native memory-offline profile
++        run: python scripts/ci/run.py --profile full --only memory-offline --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: memory-offline-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   test-locking-matrix:
+     # v4.0.0: was gated on `push` to a protected branch, which this workflow no
+@@ -104,4 +113,36 @@
+             extensions/nexus-memory/pyproject.toml
+             scripts/ci/requirements-py311.txt
+       - run: pip install -e "extensions/nexus-memory/[dev]"
+-      - run: python -m pytest extensions/nexus-memory/tests/ -q
++      - name: Repository-native memory-tests profile
++        run: python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: memory-locking-reports-${{ matrix.os }}
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
++  memory-required:
++    needs: [test, test-network-blocked, test-locking-matrix]
++    if: always()
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    steps:
++      - name: Require every native validation result
++        env:
++          R_test: ${{ needs.test.result }}
++          R_offline: ${{ needs['test-network-blocked'].result }}
++          R_locking: ${{ needs['test-locking-matrix'].result }}
++        run: |
++          set -euo pipefail
++          for result in "$R_test" "$R_offline" "$R_locking"; do
++            test "$result" = success
++          done
+diff --git a/.github/workflows/presentify-extractor.yml b/.github/workflows/presentify-extractor.yml
+--- a/.github/workflows/presentify-extractor.yml
++++ b/.github/workflows/presentify-extractor.yml
+@@ -10,15 +10,11 @@
+ 
+ on:
+   workflow_dispatch:
+-  # The render job below is gated to this schedule; the fast verify job opts
+-  # OUT of the schedule so a cron run does not double-bill it.
+-  schedule:
+-    - cron: '17 4 * * 1'
+   pull_request:
+     branches: [main, develop]
+ 
+ # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
++# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+ # contents is the complete requirement.
+ permissions:
+   contents: read
+@@ -65,13 +61,13 @@
+           fi
+ 
+           changed_files="$(git diff --name-only "$base" "$head")"
+-          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/archives/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/archives/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|scripts/ci/requirements(\.in|-py311\.txt)$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
++          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/archives/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/archives/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|scripts/ci/|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
+             echo "presentify=true" >> "$GITHUB_OUTPUT"
+           else
+             echo "presentify=false" >> "$GITHUB_OUTPUT"
+           fi
+ 
+-  verify:
++  extractor-tests:
+     # This job must exist on every protected PR because branch protection
+     # requires its `verify` context. Its expensive steps remain path-scoped.
+     needs: detect
+@@ -105,61 +101,28 @@
+           pip install python-pptx python-docx openpyxl pdfplumber pypdf
+           pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff==0.16.1 pytest
+ 
+-      - name: Lint the bundled scripts
++      - name: Repository-native presentify-verify profile
+         if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: ruff check --ignore RUF100 catalog/skills/specialized-domains/document-to-interactive-html/scripts/
++        run: python scripts/ci/run.py --profile full --only presentify-verify --reports-dir reports
+ 
+-      - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        # Full-width canvas + image-sizing contract (layout suite) and the
+-        # extractor prominence signals (page_fraction + native width/height for
+-        # PPTX and PDF). This runner installs the heavy extractor libs, so the
+-        # prominence tests run here (they importorskip elsewhere). This job
+-        # installs NO browser, so the three browser-dependent checks
+-        # skip-with-note here by design; the `render` job below is the one that
+-        # installs chromium and enforces them via NEXUS_REQUIRE_RENDER=1
+-        # (v3.16.5 Phase 3, closing v3.15 MT-1). Everything else - injected-var,
+-        # offline, head-integrity, CSS-heuristic band, image-cap, the four
+-        # typography checks, the three SVG checks, and the extractor signals -
+-        # runs browser-free.
+-        run: python -m pytest tests/skills/ -v
++      - name: Publish native profile summary
++        if: always() && needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+ 
+-      - name: Generate fixtures
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.12/development/fixtures/gen_fixtures.py
+-
+-      - name: Run the extraction-fidelity suite (45 checks)
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.12/development/fixtures/verify_phase1.py
+-
+-      - name: Run the protocol round-trip
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.12/development/fixtures/enrich_models.py
+-
+-      - name: Run the design-entropy suite (10 checks)
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.12/development/fixtures/verify_design_seed.py
+-
+-      - name: Run the v3.13 universal-ingestion suite (28 checks)
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.13/development/fixtures/verify_universal_ingestion.py
+-
+-      - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
+-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+-        run: python docs/archives/v3/v3.13/development/fixtures/verify_imagery.py
++      - name: Retain native profile reports
++        if: always() && needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: presentify-verify-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
+ 
+   render:
+-    # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,
+-    # whose suggested next step was exactly "gate a headless-render job to
+-    # merges/schedule so the true rendered-width check runs in CI").
+-    #
+-    # Gated to the weekly cron, NOT to pull requests or protected-branch pushes:
+-    # a browser download plus a real render is the expensive part of this
+-    # workflow, and PR feedback is already covered by the browser-free `verify`
+-    # job. The schedule supplies regular deep coverage without re-testing every
+-    # just-verified merge.
++    # Deterministic rendered checks gate the same merge result as extraction.
+     needs: detect
+-    if: github.event_name == 'schedule'
++    if: ${{ !cancelled() && needs.detect.outputs.presentify == 'true' }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+     steps:
+@@ -194,23 +157,42 @@
+       - name: Install chromium
+         run: python -m playwright install --with-deps chromium
+ 
+-      - name: Probe the render environment (must report READY)
++      - name: Repository-native presentify-render profile
++        run: python scripts/ci/run.py --profile full --only presentify-render --reports-dir reports
++
++      - name: Publish native profile summary
++        if: always()
++        shell: bash
++        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
++
++      - name: Retain native profile reports
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: presentify-render-reports
++          path: reports/
++          if-no-files-found: warn
++          retention-days: 7
++
++  verify:
++    needs: [detect, extractor-tests, render]
++    if: always()
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    steps:
++      - name: Require detection and every selected native profile
++        env:
++          R_detect: ${{ needs.detect.result }}
++          R_selected: ${{ needs.detect.outputs.presentify }}
++          R_extract: ${{ needs['extractor-tests'].result }}
++          R_render: ${{ needs.render.result }}
+         run: |
+-          python catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py --json
+-          # Exit 0 = READY_PLAYWRIGHT. Anything else means the install above did
+-          # not produce a launchable browser, and the rendered checks below would
+-          # silently degrade - which is the whole defect this job exists to end.
+-
+-      - name: Run the presentify suite with the rendered checks ENFORCED
+-        # NEXUS_REQUIRE_RENDER=1 turns the browser-dependent skips into failures.
+-        # Without it a broken browser install would present as three quiet skips
+-        # inside a green run, which is exactly how MT-1 went unnoticed for four
+-        # minor versions.
+-        env:
+-          NEXUS_REQUIRE_RENDER: '1'
+-        run: python -m pytest tests/skills/ -v
+-
+-      - name: Score the calibration fixture (all structural criteria)
+-        # The full-width band, image caps, overlay integrity, the four typography
+-        # checks, and the three SVG checks, against the standing fixture.
+-        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py tests/fixtures/presentify/nexus-hub-unit-test-workflow.html
++          set -euo pipefail
++          test "$R_detect" = success
++          case "$R_selected" in
++            true) test "$R_extract" = success; test "$R_render" = success ;;
++            false) for result in "$R_extract" "$R_render"; do
++              case "$result" in success|skipped) ;; *) exit 1 ;; esac
++            done ;;
++            *) exit 1 ;;
++          esac
+diff --git a/scripts/ci/code-search-offline.Dockerfile b/scripts/ci/code-search-offline.Dockerfile
+new file mode 100644
+--- /dev/null
++++ b/scripts/ci/code-search-offline.Dockerfile
+@@ -0,0 +1,11 @@
++FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
++WORKDIR /workspace
++COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
++ENV PIP_CONSTRAINT=/package/requirements-py311.txt
++RUN apt-get update \
++    && apt-get install --yes --no-install-recommends git=1:2.47.3-0+deb13u1 \
++    && rm -rf /var/lib/apt/lists/*
++COPY pyproject.toml README.md /package/
++COPY src /package/src
++COPY tests /package/tests
++RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+diff --git a/scripts/ci/memory-offline.Dockerfile b/scripts/ci/memory-offline.Dockerfile
+new file mode 100644
+--- /dev/null
++++ b/scripts/ci/memory-offline.Dockerfile
+@@ -0,0 +1,8 @@
++FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
++WORKDIR /workspace
++COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
++ENV PIP_CONSTRAINT=/package/requirements-py311.txt
++COPY pyproject.toml README.md /package/
++COPY src /package/src
++COPY tests /package/tests
++RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+diff --git a/scripts/ci/profiles.py b/scripts/ci/profiles.py
+--- a/scripts/ci/profiles.py
++++ b/scripts/ci/profiles.py
+@@ -640,6 +640,31 @@
+     ),
+ )
+ 
++WINDOWS_INSTALLER_CORE = Group(
++    name="windows-installer-core",
++    commands=(
++        Command(
++            name="PowerShell 7 runtime",
++            argv=["pwsh", "-NoProfile", "-NonInteractive", "-Command", "if ($PSVersionTable.PSVersion.Major -lt 7) { exit 1 }; $PSVersionTable.PSVersion.ToString()"],
++            platforms=("windows",),
++            timeout=60,
++        ),
++        _pytest(
++            "installer JSON and hook boundaries (PowerShell 7)",
++            "tests/installer/test_core_settings_seeding.py",
++            "tests/installer/test_optional_mcp_setup.py",
++            "tests/installer/test_strict_permissions.py",
++            "tests/installer/test_native_hook_json.py",
++            "tests/installer/test_native_json_reader.py",
++            "tests/installer/test_native_cli_launcher.py",
++            "tests/installer/test_windows_cursor_hook_wiring.py",
++            platforms=("windows",),
++            timeout=1200,
++            env={"NEXUS_TEST_POWERSHELL": "pwsh"},
++        ),
++    ),
++)
++
+ GUIDE_BROWSER = Group(
+     name="guide-browser",
+     explicit_only=True,
+@@ -705,6 +730,101 @@
+             timeout=1800,
+         ),
+     ),
++)
++
++# Existing workflow checks, available without a CI provider. Tool-dependent
++# scenarios are explicit so a normal full run does not install Node or Docker.
++DOC_COLOCATION = Group(
++    name="doc-colocation",
++    explicit_only=True,
++    commands=(_py("check_doc_colocation", "--verbose"),),
++)
++
++
++def _monitor_group(name: str) -> Group:
++    package = f"extensions/{name}-usage-monitor"
++    npm = "npm.cmd" if os.name == "nt" else "npm"
++    return Group(
++        name=f"{name}-usage-monitor",
++        explicit_only=True,
++        commands=(
++            Command(name=f"{name} compile", argv=[npm, "run", "compile"], cwd=package),
++            Command(name=f"{name} coverage", argv=[npm, "run", "test:coverage", "--", "--coverage.reportsDirectory", f"../../reports/coverage/{name}"], cwd=package),
++            *((Command(name=f"{name} package", argv=[npm, "run", "package"], cwd=package), Command(name=f"{name} packaged contents", argv=[npm, "run", "verify:package"], cwd=package)) if name in ("copilot", "cursor") else ()),
++        ),
++    )
++
++
++MONITOR_CHECKS = tuple(_monitor_group(name) for name in ("claude", "codex", "copilot", "cursor", "gemini"))
++
++MEMORY_TESTS = Group(
++    name="memory-tests",
++    explicit_only=True,
++    commands=(_pytest("memory native locking", "tests", cwd="extensions/nexus-memory", env=_local_src_env("src")),),
++)
++
++
++def _offline_group(name: str, package: str, benchmark: bool = False) -> Group:
++    image = f"nexus-{name}-offline"
++    check = "set -euo pipefail; test -d /sys/class/net/lo; if find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .; then exit 1; fi; "
++    check += f"python -m pytest extensions/{package}/tests/ -q -p no:cacheprovider"
++    if benchmark:
++        check += f"; cd extensions/{package}; python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md"
++    return Group(
++        name=f"{name}-offline",
++        explicit_only=True,
++        commands=(
++            Command(name=f"{name} offline image", argv=["docker", "build", "--tag", image, "--build-context", "ci=scripts/ci", "--file", f"scripts/ci/{name}-offline.Dockerfile", f"extensions/{package}"], platforms=("linux",), timeout=1200),
++            Command(name=f"{name} egress-denied checks", argv=["docker", "run", "--rm", "--network", "none", "--env", "NEXUS_CODE_SEARCH_BLOCK_NETWORK=1", "--volume", f"{REPO_ROOT}:/workspace:ro", image, "bash", "-c", check], platforms=("linux",), timeout=1200),
++        ),
++    )
++
++
++CODE_SEARCH_OFFLINE = _offline_group("code-search", "nexus-code-search", benchmark=True)
++MEMORY_OFFLINE = _offline_group("memory", "nexus-memory")
++
++PRESENTIFY_VERIFY = Group(
++    name="presentify-verify",
++    explicit_only=True,
++    commands=(
++        Command(name="Presentify bundled lint", argv=["ruff", "check", "--ignore", "RUF100", "catalog/skills/specialized-domains/document-to-interactive-html/scripts/"]),
++        _pytest("Presentify skills", "tests/skills/", timeout=1200),
++        Command(name="Presentify offline fixture checks", argv=[PY, "scripts/ci/verify_scenarios.py", "presentify-fixtures"], timeout=1200),
++    ),
++)
++
++PRESENTIFY_RENDER = Group(
++    name="presentify-render",
++    explicit_only=True,
++    commands=(
++        Command(name="Presentify render readiness", argv=[PY, "catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py", "--json"]),
++        _pytest("Presentify rendered skills", "tests/skills/", env={"NEXUS_REQUIRE_RENDER": "1"}, timeout=1200),
++        Command(name="Presentify calibration scoring", argv=[PY, "catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py", "tests/fixtures/presentify/nexus-hub-unit-test-workflow.html"]),
++    ),
++)
++
++
++def _scenario_group(name: str, scenario: str, platforms: tuple[str, ...] = ()) -> Group:
++    return Group(name=name, explicit_only=True, commands=(Command(name=name, argv=[PY, "scripts/ci/verify_scenarios.py", scenario], platforms=platforms, timeout=1800),))
++
++
++BOOTSTRAP_SMOKE = _scenario_group("bootstrap-smoke", "bootstrap")
++REGISTRY_SMOKE = _scenario_group("registry-smoke", "registry")
++WORKSPACE_SMOKE = _scenario_group("workspace-smoke", "workspace")
++HOST_PLUGIN_LOAD = _scenario_group("host-plugin-load", "plugin", ("linux",))
++CURSOR_PROFILE = Group(
++    name="cursor-profile",
++    explicit_only=True,
++    commands=(
++        Command(name="optional Cursor CLI", argv=["cursor", "--version"], platforms=("linux",), skip_if_missing=True),
++        Command(name="private Cursor profile", argv=[PY, "scripts/ci/verify_scenarios.py", "cursor-profile"], platforms=("linux",), timeout=1200),
++    ),
++)
++
++MACOS_ATTRIBUTION = Group(
++    name="macos-attribution",
++    explicit_only=True,
++    commands=(_pytest("native macOS attribution", "tests/test_git_attribution.py", "-k", "not powershell", platforms=("macos",)),),
+ )
+ 
+ RELEASE_CHECKS = Group(
+@@ -765,6 +885,13 @@
+         VERSION,
+         TESTS,
+         EXTENSION_TESTS,
++        DOC_COLOCATION,
++        *MONITOR_CHECKS,
++        MEMORY_TESTS,
++        CODE_SEARCH_OFFLINE,
++        MEMORY_OFFLINE,
++        PRESENTIFY_VERIFY,
++        PRESENTIFY_RENDER,
+         GUIDE_BROWSER,
+         GUIDE_BROWSER_ENGINE,
+         GUIDE_BROWSER_GAME,
+@@ -772,7 +899,7 @@
+     ),
+     # Only what differs by host. Deliberately small: a leg that runs everywhere
+     # belongs in `full`, where it is paid for once.
+-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER),
++    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+     # Aggregation only. Reads what the other profiles wrote; never re-runs a
+     # check, which is what makes it safe to call after a failure.
+     "report": (),
+diff --git a/scripts/ci/reporting.py b/scripts/ci/reporting.py
+--- a/scripts/ci/reporting.py
++++ b/scripts/ci/reporting.py
+@@ -28,7 +28,7 @@
+ #: Substrings that mark an environment variable as secret-bearing. Matching on
+ #: the NAME rather than trying to recognize secret-shaped VALUES: a token format
+ #: changes without notice, an env var called *_TOKEN does not.
+-_SECRET_NAME_HINTS = ("TOKEN", "SECRET", "PASSWORD", "PASSWD", "APIKEY", "API_KEY", "CREDENTIAL")
++_SECRET_NAME_HINTS = ("TOKEN", "SECRET", "PASSWORD", "PASSWD", "KEY", "CREDENTIAL")
+ 
+ REDACTED = "[REDACTED]"
+ 
+@@ -265,6 +265,8 @@
+     return {
+         "profile": result.profile,
+         "platform": result.platform,
++        "host": platform_mod.node(),
++        "shell": "none (direct process execution)",
+         "os": platform_mod.system(),
+         "os_release": platform_mod.release(),
+         "python": platform_mod.python_version(),
+@@ -283,8 +285,10 @@
+     meta_dir = reports_dir / "metadata"
+     meta_dir.mkdir(parents=True, exist_ok=True)
+     path = meta_dir / "environment.json"
++    values = secret_values()
++    escaped = [json.dumps(value)[1:-1] for value in values]
+     path.write_text(
+-        json.dumps(environment_metadata(result, tools), indent=2, sort_keys=True) + "\n",
++        redact(json.dumps(environment_metadata(result, tools), indent=2, sort_keys=True), values + escaped) + "\n",
+         encoding="utf-8",
+     )
+     return path
+diff --git a/scripts/ci/run.py b/scripts/ci/run.py
+--- a/scripts/ci/run.py
++++ b/scripts/ci/run.py
+@@ -48,7 +48,15 @@
+ def _tool_versions() -> dict[str, str]:
+     """Best-effort versions for the report. Never fails the run."""
+     tools: dict[str, str] = {"python": sys.version.split()[0]}
+-    for name, argv in (("git", ["git", "--version"]), ("shellcheck", ["shellcheck", "--version"])):
++    for name, argv in (
++        ("git", ["git", "--version"]),
++        ("shellcheck", ["shellcheck", "--version"]),
++        ("node", ["node", "--version"]),
++        ("npm", ["npm.cmd" if os.name == "nt" else "npm", "--version"]),
++        ("docker", ["docker", "--version"]),
++        ("pwsh", ["pwsh", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]),
++        ("powershell", ["powershell", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]),
++    ):
+         if not shutil.which(argv[0]):
+             continue
+         try:
+diff --git a/scripts/ci/verify_scenarios.py b/scripts/ci/verify_scenarios.py
+new file mode 100644
+--- /dev/null
++++ b/scripts/ci/verify_scenarios.py
+@@ -0,0 +1,197 @@
++"""Run existing CI smoke scenarios locally with disposable installation targets."""
++from __future__ import annotations
++
++import argparse
++import json
++import os
++import re
++import shutil
++import signal
++import subprocess
++import sys
++import tarfile
++import tempfile
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def run(argv: list[str], *, env: dict[str, str], cwd: Path, allow_failure: bool = False, timeout: float = 1200) -> subprocess.CompletedProcess[str]:
++    # Match the native engine's process-tree boundary, including redirected grandchildren.
++    options = ({"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {"start_new_session": True})
++    with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
++        proc = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr, **options)
++        try:
++            proc.wait(timeout=timeout)
++        except BaseException:
++            if os.name == "nt":
++                subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10, check=False)
++            else:
++                try:
++                    os.killpg(proc.pid, signal.SIGKILL)
++                except ProcessLookupError:
++                    pass
++            proc.wait(timeout=10)
++            raise
++        stdout.seek(0)
++        stderr.seek(0)
++        result = subprocess.CompletedProcess(argv, proc.returncode, stdout.read().decode("utf-8", errors="replace"), stderr.read().decode("utf-8", errors="replace"))
++    if result.returncode and not allow_failure:
++        raise RuntimeError(f"command failed ({result.returncode}): {argv[0]}\n{result.stdout}\n{result.stderr}")
++    return result
++
++
++def isolated_environment(work: Path) -> dict[str, str]:
++    env = dict(os.environ)
++    home = work / "home"
++    home.mkdir()
++    targets = {"HOME": home, "USERPROFILE": home, "NEXUS_HUB_HOME": home / ".nexus-hub", "CLAUDE_CONFIG_DIR": home / ".claude", "GIT_CONFIG_GLOBAL": work / "gitconfig", "APPDATA": work / "appdata", "LOCALAPPDATA": work / "localappdata", "PROGRAMFILES": work / "programfiles", "PROGRAMFILES(X86)": work / "programfiles32", "XDG_CONFIG_HOME": work / "xdg-config", "XDG_DATA_HOME": work / "xdg-data"}
++    for key, path in targets.items():
++        env[key] = str(path)
++        if key != "GIT_CONFIG_GLOBAL":
++            path.mkdir(parents=True, exist_ok=True)
++    # No inherited repository/config selectors may redirect writes outside this root.
++    for key in tuple(env):
++        if key.upper().startswith(("GIT_", "NEXUS_HUB_", "VSCODE_")) or key in ("BASH_ENV", "ENV", "PYTHONPATH"):
++            env.pop(key, None)
++    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=str(work / "gitconfig"), GIT_CONFIG_SYSTEM=os.devnull, GIT_TEMPLATE_DIR=str(work / "git-template"), NEXUS_HUB_HOME=str(home / ".nexus-hub"), NEXUS_HUB_NO_AUTOSEED="1", PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1", PIP_DISABLE_PIP_VERSION_CHECK="1")
++    for key, folder in (("NPM_CONFIG_PREFIX", "npm-prefix"), ("NPM_CONFIG_CACHE", "npm-cache"), ("PIP_CACHE_DIR", "pip-cache"), ("PYTHONUSERBASE", "python-user"), ("UV_CACHE_DIR", "uv-cache"), ("UV_TOOL_DIR", "uv-tools"), ("UV_TOOL_BIN_DIR", "uv-bin"), ("UV_PYTHON_INSTALL_DIR", "uv-python"), ("GIT_TEMPLATE_DIR", "git-template")):
++        destination = work / folder
++        destination.mkdir()
++        env[key] = str(destination)
++    # Smoke scenarios do not qualify VSIX delivery. Inert launchers stop both PATH
++    # discovery and absolute-path fallbacks from reaching a running host editor.
++    editors = work / "editor-boundary"
++    editors.mkdir()
++    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity"):
++        launcher = editors / (name + ".cmd" if os.name == "nt" else name)
++        launcher.write_text("@exit /b 1\n" if os.name == "nt" else "#!/bin/sh\nexit 1\n", encoding="ascii")
++        launcher.chmod(0o755)
++    env["PATH"] = str(editors) + os.pathsep + env.get("PATH", "")
++    return env
++
++
++def require(condition: bool, message: str) -> None:
++    if not condition:
++        raise RuntimeError(message)
++
++
++def registry(root: Path, work: Path, env: dict[str, str]) -> None:
++    runner = str(root / "scripts/lib/integrations/runner.py")
++    run([sys.executable, runner, "install", "--scope", "global", "--integrations", "claude,codex,gemini,antigravity2,opencode", "--overwrite", "--quiet"], env=env, cwd=work)
++    result = run([sys.executable, runner, "verify", "--target", env["HOME"]], env=env, cwd=work, allow_failure=True)
++    for expected in ("Claude -- commands:ok, skills:ok", "Codex / ChatGPT -- ~/.agents/skills:ok", "Gemini IDE -- GEMINI.md:ok", "Antigravity 2.0 IDE (global) -- skills:ok", "OpenCode -- skills:ok"):
++        require(expected in result.stdout, f"read-path not populated: {expected}\n{result.stdout}")
++    if sys.platform.startswith("linux"):
++        project = work / "project"
++        project.mkdir()
++        run(["git", "init", "-q", str(project)], env=env, cwd=work)
++        run([sys.executable, runner, "init", "--target", str(project), "--quiet"], env=env, cwd=work)
++        require(any((project / ".agents/workflows").iterdir()), "project init did not seed workflows")
++    print("OK: global registry read-paths and host-specific project seed")
++
++
++def workspace(root: Path, work: Path, env: dict[str, str]) -> None:
++    target = work / "workspace"
++    target.mkdir()
++    run([sys.executable, str(root / "scripts/nexus_hub_cli.py"), "org", "connect", str(root / "configs/examples/org-bundle-example"), "--force"], env=env, cwd=work)
++    command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "scripts/installer.ps1"), "-Workspace", str(target), "-Platforms", "claude", "-Yes"] if os.name == "nt" else ["bash", str(root / "scripts/installer.sh"), "--workspace", str(target), "--platforms", "claude", "--yes"])
++    run(command, env=env, cwd=work)
++    run([sys.executable, str(root / "scripts/check_installer_smoke.py"), "--home", env["HOME"], "--workspace", str(target)], env=env, cwd=work)
++    print("OK: real native workspace installer and shared smoke assertions")
++
++
++def catalog_tarball(root: Path, target: Path, env: dict[str, str]) -> None:
++    result = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=root, env=env, capture_output=True, check=True)
++    with tarfile.open(target, "w:gz") as archive:
++        for item in sorted(set(result.stdout.split(b"\0")) - {b""}):
++            relative = Path(os.fsdecode(item))
++            source = root / relative
++            require(not relative.is_absolute() and ".." not in relative.parts and source.resolve().is_relative_to(root.resolve()), "catalog path escapes source root")
++            if source.is_file():
++                archive.add(source, arcname="Nexus-Hub-main/" + relative.as_posix(), recursive=False)
++
++
++def bootstrap(root: Path, work: Path, env: dict[str, str]) -> None:
++    # The full installer can install missing tools through a host package manager.
++    # Redirected HOME/cache paths do not contain those OS-level installations.
++    for tool in ("node", "npm"):
++        require(bool(shutil.which(tool, path=env.get("PATH", ""))), f"bootstrap smoke requires preinstalled {tool}; host package installation is disabled")
++    tarball = work / "catalog.tar.gz"
++    catalog_tarball(root, tarball, env)
++    env.update(NEXUS_HUB_FORCE_STANDALONE="1", NEXUS_HUB_TARBALL=str(tarball))
++    command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "install.ps1")] if os.name == "nt" else ["bash", str(root / "install.sh")])
++    result = run(command, env=env, cwd=work, allow_failure=True)
++    home = Path(env["HOME"]) / ".nexus-hub"
++    suffix = "ps1" if os.name == "nt" else "sh"
++    require((home / f"src/scripts/installer.{suffix}").is_file(), f"standalone source was not extracted; bootstrap exit {result.returncode}\n{result.stdout}\n{result.stderr}")
++    launcher = home / ("bin/nexus-hub.cmd" if os.name == "nt" else "bin/nexus-hub")
++    version_command = [str(launcher), "--version"] if launcher.is_file() and (os.name == "nt" or os.access(launcher, os.X_OK)) else [sys.executable, str(home / "src/scripts/nexus_hub_cli.py"), "--version"]
++    version = run(version_command, env=env, cwd=work)
++    require(re.search(r"nexus-hub [0-9]+\.[0-9]+\.[0-9]+", version.stdout) is not None, "unexpected CLI version")
++    if os.name != "nt":
++        bash = shutil.which("bash")
++        require(bool(bash), "bash unavailable")
++        missing_env = dict(env, PATH="")
++        missing = run([str(bash), str(root / "install.sh")], env=missing_env, cwd=work, allow_failure=True)
++        require(missing.returncode != 0 and "curl" in (missing.stdout + missing.stderr).lower(), "missing-tool path did not refuse clearly")
++        check_env = dict(env, NEXUS_HUB_PRECHECK_ONLY="1")
++        run(["pwsh", "-NoProfile", "-File", str(root / "install.ps1")], env=check_env, cwd=work)
++    print("OK: standalone bootstrap extraction, native CLI version and host-specific prechecks")
++
++
++def plugin(root: Path, work: Path, env: dict[str, str]) -> None:
++    run(["claude", "plugin", "marketplace", "add", str(root)], env=env, cwd=work)
++    run(["claude", "plugin", "install", "nexus-hub@nexus-hub"], env=env, cwd=work)
++    result = run(["claude", "plugin", "list", "--json"], env=env, cwd=work)
++    installed = json.loads(result.stdout)
++    matches = [item for item in installed if item.get("id") == "nexus-hub@nexus-hub"]
++    require(len(matches) == 1 and matches[0].get("enabled") is True, "plugin is not installed and enabled")
++    print("OK: nexus-hub@nexus-hub is installed and enabled")
++
++
++def cursor_profile(root: Path, work: Path, env: dict[str, str]) -> None:
++    # Resolve before the inert smoke boundary, then use both private editor stores.
++    cursor = shutil.which("cursor", path=os.environ.get("PATH", ""))
++    if not cursor:
++        print("SKIP: Cursor CLI absent; require docs/archives/v3/v3.15/development/cursor-usage-live-smoke.md")
++        return
++    packages = sorted((root / "packed-vsix").glob("*.vsix"))
++    require(len(packages) == 1, "expected one downloaded Cursor VSIX under packed-vsix")
++    command = [cursor, "--user-data-dir", str(work / "cursor-profile"), "--extensions-dir", str(work / "cursor-extensions")]
++    run([*command, "--install-extension", str(packages[0]), "--force"], env=env, cwd=work)
++    listed = run([*command, "--list-extensions"], env=env, cwd=work).stdout.splitlines()
++    require("nexus-hub.cursor-usage-monitor" in listed, "Cursor monitor is missing from private profile")
++    require(not any(name in listed for name in ("nexus-hub.claude-usage-monitor", "nexus-hub.codex-usage-monitor", "nexus-hub.github-usage-monitor")), "VS Code-only monitor appeared in Cursor profile")
++    print("OK: Cursor profile installation and host separation")
++
++
++def presentify_fixtures(root: Path, work: Path, env: dict[str, str]) -> None:
++    (work / "AGENTS.md").write_text("Fixture execution root.\n", encoding="utf-8")
++    skill = Path("catalog/skills/specialized-domains/document-to-interactive-html")
++    shutil.copytree(root / skill, work / skill)
++    for minor, names in (("v3.12", ("gen_fixtures.py", "verify_phase1.py", "enrich_models.py", "verify_design_seed.py")), ("v3.13", ("verify_universal_ingestion.py", "verify_imagery.py"))):
++        relative = Path(f"docs/archives/v3/{minor}/development/fixtures")
++        shutil.copytree(root / relative, work / relative)
++        for name in names:
++            result = run([sys.executable, str(work / relative / name)], env=env, cwd=work)
++            print(name + ": " + (result.stdout.strip().splitlines()[-1] if result.stdout.strip() else "passed"))
++    print("OK: extraction, design, universal-ingestion and imagery fixtures in disposable root")
++
++
++def main(argv: list[str] | None = None) -> int:
++    tasks = {"registry": registry, "workspace": workspace, "bootstrap": bootstrap, "plugin": plugin, "cursor-profile": cursor_profile, "presentify-fixtures": presentify_fixtures}
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("scenario", choices=tasks)
++    parser.add_argument("--root", type=Path, default=ROOT)
++    args = parser.parse_args(argv)
++    require((args.root / "AGENTS.md").is_file(), "repository root has no AGENTS.md")
++    with tempfile.TemporaryDirectory(prefix="nexus-ci-scenario-") as scratch:
++        work = Path(scratch).resolve()
++        env = isolated_environment(work)
++        tasks[args.scenario](args.root.resolve(), work, env)
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/ci/test_ci_reconciliation.py b/tests/ci/test_ci_reconciliation.py
+new file mode 100644
+--- /dev/null
++++ b/tests/ci/test_ci_reconciliation.py
+@@ -0,0 +1,122 @@
++"""Contract checks for migrated profiles and report failure evidence."""
++from __future__ import annotations
++
++import json
++import os
++import re
++import shutil
++import subprocess
++from pathlib import Path
++
++import pytest
++import yaml
++
++from scripts.ci import reporting
++from scripts.ci.profiles import PROFILES
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++@pytest.mark.parametrize("suffix", ["", "\nquoted \"value\" \u6f22"] )
++def test_report_metadata_names_host_and_direct_execution_and_redacts_generic_keys(monkeypatch, tmp_path, suffix):
++    value = "-".join(("private", "signing", "fixture", "2940"))  # noqa: FLY002 - assembled secret fixture
++    value += suffix
++    monkeypatch.setenv("PRIVATE_SIGNING_KEY", value)
++    run = reporting.RunResult("full", "windows", started_at=value)
++    path = reporting.write_metadata(run, tmp_path)
++    raw = path.read_text(encoding="utf-8")
++    metadata = json.loads(raw)
++    assert metadata["host"]
++    assert "direct process" in metadata["shell"]
++    assert value not in raw
++    assert metadata["started_at"] == "[REDACTED]"
++    assert reporting.redact("failed " + value) == "failed [REDACTED]"
++
++
++def test_windows_core_is_required_and_selects_current_edition():
++    floor = next(group for group in PROFILES["platform"] if group.name == "windows-installer")
++    core = next(group for group in PROFILES["platform"] if group.name == "windows-installer-core")
++    assert len(floor.commands) == 3
++    assert all(command.env.get("NEXUS_TEST_POWERSHELL") == "powershell" for command in floor.commands)
++    assert core.commands[0].argv[0] == "pwsh"
++    assert not core.commands[0].skip_if_missing
++    tests = core.commands[-1]
++    assert tests.env["NEXUS_TEST_POWERSHELL"] == "pwsh"
++    for path in ("test_native_json_reader.py", "test_native_hook_json.py", "test_native_cli_launcher.py", "test_strict_permissions.py"):
++        assert any(arg.endswith(path) for arg in tests.argv)
++
++
++@pytest.mark.parametrize("monitor", ["claude", "codex", "copilot", "cursor", "gemini"])
++def test_monitor_validation_is_owned_by_native_profile(monitor):
++    data = yaml.safe_load((ROOT / f".github/workflows/{monitor}-usage-monitor.yml").read_text(encoding="utf-8"))
++    steps = data["jobs"]["build-and-test"]["steps"]
++    scripts = "\n".join(step.get("run", "") for step in steps)
++    assert f"--only {monitor}-usage-monitor" in scripts
++    assert "npm run compile" not in scripts and "npm run test:coverage" not in scripts
++    group = next(group for group in PROFILES["full"] if group.name == f"{monitor}-usage-monitor")
++    assert all(command.cwd == f"extensions/{monitor}-usage-monitor" for command in group.commands)
++    commands = [list(command.argv) for command in group.commands]
++    assert any("compile" in argv for argv in commands)
++    assert any("test:coverage" in argv for argv in commands)
++    assert (any("verify:package" in argv for argv in commands)) == (monitor in {"copilot", "cursor"})
++    assert any(step.get("if") == "always()" and step.get("uses", "").startswith("actions/upload-artifact@") and step["with"]["retention-days"] == 7 for step in steps)
++
++
++def test_every_migrated_native_call_resolves_groups():
++    paths = [ROOT / ".github/workflows" / name for name in ("ci.yml", "doc-colocation.yml", "presentify-extractor.yml", "nexus-memory.yml", "code-search.yml", *(f"{monitor}-usage-monitor.yml" for monitor in ("claude", "codex", "copilot", "cursor", "gemini")))]
++    count = 0
++    for path in paths:
++        data = yaml.safe_load(path.read_text(encoding="utf-8"))
++        for job in data["jobs"].values():
++            scripts = "\n".join(step.get("run", "") for step in job.get("steps", []))
++            for profile, selected in re.findall(r"scripts/ci/run.py --profile (\w+) --only ([\w,${} .-]+?)(?: --|$)", scripts, re.MULTILINE):
++                if "${{" in selected:
++                    for include in job["strategy"]["matrix"]["include"]:
++                        assert include["group"] in {group.name for group in PROFILES[profile]}
++                else:
++                    assert set(selected.strip().split(",")) <= {group.name for group in PROFILES[profile]}
++                count += 1
++    assert count >= 20
++
++
++def test_presentify_required_aggregate_keeps_unfiltered_context_and_validates_selection():
++    data = yaml.safe_load((ROOT / ".github/workflows/presentify-extractor.yml").read_text(encoding="utf-8"))
++    event = data.get("on", data.get(True))
++    assert "schedule" not in event and "paths" not in event["pull_request"]
++    gate = data["jobs"]["verify"]
++    assert gate["if"] == "always()"
++    assert set(gate["needs"]) == {"detect", "extractor-tests", "render"}
++    assert "needs.detect.outputs.presentify" in json.dumps(gate)
++
++
++@pytest.mark.parametrize("name", ["code-search", "memory"])
++def test_offline_profiles_keep_digest_network_boundary_and_package_constraints(name):
++    group = next(group for group in PROFILES["full"] if group.name == name + "-offline")
++    build, execute = group.commands
++    assert build.platforms == execute.platforms == ("linux",)
++    assert list(execute.argv)[list(execute.argv).index("--network") + 1] == "none"
++    assert "then exit 1" in execute.argv[-1]
++    dockerfile = (ROOT / f"scripts/ci/{name}-offline.Dockerfile").read_text(encoding="utf-8")
++    assert re.search(r"FROM python:3\.11-slim@sha256:[a-f0-9]{64}", dockerfile)
++    assert "requirements-py311.txt" in dockerfile and "PIP_CONSTRAINT" in dockerfile
++
++
++@pytest.mark.parametrize("build,profile,accepted", [("success", "success", True), ("success", "skipped", False), ("failure", "skipped", False), ("cancelled", "success", False), ("success", "unknown", False)])
++def test_cursor_required_gate_rejects_every_unqualified_result(build, profile, accepted):
++    bash = shutil.which("bash")
++    assert bash, "Bash is required for the workflow gate control"
++    data = yaml.safe_load((ROOT / ".github/workflows/cursor-usage-monitor.yml").read_text(encoding="utf-8"))
++    gate = data["jobs"]["cursor-required"]
++    assert gate["if"] == "always()" and set(gate["needs"]) == {"build-and-test", "e2e-cursor-profile"}
++    result = subprocess.run([bash, "-c", gate["steps"][0]["run"]], env={**os.environ, "R_build": build, "R_profile": profile}, capture_output=True, timeout=10, check=False)
++    assert (result.returncode == 0) is accepted
++
++
++def test_bootstrap_jobs_provision_node_before_native_profile_without_cache():
++    data = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
++    for job in ("bootstrap", "bootstrap-windows"):
++        steps = data["jobs"][job]["steps"]
++        setup = next(index for index, step in enumerate(steps) if step.get("uses", "").startswith("actions/setup-node@"))
++        execute = next(index for index, step in enumerate(steps) if step.get("name") == "Repository-native bootstrap-smoke profile")
++        assert setup < execute
++        assert steps[setup]["with"] == {"node-version": "22"}
+diff --git a/tests/ci/test_ci_scenario_boundaries.py b/tests/ci/test_ci_scenario_boundaries.py
+new file mode 100644
+--- /dev/null
++++ b/tests/ci/test_ci_scenario_boundaries.py
+@@ -0,0 +1,74 @@
++"""Smoke-helper containment, cleanup and optional editor acceptance controls."""
++from __future__ import annotations
++
++import subprocess
++from pathlib import Path
++
++import pytest
++
++from scripts.ci import verify_scenarios as scenarios
++
++
++@pytest.mark.parametrize("installed,accepted", [("nexus-hub.cursor-usage-monitor", True), ("wrong.extension", False), ("nexus-hub.cursor-usage-monitor\nnexus-hub.claude-usage-monitor", False), ("nexus-hub.cursor-usage-monitor\nnexus-hub.codex-usage-monitor", False), ("nexus-hub.cursor-usage-monitor\nnexus-hub.github-usage-monitor", False)])
++def test_cursor_profile_uses_both_private_stores_and_checks_delivery(monkeypatch, tmp_path, installed, accepted):
++    package = tmp_path / "packed-vsix/monitor.vsix"
++    package.parent.mkdir()
++    package.touch()
++    monkeypatch.setattr(scenarios.shutil, "which", lambda *args, **kwargs: "cursor-fixture")
++    commands = []
++    def run(argv, **kwargs):
++        commands.append(argv)
++        return subprocess.CompletedProcess(argv, 0, installed, "")
++    monkeypatch.setattr(scenarios, "run", run)
++    if accepted:
++        scenarios.cursor_profile(tmp_path, tmp_path, {})
++    else:
++        with pytest.raises(RuntimeError):
++            scenarios.cursor_profile(tmp_path, tmp_path, {})
++    assert len(commands) == 2
++    for command in commands:
++        assert command[command.index("--user-data-dir") + 1] == str(tmp_path / "cursor-profile")
++        assert command[command.index("--extensions-dir") + 1] == str(tmp_path / "cursor-extensions")
++
++
++def test_cursor_absence_skips_without_attempting_install(monkeypatch, tmp_path, capsys):
++    monkeypatch.setattr(scenarios.shutil, "which", lambda *args, **kwargs: None)
++    def unexpected(*args, **kwargs):
++        pytest.fail("missing optional CLI must not be invoked")
++    monkeypatch.setattr(scenarios, "run", unexpected)
++    scenarios.cursor_profile(tmp_path, tmp_path, {})
++    assert "SKIP: Cursor CLI absent" in capsys.readouterr().out
++
++
++@pytest.mark.parametrize("fail", [False, True])
++def test_cli_cleans_disposable_target_after_success_and_failure(monkeypatch, tmp_path, fail):
++    (tmp_path / "AGENTS.md").write_text("Fixture root.\n", encoding="utf-8")
++    observed = []
++    def scenario(root, work, env):
++        observed.append(work)
++        assert root == tmp_path.resolve()
++        assert Path(env["HOME"]).is_relative_to(work)
++        (work / "created-output").touch()
++        if fail:
++            raise RuntimeError("fixture failure")
++    monkeypatch.setattr(scenarios, "registry", scenario)
++    if fail:
++        with pytest.raises(RuntimeError, match="fixture failure"):
++            scenarios.main(["registry", "--root", str(tmp_path)])
++    else:
++        assert scenarios.main(["registry", "--root", str(tmp_path)]) == 0
++    assert len(observed) == 1 and not observed[0].exists()
++
++
++def test_linux_registry_requires_actual_project_workflows(monkeypatch, tmp_path):
++    monkeypatch.setattr(scenarios.sys, "platform", "linux")
++    messages = "Claude -- commands:ok, skills:ok\nCodex / ChatGPT -- ~/.agents/skills:ok\nGemini IDE -- GEMINI.md:ok\nAntigravity 2.0 IDE (global) -- skills:ok\nOpenCode -- skills:ok"
++    def run(argv, **kwargs):
++        if "--target" in argv and "init" in argv:
++            target = Path(argv[argv.index("--target") + 1]) / ".agents/workflows"
++            target.mkdir(parents=True)
++            (target / "command.md").touch()
++        return subprocess.CompletedProcess(argv, 0, messages, "")
++    monkeypatch.setattr(scenarios, "run", run)
++    scenarios.registry(tmp_path, tmp_path, {"HOME": str(tmp_path)})
++    assert (tmp_path / "project/.agents/workflows/command.md").is_file()
+diff --git a/tests/ci/test_ci_scenarios.py b/tests/ci/test_ci_scenarios.py
+new file mode 100644
+--- /dev/null
++++ b/tests/ci/test_ci_scenarios.py
+@@ -0,0 +1,133 @@
++"""Behavioral controls for disposable CI smoke scenarios."""
++from __future__ import annotations
++
++import json
++import os
++import shutil
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++import pytest
++
++from scripts.ci import verify_scenarios as scenarios
++
++
++def result(argv, text="", code=0):
++    return subprocess.CompletedProcess(argv, code, text, "")
++
++
++@pytest.mark.parametrize("entries,accepted", [([], False), ([{"id": "nexus-hub@nexus-hub", "enabled": False}], False), ([{"id": "nexus-hub@nexus-hub", "enabled": True}] * 2, False), ([{"id": "other", "enabled": True}], False), ([{"id": "nexus-hub@nexus-hub", "enabled": True}], True)])
++def test_plugin_acceptance(monkeypatch, tmp_path, entries, accepted):
++    monkeypatch.setattr(scenarios, "run", lambda argv, **kwargs: result(argv, json.dumps(entries)))
++    if accepted:
++        scenarios.plugin(tmp_path, tmp_path, {})
++    else:
++        with pytest.raises(RuntimeError, match="not installed and enabled"):
++            scenarios.plugin(tmp_path, tmp_path, {})
++
++
++MESSAGES = ("Claude -- commands:ok, skills:ok", "Codex / ChatGPT -- ~/.agents/skills:ok", "Gemini IDE -- GEMINI.md:ok", "Antigravity 2.0 IDE (global) -- skills:ok", "OpenCode -- skills:ok")
++
++
++@pytest.mark.parametrize("omitted", [None, *range(5)])
++def test_registry_acceptance(monkeypatch, tmp_path, omitted):
++    monkeypatch.setattr(scenarios.sys, "platform", "win32")
++    text = "\n".join(value for index, value in enumerate(MESSAGES) if index != omitted)
++    monkeypatch.setattr(scenarios, "run", lambda argv, **kwargs: result(argv, text, 1))
++    if omitted is None:
++        scenarios.registry(tmp_path, tmp_path, {"HOME": str(tmp_path)})
++    else:
++        with pytest.raises(RuntimeError, match="read-path not populated"):
++            scenarios.registry(tmp_path, tmp_path, {"HOME": str(tmp_path)})
++
++
++@pytest.mark.parametrize("artifact,version,accepted", [(False, "nexus-hub 4.13.13", False), (True, "wrong output", False), (True, "nexus-hub 4.13.13", True)])
++def test_bootstrap_acceptance(monkeypatch, tmp_path, artifact, version, accepted):
++    monkeypatch.setattr(scenarios, "catalog_tarball", lambda *args: None)
++    original_which = shutil.which
++    monkeypatch.setattr(scenarios.shutil, "which", lambda tool, **kwargs: tool if tool in ("node", "npm") else original_which(tool, **kwargs))
++    env = {"HOME": str(tmp_path / "home"), "PATH": os.environ["PATH"]}
++    def invoke(argv, **kwargs):
++        if kwargs["env"].get("PATH") == "":
++            return result(argv, "curl required", 1)
++        if "--version" in argv:
++            return result(argv, version)
++        if artifact:
++            path = Path(env["HOME"]) / (".nexus-hub/src/scripts/installer.ps1" if os.name == "nt" else ".nexus-hub/src/scripts/installer.sh")
++            path.parent.mkdir(parents=True, exist_ok=True)
++            path.touch()
++        return result(argv)
++    monkeypatch.setattr(scenarios, "run", invoke)
++    if accepted:
++        scenarios.bootstrap(tmp_path, tmp_path, env)
++    else:
++        with pytest.raises(RuntimeError):
++            scenarios.bootstrap(tmp_path, tmp_path, env)
++
++
++def test_isolation_keeps_shared_tools_and_shadows_all_editors(monkeypatch, tmp_path):
++    shared = tmp_path / "shared-tools"
++    shared.mkdir()
++    for name in ("code", "cursor", "antigravity", "git"):
++        (shared / (name + ".cmd" if os.name == "nt" else name)).write_text("", encoding="ascii")
++    monkeypatch.setenv("PATH", str(shared) + os.pathsep + os.environ["PATH"])
++    env = scenarios.isolated_environment(tmp_path)
++    assert str(shared) in env["PATH"].split(os.pathsep)
++    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity"):
++        command = shutil.which(name, path=env["PATH"])
++        assert command and Path(command).parent == tmp_path / "editor-boundary"
++    assert Path(env["NPM_CONFIG_PREFIX"]).is_relative_to(tmp_path)
++    assert Path(env["UV_TOOL_BIN_DIR"]).is_relative_to(tmp_path)
++
++
++def test_stale_git_routing_cannot_mutate_external_repository(monkeypatch, tmp_path):
++    victim = tmp_path / "external.git"
++    subprocess.run(["git", "init", "--bare", "-q", str(victim)], check=True)
++    before = (victim / "config").read_bytes()
++    for key in ("GIT_COMMON_DIR", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_CONFIG", "GIT_CONFIG_PARAMETERS"):
++        monkeypatch.setenv(key, str(victim))
++    private = tmp_path / "private"
++    private.mkdir()
++    env = scenarios.isolated_environment(private)
++    subprocess.run(["git", "init", "-q", str(private / "project")], env=env, check=True)
++    assert (victim / "config").read_bytes() == before
++    assert not any(key in env for key in ("GIT_COMMON_DIR", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_CONFIG", "GIT_CONFIG_PARAMETERS"))
++
++
++@pytest.mark.parametrize("entry", ["../escape.txt", "/outside.txt"])
++def test_archive_rejects_escaping_paths(monkeypatch, tmp_path, entry):
++    monkeypatch.setattr(scenarios.subprocess, "run", lambda *args, **kwargs: subprocess.CompletedProcess(args, 0, os.fsencode(entry) + b"\0", b""))
++    with pytest.raises(RuntimeError, match="escapes source root"):
++        scenarios.catalog_tarball(tmp_path, tmp_path / "catalog.tar.gz", {})
++
++
++def test_run_failure_and_success_are_distinct(tmp_path):
++    env = os.environ.copy()
++    assert scenarios.run([sys.executable, "-c", "print('ok')"], env=env, cwd=tmp_path).stdout.strip() == "ok"
++    with pytest.raises(RuntimeError, match="command failed"):
++        scenarios.run([sys.executable, "-c", "raise SystemExit(7)"], env=env, cwd=tmp_path)
++    assert scenarios.run([sys.executable, "-c", "raise SystemExit(7)"], env=env, cwd=tmp_path, allow_failure=True).returncode == 7
++
++
++def test_timeout_reaps_redirected_grandchild(tmp_path):
++    marker = tmp_path / "escaped-child"
++    child = "import time;from pathlib import Path;time.sleep(1.5);Path(" + repr(str(marker)) + ").write_text('escaped')"
++    parent = "import subprocess,sys,time;subprocess.Popen([sys.executable,'-c'," + repr(child) + "],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);time.sleep(60)"
++    with pytest.raises(subprocess.TimeoutExpired):
++        scenarios.run([sys.executable, "-c", parent], env=os.environ.copy(), cwd=tmp_path, timeout=0.7)
++    time.sleep(1.6)
++    assert not marker.exists()
++
++
++@pytest.mark.parametrize("missing", ["node", "npm"])
++def test_bootstrap_missing_prerequisite_has_no_installer_or_archive_side_effect(monkeypatch, tmp_path, missing):
++    monkeypatch.setattr(scenarios.shutil, "which", lambda tool, **kwargs: None if tool == missing else tool)
++    def forbidden(*args, **kwargs):
++        pytest.fail("bootstrap reached a side effect before prerequisite validation")
++    monkeypatch.setattr(scenarios, "catalog_tarball", forbidden)
++    monkeypatch.setattr(scenarios, "run", forbidden)
++    with pytest.raises(RuntimeError, match="requires preinstalled " + missing):
++        scenarios.bootstrap(tmp_path, tmp_path, {"PATH": "fixture-tool-path"})
++    assert not (tmp_path / "catalog.tar.gz").exists()
+diff --git a/tests/workflows/test_attribution_workflow.py b/tests/workflows/test_attribution_workflow.py
+--- a/tests/workflows/test_attribution_workflow.py
++++ b/tests/workflows/test_attribution_workflow.py
+@@ -114,5 +114,5 @@
+     assert proc.returncode == 0, proc.stderr
+     assert output.read_text().strip() == "presentify=true"
+     assert (
+-        "github.event_name == 'workflow_dispatch'" in workflow["jobs"]["verify"]["if"]
++        workflow["jobs"]["verify"]["if"] == "always()"
+     )
+diff --git a/tests/workflows/test_ci_report_job.py b/tests/workflows/test_ci_report_job.py
+--- a/tests/workflows/test_ci_report_job.py
++++ b/tests/workflows/test_ci_report_job.py
+@@ -14,6 +14,12 @@
+     "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
+     "tests-windows": "ci-windows-reports",
+     "tests-windows-installer": "ci-windows-installer-reports",
++    "tests-windows-installer-core": "ci-windows-installer-core-reports",
++    "bootstrap": ("ci-bootstrap-reports-ubuntu-latest", "ci-bootstrap-reports-macos-latest"),
++    "bootstrap-windows": "ci-bootstrap-windows-reports",
++    "install-smoke": tuple("ci-registry-smoke-reports-" + host for host in ("ubuntu-latest", "macos-latest", "windows-latest")),
++    "installer-smoke": tuple("ci-workspace-smoke-reports-" + host for host in ("ubuntu-latest", "macos-latest", "windows-latest")),
++    "claude-plugin-load": "ci-host-plugin-reports",
+ }
+ 
+ 
+diff --git a/tests/workflows/test_copilot_usage_monitor_workflow.py b/tests/workflows/test_copilot_usage_monitor_workflow.py
+--- a/tests/workflows/test_copilot_usage_monitor_workflow.py
++++ b/tests/workflows/test_copilot_usage_monitor_workflow.py
+@@ -65,11 +65,9 @@
+     assert set(triggers) == {"pull_request"}
+     paths = triggers["pull_request"]["paths"]
+     assert sorted(paths) == sorted(
+-        [f"{EXTENSION_DIR}/**", ".github/workflows/copilot-usage-monitor.yml"]
+-    )
+-    assert not any(path.startswith("scripts/") for path in paths), (
+-        "installers are covered by ci.yml's installer smoke test"
+-    )
++        [f"{EXTENSION_DIR}/**", ".github/workflows/copilot-usage-monitor.yml", "scripts/ci/**"]
++    )
++    assert not any(path.startswith("scripts/") and path != "scripts/ci/**" for path in paths)
+ 
+ 
+ def test_the_workflow_does_not_rerun_itself_after_the_merge(
+@@ -125,27 +123,22 @@
+ 
+ 
+ def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> None:
+-    defaults = workflow["jobs"]["build-and-test"]["defaults"]["run"]
+-    assert defaults["working-directory"] == EXTENSION_DIR
++    from scripts.ci.profiles import PROFILES
++    group = next(group for group in PROFILES["full"] if group.name == "copilot-usage-monitor")
++    assert all(command.cwd == EXTENSION_DIR for command in group.commands)
+ 
+ 
+ def test_gate_covers_clean_install_compile_coverage_and_packaging(
+     build_steps: list[dict[str, Any]],
+ ) -> None:
+-    assert (
+-        step_named(build_steps, "Install dependencies")["run"].strip()
+-        == "npm ci --ignore-scripts"
+-    )
+-    assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
+-    assert (
+-        "npm run test:coverage"
+-        in step_named(build_steps, "Unit tests with coverage (Vitest)")["run"]
+-    )
+-    assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
+-    assert (
+-        "npm run verify:package"
+-        in step_named(build_steps, "Verify packaged contents")["run"]
+-    )
++    from scripts.ci.profiles import PROFILES
++    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci --ignore-scripts --prefix " + EXTENSION_DIR
++    scripts = "\n".join(step.get("run", "") for step in build_steps)
++    assert "--profile full --only copilot-usage-monitor" in scripts
++    group = next(group for group in PROFILES["full"] if group.name == "copilot-usage-monitor")
++    commands = [list(command.argv) for command in group.commands]
++    for script in ("compile", "test:coverage", "package", "verify:package"):
++        assert any(script in argv for argv in commands), script
+ 
+ 
+ def test_the_extension_scripts_the_gate_calls_exist() -> None:
+@@ -197,7 +190,7 @@
+     workflow file itself re-runs the workflow."""
+     data = load(path)
+     install = step_named(data["jobs"]["build-and-test"]["steps"], "Install dependencies")
+-    assert install["run"].strip() == "npm ci --ignore-scripts"
++    assert install["run"].strip() == "npm ci --ignore-scripts --prefix extensions/" + path.stem
+     own_path = f".github/workflows/{path.name}"
+     assert own_path in data[ON_KEY]["pull_request"]["paths"]
+ 
+diff --git a/tests/workflows/test_cursor_usage_monitor_workflow.py b/tests/workflows/test_cursor_usage_monitor_workflow.py
+--- a/tests/workflows/test_cursor_usage_monitor_workflow.py
++++ b/tests/workflows/test_cursor_usage_monitor_workflow.py
+@@ -65,9 +65,8 @@
+     paths = triggers["pull_request"]["paths"]
+     assert f"{EXTENSION_DIR}/**" in paths
+     assert ".github/workflows/cursor-usage-monitor.yml" in paths
+-    assert not any(path.startswith("scripts/") for path in paths), (
+-        "installers are covered by ci.yml's installer smoke test"
+-    )
++    assert "scripts/ci/**" in paths
++    assert not any(path.startswith("scripts/") and path != "scripts/ci/**" for path in paths)
+ 
+ 
+ def test_the_workflow_does_not_rerun_itself_after_the_merge(
+@@ -130,43 +129,33 @@
+ 
+ 
+ def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> None:
+-    defaults = workflow["jobs"]["build-and-test"]["defaults"]["run"]
+-    assert defaults["working-directory"] == EXTENSION_DIR
++    from scripts.ci.profiles import PROFILES
++    group = next(group for group in PROFILES["full"] if group.name == "cursor-usage-monitor")
++    assert all(command.cwd == EXTENSION_DIR for command in group.commands)
+ 
+ 
+ def test_gate_covers_clean_install_compile_coverage_and_packaging(
+     build_steps: list[dict[str, Any]],
+ ) -> None:
+-    assert (
+-        step_named(build_steps, "Install dependencies")["run"].strip()
+-        == "npm ci --ignore-scripts"
+-    )
+-    assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
+-    assert (
+-        "npm run test:coverage"
+-        in step_named(build_steps, "Unit tests with V8 coverage (Vitest)")["run"]
+-    )
+-    assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
+-    assert (
+-        "npm run verify:package"
+-        in step_named(build_steps, "Verify packaged contents")["run"]
+-    )
++    from scripts.ci.profiles import PROFILES
++    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci --ignore-scripts --prefix " + EXTENSION_DIR
++    scripts = "\n".join(step.get("run", "") for step in build_steps)
++    assert "--profile full --only cursor-usage-monitor" in scripts
++    group = next(group for group in PROFILES["full"] if group.name == "cursor-usage-monitor")
++    commands = [list(command.argv) for command in group.commands]
++    for script in ("compile", "test:coverage", "package", "verify:package"):
++        assert any(script in argv for argv in commands), script
+ 
+ 
+ def test_e2e_job_degrades_when_cursor_cli_is_absent(workflow: dict[str, Any]) -> None:
+     e2e = workflow["jobs"]["e2e-cursor-profile"]
+     assert e2e["needs"] == "build-and-test" or e2e["needs"] == ["build-and-test"]
+-    install_step = step_named(
+-        e2e["steps"], "Install into throwaway Cursor profile or skip-with-note"
+-    )
+-    script = install_step["run"]
+-    assert "command -v cursor" in script
+-    assert "cursor-usage-live-smoke.md" in script
+-    assert "--user-data-dir" in script
+-    assert "nexus-hub.cursor-usage-monitor" in script
+-    assert "exit 0" in script, (
+-        "missing Cursor CLI must skip-with-note, not fail the job"
+-    )
++    commands = "\n".join(step.get("run", "") for step in e2e["steps"])
++    assert "--profile platform --only cursor-profile" in commands
++    from scripts.ci.profiles import PROFILES
++    group = next(group for group in PROFILES["platform"] if group.name == "cursor-profile")
++    assert group.commands[0].argv[0] == "cursor" and group.commands[0].skip_if_missing
++    assert group.commands[1].argv[-1] == "cursor-profile"
+ 
+ 
+ def test_live_smoke_checklist_exists_for_ci_degrade() -> None:
+diff --git a/tests/workflows/test_presentify_extractor_workflow.py b/tests/workflows/test_presentify_extractor_workflow.py
+--- a/tests/workflows/test_presentify_extractor_workflow.py
++++ b/tests/workflows/test_presentify_extractor_workflow.py
+@@ -43,7 +43,7 @@
+ 
+ 
+ def test_verify_always_exists_but_heavy_steps_are_conditional() -> None:
+-    verify = load()["jobs"]["verify"]
++    verify = load()["jobs"]["extractor-tests"]
+     assert verify["needs"] == "detect"
+     assert verify["if"] == (
+         "always() && (github.event_name == 'pull_request' || "
+@@ -57,10 +57,20 @@
+         step.get("if")
+         == "needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'"
+         for step in verify["steps"][1:]
++        if step.get("name") not in {"Publish native profile summary", "Retain native profile reports"}
+     )
+ 
+ 
+-def test_render_is_weekly_without_a_duplicate_protected_push_leg() -> None:
++def test_render_is_premerge_scoped_without_a_duplicate_protected_push_leg() -> None:
+     render = load()["jobs"]["render"]
+     assert render["needs"] == "detect"
+-    assert render["if"] == "github.event_name == 'schedule'"
++    assert "needs.detect.outputs.presentify" in render["if"]
++    assert "schedule" not in load()[ON_KEY]
++    assert load()["jobs"]["verify"]["if"] == "always()"
++
++
++def test_report_steps_retain_selected_failures() -> None:
++    steps = load()["jobs"]["extractor-tests"]["steps"]
++    reports = [step for step in steps if step.get("name") in {"Publish native profile summary", "Retain native profile reports"}]
++    assert len(reports) == 2
++    assert all("always()" in step["if"] and "needs.detect.outputs.presentify == 'true'" in step["if"] for step in reports)
+diff --git a/tests/workflows/test_workflow_policy_repo_wide.py b/tests/workflows/test_workflow_policy_repo_wide.py
+--- a/tests/workflows/test_workflow_policy_repo_wide.py
++++ b/tests/workflows/test_workflow_policy_repo_wide.py
+@@ -265,12 +265,14 @@
+     commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
+     assert "npm install --global @anthropic-ai/claude-code" in commands
+     assert "--ignore-scripts @anthropic-ai/claude-code" not in commands
+-    assert "CLAUDE_CONFIG_DIR" in str(job)
+-    assert "runner.temp" in str(job)
+-    assert "claude plugin marketplace add ./" in commands
+-    assert "claude plugin install nexus-hub@nexus-hub" in commands
+-    assert "claude plugin list --json" in commands
+-    assert 'matches[0].get("enabled") is not True' in commands
++    assert "--profile platform --only host-plugin-load" in commands
++    helper = (WORKFLOW_DIR.parent.parent / "scripts/ci/verify_scenarios.py").read_text(encoding="utf-8")
++    assert "CLAUDE_CONFIG_DIR" in helper and "TemporaryDirectory" in helper
++    from scripts.ci.profiles import PROFILES
++    group = next(group for group in PROFILES["platform"] if group.name == "host-plugin-load")
++    assert group.commands[0].argv[-1] == "plugin"
++    assert group.commands[0].platforms == ("linux",)
++
+ 
+ 
+ @pytest.mark.parametrize("path", ALL)

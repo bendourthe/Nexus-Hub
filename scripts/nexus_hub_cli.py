@@ -628,6 +628,25 @@ def cmd_init(argv: list[str]) -> int:
     ).returncode
 
 
+def cmd_doctor(argv: list[str]) -> int:
+    """Expose the existing integration doctor and read-only settings diagnostics."""
+    root = _init_source_root()
+    runner = (
+        root / "scripts/lib/integrations/runner.py"
+        if root is not None
+        else install_home() / "scripts/lib/integrations/runner.py"
+    )
+    if (root is None and os.environ.get("NEXUS_HUB_SRC")) or not runner.is_file():
+        _eprint(
+            "nexus-hub doctor needs the bundled integration runner; "
+            "set NEXUS_HUB_SRC to a checkout or rerun the installer."
+        )
+        return 2
+    return subprocess.run(
+        [sys.executable, str(runner), "doctor", *argv], check=False
+    ).returncode
+
+
 def cmd_map(argv: list[str]) -> int:
     """Dispatch `nexus-hub map` to the nexus-code-search context-map CLI.
 
@@ -1249,6 +1268,7 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Seed this project's surfaces (Antigravity .agents/, Cursor rules, Claude stub).",
     )
+    sub.add_parser("doctor", add_help=False, help="Report managed-file health and persistent effort overrides without writing settings.")
     return parser
 
 
@@ -1283,6 +1303,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if raw and raw[0] == "init":
         return cmd_init(raw[1:])
+
+    if raw and raw[0] == "doctor":
+        return cmd_doctor(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

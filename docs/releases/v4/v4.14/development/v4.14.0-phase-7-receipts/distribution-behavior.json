@@ -1,0 +1,45 @@
+{
+  "output_sha256": "9781047ee32684d41b11bf4bfa5b0e8489d49c9b2c849a291f1b0efcefe8a703",
+  "browser": "153.0.8010.12",
+  "mode": "headless",
+  "checks": {
+    "section_ids": [
+      "route",
+      "shapes",
+      "identity",
+      "ownership",
+      "verification"
+    ],
+    "source_paragraph_present": true,
+    "initial_reading_themes": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "title_opens_first": true,
+    "slide_count": 5,
+    "slide_themes": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "all_slides_navigated": true,
+    "last_next_disabled": true,
+    "keyboard_focus_visible": true,
+    "escape_restores_reading": true,
+    "focus_restored_to_opener": true,
+    "menu_resets_first": true,
+    "reading_themes_unchanged": true,
+    "local_storage": [],
+    "reading_320_reflow": true,
+    "reading_320_double_text_reflow": true,
+    "page_errors": [],
+    "failed_requests": [],
+    "console": []
+  },
+  "screenshots": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-browser-final-z0d9_g9r"
+}

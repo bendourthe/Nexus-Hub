@@ -1,0 +1,12 @@
+[
+  {
+    "edition": "powershell",
+    "exit": 0,
+    "elapsed_seconds": 26.48399999999674
+  },
+  {
+    "edition": "pwsh",
+    "exit": 0,
+    "elapsed_seconds": 26.14100000000326
+  }
+]

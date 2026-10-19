@@ -1,0 +1,101 @@
+{
+  "artifact_kind": "derived_qualification_summary",
+  "observed_utc": "2026-10-18T23:06:08.381486+00:00",
+  "profiles": {
+    "full": {
+      "started_at": "2026-10-18T18:08:40Z",
+      "finished_at": "2026-10-18T21:16:16Z",
+      "duration_s": 11255.796000000002,
+      "platform": "windows",
+      "profile": "full",
+      "commands": 65,
+      "passed": 65,
+      "failed": 0,
+      "original_summary_sha256": "088e80d474725cd9b193aaa1f60623214198b9424d0c14a9d307872a619c1097",
+      "private_original_retained": true,
+      "pytest_passed_executions": 12199,
+      "pytest_skipped": 88
+    },
+    "platform": {
+      "started_at": "2026-10-18T21:16:23Z",
+      "finished_at": "2026-10-18T22:57:31Z",
+      "duration_s": 6067.733999999997,
+      "platform": "windows",
+      "profile": "platform",
+      "commands": 12,
+      "passed": 12,
+      "failed": 0,
+      "original_summary_sha256": "6b367c9193a81df4fbd79b7cd85735687c8748eb5f09c87f3838b40cf5bc597b",
+      "private_original_retained": true,
+      "pytest_passed_executions": 7255,
+      "pytest_skipped": 59
+    }
+  },
+  "pre_policy_unchanged_source_files": 8313,
+  "post_gates": {
+    "observed_utc": "2026-10-18T23:03:46.775417+00:00",
+    "monitor_exit": 0,
+    "monitor_commands": 14,
+    "monitor_all_pass": true,
+    "monitor_summary_sha256": "5232eca270ec68a5592984108a4923f3902b5590f9e7992d9566b3e1eda0c32a",
+    "guide_exit": 0,
+    "guide_counts": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "guide_all_pass": true,
+    "guide_xml_sha256": "143fc21a4751b0413b73321acf2daa7f7aeb4fc128fe6cdae935803236f1c64d",
+    "require_render": true,
+    "source_before_count": 8313,
+    "source_after_count": 8313,
+    "changed": [],
+    "missing": [],
+    "new": [],
+    "source_unchanged": true,
+    "new_guard_accepts": 0,
+    "duration_seconds": 153.71900000001187
+  },
+  "policy_followup": {
+    "junit_counts": {
+      "tests": 385,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "junit_sha256": "b2b6f21cd70dd18b69f896c7ba5a36cb17955be7ed1b31a516dc8fab0afbeaf0",
+    "fast_commands": 17,
+    "fast_all_pass": true,
+    "fast_summary_sha256": "d64e5dbe80f0de2847b4b1e0dae79f0b2d41e7b1e1815bb931a1f50cd4fbdc81",
+    "expected_changed_paths": [
+      "catalog/commands/implement.md",
+      "catalog/commands/plan.md",
+      "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+      "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+      "catalog/skills/workflow/implement-phase/SKILL.md",
+      "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+      "catalog/skills/workflow/implementation-plan/SKILL.md",
+      "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+      "docs/decisions/implemented/process/2026-09-23-scope-nonfinal-phase-tests-to-blast-radius.md",
+      "docs/policy/ci-cd-lifecycle-contract.md",
+      "tests/skills/test_cicd_lifecycle_contract.py",
+      "tests/skills/test_implement_lifecycle_contract.py",
+      "tests/skills/test_installer_parity_lifecycle.py",
+      "tests/skills/test_plan_lifecycle_contract.py"
+    ],
+    "expected_new_paths": [
+      "docs/decisions/implemented/process/2026-10-18-complete-plan-validation-cadence.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/validation-cadence-applied.json"
+    ],
+    "unexpected_changed_missing_or_new_paths": [],
+    "hash_scope": "All frozen native inputs remain identical; only the reviewed policy and its tests plus the policy receipt differ."
+  },
+  "limits": [
+    "Full and Windows profiles were completed on the frozen pre-policy source. They are reused for unchanged inputs, not claimed as fresh unfiltered runs after the policy change.",
+    "Focused policy checks and fast profile ran on the actual policy source.",
+    "Passing command execution counts are not unique tests.",
+    "Hosted integration is still required; no merge or release is established by this record."
+  ],
+  "new_guard_accepts": 0
+}

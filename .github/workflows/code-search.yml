@@ -16,13 +16,14 @@ on:
     paths:
       - 'extensions/nexus-code-search/**'
       - '.github/workflows/code-search.yml'
+      - 'scripts/ci/**'
       - 'scripts/ci/requirements.in'
       - 'scripts/ci/requirements-py311.txt'
 
 # Cancel superseded runs of the same ref so only the latest commit's run
 # survives (the single largest action-minute saver).
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
 # contents is the complete requirement.
 permissions:
   contents: read
@@ -39,33 +40,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Build the offline test image
-        run: |
-          docker build --tag nexus-code-search-offline --build-context ci=scripts/ci --file - extensions/nexus-code-search <<'DOCKERFILE'
-          # syntax=docker/dockerfile:1
-          FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
-          WORKDIR /workspace
-          COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
-          ENV PIP_CONSTRAINT=/package/requirements-py311.txt
-          RUN apt-get update \
-              && apt-get install --yes --no-install-recommends git=1:2.47.3-0+deb13u1 \
-              && rm -rf /var/lib/apt/lists/*
-          COPY pyproject.toml README.md /package/
-          COPY src /package/src
-          COPY tests /package/tests
-          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
-          DOCKERFILE
+      - name: Repository-native code-search-offline profile
+        run: python scripts/ci/run.py --profile full --only code-search-offline --reports-dir reports
 
-      - name: Full suite and benchmark with egress denied
-        run: |
-          docker run --rm --network none \
-            --env NEXUS_CODE_SEARCH_BLOCK_NETWORK=1 \
-            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
-            nexus-code-search-offline bash -c '
-            set -euo pipefail
-            test -d /sys/class/net/lo
-            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
-            python -m pytest extensions/nexus-code-search/tests/ -q -p no:cacheprovider
-            cd extensions/nexus-code-search
-            python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md
-          '
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: code-search-offline-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

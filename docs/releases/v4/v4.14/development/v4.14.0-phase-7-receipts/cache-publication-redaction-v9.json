@@ -1,0 +1,221 @@
+{
+  "observed_utc": "2026-10-18T18:02:36.590537+00:00",
+  "boundary": "Pending public repository publication; no affected evidence has been pushed",
+  "policy": {
+    "category": "Identified persons in local account paths",
+    "action": "REDACT",
+    "marker": "<redacted:local-user>",
+    "other_fields": "PASS: classified test results, source integrity hashes and non-sensitive command metadata"
+  },
+  "failed_fast": {
+    "passed": 16,
+    "failed": 1,
+    "skipped": 0,
+    "personal_path_findings": 33,
+    "original_summary_sha256": "50394e22671aacd00c9fdd1ff07d0585f83c771438bb4057089d36a6c407d6c2",
+    "original_retained_privately": true
+  },
+  "copies": [
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "original_capture_sha256": "1d27ef5dad7befa22cf52a0976bc336113e4fa1a3b09836a59d406c419b6dcef",
+      "published_sha256": "9581a5c56e6f589aec44c45ebfca4da784064540ebd95d456f5041ac4c4a6d27",
+      "representation": "redacted_capture",
+      "replaced_identifiers": 6,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+          "filtered_oid": "665522f0a35c7158b87622964f0304938c9651c1",
+          "unfiltered_oid": "665522f0a35c7158b87622964f0304938c9651c1",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+          "filtered_oid": "665522f0a35c7158b87622964f0304938c9651c1",
+          "unfiltered_oid": "665522f0a35c7158b87622964f0304938c9651c1",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "original_capture_sha256": "83beae30cf0d3f62d56545b2121a378061a592060ee1a58fd099723cc403af0a",
+      "published_sha256": "265ec6c24d1cf77f5b7ce7dc5e9dee3f2d47d41322c676b3f0d9c7c56c6e86fb",
+      "representation": "redacted_capture",
+      "replaced_identifiers": 9,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+          "filtered_oid": "e2fd20fee4253a5013ca70e878f5998cad755a67",
+          "unfiltered_oid": "e2fd20fee4253a5013ca70e878f5998cad755a67",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+          "filtered_oid": "e2fd20fee4253a5013ca70e878f5998cad755a67",
+          "unfiltered_oid": "e2fd20fee4253a5013ca70e878f5998cad755a67",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "original_capture_sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "published_sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "representation": "verbatim_capture",
+      "replaced_identifiers": 0,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+          "filtered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+          "unfiltered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+          "filtered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+          "unfiltered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "original_capture_sha256": "4b3c2a52f6378e73e7073cb5ca82d0b40a4214375b8fef6536d80051bcb7f2e5",
+      "published_sha256": "940272b13f69d7644026926d16775420a0c9d6d6ab87ff70a0867bc93ef18267",
+      "representation": "redacted_capture",
+      "replaced_identifiers": 7,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+          "filtered_oid": "b0a4cc9351d9c7766c083d43fac1ddd7f4baf868",
+          "unfiltered_oid": "b0a4cc9351d9c7766c083d43fac1ddd7f4baf868",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+          "filtered_oid": "b0a4cc9351d9c7766c083d43fac1ddd7f4baf868",
+          "unfiltered_oid": "b0a4cc9351d9c7766c083d43fac1ddd7f4baf868",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "original_capture_sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "published_sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "representation": "verbatim_capture",
+      "replaced_identifiers": 0,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+          "filtered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+          "unfiltered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+          "filtered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+          "unfiltered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "original_capture_sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "published_sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "representation": "verbatim_capture",
+      "replaced_identifiers": 0,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+          "filtered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+          "unfiltered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+          "filtered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+          "unfiltered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "original_capture_sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "published_sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "representation": "verbatim_capture",
+      "replaced_identifiers": 0,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+          "filtered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+          "unfiltered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+          "filtered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+          "unfiltered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "original_capture_sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "published_sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "representation": "verbatim_capture",
+      "replaced_identifiers": 0,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+          "filtered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+          "unfiltered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+          "filtered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+          "unfiltered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+          "bytes_preserved": true
+        }
+      ]
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "original_capture_sha256": "9372daaf3d337da2aeef66b3d77df48b067ccf1d1caaca178f3239aaba6bf254",
+      "published_sha256": "f1fe989b071b89faa8e4ee64b4f4769f0343386a9de8ec0230db8d531dff9a6b",
+      "representation": "redacted_capture",
+      "replaced_identifiers": 2,
+      "original_retained_privately": true,
+      "git_filter_checks": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+          "filtered_oid": "7222561394928da7766c84418950783af29d3b85",
+          "unfiltered_oid": "7222561394928da7766c84418950783af29d3b85",
+          "bytes_preserved": true
+        },
+        {
+          "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+          "filtered_oid": "7222561394928da7766c84418950783af29d3b85",
+          "unfiltered_oid": "7222561394928da7766c84418950783af29d3b85",
+          "bytes_preserved": true
+        }
+      ]
+    }
+  ],
+  "source_code_changed": false,
+  "validators_or_ci_changed": false,
+  "new_guard_accepts": 0
+}

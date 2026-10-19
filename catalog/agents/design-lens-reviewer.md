@@ -1,6 +1,7 @@
 ---
 name: design-lens-reviewer
 description: Single-lens reviewer for a plan / spec / requirements document - checks the architectural and design soundness of the proposed approach (boundaries, data model, extensibility, design debt) before code is written. Use as one lens inside the plan-review pipeline. Read-only; returns structured findings.
+model: opus
 tools: Read, Glob, Grep
 ---
 

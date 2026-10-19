@@ -21,6 +21,7 @@ on:
     paths:
       - 'extensions/copilot-usage-monitor/**'
       - '.github/workflows/copilot-usage-monitor.yml'
+      - 'scripts/ci/**'
 
 # Read-only: the job builds, tests, and packages, and publishes nothing.
 permissions:
@@ -35,9 +36,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: extensions/copilot-usage-monitor
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -51,18 +49,21 @@ jobs:
         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
         # them; ttf2woff2 is used only by the local icon generator, not this job.
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --prefix extensions/copilot-usage-monitor
 
-      - name: Compile (tsc)
-        run: npm run compile
+      - name: Repository-native copilot-usage-monitor profile
+        run: python scripts/ci/run.py --profile full --only copilot-usage-monitor --reports-dir reports
 
-      - name: Unit tests with coverage (Vitest)
-        run: npm run test:coverage
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
-      - name: Package VSIX
-        run: npm run package
-
-      - name: Verify packaged contents
-        # Required runtime assets present; coverage reports, sources, tests, and
-        # credential-shaped files absent (mirrors cursor-usage-monitor.yml, WN-32).
-        run: npm run verify:package
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: copilot-usage-monitor-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

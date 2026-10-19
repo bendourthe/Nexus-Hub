@@ -1,6 +1,7 @@
 ---
 name: adversarial-reviewer
 description: Single-lens reviewer that attacks a diff like a hostile user - abuse cases, malicious or malformed inputs, boundary and overflow conditions, and assumptions an attacker can violate. Use as a conditional persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never edits code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

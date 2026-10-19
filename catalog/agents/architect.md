@@ -1,6 +1,7 @@
 ---
 name: architect
 description: System design and architectural decision-making. Use for high-level design questions, ADR authoring, module boundary decisions, technology selection, and reviewing proposed architecture changes.
+model: opus
 tools: Read, Glob, Grep, WebSearch
 ---
 

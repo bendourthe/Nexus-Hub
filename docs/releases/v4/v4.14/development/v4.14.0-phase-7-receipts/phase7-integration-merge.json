@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "stdout": "Auto-merging CHANGELOG.md\n",
+  "stderr": "warning: in the working copy of 'docs/decisions/implemented/tooling/2026-10-16-design-system-lint-contract.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.14/known-gaps.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/todos.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/ci/profiles.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/installer.ps1', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'scripts/nexus_hub_cli.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/installer/test_core_settings_seeding.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/installer/test_doctor_parity.py', LF will be replaced by CRLF the next time Git touches it\nAutomatic merge went well; stopped before committing as requested\n",
+  "backup": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-before-integration-9ys0z9mo",
+  "unmerged": []
+}

@@ -1,0 +1,59 @@
+{
+  "raw_evidence_sha256": "4a917c0b90824a9011e81d68968ee0fe3c430fdc78ac3663fa955ce7c1cf7900",
+  "redaction": "User-profile path components replaced with USER; raw evidence retained privately. No outcomes or source hashes changed.",
+  "qualification_limit": "Actual complete Claude global installer in a private profile; no authenticated model call, optional live editor, macOS or paid quality/savings qualification. Optional dependency builds are not qualified solely by installer exit.",
+  "observations": {
+    "timestamp": "2026-10-17T05:43:09.340155+00:00",
+    "host": "Linux container, actual Bash installer",
+    "image": "mcr.microsoft.com/devcontainers/python@sha256:b726eb94f42fcddb10056835f2c474c9f9e12e717ba2b2d2f9a8b1d78feeb68b",
+    "network": "none",
+    "source_script_sha256": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396",
+    "cases": [
+      {
+        "case": "owned-upgrade",
+        "exit": 0,
+        "seconds": 325.84,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": null,
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "user_data_preserved": true,
+        "repeat_qualified": false,
+        "errors": [],
+        "log": "/probe/owned-upgrade/installer.log",
+        "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+      },
+      {
+        "case": "user-upgrade",
+        "exit": 0,
+        "seconds": 697.75,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": "medium",
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "user_data_preserved": true,
+        "repeat_qualified": true,
+        "errors": [],
+        "log": "/probe/user-upgrade/installer.log",
+        "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+      },
+      {
+        "case": "fresh",
+        "exit": 0,
+        "seconds": 326.26,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": null,
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "user_data_preserved": true,
+        "repeat_qualified": false,
+        "errors": [],
+        "log": "/probe/fresh/installer.log",
+        "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+      }
+    ]
+  }
+}

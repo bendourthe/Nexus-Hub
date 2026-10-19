@@ -1,0 +1,73 @@
+--- a/scripts/installer.ps1
++++ b/scripts/installer.ps1
+@@ -1343,35 +1343,46 @@
+         [string]$Scope
+     )
+ 
+-    if (-not (Test-Path $OverlayFile)) {
++    if (-not (Test-Path -LiteralPath $OverlayFile)) {
+         Write-Item -Message "Skip: strict permissions overlay not found" -Color "DarkGray"
+         return
+     }
+-    if (-not (Test-Path $SettingsFile)) {
++    if (-not (Test-Path -LiteralPath $SettingsFile)) {
+         Write-Item -Message "Skip: settings.json not present, cannot apply the strict overlay" -Color "DarkGray"
+         return
+     }
+ 
+     try {
+-        $overlay = Get-Content $OverlayFile -Raw | ConvertFrom-Json
+-        $existing = Get-Content $SettingsFile -Raw | ConvertFrom-Json
+-
+-        if (-not $existing.permissions) {
+-            $existing | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{})
+-        }
+-
++        $overlay = Read-JsonDocument $OverlayFile
++        $existing = Read-JsonDocument $SettingsFile
++        if ($existing -isnot [Collections.IDictionary] -or $overlay -isnot [Collections.IDictionary]) { throw 'settings and overlay roots must be objects' }
++        $overlaySlot = @($overlay.GetEnumerator() | Where-Object { $_.Key -ceq 'permissions' })
++        if ($overlaySlot.Count -eq 0 -or $overlay['permissions'] -isnot [Collections.IDictionary]) { throw 'overlay permissions must be an object' }
++        $permissionSlot = @($existing.GetEnumerator() | Where-Object { $_.Key -ceq 'permissions' })
++        if ($permissionSlot.Count -eq 0) {
++            $existing['permissions'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
++        } elseif ($existing['permissions'] -isnot [Collections.IDictionary]) { throw 'existing permissions must be an object' }
++
++        $permissions = $existing['permissions']
+         $added = 0
+         foreach ($key in @("deny", "ask")) {
+-            $overlayEntries = @($overlay.permissions.$key)
++            $overlayKey = @($overlay['permissions'].GetEnumerator() | Where-Object { $_.Key -ceq $key })
++            if ($overlayKey.Count -eq 0) { continue }
++            $overlayValue = $overlay['permissions'][$key]
++            if ($overlayValue -isnot [array] -or @($overlayValue | Where-Object { $_ -isnot [string] }).Count) { throw 'overlay deny/ask entries must be string arrays' }
++            $overlayEntries = @($overlayValue)
+             if ($overlayEntries.Count -eq 0) { continue }
+ 
+-            if (-not ($existing.permissions.PSObject.Properties.Name -contains $key)) {
+-                $existing.permissions | Add-Member -NotePropertyName $key -NotePropertyValue @()
+-            }
+-            $current = @($existing.permissions.$key)
++            $currentKey = @($permissions.GetEnumerator() | Where-Object { $_.Key -ceq $key })
++            $current = @()
++            if ($currentKey.Count -gt 0) {
++                $currentValue = $permissions[$key]
++                if ($currentValue -isnot [array] -or @($currentValue | Where-Object { $_ -isnot [string] }).Count) { throw 'existing deny/ask entries must be string arrays' }
++                $current = @($currentValue)
++            }
+             $merged = @($current + $overlayEntries | Select-Object -Unique)
+             $added += ($merged.Count - $current.Count)
+-            $existing.permissions.$key = $merged
++            $permissions[$key] = $merged
+         }
+ 
+         if ($added -eq 0) {
+@@ -1380,7 +1391,7 @@
+         }
+ 
+         $backupPath = "$SettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+-        Copy-Item -Path $SettingsFile -Destination $backupPath -Force
++        Copy-Item -LiteralPath $SettingsFile -Destination $backupPath -Force
+         Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+ 
+         Write-JsonFile -Path $SettingsFile -Object $existing

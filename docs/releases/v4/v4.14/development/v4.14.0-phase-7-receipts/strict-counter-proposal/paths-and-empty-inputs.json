@@ -1,0 +1,142 @@
+[
+  {
+    "runtime": "ps51",
+    "backend": "powershell",
+    "placement": "settings",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "powershell",
+    "placement": "overlay",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "powershell",
+    "placement": "both",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "bash",
+    "placement": "settings",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "bash",
+    "placement": "overlay",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "bash",
+    "placement": "both",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "powershell",
+    "empty_overlay": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "powershell",
+    "empty_overlay": "'   '",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "bash",
+    "empty_overlay": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "backend": "bash",
+    "empty_overlay": "'   '",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "empty_settings": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps51",
+    "empty_settings": "'   '",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "powershell",
+    "placement": "settings",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "powershell",
+    "placement": "overlay",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "powershell",
+    "placement": "both",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "bash",
+    "placement": "settings",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "bash",
+    "placement": "overlay",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "bash",
+    "placement": "both",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "powershell",
+    "empty_overlay": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "powershell",
+    "empty_overlay": "'   '",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "bash",
+    "empty_overlay": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "backend": "bash",
+    "empty_overlay": "'   '",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "empty_settings": "''",
+    "error": null
+  },
+  {
+    "runtime": "ps7",
+    "empty_settings": "'   '",
+    "error": null
+  }
+]

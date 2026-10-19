@@ -1,0 +1,38 @@
+{
+  "depth": "full",
+  "mode": "report-only",
+  "scope": "Exactly three before/after pairs; base5734e0e21c00",
+  "lenses": [
+    "correctness",
+    "maintainability",
+    "testing",
+    "project-standards"
+  ],
+  "findings": [],
+  "reviewers_ran_tests": false,
+  "v1_finding": {
+    "status": "confirmed and fixed inV2",
+    "issue": "Ordinary USERPROFILE moved real launcher output away from asserted rich target; NEXUS_HUB_HOME does not choose this writer root",
+    "validation": "PrivateV1threeassertion failures; independent testing finding; independent correctnessV2check and actualV2fixture passes"
+  },
+  "considered_rejected": [
+    {
+      "candidate": "Linux Join-Path keeps literal-backslash failure",
+      "reason": "All3childpaths now forward-slash strings passed through native Join-Path before literal .NET read."
+    },
+    {
+      "candidate": "V2launcher installs to ordinary shell home",
+      "reason": "Third literal profile arg restores original rich HOME/USERPROFILE inside harness before real writer twice; all original assertions retained."
+    },
+    {
+      "candidate": "Guard test still passes only during settle window",
+      "reason": "Actual copy script,mtime+120 and direct strict helpercheck; private removal of command re-recording fails at strictcheck exit3."
+    },
+    {
+      "candidate": "Extra abstraction for3paths or2profile assignments",
+      "reason": "Native one-line construction and adjacent assignments are sufficient."
+    }
+  ],
+  "conditional_lenses": "No runtime parser,guard enforcement,credential,interface or new destination change; no conditional persona added.",
+  "upstream_limit": "Installer receives rich profile only after shell starts; upstream PowerShell7 own rich-profile module-path startup is not repaired."
+}

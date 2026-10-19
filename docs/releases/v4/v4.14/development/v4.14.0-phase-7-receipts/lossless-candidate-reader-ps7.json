@@ -1,0 +1,102 @@
+[
+  {
+    "legacy": false,
+    "raw": "{\"offset\":\"2030-01-02T03:04:05+05:30\",\"fraction\":\"2030-01-02T03:04:05.120Z\"}",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "{\"value\":\"/Date(0+0530)/\"}",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "{\"value\":\"\\/Date(0+0530)\\/\"}",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "{\"slash\":\"\\\\/Date(0)/\",\"nested\":{\"Key\":\"upper\",\"key\":\"lower\"}}",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "[{\"value\":\"2030-01-02T03:04:05+05:30\"}]",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "[null]",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "[]",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "null",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "\"2030-01-02T03:04:05+05:30\"",
+    "error": null
+  },
+  {
+    "legacy": false,
+    "raw": "{\"2030-01-02T03:04:05+05:30\":\"key\",\"integer\":9007199254740993,\"arrays\":[[],[null],{},true,false]}",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "{\"offset\":\"2030-01-02T03:04:05+05:30\",\"fraction\":\"2030-01-02T03:04:05.120Z\"}",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "{\"value\":\"/Date(0+0530)/\"}",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "{\"value\":\"\\/Date(0+0530)\\/\"}",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "{\"slash\":\"\\\\/Date(0)/\",\"nested\":{\"Key\":\"upper\",\"key\":\"lower\"}}",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "[{\"value\":\"2030-01-02T03:04:05+05:30\"}]",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "[null]",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "[]",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "null",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "\"2030-01-02T03:04:05+05:30\"",
+    "error": null
+  },
+  {
+    "legacy": true,
+    "raw": "{\"2030-01-02T03:04:05+05:30\":\"key\",\"integer\":9007199254740993,\"arrays\":[[],[null],{},true,false]}",
+    "error": null
+  }
+]

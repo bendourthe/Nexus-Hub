@@ -1,0 +1,45 @@
+{
+  "observed_utc": "2026-10-17T22:35:51.276Z",
+  "full": {
+    "command": "python scripts/ci/run.py --profile full",
+    "status": "pass",
+    "commands_passed": 65,
+    "commands_failed": 0,
+    "pytest_execution_count": 12141,
+    "pytest_skip_count": 88,
+    "pytest_commands": 21,
+    "summary_sha256": "15cd281c002cc1cf118f9ea8c2b203644db72c988e71b8eee510e5fc8c46797b",
+    "retained_summary": "Temp/nexus-v4140-v5-full-terminal-20261017-retained-summary.json"
+  },
+  "windows_platform": {
+    "command": "python scripts/ci/run.py --profile platform",
+    "status": "fail",
+    "commands_passed": 11,
+    "commands_timed_out": 1,
+    "timed_out_command": "hook-tests (Windows PowerShell 5.1)",
+    "timed_out_seconds": 1800.937,
+    "completed_pytest_execution_count": 4645,
+    "completed_pytest_skip_count": 59,
+    "completed_pytest_commands": 7,
+    "summary_sha256": "c342f49217bb01190649434fa34c8b3099cd9c9b82fc0a4309e46c58aa9d5a14",
+    "retained_summary": "Temp/nexus-v4140-v5-platform-terminal-20261017-retained-summary.json"
+  },
+  "coverage": {
+    "scope": "scripts.ci line coverage only",
+    "covered": 704,
+    "valid": 807,
+    "percent": 87.24,
+    "branch_coverage_measured": false,
+    "whole_project_coverage_claim": false
+  },
+  "source": {
+    "regular_files": 8259,
+    "unchanged_after_profiles": true,
+    "unchanged_after_lock_recovery_and_serial_hook_diagnostic": true
+  },
+  "serial_hook_diagnostic": "native-hook-serial-diagnostic.json",
+  "current_global_windows_matrix": "native-windows-current-qualification.json",
+  "canonical_windows_profile_pass": false,
+  "integration_pass": false,
+  "new_guard_accepts": 0
+}

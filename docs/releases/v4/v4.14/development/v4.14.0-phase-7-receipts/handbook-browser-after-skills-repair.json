@@ -1,0 +1,2499 @@
+{
+  "browser": "Chromium 153.0.8010.12",
+  "mode": "headless",
+  "documents": [
+    {
+      "id": "overview",
+      "output_sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f",
+      "presentation_states": 100,
+      "reading_states": 20,
+      "open_reset_navigation_escape_focus": "pass"
+    },
+    {
+      "id": "distribution",
+      "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c",
+      "presentation_states": 100,
+      "reading_states": 20,
+      "open_reset_navigation_escape_focus": "pass"
+    }
+  ],
+  "presentation_states": 200,
+  "reading_states": 40,
+  "pixel_comparisons": [
+    {
+      "id": "overview",
+      "theme": "dark",
+      "slide": 1,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "dark",
+      "slide": 2,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "dark",
+      "slide": 3,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "dark",
+      "slide": 4,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "dark",
+      "slide": 5,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "light",
+      "slide": 1,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "light",
+      "slide": 2,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "light",
+      "slide": 3,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "light",
+      "slide": 4,
+      "pixels_identical": true
+    },
+    {
+      "id": "overview",
+      "theme": "light",
+      "slide": 5,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "dark",
+      "slide": 1,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "dark",
+      "slide": 2,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "dark",
+      "slide": 3,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "dark",
+      "slide": 4,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "dark",
+      "slide": 5,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "light",
+      "slide": 1,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "light",
+      "slide": 2,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "light",
+      "slide": 3,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "light",
+      "slide": 4,
+      "pixels_identical": true
+    },
+    {
+      "id": "distribution",
+      "theme": "light",
+      "slide": 5,
+      "pixels_identical": true
+    }
+  ],
+  "states": [
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-320x900-dark-1.png",
+      "sha256": "8c3de4954b6430c2e172a0bb6b534ee66bb176325a51ef44b77ab9fb6c1482bd"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-320x900-dark-2.png",
+      "sha256": "d00d6d553f54e96a4724d20bc443cb5a6eb3a21edb971bcd796bc51b2248660f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-320x900-dark-3.png",
+      "sha256": "977fcb2f7f33b8ce77220bb61d2b0fea85bb5d8b065ef3754d9b38371b809ce0"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-320x900-dark-4.png",
+      "sha256": "6d435a5c4ef2548c95572e8216b67b32b737f24a1420df5b7d046b18a3188702"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-320x900-dark-5.png",
+      "sha256": "998cd3229bcc03a6166bd33be4385dafba6b0ec51c48657f0e22e7a20684b1b7"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-320x900-light-1.png",
+      "sha256": "a5bdef46d153e8e5fdb1b4734ff3c65b5c1da8556b6e7ae61514d27d7badd316"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-320x900-light-2.png",
+      "sha256": "ee7d977d6c9e1df0396bad6b74160212427a52380cc6831bd3e65e9a46238f1c"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-320x900-light-3.png",
+      "sha256": "3372b8f2e218cafe3834e33cf643bd880e25c09e49f1e18f5319b42b2a350919"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-320x900-light-4.png",
+      "sha256": "1cc3623b0bef00b3bb75f9b802daac290a16a10496946eb39b3caca5e0cd4e7b"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-320x900-light-5.png",
+      "sha256": "007f827570df83b2ab10dfa3ba24f597f7873dcc81cb59840c07a324bf8fdeaa"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-375x812-dark-1.png",
+      "sha256": "572d4988eefa1291e109b125c00f76ffcc6e9381c585d4c747e673bb15bce060"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-375x812-dark-2.png",
+      "sha256": "8ab327b3e4d971e54d8d172ec0c8638bb572deec335e111d00d4093d3f944bce"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-375x812-dark-3.png",
+      "sha256": "cf36644ffc3614247164e7f901f9265e94d528639b1c692b6dfe6d3f636c574f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-375x812-dark-4.png",
+      "sha256": "0c302df9d0af6fcf5f26d3359eb417752979d34349d446e0dc7648f0529675bf"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-375x812-dark-5.png",
+      "sha256": "e630976a23f6f881e12c2987aa5c1aceba7e033e5e6bdbbc764c926a0592686c"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-375x812-light-1.png",
+      "sha256": "a7e2170f279ead3cc88bb39e6b27123a36f0a1a3ed4be092cfd61d53e05cdbcc"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-375x812-light-2.png",
+      "sha256": "d22d95ee6ecfd125c0e4561509c5a74ebae72d667654d38de4092f62ca18c30e"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-375x812-light-3.png",
+      "sha256": "7cbaf3d80bf6a5e882d69d70ddaa0c33d56eb97d1e7d33cedba9abe676adecd9"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-375x812-light-4.png",
+      "sha256": "f11c7493eb2fc9c96e514631bdb368f9ec5f674dc25c14e58d544003ea94f763"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-375x812-light-5.png",
+      "sha256": "3c409d03c6980a56cbb9295b0a80ba7bf29c6bf94fe8db0964a972e12924da52"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-390x844-dark-1.png",
+      "sha256": "c37c024bfc876483b0f8ab6ba10a9afa52d5176b2c8245738e20185f9c55aa58"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-390x844-dark-2.png",
+      "sha256": "257a7971ee4fda9197e312d231994af0c58d59adc741f33dcfbe16822b06450f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-390x844-dark-3.png",
+      "sha256": "8acb49680caddacd175a39b18d1dd7dcd1e0cec7eb05773d4f9d6ea7772f524f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-390x844-dark-4.png",
+      "sha256": "60aa89b899eb94fa42114b2ac9107d06135b35223e140c9a653fc6bc21a9d597"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-390x844-dark-5.png",
+      "sha256": "ab86e6ac1509d11465d77e4a986c93b740d5e59df17123a9a86b1fa014546def"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-390x844-light-1.png",
+      "sha256": "9fe24e68a117342de63115ac02676ecfb3baefa29bfc790c7a623ae1940ace84"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-390x844-light-2.png",
+      "sha256": "ef2af934bd7745cdd1988b2c3bc770b60937e7040309358627101c6b31659c07"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-390x844-light-3.png",
+      "sha256": "a6f1138e4ed52df102c2d4e050877d8e4952b3b83f1bae5e34ae21caca4c41e5"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-390x844-light-4.png",
+      "sha256": "0176bf24da62e33b4433af703119da8720e00df62798c78258b95b2763d8c5d9"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-390x844-light-5.png",
+      "sha256": "4b439339154b956321820a8b277dad2f97b72823693696c94c29710e31f9ed25"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-414x896-dark-1.png",
+      "sha256": "83b9e9984735578dc66fb9005e0d602d29bf1e18c3e7617a969b0bf54f92fc4a"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-414x896-dark-2.png",
+      "sha256": "d0efd8f1b438cb35d66dbcb81f414053d2cf55729a2d006aae558defc60df2c4"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-414x896-dark-3.png",
+      "sha256": "e26b1e5e43a2e6048ddadf83953a90f2d6857423e00eddbe52bd298294db86e2"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-414x896-dark-4.png",
+      "sha256": "351820970193f510717ed0f304ff2ea995dbfd8dd67de0c954e7ef7dd7bd1ac7"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-414x896-dark-5.png",
+      "sha256": "d671c3cca3851578caeb7e14e10bdf725a4177f2a3a5ebfc973e1ad53bd6d272"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-414x896-light-1.png",
+      "sha256": "c11653d0accfe4f6b80569f12b5f6f944e16307cc01ab0e634b40ecd0435fa46"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-414x896-light-2.png",
+      "sha256": "c3f3f35d0b00a112378cdecebc34db06547597b81a4eaa06e2856607a77d9cbc"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-414x896-light-3.png",
+      "sha256": "b72346f33ce4a3d97ddf920ef20dc8137e72b9a37ada1b49043661995875f154"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-414x896-light-4.png",
+      "sha256": "084e492fd00c85af1e3b61f00fff6988c2bf1d4c7de749e943a71daf81350247"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-414x896-light-5.png",
+      "sha256": "a419d0e3ce5833598b88186a379196f7a42be4dbbc456ef079a11537c4b22476"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-768x1024-dark-1.png",
+      "sha256": "22e828731cc651232c4746358a5f1c02a56d353eb22e0d5c45143310f606c132"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-768x1024-dark-2.png",
+      "sha256": "56e165623f07d7b466f5582d783436805a8d2c76aac870773f868d53f0b00161"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-768x1024-dark-3.png",
+      "sha256": "443ba03863281c2daaac0233982cfbd95f69e6b1ecda714261973928b7560afa"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-768x1024-dark-4.png",
+      "sha256": "394f2e1a35796b2764abb7db910280cebc6caa23ab970270f1dedc65bbca4326"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-768x1024-dark-5.png",
+      "sha256": "1f4fc3cdba47fe018a0a8d960c795ac9dce348dd2fef7bc4d0fa5627f36d63b5"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-768x1024-light-1.png",
+      "sha256": "ac386b1c3a639d8cc6c1d72fa253b53f8ce396f46d35327767ed950742b2078f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-768x1024-light-2.png",
+      "sha256": "0231822db69a4d8474ebba711d203d5c78cb463effc23b36cff35f9a9119d5ac"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-768x1024-light-3.png",
+      "sha256": "c293be68f088d2a454378e59d25f158dcf0adb329615a013a0f35bb0270c2c6b"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-768x1024-light-4.png",
+      "sha256": "72ccb3065add7c91c6bdb029b0f51bb9d0c96ff67a877095ecce23d22ea9c7ab"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-768x1024-light-5.png",
+      "sha256": "5bb91d246d315d58f0f8849503dbeb1900406cb62879896e001ce2142b948668"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-1024x768-dark-1.png",
+      "sha256": "74a36c241b2d456a4e1b0fae9476c9f43b78fe00cb3cdb9ac69e6c08bd4532ef"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-1024x768-dark-2.png",
+      "sha256": "8c90d756e2e453fc362f00d906fa951f91e7f20a5bf24e904440392331abecb1"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-1024x768-dark-3.png",
+      "sha256": "92e788d0810e071ab157e9543529735cb94fcda061958abd3f4050a3af51d9de"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-1024x768-dark-4.png",
+      "sha256": "48d6ed9a547e5a007093a9b216b131f2baad5709a32cf2a1aea0fd8e251d754f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-1024x768-dark-5.png",
+      "sha256": "1241ced62b0d84e278782c0ac855ad9f78ddb1b853aa1d49dd145c05c717774a"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-1024x768-light-1.png",
+      "sha256": "fb2fd1fd161762852b0d1f5818b195836b162ce54d82f163949de8246319e21e"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-1024x768-light-2.png",
+      "sha256": "e4d6b489e4f34858e8004f86ea1131914c6766dbe3ed25ced6dba99f63a3a541"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-1024x768-light-3.png",
+      "sha256": "3657e70da788f3fbecd68edce9b2aa5f8b031e9829fdab0ca854a92c3abeee10"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-1024x768-light-4.png",
+      "sha256": "6037ef1c60c2b56292186bc8b21cbc73e1c5da571955a607eeb4e940df4bebee"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-1024x768-light-5.png",
+      "sha256": "dbd14654977155fec3cd09a6d248ad5cbd44808f8e58960383fd554a654cfe20"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-1280x720-dark-1.png",
+      "sha256": "03e1c3ab86c381e16d12ec27b4539c7a313e0a62aca292b7244f63d8dd133eab"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-1280x720-dark-2.png",
+      "sha256": "5457df5fbc2a81d88a5393fa290c9e9b95ccb3c8f9b36f03b67d35f32c08433f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-1280x720-dark-3.png",
+      "sha256": "3c7106d067331e2cbe2380f2a051033b4746c616bd384871e48c9a5ba53f7b3d"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-1280x720-dark-4.png",
+      "sha256": "7d4686c2bb14060defe68aaa6311bf3669856f37a179f1f506fad4ed51a1e165"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-1280x720-dark-5.png",
+      "sha256": "233d0e09977d12003f91c8ee446a4438987f1108f76d198fc19d33363f9cb0f8"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-1280x720-light-1.png",
+      "sha256": "5cff41177e5920749cb5aba889ca925e239358c827f707c50058f21822be4e7e"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-1280x720-light-2.png",
+      "sha256": "5232b27a16bca270c50a608ed914199f3986b295cf2ab9f355c71c4f2d93216b"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-1280x720-light-3.png",
+      "sha256": "bd6115952b7da905330eeb419f9b6a295d569a60da020a119751c7bd9c7f3f25"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-1280x720-light-4.png",
+      "sha256": "630c8fd52e446985f14323154a35d5fa88784b4befe7b47a73ee982f3557fa31"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-1280x720-light-5.png",
+      "sha256": "033a50cc06b42038701029f04748e94b4fccd0720c5ce5f911be548b41693fe4"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-1366x768-dark-1.png",
+      "sha256": "03ab0be64ed410974c6f9c9d0b9d54f4c4103238200112a14e2f61f62eefef11"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-1366x768-dark-2.png",
+      "sha256": "1c52c53e7f40a8711ab367b731e74a0a6a24a83bd007cb5629c043a95240a050"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-1366x768-dark-3.png",
+      "sha256": "521ef1af766d6e879506db8ad949b77e224607e3b60009aff8c0a0841cd11cb4"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-1366x768-dark-4.png",
+      "sha256": "d14ea67cb7357132ab5085571d7296cd42d396a5ae3aa914171d9b673779e83a"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-1366x768-dark-5.png",
+      "sha256": "76b69633adf59df7bfdd163da7a8925ebcced013f9a3d11382a468690dbc03cc"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-1366x768-light-1.png",
+      "sha256": "e90177a992ed1d6ecefef56c94277c1516c321a55c24c02a0b5984c192937a09"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-1366x768-light-2.png",
+      "sha256": "6cfc54aa488ff6c3d1cded296975b3439b93ffb6cd596046b4c25caf7650b871"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-1366x768-light-3.png",
+      "sha256": "6763bcb26b0d26e96eb914498c3dba23c8358d0f292b132b2401aeae0fce4ee9"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-1366x768-light-4.png",
+      "sha256": "d4520aa76d304a991fbf44272172f1ca2bbe0640e3505ab76bfbd4e3227f4591"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-1366x768-light-5.png",
+      "sha256": "acc4c4bc97b091421be8f2c22223ad45ea0ca2a63069faca00f445a5a58fe065"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-1440x900-dark-1.png",
+      "sha256": "83c870a4add3639551de1bbb1fdcd1f08cea80ad60ef495c18c33774169a6268"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-1440x900-dark-2.png",
+      "sha256": "2330b7e2b2e6c1d1fd4f04c88dda9fe6d305e512059027f985e832994192834c"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-1440x900-dark-3.png",
+      "sha256": "915f462091c76a38ef5550c2717c55407b31eeb365c5c7c849b0790f4f229eff"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-1440x900-dark-4.png",
+      "sha256": "2868b69f350577ec4812b9fe6978f637ca2b1931de5e82aebf7e85225d709500"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-1440x900-dark-5.png",
+      "sha256": "bb5502e7cad222bcc00ef1b7ec0a05cbaab4652f2f8138cbac88e09f316d907a"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-1440x900-light-1.png",
+      "sha256": "6762d3d8f8823d7e33bbb6ac42229745302982dfb4d2d0d5a9ae0ee7c01803b6"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-1440x900-light-2.png",
+      "sha256": "625d63eb64f267effe3b28802db8bf63bd05c452841683751ad352ed040c38a9"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-1440x900-light-3.png",
+      "sha256": "2b5c7e4fb89ec147c4c81aa93d368be16d3245b53d3e83d127af07b42fbe2dc2"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-1440x900-light-4.png",
+      "sha256": "87ca566ff7adce96c2dde13c68d4f7700e17628b13a66395e47ecf79021a2980"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-1440x900-light-5.png",
+      "sha256": "eae5656f4d8482778ac54dca5fdc95e1b78cec345d5c67ecdd1a38025724efca"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "overview-1920x1080-dark-1.png",
+      "sha256": "041df06c53a1b61d593fb9a478d86e1e4ff0f953c7af6f8629abba8222b5d669"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "overview-1920x1080-dark-2.png",
+      "sha256": "32510989cc4ac2645dd19e8130c9e8f83b2a1fd5303aaf2b9ee6bd9efde4f5d2"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "overview-1920x1080-dark-3.png",
+      "sha256": "4ee01d44f08dca7fce9d0dc5f3737e01864fe64a5ca8d0c42f7eacde1d8ad85f"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "overview-1920x1080-dark-4.png",
+      "sha256": "b81e9cdd405163c039ff1914ffeb1622eb8b89605d0b5de29bc7517019810b94"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "overview-1920x1080-dark-5.png",
+      "sha256": "e5441d345961c0d9035e53fbe3d09fa57fc57dc6f3cd92ab16d35e9717522390"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "overview-1920x1080-light-1.png",
+      "sha256": "20d01f2f6b364b6a5cdf3d948fd096e924d8d4dc6f0afcd95de0ceaf2fe3fd9d"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "overview-1920x1080-light-2.png",
+      "sha256": "548239d18ebbcbb4349ea79331101cfb8926e5b0e189a4f0e5b53c56362e9e0c"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "overview-1920x1080-light-3.png",
+      "sha256": "d2089a1872150651bb8dd5b44439099f3fefc46f8a02d5e7670e2736a1205ca3"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "overview-1920x1080-light-4.png",
+      "sha256": "d48884f667bbfa6bfb33a95066fd164bc2d4dff27e4c1fbb3c0c9c88956f216c"
+    },
+    {
+      "id": "overview",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "overview-1920x1080-light-5.png",
+      "sha256": "55fcc0441fc7c3ca3ef62bf68c92a1a3cc733a81be9cbbea892736bbc69f94ba"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-320x900-dark-1.png",
+      "sha256": "d76bf6abdc1175f8fca32845da32065326d9c9cb866289b14a2e3b511786aad8"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-320x900-dark-2.png",
+      "sha256": "789a889e2ef0f1600b7c34c2d8e584b850f8e61033db04ccf0ed3d2a90389208"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-320x900-dark-3.png",
+      "sha256": "8a925b21edcd549b80d8be7910e0baa2ac79bcd52e4a602fcf4a3558f24f9cb2"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-320x900-dark-4.png",
+      "sha256": "32f08be933fd496a7a548985d40489a90de4a65d3d3730b67c3a05ad6bb55e38"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-320x900-dark-5.png",
+      "sha256": "38e35c7490dff41d34faf519ad243e9cac929e8e3f6b16de7c5f8ea8d70934f4"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-320x900-light-1.png",
+      "sha256": "c833afc9c4b2f5b8654bb7e88bb6f6750588a082ef7378b1a3f888cfe42ae28d"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-320x900-light-2.png",
+      "sha256": "6cf4fc8c2aa51e5309524858ddc166d2733b05407d89a4d45c8af588f20cb941"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-320x900-light-3.png",
+      "sha256": "b9d203164bcf1e958829484bf46a731ccdba09f3d2406675b14d2709eb5b40cf"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-320x900-light-4.png",
+      "sha256": "ec2978c14894654a2882067138eafc732da81afdc9d6dbd91290f54bdff20f80"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        320,
+        900
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-320x900-light-5.png",
+      "sha256": "42ddeff93f3f41b66e3ade229cff256c4aa6cfcde0b17d2c103063596b3ef913"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-375x812-dark-1.png",
+      "sha256": "490425f86c4e957015d05bdc7094e57858d9380877a91197ff19987dcb5b222d"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-375x812-dark-2.png",
+      "sha256": "c826d2f014562f14474a160ae70ddd6c19a816813d36ec19e8fd516ef6b9ce4f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-375x812-dark-3.png",
+      "sha256": "5187527a167828f4a120cece3abab763cdb444bded985d0af7ad9a93b1314a29"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-375x812-dark-4.png",
+      "sha256": "f5e4d179039f42b2e4f0737f923c3773638228ae480787ccb4a0e5601832ff79"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-375x812-dark-5.png",
+      "sha256": "f9d1c13deb3066525b85d70c0278c7ea382383854009e4260726307ca535b59f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-375x812-light-1.png",
+      "sha256": "f70b44504a267e64997f757a243b0345d39b1844c7d0132c8f7698f22e87b6c1"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-375x812-light-2.png",
+      "sha256": "db0f9221915b4a340de274b65a27b2443b9364dc6765c45c17ccfc8c24115439"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-375x812-light-3.png",
+      "sha256": "3076e9d34ed90ec9f1946d3ef960e2f6fb623166ed564fbfb4ba515ac177762e"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-375x812-light-4.png",
+      "sha256": "17b86b1226e762c6c25c91f28207f336ec531359c71d976ea256e7924e9c3489"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        375,
+        812
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-375x812-light-5.png",
+      "sha256": "dd0e03bf77898e10fe58af14234044dfb6411d9489854ba5b18941b1566ff411"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-390x844-dark-1.png",
+      "sha256": "a60f548c4317f845e9ed3ad04c0cd60e5b5849598616655c04eb82bde30f718b"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-390x844-dark-2.png",
+      "sha256": "510355748408328e784656d182e4da5555f257d3f17874f2a93a7f0639b3c5ee"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-390x844-dark-3.png",
+      "sha256": "df1af8758f4b33bfffa214f18e587448ba1228c4008a50e15894a54bd3de11d5"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-390x844-dark-4.png",
+      "sha256": "72f0bfe432a107bc4f737722ff6220cd448d6f99d0f3e46f6eab823add237903"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-390x844-dark-5.png",
+      "sha256": "c1b16936f9f9f4d74cf53dd6449547c8491e34c7c0cc45865998f7f57eca693f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-390x844-light-1.png",
+      "sha256": "145171d3ea1850779885896caab61805b496130b1a4c3825156fd25448210ea5"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-390x844-light-2.png",
+      "sha256": "072c0c6bdc64453ac08ea84429edff040ce4ddbd9444814ca6b13b26bc0297b4"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-390x844-light-3.png",
+      "sha256": "d475a5893e68a8f706e57488353327765afd7473fa60bf3e1ae6bb3a9086cb4a"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-390x844-light-4.png",
+      "sha256": "5271ce54f980eda5a96519478174eb4ebe811e719b17318f575c20d700f038ed"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        390,
+        844
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-390x844-light-5.png",
+      "sha256": "c9dfcbff540e79283d879d213aa5595be566b86a794a666c6d167949413df19e"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-414x896-dark-1.png",
+      "sha256": "761d3d2e09192804f572fe248dacfb934d4ae56d8325a1e291a30cac28ac1c70"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-414x896-dark-2.png",
+      "sha256": "807ebe1014ac4b052d43d7aa0249d16a1f72e7afc876758a1e518706f911cdb4"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-414x896-dark-3.png",
+      "sha256": "970fbb50a464a3b0a526b67db8ddef5fc37420df0aef02a71068532cb57ac3d6"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-414x896-dark-4.png",
+      "sha256": "908ff8a38e10bed55bc9821e6ce6211e41856736add5e0d84bf0e43ed3a10cee"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-414x896-dark-5.png",
+      "sha256": "0e81052dbb0ba0df2a1a5b1f7d092a301d57c7802d6f8cafa9fecd5fe533dfda"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-414x896-light-1.png",
+      "sha256": "7dfa4857d1bc339374d9d6bd57fabf4692902e184143f32c81b0b168172a575f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-414x896-light-2.png",
+      "sha256": "b957fd6c48400916fcaae92ce5d83ba322dc94b1c7679e70a7561fb144f64559"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-414x896-light-3.png",
+      "sha256": "aa8fb787e1bcd6cec44331aa89bf6150783468f35d19c87c6a60feb393d62bad"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-414x896-light-4.png",
+      "sha256": "d42a977b58bfc1b8d86e8272be32081df6353fcfc8d00a692a9e7a78979072bf"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        414,
+        896
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-414x896-light-5.png",
+      "sha256": "ef11eba162d18a57505bee079889ac84ee1383e199d5d127a4fc258b3b30387d"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-768x1024-dark-1.png",
+      "sha256": "869f3291fcbf2a873c65f1d69ad61bdc2221520a07d4e03a374f2692688324e0"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-768x1024-dark-2.png",
+      "sha256": "71738153a49ce670f4f29395457d164eb676999e8e2438334bab8718cbdbd69a"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-768x1024-dark-3.png",
+      "sha256": "6a2399859ea36c82d19616c7b4faef26f932ae2752bf86cf5b888eeffa3c610e"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-768x1024-dark-4.png",
+      "sha256": "3a9ab24461cc1b3d2216833224eab08dffa09c12d38265d2c6e37b6f65d9bb14"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-768x1024-dark-5.png",
+      "sha256": "8c364534ae0f04683d23e47c56b3673203c502c99d19c5391d7db64af0577385"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-768x1024-light-1.png",
+      "sha256": "bd3edd5e5f2ced205e8297dfb78df52c0a3712d596b2d6bcb3402c0228a58563"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-768x1024-light-2.png",
+      "sha256": "78e231d8fd3e832ba39d9e70a6d35e552fdb7a86d7ffd66749121a43383a7cde"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-768x1024-light-3.png",
+      "sha256": "1190aad256cb63a669f301e1a6cad1e335af69ef88e9c798014d6cd1f999e636"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-768x1024-light-4.png",
+      "sha256": "e7bcf1d537b058a80ab4182d2e23c9af0cff16c73210c3178176a5077690ee08"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        768,
+        1024
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-768x1024-light-5.png",
+      "sha256": "bfcb6df32548c65df8e22440d793734828c0da5a92a88c84fe829747c3c3562f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-1024x768-dark-1.png",
+      "sha256": "9826324124929c3d4d54a9053d4bff0e254110878a37667bfc83cf8853b8bbef"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-1024x768-dark-2.png",
+      "sha256": "dff7235af8926dd4dfe785a4a80e050ab9cbb535211b0c3cba66c7822fb430e1"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-1024x768-dark-3.png",
+      "sha256": "2156786a4c385dc9a733a56571fd649d7fd85d740bb186ef1752d3b299d1f926"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-1024x768-dark-4.png",
+      "sha256": "b790a1fdfa617b9d63f65bb4a4d461dc8570efefb1000a65667f56b35f45056d"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-1024x768-dark-5.png",
+      "sha256": "5f9373b6b8797894c4d6541461b06a8fe5bcfcb79bde2853954e20700eb0f16a"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-1024x768-light-1.png",
+      "sha256": "d1f55ff1c35b4820e721c3d5126a832c789cb1f3367e692dbdf8299568f0b168"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-1024x768-light-2.png",
+      "sha256": "003b791043ecf863d980968973f68750294252e694083a75d664bcbe6f708d95"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-1024x768-light-3.png",
+      "sha256": "53f5b179f8cd19cdd72a4489b97c8b2ae68bf2c146903635bb5eafef98e0abdb"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-1024x768-light-4.png",
+      "sha256": "367d0e969805dea15283edd89ac1fbd16b203d48c256e2b43c8b36a0b3746256"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1024,
+        768
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-1024x768-light-5.png",
+      "sha256": "ab252ede5e9e7c2acab0cd20eddf246f317a23bf93b7897616fd4ef14e58b82e"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-1280x720-dark-1.png",
+      "sha256": "69577ece1af5bf1f4c738e8ff56a8eae944147b04598f5a66c0babc529be2400"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-1280x720-dark-2.png",
+      "sha256": "c95b2f10c5566da603f25100301e9e0729e86a49ce13370a3cafcf641aae3848"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-1280x720-dark-3.png",
+      "sha256": "8e1cc4c453ac1f3b1472345c3c0f84eedae527241fe0990db782e209edb7bba9"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-1280x720-dark-4.png",
+      "sha256": "2af19dfd13eddb3da77d0f3e400a57d90597c74de6ea42182812913d16b54414"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-1280x720-dark-5.png",
+      "sha256": "71a3cdb0031599c5466f6a85dcfa5af443bc6af87fe7df02d84a809bb8b4c57d"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-1280x720-light-1.png",
+      "sha256": "b636c7d43c315f24539588d9bea7364f17868299ff58170a94c2d30c2ca2da55"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-1280x720-light-2.png",
+      "sha256": "9aa0bfab2ed8c2639baba84a0c5d1672560c640538c66363b9ccfb27b693fe15"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-1280x720-light-3.png",
+      "sha256": "29b6e45bfec35d262b9c9f0df9dc1c87d294aaba663ff76ffcec66cda7bad4ee"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-1280x720-light-4.png",
+      "sha256": "688803c3a0390784b9a2f0637d7251ce94226de0308ac4b7574f55f041c4f5ea"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1280,
+        720
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-1280x720-light-5.png",
+      "sha256": "14618e641779a2b935216fe320d6862405b6744d31f656d4160234f46c44f604"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-1366x768-dark-1.png",
+      "sha256": "c6e7dbc6dee77bf1ed19a2384985c8cd58c0700418ca382fbd77fe6c08c6332a"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-1366x768-dark-2.png",
+      "sha256": "80a351e6cdbaa014242400bd1e8c40d478aec9b5c3d3ce282c6670a80e6e362f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-1366x768-dark-3.png",
+      "sha256": "be1d5ad671cc0424e5a015692a27438659f80021b0396da1da9fd00b92dce290"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-1366x768-dark-4.png",
+      "sha256": "72bfad047d5548208df3a66a8fa8a2af08737efe7890f097d6cee26d2c3d5610"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-1366x768-dark-5.png",
+      "sha256": "0831be80fd6e65d48fc936b470d28694f619fa5e6523f3fa6ad679ca4c18db46"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-1366x768-light-1.png",
+      "sha256": "3c75200c422026bf9c5725546fd10d990e1ac5f917a4c0a649e2d54d672b0675"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-1366x768-light-2.png",
+      "sha256": "59ebfee3c4260d4dc2ce1d1a6098d79f85a4330ed8f7f61e5e39fbe8a96799e6"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-1366x768-light-3.png",
+      "sha256": "401bc7df768b020161fd2f485ed2cdab5db0cd117f820558f71ef28bc61a9e97"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-1366x768-light-4.png",
+      "sha256": "a14ea819499562596b62031a00a5fcba79b7dd5f1c54ea8cd83c1e3a9ba55cec"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1366,
+        768
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-1366x768-light-5.png",
+      "sha256": "9d3e267b47c7d6bb0280c1c2bfc1a2deb964be0fa578b159f0736353ead748b7"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-1440x900-dark-1.png",
+      "sha256": "e8f62fd01f684823efd4e60220a9751a752e02235d0d4e8aaee5039501b21831"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-1440x900-dark-2.png",
+      "sha256": "c0517522d99bbddfe08090a9d0943db92766b5f6a06be175e4c0e30a52941ea8"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-1440x900-dark-3.png",
+      "sha256": "ed041f4de535aefa790ca80a90f841952409bf0445afe3c0c4da67bdbb73adb9"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-1440x900-dark-4.png",
+      "sha256": "e0ae39a225f729b424e09c4ba13a1f23c104871ce2ec9304f3429eda1a6b36f6"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-1440x900-dark-5.png",
+      "sha256": "7b3b2bf5531d4a84f1d63ccc3046c0a80b5aa55be63f59310dace9b9c8a82ea9"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-1440x900-light-1.png",
+      "sha256": "1291a21d9f2a64f455aa2514e80c89a445f1400558685f17ecc3c831041d6318"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-1440x900-light-2.png",
+      "sha256": "5bb893571b78f510e3ff132005832f3c023596e4f2dc6bb84025ad41bce38c93"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-1440x900-light-3.png",
+      "sha256": "9e19b13a265b1f060a0f17c20918db914cd990d976cd436d2165cee2bdbdc5cd"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-1440x900-light-4.png",
+      "sha256": "01300f07120e41378503fbc93f67c42a96c6a910721fd813491ec574a767c8bd"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1440,
+        900
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-1440x900-light-5.png",
+      "sha256": "fa3bbc62cdb27ed3bbe3d7e212a2ce2ff1d5e695399deac67605c8caee4b66d1"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 1,
+      "screenshot": "distribution-1920x1080-dark-1.png",
+      "sha256": "43717c94369e2fc225ff5a169fbcf2af30ccc5d9fa6683f492bca6008ed7af6b"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 2,
+      "screenshot": "distribution-1920x1080-dark-2.png",
+      "sha256": "f67970283ded322f47ab4525a357c1d60ea164579cf9082067473dbebe95a432"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 3,
+      "screenshot": "distribution-1920x1080-dark-3.png",
+      "sha256": "d976cfd20387e81a3d1f49e0451b6d6a049742c2c6c2eac6c7cd2c6d93aff17f"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 4,
+      "screenshot": "distribution-1920x1080-dark-4.png",
+      "sha256": "bb625b9c578e16c213a01a90c2c2bcac7f9a546da0160964e1d9aa560ecb07c2"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "dark",
+      "slide": 5,
+      "screenshot": "distribution-1920x1080-dark-5.png",
+      "sha256": "83ebb7b07024a50728b737eec3e48552824d0b65c95674020e624e442ae3a0c3"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 1,
+      "screenshot": "distribution-1920x1080-light-1.png",
+      "sha256": "e758a12235e69f8c9fa3668f41ed7abafe8f9c49857360d84964a3840d04b875"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 2,
+      "screenshot": "distribution-1920x1080-light-2.png",
+      "sha256": "e07e8f2cf57ef20e1e44a506a9eda444d5b62479d7c7eace5a2ef4fae66584b6"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 3,
+      "screenshot": "distribution-1920x1080-light-3.png",
+      "sha256": "3ca72e1638a4d7bf470dfafef48e3b8f4603bca896939a6278a6f7456d6644a8"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 4,
+      "screenshot": "distribution-1920x1080-light-4.png",
+      "sha256": "ad3aa5345d5f6a0316a682e53b1e772c59d62e3945df7f3814498415d4e1d895"
+    },
+    {
+      "id": "distribution",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "theme": "light",
+      "slide": 5,
+      "screenshot": "distribution-1920x1080-light-5.png",
+      "sha256": "cfb1dade8d63f8986d2c397a8848cbc197f397a965c1bce023b1ea673aaf2759"
+    }
+  ],
+  "page_errors": [],
+  "failed_requests": [],
+  "lighthouse": [
+    {
+      "id": "overview",
+      "exit": 0,
+      "accessibility_score": 1,
+      "failed_audits": [],
+      "report": "overview-lighthouse.json"
+    },
+    {
+      "id": "distribution",
+      "exit": 0,
+      "accessibility_score": 1,
+      "failed_audits": [],
+      "report": "distribution-lighthouse.json"
+    }
+  ],
+  "contact_sheet": "contact-sheet.png",
+  "automated_checks": "pass",
+  "agent_visual_review": {
+    "status": "pass",
+    "inspected_contact_sheet": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-skills-repair-contact-sheet.png",
+    "contact_sheet_sha256": "c6d60c890721eec8c8eb016ee6ff37b4d79767b3b53513fbda9645f311eb8010",
+    "additional_inspected_frames": [
+      "distribution-1366x768-light-4.png",
+      "distribution-320x900-dark-4.png"
+    ],
+    "observations": "Both palettes have readable hierarchy and aligned content in the inspected final images. Native stage scrolling reaches the final content above controls on every 320x900 slide. No layout/style/runtime byte changed; 20 representative before/after pixel comparisons match exactly."
+  },
+  "mobile_scroll": {
+    "viewport": [
+      320,
+      900
+    ],
+    "cases": [
+      {
+        "id": "overview",
+        "slide": 1,
+        "overflowY": "auto",
+        "scrollHeight": 735,
+        "clientHeight": 735,
+        "scrollTop": 0,
+        "slideBottom": 735.03125,
+        "lastBottom": 673,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "overview",
+        "slide": 2,
+        "overflowY": "auto",
+        "scrollHeight": 735,
+        "clientHeight": 735,
+        "scrollTop": 0,
+        "slideBottom": 735.03125,
+        "lastBottom": 704,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "overview",
+        "slide": 3,
+        "overflowY": "auto",
+        "scrollHeight": 821,
+        "clientHeight": 735,
+        "scrollTop": 86,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "overview",
+        "slide": 4,
+        "overflowY": "auto",
+        "scrollHeight": 735,
+        "clientHeight": 735,
+        "scrollTop": 0,
+        "slideBottom": 735.03125,
+        "lastBottom": 660,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "overview",
+        "slide": 5,
+        "overflowY": "auto",
+        "scrollHeight": 735,
+        "clientHeight": 735,
+        "scrollTop": 0,
+        "slideBottom": 735.03125,
+        "lastBottom": 704,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "distribution",
+        "slide": 1,
+        "overflowY": "auto",
+        "scrollHeight": 901,
+        "clientHeight": 735,
+        "scrollTop": 166,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "distribution",
+        "slide": 2,
+        "overflowY": "auto",
+        "scrollHeight": 766,
+        "clientHeight": 735,
+        "scrollTop": 31,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "distribution",
+        "slide": 3,
+        "overflowY": "auto",
+        "scrollHeight": 808,
+        "clientHeight": 735,
+        "scrollTop": 73,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "distribution",
+        "slide": 4,
+        "overflowY": "auto",
+        "scrollHeight": 1722,
+        "clientHeight": 735,
+        "scrollTop": 987,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      },
+      {
+        "id": "distribution",
+        "slide": 5,
+        "overflowY": "auto",
+        "scrollHeight": 808,
+        "clientHeight": 735,
+        "scrollTop": 73,
+        "slideBottom": 735,
+        "lastBottom": 711,
+        "controlsTop": 735.03125
+      }
+    ],
+    "status": "pass"
+  },
+  "limits": [
+    "Only the final v4 palette-asserting browser epoch and mobile-scroll-v2 are qualification evidence. Earlier private timing, palette and scroll-owner assumptions are retained as failed verifier epochs.",
+    "This is local Chromium evidence, not hosted integration or release qualification."
+  ]
+}

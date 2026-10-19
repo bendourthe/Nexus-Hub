@@ -1,0 +1,39 @@
+{
+  "applied": true,
+  "base_head": "5734e0e21c00ffd5e287e7c683d2a611236f4aaa",
+  "files": [
+    {
+      "path": "scripts/installer.ps1",
+      "copy": "installer.ps1",
+      "before_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+      "after_sha256": "164a3f60889f4fa6161df54fc7179308f5ba6474a4a213ee8f516bd04fd5643d"
+    },
+    {
+      "path": "catalog/hooks/tests/test_user_edit_guard.py",
+      "copy": "test_user_edit_guard.py",
+      "before_sha256": "8fe2db413c23aa0e0cdd757fadc104fb5526ca59a87245543d6ec8a06f7db42f",
+      "after_sha256": "d5c55423f980365e7dd2b38f3be0470835d93dd7936b35cfeca1dacac462e5fa"
+    },
+    {
+      "path": "tests/installer/test_native_cli_launcher.py",
+      "copy": "test_native_cli_launcher.py",
+      "before_sha256": "d661b54b409fcd005b66998c2e46ecbc08939d432754b1e0b4ced1a73735f186",
+      "after_sha256": "0329e75c7d9cd41cb47532bc5d805a88a92dc76699b9c71b339457c7dbacb24a"
+    }
+  ],
+  "new_guard_accepts": 0,
+  "ci_files_changed_in_this_repair": false,
+  "guard_runtime_changed": false,
+  "independent_review_lenses": [
+    "correctness",
+    "maintainability",
+    "testing",
+    "project-standards"
+  ],
+  "current_findings": [],
+  "considered_rejected": "V1launcher redirected output because real writer uses USERPROFILE; qualification3fail, supersededV2 restores rich HOME/USERPROFILE inside harness before real installer.",
+  "qualification_limits": "PrivateLinux full affected modules still running. Exact source local profiles and hosted integration remain pending. No gap is closed. Upstream PowerShell rich startup itself is not repaired.",
+  "deep_pass_counter": "3/3 unchanged",
+  "repushes": 0,
+  "ci_reruns": 0
+}

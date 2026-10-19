@@ -66,7 +66,19 @@ Resolve exactly what diff is under review. Detect the sub-mode from the request:
     | `abc1234 def` | rejected before any `git` call: whitespace fails the pattern |
     | `1a2b3c4d` (two matches) | `rev-parse` reports it ambiguous; stop and ask for a longer SHA |
 
-Record the resolved base ref; every persona agent receives it so they all review the same lines. If the diff exceeds ~800 changed lines, batch by module/feature area and run the pipeline per batch (note the batching in the report).
+Record the resolved base ref; every persona agent receives it so they all review the same lines.
+
+**Deterministic grouping (inside Stage 1).** Group only the changed-file set resolved above; do not introduce another scope-selection pass.
+
+1. Sort the distinct, exact repository-relative paths by Unicode code point. Preserve spelling, case, spaces, and deleted/binary paths; do not filter by extension or file existence.
+2. Assign each path to its parent directory, using `.` for a root-level file. This structural association wins over guessed feature labels; record the directory key so no file belongs to two competing bundles.
+3. Sort directory keys by the same ordering, then split each directory's sorted members into consecutive bundles of at most 8 files. A large individual file stays present; the bound is files per bundle, not a claim about token size.
+4. Assert that the union of bundle members equals the changed-file set and that the sum of bundle sizes equals its cardinality: every selected file appears exactly once. A mismatch discards the grouping, reports the error, and uses the entire known scope ungrouped.
+5. Every selected persona reviews every bundle at the unchanged base ref; feed all bundle results into the existing consolidation. Report changed-file count N, bundle count K, and the set-equality result.
+
+For an empty diff, report `empty diff; no bundles` and follow the existing empty-scope handling. For an unreadable diff, report grouping unavailable and proceed ungrouped only over a known resolved scope; name unknown coverage and never treat it as an empty successful review.
+
+Directory coherence can reduce redundant surrounding-context reads. It changes batching and order, never coverage, and does not mechanically remove the skill's 5-15x reviewer multiplier or guarantee token savings.
 
 ### Stage 2 - Intent discovery
 

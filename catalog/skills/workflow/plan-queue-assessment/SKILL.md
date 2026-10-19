@@ -40,7 +40,9 @@ This skill's territory overlaps four others. Exactly one owner states each rule.
 | Deterministic queue inventory (versions, counts, touched paths, status) | `scripts/enumerate_plan_queue.py` |
 | Resolving and confirming a comparison's `Adoption target:` field (it applies the placement rule) | `[[cross-project-comparison]]` Step 6.5 |
 | The plan template and its required sections | `[[implementation-plan]]` |
-| Phase lifecycle, gates, and the `## Plan delta` disposition vocabulary | `[[implement-phase]]` |
+| Phase lifecycle, automatic worker dispatch, ordered publication, and the `## Plan delta` disposition vocabulary | `[[implement-phase]]` |
+| Signed implementation claims, parent-bound projections and publication admission | `implement-phase/references/completion-contract.md` and its native checker |
+| Worker scope prompts and concurrent-writer coordination | `[[multi-agent-coordinator]]` |
 | Moving a documentation tree and repairing references | `[[docs-layout-refactor]]` and `[[project-refactor]]` |
 
 When this skill needs one of those, it names the owner and describes only the handoff. If an owner is unavailable, say so and mark that portion not covered; do not reconstruct its rules from memory.
@@ -93,6 +95,14 @@ Two cautions:
 - The touched list comes from paths named in task lines. A plan that modifies a file without naming it is under-reported. Treat the list as a lower bound on the real surface, not a complete one.
 - A shared file is not automatically a conflict when the two plans touch different regions of it, but resolving that requires reading both, so the default verdict stays ordering impact until someone does.
 
+### Implementation compatibility inventory
+
+Before recommending concurrent implementation, expand task-derived paths into complete literal `read_paths` and exclusive `write_paths`, including source, tests, plan checkboxes and plan-specific history/evidence. Name actual `depends_on` members and the merged commit each requires on the proposed worker base. Distinguish a semantic-version release predecessor from an implementation prerequisite: an unrelated earlier release does not block implementation. Report write/write and write/read conflicts, directory-prefix overlap, case collisions, unstated contracts and all unknowns. Shared known-gaps ledgers, CHANGELOG, version/release metadata and docs/todos belong to the coordinator; workers propose these deltas separately. When a plan explicitly changes an input another worker reads, keep that change as an explicit coordinator proposal for its publication turn, with the original implementation task unchecked until the coordinator applies and tests it. Removing those shared files from worker claims does not remove a substantive source dependency.
+
+Read claims name semantic implementation inputs. Generic broad validators may inspect a pinned isolated worker snapshot without turning every scanned file into an implementation dependency; defer broad validation to the coordinator's refreshed complete candidate and never use that snapshot result as current integration proof. A model-routing preflight reads the pinned verified orchestration baseline, never unpublished sibling changes. Actual semantic read/write dependencies remain blocking.
+
+Record candidate concurrent groups, named compatibility evidence, prerequisites still missing and a conservative serial fallback for every unknown. A shared production file stays ordered even when regions look disjoint unless the complete ownership contract permits concurrent work; native whole-file claims may still require sequencing. For already frozen plans, put this refreshed inventory in a release-scoped assessment sidecar rather than editing approved prose. This assessment recommends eligibility; the completion contract's native admission validates claims and [[implement-phase]] dispatches actual workers.
+
 ### Step 5 - Rank the queue
 
 Rank on two axes, in this order:
@@ -123,13 +133,13 @@ Ranking produces a recommendation. Acting on it moves files and rewrites referen
 
 ## Placement rule for a new plan
 
-This skill owns which version a NEW plan or comparison takes. `[[cross-project-comparison]]` Step 6.5 and `[[implementation-plan]]` Step 4.6 call this rule; neither restates it. The goal is that version order equals execution order, so a reader can trust that a lower version is built first.
+This skill owns which version a NEW plan or comparison takes. `[[cross-project-comparison]]` Step 6.5 and `[[implementation-plan]]` Step 4.6 call this rule; neither restates it. The goal is that version order equals release order. Independent plans may implement concurrently; actual prerequisites and ownership decide implementation admission.
 
 1. **Rank the new plan against the queue.** Use the inventory from Step 1 and the membership from Step 2. For each queued plan, decide whether the new plan must precede it (it unblocks it, changes the same surfaces first, or the user ranks it higher) or may follow it. Existing plans count as ordered as long as the latest queue assessment's placement still holds; re-rank them only when the new plan changes their order.
 2. **Find the target range.** The new version must sort after every plan it follows and before every plan it must precede, comparing parsed integers, never strings. A slot is free when no plan (queued, in flight, or shipped) and no release tag holds that exact version.
 3. **Prefer a free lower slot.** Take the lowest free version in the range, typically the next patch after the last release or an unused patch between two queued plans. No renumber is needed. Report the version with a one-line reason.
 4. **When the range holds no free slot, propose a renumber.** List every move (old version to new version, with its reason) and, per moved plan, the seven reference classes of the Renumber procedure below to repair. Confirm with the user before anything moves, then hand the move to `[[docs-layout-refactor]]` and the reference repair to `[[project-refactor]]`. A plan already mid-implementation is not moved without the maintainer's explicit decision (see the mid-implementation case).
-5. **Never take a free slot that sorts after a plan the new one must precede.** A free slot in the wrong place is exactly how version order stops meaning execution order.
+5. **Never take a free slot that sorts after a plan the new one must precede.** A free slot in the wrong place is exactly how version order stops meaning release order.
 
 ## Renumber procedure
 
@@ -195,6 +205,7 @@ Prefer not to renumber a mid-implementation plan at all. When it is done anyway,
 - [ ] Every queued plan carries exactly one verdict, and every verdict names its evidence.
 - [ ] Every unreadable or undeclared-status plan appears as an explicit unknown.
 - [ ] Overlapping surfaces are listed as paths, not asserted.
+- [ ] Concurrent candidates have complete dependency/read/write inventories, coordinator-owned metadata deltas, named unknowns and serial fallback; release predecessors are distinguished from actual implementation prerequisites.
 - [ ] The written artifact exists and states the recommended order with a reason per position.
 - [ ] Impact-on-harness is recorded as a judgement with reasoning, not presented as a computed score.
 - [ ] No claim was made that re-sequencing improves delivery speed.
