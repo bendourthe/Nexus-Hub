@@ -237,6 +237,27 @@ def test_cicd_architect_defines_existing_pipeline_comparison():
         assert step in text, f"comparison mode is missing the {step} step"
 
 
+@pytest.mark.parametrize("source, heading, end", [
+    (CICD_ARCHITECT, "### Step 9:", "\n### "),
+    (_ROOT / "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+     "#### N.5 - Terminal CI/CD reconciliation", "\n#### N.6"),
+])
+def test_pipeline_consent_surfaces_delegate_to_completion_contract(source, heading, end):
+    section = _read(source).split(heading, 1)[1].split(end, 1)[0]
+    link = re.search(r"\[Authorization policy\]\(([^)]+)\)", section)
+    assert link is not None, "pipeline consent must delegate to its owning policy"
+    target, anchor = link.group(1).split("#", 1)
+    owner = (source.parent / target).resolve()
+    assert owner == (
+        _ROOT / "catalog/skills/workflow/implement-phase/references/completion-contract.md"
+    ).resolve()
+    assert anchor == "authorization-policy"
+    assert "## Authorization policy" in _read(owner)
+    assert "upfront approvals never cover" not in section
+    assert "run record never pre-approves" not in section
+    assert "each one stops" not in section
+
+
 @pytest.mark.parametrize("path", [CD_GENERATOR, CICD_INTEGRATION])
 def test_related_cicd_skills_reference_the_canonical_owner(path: Path):
     """Already true at Phase 1, but only as a Related Skills footer link."""

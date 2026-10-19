@@ -44,7 +44,7 @@ import approval_page
 import check_plan_completion as ck
 
 PLAN_SESSION = "session-one"
-PASTE_HEADING = "## To approve, paste this"
+PASTE_HEADING = "## Decision"
 DETAILS_HEADING = "## Details (optional)"
 WORD_BUDGET = 140  # above Details, the plan's own outcome bullets excluded
 # The render-time rule lives in approval_page (WN-6-v4136); the tests assert the same list.

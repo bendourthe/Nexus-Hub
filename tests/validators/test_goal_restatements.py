@@ -78,9 +78,14 @@ def test_each_block_names_no_predicate_id(name: str) -> None:
 @pytest.mark.parametrize("name", sorted(BLOCKS))
 def test_each_block_is_honest_about_the_native_goal(name: str) -> None:
     block = BLOCKS[name]()
-    assert "should already be set by the user's approval paste" in block
-    assert "ask the user to paste the printed goal line again, because an agent cannot set it" in block
-    assert "`nexus-hub run-plan` is the only fully automatic path" in block
+    assert "completion checker's tool result" in block
+    assert "native goal" in block and "advisory" in block
+    assert "repeated" in block and ("consent" in block or "approval" in block)
+    assert "should already be set by the user's approval paste" not in block
+    assert "ask the user to paste the printed goal line again" not in block
+    if name == "implement":
+        assert "supported host goal action when available" in block
+        assert "explain any user-only action once" in block
 
 
 def test_final_phase_adds_one_conditional_minor_line_only() -> None:

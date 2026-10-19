@@ -153,7 +153,14 @@ def test_final_phase_runs_the_six_step_reconciliation(final_phase: str):
     for step in ("DETECT", "COMPARE", "PROPOSE", "APPROVAL", "APPLY", "RECORD"):
         assert step in body, f"the reconciliation is missing its {step} step"
     assert "none detected" in body, "a repository with no pipeline must be recorded, not assumed"
-    assert "silence is not approval" in body.lower()
+    owner_link = "../../implement-phase/references/completion-contract.md#authorization-policy"
+    assert f"[Authorization policy]({owner_link})" in body
+    assert "without adding a second consent requirement" in body
+    owner = (FINAL_PHASE_REF.parent / owner_link.split("#", 1)[0]).resolve()
+    assert owner == (
+        _ROOT / "catalog/skills/workflow/implement-phase/references/completion-contract.md"
+    ).resolve()
+    assert "### Authorization policy" in owner.read_text(encoding="utf-8")
 
 
 def test_final_phase_records_declined_differences_as_known_gaps(final_phase: str):

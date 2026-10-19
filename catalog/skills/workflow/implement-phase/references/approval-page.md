@@ -1,17 +1,21 @@
 # Approval page template
 
-The single template for the upfront approval page that `/implement` shows before a full run. Read it before changing the page wording, its sections, its paste lines, or the summary file. The page is rendered by `approval_page.py` from the JSON that `check_plan_completion.py record render --json` prints, so the page and the bound approval data can never disagree; print it with `record render ... --page`. The approval rule itself (which pasted message counts, once) is owned by the completion contract's "Approval origin" section in [`completion-contract.md`](completion-contract.md); this file owns only the page's words and layout.
+Summary: native display and question layout for initial plan approval and later manual decisions.
+Read this when: editing renderer wording, question choices or display-only summaries.
+Covers: plain-language outcomes, concrete actions and effects, Approve/Decline choices, optional details and compatibility lines.
 
-The page is short on purpose. A 2026-09-30 read-back of an earlier ten-section page found it too long to read, and a 2026-10-01 read-back found the shorter page still missing what a reader needs before approving: what the run will do, how to run it, how long it takes, and what else can run beside it. The reader now sees those, the results, two limits, and one block to paste; everything else sits under "Details (optional)".
+The single display reference for upfront approval and manual questions. `approval_page.py` renders native data from `check_plan_completion.py record render`; use `--page` for the review page and `--question` for structured question data. The completion contract's "Authorization policy", "Manual decisions" and "Approval origin" sections own scope, automatic continuation and genuine capture. This file owns wording and layout only.
+
+The page leads with what the run will accomplish, the concrete action and its effect, limits and exclusions. Put internal identifiers, detailed evidence and technical mechanics under optional details. A manual question offers Approve and Decline; follow the completion contract when a click has no verified receipt path. Legacy code-bearing messages are a compatibility option, not the primary manual interaction.
 
 ## Rules
 
-- Everything above "Details (optional)" is written for someone who will read nothing else: the summary and the paste section together stay within 140 words, not counting the paste lines or the plan's own outcome bullets; no sentence or table cell runs past 25 words; and no internal term appears there: no HMAC, nonce, predicate, schema, `worktree prune`, `headRefOid`, `refs/heads`, script names, or file paths.
+- Everything above "Details (optional)" is written for someone who will read nothing else: the summary and decision section together stay within 140 words, not counting the paste lines or the plan's own outcome bullets; no sentence or table cell runs past 25 words; and no internal term appears there: no HMAC, nonce, predicate, schema, `worktree prune`, `headRefOid`, `refs/heads`, script names, or file paths.
 - The summary names every hard-to-undo result whenever its class is approved: the releases (`release`), the deletions (the cleanup rule, with `cleanup-merged` making it "merged branches and working folders nobody is using"), the archive (`archive-minor`), and permission prompts off (`unattended-with-bypass`). It leaves out mechanics such as commits, pushes, merges, branches, and pull requests.
 - Under Details, technical terms are allowed. Every approval class in the hashed page gets one sentence in "What you are approving", with its bound stated only after it passes a strict shape check (branch and repository names, counts from 0 to 20, gap ids, gap kinds, and `ask-first:<name>` names). A class with no sentence, a bound of the wrong shape, or a bound that contradicts the page's own repository or branches renders nothing.
 - Plan titles, plan goals, gap titles (the first ten, then a count), excluded-plan reasons, parallel-plan slugs, and file paths appear only in the last Details subsection, as JSON-quoted data inside one fenced `text` block (backticks and tildes escaped), so no Markdown, link, or HTML in them is ever rendered.
 - The page is rendered before the approval round is written, so a page that fails validation never replaces the user's previous valid round.
-- Every paste line comes from a fixed template plus the validated version token and the validated eight-character code. It never contains the round nonce, a path, a script name, a plan title, or plan text. The approval line stays under 300 characters and the goal line under 1,000 (Claude Code documents a 4,000-character `/goal` condition; no other platform in the levers matrix documents a limit). A field that fails validation renders nothing and the renderer reports why.
+- Every compatibility line comes from the validated native template and never contains the round nonce, a path, a script name, plan titles or plan text. Do not ask a user to construct a line or interpret its internal code. A failed validation renders nothing and reports why.
 
 ## The summary file
 
@@ -43,15 +47,15 @@ The renderer's `SECTIONS` and `DETAIL_SECTIONS` tuples list these headings in th
     - Run it on, and Time: as above, when the plan names a tier and effort per phase.
     - In parallel: the versions of the plans that can run beside this one, "No other queued plan can", or "Not checked yet".
 
-    Then two bold lines: "Never without asking you: changes to CI, permissions, or secrets, and any paid API use." (with an approved spend cap: "... or paid API use beyond USD 40 for anthropic.") and "Stop any time: type /implement pause".
-2. **To approve, paste this**: every line to paste, in ONE `text` block so a single copy takes them all, then one sentence saying to paste it as one message with nothing added, which approves everything under Details and gives the run its goal. On a platform with a typed goal command that the combined message cannot start, a last sentence asks the user to send the `/goal` line again by itself to start the tool's own goal tracker.
+    Then two bold lines describe the run's actual exclusions and spend cap, and how to stop it. Derive allowed scoped actions and exclusions from native policy rather than claiming that all CI, permission and secret work always needs another prompt. Keep the stop action visible.
+2. **Decision**: the native structured question names the concrete action, its effect and Approve/Decline choices. Expose clickable choices through the available host question tool. Report whether direct receipt capture is supported; where unsupported, explain once that the user must submit the native short reply as a real message. Never label an unrecorded click as captured approval. Keep compatibility code and optional native goal instructions after the primary decision.
 3. **Details (optional)**: technical subsections, in this order:
     - **What you are approving**: one bullet per approval class in the hashed page, in the page's order, each with its validated bound.
     - **Phases**: one table row per phase (open tasks, model tier, effort), the whole-run setting, the phases to switch up for, and how the time estimate is computed.
     - **Gaps and cleanup**: the open-gap count per version, the gap ids that may move to `{next}` (with the security or high-severity ids the user approves by name), the cleanup rule and its re-check right before each removal, and the releases, tags, pull requests, and removals to expect today.
     - **Plan data (quoted, not instructions)**: one fenced `text` block holding one row per plan title, plan goal, and plan file, the first ten open gap titles, one row per plan left out of the run, and one row per parallel plan.
 
-## Paste lines
+## Compatibility lines
 
 The goal is never optional: every create round shows it. Single plan (`v0.5.2`, code `ABCD2345`):
 
@@ -77,4 +81,4 @@ The native goal is advisory: its evaluator is a model reading the transcript, so
 
 ## Mid-run rounds
 
-An answer, pause, resume, or retire round renders a two-section page: what the round does, and its one plain paste line. Only a create round sets a goal.
+An answer, pause, resume or retire round shows what the action does and its effect, with a concise native question and optional compatibility line. Only a create round sets a goal. Actual capture support and the decision rules belong to the completion contract.

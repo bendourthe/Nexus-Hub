@@ -66,6 +66,20 @@ sys.exit(int(os.environ.get("STUB_CLI_RC", "0")))
 '''
 
 
+def authenticated_minor(tmp: Path, monkeypatch: pytest.MonkeyPatch):
+    """Use genuine private Minor fixture creation, then verify its signed controller."""
+    from .test_completion_minor_record import SESSION, Minor, ck
+
+    tmp.mkdir()
+    authority = Minor(tmp, monkeypatch)
+    created = authority.create()
+    assert created.returncode == 0, created.stdout + created.stderr
+    ctx, record = ck.resolve_minor_controller(authority.record_path(), SESSION)
+    assert ctx.root == authority.work.resolve()
+    assert record.record_path == authority.record_path().resolve()
+    return authority
+
+
 class Env:
     def __init__(self, tmp: Path) -> None:
         self.tmp = tmp
@@ -106,7 +120,7 @@ class Env:
         full.update(PATH=str(self.bin) + os.pathsep + os.environ.get("PATH", ""), NEXUS_RUNNER_CHECKER=str(self.checker),
                     STUB_STATE=str(self.tmp / "state.json"), STUB_COUNTER=str(self.tmp / "counter"),
                     STUB_LOG=str(self.log), NEXUS_RUNNER_BACKOFF="0", HOME=str(self.home),
-                    USERPROFILE=str(self.home), **env)
+                    USERPROFILE=str(self.home), NEXUS_HUB_RUNS_DIR=str(self.record.parent), **env)
         return subprocess.run([sys.executable, str(RUNNER), *args], cwd=self.repo, env=full,
                               capture_output=True, text=True, timeout=120, check=False)
 

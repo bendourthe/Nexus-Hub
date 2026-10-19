@@ -33,6 +33,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
+from functools import wraps
 from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING
@@ -269,7 +270,7 @@ def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path 
             isinstance(m, dict) and m.get("version") == version for m in members
         )
 
-    for path in ck.find_records_by_content(rctx.root, lists):
+    for path in authority_records(ck, rctx, lists):
         if own is not None and path.resolve() == own.resolve():
             continue
         record = ck.read_record(rctx, path)
@@ -441,12 +442,17 @@ def member_entry(ck: ModuleType, spec: dict, plan: Plan) -> dict:
 
 def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membership: Membership, repo: str) -> dict:
     """The canonical data the minor approval page shows; the code is derived from it."""
+    try:
+        ck._validate_policy_paths(rctx.root, spec.get('autonomy') or {})
+    except ValueError as exc:
+        raise ck.Malformed(str(exc)) from exc
     members = [member_entry(ck, spec, plan) for plan in membership.members]
     _, minor_classes = _split_classes(ck, spec)
     names = {c.get("class") for c in minor_classes}
     migratable = next((c.get("bound") for c in minor_classes if c.get("class") == "gap-migration"), []) or []
     check_migratable(ck, rctx.root, minor_classes)
     return {
+        'autonomy': approval_binding.validate_policy(spec['autonomy']) if spec.get('autonomy') else None,
         "action": "create",
         "scope": {"kind": "minor", "minor": token},
         "members": [
@@ -634,26 +640,292 @@ def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, mem
     if category not in ck.BLOCKER_CATEGORIES:
         raise ck.Malformed("unknown blocker category")
     page = action_page(token, "answer", str(record.get("nonce", "")))
-    page["blocker"] = {"index": index, "category": category, "version": version}
+    page["blocker"] = {"index": index, "category": category, "version": version,
+                       "fingerprint": approval_binding.blocker_fingerprint(entry), "request": entry.get("request") or {},
+                       "purpose": entry.get("purpose"), "why": entry.get("why")}
     return page
 
 
 # --------------------------------------------------------------------------- record
 
 
-def record_file(ck: ModuleType, rctx: RepoContext, token: str) -> Path:
-    """The minor record's path: its key, else a record for this root and minor elsewhere.
 
-    The key names the resolved owner/repo, which a remote change moves; the content
-    lookup keeps the record visible so the change is reported, not hidden.
-    """
-    path = rctx.scoped_record_path("minor:" + token)
-    if path.is_file():
-        return path
-    found = ck.find_record_by_content(
-        rctx.root, lambda r: r.get("schema") == ck.SCHEMA_MINOR and r.get("minor") == token
-    )
-    return found or path
+# Operational handoff reuses the original signed minor record and conditional binding.
+def _controller_metadata(ck: ModuleType, record: dict, path: Path) -> dict:
+    """Authenticate immutable controller metadata before any Git ownership probe."""
+    key = ck._secret(create=False)
+    if (key is None or record.get('schema') != ck.SCHEMA_MINOR or record.get('scope') != 'minor'
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), ck._sign(record, key))):
+        raise ck.MinorConflict('record-tampered')
+    token = record.get('minor')
+    parse_minor(ck, token)
+    binding = record.get('implementation_controller')
+    if binding is None:
+        origin = str(record.get('repo_root', ''))
+        current, generation = origin, 0
+        common = None  # Authenticate origin/key before probing legacy Git ownership.
+    elif isinstance(binding, dict):
+        current = binding.get('repo_root')
+        common = binding.get('git_common_dir')
+        generation = binding.get('generation', 0)
+        origin = binding.get('origin_root', current)
+        legacy_fields = {'repo_root', 'git_common_dir'}
+        transferred_fields = legacy_fields | {'origin_root', 'origin_record_key', 'generation', 'previous_root', 'head', 'at'}
+        if set(binding) != (transferred_fields if generation else legacy_fields):
+            raise ck.MinorConflict('invalid-controller-binding-fields')
+        if (type(generation) is not int or generation < 0
+                or (generation and (not isinstance(binding.get('previous_root'), str)
+                                    or not re.fullmatch(r'[0-9a-f]{40}', str(binding.get('head', '')))
+                                    or not isinstance(binding.get('at'), str)))):
+            raise ck.MinorConflict('invalid-controller-binding')
+    else:
+        raise ck.MinorConflict('invalid-controller-binding')
+    if not all(isinstance(value, str) and value and Path(value).is_absolute()
+               and str(Path(value).resolve()) == value for value in (origin, current)):
+        raise ck.MinorConflict('noncanonical-controller-binding')
+    original_key = ck.record_key(Path(origin), str(record.get('repo', '')).lower(), 'minor:' + token)
+    if (path.stem != original_key or record.get('repo_root') != origin
+            or record.get('worktree') != origin
+            or (generation and binding.get('origin_record_key') != original_key)):
+        raise ck.MinorConflict('controller-origin-or-common-dir-mismatch')
+    if common is not None and (not isinstance(common, str) or not common or not Path(common).is_absolute()
+                               or str(Path(common).resolve()) != common):
+        raise ck.MinorConflict('controller-ownership-unavailable')
+    return {'origin_root': origin, 'repo_root': current, 'generation': generation,
+            'git_common_dir': common, 'origin_record_key': original_key}
+
+
+def controller_identity(ck: ModuleType, rctx: RepoContext, record: dict, path: Path, *, same_common: bool = True) -> dict:
+    identity = _controller_metadata(ck, record, path)
+    common = identity['git_common_dir']
+    if common is None:
+        # _common_dir returns a canonical resolved path, or an empty string on failure.
+        common = _common_dir(rctx, Path(identity['origin_root']))
+        if not common:
+            raise ck.MinorConflict('controller-ownership-unavailable')
+    if same_common and common != _common_dir(rctx, rctx.root):
+        raise ck.MinorConflict('controller-origin-or-common-dir-mismatch')
+    return {**identity, 'git_common_dir': common}
+
+
+def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Path) -> dict:
+    identity = controller_identity(ck, rctx, record, path)
+    if identity['repo_root'] != str(rctx.root):
+        raise ck.MinorConflict('controller-mismatch')
+    return identity
+
+
+def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
+                     *, include_linked: bool = False, predicate=None) -> list[Path]:
+    """Authenticated common-directory ownership includes the legacy absent-binding form."""
+    found = []
+    direct = rctx.scoped_record_path('minor:' + token) if token else None
+    common = _common_dir(rctx, rctx.root)
+    if not common:
+        raise ck.MinorConflict('controller-ownership-unavailable')
+    try:
+        store = ck._runs_dir()
+        try:
+            store.stat()
+        except FileNotFoundError:
+            return []
+        paths = sorted(path for path in store.iterdir() if path.name.endswith('.json'))
+        for path in paths:
+            if path.name.endswith('.gate.json'):
+                continue
+            record = ck.read_record(rctx, path)
+            if record is None:
+                # No absent-create decision may hide an unreadable possible owner.
+                if include_linked or token is None or path == direct:
+                    raise ck.MinorConflict('controller-ownership-unavailable')
+                continue
+            if record.get('schema') != ck.SCHEMA_MINOR:
+                continue
+            if token and record.get('minor') != token:
+                continue
+            if predicate is not None and not predicate(record):
+                _controller_metadata(ck, record, path)
+                continue
+            identity = controller_identity(ck, rctx, record, path, same_common=False)
+            if identity['git_common_dir'] != common:
+                continue
+            if token and not include_linked and str(rctx.root) not in {
+                    identity['origin_root'], identity['repo_root']} and path != direct:
+                continue
+            found.append(path)
+    except OSError as exc:
+        raise ck.MinorConflict('controller-ownership-unavailable') from exc
+    return found
+
+
+def authority_records(ck: ModuleType, rctx: RepoContext, predicate) -> list[Path]:
+    paths = ck.find_records_by_content(rctx.root, predicate)
+    for path in minor_candidates(ck, rctx, predicate=predicate):
+        record = ck.read_record(rctx, path)
+        if predicate(record) and path not in paths:
+            paths.append(path)
+    return paths
+
+
+def minor_creator(function):
+    """Common/scope discovery and absent creation are one serialized operation."""
+    @wraps(function)
+    def wrapped(ck, args):
+        ctx = repo_context(ck, args)
+        try:
+            with ck.minor_creation_lease(ctx, args.minor):
+                owners = minor_candidates(ck, ctx, args.minor, include_linked=True)
+                if len(owners) > 1:
+                    raise ck.MinorConflict('multiple-minor-authorities')
+                if owners:
+                    raise ck.MinorConflict('minor-authority-already-exists')
+                path = ctx.scoped_record_path('minor:' + args.minor)
+                with ck.minor_lease(path, None, ctx):
+                    return function(ck, args)
+        except OSError as exc:
+            raise ck.MinorConflict('controller-ownership-unavailable') from exc
+    return wrapped
+
+
+def minor_writer(function):
+    """Acquire the shared lease before native minor command side effects."""
+    @wraps(function)
+    def wrapped(ck, args, *extra):
+        ctx = repo_context(ck, args)
+        path = record_file(ck, ctx, args.minor)
+        raw = path.read_bytes() if path.exists() else None
+        expected = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        with ck.minor_lease(path, expected, ctx):
+            return function(ck, args, *extra)
+    return wrapped
+
+
+def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: Path, head: str) -> RepoContext:
+    raw = target
+    try:
+        target = target.resolve(strict=True)
+    except OSError as exc:
+        raise ck.MinorConflict('target-unavailable') from exc
+    if not raw.is_absolute() or str(raw) != str(target):
+        raise ck.MinorConflict('noncanonical-controller-target')
+    listing = source._git_out('worktree', 'list', '--porcelain')
+    registered = {str(Path(line[9:]).resolve()) for line in listing.splitlines() if line.startswith('worktree ')}
+    if str(target) not in registered or target == source.root:
+        raise ck.MinorConflict('target-not-distinct-registered-worktree')
+    ctx = ck.RepoContext(target, source.budget)
+    if _common_dir(ctx, target) != _common_dir(source, source.root):
+        raise ck.MinorConflict('target-common-directory-mismatch')
+    forbidden = {str(Path(record['repo_root']).resolve())}
+    branches = set()
+    for member in record['members']:
+        cleanup = member.get('approvals', {}).get('cleanup') or {}
+        forbidden.update(str(Path(path).resolve()) for path in cleanup.get('worktrees', []))
+        branches.update(cleanup.get('branches') or [member['source_branch']])
+        implementation = member.get('implementation') or {}
+        if implementation.get('worktree'):
+            forbidden.add(str(Path(implementation['worktree']).resolve()))
+    for block in listing.split('\n\n'):
+        rows = block.splitlines()
+        branch = next((line[18:] for line in rows if line.startswith('branch refs/heads/')), '')
+        root = next((line[9:] for line in rows if line.startswith('worktree ')), '')
+        if branch in branches and root:
+            forbidden.add(str(Path(root).resolve()))
+    if any(target == Path(path) or target.is_relative_to(Path(path)) for path in forbidden):
+        raise ck.MinorConflict('target-is-frozen-cleanup-or-worker-path')
+    rc, status = ctx.run([ctx.git, '-C', str(target), 'status', '--porcelain=v1', '--untracked-files=all'])
+    flags_rc, flags_text = ctx.run([ctx.git, '-C', str(target), 'ls-files', '-v'])
+    flags = flags_text.splitlines()
+    index_rc, _ = ctx.run([ctx.git, '-C', str(target), 'ls-files', '--stage'])
+    if rc or status.strip() or index_rc or flags_rc or any(line and (line[0].islower() or line[0] == 'S') for line in flags):
+        raise ck.MinorConflict('target-index-not-provably-clean')
+    if not re.fullmatch(r'[0-9a-f]{40}', head) or ctx._git_out('rev-parse', 'HEAD') != head:
+        raise ck.MinorConflict('target-head-mismatch')
+    target_branch = _target(record)
+    tip = _ls_remote_tip(ctx, target_branch)
+    if tip != head or ctx._git_out('rev-parse', 'refs/remotes/origin/' + target_branch) != tip:
+        raise ck.MinorConflict('target-not-fresh-integration-tip')
+    if _ancestor(ctx, str(record['start_head']), head) != 'met':
+        raise ck.MinorConflict('original-start-not-in-target')
+    for member in record['members']:
+        view = ck.project(record, member['version'])
+        if ck._approved_remote_status(ctx, view) != 'met':
+            raise ck.MinorConflict('target-remote-outside-approval')
+        if member.get('start_head') and _ancestor(ctx, member['start_head'], head) != 'met':
+            raise ck.MinorConflict('member-start-not-in-target')
+        pull = ck._gh_json(ctx, str(record['repo']), 'pr', 'view', member['source_branch'], '--json', 'state,mergeCommit')
+        if pull is ck.GH_NOT_FOUND:
+            continue
+        if not isinstance(pull, dict):
+            raise ck.MinorConflict('member-history-cannot-verify')
+        if pull.get('state') == 'MERGED':
+            merge_info = pull.get('mergeCommit')
+            if not isinstance(merge_info, dict):
+                raise ck.MinorConflict('member-history-cannot-verify')
+            merge = merge_info.get('oid', '')
+            tag = str(member.get('tag') or member['version'])
+            if (_ancestor(ctx, merge, head) != 'met' or _tag_in(ctx, tag, head) != 'met'
+                    or ck._release_status(ctx, str(record['repo']), tag) != 'met'):
+                raise ck.MinorConflict('member-release-history-not-in-target')
+    major, minor = parse_minor(ck, record['minor'])
+    plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
+    if any(member['version'] not in plans or ck.plan_hash_text(plans[member['version']].text) != member['plan_sha256']
+           for member in record['members']):
+        raise ck.MinorConflict('target-frozen-plan-mismatch')
+    return ctx
+
+
+def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> int:
+    target = Path(args.to)
+    # An exact completed retry can resolve at the surviving destination after source removal.
+    start = Path(args.repo) if Path(args.repo).is_dir() else target
+    ctx = ck.RepoContext(start, ck.Budget(ck.BUDGET_SECONDS))
+    path = record_file(ck, ctx, args.minor)
+    record = ck.read_record(ctx, path)
+    if record is None:
+        raise ck.MinorConflict('minor-record-unavailable')
+    identity = controller_identity(ck, ctx, record, path)
+    binding = record.get('implementation_controller') or {}
+    same = (identity['repo_root'] == str(target.resolve()) and identity['generation'] == args.expected_generation + 1
+            and binding.get('previous_root') == str(Path(args.repo).resolve()) and binding.get('head') == args.head)
+    if record.get('session_id') != args.session:
+        raise ck.MinorConflict('session-mismatch')
+    if same:
+        ctx = ck.RepoContext(target, ck.Budget(ck.BUDGET_SECONDS))
+        record = ck.read_record(ctx, path)
+        require_controller(ck, ctx, record, path)
+        if not _verified(ck, ctx, args.minor, record):
+            raise ck.MinorConflict('minor-authority-unverified')
+        print('ALREADY TRANSFERRED ' + str(path))
+        return 0
+    if (identity['repo_root'] != str(ctx.root) or identity['repo_root'] != str(Path(args.repo).resolve())
+            or identity['generation'] != args.expected_generation):
+        raise ck.MinorConflict('controller-generation-mismatch')
+    state = load_minor(ck, ctx, args.minor, args.session)
+    if state.record is None or state.forced or record.get('completed'):
+        raise ck.MinorConflict('minor-not-transferable')
+    _handoff_target(ck, ctx, record, target, args.head)
+    if not args.apply:
+        print('WOULD TRANSFER ' + json.dumps({'record': str(path), 'from': str(ctx.root),
+              'to': str(target), 'generation': args.expected_generation + 1, 'head': args.head}, sort_keys=True))
+        return 0
+    with ck.minor_transaction(record):
+        if ck.lock_live(path):
+            raise ck.MinorConflict('runner-live')
+        _handoff_target(ck, ctx, record, target, args.head)
+        record['implementation_controller'] = {**identity, 'repo_root': str(target),
+            'generation': args.expected_generation + 1, 'previous_root': str(ctx.root),
+            'head': args.head, 'at': ck._now()}
+        record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
+        ck._write_record(path, record)
+    print('TRANSFERRED ' + str(path))
+    return 0
+
+
+def record_file(ck: ModuleType, rctx: RepoContext, token: str) -> Path:
+    matches = minor_candidates(ck, rctx, token)
+    if len(matches) > 1:
+        raise ck.MinorConflict('multiple-minor-authorities')
+    return matches[0] if matches else rctx.scoped_record_path('minor:' + token)
 
 
 def minor_record_path(ck: ModuleType, args: argparse.Namespace) -> Path:
@@ -678,7 +950,13 @@ def load_minor(
     reports `MINOR COMPLETE` after it marked the record complete.
     """
     state = MinorState()
-    path = record_file(ck, rctx, token)
+    try:
+        path = record_file(ck, rctx, token)
+    except ck.MinorConflict as exc:
+        if str(exc) != "record-tampered":
+            raise
+        state.forced = ck.TAMPERED
+        return state
     if not path.is_file():
         return state
     record = ck.read_record(rctx, path)
@@ -723,7 +1001,10 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict) -> bo
         or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
     ):
         return False
-    if not _controller_valid(rctx, record):
+    try:
+        path = getattr(record, "record_path", rctx.scoped_record_path("minor:" + token))
+        require_controller(ck, rctx, record, path)
+    except ck.MinorConflict:
         return False
     major, minor = parse_minor(ck, token)
     try:
@@ -888,6 +1169,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             session=session,
             blocker=blocker,
             platform=args.platform,
+            allow_short_reply=mode == "question",
             check=lambda pending: approval_page.render_page(
                 approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
             ),
@@ -917,6 +1199,7 @@ def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: d
         return ck._refused(refusal.reason)
 
 
+@minor_creator
 def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
@@ -961,6 +1244,8 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
             "classes": [{**c, "text": paste} for c in minor_classes],
             "spend_caps": page["spend_caps"],
             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+            "authorization_context": pending.get('capture'),
+            "autonomy_policy": page.get('autonomy'),
         },
         "blockers": [],
         "pause": None,
@@ -990,6 +1275,7 @@ def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: st
     return ck.EXIT_MALFORMED
 
 
+@minor_writer
 def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
@@ -1003,7 +1289,7 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
         return consumed
     pending, _session = consumed
     if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in pending["paste_lines"]
+        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
     }:
         return ck._refused("approval-not-captured")
     record["blockers"][args.blocker].update(
@@ -1015,6 +1301,7 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     return 0
 
 
+@minor_writer
 def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
@@ -1031,7 +1318,7 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
         return consumed
     pending, session = consumed
     if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in pending["paste_lines"]
+        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
     }:
         return ck._refused("approval-not-captured")
     if action == "pause":
@@ -1762,7 +2049,9 @@ def live_branches(ck: ModuleType, rctx: RepoContext, record: dict | None, repo: 
         if path and branch and Path(path).resolve() != rctx.root:
             names.add(branch)
     own_nonce = (record or {}).get("nonce")
-    for path in ck.find_records_by_content(rctx.root, lambda r: True):
+    for path in authority_records(
+        ck, rctx, lambda r: r.get("schema") != ck.SCHEMA_MINOR or _minor_record_live(ck, r),
+    ):
         other = ck.read_record(rctx, path)
         if other is None or (own_nonce and other.get("nonce") == own_nonce):
             continue
@@ -1845,6 +2134,8 @@ def excluded_ledgers(
     changes it (`changed-on-live-branch`), or when a live run owns a not-done plan of
     its minor (`owned-by-another-run`). A stale unmerged branch excludes nothing.
     """
+    if rctx.budget.remaining() <= 0:
+        return None
     run_minor = minor_of(token)
     others = [l for l in ledgers if l.minor != run_minor]
     if not others:
@@ -1875,7 +2166,8 @@ def excluded_ledgers(
         if name in branches:
             for rel in files & rels:
                 excluded.setdefault(rel, "changed-on-live-branch")
-    own_path = record_file(ck, rctx, token) if record is not None else None
+    own_path = (record.record_path if isinstance(record, ck.MinorSnapshot)
+                else record_file(ck, rctx, token) if record is not None else None)
     for minor in sorted({l.minor for l in others}):
         try:
             plans = scan_plans(rctx.root, *minor, strict=False)
@@ -1891,7 +2183,7 @@ def excluded_ledgers(
             for ledger in others:
                 if ledger.minor == minor:
                     excluded.setdefault(ledger.rel, "owned-by-another-run")
-    return excluded
+    return excluded if rctx.budget.remaining() > 0 else None
 
 
 def gaps_minor_status(
@@ -2378,7 +2670,7 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
         gaps, gap_notices = gaps_minor_status(ck, rctx, token, record, loaded)
         notices.extend(gap_notices)
         close = close_pr_status(ck, rctx, record, token, repo, loaded[0], notices)
-    path = record_file(ck, rctx, token)
+    path = record.record_path
     for name, predicate in (("cleanup-merged", "cleanup.merged"), ("archive-minor", "archive.minor")):
         if name not in _classes(record):
             notices.append(f"{predicate} needs the {name} approval")
@@ -2480,6 +2772,7 @@ def _gate_refusal(ck: ModuleType, version: str, reason: str) -> int:
     return ck.EXIT_BLOCKED
 
 
+@minor_writer
 def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     """Pass the member gate and record the member's `start_head`, re-signing the record.
 
@@ -2890,6 +3183,7 @@ def _implementation_refusal(ck: ModuleType, version: str, reason: str) -> int:
     return ck.EXIT_BLOCKED
 
 
+@minor_writer
 def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) -> int:
     """Reserve explicit scopes for one approved linked worktree, independently of release order."""
     rctx = repo_context(ck, args)
@@ -2905,7 +3199,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     member = next((m for m in ordered_members(record) if m["version"] == version), None)
     if member is None:
         raise ck.Malformed(f"{version} is not a member of {token}")
-    if str(rctx.root) != record.get("repo_root") or not _controller_valid(rctx, record):
+    if not _controller_valid(rctx, record):
         return _implementation_refusal(ck, version, "controller-identity-mismatch")
     try:
         raw = Path(args.worktree)
@@ -3003,6 +3297,7 @@ def cmd_check_member(ck: ModuleType, args: argparse.Namespace) -> int:
     return code
 
 
+@minor_writer
 def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
     """Append an open blocker to the minor record, naming the member when one is given."""
     rctx = repo_context(ck, args)
@@ -3030,10 +3325,12 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
     if args.approval_class and args.approval_class in approved:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
-    entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now()}
+    entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
+             'approval_class': args.approval_class, 'request': ck._json_request(getattr(args, 'request', '{}')),
+             'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
     if member is not None:
         entry["version"] = args.member
-    record.setdefault("blockers", []).append(entry)
+    approval_binding.add_blocker(record, entry)
     ck._write_record(record_file(ck, rctx, token), record)
     suffix = f" ({args.member})" if member is not None else ""
     print(f"BLOCKED: {args.category}{suffix}")
