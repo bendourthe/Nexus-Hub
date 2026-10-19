@@ -757,6 +757,79 @@ def adopt_policy(runs: Path, record: dict, instruction: str, policy: dict,
         'current_host_context': current})
 
 
+def user_continuation(runs: Path, record: dict, index: int, fingerprint: str,
+                      allowed_cwds: set[str], *, historical_cwds: set[str] | None = None) -> dict:
+    """Resume one legacy hook stop from a fresh user turn, never claim technical repair."""
+    blockers = record.get('blockers') or []
+    if (record.get('pause') or not 0 <= index < len(blockers)
+            or not all(isinstance(item, dict) for item in blockers)
+            or sum(bool(item.get('open')) for item in blockers) != 1):
+        raise ValueError('continuation requires exactly one open blocker and no pause')
+    entry = blockers[index]
+    if (entry.get('open') is not True or blocker_fingerprint(entry) != fingerprint
+            or set(entry) - {'at', 'category', 'evidence', 'open'}
+            or entry.get('category') != 'no-progress'
+            or not re.fullmatch(r'progress score unchanged over [1-9][0-9]* refusals: \S[^\r\n]*',
+                                str(entry.get('evidence', '')))):
+        raise ValueError('only the unchanged legacy hook no-progress stop can resume')
+    policy = validate_policy(record.get('approvals', {}).get('autonomy_policy'))
+    if policy.get('corrections') != 'within-approved-scope':
+        raise ValueError('the signed plan does not authorize scoped correction continuation')
+    session = str(record.get('session_id') or '')
+    events = capture_events(runs, session)
+    if not events or events[-1]['prompt'] != digest('Continue'):
+        raise ValueError('the latest whole user capture must be Continue')
+    event = events[-1]
+    identity = digest(json.dumps([session, event.get('event_id'), event.get('at'), event['prompt']]))
+    at = _timestamp(event.get('at'))
+    identities = [digest(json.dumps([session, item.get('event_id'), item.get('at'), item['prompt']]))
+                  for item in events]
+    if (identities.count(identity) != 1
+            or not max(_timestamp(entry.get('at')), _timestamp(record.get('created'))) < at <= _clock()
+            or any(_timestamp(item.get('at')) > at for item in events)):
+        raise ValueError('continuation needs a unique fresh nonfuture user event')
+    if not event_available(runs, session, event):
+        raise Refusal('code-used')
+    captured_question = event.get('question') or {}
+    if captured_question:
+        key = captured_question.get('key') if isinstance(captured_question, dict) else None
+        if not isinstance(key, str) or not re.fullmatch(r'[A-Za-z0-9_-]+', key):
+            raise ValueError('captured manual question provenance is unavailable')
+        if pending_path(runs, key).exists():
+            raise ValueError('the captured Continue answers a pending manual question')
+    question = question_path(runs, session)
+    if question.exists():
+        active = json.loads(question.read_text(encoding='utf-8'))
+        secret = (runs / '.secret').read_bytes()
+        if (not isinstance(active, dict) or active.get('session') != session
+                or not isinstance(active.get('key'), str)
+                or not re.fullmatch(r'[A-Za-z0-9_-]+', active['key'])
+                or not hmac.compare_digest(str(active.get('mac', '')), _seal(secret, active))):
+            raise ValueError('active manual question provenance is unavailable')
+        # A consumed create/answer leaves its question marker; only a pending round competes.
+        if pending_path(runs, active['key']).exists():
+            raise ValueError('a pending manual question requires its own answer')
+    current = current_host_context(runs, record, allowed_cwds, historical_cwds=historical_cwds)
+    if not full_access_authorization(record, current):
+        raise ValueError('current trusted full-access evidence is unavailable')
+    selected = host_capture_context(event, session)
+    if selected.get('permission_mode') is None:
+        if current.get('origin') != 'codex-host-transcript' or not current.get('transcript_path'):
+            raise ValueError('the continuation lacks trusted host permission evidence')
+        selected = codex_transcript_context(Path(current['transcript_path']), session, event,
+                                           allowed_cwds, historical_cwds=historical_cwds)
+    if not full_access_authorization(record, selected):
+        raise ValueError('the user continuation was not captured in full-access mode')
+    if capture_events(runs, session) != events:
+        raise ValueError('a newer user capture superseded the continuation')
+    _claim_event(runs, session, event)
+    return {'origin': 'existing-approved-plan-user-continuation', 'event_id': event.get('event_id'),
+            'event_identity_sha256': identity,
+            'prompt_sha256': event['prompt'], 'at': event['at'], 'fingerprint': fingerprint,
+            'policy': policy, 'capture_context': selected, 'current_host_context': current,
+            'native_predicates_changed': False, 'technical_repair_claimed': False}
+
+
 def resolution(record: dict, index: int, fingerprint: str, evidence_file: Path | None, context: dict | None = None) -> dict:
     """Resolve a repaired condition, preserving real predicates and honest evidence provenance."""
     if not full_access_authorization(record, context):

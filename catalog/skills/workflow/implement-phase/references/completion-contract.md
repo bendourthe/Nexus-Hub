@@ -170,6 +170,8 @@ A blocker whose question the frozen approvals already answer is rejected at writ
 
 To answer a blocker, render its current question with `record render --minor vX.Y --session <id> --action answer --blocker <n> [--member vX.Y.Z] --question` (or `<plan>` for one plan), then follow "Manual decisions" and "Approval origin". `record answer` closes only that entry after genuine matching capture, retaining the frozen authority and its HMAC. An invalid index, closed entry, member mismatch or stale condition changes no record. Automatically repaired conditions use native resolution with fresh evidence and automatic provenance, never a fabricated manual answer.
 
+An older hook can create a `no-progress` entry without a verification command. In an approved full-access run, `record resolve` may resume that sole legacy stop from the latest genuine whole-message `Continue`, captured after the blocker. It verifies the current host mode and signed correction policy, refuses a competing manual question or another open blocker, consumes that user event once, and records continuation under existing authority rather than technical repair. It grants no new approval and changes no verification predicate, retry limit, spend limit or edit-conflict decision. A command-bearing no-progress condition keeps the fresh-probe procedure.
+
 ### Pause and resume
 
 `/implement pause` is always honored through native user-origin capture and makes the checker report `PAUSED`. Resume follows the same manual decision and capture rules, preserving original scope and limits. Repeated rendering reuses the unchanged decision. A resume alone never clears technical blockers or proves a repair succeeded.

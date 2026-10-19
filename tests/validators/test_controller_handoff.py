@@ -571,3 +571,110 @@ def test_ownership_prefilter_unreadable_unknown_record_still_refuses(controller)
     with pytest.raises(ck.MinorConflict, match='controller-ownership-unavailable'):
         cm.load_minor(ck, fixture.rctx(), 'v0.5', SESSION)
     assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+
+def test_live_branches_prefilter_completed_deleted_origin(ownership_prefilter_legacy, monkeypatch):
+    fixture, own_path, legacy_path, origin, _permanent = ownership_prefilter_legacy
+    before = {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+    probes = []
+    original_common = cm._common_dir
+    def observed_common(ctx, root):
+        probes.append(root)
+        return original_common(ctx, root)
+    monkeypatch.setattr(cm, '_common_dir', observed_common)
+    ctx = fixture.rctx()
+    original_run = ctx.run
+    def observed_run(argv, *args, **kwargs):
+        if argv[:3] == [ctx.gh, 'pr', 'list']:
+            return 0, json.dumps([{'headRefName': 'fixture-open-pr'}])
+        return original_run(argv, *args, **kwargs)
+    monkeypatch.setattr(ctx, 'run', observed_run)
+    names = cm.live_branches(ck, ctx, json.loads(own_path.read_bytes()), 'acme/demo')
+    assert names is not None and 'fixture-open-pr' in names
+    assert not origin.exists() and origin not in probes
+    assert 'legacy-controller' not in names
+    assert legacy_path.exists()
+    assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+@pytest.mark.parametrize(('damage', 'reason'), [
+    ('live', 'controller-ownership-unavailable'),
+    ('signature', 'record-tampered'),
+    ('wrong-key', 'controller-origin-or-common-dir-mismatch'),
+])
+def test_live_branches_prefilter_keeps_owner_validation(ownership_prefilter_legacy, damage, reason):
+    fixture, own_path, legacy_path, _origin, _permanent = ownership_prefilter_legacy
+    record = json.loads(legacy_path.read_bytes())
+    if damage == 'live':
+        record['completed'] = None
+        _write_ownership_fixture_record(legacy_path, record)
+    elif damage == 'signature':
+        record['nonce'] += '-tampered'
+        legacy_path.write_text(json.dumps(record), encoding='utf-8')
+    else:
+        legacy_path.rename(legacy_path.with_name('0' * 64 + '.json'))
+    before = {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+    with pytest.raises(ck.MinorConflict, match=reason):
+        cm.live_branches(ck, fixture.rctx(), json.loads(own_path.read_bytes()), 'acme/demo')
+    assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+def _ledger_exclusion_inputs(controller, monkeypatch):
+    fixture, _source, _target, own_path = controller
+    ctx = fixture.rctx()
+    state = cm.load_minor(ck, ctx, 'v0.5', SESSION)
+    assert state.forced is None and isinstance(state.record, ck.MinorSnapshot)
+    assert state.record.record_path == own_path.resolve()
+    ledger = cm.Ledger(fixture.work / 'docs/releases/v0/v0.4/known-gaps.md',
+        'docs/releases/v0/v0.4/known-gaps.md', (0, 4), 'active', '', [])
+    monkeypatch.setattr(cm, '_integration_ref', lambda *_: 'origin/develop')
+    monkeypatch.setattr(cm, 'unmerged_changes', lambda *_: {})
+    monkeypatch.setattr(cm, 'live_branches', lambda *_: set())
+    monkeypatch.setattr(cm, 'scan_plans', lambda *args, **kwargs: [argparse.Namespace(status='queued')])
+    owners = []
+    def owned(_ck, _ctx, _plan, _live, own):
+        owners.append(own)
+        return False
+    monkeypatch.setattr(cm, '_owned_by_live_run', owned)
+    return fixture, ctx, state.record, ledger, owners
+
+
+@pytest.mark.parametrize('plain_dict', [False, True], ids=['snapshot', 'plain-dict'])
+def test_excluded_ledgers_reuses_snapshot_path_and_keeps_dict_fallback(controller, monkeypatch, plain_dict):
+    fixture, ctx, snapshot, ledger, owners = _ledger_exclusion_inputs(controller, monkeypatch)
+    discoveries = []
+    def rediscover(*args):
+        discoveries.append(args)
+        assert plain_dict, 'authenticated snapshot must not rediscover its controller through Git'
+        return snapshot.record_path
+    monkeypatch.setattr(cm, 'record_file', rediscover)
+    before = {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+    record = dict(snapshot) if plain_dict else snapshot
+    assert cm.excluded_ledgers(ck, ctx, 'v0.5', record, [ledger]) == {}
+    assert owners == [snapshot.record_path]
+    assert len(discoveries) == int(plain_dict)
+    assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+def test_excluded_ledgers_spent_budget_does_not_report_empty_exclusions(controller, monkeypatch):
+    fixture, ctx, snapshot, _ledger, _owners = _ledger_exclusion_inputs(controller, monkeypatch)
+    monkeypatch.setattr(ctx.budget, 'remaining', lambda: 0.0)
+    before = {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+    assert cm.excluded_ledgers(ck, ctx, 'v0.5', snapshot, []) is None
+    assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+def test_excluded_ledgers_mid_scan_exhaustion_is_unknown(controller, monkeypatch):
+    fixture, ctx, snapshot, ledger, owners = _ledger_exclusion_inputs(controller, monkeypatch)
+    left = [60.0]
+    monkeypatch.setattr(ctx.budget, 'remaining', lambda: left[0])
+    def changes(*args):
+        left[0] = 0.0
+        return {}
+    monkeypatch.setattr(cm, 'unmerged_changes', changes)
+    monkeypatch.setattr(cm, 'record_file', lambda *args: snapshot.record_path)
+    before = {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+    assert cm.excluded_ledgers(ck, ctx, 'v0.5', snapshot, [ledger]) is None
+    assert owners == [snapshot.record_path]
+    assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}

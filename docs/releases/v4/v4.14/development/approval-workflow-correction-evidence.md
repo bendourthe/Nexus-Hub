@@ -73,24 +73,34 @@ The full local native Windows installer profile also passed all three commands i
 
 The96026d912 hosted security check identified an assertion with a side effect in the workflow contract test. The dictionary removal now runs before a pure assertion; the tested workflow shape and runtime source are unchanged. Both affected workflow modules passed all7cases in1.26s, and Ruff reports zero diagnostics. The earlier complete affected-scope and native Windows qualification remain retained for unchanged inputs. Final corrected-head hosted security and integration checks remain required.
 
+## Controller and native continuation
+
+The live-branch scan refused the continuing v4.14 record because it attempted Git ownership discovery for a completed legacy minor whose original worktree had already been removed. The correction authenticates that completed record before skipping its inactive Git owner, retains full ownership checks for live records, reuses an authenticated snapshot for exclusion discovery, and reports exhausted verification time as unknown. The complete three-module controller scope passed all 246 tests in 1463.72s. A repaired read-only scan of the original authority returned eight live branches with 57.29 seconds remaining and unchanged authority bytes.
+
+The sole legacy no-progress stop can now consume a unique fresh whole-message Continue under the existing signed correction policy and trusted full-access context. It never claims technical repair, changes a completion predicate, grants a new class, or resets a limit. The complete approval modules passed 101 tests with one skip in 91.16s. A whole-minor native regression then reproduced the parent route crash; the correction verifies every projected member route and preserves unknown results. All 13 added route controls and the actual private whole-minor CLI flow passed in 20.45s, including refusal of a redirected second-member destination without consuming the captured instruction. Targeted independent static review found no material findings.
+
+After the actual resolution, the original native whole-minor checker returned INCOMPLETE with exit 1, listing remaining work rather than a terminal blocker. The actual original v4.14 record subsequently printed RESOLVED blocker 10 using the genuine captured Continue. Its record hash changed from eed7b7b19009565b65eb2f2b9f1294282cbe8ed1b90f9c5b735e00094b5f5abf to c609979ee16da3b7cccc3fde26fba6cf2c315f015a86c76b8b54ce9293e23554. An exact comparison permits only that blocker closure and its signed resolution audit; all other identity, member, policy, class and limit data are unchanged. No manual answer or event identifier was fabricated. The failed first actual attempt is retained as an unhandled parent-route exception before authority mutation or event consumption.
+
+The assembled controller and continuation source passed all 17 fast checks in 134.5s, with no failures, skips or advisories, before the additional narrow parent-route correction. Unchanged checks remain retained; the new route is qualified separately. There are no introduced Ruff diagnostics. Earlier complete Windows-profile qualification is retained only for unchanged inputs. Final corrected-head hosted checks, green integration and matched runtime installation remain required.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:
 
 | Source | SHA256 |
 |---|---|
-| `scripts/approval_binding.py` | `3d08f845929246ca634962759789f5ca3e5d02c289ee95a797f37c70bf06cff3` |
+| `scripts/approval_binding.py` | `190073b8e846a6427d50762b442340622d3e11aa4b299e919c574a8c5dfa00b5` |
 | `scripts/approval_page.py` | `9b8394172613eab72aab56e4f0cbfd22b22eb4ad571f7d7be8e0be89feb7c387` |
 | `scripts/completion_gate.py` | `be17dc6e290cb876399918eb2caefffab8677356f36f2533ac25239f3db14a11` |
-| `scripts/check_plan_completion.py` | `6cca36d1d8510f807c3c1bc0a732d52beea9a6c789cf0cab6e5e65fa7e43c12c` |
-| `scripts/completion_minor.py` | `e5d2dffe698f2d6a2e637c9da1b2c7b3cba8417740941317e78f5039a037192e` |
+| `scripts/check_plan_completion.py` | `f7d9e5981b9483c921d17a6e338217596b4e04986c0a13e6a7f5680cc0e73d55` |
+| `scripts/completion_minor.py` | `7bec9914cb5be85c8c0bc5c120df976604e87935667cdcc831fb821c250c7de5` |
 | `scripts/run_plan.py` | `0ec1908fd71580ed8987028dbed992581fe8ecd67c9f91bc05cb2b7d3ef63786` |
 | `scripts/minor_close.py` | `af4d1298cc5a0ee005ea682db95b5fae269378ccf2b989e5d9f09e531be58377` |
 | `scripts/cleanup_merged.py` | `f7eee959b659f5a79242adcaa3274b19e5d6b3035fe788b57c5849b8d191c219` |
 | `scripts/repo_host.py` | `439bbbb5438d2f05ee72e677f03b2428d2fbf4c322088139543026688d557e18` |
 | `catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py` | `7307222c344feeb1c2194b2698458920a7ff8addf8260f91054c93946d8b48b7` |
 
-The final command-source `MANIFEST.sha256` snapshot has 2055 entries and SHA256 `4657261d55506b9a6d45fbdd8afc731c0f7e5c704b1e21d1eb87fb7ab3ffa152`. The previous snapshot `4793aee7a6f84a337378e45cda2627ada665fe89e3f8f95bdcb0db32a8e11771` belongs to the earlier qualification above. Manifest hashes are recorded separately from the native source-file rows.
+The final command-source `MANIFEST.sha256` snapshot has 2055 entries and SHA256 `0d9005945489e0e6ca1c33308d3e66d7137c2492885cf95bb3576679d9fa62ec`. The previous snapshot `4793aee7a6f84a337378e45cda2627ada665fe89e3f8f95bdcb0db32a8e11771` belongs to the earlier qualification above. Manifest hashes are recorded separately from the native source-file rows.
 
 ## Historical cb9 verification
 

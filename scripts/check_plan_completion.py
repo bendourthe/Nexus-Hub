@@ -908,9 +908,33 @@ def _plan_close_results(ctx: Context, record: dict | None, repo: str) -> list[tu
     ]
 
 
-def _approved_remote_status(ctx: Context, record: dict | None) -> str:
+def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
     if record is None:
         return "cannot-verify"
+    if record.get("schema") == SCHEMA_MINOR and record.get("scope") == "minor":
+        # An authenticated parent has no single branch: verify every frozen member route.
+        members = record.get("members")
+        if not isinstance(members, list) or not members:
+            return "cannot-verify"
+        views, versions = [], set()
+        for member in members:
+            if (not isinstance(member, dict)
+                    or not re.fullmatch(r"v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", str(member.get("version", "")))
+                    or not isinstance(member.get("approvals"), dict)):
+                return "cannot-verify"
+            version = member["version"]
+            if version in versions:
+                return "cannot-verify"
+            versions.add(version)
+            view = project(record, version)
+            branch = (view or {}).get("approvals", {}).get("source_branch")
+            if not isinstance(branch, str) or not branch.strip():
+                return "cannot-verify"
+            views.append(view)
+        statuses = [_approved_remote_status(ctx, view) for view in views]
+        if all(status == "met" for status in statuses):
+            return "met"
+        return "unmet" if all(status in {"met", "unmet"} for status in statuses) else "cannot-verify"
     approvals = record.get("approvals", {})
     expected_url = approvals.get("push_remote_url")
     if not expected_url or ctx.push_remote_url != expected_url:
@@ -2150,10 +2174,14 @@ def cmd_record_resolve(args: argparse.Namespace) -> int:
             if not entry.get('open') or approval_binding.blocker_fingerprint(entry) != args.fingerprint:
                 raise ValueError('blocker is closed or its condition changed')
             result = _native_user_edit_probe(ctx, view, entry, current)
+        elif entry.get('category') == 'no-progress' and not args.evidence_file:
+            _validate_policy_paths(ctx.root, view.get('approvals', {}).get('autonomy_policy'))
+            result = approval_binding.user_continuation(_runs_dir(), view, args.blocker, args.fingerprint,
+                _host_cwds(ctx), historical_cwds=historical_host_cwds(record))
         else:
             result = approval_binding.resolution(view, args.blocker, args.fingerprint,
                         Path(args.evidence_file) if args.evidence_file else None, current)
-    except (OSError, ValueError, IndexError, TypeError) as exc:
+    except (OSError, ValueError, IndexError, TypeError, approval_binding.Refusal) as exc:
         print(f'condition not resolved: {exc}', file=sys.stderr)
         return EXIT_BLOCKED
     entry.update(open=False, answered=_now(), resolution=result)

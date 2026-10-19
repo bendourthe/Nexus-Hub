@@ -2049,7 +2049,9 @@ def live_branches(ck: ModuleType, rctx: RepoContext, record: dict | None, repo: 
         if path and branch and Path(path).resolve() != rctx.root:
             names.add(branch)
     own_nonce = (record or {}).get("nonce")
-    for path in authority_records(ck, rctx, lambda r: True):
+    for path in authority_records(
+        ck, rctx, lambda r: r.get("schema") != ck.SCHEMA_MINOR or _minor_record_live(ck, r),
+    ):
         other = ck.read_record(rctx, path)
         if other is None or (own_nonce and other.get("nonce") == own_nonce):
             continue
@@ -2132,6 +2134,8 @@ def excluded_ledgers(
     changes it (`changed-on-live-branch`), or when a live run owns a not-done plan of
     its minor (`owned-by-another-run`). A stale unmerged branch excludes nothing.
     """
+    if rctx.budget.remaining() <= 0:
+        return None
     run_minor = minor_of(token)
     others = [l for l in ledgers if l.minor != run_minor]
     if not others:
@@ -2162,7 +2166,8 @@ def excluded_ledgers(
         if name in branches:
             for rel in files & rels:
                 excluded.setdefault(rel, "changed-on-live-branch")
-    own_path = record_file(ck, rctx, token) if record is not None else None
+    own_path = (record.record_path if isinstance(record, ck.MinorSnapshot)
+                else record_file(ck, rctx, token) if record is not None else None)
     for minor in sorted({l.minor for l in others}):
         try:
             plans = scan_plans(rctx.root, *minor, strict=False)
@@ -2178,7 +2183,7 @@ def excluded_ledgers(
             for ledger in others:
                 if ledger.minor == minor:
                     excluded.setdefault(ledger.rel, "owned-by-another-run")
-    return excluded
+    return excluded if rctx.budget.remaining() > 0 else None
 
 
 def gaps_minor_status(

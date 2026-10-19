@@ -559,6 +559,35 @@ def test_real_cli_capture_create_authorize_decline_answer_and_mode_change(tmp_pa
     capture('Now use manual approval mode', mode='default')
     assert fx.run('record', 'authorize', PLAN_REL, '--session', CLI_SESSION, '--approval-class', 'push-merge').returncode == 3
 
+    # Model the old hook's exact commandless entry, retaining the genuine signed run.
+    path = fx.record_path()
+    before = json.loads(path.read_text(encoding='utf-8'))
+    legacy = {'at': time.time(), 'category': 'no-progress', 'open': True,
+        'evidence': 'progress score unchanged over 3 refusals: task.T001 member.gate'}
+    before['blockers'].append(legacy)
+    path.write_text(json.dumps(before), encoding='utf-8')
+    index = len(before['blockers']) - 1
+    fingerprint = binding.blocker_fingerprint(legacy)
+    capture('Continue')
+    resolve_args = ('record', 'resolve', PLAN_REL, '--session', CLI_SESSION,
+        '--blocker', str(index), '--fingerprint', fingerprint)
+    resolved = fx.run(*resolve_args)
+    assert resolved.returncode == 0, resolved.stdout + resolved.stderr
+    after = json.loads(path.read_text(encoding='utf-8'))
+    assert after['blockers'][:-1] == before['blockers'][:-1]
+    assert after['blockers'][-1]['open'] is False
+    audit = after['approvals']['resolutions'][-1]
+    assert audit['origin'] == 'existing-approved-plan-user-continuation'
+    assert audit['fingerprint'] == fingerprint
+    assert audit['technical_repair_claimed'] is False
+    for key in ('nonce', 'start_head', 'plan_sha256', 'session_id', 'created'):
+        assert after[key] == before[key]
+    for key in ('classes', 'autonomy_policy', 'authorization_context'):
+        assert after['approvals'][key] == before['approvals'][key]
+    assert after['approvals_hmac'] == checker._sign(after, (fx.runs / '.secret').read_bytes())
+    assert fx.run(*resolve_args).returncode == 3
+    assert fx.check().returncode != 0  # Continuation cannot complete unfinished implementation.
+
 
 def test_repeated_genuine_exact_paste_uses_one_fresh_event(captures):
     runs, capture = captures
@@ -656,3 +685,334 @@ def test_historical_corroboration_never_authorizes_historical_current_cwd(captur
         result = binding.codex_transcript_context(log, SESSION, event, live, historical_cwds=history)
         assert result['permission_mode'] == 'manual'
         assert not binding.full_access_authorization({'session_id': SESSION}, result)
+
+
+def _legacy_hook_record():
+    record = approved_record()
+    record['blockers'] = [{'at': binding._clock(), 'category': 'no-progress',
+        'evidence': 'progress score unchanged over 3 refusals: task.T001 member.gate', 'open': True}]
+    return record
+
+
+def _continue_legacy(runs, record, index=0, fingerprint=None, roots=None):
+    return binding.user_continuation(runs, record, index,
+        fingerprint or binding.blocker_fingerprint(record['blockers'][index]),
+        roots or {str(runs.parent.resolve())})
+
+
+def test_legacy_hook_continue_resumes_authority_without_claiming_repair(captures):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    before = json.loads(json.dumps(record))
+    capture(' \tContinue\n ', permission_mode='bypassPermissions')
+    event = binding.capture_events(runs, SESSION)[-1]
+    result = _continue_legacy(runs, record)
+    assert result['origin'] == 'existing-approved-plan-user-continuation'
+    assert result['event_id'] == event['event_id']
+    assert result['prompt_sha256'] == binding.digest('Continue')
+    assert result['fingerprint'] == binding.blocker_fingerprint(record['blockers'][0])
+    assert result['policy'] == before['approvals']['autonomy_policy']
+    assert result['current_host_context']['permission_mode'] == 'bypassPermissions'
+    assert result['native_predicates_changed'] is False
+    assert result['technical_repair_claimed'] is False
+    assert record == before  # Only the verified native caller may close and sign the target.
+    assert not binding.event_available(runs, SESSION, event)
+    with pytest.raises(binding.Refusal, match='code-used'):
+        _continue_legacy(runs, json.loads(json.dumps(before)))
+    other = json.loads(json.dumps(before))
+    other['nonce'] = 'another-record'
+    with pytest.raises(binding.Refusal, match='code-used'):
+        _continue_legacy(runs, other)
+
+
+@pytest.mark.parametrize('reply', ['Continue.', 'Yes', 'Approve', 'Decline', 'Do not Continue', '"Continue"'])
+def test_legacy_hook_continue_requires_exact_latest_whole_reply(captures, reply):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    capture(reply, permission_mode='bypassPermissions')
+    with pytest.raises(ValueError, match='latest whole user capture'):
+        _continue_legacy(runs, record)
+
+
+@pytest.mark.parametrize('failure', ['pause', 'second-blocker', 'closed', 'generic', 'probe',
+    'modern', 'policy', 'session', 'stale-fingerprint', 'before-blocker', 'future', 'duplicate-id', 'duplicate-legacy'])
+def test_legacy_hook_continue_refuses_unrelated_or_stale_conditions(captures, failure):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    capture('Continue', permission_mode='bypassPermissions')
+    fingerprint = binding.blocker_fingerprint(record['blockers'][0])
+    if failure == 'pause':
+        record['pause'] = {'at': record['created']}
+    elif failure == 'second-blocker':
+        record['blockers'].append({'category': 'user-edit-guard', 'open': True})
+    elif failure == 'closed':
+        record['blockers'][0]['open'] = False
+    elif failure == 'generic':
+        record['blockers'][0]['evidence'] = 'A dependency is missing'
+    elif failure == 'probe':
+        record['blockers'][0]['request'] = {'verification': {'command': ['python', 'real-check.py']}}
+    elif failure == 'modern':
+        record['blockers'][0]['purpose'] = 'A separate concrete decision'
+    elif failure == 'policy':
+        record['approvals']['autonomy_policy'] = {}
+    elif failure == 'session':
+        record['session_id'] = 'another-session'
+    elif failure == 'stale-fingerprint':
+        fingerprint = '0' * 64
+    elif failure == 'before-blocker':
+        record['blockers'][0]['at'] = binding._clock()
+    else:
+        # Deliberately corrupt only private fixture capture data for refusal controls.
+        path = runs / 'prompts' / f'{hashlib.sha256(SESSION.encode()).hexdigest()}.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        if failure == 'future':
+            rows[-1]['at'] = binding._clock() + 1000
+        elif failure == 'duplicate-id':
+            rows.append(dict(rows[-1]))
+        else:
+            rows[-1].pop('event_id')
+            rows.append(dict(rows[-1]))
+        path.write_text(''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8')
+    if failure != 'stale-fingerprint':
+        fingerprint = binding.blocker_fingerprint(record['blockers'][0])
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError):
+        _continue_legacy(runs, record, fingerprint=fingerprint)
+    assert record == before
+    assert not list((runs / 'consumed-prompts').glob('*.json'))
+
+
+@pytest.mark.parametrize('fields', [{}, {'permission_mode': 'default'},
+    {'permission_mode': 'unknown'}, {'nested': {'permission_mode': 'bypassPermissions'}}])
+def test_legacy_hook_continue_never_borrows_initial_full_access(captures, fields):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    capture('Continue', **fields)
+    event = binding.capture_events(runs, SESSION)[-1]
+    with pytest.raises(ValueError):
+        _continue_legacy(runs, record)
+    assert binding.event_available(runs, SESSION, event)
+
+
+@pytest.mark.parametrize('remove_marker', [False, True])
+def test_legacy_hook_continue_does_not_consume_a_manual_question_reply(captures, remove_marker):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    render(runs)
+    capture('Continue', permission_mode='bypassPermissions')
+    event = binding.capture_events(runs, SESSION)[-1]
+    if remove_marker:
+        binding.question_path(runs, SESSION).unlink()
+    with pytest.raises(ValueError, match='pending manual question'):
+        _continue_legacy(runs, record)
+    assert binding.event_available(runs, SESSION, event)
+
+
+def test_legacy_hook_continue_does_not_use_an_older_reply_or_a_new_manual_mode(captures):
+    runs, capture = captures
+    record = _legacy_hook_record()
+    capture('Continue', permission_mode='bypassPermissions')
+    event = binding.capture_events(runs, SESSION)[-1]
+    capture('Wait, inspect the failure first', permission_mode='bypassPermissions')
+    with pytest.raises(ValueError, match='latest whole user capture'):
+        _continue_legacy(runs, record)
+    assert binding.event_available(runs, SESSION, event)
+    capture('Continue', permission_mode='bypassPermissions')
+    event = binding.capture_events(runs, SESSION)[-1]
+    observed = {'origin': 'host-hook-capture', 'session_id': SESSION,
+        'permission_mode': 'default', 'at': binding._clock()}
+    observed['mac'] = binding._seal(SECRET, observed)
+    binding._write_private(runs / 'host-context' / f'{hashlib.sha256(SESSION.encode()).hexdigest()}.json', observed)
+    with pytest.raises(ValueError, match='current host mode'):
+        _continue_legacy(runs, record)
+    assert binding.event_available(runs, SESSION, event)
+
+
+@pytest.mark.parametrize('wrong_root', [False, True])
+@pytest.mark.parametrize('legacy', [False, True])
+def test_legacy_hook_continue_corroborates_its_own_canonical_host_turn(captures, tmp_path, monkeypatch, wrong_root, legacy):
+    import datetime
+    runs, capture = captures
+    initial = binding.capture_events(runs, SESSION)[-1]
+    home, root = tmp_path / 'home', tmp_path / 'repo'
+    root.mkdir()
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: home))
+    record = _legacy_hook_record()
+    capture('Continue')  # Old native captures omitted permission_mode.
+    if legacy:
+        # Model the older hook format, retaining the actual captured digest/time/session.
+        path = runs / 'prompts' / f'{hashlib.sha256(SESSION.encode()).hexdigest()}.jsonl'
+        captured = [json.loads(line) for line in path.read_text().splitlines()]
+        captured[-1].pop('event_id')
+        path.write_text(''.join(json.dumps(row) + '\n' for row in captured), encoding='utf-8')
+    event = binding.capture_events(runs, SESSION)[-1]
+    log = home / '.codex' / 'sessions' / '2026' / '10' / '19' / f'rollout-date-{SESSION}.jsonl'
+    log.parent.mkdir(parents=True)
+    rows = [{'type': 'session_meta', 'payload': {'id': SESSION, 'originator': 'codex_vscode', 'source': 'vscode'}},
+        {'type': 'turn_context', 'payload': {'approval_policy': 'never',
+            'sandbox_policy': {'type': 'danger-full-access'}, 'cwd': str(root)}},
+        {'type': 'event_msg', 'timestamp': datetime.datetime.fromtimestamp(initial['at'], datetime.UTC).isoformat(),
+            'payload': {'type': 'user_message', 'message': '/implement v0.2.0'}},
+        {'type': 'event_msg', 'timestamp': datetime.datetime.fromtimestamp(event['at'], datetime.UTC).isoformat(),
+            'payload': {'type': 'user_message', 'message': 'Continue'}}]
+    log.write_text(''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8')
+    record['approvals']['authorization_context'].update(origin='codex-host-transcript', transcript_path=str(log),
+        prompt_sha256=initial['prompt'], at=initial['at'])
+    roots = {str((tmp_path / 'foreign').resolve())} if wrong_root else {str(root.resolve())}
+    if wrong_root:
+        with pytest.raises(ValueError, match='full-access context'):
+            _continue_legacy(runs, record, roots=roots)
+        assert binding.event_available(runs, SESSION, event)
+    else:
+        result = _continue_legacy(runs, record, roots=roots)
+        assert result['capture_context']['origin'] == 'codex-host-transcript'
+        assert result['capture_context']['prompt_sha256'] == event['prompt']
+        assert result['event_id'] == event.get('event_id')
+        assert result['event_identity_sha256'] == binding.digest(json.dumps(
+            [SESSION, event.get('event_id'), event['at'], event['prompt']]))
+        assert not binding.event_available(runs, SESSION, event)
+        with pytest.raises(binding.Refusal, match='code-used'):
+            _continue_legacy(runs, json.loads(json.dumps(record)), roots=roots)
+
+
+def _whole_minor_route_record():
+    record = approved_record()
+    record.update(schema=checker.SCHEMA_MINOR, scope='minor', minor='v0.2', repo='acme/demo', members=[
+        {'version': 'v0.2.0', 'source_branch': 'feat/v0.2.0-alpha', 'approvals': {'classes': []}},
+        {'version': 'v0.2.1', 'source_branch': 'feat/v0.2.1-omega', 'approvals': {'classes': []}}])
+    record['approvals'].pop('source_branch')
+    record['approvals']['push_remote_url'] = 'https://github.com/acme/demo.git'
+    return record
+
+
+@pytest.mark.parametrize(('last_status', 'last_repo', 'expected'), [
+    ('met', 'acme/demo', 'met'), ('unmet', None, 'unmet'),
+    ('cannot-verify', None, 'cannot-verify'), ('met', 'evil/fork', 'unmet')])
+def test_whole_minor_remote_checks_every_projected_member(tmp_path, monkeypatch, last_status, last_repo, expected):
+    record = _whole_minor_route_record()
+    calls = []
+
+    def verify(root, url, *, git, run, branch):
+        calls.append(branch)
+        return (last_status, last_repo, 'controlled-route') if branch.endswith('omega') else ('met', 'acme/demo', 'ok')
+
+    monkeypatch.setattr(checker.repo_host, 'verify_push_route', verify)
+    ctx = SimpleNamespace(root=tmp_path, push_remote_url=record['approvals']['push_remote_url'],
+        git='private-unit-git', run=lambda *args: pytest.fail('unit route must not spawn'), notices=[])
+    assert not hasattr(ctx, 'version') and not hasattr(ctx, 'slug')
+    assert checker._approved_remote_status(ctx, record) == expected
+    assert calls == [member['source_branch'] for member in record['members']]
+
+
+@pytest.mark.parametrize('invalid', ['empty', 'mapping', 'nondict', 'unknown-version', 'duplicate', 'missing-branch', 'blank-branch'])
+def test_whole_minor_remote_never_accepts_empty_or_ambiguous_members(tmp_path, monkeypatch, invalid):
+    record = _whole_minor_route_record()
+    if invalid == 'empty':
+        record['members'] = []
+    elif invalid == 'mapping':
+        record['members'] = {}
+    elif invalid == 'nondict':
+        record['members'][1] = None
+    elif invalid == 'unknown-version':
+        record['members'][1]['version'] = 'not-a-member-version'
+    elif invalid == 'duplicate':
+        record['members'][1]['version'] = record['members'][0]['version']
+    elif invalid == 'missing-branch':
+        record['members'][1].pop('source_branch')
+    else:
+        record['members'][1]['source_branch'] = ' '
+    monkeypatch.setattr(checker.repo_host, 'verify_push_route', lambda *args, **kwargs: pytest.fail('invalid parent must refuse before probing'))
+    ctx = SimpleNamespace(root=tmp_path, push_remote_url=record['approvals']['push_remote_url'])
+    assert checker._approved_remote_status(ctx, record) == 'cannot-verify'
+
+
+def test_whole_minor_remote_checks_later_members_after_an_earlier_refusal(tmp_path, monkeypatch):
+    record = _whole_minor_route_record()
+    calls = []
+
+    def verify(root, url, *, git, run, branch):
+        calls.append(branch)
+        return ('unmet', None, 'redirected') if branch.endswith('alpha') else ('cannot-verify', None, 'unknown')
+
+    monkeypatch.setattr(checker.repo_host, 'verify_push_route', verify)
+    ctx = SimpleNamespace(root=tmp_path, push_remote_url=record['approvals']['push_remote_url'],
+        git='private-unit-git', run=lambda *args: pytest.fail('unit route must not spawn'), notices=[])
+    assert checker._approved_remote_status(ctx, record) == 'cannot-verify'
+    assert calls == [member['source_branch'] for member in record['members']]
+
+
+def test_real_whole_minor_resolve_checks_all_routes_and_retains_the_genuine_continue(tmp_path, monkeypatch):
+    from tests.validators.test_check_plan_completion import TRANSPORT_OVERRIDE_ENV, _git
+    home = tmp_path / 'home'
+    home.mkdir()
+    for key in ('HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA'):
+        monkeypatch.setenv(key, str(home))
+    monkeypatch.setenv('NEXUS_HUB_HOME', str(home / '.nexus-hub'))
+    for key in (*TRANSPORT_OVERRIDE_ENV, 'GH_HOST', 'NEXUS_RUNNER_LAUNCH'):
+        monkeypatch.delenv(key, raising=False)
+    empty = tmp_path / 'empty.gitconfig'
+    empty.write_text('', encoding='utf-8')
+    monkeypatch.setenv('GIT_CONFIG_GLOBAL', str(empty))
+    monkeypatch.setenv('GIT_CONFIG_NOSYSTEM', '1')
+    from tests.validators.test_completion_minor_record import SESSION as MINOR_SESSION
+    from tests.validators.test_completion_minor_record import Minor
+    minor = Minor(tmp_path, monkeypatch)
+
+    def capture(prompt):
+        result = subprocess.run([sys.executable, str(Path(gate.__file__)), 'capture'],
+            input=json.dumps({'session_id': MINOR_SESSION, 'prompt': prompt, 'permission_mode': 'bypassPermissions'}),
+            text=True, capture_output=True, cwd=minor.work, env=minor.env, check=False)
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    approvals = minor.approvals()
+    spec = json.loads(approvals.read_text(encoding='utf-8'))
+    spec['autonomy'] = {'corrections': 'within-approved-scope'}
+    approvals.write_text(json.dumps(spec), encoding='utf-8')
+    capture('/implement v0.5')
+    page = minor.render(MINOR_SESSION, '--approvals', str(approvals))
+    assert page.returncode == 0, page.stdout + page.stderr
+    capture(page.stdout.splitlines()[0])
+    created = minor.run('record', 'create', '--minor', 'v0.5', '--session', MINOR_SESSION, '--approvals', str(approvals))
+    assert created.returncode == 0, created.stdout + created.stderr
+    before = minor.record()
+    assert 'source_branch' not in before['approvals']
+    assert len(before['members']) == 2
+    legacy = {'at': time.time(), 'category': 'no-progress', 'open': True,
+        'evidence': 'progress score unchanged over 3 refusals: member.gate task.T001'}
+    before['blockers'] = [legacy]
+    minor.write_record(before, resign=False)  # Exact old hook shape; signed authority is untouched.
+    capture('Continue')
+    args = ('record', 'resolve', '--minor', 'v0.5', '--session', MINOR_SESSION, '--blocker', '0',
+        '--fingerprint', binding.blocker_fingerprint(legacy))
+    result = minor.run(*args)
+    assert result.returncode == 0, result.stdout + result.stderr
+    after = minor.record()
+    assert after['blockers'][0]['open'] is False
+    assert after['approvals']['resolutions'][-1]['origin'] == 'existing-approved-plan-user-continuation'
+    assert after['approvals_hmac'] == checker._sign(after, (minor.runs / '.secret').read_bytes())
+    for key in ('nonce', 'created', 'start_head', 'members', 'session_id', 'minor', 'scope'):
+        assert after[key] == before[key]
+    assert {key: value for key, value in after['approvals'].items() if key != 'resolutions'} == before['approvals']
+    assert minor.run('check-minor', 'v0.5', '--session', MINOR_SESSION).returncode != 0
+
+    # The second member's redirected route must not be hidden by the first member's valid route.
+    second = json.loads(json.dumps(after))
+    second['blockers'].append({**legacy, 'at': time.time(), 'open': True})
+    minor.write_record(second, resign=False)
+    capture('Continue')
+    event = binding.capture_events(minor.runs, MINOR_SESSION)[-1]
+    branch = second['members'][-1]['source_branch']
+    _git(minor.work, 'remote', 'add', 'fork', 'https://github.com/evil/fork.git')
+    key = f'branch.{branch}.pushRemote'
+    _git(minor.work, 'config', key, 'fork')
+    args = ('record', 'resolve', '--minor', 'v0.5', '--session', MINOR_SESSION, '--blocker', '1',
+        '--fingerprint', binding.blocker_fingerprint(second['blockers'][1]))
+    raw = minor.record_path().read_bytes()
+    refused = minor.run(*args)
+    assert refused.returncode == 3, refused.stdout + refused.stderr
+    assert minor.record_path().read_bytes() == raw
+    assert binding.event_available(minor.runs, MINOR_SESSION, event)
+    _git(minor.work, 'config', '--unset', key)
+    repaired = minor.run(*args)
+    assert repaired.returncode == 0, repaired.stdout + repaired.stderr
+    assert not binding.event_available(minor.runs, MINOR_SESSION, event)
