@@ -45,6 +45,10 @@ Actual recovery completed all 60 entries and verified original old-cache bytes a
 
 V6 passed eight private static/component groups and all five existing private fixtures. Actual production runtime adoption remains pending a verified green merge and the complete published artifact. Source-catalog guard qualification does not claim that the new guard has been deployed to the actual home.
 
+## Hosted lifecycle correction
+
+PR491 first-head extractor and rendered-skill jobs both reported the same nine stale lifecycle assertions. Local reproduction confirmed 9 failed and 88 passed in 0.70s. The installer-parity instruction remained a hard gate; its test assumed adjacent words and uppercase spelling. Three test modules now assert the new authorization owner, genuine manual consent, scoped trusted full-access continuation, remote-base diff and commit-count disclosure, unchanged deferred task IDs, and the retained hard multi-installer parity gate. The corrected scope, including related CI lifecycle checks, passed 170 cases in 2.69s with zero Ruff diagnostics in all three changed modules. No executable workflow source changed in this correction; previous source qualification remains applicable. The first assembled publication fast profile passed all 17 checks with no failures, skips or advisories in 187.4s. Final hosted validation remains required.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:

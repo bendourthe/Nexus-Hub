@@ -17,6 +17,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Final validation:** Expanded 19-module regression: 1092 passed, 1 failed, 3 skipped in 1221.89s; the sole failure was an inherited private run-store environment in the plugin test fixture. After correcting that fixture, the complete affected plugin module passed all 25 tests in 6.33s. Reusing unchanged passing cases yields 1093 distinct passing cases and 3 skips on the final source; this is split qualification, not a single all-green run. Usage hooks: 26 passed, 0 failed in 43.49s. New fast profile: 17 passed, 0 failed, 0 skipped in 115.1s. All 19 runner/hook modes passed; narrow lint comparison has 0 introduced and 12 unchanged existing diagnostics. Earlier hooks (50 passed) and fast checks (17 passed) remain separate evidence. [Correction evidence](releases/v4/v4.14/development/approval-workflow-correction-evidence.md).
 
+**Hosted follow-up:** PR491 initial extractor/render profiles repeated nine stale lifecycle assertions. All nine reproduced locally; the corrected three-module scope plus related CI lifecycle checks now passes 170 cases in 2.69s, with zero lint errors. Executable source is unchanged; final hosted validation remains required.
+
 **Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
 
 | Metric | Current | Target |

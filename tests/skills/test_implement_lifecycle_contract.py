@@ -189,9 +189,13 @@ def test_final_phase_runs_the_terminal_reconciliation(runbook: str):
     assert len(duty) == 2, "duty 5 is not the terminal reconciliation"
     body = duty[1].split("\n6. ", 1)[0]
     assert "[[cicd-architect]]" in body
-    for step in ("DETECT", "COMPARE", "PROPOSE", "APPROVAL", "APPLY", "RECORD"):
+    for step in ("DETECT", "COMPARE", "PROPOSE", "AUTHORITY", "APPLY", "RECORD"):
         assert step in body, f"the reconciliation is missing its {step} step"
-    assert "ONE place in the whole plan where pipeline files change" in body
+    assert "verify AUTHORITY through the completion contract" in body
+    assert "APPLY only covered or manually approved changes" in body
+    assert "Trusted full access permits continuation only for explicitly scoped changes and paths" in body
+    assert "explicit exclusions remain binding" in body
+    assert "terminal pipeline reconciliation unless CI/CD is an earlier phase" in body
 
 
 def test_the_pre_publication_gate_is_local_by_construction(runbook: str):
@@ -200,11 +204,24 @@ def test_the_pre_publication_gate_is_local_by_construction(runbook: str):
     assert "cannot depend on a remote result" in body
 
 
-def test_final_phase_publishes_once_after_explicit_approval(runbook: str):
+def test_final_phase_publishes_once_under_verified_authority(runbook: str):
     body = _phase_9f(runbook)
-    assert "EXPLICIT approval before the plan's first branch push" in body
+    assert "Verify publication authority through the completion contract immediately before the first push" in body
+    assert "request a manual decision only when the native check finds it uncovered" in body
     assert "**Push once.**" in body
-    assert "Silence is not approval." in body
+    assert "resolved branching model, remote, branch and pull-request target" in body
+    assert "approval.remote met" in body
+    assert "matching the destination and repository the user explicitly approved" in body
+    assert "Merge only when every required check is green and native verification covers the merge" in body
+    contract = RUNBOOK.with_name("completion-contract.md").read_text(encoding="utf-8")
+    authority = contract.split("### Authorization policy", 1)[1].split("\n### ", 1)[0]
+    manual = contract.split("### Manual decisions", 1)[1].split("\n### ", 1)[0]
+    assert "Only recognized trusted full-access evidence establishes automatic continuation" in authority
+    assert "later downgrade or unknown mode cannot keep borrowing an older full-access event" in authority
+    assert "Continue covered implementation, verification, repairs and publication without repeating a consent question" in authority
+    assert 'New scope or a manual/unknown permission mode follows "Manual decisions"' in authority
+    assert "match an allowed affirmative reply and be consumed once" in manual
+    assert "Never translate a tool click into a forged prompt event" in manual
 
 
 def test_integration_validates_the_merge_result_not_the_branch_tip(runbook: str):
@@ -342,7 +359,7 @@ def test_skill_verification_covers_the_new_gates(skill: str):
     assert "five-part GO/NO-GO gate" in skill
     assert "`## Plan delta`" in skill
     assert "`## Tier 3 deep pass`" in skill
-    assert "pushed exactly once after explicit approval" in skill
+    assert "9F pushed once under verified recorded authority and merged only on green required checks" in skill
     assert "a non-green integration blocked `/update release`" in skill
 
 
@@ -453,7 +470,7 @@ def test_commit_skill_explains_remote_correction_work(commit_skill: str):
 
 
 def test_approval_gate_measures_against_the_remote_base(runbook: str) -> None:
-    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    gate = _phase_9f(runbook).split("2. **Authorization check.**", 1)[1].split("\n3. ", 1)[0]
     assert "origin/<base>..HEAD" in gate, (
         "the gate must diff against the remote integration branch, not the local one"
     )
@@ -463,14 +480,14 @@ def test_approval_gate_measures_against_the_remote_base(runbook: str) -> None:
 def test_approval_gate_states_a_commit_count_not_only_files(runbook: str) -> None:
     """A file count alone hid the 12 extra commits; the commit count is what
     made the discrepancy visible."""
-    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    gate = _phase_9f(runbook).split("2. **Authorization check.**", 1)[1].split("\n3. ", 1)[0]
     assert "commit count" in gate and "file count" in gate
 
 
 def test_approval_gate_requires_disclosure_when_scope_exceeds_the_plan(
     runbook: str,
 ) -> None:
-    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    gate = _phase_9f(runbook).split("2. **Authorization check.**", 1)[1].split("\n3. ", 1)[0]
     assert "BEFORE asking for approval" in gate
     assert "disclosure" in gate, (
         "when extra commits cannot be unbundled, disclosure is the required move"
@@ -622,4 +639,4 @@ def test_next_mode_does_not_reenter_validation_only_deferrals(command, runbook):
 
     assert "only comprehensive tests remain pending" in selection
 
-    assert "Keep their task IDs unchecked" in selection
+    assert "keeping those task IDs unchecked" in selection
