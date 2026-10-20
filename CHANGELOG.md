@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The usage-limit question is now one interactive multiple-choice question. When a usage window reaches its threshold, the agent asks once with the host's question tool (in Claude Code, `AskUserQuestion`), offering three clickable choices with none preselected: **Continue on credits**, **Wait for reset**, and **Hand off to another agent or platform**, each explaining what it costs, when the window resets, or what the handoff does. A host without such a tool gets the same three choices once in one short message. While the question is open, a continuation from another hook or a goal no longer asks it again; the agent says it is waiting and ends the turn. Paid credits are still never assumed: only your recorded answer approves them.
+
 - The Codex Usage Monitor dashboard shows **Current Model** (the `model` saved in Codex's `config.toml`, else "Codex default") in place of the account **Plan** section.
 - The Copilot and Cursor Usage Monitor dashboards show **Current Model**: Copilot reads the Chat view's model from one key of the editor's state database (`chat.currentLanguageModel.panel`, read-only) and drops its **Plan** line; Cursor reads the selected agent model from its settings record after a live fetch. Cursor's consent prompt lists the new read and asks once more if you had already allowed live usage.
 - The Claude Usage Monitor dashboard now has a **Limit Resets** row, matching the Codex monitor. The Claude usage API still reports no reset count (re-checked 2026-10-19), so the row says so and its **Open reset page** button opens the claude.ai usage page, which lists any reset and its expiry.

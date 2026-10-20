@@ -107,7 +107,7 @@ To see the directive itself, start a session with a low threshold, for example `
 
 ## Continuing on pay-per-use credits (v4.13.11)
 
-Reaching a subscription limit is not treated as a decision to hand off, because your account may have pay-per-use credits (extra usage). At the threshold the agent finishes or safely stops the current step, records the open question in `.nexus-hub/usage-decision.json` as `pending`, asks you whether to continue on credits or hand off, and waits. It records your answer in the same file:
+Reaching a subscription limit is not treated as a decision to hand off, because your account may have pay-per-use credits (extra usage). At the threshold the agent finishes or safely stops the current step, records the open question in `.nexus-hub/usage-decision.json` as `pending`, and asks you once. Where the platform has an interactive question tool (in Claude Code, `AskUserQuestion`), the question appears as three clickable choices, none preselected: **Continue on credits**, **Wait for reset**, and **Hand off to another agent or platform**, each describing its cost, the reset time, or what the handoff does. On a platform without such a tool, the agent asks the same three choices once in one short message. While the question is open, a continuation from another hook or a goal does not ask it again; the agent says it is waiting and ends the turn. It records your answer in the same file:
 
 - **Continue on credits**: the agent carries on with the task. The guard remembers the approval in `~/.nexus-hub/state/usage-guard/<platform>.credits.json` until the limited window resets, so new sessions in that period do not ask again.
 - **Wait for the reset**: the agent stops and starts no new work.
