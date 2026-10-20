@@ -28,6 +28,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import NamedTuple
 
@@ -36,6 +37,7 @@ MARKER = "nexus: console-window-ok"
 MAX_FILES = 20000
 MAX_FILE_BYTES = 1_000_000
 MAX_REPORTED = 12
+SCAN_BUDGET_SECONDS = 20.0  # past this the scan stops and judges what it has read
 
 SKIP_DIRS = {
     ".git", "node_modules", ".venv", "venv", "env", "__pycache__", ".tox", ".nox", ".mypy_cache",
@@ -205,7 +207,16 @@ def _go_guard_present(files: list[tuple[Path, Path]]) -> bool:
     return False
 
 
-def scan(root: Path) -> list[Finding]:
+def _budget() -> float:
+    try:
+        return max(1.0, float(os.environ.get("NEXUS_CONSOLE_GUARD_BUDGET", SCAN_BUDGET_SECONDS)))
+    except ValueError:
+        return SCAN_BUDGET_SECONDS
+
+
+def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
+    """Findings for root; when the time budget runs out, sets incomplete[0] and returns what was found."""
+    deadline = time.monotonic() + _budget()
     # The guard and its tests have to spell out every pattern they detect.
     own = {Path(__file__).name, "test_console_window_guard.py"}
     files = [item for item in _candidates(root) if item[1].name not in own]
@@ -215,6 +226,10 @@ def scan(root: Path) -> list[Finding]:
     findings: list[Finding] = []
     unguarded_tests: list[Finding] = []
     for path, rel in files:
+        if time.monotonic() > deadline:
+            if incomplete is not None:
+                incomplete[:] = [True]
+            break
         try:
             if path.stat().st_size > MAX_FILE_BYTES:
                 continue
@@ -310,8 +325,12 @@ def main() -> int:
     if not is_test_command(command):
         return 0
     root = project_root(Path(payload.get("cwd") or os.getcwd()).resolve())
-    findings = scan(root)
+    incomplete: list[bool] = [False]
+    findings = scan(root, incomplete)
     if not findings:
+        if incomplete[0]:
+            print(f"console-window-guard: scan stopped after {_budget():g}s with no unsafe launch found so far; "
+                  "the test run proceeds.", file=sys.stderr)
         return 0
     print(report(command, root, findings), file=sys.stderr)
     return 2

@@ -145,6 +145,26 @@ def test_git_listing_skips_ignored_and_vendored_code(tmp_path: Path) -> None:
     assert run_hook(tmp_path, "pytest").returncode == 0
 
 
+def test_an_exhausted_scan_budget_lets_the_test_run_proceed(tmp_path: Path, monkeypatch, capsys) -> None:
+    """A slow or cold repository must never stall or block a test command."""
+    import importlib.util
+    import io
+    spec = importlib.util.spec_from_file_location("console_window_guard_budget", HOOK)
+    guard = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guard)
+    write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
+    monkeypatch.setattr(guard, "_budget", lambda: -1.0)
+    incomplete = [False]
+    assert guard.scan(tmp_path, incomplete) == [] and incomplete == [True]
+    monkeypatch.setenv("NEXUS_CONSOLE_GUARD_PLATFORM", "nt")
+    monkeypatch.delenv("NEXUS_DISABLED_HOOKS", raising=False)
+    monkeypatch.delenv("NEXUS_CONSOLE_GUARD", raising=False)
+    payload = {"tool_name": "Bash", "tool_input": {"command": "pytest"}, "cwd": str(tmp_path)}
+    monkeypatch.setattr(guard.sys, "stdin", io.StringIO(json.dumps(payload)))
+    assert guard.main() == 0
+    assert "scan stopped after" in capsys.readouterr().err
+
+
 def test_nexus_hub_itself_has_no_window_unsafe_launch() -> None:
     """The repository keeps its own rule: every process launch is window-safe or marked with a reason."""
     repo = Path(__file__).resolve().parents[3]
