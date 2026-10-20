@@ -81,7 +81,7 @@ if (-not $python) { Write-CannotVerify "Python not found" }
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $python
 $psi.Arguments = '"' + $helper + '" scan'
-$psi.UseShellExecute = $false
+$psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
 $psi.RedirectStandardInput = $true
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true

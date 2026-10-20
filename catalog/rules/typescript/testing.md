@@ -34,6 +34,12 @@ priority: high
 - Use `data-testid` only as a last resort when no accessible query is available.
 - Test user interactions with `userEvent` (async), not `fireEvent`.
 
+## Windows Child Processes
+
+- On Windows, a console program started by a process with no console opens a new window that takes keyboard focus. A suite that starts hundreds of children from an agent, an IDE test runner or a detached helper makes the machine unusable until it ends, so every process a test (or a helper the tests call) starts must be launched without a window.
+- Pass `windowsHide: true` to every `child_process` call (`spawn`, `spawnSync`, `exec`, `execSync`, `execFile`, `execFileSync`, `fork`) in tests and test helpers, including scripts the tests run. A `detached: true` child must also set `windowsHide: true`.
+- A launch that must detach or open its own console is the exception: mark it with a `nexus: console-window-ok <reason>` comment on the line or the line above. Nexus-Hub's `console-window-guard` hook blocks a Windows test run while an unmarked unsafe launch remains.
+
 ## Coverage and CI
 
 - Enforce 80% line and branch coverage: `vitest --coverage --coverage.thresholds.lines=80`.
