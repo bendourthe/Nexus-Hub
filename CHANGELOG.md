@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A new `console-window-guard` hook stops Windows test runs from flooding the desktop with console windows. Before a test command runs (pytest, npm/pnpm/yarn test, vitest, jest, Playwright, go test, cargo test, dotnet test, Maven or Gradle test, Pester, or the repository CI profiles), it scans the project for process launches that open windows: Python tests with no `CREATE_NO_WINDOW` guard in `conftest.py`, `DETACHED_PROCESS` or `CREATE_NEW_CONSOLE`, PowerShell `ProcessStartInfo` without `CreateNoWindow`, `Start-Process`, Node `child_process` calls without `windowsHide`, and Go `exec.Command` with no Windows no-window helper. It blocks the run and lists exact fixes, including a ready-to-paste `conftest.py` guard. A deliberate launch is accepted with a `nexus: console-window-ok <reason>` comment. Turn it off with `NEXUS_DISABLED_HOOKS=console-window-guard` or `NEXUS_CONSOLE_GUARD=off`. It acts only on Windows. The Python, TypeScript and Go testing rules now state the window-safe launch form. Decision record: [`2026-10-19-windows-console-window-guard.md`](docs/decisions/implemented/tooling/2026-10-19-windows-console-window-guard.md).
+
+### Fixed
+
+- Five PowerShell hooks (`completion-gate`, `approval-capture`, `attribution-guard`, `user-edit-guard`, `auto-devlog`) started Python or git without `CreateNoWindow`, so a host that ran them without a console opened a window on every Stop, prompt, file write or git command. They now launch windowless, as do the repository's own `.agents` hook copies and the usage monitors' Node test and packaging helpers. Nexus-Hub's test suite now fails if any new launch in the repository is not window-safe.
+
 ### Changed
 
 - The Codex Usage Monitor dashboard shows **Current Model** (the `model` saved in Codex's `config.toml`, else "Codex default") in place of the account **Plan** section.

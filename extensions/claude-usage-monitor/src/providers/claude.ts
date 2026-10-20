@@ -199,6 +199,7 @@ export class ClaudeUsageProvider implements UsageProvider {
     try {
       // .toString() before .trim() keeps this valid regardless of which
       // execFileSync overload the resolved @types/node selects (string vs Buffer).
+      // nexus: console-window-ok macOS-only keychain lookup; never runs on Windows
       const raw = execFileSync(
         "security",
         ["find-generic-password", "-s", service, "-w"],
@@ -435,6 +436,7 @@ export class ClaudeUsageProvider implements UsageProvider {
       }
       file.claudeAiOauth = { ...file.claudeAiOauth, ...credentials };
       // -U updates the existing generic-password item in place.
+      // nexus: console-window-ok macOS-only keychain write; never runs on Windows
       execFileSync(
         "security",
         [
