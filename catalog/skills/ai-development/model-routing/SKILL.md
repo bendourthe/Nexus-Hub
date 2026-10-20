@@ -83,6 +83,15 @@ The wrappers call the standard-library `model-map.py` implementation and print J
 
 Edge-case density, the unattended run mode, and the failure class modify effort decisions without changing this mapping. Their definitions, and the table of which skill owns each effort rule, live in [`references/effort-modifiers.md`](references/effort-modifiers.md).
 
+`score` also returns a raise-only `verification_effort`. Pass `--edge-cases <density>`, and `--unattended` only from the `/implement` pre-flight:
+
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh score low medium low low medium --edge-cases high --unattended
+# {"tier": "standard", "effort": "medium", "verification_effort": "high"}
+```
+
+Without either flag, `verification_effort` equals `effort`.
+
 ### Step 4: Build or refresh the Current model map
 
 Planning mode MUST attempt public web search on every full `/plan` invocation:

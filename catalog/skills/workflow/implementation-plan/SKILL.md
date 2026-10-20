@@ -216,6 +216,7 @@ Each phase must follow this template exactly:
 **Verification Expectation**: [Name the real command, interaction, or generated artifact a reader can run or open, the specific result they must observe, and any delegated procedure from [[functional-verification]]. "Tests pass" alone is not sufficient.]
 **Recommended model tier**: [frontier / strong / standard / fast]
 **Recommended effort level**: [low / medium / high / max]
+**Recommended verification effort**: [same vocabulary; omit when equal to the effort level]
 **Rationale**: [One sentence tying the tier and effort to the phase's complexity signals. Do not name a concrete provider model here.]
 
 ### Sub-tasks
@@ -388,6 +389,7 @@ Before writing the file, outline the phases mentally:
 Once the phase breakdown is fixed and before writing the file, score every phase to generic capability intent and build the plan's cross-provider lookup:
 
 - **Score each phase.** Invoke `[[model-routing]]` once per phase and map the rubric to `frontier`, `strong`, `standard`, or `fast`, plus `low`, `medium`, `high`, or `max` effort. Any uncertainty or high-risk signal defaults to `frontier` with `high` or `max` effort. Record the generic values in the two glance columns and the three per-phase fields.
+- **Score verification effort.** When a phase's edge-case density is `medium` or `high`, `[[model-routing]]` computes a verification effort with `--edge-cases` only, per its `references/effort-modifiers.md`; record it as the optional `**Recommended verification effort**` field when it is above the effort. Never apply `--unattended` here: the run mode is known only when `/implement` is invoked, and its pre-flight applies it. The field adds no glance-table column.
 - **Refresh all providers.** On every full `/plan` invocation, use web search and official provider documentation to populate `## Current model map` for Anthropic, OpenAI, Google, and Cursor. Host-platform enumeration may confirm the current host's picker, but it MUST NOT limit the plan to one provider or become the authoritative plan recommendation.
 - **Cite the roster.** Emit `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and include at least one official URL per provider under `### Model map sources`.
 - **Degrade visibly, never silently.** If web search or official docs are unavailable, use the dated bundled snapshot and emit `**Model map status**: offline fallback; stale as of YYYY-MM-DD.`. If no verified snapshot exists, fill all 16 cells with `assess at implementation time` and emit `**Model map status**: unavailable; assess at implementation time.`. Plan generation never blocks, but staleness is explicit.

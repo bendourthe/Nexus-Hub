@@ -29,6 +29,18 @@ A phase is unattended when no human is expected to answer within it: an `/implem
 
 **Examples**: a scheduled overnight parser repair is unattended; `/implement <plan> phase 2` in an interactive session is attended.
 
+## Verification effort
+
+The effort at which a phase's verification runs. It starts at the phase's effort and only ever rises:
+
+1. Edge-case density `medium` raises it to at least `medium`; `high` raises it to at least `high`.
+2. When the phase is unattended and density is `medium` or `high`, it rises one more level.
+3. The modifiers never raise it above `high`. `max` appears only when the phase's effort is already `max`, and it is never lowered.
+
+`/plan` records the result of step 1 alone, as the optional `**Recommended verification effort**` field, and omits the field when it equals the effort. The `/implement` pre-flight re-scores with step 2 from the actual run mode and keeps the higher of the field and the re-score. `scripts/model-map.py score --edge-cases <density> [--unattended]` computes it.
+
+The `high` cap holds until the raise direction is measured (known gap `DF-16` in the v4.14 ledger). Lowering any effort stays out of scope until measured (`DF-15`).
+
 ## Failure class
 
 Applies only to troubleshooting failures classified `IMPL`. `TEST` and `ENV` failures keep their existing handling. Classify at the end of troubleshooting iteration 2, and quote the evidence.
