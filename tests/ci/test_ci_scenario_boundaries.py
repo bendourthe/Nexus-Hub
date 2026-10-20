@@ -159,3 +159,14 @@ def test_pip_interpreter_and_output_selectors_are_not_inherited(monkeypatch, tmp
     parsed = subprocess.run([sys.executable, "-c", parser], cwd=work, env=env, capture_output=True, text=True, check=True, timeout=30)
     assert json.loads(parsed.stdout) != str(outside)
     assert list(outside.iterdir()) == []
+
+
+def test_a_timed_out_step_reports_the_output_it_reached(tmp_path, capsys):
+    """A killed child's captured output is printed, so a slow CI step can be located."""
+    import sys
+    child = "import sys, time; print('step one'); print('step two', flush=True); time.sleep(60)"
+    with pytest.raises(subprocess.TimeoutExpired):
+        scenarios.run([sys.executable, "-c", child], env=dict(__import__("os").environ), cwd=tmp_path, timeout=3)
+    err = capsys.readouterr().err
+    assert "stdout before the 3s timeout" in err
+    assert "step one" in err and "step two" in err
