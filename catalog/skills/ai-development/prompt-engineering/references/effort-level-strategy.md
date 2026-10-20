@@ -1,8 +1,18 @@
 ## Effort-Level Strategy
 
-Claude Code surfaces an `effortLevel` control that governs how much reasoning the model invests per turn. Opus 4.7 exposes five tiers. Choosing the right tier deliberately is the single highest-leverage cost/quality knob in the harness - higher than model routing in many workflows.
+Claude Code surfaces an `effortLevel` control that governs how much reasoning the model invests per turn. Which levels exist, and which one is the default, varies by model: read them from the current model's documentation or its profile under `model-prompting-research/references/models/` (for example [`claude-opus-5-5.md`](../../model-prompting-research/references/models/claude-opus-5-5.md)), not from this page. Choosing the right tier deliberately is the single highest-leverage cost/quality knob in the harness - higher than model routing in many workflows.
 
-### The five tiers
+### What effort buys
+
+Higher effort mostly buys verification and independent judgment, not a different approach:
+
+- More independent verification of the agent's own work before it reports.
+- More edge-case testing: inputs and states beyond the common path.
+- More judgment calls made without the user, which matters most when nobody is watching.
+
+It fixes failures caused by missed edge cases. It does not fix a wrong approach; a stronger tier, a re-plan, or a question does. [[model-routing]] routes a failing phase by that distinction.
+
+### Claude Code levels
 
 | Tier | Behavior | Typical cost | Typical latency |
 |------|----------|--------------|-----------------|
@@ -15,6 +25,8 @@ Claude Code surfaces an `effortLevel` control that governs how much reasoning th
 ### Default: `high`
 
 Nexus-Hub ships `"effortLevel": "high"` as the Claude Code installer default (raised from `medium` in v4.4.0), with the matching `env.CLAUDE_CODE_EFFORT_LEVEL` pinned alongside it. Both are declared in `configs/platform-defaults.json`, the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it, so consult the source rather than this paragraph if the two ever disagree. `high` matches the plan-driven, multi-step work this harness is built around, where a shallow turn costs more in rework than the extra reasoning costs to run. Drop to `medium` if you want routine turns cheaper, or escalate for a single session via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable; because that environment variable is the highest-precedence lever, moving your standing default means editing both keys in `settings.json`.
+
+The default is recorded in [`2026-08-31-seed-high-claude-effort-for-new-installs.md`](../../../../../docs/decisions/implemented/policy/2026-08-31-seed-high-claude-effort-for-new-installs.md), and the lever that carries it in [`2026-10-14-claude-effort-default-lever.md`](../../../../../docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md).
 
 ### When to escalate to `max`
 
@@ -29,6 +41,8 @@ Use `max` for **one-shot** hard problems: deep architectural analysis, gnarly de
 - Loop-operator runs or any iterative agent loop - aggregate cost compounds quickly without matching quality gains.
 - Temporal-orchestration workflows spanning many turns.
 - Interactive sessions where a human is waiting per turn.
+
+One long autonomous task is different from a loop. A single task that runs for a long time without a human and is kept once can repay `max`, because its cost is paid once. A multi-iteration loop pays that cost on every iteration, so the rule above holds for it.
 
 ### When to de-escalate to `high`
 
@@ -51,7 +65,7 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 - **Defaulting to `max`.** It is not "the best setting always." On routine coding work `max` produces output indistinguishable from `xhigh` at 2-3x the cost.
 - **Leaving `max` on for loop-operator / temporal runs.** The cost compounds per iteration. Switch to `high` (or at most `xhigh`) for anything iterative.
 - **Mixing tiers within a single session without reason.** If you bump the tier for one turn, bump it back. Unplanned tier drift makes cost modeling impossible.
-- **Setting fixed thinking-budget tokens alongside `effortLevel`.** Opus 4.7 scales thinking adaptively - fixed budgets truncate reasoning. Set `effortLevel` and let the model manage the budget.
+- **Setting fixed thinking-budget tokens alongside `effortLevel`.** Current Claude models scale thinking adaptively - fixed budgets truncate reasoning. Set `effortLevel` and let the model manage the budget.
 
 ### Decision table
 
@@ -65,6 +79,12 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 | Short classification / lookup | `low` |
 | Latency-critical interactive clarification | `low` or `medium` |
 | Security audit / pen-test deep pass | `max` (one-shot) |
+| Brainstorming and sketching | `low` |
+| Implementing a specified feature | `medium`, with verification at `high` |
+| Fixing a bug in existing code | `high` |
+| Edge-case-dense components (sanitizers, parsers, solvers) | `high` |
+
+Whether an effort change keeps the prompt cache depends on the model and host. See [`step-8-optimize-cost-and-latency.md`](step-8-optimize-cost-and-latency.md) before relying on mid-phase switching.
 
 ### Related
 

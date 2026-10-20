@@ -108,7 +108,7 @@ Write tests for genuinely NEW behavior this phase introduced that no existing te
 
 ## Phase 6: Troubleshooting loop (max 3 iterations)
 
-Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations. Follow the active instruction template's `Consequential Decisions` rule before asking. Wait for the answer.
+Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations; D. Escalate by failure class as Step 7 of `[[model-routing]]` routes it (confirm first, upshift only). Follow the active instruction template's `Consequential Decisions` rule before asking. Wait for the answer.
 
 ## Phase 7: Quality gate (GO / NO-GO)
 
