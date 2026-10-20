@@ -1228,6 +1228,33 @@ set_permission_flag_via_helper() {
     return 0
 }
 
+# Reconcile Codex's TOML permissions profile through the same helper. The helper
+# compares against the template on every run (so a fixed template reaches machines
+# that installed an older one) and, on a Windows host, removes the read-restricting
+# profile that Codex's unelevated sandbox refuses to run.
+sync_codex_permissions_via_helper() {
+    local repo_root="$1"
+    local template_file="$2"
+    local config_file="$3"
+
+    if ! resolve_permissions_helper "$repo_root"; then
+        write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+        return 1
+    fi
+
+    local output
+    if ! output=$("$PERM_HELPER_PY" "$PERM_HELPER_SCRIPT" \
+            --codex \
+            --template "$template_file" \
+            --settings "$config_file"); then
+        write_item "Warning: could not sync Codex permissions into $config_file" "$YELLOW"
+        return 1
+    fi
+
+    report_permissions_helper_output "$output"
+    return 0
+}
+
 # v3.17.0 Phase 1.2: the `scope` parameter is now load-bearing. It was documented as
 # "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
 # install_workspace never called this function at all, so a --workspace install
@@ -1370,61 +1397,19 @@ install_permissions() {
                 return
             fi
 
-            if [ -f "$config_file" ]; then
-                # Repair an already-broken config: if it defines [permissions.*]
-                # but lacks default_permissions, the newer Codex CLI refuses to
-                # load it. Insert the key before the FIRST table header of any
-                # kind (the only valid spot for a root-level key in TOML) rather
-                # than appending it after a table, where it would silently bind
-                # to that table and stay broken.
-                if grep -q '^\[permissions' "$config_file" 2>/dev/null && ! grep -q 'default_permissions' "$config_file" 2>/dev/null; then
-                    cp "$config_file" "$config_file.bak.$(date +%Y%m%d-%H%M%S)"
-                    if awk 'BEGIN{ins=0} /^\[/ && ins==0 {print "default_permissions = \"default\""; print ""; ins=1} {print}' "$config_file" > "$config_file.nexus.tmp"; then
-                        mv "$config_file.nexus.tmp" "$config_file"
-                        write_item "[OK] Repaired Codex config.toml: inserted missing default_permissions" "$GREEN"
-                    else
-                        rm -f "$config_file.nexus.tmp"
-                        write_item "Warning: could not repair Codex config.toml; review it manually" "$YELLOW"
-                    fi
-                fi
-
-                # Already fully configured (managed block complete, incl. default_permissions)?
-                if grep -q 'permissions.default.network' "$config_file" 2>/dev/null && grep -q 'allowed_domains' "$config_file" 2>/dev/null && grep -q 'default_permissions' "$config_file" 2>/dev/null; then
-                    write_item "[OK] Auto-approve permissions already configured in config.toml" "$GREEN"
-                    return
-                fi
-
-                local backup_path
-                backup_path="$config_file.bak.$(date +%Y%m%d-%H%M%S)"
-                cp "$config_file" "$backup_path"
-                write_item "  Backup created: $backup_path" "$GRAY"
-
-                # Append permission sections if not present
-                printf '\n\n# --- Nexus-Hub auto-approve permissions ---\n' >> "$config_file"
-                if ! grep -q 'approval_policy' "$config_file" 2>/dev/null; then
-                    printf 'approval_policy = "on-request"\n\n' >> "$config_file"
-                fi
-                # default_permissions selects the profile defined below; the newer
-                # Codex CLI rejects a config with [permissions.*] but no default_permissions.
-                if ! grep -q 'default_permissions' "$config_file" 2>/dev/null; then
-                    printf 'default_permissions = "default"\n\n' >> "$config_file"
-                fi
-                if ! grep -q '\[permissions.default.filesystem\]' "$config_file" 2>/dev/null; then
-                    grep -A2 '\[permissions.default.filesystem\]' "$template_file" >> "$config_file"
-                    printf '\n' >> "$config_file"
-                fi
-                if ! grep -q '\[permissions.default.network\]' "$config_file" 2>/dev/null; then
-                    sed -n '/\[permissions.default.network\]/,$p' "$template_file" >> "$config_file"
-                fi
-                write_item "[OK] $scope config.toml updated with auto-approve permissions" "$GREEN"
-            else
-                mkdir -p "$config_dir"
-                cp "$template_file" "$config_file"
-                write_item "[OK] $scope config.toml created with auto-approve permissions" "$GREEN"
+            mkdir -p "$config_dir"
+            if ! sync_codex_permissions_via_helper "$repo_root" "$template_file" "$config_file"; then
+                return
             fi
-
-            write_item "  Auto-approved: filesystem read access to project roots, network access to trusted domains" "$GRAY"
-            write_item "  NOT auto-approved: file writes, arbitrary network access" "$GRAY"
+            write_item "[OK] $scope config.toml permissions in sync with the Nexus-Hub template" "$GREEN"
+            case "$(uname -s)" in
+                MINGW*|MSYS*|CYGWIN*)
+                    write_item "  Windows: no permissions profile (the unelevated sandbox cannot enforce read limits); sandbox_mode applies" "$GRAY"
+                    ;;
+                *)
+                    write_item "  Read access: system essentials and the open workspace; writes stay gated" "$GRAY"
+                    ;;
+            esac
             write_item "  Note: Codex does not support per-command Bash allowlisting" "$GRAY"
             write_item "  Config: $config_file" "$GRAY"
             ;;

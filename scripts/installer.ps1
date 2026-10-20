@@ -1434,7 +1434,8 @@ function Merge-PermissionsViaHelper {
         [string]$SettingsFile,
         [string]$Key,               # permissions.allow | tools.allowed | allowedDomains
         [string]$Platform,          # manifest key: CLAUDE, GEMINI, ...
-        [string]$SetTrueKey         # set ONE literal boolean key instead (Copilot)
+        [string]$SetTrueKey,        # set ONE literal boolean key instead (Copilot)
+        [switch]$Codex              # reconcile Codex's TOML profile (SettingsFile = config.toml)
     )
 
     $helper = Join-Path $RepoRoot "scripts\merge_permissions.py"
@@ -1455,7 +1456,10 @@ function Merge-PermissionsViaHelper {
     }
 
     $helperArgs = @($helper, "--settings", $SettingsFile)
-    if ($SetTrueKey) {
+    if ($Codex) {
+        $helperArgs += @("--codex", "--template", $TemplateFile)
+    }
+    elseif ($SetTrueKey) {
         $helperArgs += @("--set-true", $SetTrueKey)
     }
     else {
@@ -1625,8 +1629,7 @@ function Install-Permissions {
 
         "CODEX" {
             Ensure-CodexCli
-            $configDir = Join-Path $env:USERPROFILE ".codex"
-            $configFile = Join-Path $configDir "config.toml"
+            $configFile = Join-Path (Join-Path $env:USERPROFILE ".codex") "config.toml"
             $templateFile = Join-Path $permDir "codex-permissions.toml"
 
             if (-not (Test-Path $templateFile)) {
@@ -1634,77 +1637,16 @@ function Install-Permissions {
                 return
             }
 
-            if (Test-Path $configFile) {
-                $content = Get-Content $configFile -Raw
-
-                # Repair an already-broken config: [permissions.*] present but
-                # default_permissions missing -> the newer Codex CLI refuses to
-                # load it. Insert the key before the FIRST table header of any
-                # kind (the only valid spot for a root-level key in TOML).
-                if ($content -match '(?m)^\[permissions' -and $content -notmatch 'default_permissions') {
-                    Copy-Item -Path $configFile -Destination "$configFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')" -Force
-                    # Instance .Replace(input, replacement, count) caps at one insert;
-                    # [regex]::Replace(...)'s 4th arg is RegexOptions, not a count.
-                    $content = ([regex]'(?m)^(\[)').Replace($content, "default_permissions = `"default`"`r`n`r`n`$1", 1)
-                    # WriteAllText writes UTF-8 WITHOUT a BOM; Set-Content -Encoding UTF8
-                    # on PS 5.1 prepends a BOM that breaks strict TOML parsers.
-                    [System.IO.File]::WriteAllText($configFile, $content)
-                    Write-Item -Message "[OK] Repaired Codex config.toml: inserted missing default_permissions" -Color "DarkGreen"
-                }
-
-                # Already fully configured (managed block complete, incl. default_permissions)?
-                if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains' -and $content -match 'default_permissions') {
-                    Write-Item -Message "✓ Auto-approve permissions already configured in config.toml" -Color "DarkGreen"
-                    return
-                }
-
-                # Backup before modifying
-                $backupPath = "$configFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                Copy-Item -Path $configFile -Destination $backupPath -Force
-                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+            # The shared helper reconciles against the template on every run and, on
+            # Windows, removes the read-restricting profile that Codex's unelevated
+            # sandbox refuses to run (it is also Codex's fallback when elevated setup
+            # is unavailable), leaving sandbox_mode as the single sandbox setting.
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $configFile -Codex)) {
+                return
             }
-
-            # For TOML, use Python to merge if existing file, or copy template if new
-            if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-
-            if (-not (Test-Path $configFile)) {
-                Copy-Item -Path $templateFile -Destination $configFile -Force
-                Write-Item -Message "✓ $Scope config.toml created with auto-approve permissions" -Color "DarkGreen"
-            }
-            else {
-                # Append permission sections if not present
-                $templateContent = Get-Content $templateFile -Raw
-                $existingContent = Get-Content $configFile -Raw
-
-                # Extract and append missing sections
-                $sectionsToAdd = @()
-                if ($existingContent -notmatch '\[permissions\.default\.filesystem\]') {
-                    $sectionsToAdd += ($templateContent | Select-String -Pattern '(?s)\[permissions\.default\.filesystem\].*?(?=\[|$)' -AllMatches).Matches.Value
-                }
-                if ($existingContent -notmatch '\[permissions\.default\.network\]') {
-                    $sectionsToAdd += ($templateContent | Select-String -Pattern '(?s)\[permissions\.default\.network\].*' -AllMatches).Matches.Value
-                }
-                if ($existingContent -notmatch 'default_permissions') {
-                    # Required by the newer Codex permissions system: a config with
-                    # [permissions.*] but no default_permissions fails to load.
-                    $sectionsToAdd = @("default_permissions = `"default`"") + $sectionsToAdd
-                }
-                if ($existingContent -notmatch 'approval_policy') {
-                    $sectionsToAdd = @("approval_policy = `"on-request`"") + $sectionsToAdd
-                }
-
-                if ($sectionsToAdd.Count -gt 0) {
-                    $appendContent = "`n`n# --- Nexus-Hub auto-approve permissions ---`n" + ($sectionsToAdd -join "`n`n")
-                    Add-Content -Path $configFile -Value $appendContent -Encoding UTF8
-                    Write-Item -Message "✓ $Scope config.toml updated with auto-approve permissions" -Color "DarkGreen"
-                }
-                else {
-                    Write-Item -Message "✓ Auto-approve permissions already present in config.toml" -Color "DarkGreen"
-                }
-            }
-
-            Write-Item -Message "  Auto-approved: filesystem read access to project roots, network access to trusted domains" -Color "Gray"
-            Write-Item -Message "  NOT auto-approved: file writes, arbitrary network access" -Color "Gray"
+            Write-Item -Message "✓ $Scope config.toml permissions in sync with the Nexus-Hub template" -Color "DarkGreen"
+            Write-Item -Message "  Windows: no permissions profile (the unelevated sandbox cannot enforce read limits); sandbox_mode applies" -Color "Gray"
             Write-Item -Message "  Note: Codex does not support per-command Bash allowlisting" -Color "Gray"
             Write-Item -Message "  Config: $configFile" -Color "Gray"
         }

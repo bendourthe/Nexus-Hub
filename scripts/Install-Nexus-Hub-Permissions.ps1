@@ -222,67 +222,27 @@ function Install-CodexPermissions {
         return
     }
 
-    if (Test-Path $configFile) {
-        $content = Get-Content $configFile -Raw
-
-        # Repair an already-broken config: [permissions.*] present but
-        # default_permissions missing -> the newer Codex CLI refuses to load it.
-        # Insert before the FIRST table header (the only valid spot for a
-        # root-level key in TOML).
-        if ($content -match '(?m)^\[permissions' -and $content -notmatch 'default_permissions') {
-            Backup-Config $configFile | Out-Null
-            # Instance .Replace(input, replacement, count) caps at one insert;
-            # [regex]::Replace(...)'s 4th arg is RegexOptions, not a count.
-            $content = ([regex]'(?m)^(\[)').Replace($content, "default_permissions = `"default`"`r`n`r`n`$1", 1)
-            # WriteAllText writes UTF-8 WITHOUT a BOM; Set-Content -Encoding UTF8
-            # on PS 5.1 prepends a BOM that breaks strict TOML parsers.
-            [System.IO.File]::WriteAllText($configFile, $content)
-            Write-Status "  Repaired config.toml: inserted missing default_permissions" "Green"
-        }
-
-        if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains' -and $content -match 'default_permissions') {
-            Write-Status "  Already configured. Skipping." "DarkGreen"
-            return
-        }
-
-        Backup-Config $configFile | Out-Null
-
-        $templateContent = Get-Content $templateFile -Raw
-        $sectionsToAdd = @()
-
-        if ($content -notmatch 'approval_policy') {
-            $sectionsToAdd += 'approval_policy = "on-request"'
-        }
-        if ($content -notmatch 'default_permissions') {
-            # Required by the newer Codex permissions system: a config with
-            # [permissions.*] but no default_permissions fails to load.
-            $sectionsToAdd += 'default_permissions = "default"'
-        }
-        if ($content -notmatch '\[permissions\.default\.filesystem\]') {
-            $match = [regex]::Match($templateContent, '(?s)\[permissions\.default\.filesystem\].*?(?=\[|$)')
-            if ($match.Success) { $sectionsToAdd += $match.Value.Trim() }
-        }
-        if ($content -notmatch '\[permissions\.default\.network\]') {
-            $idx = $templateContent.IndexOf('[permissions.default.network]')
-            if ($idx -ge 0) { $sectionsToAdd += $templateContent.Substring($idx).Trim() }
-        }
-
-        if ($sectionsToAdd.Count -gt 0) {
-            $appendContent = "`n`n# --- Nexus-Hub auto-approve permissions ---`n" + ($sectionsToAdd -join "`n`n")
-            if ($PSCmdlet.ShouldProcess($configFile, "Append permission sections")) {
-                Add-Content -Path $configFile -Value $appendContent -Encoding UTF8
-                Write-Status "  Updated config.toml with permissions" "Green"
-            }
-        }
+    # Same shared helper the installers use: it reconciles against the template on
+    # every run and, on Windows, removes the read-restricting profile that Codex's
+    # unelevated sandbox refuses to run, leaving sandbox_mode as the only sandbox setting.
+    $helper = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    $py = Get-Command "python", "py" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $py) {
+        Write-Status "  Python not found; cannot sync Codex permissions." "Yellow"
+        return
     }
-    else {
-        $configDir = Split-Path $configFile
-        if ($PSCmdlet.ShouldProcess($configFile, "Create from template")) {
-            if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-            Copy-Item -Path $templateFile -Destination $configFile -Force
-            Write-Status "  Created $configFile" "Green"
-        }
+    if (-not $PSCmdlet.ShouldProcess($configFile, "Sync Codex permissions with the Nexus-Hub template")) {
+        return
     }
+    $output = & $py.Source $helper --codex --template $templateFile --settings $configFile
+    if ($LASTEXITCODE -ne 0) {
+        Write-Status "  Could not sync Codex permissions into $configFile" "Yellow"
+        return
+    }
+    foreach ($line in $output) {
+        if ($line -like "removed: *" -or $line -like "set: *") { Write-Status "  $line" "DarkGray" }
+    }
+    Write-Status "  config.toml permissions in sync with the Nexus-Hub template" "Green"
 }
 
 function Install-CopilotPermissions {

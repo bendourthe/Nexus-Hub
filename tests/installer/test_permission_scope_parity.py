@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -172,6 +173,7 @@ eval "$(extract resolve_permissions_helper)"
 eval "$(extract report_permissions_helper_output)"
 eval "$(extract merge_permissions_via_helper)"
 eval "$(extract set_permission_flag_via_helper)"
+eval "$(extract sync_codex_permissions_via_helper)"
 eval "$(extract install_permissions)"
 install_permissions "$repo_root" "$platform" "$scope" "$target"
 """
@@ -250,6 +252,54 @@ def _run_ps(tmp_path: Path, platform: str, scope: str, target: str = "",
          platform, scope, target],
         capture_output=True, text=True, timeout=300, env=env, cwd=str(tmp_path),
     )
+
+
+# --- Codex profile reconciliation ---------------------------------------------
+
+# A config created from the pre-2026-09-27 template: the presence-only check of the old
+# installers never refreshed it, and on Windows its read limit stops Codex outright.
+_STALE_CODEX = """approval_policy = "on-request"
+default_permissions = "default"
+sandbox_mode = "workspace-write"
+
+[permissions.default.filesystem]
+":project_roots" = "read"
+
+[permissions.default.network]
+enabled = true
+allowed_domains = ["github.com"]
+"""
+
+
+@pytest.mark.parametrize("installer", ["sh", "ps1"])
+def test_codex_install_reconciles_a_stale_profile(tmp_path: Path, installer: str) -> None:
+    import tomllib
+
+    pytest.importorskip("tomlkit")
+    if installer == "sh" and not BASH:
+        pytest.skip("no bash interpreter")
+    if installer == "ps1" and not PWSH:
+        pytest.skip("no PowerShell interpreter")
+    home = tmp_path / "home"
+    config = home / ".codex" / "config.toml"
+    config.parent.mkdir(parents=True)
+    config.write_text(_STALE_CODEX, encoding="utf-8")
+
+    if installer == "sh":
+        proc = _run_sh(tmp_path, "CODEX", "Global", home=home)
+    else:
+        proc = _run_ps(tmp_path, "CODEX", "Global", userprofile=home)
+
+    assert proc.returncode == 0, proc.stderr
+    doc = tomllib.loads(config.read_text(encoding="utf-8"))
+    # The helper runs under the host's own interpreter, so the host decides the branch.
+    if sys.platform == "win32":
+        assert "permissions" not in doc and "default_permissions" not in doc, proc.stdout
+        assert doc["sandbox_mode"] == "workspace-write"
+    else:
+        assert doc["permissions"]["default"]["filesystem"] == {
+            ":minimal": "read", ":workspace_roots": "read",
+        }, proc.stdout
 
 
 # --- Copilot on Git-Bash ------------------------------------------------------
