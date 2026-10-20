@@ -213,7 +213,7 @@ describe("UsageController and the state file", () => {
  * (the repository's own gate already needs it).
  */
 describe("read_copilot cross-check", () => {
-  const python = ["python3", "python"].find((cmd) => spawnSync(cmd, ["--version"]).status === 0);
+  const python = ["python3", "python"].find((cmd) => spawnSync(cmd, ["--version"], { windowsHide: true }).status === 0);
 
   it("finds a Python interpreter and the probe", () => {
     expect(python, "python3 or python must be on PATH for the probe cross-check").toBeDefined();
@@ -227,6 +227,7 @@ describe("read_copilot cross-check", () => {
     const run = spawnSync(python!, [PROBE, "--platform", "copilot", "--json"], {
       env: { ...process.env, NEXUS_HOME: home, NEXUS_USAGE_PROBE_DISABLED: "", NEXUS_USAGE_PROBE_PROVIDERS: "copilot" },
       encoding: "utf-8",
+      windowsHide: true,
     });
     expect(run.status, run.stderr).toBe(0);
     const result = JSON.parse(run.stdout);

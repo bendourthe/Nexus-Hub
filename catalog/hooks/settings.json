@@ -94,6 +94,15 @@
         ]
       },
       {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/console-window-guard.py"
+          }
+        ]
+      },
+      {
         "matcher": "Write",
         "hooks": [
           {

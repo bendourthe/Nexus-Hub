@@ -1938,15 +1938,154 @@ def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -
     return "unmet", []
 
 
+def planned_followon_entry(ck: ModuleType, plan: Plan, task_id: str, frozen: str) -> tuple[str, str] | None:
+    """Canonical recording-only opportunity from one exact frozen numbered task."""
+    if ck.plan_hash_text(plan.text) != frozen:
+        return None
+    lines = plan.text.splitlines(keepends=True)
+    mask, unclosed = fence_mask(lines)
+    if unclosed:
+        return None
+    text = ''.join('\n' if mask[i] else line for i, line in enumerate(lines))
+    all_tasks = list(re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', text, re.MULTILINE))
+    if sum(m[1] == task_id for m in all_tasks) != 1:
+        return None
+    for phase in re.finditer(r'^## Phase (\d+):[^\n]*\n(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL):
+        block = phase[2]
+        tasks = list(re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', block, re.MULTILINE))
+        sections = list(re.finditer(r'^#### (\d+)\.(\d+) --[^\n]*\n(.*?)(?=^#### |^- \[[ xX]\] T\d|\Z)', block, re.MULTILINE | re.DOTALL))
+        if len(tasks) != len(sections) or not tasks:
+            continue
+        if any(s[1] != phase[1] or int(s[2]) != n + 1 for n, s in enumerate(sections)):
+            continue
+        for index, task in enumerate(tasks):
+            if task[1] != task_id:
+                continue
+            scope = re.fullmatch(r'File (.+) as a known gap (docs/\S+/known-gaps\.md)', task[2])
+            prompts = re.findall(r'^> (.+)$', sections[index][3], re.MULTILINE)
+            if scope is None or len(prompts) != 1:
+                return None
+            if scope[2] not in ledger_rels(*minor_of(plan.version)):
+                return None
+            prompt = prompts[0]
+            fields = re.search(r'Reason: (.+?); Suggested next step: (.+?)\. Acceptance:', prompt)
+            reference = re.search(r'Plan reference \x60([^\x60]+)\x60', prompt)
+            if fields is None or reference is None or reference[1] != Path(plan.rel).name:
+                return None
+            title = ': Planned follow-on: ' + scope[1]
+            task_hash = hashlib.sha256((task_id + ' ' + task[2]).encode('utf-8')).hexdigest()
+            body = '\n\n'.join([
+                '**Disposition**: planned-follow-on (OPEN)',
+                f'**Source phase**: {plan.version} Phase {phase[1]} {task_id}',
+                f'**Plan reference**: {Path(plan.rel).name}',
+                f'**Frozen plan sha256**: {frozen}',
+                f'**Frozen task sha256**: {task_hash}',
+                f'**Reason**: {fields[1]}',
+                f'**Suggested next step**: {fields[2]}.',
+            ])
+            return title, body
+    return None
+
+
+def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], item: GapItem | None) -> bool:
+    """Recording-task disposition; callers already loaded a verified schema-2 record.
+
+    No approval, migration bound, budget or record is changed. Free-form additions
+    are defects, not the exact predeclared opportunity, and fail closed.
+    """
+    if not record or record.get('schema') != 2 or record.get('scope') not in {'minor', 'member'}:
+        return False
+    if item is None or item.kind != 'DF' or item.sensitive() or item.state not in {'open', 'migrated'}:
+        return False
+    if source_minor != minor_of(str(record.get('minor') or 'v0.0')):
+        return False
+    body = item.body.replace('\r\n', '\n').strip()
+    source = re.search(r'^\*\*Source phase\*\*: (v\d+\.\d+\.\d+) Phase \d+ (T\d{3,})$', body, re.MULTILINE)
+    if source is None or section_version(item.section) != source[1]:
+        return False
+    if record.get('scope') == 'minor':
+        members = [m for m in record.get('members') or [] if m.get('version') == source[1]]
+    else:
+        members = [record] if record.get('version') == source[1] else []
+    if len(members) != 1:
+        return False
+    import check_plan_completion as ck
+    try:
+        plans = [p for p in scan_plans(rctx.root, *source_minor) if p.version == source[1]]
+    except (MinorMalformed, OSError, ValueError):
+        return False
+    if len(plans) != 1:
+        return False
+    member, plan = members[0], plans[0]
+    if ck.plan_hash_text(plan.text) != member.get('plan_sha256'):
+        return False
+    expected = planned_followon_entry(ck, plan, source[2], str(member['plan_sha256']))
+    title = MIGRATED_RE.sub('', item.title).rstrip()
+    if expected == (title, body):
+        return True
+    original = archived_followon_plan(rctx, record, member, plan, ck)
+    if original is None:
+        return False
+    expected = planned_followon_entry(ck, original, source[2], ck.plan_hash_text(original.text))
+    return expected == (title, body)
+
+
+def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: Plan, ck: ModuleType) -> Plan | None:
+    """Recover only the signed publication-start plan behind an actual archive repair."""
+    major, minor = minor_of(plan.version)
+    archive = ARCHIVE_TREE.format(M=major, m=minor)
+    name = Path(plan.rel).name
+    if plan.rel != f'{archive}/plans/{name}' or member.get('plan_path') != plan.rel:
+        return None
+    if not any(c.get('class') == 'archive-minor' for c in record.get('approvals', {}).get('classes', [])):
+        return None
+    active = [t.format(M=major, m=minor) for t in ACTIVE_TREES]
+    if any((rctx.root / tree).exists() for tree in active):
+        return None
+    start = member.get('member_start_head') if record.get('scope') == 'member' else member.get('start_head')
+    if not isinstance(start, str) or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', start) is None:
+        return None
+    from minor_close import rewrite_links, rewrite_mentions
+    matches = []
+    for tree in active:
+        rel = f'{tree}/plans/{name}'
+        rc, text = rctx.run([rctx.git, '-C', str(rctx.root), 'show', f'{start}:{rel}'])
+        if rc == -1:
+            return None
+        if rc != 0:
+            continue
+        versions = list(PLAN_VERSION_RE.finditer(text))
+        if len(versions) != 1 or 'v' + '.'.join(versions[0].groups()) != plan.version:
+            return None
+        moved = lambda path: archive + path[len(tree):] if path == tree or path.startswith(tree + '/') else path
+        repaired, _ = rewrite_links(text, rel.rsplit('/', 1)[0], plan.rel.rsplit('/', 1)[0], moved)
+        repaired, _ = rewrite_mentions(repaired, tree, archive, markdown=True)
+        if ck.plan_hash_text(repaired) != member.get('plan_sha256'):
+            return None
+        matches.append(Plan(rel, plan.version, plan.order, plan.status, plan.slug, text))
+    return matches[0] if len(matches) == 1 else None
+
+
+def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
+    """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
+    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(item.body.replace('\r\n', '\n').strip())
+    tail = (r'\n\n- \*\*Migrated from\*\*: ' + re.escape(f'{source}#{item.gid}')
+            + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
+            + r'\n- \*\*Migration evidence\*\*: [^\n]+')
+    return (copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
+            and copy.title == MIGRATED_RE.sub('', item.title).rstrip()
+            and re.fullmatch(tail, suffix) is not None)
+
+
 def migration_gate(
     rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], gid: str,
     current: GapItem | None,
 ) -> tuple[str, str]:
     """(status, reason) for whether gap `source#gid` may migrate under `record`.
 
-    The one gate every write and verify path shares (the migrate helper, the
-    minor verdict, and a member's deferral of a frozen gap). The id must be in the
-    frozen `gap-migration` list, and the item must have existed, open and
+    The one gate every write and verify path shares. An exact frozen-plan
+    recording-only opportunity has its own disposition and leaves future work open.
+    Ordinary ids must be in the frozen `gap-migration` list and have existed, open and
     unambiguous, at the record's `start_head`: the approved baseline. A security
     or high-severity item must also be named individually, and sensitivity is
     judged on the baseline text as well as the current text, so editing a
@@ -1955,6 +2094,8 @@ def migration_gate(
     pid = "v{}.{}#{}".format(*source_minor, gid)
     bound, named = migration_class(record)
     if pid not in bound:
+        if planned_followon(rctx, record, source_minor, current):
+            return "met", "planned-follow-on"
         return "unmet", "migration-not-approved"
     start = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
     if not start:
@@ -2009,6 +2150,8 @@ def verify_migration(
     gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
     if gate != "met":
         return gate, reason
+    if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy):
+        return "unmet", "planned-followon-copy-altered"
     if copy_reason != "migration-copy-complete":
         return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
     reasons = [r for m, i, r in copy.provenance() if m == source and i == item.gid]
