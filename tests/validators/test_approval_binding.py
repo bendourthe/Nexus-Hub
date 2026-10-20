@@ -71,6 +71,7 @@ def _create(fx: Fixture, session: str = SESSION, **env: str) -> subprocess.Compl
             "record", "create", PLAN_REL, "--session", session,
             "--approvals", str(fx.approvals()),
             stdin=subprocess.DEVNULL,
+            # nexus: console-window-ok simulates no terminal; the checker hides its own children (test_no_console_window)
             **({"creationflags": 0x00000008} if os.name == "nt" else {"start_new_session": True}),
         )
     finally:

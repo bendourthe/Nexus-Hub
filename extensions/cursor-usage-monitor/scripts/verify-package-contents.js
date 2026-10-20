@@ -55,7 +55,7 @@ function listPackagedFiles() {
   const stdout = execFileSync(
     process.execPath,
     [vsce, "ls", "--no-dependencies"],
-    { cwd: EXTENSION_ROOT, encoding: "utf8" }
+    { cwd: EXTENSION_ROOT, encoding: "utf8", windowsHide: true }
   );
   return stdout
     .split(/\r?\n/u)

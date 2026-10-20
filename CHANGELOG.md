@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A new `console-window-guard` hook stops Windows test runs from flooding the desktop with console windows. Before a test command runs (pytest, npm/pnpm/yarn test, vitest, jest, Playwright, go test, cargo test, dotnet test, Maven or Gradle test, Pester, or the repository CI profiles), it scans the project for process launches that open windows: Python tests with no `CREATE_NO_WINDOW` guard in `conftest.py`, `DETACHED_PROCESS` or `CREATE_NEW_CONSOLE`, PowerShell `ProcessStartInfo` without `CreateNoWindow`, `Start-Process`, Node `child_process` calls without `windowsHide`, and Go `exec.Command` with no Windows no-window helper. It blocks the run and lists exact fixes, including a ready-to-paste `conftest.py` guard. A deliberate launch is accepted with a `nexus: console-window-ok <reason>` comment. Turn it off with `NEXUS_DISABLED_HOOKS=console-window-guard` or `NEXUS_CONSOLE_GUARD=off`. It acts only on Windows, and stops scanning after 20 seconds (`NEXUS_CONSOLE_GUARD_BUDGET`), so a large repository never stalls a test run. The Python, TypeScript and Go testing rules now state the window-safe launch form. Decision record: [`2026-10-19-windows-console-window-guard.md`](docs/decisions/implemented/tooling/2026-10-19-windows-console-window-guard.md).
+
 ### Changed
 
 - The usage-limit question is now one interactive multiple-choice question. When a usage window reaches its threshold, the agent asks once with the host's question tool (in Claude Code, `AskUserQuestion`), offering three clickable choices with none preselected: **Continue on credits**, **Wait for reset**, and **Hand off to another agent or platform**, each explaining what it costs, when the window resets, or what the handoff does. A host without such a tool gets the same three choices once in one short message. While the question is open, a continuation from another hook or a goal no longer asks it again; the agent says it is waiting and ends the turn. Paid credits are still never assumed: only your recorded answer approves them.
@@ -27,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The old Codex append path bound `default_permissions` and `approval_policy` to the config's last table when the file ended in one, so Codex never saw them. The sync moves them to the root with their current value (on Windows the profile selector is then removed).
 - A CI scenario step that times out (for example the bootstrap smoke install) now prints the last 200 lines of the killed command's output, so the slow step can be located instead of only the timeout traceback.
 - `check_plan_completion.py record controller-handoff --apply` no longer fails with `member-history-cannot-verify` on a minor with many members. The command validated the target twice under one 20-second budget, so the in-lease pass could run out of time and skip its GitHub lookups. The lease and its revalidation now get a budget of their own, and the preview behaves as before.
+- Five PowerShell hooks (`completion-gate`, `approval-capture`, `attribution-guard`, `user-edit-guard`, `auto-devlog`) started Python or git without `CreateNoWindow`, so a host that ran them without a console opened a window on every Stop, prompt, file write or git command. They now launch windowless, as do the repository's own `.agents` hook copies and the usage monitors' Node test and packaging helpers. Nexus-Hub's test suite now fails if any new launch in the repository is not window-safe.
 
 ## [4.14.0] - 2026-10-18
 
