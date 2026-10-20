@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
       "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "e43ebc892fa40b95ce47d148eae21873d762925f3a3b8149a384cd39393ca2f6",
-      "scripts/installer.sh": "cc7607b3d4c2b16f863a7cecba8a7d2135d3e0d21e9def770088c071d18a7c8f",
+      "scripts/installer.ps1": "40035601f7364e5f5697e44641969140b9cf20eb99c0c583f9a78522bb7c9663",
+      "scripts/installer.sh": "105b7af86c87ebdaf9e3c430cac488fdd51f3961be1afd8ec8071013e0db257f",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
@@ -33,8 +33,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-review.md",
-      "evidence_sha256": "9cd2990879c90eb7b32a3498b9485a8b6409aaab4b879ab6ba9bf0cbfeb9b29f"
+      "evidence": "docs/releases/v4/v4.14/development/codex-windows-sandbox-handbook-claim-review.md",
+      "evidence_sha256": "04bf8728d3bbd1eba72e3aaecbca3cff911438f6c2935311a7c754edcf83767d"
     },
     "build": {
       "status": "pass",

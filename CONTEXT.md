@@ -153,3 +153,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: unsupported, disabled, greyed out, coming soon
 
 **Relationships**: Opposite of an admitted Settings Control cell (plan v4.14.6). Each Not-Settable cell a vendor could later make settable is recorded as a known gap.
+
+## Test-Integrity Finding
+
+**Definition**: A change-set pattern that can turn a red check green without fixing the code under test, such as a deleted test, an added skip marker, a loosened assertion, a narrowed test selection or a lowered coverage threshold, reported with its rule and location.
+
+**Avoid**: test cheating, reward hack (for a single finding), false positive (for an unjustified finding)
+
+**Relationships**: Detected by the change-set mode of `false-confidence-test-audit` (plan v4.22.3). A finding passes the implement-phase gate only with a waiver: a written justification, plus recorded human approval for a deleted test file or a lowered threshold. Narrower than reward hacking, which `loop-engineering` defines for any proxy metric. Not the same as a false-confidence test, which passes regardless of correctness without any change.
+
+## Check Receipt
+
+**Definition**: A record that the maintainer-declared check command exited 0 on one exact content tree, written and judged by the installed receipt core, never edited by hand.
+
+**Avoid**: proof, attestation, certificate, green build
+
+**Relationships**: Read by the opt-in publication tripwire hook (plan v4.22.3). Keyed by content tree, so a commit whose tree matches an already checked tree reuses it. Narrower than evidence: a receipt shows that a command ran and passed, not that the change is correct, and an agent with shell access can defeat it.

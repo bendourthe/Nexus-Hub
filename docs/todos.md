@@ -346,7 +346,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.20.0 alignment readback, controlled language, and routing measurement
 
 - [ ] Implement the [v4.20.0 plan](releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md), seeded by the [v4.20.0 comparison](releases/v4/v4.20/comparisons/v4.20.0-comparison-alignment-readability-mods-routing.md): a readback that opens `design-interview` round one, an STE-inspired register in `writing-editing`, a local never-committed routing-outcome ledger, and a counts-only report. Calibration is parked as P3. Implementation is 0/6 phases and 0/33 tasks.
-- [x] Append the 2026-10-02 source-refresh note to the [v4.22.3 mods comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-claude-code-mods.md) ahead of v4.22.3's implementation.
+- [x] Append the 2026-10-02 source-refresh note to the [v4.22.4 mods comparison](releases/v4/v4.22/comparisons/v4.22.4-comparison-claude-code-mods.md) ahead of v4.22.4's implementation.
 
 ## Queued work - v4.21.1 unopened defaults, agent check discipline, and authorization proofs
 
@@ -356,6 +356,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Complete the [v4.22.2 three-source comparison](releases/v4/v4.22/comparisons/v4.22.2-comparison-dashboards-motion-evidence-ledger-and-reliable-automations.md) (Claude Dashboards and Motion, REA, reliable agent automations); adoption target v4.18.5 confirmed by the user, renumbered to v4.22.2 on 2026-10-12.
 - [ ] Implement the [v4.22.2 plan](releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md): an unattended-run protocol with a crash-safe run-ledger helper, a checked evidence ledger for `/compare`, verified cross-platform scheduling, `/visualize` query (multi-panel provenance page) and animate modes, plus cuttable built-web-bundle compare sources and MP4 export. Implementation is 0/9 phases and 0/39 tasks.
+
+## Queued work - v4.22.3 verified agent output
+
+- [x] Complete the [v4.22.3 two-source comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-rea-workflows-and-verified-agent-output.md) (REA workflows, Meta verified agent output); adoption target v4.22.3 confirmed by the user on 2026-10-19. Its REA refinements were applied to the v4.22.2 plan (T010, T011, T012, T025, T026), and the Claude Code mods plan moved from v4.22.3 to v4.22.4.
+- [x] Create the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md) with `/plan from-comparison`; seven review lenses and four grill decisions applied on 2026-10-19 (installed checker and receipt core, opt-in tripwire registration approved, waivers listed in the pull request with human approval for high-risk findings, Python-deep checker with Jest and Vitest markers).
+- [ ] Implement the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md): evidence-backed integration pull requests (M-B), a change-set test-integrity check run on every phase (M-A), an opt-in publication tripwire hook (M-C, cuttable), and memory metrics in the regression gate (M-D, cuttable).
 
 ## Current work - v4.4.5 visual refinement
 
