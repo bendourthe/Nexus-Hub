@@ -908,6 +908,9 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
         print('WOULD TRANSFER ' + json.dumps({'record': str(path), 'from': str(ctx.root),
               'to': str(target), 'generation': args.expected_generation + 1, 'head': args.head}, sort_keys=True))
         return 0
+    # The pre-lease validation can spend most of the budget on a minor with many
+    # members; the lease and the in-lease revalidation repeat that work on their own.
+    ctx.budget = ck.Budget(ck.BUDGET_SECONDS)
     with ck.minor_transaction(record):
         if ck.lock_live(path):
             raise ck.MinorConflict('runner-live')
