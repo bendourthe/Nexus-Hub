@@ -45,7 +45,10 @@ def test_wrapper_scores_all_low_as_fast(
 ) -> None:
     result = run("score", "low", "low", "low", "low", "low")
     assert result.returncode == 0, result.stderr
-    assert json.loads(result.stdout) == {"tier": "fast", "effort": "low"}
+    scored = json.loads(result.stdout)
+    assert (scored["tier"], scored["effort"]) == ("fast", "low")
+    # v4.14.1 adds a raise-only verification_effort; without modifiers it equals effort.
+    assert scored.get("verification_effort", "low") == "low"
 
 
 def test_wrapper_validates_four_by_four_fixture(
