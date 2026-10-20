@@ -237,6 +237,17 @@ def unattended_profile(home: Path, agent: str, remote: Path) -> str:
         config = home / ".codex" / "config.toml"
         text = config.read_text(encoding="utf-8")
         header = "[permissions.default.filesystem]\n"
+        if os.name == "nt":
+            # A Windows install ships no permissions profile (Codex's unelevated sandbox
+            # cannot enforce its read limits), so writes go through the documented key
+            # that `sandbox_mode = "workspace-write"` reads.
+            assert header not in text, "Windows Codex config still carries a permissions profile"
+            run_root = remote.parent.resolve()
+            roots = [run_root.as_posix(), (run_root / "work").as_posix(),
+                     (run_root / "work" / ".git").as_posix(), remote.resolve().as_posix()]
+            table = "\n[sandbox_workspace_write]\nwritable_roots = " + json.dumps(roots) + "\n"
+            config.write_text(text.rstrip("\n") + "\n" + table, encoding="utf-8")
+            return "codex: sandbox_workspace_write.writable_roots = " + ", ".join(roots)
         assert text.count(header) == 1, "installed Codex config lacks its default permissions profile"
         # The run root covers `work` and any worktree created beside it; Codex keeps `.git`
         # read-only inside a writable root unless it is granted explicitly (measured: no

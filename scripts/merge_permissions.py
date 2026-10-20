@@ -15,7 +15,9 @@ mutation-capable entries while another host has them removed, which is the exact
 divergence this phase exists to eliminate.
 
 Python is already a documented dependency of this repository and both installers
-already check for it, so this adds no new dependency. Standard library only.
+already check for it, so this adds no new dependency. Standard library only, except
+``--codex``, which lazily imports ``tomlkit``: the optional dependency
+``scripts/lib/integrations/platform_defaults.py`` already uses to edit the same file.
 
 Two behaviors matter for parity with the historical ``jq`` path:
 
@@ -32,6 +34,7 @@ Usage::
 
     python scripts/merge_permissions.py --template TPL --settings OUT --key permissions.allow
     python scripts/merge_permissions.py --template TPL --settings OUT --set-true some.key
+    python scripts/merge_permissions.py --codex --template TPL --settings ~/.codex/config.toml
 
 Exit codes: ``0`` merged (or already current), ``1`` merge failed, ``2`` usage error.
 
@@ -162,8 +165,10 @@ def _backup(settings_path: Path) -> Path:
     return backup_path
 
 
-def _atomic_write(settings_path: Path, doc: Any, expected_bytes: bytes | None) -> None:
-    """Write *doc* via temp-file-plus-rename.
+def _atomic_write(
+    settings_path: Path, doc: Any, expected_bytes: bytes | None, text: str | None = None,
+) -> None:
+    """Write *doc* (or pre-rendered *text*) via temp-file-plus-rename.
 
     A truncated settings.json breaks the user's agent entirely, and an interrupted
     installer is a realistic way to produce one.
@@ -173,10 +178,12 @@ def _atomic_write(settings_path: Path, doc: Any, expected_bytes: bytes | None) -
     try:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", dir=settings_path.parent,
+            # Pre-rendered text keeps the file's own line endings byte for byte.
+            newline="" if text is not None else None,
             prefix=f".{settings_path.name}.", suffix=".tmp", delete=False,
         ) as handle:
             tmp_path = Path(handle.name)
-            handle.write(_dump(doc))
+            handle.write(text if text is not None else _dump(doc))
         for delay in (0, 0.05, 0.15, 0.3, 0.5):
             if delay:
                 time.sleep(delay)
@@ -314,6 +321,222 @@ def merge(
     return added, removed
 
 
+# --- Codex (~/.codex/config.toml) -------------------------------------------------
+#
+# Codex is the one TOML platform, and its permission surface is a named profile
+# (`default_permissions` + `[permissions.default.*]`) rather than an allowlist array.
+# Three installers used to append it with string matching, which caused two defects:
+#
+# * Their "already configured" check meant "the block exists", so a profile merged
+#   once was never refreshed. A fixed template (":project_roots" -> ":minimal" +
+#   ":workspace_roots") never reached an existing machine.
+# * The profile restricts READS to chosen roots. Codex's native Windows `unelevated`
+#   sandbox cannot enforce split read restrictions, refuses unsupported policies, and is
+#   also the automatic fallback when `elevated` setup is unavailable, so the profile
+#   intermittently blocks every Codex thread on Windows. Windows therefore gets no
+#   profile at all and relies on `sandbox_mode`, which platform_defaults.py seeds.
+#
+# Vendor references (fetched 2026-10-15): https://learn.chatgpt.com/docs/permissions
+# and https://learn.chatgpt.com/docs/windows/windows-sandbox.
+_CODEX_PROFILE = "default"
+# Filesystem tokens an earlier Nexus-Hub template shipped and the current one does not.
+_CODEX_RETIRED_FS_KEYS = (":project_roots",)
+# Separator line the pre-v4.14 installers wrote above an appended profile.
+_CODEX_MARKER = "# --- Nexus-Hub auto-approve permissions ---"
+
+
+def _codex_profile_is_managed(doc: Any) -> bool:
+    """True when ``[permissions.default]`` carries the Nexus-Hub fingerprint.
+
+    ``network.allowed_domains`` is a key only the Nexus-Hub template has ever written,
+    so a profile the user authored under the same name is never refreshed or removed.
+    """
+    network = _get_path(doc, f"permissions.{_CODEX_PROFILE}.network")
+    return isinstance(network, dict) and "allowed_domains" in network
+
+
+def _codex_preamble(template_text: str) -> str:
+    """The template's leading comment block, which a template-created config starts with.
+
+    Matched verbatim, so editing the first comment block of codex-permissions.toml
+    stops the Windows path from recognizing configs created from an older template.
+    """
+    lines = []
+    for line in template_text.splitlines(keepends=True):
+        if not line.startswith("#"):
+            break
+        lines.append(line)
+    return "".join(lines)
+
+
+def _codex_unbind_appended_keys(text: str) -> tuple[str, list[str], dict[str, Any]]:
+    """Lift the root keys the old installers appended where TOML binds them to a table.
+
+    They appended ``approval_policy`` / ``default_permissions`` after the file's last
+    table, so TOML read them as keys of THAT table (often a ``[projects.'...']`` entry)
+    and Codex never saw them. The separator line proves the old installer wrote them.
+    Only a key that a table header precedes is lifted, and its value -- possibly edited
+    by the user since -- is returned so the caller can place it at the root unchanged.
+    """
+    import tomllib
+
+    out: list[str] = []
+    removed: list[str] = []
+    moved: dict[str, Any] = {}
+    in_block = False
+    seen_table = False
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        key = stripped.split("=", 1)[0].strip()
+        if stripped == _CODEX_MARKER:
+            in_block = True
+        elif stripped.startswith("["):
+            in_block = False
+            seen_table = True
+        elif in_block and seen_table and key in ("approval_policy", "default_permissions"):
+            try:
+                moved[key] = tomllib.loads(stripped)[key]
+            except tomllib.TOMLDecodeError:
+                out.append(line)  # not a line the old installers wrote; leave it alone
+                continue
+            removed.append(f"{key} (misplaced under a table)")
+            continue
+        out.append(line)
+    return "".join(out), removed, moved
+
+
+def _codex_remove_profile(doc: Any) -> list[str]:
+    """Windows: drop the managed profile and its selector."""
+    removed = []
+    permissions = doc["permissions"]
+    del permissions[_CODEX_PROFILE]
+    removed.append(f"[permissions.{_CODEX_PROFILE}]")
+    if not permissions:
+        del doc["permissions"]
+    if doc.get("default_permissions") == _CODEX_PROFILE:
+        del doc["default_permissions"]
+        removed.append("default_permissions")
+    return removed
+
+
+def _codex_refresh_profile(doc: Any, template: Any) -> tuple[list[str], list[str]]:
+    """POSIX: add the template's missing keys and retire tokens Nexus-Hub no longer ships.
+
+    An existing value is never overwritten: a user who tightened the managed profile
+    (``enabled = false``, a token set to ``"deny"``) must not be loosened by a reinstall.
+    """
+    import tomlkit
+
+    changed: list[str] = []
+    removed: list[str] = []
+    wanted = template["permissions"][_CODEX_PROFILE]
+    profile = doc["permissions"][_CODEX_PROFILE]
+    for section in ("filesystem", "network"):
+        if section not in profile:
+            profile[section] = tomlkit.table()
+        current = profile[section]
+        if section == "filesystem":
+            for key in _CODEX_RETIRED_FS_KEYS:
+                if key in current:
+                    del current[key]
+                    removed.append(f"permissions.{_CODEX_PROFILE}.filesystem.{key}")
+        for key, value in wanted[section].items():
+            if key == "allowed_domains":
+                # Union, like the JSON allowlists: keep any domain the user added.
+                existing = list(current.get(key, []))
+                missing = [d for d in value if d not in existing]
+                if not missing and key in current:
+                    continue
+                current[key] = existing + missing
+            elif key in current:
+                continue
+            else:
+                current[key] = value
+            changed.append(f"permissions.{_CODEX_PROFILE}.{section}.{key}")
+    return changed, removed
+
+
+def codex_sync(
+    template_path: Path, config_path: Path, windows: bool, backup: bool = True,
+) -> tuple[list[str], list[str]]:
+    """Reconcile the Nexus-Hub Codex permissions in *config_path*. Returns ``(set, removed)``.
+
+    Every run compares against the template instead of asking whether a block exists,
+    so a fixed template reaches machines that installed an older one.
+    """
+    try:
+        import tomlkit
+    except ImportError as exc:
+        raise ValueError(
+            "tomlkit is not installed, so Codex permissions were not synced. "
+            "Install it with: pip install tomlkit"
+        ) from exc
+
+    template_text = template_path.read_text(encoding=_READ_ENCODING)
+    template = tomlkit.parse(template_text)
+
+    if not config_path.exists():
+        if windows:
+            fresh = tomlkit.document()
+            fresh["approval_policy"] = template["approval_policy"]
+            _atomic_write(config_path, None, None, text=tomlkit.dumps(fresh))
+            return ["approval_policy"], []
+        _atomic_write(config_path, None, None, text=template_text)
+        return ["default_permissions", f"[permissions.{_CODEX_PROFILE}]"], []
+
+    expected_bytes = config_path.read_bytes()
+    original = expected_bytes.decode(_READ_ENCODING)
+    unbound, removed, moved = _codex_unbind_appended_keys(original)
+    doc = tomlkit.parse(unbound)
+    managed = _codex_profile_is_managed(doc)
+    changed: list[str] = []
+    for key, value in moved.items():
+        if key not in doc:
+            doc[key] = value
+            changed.append(f"{key} (moved to the root)")
+
+    if "approval_policy" not in doc:
+        doc["approval_policy"] = template["approval_policy"]
+        changed.append("approval_policy")
+
+    if windows:
+        if managed:
+            removed += _codex_remove_profile(doc)
+    elif _get_path(doc, f"permissions.{_CODEX_PROFILE}") is None:
+        doc["default_permissions"] = template["default_permissions"]
+        if "permissions" not in doc:
+            doc["permissions"] = tomlkit.table(is_super_table=True)
+        doc["permissions"][_CODEX_PROFILE] = template["permissions"][_CODEX_PROFILE]
+        changed += ["default_permissions", f"[permissions.{_CODEX_PROFILE}]"]
+    elif managed:
+        more_changed, more_removed = _codex_refresh_profile(doc, template)
+        changed += more_changed
+        removed += more_removed
+        if "default_permissions" not in doc:
+            # Codex refuses a config that defines profiles without selecting one.
+            doc["default_permissions"] = template["default_permissions"]
+            changed.append("default_permissions")
+
+    text = tomlkit.dumps(doc)
+    if windows and removed:
+        # The template's header and the old installers' separator describe the profile
+        # just removed; leaving them would document permissions that no longer exist.
+        preamble = _codex_preamble(template_text)
+        if preamble and text.startswith(preamble):
+            text = text[len(preamble):].lstrip("\n")
+        text = "".join(
+            line for line in text.splitlines(keepends=True) if line.rstrip() != _CODEX_MARKER
+        )
+
+    if text == original:
+        return [], []
+    tomlkit.parse(text)  # never write a file Codex would refuse to load
+    if backup:
+        _backup(config_path)
+    _atomic_write(config_path, None, expected_bytes, text=text)
+    return changed, removed
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Merge a permission template into a settings file without jq.",
@@ -339,9 +562,36 @@ def main(argv: list[str] | None = None) -> int:
                         help="Set a single LITERAL boolean key to true instead of merging "
                              "an array (VS Code settings.json is flat, so its dotted keys "
                              "are literal). Used for Copilot's useInstructionFiles key.")
+    parser.add_argument("--codex", action="store_true",
+                        help="Reconcile the Codex permissions profile in a config.toml "
+                             "(--settings) against the TOML template (--template).")
+    parser.add_argument("--codex-os", choices=("auto", "windows", "posix"), default="auto",
+                        help="Host the Codex config belongs to. auto: this interpreter's "
+                             "platform. Windows hosts get no read-restricting profile.")
     parser.add_argument("--no-backup", action="store_true",
                         help="Skip the timestamped backup. Intended for tests only.")
     args = parser.parse_args(argv)
+
+    if args.codex:
+        if args.template is None or not args.template.exists():
+            print(f"ERROR: template not found: {args.template}", file=sys.stderr)
+            return 2
+        windows = (
+            args.codex_os == "windows"
+            or (args.codex_os == "auto" and sys.platform in ("win32", "cygwin", "msys"))
+        )
+        try:
+            changed, removed = codex_sync(
+                args.template, args.settings, windows, backup=not args.no_backup,
+            )
+        except (OSError, ValueError) as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
+        for entry in changed:
+            print(f"set: {entry}")
+        for entry in removed:
+            print(f"removed: {entry}")
+        return 0
 
     if args.set_true:
         try:
