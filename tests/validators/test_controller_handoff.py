@@ -125,6 +125,30 @@ def test_all_command_writers_refuse_snapshot_changed_before_lease(controller, mo
     assert not (source / 'docs/archives').exists(), label
 
 
+def test_apply_revalidation_runs_on_its_own_budget(controller, monkeypatch):
+    # --apply validates the target twice (before the lease and inside it). A large
+    # minor's first pass can consume most of BUDGET_SECONDS; the second pass must not
+    # inherit that spent budget and report member-history-cannot-verify.
+    import time
+    fixture, source, target, path = controller
+    real = cm._handoff_target
+    budgets = []
+
+    def spending(module, source_ctx, record, target_root, head):
+        budgets.append(source_ctx.budget)
+        result = real(module, source_ctx, record, target_root, head)
+        if len(budgets) == 1:
+            source_ctx.budget.deadline = time.monotonic()  # pre-lease pass spent everything
+        return result
+
+    monkeypatch.setattr(cm, '_handoff_target', spending)
+    args = argparse.Namespace(minor='v0.5', session=SESSION, repo=str(source), to=str(target),
+                              head=_git(target, 'rev-parse', 'HEAD'), expected_generation=0, apply=True)
+    assert cm.cmd_record_controller_handoff(ck, args) == 0
+    assert len(budgets) == 2 and budgets[0] is not budgets[1]
+    assert json.loads(path.read_bytes())['implementation_controller']['generation'] == 1
+
+
 def test_stale_completion_stamp_cannot_replace_transfer(controller):
     fixture, source, target, path = controller
     stale = ck.read_record(fixture.rctx(), path)
