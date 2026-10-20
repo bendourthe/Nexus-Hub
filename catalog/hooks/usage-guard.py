@@ -514,18 +514,27 @@ def directive(
     return (
         f"Usage limit: {DISPLAY_NAMES[platform]} {window['name']} usage is at "
         f"{percent}%{when}. Finish or safely stop the current step, then ask the "
-        "user before doing anything else: continue on pay-per-use credits (if "
-        "their account has them), or hand off to another agent or platform. "
+        "user before doing anything else whether to continue on pay-per-use "
+        "credits (if their account has them), wait for the reset, or hand off to "
+        "another agent or platform. "
         f"{_spend_note(credit, when, step, when_capped)}Record the question "
-        f"first, decision pending, {DECISION_FORMAT}, then end the turn and wait "
-        "for the answer. Start no new work until the user answers. If they choose "
+        f"first, decision pending, {DECISION_FORMAT}. "
+        "Ask it once, as one multiple-choice question with your host's interactive question "
+        "tool when it has one (in Claude Code, AskUserQuestion), with exactly three options "
+        "and none preselected or recommended: Continue on credits, Wait for reset, and Hand "
+        "off to another agent or platform. Each option says what it means: what continuing "
+        "costs or why it would fail, when the window resets and that work stops until then, "
+        "and that the handoff writes .nexus-hub/handoff.md and stops here. Only on a host "
+        "without such a tool, ask the same three choices once in one short message. "
+        "Start no new work until the user answers. If they choose "
         "credits, record decision credits and continue the task. If they choose to "
         "wait for the reset, record decision wait and stop. If they choose the "
         "handoff, record decision handoff and run the session-handoff procedure "
         "(/handoff): write .nexus-hub/handoff.md and print its paste-ready prompt, "
-        f"recording the trigger as usage-limit {window['name']} {percent}. If "
-        "another hook asks you to continue, record the pending decision and ask "
-        "the user first."
+        f"recording the trigger as usage-limit {window['name']} {percent}. "
+        "While the question is open, do not ask it again: if another hook or a goal "
+        "continues the turn, say in one line that you are waiting for the answer and end "
+        "the turn."
     )
 
 
@@ -553,9 +562,15 @@ def spend_directive(
         choices = "ask whether to keep going on credits or hand off to another agent or platform"
     return (
         f"{figure}Finish or safely stop the current step, record decision pending "
-        f"{DECISION_FORMAT}, tell the user the figure, and {choices}. Wait for the "
-        "answer, then record decision credits and continue, wait and stop, or "
-        "handoff and run the session-handoff procedure (/handoff)."
+        f"{DECISION_FORMAT}, tell the user the figure, and {choices}, once, as one "
+        "multiple-choice question with your host's interactive question tool when it "
+        "has one (in Claude Code, AskUserQuestion), with no option preselected; only "
+        "without such a tool, ask once in one short message. Wait for the answer, "
+        "then record decision credits and continue, wait and stop, or handoff and "
+        "run the session-handoff procedure (/handoff). "
+        "While the question is open, do not ask it again: if another hook or a goal "
+        "continues the turn, say in one line that you are waiting for the answer and end "
+        "the turn."
     )
 
 
