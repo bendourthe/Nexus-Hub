@@ -810,6 +810,9 @@ def project(record: dict, version: str) -> dict | None:
     return {
         "schema": record.get("schema"),
         "scope": "member",
+        "version": member["version"],
+        "plan_path": member.get("plan_path"),
+        "member_start_head": member.get("start_head"),
         "minor": record.get("minor"),
         "plan": member.get("plan_path"),
         "plan_sha256": member.get("plan_sha256"),
@@ -819,7 +822,7 @@ def project(record: dict, version: str) -> dict | None:
         "session_id": record.get("session_id"),
         "worktree": (member.get("implementation") or {}).get("worktree") or member.get("worktree") or record.get("worktree"),
         "start_head": member.get("start_head") or (member.get("implementation") or {}).get("base_head") or record.get("start_head"),
-        # The run began at the minor record's start: a gap created after it never migrates.
+        # Ordinary new gaps never migrate; exact frozen recording tasks have a separate disposition.
         "minor_start_head": record.get("start_head"),
         "nonce": record.get("nonce"),
         "created": record.get("created"),
@@ -1070,7 +1073,7 @@ def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) 
 
 
 def _pending_migration(ctx: Context, record: dict | None, text: str, heading: str) -> bool:
-    """True for a minor member's open item listed in the record's frozen `gap-migration` ids.
+    """True for a frozen inherited item or exact predeclared recording-only opportunity.
 
     A security or high-severity item is deferred only when the approval also names it
     individually; otherwise it blocks the member's `gaps.version`, since it could never
@@ -1082,14 +1085,10 @@ def _pending_migration(ctx: Context, record: dict | None, text: str, heading: st
     if found is None:
         return False
     cm = _minor_module()
-    bound, named = cm.migration_class(record)
-    pid = f"{record['minor']}#{found.group(1)}"
-    if pid not in bound:
+    items = [i for i in cm.parse_ledger(text) if i.gid == found.group(1)]
+    if len(items) != 1:
         return False
-    item = next((i for i in cm.parse_ledger(text) if i.gid == found.group(1)), None)
-    # An item the ledger parser cannot see is treated as sensitive: never deferred on a guess.
-    if item is None or (item.sensitive() and pid not in named):
-        return False
+    item = items[0]
     # The same gate the close uses, so an item that could never migrate there (created
     # during the run, or sensitive at the record's start) is never deferred here either.
     status, _reason = cm.migration_gate(ctx, record, cm.minor_of(str(record["minor"])), item.gid, item)
