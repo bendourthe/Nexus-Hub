@@ -360,7 +360,8 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.22.3 verified agent output
 
 - [x] Complete the [v4.22.3 two-source comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-rea-workflows-and-verified-agent-output.md) (REA workflows, Meta verified agent output); adoption target v4.22.3 confirmed by the user on 2026-10-19. Its REA refinements were applied to the v4.22.2 plan (T010, T011, T012, T025, T026), and the Claude Code mods plan moved from v4.22.3 to v4.22.4.
-- [ ] Create the v4.22.3 plan with `/plan from-comparison`: pull request test plan and evidence links (M-B), memory metrics in the regression gate (M-D), a change-set weakened-test check in `false-confidence-test-audit` (M-A), and an opt-in pre-publication receipt hook (M-C, needs approval for the hook registration).
+- [x] Create the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md) with `/plan from-comparison`; seven review lenses and four grill decisions applied on 2026-10-19 (installed checker and receipt core, opt-in tripwire registration approved, waivers listed in the pull request with human approval for high-risk findings, Python-deep checker with Jest and Vitest markers).
+- [ ] Implement the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md): evidence-backed integration pull requests (M-B), a change-set test-integrity check run on every phase (M-A), an opt-in publication tripwire hook (M-C, cuttable), and memory metrics in the regression gate (M-D, cuttable).
 
 ## Current work - v4.4.5 visual refinement
 
