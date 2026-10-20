@@ -15,6 +15,8 @@ What "done" means for a full run, and when an action may proceed automatically o
 
 The upfront approval page's words, sections, question layout and compatibility lines live in [`references/approval-page.md`](references/approval-page.md); the page is printed by `record render ... --page`.
 
+The verification behaviors the GO/NO-GO gate can request, each routed to the skill that owns it, live in [`references/verification-behaviors.md`](references/verification-behaviors.md).
+
 ## When to Use This Skill
 
 - Implementing a specific phase of an existing plan ("implement phase 3", "build the next phase", "continue the plan").
