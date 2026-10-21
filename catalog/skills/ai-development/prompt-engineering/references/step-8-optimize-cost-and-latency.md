@@ -21,6 +21,15 @@ from math import isfinite
 from typing import Any
 
 
+def whole_tokens(value: Any, label: str) -> int:
+    """Validate one non-negative whole-token count; raise when it cannot be counted."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise TypeError(f"{label} is not numeric")
+    if not isfinite(value) or value < 0 or value != int(value):
+        raise ValueError(f"{label} is not a whole token count")
+    return int(value)
+
+
 def read_token_bucket(usage: Any, field: str, *, required: bool = False) -> int:
     """Read one non-negative whole-token input bucket from a usage object.
 
@@ -33,39 +42,57 @@ def read_token_bucket(usage: Any, field: str, *, required: bool = False) -> int:
             raise ValueError(f"usage.{field} is required")
         # Documented default: the response carried no cache activity.
         return 0
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise TypeError(f"usage.{field} is not numeric")
-    if not isfinite(value) or value < 0 or value != int(value):
-        raise ValueError(f"usage.{field} is not a whole token count")
-    return int(value)
+    return whole_tokens(value, f"usage.{field}")
 
 
-def cache_read_share(usage: Any) -> float | None:
+def read_nested(value: Any, *path: str) -> Any:
+    """Follow attributes or dict keys; None as soon as any step is absent."""
+    for key in path:
+        if value is None:
+            return None
+        value = value.get(key) if isinstance(value, dict) else getattr(value, key, None)
+    return value
+
+
+def cache_read_share(usage: Any, *, provider: str = "anthropic") -> float | None:
     """Fraction of input tokens served from cache, or None when unknowable.
 
     Returns a fraction in [0.0, 1.0]. Returns None when the telemetry object is
-    missing or malformed, or when the request had no input tokens at all. None
-    means "unknown"; it never means "no caching", and an all-zero request is
-    not evidence that caching is ineffective.
+    missing or malformed, when the request had no input tokens at all, or when
+    `provider` is not one this helper knows. The caller names the provider; it
+    is never inferred from field names. None means "unknown"; it never means
+    "no caching", and an all-zero request is not evidence that caching is
+    ineffective.
     """
     if usage is None:
         return None
     try:
-        uncached = read_token_bucket(usage, "input_tokens", required=True)
-        cache_read = read_token_bucket(usage, "cache_read_input_tokens")
-        cache_created = read_token_bucket(usage, "cache_creation_input_tokens")
+        if provider == "anthropic":
+            uncached = read_token_bucket(usage, "input_tokens", required=True)
+            cache_read = read_token_bucket(usage, "cache_read_input_tokens")
+            cache_created = read_token_bucket(usage, "cache_creation_input_tokens")
+            total_input = uncached + cache_read + cache_created
+        elif provider == "openai":
+            details = read_nested(usage, "input_tokens_details")
+            if details is None:
+                return None  # input_tokens already includes cached tokens; without details the split is unknown.
+            total_input = whole_tokens(read_nested(usage, "input_tokens"), "usage.input_tokens")
+            cache_read = whole_tokens(read_nested(details, "cached_tokens"), "usage.input_tokens_details.cached_tokens")
+            if cache_read > total_input:
+                return None  # Reads are a subset of the total; more reads than input is malformed.
+        else:
+            return None
     except (TypeError, ValueError):
         return None
 
-    total_input = uncached + cache_read + cache_created
     if total_input == 0:
         return None  # No input, not a 0% cache rate.
     return cache_read / total_input
 
 
-def describe_cache_share(usage: Any) -> str:
+def describe_cache_share(usage: Any, *, provider: str = "anthropic") -> str:
     """Render the share for a log line without asserting a cost saving."""
-    share = cache_read_share(usage)
+    share = cache_read_share(usage, provider=provider)
     if share is None:
         return "Cache share: unknown (missing, malformed, or empty input telemetry)"
     return f"Cache share: {share:.0%} of input tokens were read from cache"
@@ -138,6 +165,28 @@ Caching is a prefix match: any byte change anywhere in the prefix invalidates ev
 | Diagnostics disagrees with usage | Cache diagnostics reports the prefix as unchanged, but `cache_read_input_tokens` is zero. | Measured usage is not a prediction | Trust the usage fields. Diagnostics explains where a prefix diverged; it does not measure what was read. Treat the disagreement as an unresolved finding and diff the rendered payloads rather than reporting a hit that did not occur. |
 
 None of these cases claims a measured saving, a hit rate, or an improvement in agent behaviour. Any such claim needs a qualified live evaluation, which is out of scope for this reference.
+
+**Prompt Caching with OpenAI**:
+
+The same helper covers OpenAI when the caller passes `provider="openai"`; the default stays Anthropic, so every existing call keeps its result. The accounting differs. OpenAI's `usage.input_tokens` is the **total** input, and `input_tokens_details` breaks out two disjoint subsets of it: `cached_tokens` "counts billed reads and excludes tokens charged as writes", and `cache_write_tokens` (split into `ttl_30m_tokens` and `ttl_12h_tokens`) counts writes, so ordinary input is `input_tokens - cached_tokens - cache_write_tokens`. The share is therefore `cached_tokens / input_tokens`, which is the guide's own token cache-hit rate. An absent Anthropic cache bucket counts as 0% because its absence is the documented no-activity default and the other buckets still sum to the whole input; an absent OpenAI `input_tokens_details` is unknown, because `input_tokens` already contains any cached tokens and nothing else separates them from zero.
+
+| `input_tokens` | `cached_tokens` | `cache_write_tokens` | Cache share | Reading |
+|---|---|---|---|---|
+| 1000 | 900 | 0 | 90% | Warm prefix. |
+| 12000 | 4000 | 7000 | 33% | 1,000 ordinary tokens; the rest were reads and writes. |
+| 0 | 0 | 0 | unknown | No input at all. |
+| 1000 | (no `input_tokens_details`) | - | unknown | The cached subset cannot be read. |
+
+Stability rules the guide states:
+
+1. "Cache reuse requires the entire rendered prefix to match." "Put stable developer instructions and shared reference material first", and "Append new messages rather than rewriting earlier turns."
+2. Keep tool definitions, ordering, and schemas stable. To turn tools off for one request, set `tool_choice` to `"none"` instead of removing the definitions; to allow only some, use `allowed_tools` "while keeping the supplied `tools` list stable".
+3. A change to tool names, descriptions, schemas, ordering, or tool-specific instructions, adding a structured-output format and schema, switching model, or compaction replacing earlier content can each prevent reuse.
+4. "The minimum cacheable prompt length is 1,024 tokens for GPT-5.6 and later and varies by request settings for earlier models."
+5. Lifetime: on GPT-5.6 and later, the Responses API's `prompt_cache_options.ttl` chooses the minimum lifetime (`"30m"` by default); earlier models use `prompt_cache_retention`, with model-dependent values.
+6. Prewarming: on GPT-5.6 and later, `prompt_cache_options.prewarm` set to `true` prepares the cache without generating output, and its writes are billed at the cache-write rate for the selected lifetime. The same cost reasoning as the Anthropic prewarm above applies.
+
+**Currency of the OpenAI claims**: every fact above was checked word for word on 2026-10-20 against the raw text of the official [prompt caching guide](https://developers.openai.com/api/docs/guides/prompt-caching); the exact source lines are recorded in the v4.14.2 admission file. Model ranges and parameter names change between releases, so read the current page for the model in use.
 
 **Model Routing by Complexity**:
 

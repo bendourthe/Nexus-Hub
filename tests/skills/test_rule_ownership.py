@@ -45,6 +45,17 @@ RULES = (
         owner_name="references/design-invariants.md",
         non_owners=_HANDOFF_SITES,
     ),
+    Rule(
+        rule="prompt-cache-stability",
+        owner=_SK / "ai-development" / "prompt-engineering" / "references" / "step-8-optimize-cost-and-latency.md",
+        anchor="any byte change anywhere in the prefix invalidates everything after it",
+        owner_name="step-8-optimize-cost-and-latency.md",
+        non_owners=(
+            _SK / "ai-development" / "model-routing" / "SKILL.md",
+            _ROOT / "docs" / "policy" / "model-routing-in-plan-and-implement.md",
+            _ROOT / "catalog" / "commands" / "implement.md",
+        ),
+    ),
 )
 
 
@@ -53,7 +64,8 @@ def _read(path: Path) -> str:
 
 
 def _id(path: Path) -> str:
-    return "/".join(path.relative_to(_SK).parts[1:])
+    parts = path.relative_to(_SK).parts[1:] if _SK in path.parents else path.relative_to(_ROOT).parts
+    return "/".join(parts)
 
 
 @pytest.mark.parametrize("row", RULES, ids=[r.rule for r in RULES])
