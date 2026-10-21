@@ -955,11 +955,19 @@ def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
     return "met" if pushed_repo and pushed_repo.lower() == approved_repo.lower() else "unmet"
 
 
+# A plan can name a dated record it creates (a decision record) by its template, for
+# example `docs/decisions/proposed/policy/YYYY-MM-DD-slug.md`, because the date is not
+# known when the plan is frozen. No file can carry that literal name.
+DATE_PLACEHOLDER = "YYYY-MM-DD"
+
+
 def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
     if not checked or not path:
         return "unmet"
     if not start:
         return "met"
+    if path.count(DATE_PLACEHOLDER) == 1:
+        return _dated_task_status(ctx, path, start)
     rc, out = _run(
         [
             ctx.git,
@@ -976,6 +984,26 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> s
     if rc != 0:
         return "cannot-verify"
     return "met" if out.strip() else "unmet"
+
+
+def _dated_task_status(ctx: Context, path: str, start: str) -> str:
+    """Met only when exactly one file with a real date in the placeholder's place changed.
+
+    The placeholder must appear once; zero or several dated matches are unmet, so a
+    second dated file cannot make a stale task pass and nothing is guessed when none matches.
+    """
+    head, tail = path.split(DATE_PLACEHOLDER)
+    pattern = re.compile(re.escape(head) + r"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])" + re.escape(tail) + r"\Z")
+    folder = head.rsplit("/", 1)[0] if "/" in head else "."
+    rc, out = _run(
+        [ctx.git, "-C", str(ctx.root), "log", "--format=", "--name-only", "--no-renames",
+         f"{start}..HEAD", "--", folder],
+        ctx.budget,
+    )
+    if rc != 0:
+        return "cannot-verify"
+    matches = {line.strip() for line in out.splitlines() if pattern.match(line.strip())}
+    return "met" if len(matches) == 1 else "unmet"
 
 
 def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
