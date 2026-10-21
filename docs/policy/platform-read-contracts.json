@@ -433,6 +433,38 @@
     },
     "delivery_decision": "No adapter or installer path changes. The release removes Nexus-Hub's provider-override controller and restores recorded legacy state without seeding any provider's approval mode."
   },
+  "release_verification_v4_14_1": {
+    "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
+    "verified": "2026-10-20",
+    "decision": "RELEASE_WITH_DOCUMENTED_DRIFT",
+    "counts": {
+      "match": 83,
+      "drift": 6,
+      "unverified": 4
+    },
+    "read_paths": {
+      "drift": {
+        "antigravity2-workflows": "Vendor retirement is in effect: 'After October 19, 2026, legacy workflow directories are no longer indexed or executable using slash commands.' (https://antigravity.google/docs/migration/workflows-to-skills). The adapter still writes ~/.gemini/config/workflows and .agents/workflows, so install_verify keeps checking delivery; the prose contract no longer labels them a slash surface. Every command still reaches Antigravity as a command-skill. Emission removal is owned by v4.14 AR-35.",
+        "antigravity2-cli-agents": "Additive: the agy CLI documents global agents at ~/.gemini/config/agents/ (already written for the IDE) and workspace agents at .agents/agents/<name>.md or .agents/agents/<name>/agent.md. https://antigravity.google/docs/subagents?tab=cli",
+        "gemini-cli-notification": "Additive: a Notification hook event is documented ('When a system notification occurs'); whether it fires on permission prompts is not stated. https://geminicli.com/docs/hooks/",
+        "qwen-notification": "Additive: Notification (permission_prompt, idle_prompt, auth_success) and PermissionRequest events are documented. https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+        "windsurf-devin-preference": "Known v4.14 DF-2, unchanged: .devin/ is preferred and the .windsurf/ paths Nexus-Hub writes are still read.",
+        "kimi-global-skills": "Additive: ~/.kimi-code/skills/ (and ~/.agents/skills/) is now documented first-party. The skill_read_paths entry stays UNVERIFIED here because promoting it changes which skill-index form Kimi receives; that belongs in a tested plan. https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html"
+      },
+      "unverified": {
+        "gemini": "Code Assist IDE skills, commands, agents, rule-directory, and hook surfaces remain undocumented.",
+        "cursor": "Legacy ~/.cursor/commands and .cursor/commands writes remain undocumented; the skills page documents /migrate-to-skills.",
+        "nexus-ai": "Mirrored surfaces other than the global skills reader were not traced this cycle."
+      },
+      "superseded_record": "notification_verification_v3_15_10 still lists Copilot triggers A and B as IMPOSSIBLE; GitHub's hooks reference now documents notification, permissionRequest, and agentStop. That dated record is kept as history."
+    },
+    "source_moves": [
+      "developers.openai.com/codex/guides/agents-md -> learn.chatgpt.com/docs/agent-configuration/agents-md (308)",
+      "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills -> https://docs.github.com/en/copilot/concepts/customizations/agent-skills (301, same host)",
+      "antigravity.google/docs/ide/settings -> antigravity.google/docs/settings?tab=ide (client-side)"
+    ],
+    "delivery_decision": "No adapter, installer, contract_checks, or install_verify change. Antigravity workflow emission removal is v4.14 AR-35."
+  },
   "contract_checks": {
     "codex": {
       "config": {
@@ -1347,14 +1379,14 @@
         {
           "path": "~/.copilot/skills",
           "status": "VERIFIED",
-          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
-          "verified": "2026-09-25"
+          "source": "https://docs.github.com/en/copilot/concepts/customizations/agent-skills",
+          "verified": "2026-10-20"
         },
         {
           "path": "~/.agents/skills",
           "status": "VERIFIED",
-          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
-          "verified": "2026-09-25"
+          "source": "https://docs.github.com/en/copilot/concepts/customizations/agent-skills",
+          "verified": "2026-10-20"
         },
         {
           "path": "~/.claude/skills",
@@ -1369,20 +1401,20 @@
         {
           "path": ".github/skills",
           "status": "VERIFIED",
-          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
-          "verified": "2026-09-25"
+          "source": "https://docs.github.com/en/copilot/concepts/customizations/agent-skills",
+          "verified": "2026-10-20"
         },
         {
           "path": ".claude/skills",
           "status": "VERIFIED",
-          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
-          "verified": "2026-09-25"
+          "source": "https://docs.github.com/en/copilot/concepts/customizations/agent-skills",
+          "verified": "2026-10-20"
         },
         {
           "path": ".agents/skills",
           "status": "VERIFIED",
-          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
-          "verified": "2026-09-25"
+          "source": "https://docs.github.com/en/copilot/concepts/customizations/agent-skills",
+          "verified": "2026-10-20"
         }
       ]
     },
