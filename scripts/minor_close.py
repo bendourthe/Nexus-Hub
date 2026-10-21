@@ -537,9 +537,6 @@ def plan_migration(
     rctx: ck.RepoContext, token: str, record: dict, pid: str, reason: str, evidence: str, date: str,
 ) -> MigrationPlan:
     """Every check the Migrate mode requires, then the two files' new text, unwritten."""
-    bound, _named = cm.migration_class(record)
-    if pid not in bound:
-        raise Refused("migration-not-approved", pid)
     source_token, gid = pid.split("#")
     source_minor = cm.minor_of(source_token)
     if source_minor > cm.minor_of(token):
@@ -560,13 +557,15 @@ def plan_migration(
     if not open_items:
         raise Refused("already-migrated" if any(i.state == "migrated" for i in matches) else "gap-not-open", pid)
     item = open_items[0]
-    # The shared gate: frozen id, open at the record's start, and named when the item
-    # is security or high-severity now OR at the start (an edited Severity line counts).
+    # The shared ordinary migration gate or exact frozen recording-task disposition.
+    # Neither path changes the frozen inherited ids, sensitivity rule or any budget.
     gate, why = cm.migration_gate(rctx, record, source_minor, gid, item)
     if gate == "cannot-verify":
         raise Refused("cannot-verify", "ledger history at the record start")
     if gate != "met":
         raise Refused(why, pid)
+    if why == "planned-follow-on" and reason != "user-deferred":
+        raise Refused("planned-followon-reason-invalid", pid)
     target_token = cm.next_minor(token)
     tmin = cm.minor_of(target_token)
     target_path, target_rel, target_before = _target_ledger(rctx, ledgers, target_token)
@@ -578,8 +577,13 @@ def plan_migration(
         raise Refused("source-" + excluded[source.rel], source.rel)
     if target_rel in excluded:
         raise Refused("target-" + excluded[target_rel], target_rel)
-    return _migration_texts(rctx, pid, source, item, target_token, (target_path, target_rel, target_before),
+    plan = _migration_texts(rctx, pid, source, item, target_token, (target_path, target_rel, target_before),
                             reason, evidence, date, ledgers=ledgers)
+    if why == "planned-follow-on":
+        copies = [i for i in cm.parse_ledger(plan.target_after) if i.gid == plan.new_gid]
+        if len(copies) != 1 or not cm.planned_followon_copy(source_token, item, copies[0]):
+            raise Refused("planned-followon-copy-altered", pid)
+    return plan
 
 
 def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token: str) -> tuple[Path, str, str | None]:
@@ -1224,6 +1228,24 @@ def _apply_archive(
     return written
 
 
+
+def _archive_minor_guard(function):
+    """Reject stale archive authority before the existing move/commit transaction."""
+    from functools import wraps
+    @wraps(function)
+    def wrapped(args):
+        if args.plan or not args.apply:
+            return function(args)
+        rctx = _context(args)
+        record, _path = _record(rctx, args.minor, args.session)
+        if record is None:
+            return function(args)  # Existing explicit no-record archive semantics remain unchanged.
+        with ck.minor_transaction(record):
+            return function(args)
+    return wrapped
+
+
+@_archive_minor_guard
 def cmd_archive(args: argparse.Namespace) -> int:
     rctx = _context(args)
     token = args.minor
@@ -1352,6 +1374,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except ck.MinorConflict as exc:
+        print(f"BLOCKED: {exc}")
+        return EXIT_REFUSED
     except ck.Malformed as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

@@ -43,9 +43,13 @@ def test_release_entry_points_declare_a_hard_installer_parity_gate() -> None:
     update = _read(UPDATE)
     runbook = _read(RUNBOOK)
     for label, body in (("update", update), ("implement runbook", runbook)):
-        assert "installer parity" in body.lower(), label
-        assert "HARD gate" in body, label
-        assert "[[platform-contract-verification]]" in body, label
+        gate = next(
+            line for line in body.splitlines()
+            if "installer" in line.lower() and "parity" in line.lower()
+        )
+        assert "hard gate" in gate.lower(), label
+        assert "[[platform-contract-verification]]" in gate, label
+        assert "more than one installer" in gate or "multiple installers" in gate, label
 
 
 def test_future_and_historical_plans_self_gate_on_multiple_installers() -> None:

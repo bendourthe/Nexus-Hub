@@ -60,10 +60,25 @@ def test_guide_render_is_three_serial_shards_of_45_minutes() -> None:
         assert not command.platform_timeouts, name
 
 
-def test_no_workflow_or_profile_step_runs_pytest_in_parallel() -> None:
+def test_only_windows_installer_job_can_use_pytest_workers() -> None:
     for path in sorted(WORKFLOWS.glob("*.y*ml")):
-        text = path.read_text(encoding="utf-8")
-        assert not XDIST_TEXT.search(text), f"{path.name} mentions pytest-xdist"
+        workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if path.name == "ci.yml":
+            job = workflow["jobs"]["tests-windows-installer"]
+            pytest_addopts = job["env"].pop("PYTEST_ADDOPTS")
+            assert pytest_addopts == "-p xdist -n 2 --dist loadfile"
+            install = next(step for step in job["steps"]
+                           if step.get("name") == "Install test dependencies")
+            tools = " pytest-xdist==3.8.0 execnet==2.1.2"
+            assert install["run"].endswith(tools)
+            install["run"] = install["run"][:-len(tools)]
+            runner = next(step for step in job["steps"]
+                          if step.get("name") == "Windows installer profile group")
+            assert runner["run"] == (
+                "python scripts/ci/run.py --profile platform --only windows-installer --reports-dir reports"
+            )
+        text = yaml.safe_dump(workflow, width=1_000_000)
+        assert not XDIST_TEXT.search(text), f"{path.name} enables pytest-xdist outside the installer job"
         for line in text.splitlines():
             if "pytest" in line:
                 assert not _parallel_flags(_tokens(line)), f"{path.name}: {line.strip()}"
@@ -89,3 +104,14 @@ def test_no_dependency_file_pins_pytest_xdist() -> None:
     assert any(p.name == "requirements-py311.txt" for p in candidates), "the constraints file moved"
     for path in candidates:
         assert not re.search(r"pytest[-_.]xdist", path.read_text(encoding="utf-8"), re.IGNORECASE), path
+
+
+def test_worker_guard_rejects_unapproved_long_pytest_command(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    command = "python -m pytest " + "tests/very-long-browser-path/" * 12 + "test_page.py -n 2"
+    payload = {"jobs": {"unapproved-browser": {"steps": [{"run": command}]}}}
+    (tmp_path / "probe.yml").write_text(yaml.safe_dump(payload, width=1_000_000), encoding="utf-8")
+    monkeypatch.setitem(globals(), "WORKFLOWS", tmp_path)
+    with pytest.raises(AssertionError):
+        test_only_windows_installer_job_can_use_pytest_workers()

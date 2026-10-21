@@ -6,9 +6,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.0 -->
+<!-- nexus-hub-version: 4.14.1 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 38 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
 ## Interactive Guide -- start here
 
@@ -33,12 +33,22 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills acr
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 37 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 38 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.1
+
+**Effort that buys verification.** A plan phase can now verify at a higher effort than it was built at. `model-map.py score` takes `--edge-cases` and `--unattended` and returns a raise-only `verification_effort`, capped at `high` and never below the phase's effort; tier and effort recommendations are unchanged. `plan_status.py --check` rejects an invalid or lower value.
+
+**Escalation by why a phase fails.** After two troubleshooting attempts, a repeating failure is classified as an edge-case miss (raise effort one level) or a wrong approach (change the tier, re-plan, or ask), offered as option D of the troubleshooting menu. The GO/NO-GO gate can request named verification behaviors, each routed to the skill that owns it.
+
+**Safer Windows test runs and clearer usage decisions.** A `console-window-guard` hook stops test runs that would flood the desktop with console windows, and a usage-limit warning now asks one clickable question with three choices, never preselecting paid credits.
+
+See [the changelog](CHANGELOG.md#4141---2026-10-20) for the full changes.
 
 ## What's New in v4.14.0
 
@@ -534,7 +544,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 340 skills, 21 commands, 38 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

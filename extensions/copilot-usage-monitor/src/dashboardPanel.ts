@@ -203,6 +203,12 @@ export class DashboardPanel {
 
       <div class="divider"></div>
 
+      ${data.currentModel ? `
+      <div class="section">
+        <h3>Current Model</h3>
+        <div class="model-name">${escapeHtml(data.currentModel)}</div>
+      </div>` : ""}
+
       <div class="section">
         <h3>Recommendation</h3>
         <p class="recommendation urgency-${recommendation.urgency}">${escapeHtml(recommendation.message)}</p>
@@ -569,9 +575,7 @@ function personalSection(personal: PersonalUsage, organizationConnected: boolean
       </div>`,
     )
     .join("");
-  return `
-      <div class="section"><h3>Plan</h3><div class="model-name">${escapeHtml(personal.planLabel)}</div></div>
-      ${bars}`;
+  return bars;
 }
 
 function primaryAction(error: ProviderFetchError | undefined): string {

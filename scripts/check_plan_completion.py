@@ -32,6 +32,10 @@ fixed predicate ids and statuses, so a gate can hand it to a model safely.
 from __future__ import annotations
 
 import argparse
+import tempfile
+from contextlib import contextmanager
+from contextvars import ContextVar
+from functools import wraps
 import datetime as dt
 import hashlib
 import hmac
@@ -477,15 +481,209 @@ def _sign(record: dict, key: bytes) -> str:
     return hmac.new(key, _canonical(_hmac_payload(record)), hashlib.sha256).hexdigest()
 
 
+
+# Schema-2 mutation snapshots remain outside the signed JSON payload.
+class MinorConflict(Malformed):
+    """A stale or foreign controller must retry from a fresh verified snapshot."""
+
+
+class MinorSnapshot(dict):
+    def __init__(self, record: dict, path: Path, raw: bytes, ctx: RepoContext) -> None:
+        super().__init__(record)
+        self.record_path = path.resolve()
+        self.loaded_sha256 = hashlib.sha256(raw).hexdigest()
+        self.context = ctx
+
+
+_MINOR_LEASE = ContextVar('minor_record_lease', default=None)
+
+
+@contextmanager
+def _minor_os_lock(lock_path: Path, budget):
+    """One bounded stdlib OS lease; persistent sidecar is never stolen or deleted."""
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    _restrict(lock_path.parent, directory=True)
+    handle = lock_path.open('a+b')
+    locked = False
+    try:
+        _restrict(lock_path, directory=False)
+        if lock_path.stat().st_size == 0:
+            handle.write(b'0')
+            handle.flush()
+        deadline = time.monotonic() + min(3.0, budget.remaining())
+        while True:
+            handle.seek(0)
+            try:
+                if os.name == 'nt':
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                locked = True
+                break
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise MinorConflict('minor-record-busy') from exc
+                time.sleep(0.025)
+        yield
+    finally:
+        try:
+            if locked:
+                handle.seek(0)
+                if os.name == 'nt':
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            handle.close()
+
+
+@contextmanager
+def minor_creation_lease(ctx: RepoContext, token: str):
+    """All linked roots serialize first discovery and creation for this minor."""
+    cm = _minor_module()
+    cm.parse_minor(sys.modules[__name__], token)
+    common = cm._common_dir(ctx, ctx.root)
+    if not common or not Path(common).is_absolute() or str(Path(common).resolve()) != common:
+        raise MinorConflict('creation-common-directory-unavailable')
+    identity = hashlib.sha256(_canonical([os.path.normcase(common), 'minor:' + token])).hexdigest()
+    lock_path = _runs_dir() / 'creation-locks' / (identity + '.lock')
+    with _minor_os_lock(lock_path, ctx.budget):
+        yield
+
+
+@contextmanager
+def minor_lease(path: Path, expected: str | None, ctx: RepoContext):
+    """Full-byte CAS under the unchanged original-record-adjacent lease."""
+    path = path.resolve()
+    active = _MINOR_LEASE.get()
+    if active is not None:
+        if active['path'] != path:
+            raise MinorConflict('nested-minor-record-conflict')
+        yield active
+        return
+    with _minor_os_lock(path.with_name(path.stem + '.mutation.lock'), ctx.budget):
+        raw = path.read_bytes() if path.exists() else None
+        actual = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        if actual != expected:
+            raise MinorConflict('minor-record-changed')
+        current = json.loads(raw) if raw is not None else None
+        if current is not None:
+            _minor_module().require_controller(sys.modules[__name__], ctx, current, path)
+        active = {'path': path, 'expected': expected, 'ctx': ctx}
+        token = _MINOR_LEASE.set(active)
+        try:
+            yield active
+            latest = path.read_bytes() if path.exists() else None
+            latest_digest = hashlib.sha256(latest).hexdigest() if latest is not None else None
+            if latest_digest != active['expected']:
+                raise MinorConflict('minor-record-changed')
+        finally:
+            _MINOR_LEASE.reset(token)
+
+
+@contextmanager
+def minor_transaction(record: MinorSnapshot):
+    if not isinstance(record, MinorSnapshot):
+        raise MinorConflict('minor-snapshot-required')
+    with minor_lease(record.record_path, record.loaded_sha256, record.context) as lease:
+        yield lease
+
+
+def minor_operation(function):
+    """Serialize native minor entry points before consuming genuine input."""
+    @wraps(function)
+    def wrapped(args):
+        if not _scoped(args):
+            return function(args)
+        cm = _minor_module()
+        ctx = cm.repo_context(sys.modules[__name__], args)
+        path = cm.record_file(sys.modules[__name__], ctx, args.minor)
+        raw = path.read_bytes() if path.exists() else None
+        expected = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        with minor_lease(path, expected, ctx):
+            return function(args)
+    return wrapped
+
+
+def resolve_minor_controller(path: Path, session: str, *, budget_seconds: float = BUDGET_SECONDS) -> tuple[RepoContext, MinorSnapshot]:
+    """Trusted siblings resolve execution identity; raw JSON is only a lookup hint."""
+    raw = path.read_bytes()
+    record = json.loads(raw)
+    key = _secret(create=False)
+    if (not isinstance(record, dict) or key is None
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key))
+            or record.get('session_id') != session):
+        raise MinorConflict('record-tampered-or-session-mismatch')
+    binding = record.get('implementation_controller') or {}
+    root = Path(str(binding.get('repo_root') or record.get('repo_root', '')))
+    ctx = RepoContext(root, Budget(min(BUDGET_SECONDS, budget_seconds)))
+    cm = _minor_module()
+    snapshot = MinorSnapshot(record, path, raw, ctx)
+    cm.require_controller(sys.modules[__name__], ctx, snapshot, snapshot.record_path)
+    if not cm._verified(sys.modules[__name__], ctx, snapshot.get('minor'), snapshot):
+        raise MinorConflict('minor-authority-unverified')
+    return ctx, snapshot
+
+
+def historical_host_cwds(record: dict) -> set[str]:
+    """Caller supplies only an authenticated record; no unsigned redirect confers authority."""
+    binding = record.get('implementation_controller') or {}
+    origin = binding.get('origin_root')
+    return {str(Path(origin).resolve())} if isinstance(origin, str) else set()
+
+
 def _write_record(path: Path, record: dict) -> None:
+    minor = record.get('schema') == SCHEMA_MINOR and record.get('scope') == 'minor'
+    if not minor:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _restrict(path.parent, directory=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(
+            json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        _restrict(tmp, directory=False)
+        os.replace(tmp, path)
+
+        return
+    active = _MINOR_LEASE.get()
+    if minor and active is None:
+        with minor_transaction(record):
+            _write_record(path, record)
+        return
+    if minor:
+        path = path.resolve()
+        if active['path'] != path:
+            raise MinorConflict('minor-record-path-changed')
+        if isinstance(record, MinorSnapshot) and record.loaded_sha256 != active['expected']:
+            raise MinorConflict('minor-snapshot-changed')
+        raw = path.read_bytes() if path.exists() else None
+        actual = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        if actual != active['expected']:
+            raise MinorConflict('minor-record-changed')
+        key = _secret(create=False)
+        if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key)):
+            raise MinorConflict('unsigned-minor-write')
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(
-        json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    _restrict(tmp, directory=False)
-    os.replace(tmp, path)
+    descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8', newline='\n') as handle:
+            json.dump(record, handle, indent=2, sort_keys=True)
+            handle.write('\n')
+        _restrict(tmp, directory=False)
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+    if minor:
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        active['expected'] = digest
+        if isinstance(record, MinorSnapshot):
+            record.loaded_sha256 = digest
 
 
 class RecordState:
@@ -517,10 +715,13 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
         if tracked_rc != 1:
             return None
     try:
-        record = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+        record = json.loads(raw)
     except (OSError, ValueError, UnicodeDecodeError):
         return None
-    return record if isinstance(record, dict) else None
+    if not isinstance(record, dict):
+        return None
+    return MinorSnapshot(record, path, raw, ctx) if record.get("schema") == SCHEMA_MINOR else record
 
 
 def load_record(ctx: Context, session: str | None) -> RecordState:
@@ -602,11 +803,16 @@ def project(record: dict, version: str) -> dict | None:
         "tag": member.get("tag") or version,
         "cleanup": cleanup,
         "classes": [*(own.get("classes") or []), *(minor.get("classes") or [])],
+        "authorization_context": minor.get('authorization_context'),
+        "autonomy_policy": minor.get('autonomy_policy'),
         "page_sha256": minor.get("page_sha256"),
     }
     return {
         "schema": record.get("schema"),
         "scope": "member",
+        "version": member["version"],
+        "plan_path": member.get("plan_path"),
+        "member_start_head": member.get("start_head"),
         "minor": record.get("minor"),
         "plan": member.get("plan_path"),
         "plan_sha256": member.get("plan_sha256"),
@@ -616,7 +822,7 @@ def project(record: dict, version: str) -> dict | None:
         "session_id": record.get("session_id"),
         "worktree": (member.get("implementation") or {}).get("worktree") or member.get("worktree") or record.get("worktree"),
         "start_head": member.get("start_head") or (member.get("implementation") or {}).get("base_head") or record.get("start_head"),
-        # The run began at the minor record's start: a gap created after it never migrates.
+        # Ordinary new gaps never migrate; exact frozen recording tasks have a separate disposition.
         "minor_start_head": record.get("start_head"),
         "nonce": record.get("nonce"),
         "created": record.get("created"),
@@ -705,9 +911,33 @@ def _plan_close_results(ctx: Context, record: dict | None, repo: str) -> list[tu
     ]
 
 
-def _approved_remote_status(ctx: Context, record: dict | None) -> str:
+def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
     if record is None:
         return "cannot-verify"
+    if record.get("schema") == SCHEMA_MINOR and record.get("scope") == "minor":
+        # An authenticated parent has no single branch: verify every frozen member route.
+        members = record.get("members")
+        if not isinstance(members, list) or not members:
+            return "cannot-verify"
+        views, versions = [], set()
+        for member in members:
+            if (not isinstance(member, dict)
+                    or not re.fullmatch(r"v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", str(member.get("version", "")))
+                    or not isinstance(member.get("approvals"), dict)):
+                return "cannot-verify"
+            version = member["version"]
+            if version in versions:
+                return "cannot-verify"
+            versions.add(version)
+            view = project(record, version)
+            branch = (view or {}).get("approvals", {}).get("source_branch")
+            if not isinstance(branch, str) or not branch.strip():
+                return "cannot-verify"
+            views.append(view)
+        statuses = [_approved_remote_status(ctx, view) for view in views]
+        if all(status == "met" for status in statuses):
+            return "met"
+        return "unmet" if all(status in {"met", "unmet"} for status in statuses) else "cannot-verify"
     approvals = record.get("approvals", {})
     expected_url = approvals.get("push_remote_url")
     if not expected_url or ctx.push_remote_url != expected_url:
@@ -725,11 +955,19 @@ def _approved_remote_status(ctx: Context, record: dict | None) -> str:
     return "met" if pushed_repo and pushed_repo.lower() == approved_repo.lower() else "unmet"
 
 
+# A plan can name a dated record it creates (a decision record) by its template, for
+# example `docs/decisions/proposed/policy/YYYY-MM-DD-slug.md`, because the date is not
+# known when the plan is frozen. No file can carry that literal name.
+DATE_PLACEHOLDER = "YYYY-MM-DD"
+
+
 def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
     if not checked or not path:
         return "unmet"
     if not start:
         return "met"
+    if path.count(DATE_PLACEHOLDER) == 1:
+        return _dated_task_status(ctx, path, start)
     rc, out = _run(
         [
             ctx.git,
@@ -746,6 +984,26 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> s
     if rc != 0:
         return "cannot-verify"
     return "met" if out.strip() else "unmet"
+
+
+def _dated_task_status(ctx: Context, path: str, start: str) -> str:
+    """Met only when exactly one file with a real date in the placeholder's place changed.
+
+    The placeholder must appear once; zero or several dated matches are unmet, so a
+    second dated file cannot make a stale task pass and nothing is guessed when none matches.
+    """
+    head, tail = path.split(DATE_PLACEHOLDER)
+    pattern = re.compile(re.escape(head) + r"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])" + re.escape(tail) + r"\Z")
+    folder = head.rsplit("/", 1)[0] if "/" in head else "."
+    rc, out = _run(
+        [ctx.git, "-C", str(ctx.root), "log", "--format=", "--name-only", "--no-renames",
+         f"{start}..HEAD", "--", folder],
+        ctx.budget,
+    )
+    if rc != 0:
+        return "cannot-verify"
+    matches = {line.strip() for line in out.splitlines() if pattern.match(line.strip())}
+    return "met" if len(matches) == 1 else "unmet"
 
 
 def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
@@ -843,7 +1101,7 @@ def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) 
 
 
 def _pending_migration(ctx: Context, record: dict | None, text: str, heading: str) -> bool:
-    """True for a minor member's open item listed in the record's frozen `gap-migration` ids.
+    """True for a frozen inherited item or exact predeclared recording-only opportunity.
 
     A security or high-severity item is deferred only when the approval also names it
     individually; otherwise it blocks the member's `gaps.version`, since it could never
@@ -855,14 +1113,10 @@ def _pending_migration(ctx: Context, record: dict | None, text: str, heading: st
     if found is None:
         return False
     cm = _minor_module()
-    bound, named = cm.migration_class(record)
-    pid = f"{record['minor']}#{found.group(1)}"
-    if pid not in bound:
+    items = [i for i in cm.parse_ledger(text) if i.gid == found.group(1)]
+    if len(items) != 1:
         return False
-    item = next((i for i in cm.parse_ledger(text) if i.gid == found.group(1)), None)
-    # An item the ledger parser cannot see is treated as sensitive: never deferred on a guess.
-    if item is None or (item.sensitive() and pid not in named):
-        return False
+    item = items[0]
     # The same gate the close uses, so an item that could never migrate there (created
     # during the run, or sensitive at the record's start) is never deferred here either.
     status, _reason = cm.migration_gate(ctx, record, cm.minor_of(str(record["minor"])), item.gid, item)
@@ -1282,6 +1536,11 @@ def _approvals_from_file(path: str, minor: bool = False) -> dict:
     defer = next((c.get("bound") for c in classes if c["class"] == "defer-gaps"), []) or []
     if not set(defer) <= GAP_TYPES:
         raise Malformed("defer-gaps bound must list gap types from NI DF BG MT WN QG")
+    try:
+        if 'autonomy' in spec:
+            approval_binding.validate_policy(spec['autonomy'])
+    except ValueError as exc:
+        raise Malformed(str(exc)) from exc
     return spec
 
 
@@ -1298,6 +1557,10 @@ def _refused(reason: str) -> int:
 
 
 def _create_page(ctx: Context, spec: dict) -> dict:
+    try:
+        _validate_policy_paths(ctx.root, spec.get('autonomy') or {})
+    except ValueError as exc:
+        raise Malformed(str(exc)) from exc
     return approval_binding.create_page(
         rel=ctx.rel,
         version=ctx.version,
@@ -1315,14 +1578,18 @@ def _action_page(ctx: Context, record: dict, action: str, blocker: int | None) -
         if blocker is None or not 0 <= blocker < len(blockers) or not blockers[blocker].get("open"):
             raise Malformed("no open blocker at that index")
         category = blockers[blocker].get("category")
-    return approval_binding.action_page(
+    page = approval_binding.action_page(
         action,
         rel=ctx.rel,
         version=ctx.version,
         record_nonce=str(record.get("nonce", "")),
         blocker=blocker,
         category=category,
+        fingerprint=approval_binding.blocker_fingerprint(blockers[blocker]) if action == 'answer' else None,
     )
+    if action == 'answer':
+        page['blocker'].update(request=blockers[blocker].get('request') or {}, purpose=blockers[blocker].get('purpose'), why=blockers[blocker].get('why'))
+    return page
 
 
 def _round_key(ctx: Context) -> str:
@@ -1350,7 +1617,7 @@ def _consume(
         )
     except approval_binding.Refusal as refusal:
         return _refused(refusal.reason)
-    if text is not None and normalize(text) not in {normalize(x) for x in pending["paste_lines"]}:
+    if text is not None and normalize(text) not in {normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]}:
         # The round is spent either way: a claimed text that is not the pasted line is not an approval.
         return _refused("approval-not-captured")
     return pending, bound
@@ -1461,6 +1728,7 @@ def cmd_record_render(args: argparse.Namespace) -> int:
             session=session,
             blocker=blocker,
             platform=args.platform,
+            allow_short_reply=mode == "question",
             check=lambda pending: approval_page.render_page(data_of(pending)),
         )
     except approval_binding.Refusal as refusal:
@@ -1472,6 +1740,12 @@ def cmd_record_render(args: argparse.Namespace) -> int:
 
 
 def render_mode(args: argparse.Namespace) -> str:
+    if getattr(args, "question", False):
+        if args.json or args.page:
+            raise Malformed("--question cannot be combined with --json or --page")
+        if args.session == "auto":
+            raise Malformed("--question needs an explicit bound session")
+        return "question"
     """`record render` prints JSON, the plain-language page, or the bare paste line(s)."""
     if args.json and args.page:
         raise Malformed("choose one of --json and --page")
@@ -1512,6 +1786,8 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         # The user approved the page, and the pasted line is their verbatim text.
         "classes": [{**c, "text": paste} for c in spec["classes"]],
         "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+        "authorization_context": pending.get('capture'),
+        "autonomy_policy": page.get('autonomy'),
     }
     record = {
         "schema": SCHEMA,
@@ -1740,20 +2016,208 @@ def cmd_record_block(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return EXIT_MALFORMED
-    record.setdefault("blockers", []).append(
-        {
-            "category": args.category,
-            "evidence": args.evidence[:2000],
-            "open": True,
-            "at": _now(),
-        }
-    )
+    entry = {'category': args.category, 'evidence': args.evidence[:2000], 'open': True, 'at': _now(),
+             'approval_class': args.approval_class, 'request': _json_request(getattr(args, 'request', '{}')),
+             'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
+    approval_binding.add_blocker(record, entry)
     _write_record(ctx.record_path(), record)
     print(f"BLOCKED: {args.category}")
     return EXIT_BLOCKED
 
 
 # --------------------------------------------------------------------------- cli
+
+
+
+def _continuation_record(args: argparse.Namespace) -> tuple[RepoContext, dict, dict, Path] | int:
+    """Load the verified owner and scoped view, including open blockers but never tampering."""
+    if _scoped(args):
+        module = _minor_module()
+        ctx = module.repo_context(sys.modules[__name__], args)
+        state = module.load_minor(sys.modules[__name__], ctx, args.minor, args.session, accept_completed=True)
+        record = state.record
+        if record is None:
+            return state.forced[1] if state.forced else EXIT_MALFORMED
+        view = project(record, args.member) if getattr(args, 'member', None) else record
+        if view is None:
+            raise Malformed('member is not in this approved minor')
+        if state.forced:
+            first = next((item for item in record.get('blockers', []) if isinstance(item, dict) and item.get('open')), None)
+            suffix = f" ({first['version']})" if first and first.get('version') else ''
+            allowed = f"BLOCKED: {first.get('category')}{suffix}" if first else None
+            if state.forced[0] != allowed:
+                print(state.forced[0])
+                return state.forced[1]
+        path = module.record_file(sys.modules[__name__], ctx, args.minor)
+    else:
+        loaded = _load_for_update(args)
+        if isinstance(loaded, int):
+            return loaded
+        ctx, record = loaded
+        view, path = record, ctx.record_path()
+    if record.get('pause'):
+        print('PAUSED')
+        return EXIT_PAUSED
+    if record.get('completed'):
+        return _blocked('approval-not-covered')
+    return ctx, record, view, path
+
+
+def _validate_scoped_paths(root: Path, paths: object) -> None:
+    if not isinstance(paths, list) or not all(isinstance(path, str) for path in paths):
+        raise ValueError('request paths must be a list of literal repository paths')
+    for path in paths:
+        # Reuse the policy literal-path validator and then inspect actual filesystem routing.
+        approval_binding.validate_policy({'planned_actions': [{'class': 'ask-first:path-scope', 'paths': [path]}]})
+        if not (root / path).resolve().is_relative_to(root.resolve()):
+            raise ValueError('a scoped path escapes the approved repository through a link')
+
+
+def _validate_policy_paths(root: Path, value: object) -> None:
+    policy = approval_binding.validate_policy(value)
+    _validate_scoped_paths(root, policy['correction_paths'])
+    for item in policy['planned_actions']:
+        _validate_scoped_paths(root, item['paths'])
+
+
+def _host_cwds(ctx: RepoContext) -> set[str]:
+    paths = {str(ctx.root.resolve())}
+    paths.update(str(Path(line[9:]).resolve()) for line in ctx._git_out('worktree', 'list', '--porcelain').splitlines() if line.startswith('worktree '))
+    return paths
+
+
+def _json_request(value: str) -> dict:
+    try:
+        result = json.loads(value)
+    except ValueError as exc:
+        raise Malformed('request must be a JSON object') from exc
+    if not isinstance(result, dict):
+        raise Malformed('request must be a JSON object')
+    return result
+
+
+@minor_operation
+def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, _view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    try:
+        instruction = Path(args.instruction_file).read_text(encoding='utf-8')
+        policy = json.loads(Path(args.policy).read_text(encoding='utf-8'))
+        _validate_policy_paths(ctx.root, policy)
+        cwds = _host_cwds(ctx)
+        approval_binding.adopt_policy(_runs_dir(), record, instruction, policy,
+            Path(args.host_transcript) if args.host_transcript else None, cwds,
+            historical_cwds=historical_host_cwds(record))
+    except (OSError, ValueError, approval_binding.Refusal) as exc:
+        print(f'policy not adopted: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+    _write_record(path, record)
+    print('ADOPTED approved-plan policy from genuine captured user instruction')
+    return 0
+
+
+@minor_operation
+def cmd_record_authorize(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    if _approved_remote_status(ctx, view) != 'met':
+        return _blocked('approval-not-covered')
+    try:
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx),
+            historical_cwds=historical_host_cwds(record))
+        request = _json_request(args.request)
+        _validate_scoped_paths(ctx.root, request.get('paths', []))
+        event = approval_binding.authorization(view, args.approval_class, request, current)
+    except ValueError as exc:
+        print(f'authorization not covered: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    event['member'] = getattr(args, 'member', None)
+    events = record['approvals'].setdefault('continuations', [])
+    if event not in events:
+        events.append(event)
+        record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+        _write_record(path, record)
+    print('AUTHORIZED ' + json.dumps(event, sort_keys=True))
+    return 0
+
+
+def _native_user_edit_probe(ctx: RepoContext, view: dict, entry: dict, current: dict) -> dict:
+    """Only the unchanged installed official guard can establish that an edit condition is clean."""
+    import argparse
+    import contextlib
+    import io
+    import runpy
+    policy = approval_binding.validate_policy(view.get('approvals', {}).get('autonomy_policy') or {})
+    allowed = sorted({path for item in policy['planned_actions']
+                      if item['class'] == 'ask-first:user-edit-baseline' for path in item['paths']})
+    paths = (entry.get('request') or {}).get('paths') or allowed
+    _validate_scoped_paths(ctx.root, paths)
+    approval_binding.authorization(view, 'ask-first:user-edit-baseline', {'paths': paths}, current)
+    guard = Path.home() / '.agents' / 'skills' / 'user-edit-preservation' / 'scripts' / 'edit_guard.py'
+    if not guard.is_file() or any(guard.resolve().is_relative_to(Path(root)) for root in _host_cwds(ctx)):
+        raise ValueError('official guard is unavailable outside the repository')
+    functions = runpy.run_path(str(guard))
+    store = functions['store_dir']()
+    checks = []
+    for path in paths:
+        args = argparse.Namespace(path=str(ctx.root / path), session=str(view.get('session_id')), stamp=False)
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = functions['cmd_check'](args, store)
+        if code != 0:
+            raise ValueError('official user-edit check still reports an unresolved condition')
+        checks.append({'path': path, 'exit_code': code})
+    return {'origin': 'native-user-edit-check', 'fingerprint': approval_binding.blocker_fingerprint(entry),
+            'guard_sha256': hashlib.sha256(guard.read_bytes()).hexdigest(), 'checks': checks,
+            'native_predicates_changed': False}
+
+
+@minor_operation
+def cmd_record_resolve(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    if _approved_remote_status(ctx, view) != 'met':
+        return _blocked('approval-not-covered')
+    try:
+        entry = record.get('blockers', [])[args.blocker]
+        if getattr(args, 'member', None) is not None and entry.get('version') != args.member:
+            raise ValueError('member differs from the blocker')
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx),
+            historical_cwds=historical_host_cwds(record))
+        _validate_scoped_paths(ctx.root, (entry.get('request') or {}).get('paths', []))
+        if entry.get('category') == 'user-edit-guard':
+            if not entry.get('open') or approval_binding.blocker_fingerprint(entry) != args.fingerprint:
+                raise ValueError('blocker is closed or its condition changed')
+            result = _native_user_edit_probe(ctx, view, entry, current)
+        elif entry.get('category') == 'no-progress' and not args.evidence_file:
+            _validate_policy_paths(ctx.root, view.get('approvals', {}).get('autonomy_policy'))
+            result = approval_binding.user_continuation(_runs_dir(), view, args.blocker, args.fingerprint,
+                _host_cwds(ctx), historical_cwds=historical_host_cwds(record))
+        else:
+            result = approval_binding.resolution(view, args.blocker, args.fingerprint,
+                        Path(args.evidence_file) if args.evidence_file else None, current)
+    except (OSError, ValueError, IndexError, TypeError, approval_binding.Refusal) as exc:
+        print(f'condition not resolved: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    entry.update(open=False, answered=_now(), resolution=result)
+    # Blockers are mutable, but automatic provenance is also retained inside the signed approvals.
+    record['approvals'].setdefault('resolutions', []).append({'blocker': args.blocker, **result})
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+    _write_record(path, record)
+    print(f'RESOLVED blocker {args.blocker} ({result["origin"]})')
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1819,6 +2283,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--member", help="with --minor answer: require this blocker's member version")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
+    render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
         "--page", action="store_true", help="print the plain-language approval page"
     )
@@ -1865,7 +2330,37 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
+    block.add_argument("--purpose", help="concrete action displayed for the decision")
+    block.add_argument("--why", help="why that action is needed, bound into the challenge")
+    block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")
     block.set_defaults(func=cmd_record_block)
+    handoff = record.add_parser('controller-handoff')
+    handoff.add_argument('--minor', required=True)
+    handoff.add_argument('--session', required=True)
+    handoff.add_argument('--repo', required=True)
+    handoff.add_argument('--to', required=True)
+    handoff.add_argument('--head', required=True)
+    handoff.add_argument('--expected-generation', type=int, required=True)
+    handoff.add_argument('--apply', action='store_true')
+    handoff.set_defaults(func=lambda args: _minor_module().cmd_record_controller_handoff(sys.modules[__name__], args))
+    for name, func in (('authorize', cmd_record_authorize), ('adopt-policy', cmd_record_adopt_policy), ('resolve', cmd_record_resolve)):
+        operation = record.add_parser(name)
+        operation.add_argument('plan', nargs='?')
+        _add_minor_scope(operation)
+        operation.add_argument('--session', required=True)
+        operation.add_argument('--member')
+        if name == 'authorize':
+            operation.add_argument('--approval-class', required=True)
+            operation.add_argument('--request', default='{}', help='JSON fields matching the frozen action scope')
+        elif name == 'adopt-policy':
+            operation.add_argument('--instruction-file', required=True)
+            operation.add_argument('--policy', required=True)
+            operation.add_argument('--host-transcript', help='canonical runtime-owned Codex session log, when old captures omitted mode')
+        else:
+            operation.add_argument('--blocker', type=int, required=True)
+            operation.add_argument('--fingerprint', required=True)
+            operation.add_argument('--evidence-file', help='fresh condition-repair receipt; no shell commands are executed')
+        operation.set_defaults(func=func)
     implement = record.add_parser("member-implement-start", help="reserve a linked worker and its implementation scopes")
     implement.add_argument("--minor", required=True)
     implement.add_argument("--member", required=True)
@@ -1921,6 +2416,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except MinorConflict as exc:
+        print(f"BLOCKED: {exc}")
+        return EXIT_BLOCKED
     except Malformed as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_MALFORMED

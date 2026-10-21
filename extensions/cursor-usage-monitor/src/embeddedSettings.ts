@@ -38,7 +38,7 @@ export const SETTINGS_DEFAULTS: DraftState = {
     critical: DEFAULT_THRESHOLDS.critical
   },
   colors: { ...DEFAULT_URGENCY_COLORS },
-  compact: false
+  compact: true
 };
 
 function config(): vscode.WorkspaceConfiguration {
@@ -62,7 +62,7 @@ export function currentSettings(): DraftState {
     },
     // The dashboard's toggle drives the label, which is the setting a user actually
     // means by "hide the words"; compactStatusBar also abbreviates the pool names.
-    compact: !c.get<boolean>("showStatusBarLabel", true)
+    compact: !c.get<boolean>("showStatusBarLabel", false)
   };
 }
 

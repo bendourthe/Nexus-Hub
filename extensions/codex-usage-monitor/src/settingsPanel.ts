@@ -33,7 +33,7 @@ export const SETTINGS_DEFAULTS: DraftState = {
   metric: "highest",
   thresholds: { moderate: URGENCY_THRESHOLDS.moderate, high: URGENCY_THRESHOLDS.high, critical: URGENCY_THRESHOLDS.critical },
   colors: { moderate: DEFAULT_URGENCY_COLORS.moderate, high: DEFAULT_URGENCY_COLORS.high, critical: DEFAULT_URGENCY_COLORS.critical },
-  compact: false,
+  compact: true,
 };
 
 /** The current persisted settings, read from VS Code configuration. */
@@ -42,7 +42,7 @@ export function currentSettings(): DraftState {
     metric: getThresholdMetric(),
     thresholds: getThresholdConfig(),
     colors: getColorConfig(),
-    compact: vscode.workspace.getConfiguration("codexUsage").get<boolean>("compactStatusBar", false),
+    compact: vscode.workspace.getConfiguration("codexUsage").get<boolean>("compactStatusBar", true),
   };
 }
 

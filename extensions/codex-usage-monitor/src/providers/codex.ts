@@ -75,6 +75,35 @@ export function resolveCodexAuthPath(inputs: CodexAuthPathInputs): string {
   return path.join(base, "auth.json");
 }
 
+/** Shown as the current model when `config.toml` pins none, so Codex runs its built-in default. */
+export const CODEX_DEFAULT_MODEL = "Codex default";
+
+/**
+ * Read the model Codex is configured to use: the top-level `model` key of the
+ * `config.toml` that sits beside the credential file (the key Codex's model
+ * picker persists). Only keys above the first `[table]` header are top-level.
+ * Returns undefined when the file, or a usable key, is absent; never throws.
+ */
+export function readCodexConfiguredModel(configPath: string): string | undefined {
+  let text: string;
+  try {
+    text = fs.readFileSync(configPath, "utf-8");
+  } catch {
+    return undefined;
+  }
+  for (const line of text.split(/\r?\n/)) {
+    if (/^\s*\[/.test(line)) {
+      return undefined;
+    }
+    const match = /^\s*model\s*=\s*(?:"([^"]*)"|'([^']*)')\s*(?:#.*)?$/.exec(line);
+    if (match) {
+      const value = (match[1] ?? match[2]).trim();
+      return value.length > 0 && value.length <= 100 ? value : undefined;
+    }
+  }
+  return undefined;
+}
+
 /** True for a synthetic account id (`email_`/`local_` prefix) whose header is omitted upstream. */
 export function isSyntheticAccountId(accountId: string | null): boolean {
   return accountId != null && (/^email_/.test(accountId) || /^local_/.test(accountId));
@@ -541,7 +570,7 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
   return {
     session,
     weeklyAllModels: weekly,
-    currentModel: planLabel ?? "Codex",
+    currentModel: CODEX_DEFAULT_MODEL,
     lastUpdated: now,
     dataSource: "api",
     planLabel: planLabel ?? "Codex",
@@ -590,9 +619,7 @@ export class CodexUsageProvider implements UsageProvider {
     return { success: false, error: { code, ...extra } };
   }
 
-  async fetchUsage(_currentModel?: string): Promise<ProviderFetchResult> {
-    // Codex usage is account-wide; there is no per-model dimension to pass.
-    void _currentModel;
+  async fetchUsage(currentModel?: string): Promise<ProviderFetchResult> {
     const raw = await this.fetchRawUsage();
     if (!raw.success) {
       return raw;
@@ -601,7 +628,10 @@ export class CodexUsageProvider implements UsageProvider {
     if (!model) {
       return this.fail("usage-unavailable");
     }
-    return { success: true, data: model };
+    // Usage is account-wide; the model is display-only and read fresh per refresh.
+    const configured =
+      currentModel ?? readCodexConfiguredModel(path.join(path.dirname(this.resolveAuthPath()), "config.toml"));
+    return { success: true, data: { ...model, currentModel: configured ?? CODEX_DEFAULT_MODEL } };
   }
 
   /**

@@ -493,6 +493,31 @@ def test_task_needs_a_commit_touching_its_path(tmp_path: Path) -> None:
     assert "task.T001 met" in result.stdout
 
 
+DATED_PLAN = PLAN.replace("src/b.txt", "docs/decisions/YYYY-MM-DD-part-b.md")
+
+
+@pytest.mark.parametrize(
+    ("dated_files", "verdict"),
+    (
+        (["docs/decisions/2026-09-28-part-b.md"], "met"),
+        ([], "unmet"),
+        (["docs/decisions/2026-09-28-part-b.md", "docs/decisions/2026-10-01-part-b.md"], "unmet"),
+        (["docs/decisions/2026-13-40-part-b.md"], "unmet"),
+    ),
+    ids=("one-dated-file", "no-dated-file", "two-dated-files", "not-a-date"),
+)
+def test_a_dated_task_path_matches_exactly_one_real_date(
+    tmp_path: Path, dated_files: list[str], verdict: str
+) -> None:
+    fx = _build(tmp_path, plan=DATED_PLAN)
+    for rel in dated_files:
+        fx.write(rel, "# Decision\n")
+    if dated_files:
+        _git(fx.work, "add", "-A")
+        _git(fx.work, "commit", "-q", "-m", "dated record")
+    assert f"task.T002 {verdict}" in fx.check().stdout
+
+
 def test_offline_hosting_never_passes(complete: Fixture) -> None:
     complete.state["fail"] = True
     complete.save_state()
@@ -937,6 +962,7 @@ def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) 
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     detach = (
+        # nexus: console-window-ok simulates no terminal; the checker hides its own children (test_no_console_window)
         {"creationflags": 0x00000008}
         if os.name == "nt"
         else {"start_new_session": True}

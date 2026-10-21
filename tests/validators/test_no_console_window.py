@@ -54,6 +54,7 @@ def test_a_test_child_gets_a_console_without_a_window() -> None:
 
 @on_windows
 def test_a_child_that_asks_to_detach_stays_detached() -> None:
+    # nexus: console-window-ok proves a requested detach is honoured
     window, attached = _probe(creationflags=subprocess.DETACHED_PROCESS)
     assert (window, attached) == (0, 0)
 
@@ -68,7 +69,7 @@ def test_the_checker_run_from_a_detached_process_opens_no_window() -> None:
     )
     out = subprocess.run([PYTHON, "-c", script, str(SCRIPTS)], capture_output=True, text=True,
                          check=True, timeout=120, stdin=subprocess.DEVNULL,
-                         creationflags=subprocess.DETACHED_PROCESS).stdout.split()
+                         creationflags=subprocess.DETACHED_PROCESS).stdout.split()  # nexus: console-window-ok the scenario under test
     assert int(out[0]) == 0, "a child of the detached checker opened a console window"
 
 

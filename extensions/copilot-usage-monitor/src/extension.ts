@@ -12,6 +12,7 @@ import {
 } from "./providers";
 import { configuredOrganization, disconnectMessage, organizationRoute } from "./providers/copilotOrganization";
 import { DashboardPanel } from "./dashboardPanel";
+import { readChatModel, stateDatabasePath } from "./currentModel";
 import type { OrganizationStatus } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { buildUsageSuggestion, classifyUrgency, getActiveUrgency, getRecommendation, triggerPercent } from "./recommendations";
@@ -69,7 +70,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const store = new UsageStore(context.globalState);
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
-  const service = new UsageService(new CopilotUsageProvider(), new CopilotOrganizationProvider(context.secrets));
+  const chatModelDatabase = stateDatabasePath(context.globalStorageUri.fsPath);
+  const service = new UsageService(
+    new CopilotUsageProvider(),
+    new CopilotOrganizationProvider(context.secrets),
+    () => readChatModel(chatModelDatabase),
+  );
   const controller = new UsageController(store, service, statusBar);
 
   const orgStatus = async (): Promise<OrganizationStatus> => {

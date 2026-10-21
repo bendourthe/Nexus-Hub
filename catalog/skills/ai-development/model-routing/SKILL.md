@@ -81,6 +81,17 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh score
 
 The wrappers call the standard-library `model-map.py` implementation and print JSON. Add `--uncertain` when the evidence is incomplete.
 
+Edge-case density, the unattended run mode, and the failure class modify effort decisions without changing this mapping. Their definitions, and the table of which skill owns each effort rule, live in [`references/effort-modifiers.md`](references/effort-modifiers.md).
+
+`score` also returns a raise-only `verification_effort`. Pass `--edge-cases <density>`, and `--unattended` only from the `/implement` pre-flight:
+
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh score low medium low low medium --edge-cases high --unattended
+# {"tier": "standard", "effort": "medium", "verification_effort": "high"}
+```
+
+Without either flag, `verification_effort` equals `effort`.
+
 ### Step 4: Build or refresh the Current model map
 
 Planning mode MUST attempt public web search on every full `/plan` invocation:
@@ -156,7 +167,12 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.sh <p
 
 ### Step 7: Mid-task escalation during an implement loop (upshift only)
 
-When routing is wired into an implementation loop (the `/implement` per-phase pre-flight), persistent failure is itself a routing signal. If a phase's tests fail repeatedly -- after several troubleshooting iterations on the same failure -- the task was likely under-tiered, so recommend an **upshift** to a stronger reasoning tier or a higher effort before continuing. Rules:
+When routing is wired into an implementation loop (the `/implement` per-phase pre-flight), persistent failure is itself a routing signal, but more effort fixes only some failures. At the end of troubleshooting iteration 2, classify each repeating `IMPL` failure as an **edge-case miss** or a **wrong approach** by the failure-class definition in [`references/effort-modifiers.md`](references/effort-modifiers.md), and quote the evidence it names. `TEST` and `ENV` failures keep their existing handling. The routed escalation is option D of the troubleshooting loop's exhaustion menu:
+
+- **Edge-case miss**: raise effort one level. At `max` the failure is not fixable by effort: re-plan the failing sub-task, ask the user, or upshift the tier when it is below `frontier`.
+- **Wrong approach**: upshift the tier, re-plan the failing sub-task, or ask the user. Never raise effort alone, because more effort mostly adds verification and does not change the approach. At `frontier`, re-plan or ask.
+
+Rules for every escalation:
 
 - **Upshift only.** Never auto-downshift mid-phase: the no-degradation guarantee forbids dropping to a cheaper model while a task is actively failing, because a downshift mid-failure trades the one thing routing must never gamble on (output quality on a hard task) for marginal token savings.
 - **Best-effort and platform-aware.** Follow the same posture as Step 6 -- on Claude Code surface the `/model` + `/effort` keystroke; on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI) apply it with confirmation; on manual-only platforms print the picker instruction.
@@ -176,6 +192,8 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 | Copilot | manual | in-app model picker | select in the model picker | none |
 | OpenCode | manual | `opencode models` / config | select in config or picker | none |
 
+Whether an effort change keeps the prompt cache depends on the model and host. See [`step-8-optimize-cost-and-latency.md`](../prompt-engineering/references/step-8-optimize-cost-and-latency.md) before relying on mid-phase switching.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -187,6 +205,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 | "`validate` passed, so the map is right." | `validate` grades shape only and passes a column with its frontier and standard cells swapped. Only `diff` compares placements. |
 | "Auto-switching works everywhere, so I'll script it on every platform." | The Claude Code main loop cannot switch its own model mid-session, and Cursor / Copilot / OpenCode expose no scriptable switch at all. Scripting a switch on a manual platform either no-ops silently or errors; the posture must branch on `can_script_switch`. |
 | "When unsure, I'll pick `strong` as a safe middle ground." | Uncertainty maps to `frontier` + `max`. A middle tier silently weakens the no-degradation guarantee. |
+| "It is still failing, so more effort will help." | More effort mostly adds verification. It fixes an edge-case miss, but a wrong approach fails the same way at every effort level and burns the troubleshooting budget. Classify the failure at iteration 2 (Step 7) before choosing the escalation. |
 
 ## Verification
 
@@ -200,6 +219,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [ ] A direct `/route` model appears in the live-enumerated set, or the picker sentinel leaves the recommendation tier-named and manual.
 - [ ] The switch instruction matches the detected platform's `switch_mechanism` (scriptable execute / Claude Code keystroke / picker instruction) and never scripts a switch on a manual-only platform.
 - [ ] A mid-task escalation (Step 7) only ever upshifts the tier or effort; the router never auto-downshifts a model mid-phase while a task is failing.
+- [ ] A Step 7 escalation names the failure class with quoted evidence from iteration 2; a wrong approach is never escalated by raising effort alone.
 - [ ] No new credential or dependency was introduced; public plan research uses existing web access, and optional Anthropic enumeration runs only with an existing key.
 
 ## Related Skills

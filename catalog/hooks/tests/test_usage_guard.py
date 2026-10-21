@@ -951,6 +951,44 @@ def test_a_pending_answer_is_not_an_approval(guard, dirs, project):
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is not None
 
 
+def test_directive_asks_once_as_an_interactive_three_way_choice(guard):
+    text = guard.directive("claude", {"name": "weekly", "percent": 99.0, "resets_at": "2026-10-24T20:00:00Z"})
+    assert "one multiple-choice question with your host's interactive question tool" in text
+    assert "(in Claude Code, AskUserQuestion)" in text
+    assert "exactly three options and none preselected or recommended" in text
+    assert "Continue on credits, Wait for reset, and Hand off to another agent or platform" in text
+    assert "Only on a host without such a tool, ask the same three choices once in one short message." in text
+    assert text.endswith(
+        "While the question is open, do not ask it again: if another hook or a goal continues the turn, "
+        "say in one line that you are waiting for the answer and end the turn."
+    )
+    assert "then end the turn and wait" not in text and "record the pending decision and ask" not in text
+    assert text.isascii()
+
+
+def test_spend_directive_uses_the_same_single_interactive_ask(guard):
+    credit = {"state": "capped", "percent": 60.0, "used": 300.0, "limit": 500.0, "unit": "USD"}
+    text = guard.spend_directive("claude", credit)
+    assert "once, as one multiple-choice question" in text and "AskUserQuestion" in text
+    assert "with no option preselected" in text
+    assert "only without such a tool, ask once in one short message" in text
+    assert "do not ask it again" in text and text.isascii()
+
+
+@pytest.mark.parametrize("platform", PLATFORMS)
+def test_an_open_question_is_never_asked_again_across_automatic_continuations(guard, dirs, project, platform):
+    """One ask per open decision, however many Stop hooks or goals continue the turn."""
+    guard.readings[platform] = reading(platform, 100)
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
+    _write_decision(project, "pending", time.time() + 1)
+    for prior in (False, True, False, True):
+        flag = {"loop_count": 1 if prior else 0} if platform == "cursor" else {"stop_hook_active": prior}
+        assert run(guard, dirs, platform, payload(platform, "stop", project, **flag)) is None
+        assert run(guard, dirs, platform, payload(platform, "tool", project)) is None
+        assert run(guard, dirs, platform, payload(platform, "prompt", project)) is None
+    assert not guard.approval_path(platform).exists()
+
+
 def test_an_approval_ends_when_the_window_moves_to_a_new_period(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))

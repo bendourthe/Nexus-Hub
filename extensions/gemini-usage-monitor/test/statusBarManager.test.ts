@@ -47,17 +47,17 @@ describe("StatusBarManager (Antigravity)", () => {
     expect(createdStatusBarItems[0].priority).toBe(103);
   });
 
-  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Gemini Usage: " label.
-  it("shows the full label by default and drops it when compactStatusBar is set", () => {
+  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Gemini Usage: " label; compact is the default.
+  it("is compact by default and shows the full label when compactStatusBar is off", () => {
     __resetStubState();
     const mgr = new StatusBarManager(dataStore(42, 10), "gemini-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u2002Gemini Usage: 42% (current) 10% (week)");
-
-    __setStubConfig("geminiUsage", "compactStatusBar", true);
-    mgr.refresh();
     expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u200242% (current) 10% (week)");
+
+    __setStubConfig("geminiUsage", "compactStatusBar", false);
+    mgr.refresh();
+    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u2002Gemini Usage: 42% (current) 10% (week)");
   });
 
   // v3.14.6 issue 3: a weekly-only plan (no 5-hour "session" window) must not
@@ -67,7 +67,7 @@ describe("StatusBarManager (Antigravity)", () => {
     const mgr = new StatusBarManager(dataStore(UNTRACKED_PERCENT, 91), "gemini-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u2002Gemini Usage: 91% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u200291% (week)");
   });
 
   it("renders the other model group as tooltip rows after the Gemini pair", () => {
@@ -95,6 +95,6 @@ describe("StatusBarManager (Antigravity)", () => {
     const mgr = new StatusBarManager(emptyStore, "gemini-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u2002Gemini Usage: --");
+    expect(createdStatusBarItems[0].text).toBe("$(gemini-icon)\u2002--");
   });
 });

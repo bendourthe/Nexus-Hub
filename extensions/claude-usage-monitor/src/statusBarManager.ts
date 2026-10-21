@@ -134,7 +134,7 @@ export class StatusBarManager {
   private statusText(sessionPct: string, weeklyPct: string, staleLabel: string): string {
     const compact = vscode.workspace
       .getConfiguration("claudeUsage")
-      .get<boolean>("compactStatusBar", false);
+      .get<boolean>("compactStatusBar", true);
     const label = compact ? "" : "Claude Usage: ";
     return `${CLAUDE_ICON}${ICON_GAP}${label}${sessionPct}% (current) ${weeklyPct}% (week)${staleLabel}`;
   }

@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+TIMEOUT_TAIL_LINES = 200
 
 
 def run(argv: list[str], *, env: dict[str, str], cwd: Path, allow_failure: bool = False, timeout: float = 1200) -> subprocess.CompletedProcess[str]:
@@ -23,7 +24,7 @@ def run(argv: list[str], *, env: dict[str, str], cwd: Path, allow_failure: bool 
         proc = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr, **options)
         try:
             proc.wait(timeout=timeout)
-        except BaseException:
+        except BaseException as error:
             if os.name == "nt":
                 subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10, check=False)
             else:
@@ -32,6 +33,13 @@ def run(argv: list[str], *, env: dict[str, str], cwd: Path, allow_failure: bool 
                 except ProcessLookupError:
                     pass
             proc.wait(timeout=10)
+            if isinstance(error, subprocess.TimeoutExpired):
+                # Without this the killed child's output is discarded and a slow step cannot be located.
+                for label, stream in (("stdout", stdout), ("stderr", stderr)):
+                    stream.seek(0)
+                    tail = stream.read().decode("utf-8", errors="replace").splitlines()[-TIMEOUT_TAIL_LINES:]
+                    print(f"--- {Path(argv[0]).name} {label} before the {timeout:g}s timeout (last {len(tail)} lines) ---", file=sys.stderr)
+                    print("\n".join(tail), file=sys.stderr)
             raise
         stdout.seek(0)
         stderr.seek(0)

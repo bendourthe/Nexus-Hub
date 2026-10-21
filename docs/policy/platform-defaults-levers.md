@@ -28,7 +28,7 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 | Platform (registry id) | Class | Lever keys | Config file | Surface alignment | Source | Verified |
 |---|---|---|---|---|---|---|
 | `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits`, `attribute-author`, `attribute-committer`, `attribute-co-authored-by`, `attribute-commit-message-author`, `attribute-commit-message-committer`, `git-commit-verify`, `read` | `.aider.conf.yml` | Exact | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-09-14 |
-| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-30 |
+| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/settings?tab=ide) | 2026-10-20 |
 | `antigravity2` | VERIFIED | `agentMode` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://www.antigravity.google/docs/cli/modes/) | 2026-10-10 |
 | `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL`, `env.CLAUDE_CODE_SUBAGENT_MODEL` (plus per-model `modelSettings`, now seeded), `attribution.commit`, `attribution.pr` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [configuration](https://code.claude.com/docs/en/configuration), [model-config](https://code.claude.com/docs/en/model-config), [settings-reference](https://code.claude.com/docs/en/settings-reference), [subagents](https://code.claude.com/docs/en/sub-agents) | 2026-10-16 |
 | `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-10-01 |
@@ -266,3 +266,7 @@ The three requested Claude effort references and the current models overview wer
 ### 2026-10-18 - v4.14.0 scoped release verification
 
 The current platform discovery pass reuses the genuine October 16 Claude subagent and effort-delivery evidence above. Discovery references do not requalify every behavioral default. All other lever rows retain their prior dates and classifications, including partial and unverified surfaces. No memory lever, approval policy or seeded default changes in this release step. This remains an advisory record without a freshness gate.
+
+### 2026-10-20 - v4.14.1 release verification
+
+Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.

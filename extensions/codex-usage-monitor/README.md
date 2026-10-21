@@ -102,7 +102,7 @@ chatgpt-account-id: {account_id}
 Accept: application/json
 ```
 
-The `chatgpt-account-id` header is omitted for a synthetic (`email_` / `local_`) account id. The response's primary and secondary rate-limit windows map to the session and weekly metrics; detailed monthly credit data maps to the Extra Credits progress bar, while simpler balance-only payloads retain the text summary. The plan type and any additional rate limits appear as extra dashboard rows. The endpoint is undocumented, so the payload is parsed defensively: any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state instead of an error.
+The `chatgpt-account-id` header is omitted for a synthetic (`email_` / `local_`) account id. The response's primary and secondary rate-limit windows map to the session and weekly metrics; detailed monthly credit data maps to the Extra Credits progress bar, while simpler balance-only payloads retain the text summary. Any additional rate limits appear as extra dashboard rows. The dashboard's **Current Model** section shows the top-level `model` key of the `config.toml` beside the credential file (the value Codex's model picker saves), read on each refresh, or "Codex default" when no model is pinned; usage itself is account-wide, so the model is display-only. The endpoint is undocumented, so the payload is parsed defensively: any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state instead of an error.
 
 The Codex credential is located, most-specific first: the `codexUsage.authPath` setting, then `CODEX_HOME/auth.json` when `CODEX_HOME` is set, otherwise `~/.codex/auth.json`. Set `codexUsage.authPath` if your Codex app stores its credential elsewhere.
 

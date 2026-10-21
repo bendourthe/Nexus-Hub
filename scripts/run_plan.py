@@ -33,6 +33,7 @@ headless lever is VERIFIED.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import json
 import os
 import re
@@ -356,21 +357,22 @@ class Scope:
 
     def __init__(self, target: str) -> None:
         self.minor = bool(MINOR_TOKEN.match(target))
+        self.repo_root = Path.cwd().resolve()
         self.label = target if self.minor else validate_plan(target).as_posix()
         found = PLAN_VERSION.match(Path(self.label).name)
         self.version = target if self.minor else (found.group(1) if found else "")
 
     def path(self) -> list[str]:
-        return ["record", "path", "--minor", self.label] if self.minor else ["record", "path", self.label]
+        return ["record", "path", "--minor", self.label, "--repo", str(self.repo_root)] if self.minor else ["record", "path", self.label]
 
     def check(self) -> list[str]:
-        return ["check-minor", self.label] if self.minor else ["check", self.label]
+        return ["check-minor", self.label, "--repo", str(self.repo_root)] if self.minor else ["check", self.label]
 
     def score(self) -> list[str]:
-        return ["score-minor", self.label] if self.minor else ["score", self.label]
+        return ["score-minor", self.label, "--repo", str(self.repo_root)] if self.minor else ["score", self.label]
 
     def block(self, category: str, evidence: str) -> list[str]:
-        scope = ["--minor", self.label] if self.minor else [self.label]
+        scope = ["--minor", self.label, "--repo", str(self.repo_root)] if self.minor else [self.label]
         return ["record", "block", *scope, "--category", category, "--evidence", evidence]
 
 
@@ -378,6 +380,8 @@ class Lock:
     def __init__(self, record: Path) -> None:
         self.path = record.with_name(record.stem + ".runner.lock")
         self.held = False
+        self.identity: tuple[int, int] | None = None
+        self.pid_written = False
 
     def __enter__(self) -> Lock:  # noqa: PYI034 - typing.Self needs 3.11; installers support 3.10
         try:
@@ -389,9 +393,16 @@ class Lock:
             fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except FileExistsError as exc:
             raise RunnerError("another runner already holds this run record") from exc
-        os.write(fd, str(os.getpid()).encode("ascii"))
-        os.close(fd)
-        self.held = True
+        try:
+            info = os.fstat(fd)
+            self.identity = (info.st_dev, info.st_ino)
+            self.held = True
+            payload = str(os.getpid()).encode('ascii')
+            if os.write(fd, payload) != len(payload):
+                raise OSError('incomplete runner lock write')
+            self.pid_written = True
+        finally:
+            os.close(fd)
         return self
 
     def refresh(self) -> None:
@@ -404,15 +415,30 @@ class Lock:
                 pass
 
     def __exit__(self, *_exc: object) -> None:
-        # Remove only our own lock: a runner that outlived the stale window must not
-        # delete the lock a second runner has since taken.
-        if self.held:
-            try:
-                owner = self.path.read_text(encoding="ascii").strip()
-            except OSError:
+        # PID text alone cannot distinguish a replaced file from the one we created.
+        if not self.held or self.identity is None:
+            return
+        try:
+            entry = self.path.lstat()
+            if (entry.st_dev, entry.st_ino) != self.identity:
+                self.held = False
                 return
-            if owner == str(os.getpid()):
-                self.path.unlink(missing_ok=True)
+            with self.path.open('r', encoding='ascii') as handle:
+                opened = os.fstat(handle.fileno())
+                if (opened.st_dev, opened.st_ino) != self.identity:
+                    return
+                owner = handle.read().strip()
+            current = self.path.lstat()
+            if (current.st_dev, current.st_ino) != self.identity:
+                self.held = False
+                return
+            if self.pid_written and owner != str(os.getpid()):
+                return
+            self.path.unlink()
+            self.held = False
+        except (OSError, UnicodeError):
+            # Uncertain filesystem ownership must never remove another entry.
+            return
 
 
 def record_blocker(scope: Scope, category: str, evidence: str) -> int:
@@ -456,6 +482,38 @@ def _launch(argv: list[str], backoff: float, settled: Callable[[int], bool] | No
     return -1
 
 
+
+def _verified_runner_minor(record_path: Path, record: dict):
+    import check_plan_completion as ck
+    try:
+        ctx, verified = ck.resolve_minor_controller(record_path, str(record.get('session_id') or ''))
+    except (OSError, ValueError, ck.Malformed) as exc:
+        raise RunnerError('minor controller could not be verified') from exc
+    if Path.cwd().resolve() != ctx.root:
+        raise RunnerError('restart run-plan from the verified operational controller')
+    return ctx, verified
+
+
+@contextmanager
+def controller_runner_lock(scope, record_path: Path, record: dict):
+    if not scope.minor:
+        with Lock(record_path) as lock:
+            yield lock
+        return
+    import check_plan_completion as ck
+    lock = Lock(record_path)
+    try:
+        try:
+            with ck.minor_transaction(record):
+                lock.__enter__()
+        except (ck.Malformed, OSError) as exc:
+            raise RunnerError(f'minor runner acquisition failed: {exc}') from exc
+        yield lock
+    finally:
+        # Covers lease-exit, CAS and I/O failures after exclusive lock creation.
+        lock.__exit__(None, None, None)
+
+
 def run(plan_arg: str, row: str, max_cycles: int) -> int:
     if row not in TEMPLATES:
         raise RunnerError(
@@ -474,15 +532,37 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         record = json.loads(record_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise RunnerError(f"run record unreadable: {record_path}") from exc
+    minor_ctx = None
+    if scope.minor:
+        minor_ctx, record = _verified_runner_minor(record_path, record)
+        scope.repo_root = minor_ctx.root
     approved = {c.get("class") for c in record.get("approvals", {}).get("classes", [])}
     reason = bypass_configured(row)
-    if reason and "unattended-with-bypass" not in approved:
+    full_access = False
+    context = record.get('approvals', {}).get('authorization_context') or {}
+    if (context.get('origin') in {'host-hook-capture', 'codex-host-transcript'}
+            and context.get('permission_mode') == 'bypassPermissions'
+            and context.get('session_id') == record.get('session_id')):
+        # record path only locates a file. A terminal check must authenticate it before this mode is trusted.
+        verified_rc, verified_out = _checker_run(scope.check())
+        if verified_rc not in (0, 1, 3, 4) or verified_out.startswith('BLOCKED: record-tampered'):
+            raise RunnerError('run record authorization could not be verified')
+        import approval_binding
+        try:
+            import check_plan_completion as ck
+            roots = ck._host_cwds(minor_ctx) if minor_ctx is not None else {str(Path.cwd().resolve())}
+            current = approval_binding.current_host_context(record_path.parent, record, roots,
+                historical_cwds=ck.historical_host_cwds(record) if scope.minor else set())
+            full_access = approval_binding.full_access_authorization(record, current)
+        except ValueError:
+            full_access = False
+    if reason and "unattended-with-bypass" not in approved and not full_access:
         raise RunnerError(
             f"{reason}; approve the unattended-with-bypass class upfront or remove the setting"
         )
     binary = resolve_binary(launch("x")[0])
     backoff = float(os.environ.get("NEXUS_RUNNER_BACKOFF", "5"))
-    with Lock(record_path) as lock:
+    with controller_runner_lock(scope, record_path, record) as lock:
         # A run whose verdict is already terminal (the first turn completed it, a
         # blocker was recorded, or the user paused it) has nothing to resume, and a
         # resumed session there only spends money restating the stop.

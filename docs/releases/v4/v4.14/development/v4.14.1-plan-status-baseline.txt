@@ -1,0 +1,2851 @@
+### docs/archives/v0/v0.9/plans/adoption-claude-context.md
+
+exit 0
+
+**Plan**: Plan — Adopt `zilliztech/claude-context` Patterns into DevAI-Hub
+**Target version**: v0.9.7
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Retrofit `rag-implementation` Skill | not started | 0/0 |
+| 2. MCP Registry Entry for `claude-context` | not started | 0/0 |
+| 3. Create `code-semantic-search` Skill | not started | 0/0 |
+| 4. Cross-Link Context Skills to `code-semantic-search` | not started | 0/0 |
+| 5. Skill-Server MCP Benchmark + Unit Test | not started | 0/0 |
+| 6. Release v0.9.8 | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v1/v1.0/plans/adoption-mattpocock-skills.md
+
+exit 0
+
+**Plan**: Plan -- Adopt mattpocock/skills (selective)
+**Target version**: v1.0.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation -- `github-workflow/` Category and `disable-model-invocation` Support | not started | 0/0 |
+| 2. P0 Skill-Native Quick Wins | not started | 0/0 |
+| 3. P1 GitHub-Issue-Driven Workflows | not started | 0/0 |
+| 4. P1 Maintainer-Side -- GitHub Issue Triage State Machine | not started | 0/0 |
+| 5. P2 Niche-but-Good | not started | 0/0 |
+| 6. P3 Pattern Absorption into Existing Skills | not started | 0/0 |
+| 7. re-partial -- Husky Quick-Start in `pre-commit-checklist` | not started | 0/0 |
+| 8. Final Validation, Multi-Platform Sync, Changelog, Commit | not started | 0/0 |
+
+**0 of 8 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v1/v1.0/plans/security-hardening-v100.md
+
+exit 0
+
+**Plan**: Plan — v1.0.0: Reverse-Engineering-First Security Hardening
+**Target version**: v1.0.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 0. Revert Phase 2 and Abandon the Old Adoption Plan | not started | 0/0 |
+| 1. MCP Registry Policy with Reverse-Engineering-First Decision Tree | not started | 0/0 |
+| 2. Reverse-Engineering Matrix | not started | 0/0 |
+| 3. Apply the Matrix to the Registry and Integration Docs | not started | 0/0 |
+| 4. De-brand Phase 1 Skill Content | not started | 0/0 |
+| 5. `/compare-project` Extension with Reverse-Engineering-First `/generate-plan` Handoff | not started | 0/0 |
+| 6. Build `devai-code-search` MVP (Keyword-Only) | not started | 0/0 |
+| 7. `devai-web-fetch` MCP + LLM-Native Skill Replacements for `context7` / `magic-ui` | not started | 0/0 |
+| 8. Reverse-Engineered `code-semantic-search` Skill (De-branded) | not started | 0/0 |
+| 9. Cross-Link Existing Context Skills to `code-semantic-search` | not started | 0/0 |
+| 10. Internal MCP Benchmark Harness | not started | 0/0 |
+| 11. Release v1.0.0 | not started | 0/0 |
+
+**0 of 12 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v1/v1.1/plans/adoption-skills.md
+
+exit 0
+
+**Plan**: Plan -- Adoption of anthropics/skills patterns
+**Target version**: v1.1.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Skill-native doc edits | not started | 0/0 |
+| 2. P0 cleanup + doc-coauthoring skill (A4, A9) | not started | 0/0 |
+| 3. Per-skill `scripts/` / `references/` / `assets/` layout convention (A13) | not started | 0/0 |
+| 4. Net-new content skills, batch 1 (A1, A3, A8, A10) | not started | 0/0 |
+| 5. skill-eval-loop + description optimizer (A6, A7) | not started | 0/0 |
+| 6. brand-styling + mcp-builder (A2, A5) | not started | 0/0 |
+| 7. .skill packager (optional, A16) | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v1/v1.3/plans/adoption-pm-claude-skills.md
+
+exit 0
+
+**Plan**: Plan -- Adoption of pm-claude-skills (engineering subset + marketing patterns)
+**Target version**: v1.3.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Pre-flight -- Schema and Naming Audit | not started | 0/0 |
+| 2. P0 Skill-Native Adoptions | not started | 0/0 |
+| 3. P1 Skill-Native Adoptions | not started | 0/0 |
+| 4. Re-Full -- Engineering Bundle Expansion | not started | 0/0 |
+| 5. Marketing Pattern Adoption | not started | 0/0 |
+| 6. Final Validation, CHANGELOG, Version Bump Prep | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v1/v1.3/plans/audit-category-placement.md
+
+exit 0
+
+**Plan**: Audit -- Category Placement and Slug Uniqueness (Phase 1.1)
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v2/v2.0/plans/nexus-hub-rename.md
+
+exit 0
+
+**Plan**: Plan -- Rename DevAI-Hub to Nexus-Hub and Modernize Branding
+**Target version**: v2.0.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation, Inventory, Naming Canon | not started | 0/0 |
+| 2. Catalog Metadata and `data/` Registries | not started | 0/0 |
+| 3. Installer Rebrand + ASCII Banner + Migration Path | not started | 0/0 |
+| 4. Extensions, Internal MCPs, `scripts/` Rename | not started | 0/0 |
+| 5. Hooks, Commands, Skills, Rules, Templates Sweep | not started | 0/0 |
+| 6. README Modernization + Nexus Logo + Brand Linkage | not started | 0/0 |
+| 7. Docs / Config / DevLog / Gitignore Sync + CHANGELOG | not started | 0/0 |
+| 8. Validation, Carry-Forward Known-Gaps, Version Bump | not started | 0/0 |
+
+**0 of 8 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v2/v2.1/plans/adoption-spec-kit.md
+
+exit 0
+
+**Plan**: Plan -- Spec-Kit Adoption (v2.1.0 + v2.2.0+)
+**Target version**: v2.0.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation - Constitution + Clarification Marker Discipline | not started | 0/0 |
+| 2. Constitution Check Gate in `/generate-plan` | not started | 0/0 |
+| 3. Cross-Artifact Spec Analyzer | not started | 0/0 |
+| 4. Spec Template Upgrade - User Stories + Requirement IDs | not started | 0/0 |
+| 5. Clarification Loop + Spec Quality Checklist | not started | 0/0 |
+| 6. Task Discipline - `[P]/[US#]` Labels + Phase Organization | not started | 0/0 |
+| 7. Feature Directories + GitHub Issues Conversion | not started | 0/0 |
+| 8. v2.1.0 Release Stabilization | not started | 0/0 |
+| 9. P3 Polish - Methodology Essay, Devcontainer, Markdownlint Config, Installer Test | not started | 0/0 |
+| 10. Integration Registry Refactor (G12, re-full, v2.2.0+) | not started | 0/0 |
+
+**0 of 10 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v2/v2.2/plans/adoption-antigravity-sdk-python.md
+
+exit 0
+
+**Plan**: Plan - Adopt antigravity-sdk-python catalog content
+**Target version**: v2.2.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Core adoption (P0) | complete | 7/7 |
+| 2. Pattern references (P1) | complete | 5/5 |
+| 3. Cross-link polish (P2) and final validation | complete | 5/5 |
+
+**3 of 3 phases complete; 17 of 17 tasks.**
+
+### docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md
+
+exit 0
+
+**Plan**: Plan - CodeGraph adoption + Gemini-to-Antigravity transition
+**Target version**: v2.2.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Installer foundation refactor | complete | 6/6 |
+| 2. Gemini-to-Antigravity CLI transition (time-critical, ship before 2026-06-18) | complete | 8/8 |
+| 3. Installer rigor + legacy-platform parity migration | in progress | 7/8 |
+| 4. Code-graph foundation - nexus-code-search v2.0 | complete | 6/6 |
+| 5. Code-graph capabilities - frameworks, affected-tests, eval harness | complete | 6/6 |
+| 6. Polish, data-registry rebaseline, and release | complete | 6/6 |
+
+**5 of 6 phases complete; 39 of 40 tasks.**
+
+### docs/archives/v2/v2.3/plans/adoption-ecc-cybersec-skills.md
+
+exit 0
+
+**Plan**: Plan — Adopt ECC + Anthropic-Cybersecurity-Skills (reverse-engineer-first)
+**Target version**: v2.3.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Skill-native foundations | complete | 3/3 |
+| 2. Security & quality CI validators | complete | 3/3 |
+| 3. Runtime learning | complete | 3/3 |
+| 4. Installer lifecycle & selective install | complete | 4/4 |
+| 5. Skill quality tooling | complete | 3/3 |
+| 6. Framework coverage + defensive security content | complete | 5/5 |
+| 7. [known-gaps] Installer instruction-file parity | complete | 4/4 |
+| 8. [known-gaps] Code-graph quality & extractor expansion | complete | 6/6 |
+| 9. [known-gaps] Live-environment verification | complete | 5/5 |
+
+**9 of 9 phases complete; 36 of 36 tasks.**
+
+### docs/archives/v2/v2.3/plans/adoption-superpowers.md
+
+exit 0
+
+**Plan**: Plan — Superpowers Adoption (process-discipline skills)
+**Target version**: v2.3.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. New discipline skills | complete | 5/5 |
+| 2. Skill-authoring methodology upgrade | complete | 3/3 |
+| 3. Discipline framing + operational enhancements | complete | 5/5 |
+| 4. Eval-harness trigger techniques | complete | 4/4 |
+| 5. Flaky-test tooling cluster | complete | 3/3 |
+| 6. Deferral record + polish | complete | 3/3 |
+
+**6 of 6 phases complete; 23 of 23 tasks.**
+
+### docs/archives/v2/v2.4/plans/adoption-compound-engineering-plugin.md
+
+exit 0
+
+**Plan**: Plan — Adopt Compound Engineering Plugin Capabilities (reverse-engineer-first)
+**Target version**: v2.4.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation — Knowledge Base + Scoring Discipline | complete | 7/7 |
+| 2. Persona Review Pipeline | complete | 5/5 |
+| 3. Close the Compound Loop | complete | 4/4 |
+| 4. Remaining Skill-Native | complete | 3/3 |
+| 5. Internal RE Builds (re-full) | complete | 3/3 |
+| 6. Internal RE Builds (re-partial) | complete | 3/3 |
+| 7. Catalog-Quality + Hygiene Remediation (ingested known-gaps) | complete | 10/10 |
+| 8. Live Verification + Release Readiness (ingested known-gaps) | complete | 1/1 |
+
+**8 of 8 phases complete; 36 of 36 tasks.**
+
+### docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md
+
+exit 0
+
+**Plan**: Plan -- v3.0.0: Command Consolidation + Skill-Security Scanner + Orchestration Adoption
+**Target version**: v3.0.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation -- version-sync guard + command scaffolding | not started | 0/4 |
+| 2. skill-native adoptions (reverse-engineer-first) | not started | 0/5 |
+| 3. Core lifecycle commands I (describe, plan, implement, test) | not started | 0/5 |
+| 4. Review + Update commands (the two largest merges) | not started | 0/3 |
+| 5. Remaining commands + permanent aliases | not started | 0/8 |
+| 6. nexus-skill-scanner engine (re-full) | not started | 0/7 |
+| 7. scanner optional modules (re-partial) | not started | 0/3 |
+| 8. Deprecation shims + migration + count reconciliation | not started | 0/4 |
+| 9. Ingested known-gaps (carried forward from v2.4.0) | not started | 0/4 |
+| 10. Live verification + release readiness | not started | 0/6 |
+
+**0 of 10 phases complete; 0 of 49 tasks.**
+
+### docs/archives/v3/v3.1/plans/adoption-claude-red.md
+
+exit 0
+
+**Plan**: Plan -- Adopt Claude-Red offensive methodology (selective, scope-gated)
+**Target version**: v3.1.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Low-collision skill-native ships (skill-native) | complete | 4/4 |
+| 2. Scanner allowlist prerequisite gate (skill-native enabler) | complete | 2/2 |
+| 3. Web AppSec methodology fold-in (skill-native) | complete | 3/3 |
+| 4. Auth attack methodology fold-in (skill-native) | complete | 2/2 |
+| 5. Ask-First category decision (gate -- maintainer sign-off) | complete | 2/2 |
+
+**5 of 5 phases complete; 13 of 13 tasks.**
+
+### docs/archives/v3/v3.1/plans/adoption-dynamic-workflows.md
+
+exit 0
+
+**Plan**: Plan -- Adopt the Dynamic Workflows residual gap (workflow-as-skill-bundle)
+**Target version**: v3.1.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Workflow-bundle convention (skill-native) | complete | 3/3 |
+| 2. Pilot on high-value read-only skills (skill-native) | complete | 3/3 |
+| 3. Minor orchestration enrichments (skill-native) | complete | 3/3 |
+
+**3 of 3 phases complete; 9 of 9 tasks.**
+
+### docs/archives/v3/v3.1/plans/v3.1.0-adoption-roadmap.md
+
+exit 0
+
+**Plan**: Plan -- v3.1.0 External-Source Adoption Roadmap (master)
+**Target version**: v3.1.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.10/plans/adoption-ruflo.md
+
+exit 0
+
+**Plan**: Plan -- Ruflo Adoption (defensive-egress + supply-chain-verify + harness-grading doctrine)
+**Target version**: v3.10.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Egress / PII redaction skill (skill-native, P0) | not started | 0/0 |
+| 2. Prompt-injection-defense skill (skill-native, P1) | not started | 0/0 |
+| 3. Competitive-generation enrichment + SPARC note decision (skill-native, P2 / optional P3) | not started | 0/0 |
+| 4. `nexus-hub verify` supply-chain command (re-full, P1) | not started | 0/0 |
+| 5. Agent-setup grade + regression diff (re-partial, P2) | not started | 0/0 |
+| 6. Advisory worker-check hooks + consolidation (re-partial, P3) | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.11/plans/adoption-davidondrej-skills.md
+
+exit 0
+
+**Plan**: Plan -- davidondrej/skills Adoption (research-brief technique + grill-me interactive mode + YouTube-transcript skill)
+**Target version**: v3.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Research-brief authoring technique (skill-native, C2) | not started | 0/0 |
+| 2. Grill-me interactive mode (skill-native, C3) | not started | 0/0 |
+| 3. YouTube-transcript skill (re-full, C1) | not started | 0/0 |
+| 4. Declines, CHANGELOG, and validation sweep (consolidation) | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.11/plans/adoption-pxpipe.md
+
+exit 0
+
+**Plan**: Plan -- pxpipe Adoption (optical / image-token compression doctrine, mechanism declined)
+**Target version**: v3.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Optical-compression doctrine in `prompt-token-optimization` (skill-native, P2) | not started | 0/0 |
+| 2. Model-specificity note + decline bookkeeping (skill-native, P3) | not started | 0/0 |
+
+**0 of 2 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.11/plans/adoption-spec-kit.md
+
+exit 0
+
+**Plan**: Plan -- Spec Kit Third-Cycle Adoption (convergence discipline + Copilot skills surface + roster and supply-chain hygiene)
+**Target version**: v3.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Convergence discipline (skill-native, P1) | not started | 0/0 |
+| 2. Label-gated pipeline pattern skill + vocabulary folds (skill-native, P2) | not started | 0/0 |
+| 3. Integration roster verification + action (P1) | not started | 0/0 |
+| 4. Hardening pair (re-full, P1) | not started | 0/0 |
+| 5. Copilot native skills surface (re-full, P1) | not started | 0/0 |
+| 6. Decline durability + consolidation | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.11/plans/adoption-t3mp3st.md
+
+exit 0
+
+**Plan**: Plan -- T3MP3ST Adoption (local-agent-hijack defensive recognition + benchmark-receipt discipline + dangerous-action approval gate)
+**Target version**: v3.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Local coding-agent hijack recognition (skill-native, C1, flagship) | not started | 0/0 |
+| 2. Benchmark-receipt discipline (skill-native, C2) | not started | 0/0 |
+| 3. Dangerous-action approval-gate pattern (skill-native, C3) | not started | 0/0 |
+| 4. Declines, CHANGELOG, and validation sweep (consolidation) | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md
+
+exit 0
+
+**Plan**: Plan - Workflow-Governance Refinements
+**Target version**: v3.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Canonical docs-layout scheme | not started | 0/0 |
+| 2. Project-bootstrap governance (setup / describe / review) | not started | 0/0 |
+| 3. Mandatory final refactor + known-gaps + CI/CD phase in planning | not started | 0/0 |
+| 4. Refactor-engine upgrade (project-refactor) | not started | 0/0 |
+| 5. Implement + update integration | not started | 0/0 |
+| 6. Command robustness (compare source-security + presentify visual-QA) | not started | 0/0 |
+| 7. Cross-platform distribution robustness (every platform actually surfaces the catalog) | not started | 0/0 |
+| 8. Nexus-Hub self-application (dogfood) - the mandatory final refactor phase | not started | 0/0 |
+
+**0 of 8 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.12/plans/v3.12.0-presentify-fidelity-and-variety.md
+
+exit 0
+
+**Plan**: Plan -- /presentify fidelity, interactivity, and design-variety overhaul
+**Target version**: v3.12.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Extraction fidelity (extractor + content model v2) | not started | 0/0 |
+| 2. Faithful figure reconstruction protocol (LLM-native) | not started | 0/0 |
+| 3. Site-wide interaction layer | not started | 0/0 |
+| 4. Design-entropy engine and run history | not started | 0/0 |
+| 5. Fidelity verification, worked example, and registration sync | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md
+
+exit 0
+
+**Plan**: Plan - Cross-Platform Install Adapters + Per-Release Format Verification
+**Target version**: v3.12.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation - living contract doc + shared adapters | not started | 0/0 |
+| 2. Codex / ChatGPT desktop adapter | not started | 0/0 |
+| 3. Antigravity adapter fix | not started | 0/0 |
+| 4. Cross-platform sweep | not started | 0/0 |
+| 5. Per-release verification gate | not started | 0/0 |
+| 6. Architecture refactor, known-gaps reconciliation, CI/CD, and release readiness | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.13/plans/v3.13.0-presentify-imagery-and-interactivity.md
+
+exit 0
+
+**Plan**: Plan -- /presentify imagery + interactivity (professional / journalistic visuals)
+**Target version**: v3.13.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Imagery + interactivity foundation | not started | 0/0 |
+| 2. Tier 2 -- license-free stock media (opt-in, consent-gated) | not started | 0/0 |
+| 3. Tier 3 -- local AI-generated images (opt-in) | not started | 0/0 |
+| 4. Command surface, worked examples, registration, validation | not started | 0/0 |
+| 5. Refactor, known-gaps, CI/CD, release-readiness | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.13/plans/v3.13.0-presentify-universal-ingestion.md
+
+exit 0
+
+**Plan**: Plan -- /presentify universal ingestion (any file type + whole repos), image prominence, spacing, and output-aspect control
+**Target version**: v3.13.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Universal ingestion (new formats + recursive repo walk) | not started | 0/0 |
+| 2. Image prominence preservation | not started | 0/0 |
+| 3. Spacing / density discipline + output-aspect control | not started | 0/0 |
+| 4. Command surface, worked example, registration sync, validation | not started | 0/0 |
+| 5. Architecture refactor, known-gaps reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md
+
+exit 0
+
+**Plan**: Plan - Agentic-Setup Checklist Adoption
+**Target version**: v3.14.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Skill-native quick wins - false-confidence test audit + commit sweep | not started | 0/0 |
+| 2. Skill-native lint-repair loop + deterministic autofix hook | not started | 0/0 |
+| 3. Performance-regression gate | not started | 0/0 |
+| 4. Visual-regression discipline | not started | 0/0 |
+| 5. Performance profiling harness | not started | 0/0 |
+| 6. Skill-native conventions and refinements | not started | 0/0 |
+| 7. End-of-shift full-validation orchestrator | not started | 0/0 |
+| 8. Refactor, known-gaps reconciliation, CI/CD, and release readiness | not started | 0/0 |
+
+**0 of 8 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md
+
+exit 0
+
+**Plan**: Plan - codex-lb Adoption
+**Target version**: v3.14.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Codex Usage Monitor (unified multi-provider extension) | not started | 0/0 |
+| 2. Skill-native review/verification cluster (C4 + C3 + C6) | not started | 0/0 |
+| 3. Spec/context split + spec-as-merge-gate convention (C5) | not started | 0/0 |
+| 4. Declarative skill-activation ruleset + guard/tracker hooks (C1) | not started | 0/0 |
+| 5. Cross-model review recipe concretization (C2) | not started | 0/0 |
+| 6. Refactor, known-gaps reconciliation, CI/CD, and release readiness | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.1-installer-hotfix.md
+
+exit 0
+
+**Plan**: Plan - Installer Hotfix (Global Manifest Path + Orphaned Auth-Monitor Cleanup)
+**Target version**: v3.14.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Global Manifest Path + Graceful Degradation | not started | 0/0 |
+| 2. Orphaned Auth-Monitor Scheduled-Task Cleanup | not started | 0/0 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.2-comparison-versioning-fix.md
+
+exit 0
+
+**Plan**: Plan - Comparison Versioning Fix (Adoption-Target Placement + Co-location + Drift Check)
+**Target version**: v3.14.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Adoption-Target Placement (Fix A) | not started | 0/0 |
+| 2. From-Comparison Co-location (Fix B) | not started | 0/0 |
+| 3. Co-location Drift Check (Fix C) + Reconcile | not started | 0/0 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.3-presentify-upfront-questions.md
+
+exit 0
+
+**Plan**: Plan - Presentify Upfront Design Questions (Batch the Four High-Level Choices Before Content Analysis)
+**Target version**: v3.14.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 0. Restore Skill Loading (BLOCKING - Fix Invalid YAML Frontmatter + Claude Flatten) | not started | 0/0 |
+| 1. Hoist and Batch the Four Design Questions | not started | 0/0 |
+| 2. Imagery Question Upgrade (Stock-First Priority + Gated Stock Video) | not started | 0/0 |
+| 3. Bring-Your-Own-Key Media Setup + First-Time Guidance | not started | 0/0 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.4-usage-monitor-split.md
+
+exit 0
+
+**Plan**: Plan - Split the Usage Monitor into Two Separate Extensions (Claude-only + Codex-only)
+**Target version**: v3.14.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. De-Codex the Claude Extension | not started | 0/0 |
+| 2. Scaffold the Codex Usage Monitor Extension | not started | 0/0 |
+| 3. Distribution and Coexistence Wiring | not started | 0/0 |
+| 4. Refactor, Known-Gaps Reconciliation, Docs, Version, and CI/CD (Mandatory Final Phase) | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.14/plans/v3.14.5-installer-ux-and-monitor-fixes.md
+
+exit 0
+
+**Plan**: Plan - Installer UX Modernization, Codex Monitor Fixes, and Mandatory Contract Verification
+**Target version**: v3.14.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Runner structured per-surface results | not started | 0/0 |
+| 2. Installer checklist log, undetected grouping, and colors | not started | 0/0 |
+| 3. End-of-run spacing and vendor-split utilities | not started | 0/0 |
+| 4. Codex monitor - usage data and theme-adaptive dashboard icon | not started | 0/0 |
+| 5. Cross-extension status bar ordering and compact mode | not started | 0/0 |
+| 6. Mandatory platform-contract verification gate | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.0-platform-parity-all-gaps.md
+
+exit 0
+
+**Plan**: Plan - Platform Feature Parity (All Addressable Gaps)
+**Target version**: v3.15.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Capability model and read-contract web re-verification | not started | 0/0 |
+| 2. Cursor parity | not started | 0/0 |
+| 3. OpenCode parity | not started | 0/0 |
+| 4. Qwen and Kimi reclassification | not started | 0/0 |
+| 5. Copilot skill broadening | not started | 0/0 |
+| 6. Installer checklist and runtime verify parity | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.1-adoption-codesight.md
+
+exit 0
+
+**Plan**: Plan - CodeSight Adoption (deterministic context-map extraction)
+**Target version**: v3.15.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Compiled context-map generator + one-shot CLI (A, H-cli) | not started | 0/0 |
+| 2. Framework extraction I - routes + env + middleware (B part 1) | not started | 0/0 |
+| 3. Framework extraction II - schema + components + events (B part 2) | not started | 0/0 |
+| 4. Graph enrichment - hot files + git-scoped change map (C, G) | not started | 0/0 |
+| 5. Measurement + health - token benchmark + map lint (D, E) | not started | 0/0 |
+| 6. Knowledge layer - ADR/decision/retro extractor (F) | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.10-end-of-task-agent-behavior.md
+
+exit 0
+
+**Plan**: v3.15.10 - End-of-Task Agent Behavior
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Notification Contract and Claude Code Delivery | complete | 10/10 |
+| 2. End-of-Task Summary Rule Across Every Instruction Template | complete | 9/9 |
+| 3. Cross-Platform Notification Coverage and Cursor Contract Settlement | complete | 5/5 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**3 of 4 phases complete; 24 of 24 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md
+
+exit 0
+
+**Plan**: v3.15.12 - Cursor Live Transport and GitHub Billing Monitor
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Cursor Consent-Gated Live Transport | complete | 9/9 |
+| 2. Cursor Usage UI | complete | 5/5 |
+| 3. Rename to GitHub Billing Usage | complete | 7/7 |
+| 4. GitHub Auth via the VS Code Session | complete | 5/5 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**4 of 5 phases complete; 26 of 26 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.13-cursor-live-usage-and-monitor-parity.md
+
+exit 0
+
+**Plan**: v3.15.13 - Cursor Live Usage and Monitor Parity
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 6. The Real Cursor Usage Route (added mid-version) | complete | 10/10 |
+| 7. Visual Parity With the Sibling Monitors (added mid-version) | complete | 8/8 |
+| 8. Component-Level Parity With the Sibling Monitors (added mid-version) | complete | 7/7 |
+| 9. Interaction Fixes From Maintainer Review (added mid-version) | complete | 6/6 |
+
+**4 of 4 phases complete; 31 of 31 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.14-spec-driven-development.md
+
+exit 0
+
+**Plan**: Plan - spec artifact reconciliation and proportional spec depth
+**Target version**: v3.15.14
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Reconcile the spec artifact (D1, D2, D7) | not started | 0/0 |
+| 2. Proportional spec depth (D6, D5) | not started | 0/0 |
+| 3. Plan-layer conventions (D4, D3) | not started | 0/0 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.2-adoption-awesome-llm-apps.md
+
+exit 0
+
+**Plan**: Plan - awesome-llm-apps Adoption (skill-quality trigger-and-routing eval cluster)
+**Target version**: v3.15.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Catalog-wide trigger-and-routing eval (A1) | not started | 0/0 |
+| 2. Unfilled-placeholder lint (A3) | not started | 0/0 |
+| 3. Per-skill trigger-cases and routing assertions (A2) | not started | 0/0 |
+| 4. Behavioral-eval schema interop (A4) | not started | 0/0 |
+| 5. Hermes roster and shared `.agents/skills/` (A5) | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.3-adoption-no-ai-slop.md
+
+exit 0
+
+**Plan**: Plan - anti-slop-editing skill adoption
+**Target version**: v3.15.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Author the anti-slop-editing skill and bundle | not started | 0/0 |
+| 2. Register and record provenance | not started | 0/0 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.4-presentify-visual-fidelity.md
+
+exit 0
+
+**Plan**: Plan - v3.15.4 Presentify: Visual Fidelity and Iterative Self-Critique
+**Target version**: v3.15.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Full-width canvas contract | not started | 0/0 |
+| 2. Image sizing and placement discipline | not started | 0/0 |
+| 3. Annotated-figure overlay recreation | not started | 0/0 |
+| 4. Reliable stock/mix imagery integration | not started | 0/0 |
+| 5. Iterative multi-agent visual self-critique loop | not started | 0/0 |
+| 6. Command, skill, and registry polish | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.5-model-prompting-research.md
+
+exit 0
+
+**Plan**: Plan - Model-Prompting Research and Auto-Tuning
+**Target version**: v3.15.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Profile-layer contract and validators | not started | 0/0 |
+| 2. Research engine and skill scaffold | not started | 0/0 |
+| 3. Edit-routing classifier and guard-gated auto-apply | not started | 0/0 |
+| 4. Standalone command, skill finalize, and registration | not started | 0/0 |
+| 5. Release integration (advisory governance step) | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.6-adoption-sandbox-escapes.md
+
+exit 0
+
+**Plan**: Plan - agentic-endpoint hardening (sandbox-escapes adoption)
+**Target version**: v3.15.6
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Skill-native foundation | not started | 0/0 |
+| 2. Advisory enforcement | not started | 0/0 |
+| 3. Hard enforcement and monitoring | not started | 0/0 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md
+
+exit 0
+
+**Plan**: Plan - security-hunt enforcement layer
+**Target version**: v3.15.7
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Finding-disposition doctrine | not started | 0/0 |
+| 2. Refutation discipline | not started | 0/0 |
+| 3. Hunt coverage accounting | not started | 0/0 |
+| 4. Anti-costume-rigor | not started | 0/0 |
+| 5. Execution-authorization broker | not started | 0/0 |
+| 6. Closure gate, eval hardening, and the monotonicity invariant | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md
+
+exit 0
+
+**Plan**: Plan - v3.15.8 Platform Capability Parity and GitHub Usage Monitor
+**Target version**: v3.15.8
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contracts, Probes, and Test Foundation | complete | 7/7 |
+| 2. GitHub Billing Provider and Secure Authentication | complete | 9/9 |
+| 3. GitHub Monitor UX, Alerts, and Brand Assets | complete | 9/9 |
+| 4. Installer Distribution, Packaging, and Focused CI | complete | 7/7 |
+| 5. Codex Custom Agents and Native Hooks | not started | 0/0 |
+| 6. Gemini CLI and Qwen Native Hooks | not started | 0/0 |
+| 7. Kimi Custom Agents and TOML Hooks | not started | 0/0 |
+| 8. Copilot Agents, Hooks, and Hermes Verification | not started | 0/0 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**4 of 9 phases complete; 32 of 32 tasks.**
+
+### docs/archives/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md
+
+exit 0
+
+**Plan**: Plan - v3.15.9 Cross-Provider Model Routing and Cursor Usage Monitor
+**Target version**: v3.15.9
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Routing Contract and Plan Template Redesign | complete | 6/6 |
+| 2. Model-Routing Skill and Command Wiring | complete | 6/6 |
+| 3. Cursor Usage Contracts, Auth Probe, and Assets | complete | 7/7 |
+| 4. Cursor Usage Provider and Store | complete | 6/6 |
+| 5. Cursor Monitor UX and Alerts | complete | 5/5 |
+| 6. Installer Host Isolation, Packaging, and CI E2E | complete | 7/7 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**6 of 7 phases complete; 37 of 37 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.0-platform-defaults-config.md
+
+exit 0
+
+**Plan**: Plan - Platform Defaults Config
+**Target version**: v3.16.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Defaults contract, generator, and guard | not started | 0/0 |
+| 2. Per-platform lever research and verification | not started | 0/0 |
+| 3. Wire the verified levers into the defaults and their consumers | not started | 0/0 |
+| 4. Freshness governance and documentation | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md
+
+exit 0
+
+**Plan**: Plan - v3.16.1 Evaluation Methodology and Selective Installation
+**Target version**: v3.16.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Evaluation Contract and RAG Metrics | not started | 0/6 |
+| 2. Evaluation Pipeline Audit Skill | not started | 0/7 |
+| 3. Error Analysis and Evaluator Calibration | not started | 0/5 |
+| 4. Synthetic Data, Human Review, and Skill Quality | not started | 0/6 |
+| 5. Selective Installation Contract and Resolution | not started | 0/7 |
+| 6. Cross-Platform Selective Installation | not started | 0/9 |
+| 7. Distribution, Parity, and Documentation | not started | 0/9 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 8 phases complete; 0 of 59 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md
+
+exit 0
+
+**Plan**: Plan - long-horizon loop state and release-capability gates
+**Target version**: v3.16.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Loop schema: gates, evidence freshness, instance state | not started | 0/0 |
+| 2. Release capability usage gate | not started | 0/0 |
+| 3. Incident archive practice and backfill | not started | 0/0 |
+| 4. Engineering discipline transfers | not started | 0/0 |
+| 5. Local verification tooling | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md
+
+exit 0
+
+**Plan**: Plan - GitHub Usage Monitor rename, first-run connect, and Claude-parity panel UX
+**Target version**: v3.16.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Rename to GitHub Usage Monitor, with settings migration | not started | 0/0 |
+| 2. Allowance and drawdown truth | not started | 0/0 |
+| 3. First-run connection | not started | 0/0 |
+| 4. Panel shell - three buttons, inline settings, teal meters | not started | 0/0 |
+| 5. Settings content and status-bar metric selection | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+| 7. Copilot AI-credit allowance for organization billing | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md
+
+exit 0
+
+**Plan**: Plan - presentify visual overhaul (responsive layout, real visual QA, intake redesign, cinematic absorption)
+**Target version**: v3.16.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Fluid layout + readability contract | not started | 0/0 |
+| 2. SVG diagram-quality contract | not started | 0/0 |
+| 3. Real render loop - browser provisioning, mandatory screenshot QA, CI | not started | 0/0 |
+| 4. Intake redesign - imagery question and content-aware color schemes | not started | 0/0 |
+| 5. Imagery placement intelligence in the QA loop | not started | 0/0 |
+| 6. Cinematic scroll-scrub (absorbs the former v3.20.1 plan, now inlined here) | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md
+
+exit 0
+
+**Plan**: Plan - presentify verbosity intake (content-derived coverage-depth question)
+**Target version**: v3.16.6
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Verbosity axis - round-2 question, flag, authoring rules, rubric criterion | not started | 0/0 |
+| 2. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 2 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.7-presentify-first-shot-hardening.md
+
+exit 0
+
+**Plan**: Plan - Presentify First-Shot Hardening
+**Target version**: v3.16.7
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. First-shot hardening (COMPLETE - shipped in `0dbc170f`) | not started | 0/0 |
+| 2. Release-readiness defects found by the reverse-engineering audit (COMPLETE - shipped in `1b97cdf9`) | not started | 0/0 |
+| 3. Incoming session lessons (INTAKE CLOSED 2026-08-13) | not started | 0/0 |
+| 4. Terminal - refactor, known-gaps reconciliation, CI/CD, and release readiness | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.16/plans/v3.16.8-adoption-watermark-hygiene.md
+
+exit 0
+
+**Plan**: Plan - Watermark Hygiene: Unicode Fix Mode + /plan and /update Wiring
+**Target version**: v3.16.8
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Validator Coverage and Fix Mode | not started | 0/0 |
+| 2. Workflow Wiring - /plan Sanitize Step and /update Gates | not started | 0/0 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md
+
+exit 0
+
+**Plan**: Plan - Agent Autonomy Toggle
+**Target version**: v3.17.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Permission-baseline hardening and cross-platform merge parity | not started | 0/0 |
+| 2. Autonomy capability model and per-platform lever verification | not started | 0/0 |
+| 3. Autonomy core engine, consent gate, TTL, and audit | not started | 0/0 |
+| 4. Deny layer integration and hook-independence verification | not started | 0/0 |
+| 5. Surfaces: CLI, installer registration, and usage-monitor toggles | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md
+
+exit 0
+
+**Plan**: Plan - Org Knowledge Layer
+**Target version**: v3.17.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Org Bundle Contract | not started | 0/0 |
+| 2. Connect CLI | not started | 0/0 |
+| 3. Cross-Platform Materialization | not started | 0/0 |
+| 4. Guided Authoring Surface | not started | 0/0 |
+| 5. Lifecycle Integration and Docs | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.17/plans/v3.17.5-adoption-deepseek-harness.md
+
+exit 0
+
+**Plan**: Plan - DeepSeek Harness Adoption
+**Target version**: v3.17.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Doc Word Budgets (B1) | not started | 0/0 |
+| 2. deepseek-harness Skill (A1) | not started | 0/0 |
+| 3. Skill Extensions (A2 + A3 + A4) | not started | 0/0 |
+| 4. Decision-Record Lifecycle (B2) | not started | 0/0 |
+| 5. Registry Entry Drift-Check (B4) | not started | 0/0 |
+| 6. Invocation-Policy Frontmatter (B3) | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md
+
+exit 0
+
+**Plan**: Plan - CI Gate Hygiene and Branch Hygiene
+**Target version**: v3.17.6
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Required-Check Coverage Validator | not started | 0/0 |
+| 2. Workflow Migration and Proof | not started | 0/0 |
+| 3. Release-Flow Hygiene | not started | 0/0 |
+| 4. CI Skill Audit | not started | 0/0 |
+| 5. Decision Records and Rule Capture | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md
+
+exit 0
+
+**Plan**: Plan - Docs Lifecycle and Retention
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. DEVLOG conversion and archive | not started | 0/0 |
+| 2. Tooling rewrite for the index format | not started | 0/0 |
+| 3. AGENTS.md MT-1 ratchet-down | not started | 0/0 |
+| 4. History retention policy | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md
+
+exit 0
+
+**Plan**: Plan - GitHub Usage Monitor Accuracy and Warning Parity
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Warning-surface parity | not started | 0/0 |
+| 2. Price-derived drawdown | not started | 0/0 |
+| 3. Self-validating reconciliation ledger | not started | 0/0 |
+| 4. Panel provenance and public/private split | not started | 0/0 |
+| 5. Policy document and decision record | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md
+
+exit 0
+
+**Plan**: Plan - Presentify Slide-Like Navigation Mode
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Navigation-Mode Intake and Contract Wiring | not started | 0/0 |
+| 2. Slide-Mode Authoring Contract | not started | 0/0 |
+| 3. Animation Adaptation Grammar | not started | 0/0 |
+| 4. QA Loop and Structural Scorer Support | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md
+
+exit 0
+
+**Plan**: Plan - Code-Intelligence Hardening
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Tool-profile gating and dependency-ceiling convention | not started | 0/0 |
+| 2. Search-routing guard | not started | 0/0 |
+| 3. Compact response encoding | not started | 0/0 |
+| 4. Edit-safety verdicts | not started | 0/0 |
+| 5. Deterministic measurement harness | not started | 0/0 |
+| 6. Context providers and offline dense retrieval | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md
+
+exit 0
+
+**Plan**: Plan - Persistent Agent Memory Substrate
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Output-safety foundation | not started | 0/0 |
+| 2. Contracts and conventions | not started | 0/0 |
+| 3. Storage engine | not started | 0/0 |
+| 4. Compression tree | not started | 0/0 |
+| 5. Skill, distribution, and registration | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md
+
+exit 0
+
+**Plan**: Plan - Adoption: RTK and Meterless
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Supply-chain hardening | not started | 0/0 |
+| 2. Triggering confidence and eval discipline | not started | 0/0 |
+| 3. Memory hardening | not started | 0/0 |
+| 4. Compressor and hook depth | not started | 0/0 |
+| 5. Compressor polish and session mining | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.2/plans/adoption-headroom.md
+
+exit 0
+
+**Plan**: Plan -- Adopt headroom context-compression engine (reverse-engineer-first)
+**Target version**: v3.2.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation + SmartCrusher (re-full) | complete | 4/4 |
+| 2. CCR reversible store (re-full) | complete | 3/3 |
+| 3. Remaining deterministic strategies (re-full) | complete | 4/4 |
+| 4. Runtime integration + retire rtk (re-full) | complete | 4/4 |
+| 5. Accuracy-regression harness (re-full) | complete | 3/3 |
+| 6. Optional ML token-dropper (re-partial) | complete | 2/2 |
+| 7. Methodology cross-links + docs (re-partial) | complete | 3/3 |
+
+**7 of 7 phases complete; 23 of 23 tasks.**
+
+### docs/archives/v3/v3.2/plans/adoption-teach.md
+
+exit 0
+
+**Plan**: Plan -- Adopt the /teach skill as session-teach-back
+**Target version**: v3.2.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Core skill (solo-mode MVP) | complete | 3/3 |
+| 2. Modes + interaction enhancements | complete | 4/4 |
+| 3. Integration + discoverability | complete | 3/3 |
+
+**3 of 3 phases complete; 10 of 10 tasks.**
+
+### docs/archives/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md
+
+exit 0
+
+**Plan**: Plan - Agent Security Layers Adoption
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. New skill: agent-execution-isolation | not started | 0/0 |
+| 2. Existing-skill extensions | not started | 0/0 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md
+
+exit 0
+
+**Plan**: Plan - Cybersecurity Skills Adoption
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.20/plans/v3.20.2-interface-craft-skills.md
+
+exit 0
+
+**Plan**: Plan - interface-craft skill cluster
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Authoring-standard foundation | not started | 0/0 |
+| 2. accessibility-engineering | not started | 0/0 |
+| 3. layout-and-spacing and interface-copy | not started | 0/0 |
+| 4. web-typography and color-systems | not started | 0/0 |
+| 5. UI-polish merge into hallmark-design | not started | 0/0 |
+| 6. interface-review coordinator | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md
+
+exit 0
+
+**Plan**: Plan - Adoption: Skills-Craft Patterns (mattpocock/skills) and Prime Agent Loop Disciplines
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Agent-Writing Craft and Out-of-Scope Register | not started | 0/0 |
+| 2. New Skills - Grilling + Domain Glossary, Wizard, Questionnaire | not started | 0/0 |
+| 3. Prime Agent Loop Disciplines | not started | 0/0 |
+| 4. Invocation-Policy Metadata (A1) | not started | 0/0 |
+| 5. Official Claude Plugin Marketplace Listing (A7) | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md
+
+exit 0
+
+**Plan**: Plan -- Plan/Implement Lifecycle Hardening and Living Docs Architecture
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Fail-Closed Last Phase and Deferred Human Testing | not started | 0/0 |
+| 2. Implement Driver Modes | not started | 0/0 |
+| 3. Living Docs Architecture on Current Paths | not started | 0/0 |
+| 4. v4.0 Lifespan Consumption and Contract Tests | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.3/plans/adoption-loop-engineering.md
+
+exit 0
+
+**Plan**: Plan -- Loop Engineering Adoption (skill-native loop library + connective layer)
+**Target version**: v3.3.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation -- loop-engineering skill + schema + seeded library | not started | 0/0 |
+| 2. Goal-based stopping + independent-evaluator pattern | not started | 0/0 |
+| 3. Scheduled-triage recipe + named loop anti-patterns | not started | 0/0 |
+| 4. Catalog integration, validation, and release readiness | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.4/plans/adoption-nessie-and-agency-agents.md
+
+exit 0
+
+**Plan**: Plan - Nessie + agency-agents adoption (expanded slice)
+**Target version**: v3.4.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Context-pack distillation skill (A1, skill-native) | not started | 0/0 |
+| 2. Aider + Windsurf integrations (A3, re-full) | not started | 0/0 |
+| 3. Extend session-query to Obsidian + exported history (A4, re-full) | not started | 0/0 |
+| 4. Optional Kimi / Qwen / OpenClaw integrations (A3-ext, re-full) | not started | 0/0 |
+| 5. Selective agent-body enrichment (A2, skill-native) | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.4/plans/model-routing.md
+
+exit 0
+
+**Plan**: Plan - Platform-agnostic model routing
+**Target version**: v3.4.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Routing skill foundation (skill-native) | not started | 0/0 |
+| 2. The `/route` command + switch helpers (skill-native) | not started | 0/0 |
+| 3. `/plan` integration (planning-time routing) | not started | 0/0 |
+| 4. `/implement` integration (per-phase re-confirmation) | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md
+
+exit 0
+
+**Plan**: Plan -- Loop-Engineering Skill Enrichment (Loopmaxxing + autoresearch adoption)
+**Target version**: v3.5.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Strict-control-loop doctrine + hardening lifecycle | not started | 0/0 |
+| 2. Metric-optimization archetype + per-iteration budget + oracle nuance | not started | 0/0 |
+| 3. Observability, handoff default, loopmaxxing label | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.6/plans/adoption-spec-kit.md
+
+exit 0
+
+**Plan**: Plan -- Spec Kit Delta Adoption (v3.6.0)
+**Target version**: v3.6.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Skill-native doctrine folds (N2a + N3b) | not started | 0/0 |
+| 2. `base-*.md` parity-governance check (N3a) | not started | 0/0 |
+| 3. Workflow-phase hook recipe (N1a) | not started | 0/0 |
+| 4. `/skills import` hygiene (N6) | not started | 0/0 |
+| 5. Decline-durability and release readiness | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.7/plans/install-ux-overhaul.md
+
+exit 0
+
+**Plan**: Plan -- Install-UX Overhaul (v3.7.0)
+**Target version**: v3.7.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Self-fetching bootstrap + dependency prechecks | not started | 0/0 |
+| 2. No-prompt all-platform install + conflict-only overwrite | not started | 0/0 |
+| 3. `nexus-hub upgrade` checker (un-defers N4 / DF-v36-1) | not started | 0/0 |
+| 4. Interactive guide + docs redesign | not started | 0/0 |
+| 5. Cross-platform verification + release readiness | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.8/plans/adoption-ralph-claude-code.md
+
+exit 0
+
+**Plan**: Plan -- Loop-Engineering Skill Enrichment (Ralph for Claude Code adoption)
+**Target version**: v3.7.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Loop exit + safety doctrine | not started | 0/0 |
+| 2. Loop observability and intake | not started | 0/0 |
+| 3. Sandboxing an unattended loop (re-partial) | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.9/plans/adoption-looper-and-deer-flow.md
+
+exit 0
+
+**Plan**: Plan -- Loop-Design + Cross-Model Egress Hygiene (Looper + DeerFlow 2.0 adoption)
+**Target version**: v3.9.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Cross-model handoff hygiene | not started | 0/0 |
+| 2. Design-first loop doctrine | not started | 0/0 |
+| 3. Low-priority doctrine notes and consolidation | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.9/plans/adoption-no-mistakes.md
+
+exit 0
+
+**Plan**: Plan -- Pre-Merge Verification + Finding-Escalation Doctrine (no-mistakes adoption)
+**Target version**: v3.9.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Review and escalation doctrine | not started | 0/0 |
+| 2. Pre-merge gate and stop-at-boundary doctrine | not started | 0/0 |
+| 3. PR body, optional session matching, and consolidation | not started | 0/0 |
+
+**0 of 3 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v3/v3.9/plans/presentify-interactive-html.md
+
+exit 0
+
+**Plan**: Plan -- /presentify + document-to-interactive-html (documents to a self-contained interactive HTML presentation)
+**Target version**: v3.9.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Local multi-format extraction | not started | 0/0 |
+| 2. Self-contained interactive HTML template + builder | not started | 0/0 |
+| 3. SKILL.md, command, and registration | not started | 0/0 |
+| 4. Worked example, validation, and docs | not started | 0/0 |
+
+**0 of 4 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md
+
+exit 0
+
+**Plan**: Plan - Agent Communication Overhaul
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Communication contract and decision record | not started | 0/0 |
+| 2. agent-communication skill | not started | 0/0 |
+| 3. Instruction-template rollout and parity gate | not started | 0/0 |
+| 4. Workflow report touchpoints | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 5 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md
+
+exit 0
+
+**Plan**: Plan - Cost-Effective CI/CD Lifecycle and Harness Defaults
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Canonical Lifecycle Contract and Baseline Audit | not started | 0/5 |
+| 2. Canonical CI/CD Skill Architecture | not started | 0/7 |
+| 3. Plan Generation Defaults | not started | 0/5 |
+| 4. Implementation and Commit Lifecycle | not started | 0/6 |
+| 5. Branch, Release, and Cross-Platform Policy | not started | 0/10 |
+| 6. Nexus-Hub Repository-Native CI Engine | not started | 0/9 |
+| 7. Nexus-Hub Workflow Migration | not started | 0/11 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/9 |
+
+**0 of 8 phases complete; 0 of 62 tasks.**
+
+### docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md
+
+exit 0
+
+**Plan**: Plan - Docs Lifespan Tree and Enforcement
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Enforcement mechanisms (non-breaking) | not started | 0/0 |
+| 2. Lifespan axis (non-breaking) | not started | 0/0 |
+| 3. Breaking rename of the prescription | not started | 0/0 |
+| 4. Executable guards and anti-regression tests | not started | 0/0 |
+| 5. Distribution to every platform class | not started | 0/0 |
+| 6. Dogfood migration of Nexus-Hub's own tree | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.1/plans/v4.1.0-adoption-pi-and-grill-me.md
+
+exit 0
+
+**Plan**: v4.1.0 Adoption Plan: Pi Platform and the Plan-Grill Gate
+**Target version**: v4.1.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Interview Engine, Frontier Rounds | not started | 0/0 |
+| 2. Critique-and-Grill Gate and the `/grill` Entry Point | not started | 0/0 |
+| 3. Pi Platform Integration | not started | 0/0 |
+| 4. Supply-Chain Hardening and Guardrail Precision | not started | 0/0 |
+| 5. Land on `develop` | not started | 0/0 |
+| 6. Deferred Hardening | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 7 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md
+
+exit 0
+
+**Plan**: Plan - Adoption: Skill Trial Records and Typed-Boundary Hygiene
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Procedural-Anchor Authoring Rule | not started | 0/0 |
+| 2. Typed-Boundary Hygiene Skill and TypeScript Handoff | not started | 0/0 |
+| 3. Distillation Labels, Confusability, Two-Level Triggers | not started | 0/0 |
+| 4. Eval-Loop Third Arm | not started | 0/0 |
+| 5. decision - Vendor Oxlint Into User TypeScript Repos | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/0 |
+
+**0 of 6 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md
+
+exit 0
+
+**Plan**: Plan - Adoption: Local Security Audit Refinement
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Scanner-Receipt and Independent-Verification Contract | complete | 6/6 |
+| 2. Local Scanner Recipes and Rule Ownership | complete | 6/6 |
+| 3. Ordered Security-Audit Preset and Role Separation | complete | 6/6 |
+| 4. Evaluation, Distribution, and Documentation | complete | 5/5 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**5 of 5 phases complete; 32 of 32 tasks.**
+
+### docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md
+
+exit 0
+
+**Plan**: Plan - Adoption: Minimal Construction Discipline
+**Target version**: v4.1.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Construction-Discipline Contract and Always-On Templates | complete | 5/5 |
+| 2. `minimal-construction` Skill and Ownership Handoffs | complete | 5/5 |
+| 3. `over-engineering-review` Skill | complete | 5/5 |
+| 4. Deferred-Simplification Harvest and Eval Proof | complete | 4/4 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**5 of 5 phases complete; 28 of 28 tasks.**
+
+### docs/archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md
+
+exit 0
+
+**Plan**: Plan - Plan-queue continuity and re-sequencing
+**Target version**: v4.10.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Queue enumeration and baseline | complete | 4/4 |
+| 2. Assessment and ranking skill | complete | 3/3 |
+| 3. Authoring-time wiring | complete | 3/3 |
+| 4. Execution-time wiring | complete | 2/2 |
+| 5. Release review and assisted renumber | complete | 4/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**6 of 6 phases complete; 26 of 26 tasks.**
+
+### docs/archives/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md
+
+exit 0
+
+**Plan**: Plan -- Eval Isolation and Adaptive Compaction
+**Target version**: v4.10.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Compaction Retention Correction and the Fire/Suppress Rubric | complete | 4/4 |
+| 2. Eval Runner Isolation and Model Pinning | complete | 5/5 |
+| 3. Completing the Compaction Contract | complete | 4/4 |
+| 4. Eval-Code Safety Contract and Runtime Entry Points | complete | 3/3 |
+| 5. Load-Layer CI Gate | complete | 4/4 |
+| 6. Eval Release Gate, Deterministic Blinding, and Headroom Method | complete | 4/4 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 34 of 34 tasks.**
+
+### docs/archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md
+
+exit 0
+
+**Plan**: Plan - Interactive Handbooks and Presentation Defaults
+**Target version**: v4.11.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contract and representative foundation | complete | 3/3 |
+| 2. Shared presentation runtime | complete | 4/4 |
+| 3. Reproducible authoring and figures | complete | 4/4 |
+| 4. Presentify default and intake compatibility | complete | 3/3 |
+| 5. Handbook freshness and release integration | complete | 4/4 |
+| 6. Cross-project quality qualification | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 31 of 31 tasks.**
+
+### docs/archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md
+
+exit 0
+
+**Plan**: Plan - Cache accounting and diagram quality
+**Target version**: v4.11.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Cache accounting and baseline | complete | 3/3 |
+| 2. Cache stability guidance | complete | 3/3 |
+| 3. Bounded prompt audit | complete | 3/3 |
+| 4. Diagram semantics and fidelity | complete | 3/3 |
+| 5. Geometry verification | complete | 3/3 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**6 of 6 phases complete; 25 of 25 tasks.**
+
+### docs/archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md
+
+exit 0
+
+**Plan**: Plan - Document and Deck Quality Gates
+**Target version**: v4.11.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Geometric audit foundation | complete | 3/3 |
+| 2. Type roles and the SVG render ratio | complete | 3/3 |
+| 3. Figure and diagram construction gates | complete | 4/4 |
+| 4. Deck integrity gates | complete | 3/3 |
+| 5. Attestation gates for the unmeasurable | complete | 4/4 |
+| 6. Wiring, rule file, and cross-surface consistency | complete | 4/4 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 7/7 |
+
+**7 of 7 phases complete; 28 of 28 tasks.**
+
+### docs/archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md
+
+exit 0
+
+**Plan**: Plan -- Sole GitHub Contributor Attribution
+**Target version**: v4.12.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Attribution Policy and Fixture-Backed Checker | complete | 5/5 |
+| 2. Full-Ref History Rewrite | complete | 4/4 |
+| 3. Maintainer CI and Local Hook | complete | 4/4 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 15/15 |
+
+**4 of 4 phases complete; 28 of 28 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md
+
+exit 0
+
+**Plan**: Plan -- Evidence-Driven Agent Improvement
+**Target version**: v4.13.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Evaluation foundation and judge sensitivity | complete | 4/4 |
+| 2. Private agent traces and observable evidence | complete | 4/4 |
+| 3. Approved lessons to regression evidence | complete | 4/4 |
+| 4. Smallest useful visual explanation | complete | 4/4 |
+| 5. Context fact freshness and revalidation | complete | 4/4 |
+| 6. Bounded skill-trigger and context-loading pilot | complete | 4/4 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 34 of 34 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.1-user-edit-preservation-and-attribution-ban.md
+
+exit 0
+
+**Plan**: Plan -- User-Edit Preservation and AI-Attribution Ban
+**Target version**: v4.13.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, ownership, and replay harness | complete | 3/3 |
+| 2. Always-loaded rules | complete | 3/3 |
+| 3. Edit-guard store and helper | complete | 2/2 |
+| 4. Edit-preservation procedure skill | complete | 2/2 |
+| 5. Document-skill revision workflow | complete | 2/2 |
+| 6. Guard hooks | complete | 3/3 |
+| 7. Priority-ordered plan versions | complete | 2/2 |
+| 8. Incident replay evaluation | complete | 2/2 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**9 of 9 phases complete; 29 of 29 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.10-training-page-rebuild.md
+
+exit 0
+
+**Plan**: Plan -- Training Page Rebuild: a Live Nexus-Loop Demo on Its Own Page
+**Target version**: v4.13.10
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Inventory, decisions, and the page shell | complete | 5/5 |
+| 2. Page openings, outlines, and loop tracker | complete | 4/4 |
+| 3. Game engine core | complete | 4/4 |
+| 4. Story and agent sessions | complete | 5/5 |
+| 5. Model stamping and layout checks | complete | 3/3 |
+| 6. Game art, progression, and the logo boss | complete | 5/5 |
+| 7. Cutover | complete | 104/104 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**8 of 8 phases complete; 140 of 140 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md
+
+exit 0
+
+**Plan**: Plan - v4.13.11 Known-Gaps Sweep and Minor Close
+**Target version**: v4.13.11
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and Expanded Re-triage | complete | 4/4 |
+| 2. Ledger Normalization and Approval Baseline | complete | 5/5 |
+| 3. Hook and Repository-Tool Quick Fixes | complete | 5/5 |
+| 4. Skill, Template, and Documentation Reductions | complete | 6/6 |
+| 5. Approved CI, Monitors, and Training Fixes | complete | 5/5 |
+| 6. Supply-Chain Vulnerability Remediation | complete | 2/2 |
+| 7. Residual and Carry-Forward Preparation | complete | 3/3 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**8 of 8 phases complete; 40 of 40 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.2-implement-full-by-default-with-completion-goal.md
+
+exit 0
+
+**Plan**: Plan -- Implement Full by Default with a Cross-Platform Completion Goal
+**Target version**: v4.13.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contract, levers matrix, and run record | complete | 4/4 |
+| 2. Plan-completion checker | complete | 2/2 |
+| 3. Full-by-default driver, upfront round, and pause | complete | 2/2 |
+| 4. Completion gate for hook platforms | complete | 2/2 |
+| 5. Completion gate for plugin platforms | complete | 2/2 |
+| 6. Cross-platform runner and goal setup | complete | 2/2 |
+| 7. Release chaining | complete | 2/2 |
+| 8. End-to-end evaluation | complete | 2/2 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 11/11 |
+
+**9 of 9 phases complete; 29 of 29 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md
+
+exit 0
+
+**Plan**: Plan -- Truthful Session Context and Measured Instruction Size
+**Target version**: v4.13.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Catalog hygiene: authoring rules and context-skill ownership | complete | 8/8 |
+| 2. Truthful, lean session hooks | complete | 6/6 |
+| 3. Legacy-span detector, fingerprints, and measurement | complete | 10/10 |
+| 4. Legacy-span handling in the instruction writer | complete | 7/7 |
+| 5. Opt-in skill-index pointer | complete | 4/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**6 of 6 phases complete; 45 of 45 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md
+
+exit 0
+
+**Plan**: v4.13.4 Guide Training rebuild - implementation plan
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Engine factory refactor | not started | 0/0 |
+| 2. Entity variety in the model | not started | 0/0 |
+| 3. Painters | not started | 0/0 |
+| 4. Arena and resolution | not started | 0/0 |
+| 5. Prepare section-scoped binding without removing the deck | not started | 0/0 |
+| 6. Section restructure | not started | 0/0 |
+| 7. Content | not started | 0/0 |
+| 8. Final phase | not started | 0/0 |
+
+**0 of 8 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.5-completion-checker-remote-resolution.md
+
+exit 0
+
+**Plan**: Plan -- Completion Checker Remote Resolution
+**Target version**: v4.13.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Shared repository resolution | complete | 5/5 |
+| 2. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**2 of 2 phases complete; 15 of 15 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md
+
+exit 0
+
+**Plan**: Plan -- Minor-Scope Implement, Verified Cleanup, Readable Approvals, and a Native Goal
+**Target version**: v4.13.6
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Exact approval binding and goal-capture probe | complete | 11/11 |
+| 2. Minor membership and run record | complete | 9/9 |
+| 3. Verified merged-and-idle cleanup | complete | 8/8 |
+| 4. Gap scope, migration, and minor archive | complete | 6/6 |
+| 5. Minor verdict, member gate, and closing pull request | complete | 10/10 |
+| 6. Plain-language approval page and native goal | complete | 8/8 |
+| 7. Goal restatements and end-to-end proof | complete | 7/7 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**8 of 8 phases complete; 69 of 69 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md
+
+exit 0
+
+**Plan**: Plan -- Copilot Usage Monitor and Usage-Limit Handoff
+**Target version**: v4.13.7
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Copilot Usage Data Contract | complete | 4/4 |
+| 2. Copilot Usage Monitor Extension | complete | 6/6 |
+| 3. Monitor Distribution, CI Gate, Docs, and Reset Availability | complete | 11/11 |
+| 4. Handoff Contract, `/handoff`, and Open Decisions | complete | 5/5 |
+| 5. Checkpoint Rule in Every Instruction Template | complete | 4/4 |
+| 6. Shared Usage Probe | complete | 3/3 |
+| 7. `usage-guard` Hook and Per-Platform Delivery | complete | 4/4 |
+| 8. Documentation, Decision Record, and Release Notes | complete | 4/4 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**9 of 9 phases complete; 51 of 51 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md
+
+exit 0
+
+**Plan**: Plan -- Sonnet 5.5 Profile, Cost-Claim Rule, and a First-Principles Pilot
+**Target version**: v4.13.8
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, baselines, and decisions | complete | 5/5 |
+| 2. Sonnet 5.5 prompting profile | complete | 4/4 |
+| 3. Reporting rule and guidance text | complete | 4/4 |
+| 4. Optimizer label and large-set split (optional, cut third) | complete | 5/5 |
+| 5. First-principles pilot | complete | 7/7 |
+| 6. Copilot Usage Monitor connect and percent display | complete | 11/11 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 46 of 46 tasks.**
+
+### docs/archives/v4/v4.13/plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md
+
+exit 0
+
+**Plan**: Plan -- Inline Visualization, Codex Disk-Write Runbook, Draft Review Comments, and a GPT-6.1 Sol Profile
+**Target version**: v4.13.9
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, baselines, and the Cursor decision | complete | 4/4 |
+| 2. GPT-6.1 Sol profile and model map | complete | 5/5 |
+| 3. `/visualize` and the inline-visualization skill | complete | 8/8 |
+| 4. Draft review comments (may be cut whole) | complete | 4/4 |
+| 5. Hook size bound and Codex runbook (may be cut whole) | complete | 4/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**6 of 6 phases complete; 35 of 35 tasks.**
+
+### docs/archives/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md
+
+exit 0
+
+**Plan**: Plan - Nexus-Hub Interactive Guide Redesign
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, Content Model, and UX Contract | complete | 6/6 |
+| 2. Portfolio-Aligned Shell, Theme, and Navigation | complete | 4/4 |
+| 3. Concise Home and Embedded Installation | complete | 4/4 |
+| 4. Model-versus-Harness Foundations | complete | 4/4 |
+| 5. Interactive IDE Training Workbench | complete | 4/4 |
+| 6. Maintainer Docs and Copy Contract | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**7 of 7 phases complete; 34 of 34 tasks.**
+
+### docs/archives/v4/v4.2/plans/v4.2.1-guide-visual-education.md
+
+exit 0
+
+**Plan**: Plan -- Interactive Guide Visual Education Draft
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contract, IA, and example freeze | complete | 4/4 |
+| 2. Chrome, theme, and install terminals | complete | 3/3 |
+| 3. Home loop visual | complete | 2/2 |
+| 4. Foundations visual education | complete | 3/3 |
+| 5. Training slideshow and Glow Booth | complete | 3/3 |
+| 6. Cheatsheets merge | complete | 2/2 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**7 of 7 phases complete; 26 of 26 tasks.**
+
+### docs/archives/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md
+
+exit 0
+
+**Plan**: Plan -- Interactive Guide Cinematic Rebuild
+**Target version**: v4.2.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Design Brief, Design System, Shell, and Render Harness | complete | 4/4 |
+| 2. Home Page Rebuild | complete | 3/3 |
+| 3. Foundations Rebuild | complete | 3/3 |
+| 4. Training Rebuild | complete | 5/5 |
+| 5. Cheatsheets Rebuild | complete | 2/2 |
+| 6. Cross-Page Polish, Accessibility, and Hallmark Audit | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**7 of 7 phases complete; 29 of 29 tasks.**
+
+### docs/archives/v4/v4.2/plans/v4.2.3-guide-refinement.md
+
+exit 0
+
+**Plan**: Plan -- Interactive Guide Refinement
+**Target version**: v4.2.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Fluid Layout, Copy Affordance, and Shared Conventions | complete | 5/5 |
+| 2. Home -- Readable Install Verify and an Animated Comparison | complete | 3/3 |
+| 3. Foundations -- Project-Generic Content and Diagram Repair | complete | 6/6 |
+| 4. Training -- Full-Screen Present Mode and Loop-Stage Progress | complete | 5/5 |
+| 5. Cheatsheets -- Terminal Usage Illustration and Readable Scopes | complete | 2/2 |
+| 6. Cross-Page Polish, Accessibility, and Hallmark Audit | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**7 of 7 phases complete; 33 of 33 tasks.**
+
+### docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md
+
+exit 0
+
+**Plan**: Plan -- Agentic Verification Discipline
+**Target version**: v4.3.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Design the Verification Ladder | complete | 4/4 |
+| 2. Build the Instruments | complete | 4/4 |
+| 3. The Functional-Verification Skill | complete | 3/3 |
+| 4. Wire the Discipline Into the Harness | complete | 5/5 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**5 of 5 phases complete; 26 of 26 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md
+
+exit 0
+
+**Plan**: Plan -- Visual Verification and Guide Depth
+**Target version**: v4.4.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Home -- Identity, Platforms, Installation, Comparison | complete | 5/5 |
+| 2. Foundations Part 1 -- Structure, the Model, Tokens, Prompts | complete | 4/4 |
+| 3. Foundations Part 2 -- Chatbot vs Agent, Context, Harness and Loop | complete | 5/5 |
+| 4. Training -- A Playable Asteroids With a Seeded Bug | complete | 3/3 |
+| 5. Training -- Terminal, File Explorer, and the Loop | complete | 4/4 |
+| 6. Cross-Page Polish, Accessibility, Budget, Hallmark Audit, and Harness Defaults | complete | 6/6 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 9/9 |
+
+**7 of 7 phases complete; 36 of 36 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md
+
+exit 0
+
+**Plan**: Plan -- Guide Visual and Arcade Rebuild
+**Target version**: v4.4.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contracts, Asset Provenance, and Byte Budget | complete | 4/4 |
+| 2. Home Identity, Platform Rail, and Workflow Loop | complete | 4/4 |
+| 3. Foundations Structure, Tokens, Prompt, and Context | complete | 4/4 |
+| 4. Foundations Models, Agentic Platform, Comparison, and Harnesses | complete | 5/5 |
+| 5. Deterministic Arcade-Shooter Engine | complete | 5/5 |
+| 6. Training Workspace, Fullscreen, and Integrated Loop | complete | 5/5 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 37 of 37 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md
+
+exit 0
+
+**Plan**: Plan -- Guide Production-Ready Rebuild
+**Target version**: v4.4.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contracts, Motion System, Scale Tokens, and Rename | complete | 6/6 |
+| 2. Home Hero and Restored Sections | complete | 5/5 |
+| 3. Foundations Title System, Layout Balance, and Annotated Prompts | complete | 3/3 |
+| 4. Foundations Models, Agentic Platform, and the Layered Harness Animation | complete | 3/3 |
+| 5. Arena Engine v2 - Pointer Play and Dense Varied Threats | complete | 3/3 |
+| 6. Training Fullscreen - Full-Window Three-Pane Presentation | complete | 3/3 |
+| 7. Integrated Verification and Documentation | complete | 3/3 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**8 of 8 phases complete; 36 of 36 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md
+
+exit 0
+
+**Plan**: v4.4.3 -- Guide Illustration Clarity Rebuild
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md
+
+exit 0
+
+**Plan**: v4.4.4 -- Guide Teaching Clarity Rebuild
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md
+
+exit 0
+
+**Plan**: v4.4.5 -- Guide Mockup Integration
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md
+
+exit 0
+
+**Plan**: Plan - Guide Learning Experience
+**Target version**: v4.4.6,
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline and teaching/design contract | complete | 3/3 |
+| 2. Shared layout and motion repair | complete | 3/3 |
+| 3. Home refinement | complete | 3/3 |
+| 4. Foundations: model, tokens, prompt, context | complete | 3/3 |
+| 5. Foundations: harness, loop, graph | complete | 3/3 |
+| 6. Training clarity and state integrity | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | in progress | 7/10 |
+
+**6 of 7 phases complete; 25 of 28 tasks.**
+
+### docs/archives/v4/v4.5/plans/v4.5.0-anti-cliche-and-agent-security.md
+
+exit 0
+
+**Plan**: Plan -- Platform-Wide Writing Discipline and Agent-Security Boundary Hardening
+**Target version**: v4.5.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. The Always-On Writing Discipline Rule | complete | 5/5 |
+| 2. Mechanical Enforcement Across All Twelve Templates | complete | 4/4 |
+| 3. Catalog Extension -- The Uncovered Cliche Patterns | complete | 4/4 |
+| 4. Deterministic Offline Prose Detector | complete | 4/4 |
+| 5. Agent Isolation -- Transitive Reachability, Shared Channels, Host Layer | complete | 5/5 |
+| 6. Deterministic Response Class and Chaining Ownership | complete | 3/3 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 5/5 |
+
+**7 of 7 phases complete; 30 of 30 tasks.**
+
+### docs/archives/v4/v4.7/plans/v4.7.0-adoption-gpt-6-astra-prompting.md
+
+exit 0
+
+**Plan**: Plan -- GPT-6 Astra Prompting Amendments to the v4.7.0 Model-Behavior Plan
+**Target version**: v4.7.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Astra routing decision and cross-vendor citations | complete | 4/4 |
+| 2. Precedence and disclosure rule in the template block | complete | 5/5 |
+| 3. Closing-summary markers and the first OpenAI prompting profile | complete | 5/5 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**4 of 4 phases complete; 24 of 24 tasks.**
+
+### docs/archives/v4/v4.7/plans/v4.7.0-adoption-model-behavior-and-distribution-integrity.md
+
+exit 0
+
+**Plan**: Plan -- Distributed Model-Behavior Guidance and Distribution Integrity
+**Target version**: v4.7.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Routing Data Correctness and the Effort-Level Contract | complete | 5/5 |
+| 2. The Autonomous-Operation Block Across All Twelve Templates | complete | 5/5 |
+| 3. Long-Output and Safeguard Guidance in the Emitting Skills | complete | 4/4 |
+| 4. Source-Quoting, Search-Triggering, and Progress-Update Discipline | complete | 3/3 |
+| 5. Reliability Metrics and the Remaining Behavioral Guidance | complete | 4/4 |
+| 6. Distribution Integrity -- Verifiable and Pinnable Installs | complete | 5/5 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 36 of 36 tasks.**
+
+### docs/archives/v4/v4.8/plans/v4.8.0-adoption-agentic-loops-and-coding-agent-practice.md
+
+exit 0
+
+**Plan**: Plan -- Loop Intake, Autonomy Ladder, Knowledge-Work Verifiers, and the OWASP Agentic Mapping
+**Target version**: v4.8.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Loop intake and run contract | complete | 6/6 |
+| 2. Autonomy ladder and graph gate | complete | 4/4 |
+| 3. Verifier taxonomy, research finish line, and skill lifecycle | complete | 7/7 |
+| 4. OWASP agentic framework mapping | complete | 10/10 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**5 of 5 phases complete; 37 of 37 tasks.**
+
+### docs/archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md
+
+exit 0
+
+**Plan**: Plan -- Local Agentic Application-Security Audit Pipeline
+**Target version**: v4.9.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Application-Audit Contract and Compatibility Baseline | complete | 3/3 |
+| 2. Surface-Driven Specialist Routing and Review Repair | complete | 4/4 |
+| 3. Existing Code-Search Reachability Seeding | complete | 3/3 |
+| 4. Provenance and Scan-Health Enforcement | complete | 3/3 |
+| 5. Local Application-Security SARIF Export | complete | 3/3 |
+| 6. Seeded AppSec Benchmark and Distribution Proof | complete | 5/5 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 10/10 |
+
+**7 of 7 phases complete; 31 of 31 tasks.**
+
+### docs/archives/v4/v4.9/plans/v4.9.2-slide-build-contract-and-projection-floors.md
+
+exit 0
+
+**Plan**: v4.9.2 -- Slide build contract, projection type floors, and figure re-layout
+**Target version**: unknown
+
+| Phase | Status | Tasks |
+|---|---|---|
+
+**0 of 0 phases complete; 0 of 0 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md
+
+exit 0
+
+**Plan**: Plan -- Agent Tooling and Subagent Cost Control
+**Target version**: v4.14.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Verify and Record the Subagent Lever | not started | 0/0 |
+| 2. Pin the Shipped Agents | not started | 0/0 |
+| 3. Declare, Propagate, and Deliver the Default | not started | 0/0 |
+| 4. Deterministic Design-System Verifier | not started | 0/0 |
+| 5. Deterministic Grouping in the Review Fanout | not started | 0/0 |
+| 6. Repair Effort-Default Delivery | not started | 0/0 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | complete | 34/34 |
+
+**1 of 7 phases complete; 34 of 34 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md
+
+exit 0
+
+**Plan**: Plan -- Effort Allocation: Failure-Aware Escalation, Verification Effort, and Edge-Case Modifiers
+**Target version**: v4.14.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, baselines, and definitions | not started | 0/6 |
+| 2. Failure-aware escalation and effort guidance | not started | 0/5 |
+| 3. Verification-behaviors reference | not started | 0/3 |
+| 4. Raise-only verification effort in the routing contract | not started | 0/5 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 29 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md
+
+exit 0
+
+**Plan**: Plan -- Refactor-First Discipline, Cache Stability, and Harness Decision Policy
+**Target version**: v4.14.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, fixtures, and control arm | not started | 0/6 |
+| 2. Refactor-first, invariants, and routing triggers | not started | 0/7 |
+| 3. Cross-provider cache stability and routing cost | not started | 0/4 |
+| 4. Harness decision policy and Gemini non-surface | not started | 0/4 |
+| 5. Behavior evaluation | not started | 0/3 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 34 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md
+
+exit 0
+
+**Plan**: Plan -- Gemini 4 Argon Support and the Codex Skill-Truncation Record
+**Target version**: v4.14.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Argon profile and routing | not started | 0/6 |
+| 2. Codex truncation record | not started | 0/4 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 3 phases complete; 0 of 20 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md
+
+exit 0
+
+**Plan**: Plan -- Gate Outcomes, Recomputable Gate Records, Trapdoor Promotion, and an Opt-In Git Bypass Guard
+**Target version**: v4.14.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Gate outcomes and the explain-retry-or-record flow | not started | 0/5 |
+| 2. Recomputable gate records | not started | 0/2 |
+| 3. Detectability-triggered trapdoor promotion | not started | 0/2 |
+| 4. Opt-in git bypass guard and PowerShell registration | not started | 0/5 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 24 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md
+
+exit 0
+
+**Plan**: Plan -- Host-Generated Memory Stores, Codex Memory Levers, and the Omitted-Key Guard
+**Target version**: v4.14.5
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Host-generated memory stores | not started | 0/5 |
+| 2. Codex memory levers and the omitted-key guard | not started | 0/7 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 3 phases complete; 0 of 22 tasks.**
+
+### docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md
+
+exit 0
+
+**Plan**: Plan -- Nexus-Hub Settings: Proven Central Defaults for Claude Code, Codex, and GitHub Copilot
+**Target version**: v4.14.6
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission: vendor re-check and proof spike | not started | 0/11 |
+| 2. Engine read side and `nexus-hub settings show` | not started | 0/5 |
+| 3. Engine write side, ownership record, installer agreement | not started | 0/9 |
+| 4. Nexus-Hub Settings panel | not started | 0/5 |
+| 5. Distribution and documentation | not started | 0/6 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 46 tasks.**
+
+### docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md
+
+exit 0
+
+**Plan**: Plan -- Instruction Necessity and Boundary Review
+**Target version**: v4.15.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Audit and cap | not started | 0/3 |
+| 2. Apply, propagate, and establish recurrence | not started | 0/7 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 3 phases complete; 0 of 20 tasks.**
+
+### docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md
+
+exit 0
+
+**Plan**: Plan -- Model-Adaptive Harness: Decision and Evidence
+**Target version**: v4.15.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Evidence gathering | not started | 0/6 |
+| 2. Decision record | not started | 0/3 |
+| 3. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 3 phases complete; 0 of 19 tasks.**
+
+### docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md
+
+exit 0
+
+**Plan**: Plan -- Harness Economics and Portable Engineering Systems
+**Target version**: v4.15.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Ownership baseline and explicit loop outcomes | not started | 0/0 |
+| 2. Behavioral evaluation contract and fixtures | not started | 0/0 |
+| 3. Isolated local pairing runner | not started | 0/0 |
+| 4. Provider-aware Claude `AGENTS.md` convergence | not started | 0/0 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/55 |
+
+**0 of 5 phases complete; 0 of 55 tasks.**
+
+### docs/releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md
+
+exit 0
+
+**Plan**: Plan - Checker Evidence and Diagnostics
+**Target version**: v4.15.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Evidence Protection | not started | 0/3 |
+| 2. Portable Input Compatibility | not started | 0/3 |
+| 3. Approval Coverage and Blocked Detail | not started | 0/4 |
+| 4. Archive and Worktree Preflight | not started | 0/3 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 23 tasks.**
+
+### docs/releases/v4/v4.16/plans/v4.16.0-adoption-pinned-rules-and-prune-compaction.md
+
+exit 0
+
+**Plan**: Plan -- Pinned Rules Survive Compaction, Prune-Not-Summarize, Browser Safety, and Fail-Safe Decisions
+**Target version**: v4.16.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, decisions, and the declined-items record | not started | 0/5 |
+| 2. Pinned rules survive compaction | not started | 0/6 |
+| 3. Pin guidance, prune-not-summarize, and the ledger format | not started | 0/2 |
+| 4. Handoff digest generator (nice-to-have 1, cut first) | not started | 0/6 |
+| 5. Agent-driven browsing discipline | not started | 0/4 |
+| 6. Fail-safe decision sets and judge cascades | not started | 0/4 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 7 phases complete; 0 of 37 tasks.**
+
+### docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md
+
+exit 0
+
+**Plan**: Plan -- Proactive Memory Intervention
+**Target version**: v4.16.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, Placement Decision, and Eval Baseline | not started | 0/4 |
+| 2. Reactivate Before Restart | not started | 0/2 |
+| 3. Memory Architecture and Routing Caution | not started | 0/5 |
+| 4. Advisory Calibration Clause | not started | 0/2 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 23 tasks.**
+
+### docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md
+
+exit 0
+
+**Plan**: Plan -- Agent Experience Compilation and Harness Economics
+**Target version**: v4.16.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Harness cost as a named routing concern | not started | 0/0 |
+| 2. Persistent knowledge and the rejection ledger | not started | 0/0 |
+| 3. Agent-behavior disclosure process | not started | 0/0 |
+| 4. Declared plan status and the cross-harness authoring rule | not started | 0/0 |
+| 5. Hardening case study and throughput metrics | not started | 0/0 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/32 |
+
+**0 of 6 phases complete; 0 of 32 tasks.**
+
+### docs/releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md
+
+exit 0
+
+**Plan**: Plan -- Tool-Output Containment and Per-Request Context Attribution
+**Target version**: v4.16.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, Decisions, and Eval Baseline | not started | 0/5 |
+| 2. Per-Request Context Report | not started | 0/5 |
+| 3. Compute-Don't-Read Rule | not started | 0/3 |
+| 4. Realized Compressor Savings | not started | 0/3 |
+| 5. Raw-Fetch Advisory | not started | 0/2 |
+| 6. Priority-Tiered Compaction Digest | not started | 0/5 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 7 phases complete; 0 of 33 tasks.**
+
+### docs/releases/v4/v4.17/plans/v4.17.0-push-size-guard.md
+
+exit 0
+
+**Plan**: Plan - Push-time repository size guard
+**Target version**: v4.17.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, threshold and contract | not started | 0/4 |
+| 2. The pre-push hook, both shells | not started | 0/5 |
+| 3. Installer wiring and parity | not started | 0/4 |
+| 4. Adoption guidance and limits | not started | 0/4 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/6 |
+
+**0 of 5 phases complete; 0 of 23 tasks.**
+
+### docs/releases/v4/v4.17/plans/v4.17.1-adoption-process-safety-and-review-pipeline.md
+
+exit 0
+
+**Plan**: Plan -- Process Safety and Review Pipeline
+**Target version**: v4.17.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline and the three design decisions | not started | 0/5 |
+| 2. Process and port safety | not started | 0/6 |
+| 3. Deterministic pre-pass and the unrefuted verdict | not started | 0/5 |
+| 4. Review state and safe incremental reuse | not started | 0/3 |
+| 5. Budget feedback and gate effectiveness | not started | 0/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 33 tasks.**
+
+### docs/releases/v4/v4.17/plans/v4.17.2-adoption-agent-working-agreement.md
+
+exit 0
+
+**Plan**: Plan -- Agent Working Agreement
+**Target version**: v4.17.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Hard block, surface inheritance, and cap admission | not started | 0/4 |
+| 2. Interpretation and completion rules | not started | 0/3 |
+| 3. The boundary and the delegation split | not started | 0/4 |
+| 4. Behavioral evaluation of every admitted rule | not started | 0/3 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 24 tasks.**
+
+### docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md
+
+exit 0
+
+**Plan**: Plan -- Testing Discipline, Keyword Headings, and Opus 5.5 Steering
+**Target version**: v4.18.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and ownership | not started | 0/4 |
+| 2. Testing guidance cleanup | not started | 0/5 |
+| 3. Always-loaded heading rule | not started | 0/2 |
+| 4. Heading surfaces and detector | not started | 0/4 |
+| 5. Opus 5.5 profile and effort record | not started | 0/5 |
+| 6. Optional always-loaded additions | not started | 0/4 |
+| 7. Skill-native guidance additions | not started | 0/5 |
+| 8. Behavior evaluation | not started | 0/4 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 9 phases complete; 0 of 43 tasks.**
+
+### docs/releases/v4/v4.18/plans/v4.18.1-adoption-local-hooks-and-single-item-install.md
+
+exit 0
+
+**Plan**: Plan -- Local Hooks, Settings Merge, and Single-Item Install
+**Target version**: v4.18.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Design decisions | not started | 0/5 |
+| 2. Settings-merge contract | not started | 0/3 |
+| 3. Single-item install | not started | 0/3 |
+| 4. Spec-scope notice hook | not started | 0/2 |
+| 5. Optional extras | not started | 0/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 27 tasks.**
+
+### docs/releases/v4/v4.18/plans/v4.18.2-adoption-de-slop-repair-discipline.md
+
+exit 0
+
+**Plan**: Plan -- De-Slop Repair Discipline
+**Target version**: v4.18.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Baseline, Ownership Confirmation, and Eval Baseline | not started | 0/5 |
+| 2. Behavioral Post-Condition | not started | 0/3 |
+| 3. The Deletion Test | not started | 0/4 |
+| 4. Rule-Set Adoption on a Dirty Codebase | not started | 0/4 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/12 |
+
+**0 of 5 phases complete; 0 of 28 tasks.**
+
+### docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md
+
+exit 0
+
+**Plan**: Plan -- Frontier Agent Practice Adoption
+**Target version**: v4.19.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Foundation, surface decision, CLI ergonomics | not started | 0/4 |
+| 2. Verification-instrument doctrine | not started | 0/6 |
+| 3. Local instruments | not started | 0/5 |
+| 4. Agent discipline doctrine | not started | 0/4 |
+| 5. Documentation doctrine | not started | 0/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 33 tasks.**
+
+### docs/releases/v4/v4.19/plans/v4.19.1-adoption-tracer-bullet-and-leading-words.md
+
+exit 0
+
+**Plan**: Plan -- Tracer Bullet First and Leading Words
+**Target version**: v4.19.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and ownership | not started | 0/4 |
+| 2. Tracer bullet first | not started | 0/3 |
+| 3. Leading words for prompts | not started | 0/4 |
+| 4. Summaries, agent loops, and CI credentials | not started | 0/8 |
+| 5. Plan-shape evaluation | not started | 0/3 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 32 tasks.**
+
+### docs/releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md
+
+exit 0
+
+**Plan**: Plan -- Alignment Readback, Controlled-Language Register, and Routing Outcome Ledger
+**Target version**: v4.20.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and baselines | not started | 0/2 |
+| 2. Readback round | not started | 0/5 |
+| 3. Controlled-language register | not started | 0/7 |
+| 4. Routing outcome ledger | not started | 0/7 |
+| 5. Counts-only report | not started | 0/2 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 33 tasks.**
+
+### docs/releases/v4/v4.20/plans/v4.20.1-adoption-manager-context-signal-discipline.md
+
+exit 0
+
+**Plan**: Plan -- Manager-Context Signal Discipline Adoption
+**Target version**: v4.20.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Contract, its distributed home, and the gate | not started | 0/6 |
+| 2. Apply the contract across report-producing skills | not started | 0/15 |
+| 3. One save bar across the four named capture surfaces | not started | 0/9 |
+| 4. The `signal-briefing` skill (cut-line, deferrable to v4.16.2) | not started | 0/9 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/12 |
+
+**0 of 5 phases complete; 0 of 51 tasks.**
+
+### docs/releases/v4/v4.20/plans/v4.20.2-adoption-aika-modes.md
+
+exit 0
+
+**Plan**: Plan -- AiKA Modes Adoption
+**Target version**: v4.20.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Response confidence | not started | 0/5 |
+| 2. Mode-bound tool posture | not started | 0/3 |
+| 3. Cost honesty | not started | 0/2 |
+| 4. Declarable quality stages | not started | 0/4 |
+| 5. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (delta pass) | not started | 0/10 |
+
+**0 of 5 phases complete; 0 of 24 tasks.**
+
+### docs/releases/v4/v4.21/plans/v4.21.0-adoption-self-improving-harness-loop.md
+
+exit 0
+
+**Plan**: Plan -- Falsifiable Improvement Record, Signal-Bearing Fixtures, and State-Machine Verification
+**Target version**: v4.21.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and baselines | not started | 0/4 |
+| 2. Falsifiable improvement record | not started | 0/7 |
+| 3. Signal-bearing target fixtures | not started | 0/2 |
+| 4. Concentration rule | not started | 0/2 |
+| 5. Defaults-taken section and video notes | not started | 0/3 |
+| 6. State-machine verification skill | not started | 0/4 |
+| 7. Controlled-language checks | not started | 0/3 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 8 phases complete; 0 of 35 tasks.**
+
+### docs/releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md
+
+exit 0
+
+**Plan**: Plan -- Unopened Defaults, Agent Check Discipline, Authorization Proofs, and Reviewable Plan Pages
+**Target version**: v4.21.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and baseline | not started | 0/3 |
+| 2. Unopened defaults | not started | 0/6 |
+| 3. Payload and check-command rules | not started | 0/4 |
+| 4. Reproducible comparison and must-never properties | not started | 0/5 |
+| 5. Authorization proofs | not started | 0/7 |
+| 6. Plan page and linter | not started | 0/4 |
+| 7. Repository seeded tests | not started | 0/2 |
+| 8. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 8 phases complete; 0 of 41 tasks.**
+
+### docs/releases/v4/v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md
+
+exit 0
+
+**Plan**: Plan -- Evaluation Trust and Visual Agent Communication
+**Target version**: v4.21.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and thin-path baseline | not started | 0/4 |
+| 2. Communication handoffs | not started | 0/3 |
+| 3. Paired evidence and critical checks | not started | 0/4 |
+| 4. Local visual evaluation report | not started | 0/3 |
+| 5. Host qualification and behavioral gate | not started | 0/4 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 28 tasks.**
+
+### docs/releases/v4/v4.22/plans/v4.22.0-adoption-structural-slop-signatures.md
+
+exit 0
+
+**Plan**: Plan -- Structural Slop Signatures: Shape-First De-Slopping and Countable Shape Checks
+**Target version**: v4.22.0
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, baselines, and interface decisions | not started | 0/4 |
+| 2. Follow-up research comparisons | not started | 0/4 |
+| 3. Preservation gate, shape-first order, and admission test | not started | 0/4 |
+| 4. Structural-shape catalog | not started | 0/6 |
+| 5. Countable shape checks in the heading detector | not started | 0/4 |
+| 6. Paired behavior evaluation | not started | 0/4 |
+| 7. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 7 phases complete; 0 of 36 tasks.**
+
+### docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md
+
+exit 0
+
+**Plan**: Plan -- Illustration Production Discipline and Contact-Sheet Review
+**Target version**: v4.22.1
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, ownership, and baselines | not started | 0/6 |
+| 2. Production bible, reads, and handoffs | not started | 0/5 |
+| 3. Composition, style sheets, and motion | not started | 0/4 |
+| 4. Contact-sheet capture | not started | 0/3 |
+| 5. Illustration evaluation | not started | 0/3 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 31 tasks.**
+
+### docs/releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md
+
+exit 0
+
+**Plan**: Plan -- Reliable Unattended Runs, Evidence-Backed Comparisons, and Provenance Visuals
+**Target version**: v4.22.2
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission, decisions, and frozen scenarios | not started | 0/5 |
+| 2. Unattended-run reliability contract and run ledger | not started | 0/4 |
+| 3. Evidence-backed comparisons | not started | 0/4 |
+| 4. Cross-platform scheduling and template reach | not started | 0/5 |
+| 5. `/visualize` query mode and provenance page | not started | 0/4 |
+| 6. `/visualize` animate mode | not started | 0/2 |
+| 7. Built web bundle compare source (cuttable) | not started | 0/2 |
+| 8. MP4 export (cuttable, gated on v4.22.1) | not started | 0/3 |
+| 9. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 9 phases complete; 0 of 39 tasks.**
+
+### docs/releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md
+
+exit 0
+
+**Plan**: Plan -- Verified Agent Output: Test Integrity, Pull Request Proof, and a Publication Tripwire
+**Target version**: v4.22.3
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Admission and frozen fixtures | not started | 0/3 |
+| 2. Pull request proof | not started | 0/3 |
+| 3. Change-set test-integrity check and gate | not started | 0/5 |
+| 4. Publication tripwire (cuttable) | not started | 0/5 |
+| 5. Resource metrics in the regression gate (cuttable) | not started | 0/2 |
+| 6. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 6 phases complete; 0 of 28 tasks.**
+
+### docs/releases/v4/v4.22/plans/v4.22.4-adoption-claude-code-mods.md
+
+exit 0
+
+**Plan**: Plan -- Claude Code Mods Adoption
+**Target version**: v4.22.4
+
+| Phase | Status | Tasks |
+|---|---|---|
+| 1. Accurate, Reachable Mod-Exposure Advisory | not started | 0/6 |
+| 2. Hook Vocabulary and Audit Pattern | not started | 0/6 |
+| 3. Contract Findings Record, Tests, and Decision Records | not started | 0/8 |
+| 4. Architecture Refactor, Known-Gaps Reconciliation, and CI/CD | not started | 0/10 |
+
+**0 of 4 phases complete; 0 of 30 tasks.**
+
+### --next --root .
+
+exit 0
+
+**Next plan**: Plan -- Effort Allocation: Failure-Aware Escalation, Verification Effort, and Edge-Case Modifiers
+**Target version**: v4.14.1
+**Open**: 29 of 29 tasks across 5 phases
+
+Run this in a fresh session:
+
+```
+/implement v4.14.1 in-full
+```
+
+**Use frontier tier at max effort for the whole run.**
+
+`in-full` executes every phase in one invocation, so the setting has to carry the hardest phase rather than the average one. frontier/max is the maximum this plan asks for anywhere.
+
+Per platform, at that tier:
+
+| Platform | Model | Effort |
+|---|---|---|
+| Anthropic | `claude-fable-5-1` | max |
+| OpenAI | `gpt-6-astra` | max |
+| Google | `gemini-3.8-flash` | max |
+| Cursor | `grok-4.7` | max |
+
+Model map: fresh as of 2026-09-28; sources cited below.
+
+Cursor, OpenCode and Copilot have no scriptable model switch; set those in the picker before starting.

@@ -14,6 +14,11 @@ from typing import Any
 TIERS = ("frontier", "strong", "standard", "fast")
 PROVIDERS = ("Anthropic", "OpenAI", "Google", "Cursor")
 SIGNAL_LEVELS = ("low", "medium", "high")
+# Ordered weakest to strongest; the portable vocabulary fixed for plan fields.
+EFFORT_LEVELS = ("low", "medium", "high", "max")
+# The edge-case and unattended modifiers never raise verification effort past this
+# until the raise direction is measured; an effort already at `max` stays `max`.
+VERIFICATION_CAP = "high"
 ASSESS_LATER = "assess at implementation time"
 DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parent.parent / "references" / "last-known-model-map.json"
@@ -25,11 +30,40 @@ class MapValidationError(ValueError):
     """Raised when a model-map document violates the routing contract."""
 
 
-def score_signals(signals: list[str], *, uncertain: bool = False) -> dict[str, str]:
-    """Map five rubric signals to a generic tier and effort level."""
+def score_signals(
+    signals: list[str],
+    *,
+    uncertain: bool = False,
+    edge_cases: str = "low",
+    unattended: bool = False,
+) -> dict[str, str]:
+    """Map five rubric signals to a tier, an effort, and a raise-only verification effort."""
     if len(signals) != 5 or any(signal not in SIGNAL_LEVELS for signal in signals):
         raise ValueError("exactly five low|medium|high signals are required")
+    if edge_cases not in SIGNAL_LEVELS:
+        raise ValueError("edge-case density must be low, medium, or high")
+    result = _tier_and_effort(signals, uncertain=uncertain)
+    result["verification_effort"] = verification_effort(
+        result["effort"], edge_cases=edge_cases, unattended=unattended
+    )
+    return result
 
+
+def verification_effort(effort: str, *, edge_cases: str, unattended: bool) -> str:
+    """Raise `effort` for edge-case density, one more level when unattended, capped.
+
+    Never returns less than `effort`, and the modifiers alone never reach past
+    VERIFICATION_CAP. Unattended work with `low` density is not raised at all.
+    """
+    rank = EFFORT_LEVELS.index
+    floor = {"medium": rank("medium"), "high": rank("high")}.get(edge_cases)
+    if floor is None:
+        return effort
+    raised = max(rank(effort), floor) + (1 if unattended else 0)
+    return EFFORT_LEVELS[max(rank(effort), min(raised, rank(VERIFICATION_CAP)))]
+
+
+def _tier_and_effort(signals: list[str], *, uncertain: bool) -> dict[str, str]:
     high_count = signals.count("high")
     medium_count = signals.count("medium")
     if uncertain or high_count >= 2:
@@ -204,6 +238,14 @@ def build_parser() -> argparse.ArgumentParser:
     score_parser = subparsers.add_parser("score", help="score five rubric signals")
     score_parser.add_argument("signals", nargs=5, choices=SIGNAL_LEVELS)
     score_parser.add_argument("--uncertain", action="store_true")
+    score_parser.add_argument(
+        "--edge-cases", choices=SIGNAL_LEVELS, default="low",
+        help="edge-case density; raises verification_effort only",
+    )
+    score_parser.add_argument(
+        "--unattended", action="store_true",
+        help="no human answers within the phase; adds one level on medium or high density",
+    )
 
     validate_parser = subparsers.add_parser("validate", help="validate a map JSON")
     validate_parser.add_argument("path", type=Path)
@@ -228,7 +270,16 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "score":
-            print(json.dumps(score_signals(args.signals, uncertain=args.uncertain)))
+            print(
+                json.dumps(
+                    score_signals(
+                        args.signals,
+                        uncertain=args.uncertain,
+                        edge_cases=args.edge_cases,
+                        unattended=args.unattended,
+                    )
+                )
+            )
         elif args.command == "validate":
             data = load_map(args.path)
             print(

@@ -59,7 +59,7 @@ export type DataSource = "api" | "manual";
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
-  /** For Codex this mirrors {@link planLabel} (the account tier); there is no per-model dimension. */
+  /** The model `config.toml` pins (e.g. "gpt-5-codex"), else "Codex default"; display-only, since usage is account-wide. */
   currentModel: string;
   lastUpdated: number;
   dataSource?: DataSource;

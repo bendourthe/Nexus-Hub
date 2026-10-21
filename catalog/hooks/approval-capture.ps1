@@ -72,7 +72,7 @@ if (-not $python -or -not (Test-Path -LiteralPath $core)) { exit 0 }
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $python
 $psi.Arguments = '"' + $core + '" capture'
-$psi.UseShellExecute = $false
+$psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
 $psi.RedirectStandardInput = $true
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true

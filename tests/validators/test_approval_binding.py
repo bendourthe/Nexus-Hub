@@ -71,6 +71,7 @@ def _create(fx: Fixture, session: str = SESSION, **env: str) -> subprocess.Compl
             "record", "create", PLAN_REL, "--session", session,
             "--approvals", str(fx.approvals()),
             stdin=subprocess.DEVNULL,
+            # nexus: console-window-ok simulates no terminal; the checker hides its own children (test_no_console_window)
             **({"creationflags": 0x00000008} if os.name == "nt" else {"start_new_session": True}),
         )
     finally:
@@ -152,7 +153,7 @@ def test_a_line_replayed_from_an_earlier_consumed_round_is_refused(tmp_path: Pat
 def test_a_newer_render_invalidates_the_older_code(tmp_path: Path) -> None:
     fx = _fixture(tmp_path)
     older = _render(fx)
-    _render(fx)
+    fx.render(SESSION, "--approvals", str(fx.approvals()), "--platform", "claude")
     _hook(fx, SESSION, older)
     assert _reason(_create(fx)) == "code-superseded"
     assert not list(fx.runs.glob("*.json"))
@@ -275,9 +276,9 @@ def test_a_mid_run_answer_needs_its_own_exact_line(tmp_path: Path) -> None:
     _hook(fx, SESSION, "ok")
     refused = fx.run("record", "answer", PLAN_REL, "--session", SESSION, "--blocker", "0")
     assert _reason(refused) == "approval-not-captured"
-    fx.render(SESSION, "--action", "answer", "--blocker", "0")
-    _hook(fx, SESSION, answer)  # the superseded answer line
-    assert _reason(fx.run("record", "answer", PLAN_REL, "--session", SESSION, "--blocker", "0")) == "code-superseded"
+    assert fx.render(SESSION, "--action", "answer", "--blocker", "0") == answer
+    _hook(fx, SESSION, answer)  # unchanged displayed challenge remains valid
+    assert fx.run("record", "answer", PLAN_REL, "--session", SESSION, "--blocker", "0").returncode == 0
 
 
 @pytest.mark.parametrize("render_session", ["auto", "nested-agent"])

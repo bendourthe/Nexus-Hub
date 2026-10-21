@@ -136,7 +136,7 @@ export class StatusBarManager {
   private statusText(data: UsageData | undefined, staleLabel: string): string {
     const compact = vscode.workspace
       .getConfiguration("codexUsage")
-      .get<boolean>("compactStatusBar", false);
+      .get<boolean>("compactStatusBar", true);
     const label = compact ? "" : "Codex Usage: ";
     if (!data) {
       return `${CODEX_ICON}${ICON_GAP}${label}--${staleLabel}`;

@@ -26,7 +26,12 @@ def test_scoped_pip_cache_uses_the_installed_manifest(
     steps = workflow["jobs"][job_name]["steps"]
     setup = next(step for step in steps if step.get("uses", "").startswith("actions/setup-python@"))
     inputs = setup["with"]["cache-dependency-path"].splitlines()
-    assert inputs == [manifest, LOCK]
+    expected_inputs = [manifest, LOCK]
+    extra_tools = ""
+    if job_name == "tests-windows-installer":
+        expected_inputs.append(".github/workflows/ci.yml")
+        extra_tools = " pytest-xdist==3.8.0 execnet==2.1.2"
+    assert inputs == expected_inputs
     assert (ROOT / manifest).is_file()
     install = next(step for step in steps if step.get("name") == step_name)
-    assert install["run"] == f"python -m pip install -c {LOCK} -r {manifest}"
+    assert install["run"] == f"python -m pip install -c {LOCK} -r {manifest}{extra_tools}"

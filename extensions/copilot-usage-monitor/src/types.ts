@@ -89,6 +89,8 @@ export interface UsageData {
   organizationError?: PartialError;
   /** The personal half failed while the organization half succeeded. */
   personalError?: PartialError;
+  /** The model selected in the Chat view (e.g. "claude-opus-5.5"), when the editor's state records one. Display-only. */
+  currentModel?: string;
   lastUpdated: number;
   dataSource: DataSource;
 }

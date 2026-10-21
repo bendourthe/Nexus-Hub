@@ -15,6 +15,7 @@ import {
   type ConsentPromptRequest
 } from "./providers/consent";
 import { CursorUsageProvider } from "./providers/cursor";
+import { readCursorSelectedModel } from "./providers/currentModel";
 import {
   createCredentialSource,
   resolveLiveCapability
@@ -84,7 +85,8 @@ export function activate(context: vscode.ExtensionContext): void {
     context.globalState,
     new WindowConsentPrompt()
   );
-  const adapter = new CursorSessionAdapter({ statePath: resolveStatePath() });
+  const statePath = resolveStatePath();
+  const adapter = new CursorSessionAdapter({ statePath });
   const liveAccess = { secrets, consent, adapter };
 
   // Resolved asynchronously after activation; the runtime reads it through a thunk
@@ -98,6 +100,10 @@ export function activate(context: vscode.ExtensionContext): void {
       jsonTransport: new CursorLiveUsageTransport()
     }),
     liveTransportCapable: () => liveCapable,
+    // The model read is part of the consented state-database read, so it runs
+    // only while live access is granted and usable.
+    readCurrentModel: async () =>
+      liveCapable ? readCursorSelectedModel(statePath) : undefined,
     revokeLiveConsent: async () => {
       liveCapable = false;
       await consent.revoke();

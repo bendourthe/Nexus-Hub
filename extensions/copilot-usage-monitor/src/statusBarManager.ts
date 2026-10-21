@@ -125,7 +125,7 @@ export class StatusBarManager {
   }
 
   private compact(): boolean {
-    return vscode.workspace.getConfiguration(CONFIG_SECTION).get<boolean>("compactStatusBar", false);
+    return vscode.workspace.getConfiguration(CONFIG_SECTION).get<boolean>("compactStatusBar", true);
   }
 
   private updateDisplay(data: UsageData | undefined): void {

@@ -216,6 +216,7 @@ Each phase must follow this template exactly:
 **Verification Expectation**: [Name the real command, interaction, or generated artifact a reader can run or open, the specific result they must observe, and any delegated procedure from [[functional-verification]]. "Tests pass" alone is not sufficient.]
 **Recommended model tier**: [frontier / strong / standard / fast]
 **Recommended effort level**: [low / medium / high / max]
+**Recommended verification effort**: [same vocabulary; omit when equal to the effort level]
 **Rationale**: [One sentence tying the tier and effort to the phase's complexity signals. Do not name a concrete provider model here.]
 
 ### Sub-tasks
@@ -348,9 +349,13 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Terminal refactor phase | Every plan ends with a fail-closed last phase that includes `[[functional-verification]]`'s Tier 3 deep pass. Each duty writes a section of `<version_dir>/development/<version>-last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
 | CI impact per phase | Every phase's testing sub-task RECORDS its CI impact against `[[cicd-architect]]` (new commands, dependencies, env vars, test paths, artifacts, and whether the pipeline already covers them). It does NOT author or optimize the pipeline. Actual reconciliation happens once, in the final phase, unless CI/CD is a given phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally. |
 | Local commit per phase | Every phase ends with exactly one local commit scoped to that phase. Non-final phases MUST NOT push, open a pull request, or start remote CI: seven runs on knowingly incomplete work cost seven times one run on complete work and produce worse signal, because a red check on incomplete work teaches the author to ignore red checks. |
-| Publication is terminal | The final phase owns the plan's single branch publication, the integration pull request, and the wait for required checks. Release work starts only after that integration result is green and merged. |
+| Publication is terminal | The final phase owns the single branch publication, integration pull request and required-check wait under the completion contract's authorization policy. Release starts only after green merged integration. |
 
 ---
+
+## Authorization handoff
+
+The single authorization and genuine-capture policy lives in [`completion-contract.md`](../implement-phase/references/completion-contract.md), "Authorization policy", "Manual decisions" and "Approval origin". Generated plans state scope, exclusions, limits and explicitly named paths for consequential planned actions, then delegate to that policy. A genuinely approved plan with trusted full-access evidence continues within its signed scope without repeated consent; manual decisions explain the concrete action and effect, offer Approve/Decline through available host question tools, and use genuinely captured short replies when direct clickable capture is unavailable. Do not turn every repair, derived release value or unchanged blocker observation into a new approval. Preserve spend/retry bounds, tests, edit preservation and unresolved technical conditions. Correct frozen-plan workflow guidance through an approved sidecar, not a rewrite of its signed prose.
 
 ## Parallel implementation metadata
 
@@ -384,6 +389,7 @@ Before writing the file, outline the phases mentally:
 Once the phase breakdown is fixed and before writing the file, score every phase to generic capability intent and build the plan's cross-provider lookup:
 
 - **Score each phase.** Invoke `[[model-routing]]` once per phase and map the rubric to `frontier`, `strong`, `standard`, or `fast`, plus `low`, `medium`, `high`, or `max` effort. Any uncertainty or high-risk signal defaults to `frontier` with `high` or `max` effort. Record the generic values in the two glance columns and the three per-phase fields.
+- **Score verification effort.** When a phase's edge-case density is `medium` or `high`, `[[model-routing]]` computes a verification effort with `--edge-cases` only, per its `references/effort-modifiers.md`; record it as the optional `**Recommended verification effort**` field when it is above the effort. Never apply `--unattended` here: the run mode is known only when `/implement` is invoked, and its pre-flight applies it. The field adds no glance-table column. After writing the plan, run `python ~/.nexus-hub/scripts/plan_status.py --check <plan>`; exit 3 names each phase whose value is invalid or below its effort.
 - **Refresh all providers.** On every full `/plan` invocation, use web search and official provider documentation to populate `## Current model map` for Anthropic, OpenAI, Google, and Cursor. Host-platform enumeration may confirm the current host's picker, but it MUST NOT limit the plan to one provider or become the authoritative plan recommendation.
 - **Cite the roster.** Emit `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and include at least one official URL per provider under `### Model map sources`.
 - **Degrade visibly, never silently.** If web search or official docs are unavailable, use the dated bundled snapshot and emit `**Model map status**: offline fallback; stale as of YYYY-MM-DD.`. If no verified snapshot exists, fill all 16 cells with `assess at implementation time` and emit `**Model map status**: unavailable; assess at implementation time.`. Plan generation never blocks, but staleness is explicit.
@@ -500,6 +506,7 @@ Create no branch. Commit the plan and its tracker entry on the integration branc
 - [ ] Every phase states a Verification Expectation beside its Stability Gate that names what a reader can run or open and the specific result they must observe, with the exercise procedure delegated to `[[functional-verification]]`
 - [ ] Every phase ends with an automated testing and stabilization sub-task that records CI impact against `[[cicd-architect]]` WITHOUT authoring or optimizing the pipeline; human/manual testing suggestions appear only in the last phase
 - [ ] Every phase ends with exactly one local commit, and every non-final phase explicitly prohibits push, pull request, and remote CI
+- [ ] Authorization delegates to the completion contract; scope, exclusions, original bounds and planned consequential paths are explicit, and no generated prompt contradicts automatic in-scope continuation or genuine manual capture.
 - [ ] The final phase owns the single branch publication, integration pull request and required checks; its living-docs task invokes `technical-documentation` through `references/handbook-refresh.md` before publication. Release rechecks the merged candidate before version mutation and affected outputs afterward; failed required evidence blocks handoff.
 - [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Tier 3 deep pass via `[[functional-verification]]`, N.7 Goal-vs-codebase review, N.8 last-phase-only human testing, N.9 full-suite testing, N.10 publication and integration) and requires `<version_dir>/development/<version>-last-phase-evidence.md`, including `## Tier 3 deep pass`
 - [ ] Every sub-task has a complete, self-contained executable prompt
