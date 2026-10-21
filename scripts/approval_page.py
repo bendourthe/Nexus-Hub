@@ -575,7 +575,7 @@ def whole_run_setting(phases: list[dict]) -> tuple[str, str, list[dict]] | None:
 
 def time_estimate(phases: list[dict], releases: int) -> dict[str, float]:
     """Rough hours per part of the run: building, testing, fixing, releasing."""
-    build = sum(MINUTES_PER_TASK[p["effort"]] * max(p["tasks"], 1) for p in phases) / 60
+    build = sum(MINUTES_PER_TASK[p["effort"]] * p["tasks"] for p in phases) / 60
     parts = {"building": build, "testing": build * TESTING_SHARE, "fixing": build * FIXING_SHARE,
              "releasing": releases * RELEASE_MINUTES / 60}
     return {k: round(v * 2) / 2 for k, v in parts.items()}
@@ -638,7 +638,7 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         fixed += f"; {len(movable)} may move to {target}"
     elif not minor and "defer-gaps" in names:
         fixed += "; some may wait for a later version"
-    rows.append(("Fixed", fixed))
+    rows.append(("Open gaps in scope", fixed))
     if minor and "archive-minor" in names:
         rows.append(("Archived", f"The {_scope_token(page)} documents"))
     elif "archive-minor" in names:
@@ -655,9 +655,10 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         tier, effort, above = setting
         more = f"; more for {_count(len(above), 'phase')}, see Phases" if above else ""
         rows.append(("Run it on", f"{tier.capitalize()} models at {effort} effort{more}"))
-        hours = time_estimate(phases, len(releases) if "release" in names else 0)
-        rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
-            f"{_hours(v)} {k}" for k, v in hours.items())))
+        if any(p['tasks'] for p in phases):
+            hours = time_estimate(phases, len(releases) if "release" in names else 0)
+            rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
+                f"{_hours(v)} {k}" for k, v in hours.items())))
     rows.append(("In parallel", _parallel(display)))
     caps = _caps(page)
     if (page.get('autonomy') or {}).get('planned_actions'):

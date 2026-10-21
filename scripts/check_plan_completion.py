@@ -974,6 +974,7 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> s
             "-C",
             str(ctx.root),
             "log",
+            "--full-history",
             "--format=%H",
             f"{start}..HEAD",
             "--",
@@ -996,7 +997,7 @@ def _dated_task_status(ctx: Context, path: str, start: str) -> str:
     pattern = re.compile(re.escape(head) + r"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])" + re.escape(tail) + r"\Z")
     folder = head.rsplit("/", 1)[0] if "/" in head else "."
     rc, out = _run(
-        [ctx.git, "-C", str(ctx.root), "log", "--format=", "--name-only", "--no-renames",
+        [ctx.git, "-C", str(ctx.root), "log", "--full-history", "--format=", "--name-only", "--no-renames",
          f"{start}..HEAD", "--", folder],
         ctx.budget,
     )
@@ -1306,7 +1307,7 @@ def _changelog_status(ctx: Context) -> str:
     text = changelog.read_text(encoding="utf-8", errors="replace")
     return (
         "met"
-        if re.search(rf"^## \[{re.escape(bare)}\]", text, re.MULTILINE)
+        if re.search(rf"^#{{1,2}} \[{re.escape(bare)}\]", text, re.MULTILINE)
         else "unmet"
     )
 
@@ -1614,12 +1615,10 @@ def _consume(
             live_page=page,
             session=session,
             required_session=required_session,
+            pasted_line=text,
         )
     except approval_binding.Refusal as refusal:
         return _refused(refusal.reason)
-    if text is not None and normalize(text) not in {normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]}:
-        # The round is spent either way: a claimed text that is not the pasted line is not an approval.
-        return _refused("approval-not-captured")
     return pending, bound
 
 
@@ -1993,6 +1992,21 @@ def cmd_record_resume(args: argparse.Namespace) -> int:
     return 0
 
 
+def uncovered_gap_request(record: dict, request: dict) -> bool:
+    """An explicit nonempty gap-id request exceeds the frozen migration class.
+
+    This only permits recording a blocker. It grants no migration authority.
+    """
+    ids = request.get('ids')
+    minor = _minor_module()
+    if not isinstance(ids, list) or not ids or not all(
+        isinstance(pid, str) and minor.GAP_ID_RE.fullmatch(pid) for pid in ids
+    ):
+        return False
+    bound, _named = minor.migration_class(record)
+    return not {minor.normalize_gap_id(pid) for pid in ids} <= bound
+
+
 def cmd_record_block(args: argparse.Namespace) -> int:
     if _scoped(args):
         return _minor_module().cmd_record_block(sys.modules[__name__], args)
@@ -2010,14 +2024,16 @@ def cmd_record_block(args: argparse.Namespace) -> int:
         and args.approval_class == "push-merge"
         and _approved_remote_status(ctx, record) != "met"
     )
-    if args.approval_class and args.approval_class in approved and not remote_mismatch:
+    request = _json_request(getattr(args, 'request', '{}'))
+    uncovered = args.approval_class == 'gap-migration' and uncovered_gap_request(record, request)
+    if args.approval_class and args.approval_class in approved and not remote_mismatch and not uncovered:
         print(
             f"rejected: the approvals already answer {args.approval_class}",
             file=sys.stderr,
         )
         return EXIT_MALFORMED
     entry = {'category': args.category, 'evidence': args.evidence[:2000], 'open': True, 'at': _now(),
-             'approval_class': args.approval_class, 'request': _json_request(getattr(args, 'request', '{}')),
+             'approval_class': args.approval_class, 'request': request,
              'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
     approval_binding.add_blocker(record, entry)
     _write_record(ctx.record_path(), record)
@@ -2238,6 +2254,7 @@ def build_parser() -> argparse.ArgumentParser:
     check_minor.add_argument("minor", help="a minor scope token such as v0.5")
     check_minor.add_argument("--repo", default=".", help="a path inside the repository")
     check_minor.add_argument("--json", action="store_true")
+    check_minor.add_argument("--detail", action="store_true", help="show gap diagnostics even when blocked; never changes the verdict")
     check_minor.add_argument("--session")
     check_minor.set_defaults(func=cmd_check_minor)
     member_check = sub.add_parser("check-member", help="read-only member check using parent minor approval")
@@ -2313,7 +2330,7 @@ def build_parser() -> argparse.ArgumentParser:
     answer.add_argument("--session", required=True)
     answer.add_argument("--blocker", type=int, required=True)
     answer.add_argument("--member", help="with --minor: require this blocker's member version")
-    answer.add_argument("--text", help="when given, must equal the pasted line")
+    answer.add_argument("--pasted-line", "--text", dest="text", help="exact captured approval line, never a reason or note; mismatch leaves the round open")
     answer.set_defaults(func=cmd_record_answer)
     for name, func in (("pause", cmd_record_pause), ("resume", cmd_record_resume)):
         action = record.add_parser(name)

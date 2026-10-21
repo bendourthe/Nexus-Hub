@@ -630,7 +630,7 @@ def test_the_longest_summary_stays_within_the_word_budget() -> None:
     page = approval_page.render_page(data)
     summary, paste, _ = _split(page)
     assert _words(_outcome_free(summary) + paste) <= WORD_BUDGET, _words(_outcome_free(summary) + paste)
-    assert set(_summary_rows(page)) == {"Released", "Fixed", "Archived", "Cleaned up", "Permission prompts",
+    assert set(_summary_rows(page)) == {"Released", "Open gaps in scope", "Archived", "Cleaned up", "Permission prompts",
                                         "Run it on", "Time", "In parallel"}
 
 

@@ -1187,7 +1187,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
 
 
 def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: dict, session: str,
-             required_session: str | None = None) -> tuple[dict, str] | int:
+             required_session: str | None = None, *, text: str | None = None) -> tuple[dict, str] | int:
     try:
         return approval_binding.consume(
             ck._runs_dir(),
@@ -1197,6 +1197,7 @@ def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: d
             live_page=page,
             session=session,
             required_session=required_session,
+            pasted_line=text,
         )
     except approval_binding.Refusal as refusal:
         return ck._refused(refusal.reason)
@@ -1287,14 +1288,10 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     if isinstance(record, int):
         return record
     page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
-    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""))
+    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""), text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
-    if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
-    }:
-        return ck._refused("approval-not-captured")
     record["blockers"][args.blocker].update(
         open=False, answered=ck._now(), answer_text=approval_binding.pasted(pending),
     )
@@ -1316,14 +1313,10 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
     # A pause lands in the record's own session; a resume is the one-line paste
     # that carries the record into the session where it was captured.
     required = str(record.get("session_id") or "") if action == "pause" else None
-    consumed = _consume(ck, rctx, token, action, page, args.session, required)
+    consumed = _consume(ck, rctx, token, action, page, args.session, required, text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, session = consumed
-    if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
-    }:
-        return ck._refused("approval-not-captured")
     if action == "pause":
         record["pause"] = {"at": ck._now(), "text_sha256": pending["paste_digests"][0]}
         ck._write_record(record_file(ck, rctx, token), record)
@@ -1640,6 +1633,7 @@ def _layout_of(rel: str, major: int, minor: int) -> str | None:
 
 def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     """Every known-gaps ledger at a layout path, and the paths that could not be read."""
+    root = root.resolve()
     seen: dict[str, Path] = {}
     for pattern in LEDGER_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -2845,6 +2839,14 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
+    if getattr(args, 'detail', False) and verdict.code == ck.EXIT_BLOCKED and verdict.record is not None:
+        integration = _integration_ref(rctx, _target(verdict.record))
+        loaded = load_ledgers_at(rctx, integration) if integration else None
+        if loaded is None:
+            verdict.notices.append('diagnostic gaps.minor integration branch unreadable')
+        else:
+            gaps, notices = gaps_minor_status(ck, rctx, args.minor, verdict.record, loaded)
+            verdict.notices.extend([f'diagnostic gaps.minor {gaps}', *notices])
     for notice in [*verdict.notices, *rctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(verdict.line)
@@ -3468,11 +3470,13 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
             raise ck.Malformed(f"{args.member} is not a member of {token}")
     member_classes = ((member or {}).get("approvals") or {}).get("classes") or []
     approved = _classes(record) | {str(c.get("class")) for c in member_classes if isinstance(c, dict)}
-    if args.approval_class and args.approval_class in approved:
+    request = ck._json_request(getattr(args, 'request', '{}'))
+    uncovered = args.approval_class == 'gap-migration' and ck.uncovered_gap_request(record, request)
+    if args.approval_class and args.approval_class in approved and not uncovered:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
     entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
-             'approval_class': args.approval_class, 'request': ck._json_request(getattr(args, 'request', '{}')),
+             'approval_class': args.approval_class, 'request': request,
              'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
     if member is not None:
         entry["version"] = args.member

@@ -356,6 +356,34 @@ def plan_repairs(
     return repairs
 
 
+def residual_references(
+    root: Path, files: list[tuple[str, str, str]], repairs: list[Repair], src: str,
+) -> dict[str, int]:
+    """Count old-tree mentions after planned repairs, including code and captured data.
+
+    Reporting never rewrites these bytes: JSON receipts and historical evidence
+    can contain hashes and must not be changed by a general path substitution.
+    """
+    projected = {repair.old_rel: repair.repaired for repair in repairs}
+    patterns = _mention_patterns(src)
+    residual = {}
+    for read_rel, old_rel, new_rel in files:
+        try:
+            if old_rel in projected:
+                text = projected[old_rel]
+            else:
+                path = root / read_rel
+                if path.stat().st_size > MAX_TEXT_BYTES:
+                    continue
+                text = path.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            continue
+        count = sum(len(pattern.findall(text)) for pattern in patterns)
+        if count:
+            residual[new_rel] = count
+    return residual
+
+
 # --------------------------------------------------------------------------- migrate
 
 
@@ -535,12 +563,21 @@ def _project_name(root: Path, text: str) -> str:
 
 def plan_migration(
     rctx: ck.RepoContext, token: str, record: dict, pid: str, reason: str, evidence: str, date: str,
+    *, to: str | None = None,
 ) -> MigrationPlan:
     """Every check the Migrate mode requires, then the two files' new text, unwritten."""
     source_token, gid = pid.split("#")
     source_minor = cm.minor_of(source_token)
     if source_minor > cm.minor_of(token):
         raise Refused("out-of-scope", pid)
+    target_token = cm.next_minor(token)
+    if to is not None:
+        if not cm.PLAN_TOKEN_RE.fullmatch(to) or not to.endswith('.0'):
+            raise ck.Malformed('--to must be a minor-start version such as v2.15.0')
+        target_minor = cm.minor_of(to)
+        if not source_minor < target_minor <= cm.minor_of(target_token):
+            raise Refused('migration-target-out-of-scope', to)
+        target_token = 'v{}.{}'.format(*target_minor)
     ledgers, unreadable = cm.load_ledgers(rctx.root)
     if unreadable:
         raise Refused("ledger-unreadable", unreadable[0])
@@ -566,7 +603,6 @@ def plan_migration(
         raise Refused(why, pid)
     if why == "planned-follow-on" and reason != "user-deferred":
         raise Refused("planned-followon-reason-invalid", pid)
-    target_token = cm.next_minor(token)
     tmin = cm.minor_of(target_token)
     target_path, target_rel, target_before = _target_ledger(rctx, ledgers, target_token)
     scoped = [source, cm.Ledger(target_path, target_rel, tmin, "active", target_before or "", [])]
@@ -608,7 +644,7 @@ def _migration_texts(
     target: tuple[Path, str, str | None], reason: str, evidence: str, date: str,
     label: str | None = None, ledgers: list[cm.Ledger] | None = None,
 ) -> MigrationPlan:
-    """Both files' new text for moving one open item to the next minor's `.0` section.
+    """Both files' new text for moving one open item to a later minor's `.0` section.
 
     `label` names the source as `vX.Y.Z#ID` for a one-plan run, whose ledger repeats
     ids across version sections; a minor close names it `vX.Y#ID`.
@@ -718,8 +754,9 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     record, _path = _record(rctx, token, args.session)
     if record is None:
         raise Refused("approval-not-covered", f"no minor record for {token}")
-    plan = plan_migration(rctx, token, record, pid, args.reason, evidence, date)
-    target_token = cm.next_minor(token)
+    to = getattr(args, 'to', None)
+    plan = plan_migration(rctx, token, record, pid, args.reason, evidence, date, to=to)
+    target_token = 'v{}.{}'.format(*cm.minor_of(to)) if to else cm.next_minor(token)
     verb = "WOULD MIGRATE" if args.dry_run else "MIGRATED"
     if not args.dry_run:
         apply_migration(plan)
@@ -1278,7 +1315,11 @@ def cmd_archive(args: argparse.Namespace) -> int:
     def moved(rel: str) -> str:
         return dest + rel[len(tree):] if rel == tree or rel.startswith(tree + "/") else rel
 
-    preview = plan_repairs(rctx.root, [(rel, rel, moved(rel)) for rel in files], tree, dest)
+    mapped_files = [(rel, rel, moved(rel)) for rel in files]
+    preview = plan_repairs(rctx.root, mapped_files, tree, dest)
+    residual = residual_references(rctx.root, mapped_files, preview, tree)
+    for rel, count in residual.items():
+        print(f"notice: residual-reference {rel} count={count} (preserved)", file=sys.stderr)
     refusals = [
         *register_refusals(rctx, token, record, tree),
         *plan_refusals(rctx, token, record),
@@ -1290,7 +1331,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
     if checker is None:
         refusals.append(Refused("link-checker-unavailable", "docs-layout-refactor scripts/link-baseline.py"))
     summary = (f"links={sum(r.links for r in preview)} mentions={sum(r.mentions for r in preview)} "
-               f"files={len(preview)}")
+               f"files={len(preview)} residual_references={sum(residual.values())}")
     if refusals:
         for refusal in refusals:
             print(refusal.line())
@@ -1320,7 +1361,15 @@ def cmd_status(args: argparse.Namespace) -> int:
     rctx = _context(args)
     token = args.minor
     cm.parse_minor(ck, token)
-    record, _path = _record(rctx, token, None)
+    state = cm.load_minor(ck, rctx, token, None)
+    record = state.record
+    if state.forced is not None:
+        print(state.forced[0])
+        if getattr(args, 'detail', False) and record is not None:
+            gaps, notices = cm.gaps_minor_status(ck, rctx, token, record)
+            for notice in [f'diagnostic gaps.minor {gaps}', *notices]:
+                print(f'notice: {notice}', file=sys.stderr)
+        return EXIT_REFUSED
     gaps, notices = cm.gaps_minor_status(ck, rctx, token, record)
     print(f"gaps.minor {gaps}")
     print(f"archive.minor {cm.archive_minor_status(ck, rctx, token, record)}")
@@ -1335,6 +1384,7 @@ def build_parser() -> argparse.ArgumentParser:
     migrate = sub.add_parser("migrate", help="migrate one approved gap to the next minor")
     migrate.add_argument("--minor", required=True)
     migrate.add_argument("--id", required=True, help="the gap, such as v0.5#WN-3")
+    migrate.add_argument("--to", help="later minor-start version, such as v2.15.0; no later than the run's next minor")
     migrate.add_argument("--reason", required=True, choices=cm.MIGRATION_REASONS)
     migrate.add_argument("--evidence", required=True)
     migrate.add_argument("--date")
@@ -1366,6 +1416,7 @@ def build_parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="print the gaps.minor and archive.minor lines")
     status.add_argument("--minor", required=True)
     status.add_argument("--repo", default=".")
+    status.add_argument("--detail", action="store_true", help="show gap diagnostics even when blocked; never changes the verdict")
     status.set_defaults(func=cmd_status)
     return parser
 

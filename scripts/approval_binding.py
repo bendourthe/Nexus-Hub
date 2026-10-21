@@ -397,6 +397,7 @@ def consume(
     live_page: dict,
     session: str,
     required_session: str | None = None,
+    pasted_line: str | None = None,
 ) -> tuple[dict, str]:
     """Return (pending, bound session) and consume the round, or raise Refusal.
 
@@ -463,12 +464,20 @@ def consume(
     rendered_at = float(pending["rendered_at"])
     if not any(at is not None and at < rendered_at and d not in wanted for d, at in captured):
         raise Refusal("session-too-new")
+    lines = pending.get("approve_lines") or []
+    actual = short if short is not None else (
+        approved_text(lines[wanted.index(matched)]) if len(lines) == len(wanted) else pasted(pending)
+    )
+    if pasted_line is not None and normalize(pasted_line) not in {
+        normalize(line) for line in [*pending['paste_lines'], actual]
+    }:
+        # Validate caller input before claiming the genuine capture or spending the round.
+        raise Refusal('approval-not-captured')
     if event is not None:
         _claim_event(runs, session, event)
         pending['capture'] = host_capture_context(event, session)
     path.unlink()
     # The message the user actually pasted, so the record stores what was approved.
-    lines = pending.get("approve_lines") or []
     if short is not None:
         pending["pasted"] = short
     elif len(lines) == len(wanted):
