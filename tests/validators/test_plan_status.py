@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -156,3 +158,91 @@ def test_the_real_repository_parses(tmp_path: Path) -> None:
     assert plans, "no plans found; the glob no longer matches this repository"
     parsed = [ps.Plan(p) for p in plans[:20]]
     assert any(p.phases for p in parsed), "no plan yielded phases"
+
+
+CHECK_PLAN = """# Plan - Check
+
+**Version**: v9.1.0
+
+## Phase 1: One
+
+**Recommended model tier**: strong
+**Recommended effort level**: high
+{field}
+- [ ] T001 open
+"""
+
+
+def _write_check_plan(tmp_path: Path, field: str) -> Path:
+    path = tmp_path / "check-plan.md"
+    path.write_text(CHECK_PLAN.format(field=field), encoding="utf-8")
+    return path
+
+
+@pytest.mark.parametrize(
+    ("field", "code", "err"),
+    (
+        ("", 0, ""),
+        ("**Recommended verification effort**: high", 0, ""),
+        ("**Recommended verification effort**: max", 0, ""),
+        (
+            "**Recommended verification effort**: medium",
+            3,
+            "phase 1: verification effort medium below effort high\n",
+        ),
+        (
+            "**Recommended verification effort**: xhigh",
+            3,
+            "phase 1: invalid verification effort xhigh\n",
+        ),
+    ),
+)
+def test_check_reports_each_verification_effort_violation(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], field: str, code: int, err: str
+) -> None:
+    assert ps.main(["--check", str(_write_check_plan(tmp_path, field))]) == code
+    assert capsys.readouterr().err == err
+    assert ps.EXIT_CONTRACT == 3
+
+
+def test_check_skips_the_comparison_for_a_legacy_phase(tmp_path: Path) -> None:
+    legacy = CHECK_PLAN.replace("**Recommended effort level**: high\n", "")
+    path = tmp_path / "legacy.md"
+    path.write_text(legacy.format(field="**Recommended verification effort**: low"), encoding="utf-8")
+    assert ps.contract_violations(ps.Plan(path)) == []
+    path.write_text(legacy.format(field="**Recommended verification effort**: ultra"), encoding="utf-8")
+    assert ps.contract_violations(ps.Plan(path)) == ["phase 1: invalid verification effort ultra"]
+
+
+@pytest.mark.parametrize("other", (["--digest"], ["--next"], ["--plan", "PLAN"]))
+def test_check_is_its_own_mode(tmp_path: Path, other: list[str]) -> None:
+    path = _write_check_plan(tmp_path, "**Recommended verification effort**: medium")
+    extra = [str(path) if arg == "PLAN" else arg for arg in other]
+    with pytest.raises(SystemExit) as exit_info:
+        ps.main(["--check", str(path), *extra])
+    assert exit_info.value.code == 2
+
+
+def test_check_on_a_missing_plan_is_unreadable(tmp_path: Path) -> None:
+    assert ps.main(["--check", str(tmp_path / "nope.md")]) == ps.EXIT_UNREADABLE
+
+
+def test_the_field_changes_neither_the_table_nor_the_hardest_effort(tmp_path: Path) -> None:
+    without = ps.Plan(_write_check_plan(tmp_path, ""))
+    with_field = ps.Plan(_write_check_plan(tmp_path, "**Recommended verification effort**: max"))
+    assert ps.progress_table(with_field) == ps.progress_table(without)
+    assert with_field.hardest() == without.hardest() == ("strong", "high")
+
+
+def test_check_passes_on_every_repository_plan() -> None:
+    # Tracked plans only: a filesystem glob walks archived evidence trees whose paths
+    # exceed the Windows MAX_PATH limit and fail under some interpreters.
+    listed = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z", "--", "docs"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8").split("\0")
+    plan_re = re.compile(r"docs/(?:[^/]+/)*plans/[^/]+\.md")
+    plans = sorted(ROOT / p for p in listed if plan_re.fullmatch(p))
+    assert plans
+    assert [v for p in plans for v in ps.contract_violations(ps.Plan(p))] == []

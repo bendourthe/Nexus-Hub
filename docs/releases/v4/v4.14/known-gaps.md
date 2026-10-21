@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-18
-**Open items**: 80
+**Last updated**: 2026-10-20
+**Open items**: 82
 
 ## v4.14.0
 
@@ -3118,3 +3118,54 @@ Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native co
 **Current recheck**: the first root-only projection repair passed its bounded suite but still skipped valid case-distinct metadata inside a custom hook. The applied correction now keeps exact dictionaries through the original hook identity algorithm; its expanded candidate passed 37 native cases per runtime. The applied correction now passes the affected actual-tree suites (394 passed/10 skipped on 5.1; 226 passed on 7). Complete installer and final qualification are still pending.
 
 Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+## v4.14.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-15: Planned follow-on: the lower-direction modifier
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.1 Phase 1 T004
+
+**Plan reference**: v4.14.1-adoption-effort-allocation.md
+
+**Frozen plan sha256**: 2eb59610176121b531129c48f9c324fbb8001fbbe18f5a3bc8159776f479120e
+
+**Frozen task sha256**: a0926958bc86d538168aeaeee9ee850b4703a8fe4d937fe90b4dee48368d7efa
+
+**Reason**: lowering implementation effort for fully specified or in-the-loop phases would weaken the no-degradation guarantee, and the seeding evidence (5 attempts per task, one vendor's models) cannot carry that change
+
+**Suggested next step**: once the `v4.15.2` harness-pairing instrument exists, run one well-specified Nexus-Hub phase at the tier-default effort and one level lower, compare receipts, and file a decision record either way.
+
+#### DF-16: Planned follow-on: the raise-direction measurement
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.1 Phase 1 T005
+
+**Plan reference**: v4.14.1-adoption-effort-allocation.md
+
+**Frozen plan sha256**: 2eb59610176121b531129c48f9c324fbb8001fbbe18f5a3bc8159776f479120e
+
+**Frozen task sha256**: 29c8fb7e8426717b7f5756fdd73978d431e8ab49ea78f0d2846e8a39f1209409
+
+**Reason**: the `--edge-cases` and `--unattended` modifiers raise verification effort without measurement, and `effort-level-strategy.md` reports that `max` costs 2-3x for no gain on routine work, so the modifiers are capped at `high` for every run
+
+**Suggested next step**: once the `v4.15.2` harness-pairing instrument exists, run one edge-case-dense unattended Nexus-Hub phase with verification at `high` and at `max`, compare receipts, and file a decision record on lifting or keeping the cap.
+
+### Resolved
+
+None.
