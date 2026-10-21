@@ -623,6 +623,22 @@ class TreeScan:
     unreadable: bool = False
 
 
+def _walk_root(root: str) -> str:
+    """Where the walk starts: on Windows the extended-length form, so files deeper than MAX_PATH stay readable.
+
+    A checkout under a longer parent directory can hold tracked files past 260 characters that git
+    itself reads (`core.longpaths`); without the prefix every such tree reads as unreadable and is kept.
+    """
+    if os.name != "nt":
+        return root
+    full = os.path.abspath(root)
+    if full.startswith("\\\\?\\"):
+        return full
+    if full.startswith("\\\\"):
+        return "\\\\?\\UNC\\" + full[2:]
+    return "\\\\?\\" + full
+
+
 def scan_tree(root: str) -> TreeScan:
     """Walk the whole worktree, allowlisted directories included, never following a link.
 
@@ -635,7 +651,8 @@ def scan_tree(root: str) -> TreeScan:
     if top.is_symlink() or (hasattr(os.path, "isjunction") and os.path.isjunction(top)):
         scan.link = True
         return scan
-    stack: list[tuple[str, bool]] = [(root, False)]
+    walk = _walk_root(root)
+    stack: list[tuple[str, bool]] = [(walk, False)]
     while stack:
         current, allowed = stack.pop()
         try:
@@ -646,7 +663,7 @@ def scan_tree(root: str) -> TreeScan:
             continue
         for entry in entries:
             if entry.name == ".git":
-                scan.nested_git |= _norm(current) != _norm(root)
+                scan.nested_git |= _norm(current) != _norm(walk)
                 continue
             if _is_link(entry):
                 scan.link = True
