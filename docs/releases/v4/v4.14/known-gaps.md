@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-20
-**Open items**: 82
+**Last updated**: 2026-10-21
+**Open items**: 83
 
 ## v4.14.0
 
@@ -3167,6 +3167,41 @@ Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native co
 **Reason**: the `--edge-cases` and `--unattended` modifiers raise verification effort without measurement, and `effort-level-strategy.md` reports that `max` costs 2-3x for no gain on routine work, so the modifiers are capped at `high` for every run
 
 **Suggested next step**: once the `v4.15.2` harness-pairing instrument exists, run one edge-case-dense unattended Nexus-Hub phase with verification at `high` and at `max`, compare receipts, and file a decision record on lifting or keeping the cap.
+
+### Resolved
+
+None.
+
+## v4.14.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-17: Planned follow-on: the parked write-containment hook
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.2 Phase 1 T002
+
+**Plan reference**: v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md
+
+**Frozen plan sha256**: 5e5d95b9f3dc65d0fbbbf5ee3f40defc65cd6a30caebaf8361b70a532413d892
+
+**Frozen task sha256**: db182d55140e669d60eede6331ad578634c20005210cafe7796f39c287d92076
+
+**Reason**: the write-containment `PreToolUse` hook (comparison A8) is parked branch P1; cut in the design interview (Q2): the review found three security P1s and no observed incident.
+
+**Suggested next step**: revisit when an out-of-project write is observed in practice, or a user asks for containment, and build it from the parked specification: take the root from `CLAUDE_PROJECT_DIR` then the git toplevel, never the payload `cwd`; check a deny-list first that always asks (`~/.claude/settings*.json`, `~/.claude/hooks/`, `~/.claude/rules/`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/commands/`, `~/.nexus-hub/{hooks,scripts,bin}/`, project `.claude/settings*.json` and `.claude/hooks/`); narrow the allowlist to the session scratchpad and the memory stores, never all of `$TEMP`; one normalization spec for both siblings (separators, drive forms, case-insensitive compare on Windows and macOS, 8.3 long-name expansion, dot segments, whole-segment prefix match, UNC, device paths, and alternate data streams treated as outside); resolve the deepest existing ancestor for new files and test in-project links pointing outside; cover `Write`, `Edit`, `MultiEdit`, and `NotebookEdit` (`notebook_path`); emit `ask` on an unparseable path; label it advisory, since shell writes are not covered; confirm whether `ask` still prompts under `bypassPermissions`; count every hook-count surface (`AGENTS.md`, `README.md`, `data/marketplace.json`, `tests/skills/test_org_authoring_surface.py`, `scripts/stamp_guide_counts.py`).
 
 ### Resolved
 

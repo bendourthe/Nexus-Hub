@@ -1,0 +1,1 @@
+Read TASK.md and implement the requested feature. Preserve the existing public APIs and tests, put the new feature implementation in feature.py, and add tests/test_feature.py. Use python -m pytest -q to verify the complete fixture suite.
