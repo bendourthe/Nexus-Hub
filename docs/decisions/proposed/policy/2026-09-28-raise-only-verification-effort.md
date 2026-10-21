@@ -4,7 +4,7 @@ Status: proposed - implemented in v4.14.1 Phase 4; integration and release pendi
 
 Maintainers of the routing contract use this record when changing how `/plan` and `/implement` recommend reasoning effort. It covers the optional per-phase verification effort, the raise-only edge-case and unattended modifiers and their `high` cap, where each modifier is evaluated, and the new `plan_status.py --check` mode.
 
-**Date**: 2026-10-20. **Source**: `docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md`, resolved decisions 3 to 9.
+**Date**: 2026-09-28 (decided in the planning interview; implemented 2026-10-20). **Source**: `docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md`, resolved decisions 3 to 9.
 
 ## Problem
 
@@ -24,7 +24,7 @@ The definitions live in `catalog/skills/ai-development/model-routing/references/
 - Every existing recommendation is unchanged: without the new flags `score` returns today's output plus `verification_effort` equal to `effort`, and `plan_status.py --plan` and `--next` output is byte-identical for every existing plan.
 - The installed `plan_status.py` gains exactly one behavior, the `--check` mode; `/update release` calls only `--next`.
 - Phases that verify above their effort request the behaviors in `implement-phase/references/verification-behaviors.md`; a missing result becomes a NO-GO for them and stays advisory elsewhere.
-- The raise direction ships unmeasured. The `high` cap bounds it, and known gap `DF-16` in `docs/releases/v4/v4.14/known-gaps.md` holds the measurement that would lift or keep the cap. Lowering effort stays out of scope until measured (`DF-15`).
+- The raise direction ships unmeasured. The `high` cap bounds it, and known gap `v4.14#DF-16` in [`known-gaps.md`](../../../releases/v4/v4.14/known-gaps.md) holds the measurement that would lift or keep the cap. Lowering effort stays out of scope until measured (`v4.14#DF-15`).
 
 ## Alternatives considered
 
@@ -40,6 +40,6 @@ The definitions live in `catalog/skills/ai-development/model-routing/references/
 
 ## Risks
 
-- An unmeasured raise can spend more on verification than it returns; the `high` cap and `DF-16` bound that.
+- An unmeasured raise can spend more on verification than it returns; the `high` cap and `v4.14#DF-16` bound that.
 - A planner can omit the field on an edge-case-dense phase. The pre-flight re-score still applies the edge-case modifier, so the omission costs a recorded value, not the raise itself.
 - Platforms with a narrower effort knob (Codex accepts `low`, `medium`, `high`; Gemini CLI documents none) cannot always apply the computed value. The gate clamps it, records the shortfall, and requests the behaviors explicitly instead.

@@ -39,11 +39,11 @@ The effort at which a phase's verification runs. It starts at the phase's effort
 
 `/plan` records the result of step 1 alone, as the optional `**Recommended verification effort**` field, and omits the field when it equals the effort. The `/implement` pre-flight re-scores with step 2 from the actual run mode and keeps the higher of the field and the re-score. `scripts/model-map.py score --edge-cases <density> [--unattended]` computes it.
 
-The `high` cap holds until the raise direction is measured (known gap `DF-16` in the v4.14 ledger). Lowering any effort stays out of scope until measured (`DF-15`).
+The `high` cap holds until the raise direction is measured (known gap `v4.14#DF-16` (the raise-direction measurement) in the Nexus-Hub repository's v4.14 ledger). Lowering any effort stays out of scope until measured (known gap `v4.14#DF-15` (the lower-direction modifier)).
 
 ## Failure class
 
-Applies only to troubleshooting failures classified `IMPL`. `TEST` and `ENV` failures keep their existing handling. Classify at the end of troubleshooting iteration 2, and quote the evidence.
+Applies only to troubleshooting failures classified `IMPL`. `TEST` and `ENV` failures keep their existing handling. Classify at the end of troubleshooting iteration 2, and quote the evidence. A phase's failures are repeating when any `IMPL` failure remains after iteration 2; classify from the whole sequence of attempts, not from a single test.
 
 | Class | Evidence |
 |---|---|
@@ -51,6 +51,8 @@ Applies only to troubleshooting failures classified `IMPL`. `TEST` and `ENV` fai
 | Wrong approach | The same failure persists across both attempts, a fix reintroduced an earlier failure, or the failure contradicts a stated constraint. |
 
 **Evidence to quote**: the failing test names and inputs after each attempt, and which earlier failures each attempt fixed.
+
+**Ties**: any failure that persists unchanged across both attempts makes it a wrong approach, even when the attempts fixed other cases. When a phase's repeating failures fall into both classes, the phase escalates by the wrong-approach row.
 
 **Examples**: a sanitizer that passes the original five cases after each fix but fails on two new inputs each time is an edge-case miss; a migration test that fails with the same assertion after both attempts is a wrong approach.
 
@@ -63,7 +65,7 @@ The class decided at iteration 2 guides the iteration-3 fix; option D is offered
 | Class | Current effort | Escalation |
 |---|---|---|
 | Edge-case miss | below `max` | Raise effort one level. |
-| Edge-case miss | `max` (paired only with `frontier`) | Not fixable by effort: re-plan the failing sub-task or ask the user. |
+| Edge-case miss | `max` | Not fixable by effort: re-plan the failing sub-task or ask the user, or upshift the tier when it is below `frontier`. |
 | Wrong approach | any, below `frontier` | Upshift the tier, re-plan the failing sub-task, or ask the user. Never raise effort alone: more effort mostly adds verification and does not change the approach. |
 | Wrong approach | `frontier` | Re-plan the failing sub-task or ask the user. |
 

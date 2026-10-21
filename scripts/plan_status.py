@@ -321,10 +321,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="repository root for --next and --digest")
     args = parser.parse_args(argv)
 
-    if args.digest:
+    if args.digest and not args.check:
         print(digest_line(args.root))
         return EXIT_OK
     if args.check:
+        if args.plan or args.next or args.digest:
+            parser.error("--check cannot be combined with --plan, --next, or --digest")
         if not args.check.is_file():
             print(f"plan_status: no plan at {args.check}", file=sys.stderr)
             return EXIT_UNREADABLE

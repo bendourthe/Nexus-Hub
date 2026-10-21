@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -212,6 +214,15 @@ def test_check_skips_the_comparison_for_a_legacy_phase(tmp_path: Path) -> None:
     assert ps.contract_violations(ps.Plan(path)) == ["phase 1: invalid verification effort ultra"]
 
 
+@pytest.mark.parametrize("other", (["--digest"], ["--next"], ["--plan", "PLAN"]))
+def test_check_is_its_own_mode(tmp_path: Path, other: list[str]) -> None:
+    path = _write_check_plan(tmp_path, "**Recommended verification effort**: medium")
+    extra = [str(path) if arg == "PLAN" else arg for arg in other]
+    with pytest.raises(SystemExit) as exit_info:
+        ps.main(["--check", str(path), *extra])
+    assert exit_info.value.code == 2
+
+
 def test_check_on_a_missing_plan_is_unreadable(tmp_path: Path) -> None:
     assert ps.main(["--check", str(tmp_path / "nope.md")]) == ps.EXIT_UNREADABLE
 
@@ -224,6 +235,14 @@ def test_the_field_changes_neither_the_table_nor_the_hardest_effort(tmp_path: Pa
 
 
 def test_check_passes_on_every_repository_plan() -> None:
-    plans = sorted(ROOT.glob("docs/**/plans/*.md"))
+    # Tracked plans only: a filesystem glob walks archived evidence trees whose paths
+    # exceed the Windows MAX_PATH limit and fail under some interpreters.
+    listed = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z", "--", "docs"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8").split("\0")
+    plan_re = re.compile(r"docs/(?:[^/]+/)*plans/[^/]+\.md")
+    plans = sorted(ROOT / p for p in listed if plan_re.fullmatch(p))
     assert plans
     assert [v for p in plans for v in ps.contract_violations(ps.Plan(p))] == []

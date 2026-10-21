@@ -169,7 +169,7 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.sh <p
 
 When routing is wired into an implementation loop (the `/implement` per-phase pre-flight), persistent failure is itself a routing signal, but more effort fixes only some failures. At the end of troubleshooting iteration 2, classify each repeating `IMPL` failure as an **edge-case miss** or a **wrong approach** by the failure-class definition in [`references/effort-modifiers.md`](references/effort-modifiers.md), and quote the evidence it names. `TEST` and `ENV` failures keep their existing handling. The routed escalation is option D of the troubleshooting loop's exhaustion menu:
 
-- **Edge-case miss**: raise effort one level. At `max`, which Step 3 pairs only with `frontier`, the failure is not fixable by effort: re-plan the failing sub-task or ask the user.
+- **Edge-case miss**: raise effort one level. At `max` the failure is not fixable by effort: re-plan the failing sub-task, ask the user, or upshift the tier when it is below `frontier`.
 - **Wrong approach**: upshift the tier, re-plan the failing sub-task, or ask the user. Never raise effort alone, because more effort mostly adds verification and does not change the approach. At `frontier`, re-plan or ask.
 
 Rules for every escalation:
