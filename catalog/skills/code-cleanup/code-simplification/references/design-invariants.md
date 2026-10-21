@@ -33,3 +33,7 @@ Signals that this is broken: arithmetic or comparisons inside a template, the sa
 ## Sequencing
 
 When the consolidation makes room for a requested change, follow [[refactoring-expert]]'s refactor-first step for the order of the two steps and how each is verified; this reference does not restate it.
+
+## Follow-up
+
+After a consolidation, measure it with `technical-debt-analyzer`'s `references/subsystem-baseline-review.md`: a baseline table, the same table re-measured, and a ratchet check per consolidated domain.

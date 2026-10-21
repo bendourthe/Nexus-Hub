@@ -56,6 +56,13 @@ RULES = (
             _ROOT / "catalog" / "commands" / "implement.md",
         ),
     ),
+    Rule(
+        rule="tool-call-decision-policy",
+        owner=_SK / "ai-development" / "ai-agent-development" / "references" / "decision-policy-harness.md",
+        anchor="pure policy function returns the verdict",
+        owner_name="references/decision-policy-harness.md",
+        non_owners=(_SK / "ai-development" / "ai-agent-development" / "SKILL.md",),
+    ),
 )
 
 
@@ -78,3 +85,9 @@ def test_each_rule_lives_in_its_owner_and_is_only_handed_off_elsewhere(row: Rule
         # A copy-paste tripwire, not proof of single ownership: it catches the owner's distinctive
         # clause pasted into a non-owner, while a paraphrased restatement still needs review.
         assert row.anchor not in text, f"{row.rule}: {_id(path)} restates the owner's rule"
+
+
+def test_the_harness_reference_names_no_hosted_scorer_endpoint() -> None:
+    # A hosted per-call scorer would send every tool call, arguments included, to a third party.
+    text = _read(_SK / "ai-development" / "ai-agent-development" / "references" / "decision-policy-harness.md")
+    assert "http://" not in text and "https://" not in text
