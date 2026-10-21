@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.1] - 2026-10-20
+
 ### Added
 
 - Plans can ask for more verification than implementation. A phase may carry an optional **Recommended verification effort**, and `model-map.py score` now returns `verification_effort` beside `tier` and `effort`: `--edge-cases medium|high` raises it, `--unattended` raises it one more level on top of that, the two never lift it above `high`, and it is never lower than the phase's effort. Tier and effort recommendations are unchanged. `python scripts/plan_status.py --check <plan>` reports a value that is invalid or below the phase's effort (exit 3); `--plan` and `--next` output is unchanged for every existing plan. Decision record: [`2026-09-28-raise-only-verification-effort.md`](docs/decisions/proposed/policy/2026-09-28-raise-only-verification-effort.md).
