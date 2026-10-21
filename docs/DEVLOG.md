@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-10-20 | v4.14.1 | Raise-only verification effort, failure-class escalation, GO/NO-GO verification behaviors, the Windows console-window guard, and the interactive usage-limit question. | [Plan](releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md) | [History](releases/v4/v4.14/development/history/) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-18 | v4.14.0 | Choice-preserving Claude defaults, focused phase checks, parallel plan implementation with ordered release, and native boundary repairs. | [Plan](releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md) | [History](releases/v4/v4.14/development/history/) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-15 | v4.13.13 | Gemini usage monitor, self-dismissing usage alerts, installer download retries, plans kept on develop, and split Windows CI. | - | [Changelog](../CHANGELOG.md#41313---2026-10-15) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-13 | v4.13.12 | Host approval modes, monitor label, candidate attribution and verified minor finalization. | - | [Qualification](archives/v4/v4.13/development/v4.13.12-release-qualification.md) | [Gaps](releases/v4/v4.14/known-gaps.md) |

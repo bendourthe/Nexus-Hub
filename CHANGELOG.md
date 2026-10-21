@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.1] - 2026-10-20
+
 ### Added
 
 - Plans can ask for more verification than implementation. A phase may carry an optional **Recommended verification effort**, and `model-map.py score` now returns `verification_effort` beside `tier` and `effort`: `--edge-cases medium|high` raises it, `--unattended` raises it one more level on top of that, the two never lift it above `high`, and it is never lower than the phase's effort. Tier and effort recommendations are unchanged. `python scripts/plan_status.py --check <plan>` reports a value that is invalid or below the phase's effort (exit 3); `--plan` and `--next` output is unchanged for every existing plan. Decision record: [`2026-09-28-raise-only-verification-effort.md`](docs/decisions/proposed/policy/2026-09-28-raise-only-verification-effort.md).
@@ -27,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All five usage monitors start in compact status-bar mode (no "X Usage: " label): `compactStatusBar` defaults to `true` for Claude, Codex, Copilot, and Antigravity, and `cursorUsage.showStatusBarLabel` defaults to `false`. A value you set yourself is kept. Decision record: [`2026-10-19-usage-monitor-dashboard-parity.md`](docs/decisions/implemented/architecture/2026-10-19-usage-monitor-dashboard-parity.md).
 
 - A minor run can now carry a planned follow-on to the next minor. When a frozen plan task's whole job is to file future work as a known gap (for example "file the lower-direction modifier as a known gap"), the completion checker recognizes the exact entry that task produces, bound to the frozen plan hash and the task's own hash, and lets the minor close migrate it to the next minor's `.0` section as an open item. Any other new gap is still never deferrable, the recorded approvals and budgets are unchanged, and an entry that differs from the canonical text in any way is refused. Decision record: [`2026-10-20-planned-follow-on-gaps-migrate.md`](docs/decisions/implemented/policy/2026-10-20-planned-follow-on-gaps-migrate.md).
+
+- The platform read-contract records the 2026-10-20 re-verification. Antigravity retired its legacy workflow directories (`~/.gemini/config/workflows/`, `.agents/workflows/`) on 2026-10-19, so they no longer run as slash commands; every Nexus-Hub command still reaches Antigravity as a skill. The installer still writes the workflow files for now (known gap AR-35). The other findings add newly documented paths and events without changing what is installed.
 
 ### Fixed
 

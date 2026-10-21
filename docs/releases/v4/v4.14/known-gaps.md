@@ -934,6 +934,8 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 **Owner**: Antigravity integration owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
+**Update 2026-10-20 (v4.14.1 platform-contract pass)**: re-verified. The [migration guide](https://antigravity.google/docs/migration/workflows-to-skills) now states "Current workflows will stop working on October 19, 2026" and "After October 19, 2026, legacy workflow directories are no longer indexed or executable using slash commands." The retirement is in effect, so waiting for the vendor date no longer blocks this entry. The read-contract table no longer labels `~/.gemini/config/workflows/` or `.agents/workflows/` a slash surface, and every command still reaches Antigravity as a command-skill. Not done at release time: removing the `commands_to_slash` emission and `commands_subdir`/`ide_commands_subdir` changes delivered files together with the `contract_checks` and `install_verify` rows and their tests, which is plan work for this entry's owner.
+
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
 
 **Current residual from `v4.12.0#DF-1`**: After2026-11-01 recheck the vendor retirement date, then remove legacy commands_to_slash workflow emission/config destinations and requalify the platform contract.
