@@ -84,7 +84,7 @@ During troubleshooting, repeated failures may trigger an upshift under the same 
 
 ## Phase 2: Implementation
 
-Work subtask by subtask in plan order. After each subtask, confirm the code compiles/imports before moving on (do not accumulate broken subtasks). Log deviations inline with `# DEVIATION:` and keep a running list for Phase 8. Stay in scope: no refactors outside the phase boundary, no speculative features, no unrelated file changes. Compile/import-check the whole phase before linting.
+Work subtask by subtask in plan order. After each subtask, confirm the code compiles/imports before moving on (do not accumulate broken subtasks). Log deviations inline with `# DEVIATION:` and keep a running list for Phase 8. Stay in scope: no refactors outside the phase boundary, no speculative features, no unrelated file changes. When a subtask lands in scattered or duplicated code, sequence it with [[refactoring-expert]]'s refactor-first step and consolidate the copies with `code-simplification`'s `references/design-invariants.md`. Compile/import-check the whole phase before linting.
 
 ## Phase 3: Lint and format
 

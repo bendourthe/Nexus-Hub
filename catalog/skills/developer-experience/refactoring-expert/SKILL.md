@@ -86,6 +86,15 @@ Provides refactoring guidance including:
 - [ ] Can revert easily if needed
 ```
 
+### Step 2a: Refactor First, Then Change
+
+When a requested feature or fix lands in code that is scattered, duplicated, or tangled (the same calculation, format string, or threshold in several places), split the work into two verified steps:
+
+1. **Refactor.** Make a behavior-preserving refactor that makes room for the change, such as moving the copies into one owner. Run the project's full test suite and record the green result. Hand any before-and-after output comparison to [[behavior-preservation-checker]].
+2. **Change.** Only then make the requested change on the clean structure, and run the full suite again.
+
+The refactor is verified green before the change it makes room for. Doing both in one unverifiable step is a violation, because a failing test can no longer say whether the restructuring or the new behavior broke it. Inside a planned phase the two steps are verified separately and land in that phase's single commit. For consolidating the copies themselves, follow `code-simplification`'s `references/design-invariants.md`.
+
 ### Step 3: Apply Refactoring Patterns
 
 #### Pattern 1: Extract Method
@@ -428,6 +437,7 @@ class NewDataStore(DataStore):
 | "I'll fix this bug while I'm refactoring this method" | Mixing a behavior change into a refactor breaks the one guarantee refactoring offers (no observable change), so when a test fails you cannot tell whether the refactor or the fix caused it. |
 | "One big commit is cleaner than many small ones" | A large refactor commit is unbisectable; small atomic commits that each keep the tests green are what let you pinpoint and revert the exact change that introduced a regression. |
 | "It compiles and looks cleaner, so it's done" | "Looks cleaner" is not behavior preservation; only running the test suite after each change proves the external behavior is unchanged. |
+| "I'll add the feature beside the copies now and consolidate later" | Each patch on a scattered domain adds another copy that disagrees with the others, so the promised cleanup has one more variant to reconcile, and a failing test cannot say whether the feature or the restructuring broke it. |
 
 ## Verification
 
@@ -436,6 +446,7 @@ class NewDataStore(DataStore):
 - [ ] Each refactoring step is committed separately and is individually revertible
 - [ ] No new code smells or lint warnings were introduced: `<the lint command>`
 - [ ] The public API and observable behavior are unchanged from before the refactor
+- [ ] When a change needed room, the refactor step's green test run is recorded before the change step begins
 
 ## Related Skills
 

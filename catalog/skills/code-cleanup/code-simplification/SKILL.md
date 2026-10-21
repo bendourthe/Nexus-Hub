@@ -149,6 +149,8 @@ Run the full test suite. The characterization test from Step 1 must still pass. 
 
 Abstraction for 2 callers is premature. Abstraction that is harder to understand than the duplication it replaces is wrong.
 
+When a domain's logic is already copied across modules and you consolidate it, apply the three invariants in [`references/design-invariants.md`](references/design-invariants.md): one owning module per domain, every copy enumerated before consolidating, and no business logic in rendering.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
