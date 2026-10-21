@@ -1987,6 +1987,79 @@ def planned_followon_entry(ck: ModuleType, plan: Plan, task_id: str, frozen: str
     return None
 
 
+# A frozen task that records known gaps without the `File <scope> as a known gap` template:
+# its line names this minor's ledger and says it records a gap, its line reconciles known gaps
+# including a parked item, or its own sub-task prompt says "record a known gap" or "add one
+# entry per/for each". The plan cannot supply the reason, so each entry binds every other field
+# exactly, names a scope the frozen plan states verbatim, and carries its reason and next step
+# as single lines.
+RECORDED_TASK_RE = re.compile(r"\b(?:record|file|make)\b.*\bknown[- ]gap\b", re.IGNORECASE)
+RECORDED_PARKED_RE = re.compile(r"\breconcile known gaps\b.*\bparked\b", re.IGNORECASE)
+RECORDED_PROMPT_RE = re.compile(r"\brecord an? known gap\b|\badd one entry (?:per|for each)\b", re.IGNORECASE)
+RECORDED_TITLE_RE = re.compile(r": Planned follow-on: (?P<scope>\S[^\n]{7,})")
+RECORDED_BODY_RE = re.compile(
+    r"\*\*Disposition\*\*: planned-follow-on \(OPEN\)\n\n"
+    r"\*\*Source phase\*\*: (?P<version>v\d+\.\d+\.\d+) Phase (?P<phase>\d+) (?P<task>T\d{3,})\n\n"
+    r"\*\*Plan reference\*\*: (?P<plan>[^\n]+)\n\n"
+    r"\*\*Frozen plan sha256\*\*: (?P<frozen>[0-9a-f]{64})\n\n"
+    r"\*\*Frozen task sha256\*\*: (?P<task_hash>[0-9a-f]{64})\n\n"
+    r"\*\*Reason\*\*: [^\n]*\S[^\n]*\n\n"
+    r"\*\*Suggested next step\*\*: [^\n]*\S[^\n]*\."
+)
+
+
+def recorded_followon_task(ck: ModuleType, plan: Plan, task_id: str, frozen: str) -> tuple[str, str] | None:
+    """(phase number, task sha256) when one exact frozen task records a known gap in its minor's ledger.
+
+    A task the exact template derives keeps its derived reason and next step, so it never qualifies here.
+    """
+    if ck.plan_hash_text(plan.text) != frozen or planned_followon_entry(ck, plan, task_id, frozen) is not None:
+        return None
+    lines = plan.text.splitlines(keepends=True)
+    mask, unclosed = fence_mask(lines)
+    if unclosed:
+        return None
+    text = ''.join('\n' if mask[i] else line for i, line in enumerate(lines))
+    tasks = [m for m in re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', text, re.MULTILINE) if m[1] == task_id]
+    if len(tasks) != 1:
+        return None
+    task = tasks[0]
+    phases = [p for p in re.finditer(r'^## Phase (\d+):[^\n]*\n', text, re.MULTILINE) if p.end() <= task.start()]
+    if not phases:
+        return None
+    phase = phases[-1]
+    if re.search(r'^## ', text[phase.end():task.start()], re.MULTILINE):
+        return None
+    sections = [s for s in re.finditer(r'^#### \d+\.\d+ -{1,2} [^\n]*\n', text, re.MULTILINE)
+                if phase.end() <= s.start() < task.start()]
+    prompt = ' '.join(re.findall(r'^> (.+)$', text[sections[-1].end():task.start()], re.MULTILINE)) if sections else ''
+    names_ledger = (task[2].rsplit(' ', 1)[-1] in ledger_rels(*minor_of(plan.version))
+                    and RECORDED_TASK_RE.search(task[2]) is not None)
+    if not (names_ledger or RECORDED_PARKED_RE.search(task[2]) or RECORDED_PROMPT_RE.search(prompt)):
+        return None
+    return phase[1], hashlib.sha256((task_id + ' ' + task[2]).encode('utf-8')).hexdigest()
+
+
+def recorded_followon(ck: ModuleType, rctx: RepoContext, plan: Plan, frozen: str,
+                      source_minor: tuple[int, int], title: str, body: str) -> bool:
+    """A bound entry whose scope the frozen plan names; a second entry with the same task and title is refused."""
+    found = RECORDED_BODY_RE.fullmatch(body)
+    titled = RECORDED_TITLE_RE.fullmatch(title)
+    if found is None or titled is None or titled['scope'] not in plan.text.replace('\r\n', '\n'):
+        return False
+    if found['version'] != plan.version or found['plan'] != Path(plan.rel).name or found['frozen'] != frozen:
+        return False
+    if recorded_followon_task(ck, plan, found['task'], frozen) != (found['phase'], found['task_hash']):
+        return False
+    ledgers, unreadable = load_ledgers(rctx.root)
+    if unreadable:
+        return False
+    line = f"**Source phase**: {plan.version} Phase {found['phase']} {found['task']}"
+    citing = [i for ledger in ledgers if ledger.minor == source_minor for i in ledger.items
+              if line in i.body.replace('\r\n', '\n').splitlines() and MIGRATED_RE.sub('', i.title).rstrip() == title]
+    return len(citing) == 1
+
+
 def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], item: GapItem | None) -> bool:
     """Recording-task disposition; callers already loaded a verified schema-2 record.
 
@@ -2021,13 +2094,14 @@ def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple
         return False
     expected = planned_followon_entry(ck, plan, source[2], str(member['plan_sha256']))
     title = MIGRATED_RE.sub('', item.title).rstrip()
-    if expected == (title, body):
+    if expected == (title, body) or recorded_followon(ck, rctx, plan, str(member['plan_sha256']), source_minor, title, body):
         return True
     original = archived_followon_plan(rctx, record, member, plan, ck)
     if original is None:
         return False
-    expected = planned_followon_entry(ck, original, source[2], ck.plan_hash_text(original.text))
-    return expected == (title, body)
+    frozen = ck.plan_hash_text(original.text)
+    expected = planned_followon_entry(ck, original, source[2], frozen)
+    return expected == (title, body) or recorded_followon(ck, rctx, original, frozen, source_minor, title, body)
 
 
 def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: Plan, ck: ModuleType) -> Plan | None:
