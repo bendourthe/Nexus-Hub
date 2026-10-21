@@ -17,10 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exported)
-    _git,
-    _isolated_git_config,
-)
+from .test_check_plan_completion import _isolated_git_config  # noqa: F401  (autouse fixture re-exported)
 from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-exported)
     _no_transport_overrides,
 )
