@@ -22,6 +22,7 @@ from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-e
     _no_transport_overrides,
 )
 from .test_gap_migration_and_archive import Close
+from .test_planned_followon_gaps import frozen_text
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
@@ -34,7 +35,7 @@ ACTIVE = "docs/releases/v4/v4.14"
 PLAN_REL = f"{ACTIVE}/plans/{NAME}"
 GAPS = f"{ACTIVE}/known-gaps.md"
 FROZEN = "5e5d95b9f3dc65d0fbbbf5ee3f40defc65cd6a30caebaf8361b70a532413d892"
-FROZEN_TEXT = (REPO_ROOT / PLAN_REL).read_text(encoding="utf-8")
+FROZEN_TEXT = frozen_text(PLAN_REL, FROZEN)  # the active path, the archive path, or git history
 INHERITED = [f"v4.14#DF-{n}" for n in range(1, 84)]
 INHERITED_ENTRY = "#### DF-1: Original inherited item\n\n- **Reason**: inherited from v4.13\n\n"
 HOOK = "the parked write-containment hook"

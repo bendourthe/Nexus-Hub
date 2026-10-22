@@ -55,7 +55,26 @@ PLAN_REL = f"{ACTIVE}/plans/{NAME}"
 GAPS = f"{ACTIVE}/known-gaps.md"
 GAPS15 = "docs/releases/v4/v4.15/known-gaps.md"
 FROZEN = "2eb59610176121b531129c48f9c324fbb8001fbbe18f5a3bc8159776f479120e"
-FROZEN_TEXT = (REPO_ROOT / PLAN_REL).read_text(encoding="utf-8")
+
+
+def frozen_text(rel: str, frozen: str) -> str:
+    """A real frozen plan's text wherever it lives now, always hashing to `frozen`.
+
+    The active path first; else the archive path, while that copy still hashes to
+    `frozen`; else the file as last committed at its active path, because a member
+    archive (or the minor close) repairs the archived copy's links and mentions.
+    """
+    for candidate in (rel, ARCHIVE + rel[len(ACTIVE):]):
+        path = REPO_ROOT / candidate
+        if path.is_file() and ck.plan_hash_text(text := path.read_text(encoding="utf-8")) == frozen:
+            return text
+    removed = _git(REPO_ROOT, "log", "-1", "--format=%H", "--diff-filter=D", "--", rel)
+    text = _git(REPO_ROOT, "show", f"{removed}^:{rel}") + "\n"
+    assert ck.plan_hash_text(text) == frozen, rel
+    return text
+
+
+FROZEN_TEXT = frozen_text(PLAN_REL, FROZEN)
 INHERITED = [f"v4.14#DF-{n}" for n in range(1, 84)]
 INHERITED_ENTRY = "#### DF-1: Original inherited item\n\n- **Reason**: inherited from v4.13\n\n"
 EVIDENCE = "Frozen v4.14.1 recording task"

@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -149,6 +149,11 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if not isinstance(blocker, int) or isinstance(blocker, bool) or blocker < 0:
             raise PageError("an answer names a non-negative blocker index")
         return _fits(f"Continue /implement {scope} past blocker {blocker} (approval {code})")
+    if action == "add-class":
+        if not MINOR_RE.match(scope):
+            raise PageError("a class is added only to a minor run")
+        # The one class a running minor may gain (completion_minor.ADDABLE_CLASSES).
+        return _fits(f"Archive each released plan early in /implement {scope} (approval {code})")
     return _fits(f"{action.capitalize()} /implement {scope} (approval {code})")
 
 
@@ -165,7 +170,8 @@ def _goal_body(scope: str, code: str | None) -> str:
             "4) run /update release for each plan; "
             "5) merge every pull request, then delete the merged branches, worktrees, and their local copies; "
             "6) move every gap still open to the next minor's known-gaps file; "
-            f"7) archive the {scope} folder and delete any folder left empty."
+            f"7) archive the {scope} folder (where approved, each plan's own documents right after its release) "
+            "and delete any folder left empty."
         )
     else:
         done = f"starts with PLAN COMPLETE followed by the {scope} plan file"
@@ -464,6 +470,12 @@ def _approval_line(page: dict, name: str, entry: dict, minor: bool, releases: li
             return f"Archive the {token} documents after the final pull request merges."
         return (f"Archive the {_minor_token(token)} documents, and delete any folder left empty, "
                 "if this is the last plan of that version.")
+    if name == "archive-member":
+        _no_bound(entry)
+        if not MINOR_RE.match(token):
+            raise PageError("archive-member belongs to a minor run")
+        return (f"Archive each {token} plan's own documents in a pull request as soon as that plan is released. "
+                "Shared files such as the known-gaps list stay until the final archive.")
     if name == "carry-gaps":
         named = _gap_ids(entry.get("named"), "carry-gaps named")
         line = ("Record every gap this run leaves open in the next version's known-gaps section, "
@@ -639,7 +651,9 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
     elif not minor and "defer-gaps" in names:
         fixed += "; some may wait for a later version"
     rows.append(("Fixed", fixed))
-    if minor and "archive-minor" in names:
+    if minor and "archive-minor" in names and "archive-member" in names:
+        rows.append(("Archived", f"The {_scope_token(page)} documents, each plan's own as soon as it is released"))
+    elif minor and "archive-minor" in names:
         rows.append(("Archived", f"The {_scope_token(page)} documents"))
     elif "archive-minor" in names:
         rows.append(("Archived", f"The {_minor_token(_scope_token(page))} documents, if this is their last plan"))
@@ -783,6 +797,20 @@ def _section(title: str, body: list[str], level: int = 2) -> list[str]:
 def _action_page(data: dict, paste: PasteSet) -> str:
     action = data["action"]
     scope = data["scope"]
+    if action == "add-class":
+        if (data.get("page") or {}).get("class") != "archive-member":
+            raise PageError("only the archive-member class can be added to a running minor")
+        out = _section("What this will do", [
+            f"This adds the archive-member approval to /implement {scope}.",
+            "Today each plan's documents stay where they are until the whole minor closes, then move to the archive together.",
+            "With this approval, each plan's own documents move to the archive as soon as that plan is released.",
+            "Shared files, such as the known-gaps list and the minor's evidence, still move only when the minor closes.",
+            "Each early archive is one pull request, merged once its checks pass.",
+            "Nothing else changes.",
+        ])
+        out += _section("To approve, paste this line",
+                        ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     verb = {"answer": "continue past the blocker", "pause": "pause", "resume": "resume", "retire": "retire the run record"}[action]
     out = _section("What this will do", [f"This will {verb} for /implement {scope}.", "Nothing else changes."])
     detail = data.get('page', {}).get('blocker') or {}
@@ -870,6 +898,8 @@ def question_data(data: dict) -> dict:
         'pause': 'Pause this run until you choose to resume it',
         'resume': 'Resume this run in the current session',
         'retire': 'Retire this run record and its authority',
+        'add-class': ("Archive each plan's own documents as soon as that plan is released, "
+                      "instead of all at once when the minor closes"),
     }.get(action)
     blocker = data.get('page', {}).get('blocker') or {}
     if action == 'answer':
