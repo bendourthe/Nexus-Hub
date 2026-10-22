@@ -143,7 +143,7 @@ write_subsection_banner() {
     echo -e "  ${color}- ${text}${RESET}"
 }
 
-# A top-level "> SECTION" banner (column 0, uppercase) - the bash analogue of the
+# A top-level "> SECTION" banner (column 0, uppercase) - the bash analog of the
 # PowerShell installer's "> TEXT" main-section header. Prepends its own single
 # blank line so callers do not add one. Providers (write_header) and
 # subsections (write_subsection_banner) render indented beneath it.
@@ -3398,8 +3398,8 @@ install_skill_discovery() {
     # install on a stock Debian/Ubuntu host, which ships python3 without python3-venv.
     local venv_ok=1
     if command -v uv >/dev/null 2>&1; then
-        write_item "  Creating venv with uv..." "$RESET"
-        if ! { uv venv "$venv_path" >/dev/null 2>&1 \
+        write_item "  Creating venv with uv..." "$RESET"  # UV_VENV_CLEAR: uv 0.9+ refuses to reuse an existing venv on reinstall
+        if ! { UV_VENV_CLEAR=1 uv venv "$venv_path" >/dev/null 2>&1 \
                 && uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1; }; then
             venv_ok=0
         fi

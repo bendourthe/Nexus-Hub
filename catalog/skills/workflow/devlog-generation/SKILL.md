@@ -62,9 +62,9 @@ When a prior narrative body was archived, the header also links the archive and 
 | Date | The release's `CHANGELOG.md` heading, or the tag date | `YYYY-MM-DD`, no time component |
 | Version | The release | `vX.Y.Z`, matching the tag |
 | Summary | Authored, from the plan slug plus the CHANGELOG lead | **One sentence.** No trailing period needed. Never a restatement of the changelog entry |
-| Plan | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-<slug>.md` | Link the file, labelled by its slug |
-| History | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` | Link the directory, labelled `history` |
-| Gaps | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` | Link the file, labelled `gaps` |
+| Plan | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-<slug>.md` | Link the file, labeled by its slug |
+| History | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` | Link the directory, labeled `history` |
+| Gaps | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` | Link the file, labeled `gaps` |
 
 Links are **relative to `docs/DEVLOG.md`**, so they resolve both on the forge and in an editor. A root-relative `/docs/...` link does not resolve on GitHub and must not be used.
 
@@ -90,7 +90,7 @@ ls docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md             # gaps file
 
 Emit a link only when its target exists. Three fallbacks, in order:
 
-1. **Multiple version-prefixed plan files**: link all of them, space-separated, each labelled by its slug. A release can ship more than one plan.
+1. **Multiple version-prefixed plan files**: link all of them, space-separated, each labeled by its slug. A release can ship more than one plan.
 2. **No version-prefixed plan file**, because the project's plan filenames predate a version-prefixed convention: link the minor version's `plans/` directory instead. Do **not** guess which slug-named plan belongs to this patch release; a resolving link to the wrong plan is worse than a link to the directory.
 3. **Target genuinely absent**: put a literal `-` in the cell. Never emit a link to a path that does not exist, and never leave the cell empty.
 

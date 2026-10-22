@@ -12,8 +12,8 @@ Phase R16 gave both games one start screen that fits the arena with no scroll ba
 damage path (and the self-test blast) fatal in the buggy build, and gave each ship its own
 weapon: twin cannons, a burst rifle, a lance beam, and splitting plasma orbs.
 Phase R18 aimed every enemy weapon at the ship (``aimLog()`` records each shot's origin, heading,
-and the ship's position when it fired), centred the end card in the arena, added a fifth ship
-(the green Warden and its flak cone) with one main colour per ship and an animated weapon preview
+and the ship's position when it fired), centered the end card in the arena, added a fifth ship
+(the green Warden and its flak cone) with one main color per ship and an animated weapon preview
 on each card, and added ``SkySentinel.demo()``, a scripted scene drawn by the real renderer.
 
 Skipped when Playwright or Chromium is missing; fail-closed under NEXUS_REQUIRE_RENDER=1.
@@ -1025,9 +1025,9 @@ def test_the_start_screen_offers_five_ships_and_the_full_upgrade_key(page) -> No
     page.locator(f"{host} .ss-keybtn").click()
     api = page.evaluate("SkySentinel.get('fixed').upgrades()")
     assert sorted(x[0] for x in items) == sorted(UPGRADES) == sorted(u["kind"] for u in api)
-    colours = {u["kind"]: u["color"] for u in api}
-    assert all(x[1] == colours[x[0]] for x in items), "the key shows each upgrade in its own colour"
-    assert len(set(colours.values())) == len(colours), "no two upgrades share a colour"
+    colors = {u["kind"]: u["color"] for u in api}
+    assert all(x[1] == colors[x[0]] for x in items), "the key shows each upgrade in its own color"
+    assert len(set(colors.values())) == len(colors), "no two upgrades share a color"
     assert all(len(x[2].split("\n")) >= 2 for x in items), "each entry has a name and a one-line effect"
     assert page.locator(f"{host} .ss-start").inner_text() == "Start game"
 
@@ -1059,7 +1059,7 @@ def test_ships_differ_in_shape_colour_and_stats(page) -> None:
     ships = page.evaluate("SkySentinel.get('fixed').ships()")
     assert [s["id"] for s in ships] == SHIP_IDS and ships[0]["hull"] == 100 and ships[0]["speed"] == 1 and ships[0]["fire"] == 1
     assert len({(s["hull"], s["speed"], s["fire"]) for s in ships}) == 5, "every ship trades something"
-    assert len({s["accent"] for s in ships}) == 5, "every ship has its own colour scheme"
+    assert len({s["accent"] for s in ships}) == 5, "every ship has its own color scheme"
     forms = _js(page, """const out = {};
         for (const id of ['vanguard', 'warden', 'specter', 'talon', 'raptor']) for (const lv of [1, 2, 3]) {
             g.configure({ defects: {}, seed: 7, threats: false, level: lv }); g.chooseShip(id); out[id + lv] = g.state().shipMesh; }
@@ -1467,7 +1467,7 @@ def test_the_boss_aims_its_bolts_at_the_ship(page) -> None:
     assert len(log) >= 4 and max(_miss(a) for a in log) < 0.5
 
 
-# ---------------------------------------------------------------- R18: the end card is centred
+# ---------------------------------------------------------------- R18: the end card is centered
 
 CARD_PROBE = """(id) => {
   const h = document.querySelector('.ss-host[data-ss-id=' + id + ']'), g = SkySentinel.get(id);
@@ -1499,7 +1499,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
         cards = {}
         for gid in ("buggy", "fixed"):
             pg.locator(f".ss-host[data-ss-id={gid}] .ss-stage").scroll_into_view_if_needed()
-            # a death with the ship parked high in its band, right where a centred card could hide the number
+            # a death with the ship parked high in its band, right where a centered card could hide the number
             pg.evaluate("""(id) => { const g = SkySentinel.get(id);
                 g.configure({ defects: { firstHitFatal: true }, seed: 7, threats: false, level: 1 }); g.start(); g.pause('t');
                 g.input({ up: true }); g.step(40); g.input({ up: false }); g.forceHit('shot'); }""", gid)
@@ -1513,7 +1513,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
         # R48 (T132): the victory card leads with a keyword title over the score summary
         assert cards["fixed victory"]["title"] == "Victory"
         for name, m in cards.items():
-            assert abs(m["dx"]) < 2 and abs(m["dy"]) < 2, f"{name} {viewport}: the card is centred {m}"
+            assert abs(m["dx"]) < 2 and abs(m["dy"]) < 2, f"{name} {viewport}: the card is centered {m}"
             assert m["inside"] and all(m["parts"]), f"{name} {viewport}: title, buttons, and hint sit in the card {m}"
             if "death" in name:
                 assert m["shown"] >= 1 and m["covered"] == 0, f"{name} {viewport}: the damage number stays visible {m}"
@@ -1521,7 +1521,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
         fresh_browser.close()
 
 
-# ---------------------------------------------------------------- R18: five colours, animated previews
+# ---------------------------------------------------------------- R18: five colors, animated previews
 
 def _hue(hex_colour: str) -> float:
     r, g, b = (int(hex_colour[i:i + 2], 16) / 255 for i in (1, 3, 5))
@@ -1533,13 +1533,13 @@ HUES = {"red": (-15, 15), "orange": (15, 38), "yellow": (38, 65), "green": (90, 
 
 def test_each_ship_owns_one_main_colour(page) -> None:
     ships = page.evaluate("SkySentinel.get('fixed').ships()")
-    assert {s["id"]: s["colour"] for s in ships} == SHIP_COLOURS
+    assert {s["id"]: s["color"] for s in ships} == SHIP_COLOURS
     for s in ships:
-        lo, hi = HUES[s["colour"]]
+        lo, hi = HUES[s["color"]]
         for c in (s["accent"], s["weaponColor"]):
             h = _hue(c)
             h = h - 360 if h > 180 + hi else h
-            assert lo <= h <= hi, f"{s['id']} {c} reads as {s['colour']}"
+            assert lo <= h <= hi, f"{s['id']} {c} reads as {s['color']}"
 
 
 PREVIEW_GRAB = "id => [...document.querySelectorAll('.ss-host[data-ss-id=' + id + '] .ss-ship-pic')].map(c => c.toDataURL())"
@@ -1770,11 +1770,11 @@ def test_the_lance_stops_at_the_bosss_armour(page) -> None:
     out = _js(page, """g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true, immune: true });
         g.chooseShip('talon'); g.start(); g.pause('t');
         let s = g.state(); while (!(s.boss && s.boss.entered)) s = g.step(10);
-        for (let i = 0; i < 200; i++) { const dx = g.bossGeometry().centre[0] - s.player.x; if (Math.abs(dx) < 4) break; g.input({ left: dx < 0, right: dx > 0 }); s = g.step(1); }
+        for (let i = 0; i < 200; i++) { const dx = g.bossGeometry().center[0] - s.player.x; if (Math.abs(dx) < 4) break; g.input({ left: dx < 0, right: dx > 0 }); s = g.step(1); }
         g.input({ left: false, right: false, fire: true }); s = g.step(2); g.input({ fire: false });
         const l = s.playerShots.filter(x => x.kind === 'lance'), geo = g.bossGeometry();
         g.configure({ immune: false, progression: false, boss: false, level: 1 }); g.chooseShip('vanguard');
-        return { ends: l.map(x => x.y - x.len), cy: geo.centre[1], hp: s.boss.nodesAlive };""")
+        return { ends: l.map(x => x.y - x.len), cy: geo.center[1], hp: s.boss.nodesAlive };""")
     assert out["ends"] and all(e > out["cy"] for e in out["ends"]), f"the ray stops at the boss, not the arena top: {out}"
 
 
@@ -1790,7 +1790,7 @@ def _boss_done(page) -> None:
 
 def test_the_boss_does_not_jump_sideways_when_it_arrives(page) -> None:
     _boss_ready(page, "vanguard")
-    xs = _js(page, "const xs = [g.bossGeometry().centre[0]]; for (let i = 0; i < 30; i++) { g.step(1); xs.push(g.bossGeometry().centre[0]); } return xs;")
+    xs = _js(page, "const xs = [g.bossGeometry().center[0]]; for (let i = 0; i < 30; i++) { g.step(1); xs.push(g.bossGeometry().center[0]); } return xs;")
     _boss_done(page)
     assert max(abs(b - a) for a, b in zip(xs, xs[1:])) < 3, f"the sway starts smoothly: {xs[:6]}"
 
@@ -1801,7 +1801,7 @@ def test_the_core_is_open_from_below_once_every_node_is_down(page, ship: str) ->
     _boss_ready(page, ship)
     out = _js(page, """g.breakShields(); for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 999);
         let s = g.state(); const hp0 = s.boss.coreHp;
-        for (let i = 0; i < 240 && s.boss; i++) { const dx = g.bossGeometry().centre[0] - s.player.x;
+        for (let i = 0; i < 240 && s.boss; i++) { const dx = g.bossGeometry().center[0] - s.player.x;
             g.input({ fire: true, left: dx < -3, right: dx > 3 }); s = g.step(1); }
         return { hp0, hp: s.boss ? s.boss.coreHp : 0 };""")
     _boss_done(page)

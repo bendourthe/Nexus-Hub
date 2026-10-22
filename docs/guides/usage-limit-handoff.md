@@ -1,18 +1,18 @@
 # Usage-Limit Handoff
 
-Summary: how Nexus-Hub keeps your work resumable when an AI platform's usage limit runs out, through `/handoff`, the rolling `.nexus-hub/handoff.md` checkpoint, and the automatic `usage-guard` hook.
+Summary: how Nexus-Hub keeps your work resumable when an AI platform's usage limit runs out, through `/handoff` (a paste-ready prompt printed in the chat, with a file only when you ask for one) and the automatic `usage-guard` hook.
 Read this when: you want to know what happens near a usage limit on your platform, how to turn the automatic guard on or off, how to check it, or what it reads and sends.
-Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the checkpoint format, activation, validation, configuration, isolating a test run of the probe, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
+Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the prompt format, the optional handoff file, activation, validation, configuration, isolating a test run of the probe, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
 
 ## What it does
 
 A usage cap is enforced by the vendor's server. Once you hit it, the next model request is rejected and the agent gets no further turn, so nothing inside the agent can react at 100%. Nexus-Hub acts before that point, in three layers:
 
-1. **Checkpoint and `/handoff` (every platform).** The `session-handoff` skill writes `.nexus-hub/handoff.md` in the project root and prints one paste-ready prompt that another agent, on any platform, can resume from. Every installed instruction file carries a short Session Handoff rule, so the agent refreshes the file after each verified milestone during long work, and you can run `/handoff` at any time.
+1. **`/handoff` (every platform).** The `session-handoff` skill prints one paste-ready prompt in the chat that another agent, on any platform, can resume from. It writes no file unless you ask for one in that request. Every installed instruction file carries a short Session Handoff rule, so the agent knows handoffs belong in the chat, and you can run `/handoff` at any time.
 2. **Automatic guard (Claude Code, Codex, Cursor, GitHub Copilot).** The `usage-guard` hook reads the platform's own usage figure. When a tracked window reaches the threshold (99% by default), it tells the agent to finish the current step and ask you first: continue on pay-per-use credits, or hand off. If the agent ends its turn without asking, the guard sends one continuation asking for it. See "Continuing on pay-per-use credits" below.
 3. **Manual fallback (every other platform).** Where no usage figure can be read, the guard stays silent. Run `/handoff` yourself, or the agent runs it when the platform itself warns about limits.
 
-The handoff is printed and written locally. Nothing switches platforms for you and nothing sends the handoff anywhere.
+The handoff is printed in the chat, for you to copy. Nothing switches platforms for you and nothing sends the handoff anywhere.
 
 ## Coverage by platform
 
@@ -24,9 +24,9 @@ Verified against first-party hook documentation on 2026-10-01 (sources in the "U
 | Codex | `UserPromptSubmit` and `PostToolUse` `additionalContext` | `Stop` `decision: block` | `chatgpt.com/backend-api/wham/usage` (undocumented) | Automatic after you trust the hook once; fragile |
 | Cursor | native `postToolUse` `additional_context` | native `stop` `followup_message` | Cursor usage RPC with the local `state.vscdb` token (undocumented) | Automatic; fragile |
 | GitHub Copilot (VS Code Local hooks) | `PostToolUse` `hookSpecificOutput.additionalContext` (VS Code's `UserPromptSubmit` has no context field) | `Stop` `decision: block` | the Copilot Usage Monitor's percentages-only file; the hook reads no credential | Automatic while the monitor writes a percentage; silent otherwise |
-| Gemini CLI, Qwen Code, Kimi Code CLI | hooks are delivered and recognized | hooks are delivered | none known | Checkpoint and `/handoff`; `usage-guard` stays silent |
-| Windsurf, Antigravity | not registered (curated hook lists) | not registered | none known | Checkpoint and `/handoff` |
-| OpenCode, Aider, Pi, OpenClaw | no shell-hook surface | none | none | Checkpoint and `/handoff` |
+| Gemini CLI, Qwen Code, Kimi Code CLI | hooks are delivered and recognized | hooks are delivered | none known | `/handoff`; `usage-guard` stays silent |
+| Windsurf, Antigravity | not registered (curated hook lists) | not registered | none known | `/handoff` |
+| OpenCode, Aider, Pi, OpenClaw | no shell-hook surface | none | none | `/handoff` |
 
 Tracked windows: Claude Code 5-hour and weekly (the highest of the weekly figures), Codex weekly only, Cursor monthly, Copilot monthly.
 
@@ -38,7 +38,7 @@ Tracked windows: Claude Code 5-hour and weekly (the highest of the weekly figure
 
 The trigger is 99% of each tracked window because you chose to use as much of the window as possible before handing off. That leaves 1% of the window. On a 5-hour Claude Code window a single large turn can use more than that, so the automatic directive can arrive after the cap and never be read.
 
-The rolling checkpoint covers that case. Because the agent refreshes `.nexus-hub/handoff.md` after each verified milestone, an abrupt cutoff still leaves a record no older than the last milestone. If you often work in large turns, lower the threshold (see Configuration).
+Handoffs are printed in the chat only when asked for, so no agent keeps a rolling record on disk, and an abrupt cutoff leaves nothing to paste. If you often work in large turns, lower the threshold (see Configuration) so the question arrives while a turn is still left, or run `/handoff` yourself before a long step.
 
 ## Using `/handoff`
 
@@ -49,9 +49,9 @@ Run `/handoff`, optionally with a focus:
 /handoff focus on the failing migration
 ```
 
-The agent writes `.nexus-hub/handoff.md` and prints one fenced prompt. Paste that block into any agent on any platform; it tells the receiving agent to check the repository state against the record, continue from the first unfinished step, and respect the constraints you stated. The prompt embeds the whole file, so it works even where the receiving agent cannot read the file.
+The agent prints one fenced prompt in the chat and writes no file. Copy that block and paste it into any agent on any platform; it tells the receiving agent to check the repository state against the handoff, continue from the first unfinished step, and respect the constraints you stated. The prompt carries the whole handoff, so it works on another machine or in a chat-only tool.
 
-The file has a fixed format: a header line, then the same sections in the same order every time.
+The handoff has a fixed format: a header line, then the same sections in the same order every time.
 
 ```text
 # Handoff | 2026-10-01T14:03:27Z | claude | usage-limit weekly 99.2
@@ -66,11 +66,14 @@ Previous handoffs: 2026-09-30T18:02:11Z codex manual
 ## Repository state
 ```
 
-- The header is `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`. `TRIGGER` is `manual`, `checkpoint`, or `usage-limit WINDOW PERCENT`. Hooks parse this line.
+- The header is `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`. `TRIGGER` is `manual` or `usage-limit WINDOW PERCENT`. The next handoff parses this line when it carries the steps forward.
 - Each Done item carries the command that proved it, and each Next step carries the command that will.
-- A new handoff carries forward every unfinished step from the previous one, whichever platform wrote it.
-- The agent never writes secrets, tokens, or credential-file contents into the file, and scans it for secret-shaped strings before printing the prompt.
-- On the first write in a repository, `.nexus-hub/` is added to the repository's `info/exclude` file, never to `.gitignore`, so the handoff stays local and uncommitted.
+- A new handoff carries forward every unfinished step from a handoff prompt you pasted into the session, whichever platform wrote it.
+- The agent never puts secrets, tokens, or credential-file contents into the prompt, and scans it for secret-shaped strings before printing it.
+
+**A file only when you ask.** Run `/handoff file` to also write the handoff to `.nexus-hub/handoff.md`, or `/handoff file PATH` (or say "write the handoff to a file") to choose the place. The prompt is still printed. The request covers that one handoff; the next one is chat only again. When the file goes under `.nexus-hub/`, that directory is added to the repository's `info/exclude` file, never to `.gitignore`, so it stays local and uncommitted.
+
+**Older handoff files.** Earlier Nexus-Hub versions kept `.nexus-hub/handoff.md` up to date after each milestone. If one is still in your project, the next handoff reads it (unless it is committed or dated in the future), carries its unfinished steps into the new prompt, and tells you the file can be deleted. Nothing deletes it for you.
 
 The full procedure is the `session-handoff` skill, `catalog/skills/workflow/session-handoff/SKILL.md`.
 
@@ -111,7 +114,7 @@ Reaching a subscription limit is not treated as a decision to hand off, because 
 
 - **Continue on credits**: the agent carries on with the task. The guard remembers the approval in `~/.nexus-hub/state/usage-guard/<platform>.credits.json` until the limited window resets, so new sessions in that period do not ask again.
 - **Wait for the reset**: the agent stops and starts no new work.
-- **Hand off**: the agent runs the session-handoff procedure as before.
+- **Hand off**: the agent runs the session-handoff procedure: it prints the paste-ready prompt in the chat, writes no handoff file, and starts no new work.
 
 What the agent tells you, and when it asks again, depends on the credit reading (the probe's `extra_credits` window):
 
@@ -172,13 +175,13 @@ On macOS, Claude Code may keep its sign-in in the login Keychain (item `Claude C
 | Stop reading one platform's usage | set `NEXUS_USAGE_PROBE_PROVIDERS` to the others |
 | Remove cached readings and guard state | delete `~/.nexus-hub/state/usage-probe/` (except `copilot.json`, which the monitor owns) and `~/.nexus-hub/state/usage-guard/` |
 
-`NEXUS_DISABLED_HOOKS` takes a comma-separated list, so add `usage-guard` to any value you already set. Disabling the guard does not remove the checkpoint rule or `/handoff`.
+`NEXUS_DISABLED_HOOKS` takes a comma-separated list, so add `usage-guard` to any value you already set. Disabling the guard does not remove the Session Handoff rule or `/handoff`.
 
 ## Interaction with `/implement` runs
 
-During a full `/implement` run, the completion gate also answers turn end and would normally refuse a stop while plan work remains. It yields to a usage-limit stop only when both hold: `.nexus-hub/handoff.md` has a `usage-limit` header, or `.nexus-hub/usage-decision.json` records a `pending` question to you, written after the gate's last refusal, and the probe confirms a tracked window at or over `NEXUS_HANDOFF_THRESHOLD`. The gate then lets the turn end without counting a refusal or recording a blocker, and prints one line saying the run stopped for a usage-limit handoff. The run resumes through `/implement <plan>` when you paste the prompt.
+During a full `/implement` run, the completion gate also answers turn end and would normally refuse a stop while plan work remains. It yields to a usage-limit stop only when both hold: `.nexus-hub/usage-decision.json` records your answer to the usage question (`pending`, `wait`, or `handoff`) after the gate's last refusal, and the probe confirms a tracked window at or over `NEXUS_HANDOFF_THRESHOLD`. The handoff itself is printed in the chat, so the recorded `handoff` answer is its only evidence; a `.nexus-hub/handoff.md` file is never read. The gate then lets the turn end without counting a refusal or recording a blocker, and prints one line saying the run stopped for a usage-limit handoff. The run resumes through `/implement <plan>` when you paste the prompt.
 
-Writing a handoff file alone never releases a run, and a workspace-scoped install, whose hooks live inside the repository, never takes this exception. The rule is owned by the "Usage-limit handoff" section of `catalog/skills/workflow/implement-phase/references/completion-contract.md`.
+A recorded answer alone never releases a run, and a workspace-scoped install, whose hooks live inside the repository, never takes this exception. The rule is owned by the "Usage-limit handoff" section of `catalog/skills/workflow/implement-phase/references/completion-contract.md`.
 
 ## What is read, and where data goes
 
@@ -191,7 +194,8 @@ The probe reads only the sign-in of the platform you are already using and calls
 
 ## Related
 
-- `catalog/skills/workflow/session-handoff/SKILL.md`: the handoff procedure and file format.
+- `catalog/skills/workflow/session-handoff/SKILL.md`: the handoff procedure and prompt format.
+- [`docs/decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md`](../decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md): why the handoff is a chat prompt and the checkpoint is retired.
 - `catalog/commands/handoff.md`: the `/handoff` command.
 - `catalog/hooks/usage-guard.py` and `catalog/hooks/_usage_probe.py`: the guard and the probe.
 - [`docs/decisions/proposed/tooling/2026-09-28-usage-limit-handoff.md`](../decisions/proposed/tooling/2026-09-28-usage-limit-handoff.md): why the design reads credentials from a hook, and what it beat.

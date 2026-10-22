@@ -553,9 +553,9 @@ def test_fully_opaque_opening_screen_passes(output):
 
 
 def test_transparency_is_folded_into_the_measured_contrast(output):
-    """Declared ink is not the colour on screen, and the difference is a pass.
+    """Declared ink is not the color on screen, and the difference is a pass.
 
-    Scoring the declared colour treats a low-alpha grey as solid grey. This is
+    Scoring the declared color treats a low-alpha gray as solid gray. This is
     the hole the 0.95 opacity floor was crudely patching from the other side:
     it fired on any dimming, while text dimmed by its OWN rgba alpha slipped
     past both checks.
@@ -573,7 +573,7 @@ def test_transparency_is_folded_into_the_measured_contrast(output):
 def test_a_deliberate_de_emphasis_that_stays_legible_passes_both(output):
     """0.85 on near-black ink measures 10.75:1; dimming is not illegibility.
 
-    The repository's own handbooks de-emphasise secondary text at 0.85. The old
+    The repository's own handbooks de-emphasize secondary text at 0.85. The old
     0.95 floor failed all 100 of those elements while the text was comfortably
     above every WCAG floor, which is a gate reporting a design choice as a
     defect. Contrast is the arbiter, so this must pass both checks.

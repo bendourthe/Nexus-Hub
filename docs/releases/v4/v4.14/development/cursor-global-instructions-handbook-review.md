@@ -1,0 +1,7 @@
+# Distribution Handbook Cursor Instructions Verification
+
+**Covers**: why the distribution handbook needs no content change when Cursor starts receiving the global instructions through its `sessionStart` hook and the MCP venv step sets `UV_VENV_CLEAR`, and the evidence behind refreshing four input digests.
+
+Four mapped distribution inputs change. `scripts/lib/integrations/cursor.py` renders `base-cursor.md` into `~/.cursor/nexus-hub-instructions.md` at global scope and passes that file to the `sessionStart` context command. `scripts/nexus_git_attribution.py` gains `context --instructions <file>`, which emits the file ahead of the attribution policy and skips it when absent. `scripts/installer.sh` and `scripts/installer.ps1` set `UV_VENV_CLEAR=1` for `uv venv` in the MCP server step, edited in place so neither file's line count changes and no installer line citation moves.
+
+The handbook explains distribution, settings ownership, attributed identity, and verification boundaries. It makes no claim about how Cursor receives instructions or how the MCP venv is created (`git grep -n -i -E 'sessionStart|cursor[^.]{0,80}instruction' -- docs/handbooks` returns nothing), so no handbook text or rendered output changes. Only the four input digests in `docs/handbooks/_sources/distribution/evidence.json` are refreshed, and this record becomes the content check's evidence. No new browser run is claimed; the existing rendered evidence still applies because the handbook output is unchanged.

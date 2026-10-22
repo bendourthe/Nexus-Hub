@@ -438,7 +438,7 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 |---|---|
 | "This criterion is blocking the gate, so I will disable it just this once." | A required criterion disabled "just once" is the exact path by which untested or insecure code reaches the next phase. If a criterion blocks consistently, fix the underlying issue or reclassify it as optional with documented rationale -- never silently waive it. |
 | "More gates with stricter thresholds means higher quality." | Over-gating slows velocity without proportional quality gains, and a 90% coverage gate on a 60%-coverage project just gets routinely overridden until the gate means nothing. Set thresholds against the project's current state. |
-| "I will eyeball whether the gate passed instead of defining explicit criteria." | A gate without explicit, mostly-automated criteria is a subjective judgement dressed up as a checkpoint. Two reviewers will pass and fail the same change, and the audit trail records nothing useful. |
+| "I will eyeball whether the gate passed instead of defining explicit criteria." | A gate without explicit, mostly-automated criteria is a subjective judgment dressed up as a checkpoint. Two reviewers will pass and fail the same change, and the audit trail records nothing useful. |
 
 ## Verification
 

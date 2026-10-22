@@ -1264,7 +1264,7 @@
           "scope": "model-specific"
         },
         {
-          "claim": "With gpt-5.3-codex, mid-rollout preambles and progress updates can be prompted, which earlier Codex models did not allow. Prompt for a short acknowledgement and plan before any tool calls.",
+          "claim": "With gpt-5.3-codex, mid-rollout preambles and progress updates can be prompted, which earlier Codex models did not allow. Prompt for a short acknowledgment and plan before any tool calls.",
           "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
           "confidence": "high",
           "scope": "model-specific"

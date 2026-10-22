@@ -28,10 +28,10 @@ Rules this module keeps:
   - The continuation reason names only predicate ids, never text from the plan.
   - The output shape follows NEXUS_GATE_FORMAT when set, else the payload shape.
   - Usage-limit handoff (v4.13.7): the stop is allowed, with no refusal counted
-    and no blocker written, only when BOTH a usage-limit handoff header (or,
-    since v4.13.11, a pending credits-or-handoff question in
-    .nexus-hub/usage-decision.json) newer
-    than the last refusal exists in the repository AND the usage probe confirms a
+    and no blocker written, only when BOTH the user's answer to the usage
+    question in .nexus-hub/usage-decision.json (pending, wait, or handoff; the
+    handoff itself is a prompt printed in the chat, so no handoff file is read)
+    newer than the last refusal exists in the repository AND the usage probe confirms a
     tracked window at or over NEXUS_HANDOFF_THRESHOLD. The record is never marked
     complete or paused. The usage-guard and probe modules are read from the
     calling hook's directory (NEXUS_GATE_HOOK_DIR, set by the adapter) and never

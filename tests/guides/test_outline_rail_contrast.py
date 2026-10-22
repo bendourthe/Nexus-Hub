@@ -3,7 +3,7 @@
 At 1280 px the page navigation is a slim rail of dots. An empty dot's ring is the only
 thing that shows a section exists, so it is a non-text UI boundary (WCAG 1.4.11, 3:1).
 The ring measured 3.20:1 in the light theme, legal but faint; it is now held to 4.5:1 in
-both themes on both pages. Ratios use the WCAG 2 formula on canvas-resolved colours.
+both themes on both pages. Ratios use the WCAG 2 formula on canvas-resolved colors.
 """
 
 from __future__ import annotations
@@ -47,6 +47,7 @@ def chromium():
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
+        return  # unreachable: pytest.skip raises; tells static analysis the name is bound below
     with sync_playwright() as pw:
         try:
             browser = pw.chromium.launch()
@@ -54,6 +55,7 @@ def chromium():
             if REQUIRE_RENDER:
                 pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
             pytest.skip(f"chromium is unavailable: {exc}")
+            return  # unreachable: pytest.skip raises
         yield browser
         browser.close()
 

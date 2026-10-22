@@ -47,7 +47,7 @@ export interface ModelCredits {
   used: number;
 }
 
-/** Why a pool total is labelled approximate. */
+/** Why a pool total is labeled approximate. */
 export type ApproximateReason = "seat-added" | "pending-cancellation";
 
 /** The organization's shared AI-credit pool; see decision file items (2) and (3). */

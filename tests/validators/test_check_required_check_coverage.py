@@ -495,7 +495,7 @@ def test_list_form_on_block_is_unconditional(tmp_path: Path) -> None:
 
 
 def test_wildcard_branch_pattern_matches(tmp_path: Path) -> None:
-    """A `**` pattern must be honoured rather than compared literally."""
+    """A `**` pattern must be honored rather than compared literally."""
     build_tree(
         tmp_path,
         {"ci.yml": WILDCARD_BRANCH_WORKFLOW},

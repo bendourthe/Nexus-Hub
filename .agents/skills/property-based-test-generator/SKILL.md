@@ -7,7 +7,7 @@ overview_l1: "This skill generates property-based tests using QuickCheck/Hypothe
 
 # Property-Based Test Generator
 
-Generate property-based tests that verify invariants, algebraic properties, and behavioural contracts over large numbers of randomly generated inputs. Instead of manually choosing specific test cases, property-based testing describes what should always be true and lets the framework find counterexamples through automated input generation and shrinking.
+Generate property-based tests that verify invariants, algebraic properties, and behavioral contracts over large numbers of randomly generated inputs. Instead of manually choosing specific test cases, property-based testing describes what should always be true and lets the framework find counterexamples through automated input generation and shrinking.
 
 ## When to Use This Skill
 
@@ -18,7 +18,7 @@ Use this skill when you need to:
 - Validate sorting, searching, and collection operations against their contracts
 - Discover edge cases that manual test writing would miss
 - Test state machines and stateful protocols with model-based testing
-- Verify that refactored code preserves the same behaviour as the original
+- Verify that refactored code preserves the same behavior as the original
 - Test parsers, compilers, or transformers with grammar-based input generation
 - Ensure API contract invariants hold across arbitrary valid request payloads
 
@@ -648,7 +648,7 @@ def test_reverse_reverse_is_identity(s):
 ## Common Pitfalls
 
 - **Writing properties that are too weak**: `assert result is not None` is a property, but it catches almost no bugs; properties should make strong claims about the output
-- **Accidentally re-implementing the function in the property**: If your property is `assert my_sort(xs) == sorted(xs)`, you are testing against Python's built-in sort, which may mask bugs in your sort that happen to match Python's behaviour
+- **Accidentally re-implementing the function in the property**: If your property is `assert my_sort(xs) == sorted(xs)`, you are testing against Python's built-in sort, which may mask bugs in your sort that happen to match Python's behavior
 - **Ignoring floating-point properties**: Floating-point arithmetic is not associative or commutative; properties involving floats need approximate comparison with tolerances
 - **Generating inputs that are too constrained**: If your generator only produces lists of length 0-3, you will miss bugs that appear at length 100+; use the default ranges unless you have a specific reason to constrain
 - **Not running enough examples**: 100 examples may be enough for simple properties, but complex state machines need 10,000+ to cover interesting operation sequences

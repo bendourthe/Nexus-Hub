@@ -157,7 +157,7 @@ Added to the registry on 2026-08-25 and classified in the same change, so it car
 
 `~/.pi/agent/settings.json` (global) and `.pi/settings.json` (project) are documented as JSON settings files where "project settings override global settings". The Model & Thinking table documents `defaultProvider` ("Default provider (e.g., `\"anthropic\"`, `\"openai\"`)"), `defaultModel` ("Default model ID"), and `defaultThinkingLevel` with the enumerated values `off | minimal | low | medium | high | xhigh | max`. Also documented: `thinkingBudgets` (per-level token budgets) and `hideThinkingBlock`.
 
-`defaultThinkingLevel` is the closest analogue in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
+`defaultThinkingLevel` is the closest analog in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
 
 Two keys are deliberately NOT seeded. `defaultModel` is a bare model ID with no documented default and no vendor-documented safe self-selecting value, and `defaultProvider` scopes it; pinning either would hand a fresh install a provider and model the user's credentials may not reach. That is precisely the failure the do-not-invent rule exists to prevent, so both are recorded under `omitted` rather than guessed.
 
@@ -167,7 +167,7 @@ One caveat belongs on the record because it changes when a seeded value takes ef
 
 `~/.qwen/settings.json` (user) and `.qwen/settings.json` (project) document `model.name` ("The Qwen model to use for conversations"), `model.reasoningEffort` ("How hard reasoning-capable models think, applied across all providers", values `low | medium | high | xhigh | max`), and `tools.approvalMode` (`plan | default | auto-edit | auto | yolo`, documented default `"auto"`). Also documented: `model.maxToolCalls`, `model.maxWallTimeSeconds`, and `fastModel`.
 
-Qwen is the closest structural analogue to Claude in this table: a first-class, top-level reasoning-effort scalar plus a model pin, both in a JSON settings file at a path Nexus-Hub already targets.
+Qwen is the closest structural analog to Claude in this table: a first-class, top-level reasoning-effort scalar plus a model pin, both in a JSON settings file at a path Nexus-Hub already targets.
 
 ### windsurf - UNVERIFIED
 

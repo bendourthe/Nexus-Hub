@@ -84,7 +84,7 @@ Framework mappings are documented in [references/standards.md](references/standa
 | "I'll just click the link to see where it goes" | Loading the live URL from your own browser hands the attacker your IP, session, and a confirmed-live-target signal, and may auto-trigger a drive-by or harvest page. Defang and use passive resolution; the click is exactly the action the attacker is engineering. |
 | "It's only one reported email, no need to hunt the logs" | Phishing arrives as a campaign; one report usually means dozens of silent recipients and some clickers. Skipping the recipient and clicker hunt in step 6 leaves compromised accounts live while you close the single ticket. |
 | "The attachment looks like a PDF, it's safe to open" | The displayed extension and icon are attacker-controlled; magic-byte inspection routinely reveals a script or macro document masquerading as a PDF. Opening it on your workstation detonates the payload the analysis was meant to contain. |
-| "The user fell for it, so I should flag them" | Blame suppresses future reporting, which is your earliest detection signal. The report-acknowledgement and awareness framing in step 7 is what keeps the next phish getting reported instead of hidden. |
+| "The user fell for it, so I should flag them" | Blame suppresses future reporting, which is your earliest detection signal. The report-acknowledgment and awareness framing in step 7 is what keeps the next phish getting reported instead of hidden. |
 
 ## Verification
 

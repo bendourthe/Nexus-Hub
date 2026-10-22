@@ -1474,3 +1474,182 @@ def test_a_git_cmd_wrapper_does_not_break_the_route_check(route_repo: Path, tmp_
         branch="feat/v0.5.2-alpha", environ={},
     )
     assert (status, repo) == ("met", "acme/demo"), reason
+
+
+# --------------------------------------------------------------------------- member archive identity
+
+
+ARCHIVED_ALPHA = "docs/archives/v0/v0.5/plans/v0.5.2-alpha.md"
+
+
+def _archive_alpha(minor: Minor) -> tuple[dict, str]:
+    """Move v0.5.2 to the archive with a link repair, as a member archive does; (record, repaired text)."""
+    source = minor.work / MINOR_DIR / "v0.5.2-alpha.md"
+    target = minor.work / ARCHIVED_ALPHA
+    target.parent.mkdir(parents=True)
+    text = source.read_text(encoding="utf-8") + "\nSee [gaps](../../../../releases/v0/v0.5/known-gaps.md).\n"
+    target.write_text(text, encoding="utf-8")
+    source.unlink()
+    return minor.record(), text
+
+
+def _signed_identity(record: dict, text: str, **override: str) -> dict:
+    member = record["members"][0]
+    member["archived"] = {"plan_path": ARCHIVED_ALPHA, "plan_sha256": ck.plan_hash_text(text),
+                          "from": member["plan_path"], "original_sha256": member["plan_sha256"],
+                          "moved": [], "at": ck._now(), **override}
+    return record
+
+
+def test_a_member_verifies_by_its_frozen_hash_or_its_signed_archived_identity(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record, text = _archive_alpha(minor)
+    assert minor.load().forced == ck.TAMPERED  # a repaired copy with no signed identity
+    minor.write_record(_signed_identity(record, text), resign=True)
+    state = minor.load()
+    assert state.forced is None and state.record is not None
+    member = state.record["members"][0]
+    assert ck.project(state.record, "v0.5.2")["archived"] == member["archived"]
+    # The original text at the original path still verifies too (a rolled-back archive).
+    original = (minor.work / ARCHIVED_ALPHA).read_text(encoding="utf-8").split("\nSee [gaps]")[0]
+    (minor.work / ARCHIVED_ALPHA).unlink()
+    (minor.work / MINOR_DIR / "v0.5.2-alpha.md").write_text(original, encoding="utf-8")
+    assert minor.load().forced is None
+
+
+@pytest.mark.parametrize(
+    "override",
+    [{"plan_sha256": "0" * 64}, {"plan_path": "docs/archives/v0/v0.5/plans/v0.5.2-other.md"}],
+    ids=["wrong-hash", "wrong-path"],
+)
+def test_a_mismatched_archived_identity_is_tampering(minor: Minor, override: dict) -> None:
+    assert minor.create().returncode == 0
+    record, text = _archive_alpha(minor)
+    minor.write_record(_signed_identity(record, text, **override), resign=True)
+    assert minor.load().forced == ck.TAMPERED
+
+
+def test_a_hand_edited_archived_identity_is_tampering(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record, text = _archive_alpha(minor)
+    minor.write_record(_signed_identity(record, text), resign=False)  # correct values, no signature
+    assert minor.load().forced == ck.TAMPERED
+
+
+def test_a_record_without_an_archived_identity_signs_and_projects_as_before(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record = minor.record()
+    assert all("archived" not in m for m in record["members"])
+    assert "archived" not in ck.project(record, "v0.5.2")
+    assert set(ck._hmac_payload(record)) == {*ck._SIGNED_FIELDS, *ck._SIGNED_MINOR_FIELDS}
+    assert minor.load().forced is None
+
+
+# --------------------------------------------------------------------------- add one class to a running record
+
+
+ADD = ("--action", "add-class", "--class", "archive-member")
+
+
+def _add_class(minor: Minor, session: str = SESSION, *extra: str) -> subprocess.CompletedProcess:
+    return minor.run("record", "add-class", "--minor", "v0.5", "--session", session, "--class", "archive-member", *extra)
+
+
+def test_add_class_records_archive_member_only_from_the_users_paste(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    page = minor.render(SESSION, *ADD, "--page")
+    assert page.returncode == 0, page.stdout + page.stderr
+    # The page states the changed archive timing: today's and the approved one.
+    assert "until the whole minor closes" in page.stdout and "as soon as that plan is released" in page.stdout
+    before = minor.record()
+    refused = _add_class(minor)
+    assert refused.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"]
+    assert minor.record() == before
+    line = minor.paste(SESSION, *ADD)
+    assert line.startswith("Archive each released plan early in /implement v0.5 (approval ")
+    added = _add_class(minor)
+    assert added.returncode == 0 and added.stdout.strip() == "ADDED archive-member minor v0.5", added.stdout
+    after = minor.record()
+    entry = after["approvals"]["classes"][-1]
+    assert entry["class"] == "archive-member" and entry["text"] == line
+    assert entry["added"]["at"] and len(entry["added"]["page_sha256"]) == 64
+    assert after["approvals"]["classes"][:-1] == before["approvals"]["classes"]
+    for key in ("members", "nonce", "session_id", "start_head", "excluded", "completed"):
+        assert after[key] == before[key], key
+    assert minor.load().forced is None
+    again = _add_class(minor)
+    assert again.returncode == 0 and again.stdout.strip() == "ALREADY ADDED archive-member minor v0.5"
+
+
+@pytest.mark.parametrize("action", ["pause", "resume"])
+def test_add_class_never_accepts_a_pause_or_resume_line(minor: Minor, action: str) -> None:
+    assert minor.create().returncode == 0
+    code = minor.render(SESSION, *ADD).stdout.splitlines()[0].rsplit("(approval ", 1)[1].rstrip(")")
+    minor.capture(SESSION, f"{action.capitalize()} /implement v0.5 (approval {code})")  # the add-class code, wrong action
+    before = minor.record()
+    shaped = _add_class(minor)
+    assert shaped.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"], shaped.stdout
+    minor.paste(SESSION, "--action", action)  # a genuine round of the other action replaces the add-class round
+    rendered = _add_class(minor)
+    assert rendered.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: not-rendered"], rendered.stdout
+    assert minor.record() == before
+
+
+def test_add_class_refuses_a_paste_from_another_session(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    line = minor.render(SESSION, *ADD).stdout.splitlines()[0]
+    minor.capture("other-session", "/implement v0.5", at=0.0)
+    minor.capture("other-session", line)
+    before = minor.record()
+    result = _add_class(minor, "other-session")
+    assert result.returncode == ck.EXIT_MALFORMED and minor.record() == before
+
+
+@pytest.mark.parametrize("state", ["paused", "blocked", "tampered", "completed"])
+def test_add_class_refuses_a_record_that_is_not_live(minor: Minor, state: str) -> None:
+    assert minor.create().returncode == 0
+    record = minor.record()
+    if state == "paused":
+        record["pause"] = {"at": ck._now()}
+    elif state == "blocked":
+        record["blockers"] = [{"category": "no-progress", "open": True}]
+    elif state == "tampered":
+        record["start_head"] = "0" * 40
+    else:
+        record["completed"] = {"at": ck._now(), "head": "0" * 40}
+    minor.write_record(record, resign=state == "completed")
+    expected = {"paused": (ck.EXIT_PAUSED, "PAUSED"), "blocked": (ck.EXIT_BLOCKED, "BLOCKED: no-progress"),
+                "tampered": (ck.EXIT_BLOCKED, "BLOCKED: record-tampered"), "completed": (ck.EXIT_MALFORMED, "")}[state]
+    before = minor.record()
+    for result in (minor.render(SESSION, *ADD), _add_class(minor)):
+        assert (result.returncode, result.stdout.strip()) == expected, result.stdout + result.stderr
+    assert minor.record() == before
+
+
+def test_add_class_accepts_only_an_addable_class_on_a_minor_record(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    wrong = minor.render(SESSION, "--action", "add-class", "--class", "archive-minor")
+    assert wrong.returncode == ck.EXIT_MALFORMED and "--class must be one of archive-member" in wrong.stderr
+    stray = minor.render(SESSION, "--action", "pause", "--class", "archive-member")
+    assert stray.returncode == ck.EXIT_MALFORMED and "--class requires --action add-class" in stray.stderr
+    plan = minor.run("record", "render", f"{MINOR_DIR}/v0.5.2-alpha.md", "--session", SESSION, *ADD)
+    assert plan.returncode == ck.EXIT_MALFORMED and "require --minor" in plan.stderr
+    record = minor.record()
+    record["approvals"]["classes"] = [c for c in record["approvals"]["classes"] if c["class"] != "archive-minor"]
+    minor.write_record(record, resign=True)
+    alone = minor.render(SESSION, *ADD)
+    assert alone.returncode == ck.EXIT_MALFORMED and "valid only with archive-minor" in alone.stderr
+
+
+def test_archive_member_is_a_minor_run_class_only(minor: Minor) -> None:
+    spec = minor.tmp / "plan-approvals.json"
+    spec.write_text(json.dumps({"classes": [{"class": "push-merge"}, {"class": "archive-member"}]}), encoding="utf-8")
+    result = minor.run("record", "render", f"{MINOR_DIR}/v0.5.2-alpha.md", "--session", SESSION, "--approvals", str(spec))
+    assert result.returncode == ck.EXIT_MALFORMED and "belongs to a minor run" in result.stderr
+    approvals = str(minor.approvals({"class": "archive-member"}))
+    minor.paste(SESSION, "--approvals", approvals)
+    created = minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", approvals)
+    assert created.returncode == 0, created.stdout + created.stderr
+    record = minor.record()
+    assert "archive-member" in {c["class"] for c in record["approvals"]["classes"]}
+    assert all("archive-member" not in {c["class"] for c in m["approvals"]["classes"]} for m in record["members"])

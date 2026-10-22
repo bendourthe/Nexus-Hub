@@ -23,7 +23,7 @@ Four constraints are load-bearing:
 - **An open task count is never queue membership.** Shipped and abandoned plans retain unchecked task lines; at adoption time more than a dozen did, three of them larger than any genuinely queued plan.
 - **A verdict requires named evidence.** "No impact" without the disjoint surfaces listed is indistinguishable from not having looked.
 - **Every check writes an artifact, including a no-op.** An unwritten check is indistinguishable from a skipped one. This is what stops four added assessment steps becoming ritual.
-- **Impact-on-harness is a recorded maintainer judgement, not a computed score.** Only parallel compatibility is computed.
+- **Impact-on-harness is a recorded maintainer judgment, not a computed score.** Only parallel compatibility is computed.
 
 Ranking places documentation, interactive-guide, and refactor classes last, and attaches a real content-refresh task to whatever lands there.
 
@@ -35,11 +35,11 @@ Re-sequencing is a **recommendation**. Acting on one is propose-then-apply behin
 
 **A persisted queue database.** Rejected. It adds a state file that can disagree with the tree, and the tree is already the source of truth. Enumeration is fast enough to run on demand.
 
-**Skill-only, no script.** Rejected under the repository's own preference for LLM-native solutions, because the enumeration has two documented failure modes (lexical sorting, current-minor-only scanning) that have each produced a confident wrong answer. Those are exactly the cases a deterministic scanner should own and a re-derived judgement should not.
+**Skill-only, no script.** Rejected under the repository's own preference for LLM-native solutions, because the enumeration has two documented failure modes (lexical sorting, current-minor-only scanning) that have each produced a confident wrong answer. Those are exactly the cases a deterministic scanner should own and a re-derived judgment should not.
 
 **Inline instructions in each of the four commands.** Rejected. It puts one rule in four places, which the repository's rule-ownership policy forbids for overlapping skills, and which would drift within a release or two.
 
-**Computing impact-on-harness.** Rejected. Any score would be an invented weighting presented as derived, and it would be argued with as if it were measured. A recorded judgement can be disagreed with on its reasoning.
+**Computing impact-on-harness.** Rejected. Any score would be an invented weighting presented as derived, and it would be argued with as if it were measured. A recorded judgment can be disagreed with on its reasoning.
 
 **Folding this into the v4.13.0 evaluation plan.** Rejected at authoring time. That plan is blocked on a native-runner prerequisite, and this capability has no measurement dependency.
 

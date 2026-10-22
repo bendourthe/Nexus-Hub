@@ -53,7 +53,7 @@ Before choosing a structure, name how much autonomy the task has earned. Structu
 
 | Rung | Fits when | Who holds the finish line |
 |---|---|---|
-| Prompt or chat | The work is short, exploratory, or judgement-dense. | The human, who orchestrates and evaluates every turn. |
+| Prompt or chat | The work is short, exploratory, or judgment-dense. | The human, who orchestrates and evaluates every turn. |
 | Deterministic workflow | The path is known and only bounded steps need a model. | Code, which controls the path; the model fills in the steps. |
 | Delegated chunk | One bounded task can be handed off whole. | The human, who reviews the result rather than the process. |
 | Single goal loop | An explicit verifier and budgets exist, so iteration can be trusted. | The loop's run contract, evaluated by a checker the maker does not control. |
@@ -134,7 +134,7 @@ When you reach for **Dynamic Workflows** specifically, [assets/example-fanout-wo
 
 A Dynamic Workflow run is one-shot by default. When a task must persist beyond a single run, two Claude Code built-in commands compose with it: `/loop` re-runs a workflow (or any prompt) on an interval or until you stop it (scheduled audits, continuous monitoring of a changing surface), and `/goal` attaches a hard, explicit completion requirement the agent must satisfy before it is allowed to stop. These are platform commands you reference and invoke directly in your harness -- NOT catalog artifacts Nexus-Hub ships; this skill names them so the choice is on the table, but does not provide them.
 
-#### Goal-based stopping: the exit must be a checked command, not a judgement
+#### Goal-based stopping: the exit must be a checked command, not a judgment
 
 A continuous loop is only as safe as its stopping rule. Two requirements make a loop's exit trustworthy:
 

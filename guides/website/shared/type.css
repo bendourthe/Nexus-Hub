@@ -1,8 +1,8 @@
 /* ---------- Text roles (v4.13.10 R27) ---------- The one configuration for every piece of text on the
    guide and Training pages. Each text element carries a role (data-ty="..."), on itself or on the nearest
    element that defines its text block, and its typography (font family, size, weight, line height,
-   letter spacing, colour) comes only from that role's rule below. A role may take a tone (data-tone),
-   which changes its colour and nothing else; the tones are defined here too. Component CSS keeps layout
+   letter spacing, color) comes only from that role's rule below. A role may take a tone (data-tone),
+   which changes its color and nothing else; the tones are defined here too. Component CSS keeps layout
    (margin, padding, display, alignment) and never restates typography.
 
    Exempt: illustration internals, whose text is part of a picture rather than the page's prose. These are
@@ -13,7 +13,7 @@
    .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), .hb (the Home benefits figure),
    .tm (the Home install terminal mockups), and the game overlays.
    Navigation and controls (nav, button, summary, .pagenav) take a role for size, family, and spacing;
-   their colour and weight follow their state (current, hover, open). The rendered audit in
+   their color and weight follow their state (current, hover, open). The rendered audit in
    tests/guides/test_v443_phase1_headings.py reads this same list. */
 :root{
   /* Legibility floor. No text role on this page resolves below it. Change it here. */
@@ -64,7 +64,7 @@
 [data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
 /* A comparison column header: the "without" and "with" sides on Home and the migration table. */
 [data-ty="grade"]{font-size:var(--ty-grade);font-weight:750;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);}
-/* Tones: colour only. */
+/* Tones: color only. */
 [data-ty][data-tone="ink"]{color:var(--ink);}
 [data-ty][data-tone="dim"]{color:var(--ink-dim);}
 [data-ty][data-tone="faint"]{color:var(--ink-faint);}
@@ -75,7 +75,7 @@
 /* ---------- Heading system (v4.13.10 R21, R27) ---------- One style on every page, from the roles above:
    solid ink, no gradient words, no eyebrow line, no dash prefix. H1 is large and heavy; H2 is a clear step
    smaller, sits under a thin full-width rule that separates sections, and carries one accent dot on its
-   left, centred on its first line; H3 is smaller again, in the accent colour, with no marker. Headings are
+   left, centered on its first line; H3 is smaller again, in the accent color, with no marker. Headings are
    keyword labels, never sentences. */
 main h2:not(.tr-reward-title){--h2-pt:var(--sp-4);position:relative;padding-top:var(--h2-pt);padding-left:.75em;border-top:1px solid var(--border);}
 main h2:not(.tr-reward-title)::before{content:"";position:absolute;left:0;top:calc(var(--h2-pt) + .6em - .2em);width:.4em;height:.4em;border-radius:50%;background:var(--accent);}
