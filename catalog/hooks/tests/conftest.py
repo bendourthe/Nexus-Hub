@@ -153,7 +153,7 @@ def _hide_child_consoles() -> bool:
     if os.name != "nt" or getattr(subprocess.Popen.__init__, "_nexus_no_window", False):
         return False
     original = subprocess.Popen.__init__
-    keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE  # nexus: console-window-ok honour an explicit request
+    keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE  # nexus: console-window-ok honor an explicit request
 
     def init(self, *args, **kwargs):
         flags = kwargs.get("creationflags") or 0

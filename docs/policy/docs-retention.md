@@ -84,7 +84,7 @@ python scripts/check_docs_retention.py
 
 It prints one `WARN` line per version directory that is two or more minors old and not yet archived, and one per fully-closed or verified-transferred minor whose `plans/` or `comparisons/` still sit in the active tree, naming the exact destination in each case. It never moves or deletes a file.
 
-Advisory rather than blocking, for two reasons. Archiving is a judgement call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
+Advisory rather than blocking, for two reasons. Archiving is a judgment call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
 
 The archive pass itself runs through `/update refactor` or `[[docs-layout-refactor]]`, propose-then-apply. `/update release` reports the closed-minor list as part of its governance pass, so a release is the moment the question gets asked; acting on it stays a separate confirmed operation, because moving a directory tree and repairing its references is not something a release flow should do unattended.
 

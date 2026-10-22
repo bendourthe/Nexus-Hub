@@ -1059,7 +1059,7 @@ class TestOptimizerSplit:
                 assert owner.setdefault(key, idx) == idx, f"group {key} spans two splits"
 
     def test_unlabelled_entries_are_positive_for_splitter_and_scorer(self, optimizer_module) -> None:
-        # AV-1: 14 labelled positives plus 10 unlabelled entries hold no scored
+        # AV-1: 14 labeled positives plus 10 unlabelled entries hold no scored
         # negatives, so the class minimum must reject three-way mode.
         evals = [{"id": f"p{i}", "query": f"positive {i}", "should_trigger": True} for i in range(14)]
         evals += [{"id": f"u{i}", "query": f"unlabelled {i}"} for i in range(10)]

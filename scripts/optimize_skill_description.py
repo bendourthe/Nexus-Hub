@@ -83,7 +83,7 @@ _DEFAULT_SEED = 42
 _DEFAULT_TRAIN_FRACTION = 0.6
 # Below this size a test split is too small for its score to mean much (a
 # 3-entry split can only score 0, 1/3, 2/3, or 1), so the two-way split is kept
-# and labelled optimistic instead.
+# and labeled optimistic instead.
 _THREE_WAY_MIN_ENTRIES = 24
 _THREE_WAY_MIN_PER_CLASS = 2
 _SPLIT_MODES = ("auto", "two-way")
@@ -235,7 +235,7 @@ def resolve_split(
                     "test": test, "reported_optimistic": False}
         if len(evals) >= _THREE_WAY_MIN_ENTRIES:
             # Large enough to qualify by size, so say why it fell back rather
-            # than leaving the user to wonder why the score is labelled optimistic.
+            # than leaving the user to wonder why the score is labeled optimistic.
             print(
                 "Note: three-way split not used: a group mixes should_trigger classes, "
                 f"or a split would hold fewer than {_THREE_WAY_MIN_PER_CLASS} entries of a "
@@ -1085,7 +1085,7 @@ def main() -> int:
         choices=_SPLIT_MODES,
         default="auto",
         help="auto: train/validation/test when the set is large enough, else the "
-        "two-way split labelled reported_optimistic; two-way: always the legacy split",
+        "two-way split labeled reported_optimistic; two-way: always the legacy split",
     )
     parser.add_argument(
         "--model",

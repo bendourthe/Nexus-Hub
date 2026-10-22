@@ -70,7 +70,7 @@ Full walkthrough: [step-7-test-with-googletest-and-gmock.md](references/step-7-t
 - **Prefer the Rule of Zero**: let compiler-generated special members handle copying and moving by using smart pointers and standard containers as members
 - **Mark move constructors and move assignment noexcept**: standard containers (such as std::vector) only use move operations during reallocation when they are noexcept
 - **Use concepts over SFINAE**: concepts produce clearer error messages and are easier to read and maintain
-- **Favour make_unique and make_shared**: they are exception-safe and avoid repeating the type name
+- **Favor make_unique and make_shared**: they are exception-safe and avoid repeating the type name
 - **Prefer scoped_lock over manual lock/unlock**: it locks multiple mutexes atomically and unlocks on scope exit
 - **Constrain templates early**: use static_assert or concepts at the point of declaration rather than letting errors propagate into instantiation
 - **Enable sanitizers in CI**: AddressSanitizer, UndefinedBehaviorSanitizer, and ThreadSanitizer catch bugs that tests alone miss

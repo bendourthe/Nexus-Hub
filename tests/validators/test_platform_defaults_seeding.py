@@ -467,7 +467,7 @@ def test_merge_missing_reports_the_paths_it_added():
 
 
 def test_home_is_resolved_through_path_home_not_expanduser(tmp_path: Path, monkeypatch):
-    """Regression: the seeder must honour a patched Path.home().
+    """Regression: the seeder must honor a patched Path.home().
 
     The first implementation used os.path.expanduser, which reads USERPROFILE /
     HOME from the process environment and therefore escaped the fake home the

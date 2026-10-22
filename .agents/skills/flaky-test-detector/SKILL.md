@@ -72,7 +72,7 @@ Tests that use random data, current timestamps, or auto-generated IDs without co
 
 #### 6. Platform and Environment Differences
 
-Tests that assume a specific OS, locale, timezone, filesystem behaviour, or library version.
+Tests that assume a specific OS, locale, timezone, filesystem behavior, or library version.
 
 - **Symptom**: Test passes on developer machines (macOS) but fails on CI (Linux)
 - **Root cause**: Path separator differences, case-sensitive filesystems, locale-dependent string sorting

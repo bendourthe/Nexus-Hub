@@ -11,7 +11,7 @@ Score each dimension 0, 1, or 2.
 | Dimension | 0 | 1 | 2 |
 |---|---|---|---|
 | Objective clarity | The goal is vague and could be declared met by argument. | Partially stated; the end state needs interpretation. | A falsifiable end state one sentence long. |
-| Verification | Subjective judgement only. | A rubric exists but a human must apply it. | A strong external or deterministic check (exit code, metric, compiler, test suite). |
+| Verification | Subjective judgment only. | A rubric exists but a human must apply it. | A strong external or deterministic check (exit code, metric, compiler, test suite). |
 | Convergence | A failed check rarely points to a meaningful next action. | Sometimes points to a next action. | A failed check usually names the next action. |
 | Reversibility | The actions are costly or irreversible. | Partly reversible, or reversible at a cost. | A safe sandbox, or every action is cheaply reversible. |
 | State | Progress is hard to represent between iterations. | Partially representable. | A clear, compact state model survives a cold start. |

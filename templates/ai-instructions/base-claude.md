@@ -42,7 +42,7 @@ Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
 Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
 
-Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
+Spelling is American English (color, organize, center); external identifiers, quotes, and URLs keep their own. Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
 
 Headings are keyword labels ("Project Mapping", "Release Notes"), never sentences: no verb clause, period, or question, in any document, page, slide, or UI label.
 
@@ -124,8 +124,8 @@ The user's instructions take precedence over guidelines in a skill. Routine skil
 
 ## Session Handoff
 
-- During multi-step work, update `.nexus-hub/handoff.md` after each verified milestone (`session-handoff` checkpoint mode).
-- On a usage-limit warning, safely stop the current step, ask whether to use pay-per-use credits; if not, run `session-handoff`, print its prompt, and start no new work.
+- Print handoffs in chat (`session-handoff`); write a file only when asked.
+- On a usage-limit warning, safely stop the current step, ask whether to use pay-per-use credits; if not, print the `session-handoff` prompt in chat and start no new work.
 - The user can run `/handoff` at any time.
 
 ## Construction Discipline

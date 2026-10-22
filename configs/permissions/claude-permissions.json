@@ -27,7 +27,7 @@
     "retained_with_rationale": {
       "PowerShell alias entries (gci, gc, sls, select, sort, ...)": "Redundant because Claude Code canonicalizes aliases before matching, but retained because canonicalization coverage may vary by version and sub-task 1.1 forbids reducing coverage.",
       "Bash(xargs *) entries": "Redundant because bare xargs is stripped before matching, retained on the same version-safety reasoning.",
-      "Print and filter patterns carrying a trailing wildcard": "Their only exposure is the UNVERIFIED redirect question, which applies uniformly to every wildcard pattern in both shells rather than to these entries specifically. Singling them out would be security theatre. See finding 2 of the findings document."
+      "Print and filter patterns carrying a trailing wildcard": "Their only exposure is the UNVERIFIED redirect question, which applies uniformly to every wildcard pattern in both shells rather than to these entries specifically. Singling them out would be security theater. See finding 2 of the findings document."
     }
   },
 

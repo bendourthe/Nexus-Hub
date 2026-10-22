@@ -79,7 +79,7 @@ repos:
         # produced, for the reason given on end-of-file-fixer above: their
         # SHA-256 values are pinned in the qualification summaries. Two of them
         # carry mixed endings because that is what the generator emitted, and
-        # normalising those would edit the record rather than fix a defect. The
+        # normalizing those would edit the record rather than fix a defect. The
         # frozen qualification corpus is pinned the same way, by its own
         # frozen-manifest.json.
         exclude: '\.cmd$|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'

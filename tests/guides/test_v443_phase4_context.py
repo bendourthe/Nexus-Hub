@@ -3,7 +3,7 @@
 Three things the review asked for are asserted here. The legend row puts its swatch and label on one
 line and the description under it, which is what stopped a three-word description from wrapping to
 three lines beside a one-word label. The kinds of attachable material are a two-by-two grid of
-drawings rather than four dashed boxes each containing the noun it was already labelled with. And
+drawings rather than four dashed boxes each containing the noun it was already labeled with. And
 the budget comparison carries no legend and no percentages, because mapping three numbers onto three
 unlabelled stripes is exactly what the reader could not do.
 """
@@ -81,7 +81,7 @@ def test_every_legend_row_is_swatch_and_label_over_description(playwright_mod) -
     for row in rows:
         assert row["above"], row
         assert row["sameLeft"], row
-        assert row["swatch"], f"the label lost its colour swatch: {row}"
+        assert row["swatch"], f"the label lost its color swatch: {row}"
         assert row["descLines"] <= 2, row
 
 
@@ -162,7 +162,7 @@ def test_the_budget_comparison_reads_without_a_legend(playwright_mod) -> None:
                     const spend = document.querySelector('#fx-context .fx-spend');
                     const meters = [...spend.querySelectorAll('.fx-meter')].map(m => ({
                         w: +m.getBoundingClientRect().width.toFixed(1),
-                        labelled: [...m.children].filter(s => s.textContent.trim()).length,
+                        labeled: [...m.children].filter(s => s.textContent.trim()).length,
                         segs: m.children.length,
                     }));
                     return { meters, text: spend.innerText,
@@ -178,7 +178,7 @@ def test_the_budget_comparison_reads_without_a_legend(playwright_mod) -> None:
     assert len(data["meters"]) == 2, data["meters"]
     assert data["meters"][0]["w"] == data["meters"][1]["w"], "the two budgets must be the same width"
     for meter in data["meters"]:
-        assert meter["labelled"] >= 1, f"no segment names what fills it: {meter}"
+        assert meter["labeled"] >= 1, f"no segment names what fills it: {meter}"
     assert len(data["notes"]) == 2 and all(data["notes"]), data["notes"]
 
 

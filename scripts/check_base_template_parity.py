@@ -201,9 +201,9 @@ INVARIANT_SECTIONS = [
     # belongs in BOTH lists: every lockstep file must carry the heading, and the
     # body must stay byte-identical so the rule cannot drift on one platform.
     "End-of-Task Summary",
-    # v4.13.7: the session-handoff checkpoint rule (refresh .nexus-hub/handoff.md
-    # after verified milestones, hand off on a usage-limit warning, /handoff on
-    # demand) is platform-agnostic by intent: it names a skill and a command, not
+    # v4.13.7: the session-handoff rule (print handoffs in chat as one paste-ready
+    # prompt with a file only on request, hand off on a usage-limit warning,
+    # /handoff on demand) is platform-agnostic by intent: it names a skill and a command, not
     # a vendor feature. Require the heading and byte-lock the body across the
     # five lockstep templates. Coverage of the other eight substantive templates
     # lives in tests/validators/test_session_handoff_block.py.

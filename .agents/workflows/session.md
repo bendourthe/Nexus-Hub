@@ -26,7 +26,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      continue  -> session-handoff (resume: follow the resume steps for .nexus-hub/handoff.md when it exists) + dev-progress-tracker (read docs/todos.md), then summarize what was in progress and surface the next actions
+      continue  -> session-handoff (resume: follow a handoff prompt the user pasted, or a legacy .nexus-hub/handoff.md under the skill's trust rules when one exists) + dev-progress-tracker (read docs/todos.md), then summarize what was in progress and surface the next actions
       wrap-up   -> the wrap-up sequence below (the full end-of-session cleanup, sync, and wrap-up commit flow)
       history   -> session-history (standalone chronological session-history document)
 

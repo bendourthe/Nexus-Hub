@@ -1,4 +1,4 @@
-# Cliche Patterns: The Reflective Register and Its Neighbours
+# Cliche Patterns: The Reflective Register and Its Neighbors
 
 This reference extends the Named-Pattern Catalog in `SKILL.md` with the patterns that postdate it: the reflective, confessional, essay-voice register that spread through machine-drafted prose in 2025 and 2026, the faux-reveal moves that travel with it, the emphatic-negation and totality constructions, performative honesty, the stranded auxiliary, chatbot leftovers, and mannered prose. Every entry follows the catalog's format: a name in this project's vocabulary, the smell in one line, and an original before and after pair.
 
@@ -13,7 +13,7 @@ Every entry below carries one of two classes, and the distinction matters for bo
 
 ## Cluster 1: The reflective register (judgment)
 
-The shared smell: the prose adopts the voice of a counsellor or a confessional essayist, addressing the reader's inner life about a subject that has none. It reads as warmth and lands as manipulation, because the warmth is templated.
+The shared smell: the prose adopts the voice of a counselor or a confessional essayist, addressing the reader's inner life about a subject that has none. It reads as warmth and lands as manipulation, because the warmth is templated.
 
 ### Dwelling instruction
 
@@ -70,7 +70,7 @@ The shared smell: the sentence is staged as a disclosure, so the reader braces f
 
 ### The announced punchline
 
-Smell: labelling the conclusion as a punchline or a twist. "The punchline is..." "Here is the twist."
+Smell: labeling the conclusion as a punchline or a twist. "The punchline is..." "Here is the twist."
 
 - Before: "Here is the twist: the cache was never enabled."
 - After: "The cache was never enabled."

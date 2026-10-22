@@ -6,9 +6,9 @@ usage: python flyover_motion_check.py RUN      (reads RUN/out/preview from flyov
 Features are tracked frame to frame (Shi-Tomasi corners, pyramidal Lucas-Kanade) and the page
 plane's motion is fitted as a homography with RANSAC, so lifted pieces moving on their own are
 outliers rather than noise. From each homography:
-  - speed down the page: the frame centre's vertical displacement, converted to page px/s with
+  - speed down the page: the frame center's vertical displacement, converted to page px/s with
     the camera's distance and tilt from camera.json;
-  - zoom: the local area scale at frame centre (det of the Jacobian); above 1 = a zoom-in.
+  - zoom: the local area scale at frame center (det of the Jacobian); above 1 = a zoom-in.
 A median of raw flow is the wrong instrument: it reads 0 on any flat, textureless region and
 reports a lifted piece's own growth as a zoom.
 
@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 FOCAL = 1880.0
-CENTRE = (720.0, 576.0)
+CENTER = (720.0, 576.0)
 FLIGHT_END = 8.2
 CRUISE = (1.7, 7.2)
 DIP = 0.05  # a frame more than 5% below its +-0.5s median is a dip
@@ -73,9 +73,9 @@ def main(argv: list[str]) -> int:
             else:
                 hm, _ = cv2.findHomography(a, b, cv2.RANSAC, 1.0)
                 if hm is not None:
-                    q, jac = jacobian(hm, CENTRE)
+                    q, jac = jacobian(hm, CENTER)
                     c = cams[i]
-                    speed = -(q[1] - CENTRE[1]) * c["d"] / (FOCAL * math.cos(c["th"])) * fps
+                    speed = -(q[1] - CENTER[1]) * c["d"] / (FOCAL * math.cos(c["th"])) * fps
                     area = float(np.linalg.det(jac))
         rows.append((i / fps, speed, area))
         prev = cur
@@ -88,9 +88,9 @@ def main(argv: list[str]) -> int:
             findings.append(f"glide dips at {t[k]:.2f}s ({sp[k]:.0f} vs local {local:.0f} page px/s)")
     if np.nanmax(ar) > ZOOM_IN:
         k = int(np.nanargmax(ar))
-        findings.append(f"zoom-in at {t[k]:.2f}s (centre area scale {ar[k]:.5f})")
+        findings.append(f"zoom-in at {t[k]:.2f}s (center area scale {ar[k]:.5f})")
     print(f"flight 0-{FLIGHT_END}s at {fps}fps: cruise {np.nanmin(sp[cruise]):.0f}-{np.nanmax(sp[cruise]):.0f} "
-          f"page px/s (median {np.nanmedian(sp[cruise]):.0f}); max centre area scale {np.nanmax(ar):.5f}; "
+          f"page px/s (median {np.nanmedian(sp[cruise]):.0f}); max center area scale {np.nanmax(ar):.5f}; "
           f"{int(np.isnan(sp).sum())} unmeasured frames")
     for f in findings[:12]:
         print("FINDING:", f)

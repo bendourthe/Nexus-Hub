@@ -54,7 +54,7 @@ When a modal dialog (or equivalent: full-screen drawer, onboarding modal) is ope
 2. Tab from the last focusable node wraps to the first; Shift+Tab from the first wraps to the last.
 3. Escape closes the dialog.
 4. On close, focus returns to the element that opened it. If that node is gone, focus a sensible fallback (the landmark that contained it), not `document.body`.
-5. Content outside the dialog is not reachable: `inert` on the background is the modern approach; `aria-modal="true"` plus `role="dialog"` plus a labelled name (`aria-labelledby` to the title) are required on the dialog itself.
+5. Content outside the dialog is not reachable: `inert` on the background is the modern approach; `aria-modal="true"` plus `role="dialog"` plus a labeled name (`aria-labelledby` to the title) are required on the dialog itself.
 
 Non-modal popovers (date picker anchored to a field) MUST NOT trap. Tab should leave them. Escape still closes them.
 
