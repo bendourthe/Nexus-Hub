@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
+- **The Copilot Usage Monitor installs into VS Code only.** Since v4.13.11 the installers also put it into Cursor as a second host. They now install it through the VS Code CLI alone, and the existing legacy-extension sweep removes the copy earlier releases left in Cursor (the VS Code copy stays). Decision record: `docs/decisions/implemented/policy/2026-10-22-copilot-usage-monitor-vscode-only.md`.
 - **Reinstalling no longer skips the local MCP servers.** `uv` 0.9 and later refuse to create a virtual environment over an existing one, so every install after the first exited `uv venv` with code 2 and printed "Could not build the MCP server venv". Both installers now set `UV_VENV_CLEAR=1` for that call, which restores what older `uv` did silently and is ignored by versions that predate it.
 
 ### Removed
