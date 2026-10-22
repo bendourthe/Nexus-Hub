@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
       "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "6d909a54a9b7407742b18e0669c5884ed73bf62a732e9f929fa3b0a7492adde4",
-      "scripts/installer.sh": "5ac6468def3d3f820744ebeccd50cba1233f84c3664b626514b95961d730b9ad",
+      "scripts/installer.ps1": "dbe7d6275f46ee0e9b958c8c90c8f6d9734c913a2b00013305c7ccda33727d69",
+      "scripts/installer.sh": "f71859c2e122c05b48334a1322bc4dc3d4fc559bdcc4c629df755eef04d53c56",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
@@ -33,8 +33,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/cursor-global-instructions-handbook-review.md",
-      "evidence_sha256": "490fceff4d6afd344fa419f740b0fcb825f5737d84dd2a17adb3d0c09d7d15f6"
+      "evidence": "docs/releases/v4/v4.14/development/copilot-monitor-vscode-only-handbook-review.md",
+      "evidence_sha256": "72a163e64f266b658d22299ad843e74448680e5bdf96f50894749541bb908790"
     },
     "build": {
       "status": "pass",
