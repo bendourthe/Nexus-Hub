@@ -19,6 +19,9 @@ Subcommands:
                                            the schema-2 minor record (completion_minor.py)
     record member-start --minor <vX.Y> --member <vX.Y.Z> --session ID --head SHA
                                            pass the member gate; record the member's start_head
+    record add-class --minor <vX.Y> --session ID --class archive-member [--text LINE]
+                                           add one class to a running minor record from the
+                                           user's pasted `record render --action add-class` line
     check-minor <vX.Y> [--json] [--session ID]
                                            the minor verdict, then per-member and minor lines
     score-minor <vX.Y> [--session ID]      the minor's progress score
@@ -95,8 +98,11 @@ APPROVAL_CLASSES = {
     "gap-migration",
     "archive-minor",
     "minor-close-pr",
+    # Optional, unbound, and valid only beside `archive-minor`: archive each member as it
+    # is released (completion contract, "Member archive").
+    "archive-member",
 }
-MINOR_ONLY_CLASSES = {"gap-migration", "archive-minor", "minor-close-pr"}
+MINOR_ONLY_CLASSES = {"gap-migration", "archive-minor", "minor-close-pr", "archive-member"}
 # A one-plan run that is the last of its minor archives it through the same two
 # classes; `carry-gaps` records the gaps a one-plan run leaves open in the next
 # version (completion contract, "Single-plan carry and archive").
@@ -792,6 +798,8 @@ def project(record: dict, version: str) -> dict | None:
     minor = record.get("approvals") or {}
     own = member.get("approvals") or {}
     cleanup = own.get("cleanup") or {"branches": [], "worktrees": []}
+    archives = [{"version": m.get("version"), "archived": m["archived"]} for m in record.get("members") or []
+                if isinstance(m, dict) and isinstance(m.get("archived"), dict)]
     approvals = {
         "plan": member.get("plan_path"),
         "remote_url": minor.get("remote_url"),
@@ -832,6 +840,11 @@ def project(record: dict, version: str) -> dict | None:
         "cleanup": cleanup,
         "blockers": record.get("blockers") or [],
         "pause": record.get("pause"),
+        # A member archived on release carries its signed archived identity, and the view
+        # carries every member's, so no archive commit counts as this member's task work;
+        # a record where no member has one projects exactly as before.
+        **({"archived": member["archived"]} if "archived" in member else {}),
+        **({"member_archives": archives} if archives else {}),
     }
 
 
@@ -855,10 +868,10 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     approvals = (record or {}).get("approvals", {})
     start = (record or {}).get("start_head")
     for tid, checked, path in ctx.tasks:
-        results.append((f"task.{tid}", _task_status(ctx, checked, path, start)))
+        results.append((f"task.{tid}", _task_status(ctx, checked, path, start, record)))
     gaps_status, deferred = _gaps_status(ctx, record)
     results.append(("gaps.version", gaps_status))
-    evidence = _evidence_file(ctx)
+    evidence = _evidence_file(ctx, record)
     results.append(
         ("evidence.file", "met" if evidence and _has_sections(evidence) else "unmet")
     )
@@ -961,13 +974,18 @@ def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
 DATE_PLACEHOLDER = "YYYY-MM-DD"
 
 
-def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
+def _task_status(ctx: Context, checked: bool, path: str, start: str | None, record: dict | None = None) -> str:
     if not checked or not path:
         return "unmet"
     if not start:
         return "met"
+    # Once any member of the minor carries a signed archived identity, an archive commit
+    # (any member's, or the close's) never counts as task work (contract, "Member archive").
+    archives = record if _minor_module().archive_active(record) else None
     if path.count(DATE_PLACEHOLDER) == 1:
-        return _dated_task_status(ctx, path, start)
+        return _dated_task_status(ctx, path, start, archives)
+    if archives is not None:
+        return _minor_module().archive_task_status(ctx, ctx.version, path, start, archives)
     rc, out = _run(
         [
             ctx.git,
@@ -986,15 +1004,19 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> s
     return "met" if out.strip() else "unmet"
 
 
-def _dated_task_status(ctx: Context, path: str, start: str) -> str:
+def _dated_task_status(ctx: Context, path: str, start: str, archives: dict | None = None) -> str:
     """Met only when exactly one file with a real date in the placeholder's place changed.
 
     The placeholder must appear once; zero or several dated matches are unmet, so a
     second dated file cannot make a stale task pass and nothing is guessed when none matches.
+    With `archives` (a minor where an archive happened), archive commits are skipped and
+    the path's original location is searched too, as for any other task line.
     """
     head, tail = path.split(DATE_PLACEHOLDER)
     pattern = re.compile(re.escape(head) + r"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])" + re.escape(tail) + r"\Z")
     folder = head.rsplit("/", 1)[0] if "/" in head else "."
+    if archives is not None:
+        return _dated_archive_status(ctx, path, start, archives, pattern, folder)
     rc, out = _run(
         [ctx.git, "-C", str(ctx.root), "log", "--format=", "--name-only", "--no-renames",
          f"{start}..HEAD", "--", folder],
@@ -1006,8 +1028,85 @@ def _dated_task_status(ctx: Context, path: str, start: str) -> str:
     return "met" if len(matches) == 1 else "unmet"
 
 
-def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
+def _dated_archive_status(ctx: Context, path: str, start: str, archives: dict, pattern: re.Pattern[str], folder: str) -> str:
+    """`_dated_task_status` once an archive happened: archive commits never count.
+
+    The path's original location (before a member archive or the close re-pointed it)
+    is searched too, and a match there is read in its archived form, so one dated file
+    found at both places counts once.
+    """
+    cm = _minor_module()
+    landing = cm.archive_landing(ctx, archives)
+    if landing is None:
+        return "cannot-verify"
+    excluded = landing.excluded
+    origin = cm.task_origin(ctx.version, path, archives.get("archived"))
+    folders, old_tree, new_tree = [folder], "", ""
+    if origin is not None:
+        rest = len(path) - len(cm.ARCHIVE_TREE.format(M=cm.minor_of(ctx.version)[0], m=cm.minor_of(ctx.version)[1]))
+        old_tree, new_tree = origin[: len(origin) - rest], path[: len(path) - rest]
+        head = origin.split(DATE_PLACEHOLDER)[0]
+        folders.append(head.rsplit("/", 1)[0] if "/" in head else ".")
+    rc, out = _run(
+        [ctx.git, "-c", "core.quotePath=false", "-C", str(ctx.root), "log", "--format=@@%H", "--name-only",
+         "-z", "--no-renames", f"{start}..HEAD", "--", *folders],
+        ctx.budget,
+    )
+    if rc != 0:
+        return "cannot-verify"
+    matches: set[str] = set()
+    shas: set[str] = set()
+    current = ""
+    for token in out.split("\0"):
+        name = token.lstrip("\n")
+        if name.startswith("@@"):
+            current = name[2:].strip()
+            shas.add(current)
+            continue
+        if not name or current in excluded:
+            continue
+        if old_tree and name.startswith(old_tree + "/"):
+            name = new_tree + name[len(old_tree):]
+        if pattern.match(name):
+            matches.add(name)
+    if cm.uncertain_for(landing, folders, shas):
+        return "cannot-verify"
+    return "met" if len(matches) == 1 else "unmet"
+
+
+def _in_archive_tree(ctx: Context) -> bool:
+    """True when the plan sits in its minor's archive tree (a member archived on release)."""
+    cm = _minor_module()
+    try:
+        major, minor = cm.minor_of(ctx.version)
+    except (ValueError, IndexError):
+        return False
+    return ctx.version_dir.resolve() == (ctx.root / cm.ARCHIVE_TREE.format(M=major, m=minor)).resolve()
+
+
+def _gaps_ledger(ctx: Context, record: dict | None = None) -> Path | None:
+    """The minor's known-gaps ledger for `gaps.version`; None when two layouts both hold one.
+
+    A plan in an active tree reads `<version dir>/known-gaps.md`, as always. A member
+    archived on release sits in the archive tree while its minor's ledger stays active
+    until the close, so its ledger is resolved across every layout: reading only the
+    archive folder would find no ledger and read every open gap as met. Only a member
+    whose record carries its signed `archived` identity is read this way.
+    """
     gaps = ctx.version_dir / "known-gaps.md"
+    if not (_in_archive_tree(ctx) and isinstance((record or {}).get("archived"), dict)):
+        return gaps
+    cm = _minor_module()
+    found = [ctx.root / rel for rel in cm.ledger_rels(*cm.minor_of(ctx.version)) if (ctx.root / rel).is_file()]
+    if len(found) > 1:
+        return None
+    return found[0] if found else gaps
+
+
+def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
+    gaps = _gaps_ledger(ctx, record)
+    if gaps is None:
+        return "cannot-verify", 0
     if not gaps.exists():
         return "met", 0
     try:
@@ -1139,13 +1238,17 @@ def _section(text: str, heading: str, level: str, titled: bool = False) -> str |
     return "".join(lines[start:]) if start is not None else None
 
 
-def _evidence_file(ctx: Context) -> str | None:
-    development = ctx.version_dir / "development"
-    scoped = development / f"{ctx.version}-last-phase-evidence.md"
-    for candidate, needs_name in (
-        (scoped, False),
-        (development / "last-phase-evidence.md", True),
-    ):
+def _evidence_file(ctx: Context, record: dict | None = None) -> str | None:
+    folders = [ctx.version_dir / "development"]
+    if _in_archive_tree(ctx) and isinstance((record or {}).get("archived"), dict):
+        # A member archived on release: its own evidence moved with it, while a shared
+        # unprefixed evidence file stays in the active tree until the minor close.
+        cm = _minor_module()
+        major, minor = cm.minor_of(ctx.version)
+        folders += [ctx.root / tree.format(M=major, m=minor) / "development" for tree in cm.ACTIVE_TREES]
+    candidates = [(folder / f"{ctx.version}-last-phase-evidence.md", False) for folder in folders]
+    candidates += [(folder / "last-phase-evidence.md", True) for folder in folders]
+    for candidate, needs_name in candidates:
         if candidate.is_file():
             text = candidate.read_text(encoding="utf-8", errors="replace")
             if not needs_name or ctx.plan.name in text:
@@ -1687,6 +1790,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
         raise Malformed("--member requires --minor with --action answer")
+    if args.action == "add-class" or getattr(args, "added_class", None) is not None:
+        raise Malformed("--action add-class and --class require --minor")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     display: dict | None = None
     if args.action == "create":
@@ -2281,6 +2386,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON file of the page's plain outcome bullets and parallel-plan check (create)",
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
+    render.add_argument("--class", dest="added_class", help="with --minor add-class: the class to add")
     render.add_argument("--member", help="with --minor answer: require this blocker's member version")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
@@ -2322,6 +2428,15 @@ def build_parser() -> argparse.ArgumentParser:
         action.add_argument("--session", required=True)
         action.add_argument("--text", help="when given, must equal the pasted line")
         action.set_defaults(func=func)
+    add_class = record.add_parser(
+        "add-class", help="add one class to a running minor record from the user's pasted line (minor runs)"
+    )
+    add_class.add_argument("--minor", required=True)
+    add_class.add_argument("--repo", default=".", help="a path inside the repository")
+    add_class.add_argument("--session", required=True)
+    add_class.add_argument("--class", dest="added_class", required=True, help="the class to add: archive-member")
+    add_class.add_argument("--text", help="when given, must equal the pasted line")
+    add_class.set_defaults(func=lambda args: _minor_module().cmd_record_add_class(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)

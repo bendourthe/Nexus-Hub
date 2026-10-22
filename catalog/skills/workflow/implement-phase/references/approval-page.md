@@ -81,4 +81,4 @@ The native goal is advisory: its evaluator is a model reading the transcript, so
 
 ## Mid-run rounds
 
-An answer, pause, resume or retire round shows what the action does and its effect, with a concise native question and optional compatibility line. Only a create round sets a goal. Actual capture support and the decision rules belong to the completion contract.
+An answer, pause, resume, retire or add-class round shows what the action does and its effect, with a concise native question and optional compatibility line; an add-class round (minor runs only, `archive-member` only) states today's archive timing and the approved one. Only a create round sets a goal. Actual capture support and the decision rules belong to the completion contract.
