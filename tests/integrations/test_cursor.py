@@ -290,12 +290,12 @@ def test_cursor_wire_project_surfaces_seeds_rules_and_commands(install_ctx: Inst
     """`nexus-hub init` seeds the rules stub AND project .cursor/commands/ (Phase 2, 2.3).
 
     The confirmed project command surface must be seeded on init, not only via a
-    full workspace install; the rules stub behaviour is preserved.
+    full workspace install; the rules stub behavior is preserved.
     """
     result = get("cursor").wire_project_surfaces(install_ctx)
     root = install_ctx.target_root
 
-    # Rules stub still seeded (pre-Phase-2 behaviour preserved).
+    # Rules stub still seeded (pre-Phase-2 behavior preserved).
     assert (root / ".cursor" / "rules" / "nexus-hub.mdc").exists(), "rules stub not seeded"
 
     # Project-scoped commands now seeded by init (sub-task 2.3 literal acceptance).

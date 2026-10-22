@@ -54,7 +54,7 @@ def test_a_test_child_gets_a_console_without_a_window() -> None:
 
 @on_windows
 def test_a_child_that_asks_to_detach_stays_detached() -> None:
-    # nexus: console-window-ok proves a requested detach is honoured
+    # nexus: console-window-ok proves a requested detach is honored
     window, attached = _probe(creationflags=subprocess.DETACHED_PROCESS)
     assert (window, attached) == (0, 0)
 

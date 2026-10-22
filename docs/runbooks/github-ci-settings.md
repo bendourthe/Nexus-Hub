@@ -31,7 +31,7 @@ Both `main` and `develop`, identically.
 
 ### On administrator bypass
 
-Nexus-Hub shipped v3.17.5 through six administrator bypasses in one day. Not one was a judgement call: every one was forced by a required check that could never report, because its workflow was path-filtered. The lesson recorded in `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md` is that a bypass used routinely stops being an escape hatch and becomes the merge procedure.
+Nexus-Hub shipped v3.17.5 through six administrator bypasses in one day. Not one was a judgment call: every one was forced by a required check that could never report, because its workflow was path-filtered. The lesson recorded in `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md` is that a bypass used routinely stops being an escape hatch and becomes the merge procedure.
 
 So the setting matters less than the question behind it: if bypass is being used more than about once a release, the gate is wrong, not the person bypassing it.
 

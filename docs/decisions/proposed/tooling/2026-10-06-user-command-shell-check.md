@@ -8,7 +8,7 @@ The communication contract (`catalog/style-guides/agent-communication.md`, secti
 
 ## Proposal
 
-Ship `catalog/hooks/user-command-shell-check.py`, registered on `Stop` after `usage-guard` with a 10-second timeout. It reads `last_assistant_message` from the Stop payload, which the Claude Code hooks reference recommends over reading the transcript, and falls back to the tail of `transcript_path`. It checks blocks labelled `powershell`, `ps1`, `pwsh`, or `ps`, plus unlabelled blocks on a Windows host, and flags the five Bash-only forms per line with comments and quoted strings ignored. Findings produce one `systemMessage`, documented by Claude Code as a "Warning message shown to the user", naming only the tokens and line numbers. Every failure path exits 0 silently. `NEXUS_DISABLED_HOOKS=user-command-shell-check` or `NEXUS_HOOK_PROFILE=minimal` turns it off.
+Ship `catalog/hooks/user-command-shell-check.py`, registered on `Stop` after `usage-guard` with a 10-second timeout. It reads `last_assistant_message` from the Stop payload, which the Claude Code hooks reference recommends over reading the transcript, and falls back to the tail of `transcript_path`. It checks blocks labeled `powershell`, `ps1`, `pwsh`, or `ps`, plus unlabelled blocks on a Windows host, and flags the five Bash-only forms per line with comments and quoted strings ignored. Findings produce one `systemMessage`, documented by Claude Code as a "Warning message shown to the user", naming only the tokens and line numbers. Every failure path exits 0 silently. `NEXUS_DISABLED_HOOKS=user-command-shell-check` or `NEXUS_HOOK_PROFILE=minimal` turns it off.
 
 ## Alternatives considered
 
@@ -19,7 +19,7 @@ Ship `catalog/hooks/user-command-shell-check.py`, registered on `Stop` after `us
 
 ## Acceptance criteria
 
-- `python -m pytest -q catalog/hooks/tests/test_user_command_shell_check.py` passes, covering each flagged form, the clean PowerShell forms (`A; if ($?) { B }`, `$env:X = "1"`), labelled non-PowerShell blocks, the platform override, `stop_hook_active`, other-platform payloads, both disable switches, malformed stdin, a missing transcript, and a BOM-prefixed UTF-8 payload.
+- `python -m pytest -q catalog/hooks/tests/test_user_command_shell_check.py` passes, covering each flagged form, the clean PowerShell forms (`A; if ($?) { B }`, `$env:X = "1"`), labeled non-PowerShell blocks, the platform override, `stop_hook_active`, other-platform payloads, both disable switches, malformed stdin, a missing transcript, and a BOM-prefixed UTF-8 payload.
 - The hook exits 0 on every input and writes nothing to stderr.
 
 ## Risks

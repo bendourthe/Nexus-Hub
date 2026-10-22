@@ -117,7 +117,7 @@ def test_ledger_approval_record_is_complete(ledger_text: str) -> None:
 def test_ledger_names_the_attribution_obligation(ledger_text: str) -> None:
     """The Copilot codicon is CC BY 4.0, so attribution is mandatory, not stylistic."""
     assert "CC BY 4.0" in ledger_text
-    assert "H12" in ledger_text, "the ledger must tie the licence obligation to requirement H12"
+    assert "H12" in ledger_text, "the ledger must tie the license obligation to requirement H12"
 
 
 # ----------------------------------------------------------------- staged mark bytes
@@ -185,7 +185,7 @@ def test_nexus_mark_has_nonempty_geometry(nexus_symbol: str) -> None:
     """A blank mark would pass a size check while destroying the brand, so assert the shapes."""
     circles = len(re.findall(r"<circle\b", nexus_symbol))
     paths = len(re.findall(r"<path\b", nexus_symbol))
-    assert circles >= 5, f"expected four corner nodes plus a centre hub; found {circles} circles"
+    assert circles >= 5, f"expected four corner nodes plus a center hub; found {circles} circles"
     assert paths >= 4, f"expected the diagonals plus four quadrant shapes; found {paths} paths"
     assert re.search(r"<linearGradient\b", nexus_symbol), "the quadrant gradients are missing"
 
@@ -228,7 +228,7 @@ def test_contract_records_the_measured_byte_ledger() -> None:
 
 
 def test_contract_registers_every_superseded_assertion() -> None:
-    """A later phase must not change these behaviours without updating the register."""
+    """A later phase must not change these behaviors without updating the register."""
     text = CONTRACT.read_text(encoding="utf-8")
     for assertion in (
         "test_home_lists_six_platforms_without_invented_marks",

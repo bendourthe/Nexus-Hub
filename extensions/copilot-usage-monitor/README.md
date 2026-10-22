@@ -51,7 +51,7 @@ A token is stored in VS Code secret storage and sent only to `api.github.com`. N
 | Pool used | `GET /organizations/{org}/settings/billing/ai_credit/usage` | Sum of `discountQuantity` over Copilot AI-credit line items, used only to compute the percentage. GitHub's AI usage page rounds its headline to whole credits, so the two can differ by a fraction of a percent. |
 | Pool total | `GET /orgs/{org}/copilot/billing` | Seats times GitHub's published included credits per seat: 1,900 for Business, 3,900 for Enterprise. |
 
-The pool total is labelled approximate when a seat was added this cycle (GitHub does not publish how an added seat is prorated) or a seat is pending cancellation. A seat removed outright this cycle still counts toward the pool but no longer appears in the seat count, so the total can read low. The pool resets at 00:00 UTC on the first day of each month.
+The pool total is labeled approximate when a seat was added this cycle (GitHub does not publish how an added seat is prorated) or a seat is pending cancellation. A seat removed outright this cycle still counts toward the pool but no longer appears in the seat count, so the total can read low. The pool resets at 00:00 UTC on the first day of each month.
 
 `copilot_internal/user` is undocumented and may change without notice. If it does, the monitor shows "unrecognized response" and keeps your cached figures rather than guessing.
 

@@ -118,7 +118,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] `docs/pulse-reports/<window>.md` exists with a filesystem-safe `<window>` slug derived from the requested window.
 - [ ] The report header lists every local source read and states that the report is local-only (no outbound call, no new data processor).
 - [ ] All four dimension sections (Usage, Performance, Errors, Followups) are present; any dimension without data is explicitly marked `No data in supplied sources` rather than populated with invented numbers.
-- [ ] When a prior report was supplied, each headline number shows a delta versus the previous window; when none was supplied, the window is labelled the baseline.
+- [ ] When a prior report was supplied, each headline number shows a delta versus the previous window; when none was supplied, the window is labeled the baseline.
 - [ ] The Followups section is a prioritized list with a why and a suggested next step per item.
 - [ ] No network call was made: the skill read only the paths the user supplied and wrote only the report file (and nothing under any cache or temp dir that implies an upload).
 - [ ] The report passes the Markdown style guide (blank line around lists/tables/code/headings, ASCII-only, single continuous lines per paragraph/bullet).

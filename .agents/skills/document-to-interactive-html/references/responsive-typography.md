@@ -8,7 +8,7 @@ Rules 1 through 7 catch text that is too small, too fixed, or stranded. Rules 8 
 
 ## A dark band must survive printing
 
-Browsers do not print background colours unless the page asks. Chromium defaults
+Browsers do not print background colors unless the page asks. Chromium defaults
 `print-color-adjust` to `economy`, which drops the fill and keeps the text, so a
 band designed as light ink on a dark surface prints light ink on WHITE PAPER and
 is effectively blank. Measured on three independently authored handbooks, this
@@ -53,7 +53,7 @@ Observable criterion: no top-level band, grid, or column container declares a fi
 
 ## 2. Wrapping serves the viewport, not a fixed column
 
-The 45-85 character reading measure is a PER-ELEMENT cap on long-form prose. It is not a page width, and it is not a licence to leave the rest of the track empty. Grid TRACKS must widen or reflow with the viewport (`minmax()` with `auto-fit` or `fr`, container queries where they help), so a prose element sitting in a wide track either widens toward its maximum measure or the band reflows so the surplus width does real work.
+The 45-85 character reading measure is a PER-ELEMENT cap on long-form prose. It is not a page width, and it is not a license to leave the rest of the track empty. Grid TRACKS must widen or reflow with the viewport (`minmax()` with `auto-fit` or `fr`, container queries where they help), so a prose element sitting in a wide track either widens toward its maximum measure or the band reflows so the surplus width does real work.
 
 The failure this rule kills, observed 2026-08-10: a paragraph hard-capped at 68ch (about 590px) inside a 1fr track 1277px wide, stranding roughly 690px of dead space beside every line of body copy. The paragraph obeyed the measure and the band still read as broken.
 

@@ -106,7 +106,7 @@
     "title": "Project Mapping",
     "now": "The agent reads the project and writes docs/describe.md."
    },
-   "why": "Reading and summarising a small codebase needs breadth, not deep reasoning.",
+   "why": "Reading and summarizing a small codebase needs breadth, not deep reasoning.",
    "script": [
     {
      "do": "pick",
@@ -177,7 +177,7 @@
     "title": "Code Review",
     "now": "The agent checks the code against its rules and proves each finding."
    },
-   "why": "Judging behaviour against the rules and proving it is the step where a weaker model misses things.",
+   "why": "Judging behavior against the rules and proving it is the step where a weaker model misses things.",
    "script": [
     {
      "do": "pick",
@@ -391,7 +391,7 @@
      "steps": [
       {
        "kind": "think",
-       "label": "Summarise what is done, what is next, and the repository state"
+       "label": "Summarize what is done, what is next, and the repository state"
       },
       {
        "kind": "write",

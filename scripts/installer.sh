@@ -143,7 +143,7 @@ write_subsection_banner() {
     echo -e "  ${color}- ${text}${RESET}"
 }
 
-# A top-level "> SECTION" banner (column 0, uppercase) - the bash analogue of the
+# A top-level "> SECTION" banner (column 0, uppercase) - the bash analog of the
 # PowerShell installer's "> TEXT" main-section header. Prepends its own single
 # blank line so callers do not add one. Providers (write_header) and
 # subsections (write_subsection_banner) render indented beneath it.

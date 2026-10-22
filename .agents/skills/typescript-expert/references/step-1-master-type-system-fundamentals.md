@@ -89,7 +89,7 @@ type Uncapitalized = Uncapitalize<"Hello">; // "hello"
 
 **Branded Types**:
 
-Branded types (also called nominal types or opaque types) use an intersection with a unique symbol to prevent accidental mixing of structurally identical types. This is a powerful pattern for domain modelling.
+Branded types (also called nominal types or opaque types) use an intersection with a unique symbol to prevent accidental mixing of structurally identical types. This is a powerful pattern for domain modeling.
 
 ```typescript
 // Branded type pattern

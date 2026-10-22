@@ -11,7 +11,7 @@ decide whether an edit may touch a shared catalog body), so a malformed layer
 must fail the build rather than silently mis-route an edit.
 
 This script is that gate. It is STRUCTURAL ONLY and deliberately makes no
-freshness judgement: it never compares `meta.last_verified` against the clock and
+freshness judgment: it never compares `meta.last_verified` against the clock and
 never enumerates a live model roster. Roster staleness is the separate, ADVISORY
 concern of `scripts/check_model_prompting_freshness.py`, kept out of every
 blocking gate so a vendor shipping a new model can never wedge a release.

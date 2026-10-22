@@ -30,7 +30,7 @@ import { renderWebviewDocument } from "./webview";
 
 /**
  * The usage dashboard, deliberately structured to match the Claude and Codex
- * monitors: one narrow centred column, uppercase section labels, a progress bar per
+ * monitors: one narrow centered column, uppercase section labels, a progress bar per
  * pool, then Current Model / Recommendation / Tips, the INLINE settings form the
  * gear toggles, and a footer of actions.
  *

@@ -103,7 +103,7 @@ Mark the four key timeline anchors explicitly:
 
 - **T0 -- Inciting event** (deploy, traffic spike, dependency failure).
 - **TD -- Detection** (first alert fired, first user report).
-- **TA -- Acknowledgement** (on-call paged and acknowledged).
+- **TA -- Acknowledgment** (on-call paged and acknowledged).
 - **TM -- Mitigation** (impact stopped or contained, even if root cause not yet fixed).
 - **TR -- Resolution** (full restoration, root cause addressed).
 
@@ -161,7 +161,7 @@ Two parallel sections. Each is a bulleted list of factual observations, no prais
 **What Went Well** examples:
 
 - Synthetic check fired within 90 seconds of T0.
-- Mitigation (revert) was applied within 12 minutes of acknowledgement.
+- Mitigation (revert) was applied within 12 minutes of acknowledgment.
 - Customer-success was paged in parallel with the on-call and posted to the status page within 8 minutes.
 
 **What Went Poorly** examples:
@@ -228,7 +228,7 @@ Before publishing, re-read the entire document and apply the blameless framing p
 
 **Replace**: "Maria deployed during peak traffic" -> "The deploy pipeline does not block deploys during peak-traffic windows."
 
-**Replace**: "The on-call didn't see the alert" -> "The alert was routed to a rotation that had no acknowledgement-failover policy."
+**Replace**: "The on-call didn't see the alert" -> "The alert was routed to a rotation that had no acknowledgment-failover policy."
 
 Individuals appear in the document only as:
 

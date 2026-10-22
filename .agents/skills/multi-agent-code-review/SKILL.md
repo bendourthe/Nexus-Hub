@@ -167,7 +167,7 @@ See [[loop-engineering]] for the broader loop-control discipline this round-hist
 | "Run the validation pass in interactive mode too, to be safe" | In interactive mode the human IS the validator; an extra automated refutation pass burns tokens and slows the loop without adding signal. Validation is for unattended (externalizing) modes. |
 | "Select every persona every time - more lenses, more coverage" | Irrelevant personas produce noise (a performance reviewer on a docs-only diff invents findings to look useful) and waste the subagent budget. Per-diff selection keeps signal high; record what was skipped so coverage is auditable. |
 | "Demote advisory findings in interactive mode to keep it short" | Demotion is a triage tool for when no human is present. With a human in the loop, let them decide - demoting hides P2/P3 findings they might have wanted. |
-| "Auto-apply the manual-class fixes, they look fine" | `manual` means the fix needs design judgement the pipeline does not have. Auto-applying it is how a review tool introduces the bug it was supposed to catch. Only `safe` is auto-applied. |
+| "Auto-apply the manual-class fixes, they look fine" | `manual` means the fix needs design judgment the pipeline does not have. Auto-applying it is how a review tool introduces the bug it was supposed to catch. Only `safe` is auto-applied. |
 | "Skip Considered-but-Rejected; there is nothing interesting to list" | An empty rejected table is how a shallow review hides. If the pass was thin, say so with the few real candidates; inventing filler is the other failure. |
 | "Pad to the cap so the review looks complete" | The cap is a ceiling, not a quota. Padding with cosmetic findings is the exact failure the cap exists to stop. |
 

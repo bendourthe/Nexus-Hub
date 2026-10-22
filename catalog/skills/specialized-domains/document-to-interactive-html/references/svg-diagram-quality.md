@@ -5,20 +5,20 @@ The authoring rules for hand-written inline SVG diagrams, and the checks that ve
 Five rules. `scripts/visual_qa_score.py` enforces rules 1, 4, and part of 5 deterministically; rules 2 and 3 are verified by the geometry self-check in rule 5 and graded from screenshots against the criteria stated here.
 
 
-## One colour per signal IDENTITY, not per series
+## One color per signal IDENTITY, not per series
 
 A raw signal, its resampled version, its smoothed version and its derivatives
-are the SAME signal. Giving each a colour tells the reader there are four
+are the SAME signal. Giving each a color tells the reader there are four
 quantities on the panel when there is one, and it exhausts the palette on
 distinctions nobody asked about.
 
-**One colour per identity. Distinguish the variants by dash pattern.** Solid
+**One color per identity. Distinguish the variants by dash pattern.** Solid
 for the primary form, dashed for a derived one, dotted for a reference. The
-colour answers "which signal", the dash answers "which form of it".
+color answers "which signal", the dash answers "which form of it".
 
 Two consequences worth stating because they are routinely got wrong:
 
-- **An arrow takes the colour of the label it belongs to.** An annotation and its pointer are one object; colouring the arrow independently makes the reader work out which label it serves.
+- **An arrow takes the color of the label it belongs to.** An annotation and its pointer are one object; coloring the arrow independently makes the reader work out which label it serves.
 - **A secondary trace is drawn UNDER the primary one, thinner and at lower opacity.** Equal weight means the reader cannot tell which line the figure is about. Draw order is part of the message.
 
 ## Stroke width is consistent across comparable traces
@@ -61,7 +61,7 @@ unlabelled branches, which look complete while omitting the whole content: the
 reader sees that a decision happens and cannot see what decides it. **Every
 branch carries its condition as text on or beside the branch**, and the
 conditions are exhaustive and mutually exclusive, or the figure is asserting a
-decision procedure it has not got. A branch that cannot be labelled is a branch
+decision procedure it has not got. A branch that cannot be labeled is a branch
 the author has not resolved, and marking it unresolved is honest where inventing
 a label is not.
 
@@ -123,7 +123,7 @@ Fix it by moving the label clear of the path, or by carving the path around the 
 
 ```xml
 <!-- WRONG on two counts: the label sits ON the path (the curve's midpoint is
-     (286.5, 245) and the label is centred at (288, 248) - the same 2 user
+     (286.5, 245) and the label is centered at (288, 248) - the same 2 user
      units), AND it is rotated, which is a readability defect in itself. -->
 <path class="loopback" d="M270 368 C 292 368, 292 122, 270 122"/>
 <text x="288" y="248" transform="rotate(90 288 248)" text-anchor="middle">re-plan</text>
@@ -196,7 +196,7 @@ After authoring, verify the drawing numerically rather than trusting how it read
 
 The structural scorer has a bounded path envelope, not a replacement for this self-check. `svg-label-occlusion` can decide a path-bearing SVG only when every painted path precedes its labels; a later path leaves that SVG `unchecked`. `svg-connector-routing` requires `data-edge` and an explicit inherited `fill="none"` on each declared connector `<path>`, and accepts only one argument group per absolute `M`, `L`, `H`, `V`, `C`, or `Z` command under `translate()`/`scale()`. A path that may paint a filled region is `unchecked`, even if its centerline clears every box. Straight segments use exact segment-box intervals. Cubic segments use control-hull subdivision to prove clearance or crossing; an unresolved boundary contact remains `unchecked`, never a clean pass. Other path geometry, malformed coordinates, unsupported transforms, and resource-limit hits are `unchecked`. Marker paths inside `<defs>` are not painted connectors. A pass from these two checks does not prove stroke visibility, dashed-label clearance, endpoint fidelity, or source-semantic fidelity; the other assertions above and the rendered review still own those claims.
 
-Note that SVG text is exempt from the pixel font floors in `references/responsive-typography.md` rule 4, because its declared size is in viewBox user units and the rendered size depends on the scale factor. That exemption is not a licence for illegible labels: compute the effective rendered size as `declared_size * (rendered_width / viewBox_width)` and hold it to the same 13px secondary floor.
+Note that SVG text is exempt from the pixel font floors in `references/responsive-typography.md` rule 4, because its declared size is in viewBox user units and the rendered size depends on the scale factor. That exemption is not a license for illegible labels: compute the effective rendered size as `declared_size * (rendered_width / viewBox_width)` and hold it to the same 13px secondary floor.
 
 ## Verification
 

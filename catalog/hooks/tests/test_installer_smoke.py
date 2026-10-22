@@ -413,7 +413,7 @@ def test_installers_isolate_vscode_and_cursor_hosts():
         )
 
         def call_line(extension_id: str) -> str:
-            # The rest of the monitor's own install call, so a neighbouring
+            # The rest of the monitor's own install call, so a neighboring
             # monitor's arguments can never satisfy or fail this monitor's check.
             idx = body.index(extension_id)
             return body[idx : body.index("\n", idx)]
@@ -785,6 +785,10 @@ DEV_ONLY_SCRIPTS = {
     # CI-only shared postcondition checker for throwaway real-installer runs.
     # Installed users do not need a harness that validates CI's temporary HOME.
     "check_installer_smoke.py",
+    # Repo-internal spelling guard: keeps the repository's own living files in
+    # American English. Installed users get the rule through the instruction
+    # templates' Writing Discipline block, not through this script.
+    "check_american_spelling.py",
 }
 
 

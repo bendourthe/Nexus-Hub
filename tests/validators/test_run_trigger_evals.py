@@ -475,7 +475,7 @@ def test_real_catalog_routing_tranche_passes() -> None:
 #
 # A description's SKIP clause states what the skill is NOT for. Tokenizing it
 # counted that fenced-off vocabulary as POSITIVE trigger evidence, which is
-# backwards, and it penalised authors for following the AGENTS.md rule that says
+# backwards, and it penalized authors for following the AGENTS.md rule that says
 # to write a SKIP clause at all. Two real cases from v3.18.0: "generate the
 # changelog entry for this release" scored a perfect 1.00 against
 # devlog-generation, and so did "what work is still open or deferred for this

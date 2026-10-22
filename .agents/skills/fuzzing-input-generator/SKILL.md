@@ -1,13 +1,13 @@
 ---
 name: fuzzing-input-generator
-description: Generate fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use when testing parsers, APIs, file format handlers, network protocols, or when you need to discover crashes, hangs, and undefined behaviour through automated input generation.
+description: Generate fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use when testing parsers, APIs, file format handlers, network protocols, or when you need to discover crashes, hangs, and undefined behavior through automated input generation.
 summary_l0: "Generate fuzz testing inputs with mutation, grammar, and coverage-guided techniques"
-overview_l1: "This skill generates fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use it when testing parsers, APIs, file format handlers, network protocols, or when discovering crashes, hangs, and undefined behaviour through automated input generation. Key capabilities include mutation-based fuzzing (bit flipping, byte insertion, dictionary-based), grammar-based fuzzing with format-aware input generation, coverage-guided fuzzing with corpus management, crash triage and deduplication, harness design for target functions, seed corpus creation, and tool configuration (AFL++, libFuzzer, go-fuzz, Jazzer). The expected output is fuzzing harnesses, seed corpora, and crash reports with reproduction inputs. Trigger phrases: fuzzing, fuzz testing, fuzz inputs, AFL, libFuzzer, crash discovery, parser testing, protocol fuzzing, grammar fuzzing, coverage-guided fuzzing."
+overview_l1: "This skill generates fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use it when testing parsers, APIs, file format handlers, network protocols, or when discovering crashes, hangs, and undefined behavior through automated input generation. Key capabilities include mutation-based fuzzing (bit flipping, byte insertion, dictionary-based), grammar-based fuzzing with format-aware input generation, coverage-guided fuzzing with corpus management, crash triage and deduplication, harness design for target functions, seed corpus creation, and tool configuration (AFL++, libFuzzer, go-fuzz, Jazzer). The expected output is fuzzing harnesses, seed corpora, and crash reports with reproduction inputs. Trigger phrases: fuzzing, fuzz testing, fuzz inputs, AFL, libFuzzer, crash discovery, parser testing, protocol fuzzing, grammar fuzzing, coverage-guided fuzzing."
 ---
 
 # Fuzzing Input Generator
 
-Generate fuzz testing inputs that discover crashes, security vulnerabilities, memory corruption, hangs, and undefined behaviour by feeding malformed, unexpected, or random data to a target program. This skill covers mutation-based fuzzing, grammar-based fuzzing, coverage-guided fuzzing, and API fuzzing with practical implementations across multiple languages.
+Generate fuzz testing inputs that discover crashes, security vulnerabilities, memory corruption, hangs, and undefined behavior by feeding malformed, unexpected, or random data to a target program. This skill covers mutation-based fuzzing, grammar-based fuzzing, coverage-guided fuzzing, and API fuzzing with practical implementations across multiple languages.
 
 ## When to Use This Skill
 
@@ -56,7 +56,7 @@ Send malformed HTTP requests to API endpoints, testing header manipulation, body
 
 1. **Seed corpus creation**: Gather valid sample inputs that exercise basic functionality
 2. **Mutation/generation**: Apply mutations or generate from grammars to create test inputs
-3. **Execution**: Feed each input to the target and monitor for crashes, hangs, and unexpected behaviour
+3. **Execution**: Feed each input to the target and monitor for crashes, hangs, and unexpected behavior
 4. **Coverage tracking**: Record which code paths each input exercises
 5. **Corpus management**: Retain inputs that increase coverage; discard redundant ones
 6. **Crash triage**: Deduplicate crashes, identify root causes, create reproducible test cases
@@ -92,7 +92,7 @@ Full walkthrough: [step-5-manage-the-input-corpus.md](references/step-5-manage-t
 - **Triage crashes by unique stack trace**: Many crash inputs trigger the same bug; deduplicate by hashing the crash stack trace to focus on unique root causes
 - **Save every crash-triggering input**: Store crash inputs in a permanent corpus so they can be used as regression tests after fixes
 - **Set resource limits**: Fuzz targets should have memory limits (to catch memory exhaustion) and time limits (to catch infinite loops and hangs)
-- **Separate expected errors from crashes**: A JSON parser throwing `JSONDecodeError` on malformed input is correct behaviour; a segfault or unhandled exception is a bug
+- **Separate expected errors from crashes**: A JSON parser throwing `JSONDecodeError` on malformed input is correct behavior; a segfault or unhandled exception is a bug
 
 ## Common Pitfalls
 

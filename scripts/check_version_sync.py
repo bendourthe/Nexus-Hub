@@ -108,7 +108,7 @@ def _extract_regex_version(path: Path, pattern: re.Pattern[str]) -> Optional[str
     return match.group(1) if match else None
 
 
-# A surface is a labelled file with an extractor and a flag indicating whether a
+# A surface is a labeled file with an extractor and a flag indicating whether a
 # present-but-version-less file is tolerated (markers) or a finding (structured).
 class Surface:
     def __init__(

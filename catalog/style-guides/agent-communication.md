@@ -131,7 +131,7 @@ A command the user runs on their own machine must parse in the shell they will p
 
 Before sending, scan every command block meant for the user for `&&`, `||`, `<<`, a leading `VAR=`, and `export`.
 
-**Do not write this** (labelled "Git Bash", pasted into PowerShell 5.1, and rejected before either step ran):
+**Do not write this** (labeled "Git Bash", pasted into PowerShell 5.1, and rejected before either step ran):
 
 > ```bash
 > git -C "<repo>" worktree remove --force "<worktree>" && git -C "<repo>" branch -D <branch>

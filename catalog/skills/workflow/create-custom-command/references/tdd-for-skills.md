@@ -8,7 +8,7 @@ A discipline skill is one whose job is to make the agent do the harder, correct 
 
 > No skill without a failing baseline first.
 
-Before you write a single line of a discipline skill, run the target scenario WITHOUT the skill loaded and watch the agent fail (or rationalize its way to the wrong answer). If you cannot produce a baseline failure, you have no evidence the skill is needed, and no catalogue of the specific rationalizations the skill must rebut. Writing the skill first and then constructing a scenario it happens to pass is the skill-authoring equivalent of writing a test after the code and asserting whatever the code already returns: it proves nothing and it bakes in your assumptions instead of the agent's actual behavior.
+Before you write a single line of a discipline skill, run the target scenario WITHOUT the skill loaded and watch the agent fail (or rationalize its way to the wrong answer). If you cannot produce a baseline failure, you have no evidence the skill is needed, and no catalog of the specific rationalizations the skill must rebut. Writing the skill first and then constructing a scenario it happens to pass is the skill-authoring equivalent of writing a test after the code and asserting whatever the code already returns: it proves nothing and it bakes in your assumptions instead of the agent's actual behavior.
 
 This law has one practical consequence worth stating plainly: the baseline-failure transcript is an authoring artifact, not throwaway output. Capture it. The verbatim rationalizations it contains become rows in the skill's `## Common Rationalizations` table, and the wrong turns it takes become the `## Red Flags` and the binary items in `## Verification`.
 
@@ -55,7 +55,7 @@ The two are not redundant; they answer different questions and run at different 
 |---|---|---|
 | Phase | Authoring (cold start, before stable evals exist) | Iteration (after 2-3 stable test prompts exist) |
 | Primary question | What must the skill body CONTAIN to counter real rationalizations? | Does the skill measurably outperform baseline, and is the pass-rate stable? |
-| Evidence produced | A verbatim rationalization catalogue feeding the body's tables | A graded benchmark with trigger rate, token/time deltas, held-out test split |
+| Evidence produced | A verbatim rationalization catalog feeding the body's tables | A graded benchmark with trigger rate, token/time deltas, held-out test split |
 | Baseline control | The RED no-skill run | The "without_skill" paired run |
 | Output | The first green draft of the skill | A measured pass-rate trajectory across iterations |
 

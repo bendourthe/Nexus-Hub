@@ -85,7 +85,7 @@ Rules:
 - Separate HEARD (a span you can quote from the transcript) from INFERRED (your interpretation).
 - When you quote, copy the span; do not silently correct names, numbers, or jargon. If you normalize, mark it as inferred.
 - Prefer timestamped spans when the transcript has them.
-- If a span is garbled, say so and give at most one plausible reading, labelled uncertain.
+- If a span is garbled, say so and give at most one plausible reading, labeled uncertain.
 - Do not invent speakers, commitments, or facts that are not in the transcript.
 ```
 

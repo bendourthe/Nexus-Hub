@@ -86,7 +86,7 @@ import subprocess
 
 if os.name == "nt" and not getattr(subprocess.Popen.__init__, "_no_window", False):
     _original_init = subprocess.Popen.__init__
-    _keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE  # nexus: console-window-ok honour an explicit request
+    _keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE  # nexus: console-window-ok honor an explicit request
 
     def _init(self, *args, **kwargs):
         flags = kwargs.get("creationflags") or 0

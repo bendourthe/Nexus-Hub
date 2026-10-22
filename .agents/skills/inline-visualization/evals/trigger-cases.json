@@ -1,6 +1,6 @@
 {
   "skill": "inline-visualization",
-  "purpose": "Route chart and diagram requests over data here, while keeping the near-neighbours named in the v4.13.9 overlap check routing to themselves: generative-art (creative-coding visuals), analyze-codebase (a full codebase architecture overview), pptx-generation (slides), xlsx-generation (workbook charts), and document-to-interactive-html (a document turned into a reading site).",
+  "purpose": "Route chart and diagram requests over data here, while keeping the near-neighbors named in the v4.13.9 overlap check routing to themselves: generative-art (creative-coding visuals), analyze-codebase (a full codebase architecture overview), pptx-generation (slides), xlsx-generation (workbook charts), and document-to-interactive-html (a document turned into a reading site).",
   "cases": [
     {"id": "pos-chart-csv", "prompt": "chart this data from the CSV export", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},
     {"id": "pos-visualize-this", "prompt": "visualize this table of error counts", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},

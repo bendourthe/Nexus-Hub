@@ -3,7 +3,7 @@
 At 1280 px the page navigation is a slim rail of dots. An empty dot's ring is the only
 thing that shows a section exists, so it is a non-text UI boundary (WCAG 1.4.11, 3:1).
 The ring measured 3.20:1 in the light theme, legal but faint; it is now held to 4.5:1 in
-both themes on both pages. Ratios use the WCAG 2 formula on canvas-resolved colours.
+both themes on both pages. Ratios use the WCAG 2 formula on canvas-resolved colors.
 """
 
 from __future__ import annotations

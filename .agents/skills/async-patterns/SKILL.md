@@ -744,7 +744,7 @@ describe("async patterns", () => {
 - **Never hold locks across await points**; extract data, release the lock, do async work
 - **Use bounded queues and semaphores** to implement backpressure; unbounded queues cause memory issues
 - **Acquire locks in a consistent global order** to prevent deadlocks
-- **Favour message passing over shared mutable state** when architecture allows
+- **Favor message passing over shared mutable state** when architecture allows
 - **Set timeouts on every external I/O call**; never assume a remote call will return
 - **Use cancellation tokens or context objects** to propagate shutdown signals
 - **Test concurrency with race detectors** (Go `-race`, ThreadSanitizer, Python `asyncio` debug mode)

@@ -81,7 +81,7 @@ review/context_analysis/
 
 - [ ] Configuration management approach documented
 
-- [ ] Build configuration and variants catalogued
+- [ ] Build configuration and variants cataloged
 
 ### Build System Analysis
 

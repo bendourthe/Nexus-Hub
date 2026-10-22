@@ -8,7 +8,7 @@
    resets ``aria-expanded``, and returns focus to the toggle; focus leaving the menu closes it,
    so Tab never reaches the content the open menu covers.
 3. Light theme: "Send" and the two context-meter labels reach 4.5:1; the dark theme keeps its
-   colours.
+   colors.
 4. Guide home: the four benefit headings followed the h1 at level 3. They are exposed at level 2
    (``aria-level``) because R47 keeps any h2 element out of the hero; the look is unchanged.
 
@@ -188,7 +188,7 @@ CONTRAST_JS = """sels => {
       ratio: Math.round((Math.max(a, b) + .05) / (Math.min(a, b) + .05) * 100) / 100 }; });
 }"""
 CONTRAST_SELS = [".fxo-send", ".fx-seg--waste", ".fx-seg--use"]
-# The dark theme's colours before this fix: "Send" ink on the accent, and each label in its own token.
+# The dark theme's colors before this fix: "Send" ink on the accent, and each label in its own token.
 DARK_TOKENS = """() => { const p = document.createElement('i'); document.body.appendChild(p);
   const r = v => { p.style.color = v; return getComputedStyle(p).color; };
   const out = { send: r('#06201c'), amber: r('var(--amber)'), accent: r('var(--accent)') }; p.remove(); return out; }"""

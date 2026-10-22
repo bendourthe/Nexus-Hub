@@ -2,7 +2,7 @@
 
 **Recursive Types**:
 
-TypeScript supports recursive type aliases, which reference themselves in their definition. These are essential for modelling tree structures, JSON values, and deeply nested data.
+TypeScript supports recursive type aliases, which reference themselves in their definition. These are essential for modeling tree structures, JSON values, and deeply nested data.
 
 ```typescript
 // JSON type - a classic recursive type

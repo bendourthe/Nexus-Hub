@@ -16,7 +16,7 @@ from typing import Any
 # them, per the one-owner-per-rule split in AGENTS.md.
 
 # ECMA-376 21.2.2.8: when c:autoTitleDeleted is absent or val="0" and the chart
-# carries no explicit c:title, PowerPoint SYNTHESISES a title at render time from
+# carries no explicit c:title, PowerPoint SYNTHESIZES a title at render time from
 # the single series name. It is drawn unstyled, so on a dark slide it renders as
 # near-black on dark. python-pptx reports has_title=False and COM reports
 # HasTitle=False, because the title exists in neither the file nor the object
