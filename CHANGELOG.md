@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `usage-guard` and the `/implement` completion gate no longer read a handoff file. Your recorded `handoff` answer in `.nexus-hub/usage-decision.json` is the evidence that a usage-limit handoff happened; the gate still also requires the usage probe to confirm the window is over the threshold.
 - **American English is the default spelling on every platform.** The `## Writing Discipline` block in all thirteen substantive instruction templates now states the rule, so every agent Nexus-Hub installs into (Claude Code, Codex and ChatGPT, Cursor, GitHub Copilot, Gemini, Antigravity, and the guardrails-only platforms) writes `color`, `behavior`, `organize`, and `judgment` by default. External identifiers, quoted text, and URLs keep their published spelling. The Markdown style guide carries the same row.
 - **Living repository files were converted to American spelling**: 1,000-plus edits across the catalog, `.agents/` and `.cursor/` project copies, guides, the website, living docs, scripts, extensions, and tests. Frozen history keeps its original spelling: `docs/archives/`, `docs/releases/` (approved plans and evidence are hash-pinned), CI receipts and patches, and released CHANGELOG entries.
+- **Cursor now receives the global Nexus-Hub instructions on every session, automatically.** Cursor documents no global instruction file (User Rules live only in its settings screen), so a global install renders the same instruction template other platforms get into `~/.cursor/nexus-hub-instructions.md`, and the installed `sessionStart` hook returns it as `additional_context` ahead of the attribution policy. This brings the Writing Discipline block, including American spelling, to Cursor with no manual step. A project's own `AGENTS.md` is still read natively, so workspace installs add no copy.
 
 ### Added
 
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
+- **Reinstalling no longer skips the local MCP servers.** `uv` 0.9 and later refuse to create a virtual environment over an existing one, so every install after the first exited `uv venv` with code 2 and printed "Could not build the MCP server venv". Both installers now set `UV_VENV_CLEAR=1` for that call, which restores what older `uv` did silently and is ignored by versions that predate it.
 
 ### Removed
 

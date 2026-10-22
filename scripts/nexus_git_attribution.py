@@ -851,8 +851,13 @@ def main(argv: list[str] | None = None) -> int:
             help="Wrap this repository's hooks instead of global hooks.",
         )
     sub.add_parser("check")
-    sub.add_parser(
+    context = sub.add_parser(
         "context", help="Emit installed attribution rules for Cursor sessionStart."
+    )
+    context.add_argument(
+        "--instructions",
+        type=Path,
+        help="Rendered global instruction file to emit ahead of the attribution rules.",
     )
     tag = sub.add_parser(
         "tag", help="Create an annotated tag using verified user identity."
@@ -877,7 +882,14 @@ def main(argv: list[str] | None = None) -> int:
                 Path(__file__).resolve().parent.parent
                 / "style-guides/git-attribution.md"
             )
-            print(json.dumps({"additional_context": guide.read_text(encoding="utf-8")}))
+            # Cursor has no global instruction file, so this one sessionStart
+            # response carries the global instructions too. A missing file is
+            # skipped: the attribution rules must still load.
+            parts = []
+            if args.instructions is not None and args.instructions.is_file():
+                parts.append(args.instructions.read_text(encoding="utf-8"))
+            parts.append(guide.read_text(encoding="utf-8"))
+            print(json.dumps({"additional_context": "\n\n".join(parts)}))
             return 0
         if args.command == "tag":
             check()
