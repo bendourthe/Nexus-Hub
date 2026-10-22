@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Windows console children now use a shared hidden-window subprocess policy across commands, installers and pytest roots. Standalone helpers and Node launches carry explicit hidden-window options. The console guard also checks installer, build and private helper commands, rejects conflicting launch flags and requires a reason on each deliberate exception line. Project instructions and distributed rules carry the same policy.
+
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
 - **Reinstalling no longer skips the local MCP servers.** `uv` 0.9 and later refuse to create a virtual environment over an existing one, so every install after the first exited `uv venv` with code 2 and printed "Could not build the MCP server venv". Both installers now set `UV_VENV_CLEAR=1` for that call, which restores what older `uv` did silently and is ignored by versions that predate it.
 

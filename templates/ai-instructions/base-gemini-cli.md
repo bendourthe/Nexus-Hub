@@ -1,5 +1,9 @@
 @base-google-shared.md
 
+## Windows Processes
+
+On Windows, start every console child without a window: use one shared Python subprocess default with CREATE_NO_WINDOW, Node child_process options with windowsHide: true, or PowerShell ProcessStartInfo with UseShellExecute = $false and CreateNoWindow = $true. Prefer direct or in-process calls; Start-Process must use -WindowStyle Hidden (do not combine it with -NoNewWindow). Route .cmd shims through the same hidden launcher. Apply this to product code, tests, installers, builds, and agent helpers. Never use DETACHED_PROCESS or CREATE_NEW_CONSOLE for console programs. A deliberate exception needs nexus: console-window-ok <reason> on its launch line. Run the console-window-guard before test, installer, and build commands; use targeted checks for targeted changes.
+
 ## Surface: Gemini CLI (Google) -- ENTERPRISE-ONLY post-2026-06-18
 
 This file deploys to `~/.gemini/GEMINI.md` (global) or `<project>/.gemini/GEMINI.md` (workspace) and is consumed by the standalone `gemini` CLI binary. Per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18; enterprise tenants with a paid Gemini API key may continue using it via the Nexus-Hub installer's `--enterprise` / `-Enterprise` flag.

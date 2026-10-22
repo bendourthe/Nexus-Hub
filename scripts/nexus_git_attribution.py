@@ -62,7 +62,7 @@ class GuardError(Exception):
 
 def git(*args: str, ok: tuple[int, ...] = (0,), input: bytes | None = None) -> str:
     result = subprocess.run(
-        ["git", "--no-replace-objects", *args],
+        ["git", "--no-replace-objects", *args], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         input=input,
         capture_output=True,
         check=False,
@@ -190,7 +190,7 @@ def scan_push(payload: bytes, remote_url: str) -> None:
             message(body)
         # A tag to a tree/blob has no commits; its annotated metadata was checked.
         commit = subprocess.run(
-            ["git", "rev-parse", "--verify", new + "^{commit}"],
+            ["git", "rev-parse", "--verify", new + "^{commit}"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             capture_output=True,
             check=False,
         )
@@ -333,7 +333,7 @@ def wrapper(script: Path, root: Path, hook: str, python: str | None = None) -> s
 def install(scope: str) -> int:
     if scope == "local":
         probe = subprocess.run(
-            ["git", "rev-parse", "--git-dir"], capture_output=True, check=False
+            ["git", "rev-parse", "--git-dir"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), capture_output=True, check=False
         )
         if probe.returncode:
             print(
@@ -454,7 +454,7 @@ def check() -> int:
         raise GuardError("Attribution guard version differs. Reinstall the guard.")
     try:
         interpreter = subprocess.run(
-            [state["python"], "-c", "pass"],
+            [state["python"], "-c", "pass"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             capture_output=True,
             check=False,
             timeout=10,
@@ -542,7 +542,7 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
         command = [str(previous.resolve()), *args]
         if os.name == "nt":
             command = ["sh", "-c", 'exec "$@"', "nexus-attribution", *command]
-        result = subprocess.run(command, input=payload, check=False).returncode
+        result = subprocess.run(command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), input=payload, check=False).returncode
         if result:
             return result
     if hook == "commit-msg":
@@ -685,7 +685,7 @@ def _fill_messages(args: list[str], cwd: Path) -> tuple[str | None, str | None]:
     base = (_option_values(args, {"--base", "-B"}) or ["origin/HEAD"])[0]
     try:
         result = subprocess.run(
-            ["git", "log", "-n", "200", "--format=%B", f"{base}..HEAD"],
+            ["git", "log", "-n", "200", "--format=%B", f"{base}..HEAD"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             cwd=cwd, capture_output=True, timeout=3, check=False,
         )
     except (OSError, subprocess.TimeoutExpired):

@@ -356,7 +356,7 @@ def execute_in_sandbox(
             "plan": plan.to_dict(),
         }
 
-    completed = subprocess.run([*prefix, *plan.command], shell=False, check=False)
+    completed = subprocess.run([*prefix, *plan.command], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), shell=False, check=False)
     payload = {
         "status": "executed" if completed.returncode == 0 else "execution-error",
         "reasons": [],

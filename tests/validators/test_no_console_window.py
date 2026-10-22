@@ -53,14 +53,13 @@ def test_a_test_child_gets_a_console_without_a_window() -> None:
 
 
 @on_windows
-def test_a_child_that_asks_to_detach_stays_detached() -> None:
-    # nexus: console-window-ok proves a requested detach is honored
-    window, attached = _probe(creationflags=subprocess.DETACHED_PROCESS)
-    assert (window, attached) == (0, 0)
+def test_a_console_child_cannot_request_detachment() -> None:
+    with pytest.raises(ValueError, match="CREATE_NO_WINDOW"):
+        _probe(creationflags=subprocess.DETACHED_PROCESS)  # nexus: console-window-ok assert rejection
 
 
 @on_windows
-def test_the_checker_run_from_a_detached_process_opens_no_window() -> None:
+def test_the_checker_run_from_a_hidden_process_opens_no_window() -> None:
     """The real flood: tests detach the checker, and every git or gh it ran got a window."""
     script = (
         "import sys; sys.path.insert(0, sys.argv[1]); import check_plan_completion as ck; "
@@ -69,7 +68,7 @@ def test_the_checker_run_from_a_detached_process_opens_no_window() -> None:
     )
     out = subprocess.run([PYTHON, "-c", script, str(SCRIPTS)], capture_output=True, text=True,
                          check=True, timeout=120, stdin=subprocess.DEVNULL,
-                         creationflags=subprocess.DETACHED_PROCESS).stdout.split()  # nexus: console-window-ok the scenario under test
+                         creationflags=subprocess.CREATE_NO_WINDOW).stdout.split()
     assert int(out[0]) == 0, "a child of the detached checker opened a console window"
 
 

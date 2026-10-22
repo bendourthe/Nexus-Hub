@@ -324,7 +324,7 @@ def lifespan_fast_path(relative_path: str) -> Optional[str]:
 def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     """Run one fixed-argv git query without invoking a shell."""
     return subprocess.run(
-        ["git", "-C", str(repo_root), *args],
+        ["git", "-C", str(repo_root), *args], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         check=False,
         capture_output=True,
         text=True,

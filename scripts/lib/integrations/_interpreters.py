@@ -43,6 +43,13 @@ _WINDOWS_BASH_CANDIDATES = (
 )
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[2] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 @dataclass(frozen=True)
 class InterpreterStatus:
     """One interpreter's ability to actually execute a script on this host."""

@@ -145,7 +145,7 @@ def protected_by_git(path: Path) -> bool:
 
     real = Path(os.path.realpath(str(path)))
     try:
-        result = subprocess.run(["git", "-C", str(real.parent), "ls-files", "--error-unmatch", "--", real.name],
+        result = subprocess.run(["git", "-C", str(real.parent), "ls-files", "--error-unmatch", "--", real.name], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                                 capture_output=True, text=True, timeout=3, check=False)
     except (OSError, subprocess.TimeoutExpired):
         return False
@@ -165,7 +165,7 @@ def in_worktree(path: Path) -> bool:
     import subprocess
 
     try:
-        result = subprocess.run(["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"],
+        result = subprocess.run(["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                                 capture_output=True, text=True, timeout=3, check=False)
     except (OSError, subprocess.TimeoutExpired):
         return False

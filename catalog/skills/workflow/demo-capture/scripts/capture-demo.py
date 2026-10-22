@@ -182,7 +182,7 @@ def do_capture(root: Path, out_dir: Path, args: argparse.Namespace) -> dict:
 def _run(cmd: list[str], result: dict, artifact: Path) -> None:
     """Run a local capture command; record outcome without ever raising."""
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        proc = subprocess.run(cmd, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), capture_output=True, text=True, check=False)
         if proc.returncode == 0 and artifact.is_file():
             result["captured"].append({"artifact": str(artifact), "tool": cmd[0]})
         else:

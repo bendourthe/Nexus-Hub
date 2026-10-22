@@ -1,5 +1,9 @@
 @base-google-shared.md
 
+## Windows Processes
+
+On Windows, start every console child without a window: use one shared Python subprocess default with CREATE_NO_WINDOW, Node child_process options with windowsHide: true, or PowerShell ProcessStartInfo with UseShellExecute = $false and CreateNoWindow = $true. Prefer direct or in-process calls; Start-Process must use -WindowStyle Hidden (do not combine it with -NoNewWindow). Route .cmd shims through the same hidden launcher. Apply this to product code, tests, installers, builds, and agent helpers. Never use DETACHED_PROCESS or CREATE_NEW_CONSOLE for console programs. A deliberate exception needs nexus: console-window-ok <reason> on its launch line. Run the console-window-guard before test, installer, and build commands; use targeted checks for targeted changes.
+
 ## Surface: Antigravity 2.0 + CLI (Google) -- canonical post-2026-06-18 Google surface
 
 This file is consumed by BOTH the Antigravity 2.0 desktop IDE and the Antigravity CLI (`agy`) that replaces Gemini CLI for non-enterprise users on 2026-06-18. The CLI shares the Antigravity 2.0 backend and on-disk conventions; a single integration covers both surfaces. On-disk conventions verified 2026-05-29 against Google's public Antigravity CLI docs + codelabs.

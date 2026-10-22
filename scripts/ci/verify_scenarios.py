@@ -17,6 +17,13 @@ ROOT = Path(__file__).resolve().parents[2]
 TIMEOUT_TAIL_LINES = 200
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[1] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def run(argv: list[str], *, env: dict[str, str], cwd: Path, allow_failure: bool = False, timeout: float = 1200) -> subprocess.CompletedProcess[str]:
     # Match the native engine's process-tree boundary, including redirected grandchildren.
     options = ({"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {"start_new_session": True})

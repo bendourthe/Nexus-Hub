@@ -151,6 +151,13 @@ _EXCLUDED_FILE_SUFFIXES: Tuple[str, ...] = (".pyc", ".pyo", ".egg-info")
 _LINE_SEP = "  "
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _is_excluded_dir(name: str) -> bool:
     return name in _EXCLUDED_DIRS or name.endswith(".egg-info")
 

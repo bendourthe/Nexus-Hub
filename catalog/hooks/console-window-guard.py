@@ -11,7 +11,7 @@ exact fixes, so the agent repairs the code before the tests run.
 
 Scope:
   - Acts only on Windows (or when NEXUS_CONSOLE_GUARD_PLATFORM=nt, for tests).
-  - Acts only on commands that run a test runner; every other command passes.
+  - Checks test, installer, build, and agent helper commands.
   - Off when NEXUS_DISABLED_HOOKS contains console-window-guard, or when
     NEXUS_CONSOLE_GUARD=off.
 
@@ -23,6 +23,8 @@ Part of Nexus-Hub.
 
 from __future__ import annotations
 
+import ast
+from functools import lru_cache
 import json
 import os
 import re
@@ -59,6 +61,18 @@ TEST_COMMAND = re.compile(
     re.IGNORECASE,
 )
 
+
+BUILD_COMMAND = re.compile(
+    r"(?:^|[\s;&|('/\\\"])(?:"
+    r"(?:npm|pnpm|yarn|bun)(?:\.cmd)?(?:\s+run)?\s+(?:install|ci|build|rebuild|prepare|pack)"
+    r"|(?:pip|pip3|uv)\s+(?:pip\s+)?(?:install|sync|build|run)"
+    r"|nexus-hub(?:\.cmd)?\s+(?:upgrade|install|init)|(?:npx\s+)?(?:tsc|webpack|esbuild|rollup|ninja|msbuild)|vite\s+build"
+    r"|(?:cargo|dotnet)\s+(?:build|install|publish)|cmake\s+--build|make(?:\s+[^;&|]*)?"
+    r"|(?:[^\s;&|]*[/\\])?(?:install(?:er)?|build|setup)[\w.-]*\.(?:py|ps1|sh|cmd|bat)"
+    r"|(?:python(?:[0-9.]*)?(?:\.exe)?|py(?:\.exe)?|node(?:\.exe)?|powershell(?:\.exe)?|pwsh(?:\.exe)?|bash(?:\.exe)?|cmd(?:\.exe)?)[\"\']?\s+[^;&|]*\.(?:py|ps1|sh|js|mjs|cjs|cmd|bat)"
+    r")(?=$|[\s;&|)\"'])", re.IGNORECASE,
+)
+
 PY_LAUNCH = re.compile(
     r"\bsubprocess\.(?:run|Popen|call|check_call|check_output|getoutput|getstatusoutput)\s*\("
     r"|\basyncio\.create_subprocess_(?:exec|shell)\s*\("
@@ -71,9 +85,10 @@ PS_START_PROCESS = re.compile(r"\bStart-Process\b", re.IGNORECASE)
 PS_HIDDEN = re.compile(r"-WindowStyle\s+Hidden|-NoNewWindow", re.IGNORECASE)
 JS_LAUNCH = re.compile(
     r"(?<![\w.$])(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\("
+    r"|require\([\"\'](?:node:)?child_process[\"\']\)\.(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\b"
     r"|\b(?:child_process(?:_\d+)?|childProcess|cp)\.(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\b"
 )
-PREFILTER = (b"subprocess", b"create_subprocess", b"os.system", b"os.popen", b"os.spawn", b"DETACHED_PROCESS",
+PREFILTER = (b"import os", b"from os", b"import asyncio", b"from asyncio", b"subprocess", b"create_subprocess", b"os.system", b"os.popen", b"os.spawn", b"DETACHED_PROCESS",
              b"CREATE_NEW_CONSOLE", b"creationflags", b"ProcessStartInfo", b"Start-Process", b"child_process",
              b"execa", b"cross-spawn", b"exec.Command")
 SUFFIXES = (".py", ".ps1", ".psm1", ".js", ".mjs", ".cjs", ".ts", ".mts", ".cts", ".go")
@@ -81,21 +96,10 @@ GO_LAUNCH = re.compile(r"\bexec\.Command(?:Context)?\s*\(")
 GO_GUARD = re.compile(r"HideWindow\s*:\s*true|CREATE_NO_WINDOW|0x08000000")
 JS_CHILD_PROCESS = re.compile(r"child_process|node:child_process|\bexeca\b|cross-spawn")
 
-CONFTEST_GUARD = '''import os
-import subprocess
-
-if os.name == "nt" and not getattr(subprocess.Popen.__init__, "_no_window", False):
-    _original_init = subprocess.Popen.__init__
-    _keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE  # nexus: console-window-ok honor an explicit request
-
-    def _init(self, *args, **kwargs):
-        flags = kwargs.get("creationflags") or 0
-        if not flags & _keep:
-            kwargs["creationflags"] = flags | subprocess.CREATE_NO_WINDOW
-        _original_init(self, *args, **kwargs)
-
-    _init._no_window = True
-    subprocess.Popen.__init__ = _init'''
+CONFTEST_GUARD = '''import runpy
+from pathlib import Path
+policy = runpy.run_path(str(Path.home() / ".nexus-hub" / "scripts" / "nexus_process.py"))
+policy["install_no_window_default"]()'''
 
 
 class Finding(NamedTuple):
@@ -115,7 +119,8 @@ def _on_windows() -> bool:
 
 
 def is_test_command(command: str) -> bool:
-    return bool(TEST_COMMAND.search(command or ""))
+    normalized = re.sub(r"\b(npm|pnpm|yarn|bun)\.cmd\b", r"\1", command or "", flags=re.IGNORECASE).replace("\\", "/")
+    return bool(TEST_COMMAND.search(normalized) or BUILD_COMMAND.search(normalized))
 
 
 def project_root(cwd: Path) -> Path:
@@ -126,7 +131,7 @@ def project_root(cwd: Path) -> Path:
 
 
 def _marked(lines: list[str], index: int) -> bool:
-    return MARKER in lines[index] or (index > 0 and MARKER in lines[index - 1])
+    return bool(re.search(re.escape(MARKER) + r"\s+\S", lines[index]))
 
 
 def _call_text(lines: list[str], index: int) -> str:
@@ -152,15 +157,158 @@ def _is_test_file(rel: Path) -> bool:
             or name == "conftest.py" or bool(parts & {"tests", "test", "__tests__", "e2e"}))
 
 
-def _python_guard_present(files: list[tuple[Path, Path]]) -> bool:
+def _default_present(text: str, tree: ast.AST | None = None) -> bool:
+    """Recognize an installed default, rather than a flag mentioned in a comment."""
+    try:
+        tree = tree if tree is not None else ast.parse(text)
+    except (SyntaxError, RecursionError):
+        return False
+    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)]
+    shared = any(isinstance(node.func, ast.Name) and node.func.id == "install_no_window_default" for node in calls)
+    shared_fixture = any(isinstance(node.func, ast.Subscript) and isinstance(node.func.slice, ast.Constant)
+                         and node.func.slice.value == "install_no_window_default" for node in calls)
+    return ((shared and "nexus_process" in text) or (shared_fixture and "nexus_process.py" in text)
+)
+
+
+def _python_guard_present(files: list[tuple[Path, Path]]) -> set[Path]:
+    guarded = set()
     for path, rel in files:
         if rel.name == "conftest.py":
             try:
-                if "CREATE_NO_WINDOW" in path.read_text(encoding="utf-8", errors="replace"):
-                    return True
+                if _default_present(path.read_text(encoding="utf-8", errors="replace")):
+                    guarded.add(rel.parent)
             except OSError:
                 continue
-    return False
+    return guarded
+
+
+def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
+    """Check real calls, including aliases; strings containing examples are not launches."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return [Finding(rel.as_posix(), 1, "Python launch safety cannot be parsed", "Repair the syntax before launching.")]
+    lines = text.splitlines()
+    modules = {"subprocess"}
+    functions = set()
+    async_modules = {"asyncio"}
+    os_modules = {"os"}
+    os_functions = set()
+    assignments = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            modules.update(item.asname or item.name for item in node.names if item.name == "subprocess")
+            async_modules.update(item.asname or item.name for item in node.names if item.name == "asyncio")
+            os_modules.update(item.asname or item.name for item in node.names if item.name == "os")
+        elif isinstance(node, ast.ImportFrom) and node.module == "subprocess":
+            functions.update(item.asname or item.name for item in node.names if item.name in {"run", "Popen", "call", "check_call", "check_output", "getoutput", "getstatusoutput"})
+            for item in node.names:
+                if item.name in {"CREATE_NO_WINDOW", "DETACHED_PROCESS", "CREATE_NEW_CONSOLE"}:
+                    assignments[item.asname or item.name] = [ast.Attribute(value=ast.Name(id="subprocess"), attr=item.name)]
+        elif isinstance(node, ast.ImportFrom) and node.module == "asyncio":
+            functions.update(item.asname or item.name for item in node.names if item.name in {"create_subprocess_exec", "create_subprocess_shell"})
+        elif isinstance(node, ast.ImportFrom) and node.module == "os":
+            os_functions.update(item.asname or item.name for item in node.names if item.name in {"system", "popen"} or item.name.startswith("spawn"))
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            for target in (node.targets if isinstance(node, ast.Assign) else [node.target]):
+                if isinstance(target, ast.Name):
+                    assignments.setdefault(target.id, []).append(node.value)
+
+    @lru_cache(maxsize=1024)
+    def bag_values(node, seen=frozenset()):
+        if len(seen) > 32:
+            return None
+        if isinstance(node, ast.Name) and node.id not in seen:
+            values = assignments.get(node.id, [])
+            return bag_values(values[0], seen | {node.id}) if len(values) == 1 else None
+        if not isinstance(node, ast.Dict):
+            return None
+        result = set()
+        for key, value in zip(node.keys, node.values):
+            if key is None:
+                nested = bag_values(value, seen)
+                if nested is None:
+                    return None
+                result.update(nested)
+            elif not isinstance(key, ast.Constant):
+                return None
+            elif key.value == "creationflags":
+                result.add(value)
+        return frozenset(result)
+
+    @lru_cache(maxsize=1024)
+    def safe_value(node, seen=frozenset()):
+        if len(seen) > 32:
+            return False
+        if node is None:
+            return False
+        if isinstance(node, ast.Name) and node.id not in seen:
+            values = assignments.get(node.id, [])
+            return len(values) == 1 and safe_value(values[0], seen | {node.id})
+        if isinstance(node, ast.IfExp):
+            # An empty POSIX options branch is valid; the Windows branch must set the flag.
+            branches = (node.body, node.orelse)
+            return any(safe_value(value, seen) for value in branches) and all(
+                safe_value(value, seen) or isinstance(value, ast.Dict) and not value.keys for value in branches)
+        if isinstance(node, ast.Dict):
+            values = bag_values(node, seen)
+            return bool(values) and all(safe_value(value, seen) for value in values)
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+            return safe_value(node.left, seen) or safe_value(node.right, seen)
+        if isinstance(node, ast.Attribute):
+            return node.attr == "CREATE_NO_WINDOW"
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "getattr":
+            return len(node.args) >= 2 and isinstance(node.args[1], ast.Constant) and node.args[1].value == "CREATE_NO_WINDOW"
+        return isinstance(node, ast.Constant) and isinstance(node.value, int) and bool(node.value & 0x08000000)
+
+    @lru_cache(maxsize=1024)
+    def unsafe_value(node, seen=frozenset()):
+        if len(seen) > 32:
+            return False
+        if node is None:
+            return False
+        if isinstance(node, ast.Name) and node.id not in seen:
+            values = assignments.get(node.id, [])
+            return len(values) == 1 and unsafe_value(values[0], seen | {node.id})
+        if isinstance(node, ast.Dict):
+            values = bag_values(node, seen)
+            return values is not None and any(unsafe_value(value, seen) for value in values)
+        if isinstance(node, ast.Attribute):
+            return node.attr in {"DETACHED_PROCESS", "CREATE_NEW_CONSOLE"}
+        if isinstance(node, ast.Constant):
+            return isinstance(node.value, int) and bool(node.value & 0x18)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "getattr":
+            return len(node.args) >= 2 and isinstance(node.args[1], ast.Constant) and node.args[1].value in {"DETACHED_PROCESS", "CREATE_NEW_CONSOLE"}
+        if isinstance(node, (ast.BinOp, ast.IfExp)):
+            return any(unsafe_value(value, seen) for value in ast.iter_child_nodes(node))
+        return False
+
+    findings = []
+    default = guarded or _default_present(text, tree)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in modules and node.attr in {"DETACHED_PROCESS", "CREATE_NEW_CONSOLE"} and not _marked(lines, node.lineno - 1):
+            findings.append(Finding(rel.as_posix(), node.lineno, "explicit detached or new-console flag", "Use CREATE_NO_WINDOW without conflicting console flags."))
+        if not isinstance(node, ast.Call) or _marked(lines, node.lineno - 1):
+            continue
+        fn = node.func
+        launch = (isinstance(fn, ast.Name) and fn.id in functions or isinstance(fn, ast.Attribute)
+                  and isinstance(fn.value, ast.Name) and fn.value.id in modules and fn.attr in
+                  {"run", "Popen", "call", "check_call", "check_output", "getoutput", "getstatusoutput"})
+        os_launch = isinstance(fn, ast.Name) and fn.id in os_functions or (isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name) and fn.value.id in os_modules and (fn.attr in {"system", "popen"} or fn.attr.startswith("spawn")))
+        async_launch = isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name) and fn.value.id in async_modules and fn.attr in {"create_subprocess_exec", "create_subprocess_shell"}
+        if os_launch:
+            findings.append(Finding(rel.as_posix(), node.lineno, "OS shell launch bypasses the shared subprocess default", "Use the shared hidden subprocess helper instead."))
+            continue
+        if not (launch or async_launch):
+            continue
+        if any((key.arg == "creationflags" or key.arg is None) and unsafe_value(key.value) for key in node.keywords):
+            findings.append(Finding(rel.as_posix(), node.lineno, "explicit detached or new-console launch",
+                                    "Use CREATE_NO_WINDOW without DETACHED_PROCESS or CREATE_NEW_CONSOLE."))
+        elif not default and not any((key.arg == "creationflags" or key.arg is None) and safe_value(key.value) for key in node.keywords):
+            findings.append(Finding(rel.as_posix(), node.lineno, "process launch without CREATE_NO_WINDOW or a shared default",
+                                    "Use the shared process helper, or pass creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0)."))
+    return findings
 
 
 def _git_files(root: Path) -> list[str] | None:
@@ -189,7 +337,7 @@ def _candidates(root: Path) -> list[tuple[Path, Path]]:
     for rel in listed:
         rel_path = Path(rel)
         name = rel_path.name
-        if name.endswith(SUFFIXES) and not name.endswith(".d.ts") and not set(rel_path.parts[:-1]) & SKIP_DIRS:
+        if rel_path.parts[0] not in {"docs", "guides"} and name.endswith(SUFFIXES) and not name.endswith(".d.ts") and not set(rel_path.parts[:-1]) & SKIP_DIRS:
             files.append((root / rel_path, rel_path))
             if len(files) >= MAX_FILES:
                 break
@@ -220,6 +368,8 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
     # The guard and its tests have to spell out every pattern they detect.
     own = {Path(__file__).name, "test_console_window_guard.py"}
     files = [item for item in _candidates(root) if item[1].name not in own]
+    if len(files) >= MAX_FILES and incomplete is not None:
+        incomplete[:] = [True]
     guarded = _python_guard_present(files)
     go_guarded = _go_guard_present(files)
     unguarded_go: list[Finding] = []
@@ -232,6 +382,7 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
             break
         try:
             if path.stat().st_size > MAX_FILE_BYTES:
+                findings.append(Finding(rel.as_posix(), 1, "launch safety cannot be verified for oversized source", "Split the file before launching."))
                 continue
             raw = path.read_bytes()
             if not any(token in raw for token in PREFILTER):
@@ -242,16 +393,12 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
         shown = rel.as_posix()
         suffix = path.suffix.lower()
         if suffix == ".py":
-            for i, line in enumerate(lines):
-                if _marked(lines, i) or line.lstrip().startswith("#"):
-                    continue
-                if PY_EXPLICIT.search(line):
-                    findings.append(Finding(shown, i + 1, "explicit detached or new-console launch",
-                                            "Use creationflags=subprocess.CREATE_NO_WINDOW instead; a detached child has no "
-                                            "console, so every console program it starts opens a window. If detaching is "
-                                            f"required, mark the line with '# {MARKER} <reason>'."))
-                elif not guarded and _is_test_file(rel) and PY_LAUNCH.search(line):
-                    unguarded_tests.append(Finding(shown, i + 1, "test starts a process without a no-window guard", ""))
+            covered = _is_test_file(rel) and any(parent == rel.parent or parent in rel.parents for parent in guarded)
+            # The shared policy covers ordinary test launches at runtime. Only
+            # explicit flag overrides or OS-shell escapes need another AST walk.
+            risky = re.search(rb"DETACHED_PROCESS|CREATE_NEW_CONSOLE|creationflags|\bos\s*\.\s*(?:system|popen|spawn)|import\s+os\s+as|from\s+os\s+import", raw)
+            if not covered or risky:
+                findings.extend(_python_findings("\n".join(lines), rel, covered))
         elif suffix in {".ps1", ".psm1"}:
             text = "\n".join(lines)
             if PS_PSI.search(text) and not PS_NO_WINDOW.search(text):
@@ -274,11 +421,21 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
             text = "\n".join(lines)
             if not JS_CHILD_PROCESS.search(text):
                 continue
+            aliases = re.findall(r"import\s+(?:\*\s+as\s+)?(\w+)\s+from\s+[\"\'](?:node:)?child_process[\"\']", text)
+            aliases += re.findall(r"(?:const|let|var)\s+(\w+)\s*=\s*require\([\"\'](?:node:)?child_process[\"\']\)", text)
+            named_aliases = []
+            for group in re.findall(r"(?:import\s*\{([^}]+)\}\s*from|(?:const|let|var)\s*\{([^}]+)\}\s*=\s*require\()[\s\"\']*(?:node:)?child_process", text):
+                for item in (group[0] or group[1]).split(","):
+                    match = re.fullmatch(r"\s*(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)(?:\s+as\s+|\s*:\s*)(\w+)\s*", item)
+                    if match:
+                        named_aliases.append(match.group(1))
+            named_launch = re.compile(r"(?<![\w.$])(?:" + "|".join(map(re.escape, named_aliases)) + r")\s*\(") if named_aliases else None
+            alias_launch = re.compile(r"\b(?:" + "|".join(map(re.escape, aliases)) + r")\.(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\(") if aliases else None
             for i, line in enumerate(lines):
                 stripped = line.lstrip()
-                if stripped.startswith(("//", "*", "/*")) or _marked(lines, i) or not JS_LAUNCH.search(line):
+                if stripped.startswith(("//", "*", "/*")) or _marked(lines, i) or not (JS_LAUNCH.search(line) or alias_launch and alias_launch.search(line) or named_launch and named_launch.search(line)):
                     continue
-                if "windowsHide" not in _call_text(lines, i):
+                if not re.search(r"\bwindowsHide\s*:\s*true\b", _call_text(lines, i)):
                     findings.append(Finding(shown, i + 1, "child_process call without windowsHide",
                                             "Pass { windowsHide: true } in the options object."))
     if unguarded_go:
@@ -298,10 +455,10 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
 
 def report(command: str, root: Path, findings: list[Finding]) -> str:
     lines = [
-        "Blocked: on Windows this test run could flood the desktop with console windows.",
+        "Blocked: on Windows this command could flood the desktop with console windows.",
         f"Project: {root}",
         f"Command: {command[:160]}",
-        "Fix these before running the tests (each launch must be window-safe):",
+        "Fix these before running the command (each launch must be window-safe):",
     ]
     for item in findings[:MAX_REPORTED]:
         lines.append(f"- {item.path}:{item.line}: {item.rule}.")
@@ -309,8 +466,30 @@ def report(command: str, root: Path, findings: list[Finding]) -> str:
             lines.extend("    " + part for part in item.fix.splitlines())
     if len(findings) > MAX_REPORTED:
         lines.append(f"- ...and {len(findings) - MAX_REPORTED} more of the same kinds.")
-    lines.append(f"A deliberate case: put '{MARKER} <reason>' in a comment on the line or the line above it.")
+    lines.append(f"A deliberate case: put '{MARKER} <reason>' in a comment on the launch line.")
     return "\n".join(lines)
+
+
+def external_python_findings(command: str, root: Path, cwd: Path) -> list[Finding]:
+    """Inspect explicitly invoked Python helpers outside the project's source tree."""
+    findings = []
+    pattern = r'''"([^"\n]+\.py)"|'([^'\n]+\.py)'|([^\s;|&"']+\.py)'''
+    for match in re.finditer(pattern, command):
+        value = next(part for part in match.groups() if part)
+        path = Path(value)
+        if not path.is_absolute():
+            path = cwd / path
+        path = path.resolve()
+        if root == path or root in path.parents or not path.is_file():
+            continue
+        try:
+            if path.stat().st_size > MAX_FILE_BYTES:
+                findings.append(Finding(str(path), 1, "external helper is too large to verify", "Split the helper before launching."))
+                continue
+            findings.extend(_python_findings(path.read_text(encoding="utf-8-sig"), path, False))
+        except (OSError, UnicodeError):
+            findings.append(Finding(str(path), 1, "external helper cannot be verified", "Repair access or encoding before launching."))
+    return findings
 
 
 def main() -> int:
@@ -321,16 +500,18 @@ def main() -> int:
     except ValueError:
         return 0
     tool_input = payload.get("tool_input") or {}
-    command = str(tool_input.get("command") or "")
+    command = str(tool_input.get("command") or tool_input.get("cmd") or "")
     if not is_test_command(command):
         return 0
     root = project_root(Path(payload.get("cwd") or os.getcwd()).resolve())
     incomplete: list[bool] = [False]
     findings = scan(root, incomplete)
+    findings.extend(external_python_findings(command, root, Path(payload.get("cwd") or os.getcwd()).resolve()))
     if not findings:
         if incomplete[0]:
             print(f"console-window-guard: scan stopped after {_budget():g}s with no unsafe launch found so far; "
-                  "the test run proceeds.", file=sys.stderr)
+                  "the command is blocked until the scan completes.", file=sys.stderr)
+            return 2
         return 0
     print(report(command, root, findings), file=sys.stderr)
     return 2

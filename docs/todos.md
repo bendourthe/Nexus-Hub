@@ -1,6 +1,10 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
+
+**Console-window repair:** The isolated maintenance branch adds a shared Windows process policy, installer distribution, launch-site regressions and broader command guarding. All 96 focused tests pass; the actual isolated Windows installer exits 0 and the existing installed guard passes. Final-source idle observation also passed with no visible console window or focus change; integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+
+- [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
 **Active work:** v4.14 full-minor run, 67/209 tasks and 2/7 releases. v4.14.1 is released (integration PR 501 merged at 870620c3); v4.14.5 Phase 1 is committed and waits for its release-order turn. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.

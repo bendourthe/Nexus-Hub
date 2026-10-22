@@ -194,7 +194,7 @@ def install(dry_run: bool = False) -> int:
         print(f"$ {command}")
         if dry_run:
             continue
-        result = subprocess.run(command.split(), check=False)
+        result = subprocess.run(command.split(), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=False)
         if result.returncode != 0:
             print(
                 f"Provisioning command failed with {result.returncode}. The QA "

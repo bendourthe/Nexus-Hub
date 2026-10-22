@@ -234,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
     hook_input = _cursor_payload_for_hook(payload) if cursor else raw
     try:
         result = subprocess.run(
-            command,
+            command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             input=hook_input,
             text=True,
             capture_output=True,

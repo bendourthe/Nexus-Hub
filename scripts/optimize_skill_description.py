@@ -92,6 +92,13 @@ _SPLIT_MODES = ("auto", "two-way")
 # ── Skill / eval loading ──────────────────────────────────────────────────────
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def load_evals(evals_path: Path) -> list[dict[str, Any]]:
     raw = json.loads(evals_path.read_text(encoding="utf-8"))
     if isinstance(raw, dict) and "evals" in raw:
