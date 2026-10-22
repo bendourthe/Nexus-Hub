@@ -32,7 +32,7 @@
 
 ## Working Conventions
 
-- On Windows, start every console child without a window: use one shared Python subprocess default with CREATE_NO_WINDOW, Node child_process options with windowsHide: true, or PowerShell ProcessStartInfo with UseShellExecute = $false and CreateNoWindow = $true. Prefer direct or in-process calls; Start-Process must use -WindowStyle Hidden (do not combine it with -NoNewWindow). Route .cmd shims through the same hidden launcher. Apply this to product code, tests, installers, builds, and agent helpers. Never use DETACHED_PROCESS or CREATE_NEW_CONSOLE for console programs. A deliberate exception needs nexus: console-window-ok <reason> on its launch line. Run the console-window-guard before test, installer, and build commands; use targeted checks for targeted changes.
+- [Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
 
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes

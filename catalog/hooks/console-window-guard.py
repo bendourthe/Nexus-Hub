@@ -15,8 +15,8 @@ Scope:
   - Off when NEXUS_DISABLED_HOOKS contains console-window-guard, or when
     NEXUS_CONSOLE_GUARD=off.
 
-A deliberate launch is accepted when its line, or the line above it, carries the
-marker `nexus: console-window-ok` followed by a reason.
+A deliberate launch is accepted when its launch line carries the marker
+`nexus: console-window-ok` followed by a reason.
 
 Part of Nexus-Hub.
 """
@@ -24,6 +24,7 @@ Part of Nexus-Hub.
 from __future__ import annotations
 
 import ast
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 import json
 import os
@@ -32,7 +33,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import NamedTuple
+from typing import Iterator, NamedTuple
 
 HOOK_NAME = "console-window-guard"
 MARKER = "nexus: console-window-ok"
@@ -362,6 +363,21 @@ def _budget() -> float:
         return SCAN_BUDGET_SECONDS
 
 
+def _read_candidates(files: list[tuple[Path, Path]]) -> Iterator[tuple[Path, Path, bytes | None, bool]]:
+    """Overlap independent file reads in ordered batches with bounded memory."""
+    def read(item: tuple[Path, Path]) -> tuple[Path, Path, bytes | None, bool]:
+        path, rel = item
+        try:
+            oversized = path.stat().st_size > MAX_FILE_BYTES
+            return path, rel, None if oversized else path.read_bytes(), oversized
+        except OSError:
+            return path, rel, None, False
+
+    with ThreadPoolExecutor(max_workers=8) as readers:
+        for offset in range(0, len(files), 16):
+            yield from readers.map(read, files[offset:offset + 16])
+
+
 def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
     """Findings for root; when the time budget runs out, sets incomplete[0] and returns what was found."""
     deadline = time.monotonic() + _budget()
@@ -375,21 +391,17 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
     unguarded_go: list[Finding] = []
     findings: list[Finding] = []
     unguarded_tests: list[Finding] = []
-    for path, rel in files:
+    for path, rel, raw, oversized in _read_candidates(files):
         if time.monotonic() > deadline:
             if incomplete is not None:
                 incomplete[:] = [True]
             break
-        try:
-            if path.stat().st_size > MAX_FILE_BYTES:
-                findings.append(Finding(rel.as_posix(), 1, "launch safety cannot be verified for oversized source", "Split the file before launching."))
-                continue
-            raw = path.read_bytes()
-            if not any(token in raw for token in PREFILTER):
-                continue
-            lines = raw.decode("utf-8", errors="replace").splitlines()
-        except OSError:
+        if oversized:
+            findings.append(Finding(rel.as_posix(), 1, "launch safety cannot be verified for oversized source", "Split the file before launching."))
             continue
+        if raw is None or not any(token in raw for token in PREFILTER):
+            continue
+        lines = raw.decode("utf-8", errors="replace").splitlines()
         shown = rel.as_posix()
         suffix = path.suffix.lower()
         if suffix == ".py":

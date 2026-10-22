@@ -1,14 +1,14 @@
 {
   "snapshot": {
-    "entry_sha256": "faac6146389e696512f0bb3929c642540712758e6f1c57a06d7a07091261528c",
+    "entry_sha256": "f2dbe800d052a1cc7b72810a1f254b3712c8f9d4056f657e4237902c4f90903d",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
-      "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
+      "docs/handbooks/_sources/distribution/model.json": "086b9d2c0431181cacc2fabb54a6fb596060710c8c9c01e4a159fd1d357b0c66",
+      "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "6d909a54a9b7407742b18e0669c5884ed73bf62a732e9f929fa3b0a7492adde4",
-      "scripts/installer.sh": "5ac6468def3d3f820744ebeccd50cba1233f84c3664b626514b95961d730b9ad",
+      "scripts/installer.ps1": "e66910e82ac1f1a25ade1f86fdccaf9a5c34f81b376f466e3a1b76efe45d4e83",
+      "scripts/installer.sh": "54fe16424879b1a71479e5a4d6c0c43a741c160b4b4a2a2bd0cdec8caa73ffe6",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
-      "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
+      "scripts/nexus_hub_cli.py": "c5e4eb5f1898fb1fe2ea7a90c97032991f1493c887623fbacfeae9ad8a563501",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -22,31 +22,32 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "502619a2f21dadaab65112e7a7f1e801166ceaebd9475825ac0c02bb085846aa",
+      "scripts/nexus_git_attribution.py": "7e803e8a52e2b67dd02b10c93aa983ee020ce0736cd1a5dc25bb944830d33ea7",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "245c5614aba47acfd16b9a815cb34cdac2c1f95784b985c12023cc22c99748f1",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
-      "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58"
+      "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58",
+      "scripts/nexus_process.py": "14ddaaf6bf0f0d48827a866f6ab9cd314676ea4c7644c8bf9f9758e7ea399567"
     },
-    "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+    "output_sha256": "105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/cursor-global-instructions-handbook-review.md",
-      "evidence_sha256": "490fceff4d6afd344fa419f740b0fcb825f5737d84dd2a17adb3d0c09d7d15f6"
+      "evidence": "docs/releases/v4/v4.14/development/windows-console-handbook-review.md",
+      "evidence_sha256": "482db7f0072d31e5ca5d2f7f7eb4979a81b54a8ff8a1944f6de45bc69a78cf24"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-build.json",
-      "evidence_sha256": "3d90c4adc503b6d396cd9c07cdb51896902bf03040c45e8aeada0ccaba11ce81"
+      "evidence": "docs/handbooks/distribution.html.build.json",
+      "evidence_sha256": "fdff266e42a7eb9003d0c1fc26e96fc12fbf65a17e65be74b45eeaf184a23822"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
-      "evidence_sha256": "713b593c69e77674ec12ca9bb5f3826f6145d9ce1a85c2e179d68b3a79ece019",
+      "evidence": "docs/releases/v4/v4.14/development/windows-console-handbook-browser.json",
+      "evidence_sha256": "7101fb8f85a3391ce129d828ead2e44075cd07895e1cc05ed991495beefd6737",
       "browser": "Chromium 153.0.8010.12",
-      "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+      "output_sha256": "105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1"
     }
   }
 }

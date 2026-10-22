@@ -263,3 +263,35 @@ def test_dictionary_expansion_cannot_override_hidden_flags(tmp_path: Path, overr
 def test_mutated_options_with_new_console_are_rejected(tmp_path: Path) -> None:
     write(tmp_path, "launch.py", "import subprocess\noptions={'creationflags': subprocess.CREATE_NO_WINDOW}\noptions.update(creationflags=subprocess.CREATE_NEW_CONSOLE)\nsubprocess.Popen(['git'], **options)\n")
     assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_parallel_source_reads_preserve_every_unsafe_launch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import runpy
+    import threading
+
+    module = runpy.run_path(str(HOOK))
+    for i in range(12):
+        write(tmp_path, f"launch_{i}.py", UNGUARDED_TEST)
+    original = Path.read_bytes
+    barrier = threading.Barrier(2)
+    lock = threading.Lock()
+    active = peak = 0
+
+    def read(path: Path) -> bytes:
+        nonlocal active, peak
+        if path.parent != tmp_path or not path.name.startswith("launch_"):
+            return original(path)
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        try:
+            barrier.wait(timeout=3)
+            return original(path)
+        finally:
+            with lock:
+                active -= 1
+
+    monkeypatch.setattr(Path, "read_bytes", read)
+    findings = module["scan"](tmp_path)
+    assert peak >= 2
+    assert {finding.path for finding in findings} == {f"launch_{i}.py" for i in range(12)}

@@ -23,18 +23,26 @@ All subsequent verification and Git launches in this repair used Node child_proc
 
 ## Verification
 
-- Final focused selection: 96 passed in 21.14 seconds. It includes hook guarding, real Windows subprocess behavior, batch shims, positional arguments, legacy defaults, installer wiring and three affected runner paths. JUnit: console-window-root-repair-oct22/final-qualified.xml under the evidence root.
+- Initial focused selection: 96 passed in 21.14 seconds. It includes hook guarding, real Windows subprocess behavior, batch shims, positional arguments, legacy defaults, installer wiring and three affected runner paths. JUnit: console-window-root-repair-oct22/final-qualified.xml under the evidence root.
 - Final Windows process files: 14 passed in 0.82 seconds during a separate desktop observation.
-- The existing installed ~/.claude/hooks/console-window-guard.py returned 0 for the repaired project. The repaired source guard returned 0 for test, PowerShell installer, npm.cmd ci and npm run build commands. The full project scan completed in 3.430 seconds under its unchanged 20-second limit.
+- The existing installed ~/.claude/hooks/console-window-guard.py returned 0 for the repaired project. The repaired source guard returned 0 for test, PowerShell installer, npm.cmd ci and npm run build commands. The final full project scan completed in 4.915 seconds under its unchanged 20-second limit.
 - Four command entry points import under -I -S -B and expose help successfully. Both installer syntax checks passed, including PowerShell 5.1 AST parsing.
 - The actual PowerShell workspace installer ran successfully in fresh isolated homes, most recently Temp/ncw-oct22-quiet-approved, with exit 0. Assertions verify that installed nexus_process.py exactly matches source and the workspace console guard exists. The workspace-only install reports missing global Claude read paths; this is not a claim of global platform qualification. Real home paths were not installed or rewritten.
 - Win32 desktop observation on the final code recorded zero new visible console windows in 1,018.86 seconds (84,188 samples) and again in 40.50 seconds (3,306 samples), but user input occurred in those intervals. An earlier source iteration had an uninterrupted idle observation of 359.16 seconds, 29,584 samples, zero new visible console windows and no foreground process change. The final-source approved quiet interval then covered both affected process tests (14 passed in 1.99 seconds) and the actual isolated installer (exit 0): 10.387 seconds, 798 samples, minimum idle 1,031 ms, zero visible console events and only the initial foreground process. No keyboard or mouse input occurred during that interval. Evidence: approved-idle-desktop.json and approved-idle-0/1.log.
 - Focused independent correctness and security rechecks found no remaining confirmed defect in positional compatibility, legacy default upgrade or expanded dictionary overrides. These are bounded reviews, not full-suite or complete scanner-coverage claims.
 
+## Publication Verification
+
+The final affected regression selection passes all 109 tests in 43.41 seconds. Independent source reads overlap in ordered batches of 16 with eight threads; the regression proves that every unsafe launch is still reported. There is no cache between requests. A focused performance review found no remaining confirmed defect; the existing deadline remains a soft scan budget around uninterruptible file reads and analysis.
+
+The screenshot helper mock now requires and verifies creationflags; its 12 affected tests pass in 0.38 seconds. The isolated native-launcher fixture includes the CLI process policy dependency; all three ordinary, bracketed and Unicode profile cases pass under PowerShell 5.1 (8.76 seconds) and PowerShell 7 (7.63 seconds). The local evidence path is portable. Standing instructions contain a four-word policy link; the six applicable word ceilings increase only by the exact 1-5 words needed for this explicitly requested durable rule, with no extra headroom or unrelated instruction deletion. The full policy remains in distributed language rules. The legacy fingerprint file is regenerated from actual history and current template bytes.
+
+The distribution handbook explains hidden process policy delivery and includes the shared module in its dependency map. Its deterministic build check and 200-state Chromium measurement pass; fresh content and representative visual reviews are recorded in windows-console-handbook-review.md.
+
 ## Preservation and Adoption
 
 Every applied edit used the official edit guard with zero accepts. The native run record remained SHA-256 246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a. Frozen approval and review budgets were not reset. The goal remains active; this maintenance repair does not complete v4.14.
 
-Source policy SHA-256: 14ddaaf6bf0f0d48827a866f6ab9cd314676ea4c7644c8bf9f9758e7ea399567. Source guard SHA-256: 8e8e34dbe78edf51085a1a98fa05a33c7a0780d81ab243d83cb5d3e218a8ac5f. Evidence root: C:/Users/BEDOURTHE/AppData/Local/Temp/nexus-v4140-native-hook-budget-oct17/console-window-root-repair-oct22.
+Source policy SHA-256: 14ddaaf6bf0f0d48827a866f6ab9cd314676ea4c7644c8bf9f9758e7ea399567. Source guard SHA-256: a3bfec9c76052b069882905c2a0e362f8856ffa410203c62dcbae46e7b24a213. Evidence root: %TEMP%/nexus-v4140-native-hook-budget-oct17/console-window-root-repair-oct22.
 
 Template parity and the exact 2,061-entry staged manifest match also pass. Integration and reviewed runtime adoption are pending. Installed native scripts and the real-home guard have not been manually replaced.
