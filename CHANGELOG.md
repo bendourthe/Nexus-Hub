@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The `user-edit-guard` hook no longer blocks every edit once its store grows large. On a store of about 9,000 records, one hook check took from 10 seconds to over 4 minutes against a 2-second budget, so writes outside a git worktree were blocked with "the 2-second budget ran out". Each call re-applied the store's owner-only ACL, which makes Windows re-walk every stored file; pruned by opening every record; and reread and rewrote the whole log. The ACL is now set once, when a store folder is created. Pruning runs at most once a day (in a separate windowless process from the hook, inline from a CLI command, or on demand with the new `edit_guard.py prune`) and decides a record's age from its file's modification time, so no live record is opened. The log is appended to and rotates to `log.jsonl.1` past 1 MB, replacing the older generation; `log` reads both. The post-command scan for files changed during a shell command stops after 0.5 seconds. A hook check on a 9,000-record store now takes about 0.2 seconds, including Python startup.
+
 ## [4.14.1] - 2026-10-20
 
 ### Added
