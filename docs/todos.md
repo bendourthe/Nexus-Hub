@@ -372,8 +372,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.22.6 open-model recipes and restraint
 
 - [x] Complete the [v4.22.6 two-source comparison](releases/v4/v4.22/comparisons/v4.22.6-comparison-open-model-recipes-and-restraint.md) (Nebius token-factory cookbook, Jakub Krehel's "Less is more, more or less"), committed locally on 2026-10-22.
-- [ ] Confirm the v4.22.6 adoption target (alternatives: v4.18.3, or fold the eyebrow gate into v4.18.0 task 7.3), then publish the comparison through a `publish/` pull request to `develop`.
-- [ ] Create the v4.22.6 plan with `/plan from-comparison`: earned-eyebrow gate and frequency-of-use motion rule (`hallmark-design`), Kimi and Qwen prompting profiles, OpenAI-compatible endpoint guidance (`multi-provider-ai`), and a native permission-deny pattern for spend commands (`ai-billing-safeguards`).
+- [x] Confirm the v4.22.6 adoption target: the user confirmed v4.22.6 on 2026-10-22.
+- [x] Create the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md) with `/plan from-comparison`; six review lenses and three grill decisions applied on 2026-10-22 ([planning review](releases/v4/v4.22/development/v4.22.6-planning-review.md)): 8 audit-and-build episodes, capped Kimi and Qwen rosters with no script change, Qwen sources including Alibaba Cloud Model Studio. Five-phase plan approved for publication.
+- [ ] Implement the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md): earned-eyebrow gate and frequency-aware motion (`hallmark-design`), OpenAI-compatible endpoint guidance (`multi-provider-ai`), a deny-rule layer behind credential isolation (`ai-billing-safeguards`), and capped Kimi and Qwen prompting profiles. Implementation is 0/5 phases and 0/25 tasks.
 
 ## Current work - v4.4.5 visual refinement
 
