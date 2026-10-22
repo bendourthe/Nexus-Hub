@@ -2,7 +2,7 @@
 
 **Scope**: every queued plan from v4.14 onward (27 plans, 24 comparisons) plus the new v4.15.3 speed comparison. Plan content is unchanged except version identity and reference repair.
 **Decision owner**: the maintainer, who approved the release map on 2026-10-12.
-**Ranking rule**: `plan-queue-assessment` Step 5. Impact on the harness is a maintainer judgment recorded below, not a computed score. No delivery-speed claim is made for the reordering itself.
+**Ranking rule**: `plan-queue-assessment` Step 5. Impact on the harness is a maintainer judgement recorded below, not a computed score. No delivery-speed claim is made for the reordering itself.
 
 ## Why
 

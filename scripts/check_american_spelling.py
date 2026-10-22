@@ -4,9 +4,10 @@
 Nexus-Hub writes American English everywhere it is still edited: the catalog,
 the instruction templates every platform installs, guides, living docs, code
 comments, and tests. Frozen records are left as they were written, because they
-are history rather than product text and some of them are hash-pinned evidence:
-`docs/archives/`, CI receipts, patch files, and every released CHANGELOG entry
-(only the `## [Unreleased]` section is checked).
+are history rather than product text and many are hash-pinned evidence:
+`docs/archives/`, `docs/releases/` (plans, comparisons, known gaps, development
+evidence), CI receipts, patch files, and every released CHANGELOG entry (only
+the `## [Unreleased]` section is checked).
 
 A word is checked only outside literals. Backtick code spans, URLs, and the HTML
 `aria-labelledby` attribute keep their published spelling, and so do words
@@ -147,7 +148,10 @@ LITERAL = re.compile(
 )
 ALLOW_MARKER = "spelling: allow"
 
-FROZEN_PREFIXES = ("docs/archives/",)
+# Release records are frozen as well as archives: approved plans, comparisons,
+# known-gaps ledgers, and development evidence are hash-pinned by the completion
+# and handbook checkers, so a one-word spelling edit invalidates them.
+FROZEN_PREFIXES = ("docs/archives/", "docs/releases/")
 FROZEN_SUFFIXES = (".patch", ".diff", ".lock", ".svg", ".min.js", ".min.css")
 # Files whose subject is British spelling: the word list and its test inputs.
 SELF = {
