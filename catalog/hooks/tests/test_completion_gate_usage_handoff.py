@@ -5,12 +5,14 @@ then usage-guard), and on Cursor's native stop in hooks.json order. These tests
 drive both against one full-run record with a stub checker, a primed usage-probe
 cache (no network), and the real hook files from catalog/hooks:
 
-- at 99.5% with a usage-limit handoff written after the gate's last refusal, the
-  turn ends: the gate allows the stop without counting a refusal or writing a
+- at 99.5% with the user's handoff answer recorded after the gate's last refusal,
+  the turn ends: the gate allows the stop without counting a refusal or writing a
   blocker, and the guard stays silent;
 - at 99.5% without the handoff, the guard's continuation asks for it (the gate
   refuses as it always did);
-- a usage-limit handoff with the probe at 50% is a fake: the gate refuses as today;
+- a handoff answer with the probe at 50% is a fake: the gate refuses as today;
+- a `.nexus-hub/handoff.md` file is never evidence: the handoff is a prompt
+  printed in the chat, so only the recorded answer counts;
 - usage-guard and the probe planted inside the repository are never trusted.
 
 The gate's `run` fixture is parametrized over the .sh and .ps1 adapters, so each
@@ -111,7 +113,13 @@ class World:
             encoding="utf-8",
         )
 
-    def handoff(self, stamp: float, trigger: str = "usage-limit weekly 99.5") -> None:
+    def handoff(self, stamp: float, decision: str = "handoff") -> None:
+        """Record the user's answer to the usage question, as the skill does."""
+        path = self.repo / ".nexus-hub" / "usage-decision.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"decision": decision, "recorded_at": _iso(stamp)}), encoding="utf-8")
+
+    def legacy_handoff_file(self, stamp: float, trigger: str) -> None:
         path = self.repo / ".nexus-hub" / "handoff.md"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"# Handoff | {_iso(stamp)} | claude | {trigger}\n\n## Goal\n", encoding="utf-8")
@@ -251,10 +259,18 @@ def test_a_handoff_older_than_the_last_refusal_does_not_count(turn_end, world):
     assert NOTE not in gate.stderr
 
 
-@pytest.mark.parametrize("trigger", ["checkpoint", "manual"])
-def test_a_non_usage_limit_handoff_does_not_count(turn_end, world, trigger):
+@pytest.mark.parametrize("trigger", ["usage-limit weekly 99.5", "checkpoint", "manual"])
+def test_a_handoff_file_does_not_count(turn_end, world, trigger):
     world.prime("claude", 99.5)
-    world.handoff(time.time() + 2, trigger=trigger)
+    world.legacy_handoff_file(time.time() + 2, trigger)
+    gate, _ = turn_end("claude")
+    assert _out(gate).get("decision") == "block"
+    assert NOTE not in gate.stderr
+
+
+def test_a_credits_answer_does_not_count(turn_end, world):
+    world.prime("claude", 99.5)
+    world.handoff(time.time() + 2, decision="credits")
     gate, _ = turn_end("claude")
     assert _out(gate).get("decision") == "block"
 

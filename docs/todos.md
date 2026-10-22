@@ -315,6 +315,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Copilot and Cursor show Current Model (approved 2026-10-19): Copilot reads one `state.vscdb` key as the single exception to decision 1b; Cursor reads its composer model behind live-access consent, with the consent scope bumped to v2.
 - [ ] Antigravity Current Model: capture a `GetUserStatus` response ("Save Raw Usage Response" while Antigravity is open) to verify how `last_selected_agent_model` (for example `MODEL_PLACEHOLDER_M133`) maps to a model name; until then Antigravity shows Plan.
 
+## Handoff prompt in chat - 2026-10-21
+
+- [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
+- [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
+
 ## Queue reorganization - 2026-10-12 speed-first release map
 
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
