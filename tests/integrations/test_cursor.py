@@ -304,3 +304,55 @@ def test_cursor_wire_project_surfaces_seeds_rules_and_commands(install_ctx: Inst
     assert (commands_dir / "presentify.md").exists(), "expected a catalog command in .cursor/commands/"
     joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
     assert "/.cursor/commands/" in joined, "wire_project_surfaces should report the command mirror"
+
+
+def test_global_install_renders_instructions_for_the_session_start_hook(install_ctx: InstallContext):
+    """Cursor has no global instruction file, so the rendered template is written
+    under ~/.cursor and delivered by the sessionStart hook's additional_context."""
+    ctx = replace(install_ctx, scope="global", explicit_target=True, instruction_only=True)
+    CursorIntegration().install_global(ctx)
+    rendered = ctx.target_root / ".cursor" / CursorIntegration.GLOBAL_INSTRUCTIONS
+    assert "## Writing Discipline" in rendered.read_text(encoding="utf-8")
+    assert "Spelling is American English" in rendered.read_text(encoding="utf-8")
+
+    cursor_root = ctx.target_root / ".cursor"
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, "global")
+    command = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))["hooks"]["sessionStart"][0]["command"]
+    assert "--instructions" in command
+    assert rendered.as_posix() in command
+
+
+def test_workspace_session_start_does_not_duplicate_project_instructions(install_ctx: InstallContext):
+    """A project's AGENTS.md is read natively, so the workspace hook adds no copy."""
+    cursor_root = install_ctx.target_root / ".cursor"
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", install_ctx, "workspace")
+    command = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))["hooks"]["sessionStart"][0]["command"]
+    assert "--instructions" not in command
+
+
+@pytest.mark.parametrize("with_instructions", [True, False])
+def test_context_emits_instructions_ahead_of_the_attribution_policy(tmp_path: Path, with_instructions: bool):
+    import subprocess
+    import sys
+
+    repo = Path(__file__).resolve().parents[2]
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "style-guides").mkdir()
+    helper = tmp_path / "scripts" / "nexus_git_attribution.py"
+    helper.write_bytes((repo / "scripts" / "nexus_git_attribution.py").read_bytes())
+    (tmp_path / "style-guides" / "git-attribution.md").write_text("# User Attribution\n", encoding="utf-8")
+    instructions = tmp_path / "nexus-hub-instructions.md"
+    if with_instructions:
+        instructions.write_text("Spelling is American English.\n", encoding="utf-8")
+
+    proc = subprocess.run(
+        [sys.executable, str(helper), "context", "--instructions", str(instructions)],
+        capture_output=True, text=True, check=False,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    context = json.loads(proc.stdout)["additional_context"]
+    assert context.endswith("# User Attribution\n")
+    assert ("Spelling is American English." in context) is with_instructions
+    if with_instructions:
+        assert context.index("Spelling is American English.") < context.index("# User Attribution")

@@ -3532,7 +3532,7 @@ function Install-SkillDiscovery {
     try {
         if ($hasUv) {
             Write-Item -Message "  Creating venv with uv..." -Color "White"
-            & uv venv $venvPath 2>$null | Out-Null
+            $env:UV_VENV_CLEAR = "1"; & uv venv $venvPath 2>$null | Out-Null  # uv 0.9+ refuses to reuse an existing venv on reinstall
             if ($LASTEXITCODE -eq 0) {
                 & uv pip install --python "$venvPath\Scripts\python.exe" -e $mcpServerDest 2>$null | Out-Null
                 $venvOk = $LASTEXITCODE -eq 0
@@ -3549,7 +3549,7 @@ function Install-SkillDiscovery {
         }
     }
     catch { $venvOk = $false }
-    finally { $ErrorActionPreference = "Stop" }
+    finally { $ErrorActionPreference = "Stop"; Remove-Item Env:UV_VENV_CLEAR -ErrorAction SilentlyContinue }
 
     if (-not $venvOk) {
         Write-Item -Message "  Could not build the MCP server venv; skipping the local MCP servers." -Color "Yellow"
