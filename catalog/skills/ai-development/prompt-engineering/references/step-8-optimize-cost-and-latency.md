@@ -36,7 +36,7 @@ def read_token_bucket(usage: Any, field: str, *, required: bool = False) -> int:
     Raises ValueError or TypeError when the field cannot be counted, so the
     caller can report "unknown" rather than a misleading number.
     """
-    value = getattr(usage, field, None)
+    value = read_nested(usage, field)
     if value is None:
         if required:
             raise ValueError(f"usage.{field} is required")
@@ -68,6 +68,8 @@ def cache_read_share(usage: Any, *, provider: str = "anthropic") -> float | None
         return None
     try:
         if provider == "anthropic":
+            if read_nested(usage, "input_tokens_details") is not None:
+                return None  # OpenAI-shaped usage: its input_tokens is a total, so reading it as uncached would mislead.
             uncached = read_token_bucket(usage, "input_tokens", required=True)
             cache_read = read_token_bucket(usage, "cache_read_input_tokens")
             cache_created = read_token_bucket(usage, "cache_creation_input_tokens")
@@ -78,11 +80,13 @@ def cache_read_share(usage: Any, *, provider: str = "anthropic") -> float | None
                 return None  # input_tokens already includes cached tokens; without details the split is unknown.
             total_input = whole_tokens(read_nested(usage, "input_tokens"), "usage.input_tokens")
             cache_read = whole_tokens(read_nested(details, "cached_tokens"), "usage.input_tokens_details.cached_tokens")
-            if cache_read > total_input:
-                return None  # Reads are a subset of the total; more reads than input is malformed.
+            writes = read_nested(details, "cache_write_tokens")
+            cache_written = 0 if writes is None else whole_tokens(writes, "usage.input_tokens_details.cache_write_tokens")
+            if cache_read + cache_written > total_input:
+                return None  # Reads and writes are disjoint subsets of the total; more than the total is malformed.
         else:
             return None
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
 
     if total_input == 0:
@@ -94,7 +98,7 @@ def describe_cache_share(usage: Any, *, provider: str = "anthropic") -> str:
     """Render the share for a log line without asserting a cost saving."""
     share = cache_read_share(usage, provider=provider)
     if share is None:
-        return "Cache share: unknown (missing, malformed, or empty input telemetry)"
+        return "Cache share: unknown (missing, malformed, or empty input telemetry, or an unsupported provider)"
     return f"Cache share: {share:.0%} of input tokens were read from cache"
 
 
@@ -168,7 +172,7 @@ None of these cases claims a measured saving, a hit rate, or an improvement in a
 
 **Prompt Caching with OpenAI**:
 
-The same helper covers OpenAI when the caller passes `provider="openai"`; the default stays Anthropic, so every existing call keeps its result. The accounting differs. OpenAI's `usage.input_tokens` is the **total** input, and `input_tokens_details` breaks out two disjoint subsets of it: `cached_tokens` "counts billed reads and excludes tokens charged as writes", and `cache_write_tokens` (split into `ttl_30m_tokens` and `ttl_12h_tokens`) counts writes, so ordinary input is `input_tokens - cached_tokens - cache_write_tokens`. The share is therefore `cached_tokens / input_tokens`, which is the guide's own token cache-hit rate. An absent Anthropic cache bucket counts as 0% because its absence is the documented no-activity default and the other buckets still sum to the whole input; an absent OpenAI `input_tokens_details` is unknown, because `input_tokens` already contains any cached tokens and nothing else separates them from zero.
+The same helper covers OpenAI's Responses API usage object when the caller passes `provider="openai"`; the default stays Anthropic, so every existing call keeps its result. It reads only that shape: a usage object without `input_tokens_details` reports unknown rather than a share, and so does an OpenAI usage object passed without `provider="openai"`. The accounting differs. OpenAI's `usage.input_tokens` is the **total** input, and `input_tokens_details` breaks out two disjoint subsets of it: `cached_tokens` "counts billed reads and excludes tokens charged as writes", and `cache_write_tokens` (split into `ttl_30m_tokens` and `ttl_12h_tokens`) counts writes, so ordinary input is `input_tokens - cached_tokens - cache_write_tokens`. The share is therefore `cached_tokens / input_tokens`, which is the guide's own token cache-hit rate. An absent Anthropic cache bucket counts as 0% because its absence is the documented no-activity default and the other buckets still sum to the whole input; an absent OpenAI `input_tokens_details` is unknown, because `input_tokens` already contains any cached tokens and nothing else separates them from zero.
 
 | `input_tokens` | `cached_tokens` | `cache_write_tokens` | Cache share | Reading |
 |---|---|---|---|---|
@@ -177,7 +181,7 @@ The same helper covers OpenAI when the caller passes `provider="openai"`; the de
 | 0 | 0 | 0 | unknown | No input at all. |
 | 1000 | (no `input_tokens_details`) | - | unknown | The cached subset cannot be read. |
 
-Stability rules the guide states:
+Stability rules the guide states for the Responses API:
 
 1. "Cache reuse requires the entire rendered prefix to match." "Put stable developer instructions and shared reference material first", and "Append new messages rather than rewriting earlier turns."
 2. Keep tool definitions, ordering, and schemas stable. To turn tools off for one request, set `tool_choice` to `"none"` instead of removing the definitions; to allow only some, use `allowed_tools` "while keeping the supplied `tools` list stable".
@@ -186,7 +190,7 @@ Stability rules the guide states:
 5. Lifetime: on GPT-5.6 and later, the Responses API's `prompt_cache_options.ttl` chooses the minimum lifetime (`"30m"` by default); earlier models use `prompt_cache_retention`, with model-dependent values.
 6. Prewarming: on GPT-5.6 and later, `prompt_cache_options.prewarm` set to `true` prepares the cache without generating output, and its writes are billed at the cache-write rate for the selected lifetime. The same cost reasoning as the Anthropic prewarm above applies.
 
-**Currency of the OpenAI claims**: every fact above was checked word for word on 2026-10-20 against the raw text of the official [prompt caching guide](https://developers.openai.com/api/docs/guides/prompt-caching); the exact source lines are recorded in the v4.14.2 admission file. Model ranges and parameter names change between releases, so read the current page for the model in use.
+**Currency of the OpenAI claims**: every fact above was checked word for word on 2026-10-20 against the raw text of the official [prompt caching guide](https://developers.openai.com/api/docs/guides/prompt-caching), and the scope and parameter-name lines were matched again on 2026-10-21 against the same saved text; the exact source lines are recorded in the v4.14.2 admission file. Model ranges and parameter names change between releases, so read the current page for the model in use.
 
 **Model Routing by Complexity**:
 

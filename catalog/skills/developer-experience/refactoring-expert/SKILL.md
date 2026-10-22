@@ -443,7 +443,7 @@ class NewDataStore(DataStore):
 
 - [ ] Tests exist and pass before the first refactoring change
 - [ ] The full test suite passes after every atomic change (no behavior change introduced)
-- [ ] Each refactoring step is committed separately and is individually revertible
+- [ ] Outside a planned phase, each refactoring step is committed separately and is individually revertible; inside one, each step's green test run is recorded and the phase lands as one commit
 - [ ] No new code smells or lint warnings were introduced: `<the lint command>`
 - [ ] The public API and observable behavior are unchanged from before the refactor
 - [ ] When a change needed room, the refactor step's green test run is recorded before the change step begins

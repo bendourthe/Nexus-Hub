@@ -15,7 +15,7 @@ claude -p --model claude-sonnet-5-5 --output-format stream-json --verbose --incl
 ```
 
 - **Capture harness**: a local, uncommitted harness (project-scoped PreToolUse, PostToolUse, and PostToolUseFailure command hooks plus a normalizer to `eval/grade.py`'s transcript schema 1). All 12 runs used the same files: `normalize.py` sha256 `18b56f33fe709ffce5e8ca32363d15fae136a37362df5808a3b4eb324dc32235`, `recorder.py` sha256 `94ab464ec436b7d590ee0ff5a32d9e9227e60724c54f33b055f0ad5616eb62ba`, `run_arm.py` sha256 `12d23295f78cf7eeb1fd2ecf814e9a143c9409f0c5b39b8f32046741889216bd`.
-- **Loaded skills**: {any_run['skills']['count']} skill directories, {len(rows0)} files, aggregate sha256 `{any_run['skills']['aggregate_sha256']}`, identical in all 12 runs. The sha256 of every file is in [skill-hashes.json](skill-hashes.json). The refactor-first anchor clause appears in none of them.
+- **Loaded skills**: 340 skill directories, 1309 files, aggregate sha256 `ed3374a6b778ca171b5a27f09de29ccd14c49794ecaa77f3dc393b284b8aac31`, identical in all 12 runs. The sha256 of every file is in [skill-hashes.json](skill-hashes.json). The refactor-first anchor clause appears in none of them.
 
 ## Runs
 
@@ -48,5 +48,6 @@ Cumulative spend counts every model call in the shared ledger, including the exc
 
 ## Observations
 
-- The frozen permission set allows only `python -m pytest`. 2 runs had a non-suite command denied; the agent then edited without running anything further. Both arms share these permissions.
-- 5 of 12 runs ran the exact suite command the grader counts; the rest ran none or a narrower form.
+- The frozen permission set allows only `python -m pytest`. 2 runs had a call denied: in `control-formula-1-r2` a non-suite command was denied before any edit, and the agent then edited without running anything further; in `control-formula-3-r2` a call after both edits never completed (denied or aborted), and the run's suite command was piped to `tail`. Both arms share these permissions.
+- 5 of 12 runs ran the exact suite command the grader counts; the other 6 that ran the suite piped it to `tail` (for example `python -m pytest -q 2>&1 | tail -5`), which the grader does not count, and 1 ran none.
+- Skill invocations across the 12 counted runs: 0, counted from each run's stream (kept with the harness outside the repository) the same way as the treatment and revision manifests.

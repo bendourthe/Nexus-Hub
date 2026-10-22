@@ -14,17 +14,35 @@ Keep two components apart:
 - **A pure policy function returns the verdict.** It takes the scores plus the deterministic facts about the call and returns allow, ask, or block, with the rule that matched. Being pure, it can be tested exhaustively with no model in the loop.
 
 ```python
+from math import isfinite
+
+SEVERITY = {"allow": 0, "ask": 1, "block": 2}
+
+
+def finite(value: object) -> bool:
+    try:
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and isfinite(value)
+    except OverflowError:  # an int too large to compare as a float
+        return False
+
+
 def decide(scores: dict[str, float], deterministic: str | None, ask_at: float, block_at: float) -> tuple[str, str]:
-    """Illustrative only: a deterministic verdict wins; otherwise the highest score picks the band."""
-    if deterministic is not None:
+    """Illustrative only: the stricter of the deterministic verdict and the scored band wins; bad input blocks."""
+    if deterministic is not None and deterministic not in SEVERITY:
+        return "block", "unknown deterministic verdict"
+    thresholds_ok = finite(ask_at) and finite(block_at) and ask_at <= block_at
+    valid = thresholds_ok and bool(scores) and all(finite(v) for v in scores.values())
+    if not valid:
+        scored, concern = "block", "unscorable"  # fail closed: no trustworthy score to decide on
+    else:
+        concern, worst = max(scores.items(), key=lambda item: item[1])
+        scored = "block" if worst >= block_at else "ask" if worst >= ask_at else "allow"
+    if deterministic is not None and SEVERITY[deterministic] >= SEVERITY[scored]:
         return deterministic, "deterministic"
-    concern, worst = max(scores.items(), key=lambda item: item[1], default=("none", 0.0))
-    if worst >= block_at:
-        return "block", concern
-    if worst >= ask_at:
-        return "ask", concern
-    return "allow", concern
+    return scored, concern
 ```
+
+The scorer always returns at least one score, so an empty result means it failed and the call blocks. Thresholds that are not finite, or an ask threshold above the block threshold, block too, because every comparison against them would otherwise allow; so does a deterministic verdict the table does not name.
 
 ## The allow / ask / block band
 
@@ -49,9 +67,9 @@ Each decision writes a record of the tool name, a hash and the length of each ar
 
 ## Handoffs
 
-- Run deterministic checks before any scored check, as [[minimal-construction]] and the review pre-pass of the not-yet-landed `v4.17.1` plan own.
-- Accepting a cheap judge's verdict only above a validated threshold is owned by [[ai-output-evaluation]] (its judge cascade arrives with `v4.16.0` T025), and it never applies to a permission decision.
-- Complete-and-distinct option sets for the ask path belong to the owner that `v4.16.0` T002 chooses.
+- Ordering deterministic checks before any scored check is not covered here: a planned review pre-pass will own it, and until it lands this reference defines no ordering rule. [[minimal-construction]] owns only the general preference for the cheapest sufficient mechanism.
+- Accepting a cheap judge's verdict only above a validated threshold belongs to [[ai-output-evaluation]], whose judge cascade is planned but not yet landed; it never applies to a permission decision.
+- Complete-and-distinct option sets for the ask path are not covered here; their owner has not been chosen yet.
 - Which model runs a model-based scorer is owned by [[model-routing]].
 - The cache cost of calling a scorer model on every tool call is owned by `prompt-engineering`'s [step-8-optimize-cost-and-latency.md](../../prompt-engineering/references/step-8-optimize-cost-and-latency.md).
 

@@ -87,6 +87,19 @@ def test_each_rule_lives_in_its_owner_and_is_only_handed_off_elsewhere(row: Rule
         assert row.anchor not in text, f"{row.rule}: {_id(path)} restates the owner's rule"
 
 
+@pytest.mark.parametrize("path", [
+    _SK / "ai-development" / "model-routing" / "SKILL.md",
+    _ROOT / "docs" / "policy" / "model-routing-in-plan-and-implement.md",
+    _ROOT / "catalog" / "commands" / "implement.md",
+    _SK / "workflow" / "implement-phase" / "references" / "implement-phase-runbook.md",
+], ids=_id)
+def test_the_upshift_names_its_cache_cost_where_it_is_described(path: Path) -> None:
+    # The owner link alone is not enough: model-routing already linked step-8 before this rule existed.
+    text = _read(path)
+    assert "sub-task boundary" in text, f"{_id(path)} lacks the sub-task-boundary upshift rule"
+    assert "step-8-optimize-cost-and-latency.md" in text, f"{_id(path)} does not hand cache details to step-8"
+
+
 def test_the_harness_reference_names_no_hosted_scorer_endpoint() -> None:
     # A hosted per-call scorer would send every tool call, arguments included, to a third party.
     text = _read(_SK / "ai-development" / "ai-agent-development" / "references" / "decision-policy-harness.md")

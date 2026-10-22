@@ -20,7 +20,7 @@ Before moving logic, find all of it:
 3. Move the logic into the owner.
 4. Switch every caller to the owner, or name each copy left in place and why.
 
-A new helper beside old copies is one more duplicate. The consolidation is complete only when a search of the final tree finds the expression in exactly one definition and every original caller uses it.
+A new helper beside old copies is one more duplicate. This holds when the request asks for the feature in a new file: the new file calls the one owner, and the old copies are still consolidated into it. The consolidation is complete only when a search of the final tree finds the expression in exactly one definition and every original caller uses it.
 
 Preserve each caller's exact results while switching it. Copies drift: one copy may guard against zero, round to two places, or clamp to a range that another omits. Carry each difference into the owner explicitly (a parameter or a named variant), and prove it with that caller's existing tests, rather than silently adopting one copy's behavior for everyone.
 
