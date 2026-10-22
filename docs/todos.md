@@ -369,6 +369,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Create the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md) with `/plan from-comparison`; seven review lenses and four grill decisions applied on 2026-10-19 (installed checker and receipt core, opt-in tripwire registration approved, waivers listed in the pull request with human approval for high-risk findings, Python-deep checker with Jest and Vitest markers).
 - [ ] Implement the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md): evidence-backed integration pull requests (M-B), a change-set test-integrity check run on every phase (M-A), an opt-in publication tripwire hook (M-C, cuttable), and memory metrics in the regression gate (M-D, cuttable).
 
+## Queued work - v4.22.6 open-model recipes and restraint
+
+- [x] Complete the [v4.22.6 two-source comparison](releases/v4/v4.22/comparisons/v4.22.6-comparison-open-model-recipes-and-restraint.md) (Nebius token-factory cookbook, Jakub Krehel's "Less is more, more or less"), committed locally on 2026-10-22.
+- [ ] Confirm the v4.22.6 adoption target (alternatives: v4.18.3, or fold the eyebrow gate into v4.18.0 task 7.3), then publish the comparison through a `publish/` pull request to `develop`.
+- [ ] Create the v4.22.6 plan with `/plan from-comparison`: earned-eyebrow gate and frequency-of-use motion rule (`hallmark-design`), Kimi and Qwen prompting profiles, OpenAI-compatible endpoint guidance (`multi-provider-ai`), and a native permission-deny pattern for spend commands (`ai-billing-safeguards`).
+
 ## Current work - v4.4.5 visual refinement
 
 - [x] Compact all Models demos, enrich the animated networks, add perspective room navigation and a new game redesign, sweep provider-labeled capability tiers, and compare four reasoning allowances simultaneously; 154 focused guide checks, 24 final Models tests and 40 layout cases pass, with one optional portfolio check skipped. See [verification](archives/v4/v4.4/development/guide-visual-refinement/models-compact-comparisons/verification.md).
