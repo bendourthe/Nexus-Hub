@@ -176,7 +176,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         result = super().install_global(ctx)  # instruction no-op (global_dir=None)
         cursor_root = (ctx.global_root / ".cursor").resolve()
         self._ensure_dir(cursor_root, ctx)
-        result.files.append(self._install_global_instructions(cursor_root, ctx))
+        result.files.extend(self._install_global_rules_plugin(cursor_root, ctx))
         commands_dir = cursor_root / self.config["commands_subdir"]
         self._ensure_dir(commands_dir, ctx)
         result.files.extend(
@@ -219,18 +219,44 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
     # ----- surface helpers -------------------------------------------------
 
     # Cursor documents no global instruction file (User Rules live only in its
-    # settings UI), so the rendered global instructions are written here and
-    # delivered by the sessionStart hook's additional_context.
-    GLOBAL_INSTRUCTIONS = "nexus-hub-instructions.md"
+    # settings UI), and Cursor 3.24 never requests the documented sessionStart
+    # hook, so its additional_context is not a working channel. A user-level local
+    # plugin with alwaysApply rules (cursor.com/docs/plugins) is the global surface
+    # observed to load in every workspace.
+    PLUGIN_DIR = Path("plugins/local/nexus-hub")
+    # Written by the v4.14 sessionStart attempt; removed so no stale copy lingers.
+    SUPERSEDED_INSTRUCTIONS = "nexus-hub-instructions.md"
 
-    def _install_global_instructions(self, cursor_root: Path, ctx: InstallContext) -> FileAction:
+    def _install_global_rules_plugin(self, cursor_root: Path, ctx: InstallContext) -> list[FileAction]:
         template = ctx.repo_root / self.config["instruction_template"]
         if not template.exists():
-            return FileAction(path=str(template), action="not-found")
-        dst = cursor_root / self.GLOBAL_INSTRUCTIONS
-        action = merge_instruction(dst, self._render(template, ctx), ctx=ctx)
-        ctx.manifest.track_shared(self.key, str(dst))
-        return action
+            return [FileAction(path=str(template), action="not-found")]
+        plugin = cursor_root / self.PLUGIN_DIR
+        manifest = {
+            "name": "nexus-hub",
+            "description": "Nexus-Hub global instructions and attribution policy for every workspace.",
+        }
+        rules = {"nexus-hub-instructions.mdc": ("Nexus-Hub global instructions", self._render(template, ctx))}
+        attribution = ctx.repo_root / "catalog" / "style-guides" / "git-attribution.md"
+        if attribution.is_file():
+            rules["nexus-hub-attribution.mdc"] = (
+                "Nexus-Hub user attribution policy",
+                attribution.read_text(encoding="utf-8"),
+            )
+        actions = [
+            self._write_generated(
+                plugin / ".cursor-plugin" / "plugin.json", json.dumps(manifest, indent=2) + "\n", ctx, self.key
+            )
+        ]
+        for name, (description, body) in rules.items():
+            rule = f"---\ndescription: {description}\nalwaysApply: true\n---\n\n{body}"
+            actions.append(self._write_generated(plugin / "rules" / name, rule, ctx, self.key))
+        superseded = cursor_root / self.SUPERSEDED_INSTRUCTIONS
+        if superseded.is_file():
+            if not ctx.dry_run:
+                superseded.unlink()
+            actions.append(FileAction(path=str(superseded), action="removed"))
+        return actions
 
     @staticmethod
     def _attribution_notice(result: WriteResult) -> None:
@@ -356,20 +382,16 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
 
         registration = self._hook_registration(command_for)
         # Cursor has no global Markdown instruction file. Its documented
-        # sessionStart context response supplies the shared attribution policy
-        # and, at global scope, the rendered global instructions (a project's
-        # own AGENTS.md is read natively, so workspace hooks need no copy).
+        # sessionStart context response supplies the shared attribution policy.
+        # Cursor 3.24 never requests sessionStart, so the global rules plugin
+        # carries the same policy; this entry stays for versions that do fire it.
         home = ctx.global_root if scope == "global" else Path.home()
         helper = (home / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
-        instructions = (cursor_root / self.GLOBAL_INSTRUCTIONS).as_posix() if scope == "global" else None
-        if windows:
-            # Quoted like the helper path: a user profile can contain a space.
-            context_command = f'"{Path(sys.executable).as_posix()}" "{helper}" context'
-            if instructions:
-                context_command += f' --instructions "{instructions}"'
-        else:
-            extra = ["--instructions", instructions] if instructions else []
-            context_command = shlex.join([sys.executable, helper, "context", *extra])
+        context_command = (
+            f'"{Path(sys.executable).as_posix()}" "{helper}" context'
+            if windows
+            else shlex.join([sys.executable, helper, "context"])
+        )
         registration["hooks"]["sessionStart"] = [{"command": context_command}]
         content = json.dumps(registration, indent=2) + "\n"
         content_bytes = content.encode("utf-8")

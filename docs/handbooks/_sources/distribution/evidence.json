@@ -22,9 +22,9 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "502619a2f21dadaab65112e7a7f1e801166ceaebd9475825ac0c02bb085846aa",
+      "scripts/nexus_git_attribution.py": "2206437a578d73993e5de82424498aa20c57409deb76def7e5c02363dde5346a",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "245c5614aba47acfd16b9a815cb34cdac2c1f95784b985c12023cc22c99748f1",
+      "scripts/lib/integrations/cursor.py": "d177d6e5bd4d4a9ab4a2c8bbed904dcb81214f0599639a7a8999d61fe5ebb9bf",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58"
     },
@@ -33,8 +33,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/cursor-global-instructions-handbook-review.md",
-      "evidence_sha256": "490fceff4d6afd344fa419f740b0fcb825f5737d84dd2a17adb3d0c09d7d15f6"
+      "evidence": "docs/releases/v4/v4.14/development/cursor-plugin-rule-handbook-review.md",
+      "evidence_sha256": "c92087ce5b20e4b4185584cf081819e226770a559e8bdb1fbebf8c4548845fe4"
     },
     "build": {
       "status": "pass",
