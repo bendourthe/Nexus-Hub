@@ -237,7 +237,7 @@ def test_paste_shape_follows_goal_capture(scope: str, platform: str) -> None:
     assert set(shown.approve) == {plain} | together | alone
 
 
-@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire"])
+@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire", "add-class"])
 def test_mid_run_rounds_never_set_a_goal(action: str) -> None:
     shown = approval_page.paste_set(action, "v0.5", "ABCD2345", blocker=0, platform="probe-verbatim")
     assert shown.shape == "plain" and len(shown.lines) == 1 and not shown.lines[0].startswith("/goal")
@@ -612,6 +612,39 @@ def test_the_summary_names_every_hard_to_undo_result(name: str) -> None:
     without = _data([{"class": "push-merge"}], minor=minor)
     rows = _summary_rows(approval_page.render_page(without))
     assert text not in rows.get(row, "")
+
+
+def test_archive_member_gets_its_own_line_and_changes_the_archived_row() -> None:
+    data = _data([{"class": "push-merge"}, {"class": "archive-minor"}, {"class": "archive-member"}], minor=True)
+    page = approval_page.render_page(data)
+    assert ("Archive each v0.5 plan's own documents in a pull request as soon as that plan is released. "
+            "Shared files such as the known-gaps list stay until the final archive.") in _approving(page)
+    assert _summary_rows(page)["Archived"] == "The v0.5 documents, each plan's own as soon as it is released"
+    with pytest.raises(approval_page.PageError, match="belongs to a minor run"):
+        approval_page.render_page(_data([{"class": "push-merge"}, {"class": "archive-member"}]))
+    assert "(where approved, each plan's own documents right after its release)" in approval_page.goal_line("v0.5")
+
+
+def _add_class_data(name: str = "archive-member") -> dict:
+    line = approval_page.plain_line("add-class", "v0.5", "ABCD2345")
+    page = {"action": "add-class", "scope": {"kind": "minor", "minor": "v0.5"}, "record_nonce": "n", "class": name}
+    return {"action": "add-class", "scope": "v0.5", "code": "ABCD2345", "paste": [line], "page": page, "display": {}}
+
+
+def test_the_add_class_page_states_the_changed_archive_timing() -> None:
+    assert approval_page.plain_line("add-class", "v0.5", "ABCD2345") == (
+        "Archive each released plan early in /implement v0.5 (approval ABCD2345)")
+    with pytest.raises(approval_page.PageError, match="only to a minor run"):
+        approval_page.plain_line("add-class", "v0.5.2", "ABCD2345")
+    page = approval_page.render_page(_add_class_data())
+    assert "until the whole minor closes" in page and "as soon as that plan is released" in page
+    assert "Shared files, such as the known-gaps list and the minor's evidence, still move only when the minor closes." in page
+    assert "Archive each released plan early in /implement v0.5 (approval ABCD2345)" in page
+    assert "Each early archive is one pull request, merged once its checks pass." in page
+    question = approval_page.question_data({**_add_class_data(), "challenge": "n"})
+    assert "instead of all at once when the minor closes" in question["question"]
+    with pytest.raises(approval_page.PageError, match="only the archive-member class"):
+        approval_page.render_page(_add_class_data("archive-minor"))
 
 
 def test_the_longest_summary_stays_within_the_word_budget() -> None:

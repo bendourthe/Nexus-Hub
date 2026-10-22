@@ -21,9 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`scripts/check_american_spelling.py`** guards the conversion in the fast CI profile (hygiene group) and `make validate`. It skips backtick spans, URLs, `aria-labelledby`, and hyphen or underscore compounds, accepts `cancelled` (an American variant and a GitHub Actions and VS Code API value), and rewrites living files with `--fix`. Decision record: `docs/decisions/implemented/policy/2026-10-21-american-english-spelling.md`.
 
+- A minor-scope run can now archive each member as soon as it is released, instead of keeping every released plan, receipt, and session history in the active tree until the minor closes. The new optional `archive-member` approval (valid only beside `archive-minor`) enables `minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session ID [--apply]`, which moves only that member's plan and its `vX.Y.Z-*` records, repairs links and per-prefix mentions, proves zero newly broken links, signs an `archived` identity beside the frozen plan hash, and commits once; shared files such as the known-gaps ledger stay until the close, which now composes with the early moves. A running record gains the class only from the user's own pasted decision (`record render --action add-class --class archive-member`, then `record add-class`). Without the class nothing changes. See `docs/decisions/implemented/policy/2026-10-21-archive-each-member-on-release.md`.
+
+### Fixed
+
+- `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
+
 ### Removed
 
 - The rolling handoff checkpoint. Instruction templates no longer tell agents to update `.nexus-hub/handoff.md` after each verified milestone, and the `checkpoint` handoff mode and header trigger are gone. To hear the usage-limit question earlier in large turns, lower `NEXUS_HANDOFF_THRESHOLD`.
+
 
 ## [4.14.1] - 2026-10-20
 

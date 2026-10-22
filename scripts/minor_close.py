@@ -13,6 +13,8 @@ two writes a minor close makes:
     minor_close.py status --minor vX.Y [--repo PATH]   the gaps.minor and archive.minor lines
     minor_close.py carry --plan PLAN [--id ID]... [--date YYYY-MM-DD] [--session ID] [--dry-run]
     minor_close.py archive --minor vX.Y --plan PLAN --apply [...]   archive on a one-plan run's approval
+    minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session ID [--dry-run | --apply]
+                                  [--link-checker PATH] [--repo PATH]   archive one released member early
 
 `migrate` copies one open item whose id is in the minor record's frozen
 `gap-migration` list into the next minor's known-gaps.md with a
@@ -54,6 +56,7 @@ import completion_minor as cm
 
 EXIT_OK, EXIT_USAGE, EXIT_REFUSED = 0, 2, 3
 BUDGET_SECONDS = 180.0
+ROLLBACK_SECONDS = 120.0  # a rollback gets its own budget, never the spent one of the move
 LINK_CHECK_TIMEOUT = 600.0
 MAX_TEXT_BYTES = 5_000_000
 
@@ -90,6 +93,10 @@ class Refused(Exception):
 
     def line(self) -> str:
         return f"REFUSED: {self.reason}" + (f" ({self.detail})" if self.detail else "")
+
+
+class KeepCommit(Refused):
+    """A refusal after a commit that may be correct: the commit and the record are kept as they are."""
 
 
 class Forced(Exception):
@@ -294,16 +301,20 @@ def link_eligible(old_rel: str) -> bool:
     return posixpath.splitext(old_rel)[1].lower() in MARKDOWN_SUFFIXES
 
 
-def mention_eligible(old_rel: str) -> bool:
+def mention_eligible(old_rel: str, own_archive: str | None = None) -> bool:
     """Plain path mentions are rewritten only where a path is live data, never in evidence.
 
     The allowlist: known-gaps trackers, plans, `docs/todos.md`, README-style indexes
     under `docs/`, and scripts and tests that read a path. Nothing under
     `docs/archives/` (another archive's evidence records the tree as it was), and no
-    HTML, JSON, CSV, or other captured output elsewhere.
+    HTML, JSON, CSV, or other captured output elsewhere. The one exception is
+    `own_archive`: the minor close passes its own archive tree, whose plans a member
+    archive moved there early and which still name the tree being archived.
     """
     name = posixpath.basename(old_rel)
     suffix = posixpath.splitext(name)[1].lower()
+    if own_archive and old_rel.startswith(own_archive + "/plans/") and suffix == ".md":
+        return True
     if old_rel.startswith(("docs/archives/", "docs/archive/")):
         return False
     if name == "known-gaps.md" or old_rel == "docs/todos.md":
@@ -316,26 +327,42 @@ def mention_eligible(old_rel: str) -> bool:
 
 
 def plan_repairs(
-    root: Path, files: list[tuple[str, str, str]], src: str, dst: str,
+    root: Path, files: list[tuple[str, str, str]], src: str, dst: str, own_archive: str | None = None,
 ) -> list[Repair]:
-    """Every tracked file whose references to the moved tree change.
+    """Every tracked file whose references to the moved tree change (one move, `src` -> `dst`)."""
+    return plan_moves_repairs(root, files, [(src, dst)], own_archive)
+
+
+def map_moves(path: str, moves: list[tuple[str, str]]) -> str:
+    """`path` after the first (old prefix, new prefix) move that covers it, else unchanged."""
+    for old, new in moves:
+        if path == old or path.startswith(old + "/"):
+            return new + path[len(old):]
+    return path
+
+
+def plan_moves_repairs(
+    root: Path, files: list[tuple[str, str, str]], moves: list[tuple[str, str]], own_archive: str | None = None,
+) -> list[Repair]:
+    """Every tracked file whose references to the moved prefixes change.
 
     `files` is (path to read, pre-move path, post-move path). Markdown gets the link
     pass (classes 2, 3, 5, and 7 of the renumber procedure's reference list: links
     from sibling trees, link-reference definitions, tracker rows, and evidence under
     the moved tree), then files on the mention allowlist get the plain-mention pass
     (classes 1, 4, and 6: plan and tracker prose, self-referential task-line paths,
-    and tracker headings). Links inside URLs and code are never touched.
+    and tracker headings), once per moved prefix and for exactly that prefix, so a
+    mention of a path that does not move (a shared known-gaps file) is left as it is.
+    Links inside URLs and code are never touched. A whole-tree archive is the one
+    move [(tree, dest)].
     """
 
     def mapper(path: str) -> str:
-        if path == src or path.startswith(src + "/"):
-            return dst + path[len(src):]
-        return path
+        return map_moves(path, moves)
 
     repairs: list[Repair] = []
     for read_rel, old_rel, new_rel in files:
-        links_ok, mentions_ok = link_eligible(old_rel), mention_eligible(old_rel)
+        links_ok, mentions_ok = link_eligible(old_rel), mention_eligible(old_rel, own_archive)
         if not links_ok and not mentions_ok:
             continue
         path = root / read_rel
@@ -350,7 +377,9 @@ def plan_repairs(
         if links_ok:
             text, links = rewrite_links(text, posixpath.dirname(old_rel), posixpath.dirname(new_rel), mapper)
         if mentions_ok:
-            text, mentions = rewrite_mentions(text, src, dst, markdown=links_ok)
+            for src, dst in moves:
+                text, found = rewrite_mentions(text, src, dst, markdown=links_ok)
+                mentions += found
         if text != original:
             repairs.append(Repair(new_rel, old_rel, original, text, links, mentions))
     return repairs
@@ -930,12 +959,19 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
 
 def branch_refusals(
     rctx: ck.RepoContext, token: str, record: dict | None, tree: str, closing: str, integration_branch: str,
+    paths: list[str] | None = None,
 ) -> list[Refused]:
-    """No live worktree on the minor's branches, and no unmerged remote branch touching its tree."""
+    """No live worktree on the minor's branches, and no unmerged remote branch touching its tree.
+
+    With `paths` (a member archive, whose minor is still being worked on), live
+    worktrees are expected, so their branches are checked like remote ones instead, and
+    only a change to one of `paths` refuses.
+    """
     major, minor = cm.parse_minor(ck, token)
     out: list[Refused] = []
     member_branches = cm.record_branches(record)
     prefix = f"feat/v{major}.{minor}."
+    local: list[tuple[str, str]] = []
     rc, listing = _git(rctx, "worktree", "list", "--porcelain")
     if rc != 0:
         return [Refused("cannot-verify", "worktree list")]
@@ -944,7 +980,9 @@ def branch_refusals(
         branch = next((l[len("branch refs/heads/"):] for l in block.splitlines() if l.startswith("branch refs/heads/")), None)
         if path is None or branch is None or Path(path).resolve() == rctx.root:
             continue
-        if branch.startswith(prefix) or branch in member_branches:
+        if paths is not None:
+            local.append((rctx._git_out("rev-parse", f"refs/heads/{branch}"), f"refs/heads/{branch}"))
+        elif branch.startswith(prefix) or branch in member_branches:
             out.append(Refused("live-worktree", branch))
     integration = cm._integration_ref(rctx, integration_branch)
     if integration is None:
@@ -953,17 +991,18 @@ def branch_refusals(
     if rc != 0:
         return out + [Refused("cannot-verify", "origin heads")]
     skip = {integration_branch, "main", "master", closing}
-    for line in heads.splitlines():
+    for line in [*heads.splitlines(), *(f"{sha}\t{ref}" for sha, ref in local if sha)]:
         sha, _, ref = line.partition("\t")
         name = ref.removeprefix("refs/heads/")
         if not ref.startswith("refs/heads/") or name in skip:
             continue
+        skip.add(name)  # a branch both pushed and checked out is judged once
         if _git(rctx, "cat-file", "-e", sha)[0] != 0:
             out.append(Refused("cannot-verify", f"branch {name} is not fetched"))
             continue
         if cm._merged(rctx, sha, integration):
             continue
-        rc, changed = _git(rctx, "diff", "--name-only", f"{integration}...{sha}", "--", tree)
+        rc, changed = _git(rctx, "diff", "--name-only", f"{integration}...{sha}", "--", *(paths or [tree]))
         if rc != 0:
             out.append(Refused("cannot-verify", f"branch {name}"))
         elif changed.strip():
@@ -1016,6 +1055,9 @@ def bound_plan_refusals(rctx: ck.RepoContext, repairs: list[Repair], record: dic
             for member in other.get("members") or []:
                 if isinstance(member, dict) and member.get("plan_path") in plans:
                     bound.add(str(member.get("plan_path")))
+                archived = member.get("archived") if isinstance(member, dict) else None
+                if isinstance(archived, dict) and archived.get("plan_path") in plans:
+                    bound.add(str(archived.get("plan_path")))  # a member archived on release
     return [Refused("plan-bound-by-another-run", rel) for rel in sorted(bound)]
 
 
@@ -1056,26 +1098,32 @@ def _git_mv(rctx: ck.RepoContext, src: str, dst: str) -> bool:
 
 
 def move_tree(rctx: ck.RepoContext, tree: str, dest: str, moves: Moves) -> None:
-    """`git mv` the tree whole, or file by file into an existing archive directory.
+    """`git mv` the tree whole, or file by file into an existing archive directory."""
+    move_prefixes(rctx, [(tree, dest)], moves)
+
+
+def move_prefixes(rctx: ck.RepoContext, prefixes: list[tuple[str, str]], moves: Moves) -> None:
+    """`git mv` each (old, new) prefix whole, or file by file into an existing destination.
 
     Every completed move is appended to `moves` as it happens, so a caller's rollback
     sees a partial move too. A failed `git mv` (a locked directory, antivirus,
     OneDrive) refuses with `locked-directory`.
     """
-    if not (rctx.root / dest).exists():
-        pairs = [(tree, dest)]
-    else:
-        pairs = [(rel, dest + rel[len(tree):]) for rel in tracked_under(rctx, tree)]
-    for src, dst in pairs:
-        if not _git_mv(rctx, src, dst):
-            raise Refused("locked-directory", src)
-        moves.pairs.append((src, dst))
-    # A file-by-file move leaves the emptied directories behind; drop only empty ones.
-    for dirpath, _dirs, _files in sorted(os.walk(rctx.root / tree), key=lambda w: -len(w[0])):
-        try:
-            Path(dirpath).rmdir()
-        except OSError:
-            pass  # not empty (an ignored file stays where it was)
+    for old, new in prefixes:
+        if not (rctx.root / new).exists():
+            pairs = [(old, new)]
+        else:
+            pairs = [(rel, new + rel[len(old):]) for rel in tracked_under(rctx, old)]
+        for src, dst in pairs:
+            if not _git_mv(rctx, src, dst):
+                raise Refused("locked-directory", src)
+            moves.pairs.append((src, dst))
+        # A file-by-file move leaves the emptied directories behind; drop only empty ones.
+        for dirpath, _dirs, _files in sorted(os.walk(rctx.root / old), key=lambda w: -len(w[0])):
+            try:
+                Path(dirpath).rmdir()
+            except OSError:
+                pass  # not empty (an ignored file stays where it was)
 
 
 def undo_moves(rctx: ck.RepoContext, moves: Moves) -> bool:
@@ -1090,6 +1138,27 @@ def _rename_rows(rctx: ck.RepoContext) -> str:
     if rc != 0:
         raise Refused("cannot-verify", "rename map")
     return "\n".join(l for l in out.splitlines() if l.startswith("R")) + "\n"
+
+
+def _restore_exact(rctx: ck.RepoContext, pre: str, paths: list[str]) -> bool:
+    """Put each path back exactly as `pre` has it: checked out when `pre` holds it, else removed.
+
+    The paths travel through a NUL-separated pathspec file, so no argv limit applies.
+    """
+    rc, listing = _git(rctx, "ls-tree", "-r", "--name-only", "-z", pre)
+    if rc != 0:
+        return False
+    held = {p for p in listing.split("\0") if p}
+    ok = True
+    with tempfile.TemporaryDirectory(prefix="minor-close-undo-") as scratch:
+        for name, group, args in (("checkout", [p for p in paths if p in held], ["checkout", "-q", pre]),
+                                  ("rm", [p for p in paths if p not in held], ["rm", "-q", "-f", "--ignore-unmatch"])):
+            if not group:
+                continue
+            spec = Path(scratch) / f"{name}.pathspec"
+            spec.write_bytes(b"\0".join(p.encode("utf-8") for p in group))
+            ok = _git(rctx, *args, f"--pathspec-from-file={spec}", "--pathspec-file-nul")[0] == 0 and ok
+    return ok
 
 
 def _restore(rctx: ck.RepoContext, written: list[Repair], moves: Moves, staged: bool) -> bool:
@@ -1114,12 +1183,23 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
 
     The record was verified before the move, so every member hashed to its frozen
     value then; the new values bind only the link and path repairs of this commit.
+    Before they are overwritten, the original path and hash are kept as
+    `archived.from` and `archived.original_sha256` (unless a member archive already
+    recorded them), so the original plan text stays recoverable from git, and the
+    archive commit is kept as `archived.close_commit`, which a task line re-pointed at
+    the archive must never count as its own work.
     """
     major, minor = cm.parse_minor(ck, token)
     by_version = {p.version: p for p in cm.scan_plans(rctx.root, major, minor)}
+    head = rctx._git_out("rev-parse", "HEAD")
     for member in record.get("members") or []:
         plan = by_version.get(str(member.get("version")))
         if plan is not None:
+            archived = member.get("archived") if isinstance(member.get("archived"), dict) else {}
+            archived.setdefault("from", member.get("plan_path"))
+            archived.setdefault("original_sha256", member.get("plan_sha256"))
+            archived["close_commit"] = head
+            member["archived"] = archived
             member["plan_path"] = plan.rel
             member["plan_sha256"] = ck.plan_hash_text(plan.text)
     record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
@@ -1174,13 +1254,61 @@ def _apply_archive(
     rctx: ck.RepoContext, token: str, tree: str, dest: str, files: list[str], checker: Path,
 ) -> list[Repair]:
     """Move, repair, prove, and commit; on any failure restore the tree and refuse."""
+    return _apply_moves(rctx, [(tree, dest)], files, checker,
+                        f"docs(archives): archive closed minor {token}", own_archive=dest)
+
+
+def _apply_moves(
+    rctx: ck.RepoContext, prefixes: list[tuple[str, str]], files: list[str], checker: Path, message: str,
+    own_archive: str | None = None, seal: Callable[[list[Repair]], Callable[[], bool]] | None = None,
+    verify: Callable[[str], str] | None = None,
+) -> list[Repair]:
+    """Move each prefix, repair, prove, and commit once; on any failure restore and refuse.
+
+    `seal`, when given, runs after the link proof and before the commit with the
+    written repairs, and returns the undo a rollback calls; a member archive signs the
+    record there, so a rollback never leaves the record naming a move that did not land.
+    `verify`, when given, judges the new commit right after it is made (a member archive
+    checks it carries exactly the signed archive, on the expected parent) and answers
+    `verified`, `mismatch`, or `unknown`. A mismatch, such as a commit a hook or another
+    process changed, is undone (soft reset, the tree restored byte for byte, the identity
+    removed) and refused with `archive-commit-unverified`. When git cannot answer, the
+    commit and the identity are kept and the refusal is `cannot-verify`: that is the
+    crash-after-commit state the checker already reads correctly, and undoing a commit
+    that may be right is worse than reporting it.
+    """
 
     def moved(rel: str) -> str:
-        return dest + rel[len(tree):] if rel == tree or rel.startswith(tree + "/") else rel
+        return map_moves(rel, prefixes)
 
     moves = Moves()
     written: list[Repair] = []
-    staged = False
+    staged = committed = False
+    unseal: Callable[[], bool] | None = None
+    pre = rctx._git_out("rev-parse", "HEAD")
+    exact = sorted({rel for rel in files if moved(rel) != rel})  # every moved file, restored byte for byte
+
+    def undo() -> bool:
+        spent, rctx.budget = rctx.budget, ck.Budget(ROLLBACK_SECONDS)
+        try:
+            ok = True
+            bad = rctx._git_out("rev-parse", "HEAD") if committed else ""
+            if committed:
+                ok = _git(rctx, "reset", "-q", "--soft", pre)[0] == 0
+            unsealed = unseal() if unseal is not None else True
+            ok = _restore(rctx, written, moves, staged) and ok and unsealed
+            if moves.pairs or committed:
+                paths = {*exact, *(r.old_rel for r in written), *(r.new_rel for r in written)}
+                if bad and bad != pre:
+                    rc, out = _git(rctx, "diff", "--name-only", "-z", pre, bad)
+                    ok = rc == 0 and ok
+                    paths |= {p for p in out.split("\0") if p}
+                ok = _restore_exact(rctx, pre, sorted(paths)) and ok
+            rc, status = _git(rctx, "status", "--porcelain")
+            return ok and rc == 0 and not status.strip()
+        finally:
+            rctx.budget = spent
+
     with tempfile.TemporaryDirectory(prefix="minor-close-") as scratch:
         before = Path(scratch) / "before.ndjson"
         after = Path(scratch) / "after.ndjson"
@@ -1188,13 +1316,14 @@ def _apply_archive(
         if _link_run(checker, "baseline", "--root", str(rctx.root), "--out", str(before))[0] != 0:
             raise Refused("link-check-failed", "baseline before the move")
         try:
-            move_tree(rctx, tree, dest, moves)
+            move_prefixes(rctx, prefixes, moves)
             rc, listing = _git(rctx, "ls-files", "-z")
             if rc != 0:
                 raise Refused("cannot-verify", "tracked files after the move")
             inverse = {moved(rel): rel for rel in files}
             now = [p for p in listing.split("\0") if p]
-            repairs = plan_repairs(rctx.root, [(rel, inverse.get(rel, rel), rel) for rel in now], tree, dest)
+            repairs = plan_moves_repairs(
+                rctx.root, [(rel, inverse.get(rel, rel), rel) for rel in now], prefixes, own_archive)
             for repair in repairs:
                 _write_atomic(rctx.root / repair.new_rel, repair.repaired)
                 written.append(repair)
@@ -1213,16 +1342,29 @@ def _apply_archive(
                 staged = True
                 if _git(rctx, "add", "--", *[r.new_rel for r in written])[0] != 0:
                     raise Refused("commit-failed", "stage repairs")
-            if _git(rctx, "commit", "-q", "-m", f"docs(archives): archive closed minor {token}")[0] != 0:
+            if seal is not None:
+                unseal = seal(written)
+            if _git(rctx, "commit", "-q", "-m", message)[0] != 0:
                 raise Refused("commit-failed", "git commit")
+            committed = True
+            if verify is not None:
+                rc, out = _git(rctx, "rev-parse", "HEAD", "HEAD^")
+                heads = out.split() if rc == 0 else []
+                verdict = "unknown" if len(heads) != 2 else "mismatch" if heads[1] != pre else verify(heads[0])
+                if verdict == "unknown":
+                    raise KeepCommit("cannot-verify", "the archive commit was made but could not be read back; re-run")
+                if verdict != "verified":
+                    raise Refused("archive-commit-unverified", "the commit does not carry exactly the signed archive")
+        except KeepCommit:
+            raise
         except Refused:
-            if not _restore(rctx, written, moves, staged):
+            if not undo():
                 raise Refused("rollback-failed", "restore the tree with git mv before anything else") from None
             raise
         except BaseException as exc:
             # Anything else (a PermissionError mid-write, an interrupt) must not leave the
             # tree half moved: restore, then report it as a refusal the caller can act on.
-            if not _restore(rctx, written, moves, staged):
+            if not undo():
                 raise Refused("rollback-failed", "restore the tree with git mv before anything else") from exc
             raise Refused("rolled-back", type(exc).__name__) from exc
     return written
@@ -1278,7 +1420,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
     def moved(rel: str) -> str:
         return dest + rel[len(tree):] if rel == tree or rel.startswith(tree + "/") else rel
 
-    preview = plan_repairs(rctx.root, [(rel, rel, moved(rel)) for rel in files], tree, dest)
+    preview = plan_repairs(rctx.root, [(rel, rel, moved(rel)) for rel in files], tree, dest, own_archive=dest)
     refusals = [
         *register_refusals(rctx, token, record, tree),
         *plan_refusals(rctx, token, record),
@@ -1310,6 +1452,316 @@ def cmd_archive(args: argparse.Namespace) -> int:
     for rel in emptied:
         print(f"REMOVED empty {rel}")
     print(f"ARCHIVED {token} {tree} -> {dest} commit={head} {summary} newly_broken=0")
+    return EXIT_OK
+
+
+# --------------------------------------------------------------------------- member archive
+#
+# One released member's own records move to the archive before the minor closes. The
+# ownership rule, the refusals, and the signed `archived` identity are owned by the
+# completion contract ("Member archive"); the procedure by the implement-phase runbook
+# ("Minor driver") and `/update` ("Release scope: member archive").
+
+_ARCHIVE_BRANCH_RE = re.compile(r"^chore/archive-(v\d+\.\d+\.\d+(?:-v\d+\.\d+\.\d+)*)\Z", re.ASCII)
+ATTR_BATCH = 100
+
+
+def _released_refusals(rctx: ck.RepoContext, record: dict, member: dict) -> list[Refused]:
+    """The member's release predicates, and its release on the live integration branch."""
+    version = str(member["version"])
+    repo = str(record.get("repo") or "")
+    tag = str(member.get("tag") or version)
+    target = cm._target(record)
+    checks = (
+        ("integration.merged", ck._pr_merged(rctx, repo, str(member.get("source_branch") or ""))),
+        ("release.tag", ck._tag_status(rctx, tag)),
+        ("release.github", ck._release_status(rctx, repo, tag)),
+        ("release.main", ck._main_contains(rctx, tag)),
+        ("back-merge", cm.back_merged(rctx, target)),
+        ("tag-on-integration", cm._tag_in(rctx, tag, f"refs/remotes/origin/{target}")),
+    )
+    return [Refused("cannot-verify" if status == "cannot-verify" else "member-not-released", f"{version}:{pid}")
+            for pid, status in checks if status != "met"]
+
+
+def _member_incomplete_refusals(
+    rctx: ck.RepoContext, record: dict, member: dict, plan: cm.Plan,
+) -> list[Refused]:
+    """The member is complete: no unchecked task, and every member line met (the member-start filter).
+
+    Checked before anything moves, because the archive rewrites task-line paths and its
+    own commit creates them, which must never stand in for unfinished work.
+    """
+    version = str(member["version"])
+    if _UNCHECKED_TASK_RE.search(plan.text):
+        return [Refused("member-incomplete", f"{version}:unchecked-task")]
+    result = cm.evaluate_member(ck, rctx, record, member, plan, [])
+    if result.exhausted or not result.lines:
+        return [Refused("cannot-verify", f"{version}:member")]
+    return [Refused("cannot-verify" if status == "cannot-verify" else "member-incomplete", f"{version}:{pid}")
+            for pid, status in result.lines
+            if not pid.startswith(("cleanup.", "archive.")) and status not in cm._MET]
+
+
+def _archive_branch_refusals(rctx: ck.RepoContext, record: dict, version: str) -> list[Refused]:
+    """The checkout must be `chore/archive-<member>[-<member>...]` naming only members, this one
+    included, and carry nothing beyond the live integration tip except verified member-archive
+    commits, so the push, pull request, and merge this approval covers carry only archive content."""
+    branch = cm.current_branch(rctx)
+    found = _ARCHIVE_BRANCH_RE.match(branch or "")
+    named = found.group(1).split("-") if found else []
+    members = {str(m.get("version")) for m in record.get("members") or [] if isinstance(m, dict)}
+    if version not in named or not set(named) <= members:
+        return [Refused("not-on-archive-branch", branch or "detached")]
+    target = cm._target(record)
+    tip = cm._ls_remote_tip(rctx, target)
+    local = rctx._git_out("rev-parse", "--verify", "-q", f"refs/remotes/origin/{target}")
+    if not tip or local != tip:
+        return [Refused("cannot-verify", f"origin/{target} is not fetched")]
+    if cm._ancestor(rctx, tip, "HEAD") != "met":
+        return [Refused("branch-not-on-integration-tip", branch)]
+    commits = cm.commit_changes(rctx, f"{tip}..HEAD")
+    if commits is None:
+        return [Refused("cannot-verify", "archive branch history")]
+    archives = cm.signed_archives(record)
+    stray = [sha for sha, parents, _changed in commits if not cm.is_archive_commit(rctx, sha, parents, archives)]
+    return [Refused("branch-not-archive-only", stray[0][:12])] if stray else []
+
+
+def _member_tree_refusals(
+    rctx: ck.RepoContext, member: dict, prefixes: list[tuple[str, str]],
+) -> list[Refused]:
+    """A clean checkout (rollback needs it), no edit under a moved prefix in the member's own worktree, no collision."""
+    out: list[Refused] = []
+    rc, status = _git(rctx, "status", "--porcelain")
+    if rc != 0 or status.strip():
+        out.append(Refused("dirty-worktree", "commit or stash first; rollback needs a clean tree"))
+    worktrees: set[str] = set()
+    implementation = member.get("implementation")
+    if isinstance(implementation, dict) and isinstance(implementation.get("worktree"), str):
+        worktrees.add(implementation["worktree"])
+    rc, listing = _git(rctx, "worktree", "list", "--porcelain")
+    if rc != 0:
+        return out + [Refused("cannot-verify", "worktree list")]
+    for block in listing.split("\n\n"):
+        path = next((l[len("worktree "):] for l in block.splitlines() if l.startswith("worktree ")), None)
+        branch = next((l[len("branch refs/heads/"):] for l in block.splitlines() if l.startswith("branch refs/heads/")), None)
+        if path and branch == member.get("source_branch"):
+            worktrees.add(path)
+    olds = [old for old, _new in prefixes]
+    for path in sorted(worktrees):
+        root = Path(path)
+        if not root.is_dir() or root.resolve() == rctx.root:
+            continue
+        rc, changed = rctx.run([rctx.git, "-C", str(root), "status", "--porcelain", "--untracked-files=all", "--", *olds])
+        if rc != 0:
+            out.append(Refused("cannot-verify", f"worktree of {member['version']}"))
+        elif changed.strip():
+            out.append(Refused("member-worktree-dirty", str(member["version"])))
+    for old, new in prefixes:
+        hit = next((new + rel[len(old):] for rel in tracked_under(rctx, old)
+                    if (rctx.root / (new + rel[len(old):])).exists()), None)
+        if hit is not None:
+            out.append(Refused("archive-collision", hit))
+            break
+    return out
+
+
+def _attributes(rctx: ck.RepoContext, paths: list[str]) -> dict[str, list[tuple[str, str]]] | None:
+    """`git check-attr -a` per path (attribute, value), or None when git cannot answer."""
+    found: dict[str, list[tuple[str, str]]] = {p: [] for p in paths}
+    for start in range(0, len(paths), ATTR_BATCH):
+        rc, out = _git(rctx, "check-attr", "-a", "-z", "--", *paths[start:start + ATTR_BATCH])
+        if rc != 0:
+            return None
+        fields = out.split("\0")
+        for index in range(0, len(fields) - 2, 3):
+            found.setdefault(fields[index], []).append((fields[index + 1], fields[index + 2]))
+    return found
+
+
+def _attribute_refusals(rctx: ck.RepoContext, pairs: list[tuple[str, str]]) -> list[Refused]:
+    """A move that changes a file's git attributes (eol, filter, diff) would change its bytes; refuse it."""
+    attributes = _attributes(rctx, sorted({p for pair in pairs for p in pair}))
+    if attributes is None:
+        return [Refused("cannot-verify", "git attributes")]
+    for old, new in pairs:
+        if sorted(attributes.get(old, [])) != sorted(attributes.get(new, [])):
+            return [Refused("attributes-differ", old)]
+    return []
+
+
+def _cross_reference_refusals(
+    repairs: list[Repair], record: dict, version: str, by_version: dict[str, cm.Plan],
+) -> list[Refused]:
+    """A repair that rewrites another member's frozen plan would make the record tampered; refuse instead."""
+    others = {by_version[str(m.get("version"))].rel for m in record.get("members") or []
+              if isinstance(m, dict) and m.get("version") != version and str(m.get("version")) in by_version}
+    return [Refused("member-plan-cross-reference", rel) for rel in sorted({r.old_rel for r in repairs} & others)]
+
+
+def _remove_empty_parents(rctx: ck.RepoContext, prefixes: list[tuple[str, str]], tree: str) -> list[str]:
+    """Remove the folders a member archive emptied inside the active tree, deepest first."""
+    removed: list[str] = []
+    for old, _new in prefixes:
+        parent = posixpath.dirname(old)
+        while parent.startswith(tree + "/"):
+            path = rctx.root / parent
+            if not path.is_dir() or any(path.iterdir()):
+                break
+            path.rmdir()
+            removed.append(parent)
+            parent = posixpath.dirname(parent)
+    return sorted(set(removed))
+
+
+def _staged_blobs(rctx: ck.RepoContext, paths: list[str]) -> dict[str, str]:
+    """The blob id staged at each path (`git ls-files -s`); refuses when one is missing."""
+    blobs: dict[str, str] = {}
+    for start in range(0, len(paths), ATTR_BATCH):
+        rc, out = _git(rctx, "ls-files", "-s", "-z", "--", *paths[start:start + ATTR_BATCH])
+        if rc != 0:
+            raise Refused("cannot-verify", "staged blob ids")
+        for entry in (e for e in out.split("\0") if e):
+            meta, _, path = entry.partition("\t")
+            parts = meta.split()
+            if len(parts) == 3 and parts[2] == "0":
+                blobs[path] = parts[1]
+    missing = [p for p in paths if p not in blobs]
+    if missing:
+        raise Refused("cannot-verify", f"no staged blob for {missing[0]}")
+    return blobs
+
+
+def _sign_member(rctx: ck.RepoContext, record: dict, record_path: Path) -> None:
+    # `members` is signed, so the archived identity is a signed update, never an unsigned edit.
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    ck._write_record(record_path, record)
+
+
+def cmd_archive_member(args: argparse.Namespace) -> int:
+    rctx = _context(args)
+    token, version = args.minor, args.member
+    major, minor = cm.parse_minor(ck, token)
+    if not cm.PLAN_TOKEN_RE.match(version or "") or cm.minor_of(version) != (major, minor):
+        raise ck.Malformed("--member must name a plan version of --minor, such as v0.5.2")
+    record, record_path = _record(rctx, token, args.session)
+    if record is None:
+        raise Refused("approval-not-covered", f"no live minor record for {token} in this session")
+    if not args.apply:
+        return _archive_member(rctx, args, token, version, record, record_path)
+    with ck.minor_transaction(record):
+        return _archive_member(rctx, args, token, version, record, record_path)
+
+
+def _archive_member(
+    rctx: ck.RepoContext, args: argparse.Namespace, token: str, version: str, record: dict, record_path: Path,
+) -> int:
+    """Every refusal, then the move, repair, proof, signed identity, and one commit."""
+    classes = cm._classes(record)
+    if "archive-member" not in classes or "archive-minor" not in classes:
+        raise Refused("approval-not-covered", "the minor record does not carry archive-member")
+    members = cm.ordered_members(record)
+    member = next((m for m in members if m.get("version") == version), None)
+    if member is None:
+        raise Refused("not-a-member", version)
+    if members[-1] is member:
+        raise Refused("use-minor-close", version)
+    major, minor = cm.parse_minor(ck, token)
+    dest = cm.ARCHIVE_TREE.format(M=major, m=minor)
+    by_version = {p.version: p for p in cm.scan_plans(rctx.root, major, minor)}
+    plan = by_version.get(version)
+    if plan is None:
+        raise Refused("plan-missing", version)
+    tree = source_tree(rctx, major, minor)
+    rc, listing = _git(rctx, "ls-files", "-z")
+    if rc != 0:
+        raise Refused("cannot-verify", "tracked files")
+    files = [p for p in listing.split("\0") if p]
+    prefixes = cm.member_moves(version, tree, files, member.get("plan_path")) if tree else []
+    archived = member.get("archived")
+    if not prefixes:
+        if isinstance(archived, dict) and plan.rel == archived.get("plan_path") and cm.member_identity_ok(ck, member, plan):
+            print(f"ALREADY ARCHIVED MEMBER {version} {plan.rel}")
+            return EXIT_OK
+        raise Refused("no-tree" if tree is None else "nothing-to-archive", version)
+    assert tree is not None
+    if map_moves(plan.rel, prefixes) == plan.rel:
+        raise Refused("plan-not-member-owned", plan.rel)
+    pairs = [(rel, map_moves(rel, prefixes)) for rel in files if map_moves(rel, prefixes) != rel]
+    preview = plan_moves_repairs(rctx.root, [(rel, rel, map_moves(rel, prefixes)) for rel in files], prefixes)
+    touched = sorted({old for old, _new in prefixes} | {r.old_rel for r in preview})
+    refusals = [
+        *_released_refusals(rctx, record, member),
+        *_member_incomplete_refusals(rctx, record, member, plan),
+        *_archive_branch_refusals(rctx, record, version),
+        *branch_refusals(rctx, token, record, tree, cm.current_branch(rctx), cm._target(record), paths=touched),
+        *_member_tree_refusals(rctx, member, prefixes),
+        *_attribute_refusals(rctx, pairs),
+        *_cross_reference_refusals(preview, record, version, by_version),
+        *bound_plan_refusals(rctx, preview, record),
+    ]
+    checker = link_checker(rctx.root, args.link_checker)
+    if checker is None:
+        refusals.append(Refused("link-checker-unavailable", "docs-layout-refactor scripts/link-baseline.py"))
+    summary = (f"links={sum(r.links for r in preview)} mentions={sum(r.mentions for r in preview)} "
+               f"files={len(preview)}")
+    if refusals:
+        for refusal in refusals:
+            print(refusal.line())
+        return EXIT_REFUSED
+    if not args.apply:
+        for old, new in prefixes:
+            print(f"WOULD MOVE {old} -> {new}")
+        print(f"WOULD ARCHIVE MEMBER {version} {tree} -> {dest} prefixes={len(prefixes)} {summary}")
+        return EXIT_OK
+    assert checker is not None
+    absent = object()
+    previous = member.get("archived", absent)
+
+    def seal(written: list[Repair]) -> Callable[[], bool]:
+        new_plan = map_moves(plan.rel, prefixes)
+        text = (rctx.root / new_plan).read_text(encoding="utf-8")
+        moved = {*pairs, *((r.old_rel, r.new_rel) for r in written)}
+        # Each pair signs the blob id staged at its new path, so only a commit carrying
+        # exactly this content is ever recognized as this archive (contract, "Member archive").
+        blobs = _staged_blobs(rctx, sorted({new for _old, new in moved}))
+        member["archived"] = {
+            "plan_path": new_plan,
+            "plan_sha256": ck.plan_hash_text(text),
+            "from": member.get("plan_path"),
+            "original_sha256": member.get("plan_sha256"),
+            "moved": sorted([old, new, blobs[new]] for old, new in moved),
+            "at": ck._now(),
+        }
+        _sign_member(rctx, record, record_path)
+
+        def unseal() -> bool:
+            try:
+                if previous is absent:
+                    member.pop("archived", None)
+                else:
+                    member["archived"] = previous
+                _sign_member(rctx, record, record_path)
+            except (OSError, ck.Malformed):
+                return False
+            return True
+        return unseal
+
+    def verify(head: str) -> str:
+        entries = cm.archive_entries(member.get("archived"))
+        if entries is None:
+            return "mismatch"
+        if cm.raw_changes(rctx, head) is None:
+            return "unknown"
+        return "verified" if cm.is_archive_commit(rctx, head, 1, [entries]) else "mismatch"
+
+    _apply_moves(rctx, prefixes, files, checker,
+                 f"docs(archives): archive released member {version} of {token}", seal=seal, verify=verify)
+    head = rctx._git_out("rev-parse", "--short", "HEAD")
+    for rel in _remove_empty_parents(rctx, prefixes, tree):
+        print(f"REMOVED empty {rel}")
+    print(f"ARCHIVED MEMBER {version} {tree} -> {dest} commit={head} {summary} newly_broken=0")
     return EXIT_OK
 
 
@@ -1356,6 +1808,16 @@ def build_parser() -> argparse.ArgumentParser:
     archive.add_argument("--plan", help="archive on this one-plan run's record (its last plan only)")
     archive.add_argument("--repo", default=".")
     archive.set_defaults(func=cmd_archive)
+    member = sub.add_parser("archive-member", help="archive one released member's own records early (dry run by default)")
+    member.add_argument("--minor", required=True)
+    member.add_argument("--member", required=True, help="the released member version, such as v0.5.2")
+    member.add_argument("--session", required=True)
+    member_mode = member.add_mutually_exclusive_group()
+    member_mode.add_argument("--dry-run", action="store_true")
+    member_mode.add_argument("--apply", action="store_true")
+    member.add_argument("--link-checker")
+    member.add_argument("--repo", default=".")
+    member.set_defaults(func=cmd_archive_member)
     carry = sub.add_parser("carry", help="record a one-plan run's open gaps in the next version")
     carry.add_argument("--plan", required=True)
     carry.add_argument("--id", action="append", help="carry only this gap (repeatable), such as WN-3")

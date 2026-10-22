@@ -181,6 +181,15 @@ Before the first worker reservation, install the matching check_plan_completion.
 
 A blocker in any member stops the whole minor run: record it with `CK record block --minor vX.Y --member vX.Y.Z --category <category> --evidence <text>` and report it. Retain every worker's claims and local work for the approved continuation.
 
+### Member archive (after each member's release, when approved)
+
+Only when the minor record carries `archive-member` (the completion contract, "Member archive", owns the rules). A running record without it gains it only by the user's own decision: show `CK record render --minor vX.Y --session <id> --action add-class --class archive-member --page`, and after the user pastes its line in the record's own session run `CK record add-class --minor vX.Y --session <id> --class archive-member`. Never add it otherwise.
+
+1. **After the member's release and back-merge** are on `origin/<target>`, and never for the last member (the minor close archives it), fetch and cut `chore/archive-vX.Y.Z` from `origin/<target>` (several released members may share one branch, `chore/archive-vX.Y.Z-vX.Y.W`).
+2. **Dry run**: `python ~/.nexus-hub/scripts/minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session <id>` lists every move. Fix the cause of any refusal; never move files by hand. The member must be complete (every task checked and every member line met except `cleanup.*` and `archive.*`), and the branch must hold nothing beyond the fetched `origin/<target>` tip but member-archive commits. A `member-plan-cross-reference` refusal cannot be fixed during the run, because the other member's plan is frozen: that member's records simply wait for the minor close, which archives them with everything else.
+3. **Apply** with `--apply`: it moves the member's own plan and `vX.Y.Z-*` records, repairs links and mentions, proves zero newly broken links, signs the member's `archived` identity, and commits once. Repeat for each member on the branch.
+4. **Integrate** under the recorded `archive-member` approval, which covers that branch's push, pull request, and merge: the local fast gate, one push, one pull request to the target, and the merge once its required checks pass (a red check is reproduced locally first, as for the closing pull request). Merge it with a merge commit or a fast-forward, never a squash or a rebase: the checker recognizes the archive only by its own signed commit, so a rewritten one reads `cannot-verify`. `<version>:archive.member` is met once that merge lands; the next member's publication admission never waits for it.
+
 ### Minor close (after the last member's release)
 
 Run once, after the last member is `PLAN COMPLETE` and its back-merge is on `origin/develop`. Record every step's command and output in `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/vX.Y-minor-close-evidence.md`, which moves with the archive.
@@ -188,7 +197,7 @@ Run once, after the last member is `PLAN COMPLETE` and its back-merge is on `ori
 1. **There is always a close.** Every minor record carries `archive-minor`, `minor-close-pr`, and `cleanup-merged` (the checker refuses a minor spec without them), and the archive travels in the closing pull request, so steps 2 to 10 always run. When the `gap-migration` list is empty, the close carries only the archive.
 2. **Cut the closing branch** from the post-release `origin/develop`: `git fetch origin` then `git switch -c chore/close-vX.Y origin/develop`.
 3. **Migrate** each frozen unfixable gap: `python ~/.nexus-hub/scripts/minor_close.py migrate --minor vX.Y --id <id> --reason <reason> --evidence <text>` (Migrate mode of `[[known-gaps-tracker]]`). Fix every fixable gap instead of migrating it.
-4. **Archive** (the record always carries `archive-minor`): `python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply` ("Archive a closed minor" in `[[docs-layout-refactor]]`). It commits once on the closing branch.
+4. **Archive** (the record always carries `archive-minor`): `python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply` ("Archive a closed minor" in `[[docs-layout-refactor]]`). It commits once on the closing branch, merging into any member records already archived on release.
 5. **Local fast gate**: the project's fast profile (Nexus-Hub: `python scripts/ci/run.py --profile fast`) must pass.
 6. **Push once and open one pull request** to develop under `minor-close-pr`: `git push -u origin chore/close-vX.Y`, then `gh pr create --base develop --head chore/close-vX.Y`.
 7. **Wait for the required checks.** A red required check: reproduce it locally, fix it narrowly on the closing branch, and re-push under the completion contract's scoped repair authority and verification budget; never re-run it blindly. When develop moved since the branch was cut, merge `origin/develop` into the closing branch (never rebase) and re-run step 5 before the re-push.
