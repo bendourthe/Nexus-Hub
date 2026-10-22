@@ -56,6 +56,7 @@ def browser():
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
+        return  # unreachable: pytest.skip raises; tells static analysis the name is bound below
     with sync_playwright() as pw:
         try:
             b = pw.chromium.launch()
@@ -63,6 +64,7 @@ def browser():
             if REQUIRE_RENDER:
                 pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
             pytest.skip(f"chromium is unavailable: {exc}")
+            return  # unreachable: pytest.skip raises
         yield b
         b.close()
 

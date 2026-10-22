@@ -6045,7 +6045,7 @@ main .eyebrow,main .tr-kicker{display:none;}
       flames(e.type, { gunship: "#fb7185", interceptor: "#f0abfc", lancer: "#fdba74", bomber: "#fde047", agent: "#67e8f9" }[e.type], 0.85);
     }
     function drawBossGL(b) {
-      var cx = LOGO.center[0], cy = LOGO.center[1], g = b.wreck ? 1 : bossGrow(b), s = b.s * g;
+      var g = b.wreck ? 1 : bossGrow(b), s = b.s * g;
       /* R37: through the entrance the hull glows hot as it grows out of the rift; a wreck flickers */
       var hot = b.wreck ? (REDUCED ? 0.5 : 0.25 + 0.45 * Math.abs(Math.sin(b.t * 0.37) * Math.sin(b.t * 0.11))) : b.entered ? 0 : (1 - g) * 1.2 + 0.2;
       /* R43: the X frame turns in the play plane (a yaw in the scene, opposite in sign to the 2D turn) */

@@ -96,8 +96,6 @@ def judge_sensitivity() -> dict:
 
 # -- scorers under test --------------------------------------------------------
 
-_SUBSTANTIVE = ("execution_evidence", "claim_support", "boundary_adherence")
-
 _EXECUTION_MARKERS = ("i ran", "i applied", "exit code", "quoted")
 _SUPPORT_MARKERS = ("per the", "line ", ".py", ".md")
 _HEDGE_MARKERS = ("studies show", "industry-standard", "almost certainly", "as is typical")
