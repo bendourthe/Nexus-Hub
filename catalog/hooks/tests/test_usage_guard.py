@@ -381,59 +381,78 @@ def test_stop_loop_is_bounded_over_many_turn_ends(guard, dirs, project, platform
     assert sum(1 for o in outputs if o is not None) == 1
 
 
-def _write_handoff(project: Path, stamp: float, trigger: str) -> None:
+# The handoff is a prompt printed in the chat, so the only handoff evidence a hook
+# can read is the user's `handoff` answer in .nexus-hub/usage-decision.json.
+
+
+def _write_legacy_handoff_file(project: Path, stamp: float, trigger: str) -> None:
     path = project / ".nexus-hub" / "handoff.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(f"# Handoff | {_iso(stamp)} | claude | {trigger}\n\n## Goal\n", encoding="utf-8")
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
-def test_usage_limit_handoff_newer_than_the_trigger_suppresses_the_stop(guard, dirs, project, platform):
+def test_a_handoff_answer_newer_than_the_trigger_suppresses_the_stop(guard, dirs, project, platform):
     guard.readings[platform] = reading(platform, 100)
     run(guard, dirs, platform, payload(platform, "tool", project))
-    _write_handoff(project, time.time() + 1, "usage-limit weekly 100")
+    _write_decision(project, "handoff", time.time() + 1)
     assert run(guard, dirs, platform, payload(platform, "stop", project)) is None
 
 
-@pytest.mark.parametrize("trigger", ["checkpoint", "manual"])
-def test_a_non_usage_limit_handoff_does_not_suppress(guard, dirs, project, trigger):
+@pytest.mark.parametrize("trigger", ["usage-limit weekly 100", "checkpoint", "manual"])
+def test_a_handoff_file_is_never_evidence(guard, dirs, project, trigger):
+    """No agent writes a handoff file by default any more, so a file on disk,
+    whatever its header, neither silences the reminder nor satisfies the gate."""
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    _write_handoff(project, time.time() + 1, trigger)
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    _write_legacy_handoff_file(project, time.time() + 1, trigger)
+    body = payload("claude", "stop", project)
+    assert guard.usage_limit_handoff_time("claude", body) is None
+    assert guard.usage_limit_stop_time("claude", body) is None
+    assert run(guard, dirs, "claude", body) is not None
 
 
-def test_a_future_dated_handoff_header_is_ignored(guard, dirs, project):
-    """A header dated beyond the clock-skew allowance (for example a committed
-    `2099` header) must not silence the turn-end reminder or satisfy the
+@pytest.mark.parametrize("decision", ["pending", "credits", "wait"])
+def test_only_a_handoff_answer_counts_as_a_handoff(guard, project, decision):
+    body = payload("claude", "stop", project)
+    _write_decision(project, decision, time.time() - 5)
+    assert guard.usage_limit_handoff_time("claude", body) is None
+    stamp = time.time() - 5
+    _write_decision(project, "handoff", stamp)
+    assert guard.usage_limit_handoff_time("claude", body) == pytest.approx(int(stamp), abs=1)
+
+
+def test_a_future_dated_handoff_answer_is_ignored(guard, dirs, project):
+    """A record dated beyond the clock-skew allowance (for example a committed
+    `2099` record) must not silence the turn-end reminder or satisfy the
     completion gate's newer-than-the-refusal test."""
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    _write_handoff(project, time.time() + 24 * 3600, "usage-limit weekly 100")
+    _write_decision(project, "handoff", time.time() + 24 * 3600)
     assert guard.usage_limit_handoff_time("claude", payload("claude", "stop", project)) is None
     assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
 
 
-def test_a_handoff_within_the_clock_skew_allowance_still_counts(guard, dirs, project):
+def test_a_handoff_answer_within_the_clock_skew_allowance_still_counts(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    _write_handoff(project, time.time() + 60, "usage-limit weekly 100")
+    _write_decision(project, "handoff", time.time() + 60)
     assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
 
 
-def test_a_handoff_older_than_the_trigger_does_not_suppress(guard, dirs, project):
+def test_a_handoff_answer_older_than_the_trigger_does_not_suppress(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
-    _write_handoff(project, time.time() - 3600, "usage-limit weekly 99.4")
+    _write_decision(project, "handoff", time.time() - 3600)
     run(guard, dirs, "claude", payload("claude", "tool", project))
     assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
 
 
-def test_handoff_in_the_repository_root_is_found_from_a_subdirectory(guard, dirs, project):
+def test_a_handoff_answer_in_the_repository_root_is_found_from_a_subdirectory(guard, dirs, project):
     sub = project / "src" / "pkg"
     sub.mkdir(parents=True)
     guard.readings["codex"] = reading("codex", 100)
     run(guard, dirs, "codex", payload("codex", "tool", sub))
-    _write_handoff(project, time.time() + 1, "usage-limit weekly 100")
+    _write_decision(project, "handoff", time.time() + 1)
     assert run(guard, dirs, "codex", payload("codex", "stop", sub)) is None
 
 
@@ -803,7 +822,10 @@ def test_directive_wording(guard):
     assert "continue on pay-per-use credits" in text
     assert "decision pending" in text and ".nexus-hub/usage-decision.json" in text
     assert "run the session-handoff procedure (/handoff)" in text
-    assert "write .nexus-hub/handoff.md and print its paste-ready prompt" in text
+    assert "print its paste-ready prompt in this chat" in text
+    assert "writing no handoff file unless the user asks for one" in text
+    assert "the handoff prints a paste-ready prompt in this chat and stops here" in text
+    assert "write .nexus-hub/handoff.md" not in text
     assert "Start no new work until the user answers." in text
     assert "usage-limit weekly 99." in text
     assert "cannot read pay-per-use credits here" in text
@@ -1051,6 +1073,8 @@ def test_usage_limit_stop_time_counts_a_pending_question(guard, project):
     _write_decision(project, "pending", stamp)
     assert guard.usage_limit_stop_time("claude", body) == pytest.approx(int(stamp), abs=1)
     _write_decision(project, "wait", stamp)
+    assert guard.usage_limit_stop_time("claude", body) == pytest.approx(int(stamp), abs=1)
+    _write_decision(project, "handoff", stamp)
     assert guard.usage_limit_stop_time("claude", body) == pytest.approx(int(stamp), abs=1)
     _write_decision(project, "credits", time.time() - 5)
     assert guard.usage_limit_stop_time("claude", body) is None

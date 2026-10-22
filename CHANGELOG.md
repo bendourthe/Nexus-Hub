@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Handoffs are now a paste-ready prompt in the chat, not a file. `/handoff` and the usage-limit handoff print one self-contained prompt (header, Goal, Done and verified, In progress, Next steps, Files touched, the constraints you stated, open questions, and repository state) for you to copy into any agent, and write no file. Ask for one explicitly (`/handoff file`, `/handoff file PATH`, or "write the handoff to a file") to also save it, by default to `.nexus-hub/handoff.md`; the request covers that handoff only. The secret scan now runs over the printed prompt. Decision record: [`2026-10-21-handoff-prompt-in-chat.md`](docs/decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md).
+- An existing `.nexus-hub/handoff.md` from an earlier version is read once: its unfinished steps are carried into the next prompt (unless the file is committed or future-dated), and the agent tells you it can be deleted. Nothing deletes it for you.
+- `usage-guard` and the `/implement` completion gate no longer read a handoff file. Your recorded `handoff` answer in `.nexus-hub/usage-decision.json` is the evidence that a usage-limit handoff happened; the gate still also requires the usage probe to confirm the window is over the threshold.
+
+### Removed
+
+- The rolling handoff checkpoint. Instruction templates no longer tell agents to update `.nexus-hub/handoff.md` after each verified milestone, and the `checkpoint` handoff mode and header trigger are gone. To hear the usage-limit question earlier in large turns, lower `NEXUS_HANDOFF_THRESHOLD`.
+
 ## [4.14.1] - 2026-10-20
 
 ### Added

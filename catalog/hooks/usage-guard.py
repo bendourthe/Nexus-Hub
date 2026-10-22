@@ -39,9 +39,10 @@ Behavior
   Claude Code, Codex, and Copilot; ``loop_count > 0`` on Cursor) is honored only
   when this guard's own continuation caused that turn, because the completion
   gate sets it on every chained turn. A window is skipped once
-  ``.nexus-hub/handoff.md`` carries a ``usage-limit`` trigger written at or after
-  its announcement. A routine checkpoint does not count, because it prints no
-  paste-ready prompt.
+  ``.nexus-hub/usage-decision.json`` records a ``handoff`` answer dated at or
+  after its announcement. The handoff itself is a prompt printed in the chat, so
+  that recorded answer is the only handoff evidence a hook can read; a
+  ``.nexus-hub/handoff.md`` file is never read.
 - A window that falls below the clear line (the threshold minus up to 5 points),
   or whose reset time moves to a new period, is forgotten, so the next crossing
   warns again.
@@ -95,8 +96,8 @@ STATE_RETENTION_SECONDS = 7 * 24 * 3600
 STATE_SCHEMA = 2
 HYSTERESIS_POINTS = 5.0
 PERIOD_SHIFT_SECONDS = 1800
-# A handoff header dated further ahead than this is ignored: no honest writer
-# stamps the future, and a committed far-future header would otherwise silence
+# A decision record dated further ahead than this is ignored: no honest writer
+# stamps the future, and a committed far-future record would otherwise silence
 # the turn-end reminder and satisfy the completion gate forever.
 FUTURE_SKEW_SECONDS = 300
 MAX_STDIN_BYTES = 8 * 1024 * 1024
@@ -141,10 +142,6 @@ EVENT_KINDS = {
     ("copilot", "Stop"): "stop",
 }
 
-HEADER_RE = re.compile(
-    r"^# Handoff \| (?P<ts>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \| [a-z0-9-]+ \| "
-    r"(?P<trigger>usage-limit (?:five_hour|weekly|monthly) \d+(?:\.\d+)?|manual|checkpoint)\s*$"
-)
 ISO_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}")
 SAFE_SESSION_RE = re.compile(r"^[A-Za-z0-9._-]{1,96}$")
 
@@ -524,14 +521,14 @@ def directive(
         "and none preselected or recommended: Continue on credits, Wait for reset, and Hand "
         "off to another agent or platform. Each option says what it means: what continuing "
         "costs or why it would fail, when the window resets and that work stops until then, "
-        "and that the handoff writes .nexus-hub/handoff.md and stops here. Only on a host "
+        "and that the handoff prints a paste-ready prompt in this chat and stops here. Only on a host "
         "without such a tool, ask the same three choices once in one short message. "
         "Start no new work until the user answers. If they choose "
         "credits, record decision credits and continue the task. If they choose to "
         "wait for the reset, record decision wait and stop. If they choose the "
         "handoff, record decision handoff and run the session-handoff procedure "
-        "(/handoff): write .nexus-hub/handoff.md and print its paste-ready prompt, "
-        f"recording the trigger as usage-limit {window['name']} {percent}. "
+        "(/handoff): print its paste-ready prompt in this chat, writing no handoff file "
+        f"unless the user asks for one, with the trigger usage-limit {window['name']} {percent}. "
         "While the question is open, do not ask it again: if another hook or a goal "
         "continues the turn, say in one line that you are waiting for the answer and end "
         "the turn."
@@ -689,7 +686,7 @@ def _iso_now(now: float) -> str:
     return datetime.fromtimestamp(now, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-# ----- handoff file --------------------------------------------------------------
+# ----- project records -----------------------------------------------------------
 
 
 def _handoff_roots(platform: str, payload: dict[str, Any]) -> list[Path]:
@@ -716,33 +713,15 @@ def _handoff_roots(platform: str, payload: dict[str, Any]) -> list[Path]:
 def usage_limit_handoff_time(
     platform: str, payload: dict[str, Any], extra_roots: tuple[Path, ...] = ()
 ) -> float | None:
-    """The newest ``usage-limit`` handoff header time found, or None.
+    """When the user's newest recorded usage answer is ``handoff``, its time, else None.
 
-    Looks for ``.nexus-hub/handoff.md`` in ``extra_roots`` and in the payload's
-    project directories, each walked up to its git root. Only a first line that
-    matches the session-handoff header grammar with a ``usage-limit`` trigger
-    counts; a checkpoint or manual handoff printed no paste-ready prompt. A
-    header dated more than ``FUTURE_SKEW_SECONDS`` ahead of the clock is ignored.
+    The session-handoff skill prints the handoff as a prompt in the chat and
+    writes no file unless the user asks for one, so the ``handoff`` answer in
+    ``.nexus-hub/usage-decision.json`` (see ``usage_decision``) is the evidence.
+    A ``.nexus-hub/handoff.md`` file, whatever its header, is never read.
     """
-    newest: float | None = None
-    latest_allowed = time.time() + FUTURE_SKEW_SECONDS
-    roots = list(extra_roots) + _handoff_roots(platform, payload)
-    for root in dict.fromkeys(roots):
-        path = root / ".nexus-hub" / "handoff.md"
-        try:
-            with path.open("r", encoding="utf-8", errors="replace") as handle:
-                first = handle.readline(512)
-        except OSError:
-            continue
-        match = HEADER_RE.match(first.rstrip("\r\n"))
-        if not match or not match.group("trigger").startswith("usage-limit"):
-            continue
-        written = _parse_iso(match.group("ts"))
-        if written is None or written > latest_allowed:
-            continue
-        if newest is None or written > newest:
-            newest = written
-    return newest
+    answer = usage_decision(platform, payload, extra_roots)
+    return answer[1] if answer is not None and answer[0] == "handoff" else None
 
 
 def usage_decision(
@@ -750,7 +729,8 @@ def usage_decision(
 ) -> tuple[str, float] | None:
     """The newest (decision, recorded time) from ``.nexus-hub/usage-decision.json``.
 
-    Searched like the handoff file. A record naming another platform, an unknown
+    Looked for in ``extra_roots`` and in the payload's project directories, each
+    walked up to its git root. A record naming another platform, an unknown
     decision, or a time beyond the clock-skew allowance is ignored.
     """
     newest: tuple[str, float] | None = None
@@ -788,20 +768,18 @@ def usage_decision(
 def usage_limit_stop_time(
     platform: str, payload: dict[str, Any], extra_roots: tuple[Path, ...] = ()
 ) -> float | None:
-    """Newest evidence that a turn end is a usage-limit stop: a usage-limit
-    handoff header, or a question to the user that is pending or answered wait."""
-    found = [usage_limit_handoff_time(platform, payload, extra_roots)]
+    """Newest evidence that a turn end is a usage-limit stop: the user's recorded
+    answer to the usage question is pending, wait, or handoff."""
     answer = usage_decision(platform, payload, extra_roots)
-    if answer is not None and answer[0] in ("pending", "wait"):
-        found.append(answer[1])
-    times = [t for t in found if t is not None]
-    return max(times) if times else None
+    if answer is not None and answer[0] in ("pending", "wait", "handoff"):
+        return answer[1]
+    return None
 
 
-def handoff_written_since(platform: str, payload: dict[str, Any], since: float) -> bool:
-    """True when a usage-limit handoff header is dated at or after ``since``."""
-    written = usage_limit_handoff_time(platform, payload)
-    return written is not None and written >= int(since)
+def handoff_chosen_since(platform: str, payload: dict[str, Any], since: float) -> bool:
+    """True when the user's handoff answer is recorded at or after ``since``."""
+    chosen = usage_limit_handoff_time(platform, payload)
+    return chosen is not None and chosen >= int(since)
 
 
 def usage_limit_window(
@@ -1027,8 +1005,8 @@ def decide(
             for window in pending:
                 entry = windows.get(window["name"])
                 since = _parse_iso(entry.get("announced_at")) if entry else None
-                if since is not None and handoff_written_since(platform, payload, since):
-                    # A usage-limit handoff already answered this window.
+                if since is not None and handoff_chosen_since(platform, payload, since):
+                    # The user already chose the handoff for this window.
                     entry["continuation_sent"] = True  # type: ignore[index]
                     continue
                 chosen = window
