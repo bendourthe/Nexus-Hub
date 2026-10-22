@@ -17,7 +17,7 @@
  *   - prints a TYPE SKELETON: field names and types, never values
  *
  * It never prints the session value, never writes a file, and stops on the first
- * failure instead of trying neighbouring routes.
+ * failure instead of trying neighboring routes.
  */
 
 "use strict";

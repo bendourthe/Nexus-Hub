@@ -260,9 +260,9 @@ def test_the_boss_shield_layers_fall_outermost_first_under_real_fire(page) -> No
     s = _boss_up(page)
     assert s["boss"]["shieldsUp"] == 3 and s["boss"]["stage"] == "shields" and s["boss"]["layer"] == 0
     radii = [L["r"] for L in s["boss"]["shields"]]
-    assert radii == sorted(radii, reverse=True) and len({L["color"] for L in s["boss"]["shields"]}) == 3, "three concentric layers, each its own colour"
+    assert radii == sorted(radii, reverse=True) and len({L["color"] for L in s["boss"]["shields"]}) == 3, "three concentric layers, each its own color"
     out = _js(page, """let s = g.state(), n = 0, layers = [];
-        while (s.boss && s.boss.shieldsUp > 0 && n++ < 9000) { const dx = g.bossGeometry().centre[0] - s.player.x;
+        while (s.boss && s.boss.shieldsUp > 0 && n++ < 9000) { const dx = g.bossGeometry().center[0] - s.player.x;
           g.input({ fire: true, left: dx < -3, right: dx > 3, up: s.player.y > s.world.h * 0.56 }); s = g.step(1);
           if (layers[layers.length - 1] !== s.boss.layer) layers.push(s.boss.layer); }
         g.input({ fire: false, left: false, right: false, up: false }); return { layers, broken: s.boss.broken.map(b => b.layer), alive: s.boss.nodesAlive, nodeHp: s.boss.nodeHp, stage: s.boss.stage };""")
@@ -290,7 +290,7 @@ def test_the_core_is_blocked_until_the_nodes_fall_then_glows(browser, renderer: 
     try:
         _boss_up(pg)
         out = _js(pg, """g.breakShields(); const geo = g.bossGeometry(); const c0 = g.state().boss.coreHp;
-            const hook = g.hitBoss('core', 10); const d0 = g.state().boss.deflects; const shot = g.shotAt(geo.centre[0], geo.centre[1]);
+            const hook = g.hitBoss('core', 10); const d0 = g.state().boss.deflects; const shot = g.shotAt(geo.center[0], geo.center[1]);
             const mid = g.state().boss; g.render(); const midTags = g.frameTags();
             for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 9999); g.step(1); g.render();
             const glow = g.state().boss; const tags = g.frameTags(); const open = g.hitBoss('core', 10);
@@ -396,7 +396,7 @@ def test_the_finale_shares_no_element_with_the_wormhole_between_levels(browser, 
         ctx.close()
 
 
-CENTRE = """([x, y]) => { const g = SkySentinel.get('fixed'); g.render(); const c = document.querySelector('.ss-host[data-ss-id=fixed] .ss-canvas'), gl = c.getContext('webgl');
+CENTER = """([x, y]) => { const g = SkySentinel.get('fixed'); g.render(); const c = document.querySelector('.ss-host[data-ss-id=fixed] .ss-canvas'), gl = c.getContext('webgl');
   const s = g.state(), k = c.width / s.world.w, px = new Uint8Array(4 * 9 * 9), cx = Math.round(x * k), cy = Math.round(c.height - y * k);
   gl.readPixels(cx - 4, cy - 4, 9, 9, gl.RGBA, gl.UNSIGNED_BYTE, px); const m = [0, 0, 0];
   for (let i = 0; i < px.length; i += 4) { m[0] += px[i]; m[1] += px[i + 1]; m[2] += px[i + 2]; } return m.map(v => v / 81); }"""
@@ -407,14 +407,14 @@ def test_a_wormhole_frame_and_a_black_hole_frame_look_different(page) -> None:
     _js(page, "g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: true, boss: false }); g.start(); g.pause('t'); g.step(5400 + 100); return 0;")
     hole = _js(page, "const t = g.state().transitionInfo; return [g.state().world.w / 2, g.state().world.h * 0.3, t && t.kind];")
     assert hole[2] == "level"
-    worm = page.evaluate(CENTRE, hole[:2])
+    worm = page.evaluate(CENTER, hole[:2])
     _boss_up(page, immune=False)
     hp = _js(page, "g.defeatBoss(); const s = g.step(470); const f = s.finale; return [f.phase, f.hole];")
     assert hp[0] == "swallow" and hp[1] >= 1
     spot = _js(page, "return g.holeAt();")
     assert spot and spot["R"] > 10, "the engine reports where the hole is"
-    dark = page.evaluate(CENTRE, [spot["x"], spot["y"]])
-    disk = page.evaluate(CENTRE, [spot["x"] - spot["R"] * 2.4, spot["y"]])
+    dark = page.evaluate(CENTER, [spot["x"], spot["y"]])
+    disk = page.evaluate(CENTER, [spot["x"] - spot["R"] * 2.4, spot["y"]])
     assert sum(worm) / 3 > 120 and worm[2] >= worm[0], f"the wormhole's heart is bright and cool: {worm}"
     assert sum(dark) / 3 < 25, f"the black hole's heart is dark: {dark}"
     assert disk[0] > disk[2] and sum(disk) / 3 > 60, f"its disk is warm and bright: {disk}"

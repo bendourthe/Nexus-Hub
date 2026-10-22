@@ -1,6 +1,6 @@
 """v4.4.2 Phase 3 gates: Foundations title system, scene balance, and the annotated prompt.
 
-Browser tests, because every claim is about computed layout or live behaviour: a centred
+Browser tests, because every claim is about computed layout or live behavior: a centered
 page title in the hero-subtitle style, no scene with an empty column, children contained by
 their scene box at six widths, and an annotated prompt whose highlights light in document
 order and all at once under reduced motion.
@@ -77,7 +77,7 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
                         leadAlign: getComputedStyle(lead).textAlign,
                         sameSize: getComputedStyle(title).fontSize === getComputedStyle(home).fontSize,
                         sameWeight: getComputedStyle(title).fontWeight === getComputedStyle(home).fontWeight,
-                        centred: Math.abs(c(title) - window.innerWidth / 2) < 3,
+                        centered: Math.abs(c(title) - window.innerWidth / 2) < 3,
                         grad: !!title.querySelector('.gtext'),
                     };
                 }"""
@@ -86,7 +86,7 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
             browser.close()
     assert data["kicker"] is False, "the page-level Foundations kicker is gone"
     assert data["text"] == "Generative AI Foundations"  # v4.13.10 R29
-    assert data["align"] == "center" and data["leadAlign"] == "center" and data["centred"]
+    assert data["align"] == "center" and data["leadAlign"] == "center" and data["centered"]
     # v4.13.10 R21: page titles share the heading system's H1 (checked across pages in
     # test_v443_phase1_headings); the Home statement is a tagline, not a title, so it no longer matches.
     assert not data["grad"], "no gradient words in titles"
@@ -234,7 +234,7 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
                         nested: root.querySelectorAll('.ann .ann').length,
                         joined: text.textContent.replace(/\\s+/g, ' ').trim(),
                         legend,
-                        colours: new Set(marks.map(m => getComputedStyle(m).textDecorationColor)).size,
+                        colors: new Set(marks.map(m => getComputedStyle(m).textDecorationColor)).size,
                         weakFirst: document.querySelector('#fx-prompts').innerHTML.indexOf('fx-state--weak')
                                  < document.querySelector('#fx-prompts').innerHTML.indexOf('fx-ann-prompt'),
                     };
@@ -249,9 +249,9 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
     # v4.4.5 renamed the parts on instruction; "goal" now names the finish line the
     # figure used to call "done". The order is unchanged, the vocabulary is not.
     assert data["parts"] == ["request", "context", "goal", "format"]
-    assert data["joined"].startswith("Summarise this contract and list every deadline. Use the signed PDF")
+    assert data["joined"].startswith("Summarise this contract and list every deadline. Use the signed PDF")  # spelling: allow
     assert data["legend"] == ["Request", "Context", "Goal", "Format"]
-    assert data["colours"] == 4, "each part carries its own colour"
+    assert data["colors"] == 4, "each part carries its own color"
     assert data["weakFirst"], "the vague prompt still reads before the precise one"
     assert ctx_parts == ["request", "attachments", "goal", "context"]
 

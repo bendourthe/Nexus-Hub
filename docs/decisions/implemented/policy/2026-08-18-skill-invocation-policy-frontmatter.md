@@ -34,7 +34,7 @@ Per-platform distribution is decided strictly by what a fetched vendor document 
 
 ## Consequences
 
-- A skill can now be authored as manual-only and behave correctly on four platforms with one frontmatter line, and harmlessly on the rest, since a platform ignores frontmatter keys it does not recognise.
+- A skill can now be authored as manual-only and behave correctly on four platforms with one frontmatter line, and harmlessly on the rest, since a platform ignores frontmatter keys it does not recognize.
 - The Codex mapping carries an inversion, which is a permanent correctness hazard: a future refactor that "simplifies" it into a value copy silently produces the opposite of the author's intent. It is guarded by an explicit test and a comment in the generated file, and neither should be removed.
 - The catalog gains a third policy document (`skill-invocation-policy-levers.md`) alongside the defaults-levers and read-contracts records. Each has a stated scope boundary, and the cost of the third is accepted to avoid growing either existing document past its declared scope.
 - Nothing is emitted today, because no skill declares either field. A test asserts that state and fails when the first one does, which is the moment to re-check installer smoke expectations. The mapping is therefore built but unexercised, which is a deliberate acceptance of the scope-fit trade-off named above.

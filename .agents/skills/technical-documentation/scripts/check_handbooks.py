@@ -41,7 +41,7 @@ def digest(path: Path) -> str:
     record which passed locally at 46 of 46 and failed CI with "changed content
     review evidence" - a difference of zero content.
 
-    Text is normalised to LF before hashing. A file carrying a NUL byte is
+    Text is normalized to LF before hashing. A file carrying a NUL byte is
     binary (a PNG, a PPTX) and is hashed exactly as it lies, because there a
     byte is a byte and CRLF is data rather than a line ending.
     """

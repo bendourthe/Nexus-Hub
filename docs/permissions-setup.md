@@ -133,7 +133,7 @@ Claude Code permission patterns use glob matching with `*` as the wildcard:
 | `Bash(pwd)` | Exactly `pwd` with no arguments |
 | `Bash(cd *)` | Any command starting with `cd ` |
 
-Use space before `*` (current syntax). The legacy colon syntax `Bash(cd:*)` is deprecated; the hook normalises it internally but new entries should use the space format.
+Use space before `*` (current syntax). The legacy colon syntax `Bash(cd:*)` is deprecated; the hook normalizes it internally but new entries should use the space format.
 
 ## Per-Platform Notes and Limitations
 

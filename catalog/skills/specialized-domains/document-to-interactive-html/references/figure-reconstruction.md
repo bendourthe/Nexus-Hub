@@ -52,7 +52,7 @@ check because none of them is visible in the markup:
 
 - a legend showing filled dots where the figure drew rings;
 - a legend listing an item the plot never draws;
-- a legend dot in a different colour from the figure's dots.
+- a legend dot in a different color from the figure's dots.
 
 All three tell the reader to look for something that is not there. The reader
 either hunts for missing data or, worse, matches the wrong series to the wrong
@@ -60,10 +60,10 @@ label and reads the figure backwards.
 
 ### Rules
 
-1. **Every legend entry corresponds to something actually drawn.** If nothing in the figure paints that colour, the entry is a lie about the data. Gated as `legend-entry-not-drawn`.
-2. **The swatch matches the drawn mark, in colour AND in shape.** A filled swatch for a hollow ring is the same defect as the wrong colour; both break the reader's lookup.
-3. **No two entries share a colour** where the rendering keys legends by colour. Gated as `legend-colour-collision`.
-4. **No tick is emitted outside the data range.** The source project labelled a panel to `1 s` whose data stopped at 0.97 s, inviting the reader to read a value nobody measured. A tick is a claim that the axis reaches that value. Gated as `tick-outside-range`.
+1. **Every legend entry corresponds to something actually drawn.** If nothing in the figure paints that color, the entry is a lie about the data. Gated as `legend-entry-not-drawn`.
+2. **The swatch matches the drawn mark, in color AND in shape.** A filled swatch for a hollow ring is the same defect as the wrong color; both break the reader's lookup.
+3. **No two entries share a color** where the rendering keys legends by color. Gated as `legend-colour-collision`.
+4. **No tick is emitted outside the data range.** The source project labeled a panel to `1 s` whose data stopped at 0.97 s, inviting the reader to read a value nobody measured. A tick is a claim that the axis reaches that value. Gated as `tick-outside-range`.
 
 ### Cropping beats moving
 
@@ -192,7 +192,7 @@ A `map` or `diagram` (and any figure carrying an `annotated: true` signal from p
 
 ## 5a. Source-detail ledger, and the derived-summary handoff
 
-Part 5 path 1 rebuilds a diagram only when the rebuild preserves every label, region, node, edge and relationship, and `SKILL.md` step 4 states the same invariant as "only when every label survives". That invariant is unchanged by this section. What follows makes the preservation INSPECTABLE, and gives deliberate simplification a separate, clearly-labelled home instead of letting it erode the faithful path.
+Part 5 path 1 rebuilds a diagram only when the rebuild preserves every label, region, node, edge and relationship, and `SKILL.md` step 4 states the same invariant as "only when every label survives". That invariant is unchanged by this section. What follows makes the preservation INSPECTABLE, and gives deliberate simplification a separate, clearly-labeled home instead of letting it erode the faithful path.
 
 **Every path-1 or path-2 reconstruction carries a source-detail ledger.** One row per source node or relationship, written beside the read-the-figure worksheet in the same adjacent HTML comment, with four columns:
 
@@ -204,23 +204,23 @@ The ledger is a per-figure record in the figure's own comment. It is NOT a persi
 
 **A faithful reconstruction permits no silent omission.** `retained` and `merged` are the only outputs it may carry, plus `unresolved` under the rule below. A single `omitted` row disqualifies the figure from the faithful path; it does not license the omission. This is the whole reason the ledger exists on the faithful path, where by definition nothing should be missing: a ledger that can only say "retained" is still what proves somebody checked.
 
-**`merged` is permitted and must name its partner.** Two source nodes drawn as one is a modelling decision a reader can accept or reject; two source nodes drawn as one WITHOUT saying so is a claim the source did not make. Merging that changes the relationship being taught is an omission wearing a different label, and belongs on the derived path.
+**`merged` is permitted and must name its partner.** Two source nodes drawn as one is a modeling decision a reader can accept or reject; two source nodes drawn as one WITHOUT saying so is a claim the source did not make. Merging that changes the relationship being taught is an omission wearing a different label, and belongs on the derived path.
 
 **An unreadable source element is marked `unresolved`, never invented.** If a label cannot be read off the source, the row says so and the rendered figure shows the element as unresolved in its own visible treatment. Reconstructing a plausible value is the failure this protocol exists to prevent, and it is worse than a visible gap because it is not visible.
 
-**Approval is requested only for a substantive omission that is not already authorized.** A decorative flourish, a duplicated legend key, or a redundant gridline needs no approval and no ceremony. A node, a relationship, a labelled quantity, or anything the figure's claim depends on needs one, and the ledger records which authorization it rests on. Asking for approval to drop a drop-shadow trains the reader to approve without looking.
+**Approval is requested only for a substantive omission that is not already authorized.** A decorative flourish, a duplicated legend key, or a redundant gridline needs no approval and no ceremony. A node, a relationship, a labeled quantity, or anything the figure's claim depends on needs one, and the ledger records which authorization it rests on. Asking for approval to drop a drop-shadow trains the reader to approve without looking.
 
 ### The derived-summary handoff
 
 A dense source sometimes cannot be both faithful and legible in one figure. The answer is TWO artifacts against the same source, not one compromised artifact:
 
 - **The faithful rendition** takes one of part 5's three paths, carries a ledger with no `omitted` rows, and passes the lossless-reconstruction gate.
-- **The derived summary** is a separate figure, labelled in its VISIBLE caption as a derived explanation rather than a reproduction. It carries its own provenance set and its own ledger, in which `omitted` rows are expected and each carries its rationale and approval.
+- **The derived summary** is a separate figure, labeled in its VISIBLE caption as a derived explanation rather than a reproduction. It carries its own provenance set and its own ledger, in which `omitted` rows are expected and each carries its rationale and approval.
 
 Three constraints on the summary, each of which is what stops it becoming a way around the gate:
 
 - **It preserves access to the complete source or the faithful rendition**, through the existing view-original toggle and disclosure contracts. A summary that is the only thing the reader can reach has replaced the source rather than explaining it.
-- **It never passes the lossless-reconstruction gate, and must not be presented as though it had.** It is not `provenance: "reconstructed-from-image"`. A summary carrying the faithful path's provenance is a mislabelled figure, which is the one failure mode this handoff could introduce if the labelling were left implicit.
+- **It never passes the lossless-reconstruction gate, and must not be presented as though it had.** It is not `provenance: "reconstructed-from-image"`. A summary carrying the faithful path's provenance is a mislabelled figure, which is the one failure mode this handoff could introduce if the labeling were left implicit.
 - **It reuses the existing contracts rather than inventing parallel ones** - disclosure and the view-original toggle here, motion in `interactive-features.md`, and the accessible-text complement rule in part 5. No generic importer, and no new ledger format for the summary: it is the same four columns.
 
 ## 6. Model round-trip

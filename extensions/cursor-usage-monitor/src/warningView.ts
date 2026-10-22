@@ -156,7 +156,7 @@ const ICON = {
 };
 
 /**
- * The warning panel, structured to match the Claude and Codex monitors: a centred
+ * The warning panel, structured to match the Claude and Codex monitors: a centered
  * brand block, the usage ring, an advice list under one heading, a reset line, and a
  * footer naming the source alongside the two actions.
  */

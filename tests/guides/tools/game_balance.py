@@ -10,21 +10,21 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
 - ``bossDps`` and ``boss``: (R40: over a 60 s window only, so ``boss`` is None unless the boss falls in 60 s,
   which the shielded 1,625-point boss never does) the ship is held still at the front of its R33 zone (55 percent of the
   arena height; R35 lets a ship fly the whole arena, and the pilots keep this standoff so the table
-  stays comparable), on the centre line the boss sways across, and fires (level 3, the Sentinel form, the ship
+  stays comparable), on the center line the boss sways across, and fires (level 3, the Sentinel form, the ship
   made immune so only the weapon decides; a timed upgrade is renewed every 5 s). ``bossDps`` is the
   damage per second it deals to the boss over the first 60 s; ``boss`` is the seconds to destroy the
   boss, or None when a ship held still does not finish it within 150 s. From below, the boss's
-  armour leaves its two upper nodes open only along a narrow outer strip, so a ship that never
+  armor leaves its two upper nodes open only along a narrow outer strip, so a ship that never
   moves finishes it only by chance, and these two values mostly show which weapons reach past the
   shielded core.
 - ``hunt``: seconds to destroy the boss with a simple pilot that stays at the front of its zone and
   slides under the lowest live node (then lines its outermost gun up on the open outer edge of an
   upper node, at a standoff of 0, 12, or 24 px, keeping the best of the three, then goes under the
-  core), firing all the time. R40: while a shield layer stands, the pilot stays under the boss's centre,
+  core), firing all the time. R40: while a shield layer stands, the pilot stays under the boss's center,
   because the shield bubble is the whole target; the hunt is capped at 200 s. The ship's speed counts here. This is the boss measure the band checks.
   R43: the megaship turns its X frame a quarter turn at a time and sits lower when the boss bar would
   cover a node, so the pilot goes under the lowest live node and holds the R40 standoff from the
-  megaship (30 percent of the arena height below its centre) instead of a fixed line.
+  megaship (30 percent of the arena height below its center) instead of a fixed line.
 - ``node_reach``: (R43) each live node's share of the node stage in which a straight upward round
   from below meets it first along an open strip at least ``NODE_REACH_WIDE`` wide; every share must
   reach ``NODE_REACH_MIN``.
@@ -73,9 +73,9 @@ BALANCE_JS = r"""
   /* R35: the ship may now fly the whole arena; the boss pilots hold the R33 standoff line (55 percent
      of the arena height, where the old zone ended) so the table stays comparable with R33 */
   /* R43: the megaship now sits lower when the boss bar would cover a node, so in the fight the line
-     keeps the R40 standoff from it instead (30 percent of the arena height below its centre, the
+     keeps the R40 standoff from it instead (30 percent of the arena height below its center, the
      distance between the old station at 25 percent and the old line at 55 percent) */
-  const front = () => { const geo = g.bossGeometry(), h = g.state().world.h; return geo ? geo.centre[1] + h * 0.30 : h * 0.55; };
+  const front = () => { const geo = g.bossGeometry(), h = g.state().world.h; return geo ? geo.center[1] + h * 0.30 : h * 0.55; };
   /* wait out the boss wormhole and the boss's entrance, steering to the standoff line */
   const arrive = () => { let s = g.state(), n = 0; while (!(s.boss && s.boss.entered) && n++ < 20000) { g.input({ up: s.player.y > front() + 3 }); s = g.step(1); } g.input({ up: false }); return s; };
   const run = (ticks) => { g.input({ fire: true }); g.step(WARM); const d0 = g.state().dealt; g.step(ticks); const d = g.state().dealt - d0; g.input({ fire: false }); return d; };
@@ -117,13 +117,13 @@ BALANCE_JS = r"""
     while (s.state !== 'over' && t < 12000) {
       if (up && t % 300 === 0) g.dropPowerUp(up);
       const geo = g.bossGeometry(), al = s.boss.alive, R = 34 * geo.scale;
-      /* the gun lanes, read from the rounds just fired, so the pilot favours no gun layout */
+      /* the gun lanes, read from the rounds just fired, so the pilot favors no gun layout */
       /* (only the main guns: wingman rounds, missiles, and Spread side shots sit further out) */
       const fresh = s.playerShots.filter(x => x.y > s.player.y - 40 && x.kind !== 'missile' && x.kind !== 'round').map(x => x.x - s.player.x).filter(d => Math.abs(d) <= 16);
       if (fresh.length) lanes = fresh;
-      let ax = geo.centre[0];
-      /* R40: while a shield layer stands it is the whole target: stay under the centre */
-      if (s.boss.shieldsUp > 0) ax = geo.centre[0];
+      let ax = geo.center[0];
+      /* R40: while a shield layer stands it is the whole target: stay under the center */
+      if (s.boss.shieldsUp > 0) ax = geo.center[0];
       else if (s.boss.nodesAlive > 0) {
         /* R43: the X frame turns, so the pilot goes under the lowest live node (the one a round from
            below meets first); a node still in the upper half is open from below only along its outer
@@ -131,8 +131,8 @@ BALANCE_JS = r"""
         let low = -1;
         for (let i = 0; i < 4; i++) if (al[i] && (low < 0 || geo.nodes[i][1] > geo.nodes[low][1])) low = i;
         const n = geo.nodes[low];
-        if (n[1] >= geo.centre[1]) ax = n[0];
-        else ax = n[0] < geo.centre[0] ? n[0] - R + 3 - standoff - Math.min(...lanes) : n[0] + R - 3 + standoff - Math.max(...lanes);
+        if (n[1] >= geo.center[1]) ax = n[0];
+        else ax = n[0] < geo.center[0] ? n[0] - R + 3 - standoff - Math.min(...lanes) : n[0] + R - 3 + standoff - Math.max(...lanes);
       }
       const dx = ax - s.player.x;
       g.input({ fire: true, up: s.player.y > front() + 3, left: dx < -3, right: dx > 3 });

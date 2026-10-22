@@ -299,7 +299,7 @@ def test_the_start_screen_key_lists_the_downgrades_as_hazards(page) -> None:
     assert all(len(x[2].split("\n")) >= 2 for x in items), "a name and a one-line effect"
     assert page.locator(f"{host} .ss-down-title").inner_text().startswith("Hazards")
     upgrades = {u["color"] for u in _js(page, "return g.upgrades();")}
-    assert len({d["color"] for d in api}) == 4 and not ({d["color"] for d in api} & upgrades), "hazards never share an upgrade's colour"
+    assert len({d["color"] for d in api}) == 4 and not ({d["color"] for d in api} & upgrades), "hazards never share an upgrade's color"
 
 
 # ---------------------------------------------------------------- R36 (T114): the background moves

@@ -175,9 +175,9 @@ window.NexusTrainingStory = (function () {
     return out;
   }
 
-  /* -------------------------------------------------- code view: light colouring and line diffs */
+  /* -------------------------------------------------- code view: light coloring and line diffs */
   var KEYWORDS = /\b(import|export|from|function|return|const|let|var|if|else|for|of|test|expect|true|false|new)\b/;
-  function colour(row, text, path) {
+  function color(row, text, path) {
     if (/\.md$/.test(path)) {
       if (/^#{1,6}\s/.test(text)) { row.appendChild(el("span", "tk-h", text)); return; }
       if (/^\s*([-*]|\d+\.)\s/.test(text)) { var mk = /^(\s*(?:[-*]|\d+\.)\s)(.*)$/.exec(text); row.appendChild(el("span", "tk-p", mk[1])); inline(row, mk[2]); return; }
@@ -526,7 +526,7 @@ window.NexusTrainingStory = (function () {
       var li = el("li");
       if (r.op) li.setAttribute("data-op", r.op);
       if (r.cls) li.className = r.cls;
-      colour(li, r.text, path);
+      color(li, r.text, path);
       if (!r.text) li.appendChild(document.createTextNode("​"));
       s.lines.appendChild(li);
     });

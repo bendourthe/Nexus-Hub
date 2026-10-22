@@ -224,7 +224,7 @@ def cmd_verify(run: Path, ffmpeg_path: str | None, video: str | None, floor_db: 
     count = fc.run_ffmpeg([ffmpeg, "-hide_banner", "-nostdin", "-i", fc.ffmpeg_input(mp4), "-map", "0:v", "-f", "null", "-"]).stderr
     frames = re.findall(r"frame=\s*(\d+)", count)
     print(f"duration {dur.group(1) if dur else '?'} | frames {frames[-1] if frames else '?'}\n{stream}")
-    problems = [] if "bt709" in stream and "unknown" not in stream else ["colour tags are not BT.709 throughout"]
+    problems = [] if "bt709" in stream and "unknown" not in stream else ["color tags are not BT.709 throughout"]
     for still in sorted((run / "out" / "stills").glob("still_*s.png")):
         t = float(still.stem.removeprefix("still_").removesuffix("s"))
         n = round(t * 60)

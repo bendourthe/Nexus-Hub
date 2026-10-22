@@ -84,7 +84,7 @@ MARK_JS = """({ specs, anchors, pad }) => {
     if (a === 0) return [0, 0, 0, 0];
     return [0, 1, 2].map(i => (top[i] * top[3] + under[i] * under[3] * (1 - top[3])) / a).concat(a);
   };
-  // Translucent pieces get the opaque colour they show over the page, so they read the same lifted.
+  // Translucent pieces get the opaque color they show over the page, so they read the same lifted.
   const opaqueBg = (el) => {
     const own = parse(getComputedStyle(el).backgroundColor);
     if (own[3] === 0 || own[3] >= 0.999) return null;
@@ -119,16 +119,16 @@ MARK_JS = """({ specs, anchors, pad }) => {
     }
   }
   const rect = (q) => { const el = find(q)[0]; if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height }; };
-  const centre = (q) => { const b = rect(q); return b ? b.y + b.h / 2 : null; };
+  const center = (q) => { const b = rect(q); return b ? b.y + b.h / 2 : null; };
   const hero = rect(anchors.hero);
   return {
     layers,
     page: { width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight, bg: getComputedStyle(document.body).backgroundColor },
     anchors: {
       heroBottom: hero ? hero.y + hero.h : null,
-      secondTitle: centre(anchors.secondTitle),
-      footerTitle: centre(anchors.footerTitle),
-      mockup: anchors.mockup ? centre(anchors.mockup) : null,
+      secondTitle: center(anchors.secondTitle),
+      footerTitle: center(anchors.footerTitle),
+      mockup: anchors.mockup ? center(anchors.mockup) : null,
       button: anchors.button ? rect(anchors.button) : null,
     },
   };

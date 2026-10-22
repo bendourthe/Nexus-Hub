@@ -50,7 +50,7 @@ Advisory personas (testing, maintainability, style) produce many low-severity fi
 - The finding originates from an **advisory persona** (testing, maintainability, documentation, style) rather than a correctness/security/reliability persona.
 - The run is in a **non-interactive mode** (report-only / headless / autofix) where the human is not present to triage.
 
-In interactive mode, do not demote - the human is there to judge. Demotion is a prioritization tool for unattended runs, not a correctness judgement.
+In interactive mode, do not demote - the human is there to judge. Demotion is a prioritization tool for unattended runs, not a correctness judgment.
 
 ## 5. The deliberately-late confidence gate
 

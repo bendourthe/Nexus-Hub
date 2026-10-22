@@ -150,7 +150,7 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Definition**: The catalog state of a tool cell for which no vendor-documented user-level key exists or no Proof Record could be produced, always shown with its reason instead of a control.
 
-**Avoid**: unsupported, disabled, greyed out, coming soon
+**Avoid**: unsupported, disabled, grayed out, coming soon
 
 **Relationships**: Opposite of an admitted Settings Control cell (plan v4.14.6). Each Not-Settable cell a vendor could later make settable is recorded as a known gap.
 

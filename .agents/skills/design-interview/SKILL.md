@@ -142,7 +142,7 @@ If this skill is unavailable, the caller must mark the interview portion uncover
 |---|---|
 | "I will ask one question per turn to be safe." | A frontier of twelve independent decisions then costs twelve turns, and the user re-reads the context twelve times. Ask the settled frontier at once. One question per round is correct only when the frontier genuinely holds one item, or a caller asked for that constraint. |
 | "I will send every question I can think of at once to save turns." | That is the opposite failure. A question whose answer depends on another open question is unanswerable, so the user either guesses or stalls, and a guessed prerequisite silently corrupts every branch beneath it. Round membership is decided by the dependency test in step 1, never by convenience. |
-| "Recommended answers will bias the user." | An unanchored question gets a vague answer or no answer. The recommendation is a proposal to react to, and it is labelled as yours; a user who disagrees says so in three words. Withholding your position to seem neutral just moves the work onto them. |
+| "Recommended answers will bias the user." | An unanchored question gets a vague answer or no answer. The recommendation is a proposal to react to, and it is labeled as yours; a user who disagrees says so in three words. Withholding your position to seem neutral just moves the work onto them. |
 | "I will ask the user which version the dependency is on." | That is a fact, not a decision, and it is sitting in the repository. Dispatch a sub-agent. Asking the user to be your filesystem is the fastest way to make an interview feel like an interrogation. |
 | "The sub-agent has not reported, so I will wait before asking anything." | Only the branch downstream of that lookup is blocked. Holding the entire round hostage to one fact turns a parallel interview into a serial one. |
 | "Five questions is enough; I can guess the rest." | Unguessed branches become silent scope. Park with a reason or ask. There is no cap that makes guessing legitimate. |
@@ -155,7 +155,7 @@ If this skill is unavailable, the caller must mark the interview portion uncover
 
 - [ ] Every live branch is decided, parked with a reason, or still has a pending question the user can see.
 - [ ] No round contained a question whose answer depended on another question in the same round.
-- [ ] Every question in every round carried a labelled recommended answer.
+- [ ] Every question in every round carried a labeled recommended answer.
 - [ ] No question asked the user for a fact obtainable from the environment; such facts were dispatched to a sub-agent or looked up inline.
 - [ ] A round was not blocked in full by a pending lookup; only downstream questions waited.
 - [ ] `CONTEXT.md` exists at the repo root if any term was treated as load-bearing; each such term has Definition, Avoid, and Relationships.

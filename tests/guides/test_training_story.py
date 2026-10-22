@@ -493,7 +493,7 @@ CURSOR_WALK = r"""([sid, step]) => {
         const m = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/.exec(cur.style.transform);
         return m ? [+m[1], +m[2]] : null;
     };
-    const box = ide.getBoundingClientRect(), centre = [box.width / 2, box.height / 2];
+    const box = ide.getBoundingClientRect(), center = [box.width / 2, box.height / 2];
     const out = { samples: 0, maxJump: 0, jumpAt: null, atCentre: [], first: null, firstT: null };
     let prev = null;
     s.seek(sid, 0);
@@ -503,7 +503,7 @@ CURSOR_WALK = r"""([sid, step]) => {
         if (p) {
             out.samples += 1;
             if (out.first === null) { out.first = p; out.firstT = t; }
-            if (Math.hypot(p[0] - centre[0], p[1] - centre[1]) < 3) out.atCentre.push(t);
+            if (Math.hypot(p[0] - center[0], p[1] - center[1]) < 3) out.atCentre.push(t);
             if (prev) { const j = Math.hypot(p[0] - prev[0], p[1] - prev[1]); if (j > out.maxJump) { out.maxJump = j; out.jumpAt = t; } }
         }
         prev = p;
@@ -517,7 +517,7 @@ CURSOR_WALK = r"""([sid, step]) => {
 
 def test_the_ide_cursor_moves_continuously_and_restarts_after_a_reset(browser) -> None:
     """The cursor remembers where it last was across action boundaries (s.seen), so it glides from
-    target to target and never snaps to the IDE's centre; seeking back resets it to a fresh start."""
+    target to target and never snaps to the IDE's center; seeking back resets it to a fresh start."""
     context, page, errors = _open(browser)
     try:
         for s in _sessions():
@@ -526,7 +526,7 @@ def test_the_ide_cursor_moves_continuously_and_restarts_after_a_reset(browser) -
             assert w["samples"] > 20, (s["id"], w)
             # A 620 ms eased move covers at most about 150 px in 40 ms on this IDE; a snap is far larger.
             assert w["maxJump"] <= 160, (s["id"], w["maxJump"], w["jumpAt"])
-            assert w["atCentre"] == [], (s["id"], "the cursor landed on the IDE centre", w["atCentre"])
+            assert w["atCentre"] == [], (s["id"], "the cursor landed on the IDE center", w["atCentre"])
             assert w["afterReset"] == w["first"], (s["id"], "after a reset the cursor starts fresh", w)
         assert not errors, errors
     finally:

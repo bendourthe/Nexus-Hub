@@ -1,6 +1,6 @@
 {
   "skill": "cicd-architect",
-  "purpose": "Route CI/CD lifecycle, cost, event-topology, required-check, and pipeline-migration work here, while keeping the three near-neighbours routing to themselves: cd-pipeline-generator (the deployment stages), cicd-integration (wiring a test suite and its quality gates), and shipping-and-launch (post-release production verification).",
+  "purpose": "Route CI/CD lifecycle, cost, event-topology, required-check, and pipeline-migration work here, while keeping the three near-neighbors routing to themselves: cd-pipeline-generator (the deployment stages), cicd-integration (wiring a test suite and its quality gates), and shipping-and-launch (post-release production verification).",
   "cases": [
     {"id": "pos-optimize-cost", "prompt": "optimize CI cost, our action minutes bill is out of control", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
     {"id": "pos-end-of-plan", "prompt": "make pipelines run only at the end of a plan instead of every phase", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},

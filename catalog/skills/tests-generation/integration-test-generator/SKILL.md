@@ -21,7 +21,7 @@ Use this skill when you need to:
 - Set up testcontainers for reproducible integration test environments
 - Verify authentication and authorization flows across service boundaries
 - Test file upload/download and storage integration
-- Validate caching behaviour with real cache stores (Redis, Memcached)
+- Validate caching behavior with real cache stores (Redis, Memcached)
 
 **Trigger phrases**: "integration test", "API test", "database test", "service test", "contract test", "testcontainers", "end-to-end API", "test the endpoint", "test database queries", "message queue test", "REST test", "GraphQL test"
 
@@ -72,18 +72,18 @@ Full walkthrough: [step-5-set-up-message-queue-integration-tests.md](references/
 
 ## Best Practices
 
-- **Use testcontainers over mocks for databases**: In-memory databases (H2, SQLite) have different SQL dialects and behaviour; testcontainers provide the real engine with minimal overhead
+- **Use testcontainers over mocks for databases**: In-memory databases (H2, SQLite) have different SQL dialects and behavior; testcontainers provide the real engine with minimal overhead
 - **Isolate test data with transactions**: Wrap each test in a transaction and roll back after; this is faster than truncating tables
 - **Test both success and failure paths**: An integration test that only covers the happy path provides false confidence; test timeouts, 4xx/5xx responses, and malformed data
 - **Use contract tests between teams**: When two teams own different services, contract tests prevent breaking changes without requiring both services to be running simultaneously
 - **Keep integration tests in a separate directory**: Integration tests have different infrastructure requirements and run slower; separate them from unit tests so developers can run unit tests quickly
 - **Tag tests by infrastructure dependency**: Use markers/tags (e.g., `@Tag("database")`, `@pytest.mark.database`) so you can run subsets locally
 - **Use factory functions for test data**: Create helper functions that generate valid test entities with sensible defaults; this reduces boilerplate and makes tests more readable
-- **Set explicit timeouts on all network calls**: An integration test that hangs for 30 seconds waiting for a response wastes CI time; set timeouts and assert on timeout behaviour
+- **Set explicit timeouts on all network calls**: An integration test that hangs for 30 seconds waiting for a response wastes CI time; set timeouts and assert on timeout behavior
 
 ## Common Pitfalls
 
-- **Testing implementation details instead of contracts**: Integration tests should verify external behaviour (HTTP status codes, response bodies, database state), not internal method calls
+- **Testing implementation details instead of contracts**: Integration tests should verify external behavior (HTTP status codes, response bodies, database state), not internal method calls
 - **Sharing test data across tests**: Tests that depend on data created by other tests are order-dependent and fragile; each test must create its own data
 - **Not cleaning up resources**: Containers, connections, and file handles that are not closed leak resources and cause subsequent tests to fail
 - **Using production credentials in tests**: Integration tests should never connect to production databases or APIs; use containers, mocks, or sandbox environments

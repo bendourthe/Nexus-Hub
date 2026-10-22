@@ -741,14 +741,14 @@ CALLOUT = """() => { const e = [...document.querySelectorAll('.pg-open-lead')].f
     return { role: e.dataset.ty, look: [c.fontSize, c.fontWeight, c.lineHeight, c.color, c.backgroundColor, c.borderTopColor,
                                         c.borderTopWidth, c.borderTopLeftRadius, c.paddingTop, c.paddingLeft, c.textAlign].join('|'),
              bg: c.backgroundColor, border: parseFloat(c.borderTopWidth), radius: parseFloat(c.borderTopLeftRadius),
-             centre: Math.abs((r.left + r.width / 2) - (tr.left + tr.width / 2)), inside: r.left >= box.left - .5 && r.right <= box.right + .5,
+             center: Math.abs((r.left + r.width / 2) - (tr.left + tr.width / 2)), inside: r.left >= box.left - .5 && r.right <= box.right + .5,
              below: r.top >= tr.bottom }; }"""
 
 
 @pytest.mark.parametrize("theme", ["dark", "light"])
 @pytest.mark.parametrize("width", [1440, 390])
 def test_the_opening_subtitle_is_one_framed_callout(playwright_mod, width: int, theme: str) -> None:
-    """R29 (T102): a softly tinted, rounded panel with a thin border, centred under the title, the same on all three pages."""
+    """R29 (T102): a softly tinted, rounded panel with a thin border, centered under the title, the same on all three pages."""
     looks = {}
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
@@ -766,7 +766,7 @@ def test_the_opening_subtitle_is_one_framed_callout(playwright_mod, width: int, 
     for name, v in looks.items():
         assert v["role"] == "callout", (name, v)
         assert v["bg"] not in ("rgba(0, 0, 0, 0)", "transparent") and v["border"] >= 1 and v["radius"] >= 8, (name, v)
-        assert v["centre"] < 2 and v["inside"] and v["below"], (name, v)
+        assert v["center"] < 2 and v["inside"] and v["below"], (name, v)
 
 
 # --- No scroll fade (v4.13.10 R30, T104) ---------------------------------------------------
@@ -884,7 +884,7 @@ def test_the_composer_legend_shows_its_end_state_under_reduced_motion(playwright
 
 
 # --- Review 10 (v4.13.10) ---------------------------------------------------------------------
-# A thick coloured left edge on a box is a template marker the maintainer rejected. A box may have
+# A thick colored left edge on a box is a template marker the maintainer rejected. A box may have
 # an even border; its left edge is never heavier than its other edges. The IDE mockups copy the
 # real editor's activity bar, and zero-size CSS triangles use borders as shapes, so both are exempt.
 STRIPE_JS = """() => [...document.querySelectorAll('body *')].filter(e => {
