@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
       "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "dbe7d6275f46ee0e9b958c8c90c8f6d9734c913a2b00013305c7ccda33727d69",
-      "scripts/installer.sh": "f71859c2e122c05b48334a1322bc4dc3d4fc559bdcc4c629df755eef04d53c56",
+      "scripts/installer.ps1": "74d642cace9760b899ef45fa5edd992f5a5c7f84caf96555419c50dd970b388c",
+      "scripts/installer.sh": "0709a3567d251b7c3de21a38a62b0c6086f4e9fa87bee1eb17fafc0c0df335c1",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
@@ -33,8 +33,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/cursor-plugin-rule-handbook-review.md",
-      "evidence_sha256": "c92087ce5b20e4b4185584cf081819e226770a559e8bdb1fbebf8c4548845fe4"
+      "evidence": "docs/releases/v4/v4.14/development/npm-install-timeout-handbook-review.md",
+      "evidence_sha256": "18983e6e071405d40d2f930ad8bcbc2d411b822cc884af098018209193a6f932"
     },
     "build": {
       "status": "pass",

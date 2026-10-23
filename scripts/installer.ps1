@@ -2717,6 +2717,39 @@ function Install-VSCodeExtensions {
     $ErrorActionPreference = $savedErrorPref
 }
 
+# Run a command line through cmd.exe for at most $TimeoutSeconds and return its
+# exit code (124 when it was stopped for running too long) and output lines.
+# The child starts with no console window, so it cannot open a focus-stealing
+# window, and a timeout ends its whole tree (npm leaves node children behind).
+function Invoke-CommandWithTimeout {
+    param([string]$CommandLine, [int]$TimeoutSeconds)
+    $log = [System.IO.Path]::GetTempFileName()
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $env:ComSpec
+    $psi.Arguments = "/d /s /c `"$CommandLine > `"$log`" 2>&1`""
+    $psi.WorkingDirectory = (Get-Location).Path
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $timedOut = -not $proc.WaitForExit($TimeoutSeconds * 1000)
+    if ($timedOut) {
+        $kill = New-Object System.Diagnostics.ProcessStartInfo
+        $kill.FileName = "taskkill.exe"
+        $kill.Arguments = "/T /F /PID $($proc.Id)"
+        $kill.UseShellExecute = $false
+        $kill.CreateNoWindow = $true
+        $kill.RedirectStandardOutput = $true
+        $kill.RedirectStandardError = $true
+        $killer = [System.Diagnostics.Process]::Start($kill)
+        [void]$killer.WaitForExit(15000)
+        [void]$proc.WaitForExit(15000)
+    }
+    $output = @(Get-Content -LiteralPath $log -ErrorAction SilentlyContinue)
+    Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
+    $code = if ($timedOut) { 124 } else { $proc.ExitCode }
+    return [pscustomobject]@{ ExitCode = $code; Output = $output; TimedOut = $timedOut }
+}
+
 # Build, package, and install one VS Code usage-monitor extension. Shared by
 # Install-VSCodeExtensions so every monitor installs identically.
 function Build-And-Install-One-Extension {
@@ -2752,11 +2785,19 @@ function Build-And-Install-One-Extension {
     }
 
     Write-Item -Message "  Installing dependencies..." -Color "Gray"
-    $npmOutput = & npm install --silent 2>&1
+    # Bounded: a stalled package download otherwise hangs the whole install.
+    $npmTimeout = 300
+    if ($env:NEXUS_HUB_NPM_TIMEOUT -match '^\d+$') { $npmTimeout = [int]$env:NEXUS_HUB_NPM_TIMEOUT }
+    $npm = Invoke-CommandWithTimeout -CommandLine "npm install --silent" -TimeoutSeconds $npmTimeout
     Restore-Title
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "Build failed: npm install failed" -Color "Red"
-        if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+    if ($npm.ExitCode -ne 0) {
+        if ($npm.TimedOut) {
+            Write-Item -Message "Skipping ${DisplayName}: npm install did not finish within ${npmTimeout}s (set NEXUS_HUB_NPM_TIMEOUT to allow longer)." -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "Build failed: npm install failed" -Color "Red"
+            if ($npm.Output) { $npm.Output | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+        }
         Pop-Location
         return
     }
