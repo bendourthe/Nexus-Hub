@@ -13,6 +13,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Minor checker maintenance:** Seven-member source qualification returns INCOMPLETE in 204.438 seconds with unchanged native authority. Unavailable observations preserve unknown scores; the whole-minor cap is 360 seconds with 20-second member shares. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md). Integration and reviewed runtime adoption remain pending.
 
+**Usage-limit maintenance:** The isolated source shares one durable usage decision across hooks and sessions and binds the genuine native question and submitted answer. Qualification is split: 406 affected cases, then a separate final 50-case protocol run and 30-case real-shell completion-gate run. The genuine private UI preview recorded Wait for reset without pausing the real goal or authorizing spending. Integration and verified platform-hook distribution remain pending; private updater proof is separate from actual adoption. [Evidence](releases/v4/v4.14/development/usage-limit-native-decision.md).
+
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-19 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.

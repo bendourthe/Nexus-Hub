@@ -318,6 +318,18 @@ def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: 
         platform = guard.detect_platform(payload, directory)
         if platform is None:
             return False
+        shared_reader = getattr(guard, "pending_decision", None)
+        if shared_reader is not None:
+            shared = shared_reader(platform, payload, (repo_root,))
+            if shared is not None:
+                exhausted = (shared.get("decision") == "credits"
+                             and (shared.get("current_credit", shared.get("credit")) or {}).get("state") == "exhausted")
+                if shared.get("decision") not in ("pending", "wait", "handoff") and not exhausted:
+                    return False
+                deadline = min(time.monotonic() + USAGE_PROBE_SECONDS, budget_end - BLOCK_RESERVE_SECONDS)
+                current = guard.usage_limit_window(payload, directory, deadline)
+                return (current is not None
+                        and guard._decision_active(shared, [current[1]], time.time()))
         state = _load_gate_state(record_path.with_name(record_path.stem + ".gate.json"))
         since = _parse_time(state.get("updated")) or _parse_time(record.get("created"))
         if since is None:

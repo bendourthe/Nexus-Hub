@@ -119,7 +119,9 @@ def guard(env: Path, monkeypatch: pytest.MonkeyPatch) -> types.ModuleType:
         module.probe_calls.append(platform)
         return FakeResult(module.readings.get(platform) or reading(platform, 0, status="unavailable"))
 
-    monkeypatch.setattr(module, "_load_probe", lambda: types.SimpleNamespace(probe=probe))
+    real_probe = module._load_probe()
+    monkeypatch.setattr(real_probe, "probe", probe)
+    monkeypatch.setattr(module, "_load_probe", lambda: real_probe)
     return module
 
 
@@ -231,7 +233,15 @@ def payload(platform: str, kind: str, cwd: Path, session: str = "s-1", **extra: 
 
 
 def run(guard: types.ModuleType, dirs: dict[str, Path], platform: str, body: dict[str, Any]) -> dict[str, Any] | None:
-    return guard.evaluate(body, time.monotonic(), dirs[platform])
+    output = guard.evaluate(body, time.monotonic(), dirs[platform])
+    # Simulate the agent claiming this context before its next hook. This is
+    # a private transport fixture, not evidence of a rendered host question.
+    if output is not None:
+        decision = guard.pending_decision(platform, body)
+        if decision is not None and decision["delivery"]["state"] == "offered":
+            guard.decision_transition(platform, Path(decision["project"]), decision["id"],
+                                      "claim", tool="private-transport-fixture")
+    return output
 
 
 def expected_shape(platform: str, kind: str, message: str) -> dict[str, Any]:
@@ -270,8 +280,10 @@ def test_below_threshold_emits_nothing(guard, dirs, project, platform):
 )
 def test_first_crossing_has_the_exact_output_shape(guard, dirs, project, platform, kind):
     guard.readings[platform] = reading(platform, 99.2)
-    output = run(guard, dirs, platform, payload(platform, kind, project))
-    message = guard.directive(platform, {"name": "weekly", "percent": 99.2, "resets_at": "2026-10-05T00:00:00Z"})
+    body = payload(platform, kind, project)
+    output = run(guard, dirs, platform, body)
+    message = guard.decision_directive(guard.pending_decision(platform, body), guard.directive(
+        platform, {"name": "weekly", "percent": 99.2, "resets_at": "2026-10-05T00:00:00Z"}))
     assert output == expected_shape(platform, kind, message)
 
 
@@ -285,20 +297,18 @@ def test_second_tool_call_in_the_same_session_is_silent(guard, dirs, project, pl
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
-def test_a_new_session_hears_the_directive_again(guard, dirs, project, platform):
+def test_a_new_session_reuses_the_pending_decision(guard, dirs, project, platform):
     guard.readings[platform] = reading(platform, 100)
     assert run(guard, dirs, platform, payload(platform, "tool", project, session="a")) is not None
-    assert run(guard, dirs, platform, payload(platform, "tool", project, session="b")) is not None
+    assert run(guard, dirs, platform, payload(platform, "tool", project, session="b")) is None
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
-def test_stop_continuation_fires_exactly_once(guard, dirs, project, platform):
+def test_stop_does_not_duplicate_an_existing_question(guard, dirs, project, platform):
     guard.readings[platform] = reading(platform, 99.5)
-    run(guard, dirs, platform, payload(platform, "tool", project))
-    first = run(guard, dirs, platform, payload(platform, "stop", project))
-    message = guard.directive(platform, {"name": "weekly", "percent": 99.5, "resets_at": "2026-10-05T00:00:00Z"})
-    assert first == expected_shape(platform, "stop", message)
-    assert run(guard, dirs, platform, payload(platform, "stop", project)) is None
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
+    for _ in range(5):
+        assert run(guard, dirs, platform, payload(platform, "stop", project)) is None
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
@@ -318,14 +328,13 @@ def test_stop_without_a_prior_directive_still_asks_once(guard, dirs, project, pl
         ("cursor", {"loop_count": 1}),
     ],
 )
-def test_a_flag_set_by_another_hook_does_not_suppress_the_continuation(
+def test_a_prior_hook_flag_does_not_duplicate_the_question(
     guard, dirs, project, platform, flag
 ):
     # The completion gate blocks every chained turn, so the flag is set even
     # though this guard never continued. Regression for review finding F1.
     guard.readings[platform] = reading(platform, 100)
-    run(guard, dirs, platform, payload(platform, "tool", project))
-    assert run(guard, dirs, platform, payload(platform, "stop", project, **flag)) is not None
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
     assert run(guard, dirs, platform, payload(platform, "stop", project, **flag)) is None
 
 
@@ -358,20 +367,20 @@ def test_first_crossing_at_a_flagged_stop_continues_once_and_stays_bounded(
         ("cursor", {"loop_count": 1}),
     ],
 )
-def test_a_window_skipped_at_a_flagged_stop_is_warned_at_the_next_tool_call(
+def test_additional_window_at_flagged_stop_reuses_the_question(
     guard, dirs, project, platform, flag
 ):
     # Our continuation for five_hour caused the flagged turn end, so weekly is
     # not continued there; it must still be announced, not silently recorded.
     guard.readings[platform] = reading(platform, 99.5, name="five_hour")
-    assert run(guard, dirs, platform, payload(platform, "stop", project)) is not None
-    guard.readings[platform] = reading(
-        platform, 99.5, name="five_hour",
-        extra_windows=[{"name": "weekly", "percent": 99.9, "resets_at": None, "source": "x"}],
-    )
+    body = payload(platform, "stop", project)
+    assert run(guard, dirs, platform, body) is not None
+    ident = guard.pending_decision(platform, body)["id"]
+    guard.readings[platform] = reading(platform, 100, name="five_hour",
+        extra_windows=[{"name": "weekly", "percent": 100, "resets_at": None}])
     assert run(guard, dirs, platform, payload(platform, "stop", project, **flag)) is None
-    warned = run(guard, dirs, platform, payload(platform, "tool", project))
-    assert warned is not None and "weekly usage is at 99.9%" in message_of(warned)
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is None
+    assert guard.pending_decision(platform, body)["id"] == ident
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
@@ -401,15 +410,14 @@ def test_a_handoff_answer_newer_than_the_trigger_suppresses_the_stop(guard, dirs
 
 @pytest.mark.parametrize("trigger", ["usage-limit weekly 100", "checkpoint", "manual"])
 def test_a_handoff_file_is_never_evidence(guard, dirs, project, trigger):
-    """No agent writes a handoff file by default any more, so a file on disk,
-    whatever its header, neither silences the reminder nor satisfies the gate."""
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    before = guard.pending_decision("claude", body)
     _write_legacy_handoff_file(project, time.time() + 1, trigger)
-    body = payload("claude", "stop", project)
     assert guard.usage_limit_handoff_time("claude", body) is None
-    assert guard.usage_limit_stop_time("claude", body) is None
-    assert run(guard, dirs, "claude", body) is not None
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+    assert guard.pending_decision("claude", body) == before
 
 
 @pytest.mark.parametrize("decision", ["pending", "credits", "wait"])
@@ -423,14 +431,13 @@ def test_only_a_handoff_answer_counts_as_a_handoff(guard, project, decision):
 
 
 def test_a_future_dated_handoff_answer_is_ignored(guard, dirs, project):
-    """A record dated beyond the clock-skew allowance (for example a committed
-    `2099` record) must not silence the turn-end reminder or satisfy the
-    completion gate's newer-than-the-refusal test."""
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
     _write_decision(project, "handoff", time.time() + 24 * 3600)
-    assert guard.usage_limit_handoff_time("claude", payload("claude", "stop", project)) is None
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    assert guard.usage_limit_handoff_time("claude", body) is None
+    assert guard.pending_decision("claude", body)["decision"] == "pending"
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
 
 
 def test_a_handoff_answer_within_the_clock_skew_allowance_still_counts(guard, dirs, project):
@@ -443,8 +450,9 @@ def test_a_handoff_answer_within_the_clock_skew_allowance_still_counts(guard, di
 def test_a_handoff_answer_older_than_the_trigger_does_not_suppress(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     _write_decision(project, "handoff", time.time() - 3600)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    assert guard.pending_decision("claude", body)["decision"] == "pending"
 
 
 def test_a_handoff_answer_in_the_repository_root_is_found_from_a_subdirectory(guard, dirs, project):
@@ -507,25 +515,17 @@ def test_unknown_probe_status_is_silent(guard, dirs, project, status):
 
 
 def test_highest_crossing_window_is_named(guard, dirs, project):
-    guard.readings["claude"] = reading(
-        "claude", 99.1, name="five_hour",
-        extra_windows=[{"name": "weekly", "percent": 99.8, "resets_at": None, "source": "x"}],
-    )
-    output = run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert "weekly usage is at 99.8%" in message_of(output)
-    assert "(resets" not in message_of(output)
+    guard.readings["claude"] = reading("claude", 99.1, name="five_hour",
+        extra_windows=[{"name": "weekly", "percent": 99.9, "resets_at": None}])
+    out = run(guard, dirs, "claude", payload("claude", "tool", project))
+    assert "weekly usage is at 99.9%" in message_of(out)
 
 
-def test_a_second_window_crossing_later_gets_its_own_directive(guard, dirs, project):
-    guard.readings["claude"] = reading("claude", 99.0, name="five_hour")
-    first = run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert "five_hour" in message_of(first)
-    guard.readings["claude"] = reading(
-        "claude", 99.0, name="five_hour",
-        extra_windows=[{"name": "weekly", "percent": 99.5, "resets_at": None, "source": "x"}],
-    )
-    second = run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert second is not None and "weekly" in message_of(second)
+def test_a_second_window_crossing_later_reuses_the_question(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100, name="five_hour")
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+    guard.readings["claude"] = reading("claude", 100, name="weekly")
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
 
 
 @pytest.mark.parametrize("bad", [None, "99", True, float("nan"), {"x": 1}])
@@ -734,7 +734,7 @@ def test_budget_overrun_is_silent(guard, dirs, project, monkeypatch):
         time.sleep(1.5)
         return FakeResult(reading(platform, 100))
 
-    monkeypatch.setattr(guard, "_load_probe", lambda: types.SimpleNamespace(probe=slow_probe))
+    monkeypatch.setattr(guard._load_probe(), "probe", slow_probe)
     started = time.monotonic()
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
     assert time.monotonic() - started < 1.2
@@ -744,7 +744,7 @@ def test_a_probe_that_raises_is_silent(guard, dirs, project, monkeypatch):
     def broken(platform: str) -> FakeResult:
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(guard, "_load_probe", lambda: types.SimpleNamespace(probe=broken))
+    monkeypatch.setattr(guard._load_probe(), "probe", broken)
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
 
 
@@ -757,81 +757,60 @@ def test_unwritable_state_never_repeats_the_prompt(guard, dirs, project, env):
 
 
 def test_held_lock_makes_the_hook_silent(guard, dirs, project, env, monkeypatch):
-    monkeypatch.setattr(guard, "LOCK_WAIT_SECONDS", 0.05)
-    state = env / "state" / "usage-guard"
-    state.mkdir(parents=True)
-    (state / "claude-s-1.json.lock").write_text("", encoding="utf-8")
     guard.readings["claude"] = reading("claude", 100)
-    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    with guard._load_probe().ActivityLock(adopter=True) as activity:
+        assert activity.held
+        assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
 
 
-def test_stale_lock_is_broken(guard, dirs, project, env):
-    state = env / "state" / "usage-guard"
-    state.mkdir(parents=True)
-    lock = state / "claude-s-1.json.lock"
-    lock.write_text("", encoding="utf-8")
-    old = time.time() - 60
-    os.utime(lock, (old, old))
+def test_old_lock_timestamp_does_not_steal_os_ownership(guard, dirs, project, env):
     guard.readings["claude"] = reading("claude", 100)
+    with guard._load_probe().ActivityLock(adopter=True) as activity:
+        lock = env / "state" / "usage-probe" / "activity.lock"
+        os.utime(lock, (time.time() - 3600, time.time() - 3600))
+        assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
-    assert not lock.exists()
 
 
 def test_state_file_records_the_trigger(guard, dirs, project, env):
     guard.readings["codex"] = reading("codex", 99.3)
-    run(guard, dirs, "codex", payload("codex", "tool", project, session="sess-42"))
-    state = json.loads((env / "state" / "usage-guard" / "codex-sess-42.json").read_text(encoding="utf-8"))
-    assert state["triggered_window"] == "weekly"
-    assert state["continuation_sent"] is False
-    assert state["schema"] == 2
-    assert set(state["windows"]) == {"weekly"}
-    assert state["windows"]["weekly"]["continuation_sent"] is False
-    assert datetime.strptime(state["triggered_at"], "%Y-%m-%dT%H:%M:%SZ")
-    run(guard, dirs, "codex", payload("codex", "stop", project, session="sess-42"))
-    state = json.loads((env / "state" / "usage-guard" / "codex-sess-42.json").read_text(encoding="utf-8"))
-    assert state["continuation_sent"] is True
+    body = payload("codex", "tool", project, session="sess-42")
+    run(guard, dirs, "codex", body)
+    state = guard.pending_decision("codex", body)
+    assert state["schema"] == 3 and state["decision"] == "pending"
+    assert state["confirmed_usage"][0]["percent"] == 99.3
+    assert state["project"] == str(project.resolve())
+    assert state["delivery"]["state"] == "claimed"
 
 
 def test_unusual_session_ids_become_a_hashed_filename(guard, dirs, project, env):
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project, session="../../etc/x y"))
-    names = [p.name for p in (env / "state" / "usage-guard").iterdir()]
-    assert len(names) == 1 and names[0].startswith("claude-") and ".." not in names[0]
-    assert len(names[0]) == len("claude-") + 32 + len(".json")
+    names = [p.name for p in (env / "state" / "usage-guard" / "decisions").iterdir()]
+    assert len(names) == 1 and len(names[0]) == 64 + len(".json")
+    assert ".." not in names[0]
 
 
-def test_old_session_state_is_pruned(guard, dirs, project, env):
+def test_legacy_session_state_is_preserved(guard, dirs, project, env):
     state = env / "state" / "usage-guard"
     state.mkdir(parents=True)
     old_file = state / "claude-old.json"
     old_file.write_text("{}", encoding="utf-8")
-    old = time.time() - 8 * 24 * 3600
-    os.utime(old_file, (old, old))
+    os.utime(old_file, (time.time() - 8 * 24 * 3600,) * 2)
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert not old_file.exists()
+    assert old_file.read_text() == "{}", "new owner preserves legacy state"
 
 
 # ----- message content and leaks -------------------------------------------------
 
 
 def test_directive_wording(guard):
-    text = guard.directive("codex", {"name": "weekly", "percent": 99.0, "resets_at": "2026-10-05T00:00:00Z"})
-    assert text.startswith("Usage limit: Codex weekly usage is at 99% (resets 2026-10-05T00:00:00Z).")
-    assert "ask the user before doing anything else" in text
-    assert "continue on pay-per-use credits" in text
-    assert "decision pending" in text and ".nexus-hub/usage-decision.json" in text
-    assert "run the session-handoff procedure (/handoff)" in text
-    assert "print its paste-ready prompt in this chat" in text
-    assert "writing no handoff file unless the user asks for one" in text
-    assert "the handoff prints a paste-ready prompt in this chat and stops here" in text
-    assert "write .nexus-hub/handoff.md" not in text
-    assert "Start no new work until the user answers." in text
-    assert "usage-limit weekly 99." in text
+    text = guard.directive("codex", {"name": "weekly", "percent": 99.0, "resets_at": None})
+    assert text.startswith("Usage limit: Codex weekly usage is at 99%")
+    assert "unknown (do not guess)" in text
     assert "cannot read pay-per-use credits here" in text
-    assert "record decision wait and stop" in text
     assert text.isascii()
-    assert "—" not in text and " - " not in text
 
 
 WEEKLY = {"name": "weekly", "percent": 100.0, "resets_at": "2026-10-13T14:00:00Z"}
@@ -906,8 +885,22 @@ def _credits(
 def _approve(guard, dirs, project, extra: list[dict[str, Any]], session: str = "s-1") -> None:
     guard.readings["claude"] = reading("claude", 100, extra_windows=extra)
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session=session)) is not None
-    _write_decision(project, "credits", time.time() + 1)
+    _answer_fixture(guard, project, "credits")
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session=session)) is None
+
+
+
+def _answer_fixture(guard, project, decision, platform="claude"):
+    """Private host-ID fixtures; never evidence of a real rendered interaction."""
+    body = payload(platform, "tool", project)
+    state = guard.pending_decision(platform, body)
+    claim = guard.decision_transition(platform, project, state["id"], "claim", tool="fixture-native")
+    token = claim["decision"]["delivery"]["claim_id"]
+    guard.decision_transition(platform, project, state["id"], "delivered", claim_id=token,
+                             request_id="private-fixture-request")
+    return guard.decision_transition(platform, project, state["id"], "answer", claim_id=token,
+                                    request_id="private-fixture-request", response_id="private-fixture-response",
+                                    answer=decision)
 
 
 def _write_settings(env: Path, **providers: dict[str, Any]) -> None:
@@ -920,16 +913,20 @@ def _write_settings(env: Path, **providers: dict[str, Any]) -> None:
 @pytest.mark.parametrize("decision", ["pending", "credits", "wait", "handoff"])
 def test_a_recorded_answer_suppresses_the_turn_end_continuation(guard, dirs, project, platform, decision):
     guard.readings[platform] = reading(platform, 100)
-    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
-    _write_decision(project, decision, time.time() + 1)
+    body = payload(platform, "tool", project)
+    assert run(guard, dirs, platform, body)
+    if decision != "pending":
+        _answer_fixture(guard, project, decision, platform)
     assert run(guard, dirs, platform, payload(platform, "stop", project)) is None
+    assert guard.pending_decision(platform, body)["decision"] == decision
 
 
 def test_an_answer_older_than_the_question_does_not_count(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     _write_decision(project, "credits", time.time() - 3600)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    assert guard.pending_decision("claude", body)["decision"] == "pending"
 
 
 @pytest.mark.parametrize(
@@ -944,57 +941,50 @@ def test_an_answer_older_than_the_question_does_not_count(guard, dirs, project):
 )
 def test_a_malformed_or_foreign_answer_is_ignored(guard, dirs, project, body):
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
+    current = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", current)
+    before = guard.pending_decision("claude", current)
     if body.get("recorded_at") == "NOW":
         body = {**body, "recorded_at": _iso(time.time() + 1)}
     path = project / ".nexus-hub" / "usage-decision.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(body), encoding="utf-8")
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
-    assert not (guard.approval_path("claude")).exists()
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+    assert guard.pending_decision("claude", current) == before
 
 
 def test_a_credits_answer_is_remembered_by_later_sessions(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
-    _write_decision(project, "credits", time.time() + 1)
-    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="a")) is None
-    assert guard.approval_path("claude").is_file()
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    _answer_fixture(guard, project, "credits")
     for kind in ("prompt", "tool", "stop"):
         assert run(guard, dirs, "claude", payload("claude", kind, project, session="b")) is None
+    assert guard.pending_decision("claude", payload("claude", "stop", project))["decision"] == "credits"
 
 
 def test_a_pending_answer_is_not_an_approval(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
-    _write_decision(project, "pending", time.time() + 1)
-    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
-    assert not guard.approval_path("claude").exists()
-    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is not None
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is None
+    assert guard.pending_decision("claude", payload("claude", "stop", project))["decision"] == "pending"
 
 
 def test_directive_asks_once_as_an_interactive_three_way_choice(guard):
-    text = guard.directive("claude", {"name": "weekly", "percent": 99.0, "resets_at": "2026-10-24T20:00:00Z"})
-    assert "one multiple-choice question with your host's interactive question tool" in text
-    assert "(in Claude Code, AskUserQuestion)" in text
-    assert "exactly three options and none preselected or recommended" in text
-    assert "Continue on credits, Wait for reset, and Hand off to another agent or platform" in text
-    assert "Only on a host without such a tool, ask the same three choices once in one short message." in text
-    assert text.endswith(
-        "While the question is open, do not ask it again: if another hook or a goal continues the turn, "
-        "say in one line that you are waiting for the answer and end the turn."
-    )
-    assert "then end the turn and wait" not in text and "record the pending decision and ask" not in text
+    text = guard.decision_directive({"id": "private-fixture"}, "Usage limit: fixture.")
+    assert "functions.request_user_input_async" in text
+    assert "Wait for reset (Recommended), Hand off, Continue on credits" in text
+    assert "Never preselect credits" in text
+    assert "one concise text question" in text
+    assert "do not retry or fall back" in text
     assert text.isascii()
 
 
-def test_spend_directive_uses_the_same_single_interactive_ask(guard):
+def test_spend_directive_reports_facts_without_another_question(guard):
     credit = {"state": "capped", "percent": 60.0, "used": 300.0, "limit": 500.0, "unit": "USD"}
     text = guard.spend_directive("claude", credit)
-    assert "once, as one multiple-choice question" in text and "AskUserQuestion" in text
-    assert "with no option preselected" in text
-    assert "only without such a tool, ask once in one short message" in text
-    assert "do not ask it again" in text and text.isascii()
+    assert "$300.00" in text and "existing choice remains recorded" in text
+    assert "do not ask a duplicate question" in text
+    assert "AskUserQuestion" not in text and text.isascii()
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
@@ -1014,7 +1004,7 @@ def test_an_open_question_is_never_asked_again_across_automatic_continuations(gu
 def test_an_approval_ends_when_the_window_moves_to_a_new_period(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
-    _write_decision(project, "credits", time.time() + 1)
+    _answer_fixture(guard, project, "credits")
     run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
     guard.readings["claude"] = reading("claude", 100, resets_at="2026-10-12T00:00:00Z")
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is not None
@@ -1024,7 +1014,7 @@ def test_credit_reminders_fire_once_per_tier_and_never_at_turn_end(guard, dirs, 
     guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(10))
     first = run(guard, dirs, "claude", payload("claude", "tool", project))
     assert "credits used so far: $50.00 of $500.00 (10%)" in message_of(first)
-    _write_decision(project, "credits", time.time() + 1)
+    _answer_fixture(guard, project, "credits")
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
     seen = []
     for percent in (30, 49.9, 50, 60, 74, 80, 85, 92, 99):
@@ -1042,7 +1032,7 @@ def test_credit_reminders_fire_once_per_tier_and_never_at_turn_end(guard, dirs, 
 def test_a_jump_past_several_tiers_asks_once(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(5))
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    _write_decision(project, "credits", time.time() + 1)
+    _answer_fixture(guard, project, "credits")
     run(guard, dirs, "claude", payload("claude", "tool", project))
     guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(95))
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
@@ -1052,7 +1042,7 @@ def test_a_jump_past_several_tiers_asks_once(guard, dirs, project):
 def test_tiers_already_passed_at_approval_are_not_asked_again(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(60))
     run(guard, dirs, "claude", payload("claude", "tool", project))
-    _write_decision(project, "credits", time.time() + 1)
+    _answer_fixture(guard, project, "credits")
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
     guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(70))
     assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
@@ -1155,9 +1145,11 @@ def test_no_usable_credits_say_continuing_will_fail(guard, dirs, project, state)
 
 def test_a_wait_answer_is_not_an_approval(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
-    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
-    _write_decision(project, "wait", time.time() + 1)
-    assert run(guard, dirs, "claude", payload("claude", "stop", project, session="a")) is None
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    _answer_fixture(guard, project, "wait")
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+    assert guard.pending_decision("claude", body)["decision"] == "wait"
     assert not guard.approval_path("claude").exists()
 
 
@@ -1178,7 +1170,7 @@ def test_no_credential_or_raw_response_reaches_output_or_state(guard, dirs, proj
         run(guard, dirs, "claude", payload("claude", kind, project))
         for kind in ("prompt", "tool", "stop")
     ]
-    assert outputs[0] is not None and outputs[2] is not None
+    assert outputs[0] is not None and outputs[2] is None
     dumped = json.dumps(outputs)
     assert SECRET not in dumped
     for path in env.rglob("*"):
@@ -1234,7 +1226,10 @@ def test_cached_path_latency_p95_under_150_ms(dirs, project, env):
         start = time.perf_counter()
         output = module.evaluate(body, time.monotonic(), dirs["claude"])
         samples.append(time.perf_counter() - start)
-        assert output is not None
+        assert (output is not None) is (index == 0)
+        if index == 0:
+            state = module.pending_decision("claude", body)
+            module.decision_transition("claude", project, state["id"], "claim", tool="private-latency-fixture")
     samples.sort()
     p95 = samples[int(len(samples) * 0.95) - 1]
     assert p95 < 0.150, f"p95 {p95 * 1000:.1f} ms"
@@ -1250,6 +1245,19 @@ def _install_scripts(target: Path) -> None:
     target.mkdir(parents=True, exist_ok=True)
     shutil.copy2(GUARD_PATH, target / "usage-guard.py")
     shutil.copy2(PROBE_PATH, target / "_usage_probe.py")
+
+
+def _claim_wrapper_fixture(home: Path, project: Path, platform: str, script: Path) -> None:
+    """An actual CLI delivery claim in a private wrapper fixture; no UI evidence."""
+    module = _load_guard()
+    state = module.pending_decision(platform, payload(platform, "tool", project))
+    assert state is not None
+    result = subprocess.run([sys.executable, "-I", "-B", str(script), "--decision-action", "claim",
+        "--project", str(project), "--platform", platform, "--decision-id", state["id"],
+        "--tool", "private-wrapper-fixture"], capture_output=True, text=True,
+        env=_subprocess_env(home), timeout=10)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["claimed"] is True
 
 
 def test_subprocess_claude_hook_emits_once_then_continues_once(tmp_path, project, env):
@@ -1270,9 +1278,9 @@ def test_subprocess_claude_hook_emits_once_then_continues_once(tmp_path, project
     body = json.loads(first.stdout)
     assert body["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
     assert body["hookSpecificOutput"]["additionalContext"].startswith("Usage limit: Claude Code weekly usage is at 100%")
+    _claim_wrapper_fixture(env, project, "claude", hooks / "usage-guard.py")
     assert call("tool").stdout == ""
-    stop = json.loads(call("stop").stdout)
-    assert stop["decision"] == "block" and stop["reason"].startswith("Usage limit:")
+    assert call("stop").stdout == ""
     assert call("stop").stdout == ""
 
 
@@ -1303,10 +1311,11 @@ def test_subprocess_cursor_native_through_the_compat_launcher(tmp_path, project,
         "additional_context": json.loads(tool.stdout)["additional_context"]
     }
     assert "Cursor monthly usage is at 99.6%" in json.loads(tool.stdout)["additional_context"]
+    _claim_wrapper_fixture(env, project, "cursor", hooks / "usage-guard.py")
     assert json.loads(call("tool").stdout) == {}
     # loop_count from another hook's follow-up does not suppress this guard.
     stop = json.loads(call("stop", loop_count=1).stdout)
-    assert list(stop) == ["followup_message"]
+    assert stop == {}
     assert json.loads(call("stop", loop_count=2).stdout) == {}
     assert json.loads(call("stop").stdout) == {}
 
@@ -1339,8 +1348,9 @@ def test_subprocess_copilot_through_the_real_wrapper(tmp_path, project, env):
     assert tool["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
     assert tool["additionalContext"] == context
     assert "GitHub Copilot monthly usage is at 99.4%" in context
+    _claim_wrapper_fixture(env, project, "copilot", scripts / "usage-guard.py")
     stop = json.loads(call("Stop", stop_hook_active=True).stdout)
-    assert stop["hookSpecificOutput"] == {"hookEventName": "Stop", "decision": "block", "reason": context}
+    assert stop == {}
     assert json.loads(call("Stop", stop_hook_active=False).stdout) == {}
 
 
@@ -1362,24 +1372,27 @@ def test_subprocess_copilot_without_a_state_file_is_silent(tmp_path, project, en
 # ----- window periods and multiple windows (review findings F2 and F4) -----------
 
 
-def test_a_window_that_resets_warns_again_in_the_same_session(guard, dirs, project):
+def test_reset_does_not_duplicate_an_unanswered_question(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 99.5, name="five_hour", resets_at="2026-10-01T12:00:00Z")
-    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    ident = guard.pending_decision("claude", body)["id"]
     guard.readings["claude"] = reading("claude", 10, name="five_hour", resets_at="2026-10-01T17:00:00Z")
-    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    assert run(guard, dirs, "claude", body) is None
     guard.readings["claude"] = reading("claude", 99.7, name="five_hour", resets_at="2026-10-01T17:00:00Z")
-    again = run(guard, dirs, "claude", payload("claude", "tool", project))
-    assert again is not None and "99.7%" in message_of(again)
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
-    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+    assert run(guard, dirs, "claude", body) is None
+    assert guard.pending_decision("claude", body)["id"] == ident
 
 
 def test_a_new_reset_time_alone_starts_a_new_period(guard, dirs, project):
     guard.readings["codex"] = reading("codex", 100, resets_at="2026-10-04T00:00:00Z")
-    assert run(guard, dirs, "codex", payload("codex", "tool", project)) is not None
+    body = payload("codex", "tool", project)
+    assert run(guard, dirs, "codex", body)
+    ident = guard.pending_decision("codex", body)["id"]
+    _answer_fixture(guard, project, "credits", "codex")
     guard.readings["codex"] = reading("codex", 100, resets_at="2026-10-11T00:00:00Z")
-    assert run(guard, dirs, "codex", payload("codex", "tool", project)) is not None
+    assert run(guard, dirs, "codex", body)
+    assert guard.pending_decision("codex", body)["id"] != ident
 
 
 def test_small_reset_jitter_is_the_same_period(guard, dirs, project):
@@ -1396,33 +1409,31 @@ def test_hysteresis_keeps_a_wavering_reading_quiet(guard, dirs, project, dip, wa
     guard.readings["claude"] = reading("claude", dip)
     run(guard, dirs, "claude", payload("claude", "tool", project))
     guard.readings["claude"] = reading("claude", 99.0)
-    assert (run(guard, dirs, "claude", payload("claude", "tool", project)) is not None) is warns
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
 
 
 def test_low_threshold_still_clears_after_a_reset(guard, dirs, project, monkeypatch):
     monkeypatch.setenv("NEXUS_HANDOFF_THRESHOLD", "1")
+    body = payload("claude", "tool", project)
     guard.readings["claude"] = reading("claude", 3)
-    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+    assert run(guard, dirs, "claude", body)
+    ident = guard.pending_decision("claude", body)["id"]
     guard.readings["claude"] = reading("claude", 0)
-    run(guard, dirs, "claude", payload("claude", "tool", project))
+    assert run(guard, dirs, "claude", body) is None
     guard.readings["claude"] = reading("claude", 2)
-    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+    assert run(guard, dirs, "claude", body) is None
+    assert guard.pending_decision("claude", body)["id"] == ident
 
 
-def test_every_window_over_the_threshold_gets_its_continuation(guard, dirs, project):
-    guard.readings["claude"] = reading(
-        "claude", 99.5, name="five_hour",
-        extra_windows=[{"name": "weekly", "percent": 90, "resets_at": None, "source": "x"}],
-    )
-    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="s2")) is not None
-    guard.readings["claude"] = reading(
-        "claude", 100, name="five_hour",
-        extra_windows=[{"name": "weekly", "percent": 100, "resets_at": None, "source": "x"}],
-    )
-    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="s2")) is not None
-    stops = [run(guard, dirs, "claude", payload("claude", "stop", project, session="s2")) for _ in range(4)]
-    named = [message_of(s).split(" usage is")[0].rsplit(" ", 1)[-1] for s in stops if s]
-    assert sorted(named) == ["five_hour", "weekly"]
+def test_additional_crossing_windows_never_duplicate_pending_delivery(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 99.5, name="five_hour")
+    body = payload("claude", "tool", project)
+    assert run(guard, dirs, "claude", body)
+    guard.readings["claude"] = reading("claude", 100, name="five_hour",
+        extra_windows=[{"name": "weekly", "percent": 100, "resets_at": None}])
+    assert run(guard, dirs, "claude", body) is None
+    for _ in range(4):
+        assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
 
 
 def test_no_state_file_is_written_while_usage_is_low(guard, dirs, project, env):
@@ -1443,10 +1454,10 @@ def test_pending_stop_preserves_the_later_credit_answer(guard, dirs, project, mo
     _write_decision(project, "pending", started + 1)
     clock[0] = started + 2
     assert run(guard, dirs, platform, payload(platform, "stop", project, session="ask")) is None
-    _write_decision(project, "credits", started + 3)
+    _answer_fixture(guard, project, "credits", platform)
     clock[0] = started + 4
     assert run(guard, dirs, platform, payload(platform, CONTEXT_KINDS[platform][0], project, session="ask")) is None
-    approval = json.loads(guard.approval_path(platform).read_text(encoding="utf-8"))
+    approval = guard.pending_decision(platform, payload(platform, "tool", project))["approval"]
     assert approval["windows"]["weekly"] == reset
     clock[0] = started + 5
     assert run(guard, dirs, platform, payload(platform, "tool", project, session="later")) is None
@@ -1456,25 +1467,14 @@ def test_pending_stop_preserves_the_later_credit_answer(guard, dirs, project, mo
 
 @pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
 @pytest.mark.parametrize("decision", ["wait", "handoff"])
-def test_a_stopping_reminder_answer_revokes_credit_approval(guard, dirs, project, monkeypatch, platform, decision):
-    started = int(time.time())
-    clock = [started]
-    monkeypatch.setattr(guard.time, "time", lambda: clock[0])
-    reset = _iso(started + 3600)
-    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(10))
-    assert run(guard, dirs, platform, payload(platform, "tool", project, session="ask")) is not None
-    _write_decision(project, "credits", started + 1)
-    clock[0] = started + 2
-    assert run(guard, dirs, platform, payload(platform, CONTEXT_KINDS[platform][0], project, session="ask")) is None
-    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(50))
-    clock[0] = started + 3
-    assert "Usage credits:" in message_of(run(guard, dirs, platform, payload(platform, "tool", project, session="ask")))
-    _write_decision(project, decision, started + 4)
-    clock[0] = started + 5
-    assert run(guard, dirs, platform, payload(platform, "stop", project, session="ask")) is None
-    assert guard.load_state(guard.approval_path(platform)) == {}
-    clock[0] = started + 6
-    assert "Usage limit:" in message_of(run(guard, dirs, platform, payload(platform, "tool", project, session="later")))
+def test_reminder_does_not_allow_replayed_answer_to_replace_choice(guard, dirs, project, monkeypatch, platform, decision):
+    guard.readings[platform] = reading(platform, 100, extra_windows=_credits(10))
+    assert run(guard, dirs, platform, payload(platform, "tool", project))
+    _answer_fixture(guard, project, "credits", platform)
+    before = guard.pending_decision(platform, payload(platform, "tool", project))
+    with pytest.raises(ValueError):
+        _answer_fixture(guard, project, decision, platform)
+    assert guard.pending_decision(platform, payload(platform, "tool", project)) == before
 
 
 @pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
