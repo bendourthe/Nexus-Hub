@@ -90,6 +90,16 @@ A fresh isolated PowerShell 5.1 installation of the merged source exited 0, with
 
 Retained incoming diff, guard input and proof, RED and final GREEN JUnit, environment prerequisite, installer receipts and home comparison are in codeql-followup-1792739027602/develop-pr520-merge beneath the private evidence root. No installed native scripts or authority records were changed.
 
+## Handbook Qualification
+
+The first hosted validation of head 3734a1b78c66be4940c30a11ddae57360619253c passed 44 commands, skipped one and failed check_handbooks because the distribution handbook's evidence retained the pre-copy installer digests. Local reproduction identified only scripts/installer.ps1 and scripts/installer.sh as stale inputs. Content review confirms that the handbook does not enumerate all copied scripts or state a completion budget; its existing process-policy, adapter and ownership claims remain accurate. The authored content, build record and rendered output are unchanged. A separate review record binds the two refreshed installer input hashes and retains the earlier browser evidence without claiming a new handbook render.
+
+The six added lines in each installer shift seventeen source citations in the website guide. Only their data-src values change. Independent reverse reconstruction matches the original HTML bytes exactly and verifies identical source text for every cited range. The three existing platform preview cases and wordmark case passed in a real headless Chromium run: four tests passed in 11.20 seconds.
+
+The exact twelve-group validation selection used by the hosted validate job initially ran pre-commit in the Windows checkout and rewrote line endings; that failed run is retained, and none of its unrelated formatting was committed. The checkout and its recovery status were preserved. Under the user's existing fresh-worktree recovery authorization, a new isolated worktree was created from the published head using per-command LF checkout settings, and only the three reviewed handbook changes were carried through the official guard. No guard accept, reset, purge or forced restoration occurred. The primary checkout remained untouched.
+
+The fresh canonical-LF checkout then passed all 46 validation commands with zero failures or skips in 99.2 seconds, including pre-commit and check_handbooks. This is the validation-job selection, not the unfiltered member T033 full suite. Source code, native readers and both helper bytes are unchanged by this followup. The manifest retains 2063 entries. The failed and successful validation receipts, preserved old status, citation mapping, four-test JUnit and guarded carry are under develop-pr520-merge/handbook-followup and the referenced private validation directories.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.
