@@ -26,16 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Windows console children now use a shared hidden-window subprocess policy across commands, installers and pytest roots. Standalone helpers and Node launches carry explicit hidden-window options. The console guard also checks installer, build and private helper commands, rejects conflicting launch flags and requires a reason on each deliberate exception line. Project instructions and distributed rules carry the same policy.
+- Windows console children now use a shared hidden-window subprocess policy across commands, installers and pytest roots. Standalone helpers and Node launches carry explicit hidden-window options. The console guard also checks installer, build and private helper commands, rejects conflicting launch flags and requires a reason on each deliberate exception line. Project instructions and distributed rules carry the same policy. Batch shims preserve literal exclamation marks with delayed expansion disabled, and background guard work uses explicit hidden-window flags.
 
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
 - **The Copilot Usage Monitor installs into VS Code only.** Since v4.13.11 the installers also put it into Cursor as a second host. They now install it through the VS Code CLI alone, and the existing legacy-extension sweep removes the copy earlier releases left in Cursor (the VS Code copy stays). Decision record: `docs/decisions/implemented/policy/2026-10-22-copilot-usage-monitor-vscode-only.md`.
 - **Reinstalling no longer skips the local MCP servers.** `uv` 0.9 and later refuse to create a virtual environment over an existing one, so every install after the first exited `uv venv` with code 2 and printed "Could not build the MCP server venv". Both installers now set `UV_VENV_CLEAR=1` for that call, which restores what older `uv` did silently and is ignored by versions that predate it.
+- The `user-edit-guard` hook no longer blocks every edit once its store grows large. On a store of about 9,000 records, one hook check took from 10 seconds to over 4 minutes against a 2-second budget, so writes outside a git worktree were blocked with "the 2-second budget ran out". Each call re-applied the store's owner-only ACL, which makes Windows re-walk every stored file; pruned by opening every record; and reread and rewrote the whole log. The ACL is now set once, when a store folder is created. Pruning runs at most once a day (in a separate windowless process from the hook, inline from a CLI command, or on demand with the new `edit_guard.py prune`) and decides a record's age from its file's modification time, so no live record is opened. The log is appended to and rotates to `log.jsonl.1` past 1 MB, replacing the older generation; `log` reads both. The post-command scan for files changed during a shell command stops after 0.5 seconds. A hook check on a 9,000-record store now takes about 0.2 seconds, including Python startup.
 
 ### Removed
 
 - The rolling handoff checkpoint. Instruction templates no longer tell agents to update `.nexus-hub/handoff.md` after each verified milestone, and the `checkpoint` handoff mode and header trigger are gone. To hear the usage-limit question earlier in large turns, lower `NEXUS_HANDOFF_THRESHOLD`.
-
 
 ## [4.14.1] - 2026-10-20
 

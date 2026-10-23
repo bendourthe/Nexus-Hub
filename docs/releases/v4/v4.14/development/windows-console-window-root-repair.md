@@ -71,6 +71,16 @@ The final affected selection includes the real no-console tests and passes all 3
 
 Develop commit 15bd767d6f149ac6ac917bb47517a8cb8376102d is integrated locally, preserving the Cursor local-plugin source and its independent handbook review. The merged handbook gate passes, and all six changed Cursor cases pass in 21.96 seconds. The complete hosted Windows command and the aggregate timeout remain pending fresh CI at the correction commit; no timeout cap or test expectation was relaxed.
 
+## Latest Upstream Integration
+
+CI run 39893143001 at commit 6960246cd passed 44 validation commands, failed only the handbook gate and skipped one unavailable plugin executable. Its complete validation artifact identifies the changed launcher input as stale handbook evidence. The controller stopped only that owned CI run after retaining its full report; it supplies no completed Windows aggregate qualification. The handbook review and snapshot are refreshed against the final launcher source before republication.
+
+The repair also integrates develop commit e89647de8fe05d6a9da9a7d624d12b039b3196c7, preserving PR 517's edit-guard performance changes. Its background-prune launch was already hidden on Windows, but a conditional options dictionary could not be verified by the strengthened console guard. Explicit creationflags and platform-appropriate start_new_session now make that launch verifiable on both platforms. Two new cases fail on the unchanged launch expression in 0.64 seconds; the complete three affected files then pass 59 cases with one host-privilege symlink skip in 38.45 seconds.
+
+A real background-prune child exits 0 against a private fixture store and uses CREATE_NO_WINDOW. The actual isolated PowerShell installer also exits 0. Their second Win32 observation spans 64.318 seconds and 5,583 samples, with zero visible console events, no foreground-process change and no user input (minimum idle 1,080,250 ms, equal to the starting value). Raw observation: windows-console-prune-desktop.json. Both source and installed console guards return 0 on this merged project. The final focused hygiene and documentation profile passes all 18 commands in 114.1 seconds, including the full handbook gate; its deterministic builder confirms the unchanged handbook HTML. Retained inputs, red/green results and actual-child logs: guard-prune-integration-1792725289274/ under the evidence root.
+
+The distributed edit-guard source is SHA-256 6b8bf8eeee25ae863ecdb07fc43dbc2edf9f27dad62d406d516d2414098bc92a. The operational guard remains the exact previously deployed bytes: canonical LF SHA-256 7307222c344feeb1c2194b2698458920a7ff8addf8260f91054c93946d8b48b7 (raw CRLF e950fdbc10cdcf0853c0eb878d8c9345d0ebdbcb61a62f787fbd5cd5aecf22af). No operational guard or installed native script was manually replaced. Full hosted checks and reviewed runtime adoption remain open.
+
 ## Preservation and Adoption
 
 Every applied edit used the official edit guard with zero accepts. The native run record remained SHA-256 246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a. Frozen approval and review budgets were not reset. The goal remains active; this maintenance repair does not complete v4.14.
