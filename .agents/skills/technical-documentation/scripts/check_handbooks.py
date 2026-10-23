@@ -155,7 +155,7 @@ def contract(path: Path, enabled: bool) -> None:
 def candidate(root: Path) -> dict[str, Any]:
     def git(*args: str) -> str:
         result = subprocess.run(
-            ["git", "-C", str(root), *args],
+            ["git", "-C", str(root), *args], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             capture_output=True,
             text=True,
             timeout=20,

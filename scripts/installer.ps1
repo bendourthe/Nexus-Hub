@@ -2924,6 +2924,8 @@ function Install-Templates {
     # /implement run is complete from repository, hosting, and run-record
     # state; the completion gate, run-plan runner, and /update release call
     # it from this installed path, never from a working tree.
+    Safe-Copy -Source (Join-Path $RepoRoot "scripts\nexus_process.py") -Destination (Join-Path $scriptsDest "nexus_process.py") -Confirm:$true -CustomMessage "[OK] Shared process policy installed"
+
     $completionCheckerSource = Join-Path $RepoRoot "scripts\check_plan_completion.py"
     if (Test-Path $completionCheckerSource) {
         Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"

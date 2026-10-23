@@ -191,7 +191,7 @@ def cmd_final(run: Path, fps: int, sub: int, budget: float, ffmpeg_path: str | N
     started = time.monotonic()
     log: list[str] = []
     with Scene(run) as s:
-        proc = subprocess.Popen(encoder_args(ffmpeg, fps, tmp), stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        proc = subprocess.Popen(encoder_args(ffmpeg, fps, tmp), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         pump = fc.drain(proc.stderr, log)
         try:
             for i in range(frames):

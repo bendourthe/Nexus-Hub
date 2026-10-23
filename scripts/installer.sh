@@ -2788,6 +2788,8 @@ install_templates() {
     # /implement run is complete from repository, hosting, and run-record
     # state; the completion gate, run-plan runner, and /update release call
     # it from this installed path, never from a working tree.
+    safe_copy "$repo_root/scripts/nexus_process.py" "$scripts_dest/nexus_process.py" true "[OK] Shared process policy installed"
+
     local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
     if [ -f "$completion_checker_source" ]; then
         safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"

@@ -96,6 +96,7 @@ def test_pre_user_prompt_capture_stores_the_digest(child, tmp_path: Path) -> Non
     runs.mkdir(parents=True)
     repo.mkdir()
     shutil.copy(REPO / "scripts" / "completion_gate.py", scripts / "completion_gate.py")
+    shutil.copy(REPO / "scripts" / "nexus_process.py", scripts / "nexus_process.py")
     (runs / "abc.json").write_text(json.dumps({
         "schema": 1, "session_id": SESSION, "repo_root": str(repo),
         "plan": "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"}), encoding="utf-8")

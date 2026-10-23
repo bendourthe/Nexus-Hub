@@ -127,6 +127,13 @@ REMOVAL_FAILED = "removal-failed"
 Runner = Callable[[list[str], Path | None], tuple[int, str, str]]
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _exec(argv: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
     """Run one command; (rc, stdout, stderr). rc -1 means it did not run in time."""
     env = dict(os.environ, GH_PROMPT_DISABLED="1", GIT_TERMINAL_PROMPT="0", NO_COLOR="1",

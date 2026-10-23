@@ -310,6 +310,7 @@ def test_hermes_plugin_continues_through_the_real_core(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
     shutil.copy(REPO / "scripts" / "completion_gate.py", scripts / "completion_gate.py")
+    shutil.copy(REPO / "scripts" / "nexus_process.py", scripts / "nexus_process.py")
     (scripts / "check_plan_completion.py").write_text(
         "import sys\n"
         "if sys.argv[1] == 'check':\n    print('INCOMPLETE: task.T002'); sys.exit(1)\n"

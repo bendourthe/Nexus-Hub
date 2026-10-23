@@ -29,7 +29,7 @@ def _to_posix(path: Path) -> str:
 
 def _tracked_markdown(root: Path) -> Iterator[Path]:
     result = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z"],
+        ["git", "-C", str(root), "ls-files", "-z"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         check=False,
         capture_output=True,
     )
