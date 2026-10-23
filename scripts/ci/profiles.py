@@ -596,13 +596,9 @@ WINDOWS_HOOKS = Group(
 # Complementary quarters of tests/validators by file name: test_a* to test_c*
 # except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
 VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_SHARD_B_IGNORES = (
-    "--ignore-glob=*/test_[ab]*",
-    "--ignore-glob=*/test_c[!o]*",
-    "--ignore-glob=*/test_[d-z]*",
-)
-VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[a-c]*", "--ignore-glob=*/test_[p-z]*")
-VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[a-o]*",)
+VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
+VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
@@ -747,7 +743,17 @@ PRE_COMMIT = Group(
     commands=(
         Command(
             name="pre-commit standard hooks",
-            argv=["pre-commit", "run", "--all-files"],
+            argv=[
+                PY,
+                "-c",
+                "import runpy,sys;"
+                f"policy=runpy.run_path({str(REPO_ROOT / 'scripts/nexus_process.py')!r});"
+                "policy['install_no_window_default']();"
+                "sys.argv=['pre-commit', *sys.argv[1:]];"
+                "runpy.run_module('pre_commit', run_name='__main__', alter_sys=True)",
+                "run",
+                "--all-files",
+            ],
             env={"SKIP": "lint-templates,build-catalogs"},
             timeout=1800,
         ),

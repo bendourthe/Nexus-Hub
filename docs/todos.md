@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 
-**Console-window repair:** The isolated maintenance branch adds the shared Windows process policy, installer distribution, launch regressions and broader command guard. The latest three affected test files pass 59 cases with one host-privilege symlink skip; actual background work and the isolated installer pass a 64-second idle observation with zero visible console windows or focus changes. The full handbook gate passes; green integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+**Console-window repair:** PR #519 merged green at fcc19cbb575d56e3e7da8d80e0451a3ffd24f2f0. A pre-commit interpreter followup loads the unchanged shared policy inside the CLI; 82 launch/guard and 91 related CI/policy cases pass with overlap. Actual named checks and the isolated installer pass a 34.877-second idle observation with zero console windows or focus changes. Followup integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
 
 - [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
 **Active work:** v4.14 full-minor run, 67/209 tasks and 2/7 releases. v4.14.1 is released (integration PR 501 merged at 870620c3); v4.14.5 Phase 1 is committed and waits for its release-order turn. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
@@ -10,6 +10,8 @@
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
 **Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
+
+**Minor checker maintenance:** PR #521 preserves unknown observations, shared budget identity and unchanged native authority. Fresh CodeQL has zero Python and JavaScript/TypeScript findings. One hosted standing-instruction assertion exposed a changed link caption; restoring the canonical caption passes all 27 affected policy cases and all eight document budgets. Fresh integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-19 UTC
@@ -48,6 +50,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
+- [ ] Integrate and adopt the [minor checker observation repair](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md), preserving genuine authority and unknown progress scores.
 
 - [x] Establish focused phase checks and complete-plan broad validation as the plan/implement standard, preserving deferred task IDs, explicit earlier acceptance and affected-input evidence reuse. Actual-source verification: 385 tests and 17 fast checks pass.
 

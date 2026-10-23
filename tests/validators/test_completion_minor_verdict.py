@@ -31,6 +31,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -259,12 +260,13 @@ def test_budget_exhaustion_reads_cannot_verify_never_met(walk: Walk) -> None:
     )
     first = _first(result)
     assert result.returncode == ck.EXIT_INCOMPLETE, result.stdout + result.stderr
-    assert first.startswith("INCOMPLETE:") and "member.v0.5.10" in first.split()
+    assert first.startswith("INCOMPLETE:")
+    assert "cannot-verify" in result.stdout  # Discovery can exhaust before any member is reached.
     assert "budget exhausted" in result.stderr
     assert time.monotonic() - started < 60
 
 
-@pytest.mark.parametrize(("value", "expected"), [("500", 120.0), ("abc", 120.0), ("0", 1.0), ("nan", 120.0), ("30", 30.0)])
+@pytest.mark.parametrize(("value", "expected"), [("500", 360.0), ("abc", 360.0), ("0", 1.0), ("nan", 360.0), ("30", 30.0)])
 def test_the_budget_can_only_be_lowered(monkeypatch: pytest.MonkeyPatch, value: str, expected: float) -> None:
     monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", value)
     assert cm.check_minor_seconds() == expected
@@ -801,3 +803,135 @@ def test_gate_slow_evaluation_with_progress_writes_no_blocker(gate) -> None:
     assert [c for c in home.calls() if c[:2] == ["record", "block"]] == []
     state = json.loads(next(home.runs.glob("*.gate.json")).read_text(encoding="utf-8"))
     assert state["refusals"] == 0 and state["met"] == 12
+
+
+
+# --------------------------------------------------------------------------- unavailable observations
+
+
+@pytest.mark.parametrize(("local", "expected"), [
+    ((-1, ""), "cannot-verify"),
+    ((128, ""), "cannot-verify"),
+    ((0, ""), "unmet"),
+    ((0, "v0.5.2\n"), "met"),
+])
+def test_local_tag_observation_preserves_unknown(monkeypatch, tmp_path, local, expected):
+    calls = []
+
+    def run(argv, budget):
+        calls.append(argv)
+        return local if len(calls) == 1 else (0, "abc refs/tags/v0.5.2\n")
+
+    monkeypatch.setattr(ck, "_run", run)
+    ctx = SimpleNamespace(root=tmp_path, git="git", budget=ck.Budget(20))
+    assert ck._tag_status(ctx, "v0.5.2") == expected
+    assert len(calls) == (2 if expected == "met" else 1)
+
+
+@pytest.mark.parametrize("probe", ["worktree", "tracked"])
+def test_unavailable_record_provenance_never_parses_as_valid_or_tampered(monkeypatch, tmp_path, probe):
+    record = tmp_path / "record.json"
+    record.write_text('{"schema": 1}', encoding="utf-8")
+    answers = iter([(-1, "")] if probe == "worktree" else [(0, "true\n"), (-1, "")])
+    monkeypatch.setattr(ck, "_run", lambda *args: next(answers))
+    ctx = SimpleNamespace(git="git", budget=ck.Budget(20))
+    with pytest.raises(Exception, match="record.provenance") as caught:
+        ck.read_record(ctx, record)
+    assert caught.type.__name__ == "ObservationUnavailable"
+
+
+def test_unavailable_controller_discovery_is_incomplete(monkeypatch, tmp_path):
+    ctx = SimpleNamespace(root=tmp_path, git="git", budget=ck.Budget(0), notices=[],
+                          scoped_record_path=lambda scope: tmp_path / "record.json",
+                          run=lambda argv: (-1, ""))
+    verdict = cm.check_minor(ck, ctx, "v0.5", None)
+    assert verdict.code == ck.EXIT_INCOMPLETE
+    assert verdict.line == "INCOMPLETE: controller.ownership"
+    assert verdict.minor == [("controller.ownership", "cannot-verify")]
+
+
+@pytest.mark.parametrize("probe", ["common", "worktree", "tracked"])
+def test_cli_unavailable_authority_observation_is_incomplete(walk, tmp_path, probe):
+    walk.forge_minor()
+    before = {p.name: p.read_bytes() for p in walk.runs.glob("*.json")}
+    # Invoke the real parser and command against private fixture authority. Only
+    # the specified Git observation is unavailable; no live store is consulted.
+    launcher = tmp_path / "unavailable-check.py"
+    launcher.write_text(
+        "import os, sys\n"
+        + "sys.path.insert(0, " + repr(str(SCRIPTS)) + ")\n"
+        + "import check_plan_completion as ck\n"
+        + "original = ck._run\n"
+        + "probe = os.environ['CHECKER_TEST_PROBE']\n"
+        + "def unavailable(argv, budget, cwd=None):\n"
+        + "    if probe == 'common' and '--git-common-dir' in argv: return -1, ''\n"
+        + "    if '--is-inside-work-tree' in argv:\n"
+        + "        if probe == 'worktree': return -1, ''\n"
+        + "        if probe == 'tracked': return 0, 'true\\n'\n"
+        + "    if probe == 'tracked' and 'ls-files' in argv: return -1, ''\n"
+        + "    return original(argv, budget, cwd)\n"
+        + "ck._run = unavailable\n"
+        + "raise SystemExit(ck.main(sys.argv[1:]))\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, "-B", str(launcher), "check-minor", "v0.5", "--json"],
+        cwd=walk.work, env={**walk.env, "CHECKER_TEST_PROBE": probe, "PYTHONDONTWRITEBYTECODE": "1"},
+        capture_output=True, text=True, check=False, timeout=60, **ck.NO_WINDOW)
+    assert result.returncode == ck.EXIT_INCOMPLETE, result.stdout + result.stderr
+    output = result.stdout.splitlines()
+    assert output[0].startswith("INCOMPLETE:") and "BLOCKED" not in result.stdout
+    predicate = "controller.ownership" if probe == "common" else "record.provenance"
+    assert json.loads(output[1])["minor"][predicate] == "cannot-verify"
+    assert before == {p.name: p.read_bytes() for p in walk.runs.glob("*.json")}
+
+
+@pytest.mark.parametrize("limit", [None, "30"], ids=["whole-minor", "caller-lowered"])
+def test_seven_member_budget_includes_shared_observations(monkeypatch, tmp_path, limit):
+    if limit is None:
+        monkeypatch.delenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", raising=False)
+    else:
+        monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", limit)
+    clock = [0.0]
+    monkeypatch.setattr(ck.time, "monotonic", lambda: clock[0])
+    ctx = SimpleNamespace(root=tmp_path, budget=ck.Budget(cm.check_minor_seconds()), notices=[],
+                          _git_out=lambda *args: "abc")
+    versions = [f"v0.5.{i}" for i in range(7)]
+    record = type("FixtureSnapshot", (dict,), {})(
+        members=[{"version": v} for v in versions], repo="acme/demo", completed={"head": "abc"},
+        approvals={"classes": [{"class": "cleanup-merged"}, {"class": "archive-minor"}]})
+    record.record_path = tmp_path / "fixture-record.json"
+
+    def load(*args, **kwargs):
+        clock[0] += 10  # record/controller discovery and pre-member observations
+        return cm.MinorState(record=record)
+
+    def member(ck, rctx, record, value, plan, notices):
+        available = rctx.budget.remaining() >= cm.MEMBER_BUDGET_SECONDS
+        clock[0] += min(cm.MEMBER_BUDGET_SECONDS, rctx.budget.remaining())
+        return cm.MemberResult(value["version"], status="met" if available else "cannot-verify",
+                               exhausted=not available)
+
+    def final(*args):
+        available = ctx.budget.remaining() >= 1
+        clock[0] += min(1, ctx.budget.remaining())
+        return "met" if available else "cannot-verify"
+
+    monkeypatch.setattr(cm, "load_minor", load)
+    monkeypatch.setattr(cm, "scan_plans", lambda *args: [SimpleNamespace(version=v) for v in versions])
+    monkeypatch.setattr(cm, "member_gate", lambda *args: "met")
+    monkeypatch.setattr(cm, "new_members", lambda *args: ("met", None))
+    monkeypatch.setattr(cm, "evaluate_member", member)
+    monkeypatch.setattr(cm, "_integration_ref", lambda *args: "develop")
+    monkeypatch.setattr(cm, "load_ledgers_at", lambda *args: ([], []))
+    monkeypatch.setattr(cm, "gaps_minor_status", lambda *args: (final(), []))
+    monkeypatch.setattr(cm, "close_pr_status", final)
+    monkeypatch.setattr(cm, "cleanup_minor_status", final)
+    monkeypatch.setattr(cm, "archive_minor_status", final)
+    verdict = cm.check_minor(ck, ctx, "v0.5", None)
+    if limit is None:
+        assert len(verdict.members) == 7 and not any(m.exhausted for m in verdict.members)
+        assert all(status == "met" for _, status in verdict.minor)
+    else:
+        assert ctx.budget.deadline == 30
+        assert verdict.code == ck.EXIT_INCOMPLETE
+        assert any(m.exhausted for m in verdict.members)
+        assert all(status == "cannot-verify" for _, status in verdict.minor if _ != "members.approved")

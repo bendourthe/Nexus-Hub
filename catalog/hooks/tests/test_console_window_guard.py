@@ -124,13 +124,14 @@ def test_off_windows_or_disabled_passes(tmp_path: Path, env: dict[str, str]) -> 
     "python -m pytest tests -q", "py.test", "npm run test", "pnpm test", "yarn test", "npx vitest run",
     "npx playwright test", "go test ./...", "cargo test", "dotnet test", "mvn -q test", "./gradlew test",
     "Invoke-Pester", "python scripts/ci/run.py --profile fast", "cd x && pytest",
+    "pre-commit run --all-files", "pre-commit.exe run", "pre-commit.cmd run", "python -m pre_commit run",
 ])
 def test_recognises_test_runners(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 2, command
 
 
-@pytest.mark.parametrize("command", ["git status", "echo pytest-free", "ls tests"])
+@pytest.mark.parametrize("command", ["git status", "echo pytest-free", "ls tests", "echo pre-commit-free", "echo pre_commit_free"])
 def test_ignores_non_test_commands(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 0, command
