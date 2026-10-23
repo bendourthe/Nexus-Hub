@@ -53,6 +53,12 @@ Standing instructions now link to the global style-guides/windows-processes.md p
 
 The actual isolated workspace installer exits 0 and asserts that the installed global policy matches source byte for byte and that the seeded CLAUDE.md points to that file. The observation records 152.704 seconds, 12,888 samples, zero new visible console windows and no foreground-process change. The minimum idle time is 1804031 ms. Raw observation: windows-console-policy-desktop.json. The original global Claude read-path advisory remains a qualification limit. The helper and source guard bytes are unchanged. Fingerprints, instruction budgets and handbook checks pass; hosted checks must run at the new commit.
 
+## Final Windows Fixture Correction
+
+CI run 39882000951 at head 4f2360de3297e30597083ff0dd8256e5c41c7a4b passed 41 checks and failed the Windows installer group. Its twelve failing cases were reproduced exactly on unchanged source: 12 failed in 18.86 seconds. The isolated organization launcher omitted nexus_process.py, two no-terminal fixtures explicitly requested DETACHED_PROCESS, and executable-lookup mocks did not accept the path argument used by the shared process helper.
+
+Five fixture files now copy the shared dependency, use CREATE_NO_WINDOW with redirected input, and preserve the existing which mock behavior with its proper optional path argument. The exact twelve cases plus three adjacent cases pass: 15 passed in 27.55 seconds. Five AST parses, staged whitespace and the official five-file guard apply pass with zero accepts. Distributed process policy, installer and guard bytes are unchanged, so the earlier actual installer and idle-desktop observations remain the behavioral evidence for those bytes. The complete hosted check must pass at the correction commit before merge. Retained receipts: ci-final-installer-failure/ and ci-final-installer-fixture-repair-1792720631714/ under the evidence root.
+
 ## Preservation and Adoption
 
 Every applied edit used the official edit guard with zero accepts. The native run record remained SHA-256 246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a. Frozen approval and review budgets were not reset. The goal remains active; this maintenance repair does not complete v4.14.
