@@ -11,7 +11,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
 
-**Minor checker maintenance:** Seven-member source qualification returns INCOMPLETE in 204.438 seconds with unchanged native authority. Unavailable observations preserve unknown scores; the whole-minor cap is 360 seconds with 20-second member shares. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md). Integration and reviewed runtime adoption remain pending.
+**Minor checker maintenance:** Seven-member source qualification returns INCOMPLETE in 204.438 seconds with unchanged native authority. Unavailable observations preserve unknown scores; the whole-minor cap is 360 seconds with 20-second member shares. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md). PR #521 reached a Windows validator timeout with no assertion failure shown; the complete three-way partition passes 219 affected CI/workflow tests locally with unchanged limits. Fresh hosted integration and reviewed runtime adoption remain pending.
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-19 UTC

@@ -48,6 +48,18 @@ PR #519 merged into develop as fcc19cbb575d56e3e7da8d80e0451a3ffd24f2f0 after al
 
 The retained current-head Windows reports show installer 790 passed with 45 skipped, validator groups 1030 passed with 1 skipped and 2095 passed with 12 skipped, plus hooks 2689 passed with 15 skipped. The previously timed-out validator group completed in 1711.85 seconds. This is hosted console-repair evidence; the checker repair still requires its own hosted integration and reviewed runtime adoption. Current-head reports and merged PR facts are retained under console-window-root-repair-oct22/current-head-hosted-1792729076.
 
+## Hosted Checker Correction
+
+PR #521 first published exact head 45236172f536cff3350b8375f6f8c8717d1e4383. The Windows installer job passed installer coverage (790 passed, 45 skipped in 313.40 seconds) and a-c validators (1055 passed, 1 skipped in 576.63 seconds), then timed out the co-z validator command at 1800 seconds near 74 percent with no assertion failure shown. The hosted aggregate correctly failed. The quiet log cannot identify an exact slow test. The prior console-only co-z result of 1711.85 seconds left 88.15 seconds of command margin.
+
+Read-only review found no major new wait: the added mocked budget cases do not sleep, and retained Windows evidence measures the three new real CLI cases at 10.582 seconds total. This supports aggregate command fragility; it does not establish exact per-test hosted timing. The correction partitions the same validator corpus into a-c, co-h and i-z. All 117 current validator files run exactly once (37, 22 and 58 files), with future alphabet, co/completion, digit and underscore filenames covered by the regression. Every command retains its 1800-second bound, Windows-only selection and PowerShell 5.1 setting; the job retains its 60-minute bound and two-worker scheduling. Workflow YAML, assertions in product tests, runtime checker budgets and frozen plans are unchanged.
+
+The regression first failed twice against the two-part profile. An initial affected CI run then passed 217 cases and exposed a stale three-command assertion plus a uv environment mismatch: base Python is externally managed. After the count correction, the same 219 affected CI/workflow cases passed in 53.65 seconds using the pinned virtual environment's windowless Python 3.11.15 executable. JUnit records zero failures, errors or skips; hidden PID 38004 exited 0. The actual repository-native --list command shows all four installer/validator commands. Source and installed console guards pass for the profile, and the expanded source guard passes for the installer command. Official guarded edits report zero accepts.
+
+The final canonical fast profile passed all 18 commands in 120.1 seconds; hidden PID 13064 exited 0. The generated manifest still contains 2062 entries and changes only the CI profile hash.
+
+Raw failed hosted logs and summary are retained under fresh-qualified-recovery/hosted-failure-1792732390. Regression, terminal process, JUnit, profile listing and guard receipts are under checker-ci-partition-1792732597697 in the evidence root. Earlier unchanged checker source and seven-member timing evidence retain their original inputs and limits; the new profile requires fresh hosted qualification. No retry is recorded as green before its actual terminal result.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.

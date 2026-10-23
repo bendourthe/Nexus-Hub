@@ -43,7 +43,7 @@ def test_windows_installer_corpus_runs_in_its_own_job() -> None:
     installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
     selected = {arg for command in installer.commands for arg in command.argv if arg.startswith("tests/")}
     assert selected == {"tests/installer", "tests/validators"}
-    assert len(installer.commands) == 3, "installer and each validator half keep their own time bound"
+    assert len(installer.commands) == 4, "installer and three validator partitions keep their own time bounds"
     assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in installer.commands)
     hooks = next(group for group in groups_for("platform") if group.name == "windows-hooks")
     assert not any("tests/installer" in c.argv for c in hooks.commands)
@@ -52,19 +52,31 @@ def test_windows_installer_corpus_runs_in_its_own_job() -> None:
     assert any("--only windows-installer" in str(step.get("run", "")) for step in steps)
 
 
-def test_windows_validator_halves_partition_every_test_file() -> None:
-    """Each tests/validators file runs in exactly one half, including files added later."""
+def test_windows_validator_partitions_cover_every_test_file() -> None:
+    """Every current or future validator filename runs in exactly one partition."""
     import fnmatch
 
     installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
-    halves = [c for c in installer.commands if "tests/validators" in c.argv]
-    assert len(halves) == 2
+    partitions = [c for c in installer.commands if "tests/validators" in c.argv]
+    assert [c.name for c in partitions] == [
+        "validators a-c (Windows)",
+        "validators co-h (Windows)",
+        "validators i-z (Windows)",
+    ]
+    assert all(c.timeout == 1800 for c in partitions)
+    assert all(c.env["NEXUS_TEST_POWERSHELL"] == "powershell" for c in partitions)
+    assert all(c.runs_on("windows") and not c.runs_on("linux") and not c.runs_on("macos") for c in partitions)
     ignores = [
-        [arg.split("=", 1)[1] for arg in half.argv if arg.startswith("--ignore-glob=")] for half in halves
+        [arg.split("=", 1)[1] for arg in partition.argv if arg.startswith("--ignore-glob=")]
+        for partition in partitions
     ]
     files = sorted((Path(__file__).resolve().parents[1] / "validators").glob("test_*.py"))
     assert files
-    for path in files:
+    future_names = [f"test_{letter}_future.py" for letter in "abcdefghijklmnopqrstuvwxyz"]
+    future_names += ["test_co_future.py", "test_completion_future.py", "test_1_future.py", "test__future.py"]
+    for path in files + [Path("future") / name for name in future_names]:
         # pytest matches --ignore-glob with fnmatch against the full path string.
         runs_in = [not any(fnmatch.fnmatch(str(path), g) for g in globs) for globs in ignores]
-        assert runs_in.count(True) == 1, f"{path.name} runs in {runs_in.count(True)} validator halves"
+        assert runs_in.count(True) == 1, f"{path.name} runs in {runs_in.count(True)} validator partitions"
+    workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))
+    assert workflow["jobs"]["tests-windows-installer"]["timeout-minutes"] == 60

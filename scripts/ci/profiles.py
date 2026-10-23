@@ -593,15 +593,16 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
-# Complementary halves of tests/validators by file name: half A runs test_a* to
-# test_c* except test_co*; half B runs test_co* and test_d* to test_z*.
-VALIDATORS_HALF_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_HALF_B_IGNORES = ("--ignore-glob=*/test_[ab]*", "--ignore-glob=*/test_c[!o]*")
+# Complementary validator partitions: a-c excludes co; co-h includes co and d-h;
+# i-z contains the remaining letter range. Other filenames fall through a-c.
+VALIDATORS_A_C_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_CO_H_IGNORES = ("--ignore-glob=*/test_[!c-h]*", "--ignore-glob=*/test_c[!o]*")
+VALIDATORS_I_Z_IGNORES = ("--ignore-glob=*/test_[!i-z]*",)
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
-# Two commands, because the combined selection also exceeded its own 1800 s
-# command bound (1784 s passing, 1800.1 s failing).
+# Separate commands retain the 1800 s bound after the combined selection
+# exceeded it (1784 s passing, 1800.1 s failing).
 WINDOWS_INSTALLER = Group(
     name="windows-installer",
     commands=(
@@ -612,16 +613,15 @@ WINDOWS_INSTALLER = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
-        # The validator corpus took 1198-1673 s on passing runs and ran past its
-        # 1800 s bound on four others with no single test stalled (a stall would
-        # end the output with the faulthandler dump below). Two complementary
-        # file-name halves, balanced by measured per-file time (about 53/47),
-        # each keep that bound; every new test_*.py file lands in exactly one
+        # The co-z partition passed quiet CI in 1711.85 s, then timed out at
+        # 1800 s near 74 percent while a-c passed in 577 s. Split co-z again
+        # without raising command or job limits. Every validator file lands
+        # in exactly one of a-c, co-h and i-z, including future filenames
         # (tests/workflows/test_ci_native_profile_parity.py proves it).
         _pytest(
             "validators a-c (Windows)",
             "tests/validators",
-            *VALIDATORS_HALF_A_IGNORES,
+            *VALIDATORS_A_C_IGNORES,
             "-o",
             "faulthandler_timeout=300",
             platforms=("windows",),
@@ -629,9 +629,19 @@ WINDOWS_INSTALLER = Group(
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
         _pytest(
-            "validators co-z (Windows)",
+            "validators co-h (Windows)",
             "tests/validators",
-            *VALIDATORS_HALF_B_IGNORES,
+            *VALIDATORS_CO_H_IGNORES,
+            "-o",
+            "faulthandler_timeout=300",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "validators i-z (Windows)",
+            "tests/validators",
+            *VALIDATORS_I_Z_IGNORES,
             "-o",
             "faulthandler_timeout=300",
             platforms=("windows",),
