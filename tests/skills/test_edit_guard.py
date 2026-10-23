@@ -6,13 +6,15 @@ process with a different session id, against a throwaway store.
 
 from __future__ import annotations
 
-import datetime as dt
+import argparse
+import hashlib
 import importlib.util
 import io
 import json
 import os
 import subprocess
 import sys
+import time
 import zipfile
 from pathlib import Path
 
@@ -338,13 +340,106 @@ def test_purge_and_thirty_day_pruning(store: Path, work: Path) -> None:
     run(store, "record", str(old))
     guard = load_module()
     record_path = store / "records" / f"{guard.key_for(old)}.json"
-    record = json.loads(record_path.read_text(encoding="utf-8"))
-    record["at"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=31)).isoformat()
-    record_path.write_text(json.dumps(record), encoding="utf-8")
-    assert run(store, "check", str(old)).returncode == 4  # pruned on this run
+    aged = time.time() - 31 * 86400
+    os.utime(record_path, (aged, aged))
+    assert run(store, "log").returncode == 0
+    assert record_path.exists()  # the store was already pruned today
+    os.utime(store / ".last-prune", (aged, aged))
+    assert run(store, "check", str(old)).returncode == 4  # the day's first command prunes it
     assert run(store, "check", str(keep)).returncode == 0
     assert run(store, "purge", "--path", str(keep)).returncode == 0
     assert run(store, "check", str(keep)).returncode == 4
+
+
+def fill_store(root: Path, count: int) -> list[str]:
+    """Unrelated live records and fresh snapshots, the shape of a store after weeks of use."""
+    keys = [hashlib.sha256(f"unrelated-{index}".encode()).hexdigest() for index in range(count)]
+    for key in keys:
+        (root / "records" / f"{key}.json").write_text(json.dumps({"path": key, "at": "2026-10-01T00:00:00+00:00",
+                                                                  "sha256": key}), encoding="utf-8")
+        (root / "copies" / f"{key}.{'0' * 32}.bin").write_bytes(b"snapshot")
+    return keys
+
+
+@pytest.fixture
+def large_store(store: Path, work: Path, monkeypatch):
+    monkeypatch.setenv("NEXUS_EDIT_GUARD_DIR", str(store))
+    monkeypatch.chdir(work)
+    guard = load_module()
+    root = guard.store_dir()
+    fill_store(root, 9000)
+    loads: list[str] = []
+    original_load = guard.load_record
+    monkeypatch.setattr(guard, "load_record", lambda root, key: loads.append(key) or original_load(root, key))
+    return guard, root, loads
+
+
+def hook(guard, monkeypatch, payload: dict) -> int:
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
+    return guard.cmd_hook()
+
+
+def test_a_hook_check_on_a_large_store_reads_only_its_target(large_store, work: Path, monkeypatch) -> None:
+    guard, root, loads = large_store
+    target = make_text(work / "notes.md")
+    guard.cmd_record(argparse.Namespace(path=str(target), source="read", force=False), root)
+    pruned, spawned = [], []
+    monkeypatch.setattr(guard, "prune", lambda root: pruned.append(root))
+    monkeypatch.setattr(guard, "_spawn_prune", lambda: spawned.append(True))
+    aged = time.time() - 2 * 86400
+    (root / ".last-prune").write_text("yesterday", encoding="utf-8")
+    os.utime(root / ".last-prune", (aged, aged))
+    payload ={"hook_event_name": "PreToolUse", "tool_name": "Edit", "tool_input": {"file_path": str(target)},
+               "cwd": str(work), "session_id": "large-store"}
+    loads.clear()
+    start = time.perf_counter()
+    assert hook(guard, monkeypatch, payload) == 0
+    elapsed = time.perf_counter() - start
+    assert hook(guard, monkeypatch, payload) == 0
+    # The check reads its own record, never the store; pruning leaves the hook once a day.
+    assert set(loads) == {guard.key_for(target)}
+    assert pruned == [] and spawned == [True]
+    assert elapsed < 1.0
+
+
+def test_prune_on_a_large_store_opens_only_aged_copies(large_store) -> None:
+    guard, root, loads = large_store
+    aged = time.time() - 31 * 86400
+    expired = fill_store(root, 3)  # the first three unrelated keys, now untouched for 31 days
+    for key in expired:
+        os.utime(root / "records" / f"{key}.json", (aged, aged))
+    orphans = [root / "copies" / f"{hashlib.sha256(name.encode()).hexdigest()}.{'1' * 32}.bin"
+               for name in ("orphan-a", "orphan-b")]
+    for orphan in orphans:
+        orphan.write_bytes(b"abandoned")
+        os.utime(orphan, (aged, aged))
+    loads.clear()
+    assert guard.prune(root) == 3
+    assert len(loads) == len(orphans)  # no live record is opened
+    assert not any(orphan.exists() for orphan in orphans)
+    assert not any((root / "records" / f"{key}.json").exists() for key in expired)
+    assert not any((root / "copies" / f"{key}.{'0' * 32}.bin").exists() for key in expired)
+    assert len(list((root / "records").iterdir())) == 9000 - 3
+
+
+def test_the_log_appends_and_keeps_one_rotated_generation(store: Path, work: Path, monkeypatch, capsys) -> None:
+    monkeypatch.setenv("NEXUS_EDIT_GUARD_DIR", str(store))
+    monkeypatch.chdir(work)
+    guard = load_module()
+    root = guard.store_dir()
+    monkeypatch.setattr(guard, "LOG_ROTATE_BYTES", 400)
+    guard.append_log(root, {"event": "accept", "path": "/a.md", "display": "first.md"})
+    for index in range(40):
+        guard.append_log(root, {"event": "check", "result": "unchanged", "path": f"/n{index}.md"})
+    assert (root / "log.jsonl").stat().st_size < 400 + 200
+    assert (root / "log.jsonl.1").stat().st_size < 400 + 200
+    monkeypatch.setattr(guard, "LOG_ROTATE_BYTES", 1)
+    guard.append_log(root, {"event": "accept", "path": "/b.md", "display": "second.md"})  # starts a new log
+    guard.append_log(root, {"event": "check", "result": "unchanged", "path": "/c.md"})  # rotates it out
+    rotated = (root / "log.jsonl.1").read_bytes()
+    assert json.loads(rotated.splitlines()[-1])["display"] == "second.md" and b"\r" not in rotated
+    assert guard.cmd_log(argparse.Namespace(since=None), root) == 0
+    assert "second.md" in capsys.readouterr().out  # the end-of-task summary still sees rotated accepts
 
 
 def test_log_lists_accepts_for_the_summary(store: Path, work: Path) -> None:
