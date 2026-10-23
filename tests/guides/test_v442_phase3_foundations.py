@@ -249,7 +249,7 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
     # v4.4.5 renamed the parts on instruction; "goal" now names the finish line the
     # figure used to call "done". The order is unchanged, the vocabulary is not.
     assert data["parts"] == ["request", "context", "goal", "format"]
-    assert data["joined"].startswith("Summarise this contract and list every deadline. Use the signed PDF")  # spelling: allow
+    assert data["joined"].startswith("Summarize this contract and list every deadline. Use the signed PDF")
     assert data["legend"] == ["Request", "Context", "Goal", "Format"]
     assert data["colors"] == 4, "each part carries its own color"
     assert data["weakFirst"], "the vague prompt still reads before the precise one"

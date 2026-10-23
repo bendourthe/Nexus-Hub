@@ -1169,15 +1169,15 @@ def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
     """v4.4.1 Phase 3: a real prompt, a verified split, and equivalent chips.
 
     The split asserted below is the actual cl100k_base encoding of the displayed prompt,
-    so the example is reproducible rather than illustrative. `Summarise` costing three
+    so the example is reproducible rather than illustrative. "Summarize" costing three
     tokens is the whole teaching point: a token is not a word.
     """
     scene = _foundation_scene(guide_text, "fx-tokens")
     assert 'data-tokenizer="cl100k_base"' in scene
-    assert "Summarise this contract and list every deadline." in scene  # spelling: allow
+    assert "Summarize this contract and list every deadline." in scene
     space = "\u2423"
     expected = [
-        "Sum", "mar", "ise", space + "this", space + "contract", space + "and",
+        "Sum", "mar", "ize", space + "this", space + "contract", space + "and",
         space + "list", space + "every", space + "deadline", ".",
     ]
     chips = re.findall(r'<span[^>]*class="fx-tokchip-txt">([^<]*)</span>', scene)
@@ -1221,7 +1221,7 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
         assert not re.search(r"<dt[^>]*>" + re.escape(retired) + r"</dt>", scene), (
             "the old vocabulary survives: " + retired
         )
-    assert "Summarise this contract and list every deadline." in scene  # spelling: allow
+    assert "Summarize this contract and list every deadline." in scene
     assert "Look at this contract." in scene
     # the flaws are named rather than summarized in one sentence
     for flaw in ("No request", "No context", "No goal", "No format"):
