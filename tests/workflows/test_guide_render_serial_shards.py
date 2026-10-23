@@ -60,25 +60,32 @@ def test_guide_render_is_three_serial_shards_of_45_minutes() -> None:
         assert not command.platform_timeouts, name
 
 
-def test_only_windows_installer_job_can_use_pytest_workers() -> None:
+# The two Windows PowerShell 5.1 corpus jobs are the only places pytest workers run.
+WORKER_JOBS = (
+    ("tests-windows-installer", "Windows installer profile group", "windows-installer"),
+    ("tests-windows-validators", "Windows validators profile group", "windows-validators"),
+)
+
+
+def test_only_windows_corpus_jobs_can_use_pytest_workers() -> None:
     for path in sorted(WORKFLOWS.glob("*.y*ml")):
         workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
         if path.name == "ci.yml":
-            job = workflow["jobs"]["tests-windows-installer"]
-            pytest_addopts = job["env"].pop("PYTEST_ADDOPTS")
-            assert pytest_addopts == "-p xdist -n 2 --dist loadfile"
-            install = next(step for step in job["steps"]
-                           if step.get("name") == "Install test dependencies")
-            tools = " pytest-xdist==3.8.0 execnet==2.1.2"
-            assert install["run"].endswith(tools)
-            install["run"] = install["run"][:-len(tools)]
-            runner = next(step for step in job["steps"]
-                          if step.get("name") == "Windows installer profile group")
-            assert runner["run"] == (
-                "python scripts/ci/run.py --profile platform --only windows-installer --reports-dir reports"
-            )
+            for job_name, step_name, group in WORKER_JOBS:
+                job = workflow["jobs"][job_name]
+                pytest_addopts = job["env"].pop("PYTEST_ADDOPTS")
+                assert pytest_addopts == "-p xdist -n 2 --dist loadfile", job_name
+                install = next(step for step in job["steps"]
+                               if step.get("name") == "Install test dependencies")
+                tools = " pytest-xdist==3.8.0 execnet==2.1.2"
+                assert install["run"].endswith(tools), job_name
+                install["run"] = install["run"][:-len(tools)]
+                runner = next(step for step in job["steps"] if step.get("name") == step_name)
+                assert runner["run"] == (
+                    f"python scripts/ci/run.py --profile platform --only {group} --reports-dir reports"
+                ), job_name
         text = yaml.safe_dump(workflow, width=1_000_000)
-        assert not XDIST_TEXT.search(text), f"{path.name} enables pytest-xdist outside the installer job"
+        assert not XDIST_TEXT.search(text), f"{path.name} enables pytest-xdist outside the Windows corpus jobs"
         for line in text.splitlines():
             if "pytest" in line:
                 assert not _parallel_flags(_tokens(line)), f"{path.name}: {line.strip()}"
