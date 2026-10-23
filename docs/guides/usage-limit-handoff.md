@@ -139,7 +139,7 @@ Set these in the environment the agent host starts hooks from:
 | `NEXUS_USAGE_PROBE_DISABLED` | `1` turns the probe off, so the guard always stays silent. | unset |
 | `NEXUS_HOME` | Relocates `~/.nexus-hub`, where the cache and guard state live. | `~/.nexus-hub` |
 
-The guard warns once per window per session. It warns again only after the window drops below the threshold minus up to 5 points or its reset time moves to a new period.
+The guard shares one question episode per project and platform across sessions and additional crossing windows. It reuses an unanswered question and rotates an answered episode only after its bound clear/reset conditions. A new session receives non-question context for an existing pending, wait or handoff decision, carrying its ID and stop instruction without permission to claim or deliver another question. Valid session IDs deduplicate that context once per stopping state, with at most 128 retained session notices. Missing or malformed IDs receive conservative status on context events without storing a notice. Stop events never emit this status.
 
 ## Testing the probe in isolation
 

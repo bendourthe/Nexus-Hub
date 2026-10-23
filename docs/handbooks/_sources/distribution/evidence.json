@@ -17,8 +17,8 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "58feaaa1ad78d7b55a19d33f7916ae8ce6c31450b1ad7b0aea61b2b83f58f0f8",
-      "scripts/installer.sh": "20902f5b80956642029e49e75183b04e689105aae33b253eb1ee87414d2bdf36",
+      "scripts/installer.ps1": "1d7ffe88f57c2651f658f05a2540fe3aacf58015a2f543cfd13e9141ff15d3a4",
+      "scripts/installer.sh": "1eb8e40d2c01425328d6d0a5e9e294e644e924de905ec6d92cf51cc316e6bdbc",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/windows-console-handbook-review.md",
-      "evidence_sha256": "27b34d9a89cd22415e891b0d7f74e770dc994d44a4dbe691cc864f87c78d5af7"
+      "evidence": "docs/releases/v4/v4.14/development/checker-budget-handbook-review.md",
+      "evidence_sha256": "262fe40390e5cef4db704c7a1794c76791dc7f876049ebd8d896980f7b5c074c"
     },
     "build": {
       "status": "pass",

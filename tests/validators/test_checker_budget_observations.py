@@ -89,6 +89,54 @@ def test_cleanup_unknown_does_not_escape(monkeypatch, capsys):
     assert "cannot-verify" in capsys.readouterr().out
 
 
+@pytest.mark.parametrize(("limit", "expected"), [
+    (None, 360.0), ("1.5", 1.5), ("500", 360.0), ("invalid", 360.0), ("nan", 360.0), ("0", 1.0),
+])
+def test_minor_budget_owner_loads_without_lifecycle_modules(monkeypatch, limit, expected):
+    for name in ("completion_minor", "run_plan", "check_plan_completion"):
+        monkeypatch.setitem(sys.modules, name, None)
+    if limit is None:
+        monkeypatch.delenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", raising=False)
+    else:
+        monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", limit)
+    spec = importlib.util.spec_from_file_location("fresh_completion_budget", SCRIPTS / "completion_budget.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.CHECK_MINOR_TOTAL_SECONDS == 360.0
+    assert module.check_minor_seconds() == expected
+
+
+def test_minor_budget_public_star_exports_are_leaf_identities(monkeypatch):
+    import completion_budget
+
+    spec = importlib.util.spec_from_file_location("fresh_minor_budget_exports", SCRIPTS / "completion_minor.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    for name in ("completion_minor", "run_plan", "check_plan_completion"):
+        monkeypatch.setitem(sys.modules, name, None)
+    spec.loader.exec_module(module)
+    exported = {}
+    exec("from fresh_minor_budget_exports import *", exported)
+    assert exported["CHECK_MINOR_TOTAL_SECONDS"] is completion_budget.CHECK_MINOR_TOTAL_SECONDS
+    assert exported["check_minor_seconds"] is completion_budget.check_minor_seconds
+
+
+def test_runner_minor_budget_does_not_import_minor_module(monkeypatch):
+    monkeypatch.setitem(sys.modules, "completion_minor", None)
+    monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", "1.5")
+    timeouts = []
+
+    def run(*args, **kwargs):
+        timeouts.append(kwargs["timeout"])
+        return SimpleNamespace(returncode=1, stdout="INCOMPLETE: fixture")
+
+    monkeypatch.setattr(runner.subprocess, "run", run)
+    assert runner._checker_run(["check-minor", "v0.5"]) == (1, "INCOMPLETE: fixture")
+    assert timeouts == [6.5]
+
+
 @pytest.mark.parametrize("limit", [None, "3"])
 def test_runner_outer_timeout_covers_minor_budget(monkeypatch, limit):
     if limit is None:
@@ -135,7 +183,7 @@ def test_exact_duplicate_tips_are_observed_once(tmp_path):
             return 1, ""
         if verb == "diff":
             return 0, "docs/gaps.md\n"
-        pytest.fail(str(argv))
+        raise AssertionError(str(argv))
     ctx = SimpleNamespace(root=tmp_path, git="git", run=run)
     assert cm.unmerged_changes(ctx, "develop", set()) == {
         "topic": {"docs/gaps.md"}, "other": {"docs/gaps.md"}}

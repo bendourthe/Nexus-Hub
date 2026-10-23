@@ -933,6 +933,38 @@ def decision_directive(data: dict[str, Any], message: str) -> str:
             "the session-handoff prompt and stops; only credits authorizes continued work.")
 
 
+def _context_session(payload: dict[str, Any]) -> str | None:
+    for key in ("session_id", "conversation_id"):
+        value = payload.get(key)
+        if isinstance(value, str) and SAFE_SESSION_RE.fullmatch(value):
+            return value
+    return None
+
+
+def _decision_status(path: Path, data: dict[str, Any], payload: dict[str, Any]) -> str | None:
+    """Share a stopping state once per session; never reserve another question."""
+    session = _context_session(payload)
+    notices = data.get("status_sessions", {})
+    notices = {key: value for key, value in notices.items()
+               if isinstance(key, str) and SAFE_SESSION_RE.fullmatch(key)
+               and isinstance(value, str) and value in ("pending", "wait", "handoff")} if isinstance(notices, dict) else {}
+    notices = dict(list(notices.items())[-128:])
+    decision = data["decision"]
+    if session is not None and notices.get(session) == decision:
+        return None
+    if session is not None:
+        if session not in notices and len(notices) >= 128:
+            del notices[next(iter(notices))]
+        notices[session] = decision
+        data["status_sessions"] = notices
+        save_state(path, data)  # Failed notice persistence must never suppress the stopping context.
+    action = {"pending": "Stop new work and await the existing response.",
+              "wait": "Stop work until the reported reset.",
+              "handoff": "Print the session-handoff prompt and stop."}[decision]
+    return (f"Usage decision {data['id']}: {decision}; delivery {data['delivery']['state']}. "
+            + action + " Reuse this decision. Do not claim or ask another question; this status grants no spending authority.")
+
+
 def _offered_directive(data: dict[str, Any]) -> str:
     """Recover an undelivered offer from its original facts, never a new question."""
     if data.get("origin") == "host-warning":
@@ -984,7 +1016,8 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
             if data.get("decision") != "credits":
                 if data["decision"] == "pending" and data["delivery"]["state"] == "offered":
                     return render(platform, kind, event, _offered_directive(data))
-                return None  # Claimed or answered decisions never deliver another UI question.
+                notice = _decision_status(path, data, payload) if kind != "stop" else None
+                return render(platform, kind, event, notice) if notice else None
             approval = dict(data.get("approval") or {})
             due = kind != "stop" and _spend_reminder_due(approval, credit, reminder_settings(platform))
             # Lower spend resets reminder marks too, even when no reminder is due.
@@ -1013,6 +1046,9 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
             path.parent.mkdir(parents=True, exist_ok=True)
         except OSError:
             return None
+        session = _context_session(payload)
+        if session is not None:
+            data["status_sessions"] = {session: "pending"}
         if not save_state(path, data):
             return None
         message = directive(platform, crossing[0], credit, *reminder_settings(platform))

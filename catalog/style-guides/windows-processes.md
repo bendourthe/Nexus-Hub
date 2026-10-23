@@ -4,7 +4,7 @@ This policy covers console programs launched by agents, product commands, tests,
 
 ## Launch Policy
 
-Use one shared Python helper or default that passes creationflags=subprocess.CREATE_NO_WINDOW on Windows for every subprocess.run, Popen and check_* call. Load the same default in product entry points and every applicable pytest conftest.py. Preserve other compatible flags and output handling; reject CREATE_NEW_CONSOLE and DETACHED_PROCESS for console programs. Prefer an in-process call when it supplies the required behavior.
+Use one shared Python helper or default that passes creationflags=subprocess.CREATE_NO_WINDOW on Windows for every subprocess.run, Popen and check_* call. Load the same default in product entry points and every applicable pytest conftest.py. Preserve other compatible flags and output handling; reject CREATE_NEW_CONSOLE and DETACHED_PROCESS for console programs. Prefer an in-process call when it supplies the required behavior. A parent's creation flags and Python default do not propagate into a second interpreter. Bootstrap the shared default inside third-party Python CLIs such as pre-commit before running their module entry point.
 
 For Node and TypeScript, every child_process spawn, exec, execFile and related call passes windowsHide: true. Batch shims such as code.cmd, cursor.cmd and npm.cmd run through the same hidden-window helper; a bare shell call from a console-less parent can open a visible window. Preserve argument boundaries.
 

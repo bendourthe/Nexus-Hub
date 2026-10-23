@@ -300,6 +300,9 @@ def test_second_tool_call_in_the_same_session_is_silent(guard, dirs, project, pl
 def test_a_new_session_reuses_the_pending_decision(guard, dirs, project, platform):
     guard.readings[platform] = reading(platform, 100)
     assert run(guard, dirs, platform, payload(platform, "tool", project, session="a")) is not None
+    status = run(guard, dirs, platform, payload(platform, "tool", project, session="b"))
+    assert "Stop new work and await the existing response" in message_of(status)
+    assert "Do not claim or ask another question" in message_of(status)
     assert run(guard, dirs, platform, payload(platform, "tool", project, session="b")) is None
 
 
@@ -965,6 +968,9 @@ def test_a_credits_answer_is_remembered_by_later_sessions(guard, dirs, project):
 def test_a_pending_answer_is_not_an_approval(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    status = run(guard, dirs, "claude", payload("claude", "tool", project, session="b"))
+    assert "Stop new work" in message_of(status)
+    assert "no spending authority" in message_of(status)
     assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is None
     assert guard.pending_decision("claude", payload("claude", "stop", project))["decision"] == "pending"
 
@@ -1226,7 +1232,10 @@ def test_cached_path_latency_p95_under_150_ms(dirs, project, env):
         start = time.perf_counter()
         output = module.evaluate(body, time.monotonic(), dirs["claude"])
         samples.append(time.perf_counter() - start)
-        assert (output is not None) is (index == 0)
+        assert output is not None
+        if index > 0:
+            assert "Do not claim or ask another question" in message_of(output)
+            assert "--decision-action" not in message_of(output)
         if index == 0:
             state = module.pending_decision("claude", body)
             module.decision_transition("claude", project, state["id"], "claim", tool="private-latency-fixture")

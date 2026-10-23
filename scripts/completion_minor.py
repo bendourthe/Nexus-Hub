@@ -31,7 +31,6 @@ import fnmatch
 import hashlib
 import hmac
 import json
-import math
 import os
 import re
 import sys
@@ -43,6 +42,10 @@ from typing import TYPE_CHECKING
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+import completion_budget as _completion_budget
+
+CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
+check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
@@ -2767,7 +2770,6 @@ def archive_member_status(ck: ModuleType, rctx: RepoContext, record: dict, membe
 # and every minor-level predicate are owned by the completion contract, "Minor
 # verdict"; this section executes them and restates none of them.
 
-CHECK_MINOR_TOTAL_SECONDS = 360.0  # seven member shares plus bounded shared observations
 MEMBER_BUDGET_SECONDS = 20.0  # each member's own share: the per-plan check's budget
 MEMBER_MIN_SECONDS = 1.0  # below this a member is not evaluated and reads cannot-verify
 CLOSE_BRANCH = "chore/close-{token}"
@@ -2814,17 +2816,6 @@ class MinorVerdict:
         count = sum(1 for m in self.members for _, status in m.lines if status in _MET)
         count += sum(1 for m in self.members if m.gate in _MET and not m.exhausted)
         return count + sum(1 for _, status in self.minor if status in _MET)
-
-
-def check_minor_seconds() -> float:
-    """The total budget; a caller with a shorter limit (the turn-end gate) may lower it, never raise it."""
-    try:
-        requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
-    except ValueError:
-        return CHECK_MINOR_TOTAL_SECONDS
-    if math.isnan(requested):
-        return CHECK_MINOR_TOTAL_SECONDS
-    return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
 
 
 def minor_context(ck: ModuleType, repo: str) -> RepoContext:

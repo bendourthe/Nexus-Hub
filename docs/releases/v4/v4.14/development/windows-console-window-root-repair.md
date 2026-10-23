@@ -88,3 +88,18 @@ Every applied edit used the official edit guard with zero accepts. The native ru
 Source policy SHA-256: 682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c. Source guard SHA-256: a3bfec9c76052b069882905c2a0e362f8856ffa410203c62dcbae46e7b24a213. Evidence root: %TEMP%/nexus-v4140-native-hook-budget-oct17/console-window-root-repair-oct22.
 
 Template parity and the exact 2,062-entry staged manifest match also pass. Integration and reviewed runtime adoption are pending. Installed native scripts and the real-home guard have not been manually replaced.
+
+## Pre-commit Interpreter Boundary
+
+A later checker validation exposed an additional Python-interpreter boundary: the external pre-commit CLI started Git without installing the shared policy. The checker maintenance correction loads the unchanged shared default inside pre_commit, repairs the timeout fixture's generated parent and extends command recognition and durable instructions. A safe RED and real Git flag regression pass; the two affected selections pass 82 and 91 cases with overlap. Actual named pre-commit checks and an isolated PowerShell installer pass within a 34.877-second idle observation: 3058 samples, zero visible console events, unchanged foreground process and no user input. The existing installed guard also passes against the project. See [checker maintenance evidence](check-minor-budget-observation-evidence.md#pre-commit-console-children) for scope and retained artifacts. Source integration and reviewed runtime adoption of this followup remain open.
+
+## Merged Interpreter Followup
+
+The pre-commit interpreter repair integrated through PR #521 at `7c3260743fc660919516f65f4b852c82e0d6021a`, with all 46 exact-head checks and the post-merge run passing. Its merged tree matches the tested tree. The retained 34.877-second idle observation covers the real named pre-commit checks and isolated installer, with zero visible console windows or focus changes. Source integration is verified; runtime adoption and global platform-hook delivery remain pending.
+
+
+## Current Installed Guard Observation
+
+The merged source guard executed successfully for project pytest, installer and pre-commit command payloads. An intentionally unsafe private launch site produced exit 2 and the expected remediation; the unsafe command itself was never executed. The current Claude installed guard instead contains zero physical newline bytes and 455 literal escaped CRLF sequences, leaving its entire content on a shebang comment line. It returned exit 0 even for that unsafe positive control. Its quiet exit is not active guard coverage. Current raw SHA-256 is ee741a0e018cf0eefa695d0d31e746f3c76cebf371a5e323f58c405896c6bcd2, with observed modification time 2026-10-23T17:40:48.812Z. The current bytes were preserved separately; this run did not deploy that change.
+
+All 95 accepted native script hashes, the operational edit-guard bytes, both manifests and native authority still matched their accepted baselines during this observation. Source integration and the earlier idle desktop proof remain separate from installed guard delivery. Verified delivery must restore an executable installed guard and repeat both safe-project and unsafe-positive controls before installed coverage is claimed.

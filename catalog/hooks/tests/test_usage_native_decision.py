@@ -44,6 +44,9 @@ def test_one_offer_across_sessions_and_additional_windows(case):
     payload["session_id"] = "two"
     reading["windows"].append({"name": "five_hour", "percent": 100,
                               "resets_at": guard._iso_now(time.time() + 1000)})
+    status = json.dumps(guard.evaluate(payload, time.monotonic()))
+    assert data["id"] in status and "Stop new work" in status
+    assert "Do not claim or ask another question" in status
     assert guard.evaluate(payload, time.monotonic()) is None
     assert guard.pending_decision("codex", payload)["id"] == data["id"]
 
@@ -290,6 +293,12 @@ def test_additional_crossing_window_reuses_one_genuine_answer(case, answer):
     reading["windows"].append({"name": "five_hour", "percent": 100,
                               "resets_at": guard._iso_now(time.time() + 1000)})
     payload["session_id"] = "another-session"
+    status = guard.evaluate(payload, time.monotonic())
+    if answer == "credits":
+        assert status is None
+    else:
+        assert data["id"] in json.dumps(status)
+        assert "Do not claim or ask another question" in json.dumps(status)
     assert guard.evaluate(payload, time.monotonic()) is None
     result = guard.pending_decision("codex", payload)
     assert result["id"] == data["id"] and result["decision"] == answer
@@ -502,3 +511,94 @@ def test_credit_reminders_preserve_original_question_cost_snapshot(case):
     assert guard.archive_answer(path, current)
     saved = json.loads((path.parent / "history" / (current["id"] + ".json")).read_text())
     assert saved["credit"]["used"] == 10 and "current_credit" not in saved
+
+
+@pytest.mark.parametrize("delivery", ["claimed", "delivered", "uncertain"])
+def test_new_prompt_gets_existing_pending_status_once(case, delivery):
+    guard, project, payload, _, _ = case
+    data = offer(case)
+    claim = guard.decision_transition("codex", project, data["id"], "claim", tool="private-fixture")
+    token = claim["decision"]["delivery"]["claim_id"]
+    if delivery == "delivered":
+        guard.decision_transition("codex", project, data["id"], "delivered", claim_id=token, request_id="private-status-request")
+    elif delivery == "uncertain":
+        guard.decision_transition("codex", project, data["id"], "uncertain", claim_id=token)
+    before = guard.pending_decision("codex", payload)
+    new = dict(payload, session_id="new-session", hook_event_name="UserPromptSubmit")
+    status = guard.evaluate(new, time.monotonic())
+    text = json.dumps(status)
+    assert data["id"] in text and "Stop new work" in text
+    assert "Do not claim or ask another question" in text
+    assert "--decision-action" not in text
+    assert guard.evaluate(new, time.monotonic()) is None
+    assert guard.evaluate(dict(new, hook_event_name="PostToolUse"), time.monotonic()) is None
+    assert guard.evaluate(dict(new, session_id="stop-only", hook_event_name="Stop"), time.monotonic()) is None
+    after = guard.pending_decision("codex", payload)
+    assert after["id"] == before["id"] and after["delivery"] == before["delivery"]
+    assert after["decision"] == "pending"
+    assert not guard.decision_transition("codex", project, data["id"], "claim", tool="text")["claimed"]
+
+
+@pytest.mark.parametrize("choice", ["wait", "handoff"])
+def test_saved_stop_answer_reaches_each_new_session_once(case, choice):
+    guard, _, payload, _, _ = case
+    offer(case)
+    answered = answer_fixture(case, choice)
+    new = dict(payload, session_id="new-answer-session", hook_event_name="UserPromptSubmit")
+    status = json.dumps(guard.evaluate(new, time.monotonic()))
+    assert answered["id"] in status and choice in status
+    assert "Do not claim or ask another question" in status
+    assert guard.evaluate(new, time.monotonic()) is None
+    after = guard.pending_decision("codex", payload)
+    for key in ("id", "decision", "delivery", "recorded_at", "response_id"):
+        assert after[key] == answered[key]
+
+
+def test_status_session_storage_stays_bounded(case):
+    guard, project, payload, _, _ = case
+    data = offer(case)
+    guard.decision_transition("codex", project, data["id"], "claim", tool="private-fixture")
+    for number in range(130):
+        new = dict(payload, session_id=f"bounded-{number}")
+        assert guard.evaluate(new, time.monotonic())
+    after = guard.pending_decision("codex", payload)
+    assert len(after["status_sessions"]) == 128
+    assert guard.evaluate(new, time.monotonic()) is None
+
+
+@pytest.mark.parametrize("value", [None, [], "unsafe/id"])
+def test_unknown_session_gets_conservative_status_without_notice_write(case, value):
+    guard, project, payload, _, _ = case
+    data = offer(case)
+    guard.decision_transition("codex", project, data["id"], "claim", tool="private-fixture")
+    before = guard.pending_decision("codex", payload)
+    for _ in range(2):
+        assert "Stop new work" in json.dumps(guard.evaluate(dict(payload, session_id=value), time.monotonic()))
+    assert guard.pending_decision("codex", payload) == before
+
+
+def test_notice_failure_still_reports_stop_and_preserves_authority(case, monkeypatch):
+    guard, project, payload, _, _ = case
+    data = offer(case)
+    guard.decision_transition("codex", project, data["id"], "claim", tool="private-fixture")
+    before = guard.pending_decision("codex", payload)
+    monkeypatch.setattr(guard, "save_state", lambda *_: False)
+    status = json.dumps(guard.evaluate(dict(payload, session_id="write-failure"), time.monotonic()))
+    assert data["id"] in status and "Stop new work" in status
+    assert "no spending authority" in status
+    assert guard.pending_decision("codex", payload) == before
+
+
+def test_status_normalizes_oversized_notice_map_and_uses_valid_fallback(case):
+    guard, project, payload, _, _ = case
+    data = offer(case)
+    guard.decision_transition("codex", project, data["id"], "claim", tool="private-fixture")
+    current = guard.pending_decision("codex", payload)
+    current["status_sessions"] = {f"old-{n}": "pending" for n in range(140)}
+    assert guard.save_state(guard.decision_path("codex", project), current)
+    new = dict(payload, session_id=["malformed"], conversation_id="fallback-session")
+    assert guard.evaluate(new, time.monotonic())
+    saved = guard.pending_decision("codex", payload)
+    assert len(saved["status_sessions"]) == 128
+    assert saved["status_sessions"]["fallback-session"] == "pending"
+    assert guard.evaluate(new, time.monotonic()) is None

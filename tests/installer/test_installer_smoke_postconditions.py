@@ -128,10 +128,11 @@ def test_eval_and_report_scripts_are_literal_smoke_requirements() -> None:
     assert set(EVAL_AND_REPORT_SCRIPTS) <= set(EXPECTED_SCRIPTS)
 
 
-@pytest.mark.parametrize("name", EVAL_AND_REPORT_SCRIPTS)
+@pytest.mark.parametrize("name", (*EVAL_AND_REPORT_SCRIPTS, "completion_budget.py"))
 def test_cli_rejects_a_missing_distributed_script(
     installed_copy: tuple[Path, Path], name: str
 ) -> None:
+    assert name in EXPECTED_SCRIPTS
     home, workspace = installed_copy
     command = [
         sys.executable, str(Path(smoke.__file__).resolve()),

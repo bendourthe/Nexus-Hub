@@ -69,7 +69,7 @@ A usage warning pauses new work at a safe point. Reuse the home-owned decision i
 
 An answered episode expires when its bound window crosses the existing hysteresis clear line or reports a materially different reset period. An unanswered question is reused. Before a new episode replaces an answered decision, immutable original question and answer facts are retained once under the home-owned decisions/history directory; conflicting or unavailable history never gets overwritten.
 
-The hook and completion gate consult the same home-owned decision and independently confirm current usage. An unknown probe or score does not become a fabricated usage reading or progress count. During runtime adoption they use cached readings only and perform no state writes. The writer/adopter boundary is the OS-owned state/usage-probe/activity.lock; the adopter holds it before its protected baseline through verification or rollback, and writers check .runtime-adoption.lock both before and after acquiring it.
+The hook and completion gate consult the same home-owned decision and independently confirm current usage. An unknown probe or score does not become a fabricated usage reading or progress count. During runtime adoption the cooperative usage probe reads validated cache only and the guard performs no decision writes. Native checker and completion-gate state writes are outside this boundary and remain excluded during the reserved quiet interval. The writer/adopter boundary is the OS-owned state/usage-probe/activity.lock; the adopter holds it before its protected baseline through verification or rollback, and writers check .runtime-adoption.lock both before and after acquiring it.
 
 A direct manual /handoff invocation already chooses handoff; continue with Step 1.
 

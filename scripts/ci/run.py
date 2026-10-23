@@ -135,8 +135,8 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
     env.setdefault("PYTHONUTF8", "1")
 
     with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
-        # CREATE_NO_WINDOW: a step run from a process with no console (an agent's
-        # shell) would otherwise open a window, and so would every program it starts.
+        # Hide this child. A second interpreter must load the shared policy itself
+        # before launching console descendants; creation flags do not propagate.
         popen_kwargs = {"start_new_session": True} if os.name != "nt" else {
             "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
         }
