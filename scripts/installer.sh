@@ -2768,6 +2768,12 @@ install_templates() {
         safe_copy "$approval_binding_source" "$scripts_dest/approval_binding.py" true "[OK] Approval binder installed at: $scripts_dest/approval_binding.py"
     fi
 
+    # Copy the shared minor-observation budget used by the checker and runner.
+    local completion_budget_source="$repo_root/scripts/completion_budget.py"
+    if [ -f "$completion_budget_source" ]; then
+        safe_copy "$completion_budget_source" "$scripts_dest/completion_budget.py" true "[OK] Shared completion budget installed at: $scripts_dest/completion_budget.py"
+    fi
+
     # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
     # `members` and `record ... --minor` to it as a sibling.
     local completion_minor_source="$repo_root/scripts/completion_minor.py"

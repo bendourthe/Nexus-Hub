@@ -2904,6 +2904,12 @@ function Install-Templates {
         Safe-Copy -Source $approvalBindingSource -Destination (Join-Path $scriptsDest "approval_binding.py") -Confirm:$true -CustomMessage "✓ Approval binder installed at: $scriptsDest\approval_binding.py"
     }
 
+    # Copy the shared minor-observation budget used by the checker and runner.
+    $completionBudgetSource = Join-Path $RepoRoot "scripts\completion_budget.py"
+    if (Test-Path $completionBudgetSource) {
+        Safe-Copy -Source $completionBudgetSource -Destination (Join-Path $scriptsDest "completion_budget.py") -Confirm:$true -CustomMessage "[OK] Shared completion budget installed at: $scriptsDest\completion_budget.py"
+    }
+
     # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
     # `members` and `record ... --minor` to it as a sibling.
     $completionMinorSource = Join-Path $RepoRoot "scripts\completion_minor.py"

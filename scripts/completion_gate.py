@@ -392,6 +392,7 @@ def cmd_stop() -> int:
     try:
         limit = min(limit, max(1.0, float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", limit))))
     except ValueError:
+        # An invalid caller limit keeps the gate-derived evaluation limit.
         pass
     os.environ["NEXUS_CHECK_MINOR_BUDGET_SECONDS"] = str(limit)
     rc, out = _run_checker(check_args, eval_end, str(repo_root))

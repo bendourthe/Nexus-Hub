@@ -46,6 +46,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+from completion_budget import check_minor_seconds
 
 NO_PROGRESS_CYCLES = 3
 DEFAULT_MAX_CYCLES = 20
@@ -188,8 +189,7 @@ def _checker() -> Path:
 def _checker_run(args: list[str]) -> tuple[int, str]:
     timeout = 120.0
     if args and args[0] in ("check-minor", "score-minor"):
-        import completion_minor
-        timeout = completion_minor.check_minor_seconds() + 5.0
+        timeout = check_minor_seconds() + 5.0
     try:
         proc = subprocess.run(
             [sys.executable, str(_checker()), *args],
