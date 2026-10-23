@@ -2574,6 +2574,37 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
 }
 
+# Run a command for at most $1 seconds, appending its output to the file $2.
+# Returns the command's status, or 124 when it was stopped for running too long.
+# macOS ships no `timeout`, so a background watchdog does the job. Output goes
+# to a file rather than $(...): a stuck grandchild holding the pipe open would
+# otherwise keep the capture waiting after the command itself was stopped.
+run_with_timeout() {
+    local seconds="$1" log="$2"
+    shift 2
+    local flag
+    flag="$(mktemp)"
+    rm -f "$flag"
+    "$@" >>"$log" 2>&1 &
+    local pid=$!
+    (
+        sleep "$seconds"
+        touch "$flag"
+        if command -v pkill >/dev/null 2>&1; then pkill -TERM -P "$pid" 2>/dev/null; fi
+        kill -TERM "$pid" 2>/dev/null
+    ) >/dev/null 2>&1 &
+    local watchdog=$!
+    local rc=0
+    wait "$pid" || rc=$?
+    kill "$watchdog" 2>/dev/null || true
+    wait "$watchdog" 2>/dev/null || true
+    if [ -e "$flag" ]; then
+        rm -f "$flag"
+        return 124
+    fi
+    return "$rc"
+}
+
 # Build, package, and install one VS Code usage-monitor extension. Shared by
 # install_vscode_extensions so every monitor installs identically.
 # Args: $1 extension_dir  $2 extension_id  $3 display_name  $4 status_hint
@@ -2629,13 +2660,23 @@ build_and_install_one_extension() {
     fi
 
     write_item "  Installing dependencies..." "$GRAY"
-    local npm_log
-    if ! npm_log=$(npm install --silent 2>&1); then
-        write_item "npm install failed:" "$RED"
-        echo "$npm_log" | tail -n 20
+    # Bounded: a stalled package download otherwise hangs the whole install.
+    local npm_timeout="${NEXUS_HUB_NPM_TIMEOUT:-300}"
+    local npm_log npm_rc=0
+    npm_log="$(mktemp)"
+    run_with_timeout "$npm_timeout" "$npm_log" npm install --silent || npm_rc=$?
+    if [ "$npm_rc" -ne 0 ]; then
+        if [ "$npm_rc" -eq 124 ]; then
+            write_item "Skipping ${display_name}: npm install did not finish within ${npm_timeout}s (set NEXUS_HUB_NPM_TIMEOUT to allow longer)." "$YELLOW"
+        else
+            write_item "npm install failed:" "$RED"
+            tail -n 20 "$npm_log"
+        fi
+        rm -f "$npm_log"
         popd > /dev/null
         return
     fi
+    rm -f "$npm_log"
 
     write_item "  Compiling TypeScript..." "$GRAY"
     local compile_log
