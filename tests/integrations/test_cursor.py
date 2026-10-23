@@ -306,53 +306,41 @@ def test_cursor_wire_project_surfaces_seeds_rules_and_commands(install_ctx: Inst
     assert "/.cursor/commands/" in joined, "wire_project_surfaces should report the command mirror"
 
 
-def test_global_install_renders_instructions_for_the_session_start_hook(install_ctx: InstallContext):
-    """Cursor has no global instruction file, so the rendered template is written
-    under ~/.cursor and delivered by the sessionStart hook's additional_context."""
+def test_global_install_writes_an_always_apply_rules_plugin(install_ctx: InstallContext):
+    """Cursor has no global instruction file and never requests sessionStart, so a
+    global install ships a user-level local plugin whose rules always apply. Verified
+    live in Cursor 3.24.18: a new chat answered with the plugin rule's wording."""
     ctx = replace(install_ctx, scope="global", explicit_target=True, instruction_only=True)
     CursorIntegration().install_global(ctx)
-    rendered = ctx.target_root / ".cursor" / CursorIntegration.GLOBAL_INSTRUCTIONS
-    assert "## Writing Discipline" in rendered.read_text(encoding="utf-8")
-    assert "Spelling is American English" in rendered.read_text(encoding="utf-8")
+    plugin = ctx.target_root / ".cursor" / CursorIntegration.PLUGIN_DIR
 
+    manifest = json.loads((plugin / ".cursor-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    assert manifest["name"] == "nexus-hub"
+    for name in ("nexus-hub-instructions.mdc", "nexus-hub-attribution.mdc"):
+        rule = (plugin / "rules" / name).read_text(encoding="utf-8")
+        assert rule.startswith("---\ndescription: "), name
+        frontmatter = rule.split("\n---\n", 1)[0]
+        assert "\nalwaysApply: true" in frontmatter, name
+    instructions = (plugin / "rules" / "nexus-hub-instructions.mdc").read_text(encoding="utf-8")
+    assert "## Writing Discipline" in instructions
+    assert "Spelling is American English" in instructions
+
+
+def test_global_install_removes_the_superseded_session_start_instructions(install_ctx: InstallContext):
+    ctx = replace(install_ctx, scope="global", explicit_target=True, instruction_only=True)
+    superseded = ctx.target_root / ".cursor" / CursorIntegration.SUPERSEDED_INSTRUCTIONS
+    superseded.parent.mkdir(parents=True)
+    superseded.write_text("old\n", encoding="utf-8")
+    CursorIntegration().install_global(ctx)
+    assert not superseded.exists()
+
+
+@pytest.mark.parametrize("scope", ["global", "workspace"])
+def test_session_start_carries_only_the_attribution_context(install_ctx: InstallContext, scope: str):
+    """The rules plugin carries the instructions; the hook passes no instructions file."""
+    ctx = replace(install_ctx, scope=scope, explicit_target=True)
     cursor_root = ctx.target_root / ".cursor"
-    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, "global")
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, scope)
     command = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))["hooks"]["sessionStart"][0]["command"]
-    assert "--instructions" in command
-    assert rendered.as_posix() in command
-
-
-def test_workspace_session_start_does_not_duplicate_project_instructions(install_ctx: InstallContext):
-    """A project's AGENTS.md is read natively, so the workspace hook adds no copy."""
-    cursor_root = install_ctx.target_root / ".cursor"
-    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", install_ctx, "workspace")
-    command = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))["hooks"]["sessionStart"][0]["command"]
+    assert command.endswith("context") or command.endswith("context'")
     assert "--instructions" not in command
-
-
-@pytest.mark.parametrize("with_instructions", [True, False])
-def test_context_emits_instructions_ahead_of_the_attribution_policy(tmp_path: Path, with_instructions: bool):
-    import subprocess
-    import sys
-
-    repo = Path(__file__).resolve().parents[2]
-    (tmp_path / "scripts").mkdir()
-    (tmp_path / "style-guides").mkdir()
-    helper = tmp_path / "scripts" / "nexus_git_attribution.py"
-    helper.write_bytes((repo / "scripts" / "nexus_git_attribution.py").read_bytes())
-    (tmp_path / "style-guides" / "git-attribution.md").write_text("# User Attribution\n", encoding="utf-8")
-    instructions = tmp_path / "nexus-hub-instructions.md"
-    if with_instructions:
-        instructions.write_text("Spelling is American English.\n", encoding="utf-8")
-
-    proc = subprocess.run(
-        [sys.executable, str(helper), "context", "--instructions", str(instructions)],
-        capture_output=True, text=True, check=False,
-    )
-
-    assert proc.returncode == 0, proc.stderr
-    context = json.loads(proc.stdout)["additional_context"]
-    assert context.endswith("# User Attribution\n")
-    assert ("Spelling is American English." in context) is with_instructions
-    if with_instructions:
-        assert context.index("Spelling is American English.") < context.index("# User Attribution")
