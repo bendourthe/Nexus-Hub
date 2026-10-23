@@ -45,6 +45,13 @@ DEFAULT_PATTERNS = (
 MAX_VARIANTS_PER_LINE = 64
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 class BuildError(Exception):
     """Generation must fail loudly rather than emit a partial set."""
 

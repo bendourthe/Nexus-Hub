@@ -41,6 +41,13 @@ from scripts.ci.profiles import Command, Group, detect_platform, groups_for  # n
 from scripts.ci.reporting import CommandResult, GroupResult, RunResult  # noqa: E402
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[1] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
