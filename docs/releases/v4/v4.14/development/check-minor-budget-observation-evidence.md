@@ -78,6 +78,18 @@ A real isolated PowerShell 5.1 minimal Claude installation exited 0. Its install
 
 The canonical manifest now contains 2063 entries, including the independent budget helper. Source and installed console-window guards pass for this project, and the expanded source guard passes for the installer command. All guarded applications used zero accepts. Retained RED/GREEN, immutable candidate pins, installer derivation, failed and successful process receipts, home observations and hosted blocker facts are under checker-ci-partition-1792732597697/develop-refresh-1792735457476/codeql-followup-1792739027602 in the private evidence root.
 
+## Develop CI Refresh
+
+Develop advanced through PR #520 to 76d96ebdd3fbb1f3969e81492a3b1db45be2f163 after the CodeQL correction was prepared. Its fourteen incoming paths merged through the official guard with zero accepts. All named non-overlapping checker files retained their exact bytes. The three CI conflicts retain the merged four-shard layout in two validator jobs, its required/report wiring, PowerShell 5.1 selection and 1800-second shard limits. Both installers retain the upstream 300-second npm dependency-install bound and the new explicit budget-helper copy.
+
+The retained future-filename regression first failed because test_1_future.py ran in all four upstream shards. Restricting the co, d-o and p-z filters makes the a-c shard the fallback for other prefixes. The 117 current validator files partition exactly once as 37, 11, 28 and 41 files; synthetic alphabet, co/completion, digit and underscore filenames are also covered. Independent filesystem review found no issue in the resolution or preserved checker dependencies.
+
+The final affected CI/workflow, npm timeout, installer-smoke and installer-copy/parser selection passed 430 tests with 20 skips in 81.24 seconds. An earlier launch used an incorrect test filename and collected no tests; a subsequent run exposed that the sanitized agent environment omitted the machine's ComSpec variable. The unmodified timeout helper passes its overrun, success and failure checks after restoring that configured command-interpreter path to the private launch environment. The final complete selection uses that environment. Earlier failed artifacts are retained as failures.
+
+A fresh isolated PowerShell 5.1 installation of the merged source exited 0, with exact final budget-helper bytes and shared installed checker/runner imports verified. Before/after observations again found zero differences across 1085 real-home files and 19 targets. The final helper differs from the earlier candidate only by removing two trailing empty lines; its canonical SHA-256 is a34f3abde929596e8135b296acbe3a75e3e2b3d7d44ba1976d9ce421281a02b8. The manifest contains 2063 entries. Source and installed console guards and whitespace checks pass; zero edit-guard accepts. The previous correction's complete fast profile passed 18 commands in 108.9 seconds before this develop refresh; the fresh combined-source fast profile passed all 18 commands in 11.8 seconds with no failures or skips. Current-head hosted gates remain required.
+
+Retained incoming diff, guard input and proof, RED and final GREEN JUnit, environment prerequisite, installer receipts and home comparison are in codeql-followup-1792739027602/develop-pr520-merge beneath the private evidence root. No installed native scripts or authority records were changed.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.

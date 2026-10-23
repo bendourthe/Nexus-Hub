@@ -593,16 +593,15 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
-# Complementary validator partitions: a-c excludes co; co-h includes co and d-h;
-# i-z contains the remaining letter range. Other filenames fall through a-c.
-VALIDATORS_A_C_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_CO_H_IGNORES = ("--ignore-glob=*/test_[!c-h]*", "--ignore-glob=*/test_c[!o]*")
-VALIDATORS_I_Z_IGNORES = ("--ignore-glob=*/test_[!i-z]*",)
+# Complementary quarters of tests/validators by file name: test_a* to test_c*
+# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
+VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
+VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
-# Separate commands retain the 1800 s bound after the combined selection
-# exceeded it (1784 s passing, 1800.1 s failing).
 WINDOWS_INSTALLER = Group(
     name="windows-installer",
     commands=(
@@ -613,41 +612,49 @@ WINDOWS_INSTALLER = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
-        # The co-z partition passed quiet CI in 1711.85 s, then timed out at
-        # 1800 s near 74 percent while a-c passed in 577 s. Split co-z again
-        # without raising command or job limits. Every validator file lands
-        # in exactly one of a-c, co-h and i-z, including future filenames
-        # (tests/workflows/test_ci_native_profile_parity.py proves it).
-        _pytest(
-            "validators a-c (Windows)",
-            "tests/validators",
-            *VALIDATORS_A_C_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
-        _pytest(
-            "validators co-h (Windows)",
-            "tests/validators",
-            *VALIDATORS_CO_H_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
-        _pytest(
-            "validators i-z (Windows)",
-            "tests/validators",
-            *VALIDATORS_I_Z_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
+    ),
+)
+
+
+def _validators_shard(name: str, ignores: tuple[str, ...]) -> Command:
+    return _pytest(
+        name,
+        "tests/validators",
+        *ignores,
+        "-o",
+        "faulthandler_timeout=300",
+        platforms=("windows",),
+        timeout=1800,
+        env={"NEXUS_TEST_POWERSHELL": "powershell"},
+    )
+
+
+# The validator corpus, in its own CI job so it runs beside the installer
+# corpus instead of after it. Two file-name halves still ran past the 1800 s
+# command bound on slow runners: the co-z half took 1259-1527 s on passing runs
+# and timed out at 66% and 92% on others, with no single test stalled (a stall
+# would end the output with the faulthandler dump). A first three-shard split by
+# test count still timed out: a-c took 569 s and p-z 491 s, but co-o reached 98%
+# at its 1800 s bound, because test time on Windows follows process launches,
+# not test count. Four shards split co-o at test_co* versus test_d* to test_o*,
+# which divides its process-heavy files roughly evenly; each keeps the bound,
+# and every new test_*.py file lands in exactly one
+# (tests/workflows/test_ci_native_profile_parity.py proves it). Four shards in
+# one job would approach the 60-minute job cap on a slow runner, so they run as
+# two groups in two parallel jobs of about 25 minutes each.
+WINDOWS_VALIDATORS = Group(
+    name="windows-validators",
+    commands=(
+        _validators_shard("validators a-c (Windows)", VALIDATORS_SHARD_A_IGNORES),
+        _validators_shard("validators co (Windows)", VALIDATORS_SHARD_B_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_2 = Group(
+    name="windows-validators-2",
+    commands=(
+        _validators_shard("validators d-o (Windows)", VALIDATORS_SHARD_C_IGNORES),
+        _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_D_IGNORES),
     ),
 )
 
@@ -910,7 +917,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

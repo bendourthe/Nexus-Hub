@@ -35,9 +35,13 @@ def test_report_metadata_names_host_and_direct_execution_and_redacts_generic_key
 
 def test_windows_core_is_required_and_selects_current_edition():
     floor = next(group for group in PROFILES["platform"] if group.name == "windows-installer")
+    validators = next(group for group in PROFILES["platform"] if group.name == "windows-validators")
+    validators_2 = next(group for group in PROFILES["platform"] if group.name == "windows-validators-2")
     core = next(group for group in PROFILES["platform"] if group.name == "windows-installer-core")
-    assert len(floor.commands) == 4
-    assert all(command.env.get("NEXUS_TEST_POWERSHELL") == "powershell" for command in floor.commands)
+    assert len(floor.commands) == 1
+    assert len(validators.commands) == 2 and len(validators_2.commands) == 2
+    floor_commands = floor.commands + validators.commands + validators_2.commands
+    assert all(command.env.get("NEXUS_TEST_POWERSHELL") == "powershell" for command in floor_commands)
     assert core.commands[0].argv[0] == "pwsh"
     assert not core.commands[0].skip_if_missing
     tests = core.commands[-1]
