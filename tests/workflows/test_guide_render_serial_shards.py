@@ -64,6 +64,7 @@ def test_guide_render_is_three_serial_shards_of_45_minutes() -> None:
 WORKER_JOBS = (
     ("tests-windows-installer", "Windows installer profile group", "windows-installer"),
     ("tests-windows-validators", "Windows validators profile group", "windows-validators"),
+    ("tests-windows-validators-2", "Windows validators profile group", "windows-validators-2"),
 )
 
 

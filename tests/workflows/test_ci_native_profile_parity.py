@@ -42,7 +42,8 @@ def test_windows_workflow_has_no_second_native_test_list() -> None:
     ("group_name", "job", "corpus", "commands"),
     [
         ("windows-installer", "tests-windows-installer", "tests/installer", 1),
-        ("windows-validators", "tests-windows-validators", "tests/validators", 3),
+        ("windows-validators", "tests-windows-validators", "tests/validators", 2),
+        ("windows-validators-2", "tests-windows-validators-2", "tests/validators", 2),
     ],
 )
 def test_windows_corpora_run_in_their_own_parallel_jobs(group_name: str, job: str, corpus: str, commands: int) -> None:
@@ -63,9 +64,9 @@ def test_windows_validator_shards_partition_every_test_file() -> None:
     """Each tests/validators file runs in exactly one shard, including files added later."""
     import fnmatch
 
-    validators = next(group for group in groups_for("platform") if group.name == "windows-validators")
-    shards = [c for c in validators.commands if "tests/validators" in c.argv]
-    assert len(shards) == 3
+    groups = [g for g in groups_for("platform") if g.name in ("windows-validators", "windows-validators-2")]
+    shards = [c for g in groups for c in g.commands if "tests/validators" in c.argv]
+    assert len(shards) == 4
     ignores = [
         [arg.split("=", 1)[1] for arg in shard.argv if arg.startswith("--ignore-glob=")] for shard in shards
     ]
