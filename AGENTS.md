@@ -4,7 +4,7 @@
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
-[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
+[Bootstrap Windows CLI policy](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Repository Overview
 

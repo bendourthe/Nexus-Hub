@@ -50,7 +50,7 @@ SKIP_DIRS = {
 
 TEST_COMMAND = re.compile(
     r"(?:^|[\s;&|(`'\"/\\])(?:"
-    r"py\.test|pytest|tox|nox"
+    r"py\.test|pytest|tox|nox|pre-commit(?:\.exe|\.cmd)?|pre_commit"
     r"|(?:npm|pnpm|yarn|bun)(?:\s+run)?\s+test"
     r"|(?:npx\s+|pnpm\s+exec\s+|yarn\s+)?(?:vitest|jest|mocha|ava)"
     r"|(?:npx\s+)?playwright\s+test"

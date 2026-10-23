@@ -107,6 +107,22 @@ def test_minor_budget_owner_loads_without_lifecycle_modules(monkeypatch, limit, 
     assert module.check_minor_seconds() == expected
 
 
+def test_minor_budget_public_star_exports_are_leaf_identities(monkeypatch):
+    import completion_budget
+
+    spec = importlib.util.spec_from_file_location("fresh_minor_budget_exports", SCRIPTS / "completion_minor.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    for name in ("completion_minor", "run_plan", "check_plan_completion"):
+        monkeypatch.setitem(sys.modules, name, None)
+    spec.loader.exec_module(module)
+    exported = {}
+    exec("from fresh_minor_budget_exports import *", exported)
+    assert exported["CHECK_MINOR_TOTAL_SECONDS"] is completion_budget.CHECK_MINOR_TOTAL_SECONDS
+    assert exported["check_minor_seconds"] is completion_budget.check_minor_seconds
+
+
 def test_runner_minor_budget_does_not_import_minor_module(monkeypatch):
     monkeypatch.setitem(sys.modules, "completion_minor", None)
     monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", "1.5")

@@ -743,7 +743,17 @@ PRE_COMMIT = Group(
     commands=(
         Command(
             name="pre-commit standard hooks",
-            argv=["pre-commit", "run", "--all-files"],
+            argv=[
+                PY,
+                "-c",
+                "import runpy,sys;"
+                f"policy=runpy.run_path({str(REPO_ROOT / 'scripts/nexus_process.py')!r});"
+                "policy['install_no_window_default']();"
+                "sys.argv=['pre-commit', *sys.argv[1:]];"
+                "runpy.run_module('pre_commit', run_name='__main__', alter_sys=True)",
+                "run",
+                "--all-files",
+            ],
             env={"SKIP": "lint-templates,build-catalogs"},
             timeout=1800,
         ),

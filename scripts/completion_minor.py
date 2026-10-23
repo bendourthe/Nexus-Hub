@@ -42,10 +42,10 @@ from typing import TYPE_CHECKING
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
-from completion_budget import (
-    CHECK_MINOR_TOTAL_SECONDS as CHECK_MINOR_TOTAL_SECONDS,
-    check_minor_seconds as check_minor_seconds,
-)
+import completion_budget as _completion_budget
+
+CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
+check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
