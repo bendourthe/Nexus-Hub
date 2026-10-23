@@ -42,6 +42,12 @@ The checker branch now combines committed console repair bd5295cd6bcae94bf14be4c
 
 The exact 39 previously qualified checker regressions plus the current real process-policy and no-console files pass 66 tests in 7.32 seconds. Both source and installed console guards pass on this combined worktree. Canonical generation exactly matches all 2,062 staged manifest entries. These are fresh focused integration checks; they do not replace the earlier full seven-member timing, qualify hosted integration or establish installed runtime adoption. Zero edit-guard accepts. Retained merge input, preservation pins, JUnit and guard results: fresh-qualified-recovery/console-integration-1792726663339 under the evidence root.
 
+## Hosted Console Integration
+
+PR #519 merged into develop as fcc19cbb575d56e3e7da8d80e0451a3ffd24f2f0 after all 44 checks passed on exact repair head bd5295cd6bcae94bf14be4cb6a562df7aa907d5d. The checker branch then merged that actual integration commit through the official guard. No incoming source path differed from the previously qualified console tree; all thirteen checker-owned paths remained byte-identical and zero accepts occurred.
+
+The retained current-head Windows reports show installer 790 passed with 45 skipped, validator groups 1030 passed with 1 skipped and 2095 passed with 12 skipped, plus hooks 2689 passed with 15 skipped. The previously timed-out validator group completed in 1711.85 seconds. This is hosted console-repair evidence; the checker repair still requires its own hosted integration and reviewed runtime adoption. Current-head reports and merged PR facts are retained under console-window-root-repair-oct22/current-head-hosted-1792729076.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.
