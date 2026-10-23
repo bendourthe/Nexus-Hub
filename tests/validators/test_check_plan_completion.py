@@ -962,8 +962,7 @@ def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) 
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     detach = (
-        # nexus: console-window-ok simulates no terminal; the checker hides its own children (test_no_console_window)
-        {"creationflags": 0x00000008}
+        {"creationflags": subprocess.CREATE_NO_WINDOW}
         if os.name == "nt"
         else {"start_new_session": True}
     )

@@ -36,6 +36,12 @@ The user approved a fresh isolated worktree after Git restored a text-equivalent
 
 The replacement branch starts at console-window repair commit 4f2360de3297e30597083ff0dd8256e5c41c7a4b. Its clean baseline passed 15 process-policy tests. The combined checker source passed 39 affected observation, budget and runner tests with 52 deselected in 2.94 seconds. Both the source and installed console-window guards passed for this project. Whitespace checks passed, the manifest contains 2,062 distributed entries, and the native authority hash above remained unchanged. These focused checks qualify the combined source; the earlier complete seven-member timing remains the recorded budget evidence. Recovery receipts are retained under %TEMP%/nexus-v4140-native-hook-budget-oct17/checker-budget-prep-codex-oct22/fresh-qualified-recovery.
 
+## Current Console Integration
+
+The checker branch now combines committed console repair bd5295cd6bcae94bf14be4cb6a562df7aa907d5d, including policy version 2, the Cursor local-plugin integration and the upstream edit-guard performance repair. The sole changelog conflict retains both maintenance notes. Nine checker-owned source, test and evidence files retain their exact pre-merge raw hashes. The old recovery worktree and private recovery reference remain untouched.
+
+The exact 39 previously qualified checker regressions plus the current real process-policy and no-console files pass 66 tests in 7.32 seconds. Both source and installed console guards pass on this combined worktree. Canonical generation exactly matches all 2,062 staged manifest entries. These are fresh focused integration checks; they do not replace the earlier full seven-member timing, qualify hosted integration or establish installed runtime adoption. Zero edit-guard accepts. Retained merge input, preservation pins, JUnit and guard results: fresh-qualified-recovery/console-integration-1792726663339 under the evidence root.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.
