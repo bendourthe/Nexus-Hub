@@ -121,4 +121,4 @@ def test_worker_guard_rejects_unapproved_long_pytest_command(
     (tmp_path / "probe.yml").write_text(yaml.safe_dump(payload, width=1_000_000), encoding="utf-8")
     monkeypatch.setitem(globals(), "WORKFLOWS", tmp_path)
     with pytest.raises(AssertionError):
-        test_only_windows_installer_job_can_use_pytest_workers()
+        test_only_windows_corpus_jobs_can_use_pytest_workers()
