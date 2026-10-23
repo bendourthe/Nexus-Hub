@@ -27,7 +27,7 @@
 
 ## Working Conventions
 
-- [Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+- [Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
 - **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). Every approval dialog shows the `description`, so keep it precise and scannable.

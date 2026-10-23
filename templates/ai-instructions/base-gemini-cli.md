@@ -1,6 +1,6 @@
 @base-google-shared.md
 
-[Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Surface: Gemini CLI (Google) -- ENTERPRISE-ONLY post-2026-06-18
 

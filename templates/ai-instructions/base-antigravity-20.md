@@ -1,6 +1,6 @@
 @base-google-shared.md
 
-[Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Surface: Antigravity 2.0 + CLI (Google) -- canonical post-2026-06-18 Google surface
 

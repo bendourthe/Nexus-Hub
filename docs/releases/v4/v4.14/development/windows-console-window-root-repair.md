@@ -47,10 +47,16 @@ The two affected selections pass: 153 tests in 145.84 seconds, and 173 tests wit
 
 The merged installer then exits 0 in a fresh isolated home, with source-identical policy and workspace hook assertions. The desktop remains idle for its full observation: 26.676 seconds, 2,097 samples, zero new visible console windows and no foreground-process change. Raw observation: windows-console-merged-desktop.json. The repaired and installed console guards both return 0 on the merged project. Handbook, instruction budgets, fingerprints, guide stamps, personal paths, attribution and staged whitespace checks pass. A fresh generation exactly matches all 2,061 staged manifest entries. Hosted checks and reviewed runtime adoption remain pending.
 
+## Installed Policy Reachability
+
+Standing instructions now link to the global style-guides/windows-processes.md policy. Direct workspace installs do not retain the source checkout previously named by the link. Both installers already distribute the global style-guide directory. The new regression first fails on the absent-checkout reference, then all nine console tests pass in 0.54 seconds after correcting AGENTS.md and all 16 instruction templates. The prior eight real-console tests also pass unchanged.
+
+The actual isolated workspace installer exits 0 and asserts that the installed global policy matches source byte for byte and that the seeded CLAUDE.md points to that file. The observation records 152.704 seconds, 12,888 samples, zero new visible console windows and no foreground-process change. The minimum idle time is 1804031 ms. Raw observation: windows-console-policy-desktop.json. The original global Claude read-path advisory remains a qualification limit. The helper and source guard bytes are unchanged. Fingerprints, instruction budgets and handbook checks pass; hosted checks must run at the new commit.
+
 ## Preservation and Adoption
 
 Every applied edit used the official edit guard with zero accepts. The native run record remained SHA-256 246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a. Frozen approval and review budgets were not reset. The goal remains active; this maintenance repair does not complete v4.14.
 
 Source policy SHA-256: 14ddaaf6bf0f0d48827a866f6ab9cd314676ea4c7644c8bf9f9758e7ea399567. Source guard SHA-256: a3bfec9c76052b069882905c2a0e362f8856ffa410203c62dcbae46e7b24a213. Evidence root: %TEMP%/nexus-v4140-native-hook-budget-oct17/console-window-root-repair-oct22.
 
-Template parity and the exact 2,061-entry staged manifest match also pass. Integration and reviewed runtime adoption are pending. Installed native scripts and the real-home guard have not been manually replaced.
+Template parity and the exact 2,062-entry staged manifest match also pass. Integration and reviewed runtime adoption are pending. Installed native scripts and the real-home guard have not been manually replaced.

@@ -96,3 +96,16 @@ def test_every_captured_child_in_the_checker_family_hides_its_window(name: str, 
     assert len(bodies) == calls, f"{name}: expected {calls} subprocess.run calls, found {len(bodies)}"
     for body in bodies:
         assert "NO_WINDOW" in body, f"{name}: a subprocess.run call does not pass NO_WINDOW:\n{body}"
+
+
+def test_standing_instruction_policy_is_installer_reachable() -> None:
+    """Direct installs distribute global style guides without retaining a source checkout."""
+    instructions = [REPO / "AGENTS.md", *sorted((REPO / "templates/ai-instructions").glob("base-*.md"))]
+    prefix = "~/.nexus-hub/style-guides/"
+    for path in instructions:
+        text = path.read_text(encoding="utf-8")
+        links = re.findall(r"\[Hide Windows console children\]\(([^)]+)\)", text)
+        assert len(links) == 1, f"{path.name}: missing or ambiguous process policy"
+        assert links[0].startswith(prefix), f"{path.name}: policy requires an absent source checkout"
+        installed_relative = links[0][len(prefix):]
+        assert (REPO / "catalog/style-guides" / installed_relative).is_file(), path.name

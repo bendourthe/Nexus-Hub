@@ -2,7 +2,7 @@
 
 {{PROJECT_DESCRIPTION}}
 
-[Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Tech Stack
 - **Language**: {{PRIMARY_LANGUAGE}} {{LANGUAGE_VERSION}}

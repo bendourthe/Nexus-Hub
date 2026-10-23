@@ -32,7 +32,7 @@
 
 ## Working Conventions
 
-- [Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+- [Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes

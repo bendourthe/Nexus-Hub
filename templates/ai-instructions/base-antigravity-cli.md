@@ -1,6 +1,6 @@
 @base-antigravity-20.md
 
-[Hide Windows console children](~/.nexus-hub/src/catalog/rules/python/testing.md).
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Surface note: Antigravity CLI (standalone)
 
