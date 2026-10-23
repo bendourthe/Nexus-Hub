@@ -60,6 +60,12 @@ The final canonical fast profile passed all 18 commands in 120.1 seconds; hidden
 
 Raw failed hosted logs and summary are retained under fresh-qualified-recovery/hosted-failure-1792732390. Regression, terminal process, JUnit, profile listing and guard receipts are under checker-ci-partition-1792732597697 in the evidence root. Earlier unchanged checker source and seven-member timing evidence retain their original inputs and limits; the new profile requires fresh hosted qualification. No retry is recorded as green before its actual terminal result.
 
+## Develop Planning Refresh
+
+Develop advanced to 90bbbfbc8d490287f198be075b1804b0a0d785d8 through planning PR #518 while the checker hosted run was active. Its five incoming documentation and tracker paths were merged through the official guard. All fifteen named non-overlapping checker-owned paths retained their raw bytes at the merge boundary, including every checker, profile and test file; no conflict or accept occurred. The generated manifest still exactly matches all 2062 staged entries.
+
+The affected repository-native hygiene group then passed all eight commands in 120.0 seconds, with hidden PID 28520 exiting 0. The 219 affected CI/workflow tests and earlier checker timing retain their original unchanged source inputs and stated limits; this is a retained-plus-fresh qualification, not a new unfiltered full run. The partial hosted successes on head 572565aae do not qualify the refreshed head, which requires its own complete current-head checks. Merge input, preservation proof, canonical manifest and fresh hygiene receipts are under checker-ci-partition-1792732597697/develop-refresh-1792735457476 in the private evidence root.
+
 ## Integration and Adoption
 
 This is source qualification against genuine native authority. Installed scripts and approval records were not replaced or edited. Maintenance integration, hosted checks and reviewed runtime adoption remain pending. The v4.14 goal remains active.
