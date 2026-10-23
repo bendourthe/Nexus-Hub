@@ -593,15 +593,18 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
-# Complementary halves of tests/validators by file name: half A runs test_a* to
-# test_c* except test_co*; half B runs test_co* and test_d* to test_z*.
-VALIDATORS_HALF_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_HALF_B_IGNORES = ("--ignore-glob=*/test_[ab]*", "--ignore-glob=*/test_c[!o]*")
+# Complementary thirds of tests/validators by file name: test_a* to test_c*
+# except test_co*; test_co* and test_d* to test_o*; test_p* to test_z*.
+VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_SHARD_B_IGNORES = (
+    "--ignore-glob=*/test_[ab]*",
+    "--ignore-glob=*/test_c[!o]*",
+    "--ignore-glob=*/test_[p-z]*",
+)
+VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[a-o]*",)
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
-# Two commands, because the combined selection also exceeded its own 1800 s
-# command bound (1784 s passing, 1800.1 s failing).
 WINDOWS_INSTALLER = Group(
     name="windows-installer",
     commands=(
@@ -612,32 +615,37 @@ WINDOWS_INSTALLER = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
-        # The validator corpus took 1198-1673 s on passing runs and ran past its
-        # 1800 s bound on four others with no single test stalled (a stall would
-        # end the output with the faulthandler dump below). Two complementary
-        # file-name halves, balanced by measured per-file time (about 53/47),
-        # each keep that bound; every new test_*.py file lands in exactly one
-        # (tests/workflows/test_ci_native_profile_parity.py proves it).
-        _pytest(
-            "validators a-c (Windows)",
-            "tests/validators",
-            *VALIDATORS_HALF_A_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
-        _pytest(
-            "validators co-z (Windows)",
-            "tests/validators",
-            *VALIDATORS_HALF_B_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
+    ),
+)
+
+
+def _validators_shard(name: str, ignores: tuple[str, ...]) -> Command:
+    return _pytest(
+        name,
+        "tests/validators",
+        *ignores,
+        "-o",
+        "faulthandler_timeout=300",
+        platforms=("windows",),
+        timeout=1800,
+        env={"NEXUS_TEST_POWERSHELL": "powershell"},
+    )
+
+
+# The validator corpus, in its own CI job so it runs beside the installer
+# corpus instead of after it. Two file-name halves still ran past the 1800 s
+# command bound on slow runners: the co-z half took 1259-1527 s on passing runs
+# and timed out at 66% and 92% on others, with no single test stalled (a stall
+# would end the output with the faulthandler dump). Three shards, the old co-z
+# half split by test count (about 647 and 720 tests), each keep that bound;
+# every new test_*.py file lands in exactly one
+# (tests/workflows/test_ci_native_profile_parity.py proves it).
+WINDOWS_VALIDATORS = Group(
+    name="windows-validators",
+    commands=(
+        _validators_shard("validators a-c (Windows)", VALIDATORS_SHARD_A_IGNORES),
+        _validators_shard("validators co-o (Windows)", VALIDATORS_SHARD_B_IGNORES),
+        _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_C_IGNORES),
     ),
 )
 
@@ -900,7 +908,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),
