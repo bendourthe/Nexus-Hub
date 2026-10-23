@@ -11,7 +11,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
 
-**Minor checker maintenance:** Source qualification returns INCOMPLETE with unchanged native authority and lower-only budgets. PR #521 head 91f16590 has 46 successful checks; a public-export CodeQL correction and pre-commit launch followup await fresh hosted validation. The export/installer selection passes 127 cases and the real isolated installer preserves installed helper identity. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
+**Minor checker maintenance:** PR #521 preserves unknown observations, shared budget identity and unchanged native authority. Fresh CodeQL has zero Python and JavaScript/TypeScript findings. One hosted standing-instruction assertion exposed a changed link caption; restoring the canonical caption passes all 27 affected policy cases and all eight document budgets. Fresh integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-19 UTC
