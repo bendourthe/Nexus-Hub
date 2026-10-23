@@ -23,22 +23,23 @@ def _batch_command(argv: object, env: dict[str, str] | None = None) -> object:
     resolved = shutil.which(program, path=(env or os.environ).get("PATH")) or program
     if not resolved.lower().endswith((".cmd", ".bat")):
         return argv
+    # Delayed expansion is disabled below so exclamation marks remain literal.
     values = [resolved, *(os.fsdecode(value) for value in argv[1:])]
-    if any(any(char in value for char in '\0\r\n"%!') for value in values):
-        raise ValueError("Batch shim arguments cannot contain quotes, percent expansion, exclamation marks, or control characters")
+    if any(any(char in value for char in '\0\r\n"%') for value in values):
+        raise ValueError("Batch shim arguments cannot contain quotes, percent expansion, or control characters")
     # Native programs behind .cmd shims parse a trailing slash before a quote.
     def quote(value: str) -> str:
         trailing = len(value) - len(value.rstrip("\\"))
         return '"' + value + "\\" * trailing + '"'
 
     command = " ".join(quote(value) for value in values)
-    prefix = subprocess.list2cmdline([os.environ.get("COMSPEC", "cmd.exe"), "/d", "/s", "/c"])
+    prefix = subprocess.list2cmdline([os.environ.get("COMSPEC", "cmd.exe"), "/d", "/s", "/v:off", "/c"])
     return prefix + ' "' + command + '"'
 
 
 def install_no_window_default() -> bool:
     """Apply the policy to all subprocess APIs without changing their signatures."""
-    if os.name != "nt" or getattr(subprocess.Popen.__init__, "_nexus_console_policy", None) == 1:
+    if os.name != "nt" or getattr(subprocess.Popen.__init__, "_nexus_console_policy", None) == 2:
         return False
     original = subprocess.Popen.__init__
 
@@ -78,6 +79,6 @@ def install_no_window_default() -> bool:
         original(self, *positional, **kwargs)
 
     init._nexus_no_window = True
-    init._nexus_console_policy = 1
+    init._nexus_console_policy = 2
     subprocess.Popen.__init__ = init
     return True

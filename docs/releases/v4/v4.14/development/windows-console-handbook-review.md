@@ -19,3 +19,7 @@ The changed route section was also inspected in fresh 1366x768 screenshots of re
 ## Integrated Installer Review
 
 Develop commit 7b0a09a0d also restricts the Copilot Usage Monitor to VS Code and removes older Cursor copies. The merged installers retain that behavior and the new process policy copy. The upstream [Copilot host review](copilot-monitor-vscode-only-handbook-review.md) remains intact. The handbook makes no claim about usage-monitor host selection, so this integration changes only code dependency hashes; its rendered output and all rendering inputs still match the measured 105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1 artifact.
+
+## Cursor Plugin Integration
+
+Develop commit 15bd767d6 replaces Cursor global instruction delivery through sessionStart with a local rules plugin. The adapter writes the rendered instructions and attribution policy as alwaysApply rules, removes the superseded global instruction file, and leaves the hook as an optional attribution context path. The merged attribution script retains the hidden-window process default and removes the unused --instructions argument. The upstream [Cursor plugin review](cursor-plugin-rule-handbook-review.md) is preserved byte for byte. The handbook makes no Cursor delivery-route claim; its rendered output remains 105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1, so the prior measured browser evidence applies to those same HTML bytes. This source review updates the two changed code dependency hashes and claims no new browser run.
