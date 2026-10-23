@@ -83,6 +83,7 @@ class World:
         self.runs.mkdir(parents=True)
         (self.repo / ".git").mkdir(parents=True)
         shutil.copy(CORE, self.scripts / "completion_gate.py")
+        shutil.copy(REPO / "scripts" / "nexus_process.py", self.scripts / "nexus_process.py")
         (self.scripts / "check_plan_completion.py").write_text(STUB_CHECKER, encoding="utf-8")
         record = {
             "schema": 1,

@@ -2558,8 +2558,8 @@ function Invoke-RegistryPlatform {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," -Color "White"
-    Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" -Color "White"
-    Write-Item -Message "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." -Color "White"
+    Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" -Color "White"
+    Write-Item -Message "only; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
     Write-Host ""
 
@@ -2691,9 +2691,9 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build each extension under its own vendor header. The Claude and Codex
-    # monitors install only via $vscodeCli; the Copilot monitor installs via
-    # $vscodeCli and, as its second host, $cursorCli (Copilot runs in Cursor too);
+    # Build each extension under its own vendor header. The Claude, Codex, and
+    # Copilot monitors install only via $vscodeCli (Copilot is not installed in
+    # Cursor; Remove-LegacyVSCodeExtensions removes copies older installers left there);
     # the Cursor monitor installs only via $cursorCli; the Gemini monitor installs
     # only via $antigravityCli. The vendor order (Anthropic, OpenAI, Microsoft,
     # Anysphere, Google) is asserted by the installer smoke test and must match
@@ -2705,7 +2705,7 @@ function Install-VSCodeExtensions {
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "MICROSOFT"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
@@ -3756,7 +3756,10 @@ function Remove-LegacyVSCodeExtensions {
         if (-not $cliCmd) { continue }
         $installed = & $cli --list-extensions 2>$null
         if ($LASTEXITCODE -ne 0 -or -not $installed) { continue }
-        foreach ($id in $legacyIds) {
+        $ids = $legacyIds
+        # The Copilot monitor is VS Code only; older installers also put it in Cursor.
+        if ($cli -eq "cursor") { $ids = $legacyIds + "nexus-hub.copilot-usage-monitor" }
+        foreach ($id in $ids) {
             if ($installed -contains $id) {
                 if (-not $emitted) { Write-Host "" }
                 Write-Host "  Removing retired extension from ${cli}: $id" -ForegroundColor Yellow

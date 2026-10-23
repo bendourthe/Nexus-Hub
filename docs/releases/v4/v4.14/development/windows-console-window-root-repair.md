@@ -39,6 +39,14 @@ The screenshot helper mock now requires and verifies creationflags; its 12 affec
 
 The distribution handbook explains hidden process policy delivery and includes the shared module in its dependency map. Its deterministic build check and 200-state Chromium measurement pass; fresh content and representative visual reviews are recorded in windows-console-handbook-review.md.
 
+## CI Correction Verification
+
+The correction integrates develop commit 7b0a09a0df0899f6daf43d17789986bc87cdb57e and preserves its Copilot monitor changes. Isolated installed-layout fixtures now explicitly copy nexus_process.py beside the CLI or completion gate, and the installer smoke postcondition requires that distributed dependency. The capability broker mock verifies the hidden-window flag. Seventeen guide references, including comma-separated line lists, are mapped through unchanged installer source spans after the added copy steps.
+
+The two affected selections pass: 153 tests in 145.84 seconds, and 173 tests with 24 browser skips in 371.17 seconds. The skips came from the default Chromium cache path. With the existing pinned Chromium cache, 24 guide cases pass in 131.65 seconds; that run exposes three remaining comma-separated citation errors. After correcting those references, the three affected cases pass in 6.10 seconds. All 27 guide cases therefore have passing pinned-browser evidence across those runs. A broader selection was interrupted through its owned process tree because it included unrelated release-lifecycle fixtures; it supplies no passing qualification. The narrower selection covers the changed completion-gate fixtures and the affected hook, plugin, installer, broker and guide files. Retained JUnit: ci-remaining-fixtures/targeted.xml and ci-fixture-dependencies/narrowed-targeted.xml under the evidence root.
+
+The merged installer then exits 0 in a fresh isolated home, with source-identical policy and workspace hook assertions. The desktop remains idle for its full observation: 26.676 seconds, 2,097 samples, zero new visible console windows and no foreground-process change. Raw observation: windows-console-merged-desktop.json. The repaired and installed console guards both return 0 on the merged project. Handbook, instruction budgets, fingerprints, guide stamps, personal paths, attribution and staged whitespace checks pass. A fresh generation exactly matches all 2,061 staged manifest entries. Hosted checks and reviewed runtime adoption remain pending.
+
 ## Preservation and Adoption
 
 Every applied edit used the official edit guard with zero accepts. The native run record remained SHA-256 246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a. Frozen approval and review budgets were not reset. The goal remains active; this maintenance repair does not complete v4.14.

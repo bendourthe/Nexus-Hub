@@ -2422,8 +2422,8 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," "$RESET"
-    write_item "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
-    write_item "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." "$RESET"
+    write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
+    write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
     echo ""
 
@@ -2551,9 +2551,9 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header. The Claude and Codex
-    # monitors install only via vscode_cli; the Copilot monitor installs via
-    # vscode_cli and, as its second host, cursor_cli (Copilot runs in Cursor too);
+    # Build each extension under its own vendor header. The Claude, Codex, and
+    # Copilot monitors install only via vscode_cli (Copilot is not installed in
+    # Cursor; remove_legacy_vscode_extensions removes copies older installers left there);
     # the Cursor monitor installs only via cursor_cli; the Gemini monitor installs
     # only via antigravity_cli. The vendor order (Anthropic, OpenAI, Microsoft,
     # Anysphere, Google) is asserted by the installer smoke test and must match
@@ -2565,7 +2565,7 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
 
     write_header "MICROSOFT"
-    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
+    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
@@ -3592,8 +3592,11 @@ remove_legacy_vscode_extensions() {
         command -v "$cli" >/dev/null 2>&1 || continue
         local installed
         installed=$("$cli" --list-extensions 2>/dev/null) || continue
+        local ids=("${legacy_ids[@]}")
+        # The Copilot monitor is VS Code only; older installers also put it in Cursor.
+        if [ "$cli" = cursor ]; then ids+=("nexus-hub.copilot-usage-monitor"); fi
         local id
-        for id in "${legacy_ids[@]}"; do
+        for id in "${ids[@]}"; do
             if printf '%s
 ' "$installed" | grep -qx "$id"; then
                 if [ "$emitted" -eq 0 ]; then echo ""; fi

@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "086b9d2c0431181cacc2fabb54a6fb596060710c8c9c01e4a159fd1d357b0c66",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "e66910e82ac1f1a25ade1f86fdccaf9a5c34f81b376f466e3a1b76efe45d4e83",
-      "scripts/installer.sh": "54fe16424879b1a71479e5a4d6c0c43a741c160b4b4a2a2bd0cdec8caa73ffe6",
+      "scripts/installer.ps1": "58feaaa1ad78d7b55a19d33f7916ae8ce6c31450b1ad7b0aea61b2b83f58f0f8",
+      "scripts/installer.sh": "20902f5b80956642029e49e75183b04e689105aae33b253eb1ee87414d2bdf36",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "c5e4eb5f1898fb1fe2ea7a90c97032991f1493c887623fbacfeae9ad8a563501",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
@@ -35,7 +35,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.14/development/windows-console-handbook-review.md",
-      "evidence_sha256": "482db7f0072d31e5ca5d2f7f7eb4979a81b54a8ff8a1944f6de45bc69a78cf24"
+      "evidence_sha256": "c87515d625feb76572f5d309ce401d77be813d7ed50b5bc146cced3aaceac994"
     },
     "build": {
       "status": "pass",
