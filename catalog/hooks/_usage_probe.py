@@ -474,7 +474,7 @@ def _claude_keychain() -> str | None:
         timed_out = False
         try:
             done = subprocess.run(
-                ["security", "find-generic-password", "-s", service, "-w"],
+                ["security", "find-generic-password", "-s", service, "-w"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 capture_output=True,
                 text=True,
                 timeout=KEYCHAIN_TIMEOUT_SECONDS,

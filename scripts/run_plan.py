@@ -169,6 +169,13 @@ INTERACTIVE_GOAL_ROWS = {"codex", "cursor", "copilot", "copilot/cli", "antigravi
 PLAN_VERSION = re.compile(r"^(v\d+\.\d+\.\d+)(?:-|\.md$)")
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 class RunnerError(Exception):
     """Exit 2 with this message."""
 

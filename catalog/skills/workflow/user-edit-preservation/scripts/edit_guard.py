@@ -151,7 +151,7 @@ def protected_by_git(path: Path) -> bool:
 
     real = Path(os.path.realpath(str(path)))
     try:
-        result = subprocess.run(["git", "-C", str(real.parent), "ls-files", "--error-unmatch", "--", real.name],
+        result = subprocess.run(["git", "-C", str(real.parent), "ls-files", "--error-unmatch", "--", real.name], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                                 capture_output=True, text=True, timeout=3, check=False)
     except (OSError, subprocess.TimeoutExpired):
         return False
@@ -171,7 +171,7 @@ def in_worktree(path: Path) -> bool:
     import subprocess
 
     try:
-        result = subprocess.run(["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"],
+        result = subprocess.run(["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                                 capture_output=True, text=True, timeout=3, check=False)
     except (OSError, subprocess.TimeoutExpired):
         return False
@@ -414,9 +414,9 @@ def _spawn_prune() -> None:
     """Prune in a separate, windowless process: a cold listing of a large store takes seconds."""
     import subprocess
 
-    options = {"creationflags": 0x08000000} if os.name == "nt" else {"start_new_session": True}  # CREATE_NO_WINDOW
     subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "prune"], stdin=subprocess.DEVNULL,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), start_new_session=os.name != "nt")
 
 
 def _delete_copies(root: Path, key: str | None = None) -> None:

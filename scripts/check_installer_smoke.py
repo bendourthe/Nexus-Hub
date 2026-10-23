@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_SCRIPTS = (
+    "nexus_process.py",
     "nexus_git_attribution.py",
     "merge_permissions.py",
     "nexus_hub_cli.py",
@@ -42,6 +43,13 @@ NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
 ORG_RULE_PATH = Path(".claude") / "rules" / "org" / "python" / "code-style.md"
+
+
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
 
 
 def _host_hook_suffix() -> str:

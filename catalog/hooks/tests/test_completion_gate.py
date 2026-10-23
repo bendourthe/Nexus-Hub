@@ -54,6 +54,7 @@ class Home:
         self.runs.mkdir(parents=True)
         self.repo.mkdir()
         shutil.copy(CORE, self.scripts / "completion_gate.py")
+        shutil.copy(REPO / "scripts" / "nexus_process.py", self.scripts / "nexus_process.py")
         (self.scripts / "check_plan_completion.py").write_text(STUB_CHECKER, encoding="utf-8")
         record = {"schema": 1, "session_id": SESSION, "repo_root": str(self.repo),
                   "plan": "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"}

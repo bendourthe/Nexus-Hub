@@ -1,5 +1,7 @@
 @base-google-shared.md
 
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
+
 ## Surface: Antigravity 2.0 + CLI (Google) -- canonical post-2026-06-18 Google surface
 
 This file is consumed by BOTH the Antigravity 2.0 desktop IDE and the Antigravity CLI (`agy`) that replaces Gemini CLI for non-enterprise users on 2026-06-18. The CLI shares the Antigravity 2.0 backend and on-disk conventions; a single integration covers both surfaces. On-disk conventions verified 2026-05-29 against Google's public Antigravity CLI docs + codelabs.

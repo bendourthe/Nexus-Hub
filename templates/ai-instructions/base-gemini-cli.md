@@ -1,5 +1,7 @@
 @base-google-shared.md
 
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
+
 ## Surface: Gemini CLI (Google) -- ENTERPRISE-ONLY post-2026-06-18
 
 This file deploys to `~/.gemini/GEMINI.md` (global) or `<project>/.gemini/GEMINI.md` (workspace) and is consumed by the standalone `gemini` CLI binary. Per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18; enterprise tenants with a paid Gemini API key may continue using it via the Nexus-Hub installer's `--enterprise` / `-Enterprise` flag.

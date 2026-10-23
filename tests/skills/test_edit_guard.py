@@ -456,3 +456,24 @@ def test_canonical_paths_fold_case_where_the_os_does(work: Path) -> None:
     path = make_text(work / "Notes.md")
     same = guard.key_for(path) == guard.key_for(Path(str(path).swapcase()))
     assert same is (os.name == "nt" or sys.platform == "darwin")
+
+
+@pytest.mark.parametrize("platform", ("nt", "posix"))
+def test_background_prune_launch_is_window_safe(platform: str, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    guard = load_module()
+    launches = []
+    monkeypatch.setattr(guard, "os", SimpleNamespace(name=platform))
+    if platform == "nt":
+        monkeypatch.setattr(subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
+    else:
+        monkeypatch.delattr(subprocess, "CREATE_NO_WINDOW", raising=False)
+    monkeypatch.setattr(subprocess, "Popen", lambda argv, **options: launches.append((argv, options)))
+    guard._spawn_prune()
+    assert len(launches) == 1
+    argv, options = launches[0]
+    assert argv == [sys.executable, str(SCRIPT.resolve()), "prune"]
+    assert options["creationflags"] == getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    assert options["start_new_session"] is (platform != "nt")
+    assert all(options[name] == subprocess.DEVNULL for name in ("stdin", "stdout", "stderr"))

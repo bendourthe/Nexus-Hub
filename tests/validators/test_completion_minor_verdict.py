@@ -719,6 +719,7 @@ class GateHome:
         for script in SCRIPTS.glob("*.py"):
             shutil.copyfile(script, trusted / script.name)
         shutil.copy(SCRIPTS / "completion_gate.py", scripts / "completion_gate.py")
+        shutil.copy(SCRIPTS / "nexus_process.py", scripts / "nexus_process.py")
         (scripts / "check_plan_completion.py").write_text(GATE_STUB, encoding="utf-8")
 
     def env(self, **extra: str) -> dict[str, str]:

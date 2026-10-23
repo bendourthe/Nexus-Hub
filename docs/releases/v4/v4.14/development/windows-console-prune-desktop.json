@@ -1,0 +1,14 @@
+{
+  "started": 1792725740.2310312,
+  "seconds": 64.31796932220459,
+  "idle_start_ms": 1080250,
+  "minimum_idle_ms": 1080250,
+  "samples": 5583,
+  "visible_console_events": [],
+  "foreground_changes": [
+    {
+      "pid": 2560,
+      "elapsed": 0.002
+    }
+  ]
+}

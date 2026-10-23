@@ -362,7 +362,7 @@ def run_git(
 
     try:
         process = subprocess.Popen(
-            argv,
+            argv, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             cwd=str(working_directory),
             env=_git_environment(),
             stdin=subprocess.DEVNULL,
