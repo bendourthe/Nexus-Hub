@@ -13,6 +13,7 @@ from typing import Any
 
 EXPECTED_SCRIPTS = (
     "nexus_process.py",
+    "completion_budget.py",
     "nexus_git_attribution.py",
     "merge_permissions.py",
     "nexus_hub_cli.py",

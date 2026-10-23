@@ -1140,6 +1140,9 @@ def main(argv: list[str] | None = None) -> int:
         if isinstance(target, int):
             return target
         own = target[0] if target else _own_record(args, host)
+    except _checker()._minor_module().ObservationUnavailable:
+        print("BLOCKED: cannot-verify")
+        return EXIT_BLOCKED
     except (RuntimeError, _checker().Malformed) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

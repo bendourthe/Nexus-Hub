@@ -31,7 +31,6 @@ import fnmatch
 import hashlib
 import hmac
 import json
-import math
 import os
 import re
 import sys
@@ -43,6 +42,10 @@ from typing import TYPE_CHECKING
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+import completion_budget as _completion_budget
+
+CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
+check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
@@ -74,6 +77,10 @@ PLAN_GLOBS = (
     "docs/archive/v{M}/v{M}.{m}/plans/*.md",
     "docs/archive/versions/v{M}/v{M}.{m}/plans/*.md",
 )
+
+
+class ObservationUnavailable(Exception):
+    """A required observation did not run; no negative fact was established."""
 
 
 class MinorMalformed(Exception):
@@ -702,7 +709,7 @@ def controller_identity(ck: ModuleType, rctx: RepoContext, record: dict, path: P
     identity = _controller_metadata(ck, record, path)
     common = identity['git_common_dir']
     if common is None:
-        # _common_dir returns a canonical resolved path, or an empty string on failure.
+        # A failed observation raises; a verified unavailable origin stays a conflict.
         common = _common_dir(rctx, Path(identity['origin_root']))
         if not common:
             raise ck.MinorConflict('controller-ownership-unavailable')
@@ -2030,6 +2037,27 @@ def migration_copy_status(
     return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
+def _ledger_blob(rctx: RepoContext, commit: str, rel: str) -> tuple[str, str]:
+    """Reuse only successful immutable blob reads within this evaluation context."""
+    key = (commit.lower(), rel) if re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", commit) else None
+    cache = getattr(rctx, "_minor_blob_cache", None)
+    if cache is None:
+        cache = rctx._minor_blob_cache = {}
+    if key is not None and key in cache:
+        return "met", cache[key]
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+    if rc == -1:
+        return "cannot-verify", ""
+    if rc != 0:
+        return "unmet", ""
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+    if rc != 0:
+        return "cannot-verify", ""
+    if key is not None:
+        cache[key] = out
+    return "met", out
+
+
 def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
     """`met` when the minor's ledger at `commit` already held item `gid`, else `unmet`.
 
@@ -2037,14 +2065,11 @@ def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str)
     `cannot-verify` when git cannot answer.
     """
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify"
-        if rc != 0:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
+            return status
+        if status != "met":
             continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify"
         if any(item.gid == gid for item in parse_ledger(out)):
             return "met"
     return "unmet"
@@ -2057,14 +2082,11 @@ def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -
     cannot answer. Every layout path is tried, so an archived ledger still resolves.
     """
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify", []
-        if rc != 0:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
+            return status, []
+        if status != "met":
             continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify", []
         found = [item for item in parse_ledger(out) if item.gid == gid]
         if found:
             return "met", found
@@ -2481,7 +2503,7 @@ def unmerged_changes(rctx: RepoContext, integration: str, exempt: set[str]) -> d
         if ref.startswith("refs/heads/"):
             tips.append((ref.removeprefix("refs/heads/"), sha))
     changed: dict[str, set[str]] = {}
-    for name, sha in tips:
+    for name, sha in dict.fromkeys(tips):
         if name in exempt or name == "HEAD" or _merged(rctx, sha, integration):
             continue
         rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--name-only", f"{integration}...{sha}"])
@@ -2748,7 +2770,6 @@ def archive_member_status(ck: ModuleType, rctx: RepoContext, record: dict, membe
 # and every minor-level predicate are owned by the completion contract, "Minor
 # verdict"; this section executes them and restates none of them.
 
-CHECK_MINOR_TOTAL_SECONDS = 120.0  # the cap for one whole check-minor, members included
 MEMBER_BUDGET_SECONDS = 20.0  # each member's own share: the per-plan check's budget
 MEMBER_MIN_SECONDS = 1.0  # below this a member is not evaluated and reads cannot-verify
 CLOSE_BRANCH = "chore/close-{token}"
@@ -2786,21 +2807,15 @@ class MinorVerdict:
         out.extend(pid for pid, status in self.minor if status not in _MET)
         return out
 
-    def met(self) -> int:
+    def met(self) -> int | None:
+        # A partial observation cannot establish a comparable progress score.
+        if (any(m.exhausted or m.status == "cannot-verify" or m.gate == "cannot-verify"
+                or any(status == "cannot-verify" for _, status in m.lines) for m in self.members)
+                or any(status == "cannot-verify" for _, status in self.minor)):
+            return None
         count = sum(1 for m in self.members for _, status in m.lines if status in _MET)
         count += sum(1 for m in self.members if m.gate in _MET and not m.exhausted)
         return count + sum(1 for _, status in self.minor if status in _MET)
-
-
-def check_minor_seconds() -> float:
-    """The total budget; a caller with a shorter limit (the turn-end gate) may lower it, never raise it."""
-    try:
-        requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
-    except ValueError:
-        return CHECK_MINOR_TOTAL_SECONDS
-    if math.isnan(requested):
-        return CHECK_MINOR_TOTAL_SECONDS
-    return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
 
 
 def minor_context(ck: ModuleType, repo: str) -> RepoContext:
@@ -3103,6 +3118,18 @@ def cleanup_minor_status(
 
 
 def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
+    """Keep unavailable observations distinct from verified integrity conflicts."""
+    rctx._minor_blob_cache = {}
+    try:
+        return _check_minor(ck, rctx, token, session)
+    except ObservationUnavailable as exc:
+        return MinorVerdict(
+            f"INCOMPLETE: {exc}", ck.EXIT_INCOMPLETE, minor=[(str(exc), "cannot-verify")],
+            notices=[f"{exc} observation unavailable (command failed or budget exhausted)"],
+        )
+
+
+def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
     """The minor verdict (completion contract, "Minor verdict")."""
     parse_minor(ck, token)
     state = load_minor(ck, rctx, token, session, accept_completed=True)
@@ -3183,12 +3210,13 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
         print(f"notice: {notice}", file=sys.stderr)
     print(verdict.line)
     if args.json:
+        head = rctx._git_out("rev-parse", "HEAD") or None
         body = {
             "verdict": verdict.line,
             "exit": verdict.code,
             # The score from this same run, so a gate never needs a second evaluation.
-            "met": verdict.met(),
-            "head": rctx._git_out("rev-parse", "HEAD") or "-",
+            "met": verdict.met() if head else None,
+            "head": head,
             "members": {
                 m.version: {"status": m.status, "gate": m.gate, "predicates": dict(m.lines)} for m in verdict.members
             },
@@ -3221,7 +3249,11 @@ def cmd_score_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     """`<met-count> <head> <latest-ci-run-id|->`, summed over members and the minor-level lines."""
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
-    head = rctx._git_out("rev-parse", "HEAD") or "-"
+    head = rctx._git_out("rev-parse", "HEAD")
+    met = verdict.met()
+    if met is None or not head:
+        print("INCOMPLETE: progress.score")
+        return ck.EXIT_INCOMPLETE
     record = verdict.record
     branch = score_branch(record, verdict, args.minor)
     run_id = "-"
@@ -3231,7 +3263,7 @@ def cmd_score_minor(ck: ModuleType, args: argparse.Namespace) -> int:
         )
         if isinstance(runs, list) and runs and isinstance(runs[0], dict) and "databaseId" in runs[0]:
             run_id = str(runs[0]["databaseId"])
-    print(f"{verdict.met()} {head} {run_id}")
+    print(f"{met} {head} {run_id}")
     return 0
 
 
@@ -3345,6 +3377,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
 
 def _common_dir(rctx: RepoContext, root: Path) -> str:
     rc, out = rctx.run([rctx.git, "-C", str(root), "rev-parse", "--git-common-dir"])
+    if rc == -1:
+        raise ObservationUnavailable("controller.ownership")
     if rc or not out.strip():
         return ""
     path = Path(out.strip())
@@ -4184,13 +4218,11 @@ def last_plan_status(ck: ModuleType, rctx: RepoContext, version: str, repo: str)
 def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> list[GapItem] | None:
     """Every item of the minor's ledger as committed at `commit`; [] when none existed."""
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
             return None
-        if rc != 0:
-            continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        return parse_ledger(out) if rc == 0 else None
+        if status == "met":
+            return parse_ledger(out)
     return []
 
 

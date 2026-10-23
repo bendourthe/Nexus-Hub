@@ -262,6 +262,8 @@ class RepoContext:
         if not self.git:
             raise Malformed("git not found")
         rc, out = _run([self.git, "-C", str(start), "rev-parse", "--show-toplevel"], budget)
+        if rc == -1:
+            raise _minor_module().ObservationUnavailable("repository")
         if rc != 0:
             raise Malformed("plan is not inside a git repository")
         self.root = Path(out.strip()).resolve()
@@ -714,17 +716,22 @@ TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
 def read_record(ctx: RepoContext, path: Path) -> dict | None:
     """The raw record at `path`, or None when it sits in a working tree or is unreadable.
 
-    Callers treat None for an existing file as `record-tampered`.
+    Callers treat None for an existing file as `record-tampered`. Unavailable
+    Git provenance raises ObservationUnavailable instead of asserting integrity.
     """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
         ctx.budget,
     )
+    if rc == -1:
+        raise _minor_module().ObservationUnavailable("record.provenance")
     if rc == 0 and out.strip() == "true":
         tracked_rc, _ = _run(
             [ctx.git, "-C", str(path.parent), "ls-files", "--error-unmatch", "--", path.name],
             ctx.budget,
         )
+        if tracked_rc == -1:
+            raise _minor_module().ObservationUnavailable("record.provenance")
         if tracked_rc != 1:
             return None
     try:
@@ -1389,7 +1396,9 @@ def _pr_checks(ctx: Context, repo: str, branch: str, target: str, start: str | N
 
 def _tag_status(ctx: Context, tag: str) -> str:
     rc, out = _run([ctx.git, "-C", str(ctx.root), "tag", "-l", tag], ctx.budget)
-    if rc != 0 or out.strip() != tag:
+    if rc != 0:
+        return "cannot-verify"
+    if out.strip() != tag:
         return "unmet"
     rc, out = _run(
         [
@@ -2538,6 +2547,15 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except _minor_module().ObservationUnavailable as exc:
+        print(f"INCOMPLETE: {exc}")
+        if getattr(args, "json", False):
+            print(json.dumps({"verdict": f"INCOMPLETE: {exc}", "exit": EXIT_INCOMPLETE,
+                              "met": None, "head": None, "members": {},
+                              "minor": {str(exc): "cannot-verify"}}, sort_keys=True))
+        else:
+            print(f"{exc} cannot-verify")
+        return EXIT_INCOMPLETE
     except MinorConflict as exc:
         print(f"BLOCKED: {exc}")
         return EXIT_BLOCKED

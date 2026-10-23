@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Whole-minor completion checks report unavailable repository, controller and provenance observations as cannot-verify, preserve runner progress counters on unknown scores, and allow a 360-second shared budget while retaining 20-second member shares.
+- Windows validator coverage uses three complementary file partitions after the co-z command exhausted its hosted limit. Every validator remains selected exactly once, with the existing command and job time limits preserved.
 - Windows console children now use a shared hidden-window subprocess policy across commands, installers and pytest roots. Standalone helpers and Node launches carry explicit hidden-window options. The console guard also checks installer, build and private helper commands, rejects conflicting launch flags and requires a reason on each deliberate exception line. Project instructions and distributed rules carry the same policy. Batch shims preserve literal exclamation marks with delayed expansion disabled, and background guard work uses explicit hidden-window flags.
 
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.

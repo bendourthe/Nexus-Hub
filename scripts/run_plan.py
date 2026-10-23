@@ -46,6 +46,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+from completion_budget import check_minor_seconds
 
 NO_PROGRESS_CYCLES = 3
 DEFAULT_MAX_CYCLES = 20
@@ -186,16 +187,32 @@ def _checker() -> Path:
 
 
 def _checker_run(args: list[str]) -> tuple[int, str]:
-    proc = subprocess.run(
-        [sys.executable, str(_checker()), *args],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
-        timeout=120,
-    )
+    timeout = 120.0
+    if args and args[0] in ("check-minor", "score-minor"):
+        timeout = check_minor_seconds() + 5.0
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(_checker()), *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        if args and args[0] in ("check", "check-minor"):
+            return 1, "INCOMPLETE: checker.observation\nchecker.observation cannot-verify\n"
+        return -1, ""
     return proc.returncode, proc.stdout
+
+
+def progress_score(code: int, out: str) -> int | None:
+    """Only a successfully observed numeric score can establish lack of progress."""
+    fields = out.split()
+    if code != 0 or len(fields) < 2 or not fields[0].isascii() or not fields[0].isdigit() or fields[1] == "-":
+        return None
+    return int(fields[0])
 
 
 def validate_plan(plan: str) -> Path:
@@ -494,7 +511,7 @@ def _verified_runner_minor(record_path: Path, record: dict):
     import check_plan_completion as ck
     try:
         ctx, verified = ck.resolve_minor_controller(record_path, str(record.get('session_id') or ''))
-    except (OSError, ValueError, ck.Malformed) as exc:
+    except (OSError, ValueError, ck.Malformed, ck._minor_module().ObservationUnavailable) as exc:
         raise RunnerError('minor controller could not be verified') from exc
     if Path.cwd().resolve() != ctx.root:
         raise RunnerError('restart run-plan from the verified operational controller')
@@ -513,7 +530,7 @@ def controller_runner_lock(scope, record_path: Path, record: dict):
         try:
             with ck.minor_transaction(record):
                 lock.__enter__()
-        except (ck.Malformed, OSError) as exc:
+        except (ck.Malformed, OSError, ck._minor_module().ObservationUnavailable) as exc:
             raise RunnerError(f'minor runner acquisition failed: {exc}') from exc
         yield lock
     finally:
@@ -620,10 +637,11 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
                 return rc
             if rc != 1:
                 raise RunnerError(f"checker exited {rc}")
-            _, score_out = _checker_run(scope.score())
-            met = int(score_out.split()[0]) if score_out.split() else -1
-            stalled = 0 if met > best else stalled + 1
-            best = max(best, met)
+            score_rc, score_out = _checker_run(scope.score())
+            met = progress_score(score_rc, score_out)
+            if met is not None:
+                stalled = 0 if met > best else stalled + 1
+                best = max(best, met)
             print(f"cycle {cycle}: {verdict}", file=sys.stderr)
             if stalled >= NO_PROGRESS_CYCLES:
                 return record_blocker(scope, "no-progress", f"score {best} unchanged over {stalled} runner cycles")

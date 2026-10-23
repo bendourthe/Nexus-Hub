@@ -88,3 +88,7 @@ Every applied edit used the official edit guard with zero accepts. The native ru
 Source policy SHA-256: 682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c. Source guard SHA-256: a3bfec9c76052b069882905c2a0e362f8856ffa410203c62dcbae46e7b24a213. Evidence root: %TEMP%/nexus-v4140-native-hook-budget-oct17/console-window-root-repair-oct22.
 
 Template parity and the exact 2,062-entry staged manifest match also pass. Integration and reviewed runtime adoption are pending. Installed native scripts and the real-home guard have not been manually replaced.
+
+## Pre-commit Interpreter Boundary
+
+A later checker validation exposed an additional Python-interpreter boundary: the external pre-commit CLI started Git without installing the shared policy. The checker maintenance correction loads the unchanged shared default inside pre_commit, repairs the timeout fixture's generated parent and extends command recognition and durable instructions. A safe RED and real Git flag regression pass; the two affected selections pass 82 and 91 cases with overlap. Actual named pre-commit checks and an isolated PowerShell installer pass within a 34.877-second idle observation: 3058 samples, zero visible console events, unchanged foreground process and no user input. The existing installed guard also passes against the project. See [checker maintenance evidence](check-minor-budget-observation-evidence.md#pre-commit-console-children) for scope and retained artifacts. Source integration and reviewed runtime adoption of this followup remain open.
