@@ -18,12 +18,15 @@ Subcommands and exit codes:
     accept <path>                               0 re-baselined; 3 refused (no diff of this exact content)
     log    [--since ISO]                        prints accepts, for the end-of-task summary
     purge  [--path PATH]                        deletes records and copies
+    prune                                       removes records untouched for 30 days and aged orphan copies
     hook                                        PreToolUse/PostToolUse payload on stdin; 0 allow, 2 block
 
 `accept` is the only way to release a block. It works only after `diff` ran on that path
 for the same session (`--session` or NEXUS_EDIT_GUARD_SESSION; without one, within 30
 minutes), and only while the file still has the exact content that `diff` showed.
-Records older than 30 days are pruned on every run.
+Records whose file was not modified for 30 days are pruned at most once a day: inline by a
+CLI command, and in a background process by `hook`, so a large store never spends the
+hook's time budget.
 """
 
 from __future__ import annotations
@@ -46,8 +49,11 @@ from pathlib import Path
 
 EXIT_OK, EXIT_ERROR, EXIT_CHANGED, EXIT_NO_RECORD, EXIT_CANNOT_VERIFY = 0, 2, 3, 4, 5
 RETENTION_DAYS = 30
+PRUNE_INTERVAL_SECONDS = 24 * 60 * 60
+LOG_ROTATE_BYTES = 1024 * 1024  # past this, log.jsonl becomes log.jsonl.1, replacing the older one
 COPY_CAP_BYTES = 10 * 1024 * 1024
 _CACHE_COPY_NAME = re.compile(r"\.?([0-9a-f]{64})(?:\.[0-9a-f]{32})?\.bin(?:\.[0-9]+\.tmp)?")
+_RECORD_NAME = re.compile(r"([0-9a-f]{64})\.json")
 DIFF_WINDOW_SECONDS = 30 * 60
 CLEAN_WINDOW_SECONDS = 120  # a CLI check-write-record sequence; a user edit inside it is a residual risk
 OFFICE_EXTS = {".pptx", ".pptm", ".docx", ".docm", ".xlsx", ".xlsm", ".potx", ".dotx", ".xltx"}
@@ -197,7 +203,12 @@ def store_dir() -> Path:
     if in_synced_root(real):
         raise GuardError(f"refusing a store inside a synced drive (OneDrive, SharePoint, Dropbox): {root}")
     for sub in (root, root / "records", root / "copies"):
-        sub.mkdir(parents=True, exist_ok=True)
+        try:
+            sub.mkdir(parents=True)
+        except FileExistsError:
+            # Restrict a folder once, when it is created: setting an inheritable ACL on an existing
+            # folder makes Windows re-walk every file in it, seconds per call on a large store.
+            continue
         _owner_only(sub, directory=True)
     return root
 
@@ -309,39 +320,103 @@ def save_record(root: Path, key: str, record: dict) -> None:
 
 
 def append_log(root: Path, entry: dict) -> None:
+    """Append one line without reading the log; past LOG_ROTATE_BYTES it moves to log.jsonl.1."""
     entry = {"at": now().isoformat(timespec="seconds"), **entry}
     path = root / "log.jsonl"
-    existing = path.read_bytes() if path.is_file() else b""
-    _write_private(path, existing + (json.dumps(entry) + "\n").encode("utf-8"))
+    try:
+        if path.stat().st_size >= LOG_ROTATE_BYTES:
+            os.replace(path, path.with_name("log.jsonl.1"))
+    except OSError:
+        pass  # Missing, or busy in another process: rotation is retried on a later entry.
+    flags = os.O_WRONLY | os.O_APPEND | getattr(os, "O_BINARY", 0)
+    try:
+        fd = os.open(path, flags | os.O_CREAT | os.O_EXCL, 0o600)
+        created = True
+    except FileExistsError:
+        fd = os.open(path, flags)
+        created = False
+    with os.fdopen(fd, "ab") as stream:
+        if created:
+            _owner_only(path, directory=False)
+        stream.write((json.dumps(entry) + "\n").encode("utf-8"))
 
 
 def prune(root: Path) -> int:
-    cutoff = now() - dt.timedelta(days=RETENTION_DAYS)
+    """Remove records untouched for RETENTION_DAYS, with their copies, and aged orphan copies.
+
+    A record's age is its file's modification time, which every save refreshes, so one listing
+    per folder decides it and no live record is opened. A copy is checked against its record
+    only when the copy itself is past the cutoff.
+    """
+    cutoff = now().timestamp() - RETENTION_DAYS * 86400
+    copies: dict[str, list[tuple[Path, float]]] = {}
+    with os.scandir(root / "copies") as entries:
+        for entry in entries:
+            match = _CACHE_COPY_NAME.fullmatch(entry.name)
+            if match is None:
+                continue
+            try:
+                copies.setdefault(match[1], []).append((Path(entry.path), entry.stat().st_mtime))
+            except OSError:
+                continue
+    expired: list[Path] = []
+    with os.scandir(root / "records") as entries:
+        for entry in entries:
+            try:
+                if _RECORD_NAME.fullmatch(entry.name) and entry.stat().st_mtime < cutoff:
+                    expired.append(Path(entry.path))
+            except OSError:
+                continue
     removed = 0
-    for record_path in (root / "records").glob("*.json"):
+    for record_path in expired:
         try:
-            record = json.loads(record_path.read_text(encoding="utf-8"))
-            stamp = dt.datetime.fromisoformat(record["at"])
-        except (OSError, ValueError, KeyError):
+            record_path.unlink(missing_ok=True)
+            for copy, _mtime in copies.pop(record_path.stem, []):
+                copy.unlink(missing_ok=True)
+        except OSError:
             continue
-        if stamp < cutoff:
-            _delete(root, record_path.stem)
-            removed += 1
+        removed += 1
     # Failed publications can leave private generations without a live record.
-    for copy in (root / "copies").iterdir():
-        match = _CACHE_COPY_NAME.fullmatch(copy.name)
-        if match is None:
-            continue
-        try:
-            record = load_record(root, match[1])
-            if record and _has_copy(root, match[1], record) and copy == _copy_path(root, match[1], record):
+    for key, found in copies.items():
+        for copy, mtime in found:
+            if mtime >= cutoff:
                 continue
-            if copy.stat().st_mtime >= cutoff.timestamp():
+            try:
+                record = load_record(root, key)
+                if record and _has_copy(root, key, record) and copy == _copy_path(root, key, record):
+                    continue
+                if copy.stat().st_mtime >= cutoff:  # retired after the listing: keep its grace
+                    continue
+                copy.unlink(missing_ok=True)
+            except (OSError, GuardError):
                 continue
-            copy.unlink(missing_ok=True)
-        except (OSError, GuardError):
-            continue
     return removed
+
+
+def _claim_prune(root: Path) -> bool:
+    """True at most once per PRUNE_INTERVAL_SECONDS per store; the caller then prunes."""
+    marker = root / ".last-prune"
+    try:
+        if now().timestamp() - marker.stat().st_mtime < PRUNE_INTERVAL_SECONDS:
+            return False
+    except FileNotFoundError:
+        pass
+    except OSError:
+        return False
+    try:
+        _write_private(marker, now().isoformat(timespec="seconds").encode("utf-8"))
+    except OSError:
+        return False
+    return True
+
+
+def _spawn_prune() -> None:
+    """Prune in a separate, windowless process: a cold listing of a large store takes seconds."""
+    import subprocess
+
+    options = {"creationflags": 0x08000000} if os.name == "nt" else {"start_new_session": True}  # CREATE_NO_WINDOW
+    subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "prune"], stdin=subprocess.DEVNULL,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
 
 
 def _delete_copies(root: Path, key: str | None = None) -> None:
@@ -777,11 +852,12 @@ def cmd_accept(args, root: Path) -> int:
 
 
 def cmd_log(args, root: Path) -> int:
-    path = root / "log.jsonl"
     since = dt.datetime.fromisoformat(args.since) if args.since else None
-    if not path.is_file():
-        return EXIT_OK
-    for line in path.read_text(encoding="utf-8").splitlines():
+    lines: list[str] = []
+    for path in (root / "log.jsonl.1", root / "log.jsonl"):  # oldest first
+        if path.is_file():
+            lines += path.read_text(encoding="utf-8").splitlines()
+    for line in lines:
         entry = json.loads(line)
         if entry.get("event") != "accept":
             continue
@@ -800,7 +876,14 @@ def cmd_purge(args, root: Path) -> int:
             record_path.unlink(missing_ok=True)
         _delete_copies(root)
         (root / "log.jsonl").unlink(missing_ok=True)
+        (root / "log.jsonl.1").unlink(missing_ok=True)
         print("purged every edit-guard record")
+    return EXIT_OK
+
+
+def cmd_prune(args, root: Path) -> int:
+    _write_private(root / ".last-prune", now().isoformat(timespec="seconds").encode("utf-8"))
+    print(f"pruned {prune(root)} record(s) untouched for {RETENTION_DAYS} days")
     return EXIT_OK
 
 
@@ -828,6 +911,7 @@ REDIRECTS = {">", ">>", ">|", "&>", "&>>"}
 SEPARATORS = {";", "&&", "||", "|", "&", ";;"}
 SHUTIL_COPY = re.compile(r"shutil\.(?:copy|copy2|copyfile|move)\(\s*(['\"])(.+?)\1\s*,\s*(['\"])(.+?)\3")
 TRACKED_SCAN_LIMIT = 2000
+TRACKED_SCAN_SECONDS = 0.5  # the scan is advisory; the hook's budget belongs to recording the command's writes
 SETTLE_SECONDS = 5
 
 
@@ -1309,7 +1393,17 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
 def _changed_since(root: Path, since: float, cwd: Path) -> list[Path]:
     prefix = canonical(cwd).rstrip("/") + "/"
     touched: list[Path] = []
-    for record_path in sorted((root / "records").glob("*.json"))[:TRACKED_SCAN_LIMIT]:
+    deadline = time.monotonic() + TRACKED_SCAN_SECONDS
+    with os.scandir(root / "records") as entries:
+        names = []
+        for entry in entries:
+            if len(names) >= TRACKED_SCAN_LIMIT or time.monotonic() > deadline:
+                break
+            if _RECORD_NAME.fullmatch(entry.name):
+                names.append(Path(entry.path))
+    for record_path in names:
+        if time.monotonic() > deadline:
+            break
         try:
             record = json.loads(record_path.read_text(encoding="utf-8"))
             path = Path(record.get("display") or record["path"])
@@ -1381,9 +1475,13 @@ def cmd_hook() -> int:
     cwd = Path(payload.get("cwd") or os.getcwd())
     try:
         root: Path | None = store_dir()
-        prune(root)
     except (GuardError, OSError):
         root = None
+    try:
+        if root is not None and _claim_prune(root):
+            _spawn_prune()
+    except OSError:
+        pass  # Pruning is housekeeping; the next day's claim retries it, and the check goes on.
     if payload.get("hook_event_name") == "PostToolUse":
         if root is None:
             return EXIT_OK
@@ -1418,12 +1516,14 @@ def main(argv: list[str] | None = None) -> int:
     log.add_argument("--since")
     purge = sub.add_parser("purge")
     purge.add_argument("--path")
+    sub.add_parser("prune")
     args = parser.parse_args(argv)
     handlers = {"record": cmd_record, "check": cmd_check, "diff": cmd_diff, "accept": cmd_accept,
-                "log": cmd_log, "purge": cmd_purge}
+                "log": cmd_log, "purge": cmd_purge, "prune": cmd_prune}
     try:
         root = store_dir()
-        prune(root)
+        if args.command != "prune" and _claim_prune(root):
+            prune(root)
         return handlers[args.command](args, root)
     except (GuardError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
