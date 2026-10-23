@@ -43,21 +43,25 @@ def test_both_installers_bound_the_extension_npm_install() -> None:
     assert "npm_log=$(npm install" not in sh, "an unbounded npm install call remains"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="installer.sh runs on macOS and Linux; Windows uses installer.ps1")
 @pytest.mark.skipif(shutil.which("bash") is None, reason="bash is not installed")
 def test_bash_helper_stops_an_overrun_and_keeps_exit_codes(tmp_path: Path) -> None:
     helper = _function(INSTALLER_SH.read_text(encoding="utf-8"), "run_with_timeout() {")
     log = (tmp_path / "out.log").as_posix()
-    script = (
+    script = tmp_path / "drive.sh"
+    script.write_text(
         f"{helper}\n"
         f'rc=0; run_with_timeout 1 "{log}" sleep 20 || rc=$?; echo "overrun=$rc"\n'
         f'rc=0; run_with_timeout 10 "{log}" echo hello-from-npm || rc=$?; echo "success=$rc"\n'
-        f'rc=0; run_with_timeout 10 "{log}" sh -c "exit 3" || rc=$?; echo "failure=$rc"\n'
+        f'rc=0; run_with_timeout 10 "{log}" sh -c "exit 3" || rc=$?; echo "failure=$rc"\n',
+        encoding="utf-8",
+        newline="\n",
     )
     started = time.monotonic()
-    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60, check=False)
+    proc = subprocess.run(["bash", str(script)], capture_output=True, text=True, timeout=60, check=False)
     elapsed = time.monotonic() - started
 
-    assert proc.returncode == 0, proc.stderr
+    assert proc.returncode == 0, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
     assert "overrun=124" in proc.stdout
     assert "success=0" in proc.stdout
     assert "failure=3" in proc.stdout
