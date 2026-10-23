@@ -1,6 +1,6 @@
 # Usage-Limit Native Decision Evidence
 
-Status: source implementation and split local qualification; integration and installed platform-hook delivery remain pending.
+Status: locally committed source and fresh integrated qualification; hosted integration and installed platform-hook delivery remain pending.
 Scope: the user-approved separate maintenance repair within the v4.14 run; frozen member plans and native authority are unchanged.
 Source baseline: `fix/usage-limit-native-decision` at `6e3a7dd2ada110971e1ec8ab8b7897b419281e23`, before the maintenance commit and final integrated validation.
 
@@ -18,7 +18,7 @@ The [usage guide](../../../../guides/usage-limit-handoff.md) documents the claim
 
 ## Split Source Qualification
 
-These are separate runs, not one fresh combined suite. The earlier broad result precedes the final targeted protocol changes. Unchanged affected coverage is retained while changed protocol and real-shell gate paths were rerun. A fresh combined integrated-source result remains required.
+These are separate runs, not one fresh combined suite. The earlier broad result precedes the final targeted protocol changes. Unchanged affected coverage is retained while changed protocol and real-shell gate paths were rerun. The fresh combined integrated-source result is recorded below.
 
 | Scope | Result | Evidence under the private root |
 |---|---|---|
@@ -27,9 +27,17 @@ These are separate runs, not one fresh combined suite. The earlier broad result 
 | Final real Bash and PowerShell completion-gate cases | 30 passed in 68.23 s | `usage-native-worker-1792721716713/gate-reset-history-final.stdout` |
 | Repository and installed console-window guards | Both exit 0 with silent stdout/stderr | `usage-native-worker-1792721716713/reset-history-console-guards.json` |
 
-The affected files are `catalog/hooks/tests/test_usage_guard.py`, `catalog/hooks/tests/test_usage_probe.py`, `catalog/hooks/tests/test_usage_native_decision.py` and `catalog/hooks/tests/test_completion_gate_usage_handoff.py`. Run all four through the pinned hidden Python/pytest launcher with `-q -p no:cacheprovider` for fresh integrated qualification. Do not sum the separate results into a combined passing-suite claim.
+The affected files are `catalog/hooks/tests/test_usage_guard.py`, `catalog/hooks/tests/test_usage_probe.py`, `catalog/hooks/tests/test_usage_native_decision.py` and `catalog/hooks/tests/test_completion_gate_usage_handoff.py`. All four were run together through the pinned hidden Python/pytest launcher with `-q -p no:cacheprovider` for the integrated qualification below. Do not sum the separate results into a combined passing-suite claim.
 
 Regression-first failures remain in `reset-history-red.stdout`, `warning-bootstrap-red.stdout` and `future-reset-pinned-old-red.stdout` in the worker evidence folder. Final targeted cases cover unknown-reset clear/re-cross episodes for wait, handoff and credits; future reset changes; immutable archive collisions/failure; offered-output recovery; direct warning delivery; original cost facts; and request/answer replay refusal. Old per-window prompting and repository-decision expectations now assert shared-ledger behavior; detection, probe and security coverage remains.
+
+## Integrated Source Qualification
+
+The usage implementation was preserved in local commit `6bb1c6ea38a720c89ec12da91237bb69cc6f87ea` before a guarded merge of committed checker/console integration `d0f59f3736757ac260565a0787f47a71b8863ea7`. The merge applied 26 incoming paths without conflicts and preserved all 12 named usage source, metadata and evidence files byte-for-byte; official guard proof reports zero accepts.
+
+On that combined source, the four affected files passed together: **440 passed in 160.41 seconds**, with JUnit reporting 440 tests, zero failures, zero errors and zero skips. Hidden Python PID 3328 exited 0. Raw stdout, stderr, JUnit, launch and terminal-process receipts are retained under `usage-native-integration-1792728214634`. The source and installed console guards passed silently; the expanded source guard also passed for the installer command. Spelling and release-document link checks passed; skill validation passed with zero errors and 66 warnings. Strict registry and attribution checks passed before the local implementation commit.
+
+The canonical manifest contains 2063 managed entries and matches the staged index. The final source CLI refuses replay of the genuine private preview claim with exit 1 and `decision already answered`, so no second native question was emitted. The native run-record SHA-256 remains `246a0a40f4e28ffc02c3acc957dce4627d4ff3f1848c19d3cb359922590b884a`. These local results do not establish hosted integration or installed adoption.
 
 ## Genuine Private UI Preview
 
