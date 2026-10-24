@@ -293,7 +293,7 @@ def test_closed_unmerged_pr_branches_reports_surviving_refs(
     monkeypatch.setattr(
         mod.shutil,
         "which",
-        lambda name: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
+        lambda name, path=None: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
     )
 
     class FakeProc:
@@ -318,7 +318,7 @@ def test_closed_but_merged_pr_is_not_reported(
     monkeypatch.setattr(
         mod.shutil,
         "which",
-        lambda name: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
+        lambda name, path=None: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
     )
 
     class FakeProc:
@@ -343,7 +343,7 @@ def test_closed_pr_for_a_deleted_branch_is_not_reported(
     monkeypatch.setattr(
         mod.shutil,
         "which",
-        lambda name: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
+        lambda name, path=None: "/usr/bin/gh" if name == "gh" else "/usr/bin/git",
     )
 
     class FakeProc:
@@ -365,7 +365,7 @@ def test_closed_unmerged_returns_empty_without_gh(
 ) -> None:
     """No gh keeps the report quiet rather than wrong."""
     mod = module()
-    monkeypatch.setattr(mod.shutil, "which", lambda name: None)
+    monkeypatch.setattr(mod.shutil, "which", lambda name, path=None: None)
     assert mod.closed_unmerged_pr_branches() == []
 
 

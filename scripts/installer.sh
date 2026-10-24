@@ -2422,8 +2422,8 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," "$RESET"
-    write_item "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
-    write_item "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." "$RESET"
+    write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
+    write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
     echo ""
 
@@ -2551,9 +2551,9 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header. The Claude and Codex
-    # monitors install only via vscode_cli; the Copilot monitor installs via
-    # vscode_cli and, as its second host, cursor_cli (Copilot runs in Cursor too);
+    # Build each extension under its own vendor header. The Claude, Codex, and
+    # Copilot monitors install only via vscode_cli (Copilot is not installed in
+    # Cursor; remove_legacy_vscode_extensions removes copies older installers left there);
     # the Cursor monitor installs only via cursor_cli; the Gemini monitor installs
     # only via antigravity_cli. The vendor order (Anthropic, OpenAI, Microsoft,
     # Anysphere, Google) is asserted by the installer smoke test and must match
@@ -2565,13 +2565,44 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
 
     write_header "MICROSOFT"
-    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
+    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
 
     write_header "GOOGLE"
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
+}
+
+# Run a command for at most $1 seconds, appending its output to the file $2.
+# Returns the command's status, or 124 when it was stopped for running too long.
+# macOS ships no `timeout`, so a background watchdog does the job. Output goes
+# to a file rather than $(...): a stuck grandchild holding the pipe open would
+# otherwise keep the capture waiting after the command itself was stopped.
+run_with_timeout() {
+    local seconds="$1" log="$2"
+    shift 2
+    local flag
+    flag="$(mktemp)"
+    rm -f "$flag"
+    "$@" >>"$log" 2>&1 &
+    local pid=$!
+    (
+        sleep "$seconds"
+        touch "$flag"
+        if command -v pkill >/dev/null 2>&1; then pkill -TERM -P "$pid" 2>/dev/null; fi
+        kill -TERM "$pid" 2>/dev/null
+    ) >/dev/null 2>&1 &
+    local watchdog=$!
+    local rc=0
+    wait "$pid" || rc=$?
+    kill "$watchdog" 2>/dev/null || true
+    wait "$watchdog" 2>/dev/null || true
+    if [ -e "$flag" ]; then
+        rm -f "$flag"
+        return 124
+    fi
+    return "$rc"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2629,13 +2660,23 @@ build_and_install_one_extension() {
     fi
 
     write_item "  Installing dependencies..." "$GRAY"
-    local npm_log
-    if ! npm_log=$(npm install --silent 2>&1); then
-        write_item "npm install failed:" "$RED"
-        echo "$npm_log" | tail -n 20
+    # Bounded: a stalled package download otherwise hangs the whole install.
+    local npm_timeout="${NEXUS_HUB_NPM_TIMEOUT:-300}"
+    local npm_log npm_rc=0
+    npm_log="$(mktemp)"
+    run_with_timeout "$npm_timeout" "$npm_log" npm install --silent || npm_rc=$?
+    if [ "$npm_rc" -ne 0 ]; then
+        if [ "$npm_rc" -eq 124 ]; then
+            write_item "Skipping ${display_name}: npm install did not finish within ${npm_timeout}s (set NEXUS_HUB_NPM_TIMEOUT to allow longer)." "$YELLOW"
+        else
+            write_item "npm install failed:" "$RED"
+            tail -n 20 "$npm_log"
+        fi
+        rm -f "$npm_log"
         popd > /dev/null
         return
     fi
+    rm -f "$npm_log"
 
     write_item "  Compiling TypeScript..." "$GRAY"
     local compile_log
@@ -2747,6 +2788,8 @@ install_templates() {
     # /implement run is complete from repository, hosting, and run-record
     # state; the completion gate, run-plan runner, and /update release call
     # it from this installed path, never from a working tree.
+    safe_copy "$repo_root/scripts/nexus_process.py" "$scripts_dest/nexus_process.py" true "[OK] Shared process policy installed"
+
     local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
     if [ -f "$completion_checker_source" ]; then
         safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
@@ -2764,6 +2807,12 @@ install_templates() {
     local approval_binding_source="$repo_root/scripts/approval_binding.py"
     if [ -f "$approval_binding_source" ]; then
         safe_copy "$approval_binding_source" "$scripts_dest/approval_binding.py" true "[OK] Approval binder installed at: $scripts_dest/approval_binding.py"
+    fi
+
+    # Copy the shared minor-observation budget used by the checker and runner.
+    local completion_budget_source="$repo_root/scripts/completion_budget.py"
+    if [ -f "$completion_budget_source" ]; then
+        safe_copy "$completion_budget_source" "$scripts_dest/completion_budget.py" true "[OK] Shared completion budget installed at: $scripts_dest/completion_budget.py"
     fi
 
     # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
@@ -3398,8 +3447,8 @@ install_skill_discovery() {
     # install on a stock Debian/Ubuntu host, which ships python3 without python3-venv.
     local venv_ok=1
     if command -v uv >/dev/null 2>&1; then
-        write_item "  Creating venv with uv..." "$RESET"
-        if ! { uv venv "$venv_path" >/dev/null 2>&1 \
+        write_item "  Creating venv with uv..." "$RESET"  # UV_VENV_CLEAR: uv 0.9+ refuses to reuse an existing venv on reinstall
+        if ! { UV_VENV_CLEAR=1 uv venv "$venv_path" >/dev/null 2>&1 \
                 && uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1; }; then
             venv_ok=0
         fi
@@ -3590,8 +3639,11 @@ remove_legacy_vscode_extensions() {
         command -v "$cli" >/dev/null 2>&1 || continue
         local installed
         installed=$("$cli" --list-extensions 2>/dev/null) || continue
+        local ids=("${legacy_ids[@]}")
+        # The Copilot monitor is VS Code only; older installers also put it in Cursor.
+        if [ "$cli" = cursor ]; then ids+=("nexus-hub.copilot-usage-monitor"); fi
         local id
-        for id in "${legacy_ids[@]}"; do
+        for id in "${ids[@]}"; do
             if printf '%s
 ' "$installed" | grep -qx "$id"; then
                 if [ "$emitted" -eq 0 ]; then echo ""; fi

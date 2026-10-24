@@ -304,3 +304,43 @@ def test_cursor_wire_project_surfaces_seeds_rules_and_commands(install_ctx: Inst
     assert (commands_dir / "presentify.md").exists(), "expected a catalog command in .cursor/commands/"
     joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
     assert "/.cursor/commands/" in joined, "wire_project_surfaces should report the command mirror"
+
+
+def test_global_install_writes_an_always_apply_rules_plugin(install_ctx: InstallContext):
+    """Cursor has no global instruction file and never requests sessionStart, so a
+    global install ships a user-level local plugin whose rules always apply. Verified
+    live in Cursor 3.24.18: a new chat answered with the plugin rule's wording."""
+    ctx = replace(install_ctx, scope="global", explicit_target=True, instruction_only=True)
+    CursorIntegration().install_global(ctx)
+    plugin = ctx.target_root / ".cursor" / CursorIntegration.PLUGIN_DIR
+
+    manifest = json.loads((plugin / ".cursor-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    assert manifest["name"] == "nexus-hub"
+    for name in ("nexus-hub-instructions.mdc", "nexus-hub-attribution.mdc"):
+        rule = (plugin / "rules" / name).read_text(encoding="utf-8")
+        assert rule.startswith("---\ndescription: "), name
+        frontmatter = rule.split("\n---\n", 1)[0]
+        assert "\nalwaysApply: true" in frontmatter, name
+    instructions = (plugin / "rules" / "nexus-hub-instructions.mdc").read_text(encoding="utf-8")
+    assert "## Writing Discipline" in instructions
+    assert "Spelling is American English" in instructions
+
+
+def test_global_install_removes_the_superseded_session_start_instructions(install_ctx: InstallContext):
+    ctx = replace(install_ctx, scope="global", explicit_target=True, instruction_only=True)
+    superseded = ctx.target_root / ".cursor" / CursorIntegration.SUPERSEDED_INSTRUCTIONS
+    superseded.parent.mkdir(parents=True)
+    superseded.write_text("old\n", encoding="utf-8")
+    CursorIntegration().install_global(ctx)
+    assert not superseded.exists()
+
+
+@pytest.mark.parametrize("scope", ["global", "workspace"])
+def test_session_start_carries_only_the_attribution_context(install_ctx: InstallContext, scope: str):
+    """The rules plugin carries the instructions; the hook passes no instructions file."""
+    ctx = replace(install_ctx, scope=scope, explicit_target=True)
+    cursor_root = ctx.target_root / ".cursor"
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, scope)
+    command = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))["hooks"]["sessionStart"][0]["command"]
+    assert command.endswith("context") or command.endswith("context'")
+    assert "--instructions" not in command

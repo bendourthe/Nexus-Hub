@@ -46,13 +46,13 @@ def test_unguarded_python_test_launch_blocks_with_conftest_fix(tmp_path: Path) -
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     result = run_hook(tmp_path, "python -m pytest tests -q")
     assert result.returncode == 2
-    assert "no conftest.py no-window guard" in result.stderr
-    assert "CREATE_NO_WINDOW" in result.stderr and "subprocess.Popen.__init__" in result.stderr
+    assert "without CREATE_NO_WINDOW or a shared default" in result.stderr
+    assert "CREATE_NO_WINDOW" in result.stderr
 
 
 def test_conftest_guard_clears_the_unguarded_finding(tmp_path: Path) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
-    write(tmp_path, "tests/conftest.py", "import subprocess\nFLAG = subprocess.CREATE_NO_WINDOW\n")
+    write(tmp_path, "tests/conftest.py", "import runpy\npolicy = runpy.run_path(\"nexus_process.py\")\npolicy[\"install_no_window_default\"]()\n")
     assert run_hook(tmp_path, "pytest").returncode == 0
 
 
@@ -103,9 +103,9 @@ def test_go_windows_helper_clears_the_finding(tmp_path: Path) -> None:
 
 def test_marker_on_the_line_or_above_accepts_a_deliberate_launch(tmp_path: Path) -> None:
     write(tmp_path, "tools/a.py", "import subprocess\n# nexus: console-window-ok must detach\n"
-                                  "subprocess.Popen(['x'], creationflags=subprocess.DETACHED_PROCESS)\n")
+                                  "subprocess.Popen(['x'], creationflags=subprocess.DETACHED_PROCESS)  # nexus: console-window-ok explicit scenario\n")
     write(tmp_path, "tools/b.py", "import subprocess\n"
-                                  "subprocess.Popen(['x'], creationflags=subprocess.DETACHED_PROCESS)  # nexus: console-window-ok\n")
+                                  "subprocess.Popen(['x'], creationflags=subprocess.DETACHED_PROCESS)  # nexus: console-window-ok explicit scenario\n")
     assert run_hook(tmp_path, "go test ./...").returncode == 0
 
 
@@ -124,13 +124,14 @@ def test_off_windows_or_disabled_passes(tmp_path: Path, env: dict[str, str]) -> 
     "python -m pytest tests -q", "py.test", "npm run test", "pnpm test", "yarn test", "npx vitest run",
     "npx playwright test", "go test ./...", "cargo test", "dotnet test", "mvn -q test", "./gradlew test",
     "Invoke-Pester", "python scripts/ci/run.py --profile fast", "cd x && pytest",
+    "pre-commit run --all-files", "pre-commit.exe run", "pre-commit.cmd run", "python -m pre_commit run",
 ])
 def test_recognises_test_runners(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 2, command
 
 
-@pytest.mark.parametrize("command", ["git status", "npm install", "python build.py", "echo pytest-free", "ls tests"])
+@pytest.mark.parametrize("command", ["git status", "echo pytest-free", "ls tests", "echo pre-commit-free", "echo pre_commit_free"])
 def test_ignores_non_test_commands(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 0, command
@@ -145,8 +146,8 @@ def test_git_listing_skips_ignored_and_vendored_code(tmp_path: Path) -> None:
     assert run_hook(tmp_path, "pytest").returncode == 0
 
 
-def test_an_exhausted_scan_budget_lets_the_test_run_proceed(tmp_path: Path, monkeypatch, capsys) -> None:
-    """A slow or cold repository must never stall or block a test command."""
+def test_an_exhausted_scan_budget_blocks_until_verifiable(tmp_path: Path, monkeypatch, capsys) -> None:
+    """An unobserved launch cannot be treated as window-safe."""
     import importlib.util
     import io
     spec = importlib.util.spec_from_file_location("console_window_guard_budget", HOOK)
@@ -161,7 +162,7 @@ def test_an_exhausted_scan_budget_lets_the_test_run_proceed(tmp_path: Path, monk
     monkeypatch.delenv("NEXUS_CONSOLE_GUARD", raising=False)
     payload = {"tool_name": "Bash", "tool_input": {"command": "pytest"}, "cwd": str(tmp_path)}
     monkeypatch.setattr(guard.sys, "stdin", io.StringIO(json.dumps(payload)))
-    assert guard.main() == 0
+    assert guard.main() == 2
     assert "scan stopped after" in capsys.readouterr().err
 
 
@@ -170,3 +171,128 @@ def test_nexus_hub_itself_has_no_window_unsafe_launch() -> None:
     repo = Path(__file__).resolve().parents[3]
     result = run_hook(repo, "python -m pytest -q")
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("command", ["npm install", "npm.cmd ci", "npm run build", "uv sync", "python build.py", "powershell -File scripts/installer.ps1", "bash scripts/installer.sh", "cmake --build out", "python helper.py"])
+def test_installer_build_and_helper_commands_are_guarded(tmp_path: Path, command: str) -> None:
+    write(tmp_path, "src/launch.py", "import subprocess\nsubprocess.run(['git', 'status'])\n")
+    result = run_hook(tmp_path, command)
+    assert result.returncode == 2, (command, result.stderr)
+    assert "src/launch.py:" in result.stderr
+
+
+@pytest.mark.parametrize("body", [
+    "import subprocess\nsubprocess.run(['git'], creationflags=0)\n",
+    "import asyncio\nasyncio.create_subprocess_exec('git')\n",
+    "import os\nos.system('git status')\n",
+    "import subprocess as sp\nsp.Popen(['git'])\n",
+    "from subprocess import check_output as launch\nlaunch(['git'])\n",
+])
+def test_new_product_launch_without_window_policy_fails(tmp_path: Path, body: str) -> None:
+    write(tmp_path, "src/new.py", body)
+    assert run_hook(tmp_path, "npm run build").returncode == 2
+
+
+def test_conftest_in_an_unrelated_tree_does_not_guard_a_launch(tmp_path: Path) -> None:
+    write(tmp_path, "tests/conftest.py", "import runpy\np=runpy.run_path('nexus_process.py')\np['install_no_window_default']()\n")
+    write(tmp_path, "other/test_launch.py", UNGUARDED_TEST)
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_a_flag_mention_does_not_install_a_default(tmp_path: Path) -> None:
+    write(tmp_path, "tests/conftest.py", "# CREATE_NO_WINDOW\n")
+    write(tmp_path, "tests/test_launch.py", UNGUARDED_TEST)
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_false_windows_hide_is_not_safe(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.js", "require('child_process').spawn('cmd', [], { windowsHide: false });\n")
+    assert run_hook(tmp_path, "npm run build").returncode == 2
+
+
+def test_exception_marker_requires_a_reason_on_the_launch_line(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.py", "import subprocess\nsubprocess.run(['git'])  # nexus: console-window-ok\n")
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_child_process_namespace_alias_is_guarded(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "import * as processes from 'node:child_process';\nprocesses.spawn('git', []);\n")
+    assert run_hook(tmp_path, "npm run build").returncode == 2
+
+
+
+def test_explicit_external_python_helper_is_checked(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    write(tmp_path, "helper.py", "import subprocess\nsubprocess.run(['git'])\n")
+    result = run_hook(project, 'python "' + str(tmp_path / "helper.py") + '"')
+    assert result.returncode == 2 and "helper.py:" in result.stderr
+
+
+@pytest.mark.parametrize("command", ["npm.cmd test", "nexus-hub upgrade", "npx tsc", "vite build"])
+def test_additional_build_and_install_entry_points_are_guarded(tmp_path: Path, command: str) -> None:
+    write(tmp_path, "launch.py", "import subprocess\nsubprocess.run(['git'])\n")
+    assert run_hook(tmp_path, command).returncode == 2
+
+
+@pytest.mark.parametrize("flags", ["subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_CONSOLE", "0x08000000 | 0x8", "subprocess.DETACHED_PROCESS"])
+def test_named_conflicting_flags_are_rejected(tmp_path: Path, flags: str) -> None:
+    write(tmp_path, "launch.py", f"import subprocess\nflags={flags}\nsubprocess.Popen(['git'], creationflags=flags)\n")
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+@pytest.mark.parametrize("body", ["import { spawn as launch } from 'node:child_process';\nlaunch('git', []);\n", "const {spawn: launch} = require('child_process');\nlaunch('git', []);\n"])
+def test_named_node_aliases_are_guarded(tmp_path: Path, body: str) -> None:
+    write(tmp_path, "src/a.ts", body)
+    assert run_hook(tmp_path, "npm run build").returncode == 2
+
+
+def test_quoted_python_executable_checks_external_helper(tmp_path: Path) -> None:
+    project=tmp_path / "project"
+    project.mkdir()
+    helper=tmp_path / "helper.py"
+    write(tmp_path, "helper.py", "import subprocess\nsubprocess.run(['git'])\n")
+    assert run_hook(project, f"& '{sys.executable}' -B '{helper}'").returncode == 2
+
+
+@pytest.mark.parametrize("override", ["subprocess.CREATE_NEW_CONSOLE", "0"])
+def test_dictionary_expansion_cannot_override_hidden_flags(tmp_path: Path, override: str) -> None:
+    write(tmp_path, "launch.py", "import subprocess\noptions={'creationflags': subprocess.CREATE_NO_WINDOW, **{'creationflags': " + override + "}}\nsubprocess.Popen(['git'], **options)\n")
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_mutated_options_with_new_console_are_rejected(tmp_path: Path) -> None:
+    write(tmp_path, "launch.py", "import subprocess\noptions={'creationflags': subprocess.CREATE_NO_WINDOW}\noptions.update(creationflags=subprocess.CREATE_NEW_CONSOLE)\nsubprocess.Popen(['git'], **options)\n")
+    assert run_hook(tmp_path, "pytest").returncode == 2
+
+
+def test_parallel_source_reads_preserve_every_unsafe_launch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import runpy
+    import threading
+
+    module = runpy.run_path(str(HOOK))
+    for i in range(12):
+        write(tmp_path, f"launch_{i}.py", UNGUARDED_TEST)
+    original = Path.read_bytes
+    barrier = threading.Barrier(2)
+    lock = threading.Lock()
+    active = peak = 0
+
+    def read(path: Path) -> bytes:
+        nonlocal active, peak
+        if path.parent != tmp_path or not path.name.startswith("launch_"):
+            return original(path)
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        try:
+            barrier.wait(timeout=3)
+            return original(path)
+        finally:
+            with lock:
+                active -= 1
+
+    monkeypatch.setattr(Path, "read_bytes", read)
+    findings = module["scan"](tmp_path)
+    assert peak >= 2
+    assert {finding.path for finding in findings} == {f"launch_{i}.py" for i in range(12)}

@@ -2,7 +2,7 @@
 
 Summary: how an agent harness decides whether a proposed tool call runs, by splitting scoring from a pure policy function, using two thresholds for allow, ask, or block, declaring each component's failure direction, and treating tool arguments as untrusted data.
 Read this when: building or reviewing the gate an agent harness puts in front of its own tool calls (shell, file writes, network, external actions).
-Covers: the scorer and policy split, the allow / ask / block band, failure directions, untrusted arguments, the decision record, and handoffs to the skills that own the neighbouring rules.
+Covers: the scorer and policy split, the allow / ask / block band, failure directions, untrusted arguments, the decision record, and handoffs to the skills that own the neighboring rules.
 
 This reference teaches only the decision mechanics of a tool-call gate. For guardrail design in general, start with [step-6-add-guardrails-and-safety.md](step-6-add-guardrails-and-safety.md).
 
@@ -46,7 +46,7 @@ The scorer always returns at least one score, so an empty result means it failed
 
 ## The allow / ask / block band
 
-Two thresholds give three verdicts. A score below the ask threshold allows the call, a score at or above it asks a person, and a score at or above the block threshold blocks. When several concerns are scored, the highest score decides, so one alarming concern is never averaged away by several calm ones. Set the thresholds from labelled examples of your own calls, not from a default.
+Two thresholds give three verdicts. A score below the ask threshold allows the call, a score at or above it asks a person, and a score at or above the block threshold blocks. When several concerns are scored, the highest score decides, so one alarming concern is never averaged away by several calm ones. Set the thresholds from labeled examples of your own calls, not from a default.
 
 ## Failure directions
 
@@ -59,7 +59,7 @@ The agent produced the arguments after it read content it does not control (web 
 - A model-based scorer receives the arguments clearly delimited as data, never as instructions.
 - No score may lower a deterministic verdict. A deterministic block (a denied path, a forbidden command) stays a block whatever a model scores; a model can only raise caution.
 
-The defence posture behind this is owned by [[prompt-injection-defense]].
+The defense posture behind this is owned by [[prompt-injection-defense]].
 
 ## The decision record
 

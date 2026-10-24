@@ -16,6 +16,7 @@ the easiest place to hide one.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -150,6 +151,46 @@ def test_existing_profile_commands_emit_coverage_and_sarif() -> None:
     assert "--output" in scanner.argv and "reports/skill-security.sarif" in scanner.argv
 
 
+def test_pre_commit_profile_installs_policy_inside_cli(tmp_path):
+    """A hidden outer process does not hide Git started by a second interpreter."""
+    group = next(group for group in groups_for("full") if group.name == "pre-commit")
+    command = group.commands[0]
+    assert list(command.argv[:2]) == [PY, "-c"]
+    assert list(command.argv[3:]) == ["run", "--all-files"]
+    assert command.timeout == 1800
+    assert command.env == {"SKIP": "lint-templates,build-catalogs"}
+    package = tmp_path / "pre_commit"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "__main__.py").write_text(
+        "import inspect,json,os,subprocess,sys\n"
+        "original = subprocess.Popen._execute_child\n"
+        "observed = []\n"
+        "def capture(self, *args, **kwargs):\n"
+        "    bound = inspect.signature(original).bind(self, *args, **kwargs)\n"
+        "    observed.append(bound.arguments.get('creationflags', 0))\n"
+        "    return original(self, *args, **kwargs)\n"
+        "subprocess.Popen._execute_child = capture\n"
+        "git = subprocess.run(['git', '--version'], capture_output=True, text=True, check=True)\n"
+        "print(json.dumps({'flags': observed, 'git': git.stdout.strip(), "
+        "'args': sys.argv[1:], 'skip': os.environ.get('SKIP'), 'main': __name__}))\n",
+        encoding="utf-8",
+    )
+    env = dict(command.env)
+    env["PYTHONPATH"] = str(tmp_path) + os.pathsep + os.environ.get("PYTHONPATH", "")
+    probe = Command(name=command.name, argv=command.argv, env=env, timeout=command.timeout)
+    result = run_mod.run_command(probe, REPO_ROOT, [], quiet=True)
+    assert result.status == "pass", result.output
+    observed = json.loads(result.output.strip())
+    assert observed["git"].startswith("git version ")
+    assert observed["args"] == ["run", "--all-files"]
+    assert observed["skip"] == "lint-templates,build-catalogs"
+    assert observed["main"] == "__main__"
+    assert len(observed["flags"]) == 1
+    if os.name == "nt":
+        assert observed["flags"][0] & subprocess.CREATE_NO_WINDOW
+
+
 def test_no_command_is_a_shell_string():
     """argv-as-list keeps a path containing a space from being re-split.
 
@@ -238,6 +279,9 @@ def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsy
         f"pathlib.Path({str(marker)!r}).write_text('alive', encoding='utf-8')"
     )
     parent_code = (
+        "import runpy;"
+        f"policy=runpy.run_path({str(REPO_ROOT / 'scripts/nexus_process.py')!r});"
+        "policy['install_no_window_default']();"
         "import subprocess,sys,time;"
         "print('partial-output', flush=True);"
         f"subprocess.Popen([sys.executable, '-c', {child_code!r}]);"

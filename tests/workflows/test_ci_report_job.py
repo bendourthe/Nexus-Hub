@@ -14,6 +14,8 @@ SOURCES = {
     "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
     "tests-windows": "ci-windows-reports",
     "tests-windows-installer": "ci-windows-installer-reports",
+    "tests-windows-validators": "ci-windows-validators-reports",
+    "tests-windows-validators-2": "ci-windows-validators-2-reports",
     "tests-windows-installer-core": "ci-windows-installer-core-reports",
     "bootstrap": ("ci-bootstrap-reports-ubuntu-latest", "ci-bootstrap-reports-macos-latest"),
     "bootstrap-windows": "ci-bootstrap-windows-reports",

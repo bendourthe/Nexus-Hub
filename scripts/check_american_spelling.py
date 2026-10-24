@@ -101,6 +101,13 @@ YSE_STEMS = ("anal", "paral", "catal", "hydrol", "electrol", "dial")
 YSE_SUFFIXES = {"yse": "yze", "ysed": "yzed", "ysing": "yzing", "yser": "yzer", "ysers": "yzers"}
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _build_map() -> dict[str, str]:
     mapping = dict(WORDS)
     for stem in OUR_STEMS:

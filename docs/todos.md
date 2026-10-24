@@ -1,14 +1,20 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.14 full-minor run, 67/209 tasks and 2/7 releases. v4.14.1 is released (integration PR 501 merged at 870620c3); v4.14.5 Phase 1 is committed and waits for its release-order turn. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
+
+**Console-window repair:** PR #519 merged green at fcc19cbb575d56e3e7da8d80e0451a3ffd24f2f0. A pre-commit interpreter followup loads the unchanged shared policy inside the CLI; 82 launch/guard and 91 related CI/policy cases pass with overlap. Actual named checks and the isolated installer pass a 34.877-second idle observation with zero console windows or focus changes. Followup integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+
+- [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
+**Active work:** v4.14 full-minor run, 99/209 task boxes checked across integrated release plans and active member worktrees, with 2/7 releases. v4.14.0 and v4.14.1 are released. v4.14.2 is 32/34: Phases 1-5 are committed; Phase 6 evidence is assembled, the original full profile ended with 63 passing commands and three timeouts, the complete hooks rerun passed 2671 tests, and the complete guides and governance reruns remain pending. v4.14.5 has four checked tasks and waits for coordinator-owned Phase 2 paths. Task counts do not establish native minor completion.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
-**Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
+**Run state:** The original approval and controller binding remain valid. A fresh installed check-member projection for v4.14.2 reports INCOMPLETE, with T001-T024, member.gate, implementation.identity and approval.remote met, and the three recorded follow-ons recognized. T025-T032 have since been documented and checked with the frozen plan hash unchanged and zero edit-guard accepts; T033 and T034 remain open.
+
+**Minor checker maintenance:** PR #521 preserves unknown observations, shared budget identity and unchanged native authority. Fresh CodeQL has zero Python and JavaScript/TypeScript findings. One hosted standing-instruction assertion exposed a changed link caption; restoring the canonical caption passes all 27 affected policy cases and all eight document budgets. Fresh integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-19 UTC
+**Last refreshed:** 2026-10-23 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
@@ -29,14 +35,15 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
+**Next:** Complete the checker and usage maintenance integration and reviewed runtime adoption, then finish the v4.14.2 full local gate, refresh evidence, create the final phase commit, publish once and merge only after required checks pass. Release v4.14.2 before later members. Per-member archive still needs its genuine add-class decision; later releases retain version order.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 67/209 | 209/209 |
+| v4.14 tasks | 99/209 | 209/209 |
 | v4.14 released members | 2/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
+| v4.14.2 tasks | 32/34, full suite and integration pending | 34/34 |
 | Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -44,6 +51,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
+- [ ] Integrate and adopt the [minor checker observation repair](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md), preserving genuine authority and unknown progress scores.
 
 - [x] Establish focused phase checks and complete-plan broad validation as the plan/implement standard, preserving deferred task IDs, explicit earlier acceptance and affected-input evidence reuse. Actual-source verification: 385 tests and 17 fast checks pass.
 
@@ -368,6 +376,13 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Complete the [v4.22.3 two-source comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-rea-workflows-and-verified-agent-output.md) (REA workflows, Meta verified agent output); adoption target v4.22.3 confirmed by the user on 2026-10-19. Its REA refinements were applied to the v4.22.2 plan (T010, T011, T012, T025, T026), and the Claude Code mods plan moved from v4.22.3 to v4.22.4.
 - [x] Create the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md) with `/plan from-comparison`; seven review lenses and four grill decisions applied on 2026-10-19 (installed checker and receipt core, opt-in tripwire registration approved, waivers listed in the pull request with human approval for high-risk findings, Python-deep checker with Jest and Vitest markers).
 - [ ] Implement the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md): evidence-backed integration pull requests (M-B), a change-set test-integrity check run on every phase (M-A), an opt-in publication tripwire hook (M-C, cuttable), and memory metrics in the regression gate (M-D, cuttable).
+
+## Queued work - v4.22.6 open-model recipes and restraint
+
+- [x] Complete the [v4.22.6 two-source comparison](releases/v4/v4.22/comparisons/v4.22.6-comparison-open-model-recipes-and-restraint.md) (Nebius token-factory cookbook, Jakub Krehel's "Less is more, more or less"), committed locally on 2026-10-22.
+- [x] Confirm the v4.22.6 adoption target: the user confirmed v4.22.6 on 2026-10-22.
+- [x] Create the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md) with `/plan from-comparison`; six review lenses and three grill decisions applied on 2026-10-22 ([planning review](releases/v4/v4.22/development/v4.22.6-planning-review.md)): 8 audit-and-build episodes, capped Kimi and Qwen rosters with no script change, Qwen sources including Alibaba Cloud Model Studio. Five-phase plan approved for publication.
+- [ ] Implement the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md): earned-eyebrow gate and frequency-aware motion (`hallmark-design`), OpenAI-compatible endpoint guidance (`multi-provider-ai`), a deny-rule layer behind credential isolation (`ai-billing-safeguards`), and capped Kimi and Qwen prompting profiles. Implementation is 0/5 phases and 0/25 tasks.
 
 ## Current work - v4.4.5 visual refinement
 

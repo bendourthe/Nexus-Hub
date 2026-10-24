@@ -38,33 +38,46 @@ def test_windows_workflow_has_no_second_native_test_list() -> None:
     assert "--only interpreters,windows-hooks" in profile["run"]
 
 
-def test_windows_installer_corpus_runs_in_its_own_job() -> None:
-    """The installer corpus keeps 5.1 coverage but no longer shares the hooks job's time cap."""
-    installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
-    selected = {arg for command in installer.commands for arg in command.argv if arg.startswith("tests/")}
-    assert selected == {"tests/installer", "tests/validators"}
-    assert len(installer.commands) == 3, "installer and each validator half keep their own time bound"
-    assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in installer.commands)
+@pytest.mark.parametrize(
+    ("group_name", "job", "corpus", "commands"),
+    [
+        ("windows-installer", "tests-windows-installer", "tests/installer", 1),
+        ("windows-validators", "tests-windows-validators", "tests/validators", 2),
+        ("windows-validators-2", "tests-windows-validators-2", "tests/validators", 2),
+    ],
+)
+def test_windows_corpora_run_in_their_own_parallel_jobs(group_name: str, job: str, corpus: str, commands: int) -> None:
+    """Each 5.1 corpus has its own job and time cap; neither shares the hooks job's."""
+    group = next(group for group in groups_for("platform") if group.name == group_name)
+    selected = {arg for command in group.commands for arg in command.argv if arg.startswith("tests/")}
+    assert selected == {corpus}
+    assert len(group.commands) == commands, "each validator shard keeps its own 1800 s bound"
+    assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in group.commands)
     hooks = next(group for group in groups_for("platform") if group.name == "windows-hooks")
-    assert not any("tests/installer" in c.argv for c in hooks.commands)
+    assert not any(corpus in c.argv for c in hooks.commands)
     workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))
-    steps = workflow["jobs"]["tests-windows-installer"]["steps"]
-    assert any("--only windows-installer" in str(step.get("run", "")) for step in steps)
+    steps = workflow["jobs"][job]["steps"]
+    assert any(f"--only {group_name}" in str(step.get("run", "")) for step in steps)
 
 
-def test_windows_validator_halves_partition_every_test_file() -> None:
-    """Each tests/validators file runs in exactly one half, including files added later."""
+def test_windows_validator_shards_partition_every_test_file() -> None:
+    """Each tests/validators file runs in exactly one shard, including files added later."""
     import fnmatch
 
-    installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
-    halves = [c for c in installer.commands if "tests/validators" in c.argv]
-    assert len(halves) == 2
+    groups = [g for g in groups_for("platform") if g.name in ("windows-validators", "windows-validators-2")]
+    shards = [c for g in groups for c in g.commands if "tests/validators" in c.argv]
+    assert len(shards) == 4
+    assert all(c.timeout == 1800 for c in shards)
+    assert all(c.env["NEXUS_TEST_POWERSHELL"] == "powershell" for c in shards)
+    assert all(c.runs_on("windows") and not c.runs_on("linux") and not c.runs_on("macos") for c in shards)
     ignores = [
-        [arg.split("=", 1)[1] for arg in half.argv if arg.startswith("--ignore-glob=")] for half in halves
+        [arg.split("=", 1)[1] for arg in shard.argv if arg.startswith("--ignore-glob=")] for shard in shards
     ]
     files = sorted((Path(__file__).resolve().parents[1] / "validators").glob("test_*.py"))
     assert files
-    for path in files:
+    future_names = [f"test_{letter}_future.py" for letter in "abcdefghijklmnopqrstuvwxyz"]
+    future_names += ["test_co_future.py", "test_completion_future.py", "test_1_future.py", "test__future.py"]
+    for path in files + [Path("future") / name for name in future_names]:
         # pytest matches --ignore-glob with fnmatch against the full path string.
         runs_in = [not any(fnmatch.fnmatch(str(path), g) for g in globs) for globs in ignores]
-        assert runs_in.count(True) == 1, f"{path.name} runs in {runs_in.count(True)} validator halves"
+        assert runs_in.count(True) == 1, f"{path.name} runs in {runs_in.count(True)} validator shards"
