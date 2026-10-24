@@ -172,6 +172,19 @@ def turn_end(request, bash_bin: str, powershell_bin: str, world: World):
         else:
             gate = subprocess.run(gate_argv(hooks_dir), **common)
             guard = subprocess.run([sys.executable, str(hooks_dir / "usage-guard.py")], **common)
+        # Private fixture agent claims offered context before the next Stop.
+        # The real shell wrappers above remain the delivery boundary under test.
+        directory = world.root / ".nexus-hub" / "state" / "usage-guard" / "decisions"
+        for path in directory.glob("*.json"):
+            state = json.loads(path.read_text(encoding="utf-8"))
+            if (state.get("platform") == platform and state.get("project") == str(world.repo.resolve())
+                    and state.get("delivery", {}).get("state") == "offered"):
+                claimed = subprocess.run([sys.executable, "-I", "-B", str(hooks_dir / "usage-guard.py"),
+                    "--decision-action", "claim", "--project", str(world.repo), "--platform", platform,
+                    "--decision-id", state["id"], "--tool", "private-wrapper-fixture"],
+                    text=True, capture_output=True, cwd=str(world.repo), env=world.env(), timeout=10)
+                assert claimed.returncode == 0, claimed.stderr
+                assert json.loads(claimed.stdout)["claimed"]
         return gate, guard
 
     return _run
@@ -233,10 +246,13 @@ def test_without_the_handoff_the_guard_asks_for_it(turn_end, world, platform):
     world.prime(platform, 99.5)
     gate, guard = turn_end(platform)
     message = _continues(platform, _out(guard))
-    assert message and "run the session-handoff procedure (/handoff)" in message
-    assert "continue on pay-per-use credits" in message
-    assert _continues(platform, _out(gate)) is not None, "the gate refuses as it always did"
-    assert NOTE not in gate.stderr
+    assert message and "functions.request_user_input_async" in message
+    assert "Wait for reset (Recommended), Hand off, Continue on credits" in message
+    assert _continues(platform, _out(gate)) is not None
+    gate, guard = turn_end(platform)
+    assert _continues(platform, _out(gate)) is None
+    assert _continues(platform, _out(guard)) is None
+    assert NOTE in gate.stderr
 
 
 @pytest.mark.parametrize("platform", ["claude", "cursor"])
@@ -254,10 +270,12 @@ def test_a_handoff_older_than_the_last_refusal_does_not_count(turn_end, world):
     world.prime("claude", 99.5)
     gate, _ = turn_end("claude")
     assert _out(gate).get("decision") == "block"
-    world.handoff(time.time() - 600)  # dated before that refusal
+    refusals = world.gate_state().get("refusals")
+    world.handoff(time.time() - 600)
     gate, _ = turn_end("claude")
-    assert _out(gate).get("decision") == "block"
-    assert NOTE not in gate.stderr
+    assert _out(gate).get("decision") is None
+    assert NOTE in gate.stderr
+    assert world.gate_state().get("refusals") == refusals
 
 
 @pytest.mark.parametrize("trigger", ["usage-limit weekly 99.5", "checkpoint", "manual"])

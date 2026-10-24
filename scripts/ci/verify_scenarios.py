@@ -134,7 +134,8 @@ def bootstrap(root: Path, work: Path, env: dict[str, str]) -> None:
         require(bool(shutil.which(tool, path=env.get("PATH", ""))), f"bootstrap smoke requires preinstalled {tool}; host package installation is disabled")
     tarball = work / "catalog.tar.gz"
     catalog_tarball(root, tarball, env)
-    env.update(NEXUS_HUB_FORCE_STANDALONE="1", NEXUS_HUB_TARBALL=str(tarball))
+    # Optional VSIX/npm delivery is outside this smoke; never fetch missing packages.
+    env.update(NEXUS_HUB_FORCE_STANDALONE="1", NEXUS_HUB_TARBALL=str(tarball), NPM_CONFIG_OFFLINE="true")
     command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "install.ps1")] if os.name == "nt" else ["bash", str(root / "install.sh")])
     result = run(command, env=env, cwd=work, allow_failure=True)
     home = Path(env["HOME"]) / ".nexus-hub"

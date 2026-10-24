@@ -49,10 +49,11 @@ def test_bootstrap_acceptance(monkeypatch, tmp_path, artifact, version, accepted
     monkeypatch.setattr(scenarios, "catalog_tarball", lambda *args: None)
     original_which = shutil.which
     monkeypatch.setattr(scenarios.shutil, "which", lambda tool, **kwargs: tool if tool in ("node", "npm") else original_which(tool, **kwargs))
-    env = {"HOME": str(tmp_path / "home"), "PATH": os.environ["PATH"]}
+    env = {"HOME": str(tmp_path / "home"), "PATH": os.environ["PATH"], "NPM_CONFIG_OFFLINE": "false"}
     def invoke(argv, **kwargs):
         if kwargs["env"].get("PATH") == "":
             return result(argv, "curl required", 1)
+        assert kwargs["env"].get("NPM_CONFIG_OFFLINE") == "true", "bootstrap npm must not reach the registry"
         if "--version" in argv:
             return result(argv, version)
         if artifact:

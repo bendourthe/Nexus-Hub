@@ -2,16 +2,23 @@
 
 **Integration branch:** `develop`
 
-**Console-window repair:** PR #519 merged green at fcc19cbb575d56e3e7da8d80e0451a3ffd24f2f0. A pre-commit interpreter followup loads the unchanged shared policy inside the CLI; 82 launch/guard and 91 related CI/policy cases pass with overlap. Actual named checks and the isolated installer pass a 34.877-second idle observation with zero console windows or focus changes. Followup integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+**Console-window repair:** PR #519 and the pre-commit interpreter followup in PR #521 merged green. The shared process policy is loaded inside the pre-commit CLI. PR #521 passed all 46 checks and its post-merge run. Actual named checks and the isolated installer passed a 34.877-second idle observation with zero console windows or focus changes. Reviewed runtime adoption and global hook delivery remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
 
 - [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
+- [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
 **Active work:** v4.14 full-minor run, 99/209 task boxes checked across integrated release plans and active member worktrees, with 2/7 releases. v4.14.0 and v4.14.1 are released. v4.14.2 is 32/34: Phases 1-5 are committed; Phase 6 evidence is assembled, the original full profile ended with 63 passing commands and three timeouts, the complete hooks rerun passed 2671 tests, and the complete guides and governance reruns remain pending. v4.14.5 has four checked tasks and waits for coordinator-owned Phase 2 paths. Task counts do not establish native minor completion.
+
+**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2, v4.14.4 Phases 1-3 and the opt-in hook smoke, and v4.14.5 Phase 2. Targeted checks are retained separately; v4.14.6 has a private admission research packet. These drafts do not change integrated task counts or establish native admission, phase completion, publication or release. The active v4.14.2 final local gate and the requested AI Studio source text remain open.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
 **Run state:** The original approval and controller binding remain valid. A fresh installed check-member projection for v4.14.2 reports INCOMPLETE, with T001-T024, member.gate, implementation.identity and approval.remote met, and the three recorded follow-ons recognized. T025-T032 have since been documented and checked with the frozen plan hash unchanged and zero edit-guard accepts; T033 and T034 remain open.
 
 **Minor checker maintenance:** PR #521 preserves unknown observations, shared budget identity and unchanged native authority. Fresh CodeQL has zero Python and JavaScript/TypeScript findings. One hosted standing-instruction assertion exposed a changed link caption; restoring the canonical caption passes all 27 affected policy cases and all eight document budgets. Fresh integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
+
+**Minor checker maintenance:** PR #521 merged at 7c3260743fc660919516f65f4b852c82e0d6021a with all 46 checks, clean Python and JavaScript/TypeScript CodeQL analyses and a passing post-merge run. Unknown observations preserve progress counters and native authority. Reviewed runtime adoption remains open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
+
+**Usage-limit maintenance:** PR #523 is open. Final usage/status tests passed 451 cases in 107.60 seconds; its Windows bootstrap failure was reproduced as optional npm fetch timeouts. The narrow offline smoke fix passed 49 CI scenario tests and a real short-root installer run reaching all five optional npm stages with no npm timeout. Earlier environment/path failures and qualified scope limits remain in the evidence. Runtime adoption and verified platform-hook distribution remain pending. [Evidence](releases/v4/v4.14/development/usage-limit-native-decision.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-23 UTC
