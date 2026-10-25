@@ -21,6 +21,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -104,7 +105,7 @@ MINOR_LEDGER = """# Known Gaps - v0.5
 class Minor:
     """A repository whose v0.5 minor holds v0.5.2 and v0.5.10, both queued."""
 
-    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch, git_seed: Path | None = None) -> None:
         self.tmp = tmp
         self.work = tmp / "work"
         self.remote = tmp / "remote.git"
@@ -118,18 +119,24 @@ class Minor:
         monkeypatch.setenv("GH_STUB_STATE", str(self.state_file))
         monkeypatch.setenv("GH_STUB_PYTHON", sys.executable)
         self.env = dict(os.environ)
-        _git(tmp, "init", "--bare", "-q", "-b", "main", str(self.remote))
-        self.work.mkdir()
-        _git(self.work, "init", "-q", "-b", "main")
-        _git(self.work, "config", "user.email", "t@example.invalid")
-        _git(self.work, "config", "user.name", "Test")
-        _git(self.work, "remote", "add", "origin", str(self.remote))
-        _git(self.work, "remote", "set-url", "--push", "origin", PUSH_URL)
-        self.plan("v0.5.2", "alpha")
-        self.plan("v0.5.10", "omega")
-        self.commit("start")
-        _git(self.work, "branch", "develop")
-        self.publish("main", "develop")
+        if git_seed is None:
+            _git(tmp, "init", "--bare", "-q", "-b", "main", str(self.remote))
+            self.work.mkdir()
+            _git(self.work, "init", "-q", "-b", "main")
+            _git(self.work, "config", "user.email", "t@example.invalid")
+            _git(self.work, "config", "user.name", "Test")
+            _git(self.work, "remote", "add", "origin", str(self.remote))
+            _git(self.work, "remote", "set-url", "--push", "origin", PUSH_URL)
+            self.plan("v0.5.2", "alpha")
+            self.plan("v0.5.10", "omega")
+            self.commit("start")
+            _git(self.work, "branch", "develop")
+            self.publish("main", "develop")
+        else:
+            shutil.copytree(git_seed / "work", self.work)
+            shutil.copytree(git_seed / "remote.git", self.remote)
+            _git(self.work, "remote", "set-url", "origin", str(self.remote))
+            _git(self.work, "fetch", "-q", "origin")
 
     # ---------------------------------------------------------------- repository
 
@@ -244,8 +251,8 @@ class Minor:
 
 
 @pytest.fixture
-def minor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Minor:
-    return Minor(tmp_path, monkeypatch)
+def minor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> Minor:
+    return Minor(tmp_path, monkeypatch, minor_git_seed)
 
 
 # --------------------------------------------------------------------------- argument parsing

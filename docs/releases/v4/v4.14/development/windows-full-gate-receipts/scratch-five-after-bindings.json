@@ -1,0 +1,107 @@
+{
+  "source_bindings": [
+    {
+      "path": "MANIFEST.sha256",
+      "sha256": "a3f885c1ff37d7e49df041c7ad59d72439f92dc360510cb57727f6747c8fc8c9",
+      "expected": "a3f885c1ff37d7e49df041c7ad59d72439f92dc360510cb57727f6747c8fc8c9"
+    },
+    {
+      "path": "catalog/hooks/console-window-guard.py",
+      "sha256": "cb202c71fe91e916e7d791b6b1cdc97a95e9090a3593d4aabe1b384f1f59293c",
+      "expected": "cb202c71fe91e916e7d791b6b1cdc97a95e9090a3593d4aabe1b384f1f59293c"
+    },
+    {
+      "path": "catalog/hooks/tests/test_console_window_guard.py",
+      "sha256": "5a5c38bb25f3413d91cca04aa551749b30bcebb607873006f32882e3edf0fb01",
+      "expected": "5a5c38bb25f3413d91cca04aa551749b30bcebb607873006f32882e3edf0fb01"
+    },
+    {
+      "path": "scripts/ci/profiles.py",
+      "sha256": "61ad39223d97c085b16c068f2a1be9c119471dfe57984329bfd91dee9a13945f",
+      "expected": "61ad39223d97c085b16c068f2a1be9c119471dfe57984329bfd91dee9a13945f"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "sha256": "9c3dea701a41655be56b1d40f8504798dbf5210bf07eac2617be459f25ca6091",
+      "expected": "9c3dea701a41655be56b1d40f8504798dbf5210bf07eac2617be459f25ca6091"
+    },
+    {
+      "path": "scripts/lib/integrations/runner.py",
+      "sha256": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320",
+      "expected": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320"
+    },
+    {
+      "path": "tests/ci/test_ci_engine.py",
+      "sha256": "350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e",
+      "expected": "350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "sha256": "292f873daa3003ae5a84e2ce68dbebc59d7a9b9f16ea6a681d2175b27f738c74",
+      "expected": "292f873daa3003ae5a84e2ce68dbebc59d7a9b9f16ea6a681d2175b27f738c74"
+    },
+    {
+      "path": "tests/integrations/conftest.py",
+      "sha256": "f6f99187b27758232d64b33698fe2a5eb1c93e5603e7ee5c8e238c5e53231b60",
+      "expected": "f6f99187b27758232d64b33698fe2a5eb1c93e5603e7ee5c8e238c5e53231b60"
+    },
+    {
+      "path": "tests/integrations/test_base_writeresult.py",
+      "sha256": "d87525e29ecc66356ff55567f37f580b5b6a8a6f2837cfa7ee85b4fba50dacc1",
+      "expected": "d87525e29ecc66356ff55567f37f580b5b6a8a6f2837cfa7ee85b4fba50dacc1"
+    },
+    {
+      "path": "tests/integrations/test_completion_plugins.py",
+      "sha256": "ec9d40719e753dddce0296e7061c5010aa2f63b4bf41fce20bf1ae7fde5696f3",
+      "expected": "ec9d40719e753dddce0296e7061c5010aa2f63b4bf41fce20bf1ae7fde5696f3"
+    },
+    {
+      "path": "tests/integrations/test_contract.py",
+      "sha256": "9313fb132048e27183922d254f651ca46fcd284c6f5a310766a235ed4d68bbb1",
+      "expected": "9313fb132048e27183922d254f651ca46fcd284c6f5a310766a235ed4d68bbb1"
+    },
+    {
+      "path": "tests/test_git_attribution.py",
+      "sha256": "9edb59a6911ee8ff24bd6bd76cd793ecd1b7d6116f259f40d4b34c98c509f4ef",
+      "expected": "9edb59a6911ee8ff24bd6bd76cd793ecd1b7d6116f259f40d4b34c98c509f4ef"
+    },
+    {
+      "path": "tests/validators/test_process_policy.py",
+      "sha256": "dbab86e4c80f0adae717309fd84ab47f75ef3880fb2dffabefc81635d0513b46",
+      "expected": "dbab86e4c80f0adae717309fd84ab47f75ef3880fb2dffabefc81635d0513b46"
+    },
+    {
+      "path": "scripts/nexus_process.py",
+      "sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "expected": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c"
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "368c2ca47fc1974c074b87683e7b2503fb4df4843f906e5810367f7536f11638",
+      "expected": "368c2ca47fc1974c074b87683e7b2503fb4df4843f906e5810367f7536f11638"
+    },
+    {
+      "path": "catalog/hooks/tests/conftest.py",
+      "sha256": "58e365084040696c3f2b00b072deed6084e2ca32c4433ff4cd196ee9665aea36",
+      "expected": "58e365084040696c3f2b00b072deed6084e2ca32c4433ff4cd196ee9665aea36"
+    },
+    {
+      "path": "scripts/ci/run.py",
+      "sha256": "550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18",
+      "expected": "550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18"
+    }
+  ],
+  "all_sources_unchanged": true,
+  "index_tree": "168e1eceffb96b32190c184b141980959bbba111",
+  "index_tree_unchanged": true,
+  "native_record_sha256": "b498f15059f6f4d27ed4855f61d159a35d6c654bff103614bd8e792b7c7f8272",
+  "native_record_unchanged": true,
+  "unstaged": "",
+  "process_terminal": {
+    "pid": 41060,
+    "code": 1,
+    "signal": null,
+    "started": "2026-10-24T17:16:13.533Z",
+    "ended": "2026-10-24T17:46:42.323Z"
+  }
+}

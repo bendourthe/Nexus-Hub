@@ -1,0 +1,14 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"fa6e3b79a47b65a08669b827eea3428c5ed26c1d4a3b13874773c5e05e07b67c","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "name": "repo-tests-governance-validators-d-o (Windows full)",
+  "group": "",
+  "status": "timeout",
+  "duration_s": 1828.2659999999742,
+  "exit_code": null,
+  "output": "........................................................................ [ 11%]\r\n........................................................................ [ 22%]\r\n........................................................................ [ 33%]\r\n........................................................................ [ 44%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 67%]\r\n....................................",
+  "reason": "exceeded 1800s; pytest scratch <private-temp>\\nwg-169IPI\\t\\nexus-ci-pytest-odyn5p00; execution 1800.969s; cleanup 27.297s: removed"
+}
+}

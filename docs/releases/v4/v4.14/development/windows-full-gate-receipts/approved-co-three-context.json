@@ -1,0 +1,269 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"3eb6d03d882cd8ea0fb31874cfbfc21e54590ff23ee005a70d7e721895318457","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "worktree": "<workspace>",
+  "base": "6e4b617609d08bd5eb4e441bde7a1f9f1fae7369",
+  "index_tree": "8b94139bd711edd5075fdc51cee420bcc523f17e",
+  "python": "<private-temp>/n4142-ci-gui-1792733654290/Scripts/python.exe",
+  "python_sha256": "de13d8017f63cb63b0b5bfd2f25e69245c9196433a224856ca1abde1e24d0cb7",
+  "policy": "<private-evidence>/../nh-budget-source-1792772541422/scripts/nexus_process.py",
+  "policy_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+  "bootstrap": "import runpy,sys;p=runpy.run_path(sys.argv.pop(1));p[\"install_no_window_default\"]();sys.argv=sys.argv[1:];runpy.run_path(sys.argv[0],run_name=\"__main__\")",
+  "driver": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/approved-co-and-pending-three-1792877335156/driver.py",
+  "driver_sha256": "b8defad6b782505fd8346e7a71b66dbd8957417f249f6ac59919e2c6d49c82e5",
+  "mode": "approved-co-and-pending-three",
+  "output": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/approved-co-and-pending-three-1792877335156",
+  "environment": {
+    "LOCALAPPDATA": "<private-temp>/nwg-169IPI/h/AppData/Local",
+    "PATH": "<private-temp>/nexus-v4140-node22-p3b30k9k/node-v22.23.3-win-x64;<private-temp>/nexus-v4140-full-py311/Scripts;<private-temp>/nexus-v4140-verify-py312/Scripts;<private-temp>/nexus-v4140-pwsh7-x_6i3rnl/runtime;<private-temp>/nexus-v4140-tools;C:/Program Files/Git/bin;C:/Program Files/Git/usr/bin;C:/Program Files/GitHub CLI;<private-home>\\.codex\\tmp\\arg0\\codex-arg0dAcmia;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\windows\\system32;C:\\windows;C:\\windows\\System32\\Wbem;C:\\windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\windows\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\GitHub CLI\\;<private-home>\\AppData\\Local\\agy\\bin;<private-home>\\.cargo\\bin;<private-home>\\AppData\\Local\\Microsoft\\WindowsApps;<private-home>\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;<private-home>\\AppData\\Roaming\\npm;<private-home>\\.local\\bin;<private-home>\\.local\\bin;<private-home>\\AppData\\Local\\Programs\\Antigravity\\bin;<private-home>\\AppData\\Local\\Programs\\Antigravity IDE\\bin;<private-home>\\AppData\\Local\\Programs\\ClaudeScience;<private-home>\\AppData\\Local\\cursor-cli;<private-home>\\.nexus-hub\\bin;<private-home>\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\copilot-shim;<private-home>\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin;c:\\Users\\<redacted:local-user>\\.vscode\\extensions\\openai.chatgpt-26.51007.21434-win32-x64\\bin\\windows-x86_64",
+    "SYSTEMROOT": "C:\\windows",
+    "TEMP": "<private-temp>/nwg-169IPI/t",
+    "TMP": "<private-temp>/nwg-169IPI/t",
+    "USERPROFILE": "<private-temp>/nwg-169IPI/h",
+    "WINDIR": "C:\\windows",
+    "COMSPEC": "C:\\windows\\system32\\cmd.exe",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUTF8": "1",
+    "NEXUS_TEST_POWERSHELL": "pwsh",
+    "PLAYWRIGHT_BROWSERS_PATH": "<private-temp>/nexus-v4140-playwright",
+    "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC",
+    "APPDATA": "<private-temp>/nwg-169IPI/h/AppData/Roaming",
+    "HOME": "<private-temp>/nwg-169IPI/h",
+    "NEXUS_HUB_HOME": "<private-temp>/nwg-169IPI/h/.nexus-hub",
+    "GIT_CONFIG_GLOBAL": "<private-temp>/nwg-169IPI/h/.gitconfig",
+    "XDG_CONFIG_HOME": "<private-temp>/nwg-169IPI/h/.config",
+    "XDG_CACHE_HOME": "<private-temp>/nwg-169IPI/h/.cache",
+    "XDG_DATA_HOME": "<private-temp>/nwg-169IPI/h/.local/share",
+    "XDG_STATE_HOME": "<private-temp>/nwg-169IPI/h/.local/state",
+    "NEXUS_REAL_HOME_GUARD": "1",
+    "GIT_TERMINAL_PROMPT": "0",
+    "BASH_ENV": "<private-temp>/nbg-GvyhQy/bash-env.sh"
+  },
+  "bindings": [
+    {
+      "path": "MANIFEST.sha256",
+      "sha256": "ca8512e52c22734c14403efc7547070fff9421b0bbb3fbe35fda1230260b96b7"
+    },
+    {
+      "path": "catalog/hooks/console-window-guard.py",
+      "sha256": "cb202c71fe91e916e7d791b6b1cdc97a95e9090a3593d4aabe1b384f1f59293c"
+    },
+    {
+      "path": "catalog/hooks/tests/test_console_window_guard.py",
+      "sha256": "5a5c38bb25f3413d91cca04aa551749b30bcebb607873006f32882e3edf0fb01"
+    },
+    {
+      "path": "scripts/ci/profiles.py",
+      "sha256": "466a1a477954277aa5ac23ac616ebc95a693b69f388e41f400b5a45f625494a4"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "sha256": "9c3dea701a41655be56b1d40f8504798dbf5210bf07eac2617be459f25ca6091"
+    },
+    {
+      "path": "scripts/lib/integrations/runner.py",
+      "sha256": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320"
+    },
+    {
+      "path": "tests/ci/test_ci_engine.py",
+      "sha256": "af37382ac0cc9caf081d662dddfb1e248627be465159f6df9cb4ca54c8fd59d1"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "sha256": "292f873daa3003ae5a84e2ce68dbebc59d7a9b9f16ea6a681d2175b27f738c74"
+    },
+    {
+      "path": "tests/integrations/conftest.py",
+      "sha256": "f6f99187b27758232d64b33698fe2a5eb1c93e5603e7ee5c8e238c5e53231b60"
+    },
+    {
+      "path": "tests/integrations/test_base_writeresult.py",
+      "sha256": "d87525e29ecc66356ff55567f37f580b5b6a8a6f2837cfa7ee85b4fba50dacc1"
+    },
+    {
+      "path": "tests/integrations/test_completion_plugins.py",
+      "sha256": "ec9d40719e753dddce0296e7061c5010aa2f63b4bf41fce20bf1ae7fde5696f3"
+    },
+    {
+      "path": "tests/integrations/test_contract.py",
+      "sha256": "9313fb132048e27183922d254f651ca46fcd284c6f5a310766a235ed4d68bbb1"
+    },
+    {
+      "path": "tests/test_git_attribution.py",
+      "sha256": "9edb59a6911ee8ff24bd6bd76cd793ecd1b7d6116f259f40d4b34c98c509f4ef"
+    },
+    {
+      "path": "tests/validators/test_process_policy.py",
+      "sha256": "dbab86e4c80f0adae717309fd84ab47f75ef3880fb2dffabefc81635d0513b46"
+    },
+    {
+      "path": "scripts/nexus_process.py",
+      "sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c"
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "368c2ca47fc1974c074b87683e7b2503fb4df4843f906e5810367f7536f11638"
+    },
+    {
+      "path": "catalog/hooks/tests/conftest.py",
+      "sha256": "58e365084040696c3f2b00b072deed6084e2ca32c4433ff4cd196ee9665aea36"
+    },
+    {
+      "path": "scripts/ci/run.py",
+      "sha256": "550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18"
+    },
+    {
+      "path": "tests/validators/conftest.py",
+      "sha256": "c748d654c28ed2d83aac65265fb17add92a8dd9ab60ea034ea8dade2dff26a88"
+    },
+    {
+      "path": "tests/validators/test_completion_minor_record.py",
+      "sha256": "8eef8c86b9c5c50957654d4725e3414c639000d68c31fea8219bef3456768cd6"
+    },
+    {
+      "path": "tests/validators/test_gap_migration_and_archive.py",
+      "sha256": "34e5bdca3c6c761feacf95e98d2e1540b9d6d9fa87da0ce00029b266aad32414"
+    },
+    {
+      "path": "tests/validators/test_completion_minor_verdict.py",
+      "sha256": "83c55f9d29476b558618a527f108b450691332fbb2a23d6eb3c53ddac696d58d"
+    },
+    {
+      "path": "tests/validators/test_run_plan.py",
+      "sha256": "80335a42ed0a909817c40ee671b52d355d90190ce09b323ba114cdfcac26ab4a"
+    },
+    {
+      "path": "tests/validators/test_completion_minor_git_seed.py",
+      "sha256": "5dcacb6b039c3deca8c5b34305d7a62633bef94431c6cf57441a5a0c23a33863"
+    },
+    {
+      "path": "tests/validators/test_controller_handoff.py",
+      "sha256": "ebcf2c18ece85f9149ce32c362d15c67048afcad9eae250516801d5db973b913"
+    }
+  ],
+  "native_record_path": "<private-home>/.nexus-hub/runs/8d590b2e3417c12ec5a7feeae6c28be68447158dae645353f30390e4e60b14ae.json",
+  "native_record_sha256": "52088bab169344f11c5656d9c9127f0d67f920ad9f23d0a54b8fc23fce28d930",
+  "expected_commands": [
+    {
+      "name": "repo-tests-governance-validators-co (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!c]*",
+        "--ignore-glob=*/test_c[!o]*"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-governance-validators-p-z (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!p-z]*"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-heavy (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides/test_training_game_engine.py",
+        "-q",
+        "tests/guides/test_page_openings_and_outline.py",
+        "tests/guides/test_training_reward_mockup.py",
+        "tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-rest (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides",
+        "-q",
+        "--ignore=tests/guides/test_training_game_engine.py",
+        "--ignore=tests/guides/test_page_openings_and_outline.py",
+        "--ignore=tests/guides/test_training_reward_mockup.py",
+        "--ignore=tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    }
+  ],
+  "qualification": "SCOPED_COMPOSITE_NOT_UNFILTERED_FULL_NOT_MEMBER_T033",
+  "prior_first_four_tree": "11aab4d54d2539ca3b0850b4dac24ebb9d5dda9b",
+  "prior_first_four_evidence": "<private-evidence>/windows-full-maintenance-1792796073161/adapter-apply-1792806131504/affected-execution-1792814290446",
+  "repair_observation_receipt": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/observed-installer-1792854367384/qualification.json",
+  "repair_observation_receipt_sha256": "ee729ca55593735bd36f6b98b52dab773d6840015a4b6c459d6437001637415b",
+  "short_root": "<private-temp>/nwg-169IPI",
+  "prior_seven_execution": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/remaining-seven-execution-1792855034161",
+  "private_bash_binding": {
+    "path": "<private-temp>/nbg-GvyhQy/bash-env.sh",
+    "sha256": "3473906b13ae3ef9ccf0efc9165d5c9de0fd4de80dfd78c1282deac1bf08f2b6",
+    "qualification": "<private-temp>/nbg-GvyhQy/v2",
+    "purpose": "Private qualified GUI Python bindings for Bash gate descendants; no product Bash change"
+  },
+  "prior_failed_five": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/remaining-five-execution-1792862173457",
+  "repository_seed_qualification": {
+    "focused": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/minor-seed-focused-1792864394953/v4",
+    "representative": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/minor-seed-representative-1792865017871",
+    "timings": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/minor-seed-focused-1792864394953/timings.json",
+    "timings_sha256": "a91d455f53fb873c32197ac7360d8511cf1125dd5758918606cdac820712461d",
+    "new_regression_sha256": "5dcacb6b039c3deca8c5b34305d7a62633bef94431c6cf57441a5a0c23a33863",
+    "private_capture_separate": true
+  },
+  "native_blocker": 13,
+  "authorized_co_attempts": 1,
+  "expected_execution_caps": [
+    2400,
+    1800,
+    1800,
+    1800
+  ],
+  "continue_independent_commands_after_failure": true
+}
+}

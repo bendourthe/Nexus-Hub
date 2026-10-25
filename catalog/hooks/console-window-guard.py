@@ -70,7 +70,7 @@ BUILD_COMMAND = re.compile(
     r"|nexus-hub(?:\.cmd)?\s+(?:upgrade|install|init)|(?:npx\s+)?(?:tsc|webpack|esbuild|rollup|ninja|msbuild)|vite\s+build"
     r"|(?:cargo|dotnet)\s+(?:build|install|publish)|cmake\s+--build|make(?:\s+[^;&|]*)?"
     r"|(?:[^\s;&|]*[/\\])?(?:install(?:er)?|build|setup)[\w.-]*\.(?:py|ps1|sh|cmd|bat)"
-    r"|(?:python(?:[0-9.]*)?(?:\.exe)?|py(?:\.exe)?|node(?:\.exe)?|powershell(?:\.exe)?|pwsh(?:\.exe)?|bash(?:\.exe)?|cmd(?:\.exe)?)[\"\']?\s+[^;&|]*\.(?:py|ps1|sh|js|mjs|cjs|cmd|bat)"
+    r"|(?:pythonw?(?:[0-9.]*)?(?:\.exe)?|py(?:\.exe)?|node(?:\.exe)?|powershell(?:\.exe)?|pwsh(?:\.exe)?|bash(?:\.exe)?|cmd(?:\.exe)?)[\"\']?\s+[^;&|]*\.(?:py|ps1|sh|js|mjs|cjs|cmd|bat)"
     r")(?=$|[\s;&|)\"'])", re.IGNORECASE,
 )
 
@@ -160,6 +160,8 @@ def _is_test_file(rel: Path) -> bool:
 
 def _default_present(text: str, tree: ast.AST | None = None) -> bool:
     """Recognize an installed default, rather than a flag mentioned in a comment."""
+    if "nexus_process" not in text:
+        return False
     try:
         tree = tree if tree is not None else ast.parse(text)
     except (SyntaxError, RecursionError):
@@ -184,37 +186,81 @@ def _python_guard_present(files: list[tuple[Path, Path]]) -> set[Path]:
     return guarded
 
 
+def _javascript_findings(text: str, rel: Path, line_offset: int = 0) -> list[Finding]:
+    """Apply the same JavaScript launch policy to source files and literal eval payloads."""
+    lines = text.splitlines()
+    shown = rel.as_posix()
+    findings = []
+    if not JS_CHILD_PROCESS.search(text):
+        return []
+    aliases = re.findall(r"import\s+(?:\*\s+as\s+)?(\w+)\s+from\s+[\"\'](?:node:)?child_process[\"\']", text)
+    aliases += re.findall(r"(?:const|let|var)\s+(\w+)\s*=\s*require\([\"\'](?:node:)?child_process[\"\']\)", text)
+    named_aliases = []
+    for group in re.findall(r"(?:import\s*\{([^}]+)\}\s*from|(?:const|let|var)\s*\{([^}]+)\}\s*=\s*require\()[\s\"\']*(?:node:)?child_process", text):
+        for item in (group[0] or group[1]).split(","):
+            match = re.fullmatch(r"\s*(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)(?:\s+as\s+|\s*:\s*)(\w+)\s*", item)
+            if match:
+                named_aliases.append(match.group(1))
+    named_launch = re.compile(r"(?<![\w.$])(?:" + "|".join(map(re.escape, named_aliases)) + r")\s*\(") if named_aliases else None
+    alias_launch = re.compile(r"\b(?:" + "|".join(map(re.escape, aliases)) + r")\.(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\(") if aliases else None
+    for i, line in enumerate(lines):
+        stripped = line.lstrip()
+        if stripped.startswith(("//", "*", "/*")) or _marked(lines, i) or not (JS_LAUNCH.search(line) or alias_launch and alias_launch.search(line) or named_launch and named_launch.search(line)):
+            continue
+        if not re.search(r"\bwindowsHide\s*:\s*true\b", _call_text(lines, i)):
+            findings.append(Finding(shown, line_offset + i + 1, "child_process call without windowsHide",
+                                    "Pass { windowsHide: true } in the options object."))
+    return findings
+
+
 def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
     """Check real calls, including aliases; strings containing examples are not launches."""
     try:
         tree = ast.parse(text)
     except SyntaxError:
         return [Finding(rel.as_posix(), 1, "Python launch safety cannot be parsed", "Repair the syntax before launching.")]
+    nodes = list(ast.walk(tree))
     lines = text.splitlines()
     modules = {"subprocess"}
     functions = set()
     async_modules = {"asyncio"}
+    async_functions = set()
+    shutil_modules = {"shutil"}
     os_modules = {"os"}
     os_functions = set()
     assignments = {}
-    for node in ast.walk(tree):
+    for node in nodes:
         if isinstance(node, ast.Import):
             modules.update(item.asname or item.name for item in node.names if item.name == "subprocess")
             async_modules.update(item.asname or item.name for item in node.names if item.name == "asyncio")
             os_modules.update(item.asname or item.name for item in node.names if item.name == "os")
+            shutil_modules.update(item.asname or item.name for item in node.names if item.name == "shutil")
         elif isinstance(node, ast.ImportFrom) and node.module == "subprocess":
             functions.update(item.asname or item.name for item in node.names if item.name in {"run", "Popen", "call", "check_call", "check_output", "getoutput", "getstatusoutput"})
             for item in node.names:
                 if item.name in {"CREATE_NO_WINDOW", "DETACHED_PROCESS", "CREATE_NEW_CONSOLE"}:
                     assignments[item.asname or item.name] = [ast.Attribute(value=ast.Name(id="subprocess"), attr=item.name)]
         elif isinstance(node, ast.ImportFrom) and node.module == "asyncio":
-            functions.update(item.asname or item.name for item in node.names if item.name in {"create_subprocess_exec", "create_subprocess_shell"})
+            async_functions.update(item.asname or item.name for item in node.names if item.name in {"create_subprocess_exec", "create_subprocess_shell"})
         elif isinstance(node, ast.ImportFrom) and node.module == "os":
             os_functions.update(item.asname or item.name for item in node.names if item.name in {"system", "popen"} or item.name.startswith("spawn"))
         elif isinstance(node, (ast.Assign, ast.AnnAssign)):
             for target in (node.targets if isinstance(node, ast.Assign) else [node.target]):
                 if isinstance(target, ast.Name):
                     assignments.setdefault(target.id, []).append(node.value)
+
+    def node_executable(value: ast.AST) -> bool:
+        """Recognize literal Node paths and unique literal/which bindings without evaluation."""
+        if isinstance(value, ast.Name):
+            values = assignments.get(value.id, [])
+            value = values[0] if len(values) == 1 else value
+        if isinstance(value, ast.Constant) and isinstance(value.value, str):
+            return re.split(r"[/\\]", value.value)[-1].lower() in {"node", "node.exe"}
+        return (isinstance(value, ast.Call) and isinstance(value.func, ast.Attribute)
+                and isinstance(value.func.value, ast.Name) and value.func.value.id in shutil_modules
+                and value.func.attr == "which" and bool(value.args)
+                and isinstance(value.args[0], ast.Constant)
+                and value.args[0].value in {"node", "node.exe"})
 
     @lru_cache(maxsize=1024)
     def bag_values(node, seen=frozenset()):
@@ -287,7 +333,7 @@ def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
 
     findings = []
     default = guarded or _default_present(text, tree)
-    for node in ast.walk(tree):
+    for node in nodes:
         if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in modules and node.attr in {"DETACHED_PROCESS", "CREATE_NEW_CONSOLE"} and not _marked(lines, node.lineno - 1):
             findings.append(Finding(rel.as_posix(), node.lineno, "explicit detached or new-console flag", "Use CREATE_NO_WINDOW without conflicting console flags."))
         if not isinstance(node, ast.Call) or _marked(lines, node.lineno - 1):
@@ -297,12 +343,25 @@ def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
                   and isinstance(fn.value, ast.Name) and fn.value.id in modules and fn.attr in
                   {"run", "Popen", "call", "check_call", "check_output", "getoutput", "getstatusoutput"})
         os_launch = isinstance(fn, ast.Name) and fn.id in os_functions or (isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name) and fn.value.id in os_modules and (fn.attr in {"system", "popen"} or fn.attr.startswith("spawn")))
-        async_launch = isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name) and fn.value.id in async_modules and fn.attr in {"create_subprocess_exec", "create_subprocess_shell"}
+        async_launch = (isinstance(fn, ast.Name) and fn.id in async_functions or isinstance(fn, ast.Attribute)
+                        and isinstance(fn.value, ast.Name) and fn.value.id in async_modules
+                        and fn.attr in {"create_subprocess_exec", "create_subprocess_shell"})
         if os_launch:
             findings.append(Finding(rel.as_posix(), node.lineno, "OS shell launch bypasses the shared subprocess default", "Use the shared hidden subprocess helper instead."))
             continue
         if not (launch or async_launch):
             continue
+        # The Python default does not reach Node children launched by literal eval code.
+        argv = (node.args[0].elts if node.args and isinstance(node.args[0], (ast.List, ast.Tuple))
+                else node.args if async_launch else [])
+        for index, value in enumerate(argv[:-1] if argv and node_executable(argv[0]) else []):
+            if isinstance(value, ast.Constant) and value.value in {"-e", "--eval"}:
+                script = argv[index + 1]
+                if isinstance(script, ast.Name):
+                    values = assignments.get(script.id, [])
+                    script = values[0] if len(values) == 1 else script
+                if isinstance(script, ast.Constant) and isinstance(script.value, str) and not _marked(lines, script.lineno - 1):
+                    findings.extend(_javascript_findings(script.value, rel, script.lineno - 1))
         if any((key.arg == "creationflags" or key.arg is None) and unsafe_value(key.value) for key in node.keywords):
             findings.append(Finding(rel.as_posix(), node.lineno, "explicit detached or new-console launch",
                                     "Use CREATE_NO_WINDOW without DETACHED_PROCESS or CREATE_NEW_CONSOLE."))
@@ -408,7 +467,7 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
             covered = _is_test_file(rel) and any(parent == rel.parent or parent in rel.parents for parent in guarded)
             # The shared policy covers ordinary test launches at runtime. Only
             # explicit flag overrides or OS-shell escapes need another AST walk.
-            risky = re.search(rb"DETACHED_PROCESS|CREATE_NEW_CONSOLE|creationflags|\bos\s*\.\s*(?:system|popen|spawn)|import\s+os\s+as|from\s+os\s+import", raw)
+            risky = re.search(rb"child_process|execa|cross-spawn|DETACHED_PROCESS|CREATE_NEW_CONSOLE|creationflags|\bos\s*\.\s*(?:system|popen|spawn)|import\s+os\s+as|from\s+os\s+import", raw)
             if not covered or risky:
                 findings.extend(_python_findings("\n".join(lines), rel, covered))
         elif suffix in {".ps1", ".psm1"}:
@@ -430,26 +489,7 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
                 if GO_LAUNCH.search(line) and not line.lstrip().startswith("//") and not _marked(lines, i):
                     unguarded_go.append(Finding(shown, i + 1, "Go test starts a process without a no-window helper", ""))
         else:
-            text = "\n".join(lines)
-            if not JS_CHILD_PROCESS.search(text):
-                continue
-            aliases = re.findall(r"import\s+(?:\*\s+as\s+)?(\w+)\s+from\s+[\"\'](?:node:)?child_process[\"\']", text)
-            aliases += re.findall(r"(?:const|let|var)\s+(\w+)\s*=\s*require\([\"\'](?:node:)?child_process[\"\']\)", text)
-            named_aliases = []
-            for group in re.findall(r"(?:import\s*\{([^}]+)\}\s*from|(?:const|let|var)\s*\{([^}]+)\}\s*=\s*require\()[\s\"\']*(?:node:)?child_process", text):
-                for item in (group[0] or group[1]).split(","):
-                    match = re.fullmatch(r"\s*(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)(?:\s+as\s+|\s*:\s*)(\w+)\s*", item)
-                    if match:
-                        named_aliases.append(match.group(1))
-            named_launch = re.compile(r"(?<![\w.$])(?:" + "|".join(map(re.escape, named_aliases)) + r")\s*\(") if named_aliases else None
-            alias_launch = re.compile(r"\b(?:" + "|".join(map(re.escape, aliases)) + r")\.(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\(") if aliases else None
-            for i, line in enumerate(lines):
-                stripped = line.lstrip()
-                if stripped.startswith(("//", "*", "/*")) or _marked(lines, i) or not (JS_LAUNCH.search(line) or alias_launch and alias_launch.search(line) or named_launch and named_launch.search(line)):
-                    continue
-                if not re.search(r"\bwindowsHide\s*:\s*true\b", _call_text(lines, i)):
-                    findings.append(Finding(shown, i + 1, "child_process call without windowsHide",
-                                            "Pass { windowsHide: true } in the options object."))
+            findings.extend(_javascript_findings("\n".join(lines), rel))
     if unguarded_go:
         first = unguarded_go[0]
         findings.insert(0, Finding(first.path, first.line,

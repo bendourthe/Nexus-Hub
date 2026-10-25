@@ -1,0 +1,17 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"b3a01dc6fe2124bd9c8293faadb83189391c7f1f04f0259c79c1f42f6c334952","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "status": "APPLIED",
+  "worktree": "<workspace>",
+  "files": [
+    {
+      "path": "MANIFEST.sha256",
+      "sha256": "ca8512e52c22734c14403efc7547070fff9421b0bbb3fbe35fda1230260b96b7",
+      "accept": false
+    }
+  ],
+  "accepts": 0
+}
+}

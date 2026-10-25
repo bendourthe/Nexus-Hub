@@ -24,7 +24,7 @@
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/cursor.py": "d177d6e5bd4d4a9ab4a2c8bbed904dcb81214f0599639a7a8999d61fe5ebb9bf",
-      "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
+      "scripts/lib/integrations/runner.py": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320",
       "scripts/nexus_git_attribution.py": "70fd7de79ec97cfb73c70c468a88932e16a4e1c27027ab1278f4e32ac34ac4ba",
       "scripts/nexus_hub_cli.py": "c5e4eb5f1898fb1fe2ea7a90c97032991f1493c887623fbacfeae9ad8a563501",
       "scripts/nexus_process.py": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c"
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/checker-budget-handbook-review.md",
-      "evidence_sha256": "262fe40390e5cef4db704c7a1794c76791dc7f876049ebd8d896980f7b5c074c"
+      "evidence": "docs/releases/v4/v4.14/development/windows-runner-handbook-review.md",
+      "evidence_sha256": "b2f5c3451ea6c3f754517eef70df0a3c0c54417365bfb5c9d2413c1f5e9a9d33"
     },
     "build": {
       "status": "pass",

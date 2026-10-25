@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-24T20:21:23.634Z",
+  "before_sha256": "b498f15059f6f4d27ed4855f61d159a35d6c654bff103614bd8e792b7c7f8272",
+  "after_sha256": "5156b08404dac85d791de88e791426fc1f79d98145fcfc0a4abda71ce772cc4a",
+  "only_appended_blocker": true,
+  "blocker": 13,
+  "category": "ci-security-change",
+  "scope_request_matches": true,
+  "frozen_authority_unchanged": true,
+  "comparison": "Recursive JSON-key canonicalization; prior authority-diff.json used order-sensitive JSON.stringify for this field",
+  "prior_comparison_artifact_sha256": "e6e8e117373ddbf12ea888f5550fdc9f6692d5aaa7e824a11aadb3651c3642ab",
+  "request_canonical_sha256": "9b8fb0873a3243b029372f12796fbc74e3f5c4c1e5f38d872f24330f0e1d1103"
+}

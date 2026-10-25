@@ -157,8 +157,8 @@ class Close(Minor):
 
 
 @pytest.fixture()
-def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Close:
-    return Close(tmp_path, monkeypatch)
+def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> Close:
+    return Close(tmp_path, monkeypatch, minor_git_seed)
 
 
 # --------------------------------------------------------------------------- migrate
