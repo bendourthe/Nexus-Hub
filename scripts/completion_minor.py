@@ -1191,8 +1191,10 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action != "answer":
-        raise ck.Malformed("--member requires --action answer")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope"):
+        raise ck.Malformed("--member requires --action answer or supplement-scope")
+    if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
+        raise ck.Malformed("--merge requires --action supplement-scope")
     if getattr(args, "added_class", None) is not None and args.action != "add-class":
         raise ck.Malformed("--class requires --action add-class")
     if args.action == "create":
@@ -1220,8 +1222,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return record
         page = add_class_page(ck, token, record, getattr(args, "added_class", None))
         display = None
+    elif args.action == "supplement-scope":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = supplement_scope_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "merge", None))
+        display = None
     else:
-        raise ck.Malformed("a minor record supports create, answer, pause, resume or add-class")
+        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class or supplement-scope")
     session = None if args.session == "auto" else args.session
     blocker = args.blocker if args.action == "answer" else None
     try:
@@ -1476,6 +1484,275 @@ def cmd_record_add_class(ck: ModuleType, args: argparse.Namespace) -> int:
     print(f"ADDED {name} minor {token}")
     return 0
 
+
+# This is one reviewed historical repair, not a configurable exception registry.
+REVIEWED_HISTORICAL_SCOPE = {
+    "repo": "bendourthe/Nexus-Hub",
+    "minor": "v4.14",
+    "member": "v4.14.2",
+    "merge": "d2d7bff7a0c192437eddcbdb677880791ea3f501",
+    "first_parent": "e90dbacc75491b1c57445b4bf68a5620b4188557",
+    "second_parent": "944d07f40eeebc8d52204684a3cab907f331806d",
+    "tree": "de7ccaeea43d697f25552f6330ac261af1d867b0",
+    "rows": (
+        ("MANIFEST.sha256", "100644", "100644", "bca95a092cc4b649e6999a86b3badebf5ef86674", "aeadf59f67ea686f30a18407f65bc895c646dbae", "M"),
+        ("scripts/check_installer_smoke.py", "100644", "100644", "b2d3c6ab5f76f970ca6989bacc084f114105f505", "bc9732e3b2d032f25f26bac623b39ea46e57c29d", "M"),
+        ("scripts/ci/verify_scenarios.py", "100644", "100644", "31fd6838cbc890339eded7bae7a2d40fd2ef2354", "1d11d5a948f965a9544bc9b08d6eec1fb97510fa", "M"),
+        ("tests/ci/test_ci_scenarios.py", "100644", "100644", "6b03873afac9f70dfeef6224d00d77af6a298560", "aff21219be765f15ac3e3e506c2bfe8932dae1d0", "M"),
+        ("tests/installer/test_installer_smoke_postconditions.py", "100644", "100644", "16cce5814f60aa9264cf48685582ad134c364b99", "31c4bbc266465431ae6cdd9d9d3dcda366414f00", "M"),
+        ("tests/skills/test_installer_parity_lifecycle.py", "100644", "100644", "63aed6212aadd3116ae5e4d7aae8c04fceade272", "1b10a0d084ca08c874a5d4517a8c09d2009dcebc", "M")
+    )
+}
+
+
+def _historical_claims_sha256(member: dict) -> str:
+    frozen = {"implementation": member.get("implementation"),
+              "coordinator_paths": member.get("coordinator_paths", []), "start_head": member.get("start_head")}
+    return hashlib.sha256(approval_binding.canonical(frozen)).hexdigest()
+
+
+def historical_scope_bounds(rctx: RepoContext, record: dict, member: dict, merge: str) -> dict:
+    """Recompute the complete uncovered contribution for the single reviewed merge."""
+    expected = REVIEWED_HISTORICAL_SCOPE
+    if (record.get("repo") != expected["repo"] or record.get("minor") != expected["minor"]
+            or member.get("version") != expected["member"] or merge != expected["merge"]):
+        raise MinorMalformed("historical-scope-outside-reviewed-repair")
+    parents = rctx._git_out("rev-list", "--parents", "-n", "1", merge).split()
+    if parents != [merge, expected["first_parent"], expected["second_parent"]]:
+        raise MinorMalformed("historical-scope-merge-changed")
+    tree = rctx._git_out("rev-parse", "--verify", merge + "^{tree}")
+    if tree != expected["tree"]:
+        raise MinorMalformed("historical-scope-tree-changed")
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict):
+        raise MinorMalformed("historical-scope-original-claims-missing")
+    writes = implementation.get("write_paths")
+    coordinator = member.get("coordinator_paths", [])
+    if (not isinstance(writes, list) or not isinstance(coordinator, list)
+            or any(not isinstance(p, str) for p in [*writes, *coordinator])):
+        raise MinorMalformed("historical-scope-original-claims-invalid")
+    start = member.get("start_head") or implementation.get("base_head")
+    if not isinstance(start, str) or any(_ancestor(rctx, start, p) != "met" for p in parents[1:]):
+        raise MinorMalformed("historical-scope-base-unverified")
+    rc, raw = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--raw", "--no-abbrev", "--no-renames", "-z",
+                        expected["first_parent"], merge, "--"])
+    if rc:
+        raise ObservationUnavailable("historical-scope-diff-unavailable")
+    pieces = raw.split("\0")
+    if not pieces or pieces[-1] != "" or len(pieces) % 2 != 1:
+        raise MinorMalformed("historical-scope-diff-invalid")
+    rows = []
+    seen: set[str] = set()
+    claims = [*writes, *(coordinator if member.get("start_head") else [])]
+    for index in range(0, len(pieces) - 1, 2):
+        metadata, path = pieces[index:index + 2]
+        fields = metadata.removeprefix(":").split()
+        if (not metadata.startswith(":") or len(fields) != 5 or fields[4] not in {"A", "M", "D"}
+                or path.casefold() in seen):
+            raise MinorMalformed("historical-scope-diff-invalid")
+        seen.add(path.casefold())
+        if any(_overlap(path, claim) for claim in claims):
+            continue
+        _literal_path(rctx.root, path)
+        if (path.endswith("/") or (rctx.root / path).is_dir()
+                or _sensitive_write(rctx, path, []) or _coordinator_name(path)
+                or any(_overlap(path, p) for p in _coordinator_paths(rctx, str(record["minor"]), []))):
+            raise MinorMalformed("historical-scope-protected-path")
+        if fields[0] not in {"000000", "100644", "100755"} or fields[1] not in {"000000", "100644", "100755"}:
+            raise MinorMalformed("historical-scope-nonregular-path")
+        rows.append((path, *fields[:4], fields[4]))
+    if sorted(rows) != sorted(expected["rows"]):
+        raise MinorMalformed("historical-scope-uncovered-set-changed")
+    return {"merge": merge, "first_parent": parents[1], "second_parent": parents[2], "tree": tree,
+            "rows": [list(row) for row in sorted(rows)]}
+
+
+def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                          version: str | None, merge: str | None) -> dict:
+    """Bind the render and consume round to one current, authenticated generation."""
+    member = next((m for m in record["members"] if m.get("version") == version), None)
+    if member is None or token != REVIEWED_HISTORICAL_SCOPE["minor"] or merge != REVIEWED_HISTORICAL_SCOPE["merge"]:
+        raise ck.Malformed("historical-scope-outside-reviewed-repair")
+    if member.get("historical_scope_supplements"):
+        raise ck.Malformed("historical-scope-already-supplemented")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    raw = record.record_path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    status, actual_merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    if status != "merged" or actual_merge != merge:
+        raise ck.Malformed("historical-scope-publication-unverified")
+    bounds = historical_scope_bounds(rctx, record, member, merge)
+    controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
+    return {"action": "supplement-scope", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"], "controller": controller,
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "claims_sha256": _historical_claims_sha256(member), "merge_bounds": bounds}
+
+
+def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                                  merge: str, entry: object, *, verify_capture: bool = False) -> bool:
+    """Validate signed historical provenance without rebinding it to a later session."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        page_fields = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+                       "member", "plan_sha256", "claims_sha256", "merge_bounds"}
+        accepted_fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text",
+                           "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != page_fields or not isinstance(accepted, dict)
+                or set(accepted) != accepted_fields):
+            return False
+        if (page["action"] != "supplement-scope" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["claims_sha256"] != _historical_claims_sha256(member)
+                or approval_binding.canonical(page["merge_bounds"])
+                   != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge))):
+            return False
+        if (not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        controller = page["controller"]
+        legacy = {"repo_root", "git_common_dir"}
+        transferred = legacy | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if set(controller) not in ({"repo_root"}, legacy, transferred):
+            return False
+        if not isinstance(controller["repo_root"], str) or not Path(controller["repo_root"]).is_absolute():
+            return False
+        if "git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                                                or not Path(controller["git_common_dir"]).is_absolute()):
+            return False
+        if set(controller) == transferred and (type(controller["generation"]) is not int or controller["generation"] < 1
+                or not all(isinstance(controller[k], str) and controller[k] for k in transferred - {"generation"})
+                or not re.fullmatch(r"[0-9a-f]{40}", controller["head"])
+                or not re.fullmatch(r"[0-9a-f]{64}", controller["origin_record_key"])):
+            return False
+        key = ck._secret(create=False)
+        if key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"]):
+            return False
+        if accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest():
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict) or context.get("session_id") != page["owner_session"]
+                or context.get("prompt_sha256") != approval_binding.digest(accepted["text"])):
+            return False
+        allowed = {approval_page.plain_line("supplement-scope", str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture"
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        return (accepted["text"] in allowed and (not verify_capture
+                or approval_binding.consumed_capture_valid(ck._runs_dir(), context, accepted["rendered_at"])))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, approval_page.PageError):
+        return False
+
+
+def _historical_scope_paths(ck: ModuleType | None, rctx: RepoContext, record: dict | None,
+                            member: dict, merge: str) -> set[str] | None:
+    entries = member.get("historical_scope_supplements", [])
+    if entries == []:
+        return set()
+    if (ck is None or not isinstance(record, dict) or not isinstance(entries, list) or len(entries) != 1
+            or approval_binding.canonical(next((m for m in record.get("members", [])
+                                                if m.get("version") == member.get("version")), None))
+               != approval_binding.canonical(member)):
+        return None
+    key = ck._secret(create=False)
+    if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+            or not _historical_scope_entry_valid(ck, rctx, record, member, merge, entries[0])):
+        return None
+    return {row[0] for row in entries[0]["page"]["merge_bounds"]["rows"]}
+
+
+def check_historical_scope_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer preserves accepted entries, including a removed member."""
+    before = previous.get("members", [])
+    after = record.get("members", [])
+    if not any(isinstance(m, dict) and "historical_scope_supplements" in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("historical-scope-invalid-members")
+    old = {m.get("version"): m for m in before}
+    new = {m.get("version"): m for m in after}
+    added = []
+    for version in old.keys() | new.keys():
+        left = old.get(version, {}).get("historical_scope_supplements", [])
+        right = new.get(version, {}).get("historical_scope_supplements", [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) > 1
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left) or len(right) < len(left)):
+            raise ck.MinorConflict("historical-scope-not-append-only")
+        for entry in right[len(left):]:
+            added.append((version, entry))
+    if not added:
+        return
+    active = ck._MINOR_LEASE.get()
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("historical-scope-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if active.get("historical_scope_append") != grant:
+        raise ck.MinorConflict("historical-scope-append-not-captured")
+    def original(value: dict) -> dict:
+        copied = json.loads(json.dumps(value))
+        copied.pop("approvals_hmac", None)
+        for item in copied["members"]:
+            item.pop("historical_scope_supplements", None)
+        return copied
+    if approval_binding.canonical(original(previous)) != approval_binding.canonical(original(record)):
+        raise ck.MinorConflict("historical-scope-unrelated-record-change")
+    if (entry.get("page", {}).get("record_sha256") != active["expected"]
+            or not _historical_scope_entry_valid(ck, rctx, record, new[version],
+                                                  REVIEWED_HISTORICAL_SCOPE["merge"], entry, verify_capture=True)):
+        raise ck.MinorConflict("historical-scope-invalid-entry")
+
+
+@minor_writer
+def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine decision; append historical authority without changing claims."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = supplement_scope_page(ck, rctx, args.minor, record, args.member, args.merge)
+    consumed = _consume(ck, rctx, args.minor, "supplement-scope", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(),
+             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault("historical_scope_supplements", []).append(entry)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["historical_scope_append"] = {"member": args.member,
+                                          "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+                                          "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("historical_scope_append", None)
+    print(f"SUPPLEMENTED historical scope {args.member}")
+    return 0
 
 # --------------------------------------------------------------------------- known-gaps ledgers
 #
@@ -3829,7 +4106,8 @@ def _archive_only_paths(rctx: RepoContext, record: dict | None, member: dict, ba
     return {path for path, only in touched.items() if only}
 
 
-def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record: dict | None = None) -> str:
+def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record: dict | None = None,
+                             ck: ModuleType | None = None) -> str:
     """Audit the actual merged contribution before releasing a reservation.
 
     A two-parent merge is compared to its integration parent, including merge
@@ -3840,6 +4118,9 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
     member's, so it is left out (completion contract, "Member archive"); a two-parent
     merge already excludes those commits through its integration parent.
     """
+    supplements = _historical_scope_paths(ck, rctx, record, member, merge)
+    if supplements is None:
+        return "cannot-verify"
     implementation = member.get("implementation")
     if not isinstance(implementation, dict):
         return "met"
@@ -3868,7 +4149,7 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
             _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
             if _sensitive_write(rctx, path, []) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
                 return "unmet"
-            if not any(_overlap(path, claim) for claim in writes):
+            if path not in supplements and not any(_overlap(path, claim) for claim in writes):
                 return "unmet"
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed):
         return "cannot-verify"
@@ -3878,7 +4159,7 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
 def _merged_on_base(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, base: str) -> bool:
     state, merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
     return (state == "merged" and bool(merge) and _ancestor(rctx, str(merge), base) == "met"
-            and _historical_claim_status(rctx, member, str(merge), record) == "met")
+            and _historical_claim_status(rctx, member, str(merge), record, ck) == "met")
 
 
 def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, budget: object,
@@ -3897,7 +4178,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
         integration = _integration_ref(rctx, _target(record))
         merge_status, merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
         if canonical_merged and integration and merge_status == "merged" and merge and _ancestor(rctx, merge, integration) == "met":
-            historical = _historical_claim_status(rctx, member, merge, record)
+            historical = _historical_claim_status(rctx, member, merge, record, ck)
             if historical != "met":
                 return None, historical, True
             if _ancestor(rctx, merge, "HEAD") != "met":
