@@ -84,7 +84,7 @@ During troubleshooting, repeated failures may trigger an upshift under the same 
 
 ## Phase 2: Implementation
 
-Work subtask by subtask in plan order. After each subtask, confirm the code compiles/imports before moving on (do not accumulate broken subtasks). Log deviations inline with `# DEVIATION:` and keep a running list for Phase 8. Stay in scope: no refactors outside the phase boundary, no speculative features, no unrelated file changes. Compile/import-check the whole phase before linting.
+Work subtask by subtask in plan order. After each subtask, confirm the code compiles/imports before moving on (do not accumulate broken subtasks). Log deviations inline with `# DEVIATION:` and keep a running list for Phase 8. Stay in scope: no refactors outside the phase boundary, no speculative features, no unrelated file changes. When a subtask lands in scattered or duplicated code, sequence it with [[refactoring-expert]]'s refactor-first step and consolidate the copies with `code-simplification`'s `references/design-invariants.md`. Compile/import-check the whole phase before linting.
 
 ## Phase 3: Lint and format
 
@@ -108,7 +108,7 @@ Write tests for genuinely NEW behavior this phase introduced that no existing te
 
 ## Phase 6: Troubleshooting loop (max 3 iterations)
 
-Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. At the end of iteration 2, classify each repeating `IMPL` failure by failure class as Step 7 of `[[model-routing]]` defines, quote the evidence, and let the class guide the iteration-3 fix. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations; D. Escalate by failure class as Step 7 of `[[model-routing]]` routes it (confirm first, upshift only). Follow the active instruction template's `Consequential Decisions` rule before asking. Wait for the answer.
+Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. At the end of iteration 2, classify each repeating `IMPL` failure by failure class as Step 7 of `[[model-routing]]` defines, quote the evidence, and let the class guide the iteration-3 fix. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations; D. Escalate by failure class as Step 7 of `[[model-routing]]` routes it (confirm first, upshift only; apply an upshift at a sub-task boundary and name the cache re-read cost, per [`step-8-optimize-cost-and-latency.md`](../../../ai-development/prompt-engineering/references/step-8-optimize-cost-and-latency.md)). Follow the active instruction template's `Consequential Decisions` rule before asking. Wait for the answer.
 
 ## Phase 7: Quality gate (GO / NO-GO)
 

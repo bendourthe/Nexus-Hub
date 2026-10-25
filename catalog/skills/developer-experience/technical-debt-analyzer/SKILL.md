@@ -515,6 +515,7 @@ Produce a report for stakeholders that combines technical details with business 
 - **Establish a debt budget**: set a maximum acceptable debt ratio (e.g., SQALE rating B or better) and treat breaches as a signal to reduce feature work and increase remediation
 - **Use automated tools for continuous measurement**: integrate static analysis (SonarQube, CodeClimate), dependency scanning (Dependabot, Renovate), and coverage tools (Codecov, Coveralls) to track debt metrics automatically
 - **Celebrate debt paydown**: make debt reduction visible in sprint reviews and team dashboards to reinforce the value of quality investment
+- **Measure a consolidation before and after**: for one subsystem's duplicated logic, follow [references/subsystem-baseline-review.md](references/subsystem-baseline-review.md) to record a baseline, re-measure, and leave a ratchet check
 
 ## Common Pitfalls
 

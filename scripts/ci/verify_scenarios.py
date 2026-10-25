@@ -112,7 +112,7 @@ def workspace(root: Path, work: Path, env: dict[str, str]) -> None:
     run([sys.executable, str(root / "scripts/nexus_hub_cli.py"), "org", "connect", str(root / "configs/examples/org-bundle-example"), "--force"], env=env, cwd=work)
     command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "scripts/installer.ps1"), "-Workspace", str(target), "-Platforms", "claude", "-Yes"] if os.name == "nt" else ["bash", str(root / "scripts/installer.sh"), "--workspace", str(target), "--platforms", "claude", "--yes"])
     run(command, env=env, cwd=work)
-    run([sys.executable, str(root / "scripts/check_installer_smoke.py"), "--home", env["HOME"], "--workspace", str(target)], env=env, cwd=work)
+    run([sys.executable, str(root / "scripts/check_installer_smoke.py"), "--home", env["HOME"], "--workspace", str(target), "--source", str(root)], env=env, cwd=work)
     print("OK: real native workspace installer and shared smoke assertions")
 
 
@@ -141,6 +141,18 @@ def bootstrap(root: Path, work: Path, env: dict[str, str]) -> None:
     home = Path(env["HOME"]) / ".nexus-hub"
     suffix = "ps1" if os.name == "nt" else "sh"
     require((home / f"src/scripts/installer.{suffix}").is_file(), f"standalone source was not extracted; bootstrap exit {result.returncode}\n{result.stdout}\n{result.stderr}")
+    checked_payload = 0
+    with tarfile.open(tarball, "r:gz") as archive:
+        for member in archive.getmembers():
+            relative = Path(member.name).relative_to("Nexus-Hub-main")
+            if not member.isfile() or relative.parts[:2] not in (("catalog", "skills"), ("catalog", "commands")):
+                continue
+            cached = home / "src" / relative
+            require(cached.is_file(), f"bootstrap catalog payload is missing: {relative}")
+            with archive.extractfile(member) as payload:
+                require(cached.read_bytes() == payload.read(), f"bootstrap catalog payload differs: {relative}")
+            checked_payload += 1
+    require(checked_payload > 0, "bootstrap archive contains no catalog payload")
     launcher = home / ("bin/nexus-hub.cmd" if os.name == "nt" else "bin/nexus-hub")
     version_command = [str(launcher), "--version"] if launcher.is_file() and (os.name == "nt" or os.access(launcher, os.X_OK)) else [sys.executable, str(home / "src/scripts/nexus_hub_cli.py"), "--version"]
     version = run(version_command, env=env, cwd=work)
