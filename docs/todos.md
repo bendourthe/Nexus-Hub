@@ -2,15 +2,19 @@
 
 **Integration branch:** `develop`
 
+**M2 historical scope maintenance:** PR #525 merged green. The isolated repair now recognizes only its six reviewed historical file omissions after a later genuine native captured decision. Focused qualification has 259 distinct passing cases and one declared POSIX-only skip, including replay refusal, unchanged release gates, native resume and controller handoff. Integration of the maintenance, reviewed runtime adoption and the actual six-file decision remain open; original claims, frozen plan marks and budgets are unchanged.
+
+- [ ] Integrate and deliver the bounded M2 historical-scope repair, then obtain its genuine native captured decision before the M2 release.
+
 **Console-window repair:** PR #519 and the pre-commit interpreter followup in PR #521 merged green. The shared process policy is loaded inside the pre-commit CLI. PR #521 passed all 46 checks and its post-merge run. Actual named checks and the isolated installer passed a 34.877-second idle observation with zero console windows or focus changes. Reviewed runtime adoption and global hook delivery remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
 
 - [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 99/209 tasks marked across active worktrees and 63/209 integrated tasks, with 2/7 members released: v4.14.0 and v4.14.1. v4.14.2 is 32/34 with T029 and T034 open. v4.14.5 Phase 1 contributes 4/22 tasks and awaits its release-order turn. Private preparation is separate from these counts.
+**Active work:** v4.14 has 99/209 tasks marked across active worktrees and 95/209 integrated task marks, with 2/7 members released: v4.14.0 and v4.14.1. v4.14.2 is 32/34 with T029 and T034 open. v4.14.5 Phase 1 contributes 4/22 tasks and awaits its release-order turn. Private preparation is separate from these counts.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
-**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2 and its PDF preflight candidate, v4.14.4 Phases 1-3, the opt-in hook smoke and Phase 5 evidence drafts, and v4.14.5 Phase 2. Its private Codex seeding check passed four cases (two created, two updated; all four kept byte-identical on repeat), with zero denied audit events or existing-input changes. The earlier CRLF comment-assertion failure remains retained. This is preparation proof only and does not qualify an installer or close a task. Targeted checks are retained separately; v4.14.6 has a private admission research packet. These drafts do not change integrated task counts or establish native admission, phase completion, publication or release. The v4.14.2 composite local gate is qualified; publication and integration remain open. The preserved user-supplied AI Studio PDF supports the preflight candidate; 30 semantic/pin checks passed, all 14 prior claims are preserved, and its new narrow test remains unrun. The M4 final-phase packet contains drafts and static checks only. Native admission and integration remain separate.
+**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2 and its PDF preflight candidate, v4.14.4 Phases 1-3, the opt-in hook smoke and Phase 5 evidence drafts, and v4.14.5 Phase 2. Its private Codex seeding check passed four cases (two created, two updated; all four kept byte-identical on repeat), with zero denied audit events or existing-input changes. The earlier CRLF comment-assertion failure remains retained. This is preparation proof only and does not qualify an installer or close a task. Targeted checks are retained separately; v4.14.6 has a private admission research packet. These drafts do not change integrated task counts or establish native admission, phase completion, publication or release. The v4.14.2 composite local gate is qualified and PR #525 merged green; the historical-scope maintenance integration, reviewed runtime adoption, genuine native scope decision and release remain open. The preserved user-supplied AI Studio PDF supports the preflight candidate; 30 semantic/pin checks passed, all 14 prior claims are preserved, and its new narrow test remains unrun. The M4 final-phase packet contains drafts and static checks only. Native admission and integration remain separate.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
@@ -46,11 +50,11 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Finalize the v4.14.2 evidence and phase commit, verify native publication authority, publish once and merge only after actual macOS payload proof and every required check pass. Reviewed runtime adoption retains its separate gates. Release v4.14.2 before later members. Per-member archive still needs its genuine add-class decision; later releases retain version order.
+**Next:** Integrate the bounded historical-scope maintenance after its required checks pass, qualify and adopt the reviewed runtime, then obtain the genuine native six-file decision. PR #525 and its post-merge checks are green, including the macOS payload proof. Reconcile T029 and T034 through the native checker before releasing v4.14.2; later members retain release order. Per-member archive still needs its genuine add-class decision.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 integrated tasks | 63/209 | 209/209 |
+| v4.14 integrated tasks | 95/209 | 209/209 |
 | v4.14 worktree task marks | 99/209 | 209/209 |
 | v4.14 released members | 2/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |

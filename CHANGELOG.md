@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A dedicated captured approval round can recognize the exact six reviewed historical file omissions in the v4.14.2 merge without widening original worker claims. Signed supplements remain append-only, apply only to that merge and preserve independent release predicates and frozen budgets.
 - Linux hook-test isolation creates the advertised private XDG runtime directory with POSIX mode 0700, allowing the unchanged PowerShell learning hook to use its named mutex. Live installer-guide source citations follow the current runner statements without changing displayed output or test assertions. [Combined local qualification and remaining gates](docs/releases/v4/v4.14/development/windows-full-gate-stabilization.md).
 - The separately approved Windows validators-co execution limit increases from 1800 to 2400 seconds, adding 600 seconds to the configured governance allowance without changing test selections or other command limits. [Approval, retained failures and scoped qualification](docs/releases/v4/v4.14/development/windows-full-gate-stabilization.md).
 - Validator test fixtures copy a session-owned Git seed into isolated working and bare repositories, retain a real fetch for each copy, and preserve the original constructor path. [Scoped setup and representative qualification](docs/releases/v4/v4.14/development/windows-full-gate-stabilization.md).

@@ -682,6 +682,8 @@ def _write_record(path: Path, record: dict) -> None:
         key = _secret(create=False)
         if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key)):
             raise MinorConflict('unsigned-minor-write')
+        previous = json.loads(raw) if raw is not None else {}
+        _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -1805,9 +1807,11 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
-        raise Malformed("--member requires --minor with --action answer")
-    if args.action == "add-class" or getattr(args, "added_class", None) is not None:
-        raise Malformed("--action add-class and --class require --minor")
+        raise Malformed("--member requires --minor with --action answer or supplement-scope")
+    if args.action in ("add-class", "supplement-scope") or getattr(args, "added_class", None) is not None:
+        raise Malformed("--action add-class, supplement-scope and --class require --minor")
+    if getattr(args, "merge", None) is not None:
+        raise Malformed("--merge requires --minor with --action supplement-scope")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     display: dict | None = None
     if args.action == "create":
@@ -2403,7 +2407,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--class", dest="added_class", help="with --minor add-class: the class to add")
-    render.add_argument("--member", help="with --minor answer: require this blocker's member version")
+    render.add_argument("--member", help="with --minor answer or supplement-scope: the member version")
+    render.add_argument("--merge", help="with --minor supplement-scope: the exact reviewed merge")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
@@ -2453,6 +2458,14 @@ def build_parser() -> argparse.ArgumentParser:
     add_class.add_argument("--class", dest="added_class", required=True, help="the class to add: archive-member")
     add_class.add_argument("--text", help="when given, must equal the pasted line")
     add_class.set_defaults(func=lambda args: _minor_module().cmd_record_add_class(sys.modules[__name__], args))
+    supplement = record.add_parser("supplement-scope", help="append the reviewed exact historical scope from a genuine decision")
+    supplement.add_argument("--minor", required=True)
+    supplement.add_argument("--repo", default=".")
+    supplement.add_argument("--session", required=True)
+    supplement.add_argument("--member", required=True)
+    supplement.add_argument("--merge", required=True)
+    supplement.add_argument("--text", help="when given, must equal the captured decision")
+    supplement.set_defaults(func=lambda args: _minor_module().cmd_record_supplement_scope(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
