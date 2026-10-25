@@ -44,9 +44,15 @@ def test_registry_acceptance(monkeypatch, tmp_path, omitted):
             scenarios.registry(tmp_path, tmp_path, {"HOME": str(tmp_path)})
 
 
-@pytest.mark.parametrize("artifact,version,accepted", [(False, "nexus-hub 4.13.13", False), (True, "wrong output", False), (True, "nexus-hub 4.13.13", True)])
-def test_bootstrap_acceptance(monkeypatch, tmp_path, artifact, version, accepted):
-    monkeypatch.setattr(scenarios, "catalog_tarball", lambda *args: None)
+@pytest.mark.parametrize("artifact,version,payload_problem,accepted", [(False, "nexus-hub 4.13.13", None, False), (True, "wrong output", None, False), (True, "nexus-hub 4.13.13", None, True), (True, "nexus-hub 4.13.13", "missing", False), (True, "nexus-hub 4.13.13", "changed", False)])
+def test_bootstrap_acceptance(monkeypatch, tmp_path, artifact, version, payload_problem, accepted):
+    source = tmp_path / "catalog/skills/category/example/references/detail.md"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"exact catalog payload")
+    def make_archive(root, target, env):
+        with scenarios.tarfile.open(target, "w:gz") as archive:
+            archive.add(source, arcname="Nexus-Hub-main/" + source.relative_to(tmp_path).as_posix())
+    monkeypatch.setattr(scenarios, "catalog_tarball", make_archive)
     original_which = shutil.which
     monkeypatch.setattr(scenarios.shutil, "which", lambda tool, **kwargs: tool if tool in ("node", "npm") else original_which(tool, **kwargs))
     env = {"HOME": str(tmp_path / "home"), "PATH": os.environ["PATH"], "NPM_CONFIG_OFFLINE": "false"}
@@ -60,6 +66,13 @@ def test_bootstrap_acceptance(monkeypatch, tmp_path, artifact, version, accepted
             path = Path(env["HOME"]) / (".nexus-hub/src/scripts/installer.ps1" if os.name == "nt" else ".nexus-hub/src/scripts/installer.sh")
             path.parent.mkdir(parents=True, exist_ok=True)
             path.touch()
+            cached = Path(env["HOME"]) / ".nexus-hub/src" / source.relative_to(tmp_path)
+            cached.parent.mkdir(parents=True, exist_ok=True)
+            cached.write_bytes(source.read_bytes())
+            if payload_problem == "missing":
+                cached.unlink()
+            elif payload_problem == "changed":
+                cached.write_bytes(b"changed")
         return result(argv)
     monkeypatch.setattr(scenarios, "run", invoke)
     if accepted:

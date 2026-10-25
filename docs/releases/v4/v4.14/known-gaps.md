@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-21
-**Open items**: 85
+**Last updated**: 2026-10-25
+**Open items**: 86
 
 ## v4.14.0
 
@@ -3183,7 +3183,7 @@ None.
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
 
@@ -3235,6 +3235,17 @@ None.
 **Reason**: control 0 of 12, treatment 0 of 12, revision round 0 of 12 (NO_CHANGE twice under Resolved decision 8); no run edited the three original modules, and no skill was invoked
 
 **Suggested next step**: re-measure once the rule text actually reaches the agent, with the v4.15.2 harness-pairing evaluator or a task prompt that loads the skill, and with a task that does not ask for the feature in a new file; keep the rule until then.
+
+#### QG-8: macOS Installer Payload Proof
+
+- **Source phase**: v4.14.2 Phase 6 T029.
+- **Plan reference**: [v4.14.2 adoption plan](plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md), terminal CI/CD reconciliation and installer parity.
+- **Disposition**: OPEN; approved sequencing, not waived delivery or migration.
+- **Owner**: M2 implementation and CI owner.
+- **Reason**: Genuine native ANSWERED blocker 14 permits actual macOS workspace and bootstrap full-payload verification on the first M2 integration PR after all other required local checks and real Windows/Linux full-payload installer checks pass. macOS delivery has not yet been proven for the M2 payload.
+- **Acceptance**: The first M2 PR passes actual macOS installer-smoke and bootstrap jobs with identical exact payload postconditions and retained current-head artifacts. T029 stays unchecked until then. Every required check must be green before merge; T034 also requires actual merge and post-merge verification.
+- **Suggested next step**: Complete the local member gate and Windows/Linux installer checks, publish the first M2 PR under its existing authorization, and retain the macOS delivery artifacts before merge.
+- **Evidence**: [Last-phase evidence](development/v4.14.2-last-phase-evidence.md#cicd-coverage); sequencing request SHA-256 `6b1a6d78abe9a6f27465c104496caea908d194ef38efa3263d7e2bdccded1d6a`. Existing selections, timeouts and frozen budgets are unchanged.
 
 ### Resolved
 
