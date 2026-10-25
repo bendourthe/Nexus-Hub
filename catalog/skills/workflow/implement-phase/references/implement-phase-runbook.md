@@ -174,6 +174,12 @@ Before the first worker reservation, install the matching check_plan_completion.
 
 An approved maintenance implementation does not repair signed scope by itself. For the exact reviewed v4.14.2 merge, first integrate, qualify and deliver the matching native helpers. From the bound controller render `CK record render --action supplement-scope --page --minor v4.14 --member v4.14.2 --merge d2d7bff7a0c192437eddcbdb677880791ea3f501 --session <parent-id> --repo <controller>`. Present the native review page and consume only the actual captured answer through `CK record supplement-scope --minor v4.14 --member v4.14.2 --merge d2d7bff7a0c192437eddcbdb677880791ea3f501 --session <parent-id> --repo <controller>`. A refused or stale round remains refused; do not modify original claims or replay earlier blocker answers. Rerun the native member projection after successful consumption. The completion contract owns the exact historical-only semantics and all remaining release gates.
 
+### M5 manifest permission
+
+After integrating, qualifying and delivering the matching maintenance, render `CK record render --action permit-manifest --page --minor v4.14 --member v4.14.5 --session <parent-id> --repo <controller>`. Present the native review page and consume the actual captured answer through `CK record permit-manifest --minor v4.14 --member v4.14.5 --session <parent-id> --repo <controller>`. The permission remains dormant until ordinary ordered publication admission registers `MANIFEST.sha256`; the completion contract owns its exact scope and refusal rules.
+
+At M5 publication admission after M4 release and back-merge, include the manifest and any needed exact plan-named files in the explicit coordinator claims before editing them. `configs/platform-defaults.json` and `docs/policy/platform-defaults-levers.md` already qualify through the ordinary literal-plan rule; their original worker read claims remain unchanged. Retain pending real coordinator tasks unchecked while the member waits for its turn.
+
 ### Ordered publication admission
 
 1. **Select the lowest unreleased member.** Native `member-start` decides predecessor readiness through the completion contract. A predecessor's pending cleanup alone does not block publication; every other predecessor predicate must pass. The coordinator completes missing release/back-merge work under that member's recorded approval. A later ready worker remains local while this gate is closed.

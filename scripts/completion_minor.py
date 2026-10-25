@@ -1191,8 +1191,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope"):
-        raise ck.Malformed("--member requires --action answer or supplement-scope")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope or permit-manifest")
     if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
         raise ck.Malformed("--merge requires --action supplement-scope")
     if getattr(args, "added_class", None) is not None and args.action != "add-class":
@@ -1228,8 +1228,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return record
         page = supplement_scope_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "merge", None))
         display = None
+    elif args.action == "permit-manifest":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = manifest_permission_page(ck, rctx, token, record, getattr(args, "member", None))
+        display = None
     else:
-        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class or supplement-scope")
+        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope or permit-manifest")
     session = None if args.session == "auto" else args.session
     blocker = args.blocker if args.action == "answer" else None
     try:
@@ -1752,6 +1758,206 @@ def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int
     finally:
         active.pop("historical_scope_append", None)
     print(f"SUPPLEMENTED historical scope {args.member}")
+    return 0
+
+M5_MANIFEST_PERMISSION = {"repo": "bendourthe/Nexus-Hub", "minor": "v4.14", "member": "v4.14.5", "path": "MANIFEST.sha256"}
+
+
+def _manifest_implementation_sha256(member: dict) -> str:
+    return hashlib.sha256(approval_binding.canonical(member.get("implementation"))).hexdigest()
+
+
+def _manifest_bounds(record: dict, member: dict) -> bool:
+    expected = M5_MANIFEST_PERMISSION
+    return (record.get("repo") == expected["repo"] and record.get("minor") == expected["minor"]
+            and member.get("version") == expected["member"] and expected["path"] == "MANIFEST.sha256"
+            and isinstance(member.get("implementation"), dict))
+
+
+def _manifest_original_scope(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                             *, base: str | None = None) -> bool:
+    if not _manifest_bounds(record, member) or member.get("start_head"):
+        return False
+    worker, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, base=base, canonical_merged=False)
+    return worker is not None and status == "met"
+
+
+def manifest_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                             version: str | None) -> dict:
+    """Bind one future publication duty without changing admitted worker claims."""
+    member = next((m for m in record["members"] if m.get("version") == version), None)
+    if member is None or token != M5_MANIFEST_PERMISSION["minor"] or not _manifest_bounds(record, member):
+        raise ck.Malformed("manifest-permission-outside-reviewed-member")
+    if member.get("manifest_coordinator_permissions") or member.get("start_head"):
+        raise ck.Malformed("manifest-permission-already-recorded-or-started")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    raw = record.record_path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    status, _merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    if status != "not-merged":
+        raise ck.Malformed("manifest-permission-publication-unverified")
+    if not _manifest_original_scope(ck, rctx, record, member):
+        raise ck.Malformed("manifest-permission-original-scope-unverified")
+    return {"action": "permit-manifest", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "path": "MANIFEST.sha256", "plan_sha256": member["plan_sha256"],
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"]}
+
+
+def _manifest_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                                  entry: object, *, verify_capture: bool = False) -> bool:
+    """Validate the signed dormant permission after legitimate session and publication updates."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        page_fields = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+                       "member", "path", "plan_sha256", "implementation_sha256", "source_branch", "target_branch"}
+        accepted_fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text",
+                           "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != page_fields or not isinstance(accepted, dict)
+                or set(accepted) != accepted_fields):
+            return False
+        if (page["action"] != "permit-manifest" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or not _manifest_bounds(record, member) or page["path"] != "MANIFEST.sha256"
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]):
+            return False
+        if (not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        controller = page["controller"]
+        legacy = {"repo_root", "git_common_dir"}
+        transferred = legacy | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if set(controller) not in ({"repo_root"}, legacy, transferred):
+            return False
+        if not isinstance(controller["repo_root"], str) or not Path(controller["repo_root"]).is_absolute():
+            return False
+        if "git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                                                or not Path(controller["git_common_dir"]).is_absolute()):
+            return False
+        if set(controller) == transferred and (type(controller["generation"]) is not int or controller["generation"] < 1
+                or not all(isinstance(controller[k], str) and controller[k] for k in transferred - {"generation"})
+                or not re.fullmatch(r"[0-9a-f]{40}", controller["head"])
+                or not re.fullmatch(r"[0-9a-f]{64}", controller["origin_record_key"])):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+                or approval_binding.canonical(next((m for m in record.get("members", []) if m.get("version") == member.get("version")), None))
+                   != approval_binding.canonical(member)
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])):
+            return False
+        if accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest():
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict) or context.get("session_id") != page["owner_session"]
+                or context.get("prompt_sha256") != approval_binding.digest(accepted["text"])):
+            return False
+        allowed = {approval_page.plain_line("permit-manifest", str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture"
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        return (accepted["text"] in allowed and (not verify_capture
+                or approval_binding.consumed_capture_valid(ck._runs_dir(), context, accepted["rendered_at"])))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, approval_page.PageError):
+        return False
+
+
+def check_manifest_permission_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer preserves accepted entries, including a removed member."""
+    before = previous.get("members", [])
+    after = record.get("members", [])
+    if not any(isinstance(m, dict) and "manifest_coordinator_permissions" in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("manifest-permission-invalid-members")
+    old = {m.get("version"): m for m in before}
+    new = {m.get("version"): m for m in after}
+    added = []
+    for version in old.keys() | new.keys():
+        left = old.get(version, {}).get("manifest_coordinator_permissions", [])
+        right = new.get(version, {}).get("manifest_coordinator_permissions", [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) > 1
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left) or len(right) < len(left)):
+            raise ck.MinorConflict("manifest-permission-not-append-only")
+        for entry in right[len(left):]:
+            added.append((version, entry))
+    if not added:
+        return
+    active = ck._MINOR_LEASE.get()
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("manifest-permission-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if approval_binding.canonical(active.get("manifest_permission_append")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("manifest-permission-append-not-captured")
+    def original(value: dict) -> dict:
+        copied = json.loads(json.dumps(value))
+        copied.pop("approvals_hmac", None)
+        for item in copied["members"]:
+            item.pop("manifest_coordinator_permissions", None)
+        return copied
+    if approval_binding.canonical(original(previous)) != approval_binding.canonical(original(record)):
+        raise ck.MinorConflict("manifest-permission-unrelated-record-change")
+    page = entry.get("page", {})
+    controller = previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")}
+    if (page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(controller)
+            or version not in old or not _manifest_original_scope(ck, rctx, previous, old[version])
+            or not _manifest_permission_valid(ck, rctx, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("manifest-permission-invalid-entry")
+
+
+@minor_writer
+def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Capture one dormant publication duty; preserve every original worker claim."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = manifest_permission_page(ck, rctx, args.minor, record, args.member)
+    consumed = _consume(ck, rctx, args.minor, "permit-manifest", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(),
+             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault("manifest_coordinator_permissions", []).append(entry)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["manifest_permission_append"] = {"member": args.member,
+                                          "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+                                          "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("manifest_permission_append", None)
+    print(f"PERMITTED dormant manifest coordinator duty {args.member}")
     return 0
 
 # --------------------------------------------------------------------------- known-gaps ledgers
@@ -3626,6 +3832,10 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
             return _gate_refusal(ck, version, "coordinator-claims-already-recorded")
         if _coordinator_conflict(ck, rctx, record, member, proposed, tip):
             return _gate_refusal(ck, version, "coordinator-scope-conflict")
+        if ("MANIFEST.sha256" in proposed and not member.get("start_head")
+                and member.get("manifest_coordinator_permissions")
+                and not _manifest_original_scope(ck, rctx, record, member, base=tip)):
+            return _gate_refusal(ck, version, "manifest-permission-original-scope-unverified")
         coordinator_paths = proposed
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
@@ -4262,7 +4472,11 @@ def _coordinator_claims(ck: ModuleType, rctx: RepoContext, record: dict, member:
         lower = path.casefold()
         if _sensitive_write(rctx, path) or lower.startswith("catalog/hooks/"):
             raise MinorMalformed("coordinator-sensitive-path")
-        if path not in protected and not _coordinator_name(path) and not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(path) + r"(?![A-Za-z0-9_./-])", plan.text):
+        entries = member.get("manifest_coordinator_permissions", [])
+        permitted_manifest = (path == "MANIFEST.sha256" and isinstance(entries, list) and len(entries) == 1
+                              and _manifest_permission_valid(ck, rctx, record, member, entries[0]))
+        if (path not in protected and not _coordinator_name(path) and not permitted_manifest
+                and not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(path) + r"(?![A-Za-z0-9_./-])", plan.text)):
             raise MinorMalformed("coordinator-path-outside-plan")
     return paths
 

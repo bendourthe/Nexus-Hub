@@ -43,7 +43,7 @@ import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
 SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}\Z", re.ASCII)

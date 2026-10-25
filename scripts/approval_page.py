@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -149,6 +149,10 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if not isinstance(blocker, int) or isinstance(blocker, bool) or blocker < 0:
             raise PageError("an answer names a non-negative blocker index")
         return _fits(f"Continue /implement {scope} past blocker {blocker} (approval {code})")
+    if action == "permit-manifest":
+        if not MINOR_RE.match(scope):
+            raise PageError("the manifest duty is permitted only for a minor run")
+        return _fits(f"Permit the publication manifest in /implement {scope} (approval {code})")
     if action == "supplement-scope":
         if not MINOR_RE.match(scope):
             raise PageError("historical scope is supplemented only for a minor run")
@@ -801,6 +805,22 @@ def _section(title: str, body: list[str], level: int = 2) -> list[str]:
 def _action_page(data: dict, paste: PasteSet) -> str:
     action = data["action"]
     scope = data["scope"]
+    if action == "permit-manifest":
+        page = data.get("page") or {}
+        if page.get("path") != "MANIFEST.sha256" or not page.get("member"):
+            raise PageError("the manifest permission requires its exact member and file")
+        out = _section("Publication manifest permission", [
+            "This registers one dormant publication duty for " + quoted(page.get("member")) + ".",
+            "Repository: " + quoted(page.get("repo")),
+            "File: " + quoted(page.get("path")),
+            "Frozen plan: " + quoted(page.get("plan_sha256")),
+            "Original implementation: " + quoted(page.get("implementation_sha256")),
+            "The member's original worker claims stay unchanged. This grants no immediate file write or release.",
+            "The normal publication admission still requires the preceding release, its back-merge, a clean original scope and no active claim conflict.",
+            "Decline leaves this publication file unapproved.",
+        ])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     if action == "supplement-scope":
         page = data.get("page") or {}
         bounds = page.get("merge_bounds") or {}
@@ -922,6 +942,7 @@ def question_data(data: dict) -> dict:
         'resume': 'Resume this run in the current session',
         'retire': 'Retire this run record and its authority',
         'supplement-scope': 'Acknowledge only the displayed exact files in the reviewed historical merge',
+        'permit-manifest': 'Register only the displayed dormant member publication manifest duty',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
                       "instead of all at once when the minor closes"),
     }.get(action)
@@ -942,7 +963,7 @@ def question_data(data: dict) -> dict:
             'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
-            'action_scope': data.get('page', {}) if action == 'supplement-scope' else blocker.get('request') or {},
+            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest') else blocker.get('request') or {},
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
                         'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',
