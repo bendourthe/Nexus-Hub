@@ -315,6 +315,7 @@ def test_an_edited_pending_round_is_refused(tmp_path: Path, field: str, value: o
 
 def test_a_mid_run_answer_captured_in_another_session_is_refused(tmp_path: Path) -> None:
     fx = _fixture(tmp_path)
+    fx.capture(SESSION, f"/implement {PLAN_REL}", at=0.0)
     _hook(fx, SESSION, _render(fx))
     assert _create(fx).returncode == 0
     fx.run("record", "block", PLAN_REL, "--session", SESSION, "--category", "no-progress", "--evidence", "x")

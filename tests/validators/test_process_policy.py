@@ -181,3 +181,58 @@ def test_batch_bangs_stay_literal_under_delayed_expansion(tmp_path, monkeypatch,
     result = subprocess.run(argv, capture_output=True, text=True, check=True, timeout=30)
     assert json.loads(result.stdout) == payload
     assert not marker.exists()
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows registry child policy")
+def test_fresh_registry_entrypoint_hides_and_binds_private_tools(tmp_path):
+    import json
+    import subprocess
+    import sys
+
+    from scripts.ci.verify_scenarios import isolated_environment
+
+    work = tmp_path / "isolated"
+    work.mkdir()
+    env = isolated_environment(work)
+    boundary = work / "editor-boundary"
+    probe = tmp_path / "probe.py"
+    probe.write_text(
+        """import inspect,json,os,runpy,subprocess,sys
+from pathlib import Path
+observed=[]
+class Intercepted(RuntimeError):
+    pass
+signature=inspect.signature(subprocess.Popen._execute_child)
+def capture(self,*args,**kwargs):
+    values=signature.bind(self,*args,**kwargs).arguments
+    observed.append({'program':current,'args':values['args'],
+                     'creationflags':values['creationflags'],'shell':values['shell']})
+    raise Intercepted('no child was created')
+subprocess.Popen._execute_child=capture
+current='unexpected import launch'
+assert not getattr(subprocess.Popen.__init__,'_nexus_console_policy',None)
+runpy.run_path(sys.argv[1],run_name='registry_policy_probe')
+for current in ('code','cursor','schtasks'):
+    try:
+        subprocess.Popen([current,'/Query'],env=dict(os.environ),shell=False,
+                         stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    except Intercepted:
+        pass
+    else:
+        raise AssertionError('process interception was bypassed')
+Path(sys.argv[2]).write_text(json.dumps(observed),encoding='utf8')
+print(json.dumps(observed))
+""", encoding="utf8")
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", "-B", str(probe),
+         str(ROOT / "scripts/lib/integrations/runner.py"), str(tmp_path / "captured.json")],
+        cwd=work, env=env, capture_output=True, text=True, check=False, timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    observed = json.loads(result.stdout)
+    assert len(observed) == 3
+    for item in observed:
+        assert item["creationflags"] & subprocess.CREATE_NO_WINDOW, item
+        assert item["shell"] is False, item
+        assert isinstance(item["args"], str), item
+        expected = os.path.normcase(str(boundary / (item["program"] + ".cmd")))
+        assert expected in os.path.normcase(item["args"]), item

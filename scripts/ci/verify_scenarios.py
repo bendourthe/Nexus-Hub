@@ -74,11 +74,11 @@ def isolated_environment(work: Path) -> dict[str, str]:
         destination = work / folder
         destination.mkdir()
         env[key] = str(destination)
-    # Smoke scenarios do not qualify VSIX delivery. Inert launchers stop both PATH
-    # discovery and absolute-path fallbacks from reaching a running host editor.
+    # Smoke scenarios do not qualify VSIX delivery or host task migration. Inert
+    # launchers stop discovery from reaching host editors or Task Scheduler.
     editors = work / "editor-boundary"
     editors.mkdir()
-    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity"):
+    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity", "schtasks"):
         launcher = editors / (name + ".cmd" if os.name == "nt" else name)
         launcher.write_text("@exit /b 1\n" if os.name == "nt" else "#!/bin/sh\nexit 1\n", encoding="ascii")
         launcher.chmod(0o755)

@@ -342,8 +342,16 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
         flag = "-Workspace" if runtime == "powershell" else "--workspace"
         index = command.index(flag)
         del command[index : index + 2]
-    extra = {"NEXUS_HUB_NO_AUTOSEED": "1"}
-    if os.name == "nt" and scope == "global":
+    from scripts.ci.verify_scenarios import isolated_environment
+
+    work = home.parent / "installer-boundary"
+    work.mkdir()
+    extra = isolated_environment(work)
+    extra.update(
+        HOME=str(home), USERPROFILE=str(home), NEXUS_HUB_HOME=str(home / ".nexus-hub"),
+        CLAUDE_CONFIG_DIR=str(home / ".claude"), GIT_CONFIG_GLOBAL=str(home / ".gitconfig"),
+    )
+    if os.name == "nt":
         # Exercise the real installer without discovering the host's editor
         # CLIs or optional uv/npm installations outside the disposable home.
         # Attribution delivery is independent of optional MCP dependency installs.
@@ -352,6 +360,7 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
         extra["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
         extra["PATH"] = os.pathsep.join(
             [
+                str(work / "editor-boundary"),
                 str(Path(sys.executable).parent),
                 r"C:\Program Files\Git\bin",
                 r"C:\Program Files\Git\usr\bin",

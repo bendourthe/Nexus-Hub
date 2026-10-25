@@ -1,0 +1,14 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"30a637267ae5c921bbc32a73a819e41945c476de4731832b131fa14b7b49bfd7","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "name": "Applied Windows scheduling assertions",
+  "group": "",
+  "status": "pass",
+  "duration_s": 9.03200000000652,
+  "exit_code": 0,
+  "output": "......                                                                   [100%]\r\n6 passed in 0.25s\r\n",
+  "reason": "pytest scratch <private-temp>\\nwg-169IPI\\t\\nexus-ci-pytest-7zwt8s33; execution 9.032s; cleanup 0.000s: removed"
+}
+}
