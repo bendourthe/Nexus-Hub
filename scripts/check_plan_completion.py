@@ -684,6 +684,7 @@ def _write_record(path: Path, record: dict) -> None:
             raise MinorConflict('unsigned-minor-write')
         previous = json.loads(raw) if raw is not None else {}
         _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -1807,9 +1808,9 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
-        raise Malformed("--member requires --minor with --action answer or supplement-scope")
-    if args.action in ("add-class", "supplement-scope") or getattr(args, "added_class", None) is not None:
-        raise Malformed("--action add-class, supplement-scope and --class require --minor")
+        raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
+    if args.action in ("add-class", "supplement-scope", "permit-manifest") or getattr(args, "added_class", None) is not None:
+        raise Malformed("--action add-class, supplement-scope, permit-manifest and --class require --minor")
     if getattr(args, "merge", None) is not None:
         raise Malformed("--merge requires --minor with --action supplement-scope")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
@@ -2466,6 +2467,13 @@ def build_parser() -> argparse.ArgumentParser:
     supplement.add_argument("--merge", required=True)
     supplement.add_argument("--text", help="when given, must equal the captured decision")
     supplement.set_defaults(func=lambda args: _minor_module().cmd_record_supplement_scope(sys.modules[__name__], args))
+    permit = record.add_parser("permit-manifest", help="capture the reviewed M5-only dormant manifest publication permission")
+    permit.add_argument("--minor", required=True)
+    permit.add_argument("--repo", default=".")
+    permit.add_argument("--session", required=True)
+    permit.add_argument("--member", required=True)
+    permit.add_argument("--text", help="when given, must equal the captured decision")
+    permit.set_defaults(func=lambda args: _minor_module().cmd_record_permit_manifest(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
