@@ -6,9 +6,9 @@
 
 - [ ] Integrate and adopt the console-window repair; focused tests, isolated installer and final-source idle observation are verified.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 full-minor run, 67/209 tasks and 2/7 releases. v4.14.1 is released (integration PR 501 merged at 870620c3); v4.14.5 Phase 1 is committed and waits for its release-order turn. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
+**Active work:** v4.14 has 99/209 tasks marked across active worktrees and 63/209 integrated tasks, with 2/7 members released: v4.14.0 and v4.14.1. v4.14.2 is 32/34 with T033 and T034 open. v4.14.5 Phase 1 contributes 4/22 tasks and awaits its release-order turn. Private preparation is separate from these counts.
 
-**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2, v4.14.4 Phases 1-3 and the opt-in hook smoke, and v4.14.5 Phase 2. Targeted checks are retained separately; v4.14.6 has a private admission research packet. These drafts do not change integrated task counts or establish native admission, phase completion, publication or release. The active v4.14.2 final local gate and the requested AI Studio source text remain open.
+**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2 and its PDF preflight candidate, v4.14.4 Phases 1-3, the opt-in hook smoke and Phase 5 evidence drafts, and v4.14.5 Phase 2. Its private Codex seeding check passed four cases (two created, two updated; all four kept byte-identical on repeat), with zero denied audit events or existing-input changes. The earlier CRLF comment-assertion failure remains retained. This is preparation proof only and does not qualify an installer or close a task. Targeted checks are retained separately; v4.14.6 has a private admission research packet. These drafts do not change integrated task counts or establish native admission, phase completion, publication or release. The v4.14.2 final local gate remains open. The preserved user-supplied AI Studio PDF supports the preflight candidate; 30 semantic/pin checks passed, all 14 prior claims are preserved, and its new narrow test remains unrun. The M4 final-phase packet contains drafts and static checks only. Native admission and integration remain separate.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
@@ -16,10 +16,12 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Minor checker maintenance:** PR #521 merged at 7c3260743fc660919516f65f4b852c82e0d6021a with all 46 checks, clean Python and JavaScript/TypeScript CodeQL analyses and a passing post-merge run. Unknown observations preserve progress counters and native authority. Reviewed runtime adoption remains open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
 
-**Usage-limit maintenance:** PR #523 is open. Final usage/status tests passed 451 cases in 107.60 seconds; its Windows bootstrap failure was reproduced as optional npm fetch timeouts. The narrow offline smoke fix passed 49 CI scenario tests and a real short-root installer run reaching all five optional npm stages with no npm timeout. Earlier environment/path failures and qualified scope limits remain in the evidence. Runtime adoption and verified platform-hook distribution remain pending. [Evidence](releases/v4/v4.14/development/usage-limit-native-decision.md).
+**Usage-limit maintenance:** PR #523 merged at 6e4b617609d08bd5eb4e441bde7a1f9f1fae7369 with all 46 checks, clean CodeQL analyses and a passing post-merge run. Final usage/status tests passed 451 cases in 107.60 seconds; its Windows bootstrap failure was reproduced as optional npm fetch timeouts. The narrow offline smoke fix passed 49 CI scenario tests and a real short-root installer run reaching all five optional npm stages with no npm timeout. Earlier environment/path failures and qualified scope limits remain in the evidence. Runtime adoption and verified platform-hook distribution remain pending. [Evidence](releases/v4/v4.14/development/usage-limit-native-decision.md).
+
+**Windows full-gate maintenance:** The single approved validators-co attempt passed 483 cases at 2400 seconds and is spent (1/1); validators-p-z passed 1056 with 3 skips. Earlier co/d-o timeouts remain retained; the terminal Windows guides-heavy timeout and guides-rest citation failures are preserved. The original Linux full run remains failed: 61 passing, four nonpassing and ten skipped commands, including unavailable Claude CLI validation. Four tracked lockfiles changed during the own-run profile; their exact semantic diff is retained and the writer is unproven. The complete affected XDG module passed all 53 cases; the approval-session repair passed its one affected case. The unchanged-hook diagnostic and both handbook checks passed. Strict case-ID coverage accounts for all 999 core guide IDs: 998 passed plus one declared optional portfolio skip; all 686 provisioning skips are positively covered, with 40 additional verification passes (1038/1039 strict cases passed). Final repaired clone comparison matched 8461 tracked files at tree d3ddf1cdef93d10aac6cbd7464ec71491278d759. This is combined local qualification, not a fresh unfiltered full-profile pass or T033/T034 closure. Counts remain 63/209 integrated and 99/209 combined. Final hygiene, documentation and pre-commit checks passed 19 commands; required remote matrix, publication, global guard/runtime adoption and quiet interval remain open. The installed wrapper repair and earlier 528.098-second observation retain their narrow scope. [Evidence](releases/v4/v4.14/development/windows-full-gate-stabilization.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-19 UTC
+**Last refreshed:** 2026-10-25 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
@@ -44,7 +46,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 67/209 | 209/209 |
+| v4.14 integrated tasks | 63/209 | 209/209 |
+| v4.14 worktree task marks | 99/209 | 209/209 |
 | v4.14 released members | 2/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |

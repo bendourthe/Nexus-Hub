@@ -1,0 +1,14 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"9501bea8eb3730b43583aed2f7e7bab2304807801955149cd80378359d01f22a","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "name": "Single gate case with runner-owned scratch",
+  "group": "",
+  "status": "pass",
+  "duration_s": 32.0,
+  "exit_code": 0,
+  "output": "============================= test session starts =============================\r\nplatform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0 -- <private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe\r\nrootdir: <workspace>\r\nplugins: anyio-4.15.1, asyncio-1.4.0, cov-7.1.0, xdist-3.8.0\r\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\r\ncollecting ... collected 1 item\r\n\r\ntests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh] PASSED [100%]\r\n\r\n============================ slowest 10 durations =============================\r\n18.22s call     tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]\r\n8.14s setup    tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]\r\n0.00s teardown tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]\r\n============================= 1 passed in 30.28s ==============================\r\n",
+  "reason": "pytest scratch <private-temp>\\nwg-169IPI\\t\\nexus-ci-pytest-0rf9bdcf; execution 31.953s; cleanup 0.047s: removed"
+}
+}

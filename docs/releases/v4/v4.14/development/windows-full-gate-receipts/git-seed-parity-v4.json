@@ -1,0 +1,14 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"300f766b7cb889cea4f9ba0aff69c8f8218cd52969a203f5d3c84479a96e642a","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "name": "Minor seed parity and authenticated copy isolation",
+  "group": "",
+  "status": "pass",
+  "duration_s": 24.39100000000326,
+  "exit_code": 0,
+  "output": "..                                                                       [100%]\r\n============================= slowest 5 durations =============================\r\n12.58s call     tests/validators/test_completion_minor_git_seed.py::test_seeded_copies_isolate_files_refs_origin_and_authenticated_records\r\n7.61s call     tests/validators/test_completion_minor_git_seed.py::test_seeded_minor_preserves_the_original_initial_git_contract\r\n1.32s setup    tests/validators/test_completion_minor_git_seed.py::test_seeded_minor_preserves_the_original_initial_git_contract\r\n0.02s setup    tests/validators/test_completion_minor_git_seed.py::test_seeded_copies_isolate_files_refs_origin_and_authenticated_records\r\n\r\n(1 durations < 0.005s hidden.  Use -vv to show these durations.)\r\n2 passed in 22.15s\r\n",
+  "reason": "pytest scratch <private-temp>\\nwg-169IPI\\t\\nexus-ci-pytest-etd3nfk9; execution 23.953s; cleanup 0.438s: removed"
+}
+}

@@ -1,0 +1,97 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"f04d201df358def5619509df12488b8a7898fbbcaa8872fc2ddef9f3b9694137","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "qualification": "SCOPED_NOT_UNFILTERED_FULL",
+  "mode": "approved-co-and-pending-three",
+  "commands": [
+    {
+      "name": "repo-tests-governance-validators-co (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!c]*",
+        "--ignore-glob=*/test_c[!o]*"
+      ],
+      "cwd": ".",
+      "timeout": 2400,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-governance-validators-p-z (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!p-z]*"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-heavy (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides/test_training_game_engine.py",
+        "-q",
+        "tests/guides/test_page_openings_and_outline.py",
+        "tests/guides/test_training_reward_mockup.py",
+        "tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-rest (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides",
+        "-q",
+        "--ignore=tests/guides/test_training_game_engine.py",
+        "--ignore=tests/guides/test_page_openings_and_outline.py",
+        "--ignore=tests/guides/test_training_reward_mockup.py",
+        "--ignore=tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    }
+  ]
+}
+}
