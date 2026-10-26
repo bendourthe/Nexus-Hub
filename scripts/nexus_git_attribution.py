@@ -542,7 +542,7 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
         command = [str(previous.resolve()), *args]
         if os.name == "nt":
             command = ["sh", "-c", 'exec "$@"', "nexus-attribution", *command]
-        result = subprocess.run(command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), input=payload, check=False).returncode
+        result = subprocess.run(command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), input=payload, stdout=sys.stdout, stderr=sys.stderr, check=False).returncode
         if result:
             return result
     if hook == "commit-msg":

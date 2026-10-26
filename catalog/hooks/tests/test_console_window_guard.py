@@ -266,6 +266,60 @@ def test_mutated_options_with_new_console_are_rejected(tmp_path: Path) -> None:
     assert run_hook(tmp_path, "pytest").returncode == 2
 
 
+@pytest.mark.parametrize("prefix, launch", [
+    ("import subprocess\n", "subprocess.run(['node', '-e', {script}], creationflags=subprocess.CREATE_NO_WINDOW)\n"),
+    ("import subprocess as proc\nNODE = r'C:\\Program Files\\node.exe'\n", "proc.run((NODE, '--eval', {script}))\n"),
+    ("import shutil as lookup\nfrom subprocess import run as launch\nNODE = lookup.which('node')\n", "launch([NODE, '-e', {script}])\n"),
+    ("import asyncio\nPAYLOAD = {script}\n", "asyncio.create_subprocess_exec('node', '--eval', PAYLOAD)\n"),
+    ("from asyncio import create_subprocess_exec as launch\nPAYLOAD = {script}\n", "launch('node', '-e', PAYLOAD)\n"),
+])
+@pytest.mark.parametrize("hidden", [False, True], ids=["unsafe", "hidden"])
+def test_python_inline_node_eval_uses_javascript_policy(tmp_path: Path, prefix: str, launch: str, hidden: bool) -> None:
+    """Fixtures are scanned, never executed; the Python default does not reach Node children."""
+    options = ", { windowsHide: true, shell: false }" if hidden else ", { windowsHide: false, shell: false }"
+    payload = "const {spawnSync}=require('node:child_process'); spawnSync('git',['status']" + options + ");"  # nexus: console-window-ok Deliberately unsafe scanner fixture, never executed
+    body = prefix.format(script=repr(payload)) + launch.format(script=repr(payload))
+    assert "nexus: console-window-ok" not in body
+    write(tmp_path, "tests/conftest.py", "import nexus_process\ninstall_no_window_default()\n")
+    write(tmp_path, "tests/test_inline.py", body)
+    result = run_hook(tmp_path, "pytest")
+    assert result.returncode == (0 if hidden else 2), result.stderr
+    if not hidden:
+        assert "tests/test_inline.py:" in result.stderr and "child_process call without windowsHide" in result.stderr
+
+
+@pytest.mark.parametrize("kind", ["non-node", "example-string"])
+def test_python_inline_javascript_examples_are_not_node_launches(tmp_path: Path, kind: str) -> None:
+    payload = "const {spawnSync}=require('node:child_process'); spawnSync('git',['status']);"  # nexus: console-window-ok Deliberately unsafe example data, never executed
+    example = "import subprocess\nsubprocess.run(['node', '-e', " + repr(payload) + "])\n"
+    body = ("import subprocess\nsubprocess.run(['python', '-c', " + repr(payload) + "])\n"
+            if kind == "non-node" else "EXAMPLE = " + repr(example) + "\n")
+    assert "nexus: console-window-ok" not in body
+    write(tmp_path, "tests/conftest.py", "import nexus_process\ninstall_no_window_default()\n")
+    write(tmp_path, "tests/test_example.py", body)
+    result = run_hook(tmp_path, "pytest")
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("unsafe", [False, True], ids=["actual-hidden-site", "actual-reversed-site"])
+def test_actual_completion_plugin_inline_node_probe_is_covered(tmp_path: Path, unsafe: bool) -> None:
+    repo = Path(__file__).resolve().parents[3]
+    source = (repo / "tests/integrations/test_completion_plugins.py").read_text(encoding="utf-8")
+    safe = "spawnSync('python',['--version'], { windowsHide: true, shell: false })"
+    original = "spawnSync('python',['--version'])"  # nexus: console-window-ok Deliberately reverse only the real scanner fixture site, never execute it
+    assert source.count(safe) == 1
+    line = source[:source.index(safe)].count("\n") + 1
+    body = source.replace(safe, original) if unsafe else source
+    assert "nexus: console-window-ok" not in body
+    write(tmp_path, "tests/conftest.py", "import nexus_process\ninstall_no_window_default()\n")
+    write(tmp_path, "tests/integrations/test_completion_plugins.py", body)
+    result = run_hook(tmp_path, "pytest")
+    assert result.returncode == (2 if unsafe else 0), result.stderr
+    if unsafe:
+        assert f"tests/integrations/test_completion_plugins.py:{line}:" in result.stderr
+        assert "child_process call without windowsHide" in result.stderr
+
+
 def test_parallel_source_reads_preserve_every_unsafe_launch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     import runpy
     import threading
