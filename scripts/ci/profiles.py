@@ -286,6 +286,22 @@ VERSION = Group(
     commands=(_py("check_version_sync", timeout=120),),
 )
 
+# Windows full guide owners are complementary; new files stay in the rest command.
+# Complementary quarters of tests/validators by file name: test_a* to test_c*
+# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
+VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
+VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
+
+
+FULL_WINDOWS_GUIDE_FILES = (
+    "tests/guides/test_training_game_engine.py",
+    "tests/guides/test_page_openings_and_outline.py",
+    "tests/guides/test_training_reward_mockup.py",
+    "tests/guides/test_models_learning_lab.py",
+)
+
 TESTS = Group(
     name="tests",
     scope_key="tests",
@@ -342,6 +358,26 @@ TESTS = Group(
             "tests/integrations/test_owned_root_preflight.py",
             "tests/integrations/test_skill_path_provider_order.py",
             "tests/integrations/test_windows_long_paths.py",
+            platforms=("linux", "macos"),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts-contract (Windows full)",
+            "tests/integrations/test_contract.py",
+            platforms=("windows",),
+            timeout=2700,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts-delivery-surface (Windows full)",
+            "tests/integrations/test_agent_model_delivery.py",
+            "tests/integrations/test_base_writeresult.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_cross_platform_flatten.py",
+            "tests/integrations/test_global_command_surface.py",
+            "tests/integrations/test_owned_root_preflight.py",
+            "tests/integrations/test_skill_path_provider_order.py",
+            "tests/integrations/test_windows_long_paths.py",
+            platforms=("windows",),
             timeout=1800,
         ),
         _pytest(
@@ -397,7 +433,20 @@ TESTS = Group(
             "--cov-report=xml:reports/coverage-ci.xml",
             timeout=900,
         ),
-        _pytest("repo-tests-guides", "tests/guides", timeout=1800),
+        _pytest("repo-tests-guides", "tests/guides", platforms=("linux", "macos"), timeout=1800),
+        _pytest(
+            "repo-tests-guides-heavy (Windows full)",
+            *FULL_WINDOWS_GUIDE_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-guides-rest (Windows full)",
+            "tests/guides",
+            *(f"--ignore={path}" for path in FULL_WINDOWS_GUIDE_FILES),
+            platforms=("windows",),
+            timeout=1800,
+        ),
         _pytest(
             "repo-tests-governance",
             "tests/e2e",
@@ -407,7 +456,47 @@ TESTS = Group(
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
             timeout=2700,
-            platform_timeouts={"windows": 3600},
+            platforms=("linux", "macos"),
+        ),
+        # A Windows full run reached its 3600 s bound at 41%. Keep Linux/macOS
+        # intact; reuse the platform validator quarters and bound the remainder.
+        _pytest(
+            "repo-tests-governance-rest (Windows full)",
+            "tests/e2e",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            platforms=("windows",),
+            timeout=2700,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-a-c (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_A_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-co (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_B_IGNORES,
+            platforms=("windows",),
+            timeout=2400,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_C_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_D_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
         ),
     ),
 )
@@ -593,15 +682,8 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
-# Complementary halves of tests/validators by file name: half A runs test_a* to
-# test_c* except test_co*; half B runs test_co* and test_d* to test_z*.
-VALIDATORS_HALF_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_HALF_B_IGNORES = ("--ignore-glob=*/test_[ab]*", "--ignore-glob=*/test_c[!o]*")
-
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
-# Two commands, because the combined selection also exceeded its own 1800 s
-# command bound (1784 s passing, 1800.1 s failing).
 WINDOWS_INSTALLER = Group(
     name="windows-installer",
     commands=(
@@ -612,32 +694,49 @@ WINDOWS_INSTALLER = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
-        # The validator corpus took 1198-1673 s on passing runs and ran past its
-        # 1800 s bound on four others with no single test stalled (a stall would
-        # end the output with the faulthandler dump below). Two complementary
-        # file-name halves, balanced by measured per-file time (about 53/47),
-        # each keep that bound; every new test_*.py file lands in exactly one
-        # (tests/workflows/test_ci_native_profile_parity.py proves it).
-        _pytest(
-            "validators a-c (Windows)",
-            "tests/validators",
-            *VALIDATORS_HALF_A_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
-        _pytest(
-            "validators co-z (Windows)",
-            "tests/validators",
-            *VALIDATORS_HALF_B_IGNORES,
-            "-o",
-            "faulthandler_timeout=300",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
+    ),
+)
+
+
+def _validators_shard(name: str, ignores: tuple[str, ...]) -> Command:
+    return _pytest(
+        name,
+        "tests/validators",
+        *ignores,
+        "-o",
+        "faulthandler_timeout=300",
+        platforms=("windows",),
+        timeout=1800,
+        env={"NEXUS_TEST_POWERSHELL": "powershell"},
+    )
+
+
+# The validator corpus, in its own CI job so it runs beside the installer
+# corpus instead of after it. Two file-name halves still ran past the 1800 s
+# command bound on slow runners: the co-z half took 1259-1527 s on passing runs
+# and timed out at 66% and 92% on others, with no single test stalled (a stall
+# would end the output with the faulthandler dump). A first three-shard split by
+# test count still timed out: a-c took 569 s and p-z 491 s, but co-o reached 98%
+# at its 1800 s bound, because test time on Windows follows process launches,
+# not test count. Four shards split co-o at test_co* versus test_d* to test_o*,
+# which divides its process-heavy files roughly evenly; each keeps the bound,
+# and every new test_*.py file lands in exactly one
+# (tests/workflows/test_ci_native_profile_parity.py proves it). Four shards in
+# one job would approach the 60-minute job cap on a slow runner, so they run as
+# two groups in two parallel jobs of about 25 minutes each.
+WINDOWS_VALIDATORS = Group(
+    name="windows-validators",
+    commands=(
+        _validators_shard("validators a-c (Windows)", VALIDATORS_SHARD_A_IGNORES),
+        _validators_shard("validators co (Windows)", VALIDATORS_SHARD_B_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_2 = Group(
+    name="windows-validators-2",
+    commands=(
+        _validators_shard("validators d-o (Windows)", VALIDATORS_SHARD_C_IGNORES),
+        _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_D_IGNORES),
     ),
 )
 
@@ -726,7 +825,17 @@ PRE_COMMIT = Group(
     commands=(
         Command(
             name="pre-commit standard hooks",
-            argv=["pre-commit", "run", "--all-files"],
+            argv=[
+                PY,
+                "-c",
+                "import runpy,sys;"
+                f"policy=runpy.run_path({str(REPO_ROOT / 'scripts/nexus_process.py')!r});"
+                "policy['install_no_window_default']();"
+                "sys.argv=['pre-commit', *sys.argv[1:]];"
+                "runpy.run_module('pre_commit', run_name='__main__', alter_sys=True)",
+                "run",
+                "--all-files",
+            ],
             env={"SKIP": "lint-templates,build-catalogs"},
             timeout=1800,
         ),
@@ -900,7 +1009,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

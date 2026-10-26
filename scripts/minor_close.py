@@ -1843,6 +1843,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except cm.ObservationUnavailable:
+        print("REFUSED: cannot-verify (controller observation unavailable)")
+        return EXIT_REFUSED
     except ck.MinorConflict as exc:
         print(f"BLOCKED: {exc}")
         return EXIT_REFUSED

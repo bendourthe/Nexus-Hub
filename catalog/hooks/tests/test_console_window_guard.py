@@ -124,13 +124,14 @@ def test_off_windows_or_disabled_passes(tmp_path: Path, env: dict[str, str]) -> 
     "python -m pytest tests -q", "py.test", "npm run test", "pnpm test", "yarn test", "npx vitest run",
     "npx playwright test", "go test ./...", "cargo test", "dotnet test", "mvn -q test", "./gradlew test",
     "Invoke-Pester", "python scripts/ci/run.py --profile fast", "cd x && pytest",
+    "pre-commit run --all-files", "pre-commit.exe run", "pre-commit.cmd run", "python -m pre_commit run",
 ])
 def test_recognises_test_runners(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 2, command
 
 
-@pytest.mark.parametrize("command", ["git status", "echo pytest-free", "ls tests"])
+@pytest.mark.parametrize("command", ["git status", "echo pytest-free", "ls tests", "echo pre-commit-free", "echo pre_commit_free"])
 def test_ignores_non_test_commands(tmp_path: Path, command: str) -> None:
     write(tmp_path, "tests/test_a.py", UNGUARDED_TEST)
     assert run_hook(tmp_path, command).returncode == 0, command
@@ -349,3 +350,102 @@ def test_parallel_source_reads_preserve_every_unsafe_launch(tmp_path: Path, monk
     findings = module["scan"](tmp_path)
     assert peak >= 2
     assert {finding.path for finding in findings} == {f"launch_{i}.py" for i in range(12)}
+
+
+@pytest.mark.parametrize("launcher", [
+    "pythonw.exe",
+    r'"C:\Python\pythonw.exe"',
+    r"& 'C:\Program Files\Python\pythonw.exe'",
+])
+def test_pythonw_launcher_checks_unsafe_project_code(tmp_path: Path, launcher: str) -> None:
+    """M2 preflight: GUI Python must not bypass inspection of its console children."""
+    write(tmp_path, "helper.py", "import subprocess\nsubprocess.run(['git'])\n")
+    result = run_hook(tmp_path, f"{launcher} -B helper.py")
+    assert result.returncode == 2, result.stderr
+    assert "helper.py:" in result.stderr
+    assert "without CREATE_NO_WINDOW or a shared default" in result.stderr
+
+
+@pytest.mark.parametrize("launcher", [
+    "pythonw.exe",
+    r'"C:\Python\pythonw.exe"',
+    r"& 'C:\Program Files\Python\pythonw.exe'",
+])
+def test_pythonw_launcher_accepts_window_safe_project_code(tmp_path: Path, launcher: str) -> None:
+    write(tmp_path, "helper.py", "import subprocess\nsubprocess.run(['git'], creationflags=0x08000000)\n")
+    result = run_hook(tmp_path, f"{launcher} -B helper.py")
+    assert result.returncode == 0 and not result.stderr
+
+
+@pytest.mark.parametrize("launcher", [
+    "pythonw.exe",
+    r'"C:\Python\pythonw.exe"',
+    r"& 'C:\Program Files\Python\pythonw.exe'",
+])
+@pytest.mark.parametrize("window_safe", [False, True])
+def test_pythonw_launcher_checks_external_helper(tmp_path: Path, launcher: str, window_safe: bool) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    options = ", creationflags=0x08000000" if window_safe else ""
+    write(tmp_path, "external-helper.py", "import subprocess\nsubprocess.run(['git']" + options + ")\n")
+    command = f"{launcher} -B '{tmp_path / 'external-helper.py'}'"
+    result = run_hook(project, command)
+    assert result.returncode == (0 if window_safe else 2), result.stderr
+    if window_safe:
+        assert not result.stderr
+    else:
+        assert "external-helper.py:" in result.stderr
+        assert "without CREATE_NO_WINDOW or a shared default" in result.stderr
+
+
+def test_pythonw_recognition_does_not_match_an_unrelated_executable(tmp_path: Path) -> None:
+    write(tmp_path, "helper.py", "import subprocess\nsubprocess.run(['git'])\n")
+    assert run_hook(tmp_path, "not-pythonw.exe helper.py").returncode == 0
+
+
+@pytest.mark.parametrize("options", ["", ", { windowsHide: false }", ", { windowsHide: true }"])
+def test_embedded_node_eval_is_checked_even_with_a_python_default(tmp_path: Path, options: str) -> None:
+    """Scan inert source only; never execute the deliberately unsafe JavaScript."""
+    import runpy
+
+    write(tmp_path, "tests/conftest.py", "import runpy\np=runpy.run_path('nexus_process.py')\np['install_no_window_default']()\n")
+    script = "const {spawnSync}=require('node:child_process'); spawnSync('python', ['--version']" + options + ");"
+    guard = runpy.run_path(str(HOOK))
+    for assigned in (False, True):
+        body = ("import subprocess\nscript=" + repr(script) + "\nsubprocess.run(['node', '-e', script])\n" if assigned
+                else "import subprocess\nsubprocess.run(['node', '-e', " + repr(script) + "])\n")
+        write(tmp_path, "tests/test_embedded.py", body)
+        findings = guard["scan"](tmp_path)
+        if options == ", { windowsHide: true }":
+            assert findings == [], (assigned, findings)
+        else:
+            assert [(item.path, item.line, item.rule) for item in findings] == [
+                ("tests/test_embedded.py", 2, "child_process call without windowsHide"),
+            ], (assigned, findings)
+
+
+def test_imported_asyncio_node_eval_alias_is_guarded(tmp_path: Path) -> None:
+    """Imported aliases retain direct argv semantics without executing fixture code."""
+    import runpy
+
+    write(tmp_path, "tests/conftest.py", "import runpy\np=runpy.run_path('nexus_process.py')\np['install_no_window_default']()\n")
+    script = "const {spawnSync}=require('node:child_process'); spawnSync('python', ['--version']);"
+    body = ("import shutil\nfrom asyncio import create_subprocess_exec as launch\nNODE=shutil.which('node')\n"
+            "launch(NODE, '-e', " + repr(script) + ")\n")
+    write(tmp_path, "tests/test_embedded.py", body)
+    guard = runpy.run_path(str(HOOK))
+    findings = guard["scan"](tmp_path)
+    assert [(item.path, item.line, item.rule) for item in findings] == [
+        ("tests/test_embedded.py", 4, "child_process call without windowsHide"),
+    ]
+
+
+def test_non_node_eval_search_pattern_is_not_a_javascript_launch(tmp_path: Path) -> None:
+    """A search expression containing JavaScript is data, not a Node eval program."""
+    import runpy
+
+    write(tmp_path, "tests/conftest.py", "import runpy\np=runpy.run_path('nexus_process.py')\np['install_no_window_default']()\n")
+    pattern = "const {spawnSync}=require('node:child_process'); spawnSync('python', ['--version']);"
+    write(tmp_path, "tests/test_embedded.py", "import subprocess\nsubprocess.run(['rg', '-e', " + repr(pattern) + "])\n")
+    guard = runpy.run_path(str(HOOK))
+    assert guard["scan"](tmp_path) == []

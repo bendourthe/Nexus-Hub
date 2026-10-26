@@ -262,6 +262,8 @@ class RepoContext:
         if not self.git:
             raise Malformed("git not found")
         rc, out = _run([self.git, "-C", str(start), "rev-parse", "--show-toplevel"], budget)
+        if rc == -1:
+            raise _minor_module().ObservationUnavailable("repository")
         if rc != 0:
             raise Malformed("plan is not inside a git repository")
         self.root = Path(out.strip()).resolve()
@@ -680,6 +682,9 @@ def _write_record(path: Path, record: dict) -> None:
         key = _secret(create=False)
         if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key)):
             raise MinorConflict('unsigned-minor-write')
+        previous = json.loads(raw) if raw is not None else {}
+        _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -714,17 +719,22 @@ TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
 def read_record(ctx: RepoContext, path: Path) -> dict | None:
     """The raw record at `path`, or None when it sits in a working tree or is unreadable.
 
-    Callers treat None for an existing file as `record-tampered`.
+    Callers treat None for an existing file as `record-tampered`. Unavailable
+    Git provenance raises ObservationUnavailable instead of asserting integrity.
     """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
         ctx.budget,
     )
+    if rc == -1:
+        raise _minor_module().ObservationUnavailable("record.provenance")
     if rc == 0 and out.strip() == "true":
         tracked_rc, _ = _run(
             [ctx.git, "-C", str(path.parent), "ls-files", "--error-unmatch", "--", path.name],
             ctx.budget,
         )
+        if tracked_rc == -1:
+            raise _minor_module().ObservationUnavailable("record.provenance")
         if tracked_rc != 1:
             return None
     try:
@@ -1389,7 +1399,9 @@ def _pr_checks(ctx: Context, repo: str, branch: str, target: str, start: str | N
 
 def _tag_status(ctx: Context, tag: str) -> str:
     rc, out = _run([ctx.git, "-C", str(ctx.root), "tag", "-l", tag], ctx.budget)
-    if rc != 0 or out.strip() != tag:
+    if rc != 0:
+        return "cannot-verify"
+    if out.strip() != tag:
         return "unmet"
     rc, out = _run(
         [
@@ -1796,9 +1808,11 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
-        raise Malformed("--member requires --minor with --action answer")
-    if args.action == "add-class" or getattr(args, "added_class", None) is not None:
-        raise Malformed("--action add-class and --class require --minor")
+        raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
+    if args.action in ("add-class", "supplement-scope", "permit-manifest") or getattr(args, "added_class", None) is not None:
+        raise Malformed("--action add-class, supplement-scope, permit-manifest and --class require --minor")
+    if getattr(args, "merge", None) is not None:
+        raise Malformed("--merge requires --minor with --action supplement-scope")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     display: dict | None = None
     if args.action == "create":
@@ -2394,7 +2408,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--class", dest="added_class", help="with --minor add-class: the class to add")
-    render.add_argument("--member", help="with --minor answer: require this blocker's member version")
+    render.add_argument("--member", help="with --minor answer or supplement-scope: the member version")
+    render.add_argument("--merge", help="with --minor supplement-scope: the exact reviewed merge")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
@@ -2444,6 +2459,21 @@ def build_parser() -> argparse.ArgumentParser:
     add_class.add_argument("--class", dest="added_class", required=True, help="the class to add: archive-member")
     add_class.add_argument("--text", help="when given, must equal the pasted line")
     add_class.set_defaults(func=lambda args: _minor_module().cmd_record_add_class(sys.modules[__name__], args))
+    supplement = record.add_parser("supplement-scope", help="append the reviewed exact historical scope from a genuine decision")
+    supplement.add_argument("--minor", required=True)
+    supplement.add_argument("--repo", default=".")
+    supplement.add_argument("--session", required=True)
+    supplement.add_argument("--member", required=True)
+    supplement.add_argument("--merge", required=True)
+    supplement.add_argument("--text", help="when given, must equal the captured decision")
+    supplement.set_defaults(func=lambda args: _minor_module().cmd_record_supplement_scope(sys.modules[__name__], args))
+    permit = record.add_parser("permit-manifest", help="capture the reviewed M5-only dormant manifest publication permission")
+    permit.add_argument("--minor", required=True)
+    permit.add_argument("--repo", default=".")
+    permit.add_argument("--session", required=True)
+    permit.add_argument("--member", required=True)
+    permit.add_argument("--text", help="when given, must equal the captured decision")
+    permit.set_defaults(func=lambda args: _minor_module().cmd_record_permit_manifest(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
@@ -2538,6 +2568,15 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except _minor_module().ObservationUnavailable as exc:
+        print(f"INCOMPLETE: {exc}")
+        if getattr(args, "json", False):
+            print(json.dumps({"verdict": f"INCOMPLETE: {exc}", "exit": EXIT_INCOMPLETE,
+                              "met": None, "head": None, "members": {},
+                              "minor": {str(exc): "cannot-verify"}}, sort_keys=True))
+        else:
+            print(f"{exc} cannot-verify")
+        return EXIT_INCOMPLETE
     except MinorConflict as exc:
         print(f"BLOCKED: {exc}")
         return EXIT_BLOCKED

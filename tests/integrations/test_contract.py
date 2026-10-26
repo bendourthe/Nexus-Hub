@@ -21,6 +21,7 @@ the rare cases that legitimately do not apply).
 
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 from collections import Counter
@@ -33,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.lib.integrations import INTEGRATION_REGISTRY, list_keys  # noqa: E402
+from scripts.lib.integrations import INTEGRATION_REGISTRY, legacy, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext, IntegrationBase  # noqa: E402
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 from scripts.lib.integrations.result import FileAction, WriteResult  # noqa: E402
@@ -44,6 +45,61 @@ ALL_KEYS = sorted(INTEGRATION_REGISTRY)
 # kept verbatim). Listed here so the test reports the skip explicitly rather
 # than getting an unexpected outcome.
 DEDICATED_KEYS = {"nexus-ai"}
+
+
+_CONTRACT_SKILL_NAMES = ("code-commit-workflow", "unit-tests")
+
+
+@pytest.fixture(scope="session")
+def contract_source(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Build one representative source; full-catalog delivery has dedicated tests."""
+    source = tmp_path_factory.mktemp("contract-source")
+    for relative in (
+        "catalog/agents", "catalog/commands", "catalog/rules", "catalog/hooks",
+        "catalog/mcp-configs", "catalog/style-guides", "catalog/plugins",
+        "configs", "templates", ".claude-plugin",
+    ):
+        shutil.copytree(REPO_ROOT / relative, source / relative)
+    compat = Path("scripts/lib/integrations/_cascade_hook_compat.py")
+    (source / compat).parent.mkdir(parents=True)
+    shutil.copyfile(REPO_ROOT / compat, source / compat)
+
+    registry = json.loads((REPO_ROOT / "data/skills.json").read_text(encoding="utf-8"))
+    selected = [skill for skill in registry["skills"] if skill["name"] in _CONTRACT_SKILL_NAMES]
+    assert {skill["name"] for skill in selected} == set(_CONTRACT_SKILL_NAMES)
+    for skill in selected:
+        relative = Path(skill["path"])
+        shutil.copytree(REPO_ROOT / relative, source / relative)
+    data = source / "data"
+    data.mkdir()
+    fixture_registry = {
+        "metadata": registry["metadata"],
+        "statistics": {
+            "total_skills": len(selected),
+            "categories": dict(Counter(skill["category"] for skill in selected)),
+        },
+        "skills": selected,
+    }
+    (data / "skills.json").write_text(json.dumps(fixture_registry), encoding="utf-8")
+    bundles = json.loads((REPO_ROOT / "data/bundles.json").read_text(encoding="utf-8"))
+    for section in ("bundles", "modules"):
+        for group in bundles[section]:
+            group["skills"] = [name for name in group["skills"] if name in _CONTRACT_SKILL_NAMES]
+    for profile in bundles["profiles"]:
+        profile["extra_skills"] = [name for name in profile.get("extra_skills", []) if name in _CONTRACT_SKILL_NAMES]
+    (data / "bundles.json").write_text(json.dumps(bundles), encoding="utf-8")
+    rows = [f"| {skill['name']} | {skill['category']} | {skill['file']} |" for skill in selected]
+    index = "# Contract Fixture Skills\n\n| Skill | Category | File |\n|---|---|---|\n" + "\n".join(rows) + "\n"
+    (data / "SKILL_INDEX.md").write_text(index, encoding="utf-8")
+    return source
+
+
+@pytest.fixture(autouse=True)
+def isolated_contract_environment(contract_source: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Exercise install invariants without reaching editor or scheduled-task state."""
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", contract_source)
+    # Legacy migration is covered with fake CLI/task responses in test_legacy_cleanups.py.
+    monkeypatch.setattr(legacy, "run_cleanups", lambda _key, _ctx: [])
 
 
 def _make_ctx(target: Path, overwrite: bool = False) -> InstallContext:
@@ -274,3 +330,65 @@ def test_dry_run_matches_install(
     assert dry_hist == install_hist, (
         f"{key}: dry_run histogram {dict(dry_hist)} != install histogram {dict(install_hist)}"
     )
+
+
+@pytest.mark.parametrize("explicit_override", [False, True])
+def test_workspace_instruction_state_is_per_test(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, explicit_override: bool) -> None:
+    from scripts.lib.installer.instruction_merge import merge_instruction, state_root
+
+    fake_home = tmp_path / "user-home"
+    fake_home.mkdir()
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: fake_home))
+    if explicit_override:
+        monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path / "explicit-nexus-home"))
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    target = workspace / "AGENTS.md"
+    original = b"# User instructions\n"
+    target.write_bytes(original)
+    ctx = _make_ctx(workspace)
+    assert merge_instruction(target, "managed instructions", ctx=ctx).action == "updated"
+    root = state_root(ctx)
+    assert b"managed instructions" in target.read_bytes()
+    assert len(list((root / "locks").glob("*.lock"))) == 1
+    backups = [p for p in (root / "backups").rglob("*") if p.is_file()]
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == original
+    assert root.is_relative_to(tmp_path), "workspace state escaped the per-test temporary directory"
+    if explicit_override:
+        assert root == tmp_path / "explicit-nexus-home" / "state"
+
+
+def test_explicit_global_target_keeps_instruction_state(tmp_path: Path) -> None:
+    from scripts.lib.installer.instruction_merge import merge_instruction, state_root
+
+    target_home = tmp_path / "global-home"
+    target_home.mkdir()
+    target = target_home / "AGENTS.md"
+    target.write_text("# User instructions\n", encoding="utf-8")
+    ctx = InstallContext(repo_root=REPO_ROOT, target_root=target_home, scope="global", explicit_target=True)
+    assert merge_instruction(target, "managed instructions", ctx=ctx).action == "updated"
+    root = target_home / ".nexus-hub" / "state"
+    assert state_root(ctx) == root
+    assert len(list((root / "locks").glob("*.lock"))) == 1
+    assert any(p.is_file() for p in (root / "backups").rglob("*"))
+
+
+def test_contract_source_copies_bundled_resources_without_host_cleanup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_home: Path) -> None:
+    skills = sorted((REPO_ROOT / "catalog/skills").glob("*/*/SKILL.md"))
+    assert {path.parent.name for path in skills} == set(_CONTRACT_SKILL_NAMES)
+    reference = REPO_ROOT / "catalog/skills/workflow/code-commit-workflow/references/commit-message-examples.md"
+    assert reference.is_file()
+    bundle = json.loads((REPO_ROOT / "data/bundles.json").read_text(encoding="utf-8"))
+    core = next(group for group in bundle["bundles"] if group["id"] == "core-developer")
+    assert set(core["skills"]) == set(_CONTRACT_SKILL_NAMES)
+
+    def unexpected_host_cleanup(_ctx: InstallContext) -> None:
+        raise AssertionError("generic contract reached host legacy cleanup")
+
+    # If the module's boundary is removed, a real install reaches this sentinel.
+    monkeypatch.setitem(legacy.LEGACY_CLEANUPS, "claude", [unexpected_host_cleanup])
+    target = tmp_path / "workspace"
+    INTEGRATION_REGISTRY["claude"].install(_make_ctx(target))
+    installed = target / ".claude/skills/code-commit-workflow/references/commit-message-examples.md"
+    assert installed.read_bytes() == reference.read_bytes()

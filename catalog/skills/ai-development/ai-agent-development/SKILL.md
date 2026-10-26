@@ -129,6 +129,7 @@ Cross-links:
 
 ## References
 
+- [references/decision-policy-harness.md](references/decision-policy-harness.md) - How a harness gates its own tool calls: a scorer that returns numbers, a pure policy function that returns allow, ask, or block, declared failure directions, and tool arguments treated as untrusted data.
 - [references/lifecycle-hooks.md](references/lifecycle-hooks.md) - The agent-being-built lifecycle hook pattern (on_turn_start / on_turn_end / on_tool_call_pre / on_tool_call_post / on_error) for audit logging, retries, persona shifts, cost caps, and structured error recovery. Distinct from AI-assistant runtime hooks.
 - [references/multimodal-ingestion.md](references/multimodal-ingestion.md) - Agent multimodal input patterns: the two ingestion shapes (in-memory bytes vs. filesystem path), supported media families, and mixed prompt lists. Agent input, as distinct from output evaluation.
 - [references/sdk-structured-output.md](references/sdk-structured-output.md) - Constraining agent output to a Pydantic schema (the response-contract pattern), its failure modes, and the retry-then-fail-closed recovery. Output constraint, as distinct from output evaluation.

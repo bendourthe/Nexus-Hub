@@ -1,0 +1,9 @@
+{
+  "name": "Cold original and warm copied repository setup timing",
+  "group": "",
+  "status": "pass",
+  "duration_s": 10.73399999999674,
+  "exit_code": 0,
+  "output": ".                                                                        [100%]\r\n1 passed in 9.62s\r\n",
+  "reason": ""
+}

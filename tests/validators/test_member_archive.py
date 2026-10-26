@@ -130,8 +130,8 @@ class Members(Walk):
 
 
 @pytest.fixture()
-def members(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Members:
-    return Members(tmp_path, monkeypatch)
+def members(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> Members:
+    return Members(tmp_path, monkeypatch, minor_git_seed)
 
 
 SURVEY = f"{V05}/research/v0.5.2-survey.md"

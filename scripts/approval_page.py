@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -149,6 +149,14 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if not isinstance(blocker, int) or isinstance(blocker, bool) or blocker < 0:
             raise PageError("an answer names a non-negative blocker index")
         return _fits(f"Continue /implement {scope} past blocker {blocker} (approval {code})")
+    if action == "permit-manifest":
+        if not MINOR_RE.match(scope):
+            raise PageError("the manifest duty is permitted only for a minor run")
+        return _fits(f"Permit the publication manifest in /implement {scope} (approval {code})")
+    if action == "supplement-scope":
+        if not MINOR_RE.match(scope):
+            raise PageError("historical scope is supplemented only for a minor run")
+        return _fits(f"Approve exact historical scope in /implement {scope} (approval {code})")
     if action == "add-class":
         if not MINOR_RE.match(scope):
             raise PageError("a class is added only to a minor run")
@@ -797,6 +805,41 @@ def _section(title: str, body: list[str], level: int = 2) -> list[str]:
 def _action_page(data: dict, paste: PasteSet) -> str:
     action = data["action"]
     scope = data["scope"]
+    if action == "permit-manifest":
+        page = data.get("page") or {}
+        if page.get("path") != "MANIFEST.sha256" or not page.get("member"):
+            raise PageError("the manifest permission requires its exact member and file")
+        out = _section("Publication manifest permission", [
+            "This registers one dormant publication duty for " + quoted(page.get("member")) + ".",
+            "Repository: " + quoted(page.get("repo")),
+            "File: " + quoted(page.get("path")),
+            "Frozen plan: " + quoted(page.get("plan_sha256")),
+            "Original implementation: " + quoted(page.get("implementation_sha256")),
+            "The member's original worker claims stay unchanged. This grants no immediate file write or release.",
+            "The normal publication admission still requires the preceding release, its back-merge, a clean original scope and no active claim conflict.",
+            "Decline leaves this publication file unapproved.",
+        ])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
+    if action == "supplement-scope":
+        page = data.get("page") or {}
+        bounds = page.get("merge_bounds") or {}
+        rows = bounds.get("rows")
+        if not isinstance(rows, list) or not rows or any(not isinstance(row, list) or len(row) != 6
+                or any(not isinstance(value, str) for value in row) for row in rows):
+            raise PageError("historical scope requires exact file and blob bounds")
+        out = _section("Historical scope", [
+            "This acknowledges only the displayed files in the already merged contribution for " + quoted(page.get("member")) + ".",
+            "Repository: " + quoted(page.get("repo")),
+            "Merge: " + quoted(bounds.get("merge")),
+            "Integration parent: " + quoted(bounds.get("first_parent")),
+            "Tree: " + quoted(bounds.get("tree")),
+            "Original claims and baselines stay unchanged. Future writes, release, archive, spending and retry budgets require their existing approvals.",
+            "Decline leaves this historical contribution outside the original file claims and keeps the member unreleased.",
+        ])
+        out += _section("Exact files", ["- " + quoted(row[0]) + ": " + row[5] + "; " + row[1] + " " + row[3] + " -> " + row[2] + " " + row[4] for row in rows])
+        out += _section("To approve, paste this line", ["Paste this line as your whole message, with nothing added.", "", chr(96) * 3 + "text", paste.lines[0], chr(96) * 3])
+        return "\n".join(out).rstrip() + "\n"
     if action == "add-class":
         if (data.get("page") or {}).get("class") != "archive-member":
             raise PageError("only the archive-member class can be added to a running minor")
@@ -898,6 +941,8 @@ def question_data(data: dict) -> dict:
         'pause': 'Pause this run until you choose to resume it',
         'resume': 'Resume this run in the current session',
         'retire': 'Retire this run record and its authority',
+        'supplement-scope': 'Acknowledge only the displayed exact files in the reviewed historical merge',
+        'permit-manifest': 'Register only the displayed dormant member publication manifest duty',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
                       "instead of all at once when the minor closes"),
     }.get(action)
@@ -918,7 +963,7 @@ def question_data(data: dict) -> dict:
             'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
-            'action_scope': blocker.get('request') or {},
+            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest') else blocker.get('request') or {},
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
                         'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',

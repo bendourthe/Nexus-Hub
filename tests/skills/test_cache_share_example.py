@@ -128,6 +128,73 @@ def test_description_reports_unknown_for_empty_input() -> None:
     assert "unknown" in describe_cache_share(usage(0, 0, 0))
 
 
+def openai_usage(input_tokens: Any, cached: Any = None, writes: Any = 0, *, details: bool = True) -> SimpleNamespace:
+    """A usage object shaped like OpenAI's: `input_tokens` is the total, details hold its subsets."""
+    if not details:
+        return SimpleNamespace(input_tokens=input_tokens)
+    return SimpleNamespace(input_tokens=input_tokens,
+                           input_tokens_details={"cached_tokens": cached, "cache_write_tokens": writes})
+
+
+@pytest.mark.parametrize(
+    ("value", "kwargs", "expected"),
+    [
+        # The six v4.14.2 Phase 3 fixtures.
+        pytest.param(usage(100, 900, 0), {}, 0.90, id="anthropic-default-provider"),
+        pytest.param(openai_usage(1000, 900), {"provider": "openai"}, 0.90, id="openai-full"),
+        pytest.param(openai_usage(12000, 4000, 7000), {"provider": "openai"}, 4000 / 12000, id="openai-reads-and-writes"),
+        pytest.param(openai_usage(0, 0), {"provider": "openai"}, None, id="openai-zero-input"),
+        pytest.param(openai_usage(1000, details=False), {"provider": "openai"}, None, id="openai-no-details"),
+        pytest.param(openai_usage("1000", 900), {"provider": "openai"}, None, id="malformed"),
+        pytest.param(usage(100, 900, 0), {"provider": "other"}, None, id="unknown-provider"),
+    ],
+)
+def test_two_provider_fixtures(value: Any, kwargs: dict, expected: float | None) -> None:
+    share = cache_read_share(value, **kwargs)
+    assert share == (None if expected is None else pytest.approx(expected))
+    rendered = describe_cache_share(value, **kwargs)
+    if expected is None:
+        # Unknown telemetry never reads as a 0% cache rate.
+        assert "unknown" in rendered and "0%" not in rendered
+    else:
+        assert f"{expected:.0%}" in rendered
+
+
+def test_openai_reads_beyond_the_total_are_malformed() -> None:
+    assert cache_read_share(openai_usage(100, 900), provider="openai") is None
+
+
+def test_openai_reads_plus_writes_beyond_the_total_are_malformed() -> None:
+    assert cache_read_share(openai_usage(10, 8, 8), provider="openai") is None
+    assert cache_read_share(openai_usage(12000, 4000, 7000), provider="openai") == pytest.approx(4000 / 12000)
+
+
+def test_an_unrepresentable_count_reports_unknown_not_an_exception() -> None:
+    assert cache_read_share(openai_usage(10**400, 900), provider="openai") is None
+
+
+def test_anthropic_dict_shaped_usage_is_read() -> None:
+    # A usage dumped to a dict (for example with model_dump()) reads like the object.
+    as_dict = {"input_tokens": 100, "cache_read_input_tokens": 900, "cache_creation_input_tokens": 0}
+    assert cache_read_share(as_dict) == pytest.approx(0.90)
+
+
+def test_openai_usage_with_the_default_provider_is_unknown_not_zero() -> None:
+    # Its input_tokens is the total; read as Anthropic's uncached count it would report a confident 0%.
+    assert cache_read_share(openai_usage(1000, 900)) is None
+    assert cache_read_share({"input_tokens": 1000, "input_tokens_details": {"cached_tokens": 900}}) is None
+
+
+def test_openai_attribute_shaped_details_are_read() -> None:
+    usage_obj = SimpleNamespace(input_tokens=1000, input_tokens_details=SimpleNamespace(cached_tokens=250))
+    assert cache_read_share(usage_obj, provider="openai") == pytest.approx(0.25)
+
+
+def test_provider_is_keyword_only() -> None:
+    with pytest.raises(TypeError):
+        cache_read_share(usage(100, 900), "openai")  # type: ignore[misc]
+
+
 def test_reference_does_not_reintroduce_the_uncached_denominator() -> None:
     # Guard the specific regression shape, not the prose around it.
     text = REFERENCE.read_text(encoding="utf-8")

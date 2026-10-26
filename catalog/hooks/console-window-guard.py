@@ -50,7 +50,7 @@ SKIP_DIRS = {
 
 TEST_COMMAND = re.compile(
     r"(?:^|[\s;&|(`'\"/\\])(?:"
-    r"py\.test|pytest|tox|nox"
+    r"py\.test|pytest|tox|nox|pre-commit(?:\.exe|\.cmd)?|pre_commit"
     r"|(?:npm|pnpm|yarn|bun)(?:\s+run)?\s+test"
     r"|(?:npx\s+|pnpm\s+exec\s+|yarn\s+)?(?:vitest|jest|mocha|ava)"
     r"|(?:npx\s+)?playwright\s+test"
@@ -70,7 +70,7 @@ BUILD_COMMAND = re.compile(
     r"|nexus-hub(?:\.cmd)?\s+(?:upgrade|install|init)|(?:npx\s+)?(?:tsc|webpack|esbuild|rollup|ninja|msbuild)|vite\s+build"
     r"|(?:cargo|dotnet)\s+(?:build|install|publish)|cmake\s+--build|make(?:\s+[^;&|]*)?"
     r"|(?:[^\s;&|]*[/\\])?(?:install(?:er)?|build|setup)[\w.-]*\.(?:py|ps1|sh|cmd|bat)"
-    r"|(?:python(?:[0-9.]*)?(?:\.exe)?|py(?:\.exe)?|node(?:\.exe)?|powershell(?:\.exe)?|pwsh(?:\.exe)?|bash(?:\.exe)?|cmd(?:\.exe)?)[\"\']?\s+[^;&|]*\.(?:py|ps1|sh|js|mjs|cjs|cmd|bat)"
+    r"|(?:pythonw?(?:[0-9.]*)?(?:\.exe)?|py(?:\.exe)?|node(?:\.exe)?|powershell(?:\.exe)?|pwsh(?:\.exe)?|bash(?:\.exe)?|cmd(?:\.exe)?)[\"\']?\s+[^;&|]*\.(?:py|ps1|sh|js|mjs|cjs|cmd|bat)"
     r")(?=$|[\s;&|)\"'])", re.IGNORECASE,
 )
 
@@ -160,6 +160,8 @@ def _is_test_file(rel: Path) -> bool:
 
 def _default_present(text: str, tree: ast.AST | None = None) -> bool:
     """Recognize an installed default, rather than a flag mentioned in a comment."""
+    if "nexus_process" not in text:
+        return False
     try:
         tree = tree if tree is not None else ast.parse(text)
     except (SyntaxError, RecursionError):
@@ -217,6 +219,7 @@ def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
         tree = ast.parse(text)
     except SyntaxError:
         return [Finding(rel.as_posix(), 1, "Python launch safety cannot be parsed", "Repair the syntax before launching.")]
+    nodes = list(ast.walk(tree))
     lines = text.splitlines()
     modules = {"subprocess"}
     functions = set()
@@ -226,7 +229,7 @@ def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
     os_modules = {"os"}
     os_functions = set()
     assignments = {}
-    for node in ast.walk(tree):
+    for node in nodes:
         if isinstance(node, ast.Import):
             modules.update(item.asname or item.name for item in node.names if item.name == "subprocess")
             async_modules.update(item.asname or item.name for item in node.names if item.name == "asyncio")
@@ -330,7 +333,7 @@ def _python_findings(text: str, rel: Path, guarded: bool) -> list[Finding]:
 
     findings = []
     default = guarded or _default_present(text, tree)
-    for node in ast.walk(tree):
+    for node in nodes:
         if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in modules and node.attr in {"DETACHED_PROCESS", "CREATE_NEW_CONSOLE"} and not _marked(lines, node.lineno - 1):
             findings.append(Finding(rel.as_posix(), node.lineno, "explicit detached or new-console flag", "Use CREATE_NO_WINDOW without conflicting console flags."))
         if not isinstance(node, ast.Call) or _marked(lines, node.lineno - 1):

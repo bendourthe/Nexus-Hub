@@ -170,3 +170,22 @@ def test_a_timed_out_step_reports_the_output_it_reached(tmp_path, capsys):
     err = capsys.readouterr().err
     assert "stdout before the 3s timeout" in err
     assert "step one" in err and "step two" in err
+
+@pytest.mark.parametrize("name", ["code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity", "schtasks"])
+def test_isolated_environment_shadows_host_editor_and_task_tools(tmp_path, monkeypatch, name):
+    import os
+    import shutil
+
+    host = tmp_path / "host-tools"
+    host.mkdir()
+    filename = name + ".cmd" if os.name == "nt" else name
+    launcher = host / filename
+    launcher.write_text("@exit /b 0\n" if os.name == "nt" else "#!/bin/sh\nexit 0\n", encoding="ascii")
+    launcher.chmod(0o755)
+    monkeypatch.setenv("PATH", str(host))
+    work = tmp_path / "scratch"
+    work.mkdir()
+    env = scenarios.isolated_environment(work)
+    resolved = shutil.which(name, path=env["PATH"])
+    assert resolved is not None
+    assert Path(resolved) == work / "editor-boundary" / filename

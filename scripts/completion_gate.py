@@ -250,7 +250,8 @@ def _json_score(out: str) -> list[str]:
             body = json.loads(line)
         except ValueError:
             continue
-        if isinstance(body, dict) and isinstance(body.get("met"), int) and isinstance(body.get("head"), str):
+        if (isinstance(body, dict) and type(body.get("met")) is int and body["met"] >= 0
+                and isinstance(body.get("head"), str) and body["head"] not in ("", "-")):
             return [str(body["met"]), body["head"]]
     return []
 
@@ -317,6 +318,18 @@ def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: 
         platform = guard.detect_platform(payload, directory)
         if platform is None:
             return False
+        shared_reader = getattr(guard, "pending_decision", None)
+        if shared_reader is not None:
+            shared = shared_reader(platform, payload, (repo_root,))
+            if shared is not None:
+                exhausted = (shared.get("decision") == "credits"
+                             and (shared.get("current_credit", shared.get("credit")) or {}).get("state") == "exhausted")
+                if shared.get("decision") not in ("pending", "wait", "handoff") and not exhausted:
+                    return False
+                deadline = min(time.monotonic() + USAGE_PROBE_SECONDS, budget_end - BLOCK_RESERVE_SECONDS)
+                current = guard.usage_limit_window(payload, directory, deadline)
+                return (current is not None
+                        and guard._decision_active(shared, [current[1]], time.time()))
         state = _load_gate_state(record_path.with_name(record_path.stem + ".gate.json"))
         since = _parse_time(state.get("updated")) or _parse_time(record.get("created"))
         if since is None:
@@ -347,7 +360,7 @@ def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, 
     spec.loader.exec_module(module)
     try:
         ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
-    except (OSError, ValueError, module.Malformed) as exc:
+    except (OSError, ValueError, module.Malformed, module._minor_module().ObservationUnavailable) as exc:
         raise ValueError('minor controller cannot be verified') from exc
     if _is_inside(checker, ctx.root):
         raise ValueError('checker is inside operational worktree')
@@ -387,7 +400,13 @@ def cmd_stop() -> int:
     # The evaluation stops early enough that a blocker can still be written.
     eval_end = budget_end - min(BLOCK_RESERVE_SECONDS, budget * 0.3)
     # check-minor spreads its own budget over the members; keep it inside the evaluation's.
-    os.environ["NEXUS_CHECK_MINOR_BUDGET_SECONDS"] = str(max(1, int(eval_end - time.monotonic()) - 2))
+    limit = max(1, int(eval_end - time.monotonic()) - 2)
+    try:
+        limit = min(limit, max(1.0, float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", limit))))
+    except ValueError:
+        # An invalid caller limit keeps the gate-derived evaluation limit.
+        pass
+    os.environ["NEXUS_CHECK_MINOR_BUDGET_SECONDS"] = str(limit)
     rc, out = _run_checker(check_args, eval_end, str(repo_root))
     if rc == -1:
         print(
@@ -432,7 +451,7 @@ def cmd_stop() -> int:
     state["refusals"] = refusals
     state["updated"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     _save_gate_state(state_path, state)
-    if refusals >= NO_PROGRESS_REFUSALS:
+    if score and refusals >= NO_PROGRESS_REFUSALS:
         _run_checker(
             [
                 *block_args,

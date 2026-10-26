@@ -237,7 +237,7 @@ def test_paste_shape_follows_goal_capture(scope: str, platform: str) -> None:
     assert set(shown.approve) == {plain} | together | alone
 
 
-@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire", "add-class"])
+@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire", "add-class", "supplement-scope"])
 def test_mid_run_rounds_never_set_a_goal(action: str) -> None:
     shown = approval_page.paste_set(action, "v0.5", "ABCD2345", blocker=0, platform="probe-verbatim")
     assert shown.shape == "plain" and len(shown.lines) == 1 and not shown.lines[0].startswith("/goal")
@@ -1021,3 +1021,84 @@ def test_generated_code_collision_round_keeps_capture_and_binding_authority(tmp_
     assert accepted["pasted"] == pending["paste_lines"][0]
     with pytest.raises(binding.Refusal, match="code-used"):
         consume(data["page"])
+
+
+def _supplement_scope_data() -> dict:
+    """Public render data only, with no captured decision or native authority."""
+    import completion_minor as cm
+
+    reviewed = json.loads(json.dumps(cm.REVIEWED_HISTORICAL_SCOPE))
+    scope = reviewed["minor"]
+    page = {
+        "action": "supplement-scope", "scope": {"kind": "minor", "minor": scope},
+        "record_nonce": "n" * 32, "repo": reviewed["repo"],
+        "controller": {"repo_root": "C:/fixture/controller"}, "owner_session": "fixture-session",
+        "record_sha256": "0" * 64, "member": reviewed["member"],
+        "plan_sha256": "1" * 64, "claims_sha256": "2" * 64,
+        "merge_bounds": {key: reviewed[key] for key in ("merge", "first_parent", "second_parent", "tree", "rows")},
+    }
+    line = approval_page.plain_line("supplement-scope", scope, "ABCD2345")
+    return {"action": "supplement-scope", "scope": scope, "code": "ABCD2345", "paste": [line],
+            "challenge": "n" * 32, "page": page, "display": {}}
+
+
+def test_supplement_scope_page_displays_every_exact_historical_bound(capsys) -> None:
+    data = _supplement_scope_data()
+    before = json.dumps(data, sort_keys=True)
+    rendered = approval_page.render_page(data)
+    page, bounds = data["page"], data["page"]["merge_bounds"]
+    for value in (page["repo"], page["member"], bounds["merge"], bounds["first_parent"], bounds["tree"]):
+        assert approval_page.quoted(value) in rendered
+    assert len(bounds["rows"]) == 6
+    shown_rows = [line for line in rendered.splitlines() if line.startswith("- ")]
+    assert shown_rows == [
+        "- " + approval_page.quoted(path) + ": " + status + "; " + old_mode + " " + old_blob + " -> " + new_mode + " " + new_blob
+        for path, old_mode, new_mode, old_blob, new_blob, status in bounds["rows"]
+    ]
+    assert "Original claims and baselines stay unchanged." in rendered
+    assert "Future writes, release, archive, spending and retry budgets require their existing approvals." in rendered
+    assert "/goal" not in rendered and "Done only when" not in rendered
+    capsys.readouterr()
+    assert approval_page.emit(data, "page") == 0
+    output = capsys.readouterr()
+    assert output.out == rendered and output.err == ""
+    assert json.dumps(data, sort_keys=True) == before
+
+
+def test_supplement_scope_question_retains_exact_page_and_requires_capture(capsys) -> None:
+    data = _supplement_scope_data()
+    before = json.dumps(data, sort_keys=True)
+    question = approval_page.question_data(data)
+    assert json.dumps(question["action_scope"], sort_keys=True) == json.dumps(data["page"], sort_keys=True)
+    assert question["challenge"] == data["challenge"]
+    assert question["capture"]["requires_genuine_prompt_submit"] is True
+    assert question["capture"]["direct_question_callback_supported"] is False
+    assert [option["label"] for option in question["options"]] == ["Approve", "Decline"]
+    assert question["compatibility_paste"] == data["paste"]
+    assert "/goal" not in question["review_page"]
+    for row in data["page"]["merge_bounds"]["rows"]:
+        assert approval_page.quoted(row[0]) in question["review_page"]
+    capsys.readouterr()
+    assert approval_page.emit(data, "question") == 0
+    output = capsys.readouterr()
+    assert json.loads(output.out) == question and output.err == ""
+    assert json.dumps(data, sort_keys=True) == before
+
+
+def test_supplement_scope_page_rejects_malformed_rows_without_partial_output(capsys) -> None:
+    valid_row = _supplement_scope_data()["page"]["merge_bounds"]["rows"][0]
+    malformed = [None, {}, "not rows", [], [None], [valid_row[:-1]], [valid_row + ["extra"]]]
+    for column in range(6):
+        for bad_value in (None, 1, True, {}, []):
+            changed = list(valid_row)
+            changed[column] = bad_value
+            malformed.append([changed])
+    for rows in malformed:
+        data = _supplement_scope_data()
+        data["page"]["merge_bounds"]["rows"] = rows
+        with pytest.raises(approval_page.PageError):
+            approval_page.render_page(data)
+        capsys.readouterr()
+        assert approval_page.emit(data, "page") == 2
+        output = capsys.readouterr()
+        assert output.out == "" and "not rendered" in output.err
