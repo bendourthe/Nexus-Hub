@@ -2521,7 +2521,7 @@ main .eyebrow,main .tr-kicker{display:none;}
         <h2 data-ty="h2" class="section-title">Release and Governance</h2>
 
         <article class="cs-cmd">
-          <div class="cs-head"><h3 data-ty="code" data-tone="accent" class="cs-name">/update</h3><span data-ty="body-sm" class="cs-desc">Check implementation progress, sync the repo, or run the release flow.</span></div>
+          <div class="cs-head"><h3 data-ty="code" data-tone="accent" class="cs-name">/update</h3><span data-ty="body-sm" class="cs-desc">Check progress, sync the repo, or run the release flow.</span></div>
           <div class="cs-body">
             <div class="cs-scopes">
               <div class="cs-scope"><code data-ty="code">release</code><span data-ty="body-sm">The full ship flow: commit, tag, push, publish the release. After the last release of a minor run, one closing pull request, then a checked cleanup that removes only merged, idle branches and worktrees.</span></div>
@@ -2533,14 +2533,13 @@ main .eyebrow,main .tr-kicker{display:none;}
               <div class="cs-scope"><code data-ty="code">refactor</code><span data-ty="body-sm">Reorganize docs and project artifacts to conventions.</span></div>
               <div class="cs-scope"><code data-ty="code">config</code><span data-ty="body-sm">Validate and repair installed platform configs.</span></div>
               <div class="cs-scope"><code data-ty="code">commit</code><span data-ty="body-sm">Generate a structured message for the staged changes.</span></div>
-              <div class="cs-scope"><code data-ty="code">status</code><span data-ty="body-sm">Read-only progress for the current run or a version/plan: tasks, workers, elapsed time, remaining estimate and dependencies.</span></div>
+              <div class="cs-scope"><code data-ty="code">status</code><span data-ty="body-sm">Read-only progress, workers, elapsed time, estimates and dependencies.</span></div>
             </div>
             <div class="cs-usage">
             <div class="term term--mini">
               <div class="term-bar"><span data-ty="code" class="label">type it like this</span></div>
               <div class="term-body">
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/update status v0.5"><span data-ty="code" data-tone="accent" class="inv-cmd">/update</span><span data-ty="code" class="inv-arg"> status v0.5</span></code></div>
-                <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/update changelog"><span data-ty="code" data-tone="accent" class="inv-cmd">/update</span><span data-ty="code" class="inv-arg"> changelog</span></code></div>
               </div>
             </div>
             <p data-ty="caption" class="cs-teach"><a href="training.html#update" data-training-link>See it in Training</a></p>
