@@ -182,13 +182,15 @@ def test_existing_hook_and_rollback(sandbox):
     run, repo, _ = sandbox
     hook = repo / ".git/hooks/pre-commit"
     hook.write_text(
-        "#!/bin/sh\nprintf preserved > hook-result\nexit 17\n", encoding="utf-8"
+        "#!/bin/sh\nprintf preserved > hook-result\nprintf ATTR_HOOK_STDOUT\nprintf ATTR_HOOK_STDERR >&2\nexit 17\n", encoding="utf-8"
     )
     hook.chmod(0o755)
     guard(run, "install")
     guard(run, "install")
     result = run("git", "commit", "--allow-empty", "-m", "Work", code=None)
     assert result.returncode != 0
+    assert "ATTR_HOOK_STDOUT" in result.stdout + result.stderr
+    assert "ATTR_HOOK_STDERR" in result.stdout + result.stderr
     assert (repo / "hook-result").read_text() == "preserved"
     guard(run, "uninstall")
     assert (

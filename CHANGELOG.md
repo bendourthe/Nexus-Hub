@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The Windows console guard now inspects recognized literal Node `-e` and `--eval` payloads in Python launch calls, including shared-default test roots. The completion-plugin Python probe sets `windowsHide: true` and `shell: false`, with regressions for the real launch and its unsafe reversal.
+
+- Windows attribution hooks explicitly forward fallback-hook stdout and stderr while retaining CREATE_NO_WINDOW, preserving chained hook diagnostics when the caller has no console.
+
 - Windows console children now use a shared hidden-window subprocess policy across commands, installers and pytest roots. Standalone helpers and Node launches carry explicit hidden-window options. The console guard also checks installer, build and private helper commands, rejects conflicting launch flags and requires a reason on each deliberate exception line. Project instructions and distributed rules carry the same policy. Batch shims preserve literal exclamation marks with delayed expansion disabled, and background guard work uses explicit hidden-window flags.
 
 - `gaps.version` no longer reads every open gap as met for a plan sitting in its minor's archive folder: it resolves the minor's ledger across every layout (two ledgers for one minor are `cannot-verify`), and `evidence.file` also searches the active tree for such a plan.
