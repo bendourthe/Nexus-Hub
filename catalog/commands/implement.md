@@ -25,6 +25,10 @@ Mode tokens come after the plan, never first (except `pause`). Match whole token
 
 Pass every resolved value (plan path, phase identifier, driver mode, remaining args) through to the `implement-phase` skill unchanged. The driver loop lives in that skill; do not inline it here.
 
+## Progress reporting
+
+From run start through completion, follow the shared [progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md): a consolidated report every 60 minutes by default and at significant transitions, covering all member plans for `vX.Y` or all phases for one plan. Include task percentages, observed active/waiting workers, elapsed time, remaining-time ranges, dependencies and an efficiency review. Users can request the same report at any time with `/update status [version-or-plan]`. Host delivery limits and unknown observations are explicit.
+
 ## Upfront round and completion (guarantee)
 
 A full run obtains one genuine initial plan approval, then follows the completion contract's "Authorization policy" and "Approval origin" sections. The upfront page names the plan, repository, branches, releases, cleanup, spend caps, exclusions and bounded corrections. Retain a trusted host permission signal only through native capture. When the contract verifies automatic continuation within that signed scope, proceed without another consent prompt; otherwise present the concrete manual decision through the same contract. Repeated observation of an unchanged blocker reuses its pending decision. A consent decision never substitutes for passing checks, preserved user edits or a verified destination.

@@ -2,6 +2,11 @@
 
 **Integration branch:** `develop`
 
+**v4.14 implementation reporting:** Hourly and transition reports plus read-only `/update status` are locally verified in the isolated `feat/v4.14-progress-reports` branch. Counts reuse the existing parser; worker activity, timing, dependencies and estimates require observed evidence.
+
+- [x] Implement and locally verify v4.14 progress reporting and on-demand status: 117 tests pass with 2 skips; 18 fast checks pass. [Evidence](releases/v4/v4.14/development/v4.14-progress-reporting.md).
+- [ ] Integrate and release the v4.14 progress-reporting change; installed-editor timed delivery remains unverified.
+
 **M2 historical scope maintenance:** PR #526 merged green at `8d70a8a5` and its actual merged source is qualified. The repair recognizes only the six reviewed historical omissions from PR #525 after a later genuine native captured decision. Focused qualification has 259 distinct passing cases and one declared POSIX-only skip, including replay refusal, unchanged release gates, native resume and controller handoff. Reviewed runtime adoption and the actual six-file decision remain open; original claims, frozen plan marks and budgets are unchanged.
 
 - [ ] Deliver the merged M2 historical-scope repair and obtain its genuine native captured decision before the M2 release.
