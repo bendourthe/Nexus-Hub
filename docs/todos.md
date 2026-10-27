@@ -411,6 +411,15 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Create the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md) with `/plan from-comparison`; six review lenses and three grill decisions applied on 2026-10-22 ([planning review](releases/v4/v4.22/development/v4.22.6-planning-review.md)): 8 audit-and-build episodes, capped Kimi and Qwen rosters with no script change, Qwen sources including Alibaba Cloud Model Studio. Five-phase plan approved for publication.
 - [ ] Implement the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md): earned-eyebrow gate and frequency-aware motion (`hallmark-design`), OpenAI-compatible endpoint guidance (`multi-provider-ai`), a deny-rule layer behind credential isolation (`ai-billing-safeguards`), and capped Kimi and Qwen prompting profiles. Implementation is 0/5 phases and 0/25 tasks.
 
+## Comparison - v4.22.8 verification, review, memory, and design
+
+- [x] Confirm v4.22.8 placement and assess the [six supplied sources](releases/v4/v4.22/comparisons/v4.22.8-comparison-verification-review-memory-and-design.md) on 2026-10-26; preserve source pins, screening adjudication, live GitHub settings, and 37 plan-impact verdicts in the [evidence sidecar](releases/v4/v4.22/comparisons/v4.22.8-comparison-verification-review-memory-and-design-evidence.json).
+- [x] Request `/plan from-comparison` and draft the [six-phase, 26-task v4.22.8 plan](releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md) on 2026-10-27; [seven-lens review](releases/v4/v4.22/development/v4.22.8-planning-review.md) returned nine raw findings, eight distinct, with mechanical corrections applied.
+- [x] Select protocol-first guidance for v4.22.8 on 2026-10-27: deterministic memory examples, actual fixture-app recovery and reviewed sample outputs; no measured agent-adherence, cost-improvement or live containment claim.
+- [x] Apply protocol-first scope to the v4.22.8 Goal, evidence contract and task prompts; product, feasibility and security rechecks found no additional material findings.
+- [x] Confirm the revised six-phase, 26-task v4.22.8 plan and authorize its planning package for protected publication and merge to develop on 2026-10-27.
+- [ ] Implement the approved v4.22.8 plan only after separate implementation authorization; current progress is 0/6 phases and 0/26 tasks. Repository-policy changes and release remain outside this planning publication.
+
 ## Current work - v4.4.5 visual refinement
 
 - [x] Compact all Models demos, enrich the animated networks, add perspective room navigation and a new game redesign, sweep provider-labeled capability tiers, and compare four reasoning allowances simultaneously; 154 focused guide checks, 24 final Models tests and 40 layout cases pass, with one optional portfolio check skipped. See [verification](archives/v4/v4.4/development/guide-visual-refinement/models-compact-comparisons/verification.md).

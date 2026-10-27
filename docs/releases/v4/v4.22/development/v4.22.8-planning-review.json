@@ -1,0 +1,579 @@
+{
+  "schema": "planning-review/1",
+  "date": "2026-10-27",
+  "plan": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+  "reviewed_draft_sha256": "9a71dd84fdd1c200f3c1def9620e15eacdf2b4dba57565db1c71b6233d8ecf1e",
+  "revised_plan_sha256": "f49a12b6b891ff040525c9031ac49ddd4b467c8ad7df75c7c7d7dd05b4124cc8",
+  "lenses": [
+    "coherence",
+    "feasibility",
+    "product",
+    "design",
+    "scope",
+    "security",
+    "adversarial"
+  ],
+  "skipped_lenses": [],
+  "raw_findings": [
+    {
+      "persona": "coherence",
+      "title": "Final-phase completion-contract links resolve outside the catalog",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 565,
+      "section": "Phase6",
+      "confidence": 100,
+      "requires_verification": false,
+      "reason": "Copied ../../implement-phase links resolve under docs/releases/v4/implement-phase rather than catalog; repeated at original line607.",
+      "suggested_fix": "Correct both relative links in this plan, without incidental template edits."
+    },
+    {
+      "persona": "coherence",
+      "title": "Phase 1 names a test command whose file is introduced in Phase 2",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 301,
+      "section": "Phase1 task1.4",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "T004 calls test_v4228_adoption_protocols.py, but T006 is the first creation task.",
+      "suggested_fix": "Create initial fixture-integrity and public-boundary smoke tests in T002."
+    },
+    {
+      "persona": "feasibility",
+      "title": "Name an execution path that preserves the installed skill cluster",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 292,
+      "section": "Phase1 task1.3",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "optimize_skill_description.py stages only SKILL.md and creates a fresh temporary project; run_trigger_pilot.py also stages a fixed SKILL.md corpus. Neither unchanged entry point executes the full installer-created dependency cluster.",
+      "suggested_fix": "Resolve proof scope; for a retained live-trial scope explicitly schedule test-owned complete-workspace composition with evidence-preserving cleanup."
+    },
+    {
+      "persona": "feasibility",
+      "title": "Resolve the model runner actual budget enforcement",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 281,
+      "section": "Phase1 task1.2",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "optimize_skill_description.py has no subprocess timeout/cost enforcement; run_trigger_pilot.py documents observed calls exceeding max-budget-usd and a ledger that is not a hard aggregate ceiling.",
+      "suggested_fix": "Do not confuse a numerical budget record with enforcement; retain live-trial block until a proved bound or select narrower proof scope."
+    },
+    {
+      "persona": "feasibility",
+      "title": "Create the Phase 1 test module before running it",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 301,
+      "section": "Phase1 task1.4",
+      "confidence": 100,
+      "requires_verification": false,
+      "reason": "T004 names a nonexistent module whose implementation is assigned to T006.",
+      "suggested_fix": "Create initial tests in Phase1, extending them in Phase2."
+    },
+    {
+      "persona": "security",
+      "title": "Bound hostile trials separately from configuration isolation",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 281,
+      "section": "Frozen Evidence Contract and Phase1",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "M04 deliberately supplies a disclosure/access-widening instruction; runner subprocess inherits environment and configuration isolation/fake HOME do not establish tool, credential, filesystem or egress containment. Transcripts may persist under publishable docs.",
+      "suggested_fix": "Use synthetic response-only M04, separate execution-boundary evidence from configuration isolation, deny hostile live-tool trials until proved restricted, redact before persistence."
+    },
+    {
+      "persona": "product",
+      "title": "Choose the proof level before making live agent trials a core deliverable",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 22,
+      "section": "Goal and DoD5",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "The comparison bounded guidance/protocol scope differs from a Goal requiring installed-agent adherence, which is blocked by unresolved trial machinery and authority.",
+      "suggested_fix": "Ask maintainer: protocol-first limited claims (recommended) or mandatory bounded installed-agent trials and their prerequisites."
+    },
+    {
+      "persona": "design",
+      "title": "Recapture the control when a late prerequisite changes the installed corpus",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 88,
+      "section": "Dependencies and evidence contract",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "Phase1 can freeze a baseline before verification-instrument lands; later candidate then includes predecessor changes absent in its control.",
+      "suggested_fix": "Freeze oracle independently; recapture each cluster control after prerequisites land and before target edits; invalidate affected comparisons on changed semantic manifests."
+    },
+    {
+      "persona": "adversarial",
+      "title": "Exclude grader oracles and held-out material from candidate-readable inputs",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "line": 281,
+      "section": "Frozen Evidence Contract and Phase1",
+      "confidence": 75,
+      "requires_verification": true,
+      "reason": "T002 co-locates ordinary cases, oracle and held-outs with no staging exclusion. A complete-workspace adapter could leak expected answers or early held-out inputs.",
+      "suggested_fix": "Seal grader-only expected answers, withhold H01/H02 inputs until final acceptance, freeze candidate manifests and prove exclusion with canary/denial probes."
+    }
+  ],
+  "pipeline": [
+    "fingerprint dedup (same-root Phase1 sequencing titles canonicalized explicitly)",
+    "cross-lens promotion once",
+    "interactive mode: no advisory demotion",
+    "late confidence gate"
+  ],
+  "findings": [
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|phase6|final phase completion contract links resolve outside the catalog",
+      "title": "Final-phase completion-contract links resolve outside the catalog",
+      "severity": "P2",
+      "confidence": 100,
+      "personas": [
+        "coherence"
+      ],
+      "raw_indices": [
+        0
+      ],
+      "original_line": 565,
+      "disposition": "Applied: correct catalog-relative links"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|phase1.4|phase1 test creation",
+      "title": "phase1 test creation",
+      "severity": "P2",
+      "confidence": 100,
+      "personas": [
+        "coherence",
+        "feasibility"
+      ],
+      "raw_indices": [
+        1,
+        4
+      ],
+      "original_line": 301,
+      "disposition": "Applied: initial test module in T002"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|phase1 task1.3|name an execution path that preserves the installed skill cluster",
+      "title": "Name an execution path that preserves the installed skill cluster",
+      "severity": "P1",
+      "confidence": 75,
+      "personas": [
+        "feasibility"
+      ],
+      "raw_indices": [
+        2
+      ],
+      "original_line": 292,
+      "disposition": "Resolved by direct user choice: protocol-first guidance; mandatory installed-agent trials and their infrastructure removed, claims narrowed"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|phase1 task1.2|resolve the model runner actual budget enforcement",
+      "title": "Resolve the model runner actual budget enforcement",
+      "severity": "P1",
+      "confidence": 75,
+      "personas": [
+        "feasibility"
+      ],
+      "raw_indices": [
+        3
+      ],
+      "original_line": 281,
+      "disposition": "Resolved by direct user choice: protocol-first guidance; mandatory installed-agent trials and their infrastructure removed, claims narrowed"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|frozen evidence contract and phase1|bound hostile trials separately from configuration isolation",
+      "title": "Bound hostile trials separately from configuration isolation",
+      "severity": "P1",
+      "confidence": 75,
+      "personas": [
+        "security"
+      ],
+      "raw_indices": [
+        5
+      ],
+      "original_line": 281,
+      "disposition": "Addressed: synthetic reviewed M04, fixed test-owned app actions, no live trial/containment claim, redaction before persistence"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|goal and dod5|choose the proof level before making live agent trials a core deliverable",
+      "title": "Choose the proof level before making live agent trials a core deliverable",
+      "severity": "P1",
+      "confidence": 75,
+      "personas": [
+        "product"
+      ],
+      "raw_indices": [
+        6
+      ],
+      "original_line": 22,
+      "disposition": "Resolved by direct user choice: protocol-first guidance; mandatory installed-agent trials and their infrastructure removed, claims narrowed"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|dependencies and evidence contract|recapture the control when a late prerequisite changes the installed corpus",
+      "title": "Recapture the control when a late prerequisite changes the installed corpus",
+      "severity": "P2",
+      "confidence": 75,
+      "personas": [
+        "design"
+      ],
+      "raw_indices": [
+        7
+      ],
+      "original_line": 88,
+      "disposition": "Applied: per-cluster matched controls and invalidation on semantic-input changes"
+    },
+    {
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md|frozen evidence contract and phase1|exclude grader oracles and held out material from candidate readable inputs",
+      "title": "Exclude grader oracles and held-out material from candidate-readable inputs",
+      "severity": "P2",
+      "confidence": 75,
+      "personas": [
+        "adversarial"
+      ],
+      "raw_indices": [
+        8
+      ],
+      "original_line": 281,
+      "disposition": "Applied: sealed grader/held-out inputs, staging manifest and exclusion probes"
+    }
+  ],
+  "suppressed_findings": [],
+  "considered_but_rejected": {
+    "coherence": [
+      [
+        "Core DoD versus generic final gap language",
+        "Explicit later core-acceptance clause prohibits waiving core misses."
+      ],
+      [
+        "Missing verification owner",
+        "Declared unmet prerequisite, not an invented available capability."
+      ],
+      [
+        "Conditional export still needs D03",
+        "No-residual-work reuses existing behavior and does not waive proof."
+      ]
+    ],
+    "feasibility": [
+      [
+        "Nonfinal publication/remote CI",
+        "Every nonfinal phase explicitly prohibits it."
+      ],
+      [
+        "Missing local commits or pipeline reconciliation",
+        "Each phase ends one local commit; final template includes pipeline comparison and green integration before release."
+      ]
+    ],
+    "security": [
+      [
+        "Raw fallback widens access",
+        "Authorized sources and insufficient-evidence outcomes explicit."
+      ],
+      [
+        "Risk label bypasses required review",
+        "Checks, review and approval retained; settings excluded."
+      ],
+      [
+        "Foreign process cleanup",
+        "Owned handles/data and refusal under ownership uncertainty explicit."
+      ],
+      [
+        "Draft approves paid trials/publication",
+        "Draft/implementation authority and numerical run bounds distinguished."
+      ]
+    ],
+    "product": [
+      [
+        "No success metric",
+        "Bounded assertion-level cases and held-outs supply one."
+      ],
+      [
+        "Missing verification owner",
+        "Explicit prerequisite, not a product-value defect."
+      ],
+      [
+        "No actual CODEOWNERS enforcement",
+        "Deliberately excluded and cannot be implied by guidance."
+      ],
+      [
+        "Optional export waives fidelity",
+        "Cited predecessor proof and D03 still required."
+      ]
+    ],
+    "design": [
+      [
+        "New memory schema/runtime",
+        "Explicitly excluded."
+      ],
+      [
+        "Duplicate verification skill",
+        "Reuse predecessor or block."
+      ],
+      [
+        "Test app becomes product runtime",
+        "Test-owned fixture only."
+      ],
+      [
+        "Optional export waiver",
+        "Explicit retained/no-residual-work path with proof."
+      ]
+    ],
+    "scope": [
+      [
+        "Phase3 stalls later phases",
+        "Explicit core prerequisite and conservative serial fallback, no incidental predecessor build."
+      ],
+      [
+        "Mandatory final audits expand cleanup",
+        "Required audits remain but unrelated edits need scope decision."
+      ],
+      [
+        "New renderer emerges",
+        "Explicitly excluded."
+      ],
+      [
+        "Finite cases become unbounded benchmark",
+        "Case IDs and calibration bounded; proof-level choice captured separately."
+      ]
+    ],
+    "adversarial": [
+      [
+        "Sensitive-path renaming bypass",
+        "Consequence/effective change outranks filename or size."
+      ],
+      [
+        "Export no-op hides failure",
+        "Requires named predecessor proof and observed D03."
+      ],
+      [
+        "Foreign process termination",
+        "Refused on ownership uncertainty."
+      ],
+      [
+        "Raw records grant access",
+        "Authorized boundary remains explicit."
+      ]
+    ]
+  },
+  "routing": {
+    "date": "2026-10-27",
+    "roster": [
+      {
+        "args": [
+          "powershell",
+          "-NoProfile",
+          "-File",
+          "catalog/skills/ai-development/model-routing/scripts/model-map.ps1",
+          "validate",
+          "[local-evidence]\\planning-evidence\\model-map.json"
+        ],
+        "exit": 0,
+        "stdout": "{\"valid\": true, \"verified_as_of\": \"2026-10-27\", \"tiers\": 4, \"providers\": 4}\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "powershell",
+          "-NoProfile",
+          "-File",
+          "catalog/skills/ai-development/model-routing/scripts/model-map.ps1",
+          "diff",
+          "[local-evidence]\\planning-evidence\\model-map.json"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"reclassified\": []\n}\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "powershell",
+          "-NoProfile",
+          "-File",
+          "catalog/skills/ai-development/model-routing/scripts/model-map.ps1",
+          "render",
+          "[local-evidence]\\planning-evidence\\model-map.json",
+          "--status",
+          "fresh",
+          "--as-of",
+          "2026-10-27"
+        ],
+        "exit": 0,
+        "stdout": "## Current model map\n\n**Model map status**: fresh as of 2026-10-27; sources cited below.\n\n| Tier | Anthropic | OpenAI | Google | Cursor |\n|---|---|---|---|---|\n| frontier | `claude-fable-5-1` | `gpt-6-astra` | `gemini-4-argon` | `grok-4.7` |\n| strong | `claude-opus-5-5` | `gpt-6.1-sol` | `gemini-3.8-flash` | `grok-4.6` |\n| standard | `claude-sonnet-5-5` | `gpt-5.6-sol` | `gemini-3.6-flash` | `composer-2.5` |\n| fast | `claude-haiku-5-5` | `gpt-6-luna` | `gemini-3.5-flash-lite` | `composer-2.5` |\n\n### Model map sources\n\n- Anthropic: https://platform.claude.com/docs/en/models/overview\n- OpenAI: https://developers.openai.com/api/docs/models, https://developers.openai.com/api/docs/guides/latest-model, https://cursor.com/docs/models-and-pricing\n- Google: https://ai.google.dev/gemini-api/docs/models\n- Cursor: https://cursor.com/docs/models-and-pricing, https://cursor.com/docs/models/cursor-composer-2-5\n",
+        "stderr": ""
+      }
+    ],
+    "scores": [
+      {
+        "phase": 1,
+        "signals": [
+          "medium",
+          "medium",
+          "high",
+          "medium",
+          "high"
+        ],
+        "edge_cases": "high",
+        "uncertain": true,
+        "result": {
+          "tier": "frontier",
+          "effort": "max",
+          "verification_effort": "max"
+        }
+      },
+      {
+        "phase": 2,
+        "signals": [
+          "medium",
+          "low",
+          "medium",
+          "medium",
+          "medium"
+        ],
+        "edge_cases": "high",
+        "uncertain": false,
+        "result": {
+          "tier": "strong",
+          "effort": "high",
+          "verification_effort": "high"
+        }
+      },
+      {
+        "phase": 3,
+        "signals": [
+          "medium",
+          "medium",
+          "high",
+          "high",
+          "high"
+        ],
+        "edge_cases": "high",
+        "uncertain": true,
+        "result": {
+          "tier": "frontier",
+          "effort": "max",
+          "verification_effort": "max"
+        }
+      },
+      {
+        "phase": 4,
+        "signals": [
+          "medium",
+          "medium",
+          "medium",
+          "high",
+          "high"
+        ],
+        "edge_cases": "high",
+        "uncertain": false,
+        "result": {
+          "tier": "frontier",
+          "effort": "max",
+          "verification_effort": "max"
+        }
+      },
+      {
+        "phase": 5,
+        "signals": [
+          "medium",
+          "low",
+          "medium",
+          "medium",
+          "medium"
+        ],
+        "edge_cases": "medium",
+        "uncertain": false,
+        "result": {
+          "tier": "strong",
+          "effort": "high",
+          "verification_effort": "high"
+        }
+      },
+      {
+        "phase": 6,
+        "signals": [
+          "high",
+          "high",
+          "high",
+          "high",
+          "high"
+        ],
+        "edge_cases": "high",
+        "uncertain": false,
+        "result": {
+          "tier": "frontier",
+          "effort": "max",
+          "verification_effort": "max"
+        }
+      }
+    ]
+  },
+  "verdict": "APPROVED planning document - publication and merge to develop authorized; implementation not authorized",
+  "pending_question": {
+    "question": "Protocol-first guidance with limited claims, or mandatory bounded installed-agent trials?",
+    "recommended": "Protocol-first guidance",
+    "asked_via": "request_user_input_async",
+    "answer": "Protocol-first guidance (Recommended)",
+    "answer_origin": "Direct human reply to the host question in this chat",
+    "resolved_on": "2026-10-27",
+    "scope": "Planning evidence scope only; no execution, paid trials or publication authority"
+  },
+  "coverage": "All seven independent lenses read the original draft. Source/runner interfaces were inspected by feasibility/security. No provider trial, exploit, credential inspection, product edit or runtime containment proof was performed. Author corrections are document changes, not implementation evidence.",
+  "metadata_correction": "depends_on uses literal version v4.19.0; phase-specific requirement and unknown proving commit remain in dependency prose",
+  "decision_application": {
+    "goal_narrowed": true,
+    "automated_provider_trials_required": false,
+    "new_model_adapter": false,
+    "measured_agent_adherence_claim": false,
+    "cost_improvement_claim": false,
+    "live_containment_claim": false,
+    "phase_count": 6,
+    "task_count": 26,
+    "independent_recheck": "Product, feasibility and security: no new material findings"
+  },
+  "rechecks": [
+    {
+      "persona": "product",
+      "reviewed_sha256": "297e8a7d9be71d1285a2ea2060cecb3a0f2f1df32837a0f140e54295871945af",
+      "findings": [],
+      "verdict": "READY for selected protocol-only planning scope; no execution approval",
+      "scope": "Goal/DoD, phase gates/prompts, final claims and protocol-first scope"
+    },
+    {
+      "persona": "feasibility",
+      "reviewed_sha256": "297e8a7d9be71d1285a2ea2060cecb3a0f2f1df32837a0f140e54295871945af",
+      "findings": [],
+      "verdict": "READY for selected protocol-only planning scope; no execution approval",
+      "scope": "Commands, early tests and removal of mandatory installed-agent trial prerequisites"
+    },
+    {
+      "persona": "security",
+      "reviewed_sha256": "297e8a7d9be71d1285a2ea2060cecb3a0f2f1df32837a0f140e54295871945af",
+      "findings": [],
+      "verdict": "READY for selected protocol-only planning scope; no execution approval",
+      "scope": "Synthetic M04, source access, fixed fixture actions, redaction, grader separation and authority"
+    }
+  ],
+  "final_metadata_changes_after_recheck": [
+    "Status/review disposition only",
+    "T006 title clarified, task/path unchanged",
+    "Two historical queue rows say protocol/input provenance rather than trial"
+  ],
+  "approval_state": {
+    "proof_level_confirmed": true,
+    "phase_breakdown_confirmed": true,
+    "execution_approved": false,
+    "publication_approved": true,
+    "merge_to_develop_approved": true,
+    "approval_date": "2026-10-27",
+    "approval_origin": "Direct human confirmation and merge instruction in this chat",
+    "scope": "Exactly the six documentation paths in the publication manifest; no runtime implementation or release"
+  }
+}
