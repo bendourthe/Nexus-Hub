@@ -1339,7 +1339,8 @@
           "path": "~/.agents/skills",
           "status": "VERIFIED",
           "source": "https://learn.chatgpt.com/docs/build-skills",
-          "verified": "2026-09-25"
+          "verified": "2026-09-25",
+          "note": "2026-10-28 source check at openai/codex d373d649673ca8a5bca71f54be0ae47dbd79b466: MAX_SKILL_PROMPT_BYTES = 8_000 (render.rs:25). host_prompt.rs:79-88 truncates plugin skills only and records a warning; extension.rs:447-459 truncates every successful main-prompt read and emits a warning. Nexus-Hub delivers plain user skills to ~/.agents/skills, so the identified host branch leaves them intact; whether they ever use the extension path is UNVERIFIED. Re-verify this source-scoped limit and measure packaged skill bytes before Codex plugin packaging."
         },
         {
           "path": "~/.codex/skills",
