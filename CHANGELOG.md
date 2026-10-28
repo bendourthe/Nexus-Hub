@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Gemini 4 Argon prompting guidance joins its existing Google routing placement, with separate API and Cloud claims and a provider-neutral fallback to the same provider's strong tier when frontier access is unavailable.
+- The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging.
+
 ## [4.14.2] - 2026-10-28
 
 ### Changed

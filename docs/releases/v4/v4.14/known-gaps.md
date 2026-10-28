@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-26
-**Open items**: 85
+**Last updated**: 2026-10-28
+**Open items**: 87
 
 ## v4.14.0
 
@@ -3252,3 +3252,40 @@ None.
 - **Disposition**: RESOLVED in v4.14.2 Phase 6 T029, recorded 2026-10-26 after the actual first M2 PR supplied the required macOS payload proof.
 - **Resolution**: PR #525 head `944d07f40eeebc8d52204684a3cab907f331806d` passed actual [macOS workspace installer-smoke](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939624) in 9.901 seconds and [macOS bootstrap](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939637) in 63.813 seconds, both exit 0. Downloaded summary, environment and log hashes match retained `m2-macos-payload-d140cd29/verified-payload.json`, SHA-256 `9ec473cde4c572da4044931d6acb2f480f0e66455232b7c6545bf64dd2bea98a`. Tested merge `59da68623d44563a570b2f8464f0fe59eb4665ec` and actual merged `d2d7bff7a0c192437eddcbdb677880791ea3f501` share tree `de7ccaeea43d697f25552f6330ac261af1d867b0`; all 46 PR checks and exact-head post-merge run `40173908677` succeeded.
 - **Remaining boundary**: No waiver, migration, new qualification attempt or allowance reset is introduced. Release, runtime adoption and archive/cleanup remain separate; no further macOS run is needed for this resolved item.
+
+## v4.14.3
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-27: Codex plugin skill-prompt size and extension-path qualification
+
+**Source phase**: v4.14.3 Phase 2 T009
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: At OpenAI Codex revision `d373d649673ca8a5bca71f54be0ae47dbd79b466` (checked 2026-10-28), the 8,000-byte main-prompt limit affects plugin skills on the host path and every skill read through the extension path. Nexus-Hub delivers plain user skills to `~/.agents/skills`, and whether they reach the extension path is unverified. 276 of 340 SKILL.md files are above 8,000 bytes, measured on 2026-10-28 with `python -c "import glob,os;print(sum(os.path.getsize(p)>8000 for p in glob.glob('catalog/skills/*/*/SKILL.md')))"`.
+
+**Suggested next step**: Before any Codex plugin packaging, re-verify the vendor limit and call sites, measure the packaged SKILL.md bytes against it, and resolve whether user skills route through the extension path. See the scoped read-contract entry `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28` and v4.14.2's parked branch P2 at `plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md#parked-branches`.
+
+#### WN-28: Member checks time out on slow GitHub lookups
+
+**Source phase**: v4.14 run coordination, v4.14.3 publication admission (2026-10-28)
+
+**Reason**: Each member's evaluation inside `check-minor`, `check-member` and `record member-start` gets a fixed 20-second share. With ordinary GitHub latency the v4.14.2 release predicates (`release.main`, `approval.remote`, `integration.*`) intermittently read `cannot-verify` with "member budget exhausted", so the v4.14.3 publication gate refused three times with `previous-member-incomplete (v4.14.2)` before passing on a retry with no change in state.
+
+**Suggested next step**: Give a member's release and integration lookups a share sized to observed latency, or report an exhausted share as a retryable notice rather than the predecessor being incomplete, with a regression test that simulates slow `gh` and `git ls-remote` calls.
+
+### Resolved
+
+None.
