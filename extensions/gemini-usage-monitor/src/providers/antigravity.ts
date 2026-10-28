@@ -72,6 +72,41 @@ interface QuotaGroup {
   name: string;
   session: UsageMetric;
   weekly: UsageMetric;
+  /** Buckets whose window could not be classified, kept under their own label. */
+  other: UsageMetricRow[];
+}
+
+function hasFraction(bucket: Record<string, unknown>): boolean {
+  return typeof bucket.remainingFraction === "number" && Number.isFinite(bucket.remainingFraction);
+}
+
+function readGroup(rec: Record<string, unknown>, buckets: unknown[]): QuotaGroup {
+  const group: QuotaGroup = { name: str(rec.displayName) ?? "Models", session: UNTRACKED_METRIC, weekly: UNTRACKED_METRIC, other: [] };
+  let sessionServed = false;
+  for (const b of buckets) {
+    const bucket = asRecord(b);
+    if (!bucket) {
+      continue;
+    }
+    const which = bucketWindow(bucket);
+    if (which) {
+      group[which] = readBucket(bucket);
+      if (which === "session") {
+        sessionServed = hasFraction(bucket);
+      }
+      continue;
+    }
+    const label = str(bucket.displayName);
+    if (label && bucket.disabled !== true && hasFraction(bucket)) {
+      group.other.push({ label, ...readBucket(bucket) });
+    }
+  }
+  // Antigravity leaves the five-hour figure blank while the weekly limit is spent
+  // ("the 5-hour limit does not currently apply"); that is not 100% used.
+  if (!sessionServed && isTracked(group.session) && isTracked(group.weekly) && group.weekly.percent >= 100) {
+    group.session = UNTRACKED_METRIC;
+  }
+  return group;
 }
 
 function readGroups(summary: unknown): QuotaGroup[] {
@@ -87,19 +122,25 @@ function readGroups(summary: unknown): QuotaGroup[] {
     if (!rec || !Array.isArray(rec.buckets)) {
       continue;
     }
-    const group: QuotaGroup = { name: str(rec.displayName) ?? "Models", session: UNTRACKED_METRIC, weekly: UNTRACKED_METRIC };
-    for (const b of rec.buckets) {
-      const bucket = asRecord(b);
-      const which = bucket ? bucketWindow(bucket) : null;
-      if (bucket && which) {
-        group[which] = readBucket(bucket);
-      }
-    }
-    if (isTracked(group.session) || isTracked(group.weekly)) {
+    const group = readGroup(rec, rec.buckets);
+    if (isTracked(group.session) || isTracked(group.weekly) || group.other.length > 0) {
       out.push(group);
     }
   }
   return out;
+}
+
+/**
+ * The headline group: the panel's own "Gemini Models" first, so a narrower
+ * group such as "Gemini 4 Argon" never takes over the status bar by order alone.
+ */
+export function pickPrimaryGroup<T extends { name: string; session: UsageMetric; weekly: UsageMetric }>(groups: T[]): T {
+  return (
+    groups.find((g) => /^gemini models$/i.test(g.name.trim())) ??
+    groups.find((g) => /gemini/i.test(g.name) && isTracked(g.session) && isTracked(g.weekly)) ??
+    groups.find((g) => /gemini/i.test(g.name)) ??
+    groups[0]
+  );
 }
 
 /** "Claude and GPT models" -> "Claude and GPT Models", matching the panel's own "Gemini Models". */
@@ -124,18 +165,20 @@ export function mapQuotaSummary(summary: unknown, userStatus?: unknown, now = Da
   if (groups.length === 0) {
     return null;
   }
-  const primary = groups.find((g) => /gemini/i.test(g.name)) ?? groups[0];
+  const primary = pickPrimaryGroup(groups);
   const additionalLimits: UsageMetricRow[] = [];
   for (const g of groups) {
-    if (g === primary) {
-      continue;
-    }
     const name = titleGroup(g.name);
-    if (isTracked(g.session)) {
-      additionalLimits.push({ label: `${name}: Current Session`, ...g.session });
+    if (g !== primary) {
+      if (isTracked(g.session)) {
+        additionalLimits.push({ label: `${name}: Current Session`, ...g.session });
+      }
+      if (isTracked(g.weekly)) {
+        additionalLimits.push({ label: `${name}: Weekly`, ...g.weekly });
+      }
     }
-    if (isTracked(g.weekly)) {
-      additionalLimits.push({ label: `${name}: Weekly`, ...g.weekly });
+    for (const row of g.other) {
+      additionalLimits.push({ ...row, label: `${name}: ${row.label}` });
     }
   }
   const planLabel = readPlanLabel(userStatus) ?? "Antigravity";

@@ -6,8 +6,11 @@ import * as path from "path";
  * usage response so a maintainer can see which fields the vendor serves (for
  * example whether resets are reported) without sharing anything identifying.
  *
- * Kept: every key, every number and boolean, ISO dates, and short lowercase
- * enum-like words. Replaced with a placeholder: every other string, any value
+ * Kept: every key, every number and boolean, ISO dates, short lowercase
+ * enum-like words, short window ids ("5h"), and the plain-text `displayName` and
+ * `description` of each `groups` / `buckets` entry, which name a model group or a
+ * limit and are needed to tell the quota windows apart. Replaced with a
+ * placeholder: every other string, any value
  * under an identity- or secret-shaped key (ids, emails, names, accounts,
  * organizations, owners, phones, tokens, passwords, cookies, sessions), and any
  * key that itself looks like an id or an email. A key is split into words first,
@@ -23,6 +26,13 @@ import * as path from "path";
 
 const DATE = /^\d{4}-\d{2}-\d{2}([T ][0-9:.]+(Z|[+-]\d{2}:?\d{2})?)?$/;
 const ENUM_WORD = /^[a-z][a-z_-]{0,31}$/;
+// Quota window ids such as "5h" or "7d": a short count and a short unit, never a token.
+const WINDOW_ID = /^\d{1,3}[a-z]{1,8}$/;
+// The quota summary's own labels ("Gemini Models", "Five Hour Limit Remaining") name a
+// model group or a limit, not a person, so they are kept; the same keys elsewhere are not.
+const QUOTA_ARRAYS = new Set(["groups", "buckets"]);
+const QUOTA_LABEL_KEYS = new Set(["displayName", "description"]);
+const QUOTA_LABEL = /^[A-Za-z0-9 .,'()&/+:-]{1,160}$/;
 const IDENTITY_KEY = /(^|_)(id|ids|uuid|guid|email|emails|name|names|username|login|user|users|account|accounts|org|orgs|organization|workspace|owner|handle|phone|token|tokens|key|keys|secret|password|passwd|cookie|cookies|session|auth|authorization|credential|credentials|url|uri)(_|$)/;
 const SECRET_WORD = /token|secret|passw|cookie|credential|apikey|bearer/i;
 const ID_SHAPED_KEY = /(^[0-9a-f-]{16,}$)|(\d{5,})|@/i;
@@ -31,6 +41,8 @@ const KEY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
 const NUMBER_CHARS = "0123456789.-+e";
 const DATE_CHARS = "0123456789-T:.Z+ ";
 const ENUM_CHARS = "abcdefghijklmnopqrstuvwxyz_-";
+const WINDOW_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+const LABEL_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,'()&/+:-";
 
 /**
  * Copy `text` using only characters taken from `alphabet`, or return null when
@@ -81,7 +93,13 @@ function redactNumber(value: number, identityKey: boolean): number | string {
 
 function redactString(value: string, identityKey: boolean): string {
   if (!identityKey) {
-    const kept = DATE.test(value) ? rebuild(value, DATE_CHARS) : ENUM_WORD.test(value) ? rebuild(value, ENUM_CHARS) : null;
+    const kept = DATE.test(value)
+      ? rebuild(value, DATE_CHARS)
+      : ENUM_WORD.test(value)
+        ? rebuild(value, ENUM_CHARS)
+        : WINDOW_ID.test(value)
+          ? rebuild(value, WINDOW_CHARS)
+          : null;
     if (kept !== null) {
       return kept;
     }
@@ -105,8 +123,16 @@ function redactScalar(value: unknown, identityKey: boolean): unknown {
   return `<${typeof value}>`;
 }
 
-/** A redacted deep copy of a decoded JSON response. */
-export function redactUsagePayload(value: unknown, identityKey = false): unknown {
+/** A quota group or bucket label kept as text, or null when it must be redacted. */
+function quotaLabel(value: unknown): string | null {
+  return typeof value === "string" && QUOTA_LABEL.test(value) && !value.includes("@") ? rebuild(value, LABEL_CHARS) : null;
+}
+
+/**
+ * A redacted deep copy of a decoded JSON response. `quotaItem` marks an object that
+ * is an element of a `groups` or `buckets` array, whose own labels are kept.
+ */
+export function redactUsagePayload(value: unknown, identityKey = false, quotaItem = false): unknown {
   if (Array.isArray(value)) {
     return value.map((item) => redactUsagePayload(item, identityKey));
   }
@@ -115,7 +141,14 @@ export function redactUsagePayload(value: unknown, identityKey = false): unknown
     let index = 0;
     for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
       const safeKey = (ID_SHAPED_KEY.test(key) ? null : rebuild(key, KEY_CHARS)) ?? `<key ${index}>`;
-      out[safeKey] = redactUsagePayload(child, identityKey || isIdentityKey(key));
+      const label = quotaItem && !identityKey && QUOTA_LABEL_KEYS.has(key) ? quotaLabel(child) : null;
+      if (label !== null) {
+        out[safeKey] = label;
+      } else if (Array.isArray(child) && QUOTA_ARRAYS.has(key) && !identityKey) {
+        out[safeKey] = child.map((item) => redactUsagePayload(item, false, true));
+      } else {
+        out[safeKey] = redactUsagePayload(child, identityKey || isIdentityKey(key));
+      }
       index += 1;
     }
     return out;
