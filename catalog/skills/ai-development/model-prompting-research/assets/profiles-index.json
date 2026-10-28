@@ -38,18 +38,6 @@
         "last_verified": "2026-09-08"
       },
       {
-        "platform": "gemini",
-        "roster_source": "config",
-        "roster": [
-          "gemini-3.5-flash-lite",
-          "gemini-3.6-flash",
-          "gemini-3.7-flash",
-          "gemini-3.8-flash"
-        ],
-        "roster_hash": "df6bf39c905b53e6f6e45c07c6cd4fc84de136c907c6c66eac8e0cec4e581444",
-        "last_verified": "2026-09-08"
-      },
-      {
         "platform": "openai",
         "roster_source": "config",
         "roster": [
@@ -89,6 +77,45 @@
         ],
         "roster_hash": "6dd4b0972d520d9e42c25ab9384183f4857689ee52eeea10faa5ed785d5b5d96",
         "last_verified": "2026-10-15"
+      },
+      {
+        "platform": "gemini",
+        "roster_source": "api",
+        "roster": [
+          "gemini-2.5-flash",
+          "gemini-2.5-flash-image",
+          "gemini-2.5-flash-lite",
+          "gemini-2.5-flash-native-audio-preview-12-2025",
+          "gemini-2.5-flash-preview-tts",
+          "gemini-2.5-pro",
+          "gemini-2.5-pro-preview-tts",
+          "gemini-3-flash-preview",
+          "gemini-3-pro-image",
+          "gemini-3.1-flash-image",
+          "gemini-3.1-flash-lite",
+          "gemini-3.1-flash-lite-image",
+          "gemini-3.1-flash-live-preview",
+          "gemini-3.1-flash-tts-preview",
+          "gemini-3.1-pro-preview",
+          "gemini-3.5-flash-lite",
+          "gemini-3.5-live-translate-preview",
+          "gemini-3.5-transcribe",
+          "gemini-3.5-transcribe-live",
+          "gemini-3.6-flash",
+          "gemini-3.8-flash",
+          "gemini-3.8-flash-lite-tts",
+          "gemini-3.8-flash-tts",
+          "gemini-3.8-live",
+          "gemini-3.8-live-extended-thinking",
+          "gemini-4-argon",
+          "gemini-embedding-001",
+          "gemini-embedding-2-preview",
+          "gemini-nano-banana-2.1",
+          "gemini-omni-1.1-flash",
+          "gemini-robotics-er-2-preview"
+        ],
+        "roster_hash": "6643f642a343bf1fc0e9937a8ba498c7c5e427fb46554c5f479b7fd1b718ceac",
+        "last_verified": "2026-10-28"
       }
     ]
   },
@@ -2546,6 +2573,124 @@
           "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
           "confidence": "high",
           "scope": "model-specific"
+        }
+      ]
+    },
+    "gemini-4-argon": {
+      "platform": "gemini",
+      "last_verified": "2026-10-28",
+      "claims": [
+        {
+          "claim": "The Gemini API supports low, medium and high thinking_level values; medium is the default, and workload evaluations compare all three levels.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/latest-model",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Vendor behavior only; project effort floors, raise-only rules and spend caps still apply.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Custom temperature, top_p and top_k values do not affect Argon generation.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/latest-model",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Cloud requests with frequency_penalty, presence_penalty or candidate_count return HTTP 400.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Thinking tokens consume max_output_tokens; reducing thinking_level limits reasoning cost without truncating the response through a small output cap.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/generate-content/thinking",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "No output-cap increase or effort downshift is authorized by this profile.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Legacy Gemini Generate Content migration guidance recommends max_output_tokens of at least 32,768.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/generate-content/latest-model",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Recommendation scoped to Legacy Generate Content, subject to existing application output and spending limits.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Cloud requires FunctionResponse values to match the preceding FunctionCall id, name and order; Cloud guidance discourages unstructured prose before tool calls.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Cloud chat history cannot finish with a model role turn, and prefilled model turns are unsupported.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Gemini API explicit caching is unsupported; implicit caching is enabled by default with a minimum input of 4,096 tokens.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/caching",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Cloud explicit caching is unsupported; static prefix content of at least 6,144 tokens qualifies for implicit caching.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Interactions output exceeding 65,536 tokens requires background execution; other long-running calls use background execution or an HTTP client timeout of at least 15 minutes.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/latest-model",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Interactions surface only; not a Cloud timeout recommendation.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Legacy Gemini Generate Content guidance specifies an HTTP client timeout of at least 20 minutes per call.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/generate-content/latest-model",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Legacy Generate Content surface only; not an Interactions or Cloud timeout recommendation.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Legacy Gemini Generate Content accepts thinking_budget alone with a warning and maps it to a thinking_level; combining both controls returns HTTP 400.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/generate-content/thinking",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Cloud thinking_budget requests return HTTP 400; thinking_level is the supported reasoning control.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "The cyber-permissive variant is reserved for Fairwind-approved cybersecurity workloads.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Allowlist-only variant; excluded from public routing and this catalog-derived roster.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Before a long autonomous run, confirm access to the required tools and documentation and agreement on the intended result.",
+          "source_url": "https://aistudio.google.com/learn/gemini-4-argon-developer-guide",
+          "confidence": "medium",
+          "scope": "model-agnostic-candidate",
+          "note": "User-supplied PDF, page 8, tip 1, third bullet. This is a candidate for broader use, not evidence of a model-specific advantage or cross-model effectiveness. The actual tip 2 on page 9 concerns verification.",
+          "evidence_scope": "cited-page"
         }
       ]
     }

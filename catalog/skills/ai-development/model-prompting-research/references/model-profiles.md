@@ -10,7 +10,7 @@ reference. This index exists so no mirror is an orphan bundled file.
 Each file is retrieved by model ID; its Evidence scope column describes
 what the cited source covers. No claim may be copied into a shared catalog body.
 
-40 profiled model(s):
+41 profiled model(s):
 
 - [claude-fable-5](models/claude-fable-5.md) - 10 claim(s), verified 2026-10-15
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
@@ -41,6 +41,7 @@ what the cited source covers. No claim may be copied into a shared catalog body.
 - [gemini-3.8-flash-high](models/gemini-3.8-flash-high.md) - 10 claim(s), verified 2026-10-15
 - [gemini-3.8-flash-low](models/gemini-3.8-flash-low.md) - 10 claim(s), verified 2026-10-15
 - [gemini-3.8-flash-medium](models/gemini-3.8-flash-medium.md) - 10 claim(s), verified 2026-10-15
+- [gemini-4-argon](models/gemini-4-argon.md) - 15 claim(s), verified 2026-10-28
 - [gpt-5.2](models/gpt-5.2.md) - 10 claim(s), verified 2026-10-15
 - [gpt-5.3-codex](models/gpt-5.3-codex.md) - 10 claim(s), verified 2026-10-15
 - [gpt-5.4](models/gpt-5.4.md) - 10 claim(s), verified 2026-10-15

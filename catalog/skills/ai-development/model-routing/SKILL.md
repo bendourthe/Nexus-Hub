@@ -141,7 +141,7 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.s
 ~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.ps1 <platform-id>
 ```
 
-For `/implement`, start with the plan's selected-provider map cell and verify it against the live platform surface. If unavailable, select the nearest model at the same or stronger generic tier and surface the delta. For `/route`, resolve the scored tier directly against the enumerated host set. A picker sentinel is valid evidence that switching is manual; it is not permission to guess a concrete id.
+For `/implement`, start with the plan's selected-provider map cell and verify it against the live platform surface. If unavailable, select the nearest model at the same or stronger generic tier and surface the delta. When the selected provider's frontier cell cannot be reached on the user's plan or host, resolve to that provider's strong cell and explicitly disclose the fallback in the recommendation. This availability fallback preserves the required effort and does not establish equal capability; any quality gate still has to pass. For `/route`, resolve the scored tier directly against the enumerated host set. A picker sentinel is valid evidence that switching is manual; it is not permission to guess a concrete id.
 
 Present the generic tier, effort, concrete model when verified, all five signal readings, map freshness, and best-effort official citations. A plan's phase fields remain generic even when the current implementation recommendation names a concrete model.
 

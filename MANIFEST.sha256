@@ -276,11 +276,11 @@ ad84b5aef6a448ba38dcb897491bad86521c120ec8c7df41a60c2cc6eb2afc57  catalog/skills
 711453997091eb5067fab611a7d88c0e1aea96f5051ad64a57cdf653fdb3e2c3  catalog/skills/ai-development/mcp-builder/scripts/init-mcp-ts.ps1
 3dfbe54d294176c80d1d70f1802664e36c95a1ed278b6f103672a7eac4af4700  catalog/skills/ai-development/mcp-builder/scripts/init-mcp-ts.sh
 320fbfe9bf1cfac94148aec32c6d3707435af7b3a259ff6a564a29a4ad7d9629  catalog/skills/ai-development/model-prompting-research/SKILL.md
-06b661ebd85685c57aa12f8e450371121c14e9ed66d9a9c37c6ac46474f8d025  catalog/skills/ai-development/model-prompting-research/assets/profiles-index.json
+d978f1ed76a98ff026165d8b43af7431c2434ab2e67fbb6410558b3864723d71  catalog/skills/ai-development/model-prompting-research/assets/profiles-index.json
 b37e484a1959ebd87b73b8a06adaf2ca027a5ce5669b7a84cf56c6201de6cd34  catalog/skills/ai-development/model-prompting-research/assets/research-workflow.js
 082c5073fd6bf9972830aec4aa7279ce0312bae0aded783638e4c48b66087235  catalog/skills/ai-development/model-prompting-research/evals/trigger-cases.json
 708e3ecb622b2d140db7e4fd319c5cbfe1784d2987ba560d1e52d5179d5f1413  catalog/skills/ai-development/model-prompting-research/references/edit-routing.md
-8ef86a3c8fd0ef67c90835a024d1cc263314b121efd87acb40622c9e25f4612c  catalog/skills/ai-development/model-prompting-research/references/model-profiles.md
+822b34f4944a1e2fb0eaa61270ba78c0bf51168b9c8adc53590624160b4a16d3  catalog/skills/ai-development/model-prompting-research/references/model-profiles.md
 410669b1a545fb47bc154e1b7bdb8aecba95f3e30cf14810396a057cddc5d83f  catalog/skills/ai-development/model-prompting-research/references/models/claude-fable-5-1.md
 da86b27f5810c04c2a9419bdc318c47ef31f764798bd005a5c6021231abed47b  catalog/skills/ai-development/model-prompting-research/references/models/claude-fable-5.md
 e9382601b719e0e5c4bdbc6e761611a23a822a0f3edb38c8d582c3e1376f723a  catalog/skills/ai-development/model-prompting-research/references/models/claude-haiku-4-5-20251001.md
@@ -310,6 +310,7 @@ ede7da1142a74169f6aa7c76e3a207a28fdd3084e8101d69c8e61a5063606e84  catalog/skills
 45fc0ba6d8b64670ad129b20dc4ae60f52fe283d2606953fa45ea674661be17e  catalog/skills/ai-development/model-prompting-research/references/models/gemini-3.8-flash-low.md
 3e2784903384f64147a9d14ead09bfea95ad67d940905a9d74315ad477eaff13  catalog/skills/ai-development/model-prompting-research/references/models/gemini-3.8-flash-medium.md
 6dbc26cc177d6436ec9303fe9944cd35e92572b8b3d0fbbf2205c6ac32a9600f  catalog/skills/ai-development/model-prompting-research/references/models/gemini-3.8-flash.md
+96da62b5bb9478bd9f53b4a0c7fcc3e79bdc7dffd791886feb227e92a892ad02  catalog/skills/ai-development/model-prompting-research/references/models/gemini-4-argon.md
 80b2744c1620d33ea239d92d3a581b389ba341eac09b9bee03d9f6bf8409092f  catalog/skills/ai-development/model-prompting-research/references/models/gpt-5.2.md
 58a9984be59d21d547d62c909293e592a2c426bf9ea3a636066f4437317eb629  catalog/skills/ai-development/model-prompting-research/references/models/gpt-5.3-codex.md
 6d932e2dbb9693a9a6a167fc62aed0dd2bdbfbaadf616502d2dac000c55542e9  catalog/skills/ai-development/model-prompting-research/references/models/gpt-5.4-mini.md
@@ -324,10 +325,10 @@ b23668528f7124fb401e44534861170da3f292e8aa7b0ff19efc42af3f06e2e4  catalog/skills
 70873df426fffa7d93f2e54e2c5ec54eb080fd04766aa9543708fef5fb5869ad  catalog/skills/ai-development/model-prompting-research/references/research-runbook.md
 cb13fdce26b0b8e805f2b8a28ffdd7b3422b694da3b538c06e216c82afc2fed3  catalog/skills/ai-development/model-prompting-research/references/schema.md
 94b9f516416ba06ba6a6c38f81adff711864dc55ee8fce47c7517a7a21305910  catalog/skills/ai-development/model-prompting-research/scripts/apply_prompting_edits.py
-5416af926b36f5a6cf68d56837bc5bc3a9ef5c6f8e360aabf4b6e12b227cf835  catalog/skills/ai-development/model-prompting-research/scripts/write_model_prompting_profile.py
-65b7cf0c66895ead3a0416c59196c697c36e1954319f905921c52ca70843a6ba  catalog/skills/ai-development/model-routing/SKILL.md
+25772492a0f9eb8fd1d633828d9c7f816237fd7906284c2844febff517068ba9  catalog/skills/ai-development/model-prompting-research/scripts/write_model_prompting_profile.py
+5a8781ed2717db8927163643039b933a160d34ed25c1d7f9457c290a1776b105  catalog/skills/ai-development/model-routing/SKILL.md
 a702540669b3f902b12b279f5feec3827c2cfa58fb3831990487391289d2236d  catalog/skills/ai-development/model-routing/references/effort-modifiers.md
-57b6a9ffa6b07bc6cb715eb758f8fcbb7c944b1d615f2fc21b0db8c2d25198d6  catalog/skills/ai-development/model-routing/references/last-known-model-map.json
+6b86717912b46de7acc7cfa5d9f751cc9c94be16e61bdfb6babe89415861df6d  catalog/skills/ai-development/model-routing/references/last-known-model-map.json
 2e82e9e33afc871d6e9d6df57d3d9cb1614a28095e0116bfec6f25e1e943a16c  catalog/skills/ai-development/model-routing/scripts/detect-platform.ps1
 79fb68da7b1460168ea4ba53e6f5338b67355d4fabebdd9f1ff553304581126b  catalog/skills/ai-development/model-routing/scripts/detect-platform.sh
 394efaddaa7bb35927db2c0dca332929ce6bb24fcbf6712c20ecfffd700f7a0c  catalog/skills/ai-development/model-routing/scripts/enumerate-models.ps1

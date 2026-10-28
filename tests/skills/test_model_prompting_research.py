@@ -293,13 +293,46 @@ def test_write_restamps_the_roster_and_its_hash(bundle: Path) -> None:
     assert meta["roster_hash"] == expected
 
 
-def test_write_widens_the_roster_to_cover_a_profiled_model(bundle: Path) -> None:
-    """The index must never claim a model it has no roster entry for."""
-    _write(bundle, _payload({"model-z": [_claim()]}, roster=["model-a"]))
+@pytest.mark.parametrize("platform", ["claude-code", "gemini"])
+def test_write_rejects_profile_outside_supplied_live_roster(bundle: Path, platform: str) -> None:
+    """An incoming profile cannot silently widen an authoritative live roster."""
+    assert _write(bundle, _payload({"model-a": [_claim()]})).returncode == 0
+    before = {str(p.relative_to(bundle)): p.read_bytes() for p in bundle.rglob("*") if p.is_file() and p.name != "_payload.json"}
 
-    meta = _index(bundle)["meta"]
+    result = _write(bundle, _payload({"model-a": [_claim("Must not be partially saved.")], "model-z": [_claim()]}, platform=platform, roster=["model-a"]))
 
-    assert "model-z" in meta["roster"]
+    assert result.returncode != 0
+    assert "not in the supplied live roster" in result.stderr
+    assert {str(p.relative_to(bundle)): p.read_bytes() for p in bundle.rglob("*") if p.is_file() and p.name != "_payload.json"} == before
+
+
+@pytest.mark.parametrize("platform", ["claude-code", "gemini"])
+def test_refresh_keeps_retired_profiles_without_readding_them_to_live_roster(bundle: Path, platform: str) -> None:
+    """Retirement removes live membership while preserving historical research."""
+    assert _write(bundle, _payload({"primary-other": [_claim()]}, roster=["primary-other"])).returncode == 0
+    assert _write(bundle, _payload({"secondary-other": [_claim()]}, platform="cursor", roster=["secondary-other"])).returncode == 0
+    assert _write(bundle, _payload({"retired": [_claim("Retain historical guidance.")], "model-a": [_claim()]}, platform=platform, roster=["model-a", "retired"])).returncode == 0
+    before = _index(bundle)
+    retired = before["models"]["retired"]
+    retired_mirror = (bundle / "references" / "models" / "retired.md").read_bytes()
+    other_meta = {k: v for k, v in before["meta"].items() if k != "platforms"} if platform != "claude-code" else None
+    other_platforms = [e for e in before["meta"].get("platforms", []) if e["platform"] != platform]
+
+    result = _write(bundle, _payload({"model-a": [_claim("Current guidance.")]}, platform=platform, roster=["model-b", "model-a", "model-b"], verified_at="2026-10-23"))
+
+    assert result.returncode == 0, result.stderr
+    after = _index(bundle)
+    current = after["meta"] if platform == "claude-code" else next(e for e in after["meta"]["platforms"] if e["platform"] == platform)
+    assert current["roster"] == ["model-a", "model-b"]
+    assert current["roster_hash"] == writer.roster_hash(["model-a", "model-b"])
+    assert current["last_verified"] == "2026-10-23"
+    assert after["models"]["retired"] == retired
+    assert (bundle / "references" / "models" / "retired.md").read_bytes() == retired_mirror
+    assert after["models"]["secondary-other"] == before["models"]["secondary-other"]
+    assert [e for e in after["meta"].get("platforms", []) if e["platform"] != platform] == other_platforms
+    if other_meta is not None:
+        assert {k: v for k, v in after["meta"].items() if k != "platforms"} == other_meta
+        assert after["models"]["primary-other"] == before["models"]["primary-other"]
     assert _validate(bundle).returncode == 0
 
 

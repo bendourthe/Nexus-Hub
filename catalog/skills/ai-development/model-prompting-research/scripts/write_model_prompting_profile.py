@@ -302,6 +302,12 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
             not isinstance(model_id, str) or not model_id.strip() for model_id in roster
         ):
             raise WriteError("payload.roster must be a non-empty array of model ids")
+        roster = sorted({model_id.strip() for model_id in roster})
+        unknown = sorted(set(incoming) - set(roster))
+        if unknown:
+            raise WriteError(
+                f"model(s) not in the supplied live roster for {platform}: {', '.join(unknown)}"
+            )
 
     written: list[str] = []
     for model_id in sorted(incoming):
@@ -326,11 +332,8 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     index["schema_version"] = SCHEMA_VERSION
     legacy_platform = index["meta"].get("platform")
     if legacy_platform in (None, platform):
-        # Widen only by models profiled on THIS platform: a model profiled on another
-        # platform belongs to that platform's meta.platforms entry, and absorbing it here
-        # makes the primary freshness check report it as "no longer live" (v4.13.9 WN-23).
-        profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
-        merged_roster = sorted({m.strip() for m in roster} | set(profiled_here))
+        # Historical profiles remain available, but only the supplied live roster
+        # establishes current membership and freshness.
         # Single-platform layer, or a write for the layer's primary platform: the
         # legacy keys stay the source of truth (schema 1.0.0 behavior).
         index["meta"] = {
@@ -338,8 +341,8 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
             "last_verified": verified_at,
             "platform": platform,
             "roster_source": roster_source,
-            "roster": merged_roster,
-            "roster_hash": roster_hash(merged_roster),
+            "roster": roster,
+            "roster_hash": roster_hash(roster),
         }
         return index, written
 
@@ -347,14 +350,11 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     # meta.platforms array, so the primary platform's roster is never rewritten by
     # research on a different vendor's models.
     entries = [e for e in index["meta"].get("platforms", []) if isinstance(e, dict)]
-    platform_roster = [m.strip() for m in roster]
-    profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
-    platform_roster = sorted(set(platform_roster) | set(profiled_here))
     entry = {
         "platform": platform,
         "roster_source": roster_source,
-        "roster": platform_roster,
-        "roster_hash": roster_hash(platform_roster),
+        "roster": roster,
+        "roster_hash": roster_hash(roster),
         "last_verified": verified_at,
     }
     index["meta"]["platforms"] = [e for e in entries if e.get("platform") != platform] + [entry]
