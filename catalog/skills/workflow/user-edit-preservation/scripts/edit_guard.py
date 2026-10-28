@@ -400,7 +400,7 @@ def _claim_prune(root: Path) -> bool:
         if now().timestamp() - marker.stat().st_mtime < PRUNE_INTERVAL_SECONDS:
             return False
     except FileNotFoundError:
-        pass
+        pass  # no marker yet: this store has never been pruned, so the claim proceeds
     except OSError:
         return False
     try:
