@@ -739,7 +739,7 @@ def _write_document(path: Path, content: str, nexus_dir: Path) -> None:
 
 
 def _guard_neutral_path(path: Path, nexus_dir: Path) -> None:
-    """Refuse to write anywhere outside ``<root>/.nexus/`` (defence in depth)."""
+    """Refuse to write anywhere outside ``<root>/.nexus/`` (defense in depth)."""
     if not path.resolve().is_relative_to(nexus_dir):
         raise RuntimeError(f"refusing to write outside .nexus/: {path.resolve()}")
 

@@ -31,6 +31,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from scripts.nexus_process import install_no_window_default  # noqa: E402
+
+install_no_window_default()
+
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402

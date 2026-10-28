@@ -1,0 +1,71 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"ee729ca55593735bd36f6b98b52dab773d6840015a4b6c459d6437001637415b","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "status": "OBSERVED_IDLE_PASS",
+  "scope": "Three actual native installer variants and three Node resolver cases, explicit-target private Claude registry installation and four delivered-hook inert controls",
+  "tests": {
+    "pid": 8540,
+    "exit": 0,
+    "summary": "..s....                                                                  [100%]\r\n6 passed, 1 skipped in 320.22s (0:05:20)"
+  },
+  "installer": {
+    "pid": 28620,
+    "exit": 0,
+    "target": "<private-temp>/nwo-sPah4Z/h"
+  },
+  "delivered_hook_sha256": "cb202c71fe91e916e7d791b6b1cdc97a95e9090a3593d4aabe1b384f1f59293c",
+  "controls": [
+    {
+      "name": "safe-python",
+      "pid": 5344,
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "unsafe-python",
+      "pid": 50872,
+      "exit": 2,
+      "expected": 2
+    },
+    {
+      "name": "safe-embedded-node",
+      "pid": 56096,
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "unsafe-embedded-node",
+      "pid": 4412,
+      "exit": 2,
+      "expected": 2
+    }
+  ],
+  "desktop": {
+    "started": 1792854367.629289,
+    "seconds": 528.0982489585876,
+    "idle_start_ms": 522813,
+    "minimum_idle_ms": 522813,
+    "samples": 45127,
+    "visible_console_events": [],
+    "foreground_changes": [
+      {
+        "pid": 21676,
+        "elapsed": 0.002
+      }
+    ]
+  },
+  "checks": {
+    "duration": true,
+    "idleStarted": true,
+    "noObservedInput": true,
+    "noNewVisibleConsole": true,
+    "noFocusChange": true
+  },
+  "source_bindings_unchanged": true,
+  "native_record_unchanged": true,
+  "live_hook_unchanged": true,
+  "global_runtime_adoption": false
+}
+}

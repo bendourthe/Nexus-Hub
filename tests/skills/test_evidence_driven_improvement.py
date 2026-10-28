@@ -96,8 +96,6 @@ def judge_sensitivity() -> dict:
 
 # -- scorers under test --------------------------------------------------------
 
-_SUBSTANTIVE = ("execution_evidence", "claim_support", "boundary_adherence")
-
 _EXECUTION_MARKERS = ("i ran", "i applied", "exit code", "quoted")
 _SUPPORT_MARKERS = ("per the", "line ", ".py", ".md")
 _HEDGE_MARKERS = ("studies show", "industry-standard", "almost certainly", "as is typical")
@@ -1798,11 +1796,11 @@ class TestRunnerSpendAccounting:
     def test_receipt_does_not_overwrite_a_neighbouring_temp_file(self, tmp_path: Path) -> None:
         m = _runner()
         out = tmp_path / "result.json"
-        neighbour = tmp_path / "result.json.tmp"
-        neighbour.write_text("user data", encoding="utf-8")
+        neighbor = tmp_path / "result.json.tmp"
+        neighbor.write_text("user data", encoding="utf-8")
         m.write_receipt(out, {"calls_made": 0})
         assert json.loads(out.read_text(encoding="utf-8")) == {"calls_made": 0}
-        assert neighbour.read_text(encoding="utf-8") == "user data"
+        assert neighbor.read_text(encoding="utf-8") == "user data"
 
     def test_dangling_receipt_link_refuses_to_start(self, monkeypatch, tmp_path: Path) -> None:
         m = _runner()

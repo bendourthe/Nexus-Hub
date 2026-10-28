@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_SCRIPTS = (
+    "nexus_process.py",
+    "completion_budget.py",
     "nexus_git_attribution.py",
     "merge_permissions.py",
     "nexus_hub_cli.py",
@@ -42,6 +44,13 @@ NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
 ORG_RULE_PATH = Path(".claude") / "rules" / "org" / "python" / "code-style.md"
+
+
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
 
 
 def _host_hook_suffix() -> str:
@@ -149,7 +158,7 @@ def _org_findings(workspace: Path) -> list[str]:
     return findings
 
 
-def collect_findings(home: Path, workspace: Path) -> list[str]:
+def collect_findings(home: Path, workspace: Path, source: Path | None = None) -> list[str]:
     findings: list[str] = []
     install_root = home / ".nexus-hub"
     settings_path = workspace / ".claude" / "settings.local.json"
@@ -176,6 +185,30 @@ def collect_findings(home: Path, workspace: Path) -> list[str]:
             findings.append(f"expected installed script is missing: {name}")
     if not (install_root / "VERSION").is_file():
         findings.append("installed VERSION marker is missing")
+    if source is not None:
+        for surface in ("skills", "commands"):
+            origin = source / "catalog" / surface
+            if not origin.is_dir():
+                findings.append(f"source catalog directory is missing: {origin}")
+                continue
+            checked = 0
+            for original in sorted(origin.rglob("*")):
+                if not original.is_file():
+                    continue
+                relative = original.relative_to(origin)
+                if surface == "skills":
+                    if len(relative.parts) < 3:
+                        continue
+                    relative = Path(*relative.parts[1:])
+                installed = workspace / ".claude" / surface / relative
+                checked += 1
+                try:
+                    if installed.read_bytes() != original.read_bytes():
+                        findings.append(f"installed catalog payload differs: {installed}")
+                except OSError as exc:
+                    findings.append(f"installed catalog payload is unreadable: {installed}: {exc}")
+            if not checked:
+                findings.append(f"source catalog directory has no payload files: {origin}")
     return findings
 
 
@@ -190,10 +223,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--home", required=True, type=Path)
     parser.add_argument("--workspace", required=True, type=Path)
+    parser.add_argument("--source", type=Path, help="Compare the full literal catalog payload with this checkout.")
     args = parser.parse_args(argv)
     home = args.home.resolve()
     workspace = args.workspace.resolve()
-    findings = collect_findings(home, workspace)
+    findings = collect_findings(home, workspace, args.source.resolve() if args.source else None)
     if not findings:
         env = os.environ.copy()
         env["HOME"] = str(home)

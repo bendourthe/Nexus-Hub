@@ -1,6 +1,6 @@
 {
   "skill": "agent-communication",
-  "purpose": "Route 'how should the assistant word this live response' here, while keeping the near-neighbours routing to themselves: writing-editing (authoring a standalone document), anti-slop-editing (de-slopping a finished draft), technical-writer (structured documentation), and markdown.md conventions (mechanics of a generated file).",
+  "purpose": "Route 'how should the assistant word this live response' here, while keeping the near-neighbors routing to themselves: writing-editing (authoring a standalone document), anti-slop-editing (de-slopping a finished draft), technical-writer (structured documentation), and markdown.md conventions (mechanics of a generated file).",
   "cases": [
     {"id": "pos-summarize-plainly", "prompt": "summarize what you did in plain language I can follow", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
     {"id": "pos-give-me-the-steps", "prompt": "give me the steps to run this, and walk me through it", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},

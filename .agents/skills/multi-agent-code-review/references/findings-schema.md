@@ -35,7 +35,7 @@ Each agent returns a JSON array of finding objects. An agent with nothing to rep
 | `persona` | string | The persona name from [persona-selection.md](persona-selection.md) (e.g. `correctness`, `security`). Drives attribution, demotion, and promotion provenance. |
 | `requires_verification` | boolean | `true` when confidence < 100 and the finding should get an independent validation pass before it blocks a merge. |
 | `pre_existing` | boolean | `true` when the issue predates the diff (reported but not attributed to the change). |
-| `autofix_class` | enum | `safe` (mechanical, auto-appliable) / `assisted` (human confirms) / `manual` (needs design judgement). |
+| `autofix_class` | enum | `safe` (mechanical, auto-appliable) / `assisted` (human confirms) / `manual` (needs design judgment). |
 | `suggested_fix` | string | The concrete remediation, specific enough to act on. |
 
 ## Validity rules

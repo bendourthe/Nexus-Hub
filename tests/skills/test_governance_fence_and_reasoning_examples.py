@@ -6,7 +6,7 @@
    deployed-service governance to different skills (v3.15.6 DF-1).
 2. The prompt-engineering reasoning reference never asks a native-thinking
    model to write its private reasoning into the reply. Written-reasoning
-   examples are labelled for models without native thinking, and a
+   examples are labeled for models without native thinking, and a
    native-thinking variant enables thinking and asks only for the answer
    (v4.13.8 WN-1 / WN-2).
 """

@@ -1,0 +1,30 @@
+{
+ "capture_ok": true,
+ "anomalies": [],
+ "refused_tests": [],
+ "records": 5,
+ "events": 2,
+ "test_events": 0,
+ "non_exact_pytest_commands": [],
+ "provenance": [
+  {
+   "note": "PreToolUse toolu_01EJ72ngM5bv83VucdisVK7A closed as denied: stream error result, tree unchanged"
+  },
+  {
+   "event": 0,
+   "tool_use_id": "toolu_015P5Uu822AUaXmxPFadzA8p",
+   "tool_name": "Write",
+   "after_seq": 3,
+   "attribution": "paired"
+  },
+  {
+   "event": 1,
+   "tool_use_id": "toolu_01JJVBqL7qLpcRn74bXNWeHt",
+   "tool_name": "Write",
+   "after_seq": 5,
+   "attribution": "paired"
+  }
+ ],
+ "stream_corroboration": true,
+ "final_tree_sha256": "57f665a7ece1da88a36fa35f16d06c1ac648f35773dbc8e6070bb7a996869dce"
+}

@@ -109,7 +109,7 @@ def test_one_key_covers_the_whole_scene(guide_text: str) -> None:
     """v4.4.6 replaced the two per-card statement lists with one shared key.
 
     Two lists meant the same icon appeared in one lane and not the other, so a reader could not
-    tell whether a colour meant the same thing on both sides. The key is split by the distinction
+    tell whether a color meant the same thing on both sides. The key is split by the distinction
     the section is actually about: whether an action can change the work.
     """
     scene = _scene_text(guide_text, "fx-agent-platform")

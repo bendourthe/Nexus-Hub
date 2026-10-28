@@ -251,7 +251,7 @@ def test_minimal_profile_silences(run, hook):
 
 @pytest.mark.parametrize("hook", _BOTH_HOOKS)
 def test_unrelated_disabled_hook_name_does_not_silence(run, hook):
-    """A substring or a neighbouring hook name must not suppress this one."""
+    """A substring or a neighboring hook name must not suppress this one."""
     result = run(hook, env_extra={"NEXUS_DISABLED_HOOKS": "some-other-hook"})
 
     assert result.returncode == 0, result.stderr

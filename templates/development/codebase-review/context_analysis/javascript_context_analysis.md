@@ -81,7 +81,7 @@ review/context_analysis/
 
 - [ ] Configuration management approach documented
 
-- [ ] Environment-specific settings catalogued
+- [ ] Environment-specific settings cataloged
 
 ### Dependency Analysis
 

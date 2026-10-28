@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.1 -->
+<!-- nexus-hub-version: 4.14.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 38 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.2
+
+**Refactor first, then build.** When a feature or fix lands in scattered or duplicated code, the refactoring, simplification and incremental-implementation skills now route it through a verified, behavior-preserving refactor first, backed by design invariants, a subsystem baseline review and a rule-ownership test.
+
+**Harness cost guidance.** Prompt engineering documents provider-specific prompt-cache accounting with a worked example, and agent development gains a pure tool-call decision-policy harness.
+
+**Progress you can ask for, and archives as you go.** `/implement` reports progress hourly and at transitions, `/update status` shows the same report on demand, and a minor run can archive each member right after its release with the opt-in `archive-member` approval. Handoffs are now a prompt printed in the chat, and American English is the default spelling on every platform.
+
+See [the changelog](CHANGELOG.md#4142---2026-10-28) for the full changes and capability usage instructions.
 
 ## What's New in v4.14.1
 
@@ -182,7 +192,7 @@ Catalog: **338 skills** (one added), **19 commands**, and **23 agents**; two hoo
 
 **A release lands on the integration branch before the release branch, and clears what it consumed before tagging.** `/update release` previously merged to `main` and stopped, leaving `develop` a release behind. The cleanup is fail-closed: a branch absent from `git branch --merged` is not deleted, and a worktree with a dirty status stops the release rather than being force-removed.
 
-**The website guide gains a type system, and the Foundations scenes are redrawn.** Every text element carries a `data-ty` role that is the only place its size, weight, line height and colour are decided; the page went from 39 distinct computed font sizes across 95 combinations to 20 across 53. Agentic Platforms and Harnesses are redrawn as SVG scenes that argue their point by structure rather than assertion. Three regressions the migration left behind were caught by diffing rendered output before and after, not by reading the stylesheet, and two more elements overflowed only under CI's Linux font metrics, which run about 19 percent wider than the Windows metrics they were tuned against.
+**The website guide gains a type system, and the Foundations scenes are redrawn.** Every text element carries a `data-ty` role that is the only place its size, weight, line height and color are decided; the page went from 39 distinct computed font sizes across 95 combinations to 20 across 53. Agentic Platforms and Harnesses are redrawn as SVG scenes that argue their point by structure rather than assertion. Three regressions the migration left behind were caught by diffing rendered output before and after, not by reading the stylesheet, and two more elements overflowed only under CI's Linux font metrics, which run about 19 percent wider than the Windows metrics they were tuned against.
 
 **Per-version session history now archives one minor behind instead of two.** Only the current minor keeps its history in `docs/releases/`. This reverses an alternative the retention record had explicitly rejected, and the new record says so plainly rather than presenting the reversal as a technical finding. v4.7 through v4.12 moved: six subtrees, 51 files, 77 links repaired.
 
@@ -224,9 +234,9 @@ Presentation reveal-order and incomplete-evidence checks, structured prompt-cach
 
 **Handbooks are now one file that both reads and presents.** `/presentify` and project handbook maintenance produce a single self-contained offline HTML file carrying a complete scrolling reading view AND a title-page presentation mode, built from the same retained sources. Nothing is fetched at view time - fonts, images, charts and the runtime are embedded - so the file works from a `file://` URI with no network. This is a changed default rather than a new flag; opt out with `--presentation no`, which wins over every other option.
 
-**Nine rendered-output gates decide quality by measuring the render, not the source.** Each reads what the browser actually computed: rendered type size against per-role floors, WCAG contrast on composited colour, SVG label-versus-shape collisions, clipped text, invisible brand marks, deformed charts, print-surface contrast, a declared layout property that does not compute, and focus restoration after Escape. Every one fails a purpose-built fixture and stays silent on the others, because a gate never observed to fail is not evidence.
+**Nine rendered-output gates decide quality by measuring the render, not the source.** Each reads what the browser actually computed: rendered type size against per-role floors, WCAG contrast on composited color, SVG label-versus-shape collisions, clipped text, invisible brand marks, deformed charts, print-surface contrast, a declared layout property that does not compute, and focus restoration after Escape. Every one fails a purpose-built fixture and stays silent on the others, because a gate never observed to fail is not evidence.
 
-**Contrast now owns legibility and measures what the reader sees.** It composites ink over its backdrop at effective alpha - the element's own `rgba()` alpha times every inherited `opacity` - rather than scoring the declared colour, which had reported 7.46:1 where the screen showed 2.11:1. The net effect is stricter, not looser.
+**Contrast now owns legibility and measures what the reader sees.** It composites ink over its backdrop at effective alpha - the element's own `rgba()` alpha times every inherited `opacity` - rather than scoring the declared color, which had reported 7.46:1 where the screen showed 2.11:1. The net effect is stricter, not looser.
 
 **`check_handbooks.py` keeps living documentation honest**, wired into the `docs` CI group. It hashes sources, BUILDER and output, so editing the builder invalidates a handbook whose sources never changed - the case an input/output hash cannot see. It launches no browser and costs about a second.
 
@@ -310,7 +320,7 @@ Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 ag
 
 ## What's New in v4.4.0
 
-**The guide now teaches and demonstrates instead of describing.** Home opens on a centred animated mark and wordmark that never wraps, a tagline that sells an outcome rather than listing contents, six honest platform compatibility treatments, and an Installation section where the install command dominates rather than the verification step. Three of those six platforms use labelled text treatments rather than invented trademark geometry, because their vendors publish no distributable standalone product mark; that limit is recorded as a known gap rather than papered over.
+**The guide now teaches and demonstrates instead of describing.** Home opens on a centered animated mark and wordmark that never wraps, a tagline that sells an outcome rather than listing contents, six honest platform compatibility treatments, and an Installation section where the install command dominates rather than the verification step. Three of those six platforms use labeled text treatments rather than invented trademark geometry, because their vendors publish no distributable standalone product mark; that limit is recorded as a known gap rather than papered over.
 
 **Foundations teaches a non-technical reader what the words actually mean.** The model diagram was corrected to the real sequence (trained, then integrated into a platform, then a request arrives carrying context, then internal reasoning, then output), and five missing concepts were added: tokens for text and images, prompt engineering with worked examples, chatbot versus agentic platform, context engineering and the context window, and harness and loop engineering. The last section ends on an honest account of what Nexus-Hub adds above a platform's own built-in harness.
 
@@ -334,7 +344,7 @@ Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 ag
 
 ## Previously, in v4.3.0
 
-**The harness verifies behaviour, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
+**The harness verifies behavior, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
 
 **The instruments exist, not just the instructions.** One skill (`functional-verification`) owns the procedure, a renderer-backed detector finds visual defects in real pages, a responsive-layout rule lands in the new `catalog/rules/html/` family, and a paired `html-responsive-guard` hook enforces it at write time on both Bash and PowerShell.
 

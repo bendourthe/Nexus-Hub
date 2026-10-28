@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import os
+import shlex
 import shutil
 import signal
 import subprocess
@@ -39,6 +40,13 @@ from scripts.ci import PROFILE_NAMES  # noqa: E402
 from scripts.ci import change_scope, reporting  # noqa: E402
 from scripts.ci.profiles import Command, Group, detect_platform, groups_for  # noqa: E402
 from scripts.ci.reporting import CommandResult, GroupResult, RunResult  # noqa: E402
+
+
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[1] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
 
 
 def _now() -> str:
@@ -127,58 +135,110 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUTF8", "1")
 
-    with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
-        # CREATE_NO_WINDOW: a step run from a process with no console (an agent's
-        # shell) would otherwise open a window, and so would every program it starts.
-        popen_kwargs = {"start_new_session": True} if os.name != "nt" else {
-            "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
-        }
+    argv = list(cmd.argv)
+    scratch = None
+    native_pytest = argv[:3] == [sys.executable, "-m", "pytest"]
+    try:
+        pytest_options = shlex.split(env.get("PYTEST_ADDOPTS", "")) if native_pytest else []
+    except ValueError:
+        native_pytest = False  # Let pytest report its original malformed options.
+    if native_pytest and not any(
+        arg == "--basetemp" or arg.startswith("--basetemp=")
+        for arg in [*argv[3:], *pytest_options]
+    ):
         try:
-            proc = subprocess.Popen(
-                list(cmd.argv),
-                cwd=str(cwd),
-                stdout=stdout_file,
-                stderr=stderr_file,
-                env=env,
-                **popen_kwargs,
-            )
-            proc.wait(timeout=cmd.timeout)
-        except subprocess.TimeoutExpired:
-            _terminate_process_tree(proc)
-            duration = time.monotonic() - started
-            output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
-            return CommandResult(
-                name=cmd.name,
-                group="",
-                status="timeout",
-                duration_s=duration,
-                reason=f"exceeded {cmd.timeout}s",
-                output=output,
-            )
+            scratch = tempfile.TemporaryDirectory(prefix="nexus-ci-pytest-")
         except OSError as exc:
             return CommandResult(
-                name=cmd.name,
-                group="",
-                status="missing",
+                name=cmd.name, group="", status="missing",
                 duration_s=time.monotonic() - started,
-                reason=f"{type(exc).__name__}: {exc}",
+                reason=f"pytest scratch setup failed: {type(exc).__name__}: {exc}",
             )
+        # Only this command owns this fresh, absent pytest base. Do not pass it
+        # through PYTEST_ADDOPTS, which nested pytest processes would inherit.
+        argv[3:3] = ["--basetemp", str(Path(scratch.name) / "pytest")]
 
-        output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
+    proc = None
+    result = CommandResult(name=cmd.name, group="", status="missing")
+    try:
+        with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
+            # Hide this child. A second interpreter must load the shared policy itself
+            # before launching console descendants; creation flags do not propagate.
+            popen_kwargs = {"start_new_session": True} if os.name != "nt" else {
+                "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
+            }
+            try:
+                proc = subprocess.Popen(
+                    argv,
+                    cwd=str(cwd),
+                    stdout=stdout_file,
+                    stderr=stderr_file,
+                    env=env,
+                    **popen_kwargs,
+                )
+                proc.wait(timeout=cmd.timeout)
+            except subprocess.TimeoutExpired:
+                _terminate_process_tree(proc)
+                duration = time.monotonic() - started
+                output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
+                result = CommandResult(
+                    name=cmd.name,
+                    group="",
+                    status="timeout",
+                    duration_s=duration,
+                    reason=f"exceeded {cmd.timeout}s",
+                    output=output,
+                )
+                return result
+            except OSError as exc:
+                result = CommandResult(
+                    name=cmd.name,
+                    group="",
+                    status="missing",
+                    duration_s=time.monotonic() - started,
+                    reason=f"{type(exc).__name__}: {exc}",
+                )
+                return result
 
-    duration = time.monotonic() - started
-    passed = proc.returncode == 0
-    status = "pass" if passed else ("advisory-fail" if cmd.advisory else "fail")
+            output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
 
-    return CommandResult(
-        name=cmd.name,
-        group="",
-        status=status,
-        duration_s=duration,
-        exit_code=proc.returncode,
-        output=output,
-        reason="" if passed else f"exit {proc.returncode}",
-    )
+        duration = time.monotonic() - started
+        passed = proc.returncode == 0
+        status = "pass" if passed else ("advisory-fail" if cmd.advisory else "fail")
+
+        result = CommandResult(
+            name=cmd.name,
+            group="",
+            status=status,
+            duration_s=duration,
+            exit_code=proc.returncode,
+            output=output,
+            reason="" if passed else f"exit {proc.returncode}",
+        )
+        return result
+    finally:
+        if scratch is not None:
+            # Capture and process ownership stay with the existing wait/timeout
+            # path. Never remove scratch while its child is still running.
+            if proc is not None and proc.poll() is None:
+                _terminate_process_tree(proc)
+            execution_s = time.monotonic() - started
+            cleanup_started = time.monotonic()
+            cleanup = "removed"
+            try:
+                scratch.cleanup()
+            except OSError as exc:
+                cleanup = f"failed ({type(exc).__name__}: {exc})"
+                original_status = result.status
+                if result.status in ("pass", "advisory-fail"):
+                    result.status = "fail"
+                result.reason += f"; original status={original_status}"
+            cleanup_s = time.monotonic() - cleanup_started
+            detail = (f"pytest scratch {scratch.name}; execution {execution_s:.3f}s; "
+                      f"cleanup {cleanup_s:.3f}s: {cleanup}")
+            result.reason = reporting.redact("; ".join(filter(None, (result.reason, detail))), secrets)
+            result.duration_s = time.monotonic() - started
+
 
 
 def _render_command_result(outcome: CommandResult, quiet: bool) -> None:

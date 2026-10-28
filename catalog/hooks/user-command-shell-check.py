@@ -19,7 +19,7 @@ Behavior
   several JSONL lines that share ``message.id``).
 - A fenced block (``` or ~~~) is checked when its info string is ``powershell``,
   ``ps1``, ``pwsh``, or ``ps``, or when it has no info string and the host is
-  Windows. Blocks labelled anything else (``bash``, ``sh``, ``text``, ...) are
+  Windows. Blocks labeled anything else (``bash``, ``sh``, ``text``, ...) are
   never checked. ``NEXUS_SHELL_CHECK_PLATFORM=windows|posix`` overrides the host.
 - Per line, comments (``#``) are skipped and quoted strings are ignored, then
   ``&&``, ``||``, a heredoc ``<<``, a leading ``VAR=value command`` prefix, and a

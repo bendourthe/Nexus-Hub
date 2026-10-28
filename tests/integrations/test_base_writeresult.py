@@ -126,3 +126,41 @@ def test_copilot_marker_block_settles_after_two_installs(install_ctx: InstallCon
         f"copilot re-install should settle to a no-op (unchanged) once the marker "
         f"block is present, got {actions}"
     )
+
+
+@pytest.fixture(scope="module")
+def legacy_callbacks_during_module_setup():
+    from scripts.lib.integrations import legacy
+
+    # This ordinary module fixture must run after the module-autouse boundary.
+    return tuple(legacy.LEGACY_CLEANUPS["claude"])
+
+
+def test_host_callbacks_are_isolated_before_module_setup(legacy_callbacks_during_module_setup) -> None:
+    from scripts.lib.integrations import legacy
+
+    callbacks = legacy_callbacks_during_module_setup
+    assert legacy._cleanup_claude_legacy_vscode_extension not in callbacks
+    assert legacy._cleanup_windows_auth_monitor_task not in callbacks
+    assert legacy._cleanup_claude_legacy_skill_registry in callbacks
+    assert legacy._cleanup_devai_hub_legacy_global_dir in callbacks
+    assert legacy._cleanup_devai_hub_auth_monitor_vbs in callbacks
+    assert legacy._cleanup_devai_hub_auth_monitor_ps1 in callbacks
+
+
+def test_private_home_keeps_real_filesystem_cleanup(tmp_path: Path, tmp_path_factory: pytest.TempPathFactory, install_ctx: InstallContext) -> None:
+    from scripts.lib.integrations import legacy
+
+    callbacks = legacy.LEGACY_CLEANUPS["claude"]
+    # Missing isolation must fail here, before any real callback can reach the host.
+    assert legacy._cleanup_claude_legacy_vscode_extension not in callbacks
+    assert legacy._cleanup_windows_auth_monitor_task not in callbacks
+    home = Path.home()
+    assert home.is_relative_to(tmp_path_factory.getbasetemp())
+    assert not home.is_relative_to(tmp_path)
+    artifact = home / ".claude" / "devai-hub-skills.json"
+    artifact.parent.mkdir()
+    artifact.write_text("legacy fixture", encoding="utf-8")
+    actions = legacy.run_cleanups("claude", install_ctx)
+    assert not artifact.exists()
+    assert any(action.path == str(artifact) and action.action == "removed" for action in actions)

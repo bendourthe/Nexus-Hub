@@ -5,12 +5,14 @@ then usage-guard), and on Cursor's native stop in hooks.json order. These tests
 drive both against one full-run record with a stub checker, a primed usage-probe
 cache (no network), and the real hook files from catalog/hooks:
 
-- at 99.5% with a usage-limit handoff written after the gate's last refusal, the
-  turn ends: the gate allows the stop without counting a refusal or writing a
+- at 99.5% with the user's handoff answer recorded after the gate's last refusal,
+  the turn ends: the gate allows the stop without counting a refusal or writing a
   blocker, and the guard stays silent;
 - at 99.5% without the handoff, the guard's continuation asks for it (the gate
   refuses as it always did);
-- a usage-limit handoff with the probe at 50% is a fake: the gate refuses as today;
+- a handoff answer with the probe at 50% is a fake: the gate refuses as today;
+- a `.nexus-hub/handoff.md` file is never evidence: the handoff is a prompt
+  printed in the chat, so only the recorded answer counts;
 - usage-guard and the probe planted inside the repository are never trusted.
 
 The gate's `run` fixture is parametrized over the .sh and .ps1 adapters, so each
@@ -81,6 +83,7 @@ class World:
         self.runs.mkdir(parents=True)
         (self.repo / ".git").mkdir(parents=True)
         shutil.copy(CORE, self.scripts / "completion_gate.py")
+        shutil.copy(REPO / "scripts" / "nexus_process.py", self.scripts / "nexus_process.py")
         (self.scripts / "check_plan_completion.py").write_text(STUB_CHECKER, encoding="utf-8")
         record = {
             "schema": 1,
@@ -111,7 +114,13 @@ class World:
             encoding="utf-8",
         )
 
-    def handoff(self, stamp: float, trigger: str = "usage-limit weekly 99.5") -> None:
+    def handoff(self, stamp: float, decision: str = "handoff") -> None:
+        """Record the user's answer to the usage question, as the skill does."""
+        path = self.repo / ".nexus-hub" / "usage-decision.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"decision": decision, "recorded_at": _iso(stamp)}), encoding="utf-8")
+
+    def legacy_handoff_file(self, stamp: float, trigger: str) -> None:
         path = self.repo / ".nexus-hub" / "handoff.md"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"# Handoff | {_iso(stamp)} | claude | {trigger}\n\n## Goal\n", encoding="utf-8")
@@ -163,6 +172,19 @@ def turn_end(request, bash_bin: str, powershell_bin: str, world: World):
         else:
             gate = subprocess.run(gate_argv(hooks_dir), **common)
             guard = subprocess.run([sys.executable, str(hooks_dir / "usage-guard.py")], **common)
+        # Private fixture agent claims offered context before the next Stop.
+        # The real shell wrappers above remain the delivery boundary under test.
+        directory = world.root / ".nexus-hub" / "state" / "usage-guard" / "decisions"
+        for path in directory.glob("*.json"):
+            state = json.loads(path.read_text(encoding="utf-8"))
+            if (state.get("platform") == platform and state.get("project") == str(world.repo.resolve())
+                    and state.get("delivery", {}).get("state") == "offered"):
+                claimed = subprocess.run([sys.executable, "-I", "-B", str(hooks_dir / "usage-guard.py"),
+                    "--decision-action", "claim", "--project", str(world.repo), "--platform", platform,
+                    "--decision-id", state["id"], "--tool", "private-wrapper-fixture"],
+                    text=True, capture_output=True, cwd=str(world.repo), env=world.env(), timeout=10)
+                assert claimed.returncode == 0, claimed.stderr
+                assert json.loads(claimed.stdout)["claimed"]
         return gate, guard
 
     return _run
@@ -224,10 +246,13 @@ def test_without_the_handoff_the_guard_asks_for_it(turn_end, world, platform):
     world.prime(platform, 99.5)
     gate, guard = turn_end(platform)
     message = _continues(platform, _out(guard))
-    assert message and "run the session-handoff procedure (/handoff)" in message
-    assert "continue on pay-per-use credits" in message
-    assert _continues(platform, _out(gate)) is not None, "the gate refuses as it always did"
-    assert NOTE not in gate.stderr
+    assert message and "functions.request_user_input_async" in message
+    assert "Wait for reset (Recommended), Hand off, Continue on credits" in message
+    assert _continues(platform, _out(gate)) is not None
+    gate, guard = turn_end(platform)
+    assert _continues(platform, _out(gate)) is None
+    assert _continues(platform, _out(guard)) is None
+    assert NOTE in gate.stderr
 
 
 @pytest.mark.parametrize("platform", ["claude", "cursor"])
@@ -245,16 +270,26 @@ def test_a_handoff_older_than_the_last_refusal_does_not_count(turn_end, world):
     world.prime("claude", 99.5)
     gate, _ = turn_end("claude")
     assert _out(gate).get("decision") == "block"
-    world.handoff(time.time() - 600)  # dated before that refusal
+    refusals = world.gate_state().get("refusals")
+    world.handoff(time.time() - 600)
+    gate, _ = turn_end("claude")
+    assert _out(gate).get("decision") is None
+    assert NOTE in gate.stderr
+    assert world.gate_state().get("refusals") == refusals
+
+
+@pytest.mark.parametrize("trigger", ["usage-limit weekly 99.5", "checkpoint", "manual"])
+def test_a_handoff_file_does_not_count(turn_end, world, trigger):
+    world.prime("claude", 99.5)
+    world.legacy_handoff_file(time.time() + 2, trigger)
     gate, _ = turn_end("claude")
     assert _out(gate).get("decision") == "block"
     assert NOTE not in gate.stderr
 
 
-@pytest.mark.parametrize("trigger", ["checkpoint", "manual"])
-def test_a_non_usage_limit_handoff_does_not_count(turn_end, world, trigger):
+def test_a_credits_answer_does_not_count(turn_end, world):
     world.prime("claude", 99.5)
-    world.handoff(time.time() + 2, trigger=trigger)
+    world.handoff(time.time() + 2, decision="credits")
     gate, _ = turn_end("claude")
     assert _out(gate).get("decision") == "block"
 

@@ -44,7 +44,7 @@ describe("mapQuotaSummary", () => {
     expect(model.lastUpdated).toBe(NOW);
   });
 
-  it("maps every other group to labelled rows, session first", () => {
+  it("maps every other group to labeled rows, session first", () => {
     const model = mapQuotaSummary(summary(), USER_STATUS, NOW)!;
     expect(model.additionalLimits?.map((r) => [r.label, r.percent])).toEqual([
       ["Claude and GPT Models: Current Session", 75],

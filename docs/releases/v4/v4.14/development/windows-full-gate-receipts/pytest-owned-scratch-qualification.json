@@ -1,0 +1,202 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"0135a73727fde5cd7283f3332f910723576794f8eeec0faea9a1d2b4ca36eae8","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "schema_version": 1,
+  "qualification": "SCOPED_NOT_UNFILTERED_FULL",
+  "prepared_utc": "2026-10-24T17:16:58.158Z",
+  "scope": "Private evidence for runner-owned pytest scratch only; no full-group, full-profile, phase, merge, or release completion claim.",
+  "worktree": "<workspace>",
+  "candidate_binding": [
+    {
+      "path": "scripts/ci/run.py",
+      "baseline_sha256": "24c06c2b5d7b70a0e22afa0e4d55cb3031ba90f2fe9acc1107b9668e9ef47869",
+      "candidate_path": "<private-evidence>/pytest-owned-scratch-repair-20261024T170831Z/scripts/ci/run.py",
+      "candidate_sha256": "550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18",
+      "applied_sha256": "550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18"
+    },
+    {
+      "path": "tests/ci/test_ci_engine.py",
+      "baseline_sha256": "7dd2aa714a3741dc711139309f002849828397a2ed75789bc244a4e7134af492",
+      "candidate_path": "<private-evidence>/pytest-owned-scratch-repair-20261024T170831Z/tests/ci/test_ci_engine.py",
+      "candidate_sha256": "350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e",
+      "applied_sha256": "350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e"
+    }
+  ],
+  "apply": {
+    "manifest": {
+      "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-apply-1792861937691/manifest.json",
+      "sha256": "06f2916c3b8b32a0c390da6b8ea4c04f7069e34a3778a8d5655caeee68216b82"
+    },
+    "execution_stdout": {
+      "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-apply-1792861937691/execution/stdout.log",
+      "sha256": "3559a870d72ce6cf02883cf78a48a298bb29ec1c5c2473684511364b5c667518"
+    },
+    "execution_result": {
+      "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-apply-1792861937691/execution/result.json",
+      "sha256": "07966bbd0d421b2a17df0e0f54702e1f5cb4bc27dfdb36d17d1994049138d70e"
+    },
+    "applied_files": 2,
+    "accepts": 0,
+    "pid": 34572,
+    "exit_code": 0,
+    "proof_path_reuse": {
+      "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-apply-1792861937691/guarded-apply-proof.json",
+      "current_sha256": "78ad6d920ac02fe97f44f797830ad3ee9a512d58ee0c9b48758acd403caff553",
+      "current_scope": "Later MANIFEST.sha256-only application; not the original two-file proof.",
+      "pre_overwrite_capture": {
+        "qualification": "PRE_OVERWRITE_READBACK_CAPTURE_ONLY",
+        "sha256": "f0890f209c2c7797b7b85b42d5ccc5c301caa042ef9caaa6a9a502f144b78115",
+        "raw_utf8": "{\r\n  \"status\": \"APPLIED\",\r\n  \"worktree\": \"<workspace>\",\r\n  \"files\": [\r\n    {\r\n      \"path\": \"scripts/ci/run.py\",\r\n      \"sha256\": \"550612d679ae34c705fded3dee9dcf569c2aa8468a3090f6752d3443aadaea18\",\r\n      \"accept\": false\r\n    },\r\n    {\r\n      \"path\": \"tests/ci/test_ci_engine.py\",\r\n      \"sha256\": \"350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e\",\r\n      \"accept\": false\r\n    }\r\n  ],\r\n  \"accepts\": 0\r\n}\r\n"
+      }
+    }
+  },
+  "observations": {
+    "original_canonical_group": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/remaining-seven-execution-1792855034161/command-02.json",
+        "sha256": "66bbe4f71a15e6ddaea370356217d1447186531a31ca93256be981932af44f2a"
+      },
+      "selection": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/remaining-seven-execution-1792855034161/selection.json",
+        "sha256": "b4f11ae5c98a528016173146d77ff12bb84816ce6f2be52e22f3827c34bc6e2f"
+      },
+      "run_result": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/remaining-seven-execution-1792855034161/result.json",
+        "sha256": "09310437d6b46c87d8e922ef7c9e3dfc4606470f6dc53fa4ededbdb8566eece6"
+      },
+      "status": "timeout",
+      "exit_code": null,
+      "total_s": 1800.703,
+      "pytest_passed": null,
+      "pytest_s": null,
+      "printed_progress_dots": 401,
+      "separate_collection_count": 481,
+      "collection_receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-collection-diagnostic-1792859464543/stdout.log",
+        "sha256": "37f80ebadef5fc4b16d50634de0a5c75214b45f8be1cc5e19780adeac76ceede"
+      },
+      "complete_selection": false,
+      "prior_commands_passed": 2,
+      "subsequent_commands_not_launched": [
+        "repo-tests-governance-validators-d-o (Windows full)",
+        "repo-tests-governance-validators-p-z (Windows full)",
+        "repo-tests-guides-heavy (Windows full)",
+        "repo-tests-guides-rest (Windows full)"
+      ],
+      "causal_status": "UNRESOLVED; watchdog and single-case repair do not establish the entire original group timeout cause."
+    },
+    "single_case_default_scratch": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-single-case-diagnostic-1792860343386/command-00.json",
+        "sha256": "22c84f9b91cd7834b25f6a73ea2cca08892b6a6a2eec4f83d69645009024d446"
+      },
+      "status": "timeout",
+      "exit_code": null,
+      "total_s": 120.906,
+      "pytest_passed": null,
+      "pytest_s": null,
+      "body_reported_pass": true,
+      "terminal_command_pass": false
+    },
+    "session_finish_watchdog": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-session-watchdog-1792860771249/command-00.json",
+        "sha256": "f499ef23b699b1d15e3be928230aee5c65011872a8d0824c0524d439c8a199bc"
+      },
+      "context": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-session-watchdog-1792860771249/context.json",
+        "sha256": "fb4c9944da28b2566ad36800cb95788258f8418f87fc854ff0ad49a72e4733df"
+      },
+      "status": "timeout",
+      "exit_code": null,
+      "total_s": 120.86,
+      "pytest_passed": null,
+      "pytest_s": null,
+      "observed_stack": [
+        "_pytest/tmpdir.py:340 pytest_sessionfinish",
+        "contextlib.close",
+        "_pytest/pathlib.py:367 cleanup_numbered_dir",
+        "_pytest/pathlib.py:169 rm_rf",
+        "shutil.rmtree",
+        "_pytest/pathlib.py:114 chmod_rw"
+      ],
+      "shared_temp": "<private-temp>/nwg-169IPI/t"
+    },
+    "fresh_explicit_base_diagnostic": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-fresh-scratch-diagnostic-1792861054932/command-00.json",
+        "sha256": "00a3b9f3474e6c79255bf60c24c980a89e72ec4a677d349e7791fcb5dfb3fa08"
+      },
+      "selection": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-fresh-scratch-diagnostic-1792861054932/selection.json",
+        "sha256": "4e7d602befa8523c6ef304955d6b6ee52267a0573e45967d65426953cad72434"
+      },
+      "context": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-fresh-scratch-diagnostic-1792861054932/context.json",
+        "sha256": "b862820afc69b5333427a9c943278093a8040770ab08da4d52d7016192f8c84e"
+      },
+      "status": "pass",
+      "exit_code": 0,
+      "total_s": 29.218,
+      "pytest_passed": 1,
+      "pytest_s": 26.65,
+      "basetemp": "<private-temp>/nbg-GvyhQy/gate-case-1792861054939",
+      "cleanup_s": null,
+      "scope": "Diagnostic with explicit fresh base; no runner-owned cleanup timing."
+    },
+    "focused_engine_regressions": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-focused-1792861955922/command-00.json",
+        "sha256": "e605cc86d52b79ba730217ebf64295fb37502bd9e3c1639f31e73797c5f8f481"
+      },
+      "status": "pass",
+      "exit_code": 0,
+      "total_s": 36.64,
+      "pytest_passed": 103,
+      "pytest_s": 27.75,
+      "execution_s": 36.578,
+      "cleanup_s": 0.062,
+      "cleanup_outcome": "removed"
+    },
+    "patched_native_single_case": {
+      "receipt": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-gate-reproduction-1792861983071/command-00.json",
+        "sha256": "9501bea8eb3730b43583aed2f7e7bab2304807801955149cd80378359d01f22a"
+      },
+      "selection": {
+        "path": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/scratch-gate-reproduction-1792861983071/selection.json",
+        "sha256": "a985a46f47d4086ccf770aa0da34440b60f6d0ff02451e5e218c4735b80993a8"
+      },
+      "case": "tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]",
+      "status": "pass",
+      "exit_code": 0,
+      "total_s": 32,
+      "pytest_passed": 1,
+      "pytest_s": 30.28,
+      "execution_s": 31.953,
+      "cleanup_s": 0.047,
+      "cleanup_outcome": "removed",
+      "scope": "Actual native pytest command through patched runner; same single case, not canonical group rerun."
+    }
+  },
+  "pending": [
+    {
+      "item": "Canonical five-group rerun, beginning with validators-co",
+      "status": "NOT_STARTED_AT_PARENT_STATUS",
+      "source": "Parent message before evidence preparation; no rerun receipt observed."
+    },
+    {
+      "item": "Original 1800-second canonical group timeout causal closure",
+      "status": "UNRESOLVED"
+    }
+  ],
+  "evidence_preparation": {
+    "method": "Node filesystem reads, SHA-256, and new private-file writes only.",
+    "processes_tests_git_native_guard_calls": 0,
+    "repository_writes": 0,
+    "old_shared_scratch_cleanup_performed": false
+  }
+}
+}

@@ -253,7 +253,7 @@ def test_typescript_plugins_ignore_a_python_exe_planted_in_the_working_directory
         if key.lower() == "nodefaultcurrentdirectoryinexepath":
             env.pop(key)
     probe = subprocess.run(
-        [NODE, "-e", "const {spawnSync}=require('node:child_process'); const r=spawnSync('python',['--version']); process.stdout.write((r.stdout||'').toString()+(r.stderr||'').toString());"],
+        [NODE, "-e", "const {spawnSync}=require('node:child_process'); const r=spawnSync('python',['--version'], { windowsHide: true, shell: false }); process.stdout.write((r.stdout||'').toString()+(r.stderr||'').toString());"],
         cwd=poison, env=env, capture_output=True, text=True, timeout=30, check=False,
     )
     assert probe.stdout.startswith("v"), (probe.returncode, probe.stdout, probe.stderr)
@@ -310,6 +310,7 @@ def test_hermes_plugin_continues_through_the_real_core(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
     shutil.copy(REPO / "scripts" / "completion_gate.py", scripts / "completion_gate.py")
+    shutil.copy(REPO / "scripts" / "nexus_process.py", scripts / "nexus_process.py")
     (scripts / "check_plan_completion.py").write_text(
         "import sys\n"
         "if sys.argv[1] == 'check':\n    print('INCOMPLETE: task.T002'); sys.exit(1)\n"

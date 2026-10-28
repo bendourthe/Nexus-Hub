@@ -1,0 +1,18 @@
+{
+  "skill": "refactoring-expert",
+  "purpose": "Route feature and fix requests that land in scattered or duplicated code here, so the code is refactored and proved green first, without taking pure formatting, lint fixes, or standalone renames.",
+  "cases": [
+    {"id": "pos-same-calculation", "prompt": "add a discount to the order total, the same calculation is in multiple files", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-change-logic", "prompt": "change the logic in the price formula, it is duplicated in three modules", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-several-places", "prompt": "fix it in several places, the threshold check is scattered and duplicated", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-add-to-format", "prompt": "add to the export a field using the display format that is duplicated across the code", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-refactor-first", "prompt": "refactor-first: restructure this scattered duplicated code before the feature that needs it", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-feature-request", "prompt": "a feature request lands in duplicated code, restructure it and prove it green before the feature", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-extract-method", "prompt": "extract the duplicated calculation into one method before the fix that needs it", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "pos-reduce-duplication", "prompt": "reduce duplication in this scattered code so the change lands in one place", "should_trigger": true, "assert": "routes to refactoring-expert first", "lexical": true},
+    {"id": "neg-formatting", "prompt": "reformat this file to the style guide and fix whitespace", "should_trigger": false, "assert": "routes to a formatter or lint-repair-loop, not here", "lexical": true},
+    {"id": "neg-rename", "prompt": "rename the variable usr to user in this function", "should_trigger": false, "assert": "routes to a direct edit, not here", "lexical": true},
+    {"id": "neg-lint", "prompt": "run ruff and fix the reported lint errors in this module", "should_trigger": false, "assert": "routes to lint-repair-loop, not here", "lexical": true},
+    {"id": "neg-unit-tests", "prompt": "write unit tests for the payment service with pytest fixtures", "should_trigger": false, "assert": "routes to unit-tests, not here", "lexical": true}
+  ]
+}

@@ -1,5 +1,5 @@
 ---
-description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or reviewing without changing anything (use /review).
+description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update status", "show implementation progress", "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or code review (use /review); implementation status is supported here.
 ---
 
 # /update Command
@@ -10,7 +10,7 @@ This is a thin dispatcher following the contract in [`command-scope-mechanism.md
 
 ## Scope resolution
 
-Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `docs`, `devlog`, `gitignore`, `version`, `changelog`, `refactor`, `config`, `commit`, `release`.
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `status`, `docs`, `devlog`, `gitignore`, `version`, `changelog`, `refactor`, `config`, `commit`, `release`.
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - Otherwise, present this menu and wait for a selection before doing any work:
@@ -25,6 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         7. refactor  - reorganize docs/ and project artifacts to conventions
         8. config    - validate and repair installed platform configs (drift repair)
         9. commit    - generate a structured commit message for the staged changes
+        10. status   - report implementation progress, workers, elapsed time, estimates and dependencies (read-only)
 
       Reply with a number or a scope name.
 
@@ -35,6 +36,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
+      status    -> implement-phase (status-only entry: read references/progress-reporting.md directly; never enter the implementation driver)
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
       devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
@@ -46,6 +48,10 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness, ALWAYS with --canonicalize-layout) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, merge to integration branch, retire merged branches + worktrees, merge to release branch, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
+
+## Status scope
+
+`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` uses the [shared progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md). A bare status request reports the current run; a minor target shows every member plan, and a plan target shows every phase. Resolve ambiguity or missing runs as that contract specifies. Return the report without starting/resuming implementation, changing files or run state, spawning workers, running tests, or entering any release scope. Efficiency recommendations are advisory; the active implementation coordinator owns execution.
 
 ## docs scope (feature-level sync, not just counts)
 
@@ -173,6 +179,10 @@ git checkout develop && git merge --no-ff main && git push
 ```
 
 A PR-based release leaves a merge commit on `main` that `develop` does not have. Under `strict` branch protection ("require branches to be up to date"), that missing commit blocks the NEXT release PR until someone back-merges by hand, which is a self-inflicted delay discovered at the worst moment. Keep the existing confirmation gate: this pushes to a protected branch.
+
+## release scope: member archive (after a minor-scope member's back-merge)
+
+When the release just published is a member of a minor-scope run whose record carries `archive-member`, and it is not the run's last member, archive that member's own records as soon as its back-merge is on `origin/develop`, rather than leaving them for the minor close. Run the "Member archive" procedure in `implement-phase/references/implement-phase-runbook.md` ("Minor driver") under the record's approvals, never by hand: cut `chore/archive-vX.Y.Z` from the post-release `origin/develop`, run `python ~/.nexus-hub/scripts/minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session <id>` (a dry run), then again with `--apply`, which moves only the member's plan and `vX.Y.Z-*` records, proves zero newly broken links, signs the member's archived identity, and commits once; then run the local fast gate, push once, and merge one pull request to develop once its required checks pass. Shared files (the known-gaps ledger, the minor's close evidence, comparisons, handbooks, and every unprefixed file) stay until the minor close. Without `archive-member` in the record, skip this step: the minor close archives everything, exactly as before.
 
 ## release scope: the minor close (after a minor-scope run's last release)
 
@@ -324,7 +334,7 @@ Before stopping for any governance confirmation below, follow the active instruc
 
     The promotion condition this command file already stated has been met, so it is recorded rather than left implicit. In v3.16.7 the gate was satisfied by a hand-written declaration reading "introduces no NEW opt-in capability, ..." -- semantically exact, and matching none of the checker's patterns, because the word "new" sits between `no` and `opt-in`. The checker was never run, so nothing caught it, and the release shipped in the same evidentiary state as one where the gate had been skipped. That is precisely the false CLEAR the gate exists to prevent, and it is why the checker is no longer optional: a declaration a human accepts and a machine cannot see provides no evidence.
 
-    Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
+    Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labeled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
 
 **Rendered-artifact and generated-source gate**: every generated `.html` this release ships passes the `rendered-artifact-verified` gate, which also asserts that generated regions have a single source of truth and that line endings are unchanged from baseline. The procedure and the reasoning behind both live with their owner, `[[document-to-interactive-html]]`; this dispatcher only states that the gate runs.
 

@@ -293,7 +293,10 @@ def test_execution_uses_list_argv_and_never_a_shell(
     assert exit_code == broker.EXIT_AUTHORIZED
     assert payload["status"] == "executed"
     assert observed["argv"] == ["sandbox-runner", "--", "python", "-V"]
-    assert observed["kwargs"] == {"shell": False, "check": False}
+    assert observed["kwargs"] == {
+        "shell": False, "check": False,
+        "creationflags": getattr(broker.subprocess, "CREATE_NO_WINDOW", 0),
+    }
 
 
 def test_sandboxed_child_failure_has_distinct_exit_code(

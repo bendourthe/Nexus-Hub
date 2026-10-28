@@ -8,16 +8,16 @@
     "scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894"
   },
   "output": "docs/handbooks/distribution.html",
-  "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c",
+  "output_sha256": "105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1",
   "schema_version": 1,
   "sources": {
     "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
     "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
-    "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
+    "docs/handbooks/_sources/distribution/model.json": "086b9d2c0431181cacc2fabb54a6fb596060710c8c9c01e4a159fd1d357b0c66",
     "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
     "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
     "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
-    "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
+    "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
     "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
   }
 }

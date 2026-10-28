@@ -38,10 +38,14 @@ priority: high
 
 - On Windows, a console program started by a process with no console opens a new window that takes keyboard focus. A suite that starts hundreds of children from an agent, an IDE test runner or a detached helper makes the machine unusable until it ends, so every process a test (or a helper the tests call) starts must be launched without a window.
 - Pass `windowsHide: true` to every `child_process` call (`spawn`, `spawnSync`, `exec`, `execSync`, `execFile`, `execFileSync`, `fork`) in tests and test helpers, including scripts the tests run. A `detached: true` child must also set `windowsHide: true`.
-- A launch that must detach or open its own console is the exception: mark it with a `nexus: console-window-ok <reason>` comment on the line or the line above. Nexus-Hub's `console-window-guard` hook blocks a Windows test run while an unmarked unsafe launch remains.
+- A launch that must detach or open its own console is the exception: mark it with a `nexus: console-window-ok <reason>` comment on its launch line. Nexus-Hub's `console-window-guard` hook blocks a Windows test, installer, or build command while an unmarked unsafe launch remains.
 
 ## Coverage and CI
 
 - Enforce 80% line and branch coverage: `vitest --coverage --coverage.thresholds.lines=80`.
 - E2E stability target: >95% pass rate with <5% flakiness threshold.
 - Gate PR merges on unit + integration test pass; run E2E on pre-merge to main only.
+
+## Windows Process Launches
+
+On Windows, start every console child without a window: use one shared Python subprocess default with CREATE_NO_WINDOW, Node child_process options with windowsHide: true, or PowerShell ProcessStartInfo with UseShellExecute = $false and CreateNoWindow = $true. Prefer direct or in-process calls; Start-Process must use -WindowStyle Hidden (do not combine it with -NoNewWindow). Route .cmd shims through the same hidden launcher. Apply this to product code, tests, installers, builds, and agent helpers. Never use DETACHED_PROCESS or CREATE_NEW_CONSOLE for console programs. A deliberate exception needs nexus: console-window-ok <reason> on its launch line. Run the console-window-guard before test, installer, and build commands; use targeted checks for targeted changes.

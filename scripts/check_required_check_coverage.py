@@ -76,7 +76,7 @@ DEFAULT_WORKFLOWS = Path(".github/workflows")
 # A matrix leg reports as `job (value)` -- `bootstrap (ubuntu-latest)`. Matrix
 # values in this repo are `${{ ... fromJSON(...) }}` expressions evaluated at run
 # time, so they cannot be enumerated statically; resolution is by job id and the
-# parenthesised leg is informational only.
+# parenthesized leg is informational only.
 MATRIX_CONTEXT_RE = re.compile(r"^(?P<job>.+?) \((?P<leg>[^()]*)\)$")
 
 # PyYAML resolves the bare key `on` to boolean True under YAML 1.1, and GitHub's
@@ -87,6 +87,13 @@ ON_KEYS: tuple[Any, ...] = ("on", True)
 
 # Triggers that can produce a check on a pull request's head commit.
 PR_EVENTS = ("pull_request", "pull_request_target")
+
+
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
 
 
 class Failure:
@@ -159,8 +166,8 @@ def as_list(value: Any) -> list[str]:
 def branch_pattern_matches(pattern: str, branch: str) -> bool:
     """Match a GitHub branch filter pattern against a concrete branch name.
 
-    Only the `*` / `**` wildcards are honoured; a `!`-negated pattern is handled
-    by the caller. Anything unrecognised falls through to a literal comparison,
+    Only the `*` / `**` wildcards are honored; a `!`-negated pattern is handled
+    by the caller. Anything unrecognized falls through to a literal comparison,
     which is the conservative direction: an unmatched pattern reads as "this
     branch is filtered out" and produces a reported failure rather than a pass.
     """

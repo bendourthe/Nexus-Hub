@@ -1,14 +1,46 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.14 full-minor run, 67/209 tasks and 2/7 releases. v4.14.1 is released (integration PR 501 merged at 870620c3); v4.14.5 Phase 1 is committed and waits for its release-order turn. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
+
+**v4.14 implementation reporting:** Hourly and transition reports plus read-only `/update status` are locally verified in the isolated `feat/v4.14-progress-reports` branch. Counts reuse the existing parser; worker activity, timing, dependencies and estimates require observed evidence.
+
+- [x] Implement and locally verify v4.14 progress reporting and on-demand status: 117 tests pass with 2 skips; 18 fast checks pass. [Evidence](releases/v4/v4.14/development/v4.14-progress-reporting.md).
+- [ ] Integrate and release the v4.14 progress-reporting change; installed-editor timed delivery remains unverified.
+
+**M2 historical scope maintenance:** PR #526 merged green at `8d70a8a5` and its actual merged source is qualified. The repair recognizes only the six reviewed historical omissions from PR #525 after a later genuine native captured decision. Focused qualification has 259 distinct passing cases and one declared POSIX-only skip, including replay refusal, unchanged release gates, native resume and controller handoff. Reviewed runtime adoption and the actual six-file decision remain open; original claims, frozen plan marks and budgets are unchanged.
+
+- [ ] Deliver the merged M2 historical-scope repair and obtain its genuine native captured decision before the M2 release.
+
+**M5 manifest permission maintenance:** The isolated repair has qualification for 13 permission cases and two retained M2 regressions, including real fixture capture, activation, resume and controller handoff. Publication, final-target runtime adoption and the genuine native permission remain open. Original worker claims stay immutable; M5 remains 4/22 with Phase 1 T005 open. [Evidence](releases/v4/v4.14/development/v4.14.5-manifest-permission-evidence.md).
+
+- [ ] Integrate and deliver the bounded M5 manifest permission, then obtain its genuine native decision and register needed coordinator claims at the ordinary M5 turn.
+
+**Console-window repair:** PR #519 and the pre-commit interpreter followup in PR #521 merged green. The shared process policy is loaded inside the pre-commit CLI. PR #521 passed all 46 checks and its post-merge run. Actual named checks and the isolated installer passed a 34.877-second idle observation with zero console windows or focus changes. Reviewed runtime adoption and global hook delivery remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+
+**Later console follow-ups:** The merged affected selection passes 116 cases (112 guard, three plugin and one attribution fallback regression), and the fresh isolated Claude/minimal workspace installer exits 0. A 324.228271961-second desktop observation covers both flows with zero visible console events, no later foreground changes and no input reset (starting and minimum idle both 363,437 ms); four private installed helper/guard copies match merged source. The earlier 47-pass/one-skip attribution composite on source `8c73440d` and 111.636601-second idle proof on guard `0758c15f` remain historical. Global Claude read-path advisories persist. Integration, installed console-guard deployment and reviewed real-home adoption remain open. [Evidence](releases/v4/v4.14/development/windows-console-window-root-repair.md).
+
+- [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
+- [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
+**Active work:** v4.14 has 97/209 integrated task marks once the v4.14.2 release lands on develop, with 3/7 members released: v4.14.0, v4.14.1 and v4.14.2. v4.14.2 is 34/34; T029/T034 are supported by actual PR #525 macOS, merge and post-merge evidence, and the genuine native historical-scope decision for the six reviewed PR #525 rows was recorded on 2026-10-28. The installed runtime matches develop `2ef94cabd` through the official installer (2026-10-28). v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn. Private preparation remains separate.
+
+**Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
+
+**Parallel preparation:** Private candidates cover v4.14.3 Phases 1-2 and its PDF preflight candidate, v4.14.4 Phases 1-3, the opt-in hook smoke and Phase 5 evidence drafts, and v4.14.5 Phase 2. The reconciled M3 candidate now has 11 focused test passes plus a successful Training stamp check, including the previously unrun PDF-overlay assertions; the earlier 30 semantic/pin checks and all 14 prior claims remain preserved. Reconciled M4 has 45 passing gate-record and ownership checks; its Phase 5 evidence remains unexecuted drafts. Reconciled M5 has 30 passing static checks with no test rerun; its historical private Codex seeding check retains four passing cases (two created, two updated, all four byte-identical on repeat), zero denied audit events and unchanged existing inputs, while the earlier CRLF comment-assertion failure remains retained. M6 reader V2 has 31 passing focused cases and one file-symlink privilege skip; Linux remains unqualified and unsupported opened-handle platforms fail closed. Its 23 official-source pages are source-only evidence, not installed-client or vendor-control proof. These private results do not establish native admission, task completion, a complete installer matrix, publication or release. Native admission and integration remain separate. The v4.14.2 composite local gate and actual PR #525 publication/integration/post-merge proof are verified; its two closing marks land in the v4.14.2 release commit.
 
 The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
-**Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
+**Run state:** The original approval and controller binding remain valid. The earlier installed check-member projection for v4.14.2 reported INCOMPLETE, with T001-T024, member.gate, implementation.identity and approval.remote met, and the three recorded follow-ons recognized. T025-T028 and T030-T032 retain their documented checks. Approved native blocker 14 had reopened T029 for actual macOS full-payload proof on the first M2 PR. That proof and T034 green merged integration/post-merge verification are now retained from PR #525. T033 retains the reconciled composite local gate and terminal Windows/Linux installer proof. The two closing task marks remain uncommitted; release, runtime adoption and native completion retain their separate gates.
+
+**Minor checker maintenance:** PR #521 preserves unknown observations, shared budget identity and unchanged native authority. Fresh CodeQL has zero Python and JavaScript/TypeScript findings. One hosted standing-instruction assertion exposed a changed link caption; restoring the canonical caption passes all 27 affected policy cases and all eight document budgets. Fresh integration and reviewed runtime adoption remain open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
+
+**Minor checker maintenance:** PR #521 merged at 7c3260743fc660919516f65f4b852c82e0d6021a with all 46 checks, clean Python and JavaScript/TypeScript CodeQL analyses and a passing post-merge run. Unknown observations preserve progress counters and native authority. Reviewed runtime adoption remains open. [Evidence](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md).
+
+**Usage-limit maintenance:** PR #523 merged at 6e4b617609d08bd5eb4e441bde7a1f9f1fae7369 with all 46 checks, clean CodeQL analyses and a passing post-merge run. Final usage/status tests passed 451 cases in 107.60 seconds; its Windows bootstrap failure was reproduced as optional npm fetch timeouts. The narrow offline smoke fix passed 49 CI scenario tests and a real short-root installer run reaching all five optional npm stages with no npm timeout. Earlier environment/path failures and qualified scope limits remain in the evidence. Runtime adoption and verified platform-hook distribution remain pending. [Evidence](releases/v4/v4.14/development/usage-limit-native-decision.md).
+
+**Windows full-gate maintenance:** The single approved validators-co attempt passed 483 cases at 2400 seconds and is spent (1/1); validators-p-z passed 1056 with 3 skips. Earlier co/d-o timeouts remain retained; the terminal Windows guides-heavy timeout and guides-rest citation failures are preserved. The original Linux full run remains failed: 61 passing, four nonpassing and ten skipped commands, including unavailable Claude CLI validation. Four tracked lockfiles changed during the own-run profile; their exact semantic diff is retained and the writer is unproven. The complete affected XDG module passed all 53 cases; the approval-session repair passed its one affected case. The unchanged-hook diagnostic and both handbook checks passed. Strict case-ID coverage accounts for all 999 core guide IDs: 998 passed plus one declared optional portfolio skip; all 686 provisioning skips are positively covered, with 40 additional verification passes (1038/1039 strict cases passed). Final repaired clone comparison matched 8461 tracked files at tree d3ddf1cdef93d10aac6cbd7464ec71491278d759. The retained maintenance qualification was not a fresh unfiltered full-profile pass and alone did not close T033 or T034. At that retained T033 checkpoint, counts were 63/209 integrated and 99/209 combined; current GitHub integration and uncommitted closing marks are distinguished above. At that historical checkpoint, final hygiene, documentation and pre-commit checks had passed 19 commands while the required remote matrix and publication remained open. Actual PR #525 has since closed M2 required remote validation, publication and integration; global guard/runtime adoption and quiet-interval qualification remain open. The installed wrapper repair and earlier 528.098-second observation retain their narrow scope. [Evidence](releases/v4/v4.14/development/windows-full-gate-stabilization.md).
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-19 UTC
+**Last refreshed:** 2026-10-28 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
@@ -29,14 +61,16 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
+**Next:** Publish v4.14.2 (release PR, develop and main, tag, GitHub Release, back-merge), then record the archive-member decision, admit v4.14.3 and its later members in release order, and keep releases sequential.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 67/209 | 209/209 |
-| v4.14 released members | 2/7 | 7/7 |
+| v4.14 GitHub develop integrated task marks | 97/209 | 209/209 |
+| v4.14 worktree task marks | 101/209 | 209/209 |
+| v4.14 released members | 3/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
+| v4.14.2 task marks | 34/34 | 34/34 |
 | Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -44,6 +78,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
+- [ ] Integrate and adopt the [minor checker observation repair](releases/v4/v4.14/development/check-minor-budget-observation-evidence.md), preserving genuine authority and unknown progress scores.
 
 - [x] Establish focused phase checks and complete-plan broad validation as the plan/implement standard, preserving deferred task IDs, explicit earlier acceptance and affected-input evidence reuse. Actual-source verification: 385 tests and 17 fast checks pass.
 
@@ -315,6 +350,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Copilot and Cursor show Current Model (approved 2026-10-19): Copilot reads one `state.vscdb` key as the single exception to decision 1b; Cursor reads its composer model behind live-access consent, with the consent scope bumped to v2.
 - [ ] Antigravity Current Model: capture a `GetUserStatus` response ("Save Raw Usage Response" while Antigravity is open) to verify how `last_selected_agent_model` (for example `MODEL_PLACEHOLDER_M133`) maps to a model name; until then Antigravity shows Plan.
 
+## Handoff prompt in chat - 2026-10-21
+
+- [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
+- [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
+
 ## Queue reorganization - 2026-10-12 speed-first release map
 
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
@@ -363,6 +403,22 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Complete the [v4.22.3 two-source comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-rea-workflows-and-verified-agent-output.md) (REA workflows, Meta verified agent output); adoption target v4.22.3 confirmed by the user on 2026-10-19. Its REA refinements were applied to the v4.22.2 plan (T010, T011, T012, T025, T026), and the Claude Code mods plan moved from v4.22.3 to v4.22.4.
 - [x] Create the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md) with `/plan from-comparison`; seven review lenses and four grill decisions applied on 2026-10-19 (installed checker and receipt core, opt-in tripwire registration approved, waivers listed in the pull request with human approval for high-risk findings, Python-deep checker with Jest and Vitest markers).
 - [ ] Implement the [v4.22.3 plan](releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md): evidence-backed integration pull requests (M-B), a change-set test-integrity check run on every phase (M-A), an opt-in publication tripwire hook (M-C, cuttable), and memory metrics in the regression gate (M-D, cuttable).
+
+## Queued work - v4.22.6 open-model recipes and restraint
+
+- [x] Complete the [v4.22.6 two-source comparison](releases/v4/v4.22/comparisons/v4.22.6-comparison-open-model-recipes-and-restraint.md) (Nebius token-factory cookbook, Jakub Krehel's "Less is more, more or less"), committed locally on 2026-10-22.
+- [x] Confirm the v4.22.6 adoption target: the user confirmed v4.22.6 on 2026-10-22.
+- [x] Create the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md) with `/plan from-comparison`; six review lenses and three grill decisions applied on 2026-10-22 ([planning review](releases/v4/v4.22/development/v4.22.6-planning-review.md)): 8 audit-and-build episodes, capped Kimi and Qwen rosters with no script change, Qwen sources including Alibaba Cloud Model Studio. Five-phase plan approved for publication.
+- [ ] Implement the [v4.22.6 plan](releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md): earned-eyebrow gate and frequency-aware motion (`hallmark-design`), OpenAI-compatible endpoint guidance (`multi-provider-ai`), a deny-rule layer behind credential isolation (`ai-billing-safeguards`), and capped Kimi and Qwen prompting profiles. Implementation is 0/5 phases and 0/25 tasks.
+
+## Comparison - v4.22.8 verification, review, memory, and design
+
+- [x] Confirm v4.22.8 placement and assess the [six supplied sources](releases/v4/v4.22/comparisons/v4.22.8-comparison-verification-review-memory-and-design.md) on 2026-10-26; preserve source pins, screening adjudication, live GitHub settings, and 37 plan-impact verdicts in the [evidence sidecar](releases/v4/v4.22/comparisons/v4.22.8-comparison-verification-review-memory-and-design-evidence.json).
+- [x] Request `/plan from-comparison` and draft the [six-phase, 26-task v4.22.8 plan](releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md) on 2026-10-27; [seven-lens review](releases/v4/v4.22/development/v4.22.8-planning-review.md) returned nine raw findings, eight distinct, with mechanical corrections applied.
+- [x] Select protocol-first guidance for v4.22.8 on 2026-10-27: deterministic memory examples, actual fixture-app recovery and reviewed sample outputs; no measured agent-adherence, cost-improvement or live containment claim.
+- [x] Apply protocol-first scope to the v4.22.8 Goal, evidence contract and task prompts; product, feasibility and security rechecks found no additional material findings.
+- [x] Confirm the revised six-phase, 26-task v4.22.8 plan and authorize its planning package for protected publication and merge to develop on 2026-10-27.
+- [ ] Implement the approved v4.22.8 plan only after separate implementation authorization; current progress is 0/6 phases and 0/26 tasks. Repository-policy changes and release remain outside this planning publication.
 
 ## Current work - v4.4.5 visual refinement
 

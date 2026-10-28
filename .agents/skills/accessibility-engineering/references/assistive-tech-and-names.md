@@ -1,6 +1,6 @@
 # Assistive Technology and Accessible Names
 
-Read this when building icon-only controls, custom widgets, images, live updates, or anything that currently "looks labelled" but may not be named for AT.
+Read this when building icon-only controls, custom widgets, images, live updates, or anything that currently "looks labeled" but may not be named for AT.
 
 ## Accessible name computation (what AT actually reads)
 
@@ -8,7 +8,7 @@ For a given element the name is the first non-empty of:
 
 1. `aria-labelledby` (IDs of other elements; concatenated in listed order)
 2. `aria-label`
-3. Native labelling: `<label>` for inputs, descendant text for buttons and links, `alt` for `<img>`, `<title>` for `<svg>` only as a last resort
+3. Native labeling: `<label>` for inputs, descendant text for buttons and links, `alt` for `<img>`, `<title>` for `<svg>` only as a last resort
 4. `title` attribute (poorly supported as a name; do not rely on it)
 
 If all of those are empty, the control has **no name**. An icon font glyph, a background-image, or an SVG without `<title>`/`aria-label` produces silence or "button".
@@ -54,7 +54,7 @@ Icon-only button: the accessible name is a verb phrase that matches the action (
 
 ## Page structure for AT
 
-Landmarks: one `<main>`, one `<header>` (banner), `<nav>` labelled when there are several (`aria-label="Footer"`). Screen-reader users jump by landmark; three unlabelled `<nav>` elements are indistinguishable.
+Landmarks: one `<main>`, one `<header>` (banner), `<nav>` labeled when there are several (`aria-label="Footer"`). Screen-reader users jump by landmark; three unlabelled `<nav>` elements are indistinguishable.
 
 `lang` on `<html>` matches the page language. A phrase in another language gets `lang` on the element.
 

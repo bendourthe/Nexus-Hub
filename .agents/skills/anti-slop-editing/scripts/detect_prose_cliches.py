@@ -93,7 +93,7 @@ LEXICAL: tuple[tuple[str, str, re.Pattern[str]], ...] = (
     ("ellipsis-character", DEFECT, re.compile("\u2026")),
     # advisory: the clause-joining spaced hyphen (see the module docstring for why)
     ("spaced-hyphen-connector", ADVISORY, re.compile(r"(?<=\w) - (?=\w)")),
-    # advisory: labelled closing-summary markers (slop-wordlist.md, closing-summary family; v4.7.0)
+    # advisory: labeled closing-summary markers (slop-wordlist.md, closing-summary family; v4.7.0)
     (
         "closing-summary-marker",
         ADVISORY,

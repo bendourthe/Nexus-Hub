@@ -1,8 +1,10 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.14.1 -->
+<!-- nexus-hub-version: 4.14.2 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
+
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 
 ## Repository Overview
 
@@ -122,7 +124,7 @@ A skill MAY declare two optional strict-boolean frontmatter fields controlling w
 
 Command-derived skills the installer emits are user-invoked: `_synthesize_skill` sets `disable-model-invocation: true`. A user-invoked skill may delegate to model-invoked skills, never to another user-invoked one. `validate_skills.py` warns on a catalog description that starts with `Run the /X command` without the flag.
 
-Installers copy the keys verbatim; platforms that do not recognise them ignore them. Dated per-platform support lives in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). A lever is VERIFIED only from a fetched official vendor document, or the answer is "none documented".
+Installers copy the keys verbatim; platforms that do not recognize them ignore them. Dated per-platform support lives in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). A lever is VERIFIED only from a fetched official vendor document, or the answer is "none documented".
 
 #### Optional Security and Compliance Framework Mapping
 
@@ -210,7 +212,7 @@ When two or more skills cover adjacent or overlapping territory, the cluster MUS
 
 #### Missing-delegate honesty
 
-When a skill delegates work to another skill and that delegate is unavailable, it MUST mark that portion as not covered, name the missing skill, and continue. It MUST NOT reconstruct the delegate's rules from memory, substitute a neighbour, or claim coverage it did not achieve. The gap MUST be visible in the output, not only in the instructions. An agent that improvises the missing rules produces a report that reads complete while that section is unreviewed. This is the delegation-specific case of `[[verification-before-completion]]`.
+When a skill delegates work to another skill and that delegate is unavailable, it MUST mark that portion as not covered, name the missing skill, and continue. It MUST NOT reconstruct the delegate's rules from memory, substitute a neighbor, or claim coverage it did not achieve. The gap MUST be visible in the output, not only in the instructions. An agent that improvises the missing rules produces a report that reads complete while that section is unreviewed. This is the delegation-specific case of `[[verification-before-completion]]`.
 
 #### Review-output restraint
 
@@ -309,7 +311,6 @@ Quick reference (full rules and examples in the style guide):
 - Headings are ATX-style (`#`), one H1 per document, no level skipping.
 - Each paragraph or list item is a single continuous line in source - never hard-wrap.
 - English Markdown is ASCII-only (hyphens, straight quotes, `...`). Other-language Markdown uses the language's native punctuation.
-
 Before committing any generated Markdown, the agent should run a quick self-check against the verification list at the end of `catalog/style-guides/markdown.md`.
 
 ## Adding a New Command

@@ -1,0 +1,5 @@
+{
+ "exit": 1,
+ "stdout": "{\"copies\": {\"definitions\": [\"batch.reached\", \"report.reached\", \"web.reached\"], \"reason\": \"expected exactly one expression definition\"}, \"enumerate_every_copy\": false, \"fixture\": \"threshold\", \"refactor_first\": false, \"timeline\": {\"feature_edits\": [0, 1], \"final_suite_green\": true, \"green_full_suite_results\": [2], \"refactor_edits\": []}}",
+ "stderr": ""
+}

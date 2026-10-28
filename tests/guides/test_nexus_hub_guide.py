@@ -514,7 +514,7 @@ def test_invocation_convention_exists_and_is_used(
 ) -> None:
     for cls in (".inv-arg", ".inv-ph"):
         assert re.search(re.escape(cls) + r"\s*\{", guide_text), f"missing {cls} rule"
-    # v4.13.10 R27: the command name's colour is the accent tone of the code role, defined in type.css.
+    # v4.13.10 R27: the command name's color is the accent tone of the code role, defined in type.css.
     assert '<span data-ty="code" data-tone="accent" class="inv-cmd">' in guide_text
     assert 'class="inv-cmd"' in guide_text, "the convention must be used, not just defined"
     # A split invocation must still copy as its plain text.
@@ -729,7 +729,7 @@ def test_shared_platform_symbol_viewbox_change_fails_approval(guide_text: str) -
 
 
 def test_platform_mark_attribution_lives_in_the_site_footer(guide_text: str) -> None:
-    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a licence term, not a nicety.
+    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a license term, not a nicety.
 
     v4.4.2 (decision 2026-09-02-platform-mark-attribution-in-footer): the Home disclosure is
     gone and the attribution sits in the shared site footer, outside the Home reading flow but
@@ -819,7 +819,7 @@ def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     assert home.count('data-ty="grade"') >= 2
     size = re.search(r"--ty-grade:\s*([\d.]+)px", guide_text)
     assert size and float(size.group(1)) >= 12
-    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
     assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
     assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
 
@@ -948,7 +948,7 @@ def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
     # without-then-with ordering: the muted side precedes the accent side
     row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
     assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
-    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
     assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
     assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
     # v4.13.10 R30: the rows no longer wait for a scroll trigger; every row, connector, and tip is drawn
@@ -1169,12 +1169,12 @@ def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
     """v4.4.1 Phase 3: a real prompt, a verified split, and equivalent chips.
 
     The split asserted below is the actual cl100k_base encoding of the displayed prompt,
-    so the example is reproducible rather than illustrative. "Summarise" costing three
+    so the example is reproducible rather than illustrative. `Summarise` costing three
     tokens is the whole teaching point: a token is not a word.
     """
     scene = _foundation_scene(guide_text, "fx-tokens")
     assert 'data-tokenizer="cl100k_base"' in scene
-    assert "Summarise this contract and list every deadline." in scene
+    assert "Summarise this contract and list every deadline." in scene  # spelling: allow
     space = "\u2423"
     expected = [
         "Sum", "mar", "ise", space + "this", space + "contract", space + "and",
@@ -1221,9 +1221,9 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
         assert not re.search(r"<dt[^>]*>" + re.escape(retired) + r"</dt>", scene), (
             "the old vocabulary survives: " + retired
         )
-    assert "Summarise this contract and list every deadline." in scene
+    assert "Summarise this contract and list every deadline." in scene  # spelling: allow
     assert "Look at this contract." in scene
-    # the flaws are named rather than summarised in one sentence
+    # the flaws are named rather than summarized in one sentence
     for flaw in ("No request", "No context", "No goal", "No format"):
         assert flaw in scene, "missing named flaw: " + flaw
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
@@ -1296,7 +1296,7 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     """The old labels were all one bold accent font, which read as noise."""
     fx = _foundations_markup(guide_text)
     # The surviving SVG labels keep the role class; the HTML scenes express the same
-    # hierarchy through tag/body class pairs with distinct computed weight and colour.
+    # hierarchy through tag/body class pairs with distinct computed weight and color.
     assert "fxt--role" in fx
     role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
     assert role and "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
@@ -1566,7 +1566,7 @@ def test_cheatsheets_examples_colour_command_apart_from_argument(
     assert split, "at least one example should carry an argument"
     for payload, markup in split:
         assert 'class="inv-cmd"' in markup and 'class="inv-arg"' in markup, (
-            f"{payload} does not colour its argument apart"
+            f"{payload} does not color its argument apart"
         )
     # payload parity survives the split markup
     lookup = {p for p, _ in invs}

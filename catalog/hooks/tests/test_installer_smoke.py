@@ -259,11 +259,10 @@ USAGE_MONITORS = (
     ("gemini-usage-monitor", "nexus-hub.gemini-usage-monitor", "Gemini Usage Monitor"),
 )
 
-#: Monitors that install into VS Code only (Claude, Codex).
-VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
-#: Monitors that install into VS Code AND, as a second host, into Cursor. Copilot
-#: runs inside Cursor too, so its monitor is supported there (v4.13.11, WN-30).
-DUAL_HOST_USAGE_MONITORS = (USAGE_MONITORS[2],)
+#: Monitors that install into VS Code only (Claude, Codex, Copilot). Copilot was a
+#: second-host Cursor install from v4.13.11 (WN-30) until the maintainer made it
+#: VS Code only; the installers now remove the copy older releases left in Cursor.
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:3]
 CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
 ANTIGRAVITY_USAGE_MONITOR = USAGE_MONITORS[4]
 
@@ -413,7 +412,7 @@ def test_installers_isolate_vscode_and_cursor_hosts():
         )
 
         def call_line(extension_id: str) -> str:
-            # The rest of the monitor's own install call, so a neighbouring
+            # The rest of the monitor's own install call, so a neighboring
             # monitor's arguments can never satisfy or fail this monitor's check.
             idx = body.index(extension_id)
             return body[idx : body.index("\n", idx)]
@@ -425,23 +424,6 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             )
             assert "cursor_cli" not in window and "cursorCli" not in window, (
                 f"{path.name} must not pass the Cursor CLI into {extension_id} install"
-            )
-
-        # WN-30: the Copilot monitor installs into VS Code first and into Cursor
-        # as the optional second host, through the shared also_cli /
-        # -AlsoCodeCli parameter, so one VSIX reaches both editors.
-        for _, extension_id, _ in DUAL_HOST_USAGE_MONITORS:
-            window = call_line(extension_id)
-            if path is INSTALLER_SH:
-                expected = '"$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"'
-            else:
-                expected = (
-                    "-CodeCli $vscodeCli -CodeLabel $vscodeLabel "
-                    "-AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel"
-                )
-            assert window.rstrip().endswith(expected), (
-                f"{path.name} must install {extension_id} into VS Code and pass the "
-                f"Cursor CLI as its second host: expected the call to end with {expected!r}"
             )
 
         _, cursor_id, _ = CURSOR_USAGE_MONITOR
@@ -493,23 +475,41 @@ def test_installers_route_the_gemini_monitor_to_antigravity_only():
 
 
 def test_installer_banners_state_the_copilot_monitor_hosts():
-    """The extension banner must name the hosts each monitor actually reaches.
-
-    Before WN-30 both banners said "Claude/Codex/Copilot install into VS Code
-    only". Once Copilot also installs into Cursor, that line would tell a Cursor
-    user the monitor is absent when it is present.
+    """The extension banner must name the hosts each monitor actually reaches:
+    Claude, Codex, and Copilot in VS Code only, the Cursor monitor in Cursor only.
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
         body = path.read_text(encoding="utf-8")
-        assert "Claude/Codex/Copilot install into VS Code only" not in body, (
-            f"{path.name} still tells users the Copilot monitor is VS Code only"
+        assert "into VS Code and Cursor" not in body, (
+            f"{path.name} still tells users the Copilot monitor installs into Cursor"
         )
-        assert "Claude/Codex install into VS Code only; Copilot" in body, (
-            f"{path.name} banner must keep Claude and Codex VS Code only"
+        assert "Claude, Codex, and Copilot install into VS Code" in body, (
+            f"{path.name} banner must state that Copilot is VS Code only"
         )
-        assert "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." in body, (
-            f"{path.name} banner must state that Copilot installs into VS Code and Cursor"
+        assert "only; Cursor Usage Monitor into Cursor only." in body, (
+            f"{path.name} banner must state that the Cursor monitor is Cursor only"
         )
+
+
+def test_installers_remove_the_copilot_monitor_from_cursor_only():
+    """Older installers put the Copilot monitor into Cursor as a second host. The
+    sweep must remove that copy from Cursor, but the id must NOT join the shared
+    retirement array, which is swept from VS Code too and would uninstall the
+    monitor where it belongs.
+    """
+    copilot = "nexus-hub.copilot-usage-monitor"
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        marker = "legacy_ids=(" if path is INSTALLER_SH else "$legacyIds = @("
+        start = body.index(marker)
+        assert copilot not in body[start : body.index(")", start)], (
+            f"{path.name} must not retire {copilot} from VS Code"
+        )
+        if path is INSTALLER_SH:
+            expected = f'if [ "$cli" = cursor ]; then ids+=("{copilot}"); fi'
+        else:
+            expected = f'if ($cli -eq "cursor") {{ $ids = $legacyIds + "{copilot}" }}'
+        assert expected in body, f"{path.name} must sweep {copilot} from Cursor only"
 
 
 def test_installer_ps1_surfaces_vsce_errors():
@@ -785,6 +785,10 @@ DEV_ONLY_SCRIPTS = {
     # CI-only shared postcondition checker for throwaway real-installer runs.
     # Installed users do not need a harness that validates CI's temporary HOME.
     "check_installer_smoke.py",
+    # Repo-internal spelling guard: keeps the repository's own living files in
+    # American English. Installed users get the rule through the instruction
+    # templates' Writing Discipline block, not through this script.
+    "check_american_spelling.py",
 }
 
 

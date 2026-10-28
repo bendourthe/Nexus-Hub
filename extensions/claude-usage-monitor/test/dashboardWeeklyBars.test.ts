@@ -35,7 +35,7 @@ describe("dashboard weekly sections", () => {
     __resetStubState();
   });
 
-  it("renders a second weekly section labelled from the account", () => {
+  it("renders a second weekly section labeled from the account", () => {
     const html = renderDashboard({
       ...baseData,
       weeklyScoped: { percent: 56, resetsIn: "4d", resetsAt: null, label: "Fable" },

@@ -441,7 +441,7 @@ describe("degradation", () => {
     if (state.state !== "stale") {
       return;
     }
-    // The prior numbers survive, and they are labelled rather than presented as
+    // The prior numbers survive, and they are labeled rather than presented as
     // current. Blanking or silently reusing them would both be wrong.
     // The cached snapshot came from the live mapper, which leaves per-pool absolute
     // usage null because this route reports spend rather than tokens. What matters

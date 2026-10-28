@@ -10,6 +10,8 @@ check_plan_completion.py, which dispatches here and stays a thin dispatcher:
     check_plan_completion.py record render|create --minor vX.Y --session ID --approvals F
     check_plan_completion.py record answer --minor vX.Y --session ID --blocker N [--member vX.Y.Z]
     check_plan_completion.py record pause|resume --minor vX.Y --session ID
+    check_plan_completion.py record add-class --minor vX.Y --session ID --class archive-member
+                                                 (after record render --action add-class --class ...)
     check_plan_completion.py record path --minor vX.Y
 
 The rules this module executes are owned by the completion contract
@@ -25,10 +27,10 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import hmac
 import json
-import math
 import os
 import re
 import sys
@@ -40,6 +42,10 @@ from typing import TYPE_CHECKING
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+import completion_budget as _completion_budget
+
+CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
+check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
@@ -71,6 +77,10 @@ PLAN_GLOBS = (
     "docs/archive/v{M}/v{M}.{m}/plans/*.md",
     "docs/archive/versions/v{M}/v{M}.{m}/plans/*.md",
 )
+
+
+class ObservationUnavailable(Exception):
+    """A required observation did not run; no negative fact was established."""
 
 
 class MinorMalformed(Exception):
@@ -699,7 +709,7 @@ def controller_identity(ck: ModuleType, rctx: RepoContext, record: dict, path: P
     identity = _controller_metadata(ck, record, path)
     common = identity['git_common_dir']
     if common is None:
-        # _common_dir returns a canonical resolved path, or an empty string on failure.
+        # A failed observation raises; a verified unavailable origin stays a conflict.
         common = _common_dir(rctx, Path(identity['origin_root']))
         if not common:
             raise ck.MinorConflict('controller-ownership-unavailable')
@@ -868,7 +878,7 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
                 raise ck.MinorConflict('member-release-history-not-in-target')
     major, minor = parse_minor(ck, record['minor'])
     plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
-    if any(member['version'] not in plans or ck.plan_hash_text(plans[member['version']].text) != member['plan_sha256']
+    if any(member['version'] not in plans or not member_identity_ok(ck, member, plans[member['version']])
            for member in record['members']):
         raise ck.MinorConflict('target-frozen-plan-mismatch')
     return ctx
@@ -1017,9 +1027,54 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict) -> bo
     for member in members:
         plan = by_version.get(str(member.get("version")))
         # Schema 2 is new in v4.13.6, so only the current hash rule applies.
-        if plan is None or member.get("plan_sha256") != ck.plan_hash_text(plan.text):
+        if plan is None or not member_identity_ok(ck, member, plan):
             return False
     return True
+
+
+# The folders under a minor's active tree whose `<version>-` entries one member owns
+# (completion contract, "Member archive"); everything else in the tree is shared.
+MEMBER_OWNED_DIRS = ("plans", "development", "development/history", "research", "analysis")
+
+
+def member_identity_ok(ck: ModuleType, member: dict, plan: Plan) -> bool:
+    """True when `plan` is the member's frozen plan or its signed member-archive copy.
+
+    A member archived on release keeps its frozen `plan_sha256`; the archive signs the
+    archived path and hash beside it in `archived`, and only that exact path with that
+    exact hash counts. A member without `archived` verifies exactly as before.
+    """
+    digest = ck.plan_hash_text(plan.text)
+    if digest == member.get("plan_sha256"):
+        return True
+    archived = member.get("archived")
+    return (isinstance(archived, dict) and plan.rel == archived.get("plan_path")
+            and digest == archived.get("plan_sha256"))
+
+
+def member_moves(version: str, tree: str, tracked: list[str], plan_rel: str | None = None) -> list[tuple[str, str]]:
+    """(old prefix, new prefix) for every path member `version` owns in the active `tree`.
+
+    Owned: the frozen plan (`plan_rel`), and each entry directly under one of
+    MEMBER_OWNED_DIRS whose name starts with exactly `<version>-`, so `v4.14.1-` never
+    matches `v4.14.10-`. `tracked` lists repository-relative files. The new prefix
+    mirrors the final archive layout, so the minor close composes with it.
+    """
+    major, minor = minor_of(version)
+    dest = ARCHIVE_TREE.format(M=major, m=minor)
+    owned: set[str] = set()
+    for rel in tracked:
+        if not rel.startswith(tree + "/"):
+            continue
+        if plan_rel and rel == plan_rel and rel.startswith(f"{tree}/plans/"):
+            owned.add(rel)
+        for folder in MEMBER_OWNED_DIRS:
+            base = f"{tree}/{folder}/"
+            if rel.startswith(base):
+                entry = rel[len(base):].split("/", 1)[0]
+                if entry.startswith(version + "-"):
+                    owned.add(base + entry)
+    return [(old, dest + old[len(tree):]) for old in sorted(owned)]
 
 
 def _owned_member(ck: ModuleType, rctx: RepoContext, record: dict, own: Path) -> tuple[str, str] | None:
@@ -1136,8 +1191,12 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action != "answer":
-        raise ck.Malformed("--member requires --action answer")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope or permit-manifest")
+    if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
+        raise ck.Malformed("--merge requires --action supplement-scope")
+    if getattr(args, "added_class", None) is not None and args.action != "add-class":
+        raise ck.Malformed("--class requires --action add-class")
     if args.action == "create":
         if not args.approvals:
             raise ck.Malformed("record render --action create needs --approvals")
@@ -1157,8 +1216,26 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
                 if args.action == "answer" else action_page(token, args.action, str(record.get("nonce", ""))))
         display = None
+    elif args.action == "add-class":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = add_class_page(ck, token, record, getattr(args, "added_class", None))
+        display = None
+    elif args.action == "supplement-scope":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = supplement_scope_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "merge", None))
+        display = None
+    elif args.action == "permit-manifest":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = manifest_permission_page(ck, rctx, token, record, getattr(args, "member", None))
+        display = None
     else:
-        raise ck.Malformed("a minor record supports create, answer, pause or resume")
+        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope or permit-manifest")
     session = None if args.session == "auto" else args.session
     blocker = args.blocker if args.action == "answer" else None
     try:
@@ -1336,6 +1413,552 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
     print(f"RESUMED minor {token} session bound")
     return 0
 
+
+# Classes a running minor record may gain by one genuine decision of its own (completion
+# contract, "Member archive"); every other class is fixed at `record create`.
+ADDABLE_CLASSES = ("archive-member",)
+
+
+def add_class_page(ck: ModuleType, token: str, record: dict, name: str | None) -> dict:
+    """The canonical page that adds one class to a running minor record."""
+    if name not in ADDABLE_CLASSES:
+        raise ck.Malformed("--class must be one of " + ", ".join(ADDABLE_CLASSES))
+    present = _classes(record)
+    if name in present:
+        raise ck.Malformed(f"the minor record already carries {name}")
+    if "archive-minor" not in present:
+        raise ck.Malformed(f"{name} is valid only with archive-minor, which this record does not carry")
+    page = action_page(token, "add-class", str(record.get("nonce", "")))
+    page["class"] = name
+    return page
+
+
+def _record_for_add_class(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
+    """The verified, live record a class is added to; completed, paused, blocked, or tampered refuses."""
+    state = load_minor(ck, rctx, token, None if session == "auto" else session)
+    if state.forced is not None:
+        print(state.forced[0])
+        return state.forced[1]
+    if state.record is None:
+        for notice in state.notices:
+            print(f"notice: {notice}", file=sys.stderr)
+        print("no live minor run record for this scope and session", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    return state.record
+
+
+@minor_writer
+def cmd_record_add_class(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Add one ADDABLE_CLASSES class to a running minor record from the user's genuine paste.
+
+    The same round as answer, pause and resume: `record render --action add-class`
+    shows the page, the user pastes its line in the record's own session, and this
+    consumes that captured prompt once. Only the named class is added, with its
+    provenance, and the record is re-signed; nothing else in the record changes.
+    """
+    rctx = repo_context(ck, args)
+    token = args.minor
+    parse_minor(ck, token)
+    record = _record_for_add_class(ck, rctx, token, args.session)
+    if isinstance(record, int):
+        return record
+    name = args.added_class
+    if name in ADDABLE_CLASSES and name in _classes(record):
+        print(f"ALREADY ADDED {name} minor {token}")
+        return 0
+    page = add_class_page(ck, token, record, name)
+    consumed = _consume(ck, rctx, token, "add-class", page, args.session, str(record.get("session_id") or ""))
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) not in {
+        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
+    }:
+        return ck._refused("approval-not-captured")
+    record["approvals"]["classes"].append({
+        "class": name,
+        "text": approval_binding.pasted(pending),
+        "added": {
+            "at": ck._now(),
+            "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+            "authorization_context": pending.get("capture"),
+        },
+    })
+    # `approvals` is signed, so the added class is a signed update, never an unsigned edit.
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    ck._write_record(record_file(ck, rctx, token), record)
+    print(f"ADDED {name} minor {token}")
+    return 0
+
+
+# This is one reviewed historical repair, not a configurable exception registry.
+REVIEWED_HISTORICAL_SCOPE = {
+    "repo": "bendourthe/Nexus-Hub",
+    "minor": "v4.14",
+    "member": "v4.14.2",
+    "merge": "d2d7bff7a0c192437eddcbdb677880791ea3f501",
+    "first_parent": "e90dbacc75491b1c57445b4bf68a5620b4188557",
+    "second_parent": "944d07f40eeebc8d52204684a3cab907f331806d",
+    "tree": "de7ccaeea43d697f25552f6330ac261af1d867b0",
+    "rows": (
+        ("MANIFEST.sha256", "100644", "100644", "bca95a092cc4b649e6999a86b3badebf5ef86674", "aeadf59f67ea686f30a18407f65bc895c646dbae", "M"),
+        ("scripts/check_installer_smoke.py", "100644", "100644", "b2d3c6ab5f76f970ca6989bacc084f114105f505", "bc9732e3b2d032f25f26bac623b39ea46e57c29d", "M"),
+        ("scripts/ci/verify_scenarios.py", "100644", "100644", "31fd6838cbc890339eded7bae7a2d40fd2ef2354", "1d11d5a948f965a9544bc9b08d6eec1fb97510fa", "M"),
+        ("tests/ci/test_ci_scenarios.py", "100644", "100644", "6b03873afac9f70dfeef6224d00d77af6a298560", "aff21219be765f15ac3e3e506c2bfe8932dae1d0", "M"),
+        ("tests/installer/test_installer_smoke_postconditions.py", "100644", "100644", "16cce5814f60aa9264cf48685582ad134c364b99", "31c4bbc266465431ae6cdd9d9d3dcda366414f00", "M"),
+        ("tests/skills/test_installer_parity_lifecycle.py", "100644", "100644", "63aed6212aadd3116ae5e4d7aae8c04fceade272", "1b10a0d084ca08c874a5d4517a8c09d2009dcebc", "M")
+    )
+}
+
+
+def _historical_claims_sha256(member: dict) -> str:
+    frozen = {"implementation": member.get("implementation"),
+              "coordinator_paths": member.get("coordinator_paths", []), "start_head": member.get("start_head")}
+    return hashlib.sha256(approval_binding.canonical(frozen)).hexdigest()
+
+
+def historical_scope_bounds(rctx: RepoContext, record: dict, member: dict, merge: str) -> dict:
+    """Recompute the complete uncovered contribution for the single reviewed merge."""
+    expected = REVIEWED_HISTORICAL_SCOPE
+    if (record.get("repo") != expected["repo"] or record.get("minor") != expected["minor"]
+            or member.get("version") != expected["member"] or merge != expected["merge"]):
+        raise MinorMalformed("historical-scope-outside-reviewed-repair")
+    parents = rctx._git_out("rev-list", "--parents", "-n", "1", merge).split()
+    if parents != [merge, expected["first_parent"], expected["second_parent"]]:
+        raise MinorMalformed("historical-scope-merge-changed")
+    tree = rctx._git_out("rev-parse", "--verify", merge + "^{tree}")
+    if tree != expected["tree"]:
+        raise MinorMalformed("historical-scope-tree-changed")
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict):
+        raise MinorMalformed("historical-scope-original-claims-missing")
+    writes = implementation.get("write_paths")
+    coordinator = member.get("coordinator_paths", [])
+    if (not isinstance(writes, list) or not isinstance(coordinator, list)
+            or any(not isinstance(p, str) for p in [*writes, *coordinator])):
+        raise MinorMalformed("historical-scope-original-claims-invalid")
+    start = member.get("start_head") or implementation.get("base_head")
+    if not isinstance(start, str) or any(_ancestor(rctx, start, p) != "met" for p in parents[1:]):
+        raise MinorMalformed("historical-scope-base-unverified")
+    rc, raw = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--raw", "--no-abbrev", "--no-renames", "-z",
+                        expected["first_parent"], merge, "--"])
+    if rc:
+        raise ObservationUnavailable("historical-scope-diff-unavailable")
+    pieces = raw.split("\0")
+    if not pieces or pieces[-1] != "" or len(pieces) % 2 != 1:
+        raise MinorMalformed("historical-scope-diff-invalid")
+    rows = []
+    seen: set[str] = set()
+    claims = [*writes, *(coordinator if member.get("start_head") else [])]
+    for index in range(0, len(pieces) - 1, 2):
+        metadata, path = pieces[index:index + 2]
+        fields = metadata.removeprefix(":").split()
+        if (not metadata.startswith(":") or len(fields) != 5 or fields[4] not in {"A", "M", "D"}
+                or path.casefold() in seen):
+            raise MinorMalformed("historical-scope-diff-invalid")
+        seen.add(path.casefold())
+        if any(_overlap(path, claim) for claim in claims):
+            continue
+        _literal_path(rctx.root, path)
+        if (path.endswith("/") or (rctx.root / path).is_dir()
+                or _sensitive_write(rctx, path, []) or _coordinator_name(path)
+                or any(_overlap(path, p) for p in _coordinator_paths(rctx, str(record["minor"]), []))):
+            raise MinorMalformed("historical-scope-protected-path")
+        if fields[0] not in {"000000", "100644", "100755"} or fields[1] not in {"000000", "100644", "100755"}:
+            raise MinorMalformed("historical-scope-nonregular-path")
+        rows.append((path, *fields[:4], fields[4]))
+    if sorted(rows) != sorted(expected["rows"]):
+        raise MinorMalformed("historical-scope-uncovered-set-changed")
+    return {"merge": merge, "first_parent": parents[1], "second_parent": parents[2], "tree": tree,
+            "rows": [list(row) for row in sorted(rows)]}
+
+
+def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                          version: str | None, merge: str | None) -> dict:
+    """Bind the render and consume round to one current, authenticated generation."""
+    member = next((m for m in record["members"] if m.get("version") == version), None)
+    if member is None or token != REVIEWED_HISTORICAL_SCOPE["minor"] or merge != REVIEWED_HISTORICAL_SCOPE["merge"]:
+        raise ck.Malformed("historical-scope-outside-reviewed-repair")
+    if member.get("historical_scope_supplements"):
+        raise ck.Malformed("historical-scope-already-supplemented")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    raw = record.record_path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    status, actual_merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    if status != "merged" or actual_merge != merge:
+        raise ck.Malformed("historical-scope-publication-unverified")
+    bounds = historical_scope_bounds(rctx, record, member, merge)
+    controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
+    return {"action": "supplement-scope", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"], "controller": controller,
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "claims_sha256": _historical_claims_sha256(member), "merge_bounds": bounds}
+
+
+def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                                  merge: str, entry: object, *, verify_capture: bool = False) -> bool:
+    """Validate signed historical provenance without rebinding it to a later session."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        page_fields = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+                       "member", "plan_sha256", "claims_sha256", "merge_bounds"}
+        accepted_fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text",
+                           "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != page_fields or not isinstance(accepted, dict)
+                or set(accepted) != accepted_fields):
+            return False
+        if (page["action"] != "supplement-scope" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["claims_sha256"] != _historical_claims_sha256(member)
+                or approval_binding.canonical(page["merge_bounds"])
+                   != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge))):
+            return False
+        if (not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        controller = page["controller"]
+        legacy = {"repo_root", "git_common_dir"}
+        transferred = legacy | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if set(controller) not in ({"repo_root"}, legacy, transferred):
+            return False
+        if not isinstance(controller["repo_root"], str) or not Path(controller["repo_root"]).is_absolute():
+            return False
+        if "git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                                                or not Path(controller["git_common_dir"]).is_absolute()):
+            return False
+        if set(controller) == transferred and (type(controller["generation"]) is not int or controller["generation"] < 1
+                or not all(isinstance(controller[k], str) and controller[k] for k in transferred - {"generation"})
+                or not re.fullmatch(r"[0-9a-f]{40}", controller["head"])
+                or not re.fullmatch(r"[0-9a-f]{64}", controller["origin_record_key"])):
+            return False
+        key = ck._secret(create=False)
+        if key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"]):
+            return False
+        if accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest():
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict) or context.get("session_id") != page["owner_session"]
+                or context.get("prompt_sha256") != approval_binding.digest(accepted["text"])):
+            return False
+        allowed = {approval_page.plain_line("supplement-scope", str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture"
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        return (accepted["text"] in allowed and (not verify_capture
+                or approval_binding.consumed_capture_valid(ck._runs_dir(), context, accepted["rendered_at"])))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, approval_page.PageError):
+        return False
+
+
+def _historical_scope_paths(ck: ModuleType | None, rctx: RepoContext, record: dict | None,
+                            member: dict, merge: str) -> set[str] | None:
+    entries = member.get("historical_scope_supplements", [])
+    if entries == []:
+        return set()
+    if (ck is None or not isinstance(record, dict) or not isinstance(entries, list) or len(entries) != 1
+            or approval_binding.canonical(next((m for m in record.get("members", [])
+                                                if m.get("version") == member.get("version")), None))
+               != approval_binding.canonical(member)):
+        return None
+    key = ck._secret(create=False)
+    if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+            or not _historical_scope_entry_valid(ck, rctx, record, member, merge, entries[0])):
+        return None
+    return {row[0] for row in entries[0]["page"]["merge_bounds"]["rows"]}
+
+
+def check_historical_scope_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer preserves accepted entries, including a removed member."""
+    before = previous.get("members", [])
+    after = record.get("members", [])
+    if not any(isinstance(m, dict) and "historical_scope_supplements" in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("historical-scope-invalid-members")
+    old = {m.get("version"): m for m in before}
+    new = {m.get("version"): m for m in after}
+    added = []
+    for version in old.keys() | new.keys():
+        left = old.get(version, {}).get("historical_scope_supplements", [])
+        right = new.get(version, {}).get("historical_scope_supplements", [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) > 1
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left) or len(right) < len(left)):
+            raise ck.MinorConflict("historical-scope-not-append-only")
+        for entry in right[len(left):]:
+            added.append((version, entry))
+    if not added:
+        return
+    active = ck._MINOR_LEASE.get()
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("historical-scope-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if active.get("historical_scope_append") != grant:
+        raise ck.MinorConflict("historical-scope-append-not-captured")
+    def original(value: dict) -> dict:
+        copied = json.loads(json.dumps(value))
+        copied.pop("approvals_hmac", None)
+        for item in copied["members"]:
+            item.pop("historical_scope_supplements", None)
+        return copied
+    if approval_binding.canonical(original(previous)) != approval_binding.canonical(original(record)):
+        raise ck.MinorConflict("historical-scope-unrelated-record-change")
+    if (entry.get("page", {}).get("record_sha256") != active["expected"]
+            or not _historical_scope_entry_valid(ck, rctx, record, new[version],
+                                                  REVIEWED_HISTORICAL_SCOPE["merge"], entry, verify_capture=True)):
+        raise ck.MinorConflict("historical-scope-invalid-entry")
+
+
+@minor_writer
+def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine decision; append historical authority without changing claims."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = supplement_scope_page(ck, rctx, args.minor, record, args.member, args.merge)
+    consumed = _consume(ck, rctx, args.minor, "supplement-scope", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(),
+             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault("historical_scope_supplements", []).append(entry)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["historical_scope_append"] = {"member": args.member,
+                                          "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+                                          "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("historical_scope_append", None)
+    print(f"SUPPLEMENTED historical scope {args.member}")
+    return 0
+
+M5_MANIFEST_PERMISSION = {"repo": "bendourthe/Nexus-Hub", "minor": "v4.14", "member": "v4.14.5", "path": "MANIFEST.sha256"}
+
+
+def _manifest_implementation_sha256(member: dict) -> str:
+    return hashlib.sha256(approval_binding.canonical(member.get("implementation"))).hexdigest()
+
+
+def _manifest_bounds(record: dict, member: dict) -> bool:
+    expected = M5_MANIFEST_PERMISSION
+    return (record.get("repo") == expected["repo"] and record.get("minor") == expected["minor"]
+            and member.get("version") == expected["member"] and expected["path"] == "MANIFEST.sha256"
+            and isinstance(member.get("implementation"), dict))
+
+
+def _manifest_original_scope(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                             *, base: str | None = None) -> bool:
+    if not _manifest_bounds(record, member) or member.get("start_head"):
+        return False
+    worker, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, base=base, canonical_merged=False)
+    return worker is not None and status == "met"
+
+
+def manifest_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                             version: str | None) -> dict:
+    """Bind one future publication duty without changing admitted worker claims."""
+    member = next((m for m in record["members"] if m.get("version") == version), None)
+    if member is None or token != M5_MANIFEST_PERMISSION["minor"] or not _manifest_bounds(record, member):
+        raise ck.Malformed("manifest-permission-outside-reviewed-member")
+    if member.get("manifest_coordinator_permissions") or member.get("start_head"):
+        raise ck.Malformed("manifest-permission-already-recorded-or-started")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    raw = record.record_path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    status, _merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    if status != "not-merged":
+        raise ck.Malformed("manifest-permission-publication-unverified")
+    if not _manifest_original_scope(ck, rctx, record, member):
+        raise ck.Malformed("manifest-permission-original-scope-unverified")
+    return {"action": "permit-manifest", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "path": "MANIFEST.sha256", "plan_sha256": member["plan_sha256"],
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"]}
+
+
+def _manifest_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                                  entry: object, *, verify_capture: bool = False) -> bool:
+    """Validate the signed dormant permission after legitimate session and publication updates."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        page_fields = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+                       "member", "path", "plan_sha256", "implementation_sha256", "source_branch", "target_branch"}
+        accepted_fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text",
+                           "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != page_fields or not isinstance(accepted, dict)
+                or set(accepted) != accepted_fields):
+            return False
+        if (page["action"] != "permit-manifest" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or not _manifest_bounds(record, member) or page["path"] != "MANIFEST.sha256"
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]):
+            return False
+        if (not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        controller = page["controller"]
+        legacy = {"repo_root", "git_common_dir"}
+        transferred = legacy | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if set(controller) not in ({"repo_root"}, legacy, transferred):
+            return False
+        if not isinstance(controller["repo_root"], str) or not Path(controller["repo_root"]).is_absolute():
+            return False
+        if "git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                                                or not Path(controller["git_common_dir"]).is_absolute()):
+            return False
+        if set(controller) == transferred and (type(controller["generation"]) is not int or controller["generation"] < 1
+                or not all(isinstance(controller[k], str) and controller[k] for k in transferred - {"generation"})
+                or not re.fullmatch(r"[0-9a-f]{40}", controller["head"])
+                or not re.fullmatch(r"[0-9a-f]{64}", controller["origin_record_key"])):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+                or approval_binding.canonical(next((m for m in record.get("members", []) if m.get("version") == member.get("version")), None))
+                   != approval_binding.canonical(member)
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])):
+            return False
+        if accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest():
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict) or context.get("session_id") != page["owner_session"]
+                or context.get("prompt_sha256") != approval_binding.digest(accepted["text"])):
+            return False
+        allowed = {approval_page.plain_line("permit-manifest", str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture"
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        return (accepted["text"] in allowed and (not verify_capture
+                or approval_binding.consumed_capture_valid(ck._runs_dir(), context, accepted["rendered_at"])))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, approval_page.PageError):
+        return False
+
+
+def check_manifest_permission_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer preserves accepted entries, including a removed member."""
+    before = previous.get("members", [])
+    after = record.get("members", [])
+    if not any(isinstance(m, dict) and "manifest_coordinator_permissions" in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("manifest-permission-invalid-members")
+    old = {m.get("version"): m for m in before}
+    new = {m.get("version"): m for m in after}
+    added = []
+    for version in old.keys() | new.keys():
+        left = old.get(version, {}).get("manifest_coordinator_permissions", [])
+        right = new.get(version, {}).get("manifest_coordinator_permissions", [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) > 1
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left) or len(right) < len(left)):
+            raise ck.MinorConflict("manifest-permission-not-append-only")
+        for entry in right[len(left):]:
+            added.append((version, entry))
+    if not added:
+        return
+    active = ck._MINOR_LEASE.get()
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("manifest-permission-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if approval_binding.canonical(active.get("manifest_permission_append")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("manifest-permission-append-not-captured")
+    def original(value: dict) -> dict:
+        copied = json.loads(json.dumps(value))
+        copied.pop("approvals_hmac", None)
+        for item in copied["members"]:
+            item.pop("manifest_coordinator_permissions", None)
+        return copied
+    if approval_binding.canonical(original(previous)) != approval_binding.canonical(original(record)):
+        raise ck.MinorConflict("manifest-permission-unrelated-record-change")
+    page = entry.get("page", {})
+    controller = previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")}
+    if (page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(controller)
+            or version not in old or not _manifest_original_scope(ck, rctx, previous, old[version])
+            or not _manifest_permission_valid(ck, rctx, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("manifest-permission-invalid-entry")
+
+
+@minor_writer
+def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Capture one dormant publication duty; preserve every original worker claim."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = manifest_permission_page(ck, rctx, args.minor, record, args.member)
+    consumed = _consume(ck, rctx, args.minor, "permit-manifest", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(),
+             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault("manifest_coordinator_permissions", []).append(entry)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["manifest_permission_append"] = {"member": args.member,
+                                          "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+                                          "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("manifest_permission_append", None)
+    print(f"PERMITTED dormant manifest coordinator duty {args.member}")
+    return 0
 
 # --------------------------------------------------------------------------- known-gaps ledgers
 #
@@ -1897,6 +2520,27 @@ def migration_copy_status(
     return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
+def _ledger_blob(rctx: RepoContext, commit: str, rel: str) -> tuple[str, str]:
+    """Reuse only successful immutable blob reads within this evaluation context."""
+    key = (commit.lower(), rel) if re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", commit) else None
+    cache = getattr(rctx, "_minor_blob_cache", None)
+    if cache is None:
+        cache = rctx._minor_blob_cache = {}
+    if key is not None and key in cache:
+        return "met", cache[key]
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+    if rc == -1:
+        return "cannot-verify", ""
+    if rc != 0:
+        return "unmet", ""
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+    if rc != 0:
+        return "cannot-verify", ""
+    if key is not None:
+        cache[key] = out
+    return "met", out
+
+
 def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
     """`met` when the minor's ledger at `commit` already held item `gid`, else `unmet`.
 
@@ -1904,14 +2548,11 @@ def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str)
     `cannot-verify` when git cannot answer.
     """
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify"
-        if rc != 0:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
+            return status
+        if status != "met":
             continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify"
         if any(item.gid == gid for item in parse_ledger(out)):
             return "met"
     return "unmet"
@@ -1924,14 +2565,11 @@ def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -
     cannot answer. Every layout path is tried, so an archived ledger still resolves.
     """
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify", []
-        if rc != 0:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
+            return status, []
+        if status != "met":
             continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify", []
         found = [item for item in parse_ledger(out) if item.gid == gid]
         if found:
             return "met", found
@@ -1987,6 +2625,79 @@ def planned_followon_entry(ck: ModuleType, plan: Plan, task_id: str, frozen: str
     return None
 
 
+# A frozen task that records known gaps without the `File <scope> as a known gap` template:
+# its line names this minor's ledger and says it records a gap, its line reconciles known gaps
+# including a parked item, or its own sub-task prompt says "record a known gap" or "add one
+# entry per/for each". The plan cannot supply the reason, so each entry binds every other field
+# exactly, names a scope the frozen plan states verbatim, and carries its reason and next step
+# as single lines.
+RECORDED_TASK_RE = re.compile(r"\b(?:record|file|make)\b.*\bknown[- ]gap\b", re.IGNORECASE)
+RECORDED_PARKED_RE = re.compile(r"\breconcile known gaps\b.*\bparked\b", re.IGNORECASE)
+RECORDED_PROMPT_RE = re.compile(r"\brecord an? known gap\b|\badd one entry (?:per|for each)\b", re.IGNORECASE)
+RECORDED_TITLE_RE = re.compile(r": Planned follow-on: (?P<scope>\S[^\n]{7,})")
+RECORDED_BODY_RE = re.compile(
+    r"\*\*Disposition\*\*: planned-follow-on \(OPEN\)\n\n"
+    r"\*\*Source phase\*\*: (?P<version>v\d+\.\d+\.\d+) Phase (?P<phase>\d+) (?P<task>T\d{3,})\n\n"
+    r"\*\*Plan reference\*\*: (?P<plan>[^\n]+)\n\n"
+    r"\*\*Frozen plan sha256\*\*: (?P<frozen>[0-9a-f]{64})\n\n"
+    r"\*\*Frozen task sha256\*\*: (?P<task_hash>[0-9a-f]{64})\n\n"
+    r"\*\*Reason\*\*: [^\n]*\S[^\n]*\n\n"
+    r"\*\*Suggested next step\*\*: [^\n]*\S[^\n]*\."
+)
+
+
+def recorded_followon_task(ck: ModuleType, plan: Plan, task_id: str, frozen: str) -> tuple[str, str] | None:
+    """(phase number, task sha256) when one exact frozen task records a known gap in its minor's ledger.
+
+    A task the exact template derives keeps its derived reason and next step, so it never qualifies here.
+    """
+    if ck.plan_hash_text(plan.text) != frozen or planned_followon_entry(ck, plan, task_id, frozen) is not None:
+        return None
+    lines = plan.text.splitlines(keepends=True)
+    mask, unclosed = fence_mask(lines)
+    if unclosed:
+        return None
+    text = ''.join('\n' if mask[i] else line for i, line in enumerate(lines))
+    tasks = [m for m in re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', text, re.MULTILINE) if m[1] == task_id]
+    if len(tasks) != 1:
+        return None
+    task = tasks[0]
+    phases = [p for p in re.finditer(r'^## Phase (\d+):[^\n]*\n', text, re.MULTILINE) if p.end() <= task.start()]
+    if not phases:
+        return None
+    phase = phases[-1]
+    if re.search(r'^## ', text[phase.end():task.start()], re.MULTILINE):
+        return None
+    sections = [s for s in re.finditer(r'^#### \d+\.\d+ -{1,2} [^\n]*\n', text, re.MULTILINE)
+                if phase.end() <= s.start() < task.start()]
+    prompt = ' '.join(re.findall(r'^> (.+)$', text[sections[-1].end():task.start()], re.MULTILINE)) if sections else ''
+    names_ledger = (task[2].rsplit(' ', 1)[-1] in ledger_rels(*minor_of(plan.version))
+                    and RECORDED_TASK_RE.search(task[2]) is not None)
+    if not (names_ledger or RECORDED_PARKED_RE.search(task[2]) or RECORDED_PROMPT_RE.search(prompt)):
+        return None
+    return phase[1], hashlib.sha256((task_id + ' ' + task[2]).encode('utf-8')).hexdigest()
+
+
+def recorded_followon(ck: ModuleType, rctx: RepoContext, plan: Plan, frozen: str,
+                      source_minor: tuple[int, int], title: str, body: str) -> bool:
+    """A bound entry whose scope the frozen plan names; a second entry with the same task and title is refused."""
+    found = RECORDED_BODY_RE.fullmatch(body)
+    titled = RECORDED_TITLE_RE.fullmatch(title)
+    if found is None or titled is None or titled['scope'] not in plan.text.replace('\r\n', '\n'):
+        return False
+    if found['version'] != plan.version or found['plan'] != Path(plan.rel).name or found['frozen'] != frozen:
+        return False
+    if recorded_followon_task(ck, plan, found['task'], frozen) != (found['phase'], found['task_hash']):
+        return False
+    ledgers, unreadable = load_ledgers(rctx.root)
+    if unreadable:
+        return False
+    line = f"**Source phase**: {plan.version} Phase {found['phase']} {found['task']}"
+    citing = [i for ledger in ledgers if ledger.minor == source_minor for i in ledger.items
+              if line in i.body.replace('\r\n', '\n').splitlines() and MIGRATED_RE.sub('', i.title).rstrip() == title]
+    return len(citing) == 1
+
+
 def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], item: GapItem | None) -> bool:
     """Recording-task disposition; callers already loaded a verified schema-2 record.
 
@@ -2017,21 +2728,25 @@ def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple
     if len(plans) != 1:
         return False
     member, plan = members[0], plans[0]
-    if ck.plan_hash_text(plan.text) != member.get('plan_sha256'):
+    if not member_identity_ok(ck, member, plan):
         return False
     expected = planned_followon_entry(ck, plan, source[2], str(member['plan_sha256']))
     title = MIGRATED_RE.sub('', item.title).rstrip()
-    if expected == (title, body):
+    if expected == (title, body) or recorded_followon(ck, rctx, plan, str(member['plan_sha256']), source_minor, title, body):
         return True
     original = archived_followon_plan(rctx, record, member, plan, ck)
     if original is None:
         return False
-    expected = planned_followon_entry(ck, original, source[2], ck.plan_hash_text(original.text))
-    return expected == (title, body)
+    frozen = ck.plan_hash_text(original.text)
+    expected = planned_followon_entry(ck, original, source[2], frozen)
+    return expected == (title, body) or recorded_followon(ck, rctx, original, frozen, source_minor, title, body)
 
 
 def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: Plan, ck: ModuleType) -> Plan | None:
     """Recover only the signed publication-start plan behind an actual archive repair."""
+    archived = member.get('archived')
+    if archived is not None:
+        return _signed_original_plan(rctx, record, member, plan, ck)
     major, minor = minor_of(plan.version)
     archive = ARCHIVE_TREE.format(M=major, m=minor)
     name = Path(plan.rel).name
@@ -2064,6 +2779,37 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
             return None
         matches.append(Plan(rel, plan.version, plan.order, plan.status, plan.slug, text))
     return matches[0] if len(matches) == 1 else None
+
+
+def _signed_original_plan(rctx: RepoContext, record: dict, member: dict, plan: Plan, ck: ModuleType) -> Plan | None:
+    """The original plan a signed `archived` entry names: its text at the member start.
+
+    The member archive (or the minor close's re-freeze) signed the plan's original path
+    (`from`) and frozen hash (`original_sha256`), so the original is read back from git
+    and must hash to that value exactly; no tree replay and no active-tree rule apply.
+    """
+    archived = member.get('archived')
+    if not isinstance(archived, dict) or not member_identity_ok(ck, member, plan):
+        return None
+    source, original = archived.get('from'), archived.get('original_sha256')
+    if not isinstance(source, str) or not isinstance(original, str) or Path(source).name != Path(plan.rel).name:
+        return None
+    if not any(c.get('class') == 'archive-minor' for c in record.get('approvals', {}).get('classes', [])):
+        return None
+    start = member.get('member_start_head') if record.get('scope') == 'member' else member.get('start_head')
+    if not start:
+        start = record.get('minor_start_head') if record.get('scope') == 'member' else record.get('start_head')
+    if not isinstance(start, str) or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', start) is None:
+        return None
+    rc, text = rctx.run([rctx.git, '-C', str(rctx.root), 'show', f'{start}:{source}'])
+    if rc != 0:
+        return None
+    versions = list(PLAN_VERSION_RE.finditer(text))
+    if len(versions) != 1 or 'v' + '.'.join(versions[0].groups()) != plan.version:
+        return None
+    if ck.plan_hash_text(text) != original:
+        return None
+    return Plan(source, plan.version, plan.order, plan.status, plan.slug, text)
 
 
 def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
@@ -2240,7 +2986,7 @@ def unmerged_changes(rctx: RepoContext, integration: str, exempt: set[str]) -> d
         if ref.startswith("refs/heads/"):
             tips.append((ref.removeprefix("refs/heads/"), sha))
     changed: dict[str, set[str]] = {}
-    for name, sha in tips:
+    for name, sha in dict.fromkeys(tips):
         if name in exempt or name == "HEAD" or _merged(rctx, sha, integration):
             continue
         rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--name-only", f"{integration}...{sha}"])
@@ -2412,13 +3158,101 @@ def archive_minor_status(ck: ModuleType, rctx: RepoContext, token: str, record: 
     return "cannot-verify" if state is None else ("met" if state else "unmet")
 
 
+def task_origin(version: str, path: str, archived: object) -> str | None:
+    """The original location of a task path a member archive or the minor close re-pointed at
+    the archive: the same path under the active tree beside the signed original plan path.
+    It mirrors the layout, so a folder or glob path maps the same way as a file."""
+    source = archived.get("from") if isinstance(archived, dict) else None
+    major, minor = minor_of(version)
+    dest = ARCHIVE_TREE.format(M=major, m=minor)
+    if not isinstance(source, str) or "/plans/" not in source or not path.startswith(dest + "/"):
+        return None
+    return source.rsplit("/plans/", 1)[0] + path[len(dest):]
+
+
+def archive_task_status(rctx: RepoContext, version: str, path: str, start: str, record: dict) -> str:
+    """`task.T###` in a minor where a member archive or the minor close happened.
+
+    An archive rewrites task-line paths and shared tracker files, and its own commit
+    creates or deletes them, so it must never count as anyone's task work. Git pathspec
+    matching is kept (a folder or glob path matches as before); the path's original
+    location is searched too, and every excluded commit of the `Landing` is dropped. A
+    task line on the paths of an archive the history could not verify is `cannot-verify`.
+    """
+    landing = archive_landing(rctx, record)
+    if landing is None:
+        return "cannot-verify"
+    origin = task_origin(version, path, record.get("archived"))
+    specs = [path, *((origin,) if origin else ())]
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "log", "--format=%H", f"{start}..HEAD", "--", *specs])
+    if rc != 0:
+        return "cannot-verify"
+    shas = set(out.split())
+    if uncertain_for(landing, specs, shas):
+        return "cannot-verify"
+    return "met" if shas - landing.excluded else "unmet"
+
+
+def archive_member_status(ck: ModuleType, rctx: RepoContext, record: dict, member: dict) -> str:
+    """`<version>:archive.member` (completion contract, "Member archive").
+
+    `n/a` without the `archive-member` approval. Met once `archive.minor` is met (the
+    final archive moves every member), or when, on the integration branch, the signed
+    `archived.plan_path` hashes to `archived.plan_sha256` and no active tree of the
+    minor still lists a path this member owns.
+    """
+    if "archive-member" not in _classes(record):
+        return "n/a"
+    token = str(record.get("minor"))
+    archived = member.get("archived")
+    ref = _integration_ref(rctx, _target(record))
+    if archive_entries(archived) is not None:
+        # A signed member archive counts only through a verified archive commit the
+        # integration branch reaches; one that landed rewritten (amended, rebased,
+        # squash-merged, changed by a hook) is never read as archived.
+        landing = archive_landing(rctx, record, ref) if ref else None
+        version = str(member.get("version"))
+        if landing is None:
+            return "cannot-verify"
+        if version not in landing.verified:
+            landed = any(commit is None and paths == frozenset(archive_entries(archived) or {})
+                         for commit, paths in landing.uncertain)
+            return "cannot-verify" if landed else "unmet"
+    if archive_minor_status(ck, rctx, token, record) == "met":
+        return "met"
+    if not isinstance(archived, dict) or not isinstance(archived.get("plan_path"), str):
+        return "unmet"
+    if ref is None:
+        return "cannot-verify"
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{ref}:{archived['plan_path']}"])
+    if rc == -1:
+        return "cannot-verify"
+    if rc != 0:
+        return "unmet"
+    rc, text = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{ref}:{archived['plan_path']}"])
+    if rc != 0:
+        return "cannot-verify"
+    if ck.plan_hash_text(text) != archived.get("plan_sha256"):
+        return "unmet"
+    major, minor = parse_minor(ck, token)
+    version = str(member.get("version"))
+    for pattern in ACTIVE_TREES:
+        tree = pattern.format(M=major, m=minor)
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "ls-tree", "-r", "--name-only", ref, "--", tree])
+        if rc != 0:
+            return "cannot-verify"
+        tracked = [line.strip() for line in out.splitlines() if line.strip()]
+        if member_moves(version, tree, tracked, archived.get("from")):
+            return "unmet"
+    return "met"
+
+
 # --------------------------------------------------------------------------- minor verdict
 #
 # `check-minor` and `score-minor`. The verdicts, their precedence, the member gate,
 # and every minor-level predicate are owned by the completion contract, "Minor
 # verdict"; this section executes them and restates none of them.
 
-CHECK_MINOR_TOTAL_SECONDS = 120.0  # the cap for one whole check-minor, members included
 MEMBER_BUDGET_SECONDS = 20.0  # each member's own share: the per-plan check's budget
 MEMBER_MIN_SECONDS = 1.0  # below this a member is not evaluated and reads cannot-verify
 CLOSE_BRANCH = "chore/close-{token}"
@@ -2456,21 +3290,15 @@ class MinorVerdict:
         out.extend(pid for pid, status in self.minor if status not in _MET)
         return out
 
-    def met(self) -> int:
+    def met(self) -> int | None:
+        # A partial observation cannot establish a comparable progress score.
+        if (any(m.exhausted or m.status == "cannot-verify" or m.gate == "cannot-verify"
+                or any(status == "cannot-verify" for _, status in m.lines) for m in self.members)
+                or any(status == "cannot-verify" for _, status in self.minor)):
+            return None
         count = sum(1 for m in self.members for _, status in m.lines if status in _MET)
         count += sum(1 for m in self.members if m.gate in _MET and not m.exhausted)
         return count + sum(1 for _, status in self.minor if status in _MET)
-
-
-def check_minor_seconds() -> float:
-    """The total budget; a caller with a shorter limit (the turn-end gate) may lower it, never raise it."""
-    try:
-        requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
-    except ValueError:
-        return CHECK_MINOR_TOTAL_SECONDS
-    if math.isnan(requested):
-        return CHECK_MINOR_TOTAL_SECONDS
-    return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
 
 
 def minor_context(ck: ModuleType, repo: str) -> RepoContext:
@@ -2618,6 +3446,10 @@ def evaluate_member(
             return result
     results, _deferred = ck.evaluate(ctx, ck.project(record, version))
     results = identity + results
+    if "archive-member" in _classes(record):
+        # Only a record carrying the class reports the line, so a record without it
+        # prints, scores, and completes exactly as before.
+        results.append(("archive.member", archive_member_status(ck, rctx, record, member)))
     notices.extend(f"{version}: {n}" for n in ctx.notices)
     if budget.remaining() <= 0:
         notices.append(f"check-minor member budget exhausted in {version}")
@@ -2769,6 +3601,18 @@ def cleanup_minor_status(
 
 
 def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
+    """Keep unavailable observations distinct from verified integrity conflicts."""
+    rctx._minor_blob_cache = {}
+    try:
+        return _check_minor(ck, rctx, token, session)
+    except ObservationUnavailable as exc:
+        return MinorVerdict(
+            f"INCOMPLETE: {exc}", ck.EXIT_INCOMPLETE, minor=[(str(exc), "cannot-verify")],
+            notices=[f"{exc} observation unavailable (command failed or budget exhausted)"],
+        )
+
+
+def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
     """The minor verdict (completion contract, "Minor verdict")."""
     parse_minor(ck, token)
     state = load_minor(ck, rctx, token, session, accept_completed=True)
@@ -2849,12 +3693,13 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
         print(f"notice: {notice}", file=sys.stderr)
     print(verdict.line)
     if args.json:
+        head = rctx._git_out("rev-parse", "HEAD") or None
         body = {
             "verdict": verdict.line,
             "exit": verdict.code,
             # The score from this same run, so a gate never needs a second evaluation.
-            "met": verdict.met(),
-            "head": rctx._git_out("rev-parse", "HEAD") or "-",
+            "met": verdict.met() if head else None,
+            "head": head,
             "members": {
                 m.version: {"status": m.status, "gate": m.gate, "predicates": dict(m.lines)} for m in verdict.members
             },
@@ -2887,7 +3732,11 @@ def cmd_score_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     """`<met-count> <head> <latest-ci-run-id|->`, summed over members and the minor-level lines."""
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
-    head = rctx._git_out("rev-parse", "HEAD") or "-"
+    head = rctx._git_out("rev-parse", "HEAD")
+    met = verdict.met()
+    if met is None or not head:
+        print("INCOMPLETE: progress.score")
+        return ck.EXIT_INCOMPLETE
     record = verdict.record
     branch = score_branch(record, verdict, args.minor)
     run_id = "-"
@@ -2897,7 +3746,7 @@ def cmd_score_minor(ck: ModuleType, args: argparse.Namespace) -> int:
         )
         if isinstance(runs, list) and runs and isinstance(runs[0], dict) and "databaseId" in runs[0]:
             run_id = str(runs[0]["databaseId"])
-    print(f"{verdict.met()} {head} {run_id}")
+    print(f"{met} {head} {run_id}")
     return 0
 
 
@@ -2964,7 +3813,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         result = evaluate_member(ck, rctx, record, previous, plan, [])
         previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous)
         if previous_gate not in _MET or not result.lines or any(
-            status not in _MET for predicate, status in result.lines if not predicate.startswith("cleanup.")
+            status not in _MET for predicate, status in result.lines
+            if not predicate.startswith(("cleanup.", "archive."))
         ):
             return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
         if _tag_in(rctx, str(previous.get("tag") or previous["version"]), tip) != "met":
@@ -2982,6 +3832,10 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
             return _gate_refusal(ck, version, "coordinator-claims-already-recorded")
         if _coordinator_conflict(ck, rctx, record, member, proposed, tip):
             return _gate_refusal(ck, version, "coordinator-scope-conflict")
+        if ("MANIFEST.sha256" in proposed and not member.get("start_head")
+                and member.get("manifest_coordinator_permissions")
+                and not _manifest_original_scope(ck, rctx, record, member, base=tip)):
+            return _gate_refusal(ck, version, "manifest-permission-original-scope-unverified")
         coordinator_paths = proposed
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
@@ -3010,6 +3864,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
 
 def _common_dir(rctx: RepoContext, root: Path) -> str:
     rc, out = rctx.run([rctx.git, "-C", str(root), "rev-parse", "--git-common-dir"])
+    if rc == -1:
+        raise ObservationUnavailable("controller.ownership")
     if rc or not out.strip():
         return ""
     path = Path(out.strip())
@@ -3156,14 +4012,325 @@ def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = Non
 
 
 
-def _historical_claim_status(rctx: RepoContext, member: dict, merge: str) -> str:
+def archive_entries(archived: object) -> dict[str, str | None] | None:
+    """Path -> the blob id a signed member archive's commit leaves there (None: deleted), or None.
+
+    Each signed `moved` entry is `[old, new, new-side blob id]`; a repaired file that did
+    not move is `[path, path, blob]`. An entry without its blob id cannot be verified.
+    """
+    pairs = archived.get("moved") if isinstance(archived, dict) else None
+    if not isinstance(pairs, list) or not pairs:
+        return None
+    entries: dict[str, str | None] = {}
+    for pair in pairs:
+        if not isinstance(pair, list) or len(pair) != 3 or not all(isinstance(p, str) and p for p in pair):
+            return None
+        old, new, blob = pair
+        entries[new] = blob
+        if old != new:
+            entries.setdefault(old, None)
+    return entries
+
+
+def _archive_sources(record: dict | None) -> list[dict]:
+    return [m for m in (record or {}).get("members") or (record or {}).get("member_archives") or [] if isinstance(m, dict)]
+
+
+def _archive_items(record: dict | None, exclude: str | None = None) -> list[tuple[str, dict[str, str | None], str]]:
+    """(version, entries, signed archived plan path) of every verifiable signed member archive."""
+    items = []
+    for member in _archive_sources(record):
+        archived = member.get("archived")
+        entries = archive_entries(archived)
+        if entries is not None and member.get("version") != exclude:
+            items.append((str(member.get("version")), entries, str(archived.get("plan_path") or "")))
+    return items
+
+
+def signed_archives(record: dict | None, exclude: str | None = None) -> list[dict[str, str | None]]:
+    """The verifiable signed member archives of a record (its `members`) or of a member view
+    (its `member_archives`), except `exclude`'s."""
+    return [entries for _version, entries, _plan in _archive_items(record, exclude)]
+
+
+def close_commits(record: dict | None) -> set[str]:
+    """Every signed `archived.close_commit` (the minor close's archive commit) of a record or view."""
+    commits = set()
+    for member in [*_archive_sources(record), record or {}]:
+        archived = member.get("archived")
+        if isinstance(archived, dict) and isinstance(archived.get("close_commit"), str) and archived["close_commit"]:
+            commits.add(archived["close_commit"])
+    return commits
+
+
+def archive_active(record: dict | None) -> bool:
+    """True when any member of the record (or view) carries a signed `archived` identity."""
+    return (any(isinstance(m.get("archived"), dict) for m in _archive_sources(record))
+            or isinstance((record or {}).get("archived"), dict))
+
+
+def _memo(rctx: RepoContext, name: str) -> dict:
+    return rctx.__dict__.setdefault(name, {})
+
+
+def commit_changes(rctx: RepoContext, span: str, *, first_parent: bool = False) -> list[tuple[str, int, frozenset[str]]] | None:
+    """(commit, parent count, changed paths without rename detection) for every commit in `span`.
+
+    With `first_parent`, only the first-parent chain, each merge listing what it changed
+    against its first parent. Read with `-z`, so no path is ever C-quoted. Memoized on
+    the context, so one evaluation shares one log.
+    """
+    cache = _memo(rctx, "_commit_changes")
+    key = (span, first_parent)
+    if key not in cache:
+        extra = ["--first-parent", "--diff-merges=first-parent"] if first_parent else []
+        rc, out = rctx.run([rctx.git, "-c", "core.quotePath=false", "-C", str(rctx.root), "log", *extra,
+                            "--no-renames", "--name-only", "-z", "--format=@@%H %P", span, "--"])
+        found: list[tuple[list[str], set[str]]] = []  # ([commit, parents...], changed paths)
+        for token in out.split("\0") if rc == 0 else []:
+            token = token.lstrip("\n")
+            if token.startswith("@@"):
+                found.append((token[2:].split(), set()))
+            elif token and found:
+                found[-1][1].add(token)
+        cache[key] = None if rc != 0 else [(ids[0], len(ids) - 1, frozenset(p)) for ids, p in found if ids]
+    return cache[key]
+
+
+def raw_changes(rctx: RepoContext, *revs: str) -> dict[str, str] | None:
+    """Path -> new blob id (all zeros when deleted) of one commit against its parent, or of `old new`."""
+    cache = _memo(rctx, "_raw_changes")
+    if revs not in cache:
+        rc, out = rctx.run([rctx.git, "-c", "core.quotePath=false", "-C", str(rctx.root), "diff-tree",
+                            "--no-commit-id", "--raw", "-r", "--no-renames", "-z", *revs])
+        fields = out.split("\0") if rc == 0 else []
+        changes: dict[str, str] = {}
+        for index in range(0, len(fields) - 1, 2):
+            meta, path = fields[index].split(), fields[index + 1]
+            if len(meta) >= 5 and path:
+                changes[path] = meta[3]
+        cache[revs] = changes if rc == 0 else None
+    return cache[revs]
+
+
+def _content_ok(blob: str, expected: str | None) -> bool:
+    return (expected is None and set(blob) == {"0"}) or (expected is not None and blob == expected)
+
+
+def _archive_match(rctx: RepoContext, sha: str, parents: int, archives: list[dict[str, str | None]]) -> int | None:
+    """The index of the signed archive `sha` carries exactly, file for file and blob for blob, or None."""
+    if parents != 1 or not archives:
+        return None
+    raw = raw_changes(rctx, sha)
+    if not raw:
+        return None
+    for index, entries in enumerate(archives):
+        if set(raw) == set(entries) and all(_content_ok(raw[p], entries[p]) for p in raw):
+            return index
+    return None
+
+
+def is_archive_commit(rctx: RepoContext, sha: str, parents: int, archives: list[dict[str, str | None]]) -> bool:
+    """A verified member-archive commit: one parent, and exactly the paths and blob ids one signed
+    archive names (each moved file at its signed new-side blob, each old path deleted).
+
+    Recognized by content, never by name or message, so a commit that touches the same
+    files with other content, or a signed identity whose commit never landed (a crash
+    between signing and committing), is never one.
+    """
+    return _archive_match(rctx, sha, parents, archives) is not None
+
+
+def _merge_sides(rctx: RepoContext, sha: str, parents: int) -> list[tuple[str, int, frozenset[str]]] | None:
+    """Every commit a merge brings beside its first parent (all its other parents), or None."""
+    side: list[tuple[str, int, frozenset[str]]] = []
+    for index in range(2, parents + 1):
+        found = commit_changes(rctx, f"{sha}^1..{sha}^{index}")
+        if found is None:
+            return None
+        side += found
+    return side
+
+
+def merge_status(rctx: RepoContext, sha: str, parents: int, archives: list[dict[str, str | None]]) -> str:
+    """`archive`, `uncertain`, or `other` for one commit read as a merge carrying member archives.
+
+    `other`: some commit its other parents bring is not a verified archive commit, so it is
+    judged like any merge. When they all are: `archive` when the merge adds nothing of its
+    own (every changed blob is one those commits wrote, or, for a two-parent merge, its tree
+    equals the clean automatic merge `git merge-tree --write-tree`, which covers an archive
+    merged after a concurrent edit to a repaired shared file); otherwise `uncertain`
+    (a different tree, a conflict, merge-tree unavailable, or an octopus merge), so a task
+    line on the archive's signed paths reads cannot-verify and never counts the merge.
+    """
+    if parents < 2 or not archives:
+        return "other"
+    cache = _memo(rctx, "_merge_status")
+    key = (sha, json.dumps(archives, sort_keys=True))
+    if key in cache:
+        return cache[key]
+    side = _merge_sides(rctx, sha, parents)
+    status = "other"
+    if side and all(is_archive_commit(rctx, c, p, archives) for c, p, _changed in side):
+        written: dict[str, set[str]] = {}
+        for commit, _parents, _changed in side:
+            for path, blob in (raw_changes(rctx, commit) or {}).items():
+                written.setdefault(path, set()).add(blob)
+        raw = raw_changes(rctx, f"{sha}^1", sha)
+        status = "uncertain"
+        if raw and all(blob in written.get(path, set()) for path, blob in raw.items()):
+            status = "archive"
+        elif parents == 2:
+            # Writes the merged objects to the object store and may run configured merge drivers.
+            rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "merge-tree", "--write-tree", f"{sha}^1", f"{sha}^2"])
+            tree = out.splitlines()[0].strip() if rc == 0 and out.strip() else ""
+            if rc == 0 and tree and tree == rctx._git_out("rev-parse", f"{sha}^{{tree}}"):
+                status = "archive"
+    cache[key] = status
+    return status
+
+
+def is_archive_merge(rctx: RepoContext, sha: str, parents: int, archives: list[dict[str, str | None]]) -> bool:
+    """A verified archive merge (see `merge_status`)."""
+    return merge_status(rctx, sha, parents, archives) == "archive"
+
+
+@dataclass
+class Landing:
+    """How the signed archives landed in the history a ref reaches (contract, "Member archive").
+
+    `excluded`: commits no task line may count (verified archive commits and merges, and the
+    signed close commits). `uncertain`: (commit or None, paths) whose archive could not be
+    verified, so a task line on those paths is `cannot-verify`: a merge merge-tree could not
+    judge, or a signed archive whose plan sits in the tree with no verified commit reachable
+    (amended, rebased, squash-merged, or rewritten by a hook). `verified`: versions whose
+    archive commit is reachable.
+    """
+
+    excluded: set[str] = field(default_factory=set)
+    uncertain: list[tuple[str | None, frozenset[str]]] = field(default_factory=list)
+    verified: set[str] = field(default_factory=set)
+
+
+_LANDINGS: dict[tuple, Landing | None] = {}  # one per repository, span, and signed archive set
+
+
+def archive_landing(rctx: RepoContext, record: dict | None, ref: str = "HEAD") -> Landing | None:
+    """The `Landing` of the record's signed archives in `<minor start>..<ref>`, or None when git cannot answer.
+
+    Computed once per repository, span, and signed archive set for the whole process, so
+    every task line and every member of one verdict share it.
+    """
+    items = _archive_items(record)
+    closes = close_commits(record)
+    if not items:
+        return Landing(excluded=set(closes))
+    base = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
+    head = rctx._git_out("rev-parse", "--verify", "-q", f"{ref}^{{commit}}")
+    if not base or not head:
+        return None
+    key = (str(rctx.root), base, head, json.dumps([items, sorted(closes)], sort_keys=True))
+    if key in _LANDINGS:
+        return _LANDINGS[key]
+    commits = commit_changes(rctx, f"{base}..{head}")
+    landing: Landing | None = None
+    if commits is not None:
+        archives = [entries for _version, entries, _plan in items]
+        keys = [frozenset(entries) for entries in archives]
+        landing = Landing(excluded=set(closes))
+        for sha, parents, changed in commits:
+            if parents == 1 and changed in keys:
+                index = _archive_match(rctx, sha, parents, archives)
+                if index is not None:
+                    landing.excluded.add(sha)
+                    landing.verified.add(items[index][0])
+            elif parents >= 2:
+                status = merge_status(rctx, sha, parents, archives)
+                if status == "archive":
+                    landing.excluded.add(sha)
+                elif status == "uncertain":
+                    side = _merge_sides(rctx, sha, parents) or []
+                    landing.uncertain.append((sha, frozenset(p for _c, _n, changed in side for p in changed)))
+        for version, entries, plan in items:
+            if version in landing.verified:
+                continue
+            rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{head}:{plan}"])
+            if rc == -1:
+                landing = None
+                break
+            if plan and rc == 0:  # the archive landed, but no verified commit carries it
+                landing.uncertain.append((None, frozenset(entries)))
+    if landing is None or rctx.budget.remaining() <= 0:
+        # A git call that did not run (rc -1, the budget spent) may have misread a commit:
+        # never trust or cache that landing.
+        return None
+    _LANDINGS[key] = landing
+    return landing
+
+
+def excluded_commits(rctx: RepoContext, record: dict | None, span: str) -> set[str] | None:
+    """Every commit a task line must never count (see `Landing`); `span` is kept for callers."""
+    landing = archive_landing(rctx, record)
+    return None if landing is None else landing.excluded
+
+
+def spec_matches(spec: str, path: str) -> bool:
+    """Git's default pathspec meaning: the path itself, a folder prefix, or an fnmatch glob."""
+    bare = spec.rstrip("/")
+    if path == bare or path.startswith(bare + "/"):
+        return True
+    return any(c in spec for c in "*?[") and fnmatch.fnmatchcase(path, spec)
+
+
+def uncertain_for(landing: Landing, specs: list[str], shas: set[str]) -> bool:
+    """True when a task line on `specs` touches an archive the history could not verify."""
+    for commit, paths in landing.uncertain:
+        if commit is not None and commit not in shas:
+            continue
+        if any(spec_matches(spec, path) for spec in specs for path in paths):
+            return True
+    return False
+
+
+def _archive_only_paths(rctx: RepoContext, record: dict | None, member: dict, base: str, merge: str) -> set[str] | None:
+    """Paths that only another member's verified archive commits changed in `base..merge`.
+
+    The span's first-parent chain is walked, a merge read against its first parent and
+    counted as archive work only when it is a verified archive merge, so an archive that
+    landed through a merge commit is recognized. A path some other commit also touched
+    is never left out, so a later member that writes a coordinator file or a moved path
+    is audited as usual.
+    """
+    archives = signed_archives(record, str(member.get("version")))
+    if not archives:
+        return set()
+    commits = commit_changes(rctx, f"{base}..{merge}", first_parent=True)
+    if commits is None:
+        return None
+    touched: dict[str, bool] = {}
+    for sha, parents, changed in commits:
+        archive = (is_archive_commit(rctx, sha, parents, archives) if parents == 1
+                   else is_archive_merge(rctx, sha, parents, archives))
+        for path in changed:
+            touched[path] = touched.get(path, True) and archive
+    return {path for path, only in touched.items() if only}
+
+
+def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record: dict | None = None,
+                             ck: ModuleType | None = None) -> str:
     """Audit the actual merged contribution before releasing a reservation.
 
     A two-parent merge is compared to its integration parent, including merge
     resolution edits. Single-parent histories conservatively retain the whole
     publication span because a squash and a multi-commit fast-forward cannot be
-    distinguished reliably from the last commit alone.
+    distinguished reliably from the last commit alone. In such a span, a path that only
+    other members' verified archive commits changed is the coordinator's, not this
+    member's, so it is left out (completion contract, "Member archive"); a two-parent
+    merge already excludes those commits through its integration parent.
     """
+    supplements = _historical_scope_paths(ck, rctx, record, member, merge)
+    if supplements is None:
+        return "cannot-verify"
     implementation = member.get("implementation")
     if not isinstance(implementation, dict):
         return "met"
@@ -3185,11 +4352,14 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str) -> str
         writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else [])]
         if any(not isinstance(p, str) for p in writes):
             return "cannot-verify"
-        for path in (p for p in out.split("\0") if p):
+        archived = _archive_only_paths(rctx, record, member, base, merge) if len(parents) == 2 else set()
+        if archived is None:
+            return "cannot-verify"
+        for path in (p for p in out.split("\0") if p and p not in archived):
             _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
             if _sensitive_write(rctx, path, []) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
                 return "unmet"
-            if not any(_overlap(path, claim) for claim in writes):
+            if path not in supplements and not any(_overlap(path, claim) for claim in writes):
                 return "unmet"
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed):
         return "cannot-verify"
@@ -3199,7 +4369,7 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str) -> str
 def _merged_on_base(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, base: str) -> bool:
     state, merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
     return (state == "merged" and bool(merge) and _ancestor(rctx, str(merge), base) == "met"
-            and _historical_claim_status(rctx, member, str(merge)) == "met")
+            and _historical_claim_status(rctx, member, str(merge), record, ck) == "met")
 
 
 def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, budget: object,
@@ -3218,14 +4388,14 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
         integration = _integration_ref(rctx, _target(record))
         merge_status, merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
         if canonical_merged and integration and merge_status == "merged" and merge and _ancestor(rctx, merge, integration) == "met":
-            historical = _historical_claim_status(rctx, member, merge)
+            historical = _historical_claim_status(rctx, member, merge, record, ck)
             if historical != "met":
                 return None, historical, True
             if _ancestor(rctx, merge, "HEAD") != "met":
                 return None, "cannot-verify", True
             plans = scan_plans(rctx.root, *parse_minor(ck, str(record["minor"])))
             plan = next((p for p in plans if p.version == member["version"]), None)
-            if plan is None or ck.plan_hash_text(plan.text) != member["plan_sha256"]:
+            if plan is None or not member_identity_ok(ck, member, plan):
                 return None, "cannot-verify", True
             return ck.Context(str(rctx.root / plan.rel), budget), "met", True
         raw = Path(implementation["worktree"])
@@ -3248,7 +4418,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
             return None, "cannot-verify", False
         plans = scan_plans(root, *parse_minor(ck, str(record["minor"])))
         plan = next((p for p in plans if p.version == member["version"]), None)
-        if plan is None or ck.plan_hash_text(plan.text) != member["plan_sha256"]:
+        if plan is None or not member_identity_ok(ck, member, plan):
             return None, "cannot-verify", False
         ctx = ck.Context(str(root / plan.rel), budget)
         if _ancestor(ctx, str(record["start_head"]), frozen_base) != "met":
@@ -3302,7 +4472,11 @@ def _coordinator_claims(ck: ModuleType, rctx: RepoContext, record: dict, member:
         lower = path.casefold()
         if _sensitive_write(rctx, path) or lower.startswith("catalog/hooks/"):
             raise MinorMalformed("coordinator-sensitive-path")
-        if path not in protected and not _coordinator_name(path) and not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(path) + r"(?![A-Za-z0-9_./-])", plan.text):
+        entries = member.get("manifest_coordinator_permissions", [])
+        permitted_manifest = (path == "MANIFEST.sha256" and isinstance(entries, list) and len(entries) == 1
+                              and _manifest_permission_valid(ck, rctx, record, member, entries[0]))
+        if (path not in protected and not _coordinator_name(path) and not permitted_manifest
+                and not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(path) + r"(?![A-Za-z0-9_./-])", plan.text)):
             raise MinorMalformed("coordinator-path-outside-plan")
     return paths
 
@@ -3539,13 +4713,11 @@ def last_plan_status(ck: ModuleType, rctx: RepoContext, version: str, repo: str)
 def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> list[GapItem] | None:
     """Every item of the minor's ledger as committed at `commit`; [] when none existed."""
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
             return None
-        if rc != 0:
-            continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        return parse_ledger(out) if rc == 0 else None
+        if status == "met":
+            return parse_ledger(out)
     return []
 
 

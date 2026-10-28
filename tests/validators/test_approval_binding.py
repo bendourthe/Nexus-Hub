@@ -71,8 +71,7 @@ def _create(fx: Fixture, session: str = SESSION, **env: str) -> subprocess.Compl
             "record", "create", PLAN_REL, "--session", session,
             "--approvals", str(fx.approvals()),
             stdin=subprocess.DEVNULL,
-            # nexus: console-window-ok simulates no terminal; the checker hides its own children (test_no_console_window)
-            **({"creationflags": 0x00000008} if os.name == "nt" else {"start_new_session": True}),
+            **({"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {"start_new_session": True}),
         )
     finally:
         if env:
@@ -316,6 +315,7 @@ def test_an_edited_pending_round_is_refused(tmp_path: Path, field: str, value: o
 
 def test_a_mid_run_answer_captured_in_another_session_is_refused(tmp_path: Path) -> None:
     fx = _fixture(tmp_path)
+    fx.capture(SESSION, f"/implement {PLAN_REL}", at=0.0)
     _hook(fx, SESSION, _render(fx))
     assert _create(fx).returncode == 0
     fx.run("record", "block", PLAN_REL, "--session", SESSION, "--category", "no-progress", "--evidence", "x")

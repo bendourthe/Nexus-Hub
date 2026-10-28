@@ -110,7 +110,7 @@ def test_ci_uses_one_shared_smoke_assertion_script(tmp_path, monkeypatch, host) 
     checkers = [(argv, kwargs) for argv, kwargs in calls if str(ROOT / "scripts/check_installer_smoke.py") in argv]
     assert len(checkers) == 1
     argv, kwargs = checkers[0]
-    assert argv[2:] == ["--home", env["HOME"], "--workspace", str(tmp_path / "workspace")]
+    assert argv[2:] == ["--home", env["HOME"], "--workspace", str(tmp_path / "workspace"), "--source", str(ROOT)]
     assert kwargs["env"] is env
 
 

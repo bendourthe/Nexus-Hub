@@ -237,7 +237,7 @@ def test_paste_shape_follows_goal_capture(scope: str, platform: str) -> None:
     assert set(shown.approve) == {plain} | together | alone
 
 
-@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire"])
+@pytest.mark.parametrize("action", ["answer", "pause", "resume", "retire", "add-class", "supplement-scope"])
 def test_mid_run_rounds_never_set_a_goal(action: str) -> None:
     shown = approval_page.paste_set(action, "v0.5", "ABCD2345", blocker=0, platform="probe-verbatim")
     assert shown.shape == "plain" and len(shown.lines) == 1 and not shown.lines[0].startswith("/goal")
@@ -614,6 +614,39 @@ def test_the_summary_names_every_hard_to_undo_result(name: str) -> None:
     assert text not in rows.get(row, "")
 
 
+def test_archive_member_gets_its_own_line_and_changes_the_archived_row() -> None:
+    data = _data([{"class": "push-merge"}, {"class": "archive-minor"}, {"class": "archive-member"}], minor=True)
+    page = approval_page.render_page(data)
+    assert ("Archive each v0.5 plan's own documents in a pull request as soon as that plan is released. "
+            "Shared files such as the known-gaps list stay until the final archive.") in _approving(page)
+    assert _summary_rows(page)["Archived"] == "The v0.5 documents, each plan's own as soon as it is released"
+    with pytest.raises(approval_page.PageError, match="belongs to a minor run"):
+        approval_page.render_page(_data([{"class": "push-merge"}, {"class": "archive-member"}]))
+    assert "(where approved, each plan's own documents right after its release)" in approval_page.goal_line("v0.5")
+
+
+def _add_class_data(name: str = "archive-member") -> dict:
+    line = approval_page.plain_line("add-class", "v0.5", "ABCD2345")
+    page = {"action": "add-class", "scope": {"kind": "minor", "minor": "v0.5"}, "record_nonce": "n", "class": name}
+    return {"action": "add-class", "scope": "v0.5", "code": "ABCD2345", "paste": [line], "page": page, "display": {}}
+
+
+def test_the_add_class_page_states_the_changed_archive_timing() -> None:
+    assert approval_page.plain_line("add-class", "v0.5", "ABCD2345") == (
+        "Archive each released plan early in /implement v0.5 (approval ABCD2345)")
+    with pytest.raises(approval_page.PageError, match="only to a minor run"):
+        approval_page.plain_line("add-class", "v0.5.2", "ABCD2345")
+    page = approval_page.render_page(_add_class_data())
+    assert "until the whole minor closes" in page and "as soon as that plan is released" in page
+    assert "Shared files, such as the known-gaps list and the minor's evidence, still move only when the minor closes." in page
+    assert "Archive each released plan early in /implement v0.5 (approval ABCD2345)" in page
+    assert "Each early archive is one pull request, merged once its checks pass." in page
+    question = approval_page.question_data({**_add_class_data(), "challenge": "n"})
+    assert "instead of all at once when the minor closes" in question["question"]
+    with pytest.raises(approval_page.PageError, match="only the archive-member class"):
+        approval_page.render_page(_add_class_data("archive-minor"))
+
+
 def test_the_longest_summary_stays_within_the_word_budget() -> None:
     """Every summary row, a spend cap, and the two-line paste shape at once."""
     classes = [{"class": c} for c in ("push-merge", "release", "cleanup-merged", "archive-minor", "unattended-with-bypass")]
@@ -988,3 +1021,84 @@ def test_generated_code_collision_round_keeps_capture_and_binding_authority(tmp_
     assert accepted["pasted"] == pending["paste_lines"][0]
     with pytest.raises(binding.Refusal, match="code-used"):
         consume(data["page"])
+
+
+def _supplement_scope_data() -> dict:
+    """Public render data only, with no captured decision or native authority."""
+    import completion_minor as cm
+
+    reviewed = json.loads(json.dumps(cm.REVIEWED_HISTORICAL_SCOPE))
+    scope = reviewed["minor"]
+    page = {
+        "action": "supplement-scope", "scope": {"kind": "minor", "minor": scope},
+        "record_nonce": "n" * 32, "repo": reviewed["repo"],
+        "controller": {"repo_root": "C:/fixture/controller"}, "owner_session": "fixture-session",
+        "record_sha256": "0" * 64, "member": reviewed["member"],
+        "plan_sha256": "1" * 64, "claims_sha256": "2" * 64,
+        "merge_bounds": {key: reviewed[key] for key in ("merge", "first_parent", "second_parent", "tree", "rows")},
+    }
+    line = approval_page.plain_line("supplement-scope", scope, "ABCD2345")
+    return {"action": "supplement-scope", "scope": scope, "code": "ABCD2345", "paste": [line],
+            "challenge": "n" * 32, "page": page, "display": {}}
+
+
+def test_supplement_scope_page_displays_every_exact_historical_bound(capsys) -> None:
+    data = _supplement_scope_data()
+    before = json.dumps(data, sort_keys=True)
+    rendered = approval_page.render_page(data)
+    page, bounds = data["page"], data["page"]["merge_bounds"]
+    for value in (page["repo"], page["member"], bounds["merge"], bounds["first_parent"], bounds["tree"]):
+        assert approval_page.quoted(value) in rendered
+    assert len(bounds["rows"]) == 6
+    shown_rows = [line for line in rendered.splitlines() if line.startswith("- ")]
+    assert shown_rows == [
+        "- " + approval_page.quoted(path) + ": " + status + "; " + old_mode + " " + old_blob + " -> " + new_mode + " " + new_blob
+        for path, old_mode, new_mode, old_blob, new_blob, status in bounds["rows"]
+    ]
+    assert "Original claims and baselines stay unchanged." in rendered
+    assert "Future writes, release, archive, spending and retry budgets require their existing approvals." in rendered
+    assert "/goal" not in rendered and "Done only when" not in rendered
+    capsys.readouterr()
+    assert approval_page.emit(data, "page") == 0
+    output = capsys.readouterr()
+    assert output.out == rendered and output.err == ""
+    assert json.dumps(data, sort_keys=True) == before
+
+
+def test_supplement_scope_question_retains_exact_page_and_requires_capture(capsys) -> None:
+    data = _supplement_scope_data()
+    before = json.dumps(data, sort_keys=True)
+    question = approval_page.question_data(data)
+    assert json.dumps(question["action_scope"], sort_keys=True) == json.dumps(data["page"], sort_keys=True)
+    assert question["challenge"] == data["challenge"]
+    assert question["capture"]["requires_genuine_prompt_submit"] is True
+    assert question["capture"]["direct_question_callback_supported"] is False
+    assert [option["label"] for option in question["options"]] == ["Approve", "Decline"]
+    assert question["compatibility_paste"] == data["paste"]
+    assert "/goal" not in question["review_page"]
+    for row in data["page"]["merge_bounds"]["rows"]:
+        assert approval_page.quoted(row[0]) in question["review_page"]
+    capsys.readouterr()
+    assert approval_page.emit(data, "question") == 0
+    output = capsys.readouterr()
+    assert json.loads(output.out) == question and output.err == ""
+    assert json.dumps(data, sort_keys=True) == before
+
+
+def test_supplement_scope_page_rejects_malformed_rows_without_partial_output(capsys) -> None:
+    valid_row = _supplement_scope_data()["page"]["merge_bounds"]["rows"][0]
+    malformed = [None, {}, "not rows", [], [None], [valid_row[:-1]], [valid_row + ["extra"]]]
+    for column in range(6):
+        for bad_value in (None, 1, True, {}, []):
+            changed = list(valid_row)
+            changed[column] = bad_value
+            malformed.append([changed])
+    for rows in malformed:
+        data = _supplement_scope_data()
+        data["page"]["merge_bounds"]["rows"] = rows
+        with pytest.raises(approval_page.PageError):
+            approval_page.render_page(data)
+        capsys.readouterr()
+        assert approval_page.emit(data, "page") == 2
+        output = capsys.readouterr()
+        assert output.out == "" and "not rendered" in output.err

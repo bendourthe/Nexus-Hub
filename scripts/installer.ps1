@@ -153,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.14.1"
+$script:NexusHubVersion = "4.14.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2558,8 +2558,8 @@ function Invoke-RegistryPlatform {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," -Color "White"
-    Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" -Color "White"
-    Write-Item -Message "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." -Color "White"
+    Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" -Color "White"
+    Write-Item -Message "only; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
     Write-Host ""
 
@@ -2691,9 +2691,9 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build each extension under its own vendor header. The Claude and Codex
-    # monitors install only via $vscodeCli; the Copilot monitor installs via
-    # $vscodeCli and, as its second host, $cursorCli (Copilot runs in Cursor too);
+    # Build each extension under its own vendor header. The Claude, Codex, and
+    # Copilot monitors install only via $vscodeCli (Copilot is not installed in
+    # Cursor; Remove-LegacyVSCodeExtensions removes copies older installers left there);
     # the Cursor monitor installs only via $cursorCli; the Gemini monitor installs
     # only via $antigravityCli. The vendor order (Anthropic, OpenAI, Microsoft,
     # Anysphere, Google) is asserted by the installer smoke test and must match
@@ -2705,7 +2705,7 @@ function Install-VSCodeExtensions {
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "MICROSOFT"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
@@ -2715,6 +2715,39 @@ function Install-VSCodeExtensions {
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
+}
+
+# Run a command line through cmd.exe for at most $TimeoutSeconds and return its
+# exit code (124 when it was stopped for running too long) and output lines.
+# The child starts with no console window, so it cannot open a focus-stealing
+# window, and a timeout ends its whole tree (npm leaves node children behind).
+function Invoke-CommandWithTimeout {
+    param([string]$CommandLine, [int]$TimeoutSeconds)
+    $log = [System.IO.Path]::GetTempFileName()
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $env:ComSpec
+    $psi.Arguments = "/d /s /c `"$CommandLine > `"$log`" 2>&1`""
+    $psi.WorkingDirectory = (Get-Location).Path
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $timedOut = -not $proc.WaitForExit($TimeoutSeconds * 1000)
+    if ($timedOut) {
+        $kill = New-Object System.Diagnostics.ProcessStartInfo
+        $kill.FileName = "taskkill.exe"
+        $kill.Arguments = "/T /F /PID $($proc.Id)"
+        $kill.UseShellExecute = $false
+        $kill.CreateNoWindow = $true
+        $kill.RedirectStandardOutput = $true
+        $kill.RedirectStandardError = $true
+        $killer = [System.Diagnostics.Process]::Start($kill)
+        [void]$killer.WaitForExit(15000)
+        [void]$proc.WaitForExit(15000)
+    }
+    $output = @(Get-Content -LiteralPath $log -ErrorAction SilentlyContinue)
+    Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
+    $code = if ($timedOut) { 124 } else { $proc.ExitCode }
+    return [pscustomobject]@{ ExitCode = $code; Output = $output; TimedOut = $timedOut }
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2752,11 +2785,19 @@ function Build-And-Install-One-Extension {
     }
 
     Write-Item -Message "  Installing dependencies..." -Color "Gray"
-    $npmOutput = & npm install --silent 2>&1
+    # Bounded: a stalled package download otherwise hangs the whole install.
+    $npmTimeout = 300
+    if ($env:NEXUS_HUB_NPM_TIMEOUT -match '^\d+$') { $npmTimeout = [int]$env:NEXUS_HUB_NPM_TIMEOUT }
+    $npm = Invoke-CommandWithTimeout -CommandLine "npm install --silent" -TimeoutSeconds $npmTimeout
     Restore-Title
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "Build failed: npm install failed" -Color "Red"
-        if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+    if ($npm.ExitCode -ne 0) {
+        if ($npm.TimedOut) {
+            Write-Item -Message "Skipping ${DisplayName}: npm install did not finish within ${npmTimeout}s (set NEXUS_HUB_NPM_TIMEOUT to allow longer)." -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "Build failed: npm install failed" -Color "Red"
+            if ($npm.Output) { $npm.Output | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+        }
         Pop-Location
         return
     }
@@ -2883,6 +2924,8 @@ function Install-Templates {
     # /implement run is complete from repository, hosting, and run-record
     # state; the completion gate, run-plan runner, and /update release call
     # it from this installed path, never from a working tree.
+    Safe-Copy -Source (Join-Path $RepoRoot "scripts\nexus_process.py") -Destination (Join-Path $scriptsDest "nexus_process.py") -Confirm:$true -CustomMessage "[OK] Shared process policy installed"
+
     $completionCheckerSource = Join-Path $RepoRoot "scripts\check_plan_completion.py"
     if (Test-Path $completionCheckerSource) {
         Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"
@@ -2900,6 +2943,12 @@ function Install-Templates {
     $approvalBindingSource = Join-Path $RepoRoot "scripts\approval_binding.py"
     if (Test-Path $approvalBindingSource) {
         Safe-Copy -Source $approvalBindingSource -Destination (Join-Path $scriptsDest "approval_binding.py") -Confirm:$true -CustomMessage "✓ Approval binder installed at: $scriptsDest\approval_binding.py"
+    }
+
+    # Copy the shared minor-observation budget used by the checker and runner.
+    $completionBudgetSource = Join-Path $RepoRoot "scripts\completion_budget.py"
+    if (Test-Path $completionBudgetSource) {
+        Safe-Copy -Source $completionBudgetSource -Destination (Join-Path $scriptsDest "completion_budget.py") -Confirm:$true -CustomMessage "[OK] Shared completion budget installed at: $scriptsDest\completion_budget.py"
     }
 
     # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
@@ -3532,7 +3581,7 @@ function Install-SkillDiscovery {
     try {
         if ($hasUv) {
             Write-Item -Message "  Creating venv with uv..." -Color "White"
-            & uv venv $venvPath 2>$null | Out-Null
+            $env:UV_VENV_CLEAR = "1"; & uv venv $venvPath 2>$null | Out-Null  # uv 0.9+ refuses to reuse an existing venv on reinstall
             if ($LASTEXITCODE -eq 0) {
                 & uv pip install --python "$venvPath\Scripts\python.exe" -e $mcpServerDest 2>$null | Out-Null
                 $venvOk = $LASTEXITCODE -eq 0
@@ -3549,7 +3598,7 @@ function Install-SkillDiscovery {
         }
     }
     catch { $venvOk = $false }
-    finally { $ErrorActionPreference = "Stop" }
+    finally { $ErrorActionPreference = "Stop"; Remove-Item Env:UV_VENV_CLEAR -ErrorAction SilentlyContinue }
 
     if (-not $venvOk) {
         Write-Item -Message "  Could not build the MCP server venv; skipping the local MCP servers." -Color "Yellow"
@@ -3754,7 +3803,10 @@ function Remove-LegacyVSCodeExtensions {
         if (-not $cliCmd) { continue }
         $installed = & $cli --list-extensions 2>$null
         if ($LASTEXITCODE -ne 0 -or -not $installed) { continue }
-        foreach ($id in $legacyIds) {
+        $ids = $legacyIds
+        # The Copilot monitor is VS Code only; older installers also put it in Cursor.
+        if ($cli -eq "cursor") { $ids = $legacyIds + "nexus-hub.copilot-usage-monitor" }
+        foreach ($id in $ids) {
             if ($installed -contains $id) {
                 if (-not $emitted) { Write-Host "" }
                 Write-Host "  Removing retired extension from ${cli}: $id" -ForegroundColor Yellow

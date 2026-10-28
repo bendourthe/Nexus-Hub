@@ -104,7 +104,7 @@ const FS_FLOOR = COMMON + `
 out vec4 o;
 void main() { o = vec4(floorColor(gl_FragCoord.xy), 1.0); }`;
 
-// Lifted pieces and logo tiles: per-pixel depth of field, optional fade into the haze colour.
+// Lifted pieces and logo tiles: per-pixel depth of field, optional fade into the haze color.
 const FS_PIECE = COMMON + `
 uniform sampler2D uTex;
 uniform float uOpacity, uHaze;
@@ -172,7 +172,7 @@ void main() {
   o = vec4(vec3(0.10196, 0.12941, 0.2) * a, a);
 }`;
 
-// Piece shadows: the same picture in a flat colour, blurred in world units plus depth of field.
+// Piece shadows: the same picture in a flat color, blurred in world units plus depth of field.
 const FS_SHADOW = COMMON + `
 uniform sampler2D uTex;
 uniform vec2 uQuad, uTexSize;
@@ -303,7 +303,7 @@ function canvas2d(w, h) {
   c.width = w; c.height = h;
   return [c, c.getContext('2d')];
 }
-// Logo tile: the mark on a rounded square in the page's own card colour, transparent margin for blur.
+// Logo tile: the mark on a rounded square in the page's own card color, transparent margin for blur.
 const tileTex = (() => {
   const [c, g] = canvas2d(512, 512);
   g.beginPath(); g.roundRect(20, 20, 472, 472, 108);
@@ -425,7 +425,7 @@ function bindTex(prog, tex) {
 function standingQuad(x, h, z, w, hgt, a) {
   return { O: [x, h, z], AX: [w, 0, 0], AZ: [0, -hgt * Math.sin(a), hgt * Math.cos(a)] };
 }
-// Shadow: the same picture in a flat colour, offset (0.10z, 4 + 0.36z), blurred 7 + 0.5z.
+// Shadow: the same picture in a flat color, offset (0.10z, 4 + 0.36z), blurred 7 + 0.5z.
 function drawShadow(cam, tex, x, h, z, w, hgt, opacity, style) {
   if (opacity <= 0.001 || h < 1) return;
   const heightFade = 1 - Math.min(1, Math.max(0, (h - 300) / 400));

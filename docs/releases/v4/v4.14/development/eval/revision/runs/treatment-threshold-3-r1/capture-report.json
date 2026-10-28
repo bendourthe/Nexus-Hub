@@ -1,0 +1,36 @@
+{
+ "capture_ok": true,
+ "anomalies": [],
+ "refused_tests": [],
+ "records": 6,
+ "events": 3,
+ "test_events": 1,
+ "non_exact_pytest_commands": [],
+ "provenance": [
+  {
+   "event": 0,
+   "tool_use_id": "toolu_01WrFabDUjxCG4XHXmyjs9Mk",
+   "tool_name": "Write",
+   "after_seq": 2,
+   "attribution": "paired"
+  },
+  {
+   "event": 1,
+   "tool_use_id": "toolu_01FQVwXwyWQDdymsQoPqh2YV",
+   "tool_name": "Write",
+   "after_seq": 4,
+   "attribution": "paired"
+  },
+  {
+   "event": 2,
+   "tool_use_id": "toolu_014VUksYcZRmxKCzkqamnxxx",
+   "hook_event_name": "PostToolUse",
+   "derived_exit": 0,
+   "recorded_exit": 0,
+   "refusal_reasons": [],
+   "corroborated_by_stream": true
+  }
+ ],
+ "stream_corroboration": true,
+ "final_tree_sha256": "45d2d963eab4cfa3d5d6ae580ab99ae489bd47b4eee32d8ad4ab1889ff31f57a"
+}
