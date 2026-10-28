@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.2] - 2026-10-28
+
 ### Changed
+
+- The platform read-contract records the 2026-10-28 re-verification for v4.14.2: first-party documentation for all 14 machine-contract platforms plus the Hermes, Aider and Antigravity 1.0 rows was re-fetched, giving 75 MATCH, 10 DRIFT and 5 UNVERIFIED rows. Every drift is additive (newly documented paths and events for Antigravity CLI, Gemini CLI, Qwen Code, Kimi Code CLI, GitHub Copilot, OpenClaw and the OpenCode v2 preview) or already tracked (AR-35, DF-2). Nothing that Nexus-Hub installs changes.
 
 - `/implement` reports progress every 60 minutes by default and at significant transitions, covering every member plan for a minor or every phase for one plan. `/update status [version-or-plan]` shows the same read-only report on demand: task percentages, active/waiting workers, elapsed time, remaining estimates, dependencies and an efficiency review of parallel capacity and test timing. Timed delivery depends on host checkpoints; missing observations remain explicit. [Usage and verification](docs/releases/v4/v4.14/development/v4.14-progress-reporting.md).
 
@@ -22,9 +26,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Refactor first, then build.** `refactoring-expert`, `code-simplification`, `incremental-implementation` and the implement-phase runbook now route a feature or fix that lands in scattered or duplicated code through a verified, behavior-preserving refactor first, with design invariants (`code-simplification/references/design-invariants.md`) and a subsystem baseline review (`technical-debt-analyzer/references/subsystem-baseline-review.md`). A rule-ownership test keeps each rule stated in exactly one skill. The paid evaluation of the two rules stayed `NO_CHANGE` after one wording revision, so no measured behavioral improvement is claimed; its artifacts are retained under `docs/releases/v4/v4.14/development/eval/`.
+- **Harness cost and decision guidance.** `prompt-engineering` documents provider-specific prompt-cache accounting with a worked cache-share example, `model-routing` hands cache-cost questions to it, and `ai-agent-development` gains a pure tool-call decision-policy harness (`references/decision-policy-harness.md`). The platform contract records that the consumer Gemini app has no install surface.
+- **Payload-exact install smoke checks.** The workspace and bootstrap smoke scenarios compare the literal installed skill and command payloads on Windows, Linux and macOS instead of counting files.
+
 - **`scripts/check_american_spelling.py`** guards the conversion in the fast CI profile (hygiene group) and `make validate`. It skips backtick spans, URLs, `aria-labelledby`, and hyphen or underscore compounds, accepts `cancelled` (an American variant and a GitHub Actions and VS Code API value), and rewrites living files with `--fix`. Decision record: `docs/decisions/implemented/policy/2026-10-21-american-english-spelling.md`.
 
 - A minor-scope run can now archive each member as soon as it is released, instead of keeping every released plan, receipt, and session history in the active tree until the minor closes. The new optional `archive-member` approval (valid only beside `archive-minor`) enables `minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session ID [--apply]`, which moves only that member's plan and its `vX.Y.Z-*` records, repairs links and per-prefix mentions, proves zero newly broken links, signs an `archived` identity beside the frozen plan hash, and commits once; shared files such as the known-gaps ledger stay until the close, which now composes with the early moves. A running record gains the class only from the user's own pasted decision (`record render --action add-class --class archive-member`, then `record add-class`). Without the class nothing changes. See `docs/decisions/implemented/policy/2026-10-21-archive-each-member-on-release.md`.
+
+    Activation: in the run's own session, show `python ~/.nexus-hub/scripts/check_plan_completion.py record render --minor vX.Y --session <id> --action add-class --class archive-member --page`, paste its approval line as your whole message, then run `python ~/.nexus-hub/scripts/check_plan_completion.py record add-class --minor vX.Y --session <id> --class archive-member`. A new run can approve it with `archive-minor` at `record create`.
+
+    Validation: `python ~/.nexus-hub/scripts/minor_close.py archive-member --minor vX.Y --member vX.Y.Z --session <id>` prints a dry-run move list instead of a refusal naming the missing class.
+
+    Rollback: the signed class cannot be removed from a running record; to stop using it, do not run the member archive, and the minor close archives everything as before. An already archived member is restored by reverting its single archive merge commit.
+
+    Authority: the class moves only that member's own plan and `vX.Y.Z-*` records after its release; it grants no push, merge, release, cleanup or spending authority beyond the record's existing classes, and shared files (known-gaps ledger, comparisons, handbooks) stay until the minor close.
+
+    Docs: [Archive each member on release](docs/decisions/implemented/policy/2026-10-21-archive-each-member-on-release.md).
 
 ### Fixed
 
