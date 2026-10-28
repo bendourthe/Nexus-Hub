@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- The completion gate's turn-end hook is no longer registered by default on any platform. It re-prompted at the end of every turn of a full `/implement` run, including turns waiting on you, CI, or an approval, which made work impossible. A full run now ends on the checker verdict, `nexus-hub run-plan` still resumes a session that ended early, and the approval capture, usage guard, and `check_plan_completion.py` are unchanged. The next install removes the entry from an existing Claude settings file, Cursor and Antigravity hook files, and the Codex, Qwen, Gemini CLI, Kimi, and Copilot hook files, touching only Nexus-Hub's own entries and never a user hook, and removes a completion plugin an earlier install wrote on OpenCode, OpenClaw, Pi, and Hermes. The gate stays available as an opt-in.
+    - Activation: on a hook platform, register the installed `completion-gate.sh` (`completion-gate.ps1` on Windows) on that platform's turn-end event (events and output formats are in `docs/policy/completion-levers.md`); on OpenCode, OpenClaw, Pi, and Hermes, run the installer with `NEXUS_HUB_COMPLETION_PLUGINS=1`.
+    - Validation: with the registration or plugin in place, a session bound to an incomplete full-run record is refused at turn end with the checker's reason; `python ~/.nexus-hub/scripts/completion_gate.py stop` with a bound session payload on standard input prints the continuation JSON.
+    - Rollback: delete the registration you added, or reinstall without `NEXUS_HUB_COMPLETION_PLUGINS=1` (the installer retires the plugin); `NEXUS_DISABLED_HOOKS=completion-gate` or `NEXUS_HOOK_PROFILE=minimal` silences a registered hook without editing settings.
+    - Authority: the gate only asks the checker for a verdict and re-prompts the agent; it cannot approve, push, or release, and activating it grants no tool permission.
+    - Docs: [`docs/decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md`](docs/decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md) and [`docs/policy/completion-levers.md`](docs/policy/completion-levers.md).
+
 ## [4.14.2] - 2026-10-28
 
 ### Changed
@@ -264,9 +273,9 @@ Docs: [Subagent default usage](docs/releases/v4/v4.14/development/capability-usa
 
 - **Copilot Usage Monitor in Cursor (v4.13.11, WN-30), default-on.** Global extension installation now delivers the existing monitor to detected Cursor as well as VS Code.
 
-    - **Activation**: automatic during a global install when the Cursor CLI is detected and the monitor build/install succeeds; no additional opt-in.
-    - **Validation**: `python scripts/check_installer_parity.py` and `python -m pytest -q catalog/hooks/tests/test_installer_smoke.py -k "isolate_vscode_and_cursor_hosts or banners_state_the_copilot_monitor_hosts"`.
-    - **Rollback**: `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`.
+    - Activation: automatic during a global install when the Cursor CLI is detected and the monitor build/install succeeds; no additional opt-in.
+    - Validation: `python scripts/check_installer_parity.py` and `python -m pytest -q catalog/hooks/tests/test_installer_smoke.py -k "isolate_vscode_and_cursor_hosts or banners_state_the_copilot_monitor_hosts"`.
+    - Rollback: `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`.
     - **Boundary**: editor-host delivery changes; monitor authentication and GitHub permissions are unchanged.
     - **Documentation**: [README](README.md), [PowerShell installer](scripts/installer.ps1), and [Bash installer](scripts/installer.sh).
 

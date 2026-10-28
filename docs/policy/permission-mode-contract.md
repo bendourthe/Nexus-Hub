@@ -17,7 +17,7 @@ Prompt-forcing hooks: `format-powershell-description.py`, `rewrite-command.{sh,p
 
 Security guards: `git-guardrails`, `secret-scan`, `memory-store-guard`, `user-edit-guard`, and `escalation-trigger` when `ESCALATION_MODE=block`.
 
-Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, `completion-gate`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
+Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
 
 ## Approved-run continuation
 

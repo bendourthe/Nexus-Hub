@@ -1,6 +1,8 @@
 # Decision: Install completion plugins by default on plugin-only platforms
 
-Status: implemented - OpenCode, OpenClaw, Pi, and Hermes receive a small user-global completion plugin when the platform is detected, unless `NEXUS_HUB_COMPLETION_PLUGINS=0`.
+Status: implemented, then superseded on 2026-10-28 by [remove-completion-gate-stop-default](../tooling/2026-10-28-remove-completion-gate-stop-default.md) - the plugins are now opt-in (`NEXUS_HUB_COMPLETION_PLUGINS=1`) and an earlier default install is retired on upgrade. The text below records the original decision.
+
+Original status: OpenCode, OpenClaw, Pi, and Hermes receive a small user-global completion plugin when the platform is detected, unless `NEXUS_HUB_COMPLETION_PLUGINS=0`.
 
 ## Problem
 

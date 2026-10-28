@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Turn-end completion gate and prompt capture for a full /implement run.
 
+Only `capture` runs in a default install. `stop` is opt-in: no default install registers
+the turn-end hook (removed 2026-10-28; see docs/policy/completion-levers.md).
+
 Installed at ~/.nexus-hub/scripts/completion_gate.py and called by the thin
 catalog adapters `completion-gate.{sh,ps1}` and `approval-capture.{sh,ps1}`.
 
