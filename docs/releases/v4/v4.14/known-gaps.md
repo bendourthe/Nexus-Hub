@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-25
-**Open items**: 86
+**Last updated**: 2026-10-26
+**Open items**: 85
 
 ## v4.14.0
 
@@ -3183,7 +3183,7 @@ None.
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
@@ -3236,17 +3236,19 @@ None.
 
 **Suggested next step**: re-measure once the rule text actually reaches the agent, with the v4.15.2 harness-pairing evaluator or a task prompt that loads the skill, and with a task that does not ask for the feature in a new file; keep the rule until then.
 
+
+### Resolved
+
 #### QG-8: macOS Installer Payload Proof
 
 - **Source phase**: v4.14.2 Phase 6 T029.
 - **Plan reference**: [v4.14.2 adoption plan](plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md), terminal CI/CD reconciliation and installer parity.
-- **Disposition**: OPEN; approved sequencing, not waived delivery or migration.
+- **Original disposition**: OPEN; approved sequencing, not waived delivery or migration.
 - **Owner**: M2 implementation and CI owner.
-- **Reason**: Genuine native ANSWERED blocker 14 permits actual macOS workspace and bootstrap full-payload verification on the first M2 integration PR after all other required local checks and real Windows/Linux full-payload installer checks pass. macOS delivery has not yet been proven for the M2 payload.
+- **Original reason**: Genuine native ANSWERED blocker 14 permits actual macOS workspace and bootstrap full-payload verification on the first M2 integration PR after all other required local checks and real Windows/Linux full-payload installer checks pass. macOS delivery has not yet been proven for the M2 payload.
 - **Acceptance**: The first M2 PR passes actual macOS installer-smoke and bootstrap jobs with identical exact payload postconditions and retained current-head artifacts. T029 stays unchecked until then. Every required check must be green before merge; T034 also requires actual merge and post-merge verification.
-- **Suggested next step**: Complete the local member gate and Windows/Linux installer checks, publish the first M2 PR under its existing authorization, and retain the macOS delivery artifacts before merge.
+- **Original suggested next step**: Complete the local member gate and Windows/Linux installer checks, publish the first M2 PR under its existing authorization, and retain the macOS delivery artifacts before merge.
 - **Evidence**: [Last-phase evidence](development/v4.14.2-last-phase-evidence.md#cicd-coverage); sequencing request SHA-256 `6b1a6d78abe9a6f27465c104496caea908d194ef38efa3263d7e2bdccded1d6a`. Existing selections, timeouts and frozen budgets are unchanged.
-
-### Resolved
-
-None.
+- **Disposition**: RESOLVED in v4.14.2 Phase 6 T029, recorded 2026-10-26 after the actual first M2 PR supplied the required macOS payload proof.
+- **Resolution**: PR #525 head `944d07f40eeebc8d52204684a3cab907f331806d` passed actual [macOS workspace installer-smoke](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939624) in 9.901 seconds and [macOS bootstrap](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939637) in 63.813 seconds, both exit 0. Downloaded summary, environment and log hashes match retained `m2-macos-payload-d140cd29/verified-payload.json`, SHA-256 `9ec473cde4c572da4044931d6acb2f480f0e66455232b7c6545bf64dd2bea98a`. Tested merge `59da68623d44563a570b2f8464f0fe59eb4665ec` and actual merged `d2d7bff7a0c192437eddcbdb677880791ea3f501` share tree `de7ccaeea43d697f25552f6330ac261af1d867b0`; all 46 PR checks and exact-head post-merge run `40173908677` succeeded.
+- **Remaining boundary**: No waiver, migration, new qualification attempt or allowance reset is introduced. Release, runtime adoption and archive/cleanup remain separate; no further macOS run is needed for this resolved item.
