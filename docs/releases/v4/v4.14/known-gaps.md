@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-10-28
-**Open items**: 87
+**Open items**: 90
 
 ## v4.14.0
 
@@ -3262,9 +3262,9 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 2 | 0 |
+| Warnings (WN) | 4 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
 
@@ -3285,6 +3285,42 @@ None.
 **Reason**: Each member's evaluation inside `check-minor`, `check-member` and `record member-start` gets a fixed 20-second share. With ordinary GitHub latency the v4.14.2 release predicates (`release.main`, `approval.remote`, `integration.*`) intermittently read `cannot-verify` with "member budget exhausted", so the v4.14.3 publication gate refused three times with `previous-member-incomplete (v4.14.2)` before passing on a retry with no change in state.
 
 **Suggested next step**: Give a member's release and integration lookups a share sized to observed latency, or report an exhausted share as a retryable notice rather than the predecessor being incomplete, with a regression test that simulates slow `gh` and `git ls-remote` calls.
+
+#### WN-29: Profile writer and model-map tools accept hostile text and path-traversing ids
+
+**Source phase**: v4.14.3 Phase 3 T016 (Tier 3 adversarial pass)
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: On 2026-10-28, executing `write_model_prompting_profile.py write` against a temporary copy of the bundle showed the writer exits 0 and the structural validator `verify_model_prompting_profiles.py` still passes for claims containing `|`, HTML, a Markdown link, an agent-directed imperative, an off-allowlist or spoofed source host (`ai.google.dev.evil.com`, `ai.google.dev@evil.com`), an `http` scheme, a NUL byte, or 200,000 characters, and for an unknown platform name. A model id such as `../../../../escape2` made the writer create a Markdown file outside the bundle (the validator reported INVALID only afterward), and an id containing a backslash raised a traceback after the index had already been rewritten (a partial write). `model-map.py validate` accepts a cell such as `gemini-4-argon|x` or one containing a newline, and `model-map.py render` then emits the extra table row into the Markdown map that plans embed; `stamp_training_models.py` already refuses `</` and `<!--`. The DoD 1 rules (allowlisted host, paraphrase only, no table characters or directives) hold for the shipped Argon claims through `tests/skills/test_prompting_profile_gemini_4_argon.py`, but no tool enforces them for a future payload built from fetched page text. This behavior predates v4.14.3, which changed only the writer's roster handling.
+
+**Owner**: maintainer, as the `model-prompting-research` and `model-routing` skill owner.
+
+**Suggested next step**: validate model ids against a strict pattern and resolve the mirror path inside `references/models/` before any write, make the write all-or-nothing, apply the DoD 1 claim rules (host allowlist by exact hostname, no table characters, links, HTML, or directives) in the writer and the structural validator, and reject `|`, newlines, and control characters in `model-map.py` cells, each with a regression test.
+
+#### WN-30: Repository description states 37 hooks while README declares 38
+
+**Source phase**: v4.14.3 Phase 3 T014 and T015 (git-tree hygiene and CI/CD field 23, external settings)
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: `check_release_preconditions.py --branches --repo-settings` reported on 2026-10-28 that the GitHub repository description says "37 hooks" while `README.md` declares 38 registered hooks. The description is an external repository setting that no version-sync guard can see, and this plan changes no setting automatically.
+
+**Owner**: maintainer (repository administrator).
+
+**Suggested next step**: update the description by hand (`gh repo edit --description "<text with 38 hooks>"`) under the maintainer's own authority, then re-run the check.
+
+#### QG-9: Full local gate not green for v4.14.3 (roster-split test and host limits)
+
+**Source phase**: v4.14.3 Phase 3 T019
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: The single full-profile run on 2026-10-28 (`FAIL: 67 passed, 5 failed, 3 skipped`) found one real regression and four host limits. The regression: the live-roster semantics of the profile writer (DoD 1) break `tests/validators/test_check_model_prompting_freshness.py::test_shipped_rosters_are_split_by_platform` for the retired profile `gemini-3.7-flash`; that test path is outside the member's admitted claims. The host limits: `hook-tests` and `repo-tests-governance-validators-d-o` timed out at 2,400 and 1,800 seconds, 92 failures and 65 errors in `tests/skills` all come from a missing Playwright Chromium executable, and `test_windows_long_paths` fails only under the runner's long scratch directory (it passes alone).
+
+**Owner**: v4.14 coordinator.
+
+**Suggested next step**: apply the amendment recorded in `v4.14.3-last-phase-evidence.md` under `## Full-suite testing and stabilization`, rerun `repo-tests-governance-validators-a-c`, and close the host-limit items through the composite local qualification used for v4.14.2 (longer budgets for the two timeouts, Chromium installed for `tests/skills`), then resolve this entry before publication.
 
 ### Resolved
 
