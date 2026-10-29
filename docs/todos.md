@@ -38,7 +38,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 | Metric | Current | Target |
 |---|---|---|
 | Consumer checker findings dispositioned | 17 | 17 |
-| Conditional decline repair | 56 final focused and 298 compatibility passes; adoption pending | Native consumer closeout |
+| Conditional decline repair | Installed; 26 final decline, 56 focused and 298 compatibility passes | Native consumer closeout |
 | v4.14 tasks | 34/209 | 209/209 |
 | v4.14 released members | 1/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
@@ -48,7 +48,8 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Qualify and install the scoped [conditional decline repair](releases/v4/v4.14/development/conditional-decline-repair-plan.md), then finish the original consumer run through its native verdict.
+- [x] Qualify and install the scoped [conditional decline repair](releases/v4/v4.14/development/conditional-decline-repair-plan.md), preserving the five original files and signed run record.
+- [ ] Capture the concrete conditional disposition and finish the original consumer run through its native verdict; gap migration retains its own authority.
 
 - [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
 
