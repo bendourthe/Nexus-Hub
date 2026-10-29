@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gemini 4 Argon prompting guidance joins its existing Google routing placement, with separate API and Cloud claims and a provider-neutral fallback to the same provider's strong tier when frontier access is unavailable.
 - The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging.
 
+### Changed
+
+- **The guide's token demo now uses American spelling too.** It kept the British spelling because its chips are the verified `cl100k_base` split of that exact word. Re-tokenized with the published `cl100k_base` vocabulary (checked against tiktoken's pinned SHA-256), "Summarize this contract and list every deadline." is still ten tokens and "Summarize" still costs three (`Sum`, `mar`, `ize`), so only the third chip changes and the teaching point holds. The opening figure, which makes no tokenizer claim, changes the same word and chip.
+
 ### Removed
 
 - The completion gate's turn-end hook is no longer registered by default on any platform. It re-prompted at the end of every turn of a full `/implement` run, including turns waiting on you, CI, or an approval, which made work impossible. A full run now ends on the checker verdict, `nexus-hub run-plan` still resumes a session that ended early, and the approval capture, usage guard, and `check_plan_completion.py` are unchanged. The next install removes the entry from an existing Claude settings file, Cursor and Antigravity hook files, and the Codex, Qwen, Gemini CLI, Kimi, and Copilot hook files, touching only Nexus-Hub's own entries and never a user hook, and removes a completion plugin an earlier install wrote on OpenCode, OpenClaw, Pi, and Hermes. The gate stays available as an opt-in.
