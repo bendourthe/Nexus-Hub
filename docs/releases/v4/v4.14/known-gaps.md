@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-28
-**Open items**: 90
+**Last updated**: 2026-10-29
+**Open items**: 89
 
 ## v4.14.0
 
@@ -3262,9 +3262,9 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 4 | 0 |
+| Warnings (WN) | 4 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
@@ -3298,6 +3298,18 @@ None.
 
 **Suggested next step**: validate model ids against a strict pattern and resolve the mirror path inside `references/models/` before any write, make the write all-or-nothing, apply the DoD 1 claim rules (host allowlist by exact hostname, no table characters, links, HTML, or directives) in the writer and the structural validator, and reject `|`, newlines, and control characters in `model-map.py` cells, each with a regression test.
 
+#### WN-31: Installer cannot load the Gemini usage monitor into Antigravity through its CLI
+
+**Source phase**: v4.14 run coordination, tool update after the v4.14.1 install (2026-10-28)
+
+**Reason**: The installer run from develop built and packaged `gemini-usage-monitor-0.1.0.vsix`, then printed `Antigravity install failed. You can install manually: "antigravity-ide" --install-extension "<path>.vsix"`. A direct probe of the resolved launcher `%LOCALAPPDATA%\Programs\Antigravity\bin\antigravity-ide.cmd --list-extensions` exited 3 with no output, so the CLI itself fails rather than the extension package. The installer degrades as designed (it prints the manual command and continues), but a user on this Antigravity build gets no monitor update without a manual step through the IDE's extensions view.
+
+**Owner**: maintainer, as the usage-monitor extension owner.
+
+**Suggested next step**: re-check the current Antigravity CLI name and flags against the vendor documentation, reproduce the exit 3 with a fresh profile, and either fix the installer's invocation or document the IDE-view install path in the extension README, with an installer test that covers a failing CLI.
+
+### Resolved
+
 #### WN-30: Repository description states 37 hooks while README declares 38
 
 **Source phase**: v4.14.3 Phase 3 T014 and T015 (git-tree hygiene and CI/CD field 23, external settings)
@@ -3309,6 +3321,9 @@ None.
 **Owner**: maintainer (repository administrator).
 
 **Suggested next step**: update the description by hand (`gh repo edit --description "<text with 38 hooks>"`) under the maintainer's own authority, then re-run the check.
+
+- **Disposition**: RESOLVED on 2026-10-29 before v4.14.3 publication.
+- **Resolution**: PR #539 (merged to develop as `e22005d47`) removed the completion gate's default turn-end registration, so `README.md` now declares 37 registered hooks, matching the unchanged repository description. `check_release_preconditions.py --repo-settings` reports `OK: repository description agrees with README.md`. No repository setting was changed.
 
 #### QG-9: Full local gate not green for v4.14.3 (roster-split test and host limits)
 
@@ -3322,6 +3337,6 @@ None.
 
 **Suggested next step**: apply the amendment recorded in `v4.14.3-last-phase-evidence.md` under `## Full-suite testing and stabilization`, rerun `repo-tests-governance-validators-a-c`, and close the host-limit items through the composite local qualification used for v4.14.2 (longer budgets for the two timeouts, Chromium installed for `tests/skills`), then resolve this entry before publication.
 
-### Resolved
-
-None.
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before publication.
+- **Resolution**: the roster amendment merged to develop as PR #540 and a timing-dependent hook test found during qualification was fixed by PR #541; Chromium build 1243 was installed for `tests/skills`; the hook and governance suites ran without the per-command cap. The composite local qualification is recorded under `## Full-suite testing and stabilization` in [v4.14.3 last-phase evidence](development/v4.14.3-last-phase-evidence.md), green on final tree `8f0e6f313`.
+- **Remaining boundary**: the integration pull request's required checks are the remote validation of the merge result; they are recorded in the same file under `## Publication and integration`.
