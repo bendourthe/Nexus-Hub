@@ -37,6 +37,11 @@ def offer(case):
     assert out
     return guard.pending_decision("codex", payload)
 
+def gate_budget(gate):
+    # The gate keeps BLOCK_RESERVE_SECONDS back for its blocker write, so a shorter
+    # budget leaves the usage probe a deadline that has already passed.
+    return time.monotonic() + gate.BLOCK_RESERVE_SECONDS + gate.USAGE_PROBE_SECONDS
+
 def test_one_offer_across_sessions_and_additional_windows(case):
     guard, project, payload, reading, _ = case
     data = offer(case)
@@ -147,7 +152,7 @@ def test_gate_uses_shared_decision_without_rewriting_progress(case, monkeypatch,
     monkeypatch.setattr(gate, "_usage_guard", lambda _: (guard, HOOKS))
     record = tmp_path / "run.json"
     record.write_text("{}")
-    assert gate.usage_limit_stop(payload, record, {}, project, time.monotonic() + 5) is (answer != "credits")
+    assert gate.usage_limit_stop(payload, record, {}, project, gate_budget(gate)) is (answer != "credits")
     assert record.read_text() == "{}"
 
 
@@ -207,7 +212,7 @@ def test_gate_needs_confirmed_usage_and_preserves_unknown_score(case, monkeypatc
     record = tmp_path / "run.json"
     record.write_text('{"progress": null}')
     reading.update(status="unavailable", windows=[])
-    assert not gate.usage_limit_stop(payload, record, {}, project, time.monotonic() + 5)
+    assert not gate.usage_limit_stop(payload, record, {}, project, gate_budget(gate))
     assert record.read_text() == '{"progress": null}'
 
 
@@ -454,7 +459,7 @@ def test_host_warning_without_probe_cannot_grant_gate_exemption(case, monkeypatc
     monkeypatch.setattr(gate, "_usage_guard", lambda _: (guard, HOOKS))
     record = tmp_path / "record.json"
     record.write_text("{}")
-    assert not gate.usage_limit_stop(payload, record, {}, project, time.monotonic() + 5)
+    assert not gate.usage_limit_stop(payload, record, {}, project, gate_budget(gate))
     assert record.read_text() == "{}"
 
 
@@ -493,7 +498,7 @@ def test_source_less_host_warning_does_not_invent_gate_confirmation(case, monkey
     monkeypatch.setattr(gate, "_usage_guard", lambda _: (guard, HOOKS))
     record = tmp_path / "run.json"
     record.write_text("{}")
-    assert not gate.usage_limit_stop(payload, record, {}, project, time.monotonic() + 5)
+    assert not gate.usage_limit_stop(payload, record, {}, project, gate_budget(gate))
 
 
 def test_credit_reminders_preserve_original_question_cost_snapshot(case):
