@@ -14,6 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gemini 4 Argon prompting guidance joins its existing Google routing placement, with separate API and Cloud claims and a provider-neutral fallback to the same provider's strong tier when frontier access is unavailable.
 - The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging.
 
+### Removed
+
+- The completion gate's turn-end hook is no longer registered by default on any platform. It re-prompted at the end of every turn of a full `/implement` run, including turns waiting on you, CI, or an approval, which made work impossible. A full run now ends on the checker verdict, `nexus-hub run-plan` still resumes a session that ended early, and the approval capture, usage guard, and `check_plan_completion.py` are unchanged. The next install removes the entry from an existing Claude settings file, Cursor and Antigravity hook files, and the Codex, Qwen, Gemini CLI, Kimi, and Copilot hook files, touching only Nexus-Hub's own entries and never a user hook, and removes a completion plugin an earlier install wrote on OpenCode, OpenClaw, Pi, and Hermes. The gate stays available as an opt-in.
+    - Activation: on a hook platform, register the installed `completion-gate.sh` (`completion-gate.ps1` on Windows) on that platform's turn-end event (events and output formats are in `docs/policy/completion-levers.md`); on OpenCode, OpenClaw, Pi, and Hermes, run the installer with `NEXUS_HUB_COMPLETION_PLUGINS=1`.
+    - Validation: with the registration or plugin in place, a session bound to an incomplete full-run record is refused at turn end with the checker's reason; `python ~/.nexus-hub/scripts/completion_gate.py stop` with a bound session payload on standard input prints the continuation JSON.
+    - Rollback: delete the registration you added, or reinstall without `NEXUS_HUB_COMPLETION_PLUGINS=1` (the installer retires the plugin); `NEXUS_DISABLED_HOOKS=completion-gate` or `NEXUS_HOOK_PROFILE=minimal` silences a registered hook without editing settings.
+    - Authority: the gate only asks the checker for a verdict and re-prompts the agent; it cannot approve, push, or release, and activating it grants no tool permission.
+    - Docs: [`docs/decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md`](docs/decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md) and [`docs/policy/completion-levers.md`](docs/policy/completion-levers.md).
+
+### Fixed
+
+- **The Gemini Usage Monitor follows Antigravity's new Models & Usage layout.** The status bar now always reports the "Gemini Models" group, so the new weekly-only "Gemini 4 Argon" group cannot take it over by being listed first; Gemini 4 Argon appears as its own row in the tooltip and dashboard. A five-hour limit that Antigravity leaves blank while the weekly limit is spent ("does not currently apply") is no longer shown as 100% used, and a limit whose window the monitor cannot classify is kept under its own label instead of being dropped. **Save Raw Usage Response** now keeps quota group and limit labels and short window ids such as `5h`, so a capture shows which limit is which; account names, emails and ids stay redacted.
+
+- **The Windows console guard no longer blocks commands for code they will not run.** It now scans the project a command actually enters (`cd X && ...`, `Set-Location X; ...`) instead of the session's starting folder, a read-only command that merely names a script (`git show -- scripts/installer.sh`, `grep`, `cat`, `Get-Content`) no longer triggers it, and untracked scratch under `.tmp/` is skipped. What counts as a window-unsafe launch is unchanged, and a launch after a read-only step (`git status && python helper.py`) is still guarded. Decision record: [`2026-10-28-console-guard-scope.md`](docs/decisions/implemented/tooling/2026-10-28-console-guard-scope.md).
+
 ## [4.14.2] - 2026-10-28
 
 ### Changed

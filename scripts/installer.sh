@@ -542,6 +542,25 @@ merge_managed_claude_hooks() {
                         hook_stem == ($candidate | hook_stem)
                     )
                 );
+            # Retired managed hooks (completion-gate Stop handler, removed from the
+            # defaults 2026-10-28). Only a handler whose command points at a hooks
+            # directory entry named completion-gate is Nexus-Hub-owned; user hooks stay.
+            def retired: ((.command // "") | test("[/\\\\]hooks[/\\\\]completion-gate\\.(sh|ps1)"));
+            def drop_retired:
+                [ .[] |
+                    if any((.hooks // [])[]; retired) then
+                        (.hooks |= map(select(retired | not))) | select(.hooks | length > 0)
+                    else . end
+                ];
+            def retire_hooks:
+                if (.hooks | type) == "object" then
+                    .hooks |= with_entries(
+                        . as $e |
+                        (if ($e.value | type) == "array" then ($e.value | drop_retired) else $e.value end) as $n |
+                        if ($e.value | type) == "array" and $n == [] and $e.value != [] then empty
+                        else .value = $n end
+                    )
+                else . end;
             .[0] as $existing | .[1] as $template |
             reduce (($template.hooks // {}) | to_entries[]) as $event (
                 ($existing |
@@ -558,7 +577,7 @@ merge_managed_claude_hooks() {
                         end
                     )
                 )
-            )
+            ) | retire_hooks
         ' "$settings_file" "$template_file" 2>/dev/null
         return
     fi
@@ -591,6 +610,39 @@ def hook_stem(hook):
         raise ValueError("managed hook command must be a string")
     matches = list(HOOK_STEM_PATTERN.finditer(command))
     return matches[-1].group("stem") if matches else command
+
+
+# Retired managed hooks (completion-gate Stop handler, removed from the defaults
+# 2026-10-28). Only a handler whose command points at a hooks directory entry named
+# completion-gate is Nexus-Hub-owned; user hooks stay.
+RETIRED_HOOK_PATTERN = re.compile(r"[/\\]hooks[/\\]completion-gate\.(?:sh|ps1)")
+
+
+def is_retired(hook):
+    command = hook.get("command") if isinstance(hook, dict) else None
+    return isinstance(command, str) and RETIRED_HOOK_PATTERN.search(command) is not None
+
+
+def retire_hooks(hooks):
+    for event, entries in list(hooks.items()):
+        if not isinstance(entries, list):
+            continue
+        touched = False
+        kept = []
+        for entry in entries:
+            handlers = entry.get("hooks") if isinstance(entry, dict) else None
+            if isinstance(handlers, list) and any(is_retired(h) for h in handlers):
+                touched = True
+                entry = dict(entry)
+                entry["hooks"] = [h for h in handlers if not is_retired(h)]
+                if not entry["hooks"]:
+                    continue
+            kept.append(entry)
+        if touched:
+            if kept:
+                hooks[event] = kept
+            else:
+                del hooks[event]
 
 
 def hook_exists(hooks, event, matcher, candidate):
@@ -644,6 +696,7 @@ try:
                 new_entry["hooks"] = [candidate]
                 event_hooks.append(new_entry)
 
+    retire_hooks(hooks)
     json.dump(existing, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")
 except (OSError, TypeError, ValueError) as error:

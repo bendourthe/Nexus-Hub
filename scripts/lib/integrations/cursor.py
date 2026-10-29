@@ -101,9 +101,8 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         "git-guardrails.sh",
         "_notify_common.sh",
         "notify-on-complete.sh",
-        # v4.13.2: the full-run completion gate (Cursor `stop`, answered with
-        # `followup_message`) and prompt capture (`beforeSubmitPrompt`).
-        "completion-gate.sh",
+        # v4.13.2: prompt capture (`beforeSubmitPrompt`). The completion gate's
+        # `stop` registration was removed from the defaults (2026-10-28).
         "approval-capture.sh",
         # v4.13.7: the usage-limit hand-off guard and the probe it imports.
         "usage-guard.py",
@@ -154,7 +153,6 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                     {"command": command_for("usage-guard.py"), "timeout": 10},
                 ],
                 "stop": [
-                    {"command": command_for("completion-gate.sh")},
                     {"command": command_for("usage-guard.py"), "timeout": 10},
                     {"command": command_for("notify-on-complete.sh")},
                 ],

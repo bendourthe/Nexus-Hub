@@ -34,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.lib.integrations import INTEGRATION_REGISTRY, legacy, list_keys  # noqa: E402
+from scripts.lib.integrations import INTEGRATION_REGISTRY, legacy  # noqa: E402
 from scripts.lib.integrations.base import InstallContext, IntegrationBase  # noqa: E402
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 from scripts.lib.integrations.result import FileAction, WriteResult  # noqa: E402

@@ -2,6 +2,8 @@
 
 Status: implemented - OpenCode, OpenClaw, Pi, and Hermes receive a small user-global completion plugin when the platform is detected, unless `NEXUS_HUB_COMPLETION_PLUGINS=0`.
 
+Update 2026-10-28: the install-by-default part of this decision was reversed by [remove-completion-gate-stop-default](../tooling/2026-10-28-remove-completion-gate-stop-default.md). The plugins are now opt-in (`NEXUS_HUB_COMPLETION_PLUGINS=1`) and an earlier default install is retired on upgrade. The text below records the original decision.
+
 ## Problem
 
 Nexus-Hub has so far refused to write executable plugin code (known gap DF-4, and the adapter docstrings in `opencode.py`, `openclaw.py`, and `pi.py`). Hooks on those four platforms are typed plugins in TypeScript or Python, not shell commands, so none of the catalog's hooks reached them.
