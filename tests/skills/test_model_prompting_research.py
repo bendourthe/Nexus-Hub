@@ -891,3 +891,53 @@ def test_skill_md_fences_off_its_two_same_category_neighbours() -> None:
     assert "[[model-routing]]" in body
     assert "[[prompt-engineering]]" in body
     assert "SKIP choosing a model" in body
+
+
+# ---------------------------------------------------------------------------
+# WN-29 follow-up: a bare URL, www. address, or email shape is autolinked by GitHub-flavored
+# Markdown, so claim and note text may carry only a plain allowlisted https URL.
+# ---------------------------------------------------------------------------
+
+VENDOR_URL = "https://developers.openai.com/api/docs/changelog"
+
+AUTOLINK_CASES = [
+    pytest.param("See https://evil.example/x for details.", "not a plain https link", id="off-allowlist-https-url"),
+    pytest.param("See http://developers.openai.com/api/docs/changelog.", "not a plain https link", id="http-url"),
+    pytest.param("See https://developers.openai.com.evil.com/x now.", "not a plain https link", id="suffix-spoofed-url"),
+    pytest.param("See https://developers.openai.com@evil.com/x now.", "not a plain https link", id="userinfo-spoofed-url"),
+    pytest.param("See https://developers.openai.com:8443/x now.", "not a plain https link", id="allowlisted-host-with-port"),
+    pytest.param("See HTTP://EVIL.EXAMPLE now.", "not a plain https link", id="upper-case-scheme"),
+    pytest.param("Visit www.evil.example now.", "www. address", id="www-token"),
+    pytest.param("Mail ops.team@evil.example now.", "email address", id="email-shape"),
+]
+
+
+@pytest.mark.parametrize("field", ["claim", "note"])
+@pytest.mark.parametrize(("text", "expected"), AUTOLINK_CASES)
+def test_an_autolinkable_token_in_claim_or_note_is_refused_and_nothing_changes(
+    bundle: Path, field: str, text: str, expected: str
+) -> None:
+    before = _seed(bundle)
+
+    result = _write(bundle, _payload({"model-b": [_claim(**{field: text})]}))
+
+    assert result.returncode == 1, result.stdout
+    assert f"{field} contains" in result.stderr and expected in result.stderr, result.stderr
+    assert _snapshot(bundle) == before
+
+
+@pytest.mark.parametrize(
+    "note",
+    [
+        pytest.param(f"Changelog: {VENDOR_URL}", id="allowlisted-vendor-url-at-end"),
+        pytest.param(f"Changelog: {VENDOR_URL}.", id="trailing-sentence-period"),
+        pytest.param(f"See ({VENDOR_URL}) for details.", id="wrapped-in-parentheses"),
+        pytest.param("Reference https://www.anthropic.com/news for details.", id="allowlisted-www-host-inside-a-url"),
+    ],
+)
+def test_a_plain_allowlisted_https_url_in_a_note_is_still_written(bundle: Path, note: str) -> None:
+    result = _write(bundle, _payload({"model-a": [_claim(note=note)]}))
+
+    assert result.returncode == 0, result.stderr
+    assert _index(bundle)["models"]["model-a"]["claims"][0]["note"] == note
+    assert _validate(bundle).returncode == 0
