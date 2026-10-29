@@ -80,6 +80,7 @@
     {"posix": ["install_vscode_extensions"], "windows": ["Install-VSCodeExtensions"], "reason": "Usage-monitor extension install flow."},
     {"posix": ["build_and_install_one_extension"], "windows": ["Build-And-Install-One-Extension"], "reason": "One usage-monitor build and install."},
     {"posix": ["run_with_timeout"], "windows": ["Invoke-CommandWithTimeout"], "reason": "Bounded run of the extension dependency install."},
+    {"posix": ["select_working_launcher"], "windows": ["Select-WorkingLauncher"], "reason": "Antigravity launcher selection by a bounded --version probe."},
     {"posix": ["install_templates"], "windows": ["Install-Templates"], "reason": "Template and top-level script delivery."},
     {"posix": ["install_cli_launcher"], "windows": ["Install-CliLauncher"], "reason": "CLI launcher and version marker installation."},
     {"posix": ["install_project_autoseed"], "windows": ["Install-ProjectAutoseed"], "reason": "Project auto-seed hook installation."},
