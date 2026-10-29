@@ -355,6 +355,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
 - [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
 
+## Codex skill catalog budget - 2026-10-29
+
+- [ ] Measure how many of the 340 skills survive Codex's up-front skill-list metadata budget (`render.rs:23`, `render.rs:169-195`, and the "additional N skills omitted" marker at `render.rs:1180` in openai/codex `2681f8cba`). The 340 descriptions total about 144 KB, so automatic skill selection on Codex may see only part of the catalog; explicit `$name` invocation is unaffected. Recorded as an UNVERIFIED risk in `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28`. If the loss is real, plan a mitigation (shorter descriptions, a bundle-scoped Codex install, or both) in a later minor.
+
 ## Queue reorganization - 2026-10-12 speed-first release map
 
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).

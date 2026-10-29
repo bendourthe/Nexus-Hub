@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-10-29
-**Open items**: 89
+**Open items**: 85
 
 ## v4.14.0
 
@@ -3262,11 +3262,15 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 4 | 1 |
+| Warnings (WN) | 0 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
+
+None.
+
+### Resolved
 
 #### WN-27: Codex plugin skill-prompt size and extension-path qualification
 
@@ -3278,6 +3282,10 @@ None.
 
 **Suggested next step**: Before any Codex plugin packaging, re-verify the vendor limit and call sites, measure the packaged SKILL.md bytes against it, and resolve whether user skills route through the extension path. See the scoped read-contract entry `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28` and v4.14.2's parked branch P2 at `plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md#parked-branches`.
 
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: the 2026-10-29 re-check of openai/codex at `2681f8cba2831ef72bca2c0672b2e49d5f690745` (skills sources byte-identical to `d373d649673ca8a5bca71f54be0ae47dbd79b466`) settles the delivered case. The skills extension leaves host skills out of its selection catalog when the host catalog is carried in world state, and Codex's own test `production_turn_keeps_full_snapshot_host_skill_prompt` asserts that a user skill body above 8,000 bytes reaches the model in full, so an invoked plain user skill is not truncated. Recorded in `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28` and the matching JSON note by v4.14.3 commit `e74dabdab`.
+- **Remaining boundary**: a host that never carries the host catalog in world state stays UNVERIFIED, plugin packaging still requires the byte measurement first, and the separate catalog metadata-budget risk is recorded in the read contract and the `docs/todos.md` backlog, not resolved here.
+
 #### WN-28: Member checks time out on slow GitHub lookups
 
 **Source phase**: v4.14 run coordination, v4.14.3 publication admission (2026-10-28)
@@ -3285,6 +3293,10 @@ None.
 **Reason**: Each member's evaluation inside `check-minor`, `check-member` and `record member-start` gets a fixed 20-second share. With ordinary GitHub latency the v4.14.2 release predicates (`release.main`, `approval.remote`, `integration.*`) intermittently read `cannot-verify` with "member budget exhausted", so the v4.14.3 publication gate refused three times with `previous-member-incomplete (v4.14.2)` before passing on a retry with no change in state.
 
 **Suggested next step**: Give a member's release and integration lookups a share sized to observed latency, or report an exhausted share as a retryable notice rather than the predecessor being incomplete, with a regression test that simulates slow `gh` and `git ls-remote` calls.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #544, merged to develop as `8e2791209026c932e03f1c885b6863795033dd8b`, reports a spent member share as the retryable refusal `previous-member-unverified` instead of `previous-member-incomplete`, without making any verdict more permissive. Regression tests simulate 8-second `gh` and `git ls-remote` calls; decision record `docs/decisions/implemented/tooling/2026-10-29-member-check-share-exhaustion.md`.
+- **Remaining boundary**: the installed runtime keeps the earlier refusal wording until the next runtime update.
 
 #### WN-29: Profile writer and model-map tools accept hostile text and path-traversing ids
 
@@ -3298,6 +3310,10 @@ None.
 
 **Suggested next step**: validate model ids against a strict pattern and resolve the mirror path inside `references/models/` before any write, make the write all-or-nothing, apply the DoD 1 claim rules (host allowlist by exact hostname, no table characters, links, HTML, or directives) in the writer and the structural validator, and reject `|`, newlines, and control characters in `model-map.py` cells, each with a regression test.
 
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #543, merged to develop as `90bc88fae6a440234f26010b7190e68d9f5d2b90`, makes `scripts/verify_model_prompting_profiles.py` enforce the claim rules (length, control characters, table characters, HTML, links, autolinkable URLs off the allowlist, injection phrases, second-person directives outside quotes, exact-hostname https source allowlist, model-id pattern, known platforms) and makes `model-map.py validate` refuse unsafe cells. The writer half landed in this branch as `f72f5719a` and `4d53ddfcf`: it validates the whole payload first, refuses paths outside `references/models/`, and writes all-or-nothing. Every shipped profile and the shipped model map pass.
+- **Remaining boundary**: the writer and validator duplicate the rule constants, because the writer ships inside the skill; a parity test between the two can be added now that both branches carry the rules.
+
 #### WN-31: Installer cannot load the Gemini usage monitor into Antigravity through its CLI
 
 **Source phase**: v4.14 run coordination, tool update after the v4.14.1 install (2026-10-28)
@@ -3308,7 +3324,9 @@ None.
 
 **Suggested next step**: re-check the current Antigravity CLI name and flags against the vendor documentation, reproduce the exit 3 with a fresh profile, and either fix the installer's invocation or document the IDE-view install path in the extension README, with an installer test that covers a failing CLI.
 
-### Resolved
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #542, merged to develop as `0b7663b6d1710d0b129e54438214b9b355dbf3e5`, makes both installers probe each Antigravity launcher with `--version` (30-second limit, windowless on Windows) and use the first that answers, naming each skipped launcher. Root cause on the reporting host: the launcher first on PATH starts a stale leftover `Antigravity IDE.exe` whose V8 binary does not match the app snapshot. PATH hits are stored as resolved absolute paths, so `cmd.exe` cannot pick up a launcher from the current directory.
+- **Remaining boundary**: the bash probe is exercised by Linux and macOS CI, not on the reporting Windows host.
 
 #### WN-30: Repository description states 37 hooks while README declares 38
 
