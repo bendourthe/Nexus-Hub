@@ -98,7 +98,7 @@ def _publish_previous(case, monkeypatch):
     # Other predecessor duties are fixture doubles. These release predicates and
     # the ordinary member-start tag/back-merge checks still use the real fixture.
     def predecessor(ck_module, rctx, record, member, plan, notices):
-        return SimpleNamespace(lines=[
+        return SimpleNamespace(exhausted=False, share_exhausted=False, lines=[
             ("release.tag", ck._tag_status(rctx, PREVIOUS)),
             ("release.github", ck._release_status(rctx, "acme/demo", PREVIOUS)),
         ])
@@ -135,7 +135,7 @@ def test_genuine_fixture_capture_is_dormant_until_normal_publication(permit_case
     assert cm._implementation_paths(_worker_context(permit_case), _member(granted), base) == "unmet"
     target.write_bytes(saved)
     # The permission alone cannot skip the unreleased predecessor.
-    monkeypatch.setattr(cm, "evaluate_member", lambda *a: SimpleNamespace(lines=[("release.tag", "unmet")]))
+    monkeypatch.setattr(cm, "evaluate_member", lambda *a: SimpleNamespace(exhausted=False, share_exhausted=False, lines=[("release.tag", "unmet")]))
     code, _out, _err = _activate(permit_case, capsys)
     assert code != 0 and not _member(fx.record()).get("start_head")
     _publish_previous(permit_case, monkeypatch)
