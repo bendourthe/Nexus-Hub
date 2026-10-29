@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Gemini Usage Monitor follows Antigravity's new Models & Usage layout.** The status bar now always reports the "Gemini Models" group, so the new weekly-only "Gemini 4 Argon" group cannot take it over by being listed first; Gemini 4 Argon appears as its own row in the tooltip and dashboard. A five-hour limit that Antigravity leaves blank while the weekly limit is spent ("does not currently apply") is no longer shown as 100% used, and a limit whose window the monitor cannot classify is kept under its own label instead of being dropped. **Save Raw Usage Response** now keeps quota group and limit labels and short window ids such as `5h`, so a capture shows which limit is which; account names, emails and ids stay redacted.
+
+- **The Windows console guard no longer blocks commands for code they will not run.** It now scans the project a command actually enters (`cd X && ...`, `Set-Location X; ...`) instead of the session's starting folder, a read-only command that merely names a script (`git show -- scripts/installer.sh`, `grep`, `cat`, `Get-Content`) no longer triggers it, and untracked scratch under `.tmp/` is skipped. What counts as a window-unsafe launch is unchanged, and a launch after a read-only step (`git status && python helper.py`) is still guarded. Decision record: [`2026-10-28-console-guard-scope.md`](docs/decisions/implemented/tooling/2026-10-28-console-guard-scope.md).
+
 ## [4.14.2] - 2026-10-28
 
 ### Changed

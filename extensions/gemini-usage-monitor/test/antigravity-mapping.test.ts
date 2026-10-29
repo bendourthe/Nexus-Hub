@@ -66,6 +66,49 @@ describe("mapQuotaSummary", () => {
     expect(model.additionalLimits).toBeUndefined();
   });
 
+  // The 2026-10-28 Models & Usage layout: a weekly-only "Gemini 4 Argon" group, and
+  // a Claude and GPT group whose weekly limit is spent and whose 5-hour figure is blank.
+  function layout20261028() {
+    const raw = summary(0.83, 0.7, null) as { response: { groups: Record<string, unknown>[] } };
+    const claude = raw.response.groups[1] as { buckets: Record<string, unknown>[] };
+    delete claude.buckets[1].remainingFraction;
+    raw.response.groups.unshift({
+      displayName: "Gemini 4 Argon",
+      buckets: [{ displayName: "Gemini 4 Argon Weekly Limit", window: "weekly", remainingFraction: 0.93, resetTime: "2026-10-21T22:10:04Z" }],
+    });
+    return raw;
+  }
+
+  it("keeps Gemini Models as the headline even when Gemini 4 Argon is listed first", () => {
+    const model = mapQuotaSummary(layout20261028(), USER_STATUS, NOW)!;
+    expect(model.currentModel).toBe("Gemini Models");
+    expect(model.session.percent).toBe(30);
+    expect(model.weeklyAllModels.percent).toBe(17);
+    expect(model.additionalLimits?.map((r) => [r.label, r.percent])).toEqual([
+      ["Gemini 4 Argon: Weekly", 7],
+      ["Claude and GPT Models: Weekly", 100],
+    ]);
+  });
+
+  it("hides a blank 5-hour figure while the weekly limit is spent instead of reporting it 100% used", () => {
+    const model = mapQuotaSummary(layout20261028(), USER_STATUS, NOW)!;
+    expect(model.additionalLimits?.some((r) => r.label === "Claude and GPT Models: Current Session")).toBe(false);
+  });
+
+  it("still reads a blank 5-hour figure as exhausted when the weekly limit is not spent", () => {
+    const raw = summary(1, 1, 0.5);
+    delete (raw.response.groups[1].buckets[1] as Record<string, unknown>).remainingFraction;
+    const model = mapQuotaSummary(raw, USER_STATUS, NOW)!;
+    expect(model.additionalLimits?.[0]).toMatchObject({ label: "Claude and GPT Models: Current Session", percent: 100 });
+  });
+
+  it("keeps an unclassified bucket visible under its own label instead of dropping it", () => {
+    const raw = summary() as { response: { groups: Record<string, unknown>[] } };
+    (raw.response.groups[0].buckets as Record<string, unknown>[]).push({ displayName: "Daily Burst Limit", window: "daily", remainingFraction: 0.4 });
+    const model = mapQuotaSummary(raw, USER_STATUS, NOW)!;
+    expect(model.additionalLimits).toContainEqual(expect.objectContaining({ label: "Gemini Models: Daily Burst Limit", percent: 60 }));
+  });
+
   it("returns null when no group carries a usable window", () => {
     expect(mapQuotaSummary({ response: { groups: [] } })).toBeNull();
     expect(mapQuotaSummary({ response: { groups: [{ displayName: "X", buckets: [{ window: "daily" }] }] } })).toBeNull();
