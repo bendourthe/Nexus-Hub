@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,16 @@ DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parent.parent / "references" / "last-known-model-map.json"
 )
 URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+MAX_CELL_CHARS = 100
+# `render` writes each cell into a Markdown table row inside a code span, so a pipe
+# starts a new column, a backtick ends the span, and a line break starts a new row.
+_CELL_FORBIDDEN = ("|", "`")
+# Control, format (zero-width and bidi overrides), and line or paragraph separators.
+_UNSAFE_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp"})
+
+
+def _has_unsafe_characters(value: str) -> bool:
+    return any(unicodedata.category(char) in _UNSAFE_CATEGORIES for char in value)
 
 
 class MapValidationError(ValueError):
@@ -109,6 +120,20 @@ def validate_map(data: Any) -> dict[str, Any]:
             model = row.get(provider)
             if not isinstance(model, str) or not model.strip():
                 raise MapValidationError(f"empty model cell: {tier}/{provider}")
+            # Checked on the raw value: strip() would hide a trailing newline.
+            if _has_unsafe_characters(model):
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} contains a control character or line break"
+                )
+            if any(char in model for char in _CELL_FORBIDDEN):
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} contains '|' or a backtick, "
+                    "which would break the rendered Markdown table"
+                )
+            if len(model) > MAX_CELL_CHARS:
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} is longer than {MAX_CELL_CHARS} characters"
+                )
             if model.strip() == ASSESS_LATER:
                 raise MapValidationError(
                     f"dated maps cannot defer a model cell: {tier}/{provider}"
@@ -130,6 +155,11 @@ def validate_map(data: Any) -> dict[str, Any]:
         if not has_valid_sources:
             raise MapValidationError(
                 f"sources for {provider} must contain at least one HTTP(S) URL"
+            )
+        # `render` joins these into one list line, so a break or space would split it.
+        if any(_has_unsafe_characters(url) or re.search(r"\s", url) for url in urls):
+            raise MapValidationError(
+                f"sources for {provider} must not contain whitespace or control characters"
             )
         normalized_sources[provider] = urls
 
