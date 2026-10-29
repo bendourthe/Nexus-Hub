@@ -93,6 +93,20 @@ Two repo-level scripts read this layer, and the split between them is deliberate
 
 Both are stdlib-only and make no network call. The freshness checker is handed a live roster on argv by its caller, which is what keeps the network dependency in the agent's own web tool rather than in a script.
 
+## Input rules
+
+Claim text is built from fetched page content, so the layer treats every rendered field as untrusted. `scripts/verify_model_prompting_profiles.py` enforces these rules on the index, and the bundle's `scripts/write_model_prompting_profile.py` enforces the same rules on a payload before it writes anything (the writer ships inside this skill and cannot import the repo-level validator, so both carry the same constants):
+
+| Field | Rule |
+|---|---|
+| `claim`, `note` | At most 1,000 characters, one line. No control, newline, zero-width, bidi, or line-separator character. No `\|` (it breaks the mirror table), no `<` (no HTML or autolink), no Markdown link (`](` or `][`). A bare URL (any `scheme://` token) is allowed only as `https` with no credentials or port on an allowlisted host (the `source_url` list below), because GitHub-flavored Markdown autolinks it; a `www.` address and an email shape are always refused. No instruction-override phrase (`ignore ... instructions`, `disregard ... rules`, `new instructions`), no role label (`system:`, `assistant:`, `developer:`), and no second-person directive (`you must`, `you should`, `you will`). Quoted example wording is allowed for the second-person check only, because shipped guidance cites phrases such as `'CRITICAL: You MUST use this tool'` as language to remove; the injection phrases are refused even inside quotes. Write the claim as a short paraphrase. |
+| `source_url` | `https` only, at most 2,048 characters, no whitespace, control, or link-breaking character, no credentials, no non-default port, and an exact hostname on the allowlist, matched after URL parsing so `ai.google.dev.evil.com` and `ai.google.dev@evil.com` fail. Allowlist: `ai.google.dev`, `aistudio.google.com`, `blog.google`, `cloud.google.com`, `docs.cloud.google.com`, `cursor.com`, `deploymentsafety.openai.com`, `developers.openai.com`, `platform.claude.com`, `www.anthropic.com`. |
+| model id (`models` key) | Becomes the file name `references/models/<id>.md`, so it matches `[a-z0-9][a-z0-9._-]{0,79}` and is not a Windows device name (`con`, `nul`, `com1`, ...). |
+| `platform` (model, `meta`, `meta.platforms[]`) | One of `antigravity`, `claude-code`, `codex`, `cursor`, `gemini`, `openai`. |
+| `roster` entries | At most 128 characters, no control character. A roster entry is not a file name, so a prefix such as `models/` is allowed. |
+
+Adding a vendor host, a platform, or a wider id shape is a deliberate edit to the constants in both scripts plus this table, so a fetched page can never widen what the layer accepts.
+
 ## Authoring notes for later phases
 
 - Multi-platform reads (schema 1.1.0): `write_model_prompting_profile.py plan --platform <id>` plans against that platform's entry; `check_model_prompting_freshness.py --platform <id> <live ids>` compares that entry's roster. Without `--platform` both read the legacy keys, so every 1.0.0 caller keeps working unchanged.

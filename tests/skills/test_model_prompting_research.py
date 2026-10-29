@@ -56,7 +56,7 @@ writer = _load_writer()
 def _claim(text: str = "Be explicit about the output shape.", **over) -> dict:
     base = {
         "claim": text,
-        "source_url": "https://vendor.example/docs/prompting",
+        "source_url": "https://platform.claude.com/docs/prompting",
         "confidence": "high",
         "scope": "model-specific",
     }
@@ -239,7 +239,7 @@ def test_write_regenerates_the_markdown_mirror(bundle: Path) -> None:
     assert "# Prompting Profile: model-a" in mirror
     assert "Number the steps explicitly." in mirror
     assert "`high`" in mirror and "`model-specific`" in mirror
-    assert "https://vendor.example/docs/prompting" in mirror
+    assert "https://platform.claude.com/docs/prompting" in mirror
     assert "Does not apply to shared bodies" in mirror
     assert "A claim's evidence can cover a model family" in mirror
 
