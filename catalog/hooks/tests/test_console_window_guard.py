@@ -449,3 +449,43 @@ def test_non_node_eval_search_pattern_is_not_a_javascript_launch(tmp_path: Path)
     write(tmp_path, "tests/test_embedded.py", "import subprocess\nsubprocess.run(['rg', '-e', " + repr(pattern) + "])\n")
     guard = runpy.run_path(str(HOOK))
     assert guard["scan"](tmp_path) == []
+
+
+# Scope: the scan follows the directory a command runs in, read-only commands that
+# merely name a script are not launches, and agent scratch under .tmp/ is not scanned.
+RISKY_LAUNCH = "import subprocess\nsubprocess.run(['git', 'status'])\n"
+
+
+@pytest.mark.parametrize("template", ['cd "{target}" && pytest', "cd {target} && pytest", 'Set-Location "{target}"; pytest'])
+def test_a_leading_directory_change_scans_the_target_project(tmp_path: Path, template: str) -> None:
+    session, target = tmp_path / "session", tmp_path / "target"
+    write(session, "tests/test_a.py", UNGUARDED_TEST)
+    write(target, "tests/test_a.py", "def test_x():\n    assert True\n")
+    command = template.format(target=str(target).replace("\\", "/"))
+    assert run_hook(session, command).returncode == 0, command
+    write(target, "src/launch.py", RISKY_LAUNCH)
+    result = run_hook(session, command)
+    assert result.returncode == 2 and "src/launch.py:" in result.stderr, command
+
+
+@pytest.mark.parametrize("command", [
+    "git show HEAD -- scripts/installer.sh scripts/installer.ps1",
+    "grep -n NEXUS_HUB_VERSION scripts/installer.sh",
+    "cat build.py",
+    "Get-Content scripts/setup.ps1 | Select-String Version",
+])
+def test_read_only_commands_naming_scripts_are_not_launches(tmp_path: Path, command: str) -> None:
+    write(tmp_path, "src/launch.py", RISKY_LAUNCH)
+    assert run_hook(tmp_path, command).returncode == 0, command
+
+
+@pytest.mark.parametrize("command", ["git status && python helper.py", "cat notes.txt; pytest", "git fetch && npm run build"])
+def test_a_launch_after_a_read_only_segment_is_still_guarded(tmp_path: Path, command: str) -> None:
+    write(tmp_path, "src/launch.py", RISKY_LAUNCH)
+    assert run_hook(tmp_path, command).returncode == 2, command
+
+
+def test_agent_scratch_under_dot_tmp_is_not_scanned(tmp_path: Path) -> None:
+    write(tmp_path, ".tmp/compare/fetch_screen.py", RISKY_LAUNCH)
+    write(tmp_path, "tests/test_a.py", "def test_x():\n    assert True\n")
+    assert run_hook(tmp_path, "pytest").returncode == 0
