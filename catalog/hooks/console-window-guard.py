@@ -46,7 +46,24 @@ SKIP_DIRS = {
     ".git", "node_modules", ".venv", "venv", "env", "__pycache__", ".tox", ".nox", ".mypy_cache",
     ".pytest_cache", ".ruff_cache", "dist", "build", "out", "target", "bin", "obj", "coverage",
     ".next", ".nuxt", "vendor", "site-packages", ".gradle", ".idea", ".vscode-test",
+    ".tmp",  # agent and comparison scratch; nothing a test, build or installer run executes
 }
+
+# A command segment that starts with one of these only reads or prints, so a script
+# name in its arguments (`git show -- scripts/installer.sh`) is not a launch.
+READ_ONLY_PROGRAMS = {
+    "git", "gh", "cat", "head", "tail", "grep", "rg", "ls", "wc", "diff", "cmp", "echo", "printf",
+    "sha256sum", "stat", "file", "cut", "sort", "uniq", "tr",
+    "get-content", "gc", "select-string", "get-childitem", "gci", "test-path", "get-item",
+    "write-output", "write-host", "out-string", "measure-object", "select-object",
+}
+SEGMENT_SPLIT = re.compile(r"&&|\|\||[;|\n]")
+# A command that starts by entering a directory runs there, not in the session folder.
+LEADING_CD = re.compile(
+    r"^\s*(?:cd|pushd|Set-Location|Push-Location|sl)\s+(?:-(?:Literal)?Path\s+)?"
+    r"(\"[^\"]+\"|'[^']+'|[^\s;&|]+)\s*(?:&&|;|\r?\n)",
+    re.IGNORECASE,
+)
 
 TEST_COMMAND = re.compile(
     r"(?:^|[\s;&|(`'\"/\\])(?:"
@@ -119,9 +136,41 @@ def _on_windows() -> bool:
     return os.environ.get("NEXUS_CONSOLE_GUARD_PLATFORM", os.name) == "nt"
 
 
+def _read_only(segment: str) -> bool:
+    words = segment.strip().lstrip("(&").split()
+    if not words:
+        return True
+    program = words[0].strip("\"'").replace("\\", "/").rsplit("/", 1)[-1].lower()
+    return program.removesuffix(".exe") in READ_ONLY_PROGRAMS
+
+
 def is_test_command(command: str) -> bool:
     normalized = re.sub(r"\b(npm|pnpm|yarn|bun)\.cmd\b", r"\1", command or "", flags=re.IGNORECASE).replace("\\", "/")
-    return bool(TEST_COMMAND.search(normalized) or BUILD_COMMAND.search(normalized))
+    for segment in SEGMENT_SPLIT.split(normalized):
+        if _read_only(segment):
+            continue
+        if TEST_COMMAND.search(segment) or BUILD_COMMAND.search(segment):
+            return True
+    return False
+
+
+def effective_cwd(command: str, cwd: Path) -> Path:
+    """The directory a command runs in when it starts by entering one (`cd X && ...`, `Set-Location X; ...`)."""
+    match = LEADING_CD.match(command or "")
+    if not match:
+        return cwd
+    raw = match.group(1).strip("\"'")
+    drive = re.match(r"^/([A-Za-z])/(.*)$", raw)  # Git Bash form of a Windows path
+    if drive:
+        raw = f"{drive.group(1)}:/{drive.group(2)}"
+    target = Path(os.path.expanduser(raw))
+    if not target.is_absolute():
+        target = cwd / target
+    try:
+        target = target.resolve()
+    except OSError:
+        return cwd
+    return target if target.is_dir() else cwd
 
 
 def project_root(cwd: Path) -> Path:
@@ -555,10 +604,11 @@ def main() -> int:
     command = str(tool_input.get("command") or tool_input.get("cmd") or "")
     if not is_test_command(command):
         return 0
-    root = project_root(Path(payload.get("cwd") or os.getcwd()).resolve())
+    cwd = effective_cwd(command, Path(payload.get("cwd") or os.getcwd()).resolve())
+    root = project_root(cwd)
     incomplete: list[bool] = [False]
     findings = scan(root, incomplete)
-    findings.extend(external_python_findings(command, root, Path(payload.get("cwd") or os.getcwd()).resolve()))
+    findings.extend(external_python_findings(command, root, cwd))
     if not findings:
         if incomplete[0]:
             print(f"console-window-guard: scan stopped after {_budget():g}s with no unsafe launch found so far; "

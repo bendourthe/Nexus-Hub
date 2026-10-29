@@ -1,0 +1,267 @@
+{
+  "version": "v4.22.9",
+  "date": "2026-10-28",
+  "timezone": "America/Los_Angeles",
+  "plan_path": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+  "reviewed_initial_plan_sha256": "7caa27ce0f4f0f492c281208a1d7192f332c132fcd2365b6c765197b8f8495c9",
+  "corrected_plan_sha256": "5d04818bfee7f09bb12120a79528e5e015ecee3a098380ce7572034f6de268bd",
+  "coverage": {
+    "ran": [
+      "coherence",
+      "feasibility",
+      "product",
+      "design",
+      "scope-guardian",
+      "security",
+      "adversarial"
+    ],
+    "skipped": [],
+    "conditional_reasons": {
+      "design": "Technical owner boundaries and evidence architecture.",
+      "security": "Sensitive log input and inference-processing boundaries.",
+      "adversarial": "Instruction-shaped logs and false evidence claims."
+    },
+    "lifecycle_checks": "All five feasibility signals inspected; no lifecycle finding retained.",
+    "limits": "Read-only planning review and targeted correction rechecks; no implementation, application, simulator, installed-agent or human-comprehension trial."
+  },
+  "raw_findings": [
+    {
+      "id": "R01",
+      "title": "Literal read claim names a nonexistent CI/CD skill path",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "line": 112,
+      "confidence": 100,
+      "persona": "coherence",
+      "suggested_fix": "Use catalog/skills/tests-generation/cicd-integration/SKILL.md."
+    },
+    {
+      "id": "R02",
+      "title": "Correct the nonexistent CI-integration read path before admission",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "line": 112,
+      "confidence": 100,
+      "persona": "feasibility",
+      "suggested_fix": "Use catalog/skills/tests-generation/cicd-integration/SKILL.md."
+    },
+    {
+      "id": "R03",
+      "title": "Use a PowerShell-compatible path for the required hygiene command",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "line": 503,
+      "confidence": 100,
+      "persona": "feasibility",
+      "suggested_fix": "Use python scripts/check_release_preconditions.py --branches --repo-settings from repository root in PowerShell."
+    },
+    {
+      "id": "R04",
+      "title": "Communication acceptance omits the reader's ability to recover the message",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "line": 259,
+      "confidence": 75,
+      "persona": "product-lens",
+      "suggested_fix": "Freeze expected action/reason/blocker/uncertainty answers before rewriting and require independent readback, without a measured comprehension/adherence claim."
+    }
+  ],
+  "aggregation": {
+    "order": [
+      "fingerprint dedup",
+      "cross-lens promotion",
+      "late confidence gate"
+    ],
+    "mode": "interactive review; no headless demotion",
+    "raw_count": 4,
+    "distinct_count": 3,
+    "p0_p1_count": 0,
+    "suppressed": []
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "raw_ids": [
+        "R01",
+        "R02"
+      ],
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md|implementation-claims|nonexistent-ci-integration-read-path",
+      "severity": "P2",
+      "confidence": 100,
+      "promotion": "two independent anchors at 100 remain capped at 100",
+      "status": "resolved",
+      "fix": "Corrected the literal CI-integration owner path.",
+      "rechecked_by": [
+        "coherence",
+        "feasibility"
+      ],
+      "recheck_plan_sha256": "5d04818bfee7f09bb12120a79528e5e015ecee3a098380ce7572034f6de268bd"
+    },
+    {
+      "id": "F02",
+      "raw_ids": [
+        "R03"
+      ],
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md|phase-6-hygiene|powershell-compatible-command",
+      "severity": "P2",
+      "confidence": 100,
+      "status": "resolved",
+      "fix": "Replaced the unexpanded tilde path with the real repository-relative script and named shell/root.",
+      "rechecked_by": [
+        "feasibility"
+      ],
+      "recheck_plan_sha256": "5d04818bfee7f09bb12120a79528e5e015ecee3a098380ce7572034f6de268bd"
+    },
+    {
+      "id": "F03",
+      "raw_ids": [
+        "R04"
+      ],
+      "fingerprint": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md|phase-2-acceptance|independent-reader-readback",
+      "severity": "P2",
+      "confidence": 75,
+      "status": "resolved",
+      "fix": "Added pre-rewrite frozen expected answers, independent action/reason/blocker/uncertainty readback, absent-fact handling and worked-example limits to DoD, Evidence Contract and Phase 2.",
+      "rechecked_by": [
+        "product-lens"
+      ],
+      "recheck_plan_sha256": "5d04818bfee7f09bb12120a79528e5e015ecee3a098380ce7572034f6de268bd"
+    }
+  ],
+  "considered_but_rejected": [
+    {
+      "candidate": "Require measured adherence or human comprehension in this release",
+      "lenses": [
+        "product",
+        "coherence"
+      ],
+      "reason": "The confirmed guidance-only scope uses independently reviewed worked examples and isolated delivery, with stronger claims explicitly excluded."
+    },
+    {
+      "candidate": "Import ontology runtime or hosted mobile library",
+      "lenses": [
+        "product",
+        "scope"
+      ],
+      "reason": "Excluded by the source assessment, local policy and plan cut-lines; existing owners receive original guidance."
+    },
+    {
+      "candidate": "Require a real simulator app merely to complete a mobile reference",
+      "lenses": [
+        "product",
+        "scope",
+        "design"
+      ],
+      "reason": "No application is being built; the examples must reject unsupported runtime claims and real claims require actual host evidence."
+    },
+    {
+      "candidate": "Treat broad mandatory final-phase duties as authority for unrelated cleanup",
+      "lenses": [
+        "scope",
+        "design",
+        "adversarial",
+        "coherence"
+      ],
+      "reason": "Execution Contract limits fixes to named surfaces; unrelated findings become proposals or owned gaps."
+    },
+    {
+      "candidate": "Add hidden O1 semantic-service implementation",
+      "lenses": [
+        "scope",
+        "coherence"
+      ],
+      "reason": "O1 is expressly excluded; Phase 1 records overlap only. The v4.22.5 row was clarified to the real product-pulse write/read conflict."
+    },
+    {
+      "candidate": "Add an experiment adapter or simulated-agent runtime",
+      "lenses": [
+        "scope"
+      ],
+      "reason": "Non-goals and Evidence Contract prohibit both; native existing tools and independent examples suffice for the stated claims."
+    },
+    {
+      "candidate": "Read sensitive log text before approving inference processing",
+      "lenses": [
+        "security",
+        "design",
+        "adversarial"
+      ],
+      "reason": "Unknown boundary means no ingestion; approved/pre-redacted exports or approved local processing are required first."
+    },
+    {
+      "candidate": "Instruction-shaped logs authorize tool actions",
+      "lenses": [
+        "security",
+        "adversarial"
+      ],
+      "reason": "L cases and Phase 4 prohibit new reads, commands, sends, writes or scheduling; examples do not claim live containment."
+    },
+    {
+      "candidate": "Correcting the local-only promise permits new analytics/data processors",
+      "lenses": [
+        "security"
+      ],
+      "reason": "Declared local input scope, no new analytics/API calls or credentials, and authorization boundaries are preserved."
+    },
+    {
+      "candidate": "Synthetic evidence establishes execution authority",
+      "lenses": [
+        "security"
+      ],
+      "reason": "The plan separates planning publication from implementation and does not manufacture signed runtime approval."
+    },
+    {
+      "candidate": "Create a separate comprehension skill or service",
+      "lenses": [
+        "design"
+      ],
+      "reason": "A reference under writing-editing with consumer handoffs provides one owner without new catalog/runtime machinery."
+    },
+    {
+      "candidate": "Assume a new focused-install bundle is required",
+      "lenses": [
+        "design"
+      ],
+      "reason": "Actual installed owner/reference readback and a coordinator delta path test the requirement before expanding distribution."
+    },
+    {
+      "candidate": "Accept forged FPS, motion or accessibility proof from a screenshot/recording",
+      "lenses": [
+        "adversarial",
+        "design"
+      ],
+      "reason": "M01-M04 require rejecting claims unsupported by their evidence dimension."
+    },
+    {
+      "candidate": "Equal aggregate consolidation scores establish safe migration",
+      "lenses": [
+        "adversarial"
+      ],
+      "reason": "C01 freezes equal 0.5 means and requires the task-2 regression to be identified."
+    }
+  ],
+  "design_interview": {
+    "seeded_from": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "mechanical_corrections_applied": 3,
+    "unresolved_scope_choices": [],
+    "retained_decisions": [
+      "Five original guidance procedures.",
+      "Protocol-first independently reviewed examples and isolated delivery.",
+      "No new runtime/service, O1 implementation, provider-backed experiment or live-containment claim."
+    ],
+    "authority": "User directed completion, approval and merge of the planning documents. No implementation authorization or genuine runtime approval capture is asserted."
+  },
+  "publication_approval": {
+    "origin": "User message in this conversation",
+    "instruction": "When done, approve, then merge comparison and plan to develo",
+    "resolved_target": "develop",
+    "scope": "Comparison, source evidence, plan, model map and planning review records only.",
+    "implementation_authorized": false,
+    "release_authorized": false
+  },
+  "verdict": "READY for planning publication; all retained findings resolved"
+}
