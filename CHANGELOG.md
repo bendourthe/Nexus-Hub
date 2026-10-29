@@ -9,12 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.3] - 2026-10-29
+
 ### Added
 
 - Gemini 4 Argon prompting guidance joins its existing Google routing placement, with separate API and Cloud claims and a provider-neutral fallback to the same provider's strong tier when frontier access is unavailable.
-- The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging.
+- The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging. A re-check of openai/codex at `2681f8cba` settles the delivered case: Codex's own test asserts that an invoked plain user skill body above 8,000 bytes reaches the model in full, so Nexus-Hub's skills are not truncated when invoked. The contract also records an unmeasured risk that Codex's up-front skill list, which has a size budget, may omit part of the 340-skill catalog from automatic selection.
 
 ### Changed
+
+- The platform read-contract records the 2026-10-29 re-verification for v4.14.3: first-party documentation for all 14 machine-contract platforms plus the Hermes, Aider and Antigravity 1.0 rows was re-fetched, giving 60 MATCH, 10 DRIFT and 5 UNVERIFIED across 75 rows enumerated by platform and surface. Every drift and unverified finding is the same as v4.14.2 and remains additive or already tracked (AR-35, DF-2). Nothing that Nexus-Hub installs changes.
+- **The Gemini roster follows Google's live model list.** The prompting-profile writer treats the roster enumerated from the vendor API as the current membership, so a profile for a model Google no longer lists (today `gemini-3.7-flash`) is kept as history instead of being forced back into the roster.
+- **The model map was re-verified against all four providers on 2026-10-29.** Anthropic, OpenAI, Google and Cursor were re-read from their official pages; every cell and tier placement is unchanged, `verified_as_of` moves to 2026-10-29, and the Training page stamp follows. OpenAI's new `gpt-6.1-terra` is recorded but not placed.
 
 - **The guide's token demo now uses American spelling too.** It kept the British spelling because its chips are the verified `cl100k_base` split of that exact word. Re-tokenized with the published `cl100k_base` vocabulary (checked against tiktoken's pinned SHA-256), "Summarize this contract and list every deadline." is still ten tokens and "Summarize" still costs three (`Sum`, `mar`, `ize`), so only the third chip changes and the teaching point holds. The opening figure, which makes no tokenizer claim, changes the same word and chip.
 

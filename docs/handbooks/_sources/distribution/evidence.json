@@ -17,8 +17,8 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "63c3e11fd638ddf09d3ff6dc101d3feedde7443088d4f2e06e267cb09ab742af",
-      "scripts/installer.sh": "29d6cc791394d8b1ea5b7e07d35b60c226680af04e6e0a589ea19143ab919c09",
+      "scripts/installer.ps1": "503949ca3f1662aeda021abda80981a12a179d58f40a8c2939aef8b44a02082c",
+      "scripts/installer.sh": "5f645380b5077be2ca330485076c5c2f71676a4f5517031de33187ed315bf8bb",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/antigravity-launcher-probe-handbook-review.md",
-      "evidence_sha256": "67c905154120d5a263a5f749d9e20af9bb5c2e0abedff786f02c700962047af4"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.3-distribution-release-version-review.md",
+      "evidence_sha256": "44ed3a088ffe1609b734365b04c2e7a996797bea572f5420df32ae1a108ad7de"
     },
     "build": {
       "status": "pass",
