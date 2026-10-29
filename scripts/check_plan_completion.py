@@ -1057,6 +1057,13 @@ def conditional_request(ctx: Context, record: dict, request: object) -> dict:
                 else:
                     protected.update(_conditional_path(candidate) for candidate in tracked if candidate.rsplit("/", 1)[-1] == path)
         hashes[tid] = hashlib.sha256(block.encode()).hexdigest()
+    # A task may cite its trial result. Bound immutable release captures are proof,
+    # not unchanged application inputs; the evidence checks below still apply.
+    protected.difference_update(
+        item["path"] for item in evidence if isinstance(item, dict)
+        and isinstance(item.get("path"), str)
+        and item["path"].startswith(active.removesuffix("plans/") + "development/")
+    )
     approvals = record.get("approvals") or {}
     if _approved_remote_status(ctx, record) != "met":
         raise ValueError("conditional outcome remote cannot be verified")

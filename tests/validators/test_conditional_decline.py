@@ -18,7 +18,7 @@ import completion_minor as cm
 
 
 @pytest.fixture
-def decline(tmp_path, monkeypatch):
+def decline(tmp_path, monkeypatch, request):
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(tmp_path / "empty-config"))
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     work, remote = tmp_path / "work", tmp_path / "remote.git"
@@ -35,10 +35,12 @@ def decline(tmp_path, monkeypatch):
     git("config", "user.email", "test@example.invalid")
     plan = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
     evidence = "docs/releases/v0/v0.2/development/result.json"
+    proof_reference = " Cite `result.json`." if getattr(request, "param", False) else ""
     text = (
         "# Plan\n\n**Version**: v0.2.0\n**Slug**: demo\n\n## Phase 1\n\n"
         "- [x] T001 Admit candidate src/catalog.json\n\n**Prompt**:\n"
-        "> Run only if at least one slot passed every gate. Update `src/catalog.json`.\n\n"
+        "> Run only if at least one slot passed every gate. Update `src/catalog.json`."
+        f"{proof_reference}\n\n"
         "- [x] T002 Record decision docs/decision.md\n\n**Prompt**:\n"
         "> On a full decline, stop after the merge: no tag, per the owner's release decision.\n"
     )
@@ -161,6 +163,13 @@ def test_decline_cannot_hide_changed_catalog(decline):
         ck.conditional_request(decline.ctx, decline.view, decline.request)
 
 
+@pytest.mark.parametrize("decline", [True], indirect=True)
+def test_bound_release_proof_is_not_an_unchanged_application_input(decline):
+    assert "Cite `result.json`" in decline.ctx.text
+    result = ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert result["protected_paths"] == ["src/catalog.json"]
+
+
 @pytest.mark.parametrize("state", ["unmet", "cannot-verify"])
 def test_decline_keeps_remote_and_green_check_requirements(decline, monkeypatch, state):
     monkeypatch.setattr(ck, "_pr_checks", lambda *a: state)
@@ -200,6 +209,7 @@ def test_index_removal_cannot_hide_a_protected_basename(decline):
     decline.ctx.text = decline.ctx.text.replace(
         "Update `src/catalog.json`.", "Update `src/catalog.json` and `binding.json`."
     )
+    assert "`binding.json`" in decline.ctx.text
     decline.request["plan_sha256"] = decline.ctx.plan_hash()
     decline.view["plan_sha256"] = decline.ctx.plan_hash()
     decline.git("rm", "--cached", "-q", "src/binding.json")
