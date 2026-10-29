@@ -263,7 +263,15 @@ def test_shipped_rosters_are_split_by_platform(runner) -> None:
     assert [m for m in meta["roster"] if not m.startswith("claude-")] == []
     rosters = {e["platform"]: e["roster"] for e in meta["platforms"]}
     rosters[meta["platform"]] = meta["roster"]
-    misplaced = [m for m, e in index["models"].items() if m not in rosters.get(e["platform"], [])]
+    # An API-enumerated roster is the authoritative LIVE membership (v4.14.3): a profile for a
+    # model the vendor no longer lists stays as history. Every other roster must hold all of
+    # its platform's profiled models.
+    live_sources = {e["platform"] for e in meta["platforms"] if e.get("roster_source") == "api"}
+    misplaced = [
+        m
+        for m, e in index["models"].items()
+        if m not in rosters.get(e["platform"], []) and e["platform"] not in live_sources
+    ]
     assert misplaced == []
     for entry in meta["platforms"]:
         result = runner(SCRIPT, REPO_ROOT, ["--platform", entry["platform"], *entry["roster"]])
