@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.14.2"
+NEXUS_HUB_VERSION="4.14.3"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -542,6 +542,25 @@ merge_managed_claude_hooks() {
                         hook_stem == ($candidate | hook_stem)
                     )
                 );
+            # Retired managed hooks (completion-gate Stop handler, removed from the
+            # defaults 2026-10-28). Only a handler whose command points at a hooks
+            # directory entry named completion-gate is Nexus-Hub-owned; user hooks stay.
+            def retired: ((.command // "") | test("[/\\\\]hooks[/\\\\]completion-gate\\.(sh|ps1)"));
+            def drop_retired:
+                [ .[] |
+                    if any((.hooks // [])[]; retired) then
+                        (.hooks |= map(select(retired | not))) | select(.hooks | length > 0)
+                    else . end
+                ];
+            def retire_hooks:
+                if (.hooks | type) == "object" then
+                    .hooks |= with_entries(
+                        . as $e |
+                        (if ($e.value | type) == "array" then ($e.value | drop_retired) else $e.value end) as $n |
+                        if ($e.value | type) == "array" and $n == [] and $e.value != [] then empty
+                        else .value = $n end
+                    )
+                else . end;
             .[0] as $existing | .[1] as $template |
             reduce (($template.hooks // {}) | to_entries[]) as $event (
                 ($existing |
@@ -558,7 +577,7 @@ merge_managed_claude_hooks() {
                         end
                     )
                 )
-            )
+            ) | retire_hooks
         ' "$settings_file" "$template_file" 2>/dev/null
         return
     fi
@@ -591,6 +610,39 @@ def hook_stem(hook):
         raise ValueError("managed hook command must be a string")
     matches = list(HOOK_STEM_PATTERN.finditer(command))
     return matches[-1].group("stem") if matches else command
+
+
+# Retired managed hooks (completion-gate Stop handler, removed from the defaults
+# 2026-10-28). Only a handler whose command points at a hooks directory entry named
+# completion-gate is Nexus-Hub-owned; user hooks stay.
+RETIRED_HOOK_PATTERN = re.compile(r"[/\\]hooks[/\\]completion-gate\.(?:sh|ps1)")
+
+
+def is_retired(hook):
+    command = hook.get("command") if isinstance(hook, dict) else None
+    return isinstance(command, str) and RETIRED_HOOK_PATTERN.search(command) is not None
+
+
+def retire_hooks(hooks):
+    for event, entries in list(hooks.items()):
+        if not isinstance(entries, list):
+            continue
+        touched = False
+        kept = []
+        for entry in entries:
+            handlers = entry.get("hooks") if isinstance(entry, dict) else None
+            if isinstance(handlers, list) and any(is_retired(h) for h in handlers):
+                touched = True
+                entry = dict(entry)
+                entry["hooks"] = [h for h in handlers if not is_retired(h)]
+                if not entry["hooks"]:
+                    continue
+            kept.append(entry)
+        if touched:
+            if kept:
+                hooks[event] = kept
+            else:
+                del hooks[event]
 
 
 def hook_exists(hooks, event, matcher, candidate):
@@ -644,6 +696,7 @@ try:
                 new_entry["hooks"] = [candidate]
                 event_hooks.append(new_entry)
 
+    retire_hooks(hooks)
     json.dump(existing, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")
 except (OSError, TypeError, ValueError) as error:
@@ -2529,27 +2582,37 @@ install_vscode_extensions() {
     # cannot install a VSIX. Recent builds name the launcher antigravity-ide and
     # older ones antigravity; both installs share ~/.antigravity-ide, so either
     # puts the monitor where the running IDE reads it. The macOS bundle paths are
-    # best-effort fallbacks behind the PATH lookup.
+    # best-effort fallbacks behind the PATH lookup. Two installs can coexist and
+    # a stale launcher can sit first on PATH, so every candidate that exists is
+    # listed in order (PATH hits, then known paths) and the first one that
+    # answers `--version` is chosen later, under the GOOGLE header.
     local antigravity_cli=""
     local antigravity_label="Antigravity"
-    if command -v antigravity-ide >/dev/null 2>&1; then
-        antigravity_cli="antigravity-ide"
-    elif command -v antigravity >/dev/null 2>&1; then
-        antigravity_cli="antigravity"
-    else
-        local antigravity_candidate
-        for antigravity_candidate in \
-            "/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
-            "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity-ide" \
-            "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity" \
-            "$HOME/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
-            "$HOME/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity"; do
-            if [ -x "$antigravity_candidate" ]; then
-                antigravity_cli="$antigravity_candidate"
-                break
-            fi
-        done
-    fi
+    local antigravity_candidates=()
+    local antigravity_seen=""
+    local antigravity_name antigravity_hit antigravity_candidate
+    for antigravity_name in antigravity-ide antigravity; do
+        if command -v "$antigravity_name" >/dev/null 2>&1; then
+            antigravity_candidates+=("$antigravity_name")
+            antigravity_hit="$(command -v "$antigravity_name")"
+            antigravity_seen="${antigravity_seen}|${antigravity_hit}|"
+        fi
+    done
+    for antigravity_candidate in \
+        "/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
+        "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity-ide" \
+        "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity" \
+        "$HOME/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
+        "$HOME/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity"; do
+        # A PATH hit that resolves to a known path is already listed; probing it
+        # twice would only double the wait when a launcher hangs.
+        case "$antigravity_seen" in
+            *"|${antigravity_candidate}|"*) continue ;;
+        esac
+        if [ -x "$antigravity_candidate" ]; then
+            antigravity_candidates+=("$antigravity_candidate")
+        fi
+    done
 
     # Build each extension under its own vendor header. The Claude, Codex, and
     # Copilot monitors install only via vscode_cli (Copilot is not installed in
@@ -2571,6 +2634,9 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
 
     write_header "GOOGLE"
+    # ${arr[@]+...} keeps an empty candidate list safe on bash 3.2 if `set -u` is ever enabled.
+    select_working_launcher "$antigravity_label" 30 ${antigravity_candidates[@]+"${antigravity_candidates[@]}"}
+    antigravity_cli="$selected_launcher"
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
 }
 
@@ -2603,6 +2669,37 @@ run_with_timeout() {
         return 124
     fi
     return "$rc"
+}
+
+# Choose the first launcher among "$3...", in order, whose `--version` exits 0
+# within $2 seconds, and leave it in the global selected_launcher (empty when
+# none works). $1 is the display name for notes. A launcher that exists but
+# cannot start (for example an Electron launcher whose V8 binary and snapshot
+# come from different builds) is named in a note and skipped, so a stale PATH
+# entry cannot hide a working install. A global, not $(...), carries the answer
+# so the notes reach the terminal instead of being captured.
+selected_launcher=""
+select_working_launcher() {
+    local display_name="$1" probe_timeout="$2"
+    shift 2
+    local candidate probe_log probe_rc
+    selected_launcher=""
+    for candidate in "$@"; do
+        probe_log="$(mktemp)"
+        probe_rc=0
+        run_with_timeout "$probe_timeout" "$probe_log" "$candidate" --version || probe_rc=$?
+        rm -f "$probe_log"
+        if [ "$probe_rc" -eq 0 ]; then
+            selected_launcher="$candidate"
+            return 0
+        fi
+        if [ "$probe_rc" -eq 124 ]; then
+            write_item "Skipping ${display_name} launcher \"${candidate}\": did not answer --version within ${probe_timeout}s." "$YELLOW"
+        else
+            write_item "Skipping ${display_name} launcher \"${candidate}\": --version exited with status ${probe_rc}." "$YELLOW"
+        fi
+    done
+    return 0
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by

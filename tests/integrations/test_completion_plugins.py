@@ -1,10 +1,12 @@
-"""Completion-gate plugins for OpenCode, OpenClaw, Pi, and Hermes (v4.13.2 Phase 5).
+"""Completion-gate plugins for OpenCode, OpenClaw, Pi, and Hermes (opt-in since 2026-10-28).
 
 Two kinds of evidence:
 
-  * placement: each integration installs its plugin user-global, only when the
-    platform is detected, never with NEXUS_HUB_COMPLETION_PLUGINS=0, and as
-    manifest-owned files that teardown removes;
+  * placement: a default install writes nothing and retires a plugin an earlier
+    install left behind (manifest-owned files only); with
+    NEXUS_HUB_COMPLETION_PLUGINS=1 each integration installs its plugin
+    user-global, only when the platform is detected, as manifest-owned files that
+    teardown removes;
   * behavior: each plugin is EXECUTED against a stub gate core in a throwaway
     home (TypeScript plugins under Node when it is available, Hermes under
     Python) and must continue exactly when the core says so, through that
@@ -78,8 +80,8 @@ def _env(home: Path, **extra: str) -> dict[str, str]:
         ("opencode", ".config/opencode", ".config/opencode/plugins/nexus-completion-gate.ts"),
     ],
 )
-def test_detected_platform_gets_the_plugin_and_teardown_removes_it(tmp_path: Path, monkeypatch, key, detect, dest) -> None:
-    monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+def test_opted_in_platform_gets_the_plugin_and_teardown_removes_it(tmp_path: Path, monkeypatch, key, detect, dest) -> None:
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
     (tmp_path / detect).mkdir(parents=True)
     ctx = _ctx(tmp_path)
     get(key).install(ctx)
@@ -94,15 +96,69 @@ def test_absent_platform_gets_no_executable_code(tmp_path: Path, key: str, dest:
     assert not list(tmp_path.rglob("nexus-completion-gate*"))
 
 
-def test_opt_out_writes_nothing(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "0")
-    (tmp_path / ".pi").mkdir()
-    get("pi").install(_ctx(tmp_path))
+@pytest.mark.parametrize("value", [None, "", "0", "true"])
+@pytest.mark.parametrize(
+    ("key", "detect"), [("pi", ".pi"), ("hermes", ".hermes"), ("opencode", ".config/opencode")]
+)
+def test_default_install_writes_no_plugin(tmp_path: Path, monkeypatch, key: str, detect: str, value) -> None:
+    if value is None:
+        monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    else:
+        monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", value)
+    (tmp_path / detect).mkdir(parents=True)
+    get(key).install(_ctx(tmp_path))
     assert not list(tmp_path.rglob("nexus-completion-gate*"))
 
 
-def test_openclaw_plugin_layout_and_setup_note(tmp_path: Path, monkeypatch) -> None:
+@pytest.mark.parametrize(
+    ("key", "detect", "dest"),
+    [
+        ("pi", ".pi", ".pi/agent/extensions/nexus-completion-gate.ts"),
+        ("hermes", ".hermes", ".hermes/plugins/nexus-completion-gate/__init__.py"),
+        ("opencode", ".config/opencode", ".config/opencode/plugins/nexus-completion-gate.ts"),
+    ],
+)
+def test_default_install_retires_a_plugin_an_earlier_install_wrote(
+    tmp_path: Path, monkeypatch, key: str, detect: str, dest: str
+) -> None:
+    (tmp_path / detect).mkdir(parents=True)
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    ctx = _ctx(tmp_path)
+    get(key).install(ctx)
+    plugin = tmp_path / dest
+    assert plugin.is_file()
+    # The next install (a different process, same manifest) runs with the new default.
     monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    result = get(key).install(ctx)
+    assert not plugin.exists()
+    assert str(plugin) not in ctx.manifest.files_for(key)
+    assert any(f.action == "removed" and f.path == str(plugin) for f in result.files)
+    if plugin.parent.name == "nexus-completion-gate":
+        assert not plugin.parent.exists(), "the plugin directory is dropped when emptied"
+
+
+def test_retirement_never_removes_a_plugin_the_user_placed(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    (tmp_path / ".pi" / "agent" / "extensions").mkdir(parents=True)
+    mine = tmp_path / ".pi" / "agent" / "extensions" / "nexus-completion-gate.ts"
+    mine.write_text("// my own extension", encoding="utf-8")
+    get("pi").install(_ctx(tmp_path))
+    assert mine.read_text(encoding="utf-8") == "// my own extension"
+
+
+@pytest.mark.parametrize(("key", "detect"), [("hermes", ".hermes")])
+def test_retirement_tells_the_user_to_drop_the_platform_enablement(tmp_path: Path, monkeypatch, key, detect) -> None:
+    (tmp_path / detect).mkdir(parents=True)
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    ctx = _ctx(tmp_path)
+    get(key).install(ctx)
+    monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    result = get(key).install(ctx)
+    assert any("enabled in the" in n and "nexus-completion-gate" in n for n in result.notes)
+
+
+def test_openclaw_plugin_layout_and_setup_note(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
     result = WriteResult()
     dest = tmp_path / ".openclaw" / "extensions" / "nexus-completion-gate"
     install_completion_plugin(OpenClawIntegration(), _ctx(tmp_path), "openclaw", dest, result)
@@ -111,6 +167,19 @@ def test_openclaw_plugin_layout_and_setup_note(tmp_path: Path, monkeypatch) -> N
     assert manifest["id"] == "nexus-completion-gate" and "configSchema" in manifest
     assert json.loads((dest / "package.json").read_text(encoding="utf-8"))["openclaw"]["extensions"] == ["./index.ts"]
     assert any("openclaw plugins enable nexus-completion-gate" in n for n in result.notes)
+
+
+def test_openclaw_default_install_retires_the_plugin_directory(tmp_path: Path, monkeypatch) -> None:
+    dest = tmp_path / ".openclaw" / "extensions" / "nexus-completion-gate"
+    ctx = _ctx(tmp_path)
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    install_completion_plugin(OpenClawIntegration(), ctx, "openclaw", dest, WriteResult())
+    assert dest.is_dir()
+    monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    result = WriteResult()
+    install_completion_plugin(OpenClawIntegration(), ctx, "openclaw", dest, result)
+    assert not dest.exists()
+    assert any("enabled in the" in n for n in result.notes)
 
 
 def test_openclaw_install_global_wires_the_plugin() -> None:

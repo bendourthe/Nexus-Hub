@@ -144,7 +144,7 @@ Full parity. All categories (file reads, search, web fetch with domain scoping, 
 
 Nexus-Hub's installed Codex profile is read-only. `approval_policy = "on-request"` does not grant writes, and installed non-managed hooks do not run until the user reviews and trusts them. A full `/implement` run needs both steps below; leave the profile read-only when you only want analysis. Codex does not support per-command Bash allowlisting at the config level. See the [Codex hook trust](https://learn.chatgpt.com/docs/hooks) and [filesystem permissions](https://learn.chatgpt.com/docs/permissions) references.
 
-1. Start Codex in the target project and run `/hooks`. Inspect and trust each Nexus-Hub hook needed for the run, including the approval capture and completion gate. Repeat the review after a hook changes; Codex binds trust to the hook definition. Do not use the hook-trust bypass as a substitute for review.
+1. Start Codex in the target project and run `/hooks`. Inspect and trust each Nexus-Hub hook needed for the run, including the approval capture. Repeat the review after a hook changes; Codex binds trust to the hook definition. Do not use the hook-trust bypass as a substitute for review.
 2. If you authorize a full implementation, identify the exact project and Git paths before editing the existing `[permissions.default.filesystem]` table in `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows). Run the following commands inside the target project:
 
     ```text

@@ -3266,6 +3266,9 @@ class MemberResult:
     gate: str = "n/a"  # member.gate: met | n/a | unmet | cannot-verify
     lines: list[tuple[str, str]] = field(default_factory=list)
     exhausted: bool = False
+    # The member's own share ran out mid-evaluation (WN-28): lookups past it read
+    # cannot-verify, which is an unverified answer, not an incomplete member.
+    share_exhausted: bool = False
 
 
 @dataclass
@@ -3441,6 +3444,7 @@ def evaluate_member(
         ctx, status, _retired = _worker_context(ck, rctx, record, member, budget)
         identity = [("implementation.identity", status)]
         if ctx is None or status != "met":
+            result.share_exhausted = budget.remaining() <= 0
             result.lines = identity
             result.status = "unmet" if status == "unmet" else "cannot-verify"
             return result
@@ -3452,7 +3456,11 @@ def evaluate_member(
         results.append(("archive.member", archive_member_status(ck, rctx, record, member)))
     notices.extend(f"{version}: {n}" for n in ctx.notices)
     if budget.remaining() <= 0:
-        notices.append(f"check-minor member budget exhausted in {version}")
+        result.share_exhausted = True
+        notices.append(
+            f"check-minor member budget exhausted in {version}; lookups past it read cannot-verify, "
+            "so repeat the check (nothing in the repository changed)"
+        )
     result.lines = results
     statuses = {status for _, status in results}
     result.status = "met" if statuses <= set(_MET) else "unmet" if "unmet" in statuses else "cannot-verify"
@@ -3812,10 +3820,18 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         plan = {p.version: p for p in scan_plans(rctx.root, major, minor)}[str(previous["version"])]
         result = evaluate_member(ck, rctx, record, previous, plan, [])
         previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous)
-        if previous_gate not in _MET or not result.lines or any(
-            status not in _MET for predicate, status in result.lines
-            if not predicate.startswith(("cleanup.", "archive."))
-        ):
+        gated = [status for predicate, status in result.lines if not predicate.startswith(("cleanup.", "archive."))]
+        if previous_gate not in _MET or not result.lines or any(status not in _MET for status in gated):
+            # A spent budget only ever yields cannot-verify, so it never explains a verified
+            # `unmet` or `violated`: those stay incomplete. The gate is refused either way.
+            definite = previous_gate in ("unmet", GATE_VIOLATED) or "unmet" in gated
+            if (result.exhausted or result.share_exhausted) and not definite:
+                print(
+                    f"notice: {previous['version']} could not be fully verified inside its time share; "
+                    "repeat `record member-start`, nothing in the repository changed",
+                    file=sys.stderr,
+                )
+                return _gate_refusal(ck, version, f"previous-member-unverified ({previous['version']})")
             return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
         if _tag_in(rctx, str(previous.get("tag") or previous["version"]), tip) != "met":
             return _gate_refusal(ck, version, "back-merge-missing")

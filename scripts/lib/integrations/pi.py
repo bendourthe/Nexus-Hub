@@ -147,6 +147,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(agent_root, ctx))
             self._install_prompts(agent_root, ctx, result)
-            # v4.13.2: completion-gate extension (auto-loaded from extensions/).
+            # Opt-in completion-gate extension (NEXUS_HUB_COMPLETION_PLUGINS=1); a
+            # default install retires an earlier copy.
             install_completion_plugin(self, ctx, "pi", agent_root / "extensions", result)
         return result

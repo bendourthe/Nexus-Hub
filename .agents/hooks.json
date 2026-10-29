@@ -59,15 +59,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity Stop -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/completion-gate.ps1\""
-          }
-        ]
-      }
     ]
   }
 }

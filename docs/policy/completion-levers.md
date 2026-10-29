@@ -2,6 +2,8 @@
 
 Per-platform levers a full `/implement` run can use to keep working until the completion checker reports a terminal verdict: a native goal command, a turn-end continuation hook or plugin, a headless CLI with resume, and a prompt-submit event for capturing user approvals. The machine-readable source is [`completion-levers.json`](completion-levers.json); this page is its human companion. Read it before changing the completion gate adapters, the `run-plan` runner, or the `approval-capture` hook, and before claiming a platform "continues until done".
 
+**Default status (2026-10-28).** The turn-end continuation levers below are documented but not used by a default install: the completion gate's Stop registration and the OpenCode, OpenClaw, Pi, and Hermes plugins were removed from the defaults because they re-prompted at the end of every turn, including turns that were waiting on the user, CI, or an approval ([decision](../decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md)). The prompt-submit lever (approval capture) and the headless lever (`run-plan`) remain in use. To opt in on a hook platform, register `completion-gate.sh` (or `completion-gate.ps1` on Windows), installed beside the other hooks, on that platform's turn-end event from the table below; on the plugin platforms, install with `NEXUS_HUB_COMPLETION_PLUGINS=1`.
+
 Every VERIFIED cell links the first-party vendor page fetched on 2026-09-25. "None documented" is a real result, not a placeholder: it means no first-party page states the lever. `tests/validators/test_completion_levers.py` fails when a registered integration has no row, when a VERIFIED lever lacks a source or date, or when a continuation format is not one the gate implements.
 
 ## Summary

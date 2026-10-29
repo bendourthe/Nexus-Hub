@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-26
+**Last updated**: 2026-10-29
 **Open items**: 85
 
 ## v4.14.0
@@ -3252,3 +3252,109 @@ None.
 - **Disposition**: RESOLVED in v4.14.2 Phase 6 T029, recorded 2026-10-26 after the actual first M2 PR supplied the required macOS payload proof.
 - **Resolution**: PR #525 head `944d07f40eeebc8d52204684a3cab907f331806d` passed actual [macOS workspace installer-smoke](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939624) in 9.901 seconds and [macOS bootstrap](https://github.com/bendourthe/Nexus-Hub/actions/runs/40171762432/job/121103939637) in 63.813 seconds, both exit 0. Downloaded summary, environment and log hashes match retained `m2-macos-payload-d140cd29/verified-payload.json`, SHA-256 `9ec473cde4c572da4044931d6acb2f480f0e66455232b7c6545bf64dd2bea98a`. Tested merge `59da68623d44563a570b2f8464f0fe59eb4665ec` and actual merged `d2d7bff7a0c192437eddcbdb677880791ea3f501` share tree `de7ccaeea43d697f25552f6330ac261af1d867b0`; all 46 PR checks and exact-head post-merge run `40173908677` succeeded.
 - **Remaining boundary**: No waiver, migration, new qualification attempt or allowance reset is introduced. Release, runtime adoption and archive/cleanup remain separate; no further macOS run is needed for this resolved item.
+
+## v4.14.3
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 5 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+
+### Open Items
+
+None.
+
+### Resolved
+
+#### WN-27: Codex plugin skill-prompt size and extension-path qualification
+
+**Source phase**: v4.14.3 Phase 2 T009
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: At OpenAI Codex revision `d373d649673ca8a5bca71f54be0ae47dbd79b466` (checked 2026-10-28), the 8,000-byte main-prompt limit affects plugin skills on the host path and every skill read through the extension path. Nexus-Hub delivers plain user skills to `~/.agents/skills`, and whether they reach the extension path is unverified. 276 of 340 SKILL.md files are above 8,000 bytes, measured on 2026-10-28 with `python -c "import glob,os;print(sum(os.path.getsize(p)>8000 for p in glob.glob('catalog/skills/*/*/SKILL.md')))"`.
+
+**Suggested next step**: Before any Codex plugin packaging, re-verify the vendor limit and call sites, measure the packaged SKILL.md bytes against it, and resolve whether user skills route through the extension path. See the scoped read-contract entry `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28` and v4.14.2's parked branch P2 at `plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md#parked-branches`.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: the 2026-10-29 re-check of openai/codex at `2681f8cba2831ef72bca2c0672b2e49d5f690745` (skills sources byte-identical to `d373d649673ca8a5bca71f54be0ae47dbd79b466`) settles the delivered case. The skills extension leaves host skills out of its selection catalog when the host catalog is carried in world state, and Codex's own test `production_turn_keeps_full_snapshot_host_skill_prompt` asserts that a user skill body above 8,000 bytes reaches the model in full, so an invoked plain user skill is not truncated. Recorded in `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28` and the matching JSON note by v4.14.3 commit `e74dabdab`.
+- **Remaining boundary**: a host that never carries the host catalog in world state stays UNVERIFIED, plugin packaging still requires the byte measurement first, and the separate catalog metadata-budget risk is recorded in the read contract and the `docs/todos.md` backlog, not resolved here.
+
+#### WN-28: Member checks time out on slow GitHub lookups
+
+**Source phase**: v4.14 run coordination, v4.14.3 publication admission (2026-10-28)
+
+**Reason**: Each member's evaluation inside `check-minor`, `check-member` and `record member-start` gets a fixed 20-second share. With ordinary GitHub latency the v4.14.2 release predicates (`release.main`, `approval.remote`, `integration.*`) intermittently read `cannot-verify` with "member budget exhausted", so the v4.14.3 publication gate refused three times with `previous-member-incomplete (v4.14.2)` before passing on a retry with no change in state.
+
+**Suggested next step**: Give a member's release and integration lookups a share sized to observed latency, or report an exhausted share as a retryable notice rather than the predecessor being incomplete, with a regression test that simulates slow `gh` and `git ls-remote` calls.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #544, merged to develop as `8e2791209026c932e03f1c885b6863795033dd8b`, reports a spent member share as the retryable refusal `previous-member-unverified` instead of `previous-member-incomplete`, without making any verdict more permissive. Regression tests simulate 8-second `gh` and `git ls-remote` calls; decision record `docs/decisions/implemented/tooling/2026-10-29-member-check-share-exhaustion.md`.
+- **Remaining boundary**: the installed runtime keeps the earlier refusal wording until the next runtime update.
+
+#### WN-29: Profile writer and model-map tools accept hostile text and path-traversing ids
+
+**Source phase**: v4.14.3 Phase 3 T016 (Tier 3 adversarial pass)
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: On 2026-10-28, executing `write_model_prompting_profile.py write` against a temporary copy of the bundle showed the writer exits 0 and the structural validator `verify_model_prompting_profiles.py` still passes for claims containing `|`, HTML, a Markdown link, an agent-directed imperative, an off-allowlist or spoofed source host (`ai.google.dev.evil.com`, `ai.google.dev@evil.com`), an `http` scheme, a NUL byte, or 200,000 characters, and for an unknown platform name. A model id such as `../../../../escape2` made the writer create a Markdown file outside the bundle (the validator reported INVALID only afterward), and an id containing a backslash raised a traceback after the index had already been rewritten (a partial write). `model-map.py validate` accepts a cell such as `gemini-4-argon|x` or one containing a newline, and `model-map.py render` then emits the extra table row into the Markdown map that plans embed; `stamp_training_models.py` already refuses `</` and `<!--`. The DoD 1 rules (allowlisted host, paraphrase only, no table characters or directives) hold for the shipped Argon claims through `tests/skills/test_prompting_profile_gemini_4_argon.py`, but no tool enforces them for a future payload built from fetched page text. This behavior predates v4.14.3, which changed only the writer's roster handling.
+
+**Owner**: maintainer, as the `model-prompting-research` and `model-routing` skill owner.
+
+**Suggested next step**: validate model ids against a strict pattern and resolve the mirror path inside `references/models/` before any write, make the write all-or-nothing, apply the DoD 1 claim rules (host allowlist by exact hostname, no table characters, links, HTML, or directives) in the writer and the structural validator, and reject `|`, newlines, and control characters in `model-map.py` cells, each with a regression test.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #543, merged to develop as `90bc88fae6a440234f26010b7190e68d9f5d2b90`, makes `scripts/verify_model_prompting_profiles.py` enforce the claim rules (length, control characters, table characters, HTML, links, autolinkable URLs off the allowlist, injection phrases, second-person directives outside quotes, exact-hostname https source allowlist, model-id pattern, known platforms) and makes `model-map.py validate` refuse unsafe cells. The writer half landed in this branch as `f72f5719a` and `4d53ddfcf`: it validates the whole payload first, refuses paths outside `references/models/`, and writes all-or-nothing. Every shipped profile and the shipped model map pass.
+- **Remaining boundary**: the writer and validator duplicate the rule constants, because the writer ships inside the skill; a parity test between the two can be added now that both branches carry the rules.
+
+#### WN-31: Installer cannot load the Gemini usage monitor into Antigravity through its CLI
+
+**Source phase**: v4.14 run coordination, tool update after the v4.14.1 install (2026-10-28)
+
+**Reason**: The installer run from develop built and packaged `gemini-usage-monitor-0.1.0.vsix`, then printed `Antigravity install failed. You can install manually: "antigravity-ide" --install-extension "<path>.vsix"`. A direct probe of the resolved launcher `%LOCALAPPDATA%\Programs\Antigravity\bin\antigravity-ide.cmd --list-extensions` exited 3 with no output, so the CLI itself fails rather than the extension package. The installer degrades as designed (it prints the manual command and continues), but a user on this Antigravity build gets no monitor update without a manual step through the IDE's extensions view.
+
+**Owner**: maintainer, as the usage-monitor extension owner.
+
+**Suggested next step**: re-check the current Antigravity CLI name and flags against the vendor documentation, reproduce the exit 3 with a fresh profile, and either fix the installer's invocation or document the IDE-view install path in the extension README, with an installer test that covers a failing CLI.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.3 publication.
+- **Resolution**: PR #542, merged to develop as `0b7663b6d1710d0b129e54438214b9b355dbf3e5`, makes both installers probe each Antigravity launcher with `--version` (30-second limit, windowless on Windows) and use the first that answers, naming each skipped launcher. Root cause on the reporting host: the launcher first on PATH starts a stale leftover `Antigravity IDE.exe` whose V8 binary does not match the app snapshot. PATH hits are stored as resolved absolute paths, so `cmd.exe` cannot pick up a launcher from the current directory.
+- **Remaining boundary**: the bash probe is exercised by Linux and macOS CI, not on the reporting Windows host.
+
+#### WN-30: Repository description states 37 hooks while README declares 38
+
+**Source phase**: v4.14.3 Phase 3 T014 and T015 (git-tree hygiene and CI/CD field 23, external settings)
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: `check_release_preconditions.py --branches --repo-settings` reported on 2026-10-28 that the GitHub repository description says "37 hooks" while `README.md` declares 38 registered hooks. The description is an external repository setting that no version-sync guard can see, and this plan changes no setting automatically.
+
+**Owner**: maintainer (repository administrator).
+
+**Suggested next step**: update the description by hand (`gh repo edit --description "<text with 38 hooks>"`) under the maintainer's own authority, then re-run the check.
+
+- **Disposition**: RESOLVED on 2026-10-29 before v4.14.3 publication.
+- **Resolution**: PR #539 (merged to develop as `e22005d47`) removed the completion gate's default turn-end registration, so `README.md` now declares 37 registered hooks, matching the unchanged repository description. `check_release_preconditions.py --repo-settings` reports `OK: repository description agrees with README.md`. No repository setting was changed.
+
+#### QG-9: Full local gate not green for v4.14.3 (roster-split test and host limits)
+
+**Source phase**: v4.14.3 Phase 3 T019
+
+**Plan reference**: [v4.14.3 adoption plan](plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md)
+
+**Reason**: The single full-profile run on 2026-10-28 (`FAIL: 67 passed, 5 failed, 3 skipped`) found one real regression and four host limits. The regression: the live-roster semantics of the profile writer (DoD 1) break `tests/validators/test_check_model_prompting_freshness.py::test_shipped_rosters_are_split_by_platform` for the retired profile `gemini-3.7-flash`; that test path is outside the member's admitted claims. The host limits: `hook-tests` and `repo-tests-governance-validators-d-o` timed out at 2,400 and 1,800 seconds, 92 failures and 65 errors in `tests/skills` all come from a missing Playwright Chromium executable, and `test_windows_long_paths` fails only under the runner's long scratch directory (it passes alone).
+
+**Owner**: v4.14 coordinator.
+
+**Suggested next step**: apply the amendment recorded in `v4.14.3-last-phase-evidence.md` under `## Full-suite testing and stabilization`, rerun `repo-tests-governance-validators-a-c`, and close the host-limit items through the composite local qualification used for v4.14.2 (longer budgets for the two timeouts, Chromium installed for `tests/skills`), then resolve this entry before publication.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before publication.
+- **Resolution**: the roster amendment merged to develop as PR #540 and a timing-dependent hook test found during qualification was fixed by PR #541; Chromium build 1243 was installed for `tests/skills`; the hook and governance suites ran without the per-command cap. The composite local qualification is recorded under `## Full-suite testing and stabilization` in [v4.14.3 last-phase evidence](development/v4.14.3-last-phase-evidence.md), green on final tree `8f0e6f313`.
+- **Remaining boundary**: the integration pull request's required checks are the remote validation of the merge result; they are recorded in the same file under `## Publication and integration`.

@@ -266,6 +266,100 @@ def test_budget_exhaustion_reads_cannot_verify_never_met(walk: Walk) -> None:
     assert time.monotonic() - started < 60
 
 
+def _slow_lookups(monkeypatch: pytest.MonkeyPatch, latency: float) -> list[float]:
+    """Make every `gh` and `git ls-remote` call take `latency` seconds on a controlled clock.
+
+    A call that starts with no budget left, or is still running when the share ends, does not
+    run: the same `-1` the real runner returns on a timeout. Nothing sleeps and nothing
+    touches the network; the stand-in `gh` and the local bare remote still answer a call that
+    finishes inside its share.
+    """
+    clock = [1000.0]
+    real = ck._run_with_stderr
+    monkeypatch.setattr(ck.time, "monotonic", lambda: clock[0])
+
+    def slow(argv, budget, cwd=None):
+        if Path(argv[0]).stem.lower() == "gh" or "ls-remote" in argv:
+            clock[0] += latency
+            if budget.remaining() <= 0:
+                return -1, "", ""
+        return real(argv, budget, cwd)
+
+    monkeypatch.setattr(ck, "_run_with_stderr", slow)
+    return clock
+
+
+def _member_start_in_process(walk: Walk, monkeypatch: pytest.MonkeyPatch, version: str) -> tuple[int, str]:
+    base = _git(walk.work, "rev-parse", "origin/develop").strip()
+    monkeypatch.chdir(walk.work)
+    code = ck.main(["record", "member-start", "--minor", "v0.5", "--member", version, "--session", SESSION,
+                    "--head", base])
+    return code, base
+
+
+def test_slow_lookups_make_a_released_predecessor_unverified_and_retryable(
+    walk: Walk, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    """WN-28: a share spent on slow hosting lookups is a retryable refusal, not an incomplete member."""
+    walk.gaps_ledger()
+    walk.forge_minor()
+    assert _first(walk.member_start("v0.5.2")).startswith("STARTED v0.5.2")
+    walk.release_member("v0.5.2", "alpha")
+
+    _slow_lookups(monkeypatch, latency=8.0)  # three slow calls spend the 20-second share
+    code, _base = _member_start_in_process(walk, monkeypatch, "v0.5.10")
+    captured = capsys.readouterr()
+    assert code == ck.EXIT_BLOCKED  # still refused: an unverified predecessor never opens the gate
+    assert captured.out.splitlines() == ["BLOCKED: member-gate (v0.5.10)", "reason: previous-member-unverified (v0.5.2)"]
+    assert "repeat `record member-start`" in captured.err
+    assert not next(m for m in walk.record()["members"] if m["version"] == "v0.5.10").get("start_head")
+
+    monkeypatch.undo()  # the same repository state, ordinary latency: the retry passes
+    monkeypatch.setenv("NEXUS_HUB_RUNS_DIR", str(walk.runs))
+    monkeypatch.setenv("PATH", str(walk.env["PATH"]))
+    assert _first(walk.member_start("v0.5.10")).startswith("STARTED v0.5.10")
+
+
+def test_an_exhausted_share_never_turns_a_cannot_verify_into_met(walk: Walk, monkeypatch: pytest.MonkeyPatch) -> None:
+    walk.gaps_ledger()
+    walk.forge_minor()
+    assert _first(walk.member_start("v0.5.2")).startswith("STARTED v0.5.2")
+    walk.release_member("v0.5.2", "alpha")
+    record = walk.record()
+    member = next(m for m in record["members"] if m["version"] == "v0.5.2")
+    plan = {p.version: p for p in cm.scan_plans(walk.work, 0, 5)}["v0.5.2"]
+    rctx = walk.rctx()
+
+    fast = cm.evaluate_member(ck, rctx, record, member, plan, [])
+    assert fast.status == "met" and not fast.share_exhausted
+
+    _slow_lookups(monkeypatch, latency=8.0)
+    notices: list[str] = []
+    slow = cm.evaluate_member(ck, walk.rctx(), record, member, plan, notices)
+    assert slow.share_exhausted and not slow.exhausted
+    assert slow.status == "cannot-verify"
+    hosting = [status for predicate, status in slow.lines if predicate.startswith(("release.", "approval.", "integration."))]
+    assert "cannot-verify" in hosting
+    verified = {predicate for predicate, status in fast.lines if status in cm._MET}
+    assert {predicate for predicate, status in slow.lines if status in cm._MET} <= verified  # never more met
+    assert any("member budget exhausted" in n and "repeat the check" in n for n in notices)
+
+
+def test_an_exhausted_share_does_not_hide_a_predecessor_that_is_really_incomplete(
+    walk: Walk, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Local predicates read first: an unchecked task stays `unmet`, so slow lookups cannot relabel it."""
+    walk.gaps_ledger()
+    walk.forge_minor()
+    assert _first(walk.member_start("v0.5.2")).startswith("STARTED v0.5.2")  # v0.5.2 is never released
+
+    _slow_lookups(monkeypatch, latency=8.0)
+    code, _base = _member_start_in_process(walk, monkeypatch, "v0.5.10")
+    captured = capsys.readouterr()
+    assert code == ck.EXIT_BLOCKED
+    assert captured.out.splitlines() == ["BLOCKED: member-gate (v0.5.10)", "reason: previous-member-incomplete (v0.5.2)"]
+
+
 @pytest.mark.parametrize(("value", "expected"), [("500", 360.0), ("abc", 360.0), ("0", 1.0), ("nan", 360.0), ("30", 30.0)])
 def test_the_budget_can_only_be_lowered(monkeypatch: pytest.MonkeyPatch, value: str, expected: float) -> None:
     monkeypatch.setenv("NEXUS_CHECK_MINOR_BUDGET_SECONDS", value)

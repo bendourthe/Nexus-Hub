@@ -60,6 +60,7 @@ class HermesIntegration(SkillsIntegration):
         self._ensure_dir(hermes_root, ctx)
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(hermes_root, ctx))
-            # v4.13.2: completion-gate plugin (loads once enabled in Hermes).
+            # Opt-in completion-gate plugin (NEXUS_HUB_COMPLETION_PLUGINS=1); a
+            # default install retires an earlier copy.
             install_completion_plugin(self, ctx, "hermes", hermes_root / "plugins" / PLUGIN_ID, result)
         return result
