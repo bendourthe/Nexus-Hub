@@ -1,0 +1,22 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"f199a4232120f3ecf7602238903aa5d0939301a5e8980ee323f0f367aae266b1","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "worktree": "<workspace>",
+  "entries": [
+    {
+      "relative_path": "scripts/ci/profiles.py",
+      "baseline_sha256": "61ad39223d97c085b16c068f2a1be9c119471dfe57984329bfd91dee9a13945f",
+      "candidate_file": "<private-evidence>/validators-co-budget-proposal-20261024T184655Z/scripts/ci/profiles.py",
+      "candidate_sha256": "466a1a477954277aa5ac23ac616ebc95a693b69f388e41f400b5a45f625494a4"
+    },
+    {
+      "relative_path": "tests/ci/test_ci_engine.py",
+      "baseline_sha256": "350cad8f2f1cd5eeb352e0f3e6deef307c8f59d8d0141d7cc25771778fcd345e",
+      "candidate_file": "<private-evidence>/validators-co-budget-proposal-20261024T184655Z/tests/ci/test_ci_engine.py",
+      "candidate_sha256": "af37382ac0cc9caf081d662dddfb1e248627be465159f6df9cb4ca54c8fd59d1"
+    }
+  ]
+}
+}

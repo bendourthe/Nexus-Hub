@@ -56,3 +56,6 @@ docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/
 # Preserve captured cache-publication evidence bytes in active and archived release trees.
 docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-*.json -text
 docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-*.json -text
+
+# Retained Windows qualification receipts preserve captured bytes and pinned hashes.
+docs/releases/v4/v4.14/development/windows-full-gate-receipts/* -text whitespace=trailing-space,space-before-tab,cr-at-eol

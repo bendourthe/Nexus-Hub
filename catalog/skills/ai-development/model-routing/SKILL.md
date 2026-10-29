@@ -177,6 +177,7 @@ Rules for every escalation:
 - **Upshift only.** Never auto-downshift mid-phase: the no-degradation guarantee forbids dropping to a cheaper model while a task is actively failing, because a downshift mid-failure trades the one thing routing must never gamble on (output quality on a hard task) for marginal token savings.
 - **Best-effort and platform-aware.** Follow the same posture as Step 6 -- on Claude Code surface the `/model` + `/effort` keystroke; on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI) apply it with confirmation; on manual-only platforms print the picker instruction.
 - **Confirm, do not silently switch.** Surface that repeated failure triggered the escalation so the user can approve the stronger tier; it is a confirm-then-apply action, not an automatic one.
+- **Switch at a sub-task boundary and name the re-read cost.** A model change mid-conversation discards the cached prefix, and an effort change can invalidate part of it depending on the model and host, so the next request re-reads that context without the cache discount and may pay to write it again. Prefer applying an upshift between sub-tasks rather than mid-attempt, and say in the confirmation that the switch re-reads the context. How each provider's cache behaves is owned by [`step-8-optimize-cost-and-latency.md`](../prompt-engineering/references/step-8-optimize-cost-and-latency.md).
 
 ## Platform routing profiles
 

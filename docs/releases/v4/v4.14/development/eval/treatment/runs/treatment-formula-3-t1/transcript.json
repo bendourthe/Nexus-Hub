@@ -1,0 +1,17 @@
+{
+ "schema": 1,
+ "events": [
+  {
+   "type": "edit",
+   "path": "feature.py",
+   "before": null,
+   "after": "2567583b0a252367951ef11b2a0a89d4f2f9ef04ae720d4f9f8a92c67d504ed4"
+  },
+  {
+   "type": "edit",
+   "path": "tests/test_feature.py",
+   "before": null,
+   "after": "2ca46a5274c1305f00571e1c5212b4a8e28cbcdcb724749daafc0082fe891bbb"
+  }
+ ]
+}

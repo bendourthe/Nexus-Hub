@@ -66,12 +66,12 @@ sys.exit(int(os.environ.get("STUB_CLI_RC", "0")))
 '''
 
 
-def authenticated_minor(tmp: Path, monkeypatch: pytest.MonkeyPatch):
+def authenticated_minor(tmp: Path, monkeypatch: pytest.MonkeyPatch, git_seed: Path | None = None):
     """Use genuine private Minor fixture creation, then verify its signed controller."""
     from .test_completion_minor_record import SESSION, Minor, ck
 
     tmp.mkdir()
-    authority = Minor(tmp, monkeypatch)
+    authority = Minor(tmp, monkeypatch, git_seed)
     created = authority.create()
     assert created.returncode == 0, created.stdout + created.stderr
     ctx, record = ck.resolve_minor_controller(authority.record_path(), SESSION)

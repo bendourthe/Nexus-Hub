@@ -183,15 +183,9 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         ],
                     },
                 ],
-                # v4.13.2: the full-run completion gate. The bridge translates a
-                # Claude-shaped block into Antigravity's `decision: "continue"`.
-                "Stop": [
-                    {
-                        "hooks": [
-                            {"command": wrapped_command_for("completion-gate.sh", "Stop")},
-                        ],
-                    },
-                ],
+                # No Stop registration: the v4.13.2 completion gate was removed
+                # from the defaults (2026-10-28). Re-registering a set merges over
+                # this one, so an older install loses its Stop entry on upgrade.
             },
         }
 
@@ -203,7 +197,6 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "git-guardrails.sh",
         "user-edit-guard.sh",
         "attribution-guard.sh",
-        "completion-gate.sh",
     )
 
     # ----- install entry points -------------------------------------------

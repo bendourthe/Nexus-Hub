@@ -153,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.14.1"
+$script:NexusHubVersion = "4.14.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -810,6 +810,45 @@ function Get-ManagedHookStem {
     return [string]$command
 }
 
+# Retired managed hooks (completion-gate Stop handler, removed from the defaults
+# 2026-10-28). Only a handler whose command points at a hooks directory entry named
+# completion-gate is Nexus-Hub-owned; user hooks stay.
+function Test-RetiredManagedHook {
+    param([object]$Hook)
+    if ($null -eq $Hook) { return $false }
+    $command = if ($Hook -is [Collections.IDictionary]) { $Hook['command'] } else { $Hook.command }
+    if ($command -isnot [string]) { return $false }
+    return [regex]::IsMatch($command, '[/\\]hooks[/\\]completion-gate\.(?:sh|ps1)')
+}
+
+function Remove-RetiredManagedHooks {
+    param([Parameter(Mandatory = $true)][Collections.IDictionary]$ExistingJson)
+    $hooks = $ExistingJson['hooks']
+    if ($hooks -isnot [Collections.IDictionary]) { return }
+    foreach ($eventName in @($hooks.Keys)) {
+        # The JSON reader unrolls a one-element array, so normalize with @() as the
+        # merge above does instead of testing for [array].
+        $rawEntries = $hooks[$eventName]
+        if ($null -eq $rawEntries -or $rawEntries -is [string]) { continue }
+        $entries = @($rawEntries)
+        $touched = $false
+        $kept = @()
+        foreach ($entry in $entries) {
+            $handlers = if ($entry -is [Collections.IDictionary]) { @($entry['hooks']) } else { @() }
+            if (@($handlers | Where-Object { Test-RetiredManagedHook -Hook $_ }).Count -gt 0) {
+                $touched = $true
+                $left = @($handlers | Where-Object { -not (Test-RetiredManagedHook -Hook $_) })
+                if ($left.Count -eq 0) { continue }
+                $entry['hooks'] = $left
+            }
+            $kept += ,$entry
+        }
+        if ($touched) {
+            if ($kept.Count -eq 0) { $hooks.Remove($eventName) } else { $hooks[$eventName] = $kept }
+        }
+    }
+}
+
 function Merge-ManagedClaudeHooks {
     param(
         [Parameter(Mandatory = $true)][Collections.IDictionary]$ExistingJson,
@@ -857,6 +896,7 @@ function Merge-ManagedClaudeHooks {
         }
         $ExistingJson['hooks'][$eventName] = $existingEntries
     }
+    Remove-RetiredManagedHooks -ExistingJson $ExistingJson
     return ,$ExistingJson
 }
 

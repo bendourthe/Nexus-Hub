@@ -1,0 +1,17 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"a68e5b995827edf9d7741e50e7c1c511f5a1cef77f1fefecb84ca193372e3027","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "at": "2026-10-24T21:28:55.183Z",
+  "blocker": 13,
+  "attempt": 1,
+  "maximum_attempts": 1,
+  "co_execution_cap_seconds": 2400,
+  "driver_sha256": "b8defad6b782505fd8346e7a71b66dbd8957417f249f6ac59919e2c6d49c82e5",
+  "index_tree": "8b94139bd711edd5075fdc51cee420bcc523f17e",
+  "native_record_sha256": "52088bab169344f11c5656d9c9127f0d67f920ad9f23d0a54b8fc23fce28d930",
+  "output": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/approved-co-and-pending-three-1792877335156",
+  "qualification": "ONE_AUTHORIZED_CO_ATTEMPT_PLUS_THREE_PREVIOUSLY_UNLAUNCHED_COMMANDS"
+}
+}

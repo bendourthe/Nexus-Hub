@@ -74,11 +74,11 @@ def isolated_environment(work: Path) -> dict[str, str]:
         destination = work / folder
         destination.mkdir()
         env[key] = str(destination)
-    # Smoke scenarios do not qualify VSIX delivery. Inert launchers stop both PATH
-    # discovery and absolute-path fallbacks from reaching a running host editor.
+    # Smoke scenarios do not qualify VSIX delivery or host task migration. Inert
+    # launchers stop discovery from reaching host editors or Task Scheduler.
     editors = work / "editor-boundary"
     editors.mkdir()
-    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity"):
+    for name in ("code", "code-insiders", "codium", "cursor", "antigravity-ide", "antigravity", "schtasks"):
         launcher = editors / (name + ".cmd" if os.name == "nt" else name)
         launcher.write_text("@exit /b 1\n" if os.name == "nt" else "#!/bin/sh\nexit 1\n", encoding="ascii")
         launcher.chmod(0o755)
@@ -112,7 +112,7 @@ def workspace(root: Path, work: Path, env: dict[str, str]) -> None:
     run([sys.executable, str(root / "scripts/nexus_hub_cli.py"), "org", "connect", str(root / "configs/examples/org-bundle-example"), "--force"], env=env, cwd=work)
     command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "scripts/installer.ps1"), "-Workspace", str(target), "-Platforms", "claude", "-Yes"] if os.name == "nt" else ["bash", str(root / "scripts/installer.sh"), "--workspace", str(target), "--platforms", "claude", "--yes"])
     run(command, env=env, cwd=work)
-    run([sys.executable, str(root / "scripts/check_installer_smoke.py"), "--home", env["HOME"], "--workspace", str(target)], env=env, cwd=work)
+    run([sys.executable, str(root / "scripts/check_installer_smoke.py"), "--home", env["HOME"], "--workspace", str(target), "--source", str(root)], env=env, cwd=work)
     print("OK: real native workspace installer and shared smoke assertions")
 
 
@@ -134,12 +134,25 @@ def bootstrap(root: Path, work: Path, env: dict[str, str]) -> None:
         require(bool(shutil.which(tool, path=env.get("PATH", ""))), f"bootstrap smoke requires preinstalled {tool}; host package installation is disabled")
     tarball = work / "catalog.tar.gz"
     catalog_tarball(root, tarball, env)
-    env.update(NEXUS_HUB_FORCE_STANDALONE="1", NEXUS_HUB_TARBALL=str(tarball))
+    # Optional VSIX/npm delivery is outside this smoke; never fetch missing packages.
+    env.update(NEXUS_HUB_FORCE_STANDALONE="1", NEXUS_HUB_TARBALL=str(tarball), NPM_CONFIG_OFFLINE="true")
     command = (["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(root / "install.ps1")] if os.name == "nt" else ["bash", str(root / "install.sh")])
     result = run(command, env=env, cwd=work, allow_failure=True)
     home = Path(env["HOME"]) / ".nexus-hub"
     suffix = "ps1" if os.name == "nt" else "sh"
     require((home / f"src/scripts/installer.{suffix}").is_file(), f"standalone source was not extracted; bootstrap exit {result.returncode}\n{result.stdout}\n{result.stderr}")
+    checked_payload = 0
+    with tarfile.open(tarball, "r:gz") as archive:
+        for member in archive.getmembers():
+            relative = Path(member.name).relative_to("Nexus-Hub-main")
+            if not member.isfile() or relative.parts[:2] not in (("catalog", "skills"), ("catalog", "commands")):
+                continue
+            cached = home / "src" / relative
+            require(cached.is_file(), f"bootstrap catalog payload is missing: {relative}")
+            with archive.extractfile(member) as payload:
+                require(cached.read_bytes() == payload.read(), f"bootstrap catalog payload differs: {relative}")
+            checked_payload += 1
+    require(checked_payload > 0, "bootstrap archive contains no catalog payload")
     launcher = home / ("bin/nexus-hub.cmd" if os.name == "nt" else "bin/nexus-hub")
     version_command = [str(launcher), "--version"] if launcher.is_file() and (os.name == "nt" or os.access(launcher, os.X_OK)) else [sys.executable, str(home / "src/scripts/nexus_hub_cli.py"), "--version"]
     version = run(version_command, env=env, cwd=work)

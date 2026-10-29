@@ -182,13 +182,15 @@ def test_existing_hook_and_rollback(sandbox):
     run, repo, _ = sandbox
     hook = repo / ".git/hooks/pre-commit"
     hook.write_text(
-        "#!/bin/sh\nprintf preserved > hook-result\nexit 17\n", encoding="utf-8"
+        "#!/bin/sh\nprintf preserved > hook-result\nprintf ATTR_HOOK_STDOUT\nprintf ATTR_HOOK_STDERR >&2\nexit 17\n", encoding="utf-8"
     )
     hook.chmod(0o755)
     guard(run, "install")
     guard(run, "install")
     result = run("git", "commit", "--allow-empty", "-m", "Work", code=None)
     assert result.returncode != 0
+    assert "ATTR_HOOK_STDOUT" in result.stdout + result.stderr
+    assert "ATTR_HOOK_STDERR" in result.stdout + result.stderr
     assert (repo / "hook-result").read_text() == "preserved"
     guard(run, "uninstall")
     assert (
@@ -342,8 +344,16 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
         flag = "-Workspace" if runtime == "powershell" else "--workspace"
         index = command.index(flag)
         del command[index : index + 2]
-    extra = {"NEXUS_HUB_NO_AUTOSEED": "1"}
-    if os.name == "nt" and scope == "global":
+    from scripts.ci.verify_scenarios import isolated_environment
+
+    work = home.parent / "installer-boundary"
+    work.mkdir()
+    extra = isolated_environment(work)
+    extra.update(
+        HOME=str(home), USERPROFILE=str(home), NEXUS_HUB_HOME=str(home / ".nexus-hub"),
+        CLAUDE_CONFIG_DIR=str(home / ".claude"), GIT_CONFIG_GLOBAL=str(home / ".gitconfig"),
+    )
+    if os.name == "nt":
         # Exercise the real installer without discovering the host's editor
         # CLIs or optional uv/npm installations outside the disposable home.
         # Attribution delivery is independent of optional MCP dependency installs.
@@ -352,6 +362,7 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
         extra["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
         extra["PATH"] = os.pathsep.join(
             [
+                str(work / "editor-boundary"),
                 str(Path(sys.executable).parent),
                 r"C:\Program Files\Git\bin",
                 r"C:\Program Files\Git\usr\bin",

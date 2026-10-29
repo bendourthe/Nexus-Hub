@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "change": "windows-full-validators-co-limit",
+      "paths": [
+        "scripts/ci/profiles.py",
+        "tests/ci/test_ci_engine.py"
+      ],
+      "command": "repo-tests-governance-validators-co (Windows full)",
+      "old_execution_seconds": 1800,
+      "new_execution_seconds": 2400,
+      "old_governance_aggregate_seconds": 9900,
+      "new_governance_aggregate_seconds": 10500
+    }
+  ],
+  "forward_patch_sha256": "66e33bc75c7458da3f2dddc1205ba732c7b50fef96d8f887072808ec375b638d",
+  "proposal_manifest_sha256": "541e85ae4280461d8d4b3e3e272bde4ed101882291415bfd4bda68f2df9a633d",
+  "maximum_additional_ci_seconds": 600,
+  "additional_ci_pytest_startups": 0,
+  "authorized_bounded_local_attempts": 1,
+  "prior_attempts_remain_spent": true,
+  "delivery": "Existing single upstream Windows maintenance PR",
+  "tests_dropped": 0,
+  "other_limits_and_selections_unchanged": true,
+  "native_checker_budgets_unchanged": true,
+  "frozen_budgets_unchanged": true,
+  "unresolved": [
+    "Full validators-co required runtime remains unmeasured",
+    "validators-d-o separately timed out at its unchanged1800-second cap",
+    "validators-p-z and both guides commands remain unlaunched"
+  ]
+}

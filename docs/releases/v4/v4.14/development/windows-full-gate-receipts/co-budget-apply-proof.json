@@ -1,0 +1,22 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"99121c7449ed648071de839e3a46f1d53186e19b43569fa7b59752184a5a0812","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "status": "APPLIED",
+  "worktree": "<workspace>",
+  "files": [
+    {
+      "path": "scripts/ci/profiles.py",
+      "sha256": "466a1a477954277aa5ac23ac616ebc95a693b69f388e41f400b5a45f625494a4",
+      "accept": false
+    },
+    {
+      "path": "tests/ci/test_ci_engine.py",
+      "sha256": "af37382ac0cc9caf081d662dddfb1e248627be465159f6df9cb4ca54c8fd59d1",
+      "accept": false
+    }
+  ],
+  "accepts": 0
+}
+}

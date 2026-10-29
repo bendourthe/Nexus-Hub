@@ -1616,22 +1616,14 @@ def test_the_winner_releases_the_lock_after_a_failure(env):
     assert not _fetch_lock(env).exists()
 
 
-def test_process_local_backoff_holds_when_the_cache_is_unwritable(env, monkeypatch):
+def test_unwritable_activity_rendezvous_prevents_live_fetch(env):
     write_claude_creds(env.home)
     env.nexus.mkdir(parents=True)
     (env.nexus / "state").write_text("not a directory", encoding="utf-8")
-    env.http.queue(urllib.error.URLError("offline"))
-    assert env.probe.probe("claude").reason == "endpoint unreachable"
-    env.clock.now += 30
-
-    again = env.probe.probe("claude")
-
-    assert again.reason == "endpoint unreachable"
-    assert len(env.http.calls) == 1, "no second fetch inside the backoff"
-    env.clock.now += 31
-    env.http.queue(CLAUDE_PAYLOAD)
-    assert env.probe.probe("claude").status == "ok"
-    assert len(env.http.calls) == 2
+    assert env.probe.probe("claude").status == "unavailable"
+    env.clock.now += 61
+    assert env.probe.probe("claude").status == "unavailable"
+    assert env.http.calls == [], "no live fetch without writer ownership"
 
 
 # ----- isolation recipes documented in docs/guides/usage-limit-handoff.md (v4.13.11 T024, WN-33) -----

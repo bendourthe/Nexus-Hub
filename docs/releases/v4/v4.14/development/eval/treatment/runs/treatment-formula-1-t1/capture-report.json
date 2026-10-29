@@ -1,0 +1,55 @@
+{
+ "capture_ok": true,
+ "anomalies": [],
+ "refused_tests": [],
+ "records": 11,
+ "events": 5,
+ "test_events": 2,
+ "non_exact_pytest_commands": [],
+ "provenance": [
+  {
+   "event": 0,
+   "tool_use_id": "toolu_01P8mHoWuqa81JcD9FZ1pNaJ",
+   "tool_name": "Write",
+   "after_seq": 2,
+   "attribution": "paired"
+  },
+  {
+   "event": 1,
+   "tool_use_id": "toolu_019AJLE5ahGad7z8kU8gyB25",
+   "tool_name": "Write",
+   "after_seq": 4,
+   "attribution": "paired"
+  },
+  {
+   "note": "PreToolUse toolu_01Jbd6dRCsB2SnRpLjeeMyNT closed as denied: stream error result, tree unchanged"
+  },
+  {
+   "event": 2,
+   "tool_use_id": "toolu_01QZpDVVLSkYGWxcZmJNYKvE",
+   "hook_event_name": "PostToolUseFailure",
+   "derived_exit": 1,
+   "recorded_exit": 1,
+   "refusal_reasons": [],
+   "corroborated_by_stream": true
+  },
+  {
+   "event": 3,
+   "tool_use_id": "toolu_01RuZVbGtDpzLY68q2Sqtxem",
+   "tool_name": "Edit",
+   "after_seq": 9,
+   "attribution": "paired"
+  },
+  {
+   "event": 4,
+   "tool_use_id": "toolu_017p69X68KZGPnn1UinmTJij",
+   "hook_event_name": "PostToolUse",
+   "derived_exit": 0,
+   "recorded_exit": 0,
+   "refusal_reasons": [],
+   "corroborated_by_stream": true
+  }
+ ],
+ "stream_corroboration": true,
+ "final_tree_sha256": "1783b9ee2f84da4e7da2b128d98b011dc684d090a35b539dc9682bc03cefcb89"
+}

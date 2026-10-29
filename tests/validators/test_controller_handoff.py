@@ -19,8 +19,8 @@ import run_plan
 
 
 @pytest.fixture
-def controller(tmp_path, monkeypatch):
-    fixture = Minor(tmp_path, monkeypatch)
+def controller(tmp_path, monkeypatch, minor_git_seed):
+    fixture = Minor(tmp_path, monkeypatch, minor_git_seed)
     permanent = fixture.work
     source = tmp_path / 'controller'
     _git(permanent, 'worktree', 'add', '-q', '-b', 'controller', str(source), 'develop')
@@ -230,10 +230,10 @@ def test_guard_process_exit_releases_os_lock_without_deleting_sidecar(controller
 
 
 @pytest.fixture
-def creation_rounds(tmp_path, monkeypatch):
+def creation_rounds(tmp_path, monkeypatch, minor_git_seed):
     """Two real linked roots with genuine fixture create input prepared before any owner."""
     import approval_binding
-    fixture = Minor(tmp_path, monkeypatch)
+    fixture = Minor(tmp_path, monkeypatch, minor_git_seed)
     permanent = fixture.work
     roots, rounds = [], []
     approvals = str(fixture.approvals())

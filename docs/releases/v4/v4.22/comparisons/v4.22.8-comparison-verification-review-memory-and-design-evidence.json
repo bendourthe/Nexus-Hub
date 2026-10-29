@@ -1,0 +1,1721 @@
+{
+  "schema": "comparison-evidence/1",
+  "date": "2026-10-26",
+  "adoption_target": "v4.22.8",
+  "target_status": "Confirmed by the user in this chat; report placement only",
+  "authorization": {
+    "report_and_tracker": true,
+    "implementation_plan": false,
+    "runtime_implementation": false,
+    "repository_policy_changes": false,
+    "publication_performed": false
+  },
+  "baseline": {
+    "local_head": "90bbbfbc8d490287f198be075b1804b0a0d785d8",
+    "integration_head": "eb7e6b497f088a3cba1874c396dc21f77cd3d15b",
+    "remote_head": "eb7e6b497f088a3cba1874c396dc21f77cd3d15b",
+    "tracked_diff": "",
+    "status": "## develop...origin/develop [behind 50]\n?? .tmp/\n?? docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation-evidence.json\n?? docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation-tracker-proposal.md\n?? docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation.md\n"
+  },
+  "baseline_method": "Read-only origin/develop archive snapshot; public remote HEAD checked; checkout not switched or reset. Windows long archive paths were excluded from the analysis snapshot only for docs/archives; complete active release plans were enumerated.",
+  "sources": [
+    {
+      "repo": "cursor/plugins",
+      "commit": "c5149ef275fa7be41e3ffe5e79c8fc16efcaeedc",
+      "archive_sha256": "63a5b67f6fbc5457190a30a3d4e55f7b7cff8473c70f8cef147c298fe0b2ce4d",
+      "files": 165,
+      "license": null,
+      "selected_source_files": [
+        {
+          "path": "pstack/skills/create-verification-skill/SKILL.md",
+          "sha256": "d353973547bf8ad8977eca645f4cd4feaed0d32f4b43d1448f906b0a76c4d694",
+          "bytes": 6533
+        },
+        {
+          "path": "pstack/skills/maintain-verification-skill/SKILL.md",
+          "sha256": "515c0eaa054b3f6be1b1fb06f2c2f173c80fddb58bbcac57576f89c479bc68e8",
+          "bytes": 4922
+        }
+      ],
+      "excluded_large_or_binary_paths": []
+    },
+    {
+      "repo": "kunchenguid/no-mistakes",
+      "commit": "8f3bbe4f8c6689fac50edace35cb539788c9897c",
+      "archive_sha256": "51ea23a07c02834e50243debbe36dac95115d537b58c946bbae358f68bc74158",
+      "files": 1230,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "selected_source_files": [
+        {
+          "path": "README.md",
+          "sha256": "ea609db5debe230dabbac996e7d5b4ffa9561a70a55a28799a8dee7a7cc24dd1",
+          "bytes": 8161
+        },
+        {
+          "path": "go.mod",
+          "sha256": "989a8a1f0823c8053a3358ca726f20bb6e51c287f3b3a67833e2e17cb33df1c0",
+          "bytes": 1932
+        },
+        {
+          "path": "Makefile",
+          "sha256": "8537b7542ce766b1f8e7f5aeceffd5274f4a9e78c2fa86bbd75d034b1a216c7c",
+          "bytes": 5455
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "0cf648518d0cb4d8d56d8dacd65b8ba5274da39788f522ce40db44775e740b2b",
+          "bytes": 6649
+        },
+        {
+          "path": "internal/config/config_repo_trust_test.go",
+          "sha256": "20c15977b528a0363dff4053318260b7291eb539563be74cd8105aacdaa07144",
+          "bytes": 28844
+        },
+        {
+          "path": ".agents/skills/test-evidence-storage/SKILL.md",
+          "sha256": "f856a0042548a215c6804f742e697600b181f35f8e4b6d3b0affff8d27890a3e",
+          "bytes": 6292
+        }
+      ],
+      "excluded_large_or_binary_paths": []
+    },
+    {
+      "repo": "The-PR-Agent/pr-agent",
+      "commit": "5eaa1265a608f3274fc207e45119ee424279c38c",
+      "archive_sha256": "a1799e7a819c2593c13350a2c3ceda5055e79195e3448058dac716949aea8015",
+      "files": 637,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "selected_source_files": [
+        {
+          "path": "README.md",
+          "sha256": "47903df85332f845ef43bd64b20cb1af027241170036d4844a0a1bc5bfbfd401",
+          "bytes": 9269
+        },
+        {
+          "path": "pyproject.toml",
+          "sha256": "2293b91ce8f6c3894aa0479102798327942ac430b5fc378afcf698788244c020",
+          "bytes": 6500
+        },
+        {
+          "path": "docs/docs/installation/github.md",
+          "sha256": "0a97abd4f5139a28fd0604b04f6678f0435aafece27749a967a722d56ef2a853",
+          "bytes": 39300
+        },
+        {
+          "path": "pr_agent/settings/configuration.toml",
+          "sha256": "cefa5aef0a73ac6590f444e0759fd33d148651e117539ec70a2d7640ac5922b2",
+          "bytes": 45293
+        },
+        {
+          "path": "pr_agent/algo/ai_handlers/litellm_ai_handler.py",
+          "sha256": "2268a959871143fa789eb8b59b946d8df13dbfa649b86fad6e586405a535c033",
+          "bytes": 192274
+        }
+      ],
+      "excluded_large_or_binary_paths": []
+    },
+    {
+      "repo": "elayadesign/ai-design-skills",
+      "commit": "5e578402da175cdc539c900e4b09ceecfadcb37c",
+      "archive_sha256": "df12e6cb0f87e282dcce646ebeccfceb55e84f9f65daef87103e72a170db15ed",
+      "files": 5,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "selected_source_files": [
+        {
+          "path": "README.md",
+          "sha256": "1b0a86ac530d5720cb84f5f447bacb9c9f3bee2f5bf8b2a639ec6bddf30f01cf",
+          "bytes": 3139
+        },
+        {
+          "path": "skills/landing-page-design/SKILL.md",
+          "sha256": "203569792660ab6d71dcb2e4fa673c0c7a0df7c99801d04ab419a4cb08aceb2c",
+          "bytes": 18801
+        },
+        {
+          "path": "skills/design-to-motion/SKILL.md",
+          "sha256": "7c34ee4ca4c9a0e535217431a5547cc2e2a9bb692de4c81243a302843d3d68b6",
+          "bytes": 47926
+        }
+      ],
+      "excluded_large_or_binary_paths": []
+    }
+  ],
+  "pdf": {
+    "path": "local-source/The hidden memory tax in AI agents.pdf",
+    "sha256": "0bb514f89bc2ee4ebd72d345048acc9e57a3d1230fd815ed0374af031ca3b0ad",
+    "pages": 7,
+    "javascript_markers": 0
+  },
+  "supplementary_primary_sources": [
+    "https://arxiv.org/html/2610.29823v1",
+    "https://github.com/zedong-peng/memorytax",
+    "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners",
+    "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches"
+  ],
+  "source_screen": {
+    "scope": "Downloaded UTF-8 text files and locally extracted PDF text; no upstream code executed. Static screening, not install certification or exhaustive security audit.",
+    "verdict": "PROCEED-WITH-CAUTION",
+    "raw_match_counts": {
+      "agent_directive": 3945,
+      "side_effect": 38,
+      "exfiltration_cue": 40,
+      "invisible": 2,
+      "override": 13
+    },
+    "adjudication": {
+      "override": "All 13 matches are in defensive test fixtures in no-mistakes and PR-Agent; no active task-directed override identified.",
+      "invisible": "Both matches are Unicode commit-subject test cases, not hidden instructions.",
+      "agent_directive": "External skills and documentation contain ordinary procedural instructions; all remain data.",
+      "side_effect": "Installer examples, cleanup, scratch reset and test payloads; never executed. Worktree isolation does not establish OS sandboxing.",
+      "exfiltration_cue": "Mostly credential-authentication examples and defensive tests. PR-Agent contains an explicitly configured GCS secret-provider upload path; this is real outbound behavior, not evidence of covert exfiltration."
+    }
+  },
+  "native_skill_scan": {
+    "target": "[local-evidence]/comparison-evidence/plugins/pstack/skills/create-verification-skill, [local-evidence]/comparison-evidence/plugins/pstack/skills/maintain-verification-skill, [local-evidence]/comparison-evidence/ai-design-skills/skills",
+    "files_scanned": 7,
+    "score": 10,
+    "band": "low",
+    "severity_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    },
+    "skipped_modules": [],
+    "findings": [
+      {
+        "detection_class": 10,
+        "class_name": "Rogue Agent",
+        "severity": "medium",
+        "title": "Self-modification / persistence",
+        "message": "Skill modifies its own definition or the agent's config -- rogue-agent self-modification.",
+        "file": "SKILL.md",
+        "line": 21,
+        "snippet": "Only edit the verification skill's own directory (its SKILL.md, features/, and any harness scripts it owns). Never edit product code during a run: a behavior th",
+        "framework_ids": [
+          "ATTACK:T1546",
+          "NIST-CSF:DE.CM"
+        ],
+        "executable": false,
+        "analyzer": "text-patterns"
+      }
+    ]
+  },
+  "native_skill_scan_adjudication": {
+    "path": "skill-scanner.json",
+    "files_scanned": 7,
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "adjudicated_medium": "False positive: maintain-verification-skill/SKILL.md line 21 explicitly limits edits to the guide being maintained, with no covert persistence."
+  },
+  "github_develop_protection": {
+    "enforce_admins": true,
+    "required_pull_request_reviews": {
+      "dismiss_stale_reviews": true,
+      "require_code_owner_reviews": false,
+      "require_last_push_approval": false,
+      "required_approving_review_count": 0,
+      "url": "https://api.github.com/repos/bendourthe/Nexus-Hub/branches/develop/protection/required_pull_request_reviews"
+    },
+    "required_status_checks": [
+      "ci-required",
+      "validate",
+      "shellcheck",
+      "colocation",
+      "verify"
+    ],
+    "restrictions_present": false
+  },
+  "repository_rulesets": [],
+  "queue_enumerator_exit": 0,
+  "queue_record_count": 37,
+  "unknown_status_versions": [
+    "v4.14.0",
+    "v4.15.0",
+    "v4.15.1",
+    "v4.17.1",
+    "v4.17.2",
+    "v4.19.0",
+    "v4.20.1",
+    "v4.20.2"
+  ],
+  "queue_records": [
+    {
+      "version": "v4.14.0",
+      "slug": "adoption-agent-tooling-and-subagent-cost",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 0,
+      "done_tasks": 34,
+      "touched": [
+        "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md",
+        "docs/policy/platform-defaults-levers.md",
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "tests/validators/test_platform_defaults_levers.py",
+        "catalog/agents/code-reviewer.md",
+        "docs/releases/v4/v4.14/development/agent-pinning-rationale.md",
+        "tests/validators/test_agent_model_pinning.py",
+        "configs/platform-defaults.json",
+        "scripts/lib/integrations/claude.py",
+        "scripts/installer.sh",
+        "scripts/installer.ps1",
+        "docs/releases/v4/v4.14/development/capability-usage-gate.md",
+        "catalog/hooks/tests/test_installer_smoke.py",
+        "catalog/skills/developer-experience/interface-review/references/design-system-contract.md",
+        "catalog/skills/developer-experience/interface-review/SKILL.md",
+        "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+        "tests/validators/test_ui_cluster_contract.py",
+        "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+        "tests/validators/test_review_grouping_coverage.py",
+        "docs/releases/v4/v4.14/development/v4.14.0-last-phase-evidence.md",
+        "docs/releases/v4/v4.14/known-gaps.md",
+        "docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.14.1",
+      "slug": "adoption-effort-allocation",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+      "status": "queued",
+      "open_tasks": 0,
+      "done_tasks": 29,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.1-admission.md",
+        "docs/releases/v4/v4.14/known-gaps.md",
+        "catalog/skills/ai-development/model-routing/references/effort-modifiers.md",
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "catalog/skills/ai-development/prompt-engineering/references/effort-level-strategy.md",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "catalog/skills/workflow/implement-phase/references/verification-behaviors.md",
+        "catalog/skills/workflow/implement-phase/SKILL.md",
+        "catalog/skills/ai-development/model-routing/scripts/model-map.py",
+        "scripts/plan_status.py",
+        "docs/decisions/proposed/policy/YYYY-MM-DD-raise-only-verification-effort.md",
+        "tests/validators/test_plan_status.py",
+        "docs/releases/v4/v4.14/development/v4.14.1-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.14.2",
+      "slug": "adoption-harness-decisions-design-rules-and-cache-stability",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md",
+      "status": "queued",
+      "open_tasks": 2,
+      "done_tasks": 32,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.2-admission.md",
+        "docs/releases/v4/v4.14/known-gaps.md",
+        "docs/releases/v4/v4.14/development/eval/task.md",
+        "docs/releases/v4/v4.14/development/eval/grade.py",
+        "docs/releases/v4/v4.14/development/eval/control/manifest.md",
+        "tests/skills/test_refactor_first_eval_grader.py",
+        "catalog/skills/developer-experience/refactoring-expert/SKILL.md",
+        "catalog/skills/developer-experience/refactoring-expert/evals/trigger-cases.json",
+        "catalog/skills/code-cleanup/code-simplification/references/design-invariants.md",
+        "catalog/skills/code-cleanup/code-simplification/SKILL.md",
+        "catalog/skills/workflow/incremental-implementation/SKILL.md",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "tests/skills/test_rule_ownership.py",
+        "catalog/skills/ai-development/prompt-engineering/references/step-8-optimize-cost-and-latency.md",
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "catalog/commands/implement.md",
+        "tests/skills/test_cache_share_example.py",
+        "catalog/skills/ai-development/ai-agent-development/references/decision-policy-harness.md",
+        "docs/policy/platform-read-contracts.md",
+        "catalog/skills/developer-experience/technical-debt-analyzer/references/subsystem-baseline-review.md",
+        "docs/releases/v4/v4.14/development/v4.14.2-refactor-first-eval.md",
+        "docs/releases/v4/v4.14/development/v4.14.2-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.14.3",
+      "slug": "adoption-argon-enforcement-and-replayable-gates",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md",
+      "status": "queued",
+      "open_tasks": 20,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.3-admission.md",
+        "catalog/skills/ai-development/model-prompting-research/assets/profiles-index.json",
+        "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "guides/website/training.html",
+        "tests/skills/test_prompting_profile_gemini_4_argon.py",
+        "docs/policy/platform-read-contracts.md",
+        "docs/policy/platform-read-contracts.json",
+        "docs/releases/v4/v4.14/known-gaps.md",
+        "docs/releases/v4/v4.14/development/v4.14.3-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.14.4",
+      "slug": "adoption-gate-outcomes-and-opt-in-git-guard",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md",
+      "status": "queued",
+      "open_tasks": 24,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.4-admission.md",
+        "catalog/skills/orchestration/quality-gate-definitions/SKILL.md",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "tests/skills/test_rule_ownership.py",
+        "tests/skills/test_gate_record_recompute.py",
+        "catalog/skills/code-review/review-trapdoors/SKILL.md",
+        "docs/decisions/proposed/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md",
+        "catalog/hooks/git-guardrails.sh",
+        "catalog/hooks/git-guardrails.ps1",
+        "catalog/hooks/settings.json",
+        "catalog/hooks/tests/test_git_guardrails.py",
+        "docs/releases/v4/v4.14/development/v4.14.4-last-phase-evidence.md",
+        "docs/releases/v4/v4.14/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.14.5",
+      "slug": "adoption-codex-memory-levers",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md",
+      "status": "queued",
+      "open_tasks": 22,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.5-admission.md",
+        "docs/policy/memory-substrate-contract.md",
+        "catalog/skills/workflow/agent-memory/SKILL.md",
+        "catalog/skills/security/prompt-injection-defense/SKILL.md",
+        "docs/policy/platform-defaults-levers.md",
+        "configs/platform-defaults.json",
+        "tests/validators/test_sync_platform_defaults.py",
+        "docs/decisions/implemented/tooling/2026-10-15-omitted-defaults-are-never-seeded.md",
+        "docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md",
+        "docs/releases/v4/v4.14/development/v4.14.5-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.14.6",
+      "slug": "nexus-hub-settings-extension",
+      "path": "docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md",
+      "status": "queued",
+      "open_tasks": 46,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.14/development/v4.14.6-admission.md",
+        "docs/policy/settings-control-contract.md",
+        "scripts/dev/settings_proof_spike.py",
+        "docs/releases/v4/v4.14/development/v4.14.6-proof-matrix.md",
+        "scripts/lib/settings_control/catalog.json",
+        "tests/validators/test_settings_control_catalog.py",
+        "docs/decisions/implemented/tooling/2026-10-15-settings-control-admission.md",
+        "scripts/lib/settings_control/resolve.py",
+        "tests/settings_control/test_resolve.py",
+        "scripts/nexus_hub_cli.py",
+        "scripts/ci/profiles.py",
+        "scripts/lib/settings_control/writers.py",
+        "tests/settings_control/test_writers.py",
+        "scripts/lib/settings_control/apply.py",
+        "tests/settings_control/test_apply.py",
+        "scripts/installer.ps1",
+        "scripts/lib/integrations/platform_defaults.py",
+        "catalog/hooks/tests/test_installer_smoke.py",
+        "extensions/nexus-hub-settings/package.json",
+        "extensions/nexus-hub-settings/src/cliBridge.ts",
+        "extensions/nexus-hub-settings/src/editorWrites.ts",
+        "extensions/nexus-hub-settings/src/settingsView.ts",
+        "scripts/installer.sh",
+        "github/workflows/nexus-hub-settings.yml",
+        "guides/NEXUS_HUB_SETTINGS.md",
+        "docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.15.0",
+      "slug": "instruction-necessity-review",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 20,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.15/development/instruction-necessity-audit.md",
+        "docs/releases/v4/v4.15/development/last-phase-evidence.md",
+        "templates/ai-instructions/base-claude.md",
+        "catalog/commands/update.md",
+        "docs/releases/v4/v4.15/known-gaps.md",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.15.1",
+      "slug": "adoption-model-adaptive-harness",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 19,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.16/development/detection-evidence.md",
+        "docs/releases/v4/v4.16/development/injection-prototype.md",
+        "docs/releases/v4/v4.16/development/profile-layer-trust-audit.md",
+        "docs/releases/v4/v4.16/development/last-phase-evidence.md",
+        "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md",
+        "docs/releases/v4/v4.16/known-gaps.md",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.15.2",
+      "slug": "adoption-harness-economics-and-portable-engineering-system",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+      "status": "queued",
+      "open_tasks": 55,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/phase-1-evidence.md",
+        "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+        "catalog/skills/workflow/loop-engineering/SKILL.md",
+        "catalog/skills/workflow/loop-engineering/references/loop-schema.md",
+        "tests/validators/test_loop_engineering_bundle.py",
+        "guides/reference/HARNESS_PAIRING_EVALUATION.md",
+        "tests/fixtures/harness_pairings/",
+        "tests/integrations/test_harness_pairing_contract.py",
+        "catalog/skills/ai-development/eval-pipeline-audit/SKILL.md",
+        "docs/releases/v4/v4.17/development/phase-2-evidence.md",
+        "scripts/evaluate_harness_pairings.py",
+        "tests/fixtures/harness_pairings/adapters/",
+        "configs/harness-adapters/",
+        "tests/integrations/test_harness_pairings.py",
+        "docs/releases/v4/v4.17/development/phase-3-evidence.md",
+        "docs/policy/platform-read-contracts.md",
+        "docs/policy/platform-defaults-levers.md",
+        "templates/ai-instructions/base-agents.md",
+        "docs/releases/v4/v4.17/development/shared-agents-inventory.md",
+        "scripts/lib/integrations/base.py",
+        "scripts/lib/integrations/claude.py",
+        "scripts/installer.sh",
+        "scripts/installer.ps1",
+        "scripts/harness_audit.py",
+        "tests/integrations/test_harness_audit.py",
+        "tests/installer/test_verify_read_paths.py",
+        "tests/installer/test_instruction_merge.py",
+        "tests/installer/test_installer_smoke_postconditions.py",
+        "tests/integrations/test_contract.py",
+        "tests/integrations/test_lifecycle_block_rendering.py",
+        "tests/integrations/test_org_materialization.py",
+        "tests/integrations/test_parity_with_legacy_installer.py",
+        "docs/releases/v4/v4.17/development/claude-agents-evaluation.md",
+        "docs/releases/v4/v4.17/development/phase-4-evidence.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/todos.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.15.3",
+      "slug": "adoption-behavioral-harness-and-security-review-evidence",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md",
+      "status": "queued",
+      "open_tasks": 28,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.15/development/v4.15.3-admission.md",
+        "catalog/skills/code-review/security-review/references/generic-review-projection.md",
+        "tests/fixtures/review-evidence/v4.15.3/cases.json",
+        "catalog/skills/code-review/security-review/scripts/project-review-findings.py",
+        "tests/skills/test_review_security_projection.py",
+        "catalog/skills/code-review/security-review/SKILL.md",
+        "docs/releases/v4/v4.15/development/v4.15.3-phase-1-evidence.md",
+        "catalog/skills/code-review/multi-agent-code-review/references/findings-schema.md",
+        "catalog/skills/code-review/multi-agent-code-review/references/validator-template.md",
+        "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+        "catalog/skills/code-review/multi-agent-code-review/scripts/review-fanout-workflow.js",
+        "catalog/skills/code-review/final-report/SKILL.md",
+        "tests/skills/test_review_evidence_consumers.py",
+        "docs/releases/v4/v4.15/development/v4.15.3-phase-2-evidence.md",
+        "guides/reference/HARNESS_FEEDBACK_CADENCE.md",
+        "tests/fixtures/harness_pairings/v4.15.3-cadence/manifest.json",
+        "tests/skills/test_harness_cadence_protocol.py",
+        "docs/releases/v4/v4.15/development/v4.15.3-phase-3-evidence.md",
+        "docs/releases/v4/v4.15/development/v4.15.3-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.15.4",
+      "slug": "checker-evidence-and-diagnostics",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md",
+      "status": "Queued - confirmed; implementation not started",
+      "open_tasks": 23,
+      "done_tasks": 0,
+      "touched": [
+        "tests/validators/test_validate_unicode_safety.py",
+        "scripts/validate_unicode_safety.py",
+        "scripts/check_plan_completion.py",
+        "scripts/completion_minor.py",
+        "tests/validators/test_check_plan_completion.py",
+        "scripts/approval_page.py",
+        "tests/validators/test_approval_page.py",
+        "scripts/minor_close.py",
+        "tests/validators/test_completion_minor_verdict.py",
+        "docs/releases/v4/v4.15/development/v4.15.4-last-phase-evidence.md",
+        "docs/releases/v4/v4.15/known-gaps.md",
+        "docs/handbooks/handbooks.json",
+        "scripts/ci/profiles.py"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.16.0",
+      "slug": "adoption-pinned-rules-and-prune-compaction",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.0-adoption-pinned-rules-and-prune-compaction.md",
+      "status": "queued",
+      "open_tasks": 37,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.16.0-admission.md",
+        "catalog/skills/ai-development/context-engineering/SKILL.md",
+        "docs/decisions/rejected/policy/YYYY-MM-DD-system-one-decision-models.md",
+        "catalog/hooks/pinned-rules.sh",
+        "catalog/hooks/pinned-rules.ps1",
+        "catalog/hooks/settings.json",
+        "catalog/hooks/tests/test_pinned_rules.py",
+        "docs/releases/v4/v4.17/development/v4.16.0-phase-2-live-check.md",
+        "catalog/skills/orchestration/context-compression/SKILL.md",
+        "tests/fixtures/prune_transcript/long_session.jsonl",
+        "catalog/skills/orchestration/context-compression/scripts/prune_transcript.py",
+        "tests/skills/test_prune_transcript.py",
+        "catalog/skills/testing/browser-testing-with-devtools/SKILL.md",
+        "catalog/skills/security-operations/agent-execution-isolation/SKILL.md",
+        "catalog/skills/security/prompt-injection-defense/SKILL.md",
+        "catalog/skills/developer-experience/tool-design/SKILL.md",
+        "catalog/skills/developer-experience/ai-output-evaluation/SKILL.md",
+        "catalog/skills/orchestration/prompt-token-optimization/SKILL.md",
+        "docs/releases/v4/v4.17/development/v4.16.0-last-phase-evidence.md",
+        "docs/releases/v4/v4.17/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.16.1",
+      "slug": "adoption-proactive-memory-intervention",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md",
+      "status": "queued",
+      "open_tasks": 23,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/phase-1-baseline.md",
+        "docs/decisions/proposed/policy/YYYY-MM-DD-advisory-calibration-clause-placement.md",
+        "catalog/skills/orchestration/context-degradation/evals/reactivate-before-restart.json",
+        "catalog/skills/orchestration/context-degradation/SKILL.md",
+        "tests/skills/test_rule_ownership_and_distribution.py",
+        "catalog/skills/ai-development/ai-agent-development/references/step-3-build-memory-systems.md",
+        "catalog/skills/workflow/agent-memory/SKILL.md",
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "docs/releases/v4/v4.17/development/phase-4-evidence.md",
+        "tests/validators/test_report_output_contract.py",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md",
+        "docs/releases/v4/v4.17/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.16.2",
+      "slug": "adoption-agent-experience-and-harness-economics",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md",
+      "status": "queued",
+      "open_tasks": 32,
+      "done_tasks": 0,
+      "touched": [
+        "catalog/skills/ai-development/model-routing/SKILL.md",
+        "docs/policy/model-routing-in-plan-and-implement.md",
+        "tests/skills/test_skill_contracts.py",
+        "docs/releases/v4/v4.16/known-gaps.md",
+        "docs/decisions/implemented/policy/DECISION-DATE-persistent-learned-knowledge-ownership.md",
+        "catalog/skills/workflow/continuous-learning/SKILL.md",
+        "tests/skills/test_persistent_knowledge.py",
+        "docs/decisions/implemented/policy/DECISION-DATE-agent-behavior-disclosure-ownership.md",
+        "catalog/skills/infrastructure/incident-postmortem/SKILL.md",
+        "docs/disclosures/register.md",
+        "tests/skills/test_agent_behavior_disclosure.py",
+        "catalog/skills/workflow/implementation-plan/SKILL.md",
+        "scripts/enumerate_plan_queue.py",
+        "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+        "docs/archives/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md",
+        "tests/validators/test_plan_queue_status.py",
+        "catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md",
+        "catalog/skills/business-product/product-pulse/SKILL.md",
+        "tests/skills/test_product_pulse_metrics.py",
+        "docs/releases/v4/v4.16/development/last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.16.3",
+      "slug": "adoption-tool-output-containment-and-context-attribution",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md",
+      "status": "queued",
+      "open_tasks": 33,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.16/development/v4.16.3-phase-1-baseline.md",
+        "docs/decisions/proposed/tooling/YYYY-MM-DD-request-context-report.md",
+        "docs/decisions/proposed/tooling/YYYY-MM-DD-pretooluse-advisory-channel.md",
+        "docs/releases/v4/v4.16/development/v4.16.3-evals/evals.json",
+        "tests/fixtures/context_report/session.jsonl",
+        "catalog/hooks/_transcript_reader.py",
+        "catalog/hooks/_context_report.py",
+        "catalog/commands/usage.md",
+        "catalog/hooks/tests/test_context_report.py",
+        "catalog/skills/orchestration/prompt-token-optimization/SKILL.md",
+        "tests/skills/test_rule_ownership_and_distribution.py",
+        "extensions/nexus-context-compressor/src/nexus_context_compressor/savings.py",
+        "extensions/nexus-context-compressor/src/nexus_context_compressor/cli.py",
+        "extensions/nexus-context-compressor/tests/test_savings.py",
+        "extensions/nexus-context-compressor/src/nexus_context_compressor/rewrite.py",
+        "catalog/hooks/tests/test_rewrite_command.py",
+        "docs/decisions/proposed/tooling/YYYY-MM-DD-compaction-digest-tiers.md",
+        "catalog/hooks/_redact.py",
+        "catalog/hooks/_digest_tiers.py",
+        "catalog/hooks/session-summary.sh",
+        "catalog/hooks/tests/test_session_digest.py",
+        "docs/releases/v4/v4.16/development/v4.16.3-last-phase-evidence.md",
+        "docs/releases/v4/v4.16/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.17.0",
+      "slug": "push-size-guard",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.0-push-size-guard.md",
+      "status": "Authored 2026-09-11; implementation not started, 0/23 tasks and 0/5 phases complete.",
+      "open_tasks": 23,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.14/development/phase-1-baseline.md",
+        "catalog/hooks/pre-push.ps1",
+        "tests/validators/test_pre_push_size_guard.py",
+        "docs/releases/v4/v4.14/development/phase-2-hook.md",
+        "scripts/installer.sh",
+        "scripts/installer.ps1",
+        "catalog/hooks/tests/test_installer_smoke.py",
+        "docs/releases/v4/v4.14/development/phase-3-install.md",
+        "catalog/skills/security/pre-commit-checklist/SKILL.md",
+        "docs/releases/v4/v4.14/development/phase-4-docs.md",
+        "docs/releases/v4/v4.14/development/last-phase-evidence.md",
+        "docs/releases/v4/v4.14/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.17.1",
+      "slug": "adoption-process-safety-and-review-pipeline",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.1-adoption-process-safety-and-review-pipeline.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 33,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.17.1-decisions.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md",
+        "catalog/rules/process/dev-server-safety.md",
+        "catalog/hooks/process-ownership-guard.sh",
+        "catalog/hooks/process-ownership-guard.ps1",
+        "catalog/hooks/settings.json",
+        "catalog/hooks/tests/test_process_ownership_guard.py",
+        "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+        "catalog/skills/code-review/multi-agent-code-review/references/findings-schema.md",
+        "catalog/skills/code-review/multi-agent-code-review/references/validator-template.md",
+        "catalog/skills/developer-experience/tool-design/SKILL.md",
+        "tests/skills/test_review_prepass_and_verdicts.py",
+        "catalog/skills/code-review/multi-agent-code-review/scripts/review-state.py",
+        "tests/skills/test_incremental_review_reuse.py",
+        "catalog/skills/workflow/loop-engineering/SKILL.md",
+        "catalog/skills/workflow/skill-eval-loop/SKILL.md",
+        "tests/validators/test_loop_budget_and_gate_metric.py",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.17.2",
+      "slug": "adoption-agent-working-agreement",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.2-adoption-agent-working-agreement.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 24,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.17.2-admission.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md",
+        "catalog/skills/workflow/verification-before-completion/SKILL.md",
+        "tests/validators/test_working_agreement_blocks.py",
+        "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+        "docs/releases/v4/v4.17/development/v4.17.2-rule-evaluation.md",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.18.0",
+      "slug": "adoption-testing-discipline-headings-and-opus-5-5",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md",
+      "status": "queued",
+      "open_tasks": 43,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.18.0-admission.md",
+        "catalog/skills/workflow/test-driven-development/SKILL.md",
+        "catalog/skills/developer-experience/anti-slop-editing/SKILL.md",
+        "catalog/skills/tests-generation/code-coverage/SKILL.md",
+        "catalog/agents/tdd-guide.md",
+        "catalog/skills/tests-generation/edge-case-generator/SKILL.md",
+        "catalog/skills/tests-generation/unit-tests/SKILL.md",
+        "tests/validators/test_writing_discipline_rule.py",
+        "scripts/check_base_template_parity.py",
+        "catalog/skills/business-product/technical-writer/SKILL.md",
+        "catalog/skills/specialized-domains/document-to-interactive-html/references/content-model.md",
+        "catalog/skills/developer-experience/anti-slop-editing/scripts/detect_sentence_headings.py",
+        "catalog/skills/ai-development/model-prompting-research/assets/profiles-index.json",
+        "docs/decisions/implemented/policy/2026-09-23-claude-effort-default-for-opus-5-5.md",
+        "docs/policy/model-routing-in-plan-and-implement.md",
+        "catalog/skills/ai-development/model-prompting-research/references/models/claude-opus-5-5.md",
+        "tests/validators/test_testing_discipline_rule.py",
+        "tests/validators/test_autonomy_block_rule.py",
+        "catalog/skills/security/prompt-injection-defense/SKILL.md",
+        "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+        "catalog/skills/specialized-domains/deep-research-compilation/SKILL.md",
+        "catalog/skills/workflow/loop-engineering/references/recipes/build-test-fix.md",
+        "catalog/skills/workflow/loop-engineering/SKILL.md",
+        "docs/releases/v4/v4.17/development/v4.18.0-behavior-eval.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.18.1",
+      "slug": "adoption-local-hooks-and-single-item-install",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.1-adoption-local-hooks-and-single-item-install.md",
+      "status": "queued",
+      "open_tasks": 27,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.18.1-design.md",
+        "docs/reference/settings-merge-contract.md",
+        "scripts/lib/integrations/_settings_hooks.py",
+        "scripts/lib/integrations/manifest.py",
+        "scripts/nexus_hub_cli.py",
+        "scripts/lib/integrations/runner.py",
+        "catalog/hooks/spec-scope-notice.sh",
+        "catalog/hooks/tests/test_spec_scope_notice.py",
+        "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md",
+        "scripts/lib/integrations/lifecycle.py",
+        "catalog/hooks/statusline-model.sh",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.18.2",
+      "slug": "adoption-de-slop-repair-discipline",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.2-adoption-de-slop-repair-discipline.md",
+      "status": "queued",
+      "open_tasks": 28,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.15/development/phase-1-baseline.md",
+        "docs/decisions/proposed/policy/YYYY-MM-DD-behavioral-post-condition-ownership.md",
+        "catalog/skills/workflow/verification-before-completion/evals/repair-post-condition.json",
+        "catalog/skills/workflow/verification-before-completion/SKILL.md",
+        "catalog/skills/code-cleanup/lint-repair-loop/SKILL.md",
+        "tests/skills/test_deslop_gate_ownership.py",
+        "catalog/skills/code-cleanup/code-simplification/SKILL.md",
+        "catalog/skills/code-cleanup/minimal-construction/SKILL.md",
+        "catalog/skills/code-review/over-engineering-review/SKILL.md",
+        "catalog/skills/code-cleanup/ruleset-adoption/SKILL.md",
+        "catalog/skills/security/pre-commit-checklist/SKILL.md",
+        "data/skills.json",
+        "docs/releases/v4/v4.15/development/last-phase-evidence.md",
+        "docs/releases/v4/v4.15/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.19.0",
+      "slug": "adoption-frontier-agent-practice",
+      "path": "docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 33,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.19.0-phase-1-baseline.md",
+        "catalog/skills/developer-experience/tool-design/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-1.md",
+        "docs/releases/v4/v4.17/development/v4.19.0-phase-2-scope.md",
+        "catalog/skills/testing/verification-instrument/SKILL.md",
+        "catalog/skills/testing/verification-instrument/references/feature-catalogue.md",
+        "data/SKILL_INDEX.md",
+        "catalog/skills/testing/functional-verification/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-2.md",
+        "extensions/nexus-context-compressor/evals/fixtures/manifest.json",
+        "extensions/nexus-context-compressor/tests/test_adversarial_recall.py",
+        "scripts/check_plan_structure.py",
+        "scripts/ci/profiles.py",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-3.md",
+        "catalog/skills/architecture/architecture-design/SKILL.md",
+        "docs/releases/v4/v4.17/development/v4.19.0-phase-4-notes.md",
+        "catalog/skills/developer-experience/idea-refine/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-4.md",
+        "catalog/skills/business-product/technical-writer/SKILL.md",
+        "catalog/skills/developer-experience/spec-driven-development/SKILL.md",
+        "catalog/skills/developer-experience/analyze-codebase/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-5.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence-v4.19.0.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "github/workflows/ci.yml",
+        "docs/releases/v4/v4.17/development/history/v4.19.0-phase-6.md"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.19.1",
+      "slug": "adoption-tracer-bullet-and-leading-words",
+      "path": "docs/releases/v4/v4.19/plans/v4.19.1-adoption-tracer-bullet-and-leading-words.md",
+      "status": "queued",
+      "open_tasks": 32,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.19.1-admission.md",
+        "catalog/skills/workflow/implementation-plan/SKILL.md",
+        "catalog/skills/workflow/incremental-implementation/SKILL.md",
+        "catalog/skills/ai-development/prompt-engineering/SKILL.md",
+        "catalog/skills/developer-experience/skill-description-authoring/references/agent-writing-theory.md",
+        "catalog/skills/orchestration/context-compression/SKILL.md",
+        "catalog/skills/workflow/session-history/SKILL.md",
+        "catalog/skills/orchestration/context-degradation/SKILL.md",
+        "catalog/skills/ai-development/ai-agent-development/references/step-1-choose-an-agent-architecture.md",
+        "catalog/skills/ai-development/ai-agent-development/references/step-7-evaluate-and-test-agents.md",
+        "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+        "docs/decisions/rejected/policy/2026-09-25-register-unreal-agent-harness-platform.md",
+        "catalog/skills/workflow/implementation-plan/evals/evals.json",
+        "docs/releases/v4/v4.17/development/v4.19.1-behavior-eval.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence-v4.19.1.md",
+        "github/workflows/"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.20.0",
+      "slug": "adoption-alignment-readability-mods-routing",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md",
+      "status": "queued",
+      "open_tasks": 33,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.20.0-admission.md",
+        "catalog/skills/developer-experience/design-interview/SKILL.md",
+        "catalog/skills/workflow/implementation-plan/SKILL.md",
+        "catalog/commands/plan.md",
+        "catalog/skills/developer-experience/idea-refine/SKILL.md",
+        "tests/skills/test_interview_readback.py",
+        "catalog/skills/developer-experience/writing-editing/references/controlled-language.md",
+        "catalog/skills/developer-experience/writing-editing/SKILL.md",
+        "catalog/skills/business-product/technical-writer/SKILL.md",
+        "catalog/skills/developer-experience/writing-editing/evals/trigger-cases.json",
+        "data/skills.json",
+        "tests/skills/test_controlled_language_register.py",
+        "catalog/skills/ai-development/model-routing/references/routing-ledger.md",
+        "catalog/skills/ai-development/model-routing/scripts/routing_ledger.py",
+        "catalog/skills/ai-development/model-routing/scripts/model-map.py",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "docs/decisions/proposed/tooling/2026-10-02-routing-outcome-ledger.md",
+        "tests/validators/test_model_map_ledger.py",
+        "tests/validators/test_model_map_report.py",
+        "docs/releases/v4/v4.18/development/v4.20.0-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.20.1",
+      "slug": "adoption-manager-context-signal-discipline",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.1-adoption-manager-context-signal-discipline.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 51,
+      "done_tasks": 0,
+      "touched": [
+        "docs/decisions/implemented/policy/2026-09-17-report-producing-skill-roster-mechanism.md",
+        "catalog/style-guides/report-output-contract.md",
+        "tests/validators/test_report_output_contract.py",
+        "catalog/hooks/tests/test_installer_smoke.py",
+        "docs/releases/v4/v4.15/development/session-history.md",
+        "docs/releases/v4/v4.15/development/review-cluster-baseline.md",
+        "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+        "catalog/skills/code-review/plan-review/SKILL.md",
+        "catalog/skills/business-product/product-pulse/SKILL.md",
+        "catalog/skills/workflow/session-query/SKILL.md",
+        "catalog/skills/developer-experience/analyze-codebase/SKILL.md",
+        "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+        "catalog/skills/workflow/skill-stocktake/SKILL.md",
+        "catalog/skills/workflow/commit-sweep/SKILL.md",
+        "catalog/skills/workflow/documentation-consistency/SKILL.md",
+        "docs/releases/v4/v4.15/development/last-phase-evidence.md",
+        "catalog/skills/workflow/agent-memory/SKILL.md",
+        "catalog/skills/workflow/solution-knowledge-base/SKILL.md",
+        "catalog/skills/workflow/continuous-learning/SKILL.md",
+        "catalog/skills/workflow/known-gaps-tracker/SKILL.md",
+        "docs/releases/v4/v4.15/known-gaps.md",
+        "catalog/skills/workflow/signal-briefing/SKILL.md",
+        "data/SKILL_INDEX.md",
+        "data/skills.json",
+        "data/marketplace.json",
+        "github/workflows/ci.yml",
+        "scripts/installer.sh"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.20.2",
+      "slug": "adoption-aika-modes",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.2-adoption-aika-modes.md",
+      "status": "unknown (no parseable Status line)",
+      "open_tasks": 24,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.20.2-phase-1-baseline.md",
+        "docs/releases/v4/v4.17/development/v4.20.2-phase-1-notes.md",
+        "catalog/skills/developer-experience/agent-communication/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.20.2-phase-1.md",
+        "catalog/skills/workflow/context-modes/SKILL.md",
+        "catalog/skills/orchestration/agent-access-policy/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.20.2-phase-2.md",
+        "catalog/skills/workflow/agent-presets/SKILL.md",
+        "docs/releases/v4/v4.17/development/history/v4.20.2-phase-3.md",
+        "docs/releases/v4/v4.17/development/v4.20.2-phase-4-stage-contract.md",
+        "docs/releases/v4/v4.17/development/history/v4.20.2-phase-4.md",
+        "docs/releases/v4/v4.17/development/last-phase-evidence-v4.20.2.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/releases/v4/v4.17/development/history/v4.20.2-phase-5.md"
+      ],
+      "error": null,
+      "note": "no Status line; membership is undeclared"
+    },
+    {
+      "version": "v4.21.0",
+      "slug": "adoption-self-improving-harness-loop",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.0-adoption-self-improving-harness-loop.md",
+      "status": "queued",
+      "open_tasks": 35,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.21.0-admission.md",
+        "tests/fixtures/agent-improvement/v4.21.0/scenarios.json",
+        "catalog/skills/workflow/continuous-learning/references/verified-improvement-loop.md",
+        "catalog/skills/workflow/continuous-learning/SKILL.md",
+        "catalog/skills/developer-experience/ai-output-evaluation/references/error-analysis.md",
+        "tests/skills/test_verified_improvement_manifest.py",
+        "tests/skills/test_failure_signature_routing.py",
+        "docs/releases/v4/v4.18/development/v4.21.0-behavioral-gate.md",
+        "catalog/skills/workflow/skill-eval-loop/references/fixture-signal.md",
+        "tests/skills/test_fixture_signal_reference.py",
+        "catalog/hooks/tests/test_session_handoff_contract.py",
+        "docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md",
+        "catalog/skills/workflow/session-handoff/SKILL.md",
+        "docs/decisions/implemented/tooling/2026-10-05-state-machine-verification-checker-scope.md",
+        "catalog/skills/testing/state-machine-verification/SKILL.md",
+        "catalog/skills/testing/state-machine-verification/scripts/explore_states.py",
+        "catalog/skills/testing/state-machine-verification/evals/trigger-cases.json",
+        "tests/verification/fixtures/controlled_language/heldout/labels.json",
+        "catalog/skills/developer-experience/anti-slop-editing/SKILL.md",
+        "tests/verification/test_controlled_language_shape.py",
+        "docs/releases/v4/v4.18/development/v4.21.0-last-phase-evidence.md",
+        "docs/todos.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.21.1",
+      "slug": "adoption-html-plans-agent-verification-and-authorization-proofs",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md",
+      "status": "queued",
+      "open_tasks": 41,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.21.1-admission.md",
+        "tests/fixtures/agent-interview/v4.21.1/skipped-questions.json",
+        "catalog/skills/developer-experience/design-interview/SKILL.md",
+        "catalog/skills/workflow/implement-phase/references/approval-page.md",
+        "scripts/approval_page.py",
+        "tests/validators/test_approval_page.py",
+        "tests/skills/test_unopened_defaults.py",
+        "docs/releases/v4/v4.18/development/v4.21.1-behavior-eval.md",
+        "catalog/skills/developer-experience/html-output-conventions/SKILL.md",
+        "tests/skills/test_round_trip_payload_rule.py",
+        "catalog/skills/workflow/loop-engineering/SKILL.md",
+        "tests/skills/test_check_command_discipline.py",
+        "catalog/skills/code-review/behavior-preservation-checker/SKILL.md",
+        "catalog/skills/tests-generation/property-based-test-generator/references/must-never-properties.md",
+        "catalog/skills/testing/functional-verification/SKILL.md",
+        "catalog/skills/workflow/test-driven-development/SKILL.md",
+        "tests/skills/test_differential_and_must_never.py",
+        "catalog/skills/language-specialists/typescript-expert/references/proof-carrying-authorization.md",
+        "catalog/skills/language-specialists/typescript-expert/references/examples/proof-carrying-authorization/mistakes.ts",
+        "catalog/skills/security/authentication-patterns/SKILL.md",
+        "catalog/skills/security/api-object-level-authorization-flaws/SKILL.md",
+        "catalog/skills/language-specialists/typescript-expert/evals/trigger-cases.json",
+        "docs/decisions/proposed/policy/2026-10-06-authorization-proofs-as-typescript-reference.md",
+        "tests/skills/test_proof_carrying_authorization.py",
+        "catalog/skills/developer-experience/html-output-conventions/references/plan-claims.html",
+        "catalog/commands/plan.md",
+        "catalog/skills/developer-experience/html-output-conventions/scripts/lint_plan_page.py",
+        "tests/skills/test_lint_plan_page.py",
+        "tests/validators/test_plan_queue_ordering_property.py",
+        "catalog/hooks/tests/test_hook_sibling_parity.py",
+        "docs/releases/v4/v4.18/development/v4.21.1-last-phase-evidence.md",
+        "docs/releases/v4/v4.18/known-gaps.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.21.2",
+      "slug": "adoption-evals-test-trust-and-visual-agent-communication",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md",
+      "status": "queued",
+      "open_tasks": 28,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.21.2-admission.md",
+        "tests/fixtures/agent-communication/v4.21.2/cases.json",
+        "docs/releases/v4/v4.18/development/v4.21.2-baseline.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-phase-1-evidence.md",
+        "catalog/skills/developer-experience/agent-communication/SKILL.md",
+        "catalog/style-guides/agent-communication.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-phase-2-evidence.md",
+        "catalog/skills/workflow/skill-eval-loop/references/schemas.md",
+        "scripts/aggregate_benchmark.py",
+        "catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md",
+        "catalog/hooks/tests/test_eval_loop.py",
+        "scripts/skill_eval_viewer.py",
+        "docs/releases/v4/v4.18/development/v4.21.2-phase-4-evidence.md",
+        "catalog/skills/workflow/platform-contract-verification/references/visual-surfaces.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-host-qualification.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-behavior-eval.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-phase-5-evidence.md",
+        "docs/releases/v4/v4.18/development/v4.21.2-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.0",
+      "slug": "adoption-structural-slop-signatures",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.0-adoption-structural-slop-signatures.md",
+      "status": "queued",
+      "open_tasks": 36,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.17/development/v4.22.0-admission.md",
+        "docs/releases/v4/v4.17/comparisons/v4.22.0-comparison-slop-instrument.md",
+        "docs/releases/v4/v4.17/comparisons/v4.22.0-comparison-lamp-taxonomy.md",
+        "catalog/skills/developer-experience/anti-slop-editing/references/self-check.md",
+        "catalog/skills/developer-experience/anti-slop-editing/SKILL.md",
+        "catalog/skills/developer-experience/anti-slop-editing/references/cliche-patterns.md",
+        "tests/verification/fixtures/shape/shape_edit_draft.md",
+        "catalog/skills/developer-experience/anti-slop-editing/references/structural-shape.md",
+        "catalog/skills/developer-experience/anti-slop-editing/evals/trigger-cases.json",
+        "tests/verification/fixtures/shape/heldout/labels.json",
+        "catalog/skills/developer-experience/anti-slop-editing/scripts/detect_sentence_headings.py",
+        "tests/verification/test_detect_shape.py",
+        "docs/releases/v4/v4.17/development/v4.22.0-behavior-eval.md",
+        "docs/releases/v4/v4.17/known-gaps.md",
+        "docs/releases/v4/v4.17/development/v4.22.0-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.1",
+      "slug": "adoption-code-rendered-animation-and-illustration-quality",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md",
+      "status": "queued",
+      "open_tasks": 31,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.22.1-admission.md",
+        "docs/releases/v4/v4.18/development/eval/task.md",
+        "docs/releases/v4/v4.18/known-gaps.md",
+        "docs/releases/v4/v4.18/development/eval/before/manifest.md",
+        "catalog/skills/developer-experience/hallmark-design/references/cross-format-patterns.md",
+        "catalog/skills/specialized-domains/document-to-interactive-html/references/content-intent.md",
+        "catalog/skills/specialized-domains/pptx-generation/SKILL.md",
+        "catalog/skills/specialized-domains/docx-generation/SKILL.md",
+        "tests/skills/test_illustration_production_rules.py",
+        "catalog/skills/developer-experience/creative-generation/SKILL.md",
+        "catalog/skills/specialized-domains/document-to-interactive-html/references/interactive-features.md",
+        "catalog/skills/testing/functional-verification/scripts/contact_sheet.py",
+        "catalog/rules/html/visual-self-verification.md",
+        "tests/skills/test_contact_sheet.py",
+        "docs/releases/v4/v4.18/development/v4.22.1-illustration-eval.md",
+        "docs/releases/v4/v4.18/development/v4.22.1-last-phase-evidence.md",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.2",
+      "slug": "adoption-dashboards-motion-evidence-ledger-and-reliable-automations",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md",
+      "status": "queued",
+      "open_tasks": 39,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.18/development/v4.22.2-admission.md",
+        "docs/decisions/proposed/architecture/",
+        "docs/decisions/proposed/policy/",
+        "tests/fixtures/unattended-runs/v4.22.2/scenarios.json",
+        "tests/skills/test_v4185_fixtures.py",
+        "catalog/skills/workflow/loop-engineering/references/unattended-runs.md",
+        "catalog/skills/workflow/loop-engineering/references/loop-schema.md",
+        "catalog/skills/workflow/loop-engineering/scripts/run_ledger.py",
+        "tests/skills/test_run_ledger.py",
+        "catalog/skills/workflow/cross-project-comparison/references/evidence-ledger.md",
+        "catalog/skills/workflow/cross-project-comparison/SKILL.md",
+        "catalog/skills/workflow/cross-project-comparison/scripts/verify_citations.py",
+        "tests/skills/test_verify_citations.py",
+        "docs/policy/platform-scheduler-levers.md",
+        "catalog/skills/workflow/loop-engineering/SKILL.md",
+        "templates/ai-instructions/base-claude.md",
+        "docs/releases/v4/v4.18/development/v4.22.2-phase-4-evidence.md",
+        "catalog/skills/developer-experience/inline-visualization/references/query-mode.md",
+        "catalog/commands/visualize.md",
+        "catalog/skills/developer-experience/html-output-conventions/references/chart-template.html",
+        "tests/skills/test_query_mode.py",
+        "catalog/skills/developer-experience/inline-visualization/references/animate-mode.md",
+        "tests/skills/test_animate_mode.py",
+        "tests/fixtures/compare-evidence/v4.22.2/built-site/bundle.min.js",
+        "catalog/skills/specialized-domains/",
+        "docs/releases/v4/v4.18/development/v4.22.2-phase-8-evidence.md",
+        "docs/releases/v4/v4.18/development/v4.22.2-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.3",
+      "slug": "adoption-verified-agent-output",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md",
+      "status": "queued",
+      "open_tasks": 28,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.22/development/v4.22.3-admission.md",
+        "tests/fixtures/test-integrity/v4.22.3/cases.json",
+        "tests/skills/test_v4223_fixtures.py",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "catalog/skills/workflow/pr-description-writer/SKILL.md",
+        "tests/skills/test_pr_evidence_contract.py",
+        "catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md",
+        "scripts/check_test_integrity.py",
+        "docs/releases/v4/v4.22/development/v4.22.3-phase-3-evidence.md",
+        "tests/skills/test_check_test_integrity.py",
+        "docs/decisions/proposed/architecture/",
+        "scripts/prepublish_receipt.py",
+        "catalog/hooks/prepublish-receipt.sh",
+        "catalog/hooks/settings.json",
+        "catalog/hooks/tests/test_prepublish_receipt.py",
+        "catalog/skills/tests-generation/performance-regression-gate/SKILL.md",
+        "tests/skills/test_perf_resource_metrics.py",
+        "docs/releases/v4/v4.22/development/v4.22.3-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.4",
+      "slug": "adoption-claude-code-mods",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.4-adoption-claude-code-mods.md",
+      "status": "queued",
+      "open_tasks": 30,
+      "done_tasks": 0,
+      "touched": [
+        "docs/decisions/implemented/policy/2026-09-15-mod-exposure-advisory-scope.md",
+        "guides/ORG_KNOWLEDGE_LAYER.md",
+        "docs/policy/platform-read-contracts.md",
+        "catalog/style-guides/mod-exposure.md",
+        "docs/releases/v4/v4.15/development/v4.22.4-last-phase-evidence.md",
+        "catalog/skills/",
+        "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md",
+        "docs/policy/platform-read-contracts.json",
+        "catalog/skills/workflow/platform-contract-verification/SKILL.md",
+        "tests/validators/test_platform_read_contracts.py",
+        "docs/decisions/rejected/policy/2026-09-15-build-no-nexus-hub-mod.md",
+        "docs/decisions/implemented/policy/2026-09-15-function-hooks-as-findings-record.md",
+        "docs/releases/v4/v4.15/known-gaps.md",
+        "docs/decisions/README.md",
+        "github/workflows/ci.yml"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.5",
+      "slug": "adoption-data-analysis-qa-and-product-review",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.5-adoption-data-analysis-qa-and-product-review.md",
+      "status": "Queued - four-phase plan approved on 2026-10-21; implementation not started, 0 of 22 tasks complete.",
+      "open_tasks": 22,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.22/development/v4.22.5-admission.md",
+        "tests/fixtures/analysis-qa/v4.22.5/",
+        "docs/releases/v4/v4.22/development/v4.22.5-baseline-manifest.json",
+        "docs/releases/v4/v4.22/development/v4.22.5-phase-1-evidence.md",
+        "catalog/skills/developer-experience/analysis-logic/references/data-analysis-qa.md",
+        "catalog/skills/developer-experience/analysis-logic/references/metric-context-template.md",
+        "tests/skills/test_product_review_preset.py",
+        "docs/releases/v4/v4.22/development/v4.22.5-phase-2-evidence.md",
+        "catalog/skills/workflow/agent-presets/SKILL.md",
+        "data/bundles.json",
+        "docs/releases/v4/v4.22/development/v4.22.5-behavior-evidence/",
+        "docs/releases/v4/v4.22/development/v4.22.5-phase-3-evidence.md",
+        "docs/releases/v4/v4.22/development/v4.22.5-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    },
+    {
+      "version": "v4.22.6",
+      "slug": "adoption-open-model-recipes-and-restraint",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md",
+      "status": "Queued - five-phase plan approved on 2026-10-22; implementation not started, 0 of 25 tasks complete.",
+      "open_tasks": 25,
+      "done_tasks": 0,
+      "touched": [
+        "docs/releases/v4/v4.22/development/v4.22.6-admission.md",
+        "tests/fixtures/hallmark-restraint/v4.22.6/",
+        "docs/releases/v4/v4.22/development/v4.22.6-phase-1-evidence.md",
+        "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+        "catalog/skills/developer-experience/hallmark-design/references/motion-recipes.md",
+        "docs/releases/v4/v4.22/development/v4.22.6-phase-2-evidence.md",
+        "catalog/skills/ai-development/multi-provider-ai/SKILL.md",
+        "catalog/skills/ai-development/ai-billing-safeguards/SKILL.md",
+        "docs/releases/v4/v4.22/development/v4.22.6-phase-3-evidence.md",
+        "catalog/skills/ai-development/model-prompting-research/assets/profiles-index.json",
+        "docs/releases/v4/v4.22/development/v4.22.6-phase-4-evidence.md",
+        "docs/releases/v4/v4.22/development/v4.22.6-last-phase-evidence.md"
+      ],
+      "error": null,
+      "note": null
+    }
+  ],
+  "queue_impacts": [
+    {
+      "version": "v4.14.0",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; tasks name `multi-agent-code-review/SKILL.md` and `hallmark-design/SKILL.md`. Resolve release/landing state before A3/A4 edits."
+    },
+    {
+      "version": "v4.14.1",
+      "verdict": "Content impact",
+      "evidence": "Goal separates implementation and verification effort; cost/effort fields in A1 must reflect the effective routing. Its frozen queued status is not evidence it remains unshipped."
+    },
+    {
+      "version": "v4.14.2",
+      "verdict": "Content impact",
+      "evidence": "Goal corrects prompt-cache guidance and model/effort-switch cost. A1 must distinguish cached input and harness/model changes instead of treating all tokens alike."
+    },
+    {
+      "version": "v4.14.3",
+      "verdict": "Content impact",
+      "evidence": "Goal records replayable gates and Codex skill-prompt truncation; A2's generated guide must remain discoverable on the actual platform, not only valid as Markdown."
+    },
+    {
+      "version": "v4.14.4",
+      "verdict": "Ordering impact",
+      "evidence": "Explicit shared target `catalog/skills/orchestration/quality-gate-definitions/SKILL.md`; A3 cannot silently replace its cannot-judge outcomes with a low-risk pass."
+    },
+    {
+      "version": "v4.14.5",
+      "verdict": "Content impact",
+      "evidence": "Host-written memory levers and trust guidance in `agent-memory` constrain A1's access policy. Raw-source fallback never bypasses host settings or instruction provenance."
+    },
+    {
+      "version": "v4.14.6",
+      "verdict": "Content impact",
+      "evidence": "Effective model, effort and approval settings change which A1 configuration was measured and what A2 may drive. Consume effective settings; do not add another settings surface."
+    },
+    {
+      "version": "v4.15.0",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; instruction-necessity review can change discovery/standing-rule placement. Do not infer an absent plan or add blanket template instructions."
+    },
+    {
+      "version": "v4.15.1",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; Goal decides whether model-adaptive runtime is justified. A1 must not assume such a runtime exists or is approved."
+    },
+    {
+      "version": "v4.15.2",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `eval-pipeline-audit/SKILL.md` is an A1 accounting handoff target. Reuse the landed whole-cost rule and avoid a second savings-accounting owner."
+    },
+    {
+      "version": "v4.15.3",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `multi-agent-code-review/SKILL.md` and findings-schema references; A3 must preserve evidence/uncertainty semantics."
+    },
+    {
+      "version": "v4.15.4",
+      "verdict": "No impact",
+      "evidence": "Checker preservation and diagnostics target scripts and completion evidence, not the four guidance deliverables; no implementation dependency is stated. Native checker use remains governed by its existing contract."
+    },
+    {
+      "version": "v4.16.0",
+      "verdict": "Content impact",
+      "evidence": "Goal preserves pinned rules through compaction and prunes reproducible tool output. A1 must distinguish reconstructible output from irrecoverably omitted source facts."
+    },
+    {
+      "version": "v4.16.1",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `ai-agent-development/references/step-3-build-memory-systems.md`; A1 must preserve its selective intervention/store separation and add measurement without replacing it."
+    },
+    {
+      "version": "v4.16.2",
+      "verdict": "Content impact",
+      "evidence": "Harness-economics Goal changes A1's cost context. Compare complete model/harness configurations, not just the memory method's query calls."
+    },
+    {
+      "version": "v4.16.3",
+      "verdict": "Content impact",
+      "evidence": "Per-request context attribution Goal can supply actual token measurements for A1; do not invent telemetry or equate estimated context with measured usage."
+    },
+    {
+      "version": "v4.17.0",
+      "verdict": "No impact",
+      "evidence": "Push-size guard targets Git publication and size checks; this adoption introduces no media transport or large binary artifact and states no dependency on changing that guard. Existing limits still apply."
+    },
+    {
+      "version": "v4.17.1",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; named review-state and review-owner paths overlap A3, while process ownership affects A2. Preserve the potential content/ordering dependency until status is resolved."
+    },
+    {
+      "version": "v4.17.2",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; request reconciliation and autonomous-operation rules constrain what guide creation/maintenance may change. No new authority is inferred."
+    },
+    {
+      "version": "v4.18.0",
+      "verdict": "Content impact",
+      "evidence": "Real-boundary test discipline changes the proof expected for A1/A2. Synthetic protocol evidence cannot be mislabeled as production success."
+    },
+    {
+      "version": "v4.18.1",
+      "verdict": "No impact",
+      "evidence": "Single-item installation and external-write hook work is disjoint from the proposed reference edits; no installer change or new skill is proposed. Apply existing delivery rules unchanged."
+    },
+    {
+      "version": "v4.18.2",
+      "verdict": "Content impact",
+      "evidence": "Repair postconditions and bounded abstraction rules constrain A2 maintenance fixes. A failing product behavior cannot be hidden by weakening its verification guide."
+    },
+    {
+      "version": "v4.19.0",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; T005-T009 propose `verification-instrument` and its Feature Map. This is the strongest duplication risk: A2 uses that landing or reports the prerequisite unavailable; it does not mint another skill."
+    },
+    {
+      "version": "v4.19.1",
+      "verdict": "Content impact",
+      "evidence": "Tracer-bullet Goal changes A2's initial proof path: a generated guide must drive a real complete feature rather than a convenient isolated helper."
+    },
+    {
+      "version": "v4.20.0",
+      "verdict": "Content impact",
+      "evidence": "Alignment readback and routing measurement alter A4 intake and A1 trial configuration. Reuse the existing opening readback rather than adding a second interview."
+    },
+    {
+      "version": "v4.20.1",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; review, `session-query` and `agent-memory` targets affect claim provenance and capture bars used by A1/A3."
+    },
+    {
+      "version": "v4.20.2",
+      "verdict": "Unknown",
+      "evidence": "Status undeclared; confidence/default-deny posture can change cannot-run and uncertain-risk reporting. Do not infer consent from an unobserved action."
+    },
+    {
+      "version": "v4.21.0",
+      "verdict": "Content impact",
+      "evidence": "Evaluation hypotheses/canary Goal changes A1 trial admission: freeze expected benefits, at-risk cases and observable tool use before evaluation."
+    },
+    {
+      "version": "v4.21.1",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `functional-verification/SKILL.md` handoff surface; preserve skipped-question/authorization semantics when adding A2 health-check and ownership pointers."
+    },
+    {
+      "version": "v4.21.2",
+      "verdict": "Content impact",
+      "evidence": "Evaluator and paired-proof Goal changes A1/A4 acceptance evidence. Inspect the landed receipts rather than treating a single illustrative run as comparative proof."
+    },
+    {
+      "version": "v4.22.0",
+      "verdict": "No impact",
+      "evidence": "Structural prose-signature work targets `anti-slop-editing`; no adoption item changes that owner, and no implementation prerequisite is stated. Report prose follows existing style rules."
+    },
+    {
+      "version": "v4.22.1",
+      "verdict": "Content impact",
+      "evidence": "Cross-format illustration and contact-sheet work can cover A4 motion/export states. Inspect before adding any export procedure or capture helper."
+    },
+    {
+      "version": "v4.22.2",
+      "verdict": "Content impact",
+      "evidence": "Evidence-backed comparison, dashboard and motion-evidence goals affect A4 and the evidentiary form of a later plan. Do not claim its proposed comparison validator already ran here."
+    },
+    {
+      "version": "v4.22.3",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `pr-description-writer/SKILL.md`; its runnable test-plan/evidence/waiver work subsumes most of G5/G7. A3 adds only missing risk routing or template alignment."
+    },
+    {
+      "version": "v4.22.4",
+      "verdict": "No impact",
+      "evidence": "Function-hooks discovery/advisory and compliance logging are disjoint; no mod, function-hook runtime or audit-log service is proposed here."
+    },
+    {
+      "version": "v4.22.5",
+      "verdict": "Content impact",
+      "evidence": "Numeric QA and metric-context references can review A1 cost/ratio conclusions. Reuse that procedure; do not create a second generic numerical-QA method."
+    },
+    {
+      "version": "v4.22.6",
+      "verdict": "Ordering impact",
+      "evidence": "Shared `hallmark-design/SKILL.md` and `references/motion-recipes.md`; A4 must preserve frequency-aware restraint and may have no residual motion change after refresh."
+    }
+  ],
+  "linked_baseline_files": [
+    {
+      "path": "catalog/skills/testing/functional-verification/SKILL.md",
+      "checkout_sha256": "91ca4247632ccd09fcd626244ff06f5fb0870bead8e9072527a538f48ba86ce2",
+      "integration_snapshot_sha256": "91ca4247632ccd09fcd626244ff06f5fb0870bead8e9072527a538f48ba86ce2",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md",
+      "checkout_sha256": "bce2345dca0263dd5c829a5bc75e9229bc67c811309cc250d9af4818b4a43582",
+      "integration_snapshot_sha256": "bce2345dca0263dd5c829a5bc75e9229bc67c811309cc250d9af4818b4a43582",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/demo-capture/SKILL.md",
+      "checkout_sha256": "c5141d71052f2c6eb5def0e3dfdef1dd68bc9808acfec03efcd06f4a3a4404e3",
+      "integration_snapshot_sha256": "f7c89f28d408df09fbe1cfe22c137a09fa543a251c438639a10c992a2a41c34c",
+      "same_bytes": false,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/verification-before-completion/SKILL.md",
+      "checkout_sha256": "5db4222519648bc3e719f8f04640ba772ad6aea2019cabb4f69a9424f7817863",
+      "integration_snapshot_sha256": "5db4222519648bc3e719f8f04640ba772ad6aea2019cabb4f69a9424f7817863",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "docs/releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md",
+      "checkout_sha256": "8d14d2abe52d84f5dac648b382b33ef75b8dc41b85a26b5d43c8fca1759144d0",
+      "integration_snapshot_sha256": "d993950e3176a0fd04e6e273f6692bec2ca518ba3261e84e7509c869934bb7d2",
+      "same_bytes": false,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+      "checkout_sha256": "450f9d918fe9ab140cfaf7e61af68812d8df326118bc6dd99e0e6a8434e74d4a",
+      "integration_snapshot_sha256": "450f9d918fe9ab140cfaf7e61af68812d8df326118bc6dd99e0e6a8434e74d4a",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/orchestration/quality-gate-definitions/SKILL.md",
+      "checkout_sha256": "00f301571939a25c901f21e9ffb344f98e7ed5599c07c735dd866b0385a1fbb8",
+      "integration_snapshot_sha256": "00f301571939a25c901f21e9ffb344f98e7ed5599c07c735dd866b0385a1fbb8",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/pr-description-writer/SKILL.md",
+      "checkout_sha256": "269bba3788c0206ca7867dd29d1c100275d053ed7408b0c9689db2edc9b3b9ea",
+      "integration_snapshot_sha256": "0159fe0abcdb8a164568ec3706ff89dc6255865719fda7d9355eec0f975d695e",
+      "same_bytes": false,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "checkout_sha256": "ce2808a3099166e5b975048c626ac3c71b43041543eca249bc6e792c59a21d0e",
+      "integration_snapshot_sha256": "0c8d018edf6f684fb763b503f192fe98a02459bab0b6e9e11e3ade37a19e2357",
+      "same_bytes": false,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/ai-development/eval-pipeline-audit/SKILL.md",
+      "checkout_sha256": "859c026930e19d4f55418b543f90559a3376e59fd26c18262f7a468795185228",
+      "integration_snapshot_sha256": "859c026930e19d4f55418b543f90559a3376e59fd26c18262f7a468795185228",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/ai-development/ai-agent-development/references/step-3-build-memory-systems.md",
+      "checkout_sha256": "7473af653faf4ffe31810891dc8556d331eb824e690f789a0f9545ea87793acb",
+      "integration_snapshot_sha256": "7473af653faf4ffe31810891dc8556d331eb824e690f789a0f9545ea87793acb",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/agent-memory/SKILL.md",
+      "checkout_sha256": "cf812ed79d4330feca1b984b897d2cebf2c01a3368140d2b15050dcf9ef7930c",
+      "integration_snapshot_sha256": "cf812ed79d4330feca1b984b897d2cebf2c01a3368140d2b15050dcf9ef7930c",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/context-pack-builder/SKILL.md",
+      "checkout_sha256": "2af5859aa44e3b0b9e66f0572b52b480899a86eea102324f3d6c95bedaf96da2",
+      "integration_snapshot_sha256": "2af5859aa44e3b0b9e66f0572b52b480899a86eea102324f3d6c95bedaf96da2",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/workflow/session-query/SKILL.md",
+      "checkout_sha256": "d2005786020652fd82e16eb970464eb4e95ec785cf4d3e74d799366d467c1145",
+      "integration_snapshot_sha256": "d2005786020652fd82e16eb970464eb4e95ec785cf4d3e74d799366d467c1145",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/business-product/product-manager/SKILL.md",
+      "checkout_sha256": "da3653958716e8879516191fd4f02964002c7fb3fb4461e0aa2f3b28881d33fb",
+      "integration_snapshot_sha256": "bcd5ccfa51af3ef0d5182d0526052470b029149bf70883d8a205c0c7cfbb314e",
+      "same_bytes": false,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md",
+      "checkout_sha256": "3b0aa26e6c01bd261e7751d57763e999e6ca050fabc4bc309284e1714ea2034d",
+      "integration_snapshot_sha256": "3b0aa26e6c01bd261e7751d57763e999e6ca050fabc4bc309284e1714ea2034d",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/developer-experience/interface-copy/SKILL.md",
+      "checkout_sha256": "1c950fbed6dc0ae7bbfa6d2f40d617fc87fa2258f66c1326fb568767d86db19f",
+      "integration_snapshot_sha256": "1c950fbed6dc0ae7bbfa6d2f40d617fc87fa2258f66c1326fb568767d86db19f",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    },
+    {
+      "path": "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+      "checkout_sha256": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819",
+      "integration_snapshot_sha256": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819",
+      "same_bytes": true,
+      "normalized_text_matches": true,
+      "normalization": "UTF-8 decode, optional BOM removal, universal newline normalization; raw hashes retained"
+    }
+  ],
+  "preserved_existing_package": [
+    "docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation.md",
+    "docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation-evidence.json",
+    "docs/releases/v4/v4.22/comparisons/v4.22.7-comparison-review-economics-instruction-boundaries-and-animation-tracker-proposal.md"
+  ],
+  "not_executed": [
+    "external installers",
+    "external test suites",
+    "external agent workflows",
+    "runtime adoption",
+    "repository settings changes",
+    "git commit",
+    "git push",
+    "PR creation"
+  ],
+  "verification_limit": "Static comparison and documentation evidence only; no app feature, cost improvement, external test result or policy enforcement is certified.",
+  "authorization_snapshot_as_of": "2026-10-26 comparison authoring; historical flags retained",
+  "planning_publication_approval": {
+    "date": "2026-10-27",
+    "target": "develop",
+    "scope": "Comparison, evidence, approved plan, planning review and scoped tracker entry only",
+    "runtime_implementation": false,
+    "repository_policy_changes": false,
+    "release": false
+  }
+}

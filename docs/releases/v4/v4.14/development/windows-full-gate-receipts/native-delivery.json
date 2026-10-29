@@ -1,0 +1,38 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"d38db4aa4bc1b77ef5ac399405d9bef1a01645fd0735c0616aa329d15fdf111c","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "source_guide_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+  "source_policy_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+  "homes": [
+    {
+      "variant": 0,
+      "home": "<private-temp>/nwo-sPah4Z/tests/test_real_workspace_installer_0/user home",
+      "policy_raw_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "policy_canonical_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "guide_raw_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "guide_canonical_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "home_claude_hook_sha256": null
+    },
+    {
+      "variant": 1,
+      "home": "<private-temp>/nwo-sPah4Z/tests/test_real_workspace_installer_1/user home",
+      "policy_raw_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "policy_canonical_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "guide_raw_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "guide_canonical_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "home_claude_hook_sha256": null
+    },
+    {
+      "variant": 3,
+      "home": "<private-temp>/nwo-sPah4Z/tests/test_real_workspace_installer_3/user home",
+      "policy_raw_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "policy_canonical_sha256": "682df4e0a79bbd5304cd6985eda7d23a93ddc711b61d28c146a106bd25992c7c",
+      "guide_raw_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "guide_canonical_sha256": "91346ce72e278f6b45054af1fb2f8fa2c50d51291aa9d12d9fe1a3881f1d74b6",
+      "home_claude_hook_sha256": "cb202c71fe91e916e7d791b6b1cdc97a95e9090a3593d4aabe1b384f1f59293c"
+    }
+  ]
+}
+}

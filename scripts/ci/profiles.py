@@ -286,6 +286,22 @@ VERSION = Group(
     commands=(_py("check_version_sync", timeout=120),),
 )
 
+# Windows full guide owners are complementary; new files stay in the rest command.
+# Complementary quarters of tests/validators by file name: test_a* to test_c*
+# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
+VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
+VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
+
+
+FULL_WINDOWS_GUIDE_FILES = (
+    "tests/guides/test_training_game_engine.py",
+    "tests/guides/test_page_openings_and_outline.py",
+    "tests/guides/test_training_reward_mockup.py",
+    "tests/guides/test_models_learning_lab.py",
+)
+
 TESTS = Group(
     name="tests",
     scope_key="tests",
@@ -342,6 +358,26 @@ TESTS = Group(
             "tests/integrations/test_owned_root_preflight.py",
             "tests/integrations/test_skill_path_provider_order.py",
             "tests/integrations/test_windows_long_paths.py",
+            platforms=("linux", "macos"),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts-contract (Windows full)",
+            "tests/integrations/test_contract.py",
+            platforms=("windows",),
+            timeout=2700,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts-delivery-surface (Windows full)",
+            "tests/integrations/test_agent_model_delivery.py",
+            "tests/integrations/test_base_writeresult.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_cross_platform_flatten.py",
+            "tests/integrations/test_global_command_surface.py",
+            "tests/integrations/test_owned_root_preflight.py",
+            "tests/integrations/test_skill_path_provider_order.py",
+            "tests/integrations/test_windows_long_paths.py",
+            platforms=("windows",),
             timeout=1800,
         ),
         _pytest(
@@ -397,7 +433,20 @@ TESTS = Group(
             "--cov-report=xml:reports/coverage-ci.xml",
             timeout=900,
         ),
-        _pytest("repo-tests-guides", "tests/guides", timeout=1800),
+        _pytest("repo-tests-guides", "tests/guides", platforms=("linux", "macos"), timeout=1800),
+        _pytest(
+            "repo-tests-guides-heavy (Windows full)",
+            *FULL_WINDOWS_GUIDE_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-guides-rest (Windows full)",
+            "tests/guides",
+            *(f"--ignore={path}" for path in FULL_WINDOWS_GUIDE_FILES),
+            platforms=("windows",),
+            timeout=1800,
+        ),
         _pytest(
             "repo-tests-governance",
             "tests/e2e",
@@ -407,7 +456,47 @@ TESTS = Group(
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
             timeout=2700,
-            platform_timeouts={"windows": 3600},
+            platforms=("linux", "macos"),
+        ),
+        # A Windows full run reached its 3600 s bound at 41%. Keep Linux/macOS
+        # intact; reuse the platform validator quarters and bound the remainder.
+        _pytest(
+            "repo-tests-governance-rest (Windows full)",
+            "tests/e2e",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            platforms=("windows",),
+            timeout=2700,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-a-c (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_A_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-co (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_B_IGNORES,
+            platforms=("windows",),
+            timeout=2400,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_C_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_D_IGNORES,
+            platforms=("windows",),
+            timeout=1800,
         ),
     ),
 )
@@ -592,13 +681,6 @@ WINDOWS_HOOKS = Group(
         ),
     ),
 )
-
-# Complementary quarters of tests/validators by file name: test_a* to test_c*
-# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
-VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
-VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
-VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
-VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.

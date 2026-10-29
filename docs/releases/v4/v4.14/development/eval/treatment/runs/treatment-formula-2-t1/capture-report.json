@@ -1,0 +1,33 @@
+{
+ "capture_ok": true,
+ "anomalies": [],
+ "refused_tests": [],
+ "records": 6,
+ "events": 2,
+ "test_events": 0,
+ "non_exact_pytest_commands": [
+  {
+   "tool_use_id": "toolu_013TogeweJMQtvG35qRSMV7X",
+   "tool_name": "Bash",
+   "command": "python -m pytest -q 2>&1 | tail -15"
+  }
+ ],
+ "provenance": [
+  {
+   "event": 0,
+   "tool_use_id": "toolu_01EyPPNTspzUFYucrbtJFnhn",
+   "tool_name": "Write",
+   "after_seq": 2,
+   "attribution": "paired"
+  },
+  {
+   "event": 1,
+   "tool_use_id": "toolu_01DMdHhc2zAWgd35Z6besWX3",
+   "tool_name": "Write",
+   "after_seq": 4,
+   "attribution": "paired"
+  }
+ ],
+ "stream_corroboration": true,
+ "final_tree_sha256": "218a7ad5fe2f46496bc7c8d717efa20c60e1d70a9072b39f6a02cbd669cc0cbe"
+}

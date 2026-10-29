@@ -142,8 +142,8 @@ class Walk(Close):
 
 
 @pytest.fixture()
-def walk(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Walk:
-    return Walk(tmp_path, monkeypatch)
+def walk(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> Walk:
+    return Walk(tmp_path, monkeypatch, minor_git_seed)
 
 
 def _first(result: subprocess.CompletedProcess) -> str:
@@ -602,9 +602,9 @@ print("unexpected " + " ".join(args)); sys.exit(2)
 
 
 @pytest.fixture
-def runner(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Env:
+def runner(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> Env:
     env = Env(tmp_path)
-    authority = authenticated_minor(tmp_path / "minor-authority", monkeypatch)
+    authority = authenticated_minor(tmp_path / "minor-authority", monkeypatch, minor_git_seed)
     env.repo = authority.work
     env.record = authority.record_path()
     env.state["record"] = str(env.record)
@@ -708,11 +708,11 @@ else:
 
 
 class GateHome:
-    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path) -> None:
         self.root = tmp / "home"
         scripts = self.root / ".nexus-hub" / "scripts"
         trusted = scripts / "controller"
-        self.authority = authenticated_minor(tmp / "minor-authority", monkeypatch)
+        self.authority = authenticated_minor(tmp / "minor-authority", monkeypatch, minor_git_seed)
         self.runs = self.authority.runs
         self.repo = self.authority.work
         self.log = tmp / "gate.log"
@@ -738,9 +738,9 @@ class GateHome:
 
 
 @pytest.fixture(params=["sh", "ps1"])
-def gate(request, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def gate(request, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path):
     bash, powershell = _hook_resolvers()
-    home = GateHome(tmp_path, monkeypatch)
+    home = GateHome(tmp_path, monkeypatch, minor_git_seed)
     if request.param == "sh" and bash is None:
         pytest.skip("no bash able to execute a hook script")
     if request.param == "ps1" and powershell is None:

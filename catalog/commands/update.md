@@ -1,5 +1,5 @@
 ---
-description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or reviewing without changing anything (use /review).
+description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update status", "show implementation progress", "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or code review (use /review); implementation status is supported here.
 ---
 
 # /update Command
@@ -10,7 +10,7 @@ This is a thin dispatcher following the contract in [`command-scope-mechanism.md
 
 ## Scope resolution
 
-Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `docs`, `devlog`, `gitignore`, `version`, `changelog`, `refactor`, `config`, `commit`, `release`.
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `status`, `docs`, `devlog`, `gitignore`, `version`, `changelog`, `refactor`, `config`, `commit`, `release`.
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - Otherwise, present this menu and wait for a selection before doing any work:
@@ -25,6 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         7. refactor  - reorganize docs/ and project artifacts to conventions
         8. config    - validate and repair installed platform configs (drift repair)
         9. commit    - generate a structured commit message for the staged changes
+        10. status   - report implementation progress, workers, elapsed time, estimates and dependencies (read-only)
 
       Reply with a number or a scope name.
 
@@ -35,6 +36,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
+      status    -> implement-phase (status-only entry: read references/progress-reporting.md directly; never enter the implementation driver)
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
       devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
@@ -46,6 +48,10 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness, ALWAYS with --canonicalize-layout) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, merge to integration branch, retire merged branches + worktrees, merge to release branch, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
+
+## Status scope
+
+`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` uses the [shared progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md). A bare status request reports the current run; a minor target shows every member plan, and a plan target shows every phase. Resolve ambiguity or missing runs as that contract specifies. Return the report without starting/resuming implementation, changing files or run state, spawning workers, running tests, or entering any release scope. Efficiency recommendations are advisory; the active implementation coordinator owns execution.
 
 ## docs scope (feature-level sync, not just counts)
 
