@@ -21,7 +21,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 97/209 integrated task marks once the v4.14.2 release lands on develop, with 3/7 members released: v4.14.0, v4.14.1 and v4.14.2. v4.14.2 is 34/34; T029/T034 are supported by actual PR #525 macOS, merge and post-merge evidence, and the genuine native historical-scope decision for the six reviewed PR #525 rows was recorded on 2026-10-28. The installed runtime matches develop `2ef94cabd` through the official installer (2026-10-28). v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn. Private preparation remains separate.
+**Active work:** v4.14 has 97/209 integrated task marks, with 3/7 members released: v4.14.0, v4.14.1 and v4.14.2 (released 2026-10-28). v4.14.3 is admitted and publication-started (start head `46440973`) with Phases 1-3 committed (19/20 tasks; T019's composite local qualification is green on `8f0e6f313`) and T020, the single publication, next; v4.14.4 follows once v4.14.3 merges, because both need `MANIFEST.sha256`. v4.14.2 is 34/34; T029/T034 are supported by actual PR #525 macOS, merge and post-merge evidence, and the genuine native historical-scope decision for the six reviewed PR #525 rows was recorded on 2026-10-28. The installed runtime matches develop `2ef94cabd` through the official installer (2026-10-28). v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn. Private preparation remains separate.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -61,7 +61,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Publish v4.14.2 (release PR, develop and main, tag, GitHub Release, back-merge), then record the archive-member decision, admit v4.14.3 and its later members in release order, and keep releases sequential.
+**Next:** Publish v4.14.3 once (integration PR to develop), merge it when every required check is green, release it with `/update release 4.14.3`, then admit v4.14.4 and the later members in release order, keeping releases sequential.
 
 | Metric | Current | Target |
 |---|---|---|
@@ -354,6 +354,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
 - [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
+
+## Codex skill catalog budget - 2026-10-29
+
+- [ ] Measure how many of the 340 skills survive Codex's up-front skill-list metadata budget (`render.rs:23`, `render.rs:169-195`, and the "additional N skills omitted" marker at `render.rs:1180` in openai/codex `2681f8cba`). The 340 descriptions total about 144 KB, so automatic skill selection on Codex may see only part of the catalog; explicit `$name` invocation is unaffected. Recorded as an UNVERIFIED risk in `docs/policy/platform-read-contracts.md#codex-skill-prompt-limit-2026-10-28`. If the loss is real, plan a mitigation (shorter descriptions, a bundle-scoped Codex install, or both) in a later minor.
 
 ## Queue reorganization - 2026-10-12 speed-first release map
 

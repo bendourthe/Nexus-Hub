@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Gemini 4 Argon prompting guidance joins its existing Google routing placement, with separate API and Cloud claims and a provider-neutral fallback to the same provider's strong tier when frontier access is unavailable.
+- The Codex skill-read contract records the 8,000-byte prompt limit, distinguishes host and extension truncation, and makes byte-size measurement and extension-path verification prerequisites of future Codex plugin packaging.
+
 ### Changed
 
 - **The guide's token demo now uses American spelling too.** It kept the British spelling because its chips are the verified `cl100k_base` split of that exact word. Re-tokenized with the published `cl100k_base` vocabulary (checked against tiktoken's pinned SHA-256), "Summarize this contract and list every deadline." is still ten tokens and "Summarize" still costs three (`Sum`, `mar`, `ize`), so only the third chip changes and the teaching point holds. The opening figure, which makes no tokenizer claim, changes the same word and chip.
