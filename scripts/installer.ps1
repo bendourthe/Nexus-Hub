@@ -2717,10 +2717,12 @@ function Install-VSCodeExtensions {
     $antigravityCandidates = @()
     $antigravitySeen = @()
     foreach ($pathName in @("antigravity-ide", "antigravity")) {
-        $pathHit = Get-Command $pathName -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($pathHit) {
-            $antigravityCandidates += $pathName
-            if ($pathHit.Source) { $antigravitySeen += $pathHit.Source.ToLowerInvariant() }
+        # Keep the resolved absolute path, never the bare name: cmd.exe resolves a
+        # bare name against the current directory before PATH.
+        $pathHit = Get-Command $pathName -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($pathHit -and $pathHit.Source) {
+            $antigravityCandidates += $pathHit.Source
+            $antigravitySeen += $pathHit.Source.ToLowerInvariant()
         }
     }
     $antigravityKnownPaths = @(
