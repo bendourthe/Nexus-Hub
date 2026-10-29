@@ -675,3 +675,60 @@ def test_every_allowlisted_host_is_accepted(tmp_path: Path, runner, host: str) -
     _write_bundle(tmp_path, index)
 
     assert runner(SCRIPT, tmp_path).returncode == 0
+
+
+# ---------------------------------------------------------------------------
+# WN-29 follow-up: a bare URL, www. address, or email shape is autolinked by GitHub-flavored
+# Markdown, so claim and note text may carry only a plain allowlisted https URL.
+# ---------------------------------------------------------------------------
+
+VENDOR_URL = "https://developers.openai.com/api/docs/changelog"
+
+AUTOLINK_CASES = [
+    ("off_allowlist_https_url", "See https://evil.example/x for details.", "not a plain https link"),
+    ("http_url", "See http://developers.openai.com/api/docs/changelog for details.", "not a plain https link"),
+    ("suffix_spoofed_url", "See https://developers.openai.com.evil.com/x for details.", "not a plain https link"),
+    ("userinfo_spoofed_url", "See https://developers.openai.com@evil.com/x for details.", "not a plain https link"),
+    ("allowlisted_host_with_port", "See https://developers.openai.com:8443/x for details.", "not a plain https link"),
+    ("upper_case_scheme", "See HTTP://EVIL.EXAMPLE for details.", "not a plain https link"),
+    ("non_http_scheme", "See ftp://ai.google.dev/x for details.", "not a plain https link"),
+    ("www_token", "Visit www.evil.example for details.", "www. address"),
+    ("email_shape", "Mail ops.team@evil.example for details.", "email address"),
+]
+
+
+@pytest.mark.parametrize("field", ["claim", "note"])
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [pytest.param(text, expected, id=name) for name, text, expected in AUTOLINK_CASES],
+)
+def test_an_autolinkable_token_in_claim_or_note_fails(
+    tmp_path: Path, runner, field: str, text: str, expected: str
+) -> None:
+    index = _valid_index()
+    index["models"]["model-a"]["claims"][0][field] = text
+    _write_bundle(tmp_path, index)
+
+    result = runner(SCRIPT, tmp_path)
+
+    assert result.returncode == 1, result.stdout
+    assert f".{field} contains" in result.stdout and expected in result.stdout, result.stdout
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param(f"Changelog: {VENDOR_URL}", id="allowlisted_vendor_url_at_end"),
+        pytest.param(f"Changelog: {VENDOR_URL}.", id="trailing_sentence_period"),
+        pytest.param(f"See ({VENDOR_URL}) for details.", id="wrapped_in_parentheses"),
+        pytest.param("Reference https://www.anthropic.com/news for details.", id="allowlisted_www_host_inside_a_url"),
+    ],
+)
+def test_a_plain_allowlisted_https_url_in_a_note_still_passes(tmp_path: Path, runner, text: str) -> None:
+    index = _valid_index()
+    index["models"]["model-a"]["claims"][0]["note"] = text
+    _write_bundle(tmp_path, index)
+
+    result = runner(SCRIPT, tmp_path)
+
+    assert result.returncode == 0, result.stdout

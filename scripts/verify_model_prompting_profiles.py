@@ -141,6 +141,11 @@ _SECOND_PERSON_RE = re.compile(
     r"\byou\s+(?:must|should|shall|will|need\s+to|are\s+now|are\s+to)\b", re.IGNORECASE
 )
 _LINK_RE = re.compile(r"\]\s*[(\[]")
+# GitHub-flavored Markdown autolinks a bare URL, a `www.` address, and an email shape, so
+# none of them may ride in claim or note text unless it is a plain allowlisted https URL.
+_URL_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://\S*")
+_WWW_RE = re.compile(r"(?<![\w.-])www\.", re.IGNORECASE)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _UNSAFE_URL_CHARS_RE = re.compile(r"""[\s\x00-\x1f\x7f<>()"'\\`|]""")
 
 
@@ -155,6 +160,38 @@ def model_id_problem(model_id: object) -> str | None:
         return "must match [a-z0-9][a-z0-9._-]{0,79} (no path separator, space, or upper case)"
     if _WINDOWS_RESERVED_RE.match(model_id):
         return "is a reserved Windows device name"
+    return None
+
+
+def embedded_link_problem(text: str) -> str | None:
+    """Why a bare URL, `www.` address, or email shape in text is refused, or None.
+
+    A URL-scheme token is allowed only as `https` with no credentials or port and an exact
+    hostname on ALLOWED_SOURCE_HOSTS (trailing sentence punctuation is ignored).
+    """
+    for match in _URL_TOKEN_RE.finditer(text):
+        token = match.group().rstrip(".,;:!?)]}'\"")
+        try:
+            parts = urlsplit(token)
+            port = parts.port
+        except ValueError:
+            return "contains a URL that cannot be parsed"
+        if (
+            parts.scheme != "https"
+            or parts.username is not None
+            or parts.password is not None
+            or port is not None
+            or parts.hostname not in ALLOWED_SOURCE_HOSTS
+        ):
+            return (
+                "contains a URL that is not a plain https link (no credentials or port) "
+                "on an allowlisted host"
+            )
+    remainder = _URL_TOKEN_RE.sub(" ", text)
+    if _WWW_RE.search(remainder):
+        return "contains a www. address, which Markdown autolinks"
+    if _EMAIL_RE.search(remainder):
+        return "contains an email address, which Markdown autolinks"
     return None
 
 
@@ -175,6 +212,8 @@ def claim_text_problem(text: str) -> str | None:
         return "contains '<', so HTML and autolinks are not allowed"
     if _LINK_RE.search(text):
         return "contains a Markdown link"
+    if problem := embedded_link_problem(text):
+        return problem
     if any(pattern.search(text) for pattern in _INJECTION_RES):
         return "contains an instruction-override or role-label directive"
     if _SECOND_PERSON_RE.search(_QUOTED_SPAN_RE.sub(" ", text)):
