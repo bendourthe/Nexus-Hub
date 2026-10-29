@@ -2708,26 +2708,31 @@ function Install-VSCodeExtensions {
     # --install-extension). Never `agy`: that is the Antigravity agent CLI and
     # cannot install a VSIX. Recent builds name the launcher antigravity-ide and
     # older ones antigravity; both installs share ~/.antigravity-ide, so either
-    # puts the monitor where the running IDE reads it.
+    # puts the monitor where the running IDE reads it. Two installs can coexist
+    # and a stale launcher can sit first on PATH, so every candidate that exists
+    # is listed in order (PATH hits, then known paths) and the first one that
+    # answers `--version` is chosen later, under the GOOGLE header.
     $antigravityCli = $null
     $antigravityLabel = "Antigravity"
-    if (Get-Command "antigravity-ide" -ErrorAction SilentlyContinue) {
-        $antigravityCli = "antigravity-ide"
+    $antigravityCandidates = @()
+    $antigravitySeen = @()
+    foreach ($pathName in @("antigravity-ide", "antigravity")) {
+        $pathHit = Get-Command $pathName -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($pathHit) {
+            $antigravityCandidates += $pathName
+            if ($pathHit.Source) { $antigravitySeen += $pathHit.Source.ToLowerInvariant() }
+        }
     }
-    elseif (Get-Command "antigravity" -ErrorAction SilentlyContinue) {
-        $antigravityCli = "antigravity"
-    }
-    else {
-        $antigravityCandidates = @(
-            "$env:LOCALAPPDATA\Programs\Antigravity IDE\bin\antigravity-ide.cmd",
-            "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity-ide.cmd",
-            "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity.cmd"
-        )
-        foreach ($candidate in $antigravityCandidates) {
-            if ($candidate -and (Test-Path $candidate)) {
-                $antigravityCli = $candidate
-                break
-            }
+    $antigravityKnownPaths = @(
+        "$env:LOCALAPPDATA\Programs\Antigravity IDE\bin\antigravity-ide.cmd",
+        "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity-ide.cmd",
+        "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity.cmd"
+    )
+    foreach ($candidate in $antigravityKnownPaths) {
+        # A PATH hit that resolves to a known path is already listed; probing it
+        # twice would only double the wait when a launcher hangs.
+        if ($candidate -and (Test-Path $candidate) -and ($antigravitySeen -notcontains $candidate.ToLowerInvariant())) {
+            $antigravityCandidates += $candidate
         }
     }
 
@@ -2751,6 +2756,7 @@ function Install-VSCodeExtensions {
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
 
     Write-Header -Provider "GOOGLE"
+    $antigravityCli = Select-WorkingLauncher -Candidates $antigravityCandidates -DisplayName $antigravityLabel
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\gemini-usage-monitor") -ExtensionId "nexus-hub.gemini-usage-monitor" -DisplayName "Gemini Usage Monitor" -StatusHint "Gemini Usage: --" -CodeCli $antigravityCli -CodeLabel $antigravityLabel
 
     # Restore strict error mode
@@ -2788,6 +2794,23 @@ function Invoke-CommandWithTimeout {
     Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
     $code = if ($timedOut) { 124 } else { $proc.ExitCode }
     return [pscustomobject]@{ ExitCode = $code; Output = $output; TimedOut = $timedOut }
+}
+
+# Return the first launcher in $Candidates whose `--version` exits 0 within
+# $TimeoutSeconds, or $null when none does. A launcher that exists but cannot
+# start (for example an Electron launcher whose V8 binary and snapshot come from
+# different builds) is named in a note and skipped, so a stale PATH entry cannot
+# hide a working install. The probe runs through Invoke-CommandWithTimeout, so
+# .cmd launchers start windowless and a hung one is stopped with its tree.
+function Select-WorkingLauncher {
+    param([string[]]$Candidates, [string]$DisplayName, [int]$TimeoutSeconds = 30)
+    foreach ($candidate in $Candidates) {
+        $probe = Invoke-CommandWithTimeout -CommandLine "`"$candidate`" --version" -TimeoutSeconds $TimeoutSeconds
+        if ($probe.ExitCode -eq 0) { return $candidate }
+        $reason = if ($probe.TimedOut) { "did not answer --version within ${TimeoutSeconds}s" } else { "--version exited with code $($probe.ExitCode)" }
+        Write-Item -Message "Skipping $DisplayName launcher `"$candidate`": $reason." -Color "Yellow"
+    }
+    return $null
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
