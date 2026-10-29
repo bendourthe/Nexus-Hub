@@ -192,6 +192,8 @@ An older hook can create a `no-progress` entry without a verification command. I
 
 ### Usage-limit handoff
 
+**Default status (2026-10-28).** No turn-end gate is registered by default: a full run ends on the checker's verdict, and `nexus-hub run-plan` resumes a session that ended before it. The gate, its usage-handoff rule below, and its hook-owned state apply only where a user opted in to it (`docs/policy/completion-levers.md` names the opt-in), and `completion_gate.py capture` still records genuine approval pastes for the approval flow.
+
 This contract is the single owner of how the turn-end gate treats a usage-limit handoff (v4.13.7). The `usage-guard` hook and the `session-handoff` skill only produce the evidence.
 
 On a turn end the gate allows the stop, counts no refusal, writes no blocker, and leaves the record unchanged (never complete, never paused) only when both hold:

@@ -109,7 +109,7 @@ def test_cursor_workspace_hooks_json_uses_post_tool_use_and_stop_only(tmp_path):
         assert command.endswith('/usage-guard.py"'), command
         assert handlers[0]["timeout"] == 10
     stop_commands = [entry["command"] for entry in data["hooks"]["stop"]]
-    assert any("completion-gate" in c for c in stop_commands)
+    assert not any("completion-gate" in c for c in stop_commands)
     hooks_dir = tmp_path / ".cursor" / "hooks"
     assert (hooks_dir / "usage-guard.py").is_file()
     assert (hooks_dir / "_usage_probe.py").is_file()
