@@ -2,6 +2,8 @@
 
 **Integration branch:** `develop`
 
+**Conditional decline repair (2026-10-29):** The isolated `fix/conditional-decline-closeout` branch adds a captured, signed no-release disposition while preserving ordinary release and closeout gates. The initial compatibility baseline exposed 13 failures; committed consumer fixes were retained before qualification. Native capture/archive flows and later approved member ordering are covered by new regressions. [Repair evidence](releases/v4/v4.14/development/conditional-decline-repair-evidence.md) tracks final validation and installation. This does not advance the v4.14 release totals.
+
 **Consumer checker audit (2026-10-20):** All 17 Nexus-AI handoff findings have source dispositions at pinned base `42d565ed8`; nine are addressed, handbook hashing was already corrected, and seven remain constrained, partially corrected or unreproduced. The isolated `fix/checker-consumer-handoff` branch passes all 28 new regressions in a final-source run with the full Unicode suite (73 passed, 1 skipped); all 17 native fast checks pass. Broader split qualification, the corrected boundary regression and every declined remedy are recorded in the [audit and evidence](releases/v4/v4.14/development/nexus-ai-checker-handoff.md).
 **Active work:** v4.14 full-minor run, 34/209 tasks and 1/7 releases. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
 
@@ -36,6 +38,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 | Metric | Current | Target |
 |---|---|---|
 | Consumer checker findings dispositioned | 17 | 17 |
+| Conditional decline repair | 56 final focused and 298 compatibility passes; adoption pending | Native consumer closeout |
 | v4.14 tasks | 34/209 | 209/209 |
 | v4.14 released members | 1/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
@@ -44,6 +47,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [ ] Qualify and install the scoped [conditional decline repair](releases/v4/v4.14/development/conditional-decline-repair-plan.md), then finish the original consumer run through its native verdict.
 
 - [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
 

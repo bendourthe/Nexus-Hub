@@ -607,6 +607,8 @@ def authorization(record: dict, approval_class: str, request: dict, context: dic
     if not full_access_authorization(record, context):
         raise ValueError('trusted full-access authorization is unavailable')
     approvals = record.get('approvals') or {}
+    if approval_class == 'release' and approvals.get('conditional_outcome') is not None:
+        raise ValueError('a captured decline does not authorize a release')
     policy = validate_policy(approvals.get('autonomy_policy') or {})
     entries = [item for item in approvals.get('classes', []) if item.get('class') == approval_class]
     if not isinstance(request, dict):

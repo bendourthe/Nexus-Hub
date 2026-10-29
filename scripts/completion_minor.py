@@ -622,7 +622,8 @@ def action_page(token: str, action: str, record_nonce: str) -> dict:
     return {"action": action, "scope": {"kind": "minor", "minor": token}, "record_nonce": record_nonce}
 
 
-def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, member: str | None) -> dict:
+def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, member: str | None,
+                rctx: RepoContext | None = None, conditional_file: str | None = None) -> dict:
     """Bind one open blocker and its actual member to the existing answer round."""
     blockers = record.get("blockers") or []
     if not isinstance(blockers, list) or not isinstance(index, int) or isinstance(index, bool) or not 0 <= index < len(blockers):
@@ -643,6 +644,20 @@ def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, mem
     page["blocker"] = {"index": index, "category": category, "version": version,
                        "fingerprint": approval_binding.blocker_fingerprint(entry), "request": entry.get("request") or {},
                        "purpose": entry.get("purpose"), "why": entry.get("why")}
+    if entry.get("approval_class") == "conditional-outcome" or conditional_file:
+        if rctx is None or version is None:
+            raise ck.Malformed("conditional disposition requires its verified member context")
+        own = next(m for m in record["members"] if m["version"] == version)
+        if (own.get("approvals") or {}).get("conditional_outcome") is not None:
+            raise ck.Malformed("member already has a captured conditional disposition")
+        ctx = ck.Context(str(rctx.root / own["plan_path"]), rctx.budget)
+        try:
+            proposal = json.loads(Path(conditional_file).read_text(encoding="utf-8")) if conditional_file else None
+        except (OSError, ValueError) as exc:
+            raise ck.Malformed("conditional disposition file cannot be read") from exc
+        if conditional_file and not isinstance(proposal, dict):
+            raise ck.Malformed("conditional disposition must be a JSON object")
+        page["conditional_outcome"] = ck.conditional_answer_page(ctx, ck.project(record, version), entry, proposal)
     return page
 
 
@@ -863,8 +878,11 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
                 raise ck.MinorConflict('member-history-cannot-verify')
             merge = merge_info.get('oid', '')
             tag = str(member.get('tag') or member['version'])
-            if (_ancestor(ctx, merge, head) != 'met' or _tag_in(ctx, tag, head) != 'met'
-                    or ck._release_status(ctx, str(record['repo']), tag) != 'met'):
+            conditional = (member.get('approvals') or {}).get('conditional_outcome') is not None
+            state, anchor = completion_anchor(ck, ctx, record, member)
+            released = 'met' if conditional and state == 'met' else ck._release_status(ctx, str(record['repo']), tag)
+            if (_ancestor(ctx, merge, head) != 'met' or state != 'met' or not anchor
+                    or _ancestor(ctx, anchor, head) != 'met' or released != 'met'):
                 raise ck.MinorConflict('member-release-history-not-in-target')
     major, minor = parse_minor(ck, record['minor'])
     plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
@@ -1154,7 +1172,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         record = _record_for_action(ck, rctx, token, args.action, args.session)
         if isinstance(record, int):
             return record
-        page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
+        page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None), rctx, getattr(args, "conditional_outcome", None))
                 if args.action == "answer" else action_page(token, args.action, str(record.get("nonce", ""))))
         display = None
     else:
@@ -1287,7 +1305,7 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     record = _record_for_action(ck, rctx, token, "answer", args.session)
     if isinstance(record, int):
         return record
-    page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
+    page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None), rctx, getattr(args, "conditional_outcome", None))
     consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""), text=args.text)
     if isinstance(consumed, int):
         return consumed
@@ -1295,7 +1313,12 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     record["blockers"][args.blocker].update(
         open=False, answered=ck._now(), answer_text=approval_binding.pasted(pending),
     )
-    # Blockers are unsigned; an answer never changes the frozen approval classes.
+    # Ordinary blockers stay unsigned. This narrowly captured disposition is
+    # effective only inside the existing signed member approval payload.
+    if "conditional_outcome" in pending["page"]:
+        own = next(m for m in record["members"] if m["version"] == page["blocker"]["version"])
+        own.setdefault("approvals", {})["conditional_outcome"] = ck.conditional_capture(pending)
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
     ck._write_record(record_file(ck, rctx, token), record)
     print(f"ANSWERED blocker {args.blocker} minor {token}")
     return 0
@@ -2533,7 +2556,25 @@ def _merge_commit(ck: ModuleType, rctx: RepoContext, repo: str, branch: str) -> 
 GATE_VIOLATED = "violated"
 
 
-def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict) -> str:
+def completion_anchor(ck: ModuleType, rctx: RepoContext, record: dict | None, member: dict) -> tuple[str, str | None]:
+    """A release keeps its tag anchor; a signed decline uses its verified merge."""
+    if (member.get("approvals") or {}).get("conditional_outcome") is None:
+        tag = str(member.get("tag") or member["version"])
+        return ck._tag_status(rctx, tag), "refs/tags/" + tag
+    if record is None:
+        return "cannot-verify", None
+    try:
+        ctx = ck.Context(str(rctx.root / member["plan_path"]), rctx.budget)
+        if ctx.plan_hash() != member["plan_sha256"]:
+            return "cannot-verify", None
+        state, receipt = ck.conditional_status(ctx, ck.project(record, member["version"]))
+        return state, receipt["request"]["merge"] if receipt else None
+    except (ck.Malformed, OSError, KeyError, TypeError):
+        return "cannot-verify", None
+
+
+def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict,
+                record: dict | None = None) -> str:
     """`member.gate` for one member: `met`, `n/a`, `unmet`, `cannot-verify`, or `violated`.
 
     Every member after the first must have passed `record member-start`: without a
@@ -2547,7 +2588,11 @@ def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | N
     if not isinstance(start, str) or not start:
         return "n/a" if previous is None else "unmet"
     if previous is not None:
-        tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
+        if (previous.get("approvals") or {}).get("conditional_outcome") is not None:
+            state, anchor = completion_anchor(ck, rctx, record, previous)
+            tag = _ancestor(rctx, anchor, start) if state == "met" and anchor else state
+        else:
+            tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
         if tag != "met":
             return GATE_VIOLATED if tag == "unmet" else tag
     state, merge = _merge_commit(ck, rctx, repo, str(member.get("source_branch") or ""))
@@ -2713,7 +2758,9 @@ def close_pr_status(
     members = ordered_members(record)
     if integration is None or not members:
         return "cannot-verify"
-    last_tag = f"refs/tags/{members[-1].get('tag') or members[-1].get('version')}"
+    anchor_status, last_tag = completion_anchor(ck, rctx, record, members[-1])
+    if anchor_status != "met" or not last_tag:
+        return anchor_status
     checks = [_ancestor(rctx, merge, integration), _ancestor(rctx, str(record.get("start_head") or ""), merge)]
     checks.append(_ancestor(rctx, last_tag, merge))
     if "unmet" in checks:
@@ -2783,7 +2830,7 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
     gates: list[str] = []
     previous: dict | None = None
     for member in members:
-        gates.append(member_gate(ck, rctx, repo, previous, member))
+        gates.append(member_gate(ck, rctx, repo, previous, member, record))
         previous = member
     for member, gate in zip(members, gates):
         if gate == GATE_VIOLATED:
@@ -2964,12 +3011,13 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         major, minor = parse_minor(ck, token)
         plan = {p.version: p for p in scan_plans(rctx.root, major, minor)}[str(previous["version"])]
         result = evaluate_member(ck, rctx, record, previous, plan, [])
-        previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous)
+        previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous, record)
         if previous_gate not in _MET or not result.lines or any(
             status not in _MET for predicate, status in result.lines if not predicate.startswith("cleanup.")
         ):
             return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
-        if _tag_in(rctx, str(previous.get("tag") or previous["version"]), tip) != "met":
+        anchor_status, anchor = completion_anchor(ck, rctx, record, previous)
+        if anchor_status != "met" or not anchor or _ancestor(rctx, anchor, tip) != "met":
             return _gate_refusal(ck, version, "back-merge-missing")
     coordinator_paths = member.get("coordinator_paths", [])
     if getattr(args, "coordinator_claims", None):

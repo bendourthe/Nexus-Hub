@@ -947,7 +947,8 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
         plans = cm.scan_plans(rctx.root, major, minor)
     except cm.MinorMalformed as exc:
         return [Refused("plans-malformed", str(exc))]
-    members = {str(m.get("version")) for m in (record or {}).get("members") or [] if isinstance(m, dict)}
+    member_map = {str(m.get("version")): m for m in (record or {}).get("members") or [] if isinstance(m, dict)}
+    members = set(member_map)
     repo = cm.hosting_repo(ck, rctx, (record or {}).get("repo"))
     out: list[Refused] = []
     for plan in plans:
@@ -955,7 +956,11 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
             out.append(Refused("unchecked-task", plan.version))
         if plan.status == "superseded":
             continue
-        state = cm.shipped(ck, rctx, repo, plan.version)
+        member = member_map.get(plan.version)
+        if member and (member.get("approvals") or {}).get("conditional_outcome") is not None:
+            state, _anchor = cm.completion_anchor(ck, rctx, record, member)
+        else:
+            state = cm.shipped(ck, rctx, repo, plan.version)
         if plan.status not in cm.DONE_STATUSES and plan.version not in members and state != "met":
             out.append(Refused("queued-plan-outside-members", plan.version))
         if state == "unmet":
@@ -1159,6 +1164,9 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
         if plan is not None:
             member["plan_path"] = plan.rel
             member["plan_sha256"] = ck.plan_hash_text(plan.text)
+            receipt = (member.get("approvals") or {}).get("conditional_outcome")
+            if receipt is not None:
+                ck.conditional_rebind(receipt, plan.rel, plan.text)
     record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
     ck._write_record(record_path, record)
 

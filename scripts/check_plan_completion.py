@@ -805,6 +805,7 @@ def project(record: dict, version: str) -> dict | None:
         "classes": [*(own.get("classes") or []), *(minor.get("classes") or [])],
         "authorization_context": minor.get('authorization_context'),
         "autonomy_policy": minor.get('autonomy_policy'),
+        "conditional_outcome": own.get("conditional_outcome"),
         "page_sha256": minor.get("page_sha256"),
     }
     return {
@@ -824,6 +825,11 @@ def project(record: dict, version: str) -> dict | None:
         "start_head": member.get("start_head") or (member.get("implementation") or {}).get("base_head") or record.get("start_head"),
         # Ordinary new gaps never migrate; exact frozen recording tasks have a separate disposition.
         "minor_start_head": record.get("start_head"),
+        "successors": [
+            {key: later.get(key) for key in ("version", "source_branch", "target_branch", "start_head")}
+            for later in sorted(record.get("members") or [], key=lambda m: tuple(int(p) for p in m["version"].lstrip("v").split(".")))
+            if tuple(int(p) for p in later["version"].lstrip("v").split(".")) > tuple(int(p) for p in version.lstrip("v").split("."))
+        ],
         "nonce": record.get("nonce"),
         "created": record.get("created"),
         "approvals": approvals,
@@ -854,8 +860,12 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     results: list[tuple[str, str]] = []
     approvals = (record or {}).get("approvals", {})
     start = (record or {}).get("start_head")
+    disposition, outcome = conditional_status(ctx, record)
+    if disposition != "n/a":
+        results.append(("release.disposition", disposition))
     for tid, checked, path in ctx.tasks:
-        results.append((f"task.{tid}", _task_status(ctx, checked, path, start)))
+        skipped = outcome is not None and tid in outcome["request"]["tasks"]
+        results.append((f"task.{tid}", "met" if checked and skipped else _task_status(ctx, checked, path, start)))
     gaps_status, deferred = _gaps_status(ctx, record)
     results.append(("gaps.version", gaps_status))
     evidence = _evidence_file(ctx)
@@ -870,11 +880,11 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     results.append(("integration.merged", _pr_merged(ctx, repo, branch)))
     results.append(("integration.checks", _pr_checks(ctx, repo, branch, target, start)))
     tag = approvals.get("tag") or ctx.version
-    results.append(("release.tag", _tag_status(ctx, tag)))
-    results.append(("release.changelog", _changelog_status(ctx)))
+    results.append(("release.tag", "n/a" if outcome else _tag_status(ctx, tag)))
+    results.append(("release.changelog", "n/a" if outcome else _changelog_status(ctx)))
     results.append(("release.version-sync", _version_sync(ctx, start)))
-    results.append(("release.github", _release_status(ctx, repo, tag)))
-    results.append(("release.main", _main_contains(ctx, tag)))
+    results.append(("release.github", "n/a" if outcome else _release_status(ctx, repo, tag)))
+    results.append(("release.main", "n/a" if outcome else _main_contains(ctx, tag)))
     cleanup = approvals.get("cleanup") or {}
     results.append(
         ("cleanup.branches", _branches_gone(ctx, cleanup.get("branches") or [branch]))
@@ -959,6 +969,228 @@ def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
 # example `docs/decisions/proposed/policy/YYYY-MM-DD-slug.md`, because the date is not
 # known when the plan is frozen. No file can carry that literal name.
 DATE_PLACEHOLDER = "YYYY-MM-DD"
+
+
+def _conditional_blocks(text: str) -> dict[str, str]:
+    matches = list(TASK_RE.finditer(text))
+    return {match[2]: text[match.start(): matches[i + 1].start() if i + 1 < len(matches) else len(text)]
+            for i, match in enumerate(matches)}
+
+
+def _conditional_path(path: object) -> str:
+    if (not isinstance(path, str) or not re.fullmatch(r"[A-Za-z0-9_./-]+", path) or path.startswith(("/", "-"))
+            or any(part in {"", ".", ".."} for part in path.split("/")) or ":" in path):
+        raise ValueError("conditional evidence needs an exact repository-relative path")
+    return path
+
+
+def _conditional_blob(ctx: Context, commit: str, path: str) -> bytes:
+    spec = commit + ":" + path
+    rc, size = _run([ctx.git, "-C", str(ctx.root), "cat-file", "-s", spec], ctx.budget)
+    if rc != 0 or not size.strip().isdigit() or int(size) > 16 * 1024 * 1024:
+        raise ValueError("conditional evidence is unreadable or too large")
+    try:
+        proc = subprocess.run([ctx.git, "-C", str(ctx.root), "cat-file", "blob", spec],
+                              capture_output=True, timeout=ctx.budget.remaining(), env=_env(), **NO_WINDOW)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ValueError("cannot verify conditional evidence") from exc
+    if proc.returncode:
+        raise ValueError("cannot verify conditional evidence")
+    return proc.stdout
+
+
+def conditional_request(ctx: Context, record: dict, request: object) -> dict:
+    """Validate the complete bounded decline displayed before genuine native consent.
+
+    This is not authority by itself. Only a consumed answer stored inside signed
+    approvals can make these named task and release dispositions effective.
+    """
+    fields = {"outcome", "plan_sha256", "condition", "tasks", "evidence", "head", "merge"}
+    if record.get("schema") != SCHEMA_MINOR or not isinstance(request, dict) or set(request) != fields or request["outcome"] != "declined":
+        raise ValueError("conditional outcome must be one complete declined disposition")
+    parts = ctx.version.split(".")
+    active = f"docs/releases/{parts[0]}/{'.'.join(parts[:2])}/plans/"
+    archived = active.replace("docs/releases/", "docs/archives/", 1)
+    existing = (record.get("approvals") or {}).get("conditional_outcome") or {}
+    origin = (existing.get("origin") or {}).get("plan_path")
+    if not ctx.rel.startswith(active) and not (ctx.rel.startswith(archived) and origin == ctx.rel.replace("docs/archives/", "docs/releases/", 1)):
+        raise ValueError("conditional outcome requires its canonical active plan or authenticated archive binding")
+    if (request["plan_sha256"] != ctx.plan_hash() or record.get("plan_sha256") != ctx.plan_hash()
+            or not isinstance(request["condition"], str) or not 1 <= len(request["condition"]) <= 500):
+        raise ValueError("conditional outcome differs from the frozen plan")
+    if not re.search(r"(?i)On a full decline, stop after the merge: no tag\b", ctx.text):
+        raise ValueError("frozen plan does not authorize this no-tag decline")
+    start = record.get("start_head")
+    if any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", value)
+           for value in (start, request["head"], request["merge"])):
+        raise ValueError("conditional outcome needs exact start, head and merge commits")
+    tasks, evidence = request["tasks"], request["evidence"]
+    if (not isinstance(tasks, list) or not tasks or len(tasks) > 128
+            or any(not isinstance(t, str) for t in tasks) or len(set(tasks)) != len(tasks)
+            or not isinstance(evidence, list) or not evidence or len(evidence) > 32):
+        raise ValueError("conditional outcome needs unique tasks and committed evidence")
+    blocks = _conditional_blocks(ctx.text)
+    checked = {tid: (done, path) for tid, done, path in ctx.tasks}
+    tracked: set[str] = set()
+    for commit in (start, request["head"], request["merge"]):
+        rc, names = _run([ctx.git, "-C", str(ctx.root), "ls-tree", "-r", "--name-only", "-z", commit], ctx.budget)
+        if rc != 0:
+            raise ValueError("conditional protected tree cannot be enumerated")
+        tracked.update(name for name in names.split("\0") if name)
+    rc, names = _run([ctx.git, "-C", str(ctx.root), "ls-files", "-z", "--cached", "--others", "--exclude-standard"], ctx.budget)
+    if rc != 0:
+        raise ValueError("conditional protected index cannot be enumerated")
+    tracked.update(name for name in names.split("\0") if name)
+    protected: set[str] = set()
+    hashes = {}
+    for tid in tasks:
+        block = blocks.get(tid, "")
+        prompt = block.split("**Prompt**:", 1)[-1].lstrip()
+        if (tid not in checked or not checked[tid][0] or not prompt.startswith("> Run only ")
+                or not re.match(r"> Run only (?:if at least one slot passed every gate|for slots that passed every gate|on admission)\.", prompt)):
+            raise ValueError("only checked frozen admission-conditional tasks may be declined")
+        protected.add(_conditional_path(checked[tid][1]))
+        for path in re.findall(r"`([^`\n]+)`", block):
+            if re.fullmatch(r"[A-Za-z0-9_./-]+\.[A-Za-z0-9]+", path):
+                if "/" in path:
+                    protected.add(_conditional_path(path))
+                else:
+                    protected.update(_conditional_path(candidate) for candidate in tracked if candidate.rsplit("/", 1)[-1] == path)
+        hashes[tid] = hashlib.sha256(block.encode()).hexdigest()
+    approvals = record.get("approvals") or {}
+    if _approved_remote_status(ctx, record) != "met":
+        raise ValueError("conditional outcome remote cannot be verified")
+    repo, branch = approvals.get("repo"), approvals.get("source_branch")
+    target, tag = approvals.get("target_branch") or "develop", approvals.get("tag") or ctx.version
+    pr = _gh_json(ctx, repo, "pr", "view", branch, "--json", "state,headRefName,baseRefName,headRefOid,mergeCommit")
+    if (not isinstance(pr, dict) or pr.get("state") != "MERGED" or pr.get("headRefName") != branch
+            or pr.get("baseRefName") != target or pr.get("headRefOid") != request["head"]
+            or (pr.get("mergeCommit") or {}).get("oid") != request["merge"]):
+        raise ValueError("conditional outcome does not identify the approved merged pull request")
+    rc, remote = _run([ctx.git, "-C", str(ctx.root), "ls-remote", "origin", "refs/heads/" + target], ctx.budget)
+    tip = remote.split()[0] if rc == 0 and remote.strip() else ""
+    if not tip or any(_run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", a, b], ctx.budget)[0]
+                      for a, b in ((start, request["head"]), (request["head"], request["merge"]), (request["merge"], tip))):
+        raise ValueError("conditional outcome merge ancestry cannot be verified")
+    if _pr_checks(ctx, repo, branch, target, start) != "met":
+        raise ValueError("conditional outcome requires verified green integration checks")
+    for commit in (request["head"], request["merge"]):
+        if _run([ctx.git, "-C", str(ctx.root), "diff", "--quiet", start, commit, "--", *sorted(protected)], ctx.budget)[0]:
+            raise ValueError("conditional protected input changed")
+    baseline = request["merge"]
+    if record.get("successors"):
+        # Only later members of the signed frozen run may advance these inputs.
+        for later in record.get("successors") or []:
+            later_start, later_branch = later.get("start_head"), later.get("source_branch")
+            if not later_start or not later_branch or later.get("target_branch") != target:
+                continue
+            later_pr = _gh_json(ctx, repo, "pr", "view", later_branch, "--json", "state,headRefName,baseRefName,headRefOid,mergeCommit")
+            if (not isinstance(later_pr, dict) or later_pr.get("state") != "MERGED"
+                    or later_pr.get("headRefName") != later_branch or later_pr.get("baseRefName") != target):
+                continue
+            later_merge = (later_pr.get("mergeCommit") or {}).get("oid")
+            later_head = later_pr.get("headRefOid")
+            if (not later_merge or not later_head or any(
+                    _run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", a, b], ctx.budget)[0]
+                    for a, b in ((baseline, later_start), (later_start, later_head), (later_head, later_merge), (later_merge, tip)))
+                    or _pr_checks(ctx, repo, later_branch, target, later_start) != "met"):
+                continue
+            baseline = later_merge
+    if _run([ctx.git, "-C", str(ctx.root), "diff", "--quiet", baseline, "--", *sorted(protected)], ctx.budget)[0]:
+        raise ValueError("conditional protected input changed outside a later approved merge")
+    rc, untracked = _run([ctx.git, "-C", str(ctx.root), "ls-files", "--others", "--exclude-standard", "--", *sorted(protected)], ctx.budget)
+    if rc != 0 or untracked.strip():
+        raise ValueError("conditional protected input is untracked or unreadable")
+    seen = set()
+    for item in evidence:
+        if not isinstance(item, dict) or set(item) != {"path", "sha256"}:
+            raise ValueError("conditional evidence needs path and sha256")
+        path = _conditional_path(item["path"])
+        if path in seen or not isinstance(item["sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]):
+            raise ValueError("conditional evidence is duplicated or has an invalid digest")
+        seen.add(path)
+        raw = _conditional_blob(ctx, request["merge"], path)
+        if hashlib.sha256(raw).hexdigest() != item["sha256"]:
+            raise ValueError("conditional committed evidence differs from its digest")
+        original = (record.get("approvals") or {}).get("conditional_outcome") or {}
+        origin_path = (original.get("origin") or {}).get("plan_path", ctx.rel)
+        current_path = path
+        old_tree, new_tree = origin_path.rsplit("/plans/", 1)[0], ctx.rel.rsplit("/plans/", 1)[0]
+        if old_tree != new_tree and path.startswith(old_tree + "/"):
+            current_path = new_tree + path[len(old_tree):]
+        blob = ctx._git_out("rev-parse", request["merge"] + ":" + path)
+        if ctx._git_out("hash-object", "--path=" + current_path, current_path) != blob:
+            raise ValueError("conditional current evidence differs from the merged proof")
+        if old_tree.startswith("docs/releases/") and old_tree == new_tree:
+            import minor_close
+            archived_tree = old_tree.replace("docs/releases/", "docs/archives/", 1)
+            moved = archived_tree + path[len(old_tree):] if path.startswith(old_tree + "/") else path
+            if minor_close.plan_repairs(ctx.root, [(path, path, moved)], old_tree, archived_tree):
+                raise ValueError("conditional evidence needs archive repair; choose immutable captures")
+    local, _ = _run([ctx.git, "-C", str(ctx.root), "show-ref", "--verify", "--quiet", "refs/tags/" + tag], ctx.budget)
+    rc, tags = _run([ctx.git, "-C", str(ctx.root), "ls-remote", "--tags", "origin", "refs/tags/" + tag], ctx.budget)
+    if local != 1 or rc != 0 or tags.strip():
+        raise ValueError("conditional no-tag outcome has a tag or tag absence cannot be verified")
+    if _gh_json(ctx, repo, "release", "view", tag, "--json", "tagName") is not GH_NOT_FOUND:
+        raise ValueError("conditional no-release outcome has a release or absence cannot be verified")
+    return {"request": request, "plan_path": ctx.rel, "protected_paths": sorted(protected), "task_sha256": hashes}
+
+
+def conditional_status(ctx: Context, record: dict | None) -> tuple[str, dict | None]:
+    receipt = ((record or {}).get("approvals") or {}).get("conditional_outcome")
+    if receipt is None:
+        return "n/a", None
+    try:
+        if not isinstance(receipt, dict) or (receipt.get("capture") or {}).get("origin") != "native-answer":
+            raise ValueError("conditional outcome lacks native captured authority")
+        current = conditional_request(ctx, record, receipt.get("request"))
+        if any(receipt.get(k) != v for k, v in current.items()):
+            raise ValueError("conditional outcome binding changed")
+    except (ValueError, OSError, KeyError, TypeError):
+        ctx.notices.append("conditional-outcome-not-verified")
+        return "cannot-verify", None
+    return "met", receipt
+
+
+def conditional_answer_page(ctx: Context, record: dict, blocker: dict, proposal: dict | None = None) -> dict | None:
+    if proposal is None and blocker.get("approval_class") != "conditional-outcome":
+        return None
+    technical = proposal is not None and blocker.get("category") == "platform-unavailable" and blocker.get("approval_class") is None
+    if not technical and blocker.get("category") != "approval-not-covered":
+        raise Malformed("conditional disposition requires its own scoped approval decision")
+    if proposal is not None and not technical:
+        raise Malformed("a supplied disposition may qualify only its existing technical blocker")
+    try:
+        return conditional_request(ctx, record, proposal if proposal is not None else blocker.get("request"))
+    except ValueError as exc:
+        raise Malformed(str(exc)) from exc
+
+
+def conditional_capture(pending: dict) -> dict:
+    """Called only after the existing binder consumes a genuine answer."""
+    binding = json.loads(json.dumps(pending["page"]["conditional_outcome"]))
+    binding["origin"] = json.loads(json.dumps(binding))
+    binding["capture"] = {"origin": "native-answer",
+                          "page_sha256": hashlib.sha256(_canonical(pending["page"])).hexdigest(),
+                          "prompt_sha256": approval_binding.digest(approval_binding.pasted(pending))}
+    return binding
+
+
+def conditional_rebind(receipt: dict | None, rel: str, text: str) -> None:
+    """Move only the current binding inside the authenticated archive transaction."""
+    if receipt is None:
+        return
+    old = receipt["plan_path"]
+    if old == rel and receipt["request"]["plan_sha256"] == plan_hash_text(text):
+        return
+    expected = old.replace("docs/releases/", "docs/archives/", 1)
+    if old == expected or rel != expected:
+        raise Malformed("conditional outcome permits only its canonical native archive move")
+    receipt["plan_path"] = rel
+    receipt["request"]["plan_sha256"] = plan_hash_text(text)
+    blocks = _conditional_blocks(text)
+    receipt["task_sha256"] = {tid: hashlib.sha256(blocks[tid].encode()).hexdigest()
+                               for tid in receipt["request"]["tasks"]}
 
 
 def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
@@ -1590,6 +1822,9 @@ def _action_page(ctx: Context, record: dict, action: str, blocker: int | None) -
     )
     if action == 'answer':
         page['blocker'].update(request=blockers[blocker].get('request') or {}, purpose=blockers[blocker].get('purpose'), why=blockers[blocker].get('why'))
+        binding = conditional_answer_page(ctx, record, blockers[blocker])
+        if binding is not None:
+            page['conditional_outcome'] = binding
     return page
 
 
@@ -1682,6 +1917,8 @@ def _covering_minor(ctx: Context) -> int | None:
 
 def cmd_record_render(args: argparse.Namespace) -> int:
     mode = render_mode(args)  # a flag conflict is refused before any round opens
+    if getattr(args, "conditional_outcome", None) and (args.action != "answer" or not _scoped(args) or not args.member):
+        raise Malformed("--conditional-outcome requires a minor-member answer")
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
@@ -1948,6 +2185,8 @@ def _consume_action(
 
 
 def cmd_record_answer(args: argparse.Namespace) -> int:
+    if getattr(args, "conditional_outcome", None) and (not _scoped(args) or not args.member):
+        raise Malformed("--conditional-outcome requires a minor-member answer")
     if _scoped(args):
         return _minor_module().cmd_record_answer(sys.modules[__name__], args)
     if getattr(args, "member", None) is not None:
@@ -2299,6 +2538,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--member", help="with --minor answer: require this blocker's member version")
+    render.add_argument("--conditional-outcome", help="JSON disposition qualifying this member's existing technical blocker")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
@@ -2330,6 +2570,7 @@ def build_parser() -> argparse.ArgumentParser:
     answer.add_argument("--session", required=True)
     answer.add_argument("--blocker", type=int, required=True)
     answer.add_argument("--member", help="with --minor: require this blocker's member version")
+    answer.add_argument("--conditional-outcome", help="the same JSON disposition displayed at render")
     answer.add_argument("--pasted-line", "--text", dest="text", help="exact captured approval line, never a reason or note; mismatch leaves the round open")
     answer.set_defaults(func=cmd_record_answer)
     for name, func in (("pause", cmd_record_pause), ("resume", cmd_record_resume)):
