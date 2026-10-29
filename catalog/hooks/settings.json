@@ -308,10 +308,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/completion-gate.sh"
-          },
-          {
-            "type": "command",
             "command": "python3 .claude/hooks/usage-guard.py",
             "timeout": 10
           },

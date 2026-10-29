@@ -318,7 +318,7 @@ def isolated(env: dict, home: Path, agent: str) -> dict:
     elif agent == "codex":
         env["CODEX_API_KEY"] = source.get("NEXUS_PILOT_OPENAI_API_KEY", "")
         # Codex skips every hook the user has not trusted through `/hooks` (hash-pinned),
-        # and a fresh install has trusted none, so approval capture and the completion gate
+        # and a fresh install has trusted none, so approval capture
         # never ran. This flag stands in for that one-time interactive trust; it relaxes
         # neither approvals nor the sandbox (https://learn.chatgpt.com/docs/hooks).
         env["E2E_CODEX_TRUST_HOOKS"] = "1"
@@ -381,7 +381,7 @@ def run_condition(
             }
         profile = unattended_profile(home, platform, root / "remote.git")
         if not hooks:
-            env["NEXUS_DISABLED_HOOKS"] = "completion-gate,approval-capture"
+            env["NEXUS_DISABLED_HOOKS"] = "approval-capture"
         # Every paid CLI runs behind the spend shim, so each call is metered into the ledger.
         cli = platform
         env["E2E_SHIM_AGENT"] = cli
@@ -493,7 +493,7 @@ def main() -> int:
     parser.add_argument(
         "--no-hooks",
         action="store_true",
-        help="disable the completion gate and capture hooks",
+        help="disable the approval capture hook",
     )
     parser.add_argument("--ledger", default="C:/tmp/v4132e2e/ledger.jsonl",
                         help="plan-wide spend ledger shared by every paid run")

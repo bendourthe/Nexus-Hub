@@ -3,8 +3,9 @@
 // On `session.idle`, asks the installed Nexus-Hub gate core whether this
 // session's full /implement run is complete. When the core answers "continue",
 // starts another turn with `client.session.prompt`. Sessions without a full-run
-// record are never touched. Installed user-global only; remove with the
-// Nexus-Hub uninstaller or opt out with NEXUS_HUB_COMPLETION_PLUGINS=0.
+// record are never touched. Opt-in: installed user-global only when the
+// installer runs with NEXUS_HUB_COMPLETION_PLUGINS=1; remove with the
+// Nexus-Hub uninstaller.
 // Policy: catalog/skills/workflow/implement-phase/references/completion-contract.md
 // A schema-2 (minor) record needs nothing here: the core judges it through
 // check-minor and score-minor inside this plugin's budget (v4.13.6).
