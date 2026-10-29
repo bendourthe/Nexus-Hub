@@ -208,7 +208,8 @@ def test_timeout_reaps_redirected_grandchild(monkeypatch, tmp_path, tree_cleanup
         if tree_cleanup:
             assert not marker.exists()
         else:
-            wait_until(marker.is_file)
+            # write_text creates the file before writing it, so wait for the content.
+            wait_until(lambda: marker.is_file() and bool(marker.read_text(encoding="ascii")))
             assert marker.read_text(encoding="ascii") == "escaped"
     finally:
         # Reap this test's intentional survivor; a retained Windows handle keeps
