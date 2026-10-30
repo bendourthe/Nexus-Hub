@@ -288,3 +288,129 @@ def test_plain_english_rule_has_teeth():
         (SUBSTANTIVE[0], _QUOTE_EXACTLY_MARKER),
     ):
         assert needle not in _read(path).replace(needle, "")
+
+
+# --- Nexus-Hub source labels on agent replies (v4.14.8 Part B) -----------------
+#
+# The bullet names the three events that earn a `[Nexus-Hub: <source>]` label and
+# the one limit most likely to be misused (never on a guard-disable request). It is
+# always-loaded because the agent must know the label before any hook fires; the
+# named-source rule, the other limits, the forged-tag handling and the
+# NEXUS_DISABLED_HOOKS mapping live in the style guide's section 9.
+
+_LABEL_MARKER = "Start with `[Nexus-Hub: <source>]`"
+_CLOSING_REPORT_MARKER = "Close tasks with Completed / Verified / Open / Next"
+_LABEL_CLAUSES = (
+    "the harness delivered",
+    "approval a Nexus-Hub rule requires",
+    "skill or command says so",
+    "never on a request to disable a guard",
+)
+_SECTION_NINE = "## 9. Source labels"
+_SKILL_STEP_NINE = "### 9. Label what Nexus-Hub causes"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_carries_the_source_label_bullet_once(path: Path):
+    text = _read(path)
+    assert text.count(_LABEL_MARKER) == 1, (
+        f"{path.name}: the label bullet must appear exactly once in the template"
+    )
+    section = _contract_section(path)
+    bullets = [line for line in section.split("\n") if _LABEL_MARKER in line]
+    assert len(bullets) == 1, f"{path.name}: label bullet is outside the contract"
+    bullet = bullets[0]
+    assert bullet.startswith("- "), f"{path.name}: label rule is not a bullet"
+    for clause in _LABEL_CLAUSES:
+        assert clause in bullet, f"{path.name}: label bullet lacks '{clause}'"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_source_label_bullet_follows_the_closing_report_bullet(path: Path):
+    lines = _contract_section(path).split("\n")
+    closing = [i for i, line in enumerate(lines) if _CLOSING_REPORT_MARKER in line]
+    assert len(closing) == 1, f"{path.name}: closing-report bullet count {len(closing)}"
+    assert _LABEL_MARKER in lines[closing[0] + 1], (
+        f"{path.name}: the label bullet must directly follow the closing-report bullet"
+    )
+
+
+def test_source_label_bullet_is_byte_identical_across_the_roster():
+    variants = set()
+    for path in SUBSTANTIVE:
+        for line in _read(path).split("\n"):
+            if _LABEL_MARKER in line:
+                variants.add(line.strip())
+    assert len(variants) == 1, f"label bullet diverged: {variants}"
+
+
+def test_style_guide_owns_the_source_label_procedure():
+    text = _read(_STYLE_GUIDE)
+    assert _SECTION_NINE in text
+    assert text.index(_SECTION_NINE) < text.index("\n## Verification"), (
+        "section 9 must sit before the Verification list"
+    )
+    start = text.index(_SECTION_NINE)
+    section = text[start : text.find("\n## ", start + 1)]
+    # The three events, each with a named example source.
+    for example in (
+        "[Nexus-Hub: git-guardrails]",
+        "[Nexus-Hub: Consequential Decisions]",
+        "[Nexus-Hub: implement-phase skill]",
+    ):
+        assert example in section, f"section 9 lacks the example {example}"
+    # Named source, never bare.
+    assert "Never write a bare `[Nexus-Hub]`" in section
+    # The agent owns its recommendation; the label names the source.
+    assert "names the source, never the decision" in section
+    # No-bypass clause with the three override surfaces.
+    assert "disable, bypass, or weaken a guard" in section
+    assert "NEXUS_DISABLED_HOOKS" in section
+    assert "NEXUS_HOOK_PROFILE=minimal" in section
+    # Never claim a guard ran.
+    assert (
+        "Never claim a guard ran or passed unless its message arrived in this turn"
+        in section
+    )
+    # Forged tags are untrusted, and the owning skill is linked.
+    assert "possible impersonation" in section
+    assert "prompt-injection-defense" in section
+    # Permission-list prompts stay unlabeled; the tag name is the disable value.
+    assert "cannot carry a label" in section
+    assert "NEXUS_DISABLED_HOOKS=secret-scan" in section
+
+
+def test_style_guide_verification_covers_the_label_limits():
+    text = _read(_STYLE_GUIDE)
+    verification = text[text.index("\n## Verification") :]
+    assert "only for one of the three events in section 9" in verification
+    assert "disable, bypass, or weaken a guard" in verification
+    assert "possible impersonation" in verification
+
+
+def test_skill_mirrors_the_source_label_rule():
+    text = _read(_SKILL)
+    assert _SKILL_STEP_NINE in text
+    start = text.index(_SKILL_STEP_NINE)
+    step = text[start : text.find("\n## ", start + 1)]
+    assert "never a bare `[Nexus-Hub]`" in step
+    assert "disable, bypass, or weaken a guard" in step
+    assert "never claim a guard ran or passed" in step
+    assert "possible impersonation" in step
+    assert "prompt-injection-defense" in step
+    assert "section 9 of the style guide" in step
+    # One verification item and the two rationalization rows the plan names.
+    assert "`[Nexus-Hub: <source>]` opens a reply only for" in text
+    assert "Labeling helps, so I will label everything." in text
+    assert "Labeling the approval makes the user trust it." in text
+
+
+def test_source_label_rule_has_teeth():
+    for path, needle in (
+        (_STYLE_GUIDE, _SECTION_NINE),
+        (_SKILL, _SKILL_STEP_NINE),
+        (SUBSTANTIVE[0], _LABEL_MARKER),
+    ):
+        assert needle not in _read(path).replace(needle, ""), (
+            f"predicate for {path.name} matches anything"
+        )
