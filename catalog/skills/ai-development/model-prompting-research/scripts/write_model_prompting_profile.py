@@ -628,7 +628,7 @@ def commit_outputs(outputs: dict[Path, str]) -> list[Path]:
             try:
                 directory.rmdir()
             except OSError:
-                pass
+                pass  # not empty: something else wrote here, so leave it; the original error re-raises below
         raise
     return list(outputs)
 
