@@ -21,7 +21,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 97/209 integrated task marks, with 3/7 members released: v4.14.0, v4.14.1 and v4.14.2 (released 2026-10-28). v4.14.3 is admitted and publication-started (start head `46440973`) with Phases 1-3 committed (19/20 tasks; T019's composite local qualification is green on `8f0e6f313`) and T020, the single publication, next; v4.14.4 follows once v4.14.3 merges, because both need `MANIFEST.sha256`. v4.14.2 is 34/34; T029/T034 are supported by actual PR #525 macOS, merge and post-merge evidence, and the genuine native historical-scope decision for the six reviewed PR #525 rows was recorded on 2026-10-28. The installed runtime matches develop `2ef94cabd` through the official installer (2026-10-28). v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn. Private preparation remains separate.
+**Active work:** v4.14 has 97/256 integrated task marks, with 3/8 members released: v4.14.0, v4.14.1 and v4.14.2 (released 2026-10-28). v4.14.3 is admitted and publication-started (start head `46440973`) with Phases 1-3 committed (19/20 tasks; T019's composite local qualification is green on `8f0e6f313`) and T020, the single publication, next; v4.14.4 follows once v4.14.3 merges, because both need `MANIFEST.sha256`. v4.14.2 is 34/34; T029/T034 are supported by actual PR #525 macOS, merge and post-merge evidence, and the genuine native historical-scope decision for the six reviewed PR #525 rows was recorded on 2026-10-28. The installed runtime matches develop `2ef94cabd` through the official installer (2026-10-28). v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn. Private preparation remains separate.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -65,9 +65,9 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 GitHub develop integrated task marks | 97/209 | 209/209 |
-| v4.14 worktree task marks | 101/209 | 209/209 |
-| v4.14 released members | 3/7 | 7/7 |
+| v4.14 GitHub develop integrated task marks | 97/256 | 256/256 |
+| v4.14 worktree task marks | 101/256 | 256/256 |
+| v4.14 released members | 3/8 | 8/8 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
@@ -374,6 +374,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.14.6 Nexus-Hub Settings
 
 - [ ] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 0/6 phases and 0/46 tasks. Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
+
+## Queued work - v4.14.7 installer platform detection
+
+- [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 0/7 phases and 0/47 tasks.
 
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
