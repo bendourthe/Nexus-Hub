@@ -63,6 +63,27 @@ RULES = (
         owner_name="references/decision-policy-harness.md",
         non_owners=(_SK / "ai-development" / "ai-agent-development" / "SKILL.md",),
     ),
+    Rule(
+        rule="ungated-outcome",
+        owner=_SK / "orchestration" / "quality-gate-definitions" / "SKILL.md",
+        anchor="a gate that measured nothing says nothing",
+        owner_name="[[quality-gate-definitions]]",
+        non_owners=(_SK / "workflow" / "implement-phase" / "references" / "implement-phase-runbook.md",),
+    ),
+    Rule(
+        rule="explain-retry-or-record",
+        owner=_SK / "orchestration" / "quality-gate-definitions" / "SKILL.md",
+        anchor="After two further failed attempts, the agent records the known gap itself",
+        owner_name="[[quality-gate-definitions]]",
+        non_owners=(_SK / "workflow" / "implement-phase" / "references" / "implement-phase-runbook.md",),
+    ),
+    Rule(
+        rule="missing-evidence-reporting",
+        owner=_SK / "workflow" / "verification-before-completion" / "SKILL.md",
+        anchor="Report it as \"not verified\" with the reason",
+        owner_name="[[verification-before-completion]]",
+        non_owners=(_SK / "orchestration" / "quality-gate-definitions" / "SKILL.md",),
+    ),
 )
 
 
