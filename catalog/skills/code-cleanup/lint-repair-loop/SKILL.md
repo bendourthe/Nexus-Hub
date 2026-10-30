@@ -63,6 +63,7 @@ The external-service pattern of "pipe lint failures to a cheaper third-party mod
 - [[code-simplification]] -- reduces structural complexity and over-abstraction (a deliberate change), distinct from making the linter pass.
 - [[refactoring-expert]] -- behavior-preserving restructuring beyond what a linter flags.
 - [[error-explanation-generator]] -- explains a cryptic lint / type error when the fix is not obvious.
+- [[review-trapdoors]] -- decides when a recurring review blocker earns an automated check; this loop runs and repairs the checks it promotes.
 
 ---
 
