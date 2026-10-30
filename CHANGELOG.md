@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A plan task still counts after its file is moved and its branch is merged.** The completion checker counts a task line by asking `git log <start>..HEAD -- <path>` for a commit that touched the task's path. When a branch wrote a file and later moved it (the normal promotion of a decision record from `proposed/` to `implemented/`) and then merged, git's history simplification followed the merge's first parent, where the path never existed, and dropped the branch's commits, so the finished task read `unmet`. Every task-line lookup (plain, dated, and both archive-aware forms) now passes `--full-history`, which counts the commits that touched the path on any merged branch, as it already did for a file that still exists. v4.14.4's T010 hit this after merge.
+
 ## [4.14.4] - 2026-10-30
 
 ### Added

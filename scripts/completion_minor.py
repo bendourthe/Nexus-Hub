@@ -3184,7 +3184,7 @@ def archive_task_status(rctx: RepoContext, version: str, path: str, start: str, 
         return "cannot-verify"
     origin = task_origin(version, path, record.get("archived"))
     specs = [path, *((origin,) if origin else ())]
-    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "log", "--format=%H", f"{start}..HEAD", "--", *specs])
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "log", "--full-history", "--format=%H", f"{start}..HEAD", "--", *specs])
     if rc != 0:
         return "cannot-verify"
     shas = set(out.split())

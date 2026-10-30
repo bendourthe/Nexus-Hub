@@ -493,7 +493,27 @@ def test_task_needs_a_commit_touching_its_path(tmp_path: Path) -> None:
     assert "task.T001 met" in result.stdout
 
 
-DATED_PLAN = PLAN.replace("src/b.txt", "docs/decisions/YYYY-MM-DD-part-b.md")
+def test_a_task_counts_work_on_a_path_its_branch_later_moved(tmp_path: Path) -> None:
+    # A decision record written on a branch and then promoted (moved) leaves no file at
+    # the task's path. Without --full-history, git log follows the merge's first parent,
+    # where the path never existed, and drops the branch commits that wrote it.
+    proposed = "docs/decisions/proposed/part-b.md"
+    fx = _build(tmp_path, plan=PLAN.replace("src/b.txt", proposed))
+    _git(fx.work, "switch", "-q", "-c", "feature")
+    fx.write(proposed, "# Decision\n")
+    _git(fx.work, "add", "-A")
+    _git(fx.work, "commit", "-q", "-m", "record the proposal")
+    (fx.work / "docs/decisions/implemented").mkdir(parents=True)
+    _git(fx.work, "mv", proposed, "docs/decisions/implemented/part-b.md")
+    _git(fx.work, "commit", "-q", "-m", "promote the record")
+    _git(fx.work, "switch", "-q", "main")
+    fx.write("src/a.txt", "a2\n")
+    _git(fx.work, "commit", "-q", "-am", "unrelated work on main")
+    _git(fx.work, "merge", "-q", "--no-ff", "-m", "merge feature", "feature")
+    assert "task.T002 met" in fx.check().stdout
+
+
+DATED_PLAN =PLAN.replace("src/b.txt", "docs/decisions/YYYY-MM-DD-part-b.md")
 
 
 @pytest.mark.parametrize(
