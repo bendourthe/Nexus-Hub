@@ -38,7 +38,7 @@ install_no_window_default()
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
 from scripts.lib.integrations._detection import detect_platform, detection_spec  # noqa: E402
-from scripts.lib.integrations._stale import KEEP, REMOVE, STRIP, apply_platform, find_stale  # noqa: E402
+from scripts.lib.integrations._stale import apply_platform, find_stale  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_DRIFTED,
     DIAGNOSTIC_MISSING,
@@ -47,7 +47,9 @@ from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DoctorReport,
     doctor as lifecycle_doctor,
     list_installed as lifecycle_list_installed,
+    render_stale,
     repair as lifecycle_repair,
+    stale_report_lines,
 )
 from scripts.lib.integrations.manifest import InstallManifest, manifest_lock  # noqa: E402
 from scripts.lib.integrations.result import WriteResult  # noqa: E402
@@ -1007,30 +1009,16 @@ def _stale_integrations(requested: Optional[List[str]]) -> list:
 
 
 def _render_stale(stale) -> None:
-    """Print one platform's plan: what is removed, trimmed, and kept, and why."""
-    counts = stale.counts()
-    print(f"  - {stale.display_name}: not detected ({stale.evidence})")
-    print(
-        f"    {counts.get(REMOVE, 0)} to remove, {counts.get(STRIP, 0)} to trim, "
-        f"{counts.get(KEEP, 0)} kept for your review, under {stale.root}"
-    )
-    shown = 0
-    for entry in stale.entries:
-        if entry.verdict in (KEEP, STRIP) and shown < 20:
-            print(f"      {entry.verdict}: {entry.path} ({entry.reason})")
-            shown += 1
+    """Print one platform's plan (lines built by `lifecycle.render_stale`)."""
+    for line in render_stale(stale):
+        print(line)
 
 
 def _report_stale(home: Path, requested: Optional[List[str]] = None) -> None:
     """Doctor's stale-surface section (v4.14.7 Phase 5). Read-only."""
     manifest = InstallManifest.load(_manifest_path(home))
-    stale = find_stale(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested))
-    if not stale:
-        return
-    print("[doctor] stale Nexus-Hub surfaces for tools that are not installed:")
-    for platform in stale:
-        _render_stale(platform)
-    print("  Preview or remove them with `nexus-hub prune-undetected` (add --yes to remove).")
+    for line in stale_report_lines(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested)):
+        print(line)
 
 
 def cmd_prune_undetected(args: argparse.Namespace) -> int:

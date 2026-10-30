@@ -220,6 +220,46 @@ def repair(
     return result
 
 
+def render_stale(stale) -> List[str]:
+    """One stale platform's plan as report lines: removed, trimmed, kept, and why.
+
+    v4.14.7 Phase 5. `stale` is a `_stale.StalePlatform`; kept and trimmed items
+    are listed (up to 20) because they are the ones a user must review.
+    """
+    from ._stale import KEEP, REMOVE, STRIP
+
+    counts = stale.counts()
+    lines = [
+        f"  - {stale.display_name}: not detected ({stale.evidence})",
+        f"    {counts.get(REMOVE, 0)} to remove, {counts.get(STRIP, 0)} to trim, "
+        f"{counts.get(KEEP, 0)} kept for your review, under {stale.root}",
+    ]
+    shown = 0
+    for entry in stale.entries:
+        if entry.verdict in (KEEP, STRIP) and shown < 20:
+            lines.append(f"      {entry.verdict}: {entry.path} ({entry.reason})")
+            shown += 1
+    return lines
+
+
+def stale_report_lines(ctx: InstallContext, integrations) -> List[str]:
+    """Doctor's stale-surface section (v4.14.7 Phase 5). Read-only.
+
+    Lists every detection-gated platform that is not installed yet still has
+    Nexus-Hub files recorded in the manifest, and points at the opt-in removal.
+    """
+    from ._stale import find_stale
+
+    stale = find_stale(ctx, integrations)
+    if not stale:
+        return []
+    lines = ["[doctor] stale Nexus-Hub surfaces for tools that are not installed:"]
+    for platform in stale:
+        lines.extend(render_stale(platform))
+    lines.append("  Preview or remove them with `nexus-hub prune-undetected` (add --yes to remove).")
+    return lines
+
+
 __all__ = [
     "DIAGNOSTIC_OK",
     "DIAGNOSTIC_MISSING",
@@ -230,5 +270,7 @@ __all__ = [
     "DoctorReport",
     "doctor",
     "list_installed",
+    "render_stale",
     "repair",
+    "stale_report_lines",
 ]
