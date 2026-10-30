@@ -1,0 +1,46 @@
+"""Adversarial driver for omitted_keys_declared (find-and-report only; modifies nothing)."""
+
+import copy
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root))
+sys.path.insert(0, str(root / "scripts"))
+from tests.validators import test_sync_platform_defaults as t  # noqa: E402
+
+g = t.omitted_keys_declared
+base = copy.deepcopy(t._REAL_PLATFORMS)
+
+
+def codex_with(settings, omitted=None):
+    p = copy.deepcopy(base)
+    p["codex"]["settings"] = settings
+    if omitted is not None:
+        p["codex"]["omitted"] = omitted
+    return p
+
+
+def run(label, fn):
+    try:
+        print(f"{label}: {fn()}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"{label}: RAISES {type(exc).__name__}: {exc}")
+
+
+K = "memories.extract_model"
+run("AF1 case variant Memories.Extract_Model", lambda: g(codex_with({"Memories": {"Extract_Model": "x"}})))
+run("AF2 literal dotted key", lambda: g(codex_with({K: "x"})))
+run("AF3 empty nested table at key", lambda: g(codex_with({"memories": {"extract_model": {}}})))
+run("AF4 profile-scoped profiles.p.memories.extract_model", lambda: g(codex_with({"profiles": {"p": {"memories": {"extract_model": "x"}}}})))
+run("AF5 alias memories.no_memories_if_mcp_or_web_search (patched real file)", lambda: g(codex_with({"memories": {"no_memories_if_mcp_or_web_search": True}})))
+run("AF6 array of tables memories=[{extract_model}]", lambda: g(codex_with({"memories": [{"extract_model": "x"}]})))
+run("AF7 settings null", lambda: g(codex_with(None)))
+run("AF8 omitted null", lambda: g({"c": {"settings": {}, "omitted": None}}))
+run("AF9 platform entry not an object", lambda: g({"c": "x"}))
+run("AF10 deep nesting 2000 levels", lambda: g(codex_with(__import__("functools").reduce(lambda acc, _: {"a": acc}, range(2000), {"memories": {"extract_model": "x"}}))))
+run("AF11 key moved to another platform's settings", lambda: g({**base, "gemini": {**base["gemini"], "settings": {"memories": {"extract_model": "x"}}}}))
+run("AF12 delete omitted entry and declare the key", lambda: g(codex_with({"memories": {"extract_model": "x"}}, omitted={"model": "reason text long enough here"})))
+run("AF13 features table empty over omitted features.memories", lambda: g(codex_with({"features": {}})))
+run("AF14 features table with other leaf", lambda: g(codex_with({"features": {"other": True}})))
+run("AF15 whitespace key 'memories .extract_model'", lambda: g(codex_with({"memories ": {"extract_model": "x"}})))
