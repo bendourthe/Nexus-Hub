@@ -21,7 +21,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 117/209 integrated task marks, with 4/7 members released: v4.14.0, v4.14.1, v4.14.2 (2026-10-28) and v4.14.3 (2026-10-29, tag `v4.14.3`). v4.14.4 is admitted and publication-started (start head `349cc756f`) with Phases 1-5 committed in its worktree (T001-T022 except T013 by the member; T013 landed as PR #551 because members may not write `catalog/hooks/settings.json`, and the `lint-repair-loop` back-link as PR #552); T023 (full local suite) and T024 (publication) remain. v4.14.3's early member archive is deferred until its merged local branches can be cleaned; the minor close archives it otherwise. v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn.
+**Active work:** v4.14 has 141/209 integrated task marks, with 5/7 members released: v4.14.0, v4.14.1, v4.14.2 (2026-10-28), v4.14.3 (2026-10-29) and v4.14.4 (2026-10-30, tag `v4.14.4`). v4.14.5 is admitted and publication-started (start head `8bc588e5d`) with T001-T020 done except T007 and T008, which land as PR #560; T021 and T022 remain. v4.14.6 is admitted only after v4.14.5 merges, because it needs v4.14.5's omitted Codex keys and the `MANIFEST.sha256` claim. PR #559 fixed the completion checker counting a task whose file was later moved (v4.14.4 T010); the installed runtime was updated on 2026-10-30.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -61,7 +61,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Run the v4.14.4 local qualification (T023), publish it once (T024), release it with `/update release 4.14.4`, then admit v4.14.5 and v4.14.6 in release order, keeping releases sequential.
+**Next:** Merge PR #560 and then develop into v4.14.5, run its local qualification (T021), publish it once (T022), release it with `/update release 4.14.5`, then admit and implement v4.14.6 and close the minor.
 
 | Metric | Current | Target |
 |---|---|---|
@@ -373,7 +373,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.14.5 Codex memory levers
 
 - [x] Complete the [v4.14.5 comparison](releases/v4/v4.14/comparisons/v4.14.5-comparison-codex-memory-models.md) (practitioner article on Codex `[memories]` model overrides, verified against OpenAI's config reference, Memories, and Models pages); adoption target v4.14.5 confirmed by the user on 2026-10-15.
-- [ ] Implement the [v4.14.5 plan](releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md): a host-generated memory store class (never read, untrusted, never copied into the substrate unconfirmed) in the memory-substrate contract, with pointers from `agent-memory` and `prompt-injection-defense` (Phase 1, no dependency); the five Codex memory levers recorded and omitted, not seeded, plus a guard that fails when any platform declares a key it omits (Phase 2, after v4.14.0 merges). Follow-on parked: a `nexus-hub doctor` warning for Codex Memories without the external-context exclusion.
+- [ ] Implement the [v4.14.5 plan](releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md): the host-generated memory store class in the memory-substrate contract with pointers from `agent-memory` and `prompt-injection-defense`, the five Codex memory settings recorded as checked and not seeded (with the legacy alias omitted too), the omitted-key guard test, and two decision records. Member work is committed (`833f00291`, `440c8b5fe`, `3b95cf53c`); T007 and T008 land as PR #560 because their files are outside the member's claims; T021 (full local suite) and T022 (publication) remain.
 
 ## Queued work - v4.14.6 Nexus-Hub Settings
 
