@@ -244,7 +244,8 @@ fi
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later
 #   - git config --unset commit.gpgsign
-#   - without jq, a malformed guardrails.json is detected best effort only
+#   - without jq and without a working python, a malformed guardrails.json is
+#     detected best effort only (the mode still stays off)
 bypass_mode_on() {
   case "${NEXUS_GUARD_GIT_BYPASS:-}" in
     1) return 0 ;;
@@ -261,12 +262,34 @@ bypass_mode_on() {
     verdict=$(printf '%s' "$content" | jq -r 'if type == "object" then (.block_git_bypass_flags == true | tostring) else "invalid" end' 2>/dev/null || true)
     verdict=${verdict//$'\r'/}
   else
-    flat=$(printf '%s' "$content" | tr -d '[:space:]')
-    case "$flat" in
-      '{'*'}')
-        if printf '%s' "$flat" | grep -qE '"block_git_bypass_flags":true([,}]|$)'; then verdict=true; else verdict=false; fi ;;
-      *) verdict=invalid ;;
-    esac
+    # No jq: let a real JSON parser validate the file, so a malformed one warns as the
+    # .ps1 does. A missing interpreter, or one that is not a working Python (the Windows
+    # Store python3 stub prints an install message and exits non-zero), yields no verdict
+    # word, so the grep path below decides instead; it never misreports the file.
+    local py_code='import json, sys
+try:
+    d = json.loads(sys.stdin.read())
+except ValueError:
+    print("invalid")
+else:
+    print(("true" if d.get("block_git_bypass_flags") is True else "false") if isinstance(d, dict) else "invalid")'
+    local py py_out
+    for py in python3 python; do
+      command -v "$py" >/dev/null 2>&1 || continue
+      py_out=$(printf '%s' "$content" | "$py" -c "$py_code" 2>/dev/null) || continue
+      py_out=${py_out//$'\r'/}
+      case "$py_out" in
+        true|false|invalid) verdict=$py_out; break ;;
+      esac
+    done
+    if [ -z "$verdict" ]; then
+      flat=$(printf '%s' "$content" | tr -d '[:space:]')
+      case "$flat" in
+        '{'*'}')
+          if printf '%s' "$flat" | grep -qE '"block_git_bypass_flags":true([,}]|$)'; then verdict=true; else verdict=false; fi ;;
+        *) verdict=invalid ;;
+      esac
+    fi
   fi
   case "$verdict" in
     true) return 0 ;;
