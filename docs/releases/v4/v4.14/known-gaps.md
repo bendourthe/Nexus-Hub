@@ -3367,22 +3367,22 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
+| Bugs / regressions (BG) | 1 | 3 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### BG-18 (v4.14.7): The real-installer attribution test fails locally on Windows before this plan's changes
+#### BG-20 (v4.14.7): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
 
-**Source phase**: v4.14.7 Phase 2 T017
+**Source phase**: v4.14.7 Phase 7 T046
 
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 2.3
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
 
-**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan. Diagnosis on 2026-10-30 from the sandbox's own `installer.log`: the Python the installer resolves on this host has no PyYAML, and the test sets `PIP_NO_INDEX=1`, so the installer prints `platform-defaults: PyYAML is not installed, so ... .aider.conf.yml was not seeded` and the assertion reads a file that was never written. It is a host precondition, not an installer or detection defect: in the same run the global PowerShell case recorded `forced: {'aider': True}` in the sandbox manifest, proving the Phase 4 `--platforms` pass-through end to end.
+**Reason**: `scripts/ci/run.py` removes each pytest scratch folder with `tempfile.TemporaryDirectory.cleanup()`, which on a Windows host without registry long-path support fails with `OSError: [WinError 145] The directory is not empty` when a long-path test left folders past 260 characters. The runner then marks the group failed with `original status=pass`: in the 2026-10-30 full profile, `hook-tests` (2755 passed) and `repo-tests-skills` (2635 passed) were reported as failures for this reason alone. Unrelated to detection; it predates this plan. A fallback cannot simply retry with the `\?\` prefix, because `tests/ci/test_ci_engine.py::test_pytest_scratch_cleanup_preserves_command_facts` requires a denied cleanup to leave the folder in place, and a prefixed scratch root would leak into every test's `tmp_path`.
 
-**Suggested next step**: Confirm the three cases pass on the CI runners (which install PyYAML) in Phase 7's integration checks, and make the test skip with an explicit reason when the installer's resolved Python lacks PyYAML instead of failing on the missing file.
+**Suggested next step**: Give the runner a dedicated scratch remover that deletes with the long-path form on Windows only after the normal cleanup fails with a path-length error (WinError 3 or 145), keep a permission denial as a failure, and extend the cleanup test with a past-MAX_PATH case. `scripts/ci/run.py` is shared with the queued v4.14 plans, so schedule it as its own change.
 
 #### DF-20 (v4.14.7): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
 
@@ -3406,4 +3406,34 @@ None.
 
 ### Resolved
 
-None.
+#### BG-18 (v4.14.7): The real-installer attribution test failed locally on Windows before this plan's changes
+
+**Source phase**: v4.14.7 Phase 2 T017
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 2.3
+
+**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan. Diagnosis on 2026-10-30 from the sandbox's own `installer.log`: the Python the installer resolves on this host has no PyYAML, and the test sets `PIP_NO_INDEX=1`, so the installer prints `platform-defaults: PyYAML is not installed, so ... .aider.conf.yml was not seeded` and the assertion reads a file that was never written. It is a host precondition, not an installer or detection defect: in the same run the global PowerShell case recorded `forced: {'aider': True}` in the sandbox manifest, proving the Phase 4 `--platforms` pass-through end to end.
+
+**Resolution (2026-10-30, Phase 7)**: The test now probes `import yaml` with the sandbox's own environment. When the probe fails it asserts the installer reported the missing PyYAML, runs every remaining guard assertion, and ends as a skip naming the reason, so a hidden per-user site-packages install is reported rather than read as a defect. Locally the two PowerShell cases now report `SKIPPED ... Aider config not verified: the installer's Python cannot import PyYAML in the isolated environment`; the CI runners install PyYAML system-wide, so they still assert the seeded `.aider.conf.yml`.
+
+#### BG-19 (v4.14.7): A long-path test helper failed whenever the temp root had one particular length
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
+
+**Reason**: `tests/integrations/test_windows_long_paths.py::_root_of_length` appended 49-character segments while the path was shorter than `length - 50`, so it could stop at exactly `length - 1` characters and leave a zero-width padding name (`assert remainder > 0`). `test_write_owned_file_survives_a_temp_name_past_max_path` failed identically on the develop base `69b83eee8` and on this branch at the same temp-root length; CI's shorter temp root never hit the boundary.
+
+**Resolution (2026-10-30, Phase 7)**: The loop now stops one character earlier, so the padding is always at least one character. The file passes at the length that failed (18 passed, 1 pre-existing skip).
+
+#### BG-21 (v4.14.7): Unchanged files in a tracked folder were kept when the source checkout had newer files than their folder
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.1
+
+**Reason**: Found by the full local profile: `test_removal_keeps_everything_the_user_owns` failed once earlier tests left `__pycache__` files in the gitignored catalog. The folder rule compared each file with the tracked folder's recorded `mtime`, but `shutil.copytree` copies the source folder's own mtime, so any source file compiled or edited after checkout read as "changed after install" and stayed. The error was in the safe direction (it kept files, never removed more), but it left unchanged Nexus-Hub output behind on installs from a working checkout.
+
+**Resolution (2026-10-30, Phase 7)**: `InstallManifest.record_actions` now stores `recorded_at`, the wall-clock install time, and `_stale._classify_dir` compares against it, falling back to the folder mtime for manifests written before the field existed. `test_folder_rule_compares_against_install_time_not_the_copied_folder_mtime` covers the new rule, the conservative fallback, and a later edit; the stale-surface, detection, lifecycle, and harness-audit files pass together (86 passed) with the stray caches present.
+
+

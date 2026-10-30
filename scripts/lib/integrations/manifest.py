@@ -186,14 +186,17 @@ class InstallManifest:
         """Replace the action record for `integration_key` with the
         actions in `file_actions` (an iterable of `FileAction`).
 
-        Each entry is stored as `{path, action, sha256, mtime}`. Hash and
-        mtime are captured at record time; `doctor` compares them later to
-        detect drift. Replacement (not append) so successive installs of the
+        Each entry is stored as `{path, action, sha256, mtime, recorded_at}`.
+        Hash and mtime are captured at record time; `doctor` compares them
+        later to detect drift. `recorded_at` is the wall-clock install time:
+        a copied folder keeps its source's mtime, so only this stamp tells a
+        file changed after install from one copied with an older timestamp. Replacement (not append) so successive installs of the
         same integration in one invocation do not pile up duplicate records.
         """
         from .result import REPORT_ACTIONS
 
         captured: List[Dict[str, object]] = []
+        recorded_at = time.time()
         for fa in file_actions:
             if fa.action in REPORT_ACTIONS:
                 # A detection report or a backup is not a file this install owns.
@@ -205,6 +208,7 @@ class InstallManifest:
                     "action": fa.action,
                     "sha256": _hash_path(path),
                     "mtime": _mtime(path),
+                    "recorded_at": recorded_at,
                 }
             )
         self._actions[integration_key] = captured

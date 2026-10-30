@@ -129,7 +129,11 @@ def _tracked(manifest, key) -> List[str]:
 
 
 def _classify_dir(directory: Path, record: Optional[dict], roots: List[Path]) -> List[StaleEntry]:
-    recorded = (record or {}).get("mtime")
+    # copytree copies the source folder's mtime, so a source file newer than
+    # its folder would read as changed. Compare against the install time;
+    # a record written before recorded_at existed falls back to the folder's
+    # mtime, which can only keep more files, never remove more.
+    recorded = (record or {}).get("recorded_at", (record or {}).get("mtime"))
     entries: List[StaleEntry] = []
 
     def unreadable(error: OSError) -> None:

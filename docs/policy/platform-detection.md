@@ -85,7 +85,7 @@ The engine is `scripts/lib/integrations/_stale.py`. It never calls `shutil.rmtre
 | Entry | Verdict |
 |---|---|
 | Tracked file with a recorded hash | Removed only when the current hash matches; otherwise kept ("you changed it after install") |
-| File inside a tracked folder (no per-file hash is recorded) | Removed only when not modified after the folder was recorded (two-second slack); files changed or added later are kept |
+| File inside a tracked folder (no per-file hash is recorded) | Removed only when not modified after the install recorded the folder (compared with the install time, because a copied folder keeps its source's mtime; two-second slack); files changed or added later are kept |
 | Shared instruction file | Only the Nexus-Hub marker block is removed |
 | Declared merged settings (`shared_configs` with a pruner: Kimi `config.toml`, Qwen `settings.json`) | Only Nexus-Hub's hook entries are removed; the user's settings stay |
 | Declared seeded settings (`shared_configs` without a pruner: Hermes `config.yaml`, Pi `settings.json`, `~/.aider.conf.yml`) | Kept, reported |

@@ -20,7 +20,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.lib.integrations import _detection, get, runner  # noqa: E402
-from scripts.lib.integrations._stale import GONE, KEEP, REMOVE, STRIP, apply_platform, find_stale, plan_platform  # noqa: E402
+from scripts.lib.integrations._stale import GONE, KEEP, REMOVE, STRIP, _classify_dir, apply_platform, find_stale, plan_platform  # noqa: E402
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 
 
@@ -207,3 +207,20 @@ def test_missing_files_are_reported_gone_not_failed(stale_kimi: Path) -> None:
         path.unlink()
     stale = plan_platform(_ctx(stale_kimi), get("kimi"))
     assert any(e.verdict == GONE for e in stale.entries)
+
+
+def test_folder_rule_compares_against_install_time_not_the_copied_folder_mtime(tmp_path: Path) -> None:
+    # copytree gives the installed folder its source's mtime, so a source file
+    # compiled or edited after checkout is newer than its folder yet unchanged.
+    folder = tmp_path / "skills" / "demo"
+    folder.mkdir(parents=True)
+    copied = folder / "helper.cpython-312.pyc"
+    copied.write_bytes(b"compiled")
+    stamp = copied.stat().st_mtime
+    record = {"mtime": stamp - 1000, "recorded_at": stamp + 1}
+    assert [e.verdict for e in _classify_dir(folder, record, [tmp_path])] == [REMOVE]
+    # A manifest written before recorded_at existed keeps the conservative rule.
+    legacy = {"mtime": stamp - 1000}
+    assert [e.verdict for e in _classify_dir(folder, legacy, [tmp_path])] == [KEEP]
+    os.utime(copied, (stamp + 3600, stamp + 3600))
+    assert [e.verdict for e in _classify_dir(folder, record, [tmp_path])] == [KEEP]

@@ -1,4 +1,4 @@
-# Platform Detection Evidence Rule
+# Decision: Platform Detection Evidence Rule
 
 Status: proposed - gated platforms are detected only by evidence Nexus-Hub did not create (PATH, vendor entries, app paths, or an explicit --platforms)
 

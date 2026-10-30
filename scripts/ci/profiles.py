@@ -416,10 +416,12 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_detection.py",
             "tests/integrations/test_lifecycle.py",
             "tests/integrations/test_lifecycle_block_rendering.py",
             "tests/integrations/test_selective_install.py",
             "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_stale_surfaces.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
         ),
