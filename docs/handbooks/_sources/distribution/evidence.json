@@ -8,7 +8,7 @@
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58",
+      "configs/platform-defaults.json": "dc32de7f2d21d45a08d53e12d5ec2a322c386f7144a10100aea78366b41447a6",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/model.json": "086b9d2c0431181cacc2fabb54a6fb596060710c8c9c01e4a159fd1d357b0c66",
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.4-distribution-release-version-review.md",
-      "evidence_sha256": "1e7ce5f6513514946b73fc1195ff6f11002dd489f01eec099eecfb1d01cfaab1"
+      "evidence": "docs/releases/v4/v4.14/development/codex-memory-levers-handbook-review.md",
+      "evidence_sha256": "632c86c06e92ed9bc8f4c9c5250d7082103d5959951771dbbab5287d1f5aa426"
     },
     "build": {
       "status": "pass",
