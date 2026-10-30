@@ -339,8 +339,8 @@ def test_evidence_requiring_native_archive_link_repair_is_refused(decline):
         ck.conditional_request(decline.ctx, decline.view, decline.request)
 
 
-@pytest.mark.parametrize("technical_blocker", [False, True])
-def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blocker):
+@pytest.mark.parametrize("technical_blocker, legacy", [(False, False), (True, False), (False, True)])
+def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blocker, legacy):
     from .test_completion_minor_record import Minor, SESSION, _git
     from .test_gap_migration_and_archive import LINK_CHECKER
 
@@ -358,6 +358,21 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
         "> On a full decline, stop after the merge: no tag, per the owner's release decision.\n"
     )
 
+    if legacy:
+        from .test_legacy_gap_provenance import FROZEN_PLAN, ENTRY
+        plan = plan.replace("## Phase 1\n", "## Phase 1: Preflight\n")
+        plan += "\n#### 1.3" + FROZEN_PLAN.split("#### 1.1", 1)[1]
+        legacy_entry = ENTRY.replace("#### DF-2", "#### DF-1")
+        legacy_entry = "\n".join(line for line in legacy_entry.splitlines() if "**Scope disposition**" not in line) + "\n"
+        approvals = minor.approvals
+        def legacy_approvals(*extra):
+            path = approvals(*extra)
+            spec = json.loads(path.read_text(encoding="utf-8"))
+            next(c for c in spec["classes"] if c["class"] == "gap-migration")["bound"] = ["v0.5#DF-1"]
+            path.write_text(json.dumps(spec), encoding="utf-8")
+            return path
+        monkeypatch.setattr(minor, "approvals", legacy_approvals)
+
     def write(path, text):
         target = minor.work / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -372,6 +387,10 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
     created = minor.create()
     assert created.returncode == 0, created.stdout + created.stderr
     original = minor.record()
+    if legacy:
+        started = minor.run("record", "member-start", "--minor", "v0.5", "--member", "v0.5.2", "--session", SESSION, "--head", original["start_head"])
+        assert started.returncode == 0, started.stdout + started.stderr
+        original = minor.record()
     member = original["members"][0]
     branch = member["source_branch"]
     _git(minor.work, "checkout", "-qb", branch)
@@ -384,6 +403,9 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
         tree + "/known-gaps.md",
         "# Gaps\n\n**Status**: finalized\n**Open items**: 0\n\n## v0.5.2\n\n### Resolved\n",
     )
+    if legacy:
+        from .test_gap_migration_and_archive import ledger, section
+        write(tree + "/known-gaps.md", ledger("v0.5", section("v0.5.2", 0, legacy_entry)))
     sections = "".join("## " + s + "\n\nDone.\n\n" for s in ck.REQUIRED_SECTIONS)
     sections = sections.replace(
         "## Full-suite testing and stabilization\n\nDone.",
@@ -522,6 +544,8 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
     assert captured["nonce"] == original["nonce"]
     assert captured["approvals_hmac"] == ck._sign(captured, ck._secret(False))
     assert ck.conditional_status(ctx, ck.project(captured, "v0.5.2"))[0] == "met"
+    for view in (captured, ck.project(captured, "v0.5.2")):
+        assert cm.completion_anchor(ck, minor.rctx(), view, captured["members"][0]) == ("met", merge)
     replay = minor.run(
         "record",
         "answer",
@@ -536,6 +560,20 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
     )
     assert replay.returncode != 0
     _git(minor.work, "checkout", "-qb", "chore/close-v0.5")
+    def verify_legacy(record):
+        ledgers, unreadable = cm.load_ledgers(minor.work)
+        assert not unreadable
+        source = next(ledger for ledger in ledgers if ledger.minor == (0, 5))
+        item = next(i for i in source.items if i.gid == "DF-1")
+        for view in (record, ck.project(record, "v0.5.2")):
+            assert cm.verify_migration(minor.rctx(), view, "v0.5", ledgers, source, item) == ("met", "approved-migration")
+    if legacy:
+        migrated = subprocess.run([sys.executable, str(Path(ck.__file__).with_name("minor_close.py")), "migrate", "--minor", "v0.5", "--repo", str(minor.work), "--session", SESSION, "--id", "v0.5#DF-1", "--reason", "user-deferred", "--evidence", "frozen recording task"], env=minor.env, capture_output=True, text=True)
+        assert migrated.returncode == 0, migrated.stdout + migrated.stderr
+        verify_legacy(minor.record())
+        gap_path = minor.work / (tree + "/known-gaps.md")
+        write(tree + "/known-gaps.md", gap_path.read_text(encoding="utf-8").replace("**Status**: in-progress", "**Status**: finalized"))
+        minor.commit("finalize migrated register")
     result = subprocess.run(
         [
             sys.executable,
@@ -565,6 +603,10 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
     )
     post = ck.Context(str(minor.work / moved), ck.Budget(60))
     assert ck.conditional_status(post, ck.project(archived, "v0.5.2"))[0] == "met"
+    for view in (archived, ck.project(archived, "v0.5.2")):
+        assert cm.completion_anchor(ck, minor.rctx(), view, archived["members"][0]) == ("met", merge)
+    if legacy:
+        verify_legacy(archived)
     close_head = _git(minor.work, "rev-parse", "HEAD")
     _git(minor.work, "checkout", "-q", "develop")
     _git(minor.work, "merge", "--ff-only", "-q", "chore/close-v0.5")

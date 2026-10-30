@@ -260,6 +260,8 @@ def _in_url(text: str, start: int) -> bool:
 
 def rewrite_mentions(text: str, old: str, new: str, markdown: bool = False) -> tuple[str, int]:
     """Replace plain mentions of the old tree outside URLs and, in Markdown, outside code."""
+    if old not in text and old.replace("/", "\\") not in text:
+        return text, 0
     count = 0
 
     def fix(segment: str) -> str:
@@ -617,7 +619,7 @@ def plan_migration(
                             reason, evidence, date, ledgers=ledgers)
     if why == "planned-follow-on":
         copies = [i for i in cm.parse_ledger(plan.target_after) if i.gid == plan.new_gid]
-        if len(copies) != 1 or not cm.planned_followon_copy(source_token, item, copies[0]):
+        if len(copies) != 1 or not cm.planned_followon_copy(source_token, item, copies[0], source_rel=source.rel, target_rel=target_rel):
             raise Refused("planned-followon-copy-altered", pid)
     return plan
 

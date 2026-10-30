@@ -245,6 +245,8 @@ class RepoContext:
     def __init__(self, start: Path, budget: Budget) -> None:
         self.budget = budget
         self.notices: list[str] = []
+        self.committed_ledgers: dict[tuple[str, str, str], tuple] = {}
+        self.migration_proof_lines: dict[str, tuple[str, ...]] = {}
         self.git = repo_host.absolute_tool("git", None)
         if not self.git:
             raise Malformed("git not found")
@@ -1266,6 +1268,9 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
     own_tasks = {tid for tid, _, _ in ctx.tasks}
     unmet = deferred = 0
     items = list(GAP_ITEM_RE.finditer(open_block))
+    migration_ledgers = None
+    if any(MIGRATED_MARKER_RE.search(item.group("title")) for item in items):
+        migration_ledgers = _minor_module().load_ledgers(ctx.root)[0]
     for index, item in enumerate(items):
         end = items[index + 1].start() if index + 1 < len(items) else len(open_block)
         body = open_block[item.start() : end]
@@ -1277,7 +1282,7 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         # migration verifies (completion contract, "Minor gaps and archive"); a
         # per-plan run has no migration, so the marker alone stays unmet.
         if MIGRATED_MARKER_RE.search(item.group("title")) and (
-            _migration_met(ctx, record, gaps, item.group(0)) or _plan_migration_met(ctx, record, gaps, item.group(0))
+            _migration_met(ctx, record, gaps, item.group(0), migration_ledgers) or _plan_migration_met(ctx, record, gaps, item.group(0), migration_ledgers)
         ):
             continue
         # A minor member's open item whose id is in the frozen migratable list waits for
@@ -1293,6 +1298,10 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
             deferred += 1
         else:
             unmet += 1
+    if migration_ledgers is not None:
+        current, unreadable = _minor_module().load_ledgers(ctx.root)
+        if unreadable or [(ledger.rel, ledger.text) for ledger in current] != [(ledger.rel, ledger.text) for ledger in migration_ledgers]:
+            return "cannot-verify", 0
     if unmet:
         return "unmet", 0
     return ("deferred" if deferred else "met"), deferred
@@ -1302,13 +1311,15 @@ RESOLVED_MARKER_RE = re.compile(r"\s-{1,2}\s*RESOLVED\b")
 MIGRATED_MARKER_RE = re.compile(r"\s-{1,2}\s*MIGRATED to v\d+\.\d+\.\d+\s*$")
 
 
-def _plan_migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) -> bool:
+def _plan_migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str, ledgers: list | None = None) -> bool:
     """True when a one-plan run carrying `carry-gaps` moved this item to the next minor."""
     if not record or record.get("schema") != SCHEMA or not _has_class(record, "carry-gaps"):
         return False
     cm = _minor_module()
-    ledgers, _unreadable = cm.load_ledgers(ctx.root)
-    ledger = next((l for l in ledgers if l.path.resolve() == gaps.resolve()), None)
+    if ledgers is None:
+        ledgers, _unreadable = cm.load_ledgers(ctx.root)
+    resolved_gaps = gaps.resolve()
+    ledger = next((ledger for ledger in ledgers if ledger.path == resolved_gaps), None)
     found = cm.LEDGER_ITEM_RE.match(heading.lstrip("#").strip())
     if ledger is None or found is None:
         return False
@@ -1323,13 +1334,15 @@ def _has_class(record: dict | None, name: str) -> bool:
     return any(isinstance(c, dict) and c.get("class") == name for c in classes)
 
 
-def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) -> bool:
+def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str, ledgers: list | None = None) -> bool:
     """True when this migrated item of a minor member verifies against the minor record."""
     if not record or record.get("scope") != "member" or not record.get("minor"):
         return False
     cm = _minor_module()
-    ledgers, _unreadable = cm.load_ledgers(ctx.root)
-    ledger = next((l for l in ledgers if l.path.resolve() == gaps.resolve()), None)
+    if ledgers is None:
+        ledgers, _unreadable = cm.load_ledgers(ctx.root)
+    resolved_gaps = gaps.resolve()
+    ledger = next((ledger for ledger in ledgers if ledger.path == resolved_gaps), None)
     found = cm.LEDGER_ITEM_RE.match(heading.lstrip("#").strip())
     if ledger is None or found is None:
         return False

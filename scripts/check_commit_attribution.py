@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 TARGET = ("Ben Dourthe", "50595044+bendourthe@users.noreply.github.com")
+HUMAN_IDENTITIES = frozenset((TARGET, ("Benjamin Dourthe", "benjamin.dourthe@gmail.com")))
 GITHUB = ("GitHub", "noreply@github.com")
 TRAILER = re.compile(r"^[ \t]*(Co-authored-by|Made-with)[ \t]*:", re.IGNORECASE)
 IDENTITY = re.compile(r"([^<>\r\n]+?)\s*<([^<>\s]+)>")
@@ -23,7 +24,7 @@ IDENTITY = re.compile(r"([^<>\r\n]+?)\s*<([^<>\s]+)>")
 def allowed(name: str, email: str, *, committer: bool = False) -> bool:
     """Use a closed allowlist, so unknown future identities cannot pass."""
     identity = (name, email.lower())
-    return identity == TARGET or (committer and identity == GITHUB)
+    return identity in HUMAN_IDENTITIES or (committer and identity == GITHUB)
 
 
 def attribution_fields(message: str) -> list[tuple[str, str]]:

@@ -32,7 +32,7 @@ import math
 import os
 import re
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import wraps
 from pathlib import Path
 from types import ModuleType
@@ -1747,6 +1747,7 @@ def next_minor(token: str) -> str:
 def migration_copy_status(
     ledgers: list[Ledger], target: str, source: Ledger, item: GapItem, *,
     label: str | None = None, allow_carried: bool = False, require_reason: bool = False,
+    proof_cache: dict[str, tuple[str, ...]] | None = None,
 ) -> tuple[str, tuple[Ledger, GapItem] | None]:
     """Prove one destination retains the source's title and complete reconciled body.
 
@@ -1762,6 +1763,8 @@ def migration_copy_status(
     )
 
     def proof_lines(body: str) -> list[str]:
+        if proof_cache is not None and body in proof_cache:
+            return list(proof_cache[body])
         lines = body.splitlines(keepends=True)
         mask, _ = fence_mask(lines)
         clean_lines = [re.sub(r"\S", " ", line) if mask[index] else line for index, line in enumerate(lines)]
@@ -1783,6 +1786,8 @@ def migration_copy_status(
             for comment in comments:
                 in_comment = comment.group(0) == "<!--"
             visible.append("" if mask[index] or was_in_comment or in_comment or comments else clean)
+        if proof_cache is not None:
+            proof_cache[body] = tuple(visible)
         return visible
 
     def origin_label(match: re.Match) -> str | None:
@@ -1812,6 +1817,10 @@ def migration_copy_status(
                 section_visible = bool(ledger_visible[index].strip())
             item_visible.append(section_visible and bool(ledger_visible[index].strip()))
         for copy in ledger.items:
+            # Every authoritative per-line match must contain this literal id.
+            # A whole-body regex can consume a second claim across newlines.
+            if item.gid not in copy.body:
+                continue
             lines = copy.body.splitlines(keepends=True)
             visible = proof_lines(copy.body)
             origins = []
@@ -1914,42 +1923,54 @@ def migration_copy_status(
     return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
-def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
-    """`met` when the minor's ledger at `commit` already held item `gid`, else `unmet`.
+def committed_ledger(rctx: RepoContext, commit: str, rel: str) -> tuple[str, list[GapItem]]:
+    """Within-check snapshots of immutable history, never live refs or failed reads."""
+    if rctx.budget.remaining() <= 0:
+        return "cannot-verify", []
+    immutable = re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', commit) is not None
+    key = (str(rctx.root), commit, rel)
+    cached = rctx.committed_ledgers.get(key) if immutable else None
+    if cached is not None:
+        state, items = cached
+        return state, [replace(item) for item in items]
+    command = [rctx.git, "-C", str(rctx.root)]
+    rc, _ = rctx.run(command + ["cat-file", "-e", f"{commit}:{rel}"])
+    if rc == -1:
+        return "cannot-verify", []
+    if rc != 0:
+        # A failed lookup alone cannot distinguish absence from unreadable history.
+        rc, _ = rctx.run(command + ["cat-file", "-e", f"{commit}^{{commit}}"])
+        if rc != 0:
+            return "cannot-verify", []
+        rc, out = rctx.run(command + ["ls-tree", "--name-only", commit, "--", rel])
+        if rc != 0 or out.strip():
+            return "cannot-verify", []
+        state, items = "unmet", []
+    else:
+        rc, out = rctx.run(command + ["show", f"{commit}:{rel}"])
+        if rc != 0:
+            return "cannot-verify", []
+        items, problems = parse_ledger_full(out)
+        if problems:
+            return "cannot-verify", []
+        state = "met"
+    if immutable:
+        rctx.committed_ledgers[key] = (state, tuple(replace(item) for item in items))
+    return state, items
 
-    Every layout path is tried, so a ledger archived since `commit` still resolves.
-    `cannot-verify` when git cannot answer.
-    """
-    for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify"
-        if rc != 0:
-            continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify"
-        if any(item.gid == gid for item in parse_ledger(out)):
-            return "met"
-    return "unmet"
+
+def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
+    """Whether a committed ledger held the id; unreadable history stays unknown."""
+    return items_at(rctx, commit, minor, gid)[0]
 
 
 def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> tuple[str, list[GapItem]]:
-    """("met", the items with id `gid`) in the minor's ledger as committed at `commit`.
-
-    `unmet` with no items when no ledger held the id then; `cannot-verify` when git
-    cannot answer. Every layout path is tried, so an archived ledger still resolves.
-    """
+    """Read the first layout holding the id, sharing immutable ledger snapshots."""
     for rel in ledger_rels(*minor):
-        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
-        if rc == -1:
-            return "cannot-verify", []
-        if rc != 0:
-            continue
-        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
-        if rc != 0:
-            return "cannot-verify", []
-        found = [item for item in parse_ledger(out) if item.gid == gid]
+        state, items = committed_ledger(rctx, commit, rel)
+        if state == "cannot-verify":
+            return state, []
+        found = [item for item in items if item.gid == gid]
         if found:
             return "met", found
     return "unmet", []
@@ -2083,9 +2104,145 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
     return matches[0] if len(matches) == 1 else None
 
 
-def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
-    """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
-    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(item.body.replace('\r\n', '\n').strip())
+def legacy_planned_followon(rctx: RepoContext, record: dict, source_minor: tuple[int, int], item: GapItem | None) -> str:
+    """A frozen legacy recording task plus its verified, unchanged publication body.
+
+    This is only called for explicitly bound ids proven absent at the approved
+    start. It does not interpret undocumented historical obligations as closed.
+    """
+    if (item is None or item.kind != 'DF' or item.sensitive() or item.state not in {'open', 'migrated'}
+            or source_minor != minor_of(str(record.get('minor') or 'v0.0'))):
+        return 'unmet'
+    body = item.body.replace('\r\n', '\n').strip()
+    source = re.findall(r'^- \*\*Source phase\*\*: (v\d+\.\d+\.\d+) Phase (\d+), (T\d{3,}) \(planned follow-on record,[^\n]*\)\.?$', body, re.MULTILINE)
+    if len(source) != 1 or section_version(item.section) != source[0][0]:
+        return 'unmet'
+    version, phase, task_id = source[0]
+    members = [m for m in record.get('members', []) if m.get('version') == version] if record.get('scope') == 'minor' else [record] if record.get('version') == version else []
+    if len(members) != 1:
+        return 'unmet'
+    import check_plan_completion as ck
+    try:
+        plans = [p for p in scan_plans(rctx.root, *source_minor) if p.version == version]
+    except (MinorMalformed, OSError, ValueError):
+        return 'cannot-verify'
+    member = members[0]
+    if len(plans) != 1 or plans[0].rel != member.get('plan_path') or ck.plan_hash_text(plans[0].text) != member.get('plan_sha256'):
+        return 'unmet'
+    current_plan = plans[0]
+    original = archived_followon_plan(rctx, record, member, current_plan, ck)
+    plan = original or current_plan
+    if current_plan.rel.startswith('docs/archives/') and original is None:
+        return 'unmet'
+    lines = plan.text.splitlines(keepends=True)
+    mask, unclosed = fence_mask(lines)
+    if unclosed:
+        return 'unmet'
+    text = ''.join('\n' if mask[n] else line for n, line in enumerate(lines))
+    tasks = list(re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', text, re.MULTILINE))
+    matches = [task for task in tasks if task[1] == task_id]
+    if len(matches) != 1:
+        return 'unmet'
+    task = matches[0]
+    scope = re.fullmatch(r'Create the (v\d+\.\d+) ledger with the .+ deferral (docs/\S+/known-gaps\.md)', task[2])
+    if scope is None or scope[1] != 'v{}.{}'.format(*source_minor) or scope[2] not in ledger_rels(*source_minor):
+        return 'unmet'
+    phases = list(re.finditer(r'^## Phase (\d+):[^\n]*\n', text, re.MULTILINE))
+    preceding = [p for p in phases if p.start() < task.start()]
+    if not preceding or preceding[-1][1] != phase:
+        return 'unmet'
+    headers = list(re.finditer(r'^#### (\d+)\.(\d+) -(?:-)?[^\n]*\n', text, re.MULTILINE))
+    preceding = [h for h in headers if h.start() < task.start()]
+    if not preceding or preceding[-1][1] != phase:
+        return 'unmet'
+    end = min([m.start() for m in tasks + headers + phases if m.start() > task.start()] or [len(text)])
+    prompts = re.findall(r'^> (.+)$', text[task.end():end], re.MULTILINE)
+    if len(prompts) != 1 or not prompts[0].startswith(f'Create `{scope[2]}` in the heading format'):
+        return 'unmet'
+    title = MIGRATED_RE.sub('', item.title).rstrip()
+    title_text = re.sub(r'^\s*(?::|-)\s*', '', title)
+    declared = re.findall(r'Add `(DF-\d+) - ([^`]+)`', prompts[0])
+    declared = [(gid, name) for gid, name in declared if name == title_text]
+    if len(declared) != 1:
+        return 'unmet'
+    provisional = declared[0][0]
+    if provisional != item.gid:
+        mapping = f"The plan's provisional {provisional} maps to {item.gid} because inherited {provisional} already exists."
+        if body.count(mapping) != 1:
+            return 'unmet'
+        state, inherited = items_at(rctx, str(record.get('minor_start_head') or record.get('start_head') or ''), source_minor, provisional)
+        if state == 'cannot-verify':
+            return state
+        if len(inherited) != 1:
+            return 'unmet'
+    state, anchor = completion_anchor(ck, rctx, record, member)
+    if state != 'met' or not anchor:
+        return 'cannot-verify' if state == 'cannot-verify' else 'unmet'
+    command = [rctx.git, '-C', str(rctx.root)]
+    rc, oid = rctx.run(command + ['rev-parse', '--verify', f'{anchor}^{{commit}}'])
+    oid = oid.strip()
+    if rc != 0 or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', oid) is None:
+        return 'cannot-verify'
+    if anchor.startswith('refs/tags/'):
+        rc, local = rctx.run(command + ['rev-parse', anchor])
+        if rc != 0:
+            return 'cannot-verify'
+        rc, remote = rctx.run(command + ['ls-remote', '--tags', 'origin', anchor])
+        if rc != 0:
+            return 'cannot-verify'
+        if remote.split() != [local.strip(), anchor]:
+            return 'unmet'
+    for older, newer in [(str(member.get('member_start_head') or member.get('start_head') or record.get('start_head') or ''), oid),
+                         (oid, 'refs/remotes/origin/' + str(record.get('approvals', {}).get('target_branch') or member.get('target_branch') or ''))]:
+        state = _ancestor(rctx, older, newer)
+        if state != 'met':
+            return state
+    rc, published_plan = rctx.run(command + ['show', f'{oid}:{plan.rel}'])
+    if rc != 0:
+        return 'cannot-verify'
+    if ck.plan_hash_text(published_plan) != ck.plan_hash_text(plan.text):
+        return 'unmet'
+    state, published = committed_ledger(rctx, oid, scope[2])
+    if state != 'met':
+        return 'cannot-verify'
+    entries = [gap for gap in published if gap.gid == item.gid]
+    if (len(entries) != 1 or entries[0].state != 'open' or entries[0].sensitive()
+            or sum(gap.title == title for gap in published) != 1):
+        return 'unmet'
+    original_item = entries[0]
+    expected_body = original_item.body
+    if original is not None:
+        from minor_close import rewrite_links, rewrite_mentions
+        active = scope[2].rsplit('/', 1)[0]
+        archive = ARCHIVE_TREE.format(M=source_minor[0], m=source_minor[1])
+        current_rel = archive + '/known-gaps.md'
+        def moved(path: str) -> str:
+            return archive + path[len(active):] if path == active or path.startswith(active + '/') else path
+        expected_body, _ = rewrite_links(expected_body, active, archive, moved)
+        expected_body, _ = rewrite_mentions(expected_body, active, archive, markdown=True)
+    else:
+        current_rel = scope[2]
+    try:
+        current_items, problems = parse_ledger_full((rctx.root / current_rel).read_text(encoding='utf-8'))
+        if problems:
+            return 'cannot-verify'
+        current = [gap for gap in current_items if gap.gid == item.gid]
+    except (OSError, UnicodeError):
+        return 'cannot-verify'
+    return 'met' if (len(current) == 1 and sum(MIGRATED_RE.sub('', gap.title).rstrip() == title for gap in current_items) == 1 and current[0].body.strip() == body and original_item.title == title
+                     and expected_body.replace('\r\n', '\n').strip() == body) else 'unmet'
+
+
+def planned_followon_copy(source: str, item: GapItem, copy: GapItem, *, source_rel: str | None = None,
+                          target_rel: str | None = None) -> bool:
+    """One OPEN exact copy, allowing only the native relative-link repair."""
+    body = item.body
+    if source_rel is not None and target_rel is not None:
+        from minor_close import rewrite_links
+        body, _ = rewrite_links(body, source_rel.rsplit('/', 1)[0], target_rel.rsplit('/', 1)[0], lambda path: path)
+    elif source_rel is not None or target_rel is not None:
+        return False
+    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(body.replace('\r\n', '\n').strip())
     tail = (r'\n\n- \*\*Migrated from\*\*: ' + re.escape(f'{source}#{item.gid}')
             + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
             + r'\n- \*\*Migration evidence\*\*: [^\n]+')
@@ -2118,6 +2275,12 @@ def migration_gate(
     if not start:
         return "cannot-verify", "no-start-head"
     status, baseline = items_at(rctx, start, source_minor, gid)
+    if status == "unmet":
+        legacy = legacy_planned_followon(rctx, record or {}, source_minor, current)
+        if legacy == "met":
+            return "met", "planned-follow-on"
+        if legacy == "cannot-verify":
+            return legacy, "planned-followon-history-unreadable"
     if status != "met":
         return status, "created-during-run" if status == "unmet" else "history-unreadable"
     open_then = [item for item in baseline if item.state == "open"]
@@ -2154,6 +2317,7 @@ def verify_migration(
     copy_reason, found = migration_copy_status(
         ledgers, target, ledger, item, allow_carried=True,
         require_reason=target_minor > minor_of(run_token),
+        proof_cache=rctx.migration_proof_lines,
     )
     if found is None:
         return "unmet", copy_reason
@@ -2167,7 +2331,7 @@ def verify_migration(
     gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
     if gate != "met":
         return gate, reason
-    if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy):
+    if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy, source_rel=ledger.rel, target_rel=found[0].rel):
         return "unmet", "planned-followon-copy-altered"
     if copy_reason != "migration-copy-complete":
         return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
@@ -2567,7 +2731,8 @@ def completion_anchor(ck: ModuleType, rctx: RepoContext, record: dict | None, me
         ctx = ck.Context(str(rctx.root / member["plan_path"]), rctx.budget)
         if ctx.plan_hash() != member["plan_sha256"]:
             return "cannot-verify", None
-        state, receipt = ck.conditional_status(ctx, ck.project(record, member["version"]))
+        view = record if record.get("scope") == "member" and record.get("version") == member["version"] else ck.project(record, member["version"])
+        state, receipt = ck.conditional_status(ctx, view)
         return state, receipt["request"]["merge"] if receipt else None
     except (ck.Malformed, OSError, KeyError, TypeError):
         return "cannot-verify", None
