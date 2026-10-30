@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.5] - 2026-10-30
+
 ### Added
 
 - **A host-generated memory store class in the memory-substrate contract.** A store the host fills outside the agent's turn (first instance: Codex Memories, `~/.codex/memories/`) is now separate from a harness-native index such as Claude Code's `MEMORY.md`. The agent never opens, lists, reads, or edits a host-generated store; injected content ranks below user instructions, project instruction files, and the substrate, never authorizes a destructive, outbound, credential, or approval-changing action by itself, and is recorded into the substrate only after the user confirms it, with a `source` such as `host:codex-memories`. When it disagrees with the substrate the agent acts on the substrate and tells the user once per session. See `docs/policy/memory-substrate-contract.md`.
@@ -19,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`prompt-injection-defense` names host memory as a persistence channel.** A host that summarizes threads into its own memory can replay untrusted tool or web output, and credentials it contained, in later sessions. The skill recommends Codex's `memories.disable_on_external_context` and states its limit: it covers documented examples such as MCP tool calls, web search, and tool search, not shell fetches, cloned-repository files, or subagent output, and it does not erase existing memory.
 - **`agent-memory` points at the host-generated store class**, and the contract's "never a competing store" rule now applies only to harness-native indexes. An index pointer whose substrate entry cannot be found is corrected or removed and never re-created from the index text.
 - **Codex's memory settings are recorded and deliberately not seeded.** `docs/policy/platform-defaults-levers.md` records `features.memories`, `memories.extract_model`, `memories.consolidation_model`, `memories.disable_on_external_context`, and `memories.min_rate_limit_remaining_percent` against OpenAI's configuration reference and Memories page (checked 2026-10-29), and `configs/platform-defaults.json` lists them, plus the legacy alias `memories.no_memories_if_mcp_or_web_search`, under Codex `omitted`. Nothing is written to a user's `~/.codex/config.toml` by this change. See `docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md`.
+
+- The platform read-contract records the 2026-10-30 re-verification for v4.14.5 over the same 75 rows as v4.14.4: 58 MATCH, 12 DRIFT and 5 UNVERIFIED, with no row changing status. The two unconfirmed Devin Desktop / Windsurf rows read the same, so the live-install check in `docs/todos.md` remains the follow-up. Four legacy citations now redirect and are noted for refresh at the next contract edit; no installed path changes.
 
 ### Fixed
 
