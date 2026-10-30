@@ -301,6 +301,18 @@ The default is soft: the hook writes the indexed equivalent to stderr and exits 
 }
 ```
 
+### Git guardrails: PowerShell tool and the opt-in bypass-flag mode
+
+`git-guardrails` is a `PreToolUse` guard that blocks destructive git commands (force push, hard reset, `git clean -f`, `core.hooksPath` and `core.fsmonitor` redirection, and the rest). Its catalog registration uses the matcher `Bash|PowerShell`, so every block also applies when an agent runs git through the PowerShell tool. It is one entry, so the hook runs once per call, and it reads the command from `tool_input.command` for both tools.
+
+An opt-in mode adds the flags that skip git hooks or commit signing: `--no-verify` (including unique abbreviations) on `commit`, `push`, `merge`, `rebase`, and `am`; `-n` as a `git commit` option; `--no-gpg-sign`; and `gpgsign=false` set inline or persisted. It is off by default. Switch it on with `"block_git_bypass_flags": true` in `~/.nexus-hub/guardrails.json`, or `NEXUS_GUARD_GIT_BYPASS=1` in the hook's environment (`=0` forces it off, and the variable wins over the file). The file is read on every run, so editing it changes the next command with no restart. Both are read only from the hook's own files and environment, never from the command text, and a missing or malformed file leaves the mode off (a malformed file also prints one warning that names it).
+
+```json
+{ "block_git_bypass_flags": true }
+```
+
+This mode is defense-in-depth, not a boundary. It does not see environment-variable skips (`HUSKY=0`, `SKIP=`, `LEFTHOOK=0`, `GIT_CONFIG_*`), git plumbing (`commit-tree`, `update-ref`), shell aliases or scripts, or `bypassPermissions` mode, and an agent that can write `guardrails.json` can switch it off. It grants no permission. The decision record, with the exhaustive table of blocked and allowed forms, is [`2026-10-14-opt-in-git-bypass-flag-guard.md`](../../docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md).
+
 ---
 
 ## Sandbox Settings

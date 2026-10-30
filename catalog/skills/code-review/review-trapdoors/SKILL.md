@@ -60,7 +60,13 @@ When a review (this one or a recent one) surfaces a blocker that is a recurring 
 - A single one-off does not earn an entry; a pattern does.
 - [[continuous-learning]] instincts are the upstream feed: a minted instinct about a recurring review blocker is the signal to promote it into the trapdoors list.
 - Prune an obsolete trapdoor in the same pass if its underlying cause is gone.
-- If the list grows past ~15 entries, propose promoting the lowest-frequency ones into an automated check (a hook or CI gate is stronger than a read-me reminder).
+
+Promote a trapdoor to an automated check when a machine can detect it, not when the list passes a size:
+
+- **Trigger: detectability.** Promote when the trapdoor's condition can be decided from the diff, the tree, or a command's output. A list that keeps growing is only a prompt to look for detectable entries.
+- **The check names the fix.** It lives in the project's existing linter, test suite, or hook, and its failure message says what to change, not only that something is wrong.
+- **Prove it red, then green.** The check must fail on a seeded reproduction of the original blocker and pass once the blocker is fixed. Only then move the line to a "promoted" list that names the check's path.
+- **Handoffs.** Run and repair the check through [[lint-repair-loop]], and script it through [[helper-script-authoring]].
 
 ## Common Rationalizations
 
@@ -71,6 +77,7 @@ When a review (this one or a recent one) surfaces a blocker that is a recurring 
 | "This trapdoor probably does not apply here." | "Probably" is where matched triggers get skipped. If the change touches the trigger, confirm the evidence; do not wave it through on a hunch. |
 | "This blocker is annoying but it is a one-off, not worth recording." | If it has recurred, it is not a one-off, and the next author will hit it too. A one-line trapdoor is cheap; a fourth re-review of the same mistake is not. |
 | "The list is getting long, but every entry feels useful." | A list too long to read every review protects nothing. Long lists are a signal to promote the mechanical entries into hooks or CI gates and keep the human-read list short. |
+| "The trapdoor line is enough." | The line is an instruction, and its recurrence is the evidence that instructions were missed. When a machine can detect the condition, a check that names its fix and was shown failing on the original blocker is what stops the fourth repeat. |
 | "I will add the trapdoor later." | Later is when the context is gone and the entry never gets written. Add the one line while the blocker is in front of you. |
 
 ## Verification
@@ -80,6 +87,7 @@ When a review (this one or a recent one) surfaces a blocker that is a recurring 
 - [ ] Each trapdoor whose trigger the change matches was checked, and its required evidence was confirmed against the real diff/codebase.
 - [ ] Every matched trapdoor with missing evidence was recorded as a blocker (when reviewing) or fixed before the ready claim (when authoring).
 - [ ] Any recurring-class blocker surfaced this pass was added as a one-line trapdoor in the artifact's format; obsolete entries were pruned.
+- [ ] Every promoted entry names its check and records the red run on the seeded reproduction and the green run after the fix.
 - [ ] This pass was run in addition to, not instead of, a normal review.
 
 ## Related Skills
@@ -89,4 +97,6 @@ When a review (this one or a recent one) surfaces a blocker that is a recurring 
 - [[multi-agent-code-review]] -- the full first-principles review this skill runs alongside; trapdoors cover the project-specific gotchas that a general review under-triggers on.
 - [[receiving-code-review]] -- the receiving side; when a review flags a trapdoor violation, this governs acting on it without performative agreement.
 - [[verification-before-completion]] -- the same verify-before-claiming discipline; declaring a change review-ready is a completion claim bound by that gate, with the trapdoors as the project-specific checks.
+- [[lint-repair-loop]] -- runs and repairs a promoted check; this skill decides when a trapdoor earns one.
+- [[helper-script-authoring]] -- scripts a promoted check when the project has no existing linter, test, or hook for it.
 - [[quality-gate-definitions]] -- its merge-readiness contract treats "the project's review trapdoors were checked" as one condition of a mergeable change.

@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.4] - 2026-10-30
+
+### Added
+
+- **A gate that cannot judge the work now reports UNGATED, never a pass.** `quality-gate-definitions` adds the outcome with the precedence FAIL (blocking) > FAIL (fixable) > UNGATED > PARTIAL > PASS, seven fixed reason categories (`no-criteria`, `not-measured`, `zero-denominator`, `no-judgment`, `too-few-trials`, `tool-missing`, `timeout`), and a regression note when a criterion an earlier run measured goes unmeasured. After an UNGATED outcome or a FAIL that used up its retries, the agent shows a short plain-words message with two choices (try again, or record a known gap); after two further failed attempts, or immediately on an unattended run, it records the gap with the cause and what would resolve it. Only the user accepts a gap interactively. `/implement`'s troubleshooting loop hands off to this flow.
+- **Gate records can be recomputed from the record and git alone.** Each record stores the gate name, the definition's path and commit SHA, a sha256 of the definition's canonical form, and per criterion the measured value (numbers and booleans only), threshold, comparison, and producing command with an output hash. The skill defines the canonical form once and publishes worked examples with their digests; `tests/skills/test_gate_record_recompute.py` recomputes each example's outcome and digest, including CRLF and LF parity.
+- **`review-trapdoors` promotes a recurring blocker when a machine can detect it, not when the list passes a size.** The check names its fix, is shown failing on a seeded reproduction of the original blocker and then passing, and only then moves to a promoted list that names its path. `lint-repair-loop`, which runs and repairs promoted checks, now names `review-trapdoors` as their owner (#552).
+- **An opt-in git bypass-flag guard.** With the mode on, `git-guardrails` blocks `--no-verify` (including unique abbreviations) on commit, push, merge, rebase, and am; `-n` as a `git commit` option; `--no-gpg-sign`; and `gpgsign=false` set inline or persisted, including after git global options. It is off by default and is defense-in-depth with documented limits, not a security boundary.
+    - Activation: set `"block_git_bypass_flags": true` in `~/.nexus-hub/guardrails.json` (read on every run, so no restart), or set `NEXUS_GUARD_GIT_BYPASS=1` in the hook's environment; the variable wins over the file, and neither is ever read from the command text.
+    - Validation: `python -m pytest catalog/hooks/tests/test_git_guardrails.py -q` proves identical exit codes from `git-guardrails.sh` and `git-guardrails.ps1`; by hand, with the mode on, `printf '{"tool_input":{"command":"git commit -m x --no-verify"}}' | bash ~/.claude/hooks/git-guardrails.sh; echo $?` prints 2 and with the mode off prints 0.
+    - Rollback: set the key to `false` or delete the file (the next command is judged by the new value), or set `NEXUS_GUARD_GIT_BYPASS=0` in the hook's environment. `git-guardrails` is a security guard and does not honor `NEXUS_DISABLED_HOOKS` or `NEXUS_HOOK_PROFILE`.
+    - Authority: it only blocks a command and grants no permission. It cannot see environment-variable skips (`HUSKY=0`, `SKIP=`, `LEFTHOOK=0`, `GIT_CONFIG_*`), git plumbing (`commit-tree`, `update-ref`), shell aliases or scripts, or `bypassPermissions` mode, and an agent able to write `guardrails.json` can switch it off.
+    - Docs: [`docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md`](docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md) and the header of `catalog/hooks/git-guardrails.sh`.
+
+### Changed
+
+- The platform read-contract records the 2026-10-30 re-verification for v4.14.4 over the same 75 rows as v4.14.3: 58 MATCH, 12 DRIFT and 5 UNVERIFIED. Every earlier finding still holds. Two new Devin Desktop / Windsurf rows are unconfirmed: the current docs name `.devin/hooks.v1.json` and `~/.devin/global_rules.md` and no longer mention the `.windsurf/hooks.json`, `~/.codeium/windsurf/hooks.json` and `~/.codeium/windsurf/memories/global_rules.md` paths Nexus-Hub writes. A live check on a Devin Desktop install is the follow-up; nothing Nexus-Hub installs changes in this release.
+- **`git-guardrails` now runs for the PowerShell tool as well as Bash.** Every existing block (force push, hard reset, `core.hooksPath` and `core.fsmonitor` redirection, the protected-branch guard) applies when an agent runs git through the PowerShell tool. The registration is one `Bash|PowerShell` entry in `catalog/hooks/settings.json`, so the hook runs once per call (#551).
+- **The `core.hooksPath` and `core.fsmonitor` checks match the key in any letter case**, as git reads config keys case-insensitively.
+
+### Fixed
+
+- **`git-guardrails.sh` no longer stops scanning at the first double quote when `jq` is absent.** The fallback extraction cut the command at the first escaped quote, so a destructive command placed after any quoted text was never checked (for example `echo "hi" && git reset --hard`). The extraction now accepts escaped characters, and without `jq` the switch file is validated with a Python JSON parse before the text fallback, so a malformed `guardrails.json` warns and leaves the mode off in both hook implementations. A missing interpreter or the Windows Store `python3` stub falls through to the text fallback. Regression tests cover both hook implementations.
+
 ## [4.14.3] - 2026-10-29
 
 ### Added
