@@ -1009,6 +1009,7 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None, reco
             "-C",
             str(ctx.root),
             "log",
+            "--full-history",
             "--format=%H",
             f"{start}..HEAD",
             "--",
@@ -1035,7 +1036,7 @@ def _dated_task_status(ctx: Context, path: str, start: str, archives: dict | Non
     if archives is not None:
         return _dated_archive_status(ctx, path, start, archives, pattern, folder)
     rc, out = _run(
-        [ctx.git, "-C", str(ctx.root), "log", "--format=", "--name-only", "--no-renames",
+        [ctx.git, "-C", str(ctx.root), "log", "--full-history", "--format=", "--name-only", "--no-renames",
          f"{start}..HEAD", "--", folder],
         ctx.budget,
     )
@@ -1065,7 +1066,7 @@ def _dated_archive_status(ctx: Context, path: str, start: str, archives: dict, p
         head = origin.split(DATE_PLACEHOLDER)[0]
         folders.append(head.rsplit("/", 1)[0] if "/" in head else ".")
     rc, out = _run(
-        [ctx.git, "-c", "core.quotePath=false", "-C", str(ctx.root), "log", "--format=@@%H", "--name-only",
+        [ctx.git, "-c", "core.quotePath=false", "-C", str(ctx.root), "log", "--full-history", "--format=@@%H", "--name-only",
          "-z", "--no-renames", f"{start}..HEAD", "--", *folders],
         ctx.budget,
     )
