@@ -7,7 +7,7 @@ overview_l1: "This skill provides reusable GO/NO-GO quality gate definitions for
 
 # Quality Gate Definitions
 
-A library of reusable quality gate definitions that can be plugged into any multi-phase workflow. Each gate defines required and optional criteria, automatic and manual checks, and configurable pass/fail behavior. Use these gates as building blocks rather than reinventing checkpoint criteria for every workflow.
+A library of reusable quality gate definitions that can be plugged into any multi-phase workflow. Each gate defines required and optional criteria, automatic and manual checks, and configurable behavior for every outcome, with templates for tracking results. Use these gates as building blocks rather than reinventing checkpoint criteria for every workflow.
 
 ## When to Use This Skill
 
@@ -15,15 +15,9 @@ Use this skill for:
 
 - Setting up quality checkpoints in multi-phase development workflows
 - Defining GO/NO-GO criteria before implementation, testing, or deployment
-- Standardizing quality expectations across team members and projects
-- Configuring automated checks that run at phase transitions
-- Any workflow where you need explicit approval criteria between phases
+- Standardizing quality expectations, or configuring automated checks, at phase transitions
 
 **Trigger phrases**: "quality gate", "GO/NO-GO criteria", "gate check", "phase transition criteria", "checkpoint definition", "approval criteria", "gate library", "pass/fail criteria"
-
-## What This Skill Does
-
-Provides gate type selection, criteria definition (required, optional, automatic, manual), behavior configuration for every outcome, ready-to-use gate templates, and result-tracking templates for audit trails.
 
 ## Instructions
 
@@ -402,7 +396,17 @@ Any required criterion failing blocks the merge. Fix the cause (green CI, addres
 
 ### Step 5: Track Gate Results
 
-Record every gate execution for auditability. This is especially valuable for teams and for post-mortems.
+Record every gate run so a reader can recompute its verdict from the record and git alone. Every rerun is a new record and never overwrites an earlier one. Each record stores:
+
+- The gate name, the definition's repository path and the commit SHA the run ran against, and the sha256 of the definition's canonical form.
+- Per criterion: the measured value (a number or a boolean, nothing else), the threshold, the comparison, the producing command with the sha256 of its output, and the outcome.
+- Any other input as a hash per `[[egress-redaction]]`, never raw and never as a length.
+
+**Canonical form** (defined only here). The definition block runs from its `## Gate:` heading to the next heading of equal or higher level, or to the end of the enclosing code fence or file. Use LF line endings, strip trailing whitespace from every line, drop trailing blank lines, end with one LF, encode as UTF-8 without BOM, and hash with sha256. The digest detects drift; fetch the old definition from git by path and SHA, never from the working tree.
+
+**Recompute.** Compare each measured value with its threshold using the stated comparison (`<=`, `>=`, `<`, `>`, `==`, `!=`). A missing measured value or threshold is `not measured` and is never inferred. Then apply the Step 3 precedence. Whether a FAIL is fixable or blocking is a recorded judgment, not recomputed.
+
+**Limits.** The record proves internal consistency, not that the measured values were honest, which is why each value cites its producing command and an output hash. A definition SHA that git can no longer reach is reported as "definition unavailable", never replaced with the current definition. Flag a run whose definition changed in the same change set (`changed-in-run: yes`). When one gate and commit have two records, keep both in order; the later stands only if it states why (`stands-because`). Tool-call decision records belong to `ai-agent-development/references/decision-policy-harness.md`.
 
 **Gate Result Reporting Template**:
 
@@ -412,28 +416,8 @@ Record every gate execution for auditability. This is especially valuable for te
 ## Summary
 | Gate | Result | Date | Attempts |
 |------|--------|------|----------|
-| plan-approved | PASS | [date] | 1 |
-| code-compiles | PASS | [date] | 1 |
 | lint-passes | PARTIAL | [date] | 2 |
-| tests-pass | PASS | [date] | 1 |
-| coverage-threshold | PASS | [date] | 1 |
-| no-security-vulns | PASS | [date] | 1 |
-| performance-budget | N/A | [date] | - |
-
-## Detailed Results
-
-### Gate: lint-passes (Attempt 1 - FAIL)
-**Date**: [timestamp]
-**Failed Criteria**:
-- R1: 3 lint errors in `src/processor.ts`
-**Action Taken**: Auto-fixed 2 errors, manually fixed 1
-
-### Gate: lint-passes (Attempt 2 - PARTIAL)
-**Date**: [timestamp]
-**Passed Required**: All
-**Failed Optional**:
-- O1: 2 warnings remaining (cosmetic, documented)
-**Decision**: Proceed with documented exceptions
+| coverage-threshold | UNGATED (not-measured) | [date] | 1 |
 
 ## Exceptions Log
 | Gate | Criterion | Accepted Risk | Approved By |
@@ -441,26 +425,43 @@ Record every gate execution for auditability. This is especially valuable for te
 | lint-passes | O1 (zero warnings) | 2 cosmetic warnings | [name] |
 ```
 
+**Worked examples** (the sha256 on the second line is the published digest of that gate's block above; the commit SHA and output hashes are illustrative):
+
+```gate-record
+gate: lint-passes | run: 1 | date: 2026-10-14T10:02:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: d5cb9b64a68fc5b83e4397d770aaa37f6a893110823b87b70a196a81f0f0ec62 | changed-in-run: no
+R1 | required | 3 | <= | 0 | ruff check . | sha256:e464090ceb8960eb0e45db18e47ee013a509bc25e24da1a77328521e63b09250 | not met
+outcome: FAIL (fixable)
+```
+
+```gate-record
+gate: lint-passes | run: 2 | date: 2026-10-14T10:20:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: d5cb9b64a68fc5b83e4397d770aaa37f6a893110823b87b70a196a81f0f0ec62 | changed-in-run: no
+R1 | required | 0 | <= | 0 | ruff check . | sha256:943b39331457bfaab35f842e1bbd41582f29bd19feeff0f951a514606fcfb88a | met
+O1 | optional | 2 | <= | 0 | ruff check . | sha256:943b39331457bfaab35f842e1bbd41582f29bd19feeff0f951a514606fcfb88a | not met
+stands-because: errors fixed; 2 cosmetic warnings accepted
+outcome: PARTIAL
+```
+
+```gate-record
+gate: coverage-threshold | run: 1 | date: 2026-10-14T10:40:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: 6939c92715671a57f191b48055268d348acb9f013f1a633e9f5b852c9c53f8ad | changed-in-run: no
+R1 | required | - | >= | 80 | pytest --cov | sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | not measured
+R2 | required | 91 | >= | 80 | coverage diff | sha256:632ab7c6afadacdbb30c307a97e4220f3c3a1a161c293584dd2e815064633daa | met
+outcome: UNGATED (not-measured: R1)
+```
+
 ## Merge-Readiness Contract
 
-The `merge-ready` gate above is a COMPOSITE, machine-checkable contract: a change is mergeable only when its required criteria all hold, so "ready to merge" becomes a checklist backed by evidence. It composes disciplines already in the catalog:
-
-- **CI + review gates** (tests-pass, lint-passes, coverage-threshold, no-security-vulns above) supply R1-R2.
-- **The evidence discipline** in [[verification-before-completion]] supplies R5: each gate is verified against the PR's live current-head state (the status rollup, the latest review submissions, `mergeable`), never a stale top-level comment or a remembered green check. A usage-limit or missing-review result is MISSING EVIDENCE, not approval.
-- **The project's review trapdoors** ([[review-trapdoors]]) supply R6: the curated recurring-blocker list is applied before the change is called mergeable.
-
-The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not mandate: a solo maintainer cannot honor a no-self-merge rule, and a hotfix may need a time-boxed self-merge escape hatch. The options (no-self-merge by default, a net-lines / one-concern ceiling, a bus-factor self-merge escape hatch) are documented in the [merge-readiness-contract style guide](../../../style-guides/merge-readiness-contract.md) (installed at `~/.nexus-hub/style-guides/merge-readiness-contract.md`); a project adopts the subset that fits its team size and risk. See [[git-branching-workflow]] for how the merge fits the branching model, [[pr-description-writer]] for the issue-linkage and one-concern hygiene the contract checks, and [[shipping-and-launch]] for the release step the contract gates.
+The `merge-ready` gate above is a COMPOSITE, machine-checkable contract: a change is mergeable only when its required criteria all hold, so "ready to merge" becomes a checklist backed by evidence. It composes disciplines already in the catalog. The CI and review gates (tests-pass, lint-passes, coverage-threshold, no-security-vulns above) supply R1-R2. The evidence discipline in [[verification-before-completion]] supplies R5: each gate is verified against the PR's live current-head state (the status rollup, the latest review submissions, `mergeable`), never a stale top-level comment or a remembered green check. The project's review trapdoors ([[review-trapdoors]]) supply R6: the curated recurring-blocker list is applied before the change is called mergeable. The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not mandate: a solo maintainer cannot honor a no-self-merge rule, and a hotfix may need a time-boxed self-merge escape hatch. The options (no-self-merge by default, a net-lines / one-concern ceiling, a bus-factor self-merge escape hatch) are documented in the [merge-readiness-contract style guide](../../../style-guides/merge-readiness-contract.md) (installed at `~/.nexus-hub/style-guides/merge-readiness-contract.md`); a project adopts the subset that fits its team size and risk. See [[git-branching-workflow]] for how the merge fits the branching model, [[pr-description-writer]] for the issue-linkage and one-concern hygiene the contract checks, and [[shipping-and-launch]] for the release step the contract gates.
 
 ## Best Practices
 
 - **Start with fewer gates** and add more as your workflow matures; over-gating slows velocity without proportional quality gains
-- **Automate every criterion that can be automated** to reduce human bottlenecks and inconsistency
-- **Set thresholds based on your project's current state**, not ideals; a project at 60% coverage should not gate at 90% overnight
-- **Review gate definitions quarterly** and adjust thresholds as the project improves
+- **Automate every criterion that can be automated**, and keep each check fast (under 5 minutes) to avoid workflow stalls
+- **Set thresholds based on your project's current state**, not ideals; a project at 60% coverage should not gate at 90% overnight, and review them quarterly
 - **Never disable a required criterion to pass a gate**; if a criterion is consistently blocking, either fix the underlying issue or reclassify it as optional with documented rationale
-- **Keep gate checks fast** (under 5 minutes each) to avoid workflow stalls
-- **Use the PARTIAL outcome** judiciously; it should be the exception, not the norm
-- **Share gate results** with the team so everyone knows the quality bar and can see trends over time
+- **Use the PARTIAL outcome** judiciously, and share gate results with the team so everyone can see the quality bar and its trend
 
 ## Common Rationalizations
 
@@ -490,6 +491,7 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 - [[research-plan-implement]] - RPI workflow that uses gates between research, plan, and implement phases
 - [[verification-before-completion]] - supplies the merge-readiness contract's evidence discipline (verify each gate against live current-head state) and owns how missing evidence is reported
 - [[known-gaps-tracker]] - records the `QG` gap that "After UNGATED or exhausted FAIL" ends in
+- [[egress-redaction]] - owns the hash rule for any gate-record input that is not a number or a boolean
 - [[review-trapdoors]] - the project-specific recurring-blocker check the merge-readiness contract requires
 - [[multi-agent-code-review]] - the review pass whose clean result the merge-readiness contract composes
 - [[shipping-and-launch]] - the release step the merge-readiness contract gates
