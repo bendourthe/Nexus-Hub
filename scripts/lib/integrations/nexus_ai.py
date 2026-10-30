@@ -63,6 +63,28 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Nexus-AI (Local Desktop Studio)"
     instruction_mode = "dedicated"
     config = {
+        # v4.14.7: detection evidence (decision D6). Nexus AI Studio keeps its own
+        # data in ~/.nexus (legacy ~/.gemma-code) and only the Nexus-Hub catalog
+        # under ~/.nexus-ai. Nexus-Hub's own hooks may write .nexus/context and
+        # .nexus/observations.jsonl when a session runs from the home folder, so
+        # those names are excluded. The per-user NSIS install lives under
+        # %LOCALAPPDATA% (subfolder name UNVERIFIED; both spellings probed).
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "root": ".nexus-ai",
+            "nexus_entries": ["catalog"],
+            "vendor_roots": {".nexus": ["context", "observations.jsonl"], ".gemma-code": []},
+            "app_paths": {
+                "win32": [
+                    "%LOCALAPPDATA%/Nexus AI Studio",
+                    "%LOCALAPPDATA%/Programs/Nexus AI Studio",
+                ],
+                "darwin": [
+                    "/Applications/Nexus AI Studio.app",
+                    "~/Applications/Nexus AI Studio.app",
+                ],
+            },
+        },
         # The catalog is isolated under a `catalog/` subtree so the app's own
         # data (at the `~/.nexus-ai/` root) is never in the refresh blast zone.
         "global_dir": "~/.nexus-ai/catalog",

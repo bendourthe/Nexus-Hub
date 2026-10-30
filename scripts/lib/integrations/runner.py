@@ -37,6 +37,7 @@ install_no_window_default()
 
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
+from scripts.lib.integrations._detection import detect_platform, detection_spec  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_DRIFTED,
     DIAGNOSTIC_MISSING,
@@ -47,7 +48,7 @@ from scripts.lib.integrations.lifecycle import (  # noqa: E402
     list_installed as lifecycle_list_installed,
     repair as lifecycle_repair,
 )
-from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
+from scripts.lib.integrations.manifest import InstallManifest, manifest_lock  # noqa: E402
 from scripts.lib.integrations.result import WriteResult  # noqa: E402
 
 
@@ -446,6 +447,19 @@ def _selection_payload(selection) -> Optional[dict]:
 
 
 def cmd_install(args: argparse.Namespace) -> int:
+    """Install under the manifest lock (v4.14.7 Phase 1).
+
+    Two concurrent installs used to load, modify, and save the same manifest,
+    so the last writer silently dropped the other's tracked entries. A dry run
+    writes no manifest and takes no lock.
+    """
+    if args.dry_run:
+        return _cmd_install(args)
+    with manifest_lock(_manifest_path(_resolve_target_root(args))):
+        return _cmd_install(args)
+
+
+def _cmd_install(args: argparse.Namespace) -> int:
     keys = _resolve_integration_keys(args.integrations)
     target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
@@ -508,8 +522,10 @@ def cmd_install(args: argparse.Namespace) -> int:
             result = integ.install(ctx)
             # v2.3.0 / Phase 4 / T010 -- record the per-file actions for
             # doctor / repair / list-installed. Skipped on dry-run since
-            # the manifest is not saved in that case.
-            if not args.dry_run:
+            # the manifest is not saved in that case. v4.14.7: a not-detected
+            # result keeps the previous record, whose per-file hashes are what
+            # the stale-surface report and verified removal compare against.
+            if not args.dry_run and result.detected is not False:
                 manifest.record_actions(key, result.files)
             installed.append((key, integ, result))
             results[key] = result
@@ -528,7 +544,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         for position, (key, integ, _) in enumerate(installed):
             run.owner = key
             result = integ.install(ctx)
-            if not args.dry_run:
+            if not args.dry_run and result.detected is not False:
                 manifest.record_actions(key, result.files)
             installed[position] = (key, integ, result)
             results[key] = result
@@ -1183,10 +1199,31 @@ def _verify_checks(home: Path, target_root: Path) -> list:
     if not isinstance(entries, list):
         return []
     checks: list = []
+    detect_ctx = None
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        if entry.get("label") == "OpenClaw":
+        integration_key = entry.get("integration")
+        spec_integ = None
+        if isinstance(integration_key, str):
+            try:
+                spec_integ = get(integration_key)
+            except KeyError:
+                spec_integ = None
+        if spec_integ is not None and detection_spec(spec_integ) is not None:
+            # v4.14.7 Phase 1: a gated platform is detected by the same rule the
+            # installer applies, so verify never tells a user to reinstall a
+            # platform the installer would then skip as not detected.
+            if detect_ctx is None:
+                detect_ctx = InstallContext(
+                    repo_root=REPO_ROOT,
+                    target_root=home,
+                    scope="global",
+                    explicit_target=True,
+                    manifest=InstallManifest.load(_manifest_path(home)),
+                )
+            detected = detect_platform(detect_ctx, spec_integ).detected
+        elif entry.get("label") == "OpenClaw":
             from scripts.lib.integrations.openclaw import _openclaw_is_active
 
             try:

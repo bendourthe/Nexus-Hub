@@ -40,6 +40,18 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "OpenCode"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). OpenCode keeps its own data
+        # (auth.json, opencode.db, log/) in ~/.local/share/opencode and the curl
+        # installer puts the binary in ~/.opencode/bin; Nexus-Hub writes neither.
+        # Under ~/.config/opencode the listed names are Nexus-Hub's (rules/ is a
+        # pre-v4.13.11 mirror), while opencode.json and tui.json are OpenCode's.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["opencode"],
+            "root": ".config/opencode",
+            "nexus_entries": ["AGENTS.md", "skills", "commands", "agents", "plugins", "rules"],
+            "vendor_roots": {".local/share/opencode": [], ".opencode/bin": []},
+        },
         # v3.14.5: OpenCode's canonical GLOBAL config dir is ~/.config/opencode
         # (XDG), not ~/.opencode -- the latter was a dead global path (the
         # instruction file + commands never reached OpenCode there). Re-verified

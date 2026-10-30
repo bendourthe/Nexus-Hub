@@ -28,7 +28,7 @@ import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from .manifest import InstallManifest
 from .result import FileAction, WriteResult
@@ -106,6 +106,13 @@ class InstallContext:
     # NEXUS_HUB_SKILL_INDEX by the runner. "pointer" renders the Skill-Index
     # Pointer only where `native_skill_enumeration` holds.
     skill_index_mode: str = "full"
+    # v4.14.7 Phase 1 -- detection inputs read by `_detection.detect_platform`.
+    # `which` resolves a command on PATH; None means the default
+    # `_detection.safe_which`, and tests inject a fake so they never read the
+    # developer's real PATH. `forced_keys` holds the platforms the user named
+    # explicitly with --platforms, which bypass detection (decision D5).
+    which: Optional[Callable[[str], Optional[str]]] = None
+    forced_keys: frozenset = frozenset()
 
     @property
     def global_root(self) -> Path:

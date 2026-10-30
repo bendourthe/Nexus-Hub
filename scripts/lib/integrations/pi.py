@@ -68,6 +68,16 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Pi"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). The root is ~/.pi/agent,
+        # because ~/.pi itself holds only agent/, which both Pi and Nexus-Hub
+        # create. settings.json is listed because Nexus-Hub seeds it; Pi's own
+        # auth.json, models.json and keybindings.json count as evidence.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["pi"],
+            "root": ".pi/agent",
+            "nexus_entries": ["AGENTS.md", "skills", "prompts", "settings.json"],
+        },
         # Global surfaces live under ~/.pi/agent, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,

@@ -3358,3 +3358,42 @@ None.
 - **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before publication.
 - **Resolution**: the roster amendment merged to develop as PR #540 and a timing-dependent hook test found during qualification was fixed by PR #541; Chromium build 1243 was installed for `tests/skills`; the hook and governance suites ran without the per-command cap. The composite local qualification is recorded under `## Full-suite testing and stabilization` in [v4.14.3 last-phase evidence](development/v4.14.3-last-phase-evidence.md), green on final tree `8f0e6f313`.
 - **Remaining boundary**: the integration pull request's required checks are the remote validation of the merge result; they are recorded in the same file under `## Publication and integration`.
+
+## v4.14.7
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-20 (v4.14.7): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
+
+**Source phase**: v4.14.7 Phase 1 T001
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Non-Goals
+
+**Reason**: The Hermes Agent installation page (https://hermes-agent.nousresearch.com/docs/getting-started/installation, fetched 2026-10-29) places the Windows install and data under `%LOCALAPPDATA%\hermes`, while `scripts/lib/integrations/hermes.py` writes `~/.hermes/skills` on every OS. Detection now finds a Windows Hermes through its executable location, but the skills it then writes land where Windows Hermes may not read them. Changing the write surface is outside this plan, whose scope is detection.
+
+**Suggested next step**: Verify the Windows Hermes skills path against first-party documentation, then move the Windows global surface under `%LOCALAPPDATA%\hermes` through `[[platform-contract-verification]]`, with a read-contract row and an installer parity check.
+
+#### MT-14 (v4.14.7): A `.ps1`-only npm shim is not found on `PATH`
+
+**Source phase**: v4.14.7 Phase 1 T002
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
+
+**Reason**: `_detection.safe_which` resolves commands through `PATHEXT`, which finds npm's `.cmd` shim but not a `.ps1`-only install. No vendor documents a `.ps1`-only layout, and decision D5 (`--platforms <key>`) is the recovery path, so no test covers that layout.
+
+**Suggested next step**: If a vendor documents a `.ps1`-only install, add `.PS1` to the probed extensions for that platform's spec and a test with a planted `.ps1` shim.
+
+### Resolved
+
+None.

@@ -67,6 +67,16 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Kimi Code CLI"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). `kimi` is the documented
+        # command; Kimi itself creates updates/, bin/, sessions/, logs/,
+        # credentials/ and tui.toml under ~/.kimi-code. The listed names are what
+        # Nexus-Hub writes there (config.toml is seeded), so they never count.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["kimi"],
+            "root": ".kimi-code",
+            "nexus_entries": ["AGENTS.md", "skills", "agents", "hooks", "config.toml"],
+        },
         # Global surfaces live under ~/.kimi-code, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,

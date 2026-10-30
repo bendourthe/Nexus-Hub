@@ -30,6 +30,19 @@ class HermesIntegration(SkillsIntegration):
     key = "hermes"
     display_name = "Hermes"
     config = {
+        # v4.14.7: detection evidence (decision D2). `hermes` is collision-prone
+        # (Meta's Hermes JavaScript engine ships a `hermes` binary), so a PATH hit
+        # counts only from the Hermes Agent install locations. The POSIX installer
+        # also places its code at ~/.hermes/hermes-agent, which the root check sees.
+        # config.yaml is listed because Nexus-Hub seeds it.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["hermes"],
+            "corroborate": {"hermes": ["hermes-agent", "/hermes/bin", "\\hermes\\bin"]},
+            "root": ".hermes",
+            "nexus_entries": ["skills", "config.yaml"],
+            "app_paths": {"win32": ["%LOCALAPPDATA%/hermes/hermes-agent"]},
+        },
         # Global skills live under ~/.hermes, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,

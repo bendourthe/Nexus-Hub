@@ -16,6 +16,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import sys
+import time
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -73,6 +77,22 @@ class InstallManifest:
         # this is an additive key rather than a schema bump: there is no
         # migration to run and no reader to change.
         self._selection: Optional[Dict[str, object]] = None
+        # v4.14.7 Phase 1 -- platforms the user forced with --platforms
+        # (decision D5). Detection treats them as present on every later
+        # install, and the stale-surface report never offers them for removal.
+        # Emitted only when non-empty, so an ordinary install writes the same
+        # manifest bytes it wrote before.
+        self._forced: Dict[str, bool] = {}
+
+    def set_forced(self, integration_key: str) -> None:
+        self._forced[integration_key] = True
+        self._logs.append(f"[{integration_key}] forced")
+
+    def clear_forced(self, integration_key: str) -> None:
+        self._forced.pop(integration_key, None)
+
+    def is_forced(self, integration_key: str) -> bool:
+        return bool(self._forced.get(integration_key))
 
     def track(self, integration_key: str, path: str) -> None:
         bucket = self._tracked.setdefault(integration_key, [])
@@ -241,6 +261,8 @@ class InstallManifest:
         # start reporting a change on every full install.
         if self._selection is not None:
             data["selection"] = self._selection
+        if self._forced:
+            data["forced"] = dict(self._forced)
         return data
 
     @classmethod
@@ -254,21 +276,115 @@ class InstallManifest:
         m._actions = dict(data.get("actions", {}))
         selection = data.get("selection")
         m._selection = dict(selection) if isinstance(selection, dict) else None
+        forced = data.get("forced")
+        m._forced = {str(k): True for k, v in forced.items() if v} if isinstance(forced, dict) else {}
         return m
 
     def save(self, path: Path) -> None:
+        """Write the manifest atomically (v4.14.7 Phase 1).
+
+        A temporary sibling is written and then swapped in with ``os.replace``,
+        so an interrupted or failed write leaves the previous manifest intact
+        rather than a truncated file that would cost every later doctor and
+        removal run its ownership data.
+        """
         from .base import long_path  # lazy: base imports this module
 
         io_path = long_path(path)  # AR-11: a deep project root passes MAX_PATH
         io_path.parent.mkdir(parents=True, exist_ok=True)
-        io_path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+        tmp = io_path.with_name(f"{io_path.name}.{os.getpid()}.tmp")
+        try:
+            tmp.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+            os.replace(tmp, io_path)
+        finally:
+            if tmp.exists():
+                try:
+                    tmp.unlink()
+                except OSError:
+                    pass
 
     @classmethod
     def load(cls, path: Path) -> "InstallManifest":
+        """Read the manifest; a corrupt file is set aside, never fatal.
+
+        v4.14.7 Phase 1: an unreadable manifest used to raise before detection
+        ran. It is now renamed to ``<name>.corrupt-<timestamp>`` (kept for
+        inspection, never deleted), one warning is printed, and an empty
+        manifest is returned, so detection falls back to the declared Nexus-Hub
+        entry names.
+        """
         from .base import long_path  # lazy: base imports this module
 
         io_path = long_path(path)
         if not io_path.exists():
             return cls()
-        data = json.loads(io_path.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(io_path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("manifest root is not an object")
+        except (OSError, UnicodeDecodeError, ValueError) as exc:
+            aside = io_path.with_name(f"{io_path.name}.corrupt-{time.strftime('%Y%m%d%H%M%S')}")
+            try:
+                os.replace(io_path, aside)
+                where = f"moved to {aside.name}"
+            except OSError:
+                where = "left in place"
+            print(
+                f"[warn] install manifest {path} is unreadable ({exc}); {where}. "
+                "Starting from an empty manifest.",
+                file=sys.stderr,
+            )
+            return cls()
         return cls.from_dict(data)
+
+
+@contextmanager
+def manifest_lock(path: Path, timeout: float = 30.0, stale_after: float = 600.0):
+    """Serialize load-modify-save of one manifest across processes (v4.14.7).
+
+    Takes ``<manifest>.lock`` with an exclusive create. A lock older than
+    ``stale_after`` seconds belongs to a crashed process and is removed. After
+    ``timeout`` seconds the caller proceeds without the lock and a warning is
+    printed: a stuck lock must never stop an install, and the atomic save
+    still prevents a torn file.
+    """
+    from .base import long_path  # lazy: base imports this module
+
+    lock = long_path(path).with_name(Path(path).name + ".lock")
+    held = False
+    deadline = time.monotonic() + timeout
+    try:
+        lock.parent.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    while True:
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode("ascii"))
+            os.close(fd)
+            held = True
+            break
+        except FileExistsError:
+            try:
+                if time.time() - lock.stat().st_mtime > stale_after:
+                    lock.unlink()
+                    continue
+            except OSError:
+                pass
+            if time.monotonic() >= deadline:
+                print(
+                    f"[warn] {lock} is held by another install; continuing without it.",
+                    file=sys.stderr,
+                )
+                break
+            time.sleep(0.2)
+        except OSError:
+            break  # a read-only location: the save will report its own error
+    try:
+        yield held
+    finally:
+        if held:
+            try:
+                lock.unlink()
+            except OSError:
+                pass

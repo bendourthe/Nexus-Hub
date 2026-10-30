@@ -53,6 +53,15 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
     instruction_mode = "shared"
     hook_spec = QWEN_SPEC
     config = {
+        # v4.14.7: detection evidence (decision D2). `qwen` is the npm bin name;
+        # Qwen itself creates file-history/, locales/ and debug/ under ~/.qwen.
+        # settings.json is listed because Nexus-Hub seeds it.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["qwen"],
+            "root": ".qwen",
+            "nexus_entries": ["QWEN.md", "skills", "agents", "commands", "hooks", "settings.json"],
+        },
         # Global surfaces live under ~/.qwen, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,

@@ -1071,6 +1071,7 @@
     },
     {
       "label": "Hermes",
+      "integration": "hermes",
       "detect": [
         "~/.hermes"
       ],
@@ -1085,6 +1086,7 @@
     },
     {
       "label": "OpenCode",
+      "integration": "opencode",
       "detect": [
         "~/.config/opencode",
         "~/.opencode"
@@ -1134,6 +1136,7 @@
     },
     {
       "label": "Qwen Code",
+      "integration": "qwen",
       "detect": [
         "~/.qwen"
       ],
@@ -1169,6 +1172,7 @@
     },
     {
       "label": "Kimi Code CLI",
+      "integration": "kimi",
       "detect": [
         "~/.kimi-code"
       ],
@@ -1204,6 +1208,7 @@
     },
     {
       "label": "Pi",
+      "integration": "pi",
       "detect": [
         "~/.pi"
       ],
