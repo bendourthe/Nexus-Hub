@@ -53,11 +53,11 @@ def _index(home: Path) -> str:
 def test_valid_version_and_index_path_come_from_the_same_home(start) -> None:
     lines, code = start(b"9.9.9\n")
     assert code == 0
-    assert lines[0] == f"Nexus-Hub v9.9.9 active; {_index(start.home)}"
+    assert lines[0] == f"[Nexus-Hub: session-start] Nexus-Hub v9.9.9 active; {_index(start.home)}"
 
 
 def test_prerelease_and_crlf_versions_are_accepted(start) -> None:
-    assert start(b"4.13.3-rc.1\r\n")[0][0].startswith("Nexus-Hub v4.13.3-rc.1 active; ")
+    assert start(b"4.13.3-rc.1\r\n")[0][0].startswith("[Nexus-Hub: session-start] Nexus-Hub v4.13.3-rc.1 active; ")
 
 
 @pytest.mark.parametrize(
@@ -70,7 +70,7 @@ def test_invalid_version_is_dropped_and_never_echoed(start, payload: bytes | Non
         (start.home / "VERSION").unlink()
     lines, code = start(payload)
     assert code == 0
-    assert lines[0] == f"Nexus-Hub active; {_index(start.home)}"
+    assert lines[0] == f"[Nexus-Hub: session-start] Nexus-Hub active; {_index(start.home)}"
     assert "rm -rf" not in "\n".join(lines)
 
 

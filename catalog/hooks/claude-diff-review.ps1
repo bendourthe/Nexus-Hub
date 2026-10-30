@@ -18,6 +18,20 @@
 
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: claude-diff-review]"
+# Print the tag and the message with the given color; every further line is
+# printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string]$Color = 'Yellow', [string[]]$More = @())
+    Write-Host "$script:NexusTag $Message" -ForegroundColor $Color
+    foreach ($line in $More) { Write-Host $line }
+}
+
 # --- Bypass paths --------------------------------------------------------
 if ($env:NEXUS_DIFF_REVIEW_DISABLE -eq "1") {
     exit 0
@@ -43,8 +57,8 @@ if ($gitDir) {
 # --- Locate claude CLI ---------------------------------------------------
 $cliCmd = Get-Command claude -ErrorAction SilentlyContinue
 if (-not $cliCmd) {
-    Write-Host "[claude-diff-review] WARNING: claude CLI not found on PATH; skipping review." -ForegroundColor Yellow
-    Write-Host "[claude-diff-review] Install Claude Code (https://claude.ai/download) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." -ForegroundColor Yellow
+    Write-NexusMessage "WARNING: claude CLI not found on PATH; skipping review."
+    Write-NexusMessage "Install Claude Code (https://claude.ai/download) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning."
     exit 0
 }
 
@@ -58,8 +72,8 @@ if ([string]::IsNullOrEmpty($diff)) {
 $maxBytes = if ($env:NEXUS_DIFF_REVIEW_MAX_BYTES) { [int]$env:NEXUS_DIFF_REVIEW_MAX_BYTES } else { 51200 }
 $diffBytes = [System.Text.Encoding]::UTF8.GetByteCount($diff)
 if ($diffBytes -gt $maxBytes) {
-    Write-Host "[claude-diff-review] WARNING: staged diff is $diffBytes bytes (cap=$maxBytes); skipping review." -ForegroundColor Yellow
-    Write-Host "[claude-diff-review] Raise the cap with `$env:NEXUS_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time." -ForegroundColor Yellow
+    Write-NexusMessage "WARNING: staged diff is $diffBytes bytes (cap=$maxBytes); skipping review."
+    Write-NexusMessage "Raise the cap with `$env:NEXUS_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time."
     exit 0
 }
 
@@ -102,7 +116,7 @@ try {
     $response = $null
 }
 if ([string]::IsNullOrWhiteSpace($response)) {
-    Write-Host "[claude-diff-review] WARNING: claude CLI returned no output; allowing commit." -ForegroundColor Yellow
+    Write-NexusMessage "WARNING: claude CLI returned no output; allowing commit."
     exit 0
 }
 
@@ -115,21 +129,21 @@ switch ($verdict) {
         exit 0
     }
     "WARN" {
-        Write-Host "[claude-diff-review] WARN:" -ForegroundColor Yellow
-        $response -split "`n" | Select-Object -Skip 1 | ForEach-Object { Write-Host $_ }
-        Write-Host ""
-        Write-Host "[claude-diff-review] Commit allowed; review the warnings above and consider amending." -ForegroundColor Yellow
+        Write-NexusMessage "WARN:"
+        $response -split "`n" | Select-Object -Skip 1 | ForEach-Object { Write-Host $_ }  # nexus: hook-msg-exempt relayed reviewer output
+        Write-Host ""  # nexus: hook-msg-exempt blank separator
+        Write-NexusMessage "Commit allowed; review the warnings above and consider amending."
         exit 0
     }
     "BLOCK" {
-        Write-Host "[claude-diff-review] BLOCK:" -ForegroundColor Red
-        $response -split "`n" | Select-Object -Skip 1 | ForEach-Object { Write-Host $_ }
-        Write-Host ""
-        Write-Host "[claude-diff-review] Commit refused. Fix the issue, or bypass this commit with: `$env:NEXUS_DIFF_REVIEW_DISABLE=1; git commit ..." -ForegroundColor Red
+        Write-NexusMessage "BLOCK:" -Color Red
+        $response -split "`n" | Select-Object -Skip 1 | ForEach-Object { Write-Host $_ }  # nexus: hook-msg-exempt relayed reviewer output
+        Write-Host ""  # nexus: hook-msg-exempt blank separator
+        Write-NexusMessage "Commit refused. Fix the issue, or bypass this commit with: `$env:NEXUS_DIFF_REVIEW_DISABLE=1; git commit ..." -Color Red
         exit 1
     }
     default {
-        Write-Host "[claude-diff-review] WARNING: unparseable verdict from claude (expected PASS|WARN|BLOCK); allowing commit." -ForegroundColor Yellow
+        Write-NexusMessage "WARNING: unparseable verdict from claude (expected PASS|WARN|BLOCK); allowing commit."
         exit 0
     }
 }

@@ -16,7 +16,7 @@ import pytest
 _HOOKS_DIR = Path(__file__).resolve().parent.parent
 _HOOK_SH = _HOOKS_DIR / "html-responsive-guard.sh"
 _HOOK_PS1 = _HOOKS_DIR / "html-responsive-guard.ps1"
-_BLOCK_MARKER = "[html-responsive-guard] BLOCKED"
+_BLOCK_MARKER = "[Nexus-Hub: html-responsive-guard] BLOCKED"
 _RULE_PATH = "catalog/rules/html/responsive-layout.md"
 
 
@@ -474,7 +474,7 @@ def test_bash_without_python_fails_closed_for_relevant_path(
         _payload(path, ".hero-copy { max-width: 60ch; }"),
     )
     assert proc.returncode == 3
-    assert "[html-responsive-guard] CANNOT RUN" in proc.stderr
+    assert "[Nexus-Hub: html-responsive-guard] CANNOT RUN" in proc.stderr
     assert "Python 3" in proc.stderr
     assert path in proc.stderr
 
@@ -493,7 +493,7 @@ def test_bash_without_python_fails_closed_for_unclassifiable_payload(
 ) -> None:
     proc = _run_bash_without_python(bash_bin, payload)
     assert proc.returncode == 3
-    assert "[html-responsive-guard] CANNOT RUN" in proc.stderr
+    assert "[Nexus-Hub: html-responsive-guard] CANNOT RUN" in proc.stderr
     assert "Python 3" in proc.stderr
 
 
@@ -509,5 +509,5 @@ def test_bash_without_python_uses_only_tool_input_path(bash_bin: str) -> None:
     )
     proc = _run_bash_without_python(bash_bin, payload)
     assert proc.returncode == 3
-    assert "[html-responsive-guard] CANNOT RUN" in proc.stderr
+    assert "[Nexus-Hub: html-responsive-guard] CANNOT RUN" in proc.stderr
     assert "site/report.html" in proc.stderr

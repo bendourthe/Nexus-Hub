@@ -15,6 +15,34 @@
 
 $ErrorActionPreference = 'SilentlyContinue'
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: lint-autofix]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 # --- Opt-in gate (this hook mutates files) ---
 if ($env:NEXUS_ENABLE_LINT_AUTOFIX -ne '1') { exit 0 }
 
@@ -88,8 +116,8 @@ try {
         if ($did) { & git add -- $f *> $null; $fixed += $f }
     }
 
-    if ($fixed.Count -gt 0) { [Console]::Error.WriteLine("[lint-autofix] formatted and re-staged: $($fixed -join ' ')") }
-    if ($skipped.Count -gt 0) { [Console]::Error.WriteLine("[lint-autofix] skipped (unstaged changes present): $($skipped -join ' ')") }
+    if ($fixed.Count -gt 0) { Write-NexusMessage "formatted and re-staged: $(ConvertTo-NexusVisible ($fixed -join ' '))" }
+    if ($skipped.Count -gt 0) { Write-NexusMessage "skipped (unstaged changes present): $(ConvertTo-NexusVisible ($skipped -join ' '))" }
 }
 catch { }
 

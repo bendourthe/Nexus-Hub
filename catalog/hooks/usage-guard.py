@@ -20,7 +20,50 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+NEXUS_TAG = "[Nexus-Hub: usage-guard]"
+
+
+def _nexus_esc(value: str) -> str:
+    """Make CR, LF, ESC and the other C0 control characters visible.
+
+    An echoed value (a command, a file name) can then never start a forged
+    tagged line.
+    """
+    out: list[str] = []
+    for ch in value:
+        code = ord(ch)
+        if code == 9:
+            out.append("\\t")
+        elif code == 10:
+            out.append("\\n")
+        elif code == 13:
+            out.append("\\r")
+        elif code < 32 or code == 127:
+            out.append(f"\\x{code:02x}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _nexus_tagged(message: str) -> str:
+    """The tagged form of a message, for a JSON message field."""
+    return f"{NEXUS_TAG} {message}"
+
+
+def _nexus_msg(message: str, *more: str, stream: TextIO | None = None) -> None:
+    """Print the tag and the message (stderr by default); further arguments are continuation lines."""
+    out = stream or sys.stderr
+    out.write(_nexus_tagged(message) + "\n")
+    for line in more:
+        out.write(line + "\n")
+
 
 HOOK_NAME = "usage-guard"
 DEFAULT_THRESHOLD = 99
@@ -447,19 +490,19 @@ def render(platform: str, kind: str, event: str, message: str) -> dict[str, Any]
     """The platform's documented output object for one event kind."""
     if platform == "cursor":
         if kind == "stop":
-            return {"followup_message": message}
-        return {"additional_context": message}
+            return {"followup_message": _nexus_tagged(message)}
+        return {"additional_context": _nexus_tagged(message)}
     if platform == "copilot" and kind == "stop":
         return {
             "hookSpecificOutput": {
                 "hookEventName": "Stop",
                 "decision": "block",
-                "reason": message,
+                "reason": _nexus_tagged(message),
             }
         }
     if kind == "stop":
-        return {"decision": "block", "reason": message}
-    return {"hookSpecificOutput": {"hookEventName": event, "additionalContext": message}}
+        return {"decision": "block", "reason": _nexus_tagged(message)}
+    return {"hookSpecificOutput": {"hookEventName": event, "additionalContext": _nexus_tagged(message)}}
 
 
 # ----- state ---------------------------------------------------------------------
@@ -1119,7 +1162,7 @@ def decision_cli(argv: list[str]) -> int:
                   else decision_transition(platform, project.resolve(), ident, action, **args))
         print(json.dumps(result))
     except (ValueError, OSError) as error:
-        print(str(error), file=sys.stderr)
+        _nexus_msg(_nexus_esc(str(error)))
         return 1
     return 0
 

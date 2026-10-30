@@ -27,6 +27,34 @@ $disabled = $env:NEXUS_DISABLED_HOOKS
 if ($disabled -and $disabled.Split(',') -contains $hookName) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: old-version-docs-guard]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 $blocking = if ($env:NEXUS_OLD_DOCS_GUARD) { $env:NEXUS_OLD_DOCS_GUARD } else { "warn" }
 
 # --- Read JSON from stdin ---
@@ -162,13 +190,13 @@ if (-not $active) { exit 0 }
 if (-not (Test-SemverGt $active $targetVersion)) { exit 0 }
 
 # --- Emit warning (stderr) ---
-$msg = "[old-version-docs-guard] Writing to historical version v$targetVersion under $normPath (active is v$active). Consider /update refactor to archive instead."
+$msg = "Writing to historical version v$targetVersion under $(ConvertTo-NexusVisible $normPath) (active is v$active). Consider /update refactor to archive instead."
 
 if ($blocking -eq "block") {
-    [Console]::Error.WriteLine($msg)
-    [Console]::Error.WriteLine("[old-version-docs-guard] Blocked by NEXUS_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass.")
+    Write-NexusMessage $msg
+    Write-NexusMessage "Blocked by NEXUS_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass."
     exit 1
 }
 
-[Console]::Error.WriteLine($msg)
+Write-NexusMessage $msg
 exit 0
