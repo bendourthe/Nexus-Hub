@@ -217,3 +217,74 @@ def test_command_block_rule_has_teeth():
         (SUBSTANTIVE[0], _COMMAND_MARKER),
     ):
         assert needle not in _read(path).replace(needle, "")
+
+
+# --- Plain English for a non-native reader (v4.14.8 Part A) --------------------
+#
+# The first contract bullet sets the reading bar and the quote-exactly rule. It is
+# always-loaded because it governs every reply on every platform; the slang list,
+# its exemptions and the detector stay on demand in anti-slop-editing, and the
+# quote-exactly procedure in the style guide's section 2.
+
+_PLAIN_ENGLISH_MARKER = "non-native reader"
+_QUOTE_EXACTLY_MARKER = "quote warnings, errors, and names exactly"
+
+
+def _contract_section(path: Path) -> str:
+    text = _read(path)
+    start = text.index("## Communication Contract")
+    end = text.find("\n## ", start + 1)
+    return text[start:end]
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_first_bullet_sets_the_non_native_reader_bar(path: Path):
+    section = _contract_section(path)
+    bullets = [line for line in section.split("\n") if line.startswith("- ")]
+    assert bullets, f"{path.name}: the contract has no bullets"
+    first = bullets[0]
+    assert first.startswith("- Outcome first"), (
+        f"{path.name}: first bullet moved: {first}"
+    )
+    assert _PLAIN_ENGLISH_MARKER in first, (
+        f"{path.name}: first bullet lacks the reader bar"
+    )
+    assert _QUOTE_EXACTLY_MARKER in first, (
+        f"{path.name}: first bullet lacks the quote rule"
+    )
+    assert section.count(_PLAIN_ENGLISH_MARKER) == 1, (
+        f"{path.name}: the reader bar must appear exactly once in the contract"
+    )
+
+
+def test_plain_english_bullet_is_byte_identical_across_the_roster():
+    variants = set()
+    for path in SUBSTANTIVE:
+        for line in _read(path).split("\n"):
+            if _PLAIN_ENGLISH_MARKER in line:
+                variants.add(line.strip())
+    assert len(variants) == 1, f"plain-English bullet diverged: {variants}"
+
+
+def test_style_guide_owns_the_quote_exactly_rule_and_points_at_the_slang_list():
+    text = _read(_STYLE_GUIDE)
+    start = text.index("## 2. Plain language")
+    section = text[start : text.find("\n## ", start + 1)]
+    assert "non-native reader understands at first read" in section
+    assert "Never paraphrase a warning into something vaguer" in section
+    assert "Agent and engineering slang" in section
+    assert "slop-wordlist.md" in section
+
+
+def test_skill_mirrors_the_plain_english_rule():
+    text = _read(_SKILL)
+    assert "non-native reader understands at first read" in text
+    assert "slop-wordlist.md" in text
+
+
+def test_plain_english_rule_has_teeth():
+    for path, needle in (
+        (_STYLE_GUIDE, "Never paraphrase a warning into something vaguer"),
+        (SUBSTANTIVE[0], _QUOTE_EXACTLY_MARKER),
+    ):
+        assert needle not in _read(path).replace(needle, "")

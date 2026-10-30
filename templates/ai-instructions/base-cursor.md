@@ -41,7 +41,7 @@
 
 ## Communication Contract
 
-- Outcome first, in plain language a non-engineer follows; define jargon in place; link detail beyond ~5 lines in a docs/ file.
+- Outcome first, in simple English a non-native reader follows at first read; explain a needed technical term in place; quote warnings, errors, and names exactly, then explain them; link detail beyond ~5 lines in a docs/ file.
 - Commands run as pasted in the user's shell (Windows: PowerShell 5.1, never && or ||): name where to run them, machine and terminal first, fill derivable values, flag the rest with a REPLACE line, show expected output.
 - Write each user action in full every time you ask for it, never "as above"; end a paste at any password or y/n prompt; inline file contents; reuse methods your notes say work.
 - Number steps, prerequisites first, expected results; after an error, re-issue ALL remaining steps renumbered.
@@ -54,7 +54,7 @@ Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
 ## Writing Discipline
 
-Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
+Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; agent or engineering slang (load-bearing -> needed, blast radius -> what it affects, land -> merge, punt -> postpone, sanity check -> quick check); and mannered prose, where metaphor or flourish stands in for a direct statement.
 
 Spelling is American English (color, organize, center); external identifiers, quotes, and URLs keep their own. Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
 
