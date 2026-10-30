@@ -148,7 +148,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         if not detection.detected:
             ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global Pi surfaces")
             result.mark_not_detected(
-                f"Pi not detected ({detection.evidence}); global AGENTS.md + skills + prompts skipped"
+                f"Pi not detected ({detection.evidence}); global AGENTS.md + skills + prompts skipped", evidence=detection.evidence
             )
             return result
         result.detected = True

@@ -317,6 +317,17 @@ def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
         "platform": key,
         "display_name": getattr(integ, "display_name", key),
         "detected": result.detected,
+        **(
+            {
+                "evidence": result.evidence,
+                "remedy": (
+                    f"Install {getattr(integ, 'display_name', key)}, then run "
+                    f"`nexus-hub upgrade`, or name it with --platforms {key}."
+                ),
+            }
+            if result.detected is False and result.evidence
+            else {}
+        ),
         "surfaces": surfaces,
         "notes": list(result.notes)
         + list(
@@ -459,6 +470,16 @@ def cmd_install(args: argparse.Namespace) -> int:
         return _cmd_install(args)
 
 
+def _forced_keys(args: argparse.Namespace, keys: List[str]) -> frozenset:
+    """Platforms the user named explicitly with --platforms (decision D5).
+
+    The installers pass them as ``--forced``; only keys this run installs count.
+    """
+    raw = getattr(args, "forced", None) or ""
+    named = {token.strip().lower() for token in raw.split(",") if token.strip()}
+    return frozenset(named & set(keys))
+
+
 def _cmd_install(args: argparse.Namespace) -> int:
     keys = _resolve_integration_keys(args.integrations)
     target_root = _resolve_target_root(args)
@@ -502,6 +523,7 @@ def _cmd_install(args: argparse.Namespace) -> int:
         selection=selection,
         legacy_removal_hashes=consents,
         skill_index_mode=_skill_index_mode(),
+        forced_keys=_forced_keys(args, keys),
     )
     from scripts.lib.installer.instruction_merge import legacy_run
 
@@ -527,6 +549,11 @@ def _cmd_install(args: argparse.Namespace) -> int:
             # the stale-surface report and verified removal compare against.
             if not args.dry_run and result.detected is not False:
                 manifest.record_actions(key, result.files)
+                if key in ctx.forced_keys and detection_spec(integ) is not None:
+                    # Decision D5: an explicit --platforms choice is kept, so later
+                    # default installs keep the platform and doctor never offers
+                    # its surfaces for removal.
+                    manifest.set_forced(key)
             installed.append((key, integ, result))
             results[key] = result
             _render_write_result(key, result, args.quiet)
@@ -697,6 +724,9 @@ def cmd_teardown(args: argparse.Namespace) -> int:
             integ = get(key)
             print(f"[teardown] {integ.display_name}")
             result = integ.teardown(ctx)
+            # v4.14.7: removing a platform also forgets an explicit --platforms
+            # choice, so a later default install evaluates it normally again.
+            manifest.clear_forced(key)
             _render_write_result(key, result, quiet=False)
         except KeyError:
             print(f"[skip:{key}] not in registry", file=sys.stderr)
@@ -1362,6 +1392,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_install.add_argument("--scope", choices=["global", "workspace"], default="workspace")
     p_install.add_argument("--target", help="Workspace root. Defaults to CWD for workspace scope; for global scope defaults to the user home (~/.nexus-hub lands under it).")
     p_install.add_argument("--integrations", required=True, help="Comma-separated keys, or 'all'.")
+    p_install.add_argument(
+        "--forced",
+        default="",
+        help="Comma-separated keys the user named explicitly with --platforms; they bypass detection and are recorded as user-forced.",
+    )
     p_install.add_argument("--overwrite", action="store_true")
     p_install.add_argument("--dry-run", action="store_true")
     _add_selection_args(p_install)

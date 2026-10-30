@@ -177,21 +177,28 @@ checklist_label() {
 
 # Platforms whose tool was not detected on this machine (grouped at run end).
 UNDETECTED_PLATFORMS=()
+# v4.14.7: one remedy line per entry, index-aligned with UNDETECTED_PLATFORMS
+# (empty when the runner reported none).
+UNDETECTED_REMEDIES=()
 
-reset_undetected_platforms() { UNDETECTED_PLATFORMS=(); }
+reset_undetected_platforms() { UNDETECTED_PLATFORMS=(); UNDETECTED_REMEDIES=(); }
 
 add_undetected_platform() {
-    # Args: name reason
+    # Args: name reason [remedy]
     UNDETECTED_PLATFORMS+=("$1 ($2)")
+    UNDETECTED_REMEDIES+=("${3:-}")
 }
 
 write_undetected_group() {
     [ "${#UNDETECTED_PLATFORMS[@]}" -eq 0 ] && return 0
     echo ""
     echo -e "  ${GRAY}> NOT DETECTED (skipped)${RESET}"
-    local entry
-    for entry in "${UNDETECTED_PLATFORMS[@]}"; do
-        echo -e "    ${GRAY}- ${entry}${RESET}"
+    local i
+    for i in "${!UNDETECTED_PLATFORMS[@]}"; do
+        echo -e "    ${GRAY}- ${UNDETECTED_PLATFORMS[$i]}${RESET}"
+        if [ -n "${UNDETECTED_REMEDIES[$i]:-}" ]; then
+            echo -e "      ${GRAY}${UNDETECTED_REMEDIES[$i]}${RESET}"
+        fi
     done
 }
 
@@ -226,6 +233,8 @@ det_s = "true" if det is True else ("false" if det is False else "")
 notes = plat.get("notes") or []
 surfaces = plat.get("surfaces", {}) or {}
 print("META\t%s\t%d\t%d" % (det_s, len(surfaces), len(notes)))
+clean = lambda value: str(value or "").replace("\t", " ").replace("\n", " ")
+print("EVID\t%s\t%s" % (clean(plat.get("evidence")), clean(plat.get("remedy"))))
 for skey, entry in surfaces.items():
     reason = str(entry.get("reason", "")).replace("\t", " ").replace("\n", " ")
     print("ROW\t%s\t%s\t%s\t%s" % (skey, entry.get("status", ""), entry.get("path", ""), reason))
@@ -237,12 +246,18 @@ PYEOF
     note_count="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="META"{print $4; exit}')"
 
     if [ "${surface_count:-0}" -eq 0 ]; then
-        local reason="not detected"
+        local reason="not detected" evidence remedy
         if [ "$detected" != "false" ] && [ "${note_count:-0}" -gt 0 ]; then
             reason="no surface at this scope"
         fi
+        # v4.14.7: the runner states why detection failed and how to recover.
+        evidence="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="EVID"{print $2; exit}')"
+        remedy="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="EVID"{print $3; exit}')"
+        if [ -n "$evidence" ]; then
+            reason="not detected: $evidence"
+        fi
         if [ -n "$provider" ]; then
-            add_undetected_platform "$display" "$reason"
+            add_undetected_platform "$display" "$reason" "$remedy"
         else
             write_item "$display" "$GRAY"
             write_item "($reason)" "$GRAY" 4
@@ -2401,6 +2416,11 @@ invoke_registry_platform() {
     local args=("$runner" "install" "--scope" "$scope" "--integrations" "$key" "--quiet" "--summary-json" "$summary_file")
     if [ "$scope" = "workspace" ]; then
         args+=("--target" "$target_path")
+    fi
+    # v4.14.7 (decision D5): forward an explicit --platforms choice so the runner
+    # installs the platform even when detection finds no evidence.
+    if [ "$scope" = "global" ] && [ -n "$PLATFORMS_ARG" ]; then
+        args+=("--forced" "$key")
     fi
     # v3.16.1 Phase 6.1: forward the selectors so the registry resolves the same
     # plan this script did. Passed as separate array elements, never interpolated

@@ -88,6 +88,11 @@ class WriteResult:
     files: List[FileAction] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
     detected: Optional[bool] = None
+    #: v4.14.7: the one-line detection reason for a not-detected result, shown
+    #: by the installers under NOT DETECTED (for example "qwen not on PATH;
+    #: ~/.qwen holds only Nexus-Hub files"). None when not gated by
+    #: `_detection.detect_platform`.
+    evidence: Optional[str] = None
 
     def add(self, path: Union[str, Path], action: Action) -> FileAction:
         """Append a `FileAction` to `files` and return it for chaining."""
@@ -110,7 +115,7 @@ class WriteResult:
         """Append a free-form note."""
         self.notes.append(message)
 
-    def mark_not_detected(self, message: str) -> None:
+    def mark_not_detected(self, message: str, evidence: Optional[str] = None) -> None:
         """Record a detection-gated skip: flag it AND append the note.
 
         Used by detection-gated integrations (Kimi/Qwen/OpenClaw/Windsurf/
@@ -120,6 +125,7 @@ class WriteResult:
         write as a successful install.
         """
         self.detected = False
+        self.evidence = evidence
         self.notes.append(message)
 
     def actions_by_kind(self) -> dict[str, int]:

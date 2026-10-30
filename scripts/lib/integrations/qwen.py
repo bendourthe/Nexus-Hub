@@ -113,7 +113,7 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
                 self.key, f"not detected ({detection.evidence}); skipping global Qwen surfaces"
             )
             result.mark_not_detected(
-                f"Qwen Code not detected ({detection.evidence}); global QWEN.md + skills skipped"
+                f"Qwen Code not detected ({detection.evidence}); global QWEN.md + skills skipped", evidence=detection.evidence
             )
             return result
         result.detected = True

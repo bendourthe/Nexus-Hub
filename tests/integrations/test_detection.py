@@ -339,3 +339,48 @@ def test_verify_agrees_with_install_gate(key: str, state: str, home: Path, tmp_p
     gate = detect_platform(_ctx(home, which=which), get(key)).detected
     labels = {label for label, _surfaces, _hint in runner._verify_checks(home, tmp_path / "project")}
     assert (_VERIFY_LABELS[key] in labels) is gate
+
+
+# ---------------------------------------------------------------------------
+# Explicit platforms and install-summary messages (Phase 4)
+# ---------------------------------------------------------------------------
+
+
+def _install(target: Path, keys: str, forced: str = "") -> dict:
+    summary = target / "summary.json"
+    args = _args(target)
+    args.integrations = keys
+    args.forced = forced
+    args.summary_json = str(summary)
+    assert runner.cmd_install(args) == 0
+    return json.loads(summary.read_text(encoding="utf-8"))
+
+
+def test_forced_platform_installs_and_is_recorded(tmp_path: Path) -> None:
+    target = tmp_path / "home"
+    target.mkdir()
+    payload = _install(target, "aider", forced="aider")
+    assert payload["platforms"][0]["detected"] is True
+    assert (target / ".aider.conf.yml").is_file()
+    manifest = InstallManifest.load(runner._manifest_path(target))
+    assert manifest.is_forced("aider")
+    # A later default install keeps the platform without the flag.
+    again = _install(target, "aider")
+    assert again["platforms"][0]["detected"] is True
+
+
+def test_forced_ignores_keys_outside_the_run(tmp_path: Path) -> None:
+    target = tmp_path / "home"
+    target.mkdir()
+    _install(target, "aider", forced="qwen")
+    manifest = InstallManifest.load(runner._manifest_path(target))
+    assert not manifest.is_forced("qwen") and not manifest.is_forced("aider")
+
+
+def test_summary_carries_evidence_and_remedy_when_not_detected(tmp_path: Path) -> None:
+    target = tmp_path / "home"
+    target.mkdir()
+    platform = _install(target, "aider")["platforms"][0]
+    assert platform["detected"] is False
+    assert platform["evidence"] == "aider not on PATH"
+    assert platform["remedy"] == "Install Aider, then run `nexus-hub upgrade`, or name it with --platforms aider."

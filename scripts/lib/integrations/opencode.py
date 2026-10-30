@@ -110,7 +110,7 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
             result = WriteResult()
             ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global OpenCode surfaces")
             result.mark_not_detected(
-                f"OpenCode not detected ({detection.evidence}); global AGENTS.md + skills + commands skipped"
+                f"OpenCode not detected ({detection.evidence}); global AGENTS.md + skills + commands skipped", evidence=detection.evidence
             )
             return result
         result = super().install_global(ctx)

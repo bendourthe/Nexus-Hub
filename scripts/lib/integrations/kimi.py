@@ -145,7 +145,7 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
                 self.key, f"not detected ({detection.evidence}); skipping global Kimi surfaces"
             )
             result.mark_not_detected(
-                f"Kimi Code CLI not detected ({detection.evidence}); global AGENTS.md + skills skipped"
+                f"Kimi Code CLI not detected ({detection.evidence}); global AGENTS.md + skills skipped", evidence=detection.evidence
             )
             return result
         result.detected = True

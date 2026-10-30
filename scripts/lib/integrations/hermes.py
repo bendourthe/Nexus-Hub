@@ -70,7 +70,7 @@ class HermesIntegration(SkillsIntegration):
         detection = detect_platform(ctx, self)
         if not detection.detected:
             ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global Hermes surfaces")
-            result.mark_not_detected(f"Hermes not detected ({detection.evidence}); global skills skipped")
+            result.mark_not_detected(f"Hermes not detected ({detection.evidence}); global skills skipped", evidence=detection.evidence)
             return result
         result.detected = True
         self._ensure_dir(hermes_root, ctx)

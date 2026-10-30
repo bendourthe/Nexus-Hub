@@ -163,7 +163,7 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
             result = WriteResult()
             ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping the Nexus-AI catalog")
             result.mark_not_detected(
-                f"Nexus AI Studio not detected ({detection.evidence}); ~/.nexus-ai/catalog skipped"
+                f"Nexus AI Studio not detected ({detection.evidence}); ~/.nexus-ai/catalog skipped", evidence=detection.evidence
             )
             return result
         result = super().install_global(ctx)

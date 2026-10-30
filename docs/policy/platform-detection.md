@@ -70,6 +70,12 @@ Every verdict carries a one-line reason that the install summary and `doctor` sh
 - `qwen not on PATH; ~/.qwen holds only Nexus-Hub files`
 - `hermes not on PATH; ~/.hermes is a redirected folder (not evaluated)`
 
+## Forcing and Install Output
+
+Naming a platform explicitly (`--platforms <key>` or `-Platforms <key>`) makes both installers pass `--forced <key>` to `runner.py install` on its global call. The runner sets `InstallContext.forced_keys` (only keys in the same run count) and, when the forced platform installs, records it in the manifest's `forced` map, so later default installs keep it and the stale-surface report never offers its files for removal. Forcing applies to the seven platforms gated by this rule; OpenClaw, Devin Desktop / Windsurf, and Copilot keep their own vendor-root checks.
+
+For a not-detected platform the runner's install summary carries `evidence` and a one-line `remedy` ("Install <tool>, then run `nexus-hub upgrade`, or name it with --platforms <key>."). The bash installer (`render_platform_from_summary`) and the PowerShell installer (`Resolve-UndetectedReason`) print both under NOT DETECTED; `tests/installer/test_detection_messages.py` pins that they print identical lines.
+
 ## Consumers
 
 | Consumer | Use |

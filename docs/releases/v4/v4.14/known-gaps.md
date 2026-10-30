@@ -3380,9 +3380,9 @@ None.
 
 **Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 2.3
 
-**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan; the cause (the real installer run on this host not producing Aider's config) is not yet diagnosed. Phase 3 gates Aider and Phase 4 adds the `--platforms` pass-through these tests rely on, so the final state must be re-checked.
+**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan. Diagnosis on 2026-10-30 from the sandbox's own `installer.log`: the Python the installer resolves on this host has no PyYAML, and the test sets `PIP_NO_INDEX=1`, so the installer prints `platform-defaults: PyYAML is not installed, so ... .aider.conf.yml was not seeded` and the assertion reads a file that was never written. It is a host precondition, not an installer or detection defect: in the same run the global PowerShell case recorded `forced: {'aider': True}` in the sandbox manifest, proving the Phase 4 `--platforms` pass-through end to end.
 
-**Suggested next step**: In Phase 7's full-suite gate, rerun the three cases after Phase 4, capture the installer's own output for the Aider block, and either fix the cause or record the host condition with evidence.
+**Suggested next step**: Confirm the three cases pass on the CI runners (which install PyYAML) in Phase 7's integration checks, and make the test skip with an explicit reason when the installer's resolved Python lacks PyYAML instead of failing on the missing file.
 
 #### DF-20 (v4.14.7): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
 

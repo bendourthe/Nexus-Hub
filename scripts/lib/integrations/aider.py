@@ -53,7 +53,7 @@ class AiderIntegration(MarkdownIntegration):
         detection = detect_platform(ctx, self)
         if not detection.detected:
             ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping ~/.aider.conf.yml")
-            result.mark_not_detected(f"Aider not detected ({detection.evidence}); ~/.aider.conf.yml skipped")
+            result.mark_not_detected(f"Aider not detected ({detection.evidence}); ~/.aider.conf.yml skipped", evidence=detection.evidence)
             return result
         result.detected = True
         self._attribution_config(ctx.global_root, ctx, result)
