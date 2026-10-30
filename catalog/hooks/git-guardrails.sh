@@ -259,8 +259,14 @@ bypass_mode_on() {
   content=${content#"$bom"}
   content=${content//$'\r'/}
   if command -v jq >/dev/null 2>&1; then
-    verdict=$(printf '%s' "$content" | jq -r 'if type == "object" then (.block_git_bypass_flags == true | tostring) else "invalid" end' 2>/dev/null || true)
-    verdict=${verdict//$'\r'/}
+    # jq reads a stream of JSON values, so `{...} trailing` yields a verdict for the first
+    # value before failing on the rest. Slurp the file as one document and treat any jq
+    # failure as malformed, as the python and .ps1 parsers do.
+    if verdict=$(printf '%s' "$content" | jq -rs 'if length == 1 and (.[0] | type) == "object" then (.[0].block_git_bypass_flags == true | tostring) else "invalid" end' 2>/dev/null); then
+      verdict=${verdict//$'\r'/}
+    else
+      verdict=invalid
+    fi
   else
     # No jq: let a real JSON parser validate the file, so a malformed one warns as the
     # .ps1 does. A missing interpreter, or one that is not a working Python (the Windows
