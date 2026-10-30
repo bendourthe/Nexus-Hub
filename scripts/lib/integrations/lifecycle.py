@@ -260,6 +260,33 @@ def stale_report_lines(ctx: InstallContext, integrations) -> List[str]:
     return lines
 
 
+def legacy_report_lines(home: Path, verdicts=None) -> List[str]:
+    """Obsolete ~/.agent and home-root ~/.opencode trees (v4.14.7 Phase 6). Read-only.
+
+    A tree whose every file is recognized Nexus-Hub output is reported as
+    removable with `nexus-hub prune-undetected --yes`; any other tree is kept,
+    with up to ten of its unrecognized entries named.
+    """
+    from .legacy import classify_legacy_layout, load_layout_fingerprints
+
+    if verdicts is None:
+        doc = load_layout_fingerprints()
+        if doc is None:
+            return []
+        verdicts = [classify_legacy_layout(home, layout, doc) for layout in sorted(doc["layouts"])]
+    lines: List[str] = []
+    for verdict in verdicts:
+        if verdict.status == "absent":
+            continue
+        label = "removable" if verdict.status == "removable" else "legacy layout, not removed"
+        lines.append(f"  - {verdict.root}: {label} ({verdict.reason})")
+        for item in verdict.unrecognized[:10]:
+            lines.append(f"      unrecognized: {item}")
+    if lines:
+        lines.insert(0, "[doctor] obsolete Nexus-Hub layouts:")
+    return lines
+
+
 __all__ = [
     "DIAGNOSTIC_OK",
     "DIAGNOSTIC_MISSING",
@@ -269,6 +296,7 @@ __all__ = [
     "DoctorFinding",
     "DoctorReport",
     "doctor",
+    "legacy_report_lines",
     "list_installed",
     "render_stale",
     "repair",

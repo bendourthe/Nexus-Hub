@@ -46,6 +46,7 @@ from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_UNKNOWN,
     DoctorReport,
     doctor as lifecycle_doctor,
+    legacy_report_lines,
     list_installed as lifecycle_list_installed,
     render_stale,
     repair as lifecycle_repair,
@@ -1019,6 +1020,38 @@ def _report_stale(home: Path, requested: Optional[List[str]] = None) -> None:
     manifest = InstallManifest.load(_manifest_path(home))
     for line in stale_report_lines(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested)):
         print(line)
+    for line in legacy_report_lines(home):
+        print(line)
+
+
+def _prune_legacy(home: Path, apply: bool) -> bool:
+    """Report obsolete layout trees; with ``apply``, remove the fully recognized ones."""
+    from scripts.lib.integrations.legacy import (
+        classify_legacy_layout,
+        load_layout_fingerprints,
+        remove_legacy_layout,
+    )
+
+    doc = load_layout_fingerprints()
+    if doc is None:
+        print("[prune] obsolete-layout fingerprints unavailable; ~/.agent and ~/.opencode not evaluated")
+        return False
+    verdicts = [classify_legacy_layout(home, layout, doc) for layout in sorted(doc["layouts"])]
+    for line in legacy_report_lines(home, verdicts)[1:]:
+        print(line)
+    found = any(v.status != "absent" for v in verdicts)
+    if apply:
+        for verdict in verdicts:
+            actions = remove_legacy_layout(verdict, dry_run=False)
+            if not actions:
+                continue
+            removed = sum(1 for a in actions if a.action == "removed")
+            kept = [a for a in actions if a.action == "kept"]
+            state = "partial" if kept else "removed"
+            print(f"    {verdict.root}: {state} ({removed} item(s) removed)")
+            for action in kept[:10]:
+                print(f"      kept: {action.path} ({action.reason})")
+    return found
 
 
 def cmd_prune_undetected(args: argparse.Namespace) -> int:
@@ -1056,7 +1089,9 @@ def cmd_prune_undetected(args: argparse.Namespace) -> int:
                         print(f"    kept: {f.path} ({f.reason})")
         if args.yes or unforced:
             manifest.save(manifest_path)
-    if stale and not args.yes:
+    # v4.14.7 Phase 6: obsolete ~/.agent and home-root ~/.opencode trees.
+    legacy = _prune_legacy(home, args.yes)
+    if (stale or legacy) and not args.yes:
         print("Dry run: nothing was removed. Re-run with --yes to remove the items marked to remove or trim.")
     return 0
 

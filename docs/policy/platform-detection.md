@@ -94,6 +94,10 @@ The engine is `scripts/lib/integrations/_stale.py`. It never calls `shutil.rmtre
 
 Removed paths are untracked and their action records dropped; records for kept files remain.
 
+### Obsolete Layouts
+
+The same command evaluates two home-folder layouts no installer writes any more: `~/.agent` (Antigravity 1.0, until v2.3.0) and the home-root `~/.opencode` (OpenCode's global folder until v3.14.5). `scripts/lib/integrations/legacy.py` classifies each tree against `scripts/lib/installer/legacy_layout_fingerprints.json`, which `scripts/build_legacy_layout_fingerprints.py` builds from git history (verbatim catalog copies in LF and CRLF form, flattened skill paths, and command-skills reproduced with that period's own generator); a rendered `AGENTS.md` is recognized line by line against `legacy_fingerprints.json`. A tree is removed only when every entry is recognized; an edited file, a foreign folder (for example OpenCode's own `node_modules/`), an empty or unreadable entry, or a link keeps the whole tree, and `doctor` names up to ten unrecognized entries. Removal re-checks each file right before unlinking it, stops on a change, and removes folders with `rmdir` only. Nothing is evaluated when the fingerprint set is missing.
+
 ## Consumers
 
 | Consumer | Use |

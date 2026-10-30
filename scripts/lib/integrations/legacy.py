@@ -30,9 +30,12 @@ Design notes
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import shutil
 import subprocess
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
@@ -266,4 +269,190 @@ def run_cleanups(integration_key: str, ctx: InstallContext) -> List[FileAction]:
     return actions
 
 
-__all__ = ["CleanupFn", "LEGACY_CLEANUPS", "run_cleanups"]
+# ---------------------------------------------------------------------------
+# v4.14.7 Phase 6: obsolete home-folder layouts (~/.agent, home-root ~/.opencode)
+#
+# Unlike the cleanups above, these never run during an install. A layout tree is
+# classified file by file against `legacy_layout_fingerprints.json` (built from
+# git history by scripts/build_legacy_layout_fingerprints.py) and removed only by
+# `nexus-hub prune-undetected --yes`, and only when EVERY entry is recognized
+# Nexus-Hub output (decision D4). Anything else keeps the whole tree.
+# ---------------------------------------------------------------------------
+
+LAYOUT_FINGERPRINTS = Path(__file__).resolve().parents[1] / "installer" / "legacy_layout_fingerprints.json"
+LAYOUT_SCHEMA = 1
+
+
+@dataclass
+class LegacyLayoutVerdict:
+    """The classification of one obsolete layout tree under a home folder.
+
+    ``status`` is ``absent`` (no tree), ``removable`` (every entry recognized),
+    ``kept`` (at least one unrecognized entry, or nothing recognized), or
+    ``unavailable`` (the fingerprint set could not be read).
+    """
+
+    layout: str
+    root: Path
+    status: str
+    reason: str = ""
+    recognized: List[Path] = field(default_factory=list)
+    unrecognized: List[str] = field(default_factory=list)
+    snapshot: Dict[str, tuple] = field(default_factory=dict)
+
+
+def load_layout_fingerprints(path: Optional[Path] = None) -> Optional[dict]:
+    """The committed layout set, or None when missing, unreadable, or of another schema."""
+    try:
+        doc = json.loads((path or LAYOUT_FINGERPRINTS).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(doc, dict) or doc.get("schema") != LAYOUT_SCHEMA or not isinstance(doc.get("layouts"), dict):
+        return None
+    return doc
+
+
+def _rendered_matches(path: Path, lines: Optional[set]) -> bool:
+    """A rendered instruction file: every non-blank line was shipped by Nexus-Hub."""
+    if not lines:
+        return False
+    from scripts.lib.installer.legacy_instruction_block import line_hash
+
+    try:
+        text = path.read_bytes().decode("utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    content = [line for line in text.splitlines() if line.strip()]
+    return bool(content) and all(line_hash(line) in lines for line in content)
+
+
+def classify_legacy_layout(home: Path, layout: str, fingerprints: Optional[dict] = None) -> LegacyLayoutVerdict:
+    """Classify one obsolete layout tree under ``home``. Read-only and fail-closed."""
+    from .base import long_path
+
+    doc = fingerprints if fingerprints is not None else load_layout_fingerprints()
+    spec = (doc or {}).get("layouts", {}).get(layout)
+    if not spec:
+        return LegacyLayoutVerdict(layout, Path(home), "unavailable", "fingerprint set unavailable; nothing evaluated")
+    root = Path(home) / str(spec["root"])
+    verdict = LegacyLayoutVerdict(layout, root, "kept")
+    if not os.path.lexists(long_path(root)):
+        verdict.status = "absent"
+        return verdict
+    from ._owned import _is_junction, _is_symlink
+
+    if _is_symlink(root) or _is_junction(root) or not root.is_dir():
+        verdict.unrecognized.append(".")
+        verdict.reason = "the folder is a link or not a folder"
+        return verdict
+    files: Dict[str, set] = {path: set(hashes) for path, hashes in spec.get("files", {}).items()}
+    rendered = set(spec.get("rendered", ()))
+    folders = {"/".join(p.split("/")[:i]) for p in list(files) + list(rendered) for i in range(1, p.count("/") + 1)}
+    from scripts.lib.installer.legacy_instruction_block import load_fingerprints
+
+    line_set = load_fingerprints() if rendered else None
+    stack = [(root, "")]
+    while stack:
+        folder, prefix = stack.pop()
+        try:
+            entries = list(os.scandir(long_path(folder)))
+        except OSError:
+            verdict.unrecognized.append((prefix or ".") + " (unreadable)")
+            continue
+        for entry in entries:
+            rel = f"{prefix}{entry.name}"
+            path = folder / entry.name
+            if _is_symlink(path) or _is_junction(path):
+                verdict.unrecognized.append(rel + " (link)")
+            elif entry.is_dir(follow_symlinks=False):
+                if rel in folders:
+                    stack.append((path, rel + "/"))
+                else:
+                    verdict.unrecognized.append(rel + "/")
+            elif entry.is_file(follow_symlinks=False):
+                info = entry.stat(follow_symlinks=False)
+                if info.st_size == 0:
+                    verdict.unrecognized.append(rel + " (empty file)")
+                elif rel in rendered and _rendered_matches(path, line_set):
+                    verdict.recognized.append(path)
+                elif rel in files and _sha256_file(path) in files[rel]:
+                    verdict.recognized.append(path)
+                else:
+                    verdict.unrecognized.append(rel)
+                if verdict.recognized and verdict.recognized[-1] == path:
+                    # os.lstat, not the scandir entry: on Windows the entry
+                    # reports st_ino as 0, which never matches the re-check.
+                    real = os.lstat(long_path(path))
+                    verdict.snapshot[str(path)] = (real.st_size, real.st_mtime, real.st_ino)
+            else:
+                verdict.unrecognized.append(rel + " (not a regular file)")
+    if verdict.unrecognized:
+        verdict.reason = f"{len(verdict.unrecognized)} entries are not recognized Nexus-Hub output"
+    elif not verdict.recognized:
+        verdict.reason = "holds no recognized Nexus-Hub file"
+    else:
+        verdict.status = "removable"
+        verdict.reason = f"all {len(verdict.recognized)} files are unchanged Nexus-Hub output"
+    return verdict
+
+
+def _sha256_file(path: Path) -> Optional[str]:
+    from .base import long_path
+
+    try:
+        return hashlib.sha256(long_path(path).read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def remove_legacy_layout(verdict: LegacyLayoutVerdict, dry_run: bool) -> List[FileAction]:
+    """Remove a ``removable`` tree file by file; never ``rmtree``.
+
+    Each file is re-checked (size, mtime, inode) right before it is unlinked; a
+    change stops the removal and leaves the rest. Folders are removed bottom-up
+    with ``rmdir``, so a file that appears after classification keeps its folder
+    and the result is reported as partial.
+    """
+    from .base import long_path
+
+    if verdict.status != "removable":
+        return []
+    actions: List[FileAction] = []
+    for path in verdict.recognized:
+        try:
+            info = os.lstat(long_path(path))
+        except OSError:
+            continue
+        if (info.st_size, info.st_mtime, info.st_ino) != verdict.snapshot.get(str(path)):
+            actions.append(FileAction(path=str(path), action="kept", reason="changed during removal; stopped"))
+            return actions
+        if not dry_run:
+            long_path(path).unlink()
+        actions.append(FileAction(path=str(path), action="removed"))
+    folders = sorted({p.parent for p in verdict.recognized} | {verdict.root}, key=lambda p: len(str(p)), reverse=True)
+    extra = set()
+    for path in verdict.recognized:
+        parent = path.parent
+        while parent != verdict.root and verdict.root in parent.parents:
+            extra.add(parent)
+            parent = parent.parent
+    for folder in sorted(set(folders) | extra, key=lambda p: len(str(p)), reverse=True):
+        if dry_run:
+            continue
+        try:
+            long_path(folder).rmdir()
+            actions.append(FileAction(path=str(folder), action="removed"))
+        except OSError:
+            actions.append(FileAction(path=str(folder), action="kept", reason="not empty; partial removal"))
+    return actions
+
+
+__all__ = [
+    "CleanupFn",
+    "LEGACY_CLEANUPS",
+    "LegacyLayoutVerdict",
+    "classify_legacy_layout",
+    "load_layout_fingerprints",
+    "remove_legacy_layout",
+    "run_cleanups",
+]

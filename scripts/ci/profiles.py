@@ -171,7 +171,13 @@ HYGIENE = Group(
 # fetch-depth 0 for the attribution check).
 LEGACY_FINGERPRINTS = Group(
     name="legacy-fingerprints",
-    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+    commands=(
+        _py("build_legacy_fingerprints", "--check", timeout=120),
+        # v4.14.7: every file Nexus-Hub wrote into the obsolete ~/.agent and
+        # home-root ~/.opencode layouts. Its source ranges are closed history,
+        # so it drifts only if the builder itself changes.
+        _py("build_legacy_layout_fingerprints", "--check", timeout=120),
+    ),
 )
 
 CATALOG = Group(

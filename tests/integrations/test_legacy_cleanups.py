@@ -450,3 +450,174 @@ def test_auth_monitor_leftover_absent_returns_none(
     ctx = _make_ctx(tmp_path, tmp_path)
     assert legacy._cleanup_devai_hub_auth_monitor_vbs(ctx) is None
     assert legacy._cleanup_devai_hub_auth_monitor_ps1(ctx) is None
+
+
+# ---------------------------------------------------------------------------
+# v4.14.7 Phase 6: obsolete ~/.agent and home-root ~/.opencode layouts
+# ---------------------------------------------------------------------------
+
+import hashlib as _hashlib
+import os as _os
+import shutil as _shutil
+import subprocess as _subprocess
+
+
+def _doc(files: dict, rendered=()) -> dict:
+    """A synthetic fingerprint set for layout "agent" rooted at ~/.agent."""
+    return {
+        "schema": 1,
+        "layouts": {
+            "agent": {
+                "root": ".agent",
+                "rendered": list(rendered),
+                "files": {path: [_hashlib.sha256(body).hexdigest()] for path, body in files.items()},
+            }
+        },
+    }
+
+
+_FILES = {"skills/dev/demo/SKILL.md": b"demo skill\n", "workflows/plan.md": b"plan command\n"}
+
+
+def _plant(home: Path, files: dict = _FILES) -> Path:
+    root = home / ".agent"
+    for rel, body in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(body)
+    return root
+
+
+def test_exact_legacy_tree_is_removed_only_when_asked(tmp_path: Path) -> None:
+    root = _plant(tmp_path)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    assert verdict.status == "removable" and len(verdict.recognized) == 2
+    assert legacy.remove_legacy_layout(verdict, dry_run=True) and root.is_dir()
+    actions = legacy.remove_legacy_layout(verdict, dry_run=False)
+    assert not root.exists()
+    assert not any(a.action == "kept" for a in actions)
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"workflows/plan.md": b"plan command, edited by me\n"},  # one edited file
+        {"node_modules/pkg/index.js": b"module.exports = 1\n"},  # a foreign folder
+        {"workflows/empty.md": b""},  # a zero-byte file
+    ],
+)
+def test_one_unrecognized_entry_keeps_the_whole_tree(tmp_path: Path, extra: dict) -> None:
+    root = _plant(tmp_path, {**_FILES, **extra})
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    assert verdict.status == "kept" and verdict.unrecognized
+    assert legacy.remove_legacy_layout(verdict, dry_run=False) == []
+    assert all((root / rel).exists() for rel in {**_FILES, **extra})
+
+
+def test_empty_tree_is_kept(tmp_path: Path) -> None:
+    (tmp_path / ".agent" / "skills").mkdir(parents=True)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    assert verdict.status == "kept" and verdict.reason == "holds no recognized Nexus-Hub file"
+
+
+def test_unreadable_folder_keeps_the_tree(tmp_path: Path, monkeypatch) -> None:
+    _plant(tmp_path)
+    real = _os.scandir
+
+    def scandir(path):
+        if str(path).replace("\\", "/").endswith("/workflows"):
+            raise PermissionError("denied")
+        return real(path)
+
+    monkeypatch.setattr(legacy.os, "scandir", scandir)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    assert verdict.status == "kept"
+    assert any("unreadable" in item for item in verdict.unrecognized)
+
+
+def test_missing_fingerprint_set_evaluates_nothing(tmp_path: Path, monkeypatch) -> None:
+    _plant(tmp_path)
+    monkeypatch.setattr(legacy, "LAYOUT_FINGERPRINTS", tmp_path / "missing.json")
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent")
+    assert verdict.status == "unavailable"
+    assert legacy.remove_legacy_layout(verdict, dry_run=False) == []
+
+
+def test_redirected_layout_is_kept(tmp_path: Path) -> None:
+    real = tmp_path / "elsewhere"
+    _plant(real)
+    home = tmp_path / "home"
+    home.mkdir()
+    link = home / ".agent"
+    try:
+        link.symlink_to(real / ".agent", target_is_directory=True)
+    except (OSError, NotImplementedError):
+        if _os.name != "nt":
+            pytest.skip("symlink creation is not permitted on this host")
+        import _winapi
+
+        _winapi.CreateJunction(str(real / ".agent"), str(link))
+    verdict = legacy.classify_legacy_layout(home, "agent", _doc(_FILES))
+    assert verdict.status == "kept" and verdict.reason == "the folder is a link or not a folder"
+
+
+def test_a_file_added_after_classification_makes_removal_partial(tmp_path: Path) -> None:
+    root = _plant(tmp_path)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    (root / "workflows" / "new.md").write_text("arrived later", encoding="utf-8")
+    actions = legacy.remove_legacy_layout(verdict, dry_run=False)
+    assert (root / "workflows" / "new.md").is_file()
+    assert any(a.action == "kept" and "partial" in (a.reason or "") for a in actions)
+
+
+def test_a_file_changed_after_classification_stops_removal(tmp_path: Path) -> None:
+    root = _plant(tmp_path)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    target = verdict.recognized[0]
+    target.write_bytes(b"changed in between, longer than before\n")
+    actions = legacy.remove_legacy_layout(verdict, dry_run=False)
+    assert target.is_file()
+    assert any(a.action == "kept" and "stopped" in (a.reason or "") for a in actions)
+
+
+def test_rendered_instruction_file_is_recognized_line_by_line(tmp_path: Path, monkeypatch) -> None:
+    from scripts.lib.installer import legacy_instruction_block as lib
+
+    text = "# Nexus-Hub\n\nUse the skills.\n"
+    root = _plant(tmp_path)
+    (root / "AGENTS.md").write_text(text, encoding="utf-8")
+    monkeypatch.setattr(lib, "load_fingerprints", lambda path=None: {lib.line_hash(l) for l in text.splitlines() if l.strip()})
+    assert legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES, rendered=("AGENTS.md",))).status == "removable"
+    (root / "AGENTS.md").write_text(text + "My own rule.\n", encoding="utf-8")
+    assert legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES, rendered=("AGENTS.md",))).status == "kept"
+
+
+def _git_show(spec: str) -> bytes | None:
+    git = _shutil.which("git")
+    if not git:
+        return None
+    repo = Path(__file__).resolve().parents[2]
+    proc = _subprocess.run(
+        [git, "-C", str(repo), "show", spec], capture_output=True, check=False,
+        stdin=_subprocess.DEVNULL, creationflags=getattr(_subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    return proc.stdout if proc.returncode == 0 else None
+
+
+def test_committed_fingerprints_recognize_a_real_historical_tree(tmp_path: Path, capsys) -> None:
+    """A workflow file exactly as the last ~/.agent installer copied it is removable,
+    end to end through `prune-undetected --yes`."""
+    body = _git_show("20a73607d^:catalog/commands/implement-phase.md")
+    if body is None:
+        pytest.skip("repository history is not available (shallow clone)")
+    root = tmp_path / ".agent" / "workflows"
+    root.mkdir(parents=True)
+    (root / "implement-phase.md").write_bytes(body)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent")
+    assert verdict.status == "removable", verdict.unrecognized
+    from scripts.lib.integrations import runner
+    import argparse
+
+    runner.cmd_prune_undetected(argparse.Namespace(target=str(tmp_path), integrations=None, yes=True, unforce=""))
+    assert not (tmp_path / ".agent").exists()
+    assert "removed" in capsys.readouterr().out
