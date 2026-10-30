@@ -850,12 +850,8 @@ def test_git_guardrails_is_registered_exactly_once_for_bash() -> None:
     assert len(_entries_matching("Bash")) == 1
 
 
-# Needs the catalog/hooks/settings.json registration change (protected path, delivered as a
-# separate reviewed patch). Non-strict: it reports XPASS once the registration lands.
-@pytest.mark.xfail(
-    strict=False,
-    reason="needs the git-guardrails PowerShell-tool registration in catalog/hooks/settings.json",
-)
+# The registration lives in catalog/hooks/settings.json, a path run members may not write; it
+# landed through its own pull request (#551).
 def test_git_guardrails_is_registered_exactly_once_for_the_powershell_tool() -> None:
     assert len(_entries_matching("PowerShell")) == 1
     entry = _entries_matching("PowerShell")[0]

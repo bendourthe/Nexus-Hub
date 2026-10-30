@@ -3358,3 +3358,46 @@ None.
 - **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before publication.
 - **Resolution**: the roster amendment merged to develop as PR #540 and a timing-dependent hook test found during qualification was fixed by PR #541; Chromium build 1243 was installed for `tests/skills`; the hook and governance suites ran without the per-command cap. The composite local qualification is recorded under `## Full-suite testing and stabilization` in [v4.14.3 last-phase evidence](development/v4.14.3-last-phase-evidence.md), green on final tree `8f0e6f313`.
 - **Remaining boundary**: the integration pull request's required checks are the remote validation of the merge result; they are recorded in the same file under `## Publication and integration`.
+
+## v4.14.4
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 1 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None.
+
+### Resolved
+
+#### DF-20: Register git-guardrails for the PowerShell tool in catalog/hooks/settings.json
+
+**Source phase**: v4.14.4 Phase 4 T013
+
+**Plan reference**: [v4.14.4 plan](plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md), DoD 6
+
+**Reason**: `catalog/hooks/settings.json` is a protected path that no run member may write, so the member prepared the one-line registration change as a reviewed patch instead of committing it.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.4 publication.
+- **Resolution**: PR #551, merged to develop as `8a30bc7fbd669a3d47774cddd54022f93c9a1195`, changes the git-guardrails entry's matcher from `Bash` to `Bash|PowerShell`, the form the console-window guard already uses. The member branch took it through a develop merge, and `test_git_guardrails_is_registered_exactly_once_for_the_powershell_tool` now passes without its `xfail` marker.
+- **Remaining boundary**: a live Claude Code PowerShell-tool payload is listed as a manual testing suggestion in `development/v4.14.4-last-phase-evidence.md`.
+
+#### MT-14: lint-repair-loop did not link back to review-trapdoors
+
+**Source phase**: v4.14.4 Phase 3 T009
+
+**Plan reference**: [v4.14.4 plan](plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md)
+
+**Reason**: The detectable-trapdoor-promotion ownership row set `names_owner=False` because `lint-repair-loop/SKILL.md` was outside the member's claims and did not name `[[review-trapdoors]]`, so the row proved no restatement but not the handoff.
+
+- **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.4 publication.
+- **Resolution**: PR #552 adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, and the member's ownership row now uses the default `names_owner=True`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
+- **Remaining boundary**: none.
