@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.4] - 2026-10-30
+
 ### Added
 
 - **A gate that cannot judge the work now reports UNGATED, never a pass.** `quality-gate-definitions` adds the outcome with the precedence FAIL (blocking) > FAIL (fixable) > UNGATED > PARTIAL > PASS, seven fixed reason categories (`no-criteria`, `not-measured`, `zero-denominator`, `no-judgment`, `too-few-trials`, `tool-missing`, `timeout`), and a regression note when a criterion an earlier run measured goes unmeasured. After an UNGATED outcome or a FAIL that used up its retries, the agent shows a short plain-words message with two choices (try again, or record a known gap); after two further failed attempts, or immediately on an unattended run, it records the gap with the cause and what would resolve it. Only the user accepts a gap interactively. `/implement`'s troubleshooting loop hands off to this flow.
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The platform read-contract records the 2026-10-30 re-verification for v4.14.4 over the same 75 rows as v4.14.3: 58 MATCH, 12 DRIFT and 5 UNVERIFIED. Every earlier finding still holds. Two new Devin Desktop / Windsurf rows are unconfirmed: the current docs name `.devin/hooks.v1.json` and `~/.devin/global_rules.md` and no longer mention the `.windsurf/hooks.json`, `~/.codeium/windsurf/hooks.json` and `~/.codeium/windsurf/memories/global_rules.md` paths Nexus-Hub writes. A live check on a Devin Desktop install is the follow-up; nothing Nexus-Hub installs changes in this release.
 - **`git-guardrails` now runs for the PowerShell tool as well as Bash.** Every existing block (force push, hard reset, `core.hooksPath` and `core.fsmonitor` redirection, the protected-branch guard) applies when an agent runs git through the PowerShell tool. The registration is one `Bash|PowerShell` entry in `catalog/hooks/settings.json`, so the hook runs once per call (#551).
 - **The `core.hooksPath` and `core.fsmonitor` checks match the key in any letter case**, as git reads config keys case-insensitively.
 
