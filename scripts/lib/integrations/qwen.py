@@ -63,6 +63,8 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
             "executables": ["qwen"],
             "root": ".qwen",
             "nexus_entries": ["QWEN.md", "skills", "agents", "commands", "hooks", "settings.json"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".qwen/settings.json": "settings-hooks"},
         },
         # Global surfaces live under ~/.qwen, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.

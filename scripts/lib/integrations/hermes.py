@@ -42,6 +42,8 @@ class HermesIntegration(SkillsIntegration):
             "corroborate": {"hermes": ["hermes-agent", "/hermes/bin", "\\hermes\\bin"]},
             "root": ".hermes",
             "nexus_entries": ["skills", "config.yaml"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".hermes/config.yaml": ""},
             "app_paths": {"win32": ["%LOCALAPPDATA%/hermes/hermes-agent"]},
         },
         # Global skills live under ~/.hermes, written by install_global below

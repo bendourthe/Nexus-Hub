@@ -76,6 +76,24 @@ Naming a platform explicitly (`--platforms <key>` or `-Platforms <key>`) makes b
 
 For a not-detected platform the runner's install summary carries `evidence` and a one-line `remedy` ("Install <tool>, then run `nexus-hub upgrade`, or name it with --platforms <key>."). The bash installer (`render_platform_from_summary`) and the PowerShell installer (`Resolve-UndetectedReason`) print both under NOT DETECTED; `tests/installer/test_detection_messages.py` pins that they print identical lines.
 
+## Stale Surfaces and Removal
+
+A platform is **stale** when it declares a detection spec, is not detected, was not forced, its home folder is not redirected, and the install manifest still lists entries for it. `nexus-hub doctor` lists stale platforms (text output) and the install summary appends a pointer to the one-line remedy. `nexus-hub prune-undetected` previews; `--yes` removes; `--unforce <keys>` first clears an explicit `--platforms` choice; `--integrations <keys>` narrows the run.
+
+The engine is `scripts/lib/integrations/_stale.py`. It never calls `shutil.rmtree`, takes the allowed folders from the integration's spec (never from the manifest), re-runs detection immediately before removing, and re-checks each file's size and modification time immediately before unlinking it.
+
+| Entry | Verdict |
+|---|---|
+| Tracked file with a recorded hash | Removed only when the current hash matches; otherwise kept ("you changed it after install") |
+| File inside a tracked folder (no per-file hash is recorded) | Removed only when not modified after the folder was recorded (two-second slack); files changed or added later are kept |
+| Shared instruction file | Only the Nexus-Hub marker block is removed |
+| Declared merged settings (`shared_configs` with a pruner: Kimi `config.toml`, Qwen `settings.json`) | Only Nexus-Hub's hook entries are removed; the user's settings stay |
+| Declared seeded settings (`shared_configs` without a pruner: Hermes `config.yaml`, Pi `settings.json`, `~/.aider.conf.yml`) | Kept, reported |
+| `*.nexus-hub.bak`, links (symlink, junction, hard link), unreadable folders, paths outside the platform's folder | Kept, reported |
+| Folder left empty | Removed bottom-up with `rmdir` |
+
+Removed paths are untracked and their action records dropped; records for kept files remain.
+
 ## Consumers
 
 | Consumer | Use |

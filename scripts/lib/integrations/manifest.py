@@ -212,6 +212,18 @@ class InstallManifest:
             f"[{integration_key}] record-actions: {len(captured)} entries"
         )
 
+    def retain_actions(self, integration_key: str, keep) -> None:
+        """Keep only the action records ``keep(record)`` accepts (v4.14.7).
+
+        Used after stale-surface removal so records survive for the files that
+        were kept and disappear for the files that were removed.
+        """
+        kept = [r for r in self._actions.get(integration_key, []) if keep(r)]
+        if kept:
+            self._actions[integration_key] = kept
+        else:
+            self._actions.pop(integration_key, None)
+
     def actions_for(self, integration_key: str) -> List[Dict[str, object]]:
         """Return the recorded action entries for `integration_key`."""
         return list(self._actions.get(integration_key, []))

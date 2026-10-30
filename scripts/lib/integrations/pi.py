@@ -79,6 +79,8 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
             "executables": ["pi"],
             "root": ".pi/agent",
             "nexus_entries": ["AGENTS.md", "skills", "prompts", "settings.json"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".pi/agent/settings.json": ""},
         },
         # Global surfaces live under ~/.pi/agent, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.

@@ -31,6 +31,8 @@ class AiderIntegration(MarkdownIntegration):
         # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["aider"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".aider.conf.yml": ""},
         },
         "global_dir": None,
         # CONVENTIONS.md lands at the project root (where Aider reads it), so the

@@ -77,6 +77,8 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
             "executables": ["kimi"],
             "root": ".kimi-code",
             "nexus_entries": ["AGENTS.md", "skills", "agents", "hooks", "config.toml"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".kimi-code/config.toml": "kimi-config-hooks"},
         },
         # Global surfaces live under ~/.kimi-code, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.

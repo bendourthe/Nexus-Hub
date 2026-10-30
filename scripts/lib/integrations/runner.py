@@ -38,6 +38,7 @@ install_no_window_default()
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
 from scripts.lib.integrations._detection import detect_platform, detection_spec  # noqa: E402
+from scripts.lib.integrations._stale import KEEP, REMOVE, STRIP, apply_platform, find_stale  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_DRIFTED,
     DIAGNOSTIC_MISSING,
@@ -602,6 +603,14 @@ def _cmd_install(args: argparse.Namespace) -> int:
     # and suppressed under --quiet), so the installer can render its
     # per-platform checklist even when it runs us quietly.
     summaries: List[dict] = [_build_platform_summary(k, i, r) for k, i, r in installed]
+    # v4.14.7 Phase 5: a skipped platform that still has Nexus-Hub files on disk
+    # gets a pointer to the opt-in removal in its one-line remedy.
+    for entry in summaries:
+        key = entry.get("platform")
+        if entry.get("detected") is False and entry.get("remedy") and (
+            manifest.files_for(key) or manifest.shared_for(key) or manifest.actions_for(key)
+        ):
+            entry["remedy"] += " Old Nexus-Hub files remain: review them with `nexus-hub prune-undetected`."
     # Opt-in structured summary channel (v3.14.5 Phase 1). Written regardless of
     # --quiet and of --dry-run (a dry-run summary reflects what WOULD install).
     summary_path = getattr(args, "summary_json", None)
@@ -967,8 +976,101 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     manifest = InstallManifest.load(manifest_path)
     report = lifecycle_doctor(manifest, requested)
     _render_doctor_report(report, args.json, args.quiet, settings_notes)
+    if not args.json and not args.quiet:
+        # Stale surfaces are a global concept: evaluate the home folder unless
+        # an explicit --target names another one.
+        _report_stale(Path(args.target).expanduser().resolve() if args.target else Path.home(), requested)
     _report_selector_drift(manifest, args)
     return 1 if report.has_issues() else 0
+
+
+def _stale_ctx(home: Path, manifest: InstallManifest, dry_run: bool) -> InstallContext:
+    return InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=home,
+        scope="global",
+        explicit_target=True,
+        dry_run=dry_run,
+        manifest=manifest,
+    )
+
+
+def _stale_integrations(requested: Optional[List[str]]) -> list:
+    keys = requested or list_keys()
+    out = []
+    for key in keys:
+        try:
+            out.append(get(key))
+        except KeyError:
+            continue
+    return out
+
+
+def _render_stale(stale) -> None:
+    """Print one platform's plan: what is removed, trimmed, and kept, and why."""
+    counts = stale.counts()
+    print(f"  - {stale.display_name}: not detected ({stale.evidence})")
+    print(
+        f"    {counts.get(REMOVE, 0)} to remove, {counts.get(STRIP, 0)} to trim, "
+        f"{counts.get(KEEP, 0)} kept for your review, under {stale.root}"
+    )
+    shown = 0
+    for entry in stale.entries:
+        if entry.verdict in (KEEP, STRIP) and shown < 20:
+            print(f"      {entry.verdict}: {entry.path} ({entry.reason})")
+            shown += 1
+
+
+def _report_stale(home: Path, requested: Optional[List[str]] = None) -> None:
+    """Doctor's stale-surface section (v4.14.7 Phase 5). Read-only."""
+    manifest = InstallManifest.load(_manifest_path(home))
+    stale = find_stale(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested))
+    if not stale:
+        return
+    print("[doctor] stale Nexus-Hub surfaces for tools that are not installed:")
+    for platform in stale:
+        _render_stale(platform)
+    print("  Preview or remove them with `nexus-hub prune-undetected` (add --yes to remove).")
+
+
+def cmd_prune_undetected(args: argparse.Namespace) -> int:
+    """Remove Nexus-Hub files left for tools that are not installed (v4.14.7).
+
+    A dry run unless --yes. Never deletes a file the user changed, a settings
+    file, a backup, a link, or anything outside the platform's own folder.
+    --unforce clears an explicit --platforms choice first, so that platform is
+    evaluated like any other.
+    """
+    home = Path(args.target).expanduser().resolve() if args.target else Path.home()
+    manifest_path = _manifest_path(home)
+    with manifest_lock(manifest_path):
+        manifest = InstallManifest.load(manifest_path)
+        unforced = [k.strip() for k in (args.unforce or "").split(",") if k.strip()]
+        for key in unforced:
+            if manifest.is_forced(key):
+                manifest.clear_forced(key)
+                print(f"[unforce] {key}: the explicit --platforms choice is cleared")
+        requested = [k.strip() for k in args.integrations.split(",") if k.strip()] if args.integrations else None
+        ctx = _stale_ctx(home, manifest, dry_run=not args.yes)
+        stale = find_stale(ctx, _stale_integrations(requested))
+        if not stale:
+            print("[prune] no stale Nexus-Hub surfaces found.")
+        for platform in stale:
+            _render_stale(platform)
+            if args.yes:
+                result = apply_platform(ctx, get(platform.key), platform)
+                removed = sum(1 for f in result.files if f.action == "removed")
+                print(f"    removed {removed} item(s)")
+                for note in result.notes:
+                    print(f"    {note}")
+                for f in result.files:
+                    if f.action == "kept" and f.reason:
+                        print(f"    kept: {f.path} ({f.reason})")
+        if args.yes or unforced:
+            manifest.save(manifest_path)
+    if stale and not args.yes:
+        print("Dry run: nothing was removed. Re-run with --yes to remove the items marked to remove or trim.")
+    return 0
 
 
 def _report_selector_drift(manifest: InstallManifest, args: argparse.Namespace) -> None:
@@ -1507,6 +1609,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_doctor.add_argument("--json", action="store_true", help="Emit JSON output.")
     p_doctor.add_argument("--quiet", action="store_true")
     p_doctor.set_defaults(func=cmd_doctor)
+
+    p_prune = sub.add_parser(
+        "prune-undetected",
+        help="Preview, then with --yes remove, Nexus-Hub files left for tools that are not installed.",
+    )
+    p_prune.add_argument("--target", help="Home folder to evaluate (default: the user home).")
+    p_prune.add_argument("--integrations", help="Comma-separated keys; default: every gated platform.")
+    p_prune.add_argument("--yes", action="store_true", help="Remove; without it the command only previews.")
+    p_prune.add_argument("--unforce", default="", help="Comma-separated keys whose explicit --platforms choice to clear first.")
+    p_prune.set_defaults(func=cmd_prune_undetected)
 
     p_repair = sub.add_parser(
         "repair",
