@@ -56,7 +56,7 @@ function renderTooltip(data: UsageData): string {
 describe("status-bar tooltip weekly bars", () => {
   afterEach(() => __resetStubState());
 
-  it("draws a second weekly bar labelled from the account", () => {
+  it("draws a second weekly bar labeled from the account", () => {
     const value = renderTooltip({
       ...baseData,
       weeklyScoped: { percent: 56, resetsIn: "4d", resetsAt: null, label: "Fable" },

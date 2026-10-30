@@ -3,7 +3,7 @@
 
   analyze TRACK [--hit 9.97]                       candidate hits, the recommended offset, and the
                                                    static gain for about -14 LUFS (true peak <= -1 dB)
-  mux VIDEO TRACK OUT --offset S --gain-db G       the aligned, levelled track muxed under the video
+  mux VIDEO TRACK OUT --offset S --gain-db G       the aligned, leveled track muxed under the video
 
 A track's strongest "hit" is usually a gap-then-hit: the level falls away for a beat and the band
 slams back in. analyze ranks those first, then plain strong onsets. A positive offset starts the

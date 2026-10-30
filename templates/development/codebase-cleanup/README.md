@@ -14,7 +14,7 @@ This section targets the detection and removal of dead code, duplication, and dr
 
 - Document refactoring opportunities with risk and effort estimates.
 
-- Verify that cleanup preserves behaviour through focused regression checks.
+- Verify that cleanup preserves behavior through focused regression checks.
 
 ## 📂 Available Templates
 
@@ -40,7 +40,7 @@ This section targets the detection and removal of dead code, duplication, and dr
 
 - [ ] Dead code candidates identified and removed
 
-- [ ] Duplicate logic catalogued with consolidation plan
+- [ ] Duplicate logic cataloged with consolidation plan
 
 - [ ] Legacy patterns flagged with modernization strategy
 

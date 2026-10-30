@@ -1,0 +1,16 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"493c5699727aeb54b5603aa2b9eb4cf13c022708fa135f2a1a1bceaffc5f984e","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "worktree": "<workspace>",
+  "entries": [
+    {
+      "relative_path": "MANIFEST.sha256",
+      "baseline_sha256": "a3f885c1ff37d7e49df041c7ad59d72439f92dc360510cb57727f6747c8fc8c9",
+      "candidate_file": "<private-evidence>/windows-full-maintenance-1792796073161/registry-entry-policy-1792818556089/co-budget-guarded-apply-1792876959248/manifest-update-1792877090925/MANIFEST.sha256",
+      "candidate_sha256": "ca8512e52c22734c14403efc7547070fff9421b0bbb3fbe35fda1230260b96b7"
+    }
+  ]
+}
+}

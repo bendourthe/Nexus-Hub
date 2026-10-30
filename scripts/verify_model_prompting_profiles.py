@@ -11,7 +11,7 @@ decide whether an edit may touch a shared catalog body), so a malformed layer
 must fail the build rather than silently mis-route an edit.
 
 This script is that gate. It is STRUCTURAL ONLY and deliberately makes no
-freshness judgement: it never compares `meta.last_verified` against the clock and
+freshness judgment: it never compares `meta.last_verified` against the clock and
 never enumerates a live model roster. Roster staleness is the separate, ADVISORY
 concern of `scripts/check_model_prompting_freshness.py`, kept out of every
 blocking gate so a vendor shipping a new model can never wedge a release.
@@ -23,8 +23,12 @@ What it checks:
     `meta.roster_hash` matches a recomputation from `meta.roster` in the same
     file (a self-consistency check that catches a hand-edited roster);
   * every model entry is well-typed and carries at least one claim;
-  * every claim carries the four required keys, a plausible `source_url`, and a
-    `confidence` / `scope` drawn from the allowed sets, with no unknown keys;
+  * every claim carries the four required keys, a `confidence` / `scope` drawn from the
+    allowed sets, and no unknown keys;
+  * (WN-29) every input the layer renders is safe: a claim or note is bounded, one line,
+    and free of `|`, HTML, Markdown links, and agent-directed directives; a `source_url`
+    is https on an allowlisted exact hostname; a model id is a safe file stem; every
+    platform name is a known platform;
   * the index's model set and the `references/models/*.md` set match in BOTH
     directions.
 
@@ -48,7 +52,9 @@ import hashlib
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
+from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -81,6 +87,174 @@ ALLOWED_ROSTER_SOURCES = {"api", "picker", "config", "manual"}
 ALLOWED_CONFIDENCE = {"high", "medium", "low", "unverified"}
 ALLOWED_SCOPE = {"model-specific", "model-agnostic-candidate"}
 ALLOWED_EVIDENCE_SCOPE = {"model", "model-family", "provider-plan", "cited-page"}
+
+# WN-29 input rules. A claim is text a future research run builds from fetched page
+# content, so every field the layer renders into Markdown or a file name is untrusted.
+# These constants and helpers are duplicated, on purpose, in the bundle's
+# `scripts/write_model_prompting_profile.py`: the writer ships inside the skill and
+# cannot import this repo-level script, so each side enforces the same contract.
+#: Exact hostnames a `source_url` may use (https only, matched after URL parsing, so
+#: `ai.google.dev.evil.com` and `ai.google.dev@evil.com` both fail). The first five
+#: are the v4.14.3 DoD 1 list; the rest are the vendor hosts the shipped layer already
+#: cites. A new vendor host is a deliberate edit here and in the writer.
+ALLOWED_SOURCE_HOSTS = frozenset(
+    {
+        "ai.google.dev",
+        "aistudio.google.com",
+        "blog.google",
+        "cloud.google.com",
+        "docs.cloud.google.com",
+        "cursor.com",
+        "deploymentsafety.openai.com",
+        "developers.openai.com",
+        "platform.claude.com",
+        "www.anthropic.com",
+    }
+)
+#: Platform ids the layer profiles. A model profiled for any other platform is refused.
+KNOWN_PLATFORMS = frozenset({"antigravity", "claude-code", "codex", "cursor", "gemini", "openai"})
+#: A model id becomes a file name (`references/models/<id>.md`), so it is a closed set of
+#: characters: no separator, no space, no upper case (case-folding file systems).
+MODEL_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,79}")
+_WINDOWS_RESERVED_RE = re.compile(r"(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)")
+MAX_TEXT_CHARS = 1000
+MAX_URL_CHARS = 2048
+MAX_ROSTER_ENTRY_CHARS = 128
+# Control, format (zero-width and bidi overrides), and line or paragraph separators.
+_UNSAFE_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp"})
+# A quoted span ('CRITICAL: You MUST ...') cites example wording the guidance tells a
+# reader to REMOVE, so a second-person directive inside one is not an instruction. The
+# delimiters must sit on word boundaries so a contraction cannot hide text between two
+# apostrophes.
+_QUOTED_SPAN_RE = re.compile(r"""(?<!\w)(['"])[^'"\n]{1,160}\1(?!\w)""")
+# Injection signatures are tested on the FULL text, quotes included, so quoting cannot hide them.
+_INJECTION_RES = (
+    re.compile(
+        r"\b(?:ignore|disregard|forget|override)\b[^.\n]{0,40}\b"
+        r"(?:instructions?|prompts?|rules?|directions?|guidelines?|context)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"(?<![\w-])(?:system|assistant|developer)\s*:", re.IGNORECASE),
+    re.compile(r"\b(?:new|updated|real)\s+instructions?\b", re.IGNORECASE),
+)
+_SECOND_PERSON_RE = re.compile(
+    r"\byou\s+(?:must|should|shall|will|need\s+to|are\s+now|are\s+to)\b", re.IGNORECASE
+)
+_LINK_RE = re.compile(r"\]\s*[(\[]")
+# GitHub-flavored Markdown autolinks a bare URL, a `www.` address, and an email shape, so
+# none of them may ride in claim or note text unless it is a plain allowlisted https URL.
+_URL_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://\S*")
+_WWW_RE = re.compile(r"(?<![\w.-])www\.", re.IGNORECASE)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_UNSAFE_URL_CHARS_RE = re.compile(r"""[\s\x00-\x1f\x7f<>()"'\\`|]""")
+
+
+def has_unsafe_characters(value: str) -> bool:
+    """True when `value` carries a control, format, or line-separator character."""
+    return any(unicodedata.category(char) in _UNSAFE_CATEGORIES for char in value)
+
+
+def model_id_problem(model_id: object) -> str | None:
+    """Why a model id cannot be a safe file stem, or None when it can."""
+    if not isinstance(model_id, str) or not MODEL_ID_RE.fullmatch(model_id):
+        return "must match [a-z0-9][a-z0-9._-]{0,79} (no path separator, space, or upper case)"
+    if _WINDOWS_RESERVED_RE.match(model_id):
+        return "is a reserved Windows device name"
+    return None
+
+
+def embedded_link_problem(text: str) -> str | None:
+    """Why a bare URL, `www.` address, or email shape in text is refused, or None.
+
+    A URL-scheme token is allowed only as `https` with no credentials or port and an exact
+    hostname on ALLOWED_SOURCE_HOSTS (trailing sentence punctuation is ignored).
+    """
+    for match in _URL_TOKEN_RE.finditer(text):
+        token = match.group().rstrip(".,;:!?)]}'\"")
+        try:
+            parts = urlsplit(token)
+            port = parts.port
+        except ValueError:
+            return "contains a URL that cannot be parsed"
+        if (
+            parts.scheme != "https"
+            or parts.username is not None
+            or parts.password is not None
+            or port is not None
+            or parts.hostname not in ALLOWED_SOURCE_HOSTS
+        ):
+            return (
+                "contains a URL that is not a plain https link (no credentials or port) "
+                "on an allowlisted host"
+            )
+    remainder = _URL_TOKEN_RE.sub(" ", text)
+    if _WWW_RE.search(remainder):
+        return "contains a www. address, which Markdown autolinks"
+    if _EMAIL_RE.search(remainder):
+        return "contains an email address, which Markdown autolinks"
+    return None
+
+
+def claim_text_problem(text: str) -> str | None:
+    """Why free-form claim or note text cannot be rendered safely, or None when it can.
+
+    The text lands in a Markdown table cell of the generated mirror and is read by
+    agents, so it must be one plain paraphrase: bounded, one line, no table character,
+    no HTML, no Markdown link, and no directive addressed to the reader.
+    """
+    if len(text) > MAX_TEXT_CHARS:
+        return f"is longer than {MAX_TEXT_CHARS} characters"
+    if has_unsafe_characters(text):
+        return "contains a control, newline, zero-width, or line-separator character"
+    if "|" in text:
+        return "contains '|', which breaks the Markdown table"
+    if "<" in text:
+        return "contains '<', so HTML and autolinks are not allowed"
+    if _LINK_RE.search(text):
+        return "contains a Markdown link"
+    if problem := embedded_link_problem(text):
+        return problem
+    if any(pattern.search(text) for pattern in _INJECTION_RES):
+        return "contains an instruction-override or role-label directive"
+    if _SECOND_PERSON_RE.search(_QUOTED_SPAN_RE.sub(" ", text)):
+        return "contains a second-person directive (paraphrase it instead)"
+    return None
+
+
+def source_url_problem(url: str) -> str | None:
+    """Why a source URL is not an allowlisted https primary source, or None when it is."""
+    if len(url) > MAX_URL_CHARS:
+        return f"is longer than {MAX_URL_CHARS} characters"
+    if _UNSAFE_URL_CHARS_RE.search(url) or has_unsafe_characters(url):
+        return "contains whitespace, a control character, or a character unsafe in a link"
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except ValueError:
+        return "is not a parseable URL"
+    if parts.scheme != "https":
+        return "must use https"
+    if parts.username is not None or parts.password is not None:
+        return "must not carry credentials (user@host)"
+    if port not in (None, 443):
+        return "must not name a non-default port"
+    if parts.hostname not in ALLOWED_SOURCE_HOSTS:
+        return f"host {parts.hostname!r} is not an allowlisted primary-source host"
+    return None
+
+
+def roster_entry_problem(entry: str) -> str | None:
+    """A roster entry is not a file name, so the rule is only bounded with no control char."""
+    if len(entry) > MAX_ROSTER_ENTRY_CHARS or has_unsafe_characters(entry):
+        return f"must be at most {MAX_ROSTER_ENTRY_CHARS} characters with no control character"
+    return None
+
+
+def platform_problem(value: object) -> str | None:
+    """Why a platform name is refused, or None when it is a known platform."""
+    if not isinstance(value, str) or value not in KNOWN_PLATFORMS:
+        return f"must be a known platform {sorted(KNOWN_PLATFORMS)}, got {str(value)[:40]!r}"
+    return None
 
 
 def roster_hash(roster: list[str]) -> str:
@@ -127,6 +301,8 @@ def _validate_meta(meta: object) -> list[str]:
     platform = meta.get("platform")
     if "platform" in meta and (not isinstance(platform, str) or not platform.strip()):
         errors.append(f"meta.platform must be a non-empty string, got {platform!r}")
+    elif "platform" in meta and (problem := platform_problem(platform)):
+        errors.append(f"meta.platform {problem}")
 
     source = meta.get("roster_source")
     if "roster_source" in meta and source not in ALLOWED_ROSTER_SOURCES:
@@ -141,6 +317,8 @@ def _validate_meta(meta: object) -> list[str]:
             errors.append("meta.roster must be a non-empty array of model ids")
         elif not all(isinstance(entry, str) and entry.strip() for entry in roster):
             errors.append("meta.roster entries must all be non-empty strings")
+        elif problem := next(filter(None, map(roster_entry_problem, roster)), None):
+            errors.append(f"meta.roster entries {problem}")
         else:
             roster_ok = True
             if roster != sorted(roster):
@@ -175,6 +353,8 @@ def _validate_roster_block(where: str, block: dict) -> list[str]:
             errors.append(f"{where}.roster must be a non-empty array of model ids")
         elif not all(isinstance(entry, str) and entry.strip() for entry in roster):
             errors.append(f"{where}.roster entries must all be non-empty strings")
+        elif problem := next(filter(None, map(roster_entry_problem, roster)), None):
+            errors.append(f"{where}.roster entries {problem}")
         else:
             roster_ok = True
             if roster != sorted(roster):
@@ -215,6 +395,8 @@ def _validate_platforms(platforms: object) -> list[str]:
         if "platform" in entry:
             if not isinstance(platform, str) or not platform.strip():
                 errors.append(f"{where}.platform must be a non-empty string, got {platform!r}")
+            elif problem := platform_problem(platform):
+                errors.append(f"{where}.platform {problem}")
             elif platform in seen:
                 errors.append(f"{where}.platform {platform!r} appears more than once")
             else:
@@ -246,13 +428,18 @@ def _validate_claim(model_id: str, position: int, claim: object) -> list[str]:
     text = claim.get("claim")
     if "claim" in claim and (not isinstance(text, str) or not text.strip()):
         errors.append(f"{where}.claim must be a non-empty string")
+    elif "claim" in claim and (problem := claim_text_problem(text)):
+        errors.append(f"{where}.claim {problem}")
 
     url = claim.get("source_url")
     if "source_url" in claim:
         if not isinstance(url, str) or not url.startswith(("http://", "https://")):
             errors.append(
-                f"{where}.source_url must be an http(s) URL to a primary source, got {url!r}"
+                f"{where}.source_url must be an http(s) URL to a primary source, "
+                f"got {str(url)[:80]!r}"
             )
+        elif problem := source_url_problem(url):
+            errors.append(f"{where}.source_url {problem}, got {url[:80]!r}")
 
     confidence = claim.get("confidence")
     if "confidence" in claim and confidence not in ALLOWED_CONFIDENCE:
@@ -267,6 +454,8 @@ def _validate_claim(model_id: str, position: int, claim: object) -> list[str]:
     note = claim.get("note")
     if "note" in claim and not isinstance(note, str):
         errors.append(f"{where}.note must be a string when present")
+    elif isinstance(note, str) and (problem := claim_text_problem(note)):
+        errors.append(f"{where}.note {problem}")
 
     evidence_scope = claim.get("evidence_scope")
     if "evidence_scope" in claim and evidence_scope not in ALLOWED_EVIDENCE_SCOPE:
@@ -290,6 +479,9 @@ def _validate_models(models: object) -> list[str]:
         if not isinstance(model_id, str) or not model_id.strip():
             errors.append(f"models has a non-empty-string key requirement, got {model_id!r}")
             continue
+        if problem := model_id_problem(model_id):
+            errors.append(f"models key {model_id[:80]!r} {problem}")
+            continue
         if not isinstance(entry, dict):
             errors.append(f"models['{model_id}'] must be an object, got {type(entry).__name__}")
             continue
@@ -305,6 +497,8 @@ def _validate_models(models: object) -> list[str]:
         platform = entry.get("platform")
         if "platform" in entry and (not isinstance(platform, str) or not platform.strip()):
             errors.append(f"models['{model_id}'].platform must be a non-empty string")
+        elif "platform" in entry and (problem := platform_problem(platform)):
+            errors.append(f"models['{model_id}'].platform {problem}")
 
         last_verified = entry.get("last_verified")
         if "last_verified" in entry and (

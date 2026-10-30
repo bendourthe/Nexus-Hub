@@ -222,7 +222,7 @@ Step 9's browser QA scrolls to EVERY declared step and verifies the expected sta
 - [ ] No section heading or lead sentence negates an `accepted` assumption.
 - [ ] Every visible timeline names its scope class and at least three planning assumptions.
 - [ ] A comparison of a named subject is preceded by its capability summary.
-- [ ] The comparison visual matches the decision shape per the selection table, and a qualitative comparison is labelled as such.
+- [ ] The comparison visual matches the decision shape per the selection table, and a qualitative comparison is labeled as such.
 - [ ] A hybrid recommendation ships responsibility lanes with one owner per activity.
 - [ ] The hero carries no production metadata, and every hero element answers one of the three questions.
 - [ ] Image credits are unobtrusive on load and reachable by mouse, keyboard, and touch, and appear in full in the credits section.
@@ -234,4 +234,4 @@ Step 9's browser QA scrolls to EVERY declared step and verifies the expected sta
 - `references/visual-qa-rubric.md` - defines Gates A, B, and E that grade this contract, and the four QA layers they belong to.
 - `references/interactive-features.md` - the placement-role taxonomy and the credits rule that 2.6 extends.
 - `references/scroll-scrub.md` - the cinematic protocol whose sections carry the 3.2 state tables.
-- `references/figure-reconstruction.md` - the data-fidelity rule that 2.3's qualitative-labelling rule composes with.
+- `references/figure-reconstruction.md` - the data-fidelity rule that 2.3's qualitative-labeling rule composes with.

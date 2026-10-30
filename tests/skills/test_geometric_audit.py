@@ -10,7 +10,7 @@ Two properties are asserted, and the second is the one that matters:
    A check that cannot be shown to be the thing producing a finding is not
    evidence, however green it looks.
 
-The two defence fixtures are the false positives that made the source
+The two defense fixtures are the false positives that made the source
 project's first audit useless: a rotated axis title (which `getBBox` calls
 clipped) and a label inside a wiggly trace's bounding box but off its ink.
 """
@@ -53,7 +53,7 @@ BROKEN = {
 }
 
 # Fixtures that must report NOTHING. clean is the baseline; the other two are
-# the false-positive defences.
+# the false-positive defenses.
 SILENT = ("clean", "rotated-axis-title", "label-beside-wiggle", "viewbox-cropped",
           "ai-tells-restrained")
 
@@ -106,7 +106,7 @@ def test_disabling_the_check_silences_its_fixture(fixture: str) -> None:
 
 
 def test_a_rotated_title_is_judged_in_screen_space_not_by_getbbox() -> None:
-    """Defence A, stated as its own case because it is why the audit exists.
+    """Defense A, stated as its own case because it is why the audit exists.
 
     `getBBox` ignores transforms, so a rotated y-axis title sits outside its own
     untransformed box and every one of them was reported as clipped - about 220
@@ -118,7 +118,7 @@ def test_a_rotated_title_is_judged_in_screen_space_not_by_getbbox() -> None:
 
 
 def test_a_label_in_a_traces_bounding_box_is_not_on_its_ink() -> None:
-    """Defence B: the bounding box of a wiggly trace is the whole panel.
+    """Defense B: the bounding box of a wiggly trace is the whole panel.
 
     The fixture's path hugs the bottom band and takes one tall spike, so its
     bounding box covers the label while its ink comes nowhere near it. A
@@ -166,13 +166,13 @@ def test_dead_space_threshold_is_what_decides_the_finding() -> None:
 
 
 def test_a_legend_entry_matching_a_drawn_colour_is_not_reported() -> None:
-    """The clean fixture's legend keys both entries to colours the figure draws."""
+    """The clean fixture's legend keys both entries to colors the figure draws."""
     assert "legend-entry-not-drawn" not in checks_in(run("clean"))
 
 
 # --- the two countable AI tells ---------------------------------------------
 # These are the only members of the anti-slop list that can be counted in the
-# rendered DOM. The rest need an authorship judgement and are attested instead,
+# rendered DOM. The rest need an authorship judgment and are attested instead,
 # through check_attestation.py. Counting a PATTERN is a fact; judging whether
 # the document should have used it is not, which is why the threshold is a flag.
 
@@ -207,7 +207,7 @@ def test_a_bordered_figure_is_a_frame_not_a_callout() -> None:
 
     Counting any thick left border reported eight per handbook on this
     repository's own output, every one a legitimate figure treatment. The tell
-    is a TEXT block leaning on a coloured edge for emphasis.
+    is a TEXT block leaning on a colored edge for emphasis.
     """
     assert "callout-stripe-default" not in checks_in(run("clean"))
 

@@ -32,7 +32,7 @@ Use this skill when you need to:
 The edge case generator follows a structured four-phase approach:
 
 1. **Input Domain Analysis**: Decompose each parameter into its valid domain, boundary values, and equivalence classes
-2. **Special Value Injection**: Apply a catalogue of known-problematic values (null, zero, negative, MAX_INT, empty string, Unicode edge cases)
+2. **Special Value Injection**: Apply a catalog of known-problematic values (null, zero, negative, MAX_INT, empty string, Unicode edge cases)
 3. **Combination Explosion Management**: Use pairwise or category-partition methods to generate high-value combinations without combinatorial blowup
 4. **Oracle Definition**: For each generated input, determine the expected outcome (specific return value, exception type, graceful degradation, or invariant preservation)
 
@@ -56,7 +56,7 @@ Divide the input space into classes that should be treated identically by the co
 - **Invalid equivalence classes**: Sets of inputs that should be rejected or handled gracefully
 - **Boundary equivalence classes**: Inputs that sit exactly on partition edges
 
-### Special Value Catalogue
+### Special Value Catalog
 
 | Category | Values to Test |
 |---|---|
@@ -113,7 +113,7 @@ Full walkthrough: [step-7-combine-edge-cases-with-equivalence-partitioning.md](r
 - **Test one edge per test method**: Isolate edge cases so that failures pinpoint the exact boundary that broke
 - **Include both the input and the expected outcome**: Edge case tests are only valuable when the oracle (expected result) is clearly defined
 - **Prioritize edges by risk**: Focus first on edges that involve security (overflow, injection), data loss (null handling), or financial impact (rounding, precision)
-- **Keep the special value catalogue project-specific**: Add domain-relevant special values (e.g., for a healthcare app, test with patient ages of 0, 150, and negative)
+- **Keep the special value catalog project-specific**: Add domain-relevant special values (e.g., for a healthcare app, test with patient ages of 0, 150, and negative)
 - **Automate edge case discovery**: Use property-based testing (see the property-based-test-generator skill) to discover edge cases you did not anticipate
 - **Revisit edges after bug fixes**: Every production bug reveals a missing edge case test; add it to the suite
 - **Document why each edge matters**: A comment explaining "tests integer overflow on 32-bit systems" is more valuable than the test code alone
@@ -151,7 +151,7 @@ Full walkthrough: [step-7-combine-edge-cases-with-equivalence-partitioning.md](r
 ## Related Skills
 
 - [[property-based-test-generator]] -- discovers edge cases automatically that this skill enumerates by hand
-- [[fuzzing-input-generator]] -- explores adversarial inputs beyond the curated special-value catalogue here
+- [[fuzzing-input-generator]] -- explores adversarial inputs beyond the curated special-value catalog here
 - [[directed-test-input-generator]] -- crafts inputs to reach specific branches these edge cases may not cover
 - [[unit-tests]] -- holds the edge-case tests alongside the happy-path unit tests
 - [[code-coverage]] -- confirms the boundary and error paths these tests exercise are actually covered

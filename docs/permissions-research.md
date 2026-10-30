@@ -8,7 +8,7 @@ This document records the read-only baseline that auto-approves a curated set of
 
 The baseline remains a four-platform artifact in v3.17.0. Phase 1 hardened its contents to the side-effect level, removed the `jq`-only merge path, made Bash and PowerShell installers use the same merge helper, propagated retired Nexus-Hub rules without deleting user-authored entries, and wired permission installation at both global and workspace scope.
 
-Before that hardening, some entries labelled read-only could mutate local state, remote state, or configuration. Examples included broad dual-mode command globs, mutation-capable `find`, `sed`, `ip`, and `sysctl` shapes, and PowerShell object-returning cmdlets whose methods can mutate. The new validator treats invocation shape and admitted side effects, not a command's name, as the safety boundary.
+Before that hardening, some entries labeled read-only could mutate local state, remote state, or configuration. Examples included broad dual-mode command globs, mutation-capable `find`, `sed`, `ip`, and `sysctl` shapes, and PowerShell object-returning cmdlets whose methods can mutate. The new validator treats invocation shape and admitted side effects, not a command's name, as the safety boundary.
 
 | Platform | Shipped baseline | Enforcement shape | Important limit |
 |---|---|---|---|

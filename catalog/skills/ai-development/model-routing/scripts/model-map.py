@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -14,22 +15,66 @@ from typing import Any
 TIERS = ("frontier", "strong", "standard", "fast")
 PROVIDERS = ("Anthropic", "OpenAI", "Google", "Cursor")
 SIGNAL_LEVELS = ("low", "medium", "high")
+# Ordered weakest to strongest; the portable vocabulary fixed for plan fields.
+EFFORT_LEVELS = ("low", "medium", "high", "max")
+# The edge-case and unattended modifiers never raise verification effort past this
+# until the raise direction is measured; an effort already at `max` stays `max`.
+VERIFICATION_CAP = "high"
 ASSESS_LATER = "assess at implementation time"
 DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parent.parent / "references" / "last-known-model-map.json"
 )
 URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+MAX_CELL_CHARS = 100
+# `render` writes each cell into a Markdown table row inside a code span, so a pipe
+# starts a new column, a backtick ends the span, and a line break starts a new row.
+_CELL_FORBIDDEN = ("|", "`")
+# Control, format (zero-width and bidi overrides), and line or paragraph separators.
+_UNSAFE_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp"})
+
+
+def _has_unsafe_characters(value: str) -> bool:
+    return any(unicodedata.category(char) in _UNSAFE_CATEGORIES for char in value)
 
 
 class MapValidationError(ValueError):
     """Raised when a model-map document violates the routing contract."""
 
 
-def score_signals(signals: list[str], *, uncertain: bool = False) -> dict[str, str]:
-    """Map five rubric signals to a generic tier and effort level."""
+def score_signals(
+    signals: list[str],
+    *,
+    uncertain: bool = False,
+    edge_cases: str = "low",
+    unattended: bool = False,
+) -> dict[str, str]:
+    """Map five rubric signals to a tier, an effort, and a raise-only verification effort."""
     if len(signals) != 5 or any(signal not in SIGNAL_LEVELS for signal in signals):
         raise ValueError("exactly five low|medium|high signals are required")
+    if edge_cases not in SIGNAL_LEVELS:
+        raise ValueError("edge-case density must be low, medium, or high")
+    result = _tier_and_effort(signals, uncertain=uncertain)
+    result["verification_effort"] = verification_effort(
+        result["effort"], edge_cases=edge_cases, unattended=unattended
+    )
+    return result
 
+
+def verification_effort(effort: str, *, edge_cases: str, unattended: bool) -> str:
+    """Raise `effort` for edge-case density, one more level when unattended, capped.
+
+    Never returns less than `effort`, and the modifiers alone never reach past
+    VERIFICATION_CAP. Unattended work with `low` density is not raised at all.
+    """
+    rank = EFFORT_LEVELS.index
+    floor = {"medium": rank("medium"), "high": rank("high")}.get(edge_cases)
+    if floor is None:
+        return effort
+    raised = max(rank(effort), floor) + (1 if unattended else 0)
+    return EFFORT_LEVELS[max(rank(effort), min(raised, rank(VERIFICATION_CAP)))]
+
+
+def _tier_and_effort(signals: list[str], *, uncertain: bool) -> dict[str, str]:
     high_count = signals.count("high")
     medium_count = signals.count("medium")
     if uncertain or high_count >= 2:
@@ -75,6 +120,20 @@ def validate_map(data: Any) -> dict[str, Any]:
             model = row.get(provider)
             if not isinstance(model, str) or not model.strip():
                 raise MapValidationError(f"empty model cell: {tier}/{provider}")
+            # Checked on the raw value: strip() would hide a trailing newline.
+            if _has_unsafe_characters(model):
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} contains a control character or line break"
+                )
+            if any(char in model for char in _CELL_FORBIDDEN):
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} contains '|' or a backtick, "
+                    "which would break the rendered Markdown table"
+                )
+            if len(model) > MAX_CELL_CHARS:
+                raise MapValidationError(
+                    f"model cell {tier}/{provider} is longer than {MAX_CELL_CHARS} characters"
+                )
             if model.strip() == ASSESS_LATER:
                 raise MapValidationError(
                     f"dated maps cannot defer a model cell: {tier}/{provider}"
@@ -96,6 +155,11 @@ def validate_map(data: Any) -> dict[str, Any]:
         if not has_valid_sources:
             raise MapValidationError(
                 f"sources for {provider} must contain at least one HTTP(S) URL"
+            )
+        # `render` joins these into one list line, so a break or space would split it.
+        if any(_has_unsafe_characters(url) or re.search(r"\s", url) for url in urls):
+            raise MapValidationError(
+                f"sources for {provider} must not contain whitespace or control characters"
             )
         normalized_sources[provider] = urls
 
@@ -204,6 +268,14 @@ def build_parser() -> argparse.ArgumentParser:
     score_parser = subparsers.add_parser("score", help="score five rubric signals")
     score_parser.add_argument("signals", nargs=5, choices=SIGNAL_LEVELS)
     score_parser.add_argument("--uncertain", action="store_true")
+    score_parser.add_argument(
+        "--edge-cases", choices=SIGNAL_LEVELS, default="low",
+        help="edge-case density; raises verification_effort only",
+    )
+    score_parser.add_argument(
+        "--unattended", action="store_true",
+        help="no human answers within the phase; adds one level on medium or high density",
+    )
 
     validate_parser = subparsers.add_parser("validate", help="validate a map JSON")
     validate_parser.add_argument("path", type=Path)
@@ -228,7 +300,16 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "score":
-            print(json.dumps(score_signals(args.signals, uncertain=args.uncertain)))
+            print(
+                json.dumps(
+                    score_signals(
+                        args.signals,
+                        uncertain=args.uncertain,
+                        edge_cases=args.edge_cases,
+                        unattended=args.unattended,
+                    )
+                )
+            )
         elif args.command == "validate":
             data = load_map(args.path)
             print(

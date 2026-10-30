@@ -148,6 +148,10 @@ def isolated_env(root: Path, home: Path) -> dict[str, str]:
     xdg = root / "xdg"
     for directory in (home, tmp, xdg):
         directory.mkdir(parents=True, exist_ok=True)
+    # .NET named mutexes require an existing, private XDG runtime directory.
+    (xdg / "runtime").mkdir(mode=0o700, exist_ok=True)
+    if os.name == "posix":
+        (xdg / "runtime").chmod(0o700)
     env.update(
         {
             "HOME": str(home),

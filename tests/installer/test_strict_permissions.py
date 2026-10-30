@@ -10,12 +10,12 @@ Coverage:
   * the overlay's content contract (valid JSON, deny + ask present, NO
     defaultMode, the group A/B/C surfaces covered, and the allow list NOT
     duplicated so it keeps a single source of truth);
-  * behavioural merge semantics, exercised against the REAL function extracted
+  * behavioral merge semantics, exercised against the REAL function extracted
     from each installer: additive (never drops a user's entries), leaves
     permissions.allow untouched, and idempotent on a second run;
   * the HO-2 intent marker (both installers export NEXUS_HUB_INIT for `init`).
 
-The bash behavioural test needs jq (the same dependency the pre-existing allow
+The bash behavioral test needs jq (the same dependency the pre-existing allow
 merge has) and skips without it; the PowerShell one needs no jq, so it runs on the
 Windows dev host.
 """
@@ -147,7 +147,7 @@ def test_deny_and_ask_do_not_overlap(overlay: dict) -> None:
     assert not (deny & ask), f"entries in both deny and ask: {sorted(deny & ask)}"
 
 
-# --- Behavioural merge semantics -------------------------------------------
+# --- Behavioral merge semantics -------------------------------------------
 
 _PS_HARNESS = r"""
 $ErrorActionPreference = 'Stop'

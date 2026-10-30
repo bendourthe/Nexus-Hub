@@ -42,23 +42,27 @@ def _run(*args: str) -> subprocess.CompletedProcess[str]:
 @pytest.mark.parametrize(
     ("signals", "extra", "expected"),
     (
-        (["low"] * 5, [], {"tier": "fast", "effort": "low"}),
+        (["low"] * 5, [], {"tier": "fast", "effort": "low", "verification_effort": "low"}),
         (
             ["medium", "low", "low", "low", "low"],
             [],
-            {"tier": "standard", "effort": "medium"},
+            {"tier": "standard", "effort": "medium", "verification_effort": "medium"},
         ),
         (
             ["medium", "medium", "medium", "low", "low"],
             [],
-            {"tier": "strong", "effort": "high"},
+            {"tier": "strong", "effort": "high", "verification_effort": "high"},
         ),
         (
             ["high", "low", "low", "low", "low"],
             [],
-            {"tier": "frontier", "effort": "high"},
+            {"tier": "frontier", "effort": "high", "verification_effort": "high"},
         ),
-        (["low"] * 5, ["--uncertain"], {"tier": "frontier", "effort": "max"}),
+        (
+            ["low"] * 5,
+            ["--uncertain"],
+            {"tier": "frontier", "effort": "max", "verification_effort": "max"},
+        ),
     ),
 )
 def test_rubric_maps_to_generic_tier_and_effort(
@@ -67,6 +71,80 @@ def test_rubric_maps_to_generic_tier_and_effort(
     result = _run("score", *signals, *extra)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout) == expected
+
+
+EFFORT_ORDER = ("low", "medium", "high", "max")
+SIGNAL_PATTERNS = (
+    ["low"] * 5,
+    ["medium", "low", "low", "low", "low"],
+    ["low", "medium", "low", "low", "medium"],
+    ["medium", "medium", "medium", "low", "low"],
+    ["high", "low", "low", "low", "low"],
+    ["high", "high", "low", "low", "low"],
+)
+
+
+@pytest.mark.parametrize("signals", SIGNAL_PATTERNS)
+@pytest.mark.parametrize("edge_cases", ("low", "medium", "high"))
+@pytest.mark.parametrize("unattended", (False, True))
+@pytest.mark.parametrize("uncertain", (False, True))
+def test_verification_effort_is_raise_only_and_capped_at_high(
+    signals: list[str], edge_cases: str, unattended: bool, uncertain: bool
+) -> None:
+    base = MODEL_MAP.score_signals(signals, uncertain=uncertain)
+    result = MODEL_MAP.score_signals(
+        signals, uncertain=uncertain, edge_cases=edge_cases, unattended=unattended
+    )
+    rank = EFFORT_ORDER.index
+    assert (result["tier"], result["effort"]) == (base["tier"], base["effort"])
+    assert rank(result["verification_effort"]) >= rank(result["effort"])
+    assert rank(result["verification_effort"]) <= max(rank(result["effort"]), rank("high"))
+    if edge_cases == "low":
+        assert result["verification_effort"] == result["effort"]
+
+
+@pytest.mark.parametrize(
+    ("signals", "extra", "verification"),
+    (
+        (["low", "medium", "low", "low", "medium"], ["--edge-cases", "high", "--unattended"], "high"),
+        (["medium", "medium", "medium", "low", "low"], ["--edge-cases", "high", "--unattended"], "high"),
+        (["low", "medium", "low", "low", "medium"], ["--unattended"], "medium"),
+        (["low"] * 5, ["--edge-cases", "low", "--unattended"], "low"),
+        (["low"] * 5, ["--edge-cases", "medium"], "medium"),
+        (["low"] * 5, ["--edge-cases", "medium", "--unattended"], "high"),
+        (["low"] * 5, ["--edge-cases", "high"], "high"),
+        (["low"] * 5, ["--uncertain", "--edge-cases", "high", "--unattended"], "max"),
+        (["high", "high", "low", "low", "low"], ["--edge-cases", "medium"], "max"),
+    ),
+)
+def test_score_cli_reports_verification_effort(
+    signals: list[str], extra: list[str], verification: str
+) -> None:
+    plain = json.loads(_run("score", *signals).stdout)
+    result = _run("score", *signals, *extra)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {
+        "tier": MODEL_MAP.score_signals(signals, uncertain="--uncertain" in extra)["tier"],
+        "effort": MODEL_MAP.score_signals(signals, uncertain="--uncertain" in extra)["effort"],
+        "verification_effort": verification,
+    }
+    if "--uncertain" not in extra:
+        assert (plain["tier"], plain["effort"]) == (
+            json.loads(result.stdout)["tier"],
+            json.loads(result.stdout)["effort"],
+        )
+
+
+@pytest.mark.parametrize("bad", (["--edge-cases", "extreme"], ["--unattended=yes"]))
+def test_malformed_modifier_values_are_rejected_with_usage(bad: list[str]) -> None:
+    result = _run("score", "low", "low", "low", "low", "low", *bad)
+    assert result.returncode == 2
+    assert "usage:" in result.stderr
+
+
+def test_score_signals_rejects_an_unknown_density() -> None:
+    with pytest.raises(ValueError):
+        MODEL_MAP.score_signals(["low"] * 5, edge_cases="extreme")
 
 
 def test_valid_fixture_has_four_by_four_schema() -> None:

@@ -344,6 +344,7 @@ def test_installed_cli_routes_read_only_effort_diagnostics(
     shutil.copyfile(
         REPO_ROOT / "scripts/nexus_hub_cli.py", install / "scripts/nexus_hub_cli.py"
     )
+    shutil.copyfile(REPO_ROOT / "scripts/nexus_process.py", install / "scripts/nexus_process.py")
     env = dict(
         os.environ,
         HOME=str(home),
@@ -543,6 +544,7 @@ def test_installed_doctor_without_source(
     scripts = installed / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy2(REPO_ROOT / "scripts/nexus_hub_cli.py", scripts / "nexus_hub_cli.py")
+    shutil.copy2(REPO_ROOT / "scripts/nexus_process.py", scripts / "nexus_process.py")
     shutil.copytree(
         REPO_ROOT / "scripts/lib", scripts / "lib",
         ignore=shutil.ignore_patterns("__pycache__"),

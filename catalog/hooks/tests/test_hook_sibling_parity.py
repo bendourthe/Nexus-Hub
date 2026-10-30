@@ -7,7 +7,7 @@ keeps the two honest, and it is deliberately GENERIC rather than 25 bespoke file
     added in one language only fails immediately rather than silently shipping
     half-platform support;
   * a syntax floor for every .ps1 (AST parse);
-  * behavioural parity: each pair is run with the SAME payloads and must agree on
+  * behavioral parity: each pair is run with the SAME payloads and must agree on
     exit code.
 
 Why generic matters here. v3.15.6 found four real defects in `.sh`/`.ps1` pairs
@@ -108,7 +108,7 @@ def test_sh_hook_parses(sh: Path, bash_bin: str) -> None:
     assert proc.returncode == 0, f"{sh.name} does not parse:\n{proc.stderr}"
 
 
-# --- Behavioural parity -----------------------------------------------------
+# --- Behavioral parity -----------------------------------------------------
 
 
 @pytest.fixture()

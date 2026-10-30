@@ -1,0 +1,7 @@
+# Distribution Handbook Cursor Rules Plugin Verification
+
+**Covers**: why the distribution handbook needs no content change when Cursor's global instructions move from the `sessionStart` hook to a local rules plugin, and the evidence behind refreshing two input digests.
+
+Two mapped distribution inputs change. `scripts/lib/integrations/cursor.py` now writes a user-level local plugin at `~/.cursor/plugins/local/nexus-hub/` (a `.cursor-plugin/plugin.json` manifest and two `alwaysApply` rules carrying the rendered instruction template and the git-attribution policy), removes the `~/.cursor/nexus-hub-instructions.md` the earlier route wrote, and returns the `sessionStart` context command to `context` with no `--instructions` argument. `scripts/nexus_git_attribution.py` returns to its pre-#514 text, because the `context --instructions` option it gained has no remaining caller.
+
+The handbook explains distribution, settings ownership, attributed identity, and verification boundaries. It makes no claim about how Cursor receives instructions, local plugins, or the `sessionStart` hook (`git grep -n -i -E 'sessionStart|plugins/local|cursor[^.]{0,80}instruction' -- docs/handbooks` returns nothing), so no handbook text or rendered output changes. Only the two input digests in `docs/handbooks/_sources/distribution/evidence.json` are refreshed, and this record becomes the content check's evidence. No new browser run is claimed; the existing rendered evidence still applies because the handbook output is unchanged.

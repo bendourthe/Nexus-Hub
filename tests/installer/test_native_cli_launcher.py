@@ -40,6 +40,7 @@ def test_native_launcher_installs_and_runs_from_literal_profile_path(tmp_path: P
     scripts = nexus / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy2(ROOT / "scripts/nexus_hub_cli.py", scripts / "nexus_hub_cli.py")
+    shutil.copy2(ROOT / "scripts/nexus_process.py", scripts / "nexus_process.py")
     harness = tmp_path / "launcher.ps1"
     harness.write_text(HARNESS, encoding="utf-8-sig")
     # Start the shell with an ordinary profile, then pass the rich profile into

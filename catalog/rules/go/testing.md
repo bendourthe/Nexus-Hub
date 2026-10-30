@@ -48,6 +48,12 @@ func TestAdd(t *testing.T) {
 - Tag integration tests with `//go:build integration` and run separately: `go test -tags=integration ./...`.
 - Use `testcontainers-go` for tests that require a real database or service.
 
+## Windows Child Processes
+
+- On Windows, a console program started by a process with no console opens a new window that takes keyboard focus. A suite that starts hundreds of children from an agent, an IDE test runner or a detached helper makes the machine unusable until it ends, so every process a test (or a helper the tests call) starts must be launched without a window.
+- On Windows, set `cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}` (`CREATE_NO_WINDOW`) for every `exec.Command` a test starts, behind a `//go:build windows` helper so other platforms are unaffected.
+- A launch that must detach or open its own console is the exception: mark it with a `nexus: console-window-ok <reason>` comment on the line or the line above. Nexus-Hub's `console-window-guard` hook blocks a Windows test run while an unmarked unsafe launch remains.
+
 ## Coverage
 
 - Target 80% line coverage: `go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out`.

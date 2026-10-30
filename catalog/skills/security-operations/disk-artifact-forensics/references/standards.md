@@ -13,7 +13,7 @@ Framework mappings for the `disk-artifact-forensics` skill. Each section gives t
 
 - Framework: MITRE ATT&CK (Enterprise matrix), Persistence and Privilege Escalation tactics.
 - Short title: "Boot or Logon Autostart Execution".
-- Rationale: the registry-hive step recovers Run/RunOnce keys, services, and autostart locations, which are the persistence mechanisms catalogued under T1547.
+- Rationale: the registry-hive step recovers Run/RunOnce keys, services, and autostart locations, which are the persistence mechanisms cataloged under T1547.
 - Source: https://attack.mitre.org/techniques/T1547/
 
 ## ATT&CK T1059 - Command and Scripting Interpreter

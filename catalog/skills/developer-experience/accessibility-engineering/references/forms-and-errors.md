@@ -2,7 +2,7 @@
 
 Read this when the surface collects input, validates, or shows field-level or form-level errors.
 
-## Labelling
+## Labeling
 
 Every control that takes input has a persistent accessible name from a visible label.
 

@@ -40,7 +40,7 @@ Evidence for weighting existing at all: measured 2026-08-19 against a private re
 
 **Reinstate hardcoded 2x / 10x.** Fits the same data - it differs from price ratios by about 0.3% of the weighted total, and no saturated month can separate the two. Rejected because it re-freezes a price list that has already moved once. It would be correct today and wrong at the next price change, which is exactly the failure this decision exists to stop repeating. Choosing the mechanism over the snapshot is a bet on the mechanism's stability, not a claim that the data distinguishes them.
 
-**Show an uncertainty band instead of a figure.** Honest, and unactionable. The meter's purpose is to warn before an allowance runs out; "somewhere between 86% and 130%" cannot drive a threshold crossing. Rejected in favour of a single figure that is labelled as a reconstruction, with its provenance rendered beside it and its residual uncertainty recorded in the ledger.
+**Show an uncertainty band instead of a figure.** Honest, and unactionable. The meter's purpose is to warn before an allowance runs out; "somewhere between 86% and 130%" cannot drive a threshold crossing. Rejected in favor of a single figure that is labeled as a reconstruction, with its provenance rendered beside it and its residual uncertainty recorded in the ledger.
 
 **Scrape `github.com/settings/billing`.** Would read GitHub's own displayed figure and remove the reconstruction entirely. Not viable: that page requires a browser session cookie, and the extension authenticates with an OAuth Bearer token, so the page is not reachable with the credential it holds. It is also an undocumented surface with no stability contract.
 

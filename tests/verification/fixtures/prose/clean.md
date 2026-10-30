@@ -6,7 +6,7 @@ Did the release ship on Friday? No. Was it tested on Thursday? No. It shipped th
 
 Why did the cache miss? Because the key included a timestamp. One question is enough here, and the answer follows it directly.
 
-The first attempt failed. It was slow. It cost a week. Three short sentences in a row are a rhythm the writer chose, and none of them shares a skeleton with its neighbour or opens on the same content word.
+The first attempt failed. It was slow. It cost a week. Three short sentences in a row are a rhythm the writer chose, and none of them shares a skeleton with its neighbor or opens on the same content word.
 
 We said no to the vendor, no to the consultant, and yes to the intern's prototype. That is a list with two negatives and a reversal, not a chain.
 

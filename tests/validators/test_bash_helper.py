@@ -71,7 +71,7 @@ def test_a_stub_that_exits_non_zero_is_rejected(
     stub.chmod(0o755)
 
     monkeypatch.setattr(
-        bash_helper.shutil, "which", lambda name: str(stub) if name == "bash" else None
+        bash_helper.shutil, "which", lambda name, path=None: str(stub) if name == "bash" else None
     )
     resolved = bash_helper.resolve_bash()
     assert resolved != str(stub), "a non-working stub was accepted as bash"
@@ -86,6 +86,6 @@ def test_returns_none_when_no_candidate_works(monkeypatch: pytest.MonkeyPatch) -
     """
     import bash_helper
 
-    monkeypatch.setattr(bash_helper.shutil, "which", lambda name: None)
+    monkeypatch.setattr(bash_helper.shutil, "which", lambda name, path=None: None)
     monkeypatch.setattr(bash_helper.sys, "platform", "linux")
     assert resolve_bash() is None

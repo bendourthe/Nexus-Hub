@@ -1,6 +1,6 @@
 # Decision: Seed a Kimi behavioral default via a `.kimi/agent.yaml` companion file
 
-Status: rejected - the file was never documented by the vendor; it was inferred from neighbouring platforms and had to be withdrawn in v3.15.0
+Status: rejected - the file was never documented by the vendor; it was inferred from neighboring platforms and had to be withdrawn in v3.15.0
 
 ## Problem
 
@@ -8,7 +8,7 @@ Nexus-Hub seeds per-platform behavioral defaults (reasoning effort, model pin, a
 
 ## Proposal
 
-Ship a `.kimi/agent.yaml` companion file carrying the platform's behavioral default, matching the shape used by neighbouring platforms that do document a config file.
+Ship a `.kimi/agent.yaml` companion file carrying the platform's behavioral default, matching the shape used by neighboring platforms that do document a config file.
 
 ## Alternatives considered
 

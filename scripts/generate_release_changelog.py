@@ -69,6 +69,13 @@ _SECTION_MAP = {
 _SECTION_ORDER = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def parse_commit(message: str) -> dict:
     """Parse a single commit message into its conventional-commit parts."""
     lines = message.strip().splitlines()

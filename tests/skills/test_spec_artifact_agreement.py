@@ -77,7 +77,7 @@ def test_template_carries_every_declared_section(section: str) -> None:
 
 @pytest.mark.parametrize("section", MANDATORY_SECTIONS)
 def test_mandatory_sections_are_marked_mandatory(section: str) -> None:
-    """A mandatory section must be labelled as such at its heading."""
+    """A mandatory section must be labeled as such at its heading."""
     assert f"## {section} *(mandatory)*" in _read(_TEMPLATE), (
         f"'## {section}' is declared mandatory here but is not marked "
         f"*(mandatory)* in spec-template.md."

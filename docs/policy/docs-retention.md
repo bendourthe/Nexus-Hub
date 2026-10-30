@@ -10,6 +10,10 @@ This policy defines a lifecycle for per-version documentation. It moves files; i
 
 `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` for the current minor version is unrestricted. Add plans, histories, comparisons, and notes freely. This is the working directory of the project and applying retention pressure to it would be counterproductive.
 
+### 1b. ARCHIVED MEMBER of an open minor
+
+When a minor-scope run's record carries the `archive-member` approval, each released member except the last moves its own records to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` as soon as its back-merge lands, while its minor stays ACTIVE: the member's plan under `plans/`, and its `v<MAJOR>.<MINOR>.<PATCH>-*` entries under `development/`, `development/history/`, `research/`, and `analysis/`. Every shared file stays in the active tree until the minor close: `known-gaps.md`, the minor's close evidence and cleanup reports, `comparisons/`, `handbooks/`, every unprefixed file, and every other member's files. For that period one minor lives in both trees on purpose, the archived member records beside the still-active rest, and the minor close later moves the rest into the same archive directory. The move runs only through `minor_close.py archive-member`, under the completion contract's "Member archive" rules, with reference repair and a zero-newly-broken-links proof. Nothing is deleted.
+
 ### 2. CONSOLIDATE at release
 
 When a version is released, its `development/history/` files **stay exactly where they are**. What changes is the entry point: the release's line in the [`DEVLOG index`](../DEVLOG.md) becomes the single way in, linking the plan, the history directory, and the known-gaps file.
@@ -84,7 +88,7 @@ python scripts/check_docs_retention.py
 
 It prints one `WARN` line per version directory that is two or more minors old and not yet archived, and one per fully-closed or verified-transferred minor whose `plans/` or `comparisons/` still sit in the active tree, naming the exact destination in each case. It never moves or deletes a file.
 
-Advisory rather than blocking, for two reasons. Archiving is a judgement call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
+Advisory rather than blocking, for two reasons. Archiving is a judgment call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
 
 The archive pass itself runs through `/update refactor` or `[[docs-layout-refactor]]`, propose-then-apply. `/update release` reports the closed-minor list as part of its governance pass, so a release is the moment the question gets asked; acting on it stays a separate confirmed operation, because moving a directory tree and repairing its references is not something a release flow should do unattended.
 

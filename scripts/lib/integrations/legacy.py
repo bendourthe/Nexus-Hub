@@ -42,6 +42,13 @@ from .result import FileAction
 CleanupFn = Callable[[InstallContext], Optional[FileAction]]
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[2] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _remove_path_if_exists(path: Path, dry_run: bool) -> Optional[FileAction]:
     if not path.exists() and not path.is_symlink():
         return None

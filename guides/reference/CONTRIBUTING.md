@@ -34,7 +34,7 @@ By participating in this project, you agree to:
 
 - Focus on what is best for the community
 
-- Show empathy towards other contributors
+- Show empathy toward other contributors
 
 ---
 

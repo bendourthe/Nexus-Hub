@@ -6,7 +6,7 @@ source project used `getBBox`, which ignores transforms, and it reported every
 rotated y-axis title as clipped - roughly 220 findings for one real defect. A
 measurement that disagrees with the screen is not a measurement.
 
-Two false-positive defences are load-bearing and both came from real noise:
+Two false-positive defenses are load-bearing and both came from real noise:
 
 - A rotated axis title sits outside its own untransformed box but inside the
   viewport once the transform is applied, so clipping is judged from
@@ -60,7 +60,7 @@ DEAD_SPACE_FRACTION = 0.08
 
 # How many times a device may appear before it reads as THE device rather than a
 # choice. These two are the AI tells that are countable in the rendered DOM;
-# everything else on that list needs an authorship judgement and is attested
+# everything else on that list needs an authorship judgment and is attested
 # instead, via check_attestation.py.
 #
 # These count a PATTERN, never taste. The finding says "you used this device N
@@ -244,8 +244,8 @@ AUDIT = r"""(options) => {
     }
   }
 
-  // ---- 4. two legend entries sharing one colour ---------------------------
-  // Only meaningful where the legend keys by colour, which is the common case.
+  // ---- 4. two legend entries sharing one color ---------------------------
+  // Only meaningful where the legend keys by color, which is the common case.
   const legendGroups = [...document.querySelectorAll(
     ".dv-legend, [data-dv-legend], .legend, [data-legend]")].filter(visible);
   for (const legend of legendGroups) {
@@ -253,7 +253,7 @@ AUDIT = r"""(options) => {
     const entries = [...legend.querySelectorAll(
       "[data-legend-entry], button, li, .legend-entry")].filter(visible);
     for (const entry of entries) {
-      // The swatch is whichever descendant actually paints a colour.
+      // The swatch is whichever descendant actually paints a color.
       const swatchEl = entry.querySelector("[data-swatch], svg *, .swatch") || entry;
       const s = getComputedStyle(swatchEl);
       const paint = [s.fill, s.backgroundColor, s.stroke, s.color].find(
@@ -262,7 +262,7 @@ AUDIT = r"""(options) => {
       const label = entry.textContent.trim().slice(0, 40);
       if (seen.has(paint)) {
         add("legend-colour-collision", entry,
-            {colour: paint, other: seen.get(paint), label},
+            {color: paint, other: seen.get(paint), label},
             `Legend entry "${label}" reuses ${paint}, already used by "${seen.get(paint)}"`);
       } else {
         seen.set(paint, label);
@@ -327,7 +327,7 @@ AUDIT = r"""(options) => {
   // ---- 7. a legend entry with nothing drawn to match it -------------------
   // A legend is a promise about the figure. The source project shipped a legend
   // listing an item absent from the plot, and one whose dot was a different
-  // colour from the figure's dots; both read as data the reader cannot find.
+  // color from the figure's dots; both read as data the reader cannot find.
   const norm = (c) => (c || "").replace(/\s+/g, "");
   for (const legend of legendGroups) {
     // The figure this legend belongs to: nearest container holding an svg.
@@ -389,7 +389,7 @@ AUDIT = r"""(options) => {
       const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
       const horizontal = tick.closest("[data-axis-x], .axis-x") !== null ||
                          Math.abs(cy - maxY) < Math.abs(cx - minX);
-      // A tick is out of range when its CENTRE sits beyond the drawn data on
+      // A tick is out of range when its CENTER sits beyond the drawn data on
       // its own axis, by more than half its own width, so a tick sitting at the
       // final data point is not reported.
       const slackX = r.width / 2 + 2, slackY = r.height / 2 + 2;
@@ -469,9 +469,9 @@ AUDIT = r"""(options) => {
   }
 
 
-  // ---- 10. the coloured left-border stripe as the default emphasis --------
-  // One callout is a choice. Every emphasis being a coloured left border is a
-  // house style nobody chose, and it is the single most recognisable tell in a
+  // ---- 10. the colored left-border stripe as the default emphasis --------
+  // One callout is a choice. Every emphasis being a colored left border is a
+  // house style nobody chose, and it is the single most recognizable tell in a
   // generated document.
   const striped = [];
   for (const e of document.querySelectorAll("*")) {
@@ -486,7 +486,7 @@ AUDIT = r"""(options) => {
     const others = ["borderTopWidth", "borderRightWidth", "borderBottomWidth"]
       .map((k) => parseFloat(cs[k]) || 0);
     if (others.some((v) => v >= w)) continue;
-    // The tell is a CALLOUT stripe: a text block leaning on a coloured edge for
+    // The tell is a CALLOUT stripe: a text block leaning on a colored edge for
     // emphasis. A bordered figure or media container is a frame, not a callout,
     // and counting those reported eight per handbook on this repository's own
     // output - every one of them a legitimate figure treatment.

@@ -65,7 +65,7 @@ def test_a_stub_bash_is_not_mistaken_for_a_working_one(tmp_path, monkeypatch):
         exit_code=1,
         to_stdout="Windows Subsystem for Linux has no installed distributions.",
     )
-    monkeypatch.setattr(shutil, "which", lambda name: str(stub) if name == "bash" else None)
+    monkeypatch.setattr(shutil, "which", lambda name, path=None: str(stub) if name == "bash" else None)
     monkeypatch.setattr(_interpreters, "_WINDOWS_BASH_CANDIDATES", ())
 
     status = _interpreters.check_bash(prefer_git_bash=False)
@@ -78,7 +78,7 @@ def test_a_stub_bash_is_not_mistaken_for_a_working_one(tmp_path, monkeypatch):
 def test_a_zero_exit_without_the_probe_output_is_rejected(tmp_path, monkeypatch):
     """A shim that swallows the script and succeeds is still not a usable bash."""
     stub = _write_stub(tmp_path / "quiet", exit_code=0, to_stdout="")
-    monkeypatch.setattr(shutil, "which", lambda name: str(stub) if name == "bash" else None)
+    monkeypatch.setattr(shutil, "which", lambda name, path=None: str(stub) if name == "bash" else None)
     monkeypatch.setattr(_interpreters, "_WINDOWS_BASH_CANDIDATES", ())
 
     status = _interpreters.check_bash(prefer_git_bash=False)
@@ -88,7 +88,7 @@ def test_a_zero_exit_without_the_probe_output_is_rejected(tmp_path, monkeypatch)
 
 
 def test_missing_bash_is_reported_rather_than_raised(monkeypatch):
-    monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.setattr(shutil, "which", lambda name, path=None: None)
     monkeypatch.setattr(_interpreters, "_WINDOWS_BASH_CANDIDATES", ())
 
     status = _interpreters.check_bash(prefer_git_bash=False)
@@ -98,7 +98,7 @@ def test_missing_bash_is_reported_rather_than_raised(monkeypatch):
 
 
 def test_missing_powershell_is_reported_rather_than_raised(monkeypatch):
-    monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.setattr(shutil, "which", lambda name, path=None: None)
 
     status = _interpreters.check_powershell()
 
@@ -118,7 +118,7 @@ def test_powershell_shim_without_probe_marker_is_rejected(tmp_path, monkeypatch)
     stub = _write_stub(
         tmp_path / "quiet", exit_code=0, to_stdout="ready", name="powershell"
     )
-    monkeypatch.setattr(shutil, "which", lambda name: str(stub))
+    monkeypatch.setattr(shutil, "which", lambda name, path=None: str(stub))
 
     status = _interpreters.check_powershell()
 

@@ -61,6 +61,7 @@ import re
 import sys
 import time
 from collections.abc import Callable
+from time import monotonic as _activity_monotonic, sleep as _activity_sleep
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -474,7 +475,7 @@ def _claude_keychain() -> str | None:
         timed_out = False
         try:
             done = subprocess.run(
-                ["security", "find-generic-password", "-s", service, "-w"],
+                ["security", "find-generic-password", "-s", service, "-w"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 capture_output=True,
                 text=True,
                 timeout=KEYCHAIN_TIMEOUT_SECONDS,
@@ -1199,7 +1200,92 @@ def _fallback(
     return _unavailable(platform, reason)
 
 
-def probe(platform: str) -> ProbeResult:
+
+class ActivityLock:
+    """OS-owned writer/adopter rendezvous; never evict a live lock by age.
+
+    The adopter uses ActivityLock(timeout=..., adopter=True), requires held,
+    then creates .runtime-adoption.lock before taking its protected baseline.
+    Keep this context through final verification or rollback. Import is inert.
+    Writers use the same home and return cached-only when held is false.
+    """
+
+    def __init__(self, home: Path | None = None, timeout: float = 0.0,
+                 adopter: bool = False) -> None:
+        self.home = home if home is not None else nexus_home()
+        self.timeout = max(0.0, timeout)
+        self.adopter = adopter
+        self.held = False
+        self.handle: Any = None
+
+    def __enter__(self) -> ActivityLock:
+        if not self.adopter and adoption_active(self.home):
+            return self
+        try:
+            path = self.home / "state" / "usage-probe" / "activity.lock"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self.handle = path.open("a+b")
+            # Windows locks a byte past EOF too; no initialization write needed.
+            end = _activity_monotonic() + self.timeout
+            while True:
+                try:
+                    self.handle.seek(0)
+                    if os.name == "nt":
+                        import msvcrt
+                        msvcrt.locking(self.handle.fileno(), msvcrt.LK_NBLCK, 1)
+                    else:
+                        import fcntl
+                        fcntl.flock(self.handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    self.held = True
+                    break
+                except OSError:
+                    if _activity_monotonic() >= end:
+                        break
+                    _activity_sleep(min(0.02, max(0.0, end - _activity_monotonic())))
+            if self.held and not self.adopter and adoption_active(self.home):
+                self.__exit__()
+        except OSError:
+            self.__exit__()
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        if self.handle is not None:
+            try:
+                if self.held:
+                    self.handle.seek(0)
+                    if os.name == "nt":
+                        import msvcrt
+                        msvcrt.locking(self.handle.fileno(), msvcrt.LK_UNLCK, 1)
+                    else:
+                        import fcntl
+                        fcntl.flock(self.handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                self.held = False
+                self.handle.close()
+                self.handle = None
+
+
+def adoption_active(home: Path | None = None) -> bool:
+    """Check canonical home too, so an override cannot miss a live adoption."""
+    homes = (Path.home() / ".nexus-hub", home if home is not None else nexus_home())
+    return any((p / ".runtime-adoption.lock").exists() for p in homes)
+
+
+def cached_probe(platform: str) -> ProbeResult:
+    """Read validated existing data only; no credential, fetch, mkdir or write."""
+    key = str(platform or "").strip().lower()
+    if key not in PLATFORMS:
+        return _unavailable(key, "no usage source for this platform")
+    if key == "copilot":
+        return read_copilot()
+    cache = _read_cache(key)
+    stamp = _number(cache.get("data_at")) if cache else None
+    windows = _cached_windows(key, cache) if cache and stamp is not None else []
+    return _fallback(key, windows, stamp, time.time() - stamp if stamp is not None else None,
+                     "internal error")
+
+
+def _probe_unlocked(platform: str) -> ProbeResult:
     """Return the current usage windows for ``platform``. Never raises."""
     key = str(platform or "").strip().lower()
     try:
@@ -1213,6 +1299,24 @@ def probe(platform: str) -> ProbeResult:
             return read_copilot()
         return _probe_network(key, time.time())
     except Exception:  # noqa: BLE001 - the contract is "never raise into the hook"
+        return _unavailable(key, "internal error")
+
+
+def probe(platform: str) -> ProbeResult:
+    """Return usage while joining the adopter rendezvous before any writes."""
+    key = str(platform or "").strip().lower()
+    if (key == "copilot" or key not in PLATFORMS
+            or os.environ.get("NEXUS_USAGE_PROBE_DISABLED", "").strip() == "1"
+            or key not in _enabled_providers()):
+        return _probe_unlocked(platform)
+    try:
+        if adoption_active():
+            return cached_probe(platform)
+        with ActivityLock() as activity:
+            if not activity.held:
+                return cached_probe(platform)
+            return _probe_unlocked(platform)
+    except Exception:  # noqa: BLE001 - preserve the never-raise probe contract
         return _unavailable(key, "internal error")
 
 

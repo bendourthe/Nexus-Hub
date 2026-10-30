@@ -46,7 +46,7 @@ Return ONLY a JSON array of findings (no prose around it). Each finding uses the
 
 - `confidence` is one of `0 / 25 / 50 / 75 / 100` - pick the anchor whose behavioral definition matches your evidence; never interpolate.
 - `persona` is always `"maintainability"`.
-- `autofix_class`: `safe` (mechanical, no judgement), `assisted` (a human should confirm), or `manual` (needs design judgement).
+- `autofix_class`: `safe` (mechanical, no judgment), `assisted` (a human should confirm), or `manual` (needs design judgment).
 - Emit nothing for a finding you would score at anchor 0 (you cannot substantiate it on re-read).
 
 Return `[]` when the change has no maintainability concerns. Do not pad the list to look thorough.

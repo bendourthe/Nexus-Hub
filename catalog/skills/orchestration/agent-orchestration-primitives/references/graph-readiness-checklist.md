@@ -8,7 +8,7 @@ One line each. These are reasons to LOOK at a graph, not permission to build one
 
 - **Independent verification needs different context or permissions from the producer.** A verifier that shares the producer's context and authority is not independent.
 - **The work is genuinely parallel with low dependencies.** Parallel-looking work with hidden ordering is sequential work with a merge problem.
-- **Context isolation improves quality.** Separate contexts stop one node's accumulated noise from degrading another's judgement.
+- **Context isolation improves quality.** Separate contexts stop one node's accumulated noise from degrading another's judgment.
 - **Permissions should differ by role.** A node that only reads should not carry write authority just because a sibling needs it.
 - **Failure containment matters.** One node's failure should not require repeating the successful work around it.
 - **The finish line changes by phase.** When "done" means something different at each stage, one exit condition cannot express it.
@@ -18,7 +18,7 @@ One line each. These are reasons to LOOK at a graph, not permission to build one
 Every item must be TRUE before fan-out begins. A single false item sends the design back down a rung.
 
 - [ ] A single loop has a **measured** failure mode that the graph fixes. Not a predicted one.
-- [ ] Each node has a distinct responsibility, context boundary, permission boundary, or parallel work package. A node that shares all four with its neighbour is not a node.
+- [ ] Each node has a distinct responsibility, context boundary, permission boundary, or parallel work package. A node that shares all four with its neighbor is not a node.
 - [ ] Inputs and outputs between nodes use explicit contracts or schemas, so a handoff can be validated rather than hoped about.
 - [ ] The fan-out count is bounded AND the merge strategy is defined before fan-out starts, not discovered when the results arrive.
 - [ ] Independent verification occurs BEFORE any high-cost or high-risk downstream work, so an unverified premise cannot be multiplied.

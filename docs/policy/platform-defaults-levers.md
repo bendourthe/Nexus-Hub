@@ -28,7 +28,7 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 | Platform (registry id) | Class | Lever keys | Config file | Surface alignment | Source | Verified |
 |---|---|---|---|---|---|---|
 | `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits`, `attribute-author`, `attribute-committer`, `attribute-co-authored-by`, `attribute-commit-message-author`, `attribute-commit-message-committer`, `git-commit-verify`, `read` | `.aider.conf.yml` | Exact | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-09-14 |
-| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-30 |
+| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/settings?tab=ide) | 2026-10-20 |
 | `antigravity2` | VERIFIED | `agentMode` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://www.antigravity.google/docs/cli/modes/) | 2026-10-10 |
 | `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL`, `env.CLAUDE_CODE_SUBAGENT_MODEL` (plus per-model `modelSettings`, now seeded), `attribution.commit`, `attribution.pr` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [configuration](https://code.claude.com/docs/en/configuration), [model-config](https://code.claude.com/docs/en/model-config), [settings-reference](https://code.claude.com/docs/en/settings-reference), [subagents](https://code.claude.com/docs/en/sub-agents) | 2026-10-16 |
 | `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-10-01 |
@@ -157,7 +157,7 @@ Added to the registry on 2026-08-25 and classified in the same change, so it car
 
 `~/.pi/agent/settings.json` (global) and `.pi/settings.json` (project) are documented as JSON settings files where "project settings override global settings". The Model & Thinking table documents `defaultProvider` ("Default provider (e.g., `\"anthropic\"`, `\"openai\"`)"), `defaultModel` ("Default model ID"), and `defaultThinkingLevel` with the enumerated values `off | minimal | low | medium | high | xhigh | max`. Also documented: `thinkingBudgets` (per-level token budgets) and `hideThinkingBlock`.
 
-`defaultThinkingLevel` is the closest analogue in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
+`defaultThinkingLevel` is the closest analog in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
 
 Two keys are deliberately NOT seeded. `defaultModel` is a bare model ID with no documented default and no vendor-documented safe self-selecting value, and `defaultProvider` scopes it; pinning either would hand a fresh install a provider and model the user's credentials may not reach. That is precisely the failure the do-not-invent rule exists to prevent, so both are recorded under `omitted` rather than guessed.
 
@@ -167,7 +167,7 @@ One caveat belongs on the record because it changes when a seeded value takes ef
 
 `~/.qwen/settings.json` (user) and `.qwen/settings.json` (project) document `model.name` ("The Qwen model to use for conversations"), `model.reasoningEffort` ("How hard reasoning-capable models think, applied across all providers", values `low | medium | high | xhigh | max`), and `tools.approvalMode` (`plan | default | auto-edit | auto | yolo`, documented default `"auto"`). Also documented: `model.maxToolCalls`, `model.maxWallTimeSeconds`, and `fastModel`.
 
-Qwen is the closest structural analogue to Claude in this table: a first-class, top-level reasoning-effort scalar plus a model pin, both in a JSON settings file at a path Nexus-Hub already targets.
+Qwen is the closest structural analog to Claude in this table: a first-class, top-level reasoning-effort scalar plus a model pin, both in a JSON settings file at a path Nexus-Hub already targets.
 
 ### windsurf - UNVERIFIED
 
@@ -266,3 +266,7 @@ The three requested Claude effort references and the current models overview wer
 ### 2026-10-18 - v4.14.0 scoped release verification
 
 The current platform discovery pass reuses the genuine October 16 Claude subagent and effort-delivery evidence above. Discovery references do not requalify every behavioral default. All other lever rows retain their prior dates and classifications, including partial and unverified surfaces. No memory lever, approval policy or seeded default changes in this release step. This remains an advisory record without a freshness gate.
+
+### 2026-10-20 - v4.14.1 release verification
+
+Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.

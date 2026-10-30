@@ -202,7 +202,7 @@ export class ClaudeUsageProvider implements UsageProvider {
       const raw = execFileSync(
         "security",
         ["find-generic-password", "-s", service, "-w"],
-        { encoding: "utf8", timeout: 5_000 }
+        { encoding: "utf8", timeout: 5_000, windowsHide: true }
       )
         .toString()
         .trim();
@@ -447,7 +447,7 @@ export class ClaudeUsageProvider implements UsageProvider {
           "-w",
           JSON.stringify(file),
         ],
-        { timeout: 5_000 }
+        { timeout: 5_000, windowsHide: true }
       );
     } catch {
       // Non-fatal: extension will use the refreshed token for this session only

@@ -1,0 +1,108 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"6cfc8a575872d43c40a141bf2e5254d3606e9fade4a9687526671fa7630a22dc","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "at": "2026-10-24T21:31:09.829Z",
+  "scope": "CONTEXT_METADATA_CORRECTION_ONLY_NO_PROCESS_OR_SOURCE_CHANGE",
+  "original_context_sha256": "3eb6d03d882cd8ea0fb31874cfbfc21e54590ff23ee005a70d7e721895318457",
+  "actual_selection_sha256": "f04d201df358def5619509df12488b8a7898fbbcaa8872fc2ddef9f3b9694137",
+  "stale_field": "context.expected_commands[0].timeout",
+  "stale_value": 1800,
+  "effective_field": "selection.commands[0].timeout",
+  "effective_value": 2400,
+  "driver_assertion": "[c.timeout_on(\"windows\") for c in commands] == [2400,1800,1800,1800]",
+  "corrected_expected_commands": [
+    {
+      "name": "repo-tests-governance-validators-co (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!c]*",
+        "--ignore-glob=*/test_c[!o]*"
+      ],
+      "cwd": ".",
+      "timeout": 2400,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-governance-validators-p-z (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/validators",
+        "-q",
+        "--ignore-glob=*/test_[!p-z]*"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-heavy (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides/test_training_game_engine.py",
+        "-q",
+        "tests/guides/test_page_openings_and_outline.py",
+        "tests/guides/test_training_reward_mockup.py",
+        "tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    {
+      "name": "repo-tests-guides-rest (Windows full)",
+      "argv": [
+        "<private-temp>\\n4142-ci-gui-1792733654290\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/guides",
+        "-q",
+        "--ignore=tests/guides/test_training_game_engine.py",
+        "--ignore=tests/guides/test_page_openings_and_outline.py",
+        "--ignore=tests/guides/test_training_reward_mockup.py",
+        "--ignore=tests/guides/test_models_learning_lab.py"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [
+        "windows"
+      ],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    }
+  ],
+  "expected_execution_caps_match": true,
+  "original_context_preserved": true,
+  "process_restarted": false,
+  "authorized_co_attempts_started": 1
+}
+}

@@ -47,7 +47,7 @@ export function makeTimeline(meta) {
   const PW = meta.page.width, PH = meta.page.height, A = meta.anchors;
   const title = meta.title ?? { badge: '', line1: '', tail: '' };
 
-  // Glide: anchored so the second section's title crosses frame centre at 1.6s and the footer
+  // Glide: anchored so the second section's title crosses frame center at 1.6s and the footer
   // title at 8.0s. Cruise follows from the page; the brief's ~770 px/s fits a ~5400px page.
   const cruise = (A.footerTitle - A.secondTitle) / (travel(8.0) - travel(1.6));
   const y0 = A.secondTitle - cruise * travel(1.6);
@@ -66,7 +66,7 @@ export function makeTimeline(meta) {
   };
 
   const tilt = (t) => TILT * (1 - smooth(8.15, 8.95, t));
-  const LINE = H - 42 - H / 2; // the 42px line, measured from frame centre
+  const LINE = H - 42 - H / 2; // the 42px line, measured from frame center
   const dStrip = (FOCAL * PH) / (H - 84); // whole page as one strip, 42px top and bottom
   const riseV = Math.log(dStrip / 1700) / (smoothInt(7.75, 8.35, 9.25) - smoothInt(8.95, 9.25, 9.25));
   const rise = (t) => riseV * (smoothInt(7.75, 8.35, t) - smoothInt(8.95, 9.25, t));
@@ -110,7 +110,7 @@ export function makeTimeline(meta) {
     const s = Math.sin(th), c = Math.cos(th);
     const T = [PW / 2, 0, tz];
     const C = [T[0], d * c, tz + d * s];
-    // Focus starts on the hero's mockup row and settles on frame centre.
+    // Focus starts on the hero's mockup row and settles on frame center.
     const bias = ((A.mockup ?? y0) - y0) * (1 - smooth(0, 1.2, t));
     return { t, th, d, T, C, F: [0, -c, -s], U: [0, s, -c], R: [1, 0, 0], focus: d - bias * s };
   }
@@ -128,7 +128,7 @@ export function makeTimeline(meta) {
   }));
   pieces.filter((p) => p.role === 'heroChip').sort((a, b) => a.cx - b.cx).forEach((p, k) => { p.k = k; });
 
-  // Fly chips: lateral flight solved so their centres cross the left and right frame edges at 2.5s.
+  // Fly chips: lateral flight solved so their centers cross the left and right frame edges at 2.5s.
   const flyLift = (t) => smooth(1.55, 2.4, t);
   const flyLat = (t) => 2 * smoothInt(1.6, 2.4, t); // = 1 at 2.5s, keeps flying outward after
   const cam25 = camera(2.5);
@@ -187,7 +187,7 @@ export function makeTimeline(meta) {
     a = lerp(a, 0, r);
     edge = lerp(edge, 0, r);
     if (p.belowHero) {
-      // Fade into the haze colour first, cut to transparent only once it matches the floor.
+      // Fade into the haze color first, cut to transparent only once it matches the floor.
       haze = smooth(9.5, 9.66, t);
       if (t > 9.7) opacity = 0;
     }

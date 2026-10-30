@@ -1,9 +1,9 @@
-/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred keyword title, a one-sentence statement in a framed callout, then a full-width visual summary of what the page holds. */
+/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centered keyword title, a one-sentence statement in a framed callout, then a full-width visual summary of what the page holds. */
 .pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 /* The opening statement is a framed callout: a softly tinted, rounded panel with a thin accent border,
-   centred under the title. Its type is the callout role in type.css; the panel takes the width of its
+   centered under the title. Its type is the callout role in type.css; the panel takes the width of its
    text and never more than the container, and on wide screens a share of the container so the sentence
    balances over two lines. */
 .pg-open-lead{box-sizing:border-box;width:fit-content;max-width:100%;margin:var(--sp-4) auto 0;padding:var(--sp-3) var(--sp-5);text-align:center;text-wrap:balance;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,transparent);box-shadow:0 10px 28px -22px color-mix(in srgb,var(--accent) 70%,transparent);}
@@ -27,7 +27,7 @@
 .fxo-chips{gap:0;}
 .fxo-chips li{font-family:var(--mono);font-size:var(--ty-micro);color:var(--ink-dim);}
 .fxo-chips li+li::before{content:"\00b7";margin:0 .6em;color:color-mix(in srgb,var(--accent) 60%,var(--ink-dim));}
-/* ---- Foundations flow (R17): one composer and the model it sends to. Each prompt part keeps one colour
+/* ---- Foundations flow (R17): one composer and the model it sends to. Each prompt part keeps one color
    everywhere: its underline, its tokens, and its segment of the context bar. One 24s loop; the answer
    holds for about three seconds before the loop restarts. */
 .fxo-flow{display:flex;align-items:stretch;margin-top:12px;}
@@ -53,10 +53,10 @@
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
 html[data-theme="light"] .fxo-send{color:#fffdf8;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
-/* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
+/* The left column reads in story order, Prompt, Context Window, Tokens, each row labeled in the same style. */
 .fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
 .fxo-prow .fxo-lab{padding-top:14px;}
-/* The bar's centre line is its label's: both sit centred in the first row; the legend runs under the bar. */
+/* The bar's center line is its label's: both sit centered in the first row; the legend runs under the bar. */
 .fxo-ctx{align-items:center;}
 .fxo-ctx .fxo-lab{padding-top:0;}
 .fxo-ctx .fxo-gauge{margin-top:0;}

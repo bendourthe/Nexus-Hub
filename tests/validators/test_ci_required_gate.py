@@ -17,7 +17,7 @@ matter, and every one of them fails SILENTLY if wrong:
    `needs` with no env var is invisible to the verdict loop, so it could fail
    while the aggregate still reported success.
 3. **Verdict.** `skipped` passes (the detector doing its job) while `failure`,
-   `cancelled`, an unrecognised value, and an empty value all fail.
+   `cancelled`, an unrecognized value, and an empty value all fail.
 
 The verdict tests execute the shipped `run:` script through its real interface
 rather than reimplementing its logic, so they test the thing that ships.

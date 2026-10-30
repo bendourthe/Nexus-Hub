@@ -334,6 +334,7 @@ def test_windows_launcher_reaches_org_subcommand(tmp_path: Path) -> None:
     scripts = home / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy2(CLI_PY, scripts / CLI_PY.name)
+    shutil.copy2(SCRIPTS / "nexus_process.py", scripts / "nexus_process.py")
     shutil.copytree(SCRIPTS / "lib", scripts / "lib")
     env = dict(os.environ)
     env["NEXUS_HUB_HOME"] = str(home)

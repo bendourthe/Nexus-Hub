@@ -26,7 +26,7 @@ Detection is marker-based, not prose-inferring. A checker that guessed at
 free-text would produce confident false passes, which is worse than no checker:
 the gate exists to stop a surface shipping untaught, and a false CLEAR is
 exactly that failure wearing a green tick. Each surface therefore declares its
-five elements with labelled lines:
+five elements with labeled lines:
 
     ### NEXUS_HUB_COPILOT_SKILLS
     - Activation: set `NEXUS_HUB_COPILOT_SKILLS=1` before running the installer
@@ -83,7 +83,7 @@ NO_CHANGE_PATTERNS = (
     r"no\s+optional\s+capability\s+changes?",
 )
 
-# Two accepted marker forms, both EXPLICIT. A labelled line ("- Activation: ...")
+# Two accepted marker forms, both EXPLICIT. A labeled line ("- Activation: ...")
 # and a Markdown table row ("| **Activation** | ... |"). The table form was added
 # after this checker failed on the very release notes that introduced it: a table
 # is a perfectly reasonable way to present five parallel elements, and rejecting

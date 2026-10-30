@@ -13,6 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 FLOOR = (3, 11)
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _check_paths_on_floor(paths: list[Path]) -> list[str]:
     """Parse source in a Python 3.11 process, never an emulated grammar mode."""
     failures = []

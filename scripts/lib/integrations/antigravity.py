@@ -34,8 +34,8 @@ Residual CLI workflow and agent paths remain unverified. The adapter does not
 guess those destinations; a future official contract can enable them.
 
 ``usage-guard`` (v4.13.7) is deliberately absent from the curated hook list:
-Antigravity has no usage source the probe can read, so the checkpoint rule and
-``/handoff`` cover it.
+Antigravity has no usage source the probe can read, so the Session Handoff rule
+and ``/handoff`` cover it.
 """
 
 from __future__ import annotations
@@ -183,15 +183,9 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         ],
                     },
                 ],
-                # v4.13.2: the full-run completion gate. The bridge translates a
-                # Claude-shaped block into Antigravity's `decision: "continue"`.
-                "Stop": [
-                    {
-                        "hooks": [
-                            {"command": wrapped_command_for("completion-gate.sh", "Stop")},
-                        ],
-                    },
-                ],
+                # No Stop registration: the v4.13.2 completion gate was removed
+                # from the defaults (2026-10-28). Re-registering a set merges over
+                # this one, so an older install loses its Stop entry on upgrade.
             },
         }
 
@@ -203,7 +197,6 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "git-guardrails.sh",
         "user-edit-guard.sh",
         "attribution-guard.sh",
-        "completion-gate.sh",
     )
 
     # ----- install entry points -------------------------------------------

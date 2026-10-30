@@ -127,11 +127,11 @@ def test_no_node_ever_sits_under_the_hud_or_the_boss_bar(browser, size: tuple[in
 def test_the_frame_turns_a_quarter_at_a_time_and_hurries_when_no_node_is_low(page) -> None:
     out = _js(page, BOSS + """g.breakShields(); for (let i = 0; i < 1500; i++) g.step(1); const a = g.state().boss.turns.slice();
         while (g.bossGeometry().turning) g.step(1);
-        let geo = g.bossGeometry(); const low = [0, 1, 2, 3].filter(i => geo.nodes[i][1] > geo.centre[1]);
+        let geo = g.bossGeometry(); const low = [0, 1, 2, 3].filter(i => geo.nodes[i][1] > geo.center[1]);
         low.forEach(i => g.hitBoss('node' + i, 1e9)); const t0 = g.state().tick;
         const before = g.state().boss.turns.length; let n = 0; while (g.state().boss.turns.length === before && n++ < 900) g.step(1);
         const wait = g.state().tick - t0; while (g.bossGeometry().turning) g.step(1); geo = g.bossGeometry();
-        const alive = g.state().boss.alive, lowAfter = [0, 1, 2, 3].filter(i => alive[i] && geo.nodes[i][1] > geo.centre[1]);
+        const alive = g.state().boss.alive, lowAfter = [0, 1, 2, 3].filter(i => alive[i] && geo.nodes[i][1] > geo.center[1]);
         return { a, low, wait, lowAfter };""")
     _js(page, DONE)
     assert all(abs(t["to"] - t["from"]) == 1 for t in out["a"]), "each turn is one quarter"
@@ -149,15 +149,15 @@ def test_the_armour_and_the_core_still_guard_while_a_node_lives_at_any_angle(pag
             if (phase === 'rest') while (g.bossGeometry().turning) g.step(1);
             const geo = g.bossGeometry(), c0 = g.state().boss.coreHp, d0 = g.state().boss.deflects, hp0 = g.state().boss.nodeHp.slice();
             const plate = geo.plates[0], cx = (plate[0][0] + plate[1][0] + plate[2][0]) / 3, cy = (plate[0][1] + plate[1][1] + plate[2][1]) / 3;
-            const core = g.shotAt(geo.centre[0], geo.centre[1]), armour = g.shotAt(cx, cy), after = g.state().boss;
-            res.push({ phase, rot: geo.rot, core, armour, coreHp: [c0, after.coreHp], deflect: after.deflects - d0, nodes: JSON.stringify(hp0) === JSON.stringify(after.nodeHp) });
+            const core = g.shotAt(geo.center[0], geo.center[1]), armor = g.shotAt(cx, cy), after = g.state().boss;
+            res.push({ phase, rot: geo.rot, core, armor, coreHp: [c0, after.coreHp], deflect: after.deflects - d0, nodes: JSON.stringify(hp0) === JSON.stringify(after.nodeHp) });
           }
         }
         return res;""")
     _js(page, DONE)
     for r in out:
         assert r["core"] is True and r["coreHp"][0] == r["coreHp"][1] and r["deflect"] == 1, f"the core glances shots off while a node lives: {r}"
-        assert r["armour"] is True and r["nodes"], f"a side plate absorbs a round at {r['phase']}: {r}"
+        assert r["armor"] is True and r["nodes"], f"a side plate absorbs a round at {r['phase']}: {r}"
 
 
 def test_the_frame_settles_on_a_half_turn_once_only_the_core_is_left(page) -> None:

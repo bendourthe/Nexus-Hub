@@ -143,7 +143,7 @@ def _stem(token: str) -> str:
 # "generate the changelog entry for this release" scoring a perfect 1.00 against
 # it purely on SKIP-clause text, and "what work is still open or deferred" doing
 # the same. AGENTS.md tells every author to write a SKIP clause, so the scorer
-# must not penalise them for it. Everything from the first SKIP marker onward is
+# must not penalize them for it. Everything from the first SKIP marker onward is
 # dropped before tokenizing; the clause is terminal by convention.
 _SKIP_MARKER = re.compile(
     r"(?:SKIP\s*[:\-]|Do\s+NOT\s+use\s+for|Do\s+not\s+use\s+for)",

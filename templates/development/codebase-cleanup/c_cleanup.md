@@ -61,7 +61,7 @@ cleanup/
 
 - [ ] Unused functions, variables, and macros identified
 
-- [ ] Dormant feature flags, experiments, or compile-time toggles catalogued
+- [ ] Dormant feature flags, experiments, or compile-time toggles cataloged
 
 - [ ] Deprecated APIs and interfaces mapped to replacement timeline
 
@@ -101,7 +101,7 @@ cleanup/
 
 ### Regression Safety
 
-- [ ] Critical behaviours covered by unit/integration tests
+- [ ] Critical behaviors covered by unit/integration tests
 
 - [ ] Cleanup changes validated on target hardware (for embedded systems)
 

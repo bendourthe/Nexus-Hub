@@ -13,8 +13,8 @@ command/write/prompt/response payloads into the Claude-shaped subset consumed by
 the curated catalog hooks. Pre-hook exit code 2 remains a native blocking error.
 Hooks that depend on unsupported event or rewrite semantics are not registered.
 ``usage-guard`` (v4.13.7) is deliberately absent from the curated map: Cascade
-has no usage source the probe can read, so the checkpoint rule and ``/handoff``
-cover it.
+has no usage source the probe can read, so the Session Handoff rule and
+``/handoff`` cover it.
 """
 
 from __future__ import annotations

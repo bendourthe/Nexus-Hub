@@ -27,7 +27,7 @@ its own tells, and the first two are COUNTABLE rather than judged.
 
 | Tell | How it is counted |
 |---|---|
-| A coloured left-border stripe as the default emphasis device | text blocks carrying only a thick left border, counted across the document |
+| A colored left-border stripe as the default emphasis device | text blocks carrying only a thick left border, counted across the document |
 | Uniform equal-sized card grids as the answer to every piece of content | multi-column containers whose children are the same size, counted |
 
 Both are gated by `geometric_audit.py` in `[[document-to-interactive-html]]`,
@@ -40,7 +40,7 @@ output before they were fixed: a bordered `<figure>` is a frame rather than a
 callout, and a vertical list is not a card grid - its items are trivially equal
 in width because they all span the container.
 
-### Attested, because they need an authorship judgement
+### Attested, because they need an authorship judgment
 
 - Emoji as section markers in a professional document.
 - Heavy em-dash rhythm.
@@ -252,7 +252,7 @@ This is the one catalog entry with no judgment call. Every other pattern is flag
 
 ### Reflective and faux-reveal register
 
-Smell: the voice of a counsellor or a confessional essayist applied to a subject that has no inner life, and its companion move, staging an ordinary fact as a disclosure. "Sit with that for a moment." "That is worth naming." "That is not nothing." "You already know this." "Here is the twist." "Turns out, ..." "X is dead."
+Smell: the voice of a counselor or a confessional essayist applied to a subject that has no inner life, and its companion move, staging an ordinary fact as a disclosure. "Sit with that for a moment." "That is worth naming." "That is not nothing." "You already know this." "Here is the twist." "Turns out, ..." "X is dead."
 
 - Before: "Turns out, the cache was never enabled. Sit with that for a moment."
 - After: "The cache was never enabled, so every request hit the database."

@@ -150,7 +150,7 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Definition**: The catalog state of a tool cell for which no vendor-documented user-level key exists or no Proof Record could be produced, always shown with its reason instead of a control.
 
-**Avoid**: unsupported, disabled, greyed out, coming soon
+**Avoid**: unsupported, disabled, grayed out, coming soon
 
 **Relationships**: Opposite of an admitted Settings Control cell (plan v4.14.6). Each Not-Settable cell a vendor could later make settable is recorded as a known gap.
 
@@ -169,3 +169,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: proof, attestation, certificate, green build
 
 **Relationships**: Read by the opt-in publication tripwire hook (plan v4.22.3). Keyed by content tree, so a commit whose tree matches an already checked tree reuses it. Narrower than evidence: a receipt shows that a command ran and passed, not that the change is correct, and an agent with shell access can defeat it.
+
+## Eyebrow
+
+**Definition**: A small label set above a heading, often uppercase or monospace; it is earned when it carries information the heading lacks (a category, a step in a real sequence, a status, a date) and decorative otherwise.
+
+**Avoid**: kicker (for an earned label), overline, tagline, subtitle
+
+**Relationships**: Judged by the `hallmark-design` earned-eyebrow gate (plan v4.22.6), with its size and weight deferred to `web-typography`. A decorative eyebrow is one instance of the default attractor `document-to-interactive-html` warns about. Not the same as a section number in a document's own outline, which is navigation rather than decoration.
+
+## High-Frequency Surface
+
+**Definition**: An interface element a user triggers many times a day, such as a context menu, command palette, menu-item hover or tab switch, where any animation is paid on every use.
+
+**Avoid**: frequent component, hot path (for UI)
+
+**Relationships**: Governs the frequency-of-use rule in `hallmark-design` gate 25 (plan v4.22.6): no entrance animation and at most a short exit. Reduced-motion requirements stay with `accessibility-engineering`. Not the same as a performance hot path, which concerns compute rather than perceived time.

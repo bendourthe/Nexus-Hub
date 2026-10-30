@@ -618,8 +618,8 @@ class TestDataPipelineMetamorphic:
 - **Use multiple independent metamorphic relations**: A single relation catches a limited class of bugs; 5-10 diverse relations provide broader coverage
 - **Quantify tolerance explicitly**: For approximate relations (confidence scores, floating-point values), define explicit tolerances rather than using exact equality
 - **Generate diverse source inputs**: Metamorphic relations are only as good as the source inputs they are applied to; cover different regions of the input space
-- **Document the reasoning behind each relation**: A metamorphic relation is a hypothesis about the system's behaviour; document why you believe it should hold
-- **Use metamorphic testing for regression**: When you refactor code, metamorphic tests verify that the behavioural relationships are preserved even if exact outputs change
+- **Document the reasoning behind each relation**: A metamorphic relation is a hypothesis about the system's behavior; document why you believe it should hold
+- **Use metamorphic testing for regression**: When you refactor code, metamorphic tests verify that the behavioral relationships are preserved even if exact outputs change
 
 ## Common Pitfalls
 

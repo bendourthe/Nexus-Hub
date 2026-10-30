@@ -1,6 +1,6 @@
 {
   "skill": "model-prompting-research",
-  "purpose": "Route 'refresh how we prompt the current models' here, and keep the two same-category near-neighbours (model-routing, which PICKS a model, and prompt-engineering, which tunes ONE prompt) routing to themselves.",
+  "purpose": "Route 'refresh how we prompt the current models' here, and keep the two same-category near-neighbors (model-routing, which PICKS a model, and prompt-engineering, which tunes ONE prompt) routing to themselves.",
   "cases": [
     {"id": "pos-new-model", "prompt": "a new model just shipped, check our prompting conventions against it", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},
     {"id": "pos-tune-model", "prompt": "tune prompting for this model", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},

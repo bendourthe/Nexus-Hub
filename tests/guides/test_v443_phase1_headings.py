@@ -325,7 +325,7 @@ DOT_JS = """() => { const probe = document.createElement('i'); probe.style.color
     const w = parseFloat(b.width), top = parseFloat(b.top);
     return { text: h.textContent.trim(), content: b.content, round: b.borderTopLeftRadius === '50%' || parseFloat(b.borderTopLeftRadius) >= w / 2,
              square: Math.abs(w - parseFloat(b.height)) < .5 && w > 0, bg: b.backgroundColor, accent,
-             centre: top + parseFloat(b.height) / 2, line: parseFloat(c.paddingTop) + parseFloat(c.lineHeight) / 2,
+             center: top + parseFloat(b.height) / 2, line: parseFloat(c.paddingTop) + parseFloat(c.lineHeight) / 2,
              after: getComputedStyle(h, '::after').content }; });
   const h3 = [...document.querySelectorAll('main h3')].filter(vis).map(h => [h.textContent.trim(), getComputedStyle(h, '::before').content]);
   return { h2, h3 }; }"""
@@ -363,14 +363,14 @@ def test_every_text_element_renders_with_its_role(playwright_mod) -> None:
 
 
 def test_every_h2_carries_the_accent_dot_and_no_h3_does(playwright_mod) -> None:
-    """Maintainer review (revision 7): one coloured dot left of every H2, centred on its first line; never on an H3."""
+    """Maintainer review (revision 7): one colored dot left of every H2, centered on its first line; never on an H3."""
     pages = _each_page(playwright_mod, DOT_JS)
     for name, res in pages.items():
         assert res["h2"], name
         for h in res["h2"]:
             assert h["content"] in ('""', "''") and h["round"] and h["square"], (name, h)
             assert h["bg"] == h["accent"], (name, h)
-            assert abs(h["centre"] - h["line"]) <= 1, (name, h)
+            assert abs(h["center"] - h["line"]) <= 1, (name, h)
             assert h["after"] in ("none", "normal"), (name, h)
         dotted = [t for t, content in res["h3"] if content not in ("none", "normal")]
         assert not dotted, (name, dotted)

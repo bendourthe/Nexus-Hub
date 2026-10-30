@@ -5,6 +5,10 @@
 .DESCRIPTION
     Turn-end completion gate for a full /implement run - Part of Nexus-Hub (v4.13.2).
 
+    OPT-IN: not registered by any default install since 2026-10-28 (it re-prompted at every
+    turn end, including turns waiting on the user, CI, or an approval). Register it yourself
+    on your platform's turn-end event to use it; see docs/policy/completion-levers.md.
+
     Thin adapter over ~/.nexus-hub/scripts/completion_gate.py (stop mode). The
     decision logic lives in that installed core, never in the working tree, so a
     repository cannot plant its own version. What "done" means is owned by the
@@ -65,7 +69,7 @@ if (-not $python -or -not (Test-Path -LiteralPath $core)) { exit 0 }
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $python
 $psi.Arguments = '"' + $core + '" stop'
-$psi.UseShellExecute = $false
+$psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
 $psi.RedirectStandardInput = $true
 $psi.RedirectStandardOutput = $true
 $psi.RedirectStandardError = $true

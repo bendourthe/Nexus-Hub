@@ -252,7 +252,7 @@ Score challengers with an independent skeptic, not the generator that produced t
 | Rationalization | Reality |
 |---|---|
 | "One good agent run is enough; running N is just burning tokens." | For a routine task, yes -- and this skill says NOT to use it then. But for a payments or data-integrity change, one undetected bug costs far more than N agent runs. Competitive generation buys insurance precisely where the failure cost is high. |
-| "I will pick the winner by reading the diffs and choosing the one that looks cleanest." | "Looks cleanest" is the subjective judgement competitive generation exists to eliminate. The whole point is an objective rubric (test passage, diff size, lint score) so the selection survives a "why did you pick that one?" challenge. |
+| "I will pick the winner by reading the diffs and choosing the one that looks cleanest." | "Looks cleanest" is the subjective judgment competitive generation exists to eliminate. The whole point is an objective rubric (test passage, diff size, lint score) so the selection survives a "why did you pick that one?" challenge. |
 | "I can run this without tests; I will judge correctness by inspection." | With no tests or acceptance criteria there is no objective signal to rank candidates, so the comparison degenerates into a coin flip. The Do NOT list explicitly fences off this case. |
 
 ## Verification

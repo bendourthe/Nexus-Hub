@@ -4,7 +4,7 @@
      into view and the current entry follows scrolling; in "route" mode a click follows href and
      opts.current() names the current entry. opts.column names the content column to measure
      (default: the host's closest .container).
-     Placement never takes width from the content: when the left margin beside the centred
+     Placement never takes width from the content: when the left margin beside the centered
      content column has room, the navigation is a fixed rail inside that margin (labels when the
      margin is wide, the current label only when it is slim); otherwise it is a compact sticky bar
      under the header with a progress line and a section menu. The layout is re-measured on

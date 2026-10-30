@@ -1,6 +1,6 @@
 """v4.4.2 Phase 1 gates: the NexusSeq sequencer, the section-title scale, and the rename.
 
-Browser tests, because every claim is about live behaviour or computed style: a timeline
+Browser tests, because every claim is about live behavior or computed style: a timeline
 advancing in order, pausing offscreen and on a hidden tab, collapsing to its end state under
 reduced motion, and a title scale that must never force horizontal overflow at 320 px.
 """

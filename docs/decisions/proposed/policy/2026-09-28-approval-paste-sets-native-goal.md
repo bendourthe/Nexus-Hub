@@ -37,7 +37,7 @@ Caveats, stated plainly:
 | Row | Value | Source | Why |
 |---|---|---|---|
 | `claude` | `unverified` | this record's probe; hook reference https://code.claude.com/docs/en/hooks | Headless probe above showed verbatim capture; the typed path is not yet probed. |
-| `antigravity2` | `not-captured` | https://antigravity.google/docs/hooks/ | `/goal` exists, but the hooks page lists only PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop, with no prompt-submit event. Judgement call: no page says slash commands skip a hook. |
+| `antigravity2` | `not-captured` | https://antigravity.google/docs/hooks/ | `/goal` exists, but the hooks page lists only PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop, with no prompt-submit event. Judgment call: no page says slash commands skip a hook. |
 | `antigravity2/cli` | `not-captured` | https://antigravity.google/docs/hooks/ | Same five-event hooks page; `/goal` is listed for the CLI, and headless `/goal` is undocumented. |
 | `codex` | `unverified` | https://learn.chatgpt.com/docs/hooks | `UserPromptSubmit` receives the prompt about to be sent; the docs never say whether a typed slash command reaches it. |
 | `copilot/cli` | `unverified` | https://docs.github.com/en/copilot/reference/hooks-reference | `/goal [OBJECTIVE]` starts autopilot; `userPromptSubmitted` carries `prompt`, but slash-command behavior is not stated. |
@@ -75,4 +75,4 @@ Third-party issue threads seen during research were not used, because they are n
 
 - **Interactive divergence.** If typed `/goal` in the terminal UI reaches the hook differently from `-p`, the single line would be refused on Claude Code. This is why the row waits for a typed probe before it becomes `verbatim`.
 - **Vendor drift.** Hook payloads and slash-command handling change between releases. Rows must be re-probed or re-checked before a release relies on them.
-- **Antigravity judgement call.** `not-captured` for Antigravity 2.0 rests on the absence of any prompt-submit event, not on an explicit vendor statement. If Antigravity adds such an event, the row becomes `unverified` until probed.
+- **Antigravity judgment call.** `not-captured` for Antigravity 2.0 rests on the absence of any prompt-submit event, not on an explicit vendor statement. If Antigravity adds such an event, the row becomes `unverified` until probed.

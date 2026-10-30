@@ -81,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         _to_target(args.target),
     ]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, timeout=120)
+        subprocess.run(cmd, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=True, capture_output=True, timeout=120)
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as exc:
         print(f"error: browser capture failed: {exc}", file=sys.stderr)
         return 2

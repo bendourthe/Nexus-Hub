@@ -280,13 +280,13 @@ def test_the_passage_shares_no_element_with_the_level_wormholes_or_the_finale(br
 
 
 def test_the_passage_palette_is_its_own() -> None:
-    """Each of the passage's colours appears once in the engine, in NOVA_LOOK: no other draw path uses it."""
+    """Each of the passage's colors appears once in the engine, in NOVA_LOOK: no other draw path uses it."""
     src = ENGINE.read_text(encoding="utf-8")
     look = re.search(r"var NOVA_LOOK = \{(.*?)\};", src, re.S)
     assert look, "NOVA_LOOK is defined"
-    colours = re.findall(r"#[0-9a-fA-F]{6}", look.group(1))
-    assert len(colours) == 9
-    for c in colours:
+    colors = re.findall(r"#[0-9a-fA-F]{6}", look.group(1))
+    assert len(colors) == 9
+    for c in colors:
         assert src.lower().count(c.lower()) == 1, f"{c} is used outside NOVA_LOOK"
 
 

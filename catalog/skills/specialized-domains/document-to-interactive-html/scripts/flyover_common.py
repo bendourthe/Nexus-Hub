@@ -99,7 +99,7 @@ def ffmpeg_base(ffmpeg: str) -> list[str]:
 
 def run_ffmpeg(args: list[str], timeout: float = 600) -> subprocess.CompletedProcess[str]:
     """Run ffmpeg without a shell; both pipes are drained together, so no Windows pipe deadlock."""
-    return subprocess.run(args, capture_output=True, text=True, timeout=timeout, shell=False, check=False)
+    return subprocess.run(args, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), capture_output=True, text=True, timeout=timeout, shell=False, check=False)
 
 
 def check_caps(duration: float, fps: int, sub: int) -> int:

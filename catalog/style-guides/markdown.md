@@ -219,6 +219,7 @@ For commands and skills that need a short summary instead of the full guide:
 | Headings | Blank line before/after; ATX-style; one `#` per doc |
 | No hard wrap | Each paragraph or bullet is one continuous line |
 | ASCII | English Markdown is ASCII-only (hyphens, straight quotes, `...`) |
+| Spelling | American English (color, behavior, organize, center, judgment); external identifiers and quotations keep their published spelling |
 
 ## Automated enforcement (markdownlint-cli2)
 

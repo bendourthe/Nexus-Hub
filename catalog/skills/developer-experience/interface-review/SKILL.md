@@ -69,7 +69,7 @@ State in the report: scope, mode, cap.
 
 ### 3. Missing-delegate honesty
 
-If a delegate cannot be loaded, in the coverage section write `not reviewed (missing: <skill-name>)` for that domain and continue. Do not reconstruct its rules from memory, do not substitute a neighbour, and do not claim a holistic review. The gap must be visible in the report, not only in these instructions.
+If a delegate cannot be loaded, in the coverage section write `not reviewed (missing: <skill-name>)` for that domain and continue. Do not reconstruct its rules from memory, do not substitute a neighbor, and do not claim a holistic review. The gap must be visible in the report, not only in these instructions.
 
 ### 4. Evidence, severity, de-duplication
 

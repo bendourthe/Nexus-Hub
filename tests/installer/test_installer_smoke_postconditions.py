@@ -128,10 +128,11 @@ def test_eval_and_report_scripts_are_literal_smoke_requirements() -> None:
     assert set(EVAL_AND_REPORT_SCRIPTS) <= set(EXPECTED_SCRIPTS)
 
 
-@pytest.mark.parametrize("name", EVAL_AND_REPORT_SCRIPTS)
+@pytest.mark.parametrize("name", (*EVAL_AND_REPORT_SCRIPTS, "completion_budget.py"))
 def test_cli_rejects_a_missing_distributed_script(
     installed_copy: tuple[Path, Path], name: str
 ) -> None:
+    assert name in EXPECTED_SCRIPTS
     home, workspace = installed_copy
     command = [
         sys.executable, str(Path(smoke.__file__).resolve()),
@@ -350,3 +351,40 @@ def test_main_reports_launcher_failure(
 
     assert smoke.main(["--home", str(home), "--workspace", str(workspace)]) == 1
     assert "nexus-hub --version failed" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("problem", [None, "missing-reference", "changed-eval", "changed-command", "missing-source"])
+def test_source_payload_requires_exact_nested_files_and_commands(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], problem: str | None
+) -> None:
+    home, workspace, source = (tmp_path / name for name in ("home", "workspace", "source"))
+    _seed(home, workspace)
+    files = (
+        "skills/category/example/SKILL.md",
+        "skills/category/example/references/detail.md",
+        "skills/category/example/evals/cases.json",
+        "commands/example.md",
+    )
+    for relative in files:
+        original = source / "catalog" / relative
+        parts = Path(relative).parts
+        installed = workspace / ".claude" / (Path("skills", *parts[2:]) if parts[0] == "skills" else Path(relative))
+        original.parent.mkdir(parents=True, exist_ok=True)
+        installed.parent.mkdir(parents=True, exist_ok=True)
+        original.write_bytes(b"exact payload\r\n")
+        installed.write_bytes(original.read_bytes())
+    if problem == "missing-reference":
+        (workspace / ".claude/skills/example/references/detail.md").unlink()
+    elif problem == "changed-eval":
+        (workspace / ".claude/skills/example/evals/cases.json").write_bytes(b"different")
+    elif problem == "changed-command":
+        (workspace / ".claude/commands/example.md").write_bytes(b"different")
+    elif problem == "missing-source":
+        source = source / "absent"
+    monkeypatch.setattr(smoke.subprocess, "run", lambda *args, **kwargs: smoke.subprocess.CompletedProcess(args[0], 0, "nexus-hub 4.14.2\n", ""))
+    code = smoke.main(["--home", str(home), "--workspace", str(workspace), "--source", str(source)])
+    assert code == (0 if problem is None else 1)
+    output = capsys.readouterr()
+    assert ("installer smoke: PASS" in output.out) == (problem is None)
+    if problem is not None:
+        assert "catalog" in output.err

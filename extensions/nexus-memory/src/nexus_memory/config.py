@@ -82,7 +82,7 @@ def is_inside_git_worktree(path: Path) -> bool:
     probe = target if target.is_dir() else target.parent
     try:
         result = subprocess.run(
-            ["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"],
+            ["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             capture_output=True,
             text=True,
             timeout=5,

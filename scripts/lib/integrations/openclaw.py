@@ -748,8 +748,9 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
         result = self._write_workspace(workspace, ctx)
         result.detected = True
         if not ctx.instruction_only and state_dir.is_dir():
-            # v4.13.2: completion-gate plugin in the user's extensions root. Only
-            # into a state directory that already exists: a configured workspace
+            # Opt-in completion-gate plugin (NEXUS_HUB_COMPLETION_PLUGINS=1; a
+            # default install retires an earlier copy) in the user's extensions
+            # root. Only into a state directory that already exists: a configured workspace
             # can resolve a state path the user does not have, and creating it
             # would plant executable code in a directory OpenClaw never made.
             install_completion_plugin(self, ctx, "openclaw", state_dir / "extensions" / PLUGIN_ID, result)

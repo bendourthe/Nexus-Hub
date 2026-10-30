@@ -50,7 +50,7 @@ def git_changed_files(root: Path, ref: str) -> list[str] | None:
     tree, or None when git is unavailable / the ref is invalid / not a repo."""
     try:
         proc = subprocess.run(
-            ["git", "-C", str(root), "diff", "--name-only", ref, "--"],
+            ["git", "-C", str(root), "diff", "--name-only", ref, "--"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             capture_output=True,
             text=True,
             encoding="utf-8",

@@ -140,8 +140,8 @@ MEASURE = r"""(root) => {
    if(label) {
      const ink=rgb(e instanceof SVGElement ? (css.fill!=='none'?css.fill:css.color) : css.color);
      if(ink && ink[3]>0.05) {
-       // Transparency is part of the colour the reader sees. Scoring the
-       // DECLARED ink treats 40%-alpha grey as if it were solid grey and
+       // Transparency is part of the color the reader sees. Scoring the
+       // DECLARED ink treats 40%-alpha gray as if it were solid gray and
        // reports a pass the screen does not support, so the ink is composited
        // over its backdrop at its effective alpha first: the element's own
        // rgba() alpha multiplied by every opacity inherited down the chain.
@@ -173,7 +173,7 @@ MEASURE = r"""(root) => {
  for(const e of root.querySelectorAll('figure,canvas,img')) if(visible(e)) {
    const b=e.getBoundingClientRect();figures.push({tag:e.tagName,width:b.width,height:b.height,area:b.width*b.height});
  }
- // A label sitting wholly inside a node box is correct labelling; a label
+ // A label sitting wholly inside a node box is correct labeling; a label
  // STRADDLING a filled shape's edge is a collision. Partial overlap is the
  // signal, so proper in-box labels never register. Arrowhead, viewport-fit and
  // marker-integrity checks never compare a label against a shape at all.
@@ -206,7 +206,7 @@ MEASURE = r"""(root) => {
  }
  // A brand lockup carries meaning in its shapes, not in text, so the contrast
  // pass above cannot see it. brand_variants is keyed by the SURFACE theme, and
- // an author who reads the key as the artwork's own colour inverts every slide
+ // an author who reads the key as the artwork's own color inverts every slide
  // and ships a wordmark that vanishes into the background.
  for(const mark of root.querySelectorAll('.dv-brand svg, header > svg')) {
    if(!visible(mark)) continue;
@@ -217,7 +217,7 @@ MEASURE = r"""(root) => {
      const fill=rgb(getComputedStyle(shape).fill);
      if(!fill || fill[3]<0.5) continue;               // unfilled or near-transparent by intent
      const value=ratio(fill,bg);
-     if(value<1.5) {                                  // effectively the background colour
+     if(value<1.5) {                                  // effectively the background color
        brand.push({ratio:Math.round(value*100)/100,fill:fill.slice(0,3),
          background:bg.slice(0,3),width:Math.round(box.width),height:Math.round(box.height)});
      }
@@ -238,12 +238,12 @@ MEASURE = r"""(root) => {
  // The floor is 0.5, not 0.95, and the difference is the whole point. Whether
  // dimmed text can be READ is a contrast question, and the contrast pass above
  // now composites accumulated opacity into the ink, so it answers that one
- // properly for every colour. A bare opacity number cannot: 0.85 on near-black
- // ink still measures 10.75:1 and is perfectly legible, while 0.96 on mid-grey
+ // properly for every color. A bare opacity number cannot: 0.85 on near-black
+ // ink still measures 10.75:1 and is perfectly legible, while 0.96 on mid-gray
  // can sit under the floor. Keeping 0.95 here made this gate fail a deliberate
  // de-emphasis on secondary text while the readability hole stayed open.
  // What survives is the case contrast cannot see: content more absent than
- // present, which reads as a reveal that never ran whatever colour it is.
+ // present, which reads as a reveal that never ran whatever color it is.
  for(const e of root.querySelectorAll('h1,h2,h3,p,li,td,th,figcaption')) {
    if(!e.textContent.trim() || !visible(e)) continue;
    const box=e.getBoundingClientRect();

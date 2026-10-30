@@ -16,7 +16,7 @@ figure that refresh existed to correct. A reader who glances mid-animation reads
 fabricated fact, and a screenshot taken mid-animation records one.
 
 Every automated gate measures a settled frame, so this class is invisible to all of
-them and stays a human or agent judgement. The rule is therefore preventive, and it
+them and stays a human or agent judgment. The rule is therefore preventive, and it
 is binary:
 
 - Render a sourced number as static text from the first paint. It never counts,
@@ -206,7 +206,7 @@ Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and eac
     });
     ```
 
-    Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
+    Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labeled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
 
 ### Presentation animation grammar
 
@@ -386,7 +386,7 @@ IMAGERY PLACEMENTS
   placement: intro | hero | embedded | the section opens on the coastline the report surveys
   placement: method | background | embedded | a laboratory backdrop; scrim at 82% keeps body text AA
   placement: results | contextual | embedded | the apparatus the paragraph describes
-  placement: summary | none: no concrete visual subject - it summarises the three sections above
+  placement: summary | none: no concrete visual subject - it summarizes the three sections above
   placement: appendix | none: no license-clean asset depicted the subject after one re-query
 ```
 

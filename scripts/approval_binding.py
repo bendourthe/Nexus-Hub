@@ -43,7 +43,7 @@ import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
-ACTIONS = ("create", "answer", "pause", "resume", "retire")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
 SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}\Z", re.ASCII)
@@ -536,6 +536,30 @@ def host_capture_context(event: dict, session: str) -> dict:
             'permission_mode': event.get('permission_mode'), 'prompt_sha256': event['prompt'],
             'event_id': event.get('event_id'), 'at': event.get('at')}
 
+
+def consumed_capture_valid(runs: Path, context: object, rendered_at: object) -> bool:
+    """Check retained host provenance against its persistent single-consumption receipt."""
+    fields = {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+    if (not isinstance(context, dict) or set(context) != fields or context["origin"] != "host-hook-capture"
+            or not isinstance(context["session_id"], str) or not context["session_id"]
+            or not DIGEST_RE.fullmatch(str(context["prompt_sha256"]))):
+        return False
+    at = context["at"]
+    if (type(at) not in (int, float) or type(rendered_at) not in (int, float)
+            or not float("-inf") < at < float("inf") or not float("-inf") < rendered_at < float("inf")
+            or at < rendered_at):
+        return False
+    session = context["session_id"]
+    for event in capture_events(runs, session):
+        if host_capture_context(event, session) != context:
+            continue
+        identity = digest(json.dumps([session, event.get("event_id"), event.get("at"), event["prompt"]]))
+        try:
+            receipt = json.loads((runs / "consumed-prompts" / (identity + ".json")).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False
+        return isinstance(receipt, dict) and receipt.get("session") == session and receipt.get("event_id") == event.get("event_id")
+    return False
 
 def full_access_authorization(record: dict, context: dict | None = None) -> bool:
     """The caller must first verify the signed run; legacy records default conservative."""

@@ -185,7 +185,7 @@ def test_wire_contract_never_claims_a_public_api() -> None:
     assert "public-api" not in json.dumps(structure)
     assert payload["fixtureContract"]["source"] == "credential-api"
     # Deliberately NOT a substring check over the note: the note earns its keep by
-    # saying "labelled credential-api, never public-api", so a blanket search for
+    # saying "labeled credential-api, never public-api", so a blanket search for
     # the string flags the very sentence that states the rule. The machine-readable
     # structure above is what a consumer reads; the note is prose for a human.
 

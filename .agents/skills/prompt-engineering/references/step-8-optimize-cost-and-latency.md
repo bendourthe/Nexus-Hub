@@ -137,7 +137,7 @@ Caching is a prefix match: any byte change anywhere in the prefix invalidates ev
 | Unsupported per-message control | The same route tries the cache-preserving per-message effort message and the request is rejected. | Effort changes | The model or beta is not supported. Record it as unsupported for that model and fall back to a pinned per-route effort. Do not assume a universal fallback exists, and do not retry against a different model to make the symptom disappear. |
 | Diagnostics disagrees with usage | Cache diagnostics reports the prefix as unchanged, but `cache_read_input_tokens` is zero. | Measured usage is not a prediction | Trust the usage fields. Diagnostics explains where a prefix diverged; it does not measure what was read. Treat the disagreement as an unresolved finding and diff the rendered payloads rather than reporting a hit that did not occur. |
 
-None of these cases claims a measured saving, a hit rate, or an improvement in agent behaviour. Any such claim needs a qualified live evaluation, which is out of scope for this reference.
+None of these cases claims a measured saving, a hit rate, or an improvement in agent behavior. Any such claim needs a qualified live evaluation, which is out of scope for this reference.
 
 **Model Routing by Complexity**:
 

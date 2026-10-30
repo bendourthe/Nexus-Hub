@@ -87,7 +87,8 @@
         "catalog/style-guides/git-attribution.md",
         "scripts/lib/integrations/cursor.py",
         "scripts/lib/integrations/aider.py",
-        "configs/platform-defaults.json"
+        "configs/platform-defaults.json",
+        "scripts/nexus_process.py"
       ],
       "code_inputs": [
         "scripts/installer.ps1",
@@ -101,7 +102,8 @@
         "catalog/style-guides/git-attribution.md",
         "scripts/lib/integrations/cursor.py",
         "scripts/lib/integrations/aider.py",
-        "configs/platform-defaults.json"
+        "configs/platform-defaults.json",
+        "scripts/nexus_process.py"
       ],
       "builder": {
         "identity": "retained build_presentation.py",

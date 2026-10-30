@@ -61,7 +61,7 @@ cleanup/
 
 - [ ] Unused classes, interfaces, and methods identified
 
-- [ ] Dormant feature flags, experiments, or toggles catalogued
+- [ ] Dormant feature flags, experiments, or toggles cataloged
 
 - [ ] Deprecated APIs and endpoints mapped to replacement timeline
 
@@ -101,7 +101,7 @@ cleanup/
 
 ### Regression Safety
 
-- [ ] Critical behaviours covered by unit/integration tests
+- [ ] Critical behaviors covered by unit/integration tests
 
 - [ ] Cleanup changes gated by feature flags or staged rollout plans
 

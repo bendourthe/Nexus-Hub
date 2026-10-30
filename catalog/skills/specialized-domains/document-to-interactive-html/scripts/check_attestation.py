@@ -9,7 +9,7 @@ no measurement settles any of these.
 The alternative is not to drop them to prose an agent can skip in silence. It is
 to require that the decision was MADE AND RECORDED. A missing or empty record
 fails; a complete record passes. That gates the failure mode that actually
-matters, which is silence, without fabricating a judgement the machine cannot
+matters, which is silence, without fabricating a judgment the machine cannot
 make.
 
 **This script never scores content.** It does not read prose quality, count
@@ -38,7 +38,7 @@ FIGURE_CLASSES = ("illustrative", "evidential")
 REQUIRED_SECTIONS = {
     "figures": "every figure classified illustrative or evidential",
     "content_cuts": "what was cut from the first draft, and why",
-    "code_claims": "every claim about code behaviour, with the file and function it was verified against",
+    "code_claims": "every claim about code behavior, with the file and function it was verified against",
     "authorship": "the AI-tell review that cannot be measured",
 }
 

@@ -191,7 +191,7 @@ def cmd_final(run: Path, fps: int, sub: int, budget: float, ffmpeg_path: str | N
     started = time.monotonic()
     log: list[str] = []
     with Scene(run) as s:
-        proc = subprocess.Popen(encoder_args(ffmpeg, fps, tmp), stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        proc = subprocess.Popen(encoder_args(ffmpeg, fps, tmp), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         pump = fc.drain(proc.stderr, log)
         try:
             for i in range(frames):
@@ -224,7 +224,7 @@ def cmd_verify(run: Path, ffmpeg_path: str | None, video: str | None, floor_db: 
     count = fc.run_ffmpeg([ffmpeg, "-hide_banner", "-nostdin", "-i", fc.ffmpeg_input(mp4), "-map", "0:v", "-f", "null", "-"]).stderr
     frames = re.findall(r"frame=\s*(\d+)", count)
     print(f"duration {dur.group(1) if dur else '?'} | frames {frames[-1] if frames else '?'}\n{stream}")
-    problems = [] if "bt709" in stream and "unknown" not in stream else ["colour tags are not BT.709 throughout"]
+    problems = [] if "bt709" in stream and "unknown" not in stream else ["color tags are not BT.709 throughout"]
     for still in sorted((run / "out" / "stills").glob("still_*s.png")):
         t = float(still.stem.removeprefix("still_").removesuffix("s"))
         n = round(t * 60)

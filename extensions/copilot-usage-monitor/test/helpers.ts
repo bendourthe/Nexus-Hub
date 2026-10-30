@@ -5,7 +5,7 @@ import type { FetchLike } from "../src/providers/githubApi";
 
 const FIXTURES = path.join(__dirname, "fixtures");
 
-/** Parse one of the Phase 1 fixtures (captured or labelled synthetic). */
+/** Parse one of the Phase 1 fixtures (captured or labeled synthetic). */
 export function fixture<T = unknown>(name: string): T {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8")) as T;
 }

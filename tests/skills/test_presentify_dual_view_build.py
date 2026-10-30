@@ -449,7 +449,7 @@ def test_print_keeps_semantic_figure_content_and_expands_scroll_regions(
         # scrollbars a capped directory and a complete one look identical, so a
         # reader saw a truncated table with nothing indicating more existed.
         # This test used to require the reading directory to BE a scroll region
-        # and has asserted the pre-fix behaviour since e7ca89d0. What print must
+        # and has asserted the pre-fix behavior since e7ca89d0. What print must
         # still guarantee is that nothing here is clipped on paper, so that is
         # what is asserted, on screen and in print. The cap survives on slides,
         # which must fit a fixed stage; both halves are covered directly by

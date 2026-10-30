@@ -1,5 +1,6 @@
 """Keep the pre-commit validator in the repository-native profile."""
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -18,7 +19,9 @@ def test_precommit_is_an_explicit_only_profile_group() -> None:
     assert select_groups("full", ["pre-commit"]) == (group,)
     assert len(group.commands) == 1
     command = group.commands[0]
-    assert command.argv == ["pre-commit", "run", "--all-files"]
+    assert list(command.argv[:2]) == [sys.executable, "-c"]
+    assert "install_no_window_default" in command.argv[2]
+    assert list(command.argv[3:]) == ["run", "--all-files"]
     assert command.env["SKIP"] == "lint-templates,build-catalogs"
 
 

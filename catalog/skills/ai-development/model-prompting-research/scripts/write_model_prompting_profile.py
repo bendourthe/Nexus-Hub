@@ -40,8 +40,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import re
 import sys
+import unicodedata
 from pathlib import Path
+from urllib.parse import urlsplit
 
 SKILL_NAME = "model-prompting-research"
 INDEX_REL = Path("assets") / "profiles-index.json"
@@ -65,6 +69,175 @@ ALLOWED_EVIDENCE_SCOPE = ("model", "model-family", "provider-plan", "cited-page"
 # low-confidence research result is still recorded honestly) but the planner
 # treats a model whose claims are ALL unverified as still needing research.
 UNVERIFIED = "unverified"
+
+# WN-29 input rules. A claim is text built from fetched page content, so every field the
+# layer renders into Markdown or a file name is untrusted. These constants and helpers
+# are duplicated, on purpose, from the repo-level `scripts/verify_model_prompting_profiles.py`:
+# this script ships inside the skill bundle and cannot import it, so the writer refuses
+# a payload by the same rules the structural gate would apply afterward. Keep the two in
+# step; `references/schema.md` ("Input rules") is the contract.
+#: Exact hostnames a `source_url` may use (https only, matched after URL parsing, so
+#: `ai.google.dev.evil.com` and `ai.google.dev@evil.com` both fail). The first five
+#: are the v4.14.3 DoD 1 list; the rest are the vendor hosts the shipped layer already
+#: cites. A new vendor host is a deliberate edit here and in the validator.
+ALLOWED_SOURCE_HOSTS = frozenset(
+    {
+        "ai.google.dev",
+        "aistudio.google.com",
+        "blog.google",
+        "cloud.google.com",
+        "docs.cloud.google.com",
+        "cursor.com",
+        "deploymentsafety.openai.com",
+        "developers.openai.com",
+        "platform.claude.com",
+        "www.anthropic.com",
+    }
+)
+#: Platform ids the layer profiles. A model profiled for any other platform is refused.
+KNOWN_PLATFORMS = frozenset({"antigravity", "claude-code", "codex", "cursor", "gemini", "openai"})
+#: A model id becomes a file name (`references/models/<id>.md`), so it is a closed set of
+#: characters: no separator, no space, no upper case (case-folding file systems).
+MODEL_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,79}")
+_WINDOWS_RESERVED_RE = re.compile(r"(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)")
+MAX_TEXT_CHARS = 1000
+MAX_URL_CHARS = 2048
+MAX_ROSTER_ENTRY_CHARS = 128
+# Control, format (zero-width and bidi overrides), and line or paragraph separators.
+_UNSAFE_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp"})
+# A quoted span ('CRITICAL: You MUST ...') cites example wording the guidance tells a
+# reader to REMOVE, so a second-person directive inside one is not an instruction. The
+# delimiters must sit on word boundaries so a contraction cannot hide text between two
+# apostrophes.
+_QUOTED_SPAN_RE = re.compile(r"""(?<!\w)(['"])[^'"\n]{1,160}\1(?!\w)""")
+# Injection signatures are tested on the FULL text, quotes included, so quoting cannot hide them.
+_INJECTION_RES = (
+    re.compile(
+        r"\b(?:ignore|disregard|forget|override)\b[^.\n]{0,40}\b"
+        r"(?:instructions?|prompts?|rules?|directions?|guidelines?|context)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"(?<![\w-])(?:system|assistant|developer)\s*:", re.IGNORECASE),
+    re.compile(r"\b(?:new|updated|real)\s+instructions?\b", re.IGNORECASE),
+)
+_SECOND_PERSON_RE = re.compile(
+    r"\byou\s+(?:must|should|shall|will|need\s+to|are\s+now|are\s+to)\b", re.IGNORECASE
+)
+_LINK_RE = re.compile(r"\]\s*[(\[]")
+# GitHub-flavored Markdown autolinks a bare URL, a `www.` address, and an email shape, so
+# none of them may ride in claim or note text unless it is a plain allowlisted https URL.
+_URL_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://\S*")
+_WWW_RE = re.compile(r"(?<![\w.-])www\.", re.IGNORECASE)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_UNSAFE_URL_CHARS_RE = re.compile(r"""[\s\x00-\x1f\x7f<>()"'\\`|]""")
+
+
+def has_unsafe_characters(value: str) -> bool:
+    """True when `value` carries a control, format, or line-separator character."""
+    return any(unicodedata.category(char) in _UNSAFE_CATEGORIES for char in value)
+
+
+def model_id_problem(model_id: object) -> str | None:
+    """Why a model id cannot be a safe file stem, or None when it can."""
+    if not isinstance(model_id, str) or not MODEL_ID_RE.fullmatch(model_id):
+        return "must match [a-z0-9][a-z0-9._-]{0,79} (no path separator, space, or upper case)"
+    if _WINDOWS_RESERVED_RE.match(model_id):
+        return "is a reserved Windows device name"
+    return None
+
+
+def embedded_link_problem(text: str) -> str | None:
+    """Why a bare URL, `www.` address, or email shape in text is refused, or None.
+
+    A URL-scheme token is allowed only as `https` with no credentials or port and an exact
+    hostname on ALLOWED_SOURCE_HOSTS (trailing sentence punctuation is ignored).
+    """
+    for match in _URL_TOKEN_RE.finditer(text):
+        token = match.group().rstrip(".,;:!?)]}'\"")
+        try:
+            parts = urlsplit(token)
+            port = parts.port
+        except ValueError:
+            return "contains a URL that cannot be parsed"
+        if (
+            parts.scheme != "https"
+            or parts.username is not None
+            or parts.password is not None
+            or port is not None
+            or parts.hostname not in ALLOWED_SOURCE_HOSTS
+        ):
+            return (
+                "contains a URL that is not a plain https link (no credentials or port) "
+                "on an allowlisted host"
+            )
+    remainder = _URL_TOKEN_RE.sub(" ", text)
+    if _WWW_RE.search(remainder):
+        return "contains a www. address, which Markdown autolinks"
+    if _EMAIL_RE.search(remainder):
+        return "contains an email address, which Markdown autolinks"
+    return None
+
+
+def claim_text_problem(text: str) -> str | None:
+    """Why free-form claim or note text cannot be rendered safely, or None when it can.
+
+    The text lands in a Markdown table cell of the generated mirror and is read by
+    agents, so it must be one plain paraphrase: bounded, one line, no table character,
+    no HTML, no Markdown link, and no directive addressed to the reader.
+    """
+    if len(text) > MAX_TEXT_CHARS:
+        return f"is longer than {MAX_TEXT_CHARS} characters"
+    if has_unsafe_characters(text):
+        return "contains a control, newline, zero-width, or line-separator character"
+    if "|" in text:
+        return "contains '|', which breaks the Markdown table"
+    if "<" in text:
+        return "contains '<', so HTML and autolinks are not allowed"
+    if _LINK_RE.search(text):
+        return "contains a Markdown link"
+    if problem := embedded_link_problem(text):
+        return problem
+    if any(pattern.search(text) for pattern in _INJECTION_RES):
+        return "contains an instruction-override or role-label directive"
+    if _SECOND_PERSON_RE.search(_QUOTED_SPAN_RE.sub(" ", text)):
+        return "contains a second-person directive (paraphrase it instead)"
+    return None
+
+
+def source_url_problem(url: str) -> str | None:
+    """Why a source URL is not an allowlisted https primary source, or None when it is."""
+    if len(url) > MAX_URL_CHARS:
+        return f"is longer than {MAX_URL_CHARS} characters"
+    if _UNSAFE_URL_CHARS_RE.search(url) or has_unsafe_characters(url):
+        return "contains whitespace, a control character, or a character unsafe in a link"
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except ValueError:
+        return "is not a parseable URL"
+    if parts.scheme != "https":
+        return "must use https"
+    if parts.username is not None or parts.password is not None:
+        return "must not carry credentials (user@host)"
+    if port not in (None, 443):
+        return "must not name a non-default port"
+    if parts.hostname not in ALLOWED_SOURCE_HOSTS:
+        return f"host {parts.hostname!r} is not an allowlisted primary-source host"
+    return None
+
+
+def roster_entry_problem(entry: str) -> str | None:
+    """A roster entry is not a file name, so the rule is only bounded with no control char."""
+    if len(entry) > MAX_ROSTER_ENTRY_CHARS or has_unsafe_characters(entry):
+        return f"must be at most {MAX_ROSTER_ENTRY_CHARS} characters with no control character"
+    return None
+
+
+def platform_problem(value: object) -> str | None:
+    """Why a platform name is refused, or None when it is a known platform."""
+    if not isinstance(value, str) or value not in KNOWN_PLATFORMS:
+        return f"must be a known platform {sorted(KNOWN_PLATFORMS)}, got {str(value)[:40]!r}"
+    return None
 
 
 class WriteError(Exception):
@@ -171,11 +344,15 @@ def _validate_claim(model_id: str, position: int, claim: object) -> dict:
     text = claim["claim"]
     if not isinstance(text, str) or not text.strip():
         raise WriteError(f"{where}.claim must be a non-empty string")
+    if problem := claim_text_problem(text.strip()):
+        raise WriteError(f"{where}.claim {problem}")
     url = claim["source_url"]
     if not isinstance(url, str) or not url.startswith(("http://", "https://")):
         raise WriteError(
-            f"{where}.source_url must be an http(s) URL to a primary source, got {url!r}"
+            f"{where}.source_url must be an http(s) URL to a primary source, got {str(url)[:80]!r}"
         )
+    if problem := source_url_problem(url.strip()):
+        raise WriteError(f"{where}.source_url {problem}, got {url[:80]!r}")
     if claim["confidence"] not in ALLOWED_CONFIDENCE:
         raise WriteError(
             f"{where}.confidence must be one of {list(ALLOWED_CONFIDENCE)}, "
@@ -196,6 +373,8 @@ def _validate_claim(model_id: str, position: int, claim: object) -> dict:
     if note is not None:
         if not isinstance(note, str):
             raise WriteError(f"{where}.note must be a string when present")
+        if problem := claim_text_problem(note.strip()):
+            raise WriteError(f"{where}.note {problem}")
         normalized["note"] = note.strip()
     evidence_scope = claim.get("evidence_scope")
     if evidence_scope is not None:
@@ -265,6 +444,8 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     platform = payload["platform"]
     if not isinstance(platform, str) or not platform.strip():
         raise WriteError("payload.platform must be a non-empty string")
+    if problem := platform_problem(platform):
+        raise WriteError(f"payload.platform {problem}")
     verified_at = payload["verified_at"]
     if not isinstance(verified_at, str) or len(verified_at) != 10:
         raise WriteError("payload.verified_at must be a YYYY-MM-DD string")
@@ -272,6 +453,10 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     incoming = payload["models"]
     if not isinstance(incoming, dict) or not incoming:
         raise WriteError("payload.models must be a non-empty object")
+    # A model id becomes a file name, so it is checked before anything else is trusted.
+    for model_id in incoming:
+        if problem := model_id_problem(model_id):
+            raise WriteError(f"models key {str(model_id)[:80]!r} {problem}")
 
     claim_only = "roster" not in payload
     if claim_only:
@@ -302,13 +487,26 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
             not isinstance(model_id, str) or not model_id.strip() for model_id in roster
         ):
             raise WriteError("payload.roster must be a non-empty array of model ids")
+        roster = sorted({model_id.strip() for model_id in roster})
+        if problem := next(filter(None, map(roster_entry_problem, roster)), None):
+            raise WriteError(f"payload.roster entries {problem}")
+        unknown = sorted(set(incoming) - set(roster))
+        if unknown:
+            raise WriteError(
+                f"model(s) not in the supplied live roster for {platform}: {', '.join(unknown)}"
+            )
 
-    written: list[str] = []
+    # Validate EVERY model before the index is touched, so one bad claim cannot leave a
+    # half-merged index in memory for a caller to write.
+    validated: dict[str, list[dict]] = {}
     for model_id in sorted(incoming):
         claims = incoming[model_id]
         if not isinstance(claims, list) or not claims:
             raise WriteError(f"models['{model_id}'] must be a non-empty array of claims")
-        normalized = [_validate_claim(model_id, i, c) for i, c in enumerate(claims)]
+        validated[model_id] = [_validate_claim(model_id, i, c) for i, c in enumerate(claims)]
+
+    written: list[str] = []
+    for model_id, normalized in validated.items():
         index["models"][model_id] = {
             "platform": platform,
             "last_verified": verified_at,
@@ -326,11 +524,8 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     index["schema_version"] = SCHEMA_VERSION
     legacy_platform = index["meta"].get("platform")
     if legacy_platform in (None, platform):
-        # Widen only by models profiled on THIS platform: a model profiled on another
-        # platform belongs to that platform's meta.platforms entry, and absorbing it here
-        # makes the primary freshness check report it as "no longer live" (v4.13.9 WN-23).
-        profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
-        merged_roster = sorted({m.strip() for m in roster} | set(profiled_here))
+        # Historical profiles remain available, but only the supplied live roster
+        # establishes current membership and freshness.
         # Single-platform layer, or a write for the layer's primary platform: the
         # legacy keys stay the source of truth (schema 1.0.0 behavior).
         index["meta"] = {
@@ -338,8 +533,8 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
             "last_verified": verified_at,
             "platform": platform,
             "roster_source": roster_source,
-            "roster": merged_roster,
-            "roster_hash": roster_hash(merged_roster),
+            "roster": roster,
+            "roster_hash": roster_hash(roster),
         }
         return index, written
 
@@ -347,14 +542,11 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     # meta.platforms array, so the primary platform's roster is never rewritten by
     # research on a different vendor's models.
     entries = [e for e in index["meta"].get("platforms", []) if isinstance(e, dict)]
-    platform_roster = [m.strip() for m in roster]
-    profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
-    platform_roster = sorted(set(platform_roster) | set(profiled_here))
     entry = {
         "platform": platform,
         "roster_source": roster_source,
-        "roster": platform_roster,
-        "roster_hash": roster_hash(platform_roster),
+        "roster": roster,
+        "roster_hash": roster_hash(roster),
         "last_verified": verified_at,
     }
     index["meta"]["platforms"] = [e for e in entries if e.get("platform") != platform] + [entry]
@@ -369,35 +561,85 @@ def platform_roster_source(index: dict, platform: str) -> str:
     return str(index.get("meta", {}).get("roster_source", "manual"))
 
 
-def write_layer(bundle: Path, index: dict, written: list[str]) -> list[Path]:
-    """Persist the index and regenerate a Markdown mirror per written model."""
-    paths: list[Path] = []
-    index_path = bundle / INDEX_REL
-    index_path.parent.mkdir(parents=True, exist_ok=True)
-    index_path.write_text(
-        json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
-    )
-    paths.append(index_path)
+def build_outputs(bundle: Path, index: dict, written: list[str]) -> dict[Path, str]:
+    """Render every file a write will produce, keyed by target path. Touches no file.
 
+    Raises WriteError before anything exists on disk when a model id is not a safe file
+    stem or a mirror path would resolve outside `references/models/`, so a refused
+    payload cannot leave a partial layer behind.
+    """
     mirrors = bundle / PROFILES_REL
-    mirrors.mkdir(parents=True, exist_ok=True)
+    mirrors_root = mirrors.resolve()
+    for model_id in index.get("models", {}):
+        if problem := model_id_problem(model_id):
+            raise WriteError(f"models key {str(model_id)[:80]!r} {problem}")
+
+    outputs: dict[Path, str] = {
+        bundle / INDEX_REL: json.dumps(index, indent=2, ensure_ascii=False) + "\n"
+    }
     for model_id in written:
+        mirror = mirrors / f"{model_id}.md"
+        # resolve() follows a symlinked target too, so a link planted in models/ cannot
+        # redirect a mirror write out of the directory either.
+        if mirror.resolve().parent != mirrors_root:
+            raise WriteError(f"mirror path for {model_id!r} resolves outside {PROFILES_REL.as_posix()}/")
         entry = index["models"][model_id]
         roster_source = platform_roster_source(index, str(entry.get("platform", "")))
-        mirror = mirrors / f"{model_id}.md"
-        mirror.write_text(
-            _render_mirror(model_id, entry, roster_source),
-            encoding="utf-8",
-            newline="\n",
-        )
-        paths.append(mirror)
-
-    paths.append(_write_mirror_index(bundle, index))
-    return paths
+        outputs[mirror] = _render_mirror(model_id, entry, roster_source)
+    outputs[bundle / MIRROR_INDEX_REL] = _mirror_index_text(index)
+    return outputs
 
 
-def _write_mirror_index(bundle: Path, index: dict) -> Path:
-    """Regenerate the index that links every per-model mirror.
+def commit_outputs(outputs: dict[Path, str]) -> list[Path]:
+    """Write every output all-or-nothing: stage beside each target, then swap in.
+
+    Each file is first written to a temporary sibling, so a disk or permission failure
+    while staging changes no target. The swap uses `os.replace` (atomic per file); if a
+    swap fails part way, every file already replaced is restored and every file created
+    is removed before the error propagates, so the layer is never left half-written.
+    """
+    created_dirs: list[Path] = []
+    staged: list[tuple[Path, Path]] = []
+    originals: dict[Path, bytes | None] = {}
+    swapped: list[Path] = []
+    try:
+        for target in outputs:
+            missing = [p for p in (target.parent, *target.parent.parents) if not p.exists()]
+            target.parent.mkdir(parents=True, exist_ok=True)
+            created_dirs.extend(missing)
+        for target, text in outputs.items():
+            temp = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+            staged.append((temp, target))
+            temp.write_text(text, encoding="utf-8", newline="\n")
+        for temp, target in staged:
+            originals[target] = target.read_bytes() if target.is_file() else None
+            os.replace(temp, target)
+            swapped.append(target)
+    except BaseException:
+        for target in reversed(swapped):
+            original = originals[target]
+            if original is None:
+                target.unlink(missing_ok=True)
+            else:
+                target.write_bytes(original)
+        for temp, _ in staged:
+            temp.unlink(missing_ok=True)
+        for directory in sorted(set(created_dirs), key=lambda p: len(p.parts), reverse=True):
+            try:
+                directory.rmdir()
+            except OSError:
+                pass  # not empty: something else wrote here, so leave it; the original error re-raises below
+        raise
+    return list(outputs)
+
+
+def write_layer(bundle: Path, index: dict, written: list[str]) -> list[Path]:
+    """Persist the index and regenerate a Markdown mirror per written model, all-or-nothing."""
+    return commit_outputs(build_outputs(bundle, index, written))
+
+
+def _mirror_index_text(index: dict) -> str:
+    """Render the index that links every per-model mirror.
 
     Without this, each mirror this writer emits is an ORPHAN bundled file: the
     `AGENTS.md` rule is that every file beside a SKILL.md must be referenced
@@ -441,11 +683,7 @@ def _write_mirror_index(bundle: Path, index: dict) -> Path:
     else:
         lines.append("No model is profiled yet.")
     lines.append("")
-
-    path = bundle / MIRROR_INDEX_REL
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
-    return path
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -525,6 +763,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         index, written = merge(index, payload)
+        outputs = build_outputs(bundle, index, written)
     except WriteError as exc:
         print(f"[profile-write] ERROR: {exc}", file=sys.stderr)
         print("  Nothing was written; fix the payload and re-run.", file=sys.stderr)
@@ -534,7 +773,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[profile-write] DRY RUN: would write {len(written)} model(s): {', '.join(written)}")
         return 0
 
-    paths = write_layer(bundle, index, written)
+    try:
+        paths = commit_outputs(outputs)
+    except OSError as exc:
+        print(f"[profile-write] ERROR: could not write the layer: {exc}", file=sys.stderr)
+        print("  Every file was restored; nothing was changed.", file=sys.stderr)
+        return 1
     if not args.quiet:
         print(f"[profile-write] wrote {len(written)} model(s): {', '.join(written)}")
         for path in paths:

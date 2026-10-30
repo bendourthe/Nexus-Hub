@@ -54,7 +54,7 @@ The same evidence rule governs both contracts: a lever is recorded only when a *
 
 For each surface, compare the verified format to the contract doc row. Classify each as MATCH, DRIFT (path/format changed), or UNVERIFIED. Summarize the diffs before changing anything.
 
-Do the same for each lever row: MATCH, DRIFT (a key renamed, a path moved, allowed values changed), or UNVERIFIED. A lever that has been **removed** by the vendor is the highest-severity finding in this half, because Nexus-Hub may be seeding a setting the platform no longer honours.
+Do the same for each lever row: MATCH, DRIFT (a key renamed, a path moved, allowed values changed), or UNVERIFIED. A lever that has been **removed** by the vendor is the highest-severity finding in this half, because Nexus-Hub may be seeding a setting the platform no longer honors.
 
 ### Step 4 - Fix drift (with confirmation)
 

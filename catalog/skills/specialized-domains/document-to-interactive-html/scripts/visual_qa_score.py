@@ -360,7 +360,7 @@ def check_fluid_spacing(rules: list[tuple[str, dict[str, str]]]) -> dict[str, An
     When the ROOT font-size is itself fluid (E1), a rem-based macro dimension
     scales with the window and therefore SATISFIES this rule - `2.5rem` of band
     padding is 40px at a 16px root and 64px at a 25.6px one. Flagging it would
-    penalise the very technique E1 prescribes, so rem counts as fluid exactly
+    penalize the very technique E1 prescribes, so rem counts as fluid exactly
     when the root is.
     """
     _, _, root_is_fluid = root_font_px(rules)
@@ -2182,12 +2182,12 @@ def check_undeclared_presentation(html: str) -> dict[str, Any]:
             "presentation mode is declared, so the slide family applies",
         )
     deckish = len(_DECKISH_RE.findall(html))
-    labelled = bool(_PRESENTATION_LABEL_RE.search(html))
-    if deckish >= _DECKISH_THRESHOLD or labelled:
+    labeled = bool(_PRESENTATION_LABEL_RE.search(html))
+    if deckish >= _DECKISH_THRESHOLD or labeled:
         reasons = []
         if deckish:
             reasons.append(f"{deckish} slide/deck class or id hint(s)")
-        if labelled:
+        if labeled:
             reasons.append("an accessible name announcing a presentation")
         return _finding(
             "presentation-declared", "fail", "structural",

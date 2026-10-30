@@ -215,7 +215,7 @@ def generate_via_cli(prompt: str, size: tuple[int, int], steps: int | None,
                 "height": str(height), "steps": str(n_steps)}
         parts = [p.format(**subs) for p in shlex.split(cmd_tmpl)]
         try:
-            subprocess.run(parts, check=True, timeout=CLI_TIMEOUT, shell=False,  # noqa: S603
+            subprocess.run(parts, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=True, timeout=CLI_TIMEOUT, shell=False,  # noqa: S603
                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         except Exception as exc:  # noqa: BLE001 (any CLI failure -> degrade)
             raise DegradeError(f"local image CLI failed ({exc})") from exc

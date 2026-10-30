@@ -1,0 +1,39 @@
+{
+ "capture_ok": true,
+ "anomalies": [],
+ "refused_tests": [],
+ "records": 7,
+ "events": 3,
+ "test_events": 1,
+ "non_exact_pytest_commands": [],
+ "provenance": [
+  {
+   "event": 0,
+   "tool_use_id": "toolu_01SXQqrVMR6prqkBg5EB79wd",
+   "tool_name": "Write",
+   "after_seq": 2,
+   "attribution": "paired"
+  },
+  {
+   "event": 1,
+   "tool_use_id": "toolu_01Eq8THVmmgnv7DHwkvCHuGK",
+   "tool_name": "Write",
+   "after_seq": 4,
+   "attribution": "paired"
+  },
+  {
+   "note": "PreToolUse toolu_015WjpFXb7yJYNRnHyrzz9VL closed as denied: stream error result, tree unchanged"
+  },
+  {
+   "event": 2,
+   "tool_use_id": "toolu_01Cx3P5gmAM7b9pUePonirGF",
+   "hook_event_name": "PostToolUse",
+   "derived_exit": 0,
+   "recorded_exit": 0,
+   "refusal_reasons": [],
+   "corroborated_by_stream": true
+  }
+ ],
+ "stream_corroboration": true,
+ "final_tree_sha256": "1a135401358d70c61af0ab249649edb3078cc471fa8463d997fd639b52a79f7f"
+}

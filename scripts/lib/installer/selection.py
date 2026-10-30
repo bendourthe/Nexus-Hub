@@ -513,16 +513,16 @@ def _close(
 
 def _find_cycle(nodes: Set[str], dependencies: Mapping[str, Sequence[str]]) -> List[str]:
     """Return one cycle as a node list, or [] when the subgraph is acyclic."""
-    WHITE, GREY, BLACK = 0, 1, 2
+    WHITE, GRAY, BLACK = 0, 1, 2
     color = {n: WHITE for n in nodes}
 
     def visit(node: str, stack: List[str]) -> List[str]:
-        color[node] = GREY
+        color[node] = GRAY
         stack.append(node)
         for dep in sorted(dependencies.get(node, ()) or ()):
             if dep not in color:
                 continue
-            if color[dep] == GREY:
+            if color[dep] == GRAY:
                 return stack[stack.index(dep):] + [dep]
             if color[dep] == WHITE:
                 found = visit(dep, stack)

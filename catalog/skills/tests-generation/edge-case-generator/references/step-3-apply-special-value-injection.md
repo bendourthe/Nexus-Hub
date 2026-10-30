@@ -1,6 +1,6 @@
 ### Step 3: Apply Special Value Injection
 
-Test with values from the special value catalogue that are relevant to each parameter type.
+Test with values from the special value catalog that are relevant to each parameter type.
 
 **Python:**
 ```python

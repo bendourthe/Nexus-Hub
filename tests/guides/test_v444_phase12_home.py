@@ -64,7 +64,7 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
             data = page.evaluate(
                 """() => {
                     const sec = document.querySelector('#nhg-guardrails');
-                    const centred = el => getComputedStyle(el).textAlign === 'center';
+                    const centered = el => getComputedStyle(el).textAlign === 'center';
                     const tags = [...sec.querySelectorAll('.gf-ring-tag')];
                     const notes = [...sec.querySelectorAll('.gf-ring-note')];
                     const hooks = sec.querySelector('.gf-hooks');
@@ -73,7 +73,7 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
                       title: sec.querySelector('.section-title').textContent.trim(),
                       tags: tags.map(t => t.textContent.trim()),
                       notes: notes.map(n => n.textContent.trim()),
-                      allCentred: tags.every(centred) && notes.every(centred),
+                      allCentred: tags.every(centered) && notes.every(centered),
                       hooksAlignment: getComputedStyle(hooks).textAlign,
                           platforms: [...sec.querySelectorAll(".gf-platforms>span")].map(e => e.textContent.trim()),
                     };
@@ -86,8 +86,8 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
     assert data["label"] == 0, data["label"]
     assert data["title"] == "Security Guardrails", data["title"]
     assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
-    assert data["allCentred"], "both ring headers and their subtexts must be centred"
-    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centred"
+    assert data["allCentred"], "both ring headers and their subtexts must be centered"
+    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centered"
     assert data["tags"] == ["Nexus Hub hooks", "Platform permissions"], data["tags"]
     outer, inner = data["notes"]
     for phrase in ("Block flagged unsafe actions", "even once approved", "explain the refusal"):

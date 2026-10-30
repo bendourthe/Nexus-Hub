@@ -56,6 +56,8 @@ Rules during implementation:
 - If you find a bug in a nearby function while implementing, note it -- do not fix it now
 - Stop when the task's acceptance criterion is met, not when all related things are also improved
 
+When the task lands in scattered or duplicated code, sequence it with [[refactoring-expert]]'s refactor-first step and consolidate the copies with `code-simplification`'s `references/design-invariants.md`.
+
 ### Step 3: Verify Before Committing
 
 Run the verification step defined for this task:

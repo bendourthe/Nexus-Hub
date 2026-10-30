@@ -761,6 +761,26 @@ def test_paginated_json_is_concatenated() -> None:
     assert cm._parse_json_stream("not json") is None
 
 
+@pytest.mark.skipif(os.name != "nt", reason="MAX_PATH is a Windows limit")
+def test_scan_reads_a_tree_deeper_than_max_path(tmp_path: Path) -> None:
+    # A worktree under a longer parent held tracked files past 260 characters, so every scan read
+    # "unreadable" and the merged worktree could never be retired.
+    deep = "\\\\?\\" + str(tmp_path.resolve())
+    for _ in range(6):
+        deep += "\\" + "d" * 48
+    os.makedirs(deep)
+    with open(deep + "\\leaf.txt", "w", encoding="utf-8") as handle:
+        handle.write("x")
+    os.makedirs(deep + "\\.git")
+    (tmp_path / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
+    assert len(deep) - 4 > 260
+    scan = cm.scan_tree(str(tmp_path))
+    assert not scan.unreadable
+    assert scan.nested_git
+    os.rmdir(deep + "\\.git")
+    assert not cm.scan_tree(str(tmp_path)).nested_git
+
+
 def test_receipt_seal_uses_its_own_domain() -> None:
     body = {"kind": cm.RECEIPT_KIND}
     plain = hmac.new(b"k", ck._canonical(body), hashlib.sha256).hexdigest()

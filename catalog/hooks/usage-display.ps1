@@ -54,7 +54,7 @@ $betaHeader = "oauth-2025-04-20"
 if ([Console]::IsInputRedirected) { $null = [Console]::In.ReadToEnd() }
 
 function Get-PercentColor {
-    <# ANSI colour matching the .sh sibling's thresholds. #>
+    <# ANSI color matching the .sh sibling's thresholds. #>
     param([int]$Pct)
     if ($Pct -ge 90) { return "$([char]27)[0;31m" }        # red
     elseif ($Pct -ge 75) { return "$([char]27)[0;38;5;208m" } # orange

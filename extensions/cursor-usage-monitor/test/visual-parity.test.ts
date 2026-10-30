@@ -178,8 +178,8 @@ describe("warning panel", () => {
   it("centers its content", () => {
     const html = renderWarning(suggestion, "local", "'self'", "nonce");
     expect(html).toContain("main{text-align:center}");
-    // The brand block is a centred column (logo above a two-line title), and the
-    // footer actions sit centred beneath the source line - the siblings' layout.
+    // The brand block is a centered column (logo above a two-line title), and the
+    // footer actions sit centered beneath the source line - the siblings' layout.
     expect(html).toContain(".brand{display:flex;flex-direction:column;align-items:center");
     expect(html).toContain(".footer-actions{display:flex;gap:8px;justify-content:center}");
   });

@@ -1,8 +1,8 @@
 """Tests for the Session Handoff block's template coverage (v4.13.7 Phase 5).
 
-The block is always-loaded guidance on every platform: keep `.nexus-hub/handoff.md`
-current during multi-step work, hand off on a usage-limit warning, and know that
-`/handoff` exists. `scripts/check_base_template_parity.py` byte-locks it across the
+The block is always-loaded guidance on every platform: print handoffs in chat as one
+paste-ready prompt (a file only when asked, no milestone checkpoint), hand off
+on a usage-limit warning, and know that `/handoff` exists. `scripts/check_base_template_parity.py` byte-locks it across the
 five LOCKSTEP files; this module covers all thirteen substantive templates, derives
 the roster from the templates directory (so a newly added template fails until it
 carries the block), and asserts the body is byte-identical everywhere.
@@ -30,9 +30,12 @@ _TEMPLATES = _REPO_ROOT / "templates" / "ai-instructions"
 
 _HEADING = "## Session Handoff"
 _REFERENCE = "base-claude.md"
-# Stable markers, one per bullet: the checkpoint refresh, the usage-limit stop, the command.
-_CHECKPOINT_MARKER = "update `.nexus-hub/handoff.md` after each verified milestone"
-_USAGE_LIMIT_MARKER = "run `session-handoff`, print its prompt, and start no new work"
+# Stable markers, one per bullet: chat delivery, the usage-limit stop, the command.
+_CHAT_MARKER = "Print handoffs in chat (`session-handoff`)"
+_USAGE_LIMIT_MARKER = "print the `session-handoff` prompt in chat and start no new work"
+# The retired checkpoint rule told every agent to write the handoff file after each
+# milestone; a template that still carries it contradicts the chat-only contract.
+_RETIRED_CHECKPOINT = "after each verified milestone"
 _COMMAND_MARKER = "The user can run `/handoff` at any time"
 # Placement: the block sits directly after the end-of-task rule, as the plan specifies.
 _PREVIOUS_HEADING = "## End-of-Task Summary"
@@ -55,12 +58,14 @@ def check_template(path: Path) -> list[str]:
     findings: list[str] = []
     joined = "\n".join(body)
     for marker, label in (
-        (_CHECKPOINT_MARKER, "checkpoint refresh"),
+        (_CHAT_MARKER, "chat delivery"),
         (_USAGE_LIMIT_MARKER, "usage-limit handoff"),
         (_COMMAND_MARKER, "/handoff command"),
     ):
         if marker not in joined:
             findings.append(f"{path.name}: block lacks the {label} rule")
+    if _RETIRED_CHECKPOINT in joined or ".nexus-hub/handoff.md" in joined:
+        findings.append(f"{path.name}: block still carries the retired handoff-file checkpoint rule")
     headings = [line for line in text.split("\n") if line.startswith("## ")]
     copies = headings.count(_HEADING)
     if copies != 1:
@@ -146,6 +151,26 @@ def test_a_template_missing_one_bullet_fails(tmp_path: Path):
     fixture.write_text(mutated, encoding="utf-8")
     findings = check_template(fixture)
     assert findings == ["base-pi.md: block lacks the usage-limit handoff rule"]
+
+
+def test_a_template_that_restores_the_checkpoint_rule_fails(tmp_path: Path):
+    """Handoffs are chat-only: the retired milestone checkpoint must not come back."""
+    source = _read(_TEMPLATES / "base-pi.md")
+    retired = (
+        "- During multi-step work, update `.nexus-hub/handoff.md` after each verified"
+        " milestone (`session-handoff` checkpoint mode)."
+    )
+    mutated = source.replace(
+        "- The user can run `/handoff` at any time.",
+        retired + "\n- The user can run `/handoff` at any time.",
+        1,
+    )
+    assert mutated != source
+    fixture = tmp_path / "base-pi.md"
+    fixture.write_text(mutated, encoding="utf-8")
+    assert check_template(fixture) == [
+        "base-pi.md: block still carries the retired handoff-file checkpoint rule"
+    ]
 
 
 def test_a_second_contradictory_block_fails(tmp_path: Path):

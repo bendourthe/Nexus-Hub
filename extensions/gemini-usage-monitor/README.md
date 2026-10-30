@@ -123,7 +123,7 @@ Antigravity limits are per model group, so when one group runs low and another s
 
 ### Save Raw Usage Response
 
-`Gemini Usage: Save Raw Usage Response` sends the same loopback calls as a refresh and writes `raw-usage-response.json` under the extension's global storage. Keys, numbers, booleans, dates, and short lowercase words are kept; every other string (names, emails, ids, group descriptions) is replaced with a placeholder. Nothing is uploaded.
+`Gemini Usage: Save Raw Usage Response` sends the same loopback calls as a refresh and writes `raw-usage-response.json` under the extension's global storage. Keys, numbers, booleans, dates, short lowercase words, short window ids such as `5h`, and the plain-text labels and descriptions of each quota group and limit (for example "Gemini Models" or "Five Hour Limit Remaining") are kept, so a capture shows which limit is which; every other string (names, emails, ids, the account's display name) is replaced with a placeholder. Nothing is uploaded.
 
 ## Data Storage
 

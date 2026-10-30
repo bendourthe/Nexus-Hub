@@ -2,11 +2,11 @@
 
 The third review round asked for four things on this one figure, and each is a measurement
 rather than a description: nothing is revealed in steps, every platform carries its own mark,
-every connector triangle sits on the centre of its own box, and the mid-task strip uses the
+every connector triangle sits on the center of its own box, and the mid-task strip uses the
 width the figure already had.
 
-The centring assertion is the one worth keeping. A flex row with percentage margins LOOKED
-centred at the width it was authored for and drifted at every other width, because its spacing
+The centering assertion is the one worth keeping. A flex row with percentage margins LOOKED
+centered at the width it was authored for and drifted at every other width, because its spacing
 was a function of its own content rather than of the grid below it. Sharing the track
 definition is what makes the property true at every width, so the test measures it at five.
 """
@@ -138,7 +138,7 @@ def test_each_triangle_sits_on_the_centre_of_its_own_box(playwright_mod) -> None
             for width in WIDTHS:
                 data = _probe(browser, width)
                 worst = max(data["offsets"])
-                assert worst <= 2, f"{width}: a triangle is {worst:.1f}px off centre"
+                assert worst <= 2, f"{width}: a triangle is {worst:.1f}px off center"
         finally:
             browser.close()
 

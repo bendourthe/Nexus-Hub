@@ -82,8 +82,9 @@ def test_success_writes_capture_and_reports_browser(monkeypatch: pytest.MonkeyPa
     monkeypatch.setattr(capture, "_find_browser", lambda: "C:/Browser/chrome.exe")
     observed: list[str] = []
 
-    def run(command: list[str], *, check: bool, capture_output: bool, timeout: int) -> None:
+    def run(command: list[str], *, check: bool, capture_output: bool, timeout: int, creationflags: int) -> None:
         assert check and capture_output and timeout == 120
+        assert creationflags == getattr(subprocess, "CREATE_NO_WINDOW", 0)
         observed.extend(command)
         output.write_bytes(b"PNG")
 

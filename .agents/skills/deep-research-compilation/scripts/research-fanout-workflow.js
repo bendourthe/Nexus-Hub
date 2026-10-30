@@ -84,7 +84,7 @@ const SOURCE_SCHEMA = {
 
 // ADAPT: the refutation verdict. The verifier is adversarial by design -- it
 // tries to prove the claim is NOT supported by the source, and defaults to
-// unsupported when it cannot substantiate it. This is the research analogue of
+// unsupported when it cannot substantiate it. This is the research analog of
 // the code-review validator-template refutation pass.
 const VERDICT_SCHEMA = {
   type: 'object',

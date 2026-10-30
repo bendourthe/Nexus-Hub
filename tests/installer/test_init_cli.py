@@ -43,6 +43,7 @@ def _installed_home(tmp_path: Path) -> Path:
     home = tmp_path / "home" / ".nexus-hub"
     (home / "scripts").mkdir(parents=True)
     shutil.copy2(SCRIPTS / "nexus_hub_cli.py", home / "scripts" / "nexus_hub_cli.py")
+    shutil.copy2(SCRIPTS / "nexus_process.py", home / "scripts" / "nexus_process.py")
     (home / "bin").mkdir()
     shutil.copy2(SCRIPTS / "nexus-hub", home / "bin" / "nexus-hub")
     shutil.copy2(SCRIPTS / "nexus-hub.cmd", home / "bin" / "nexus-hub.cmd")

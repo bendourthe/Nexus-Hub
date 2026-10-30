@@ -154,7 +154,7 @@ def test_platform_rail_has_no_overflow_clipping_or_orphan_row(playwright_mod, wi
                     return {
                         docOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
                         rows: items.map(el => Math.round(el.getBoundingClientRect().top)),
-                        centres: items.map(el => {
+                        centers: items.map(el => {
                             const r = el.getBoundingClientRect();
                             return { top: Math.round(r.top), cx: r.left + r.width / 2 };
                         }),
@@ -180,17 +180,17 @@ def test_platform_rail_has_no_overflow_clipping_or_orphan_row(playwright_mod, wi
     assert all(data["marks"]), f"a platform mark rendered with no visible area at {width} px"
 
     # Five items cannot fill a multi-column row evenly, so any short final row must be
-    # CENTRED. A left-hanging remainder is the orphan row the plan forbids.
+    # CENTERED. A left-hanging remainder is the orphan row the plan forbids.
     by_row: dict[int, list[float]] = {}
-    for cell in data["centres"]:
+    for cell in data["centers"]:
         by_row.setdefault(cell["top"], []).append(cell["cx"])
     if len(by_row) > 1:
         last_top = max(by_row)
         last_row = by_row[last_top]
         row_centre = (min(last_row) + max(last_row)) / 2
         assert abs(row_centre - viewport_centre) < width * 0.08, (
-            f"the final rail row is not centred at {width} px "
-            f"(row centre {row_centre:.0f} vs viewport centre {viewport_centre:.0f})"
+            f"the final rail row is not centered at {width} px "
+            f"(row center {row_centre:.0f} vs viewport center {viewport_centre:.0f})"
         )
 
 
@@ -397,7 +397,7 @@ def test_footer_attribution_is_visible_on_every_page_and_absent_from_home_flow(p
                         const f = document.querySelector('footer.site-footer .footer-attrib');
                         const r = f.getBoundingClientRect();
                         return { visible: r.width > 0 && r.height > 0, text: f.textContent,
-                                 licence: !!f.querySelector('a[href*="creativecommons.org/licenses/by/4.0"]') };
+                                 license: !!f.querySelector('a[href*="creativecommons.org/licenses/by/4.0"]') };
                     }"""
                 )
             home_credits = page.evaluate("() => document.querySelectorAll('#page-home .platform-credits').length")
@@ -405,7 +405,7 @@ def test_footer_attribution_is_visible_on_every_page_and_absent_from_home_flow(p
             browser.close()
     for route, r in results.items():
         assert r["visible"], f"footer attribution not visible on {route}"
-        assert "Codicons icon set by Microsoft Corporation" in r["text"] and r["licence"], route
+        assert "Codicons icon set by Microsoft Corporation" in r["text"] and r["license"], route
         assert "trademarks of their respective owners" in r["text"]
     assert home_credits == 0
 

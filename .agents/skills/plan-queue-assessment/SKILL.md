@@ -55,7 +55,7 @@ Run the enumerator and read its output, including its findings:
 python scripts/enumerate_plan_queue.py --root . --json
 ```
 
-Exit 1 means at least one plan is unreadable. Those plans are still listed. **An unreadable plan is an explicit unknown for every judgement below, never a silent no-impact**, because a plan you could not read is exactly the one most likely to surprise you.
+Exit 1 means at least one plan is unreadable. Those plans are still listed. **An unreadable plan is an explicit unknown for every judgment below, never a silent no-impact**, because a plan you could not read is exactly the one most likely to surprise you.
 
 ### Step 2 - Establish queue membership
 
@@ -98,7 +98,7 @@ Two cautions:
 Rank on two axes, in this order:
 
 1. **Parallel-implementation compatibility.** Plans with disjoint surfaces and no stated dependency can run concurrently and should be grouped. This axis is computed from Step 4.
-2. **Impact on the harness.** Which plan makes the product better for its users. This axis is a **structured maintainer judgement, not a computed score.** Record the reasoning; never present it as derived.
+2. **Impact on the harness.** Which plan makes the product better for its users. This axis is a **structured maintainer judgment, not a computed score.** Record the reasoning; never present it as derived.
 
 Then apply the class rule:
 
@@ -185,7 +185,7 @@ Prefer not to renumber a mid-implementation plan at all. When it is done anyway,
 | "Re-ordering the queue will speed us up." | This skill has never measured that and must not claim it. It reduces rework from stale plans; that is a different claim and the only one supported. |
 | "The rename is mechanical, I can run a find-and-replace." | A blanket rewrite corrupted eleven cross-references in one observed pass, inverted a plan's sequencing intent, and turned two dated statements into falsehoods. It also rewrites section numbers that merely look like versions. |
 | "The documentation plan is small, let it go first." | It describes what the other plans build. Running it first guarantees rework, and its size is not the reason it ranks last. |
-| "Impact on the harness is basically obvious, I can just assert the order." | It is a judgement, which is exactly why it must be recorded with reasoning. An asserted ranking cannot be argued with or revisited. |
+| "Impact on the harness is basically obvious, I can just assert the order." | It is a judgment, which is exactly why it must be recorded with reasoning. An asserted ranking cannot be argued with or revisited. |
 | "I could not read that plan, so it probably does not matter." | An unreadable plan is an explicit unknown. It is the one most likely to surprise you, not the one safest to ignore. |
 
 ## Verification
@@ -196,7 +196,7 @@ Prefer not to renumber a mid-implementation plan at all. When it is done anyway,
 - [ ] Every unreadable or undeclared-status plan appears as an explicit unknown.
 - [ ] Overlapping surfaces are listed as paths, not asserted.
 - [ ] The written artifact exists and states the recommended order with a reason per position.
-- [ ] Impact-on-harness is recorded as a judgement with reasoning, not presented as a computed score.
+- [ ] Impact-on-harness is recorded as a judgment with reasoning, not presented as a computed score.
 - [ ] No claim was made that re-sequencing improves delivery speed.
 - [ ] If a renumber was performed, the residual-reference check ran and passed, and every historical claim was repaired with a dated note rather than a restatement.
 

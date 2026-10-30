@@ -91,7 +91,7 @@
         "value": "not-captured",
         "source_url": "https://antigravity.google/docs/hooks/",
         "verified": "2026-09-29",
-        "evidence": "/goal exists (slash-commands page), but the hooks page documents only PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop, with no prompt-submit event, so no hook can see typed /goal text. Judgement call: no page states that slash commands skip a hook."
+        "evidence": "/goal exists (slash-commands page), but the hooks page documents only PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop, with no prompt-submit event, so no hook can see typed /goal text. Judgment call: no page states that slash commands skip a hook."
       }
     },
     "antigravity2/cli": {
@@ -130,7 +130,7 @@
         "value": "not-captured",
         "source_url": "https://antigravity.google/docs/hooks/",
         "verified": "2026-09-29",
-        "evidence": "Slash-commands page lists /goal for Antigravity CLI; the same five-event hooks page has no prompt-submit event. Whether agy -p \"/goal ...\" runs the goal loop is undocumented. Same judgement-call caveat as antigravity2."
+        "evidence": "Slash-commands page lists /goal for Antigravity CLI; the same five-event hooks page has no prompt-submit event. Whether agy -p \"/goal ...\" runs the goal loop is undocumented. Same judgment-call caveat as antigravity2."
       }
     },
     "claude": {

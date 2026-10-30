@@ -2,7 +2,7 @@
 name: accessibility-engineering
 description: "Ship accessible UI: names, keyboard, focus, forms, hit areas, motion, zoom. Use for accessibility, a11y, keyboard navigation, screen reader, ARIA, focus, or WCAG. SKIP: general frontend (frontend-ui-engineering) and visual polish (hallmark-design)."
 summary_l0: "Ship and audit accessible UI against keyboard, name, and WCAG rules"
-overview_l1: "This skill owns accessible interaction: semantic structure and accessible names, keyboard operability and visible focus, focus order and overlay trapping, form labelling and error association, assistive-technology behavior, minimum hit areas, and reduced-motion plus zoom/reflow. It decides when contrast is required and how severe a failure is; color-systems measures and remediates the rendered pair. It owns heading semantics; web-typography owns how those headings look. Match the project's existing styling system. SKIP general frontend architecture and visual polish."
+overview_l1: "This skill owns accessible interaction: semantic structure and accessible names, keyboard operability and visible focus, focus order and overlay trapping, form labeling and error association, assistive-technology behavior, minimum hit areas, and reduced-motion plus zoom/reflow. It decides when contrast is required and how severe a failure is; color-systems measures and remediates the rendered pair. It owns heading semantics; web-typography owns how those headings look. Match the project's existing styling system. SKIP general frontend architecture and visual polish."
 ---
 
 # Accessibility Engineering
@@ -86,7 +86,7 @@ Severity:
 
 - Body text and interactive text below 4.5:1 (or large text below 3:1) is a **blocker**.
 - Non-text UI (1.4.11) below 3:1 is a **blocker**.
-- Placeholder-only contrast on an otherwise labelled field is **advisory** if the label itself meets 4.5:1.
+- Placeholder-only contrast on an otherwise labeled field is **advisory** if the label itself meets 4.5:1.
 
 Do not compute ratios in this skill. Load `color-systems` to measure the rendered pair and change the colors. If `color-systems` is unavailable, mark contrast measurement as not covered, name the missing skill, and continue with the rest of this checklist. Do not invent a formula from memory.
 

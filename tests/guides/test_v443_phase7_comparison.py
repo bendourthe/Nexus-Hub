@@ -4,7 +4,7 @@ v4.4.4 merged this comparison INTO the Agentic Platforms scene, so every selecto
 it. The rules are unchanged: both lanes show the same two zones, only the reach differs, the
 unreached zone keeps full text contrast, and the split is choreographed and complete without motion.
 
-The scene was two columns of prose that asked the reader to hold four labelled sentences per lane
+The scene was two columns of prose that asked the reader to hold four labeled sentences per lane
 and compare them. The rebuild draws what actually differs: both lanes show the SAME two zones, and
 only the reach changes. These tests assert that symmetry, because it is the whole argument -- a
 rebuild that gave each lane different zones would look tidy and teach nothing.
@@ -132,7 +132,7 @@ def test_only_the_reach_differs_between_the_lanes(playwright_mod) -> None:
 
 
 def test_the_lane_chips_keep_full_text_contrast(playwright_mod) -> None:
-    """A state is never signalled by dimming text below AA (BG-13, BG-14).
+    """A state is never signaled by dimming text below AA (BG-13, BG-14).
 
     The chatbot lane's "takes no actions" claim moved from a list row into the lane chip, so the
     contrast rule moves with it.

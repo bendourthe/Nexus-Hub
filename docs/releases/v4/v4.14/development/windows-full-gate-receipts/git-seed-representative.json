@@ -1,0 +1,14 @@
+{
+  "projection_only": true,
+  "authority": false,
+  "_publication": {"kind":"redacted_capture","original_capture_sha256":"eb65370c9e259373b2d18fc4894d67ded7a151a0acb6a56fb37c27ee65a7b85b","original_retained_privately":true,"representation":"publication_projection","redaction":"Only local account/private path identifiers are replaced with typed placeholders. Original capture fields are nested for publication and are not native authority."},
+  "projected_receipt": {
+  "name": "Existing record archive runner gate and controller cases with copied Git seed",
+  "group": "",
+  "status": "pass",
+  "duration_s": 90.31200000000536,
+  "exit_code": 0,
+  "output": ".....                                                                    [100%]\r\n============================ slowest 10 durations =============================\r\n18.77s call     tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]\r\n17.51s call     tests/validators/test_controller_handoff.py::test_real_cli_dry_run_transfer_retry_and_source_removal\r\n9.15s setup    tests/validators/test_completion_minor_verdict.py::test_gate_slow_evaluation_with_progress_writes_no_blocker[sh]\r\n6.21s call     tests/validators/test_completion_minor_record.py::test_schema2_round_trip_records_every_member\r\n6.06s setup    tests/validators/test_completion_minor_verdict.py::test_runner_drives_a_minor_through_check_minor\r\n6.04s setup    tests/validators/test_controller_handoff.py::test_real_cli_dry_run_transfer_retry_and_source_removal\r\n5.58s call     tests/validators/test_gap_migration_and_archive.py::test_migrate_creates_target_from_template_with_provenance\r\n2.23s call     tests/validators/test_completion_minor_verdict.py::test_runner_drives_a_minor_through_check_minor\r\n2.22s setup    tests/validators/test_completion_minor_record.py::test_schema2_round_trip_records_every_member\r\n0.50s setup    tests/validators/test_gap_migration_and_archive.py::test_migrate_creates_target_from_template_with_provenance\r\n5 passed in 79.91s (0:01:19)\r\n",
+  "reason": "pytest scratch <private-temp>\\nwg-169IPI\\t\\nexus-ci-pytest-57qthkt3; execution 89.422s; cleanup 0.890s: removed"
+}
+}

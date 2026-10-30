@@ -31,7 +31,7 @@ The first claim is that an upgraded install reshapes the user's own documentatio
 
 The second is that it changes installed instruction content: its Phase 5 edits all 12 substantive `templates/ai-instructions/` files, which both installers copy recursively. That is the same test that placed `agent-communication-overhaul` in the bundle. Verified.
 
-The comparison that settles it is with `docs-lifecycle-retention` above. Both are documentation plans; that one was excluded because its changes are repo-internal, and this one's stated purpose is to reach every install. Same subject matter, opposite answer, on a criterion that discriminates rather than a judgement call.
+The comparison that settles it is with `docs-lifecycle-retention` above. Both are documentation plans; that one was excluded because its changes are repo-internal, and this one's stated purpose is to reach every install. Same subject matter, opposite answer, on a criterion that discriminates rather than a judgment call.
 
 Two consequences are worth stating because they were weighed and accepted. The bundle now couples three plans, so a stall in any one delays the others, and three slip more easily than two. And the plan itself recorded a clean alternative that was NOT taken: making the migration strictly opt-in would drop it to a v3.20.x target, at the cost of most consuming repositories never adopting the standard, which is the plan's whole purpose. Choosing the reservation over the escape hatch is the deliberate trade.
 

@@ -401,12 +401,12 @@ def _real_sources() -> dict:
 
 
 def _assert_dark_neutral(css: str) -> None:
-    """R49: a regular dark terminal. Near black (low relative luminance) and grey (no hue cast)."""
+    """R49: a regular dark terminal. Near black (low relative luminance) and gray (no hue cast)."""
     r, g, b = (int(v) for v in re.findall(r"\d+", css)[:3])
     lin = [((c / 255) / 12.92 if c / 255 <= 0.04045 else (((c / 255) + 0.055) / 1.055) ** 2.4) for c in (r, g, b)]
     luminance = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
     assert luminance < 0.03, f"{css} is not dark (luminance {luminance:.3f})"
-    assert max(r, g, b) - min(r, g, b) <= 6, f"{css} has a colour cast (blue PowerShell or aubergine GNOME)"
+    assert max(r, g, b) - min(r, g, b) <= 6, f"{css} has a color cast (blue PowerShell or aubergine GNOME)"
 
 
 def _banner(lines: list, start: str, close: str) -> str:
@@ -459,7 +459,7 @@ def test_each_tab_shows_its_icon_steps_and_terminal(playwright_mod, os_key: str)
     assert data["steps"] == STEPS[os_key] and data["kbd"] == 0
     assert data["order"] == ["inst-steps", "term", "tm-wrap"], "steps, the command box, then the mockup"
     assert skin in data["cls"] and data["bg"] == bg, data
-    assert data["bodyBg"] == "rgba(0, 0, 0, 0)", "the window colour shows through; no tinted body"
+    assert data["bodyBg"] == "rgba(0, 0, 0, 0)", "the window color shows through; no tinted body"
     _assert_dark_neutral(data["bg"])
     assert data["ctlSide"] == side, data
     assert data["lights"] == (3 if os_key == "mac" else 0)
@@ -683,7 +683,7 @@ def test_each_system_reads_with_the_same_logo_and_label_everywhere(playwright_mo
     assert len(heights) == 1, "no layout jump between tabs"
     for key, pair, _h in data["tabs"]:
         assert pair["use"] == f"#os-{key}" and pair["hidden"] == "true" and pair["text"] == names[key], pair
-        assert abs(pair["h"] - pair["font"]) <= 1 and pair["fill"] == pair["color"], "text height, current colour"
+        assert abs(pair["h"] - pair["font"]) <= 1 and pair["fill"] == pair["color"], "text height, current color"
     for key, pair in data["steps"]:
         assert pair["use"] == f"#os-{key}" and pair["text"] == names[key], pair
     assert data["note"]["use"] == "#os-win" and data["note"]["text"] == "Detected: Windows"

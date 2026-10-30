@@ -11,6 +11,12 @@ see where a multi-session plan actually stands without opening it.
 **Handoff.** `--next` finds the next plan with open tasks and prints the command
 to run it, plus ONE tier and effort level.
 
+**Check.** `--check <file>` validates the optional per-phase
+`**Recommended verification effort**` field: one stderr line per violation and
+exit 3 when a value is outside the effort vocabulary or below the phase's own
+effort. An absent field equals the phase's effort. `--plan` and `--next` ignore
+the field, so their output does not depend on it.
+
 The single-recommendation rule matters and is not an average. `/implement <plan>
 in-full` runs every phase in one invocation, so the recommendation has to carry
 the HARDEST phase: the maximum tier and the maximum effort found anywhere in the
@@ -34,6 +40,7 @@ from pathlib import Path
 EXIT_OK = 0
 EXIT_NO_PLAN = 1
 EXIT_UNREADABLE = 2
+EXIT_CONTRACT = 3
 
 # Ordered weakest to strongest so `max()` is meaningful.
 TIERS = ("fast", "standard", "strong", "frontier")
@@ -42,6 +49,9 @@ EFFORTS = ("low", "medium", "high", "max")
 PHASE_RE = re.compile(r"^## Phase (\d+):\s*(.+?)\s*$", re.MULTILINE)
 TIER_RE = re.compile(r"^\*\*Recommended model tier\*\*:\s*(\S+)", re.MULTILINE)
 EFFORT_RE = re.compile(r"^\*\*Recommended effort level\*\*:\s*(\S+)", re.MULTILINE)
+VERIFICATION_RE = re.compile(
+    r"^\*\*Recommended verification effort\*\*:\s*(\S+)", re.MULTILINE
+)
 TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d+)\b", re.MULTILINE)
 VERSION_RE = re.compile(r"^\*\*Version\*\*:\s*(\S+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*(\S+)", re.MULTILINE)
@@ -79,6 +89,7 @@ class Plan:
             done = sum(1 for mark, _ in tasks if mark.lower() == "x")
             tier = TIER_RE.search(body)
             effort = EFFORT_RE.search(body)
+            verification = VERIFICATION_RE.search(body)
             phases.append({
                 "number": int(match.group(1)),
                 "title": match.group(2),
@@ -86,6 +97,7 @@ class Plan:
                 "total": len(tasks),
                 "tier": tier.group(1) if tier else None,
                 "effort": effort.group(1) if effort else None,
+                "verification": verification.group(1) if verification else None,
             })
         return phases
 
@@ -121,6 +133,26 @@ class Plan:
         }
         status = MAP_STATUS_RE.search(self.text)
         return providers, rows, status.group(1) if status else None
+
+
+def contract_violations(plan: Plan) -> list[str]:
+    """The `--check` findings: invalid verification values, or values below effort.
+
+    A phase whose own effort is absent or outside the vocabulary (a legacy plan)
+    skips the comparison, but an invalid verification value is still reported.
+    """
+    problems = []
+    for phase in plan.phases:
+        value, effort = phase["verification"], phase["effort"]
+        if value is None:
+            continue
+        if value not in EFFORTS:
+            problems.append(f"phase {phase['number']}: invalid verification effort {value}")
+        elif effort in EFFORTS and EFFORTS.index(value) < EFFORTS.index(effort):
+            problems.append(
+                f"phase {phase['number']}: verification effort {value} below effort {effort}"
+            )
+    return problems
 
 
 def progress_table(plan: Plan) -> str:
@@ -281,17 +313,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--plan", type=Path, help="plan file to report progress for")
     parser.add_argument("--next", action="store_true",
                         help="find the next plan with open tasks and print its handoff")
+    parser.add_argument("--check", type=Path,
+                        help="validate the optional verification-effort fields; exit 3 on a violation")
     parser.add_argument("--digest", action="store_true",
                         help="print one plan-state line for the session digest and exit 0")
     parser.add_argument("--root", type=Path, default=Path("."),
                         help="repository root for --next and --digest")
     args = parser.parse_args(argv)
 
-    if args.digest:
+    if args.digest and not args.check:
         print(digest_line(args.root))
         return EXIT_OK
+    if args.check:
+        if args.plan or args.next or args.digest:
+            parser.error("--check cannot be combined with --plan, --next, or --digest")
+        if not args.check.is_file():
+            print(f"plan_status: no plan at {args.check}", file=sys.stderr)
+            return EXIT_UNREADABLE
+        problems = contract_violations(Plan(args.check))
+        for problem in problems:
+            print(problem, file=sys.stderr)
+        return EXIT_CONTRACT if problems else EXIT_OK
     if not args.plan and not args.next:
-        parser.error("pass --plan <file>, --next, or --digest")
+        parser.error("pass --plan <file>, --next, --check <file>, or --digest")
 
     if args.plan:
         if not args.plan.is_file():

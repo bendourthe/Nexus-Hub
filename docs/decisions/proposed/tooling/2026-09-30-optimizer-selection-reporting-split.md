@@ -21,7 +21,7 @@ A status of `proposed` satisfies the v4.13.8 plan. Moving this record to `implem
 
 ## Alternatives considered
 
-- **Always three-way, rejecting sets below the minimum.** Rejected: every catalog set is below 24, so the optimizer would stop working for every current user in exchange for a guarantee nobody could use yet. Labelling the small-set result keeps the tool usable and honest.
+- **Always three-way, rejecting sets below the minimum.** Rejected: every catalog set is below 24, so the optimizer would stop working for every current user in exchange for a guarantee nobody could use yet. Labeling the small-set result keeps the tool usable and honest.
 - **A 12-entry minimum for three-way mode.** Rejected: a 12-entry set gives a test split of about 3 queries, whose score can move only in thirds. That split would claim to be held-out while being too coarse to compare two descriptions, which is worse than an openly optimistic score.
 - **Keep two-way and disclose the bias only in prose.** Rejected: prose does not travel with the number. A `final.json` copied into a report or a PR loses the surrounding doc, and the machine-readable `reported_optimistic` field is what lets a reader or a later check tell the two kinds of score apart.
 - **Cross-validation over repeated splits.** Rejected for now: it multiplies the number of provider calls by the fold count on a tool where every evaluation is a paid CLI run, and it still needs a final untouched split to report an unbiased number. It stays a possible later addition for large sets.
@@ -36,4 +36,4 @@ A status of `proposed` satisfies the v4.13.8 plan. Moving this record to `implem
 
 - **A consumer that assumes `test_trigger_rate` exists on every iteration** breaks on a three-way run. This is mitigated by `split_mode` and by the fact that no current set triggers three-way mode, but a future large set would expose it.
 - **Grouping by normalized text** catches case, spacing, and punctuation variants but not paraphrases. Two paraphrases of one intent can still land in different splits unless the author sets `group`.
-- **The 24-entry threshold is a judgement,** chosen so that each test class holds at least 2 entries and the test split is about 6. A different minimum may prove better once real large sets exist.
+- **The 24-entry threshold is a judgment,** chosen so that each test class holds at least 2 entries and the test split is about 6. A different minimum may prove better once real large sets exist.

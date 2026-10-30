@@ -1,5 +1,7 @@
 @base-google-shared.md
 
+[Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
+
 ## Surface: Antigravity 1.0 (Google IDE, pre-I/O 2026 release)
 
 This file deploys to `~/.gemini/antigravity/rules.md` (global) or `<project>/.gemini/antigravity/rules.md` (workspace) and is consumed by the original Antigravity IDE released ahead of Google I/O 2026. Antigravity 1.0 shares the `~/.gemini/` root with Gemini IDE and Gemini CLI but writes to its own `antigravity/` subdirectory.

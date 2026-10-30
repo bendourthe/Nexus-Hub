@@ -18,7 +18,7 @@ default) the function touches nothing outside itself.
 Two mechanisms decide what survives:
 
 1. **Distinctiveness scoring** (``_distinctiveness_scores``) -- how different each
-   record is from its neighbours. This subsumes the variance, uniqueness, and
+   record is from its neighbors. This subsumes the variance, uniqueness, and
    change-point signals: a record unlike its predecessor scores high; a near-
    duplicate scores low and becomes a drop candidate.
 2. **Positional anchors** -- the first and last records are always kept so the
@@ -153,7 +153,7 @@ def _distinctiveness_scores(
        dedup) and exact duplicate runs alike.
     2. **Adjacent change magnitude.** A novel record is scored by how many
        fields it changed versus its predecessor (the variance / change-point
-       signal). A record that drifts from its neighbour by only one field
+       signal). A record that drifts from its neighbor by only one field
        scores below the default ``variance_threshold`` of 2.0 and becomes a
        near-duplicate drop candidate; a record that changes many fields scores
        high and is prioritized when the keep set is over budget.

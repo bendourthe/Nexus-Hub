@@ -10,7 +10,7 @@ Markers in ``guides/website/nexus-hub-guide.html`` look like::
 
     <span data-count="skills">329</span>
 
-Recognised sources:
+Recognized sources:
 
 - ``skills``     - entries in ``data/skills.json``
 - ``hooks``      - distinct hook scripts registered in ``catalog/hooks/settings.json``

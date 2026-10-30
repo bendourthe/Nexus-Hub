@@ -1,8 +1,8 @@
 """Unit and integration tests for the repository-native CI engine (v4.0.0 Phase 6).
 
 Deterministic and offline. Real command execution is exercised with fake
-commands (`sys.executable -c ...`) so the suite proves the ENGINE rather than
-re-running the repository's validators, which `ci-full` already does.
+commands (`sys.executable -c ...`) and tiny generated pytest cases, so the suite
+proves the ENGINE without re-running the repository's validators.
 
 One bounded integration test invokes the real entry point in `--list` mode,
 which resolves every command without executing any.
@@ -16,6 +16,8 @@ the easiest place to hide one.
 
 from __future__ import annotations
 
+import fnmatch
+import json
 import os
 import subprocess
 import sys
@@ -108,35 +110,102 @@ def test_every_command_declares_a_timeout():
                 assert cmd.timeout > 0, f"{group.name}/{cmd.name} has no timeout"
 
 
-def test_repository_suite_is_partitioned_without_coverage_gaps():
-    """Every collected test domain is bounded without one monolithic timeout."""
+def _profile_selects(command, relative: str, host: str) -> bool:
+    relative = relative.replace("\\", "/")
+    normalize = str.casefold if host == "windows" else str
+    relative = normalize(relative)
+    args = [normalize(arg.replace("\\", "/")) for arg in command.argv[3:]]
+    targets = [arg.rstrip("/") for arg in args if not arg.startswith("-")]
+    if not any(relative == target or relative.startswith(target + "/") for target in targets):
+        return False
+    ignores = [arg.split("=", 1)[1].rstrip("/") for arg in args if arg.startswith("--ignore=")]
+    globs = [arg.split("=", 1)[1] for arg in args if arg.startswith("--ignore-glob=")]
+    return not any(relative == path or relative.startswith(path + "/") for path in ignores) and not any(
+        fnmatch.fnmatchcase(relative, pattern) for pattern in globs
+    )
+
+
+@pytest.mark.parametrize("host", ("linux", "macos", "windows"))
+def test_repository_suite_is_partitioned_without_coverage_gaps(host):
+    """Every host selects each repository test file once, including exclusions."""
     commands = next(group for group in groups_for("full") if group.name == "tests").commands
-    repo_commands = [command for command in commands if command.name.startswith("repo-tests-")]
-    configured_targets = [
-        arg
-        for command in repo_commands
-        for arg in command.argv[3:]
-        if not arg.startswith("-")
-    ]
-    tests_root = REPO_ROOT / "tests"
-    actual_files: list[str] = []
-    for target in configured_targets:
-        target_path = REPO_ROOT / target
-        candidates = [target_path] if target_path.is_file() else target_path.rglob("test_*.py")
-        actual_files.extend(
-            path.relative_to(REPO_ROOT).as_posix()
-            for path in candidates
-            if "fixtures" not in path.relative_to(tests_root).parts
-        )
+    repo_commands = [command for command in commands if command.name.startswith("repo-tests-") and command.runs_on(host)]
     expected_files = [
         path.relative_to(REPO_ROOT).as_posix()
-        for path in tests_root.rglob("test_*.py")
-        if "fixtures" not in path.relative_to(tests_root).parts
+        for path in (REPO_ROOT / "tests").rglob("test_*.py")
+        if "fixtures" not in path.relative_to(REPO_ROOT / "tests").parts
     ]
-
-    assert sorted(actual_files) == sorted(expected_files)
-    assert len(actual_files) == len(set(actual_files))
+    assert expected_files
+    assert all(sum(_profile_selects(command, relative, host) for command in repo_commands) == 1
+               for relative in expected_files)
     assert all(command.timeout <= 4500 for command in repo_commands)
+
+
+@pytest.mark.parametrize("host", ("linux", "macos", "windows"))
+@pytest.mark.parametrize("separator", ("/", "\\"))
+def test_full_guide_scheduling_preserves_scope_and_limits(host, separator):
+    commands = next(group for group in groups_for("full") if group.name == "tests").commands
+    commands = [command for command in commands if command.runs_on(host)
+                and any(arg == "tests/guides" or arg.startswith("tests/guides/") for arg in command.argv)]
+    heavy = (
+        "tests/guides/test_training_game_engine.py",
+        "tests/guides/test_page_openings_and_outline.py",
+        "tests/guides/test_training_reward_mockup.py",
+        "tests/guides/test_models_learning_lab.py",
+    )
+    if host == "windows":
+        assert len(commands) == 2
+        assert list(commands[0].argv) == [PY, "-m", "pytest", *heavy[:1], "-q", *heavy[1:]]
+        assert list(commands[1].argv) == [PY, "-m", "pytest", "tests/guides", "-q",
+                                             *(f"--ignore={path}" for path in heavy)]
+    else:
+        assert len(commands) == 1
+        assert commands[0].name == "repo-tests-guides"
+        assert list(commands[0].argv) == [PY, "-m", "pytest", "tests/guides", "-q"]
+    for command in commands:
+        assert command.timeout == 1800
+        assert command.platform_timeouts == {}
+        assert command.timeout_on(host) == 1800
+        assert command.cwd == "." and command.env == {}
+        assert not command.advisory and not command.skip_if_missing
+    actual = [path.relative_to(REPO_ROOT).as_posix() for path in (REPO_ROOT / "tests/guides").rglob("test_*.py")]
+    assert actual
+    future = ["tests/guides/test_future.py", "tests/guides/test_9.py", "tests/guides/test__future.py",
+              "tests/guides/nested/test_future.py"]
+    for relative in [*actual, *future]:
+        assert sum(_profile_selects(command, relative.replace("/", separator), host) for command in commands) == 1
+
+
+@pytest.mark.parametrize("host", ("linux", "macos", "windows"))
+def test_full_adapter_scheduling_preserves_scope_and_limits(host):
+    original = (
+        "tests/integrations/test_agent_model_delivery.py",
+        "tests/integrations/test_base_writeresult.py",
+        "tests/integrations/test_catalog_adapters.py",
+        "tests/integrations/test_contract.py",
+        "tests/integrations/test_cross_platform_flatten.py",
+        "tests/integrations/test_global_command_surface.py",
+        "tests/integrations/test_owned_root_preflight.py",
+        "tests/integrations/test_skill_path_provider_order.py",
+        "tests/integrations/test_windows_long_paths.py",
+    )
+    commands = [command for group in groups_for("full") if group.name == "tests"
+                for command in group.commands if command.runs_on(host)
+                and command.name.startswith("repo-tests-integrations-adapter-contracts")]
+    contract = ("tests/integrations/test_contract.py",)
+    remaining = tuple(path for path in original if path not in contract)
+    parts = (contract, remaining) if host == "windows" else (original,)
+    assert len(commands) == len(parts)
+    limits = (2700, 1800) if host == "windows" else (1800,)
+    for command, files, limit in zip(commands, parts, limits):
+        assert list(command.argv) == [PY, "-m", "pytest", files[0], "-q", *files[1:]]
+        assert command.timeout == limit and command.platform_timeouts == {}
+        assert command.timeout_on(host) == limit
+        assert command.cwd == "." and command.env == {}
+        assert not command.advisory and not command.skip_if_missing
+    actual = [arg for command in commands for arg in command.argv if arg in original]
+    assert sorted(actual) == sorted(original)
+    assert len(actual) == len(set(actual))
 
 
 def test_existing_profile_commands_emit_coverage_and_sarif() -> None:
@@ -148,6 +217,46 @@ def test_existing_profile_commands_emit_coverage_and_sarif() -> None:
     assert "--cov-report=xml:reports/coverage-ci.xml" in ci_tests.argv
     assert "--format" in scanner.argv and "sarif" in scanner.argv
     assert "--output" in scanner.argv and "reports/skill-security.sarif" in scanner.argv
+
+
+def test_pre_commit_profile_installs_policy_inside_cli(tmp_path):
+    """A hidden outer process does not hide Git started by a second interpreter."""
+    group = next(group for group in groups_for("full") if group.name == "pre-commit")
+    command = group.commands[0]
+    assert list(command.argv[:2]) == [PY, "-c"]
+    assert list(command.argv[3:]) == ["run", "--all-files"]
+    assert command.timeout == 1800
+    assert command.env == {"SKIP": "lint-templates,build-catalogs"}
+    package = tmp_path / "pre_commit"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "__main__.py").write_text(
+        "import inspect,json,os,subprocess,sys\n"
+        "original = subprocess.Popen._execute_child\n"
+        "observed = []\n"
+        "def capture(self, *args, **kwargs):\n"
+        "    bound = inspect.signature(original).bind(self, *args, **kwargs)\n"
+        "    observed.append(bound.arguments.get('creationflags', 0))\n"
+        "    return original(self, *args, **kwargs)\n"
+        "subprocess.Popen._execute_child = capture\n"
+        "git = subprocess.run(['git', '--version'], capture_output=True, text=True, check=True)\n"
+        "print(json.dumps({'flags': observed, 'git': git.stdout.strip(), "
+        "'args': sys.argv[1:], 'skip': os.environ.get('SKIP'), 'main': __name__}))\n",
+        encoding="utf-8",
+    )
+    env = dict(command.env)
+    env["PYTHONPATH"] = str(tmp_path) + os.pathsep + os.environ.get("PYTHONPATH", "")
+    probe = Command(name=command.name, argv=command.argv, env=env, timeout=command.timeout)
+    result = run_mod.run_command(probe, REPO_ROOT, [], quiet=True)
+    assert result.status == "pass", result.output
+    observed = json.loads(result.output.strip())
+    assert observed["git"].startswith("git version ")
+    assert observed["args"] == ["run", "--all-files"]
+    assert observed["skip"] == "lint-templates,build-catalogs"
+    assert observed["main"] == "__main__"
+    assert len(observed["flags"]) == 1
+    if os.name == "nt":
+        assert observed["flags"][0] & subprocess.CREATE_NO_WINDOW
 
 
 def test_no_command_is_a_shell_string():
@@ -202,6 +311,152 @@ def test_release_profile_is_not_a_validation_rerun():
 # ---------------------------------------------------------------------------
 
 
+@pytest.fixture
+def pytest_scratch_probe(tmp_path, monkeypatch):
+    parent = tmp_path / "scratch"
+    parent.mkdir()
+    sibling = parent / "unrelated.txt"
+    sibling.write_text("keep", encoding="utf-8")
+    project = tmp_path / "project"
+    project.mkdir()
+    case = project / "test_probe.py"
+    case.write_text(
+        "import os,time\n"
+        "def test_owned(tmp_path, tmp_path_factory):\n"
+        "    (tmp_path / 'owned.txt').write_text('owned', encoding='utf-8')\n"
+        "    print('base=' + str(tmp_path_factory.getbasetemp()), flush=True)\n"
+        "    assert os.environ.get('PYTEST_ADDOPTS') == os.environ.get('PROBE_ADDOPTS', '')\n"
+        "    mode = os.environ['PROBE_MODE']\n"
+        "    if mode == 'timeout': time.sleep(30)\n"
+        "    assert mode != 'fail', 'probe-failure'\n",
+        encoding="utf-8",
+    )
+    directory_type = run_mod.tempfile.TemporaryDirectory
+    roots = []
+    state = {"fail_cleanup": False}
+
+    def owned_directory(*args, **kwargs):
+        directory = directory_type(*args, dir=parent, **kwargs)
+        roots.append(directory)
+        if state["fail_cleanup"]:
+            def deny_cleanup():
+                raise PermissionError("probe cleanup denied")
+            monkeypatch.setattr(directory, "cleanup", deny_cleanup)
+        return directory
+
+    monkeypatch.setattr(run_mod.tempfile, "TemporaryDirectory", owned_directory)
+
+    def command(mode="pass", *extra):
+        return Command(
+            name="pytest-probe", argv=[PY, "-m", "pytest", str(case), "-q", "-s", *extra],
+            timeout=3 if mode == "timeout" else 30, advisory=mode == "advisory",
+            env={"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "PYTEST_ADDOPTS": "", "PROBE_MODE": "fail" if mode == "advisory" else mode},
+        )
+
+    yield project, command, roots, sibling, state
+    for directory in roots:
+        directory_type.cleanup(directory)
+
+
+def test_pytest_runs_use_distinct_owned_scratch_and_preserve_siblings(pytest_scratch_probe):
+    project, command, roots, sibling, _ = pytest_scratch_probe
+    for _ in range(2):
+        result = run_mod.run_command(command(), project, [], quiet=True)
+        assert result.status == "pass", result.output + result.reason
+        assert result.exit_code == 0
+        assert f"base={Path(roots[-1].name) / 'pytest'}" in result.output
+        assert not Path(roots[-1].name).exists()
+        assert "execution " in result.reason and "cleanup " in result.reason
+        assert "removed" in result.reason
+    assert roots[0].name != roots[1].name
+    assert sibling.read_text(encoding="utf-8") == "keep"
+
+
+@pytest.mark.parametrize("mode", ("pass", "fail", "advisory", "timeout", "launch"))
+@pytest.mark.parametrize("fail_cleanup", (False, True))
+def test_pytest_scratch_cleanup_preserves_command_facts(
+    pytest_scratch_probe, monkeypatch, mode, fail_cleanup,
+):
+    project, command, roots, sibling, state = pytest_scratch_probe
+    state["fail_cleanup"] = fail_cleanup
+    if mode == "launch":
+        def launch_error(*args, **kwargs):
+            raise OSError("probe launch denied")
+        monkeypatch.setattr(run_mod.subprocess, "Popen", launch_error)
+    result = run_mod.run_command(command(mode), project, [], quiet=True)
+    expected = {"pass": "pass", "fail": "fail", "advisory": "advisory-fail", "timeout": "timeout", "launch": "missing"}[mode]
+    assert result.status == ("fail" if fail_cleanup and expected in ("pass", "advisory-fail") else expected)
+    assert result.exit_code == {"pass": 0, "fail": 1, "advisory": 1}.get(mode)
+    assert Path(roots[0].name).exists() == fail_cleanup
+    assert roots[0].name in result.reason
+    if fail_cleanup:
+        assert result.counts_as_failure
+        assert "probe cleanup denied" in result.reason
+        assert f"original status={expected}" in result.reason
+    if mode in ("pass", "fail", "advisory", "timeout"):
+        assert f"base={Path(roots[0].name) / 'pytest'}" in result.output
+    if mode in ("fail", "advisory"):
+        assert "probe-failure" in result.output and "exit 1" in result.reason
+    if mode == "timeout":
+        assert "exceeded 3s" in result.reason
+    if mode == "launch":
+        assert "probe launch denied" in result.reason
+    assert sibling.read_text(encoding="utf-8") == "keep"
+
+
+@pytest.mark.parametrize("equals", (False, True))
+def test_explicit_pytest_basetemp_remains_caller_owned(pytest_scratch_probe, equals):
+    project, command, roots, sibling, _ = pytest_scratch_probe
+    caller_base = project / "caller-base"
+    extra = [f"--basetemp={caller_base}"] if equals else ["--basetemp", str(caller_base)]
+    cmd = command("pass", *extra)
+    original_argv = list(cmd.argv)
+    result = run_mod.run_command(cmd, project, [], quiet=True)
+    assert result.status == "pass", result.output + result.reason
+    assert f"base={caller_base}" in result.output
+    assert (caller_base / "test_owned0" / "owned.txt").read_text(encoding="utf-8") == "owned"
+    assert not roots and list(cmd.argv) == original_argv
+    assert result.reason == ""
+    assert sibling.read_text(encoding="utf-8") == "keep"
+
+
+def test_inherited_pytest_basetemp_remains_caller_owned(pytest_scratch_probe, monkeypatch):
+    project, command, roots, _, _ = pytest_scratch_probe
+    caller_base = project / "caller env base"
+    addopts = f'--basetemp="{caller_base}"'
+    monkeypatch.setenv("PYTEST_ADDOPTS", addopts)
+    cmd = command()
+    env = {key: value for key, value in cmd.env.items() if key != "PYTEST_ADDOPTS"}
+    env["PROBE_ADDOPTS"] = addopts
+    cmd = Command(name=cmd.name, argv=cmd.argv, env=env, timeout=cmd.timeout)
+    result = run_mod.run_command(cmd, project, [], quiet=True)
+    assert result.status == "pass", result.output + result.reason
+    assert f"base={caller_base}" in result.output
+    assert (caller_base / "test_owned0" / "owned.txt").is_file()
+    assert not roots and result.reason == ""
+    assert os.environ["PYTEST_ADDOPTS"] == addopts
+
+
+def test_malformed_pytest_addopts_are_reported_by_pytest(pytest_scratch_probe, monkeypatch):
+    project, command, roots, _, _ = pytest_scratch_probe
+    monkeypatch.setenv("PYTEST_ADDOPTS", '"unterminated')
+    cmd = command()
+    env = {key: value for key, value in cmd.env.items() if key != "PYTEST_ADDOPTS"}
+    cmd = Command(name=cmd.name, argv=cmd.argv, env=env, timeout=cmd.timeout)
+    result = run_mod.run_command(cmd, project, [], quiet=True)
+    assert result.status == "fail" and result.exit_code != 0
+    assert "No closing quotation" in result.output
+    assert not roots
+
+
+def test_non_pytest_command_does_not_get_owned_scratch(pytest_scratch_probe):
+    project, _, roots, _, _ = pytest_scratch_probe
+    result = run_mod.run_command(_ok(), project, [], quiet=True)
+    assert result.status == "pass" and result.exit_code == 0
+    assert result.output.strip() == "1" and result.reason == ""
+    assert not roots
+
+
 def test_a_passing_command_reports_pass():
     result = run_mod.run_command(_ok(), REPO_ROOT, [], quiet=True)
     assert result.status == "pass"
@@ -230,7 +485,7 @@ def test_a_timeout_is_a_failure_not_a_pass():
     assert "exceeded 1s" in result.reason
 
 
-def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsys):
+def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsys, monkeypatch):
     marker = tmp_path / "child-survived.txt"
     child_code = (
         "import pathlib,time;"
@@ -238,6 +493,9 @@ def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsy
         f"pathlib.Path({str(marker)!r}).write_text('alive', encoding='utf-8')"
     )
     parent_code = (
+        "import runpy;"
+        f"policy=runpy.run_path({str(REPO_ROOT / 'scripts/nexus_process.py')!r});"
+        "policy['install_no_window_default']();"
         "import subprocess,sys,time;"
         "print('partial-output', flush=True);"
         f"subprocess.Popen([sys.executable, '-c', {child_code!r}]);"
@@ -246,6 +504,18 @@ def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsy
     command = Command(name="tree-timeout", argv=[PY, "-c", parent_code], timeout=1)
 
     started = time.monotonic()
+    termination = {}
+    terminate_process_tree = run_mod._terminate_process_tree
+
+    def observe_termination(proc):
+        termination["requested_s"] = time.monotonic() - started
+        cleanup_started = time.monotonic()
+        try:
+            return terminate_process_tree(proc)
+        finally:
+            termination["duration_s"] = time.monotonic() - cleanup_started
+
+    monkeypatch.setattr(run_mod, "_terminate_process_tree", observe_termination)
     group = Group(name="timeout-group", commands=(command,))
     group_result = run_mod.run_group(
         group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True
@@ -254,7 +524,10 @@ def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsy
     duration = time.monotonic() - started
     time.sleep(2)
 
-    assert duration < 2
+    # The execution deadline and capture must stay prompt; Windows taskkill has
+    # its own bounded OS cleanup and may consume the old one-second margin.
+    assert termination["requested_s"] < 2
+    assert duration - termination["duration_s"] < 2
     assert result.status == "timeout"
     assert "partial-output" in result.output
     assert "tree-timeout" in capsys.readouterr().out
@@ -655,10 +928,10 @@ def test_platform_timeout_override_applies_only_to_its_host_class():
 
 @pytest.mark.parametrize(
     ("step", "shared", "windows"),
-    [("hook-tests", 1800, 2400), ("repo-tests-governance", 2700, 3600)],
+    [("hook-tests", 1800, 2400)],
 )
 def test_measured_windows_overrides_keep_shared_caps(step, shared, windows):
-    """v4.13.9 WN-38 and WN-35: only Windows is raised, from recorded runs."""
+    """v4.13.9 WN-38: only Windows is raised, from a recorded run."""
     from scripts.ci import profiles
 
     found = [c for g in profiles.PROFILES["full"] for c in g.commands if c.name == step]
@@ -682,3 +955,46 @@ def test_run_group_runs_each_command_with_its_host_timeout(monkeypatch):
     for host, expected in (("windows", 20), ("linux", 10)):
         run_mod.run_group(group, host, _all_scopes(), REPO_ROOT, [], quiet=True)
         assert seen[-1] == expected, host
+
+
+@pytest.mark.parametrize("host", ("linux", "macos", "windows"))
+@pytest.mark.parametrize("separator", ("/", "\\"))
+def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
+    from scripts.ci import profiles
+
+    targets = ("tests/e2e", "tests/validators", "tests/verification", "tests/workflows",
+               "tests/test_git_attribution.py", "tests/test_removed_autonomy_surface.py")
+    commands = [command for group in groups_for("full") for command in group.commands
+                if command.name.startswith("repo-tests-governance") and command.runs_on(host)]
+    if host == "windows":
+        assert len(commands) == 5
+        assert commands[0].name == "repo-tests-governance-rest (Windows full)"
+        assert list(commands[0].argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[2:]]
+        assert commands[0].timeout == 2700
+        masks = (profiles.VALIDATORS_SHARD_A_IGNORES, profiles.VALIDATORS_SHARD_B_IGNORES,
+                 profiles.VALIDATORS_SHARD_C_IGNORES, profiles.VALIDATORS_SHARD_D_IGNORES)
+        for command, name, ignores in zip(commands[1:], ("a-c", "co", "d-o", "p-z"), masks):
+            assert command.name == f"repo-tests-governance-validators-{name} (Windows full)"
+            assert list(command.argv) == [PY, "-m", "pytest", "tests/validators", "-q", *ignores]
+            assert command.timeout == (2400 if name == "co" else 1800)
+        assert sum(command.timeout_on(host) for command in commands) == 10500
+    else:
+        assert len(commands) == 1 and commands[0].name == "repo-tests-governance"
+        assert list(commands[0].argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[1:]]
+        assert commands[0].timeout == 2700
+    for command in commands:
+        assert command.timeout_on(host) <= 3600
+        assert command.platform_timeouts == {}
+        assert command.cwd == "." and command.env == {}
+        assert not command.advisory and not command.skip_if_missing
+    actual = [path.relative_to(REPO_ROOT).as_posix() for target in targets
+              for path in ([REPO_ROOT / target] if target.endswith(".py") else (REPO_ROOT / target).rglob("test_*.py"))]
+    future = ["tests/validators/test_9.py", "tests/validators/test__future.py",
+              "tests/validators/test_c.py", "tests/validators/test_co.py",
+              "tests/validators/test_cz.py", "tests/validators/test_d.py", "tests/validators/test_o.py",
+              "tests/validators/test_p.py", "tests/validators/test_z.py",
+              "tests/validators/nested/test_future.py", "tests/e2e/nested/test_future.py",
+              "tests/verification/test_future.py", "tests/workflows/test_future.py"]
+    assert actual
+    for relative in [*actual, *future]:
+        assert sum(_profile_selects(command, relative.replace("/", separator), host) for command in commands) == 1, relative

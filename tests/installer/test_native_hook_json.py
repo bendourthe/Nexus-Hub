@@ -18,7 +18,7 @@ _HARNESS = r"""param($Installer,$Repo,$Target,$Python,$Writer)
 $ErrorActionPreference = 'Stop'
 $script:ProbePython = $Python
 $ast = [Management.Automation.Language.Parser]::ParseFile($Installer,[ref]$null,[ref]$null)
-foreach($name in @('Read-JsonDocument','Write-JsonFile','Get-ManagedHookStem','Merge-ManagedClaudeHooks','Convert-ClaudeHookCommandsForWindows','Install-ClaudeHookFiles','Install-GitGuardrails','Install-UsageDisplay','Install-RequireDescription','Install-CoreSettings')) {
+foreach($name in @('Read-JsonDocument','Write-JsonFile','Get-ManagedHookStem','Test-RetiredManagedHook','Remove-RetiredManagedHooks','Merge-ManagedClaudeHooks','Convert-ClaudeHookCommandsForWindows','Install-ClaudeHookFiles','Install-GitGuardrails','Install-UsageDisplay','Install-RequireDescription','Install-CoreSettings')) {
  $fn = $ast.FindAll({$args[0] -is [Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq $name},$true) | Select-Object -First 1
  if(-not $fn) { throw "Missing native helper $name" }
  Invoke-Expression $fn.Extent.Text

@@ -58,7 +58,7 @@ function Invoke-GitUtf8 {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = $gitExe
     $psi.Arguments = (@($args) | ForEach-Object { '"' + ([string]$_ -replace '"', '\"') + '"' }) -join ' '
-    $psi.UseShellExecute = $false
+    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)

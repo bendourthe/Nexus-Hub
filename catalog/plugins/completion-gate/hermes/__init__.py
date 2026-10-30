@@ -32,7 +32,7 @@ def _run_gate(session_id: str) -> dict | None:
     env = dict(os.environ, NEXUS_GATE_FORMAT="plugin", NEXUS_GATE_BUDGET_SECONDS="25")
     try:
         proc = subprocess.run(
-            [sys.executable, str(CORE), "stop"], input=payload, capture_output=True, text=True,
+            [sys.executable, str(CORE), "stop"], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), input=payload, capture_output=True, text=True,
             timeout=30, env=env, check=False,
         )
         return json.loads(proc.stdout) if proc.stdout.strip() else None

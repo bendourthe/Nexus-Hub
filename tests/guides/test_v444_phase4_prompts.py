@@ -3,7 +3,7 @@
 The old layout put both prompts in a three-column grid with a sideways arrow between them, which in
 a full-width scene left the arrow pointing at empty space. These tests assert the shape the review
 asked for: flaws BESIDE the vague prompt, a downward connector, and the engineered prompt spanning
-the diagram so its four labelled parts fit one row. The marker style is asserted too, because
+the diagram so its four labeled parts fit one row. The marker style is asserted too, because
 "quieter" is measurable: a tint and an underline rather than a ring.
 """
 

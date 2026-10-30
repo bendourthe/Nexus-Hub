@@ -147,7 +147,7 @@ def load_allow_patterns() -> list[str]:
                     continue
                 if entry.startswith("Bash(") and entry.endswith(")"):
                     inner = entry[5:-1]
-                    # Normalise legacy colon syntax: "cd:*" → "cd *"
+                    # Normalize legacy colon syntax: "cd:*" → "cd *"
                     inner = re.sub(r"^([^:*\s]+):\*$", r"\1 *", inner)
                     patterns.append(inner)
         except (json.JSONDecodeError, OSError) as exc:

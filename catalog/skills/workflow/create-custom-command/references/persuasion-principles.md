@@ -6,7 +6,7 @@ This reference explains why the structural devices in a discipline skill (the ha
 
 Two public sources motivate the framing choices below. Read the originals; this reference summarizes their relevance to skill authoring and does not reproduce their text.
 
-- **Cialdini, R. (2021), Influence: The Psychology of Persuasion (revised edition).** Catalogues the principles of influence that reliably shift human (and, as the second source shows, model) behavior: authority, commitment/consistency, scarcity, social proof, unity, liking, and reciprocity.
+- **Cialdini, R. (2021), Influence: The Psychology of Persuasion (revised edition).** Catalogs the principles of influence that reliably shift human (and, as the second source shows, model) behavior: authority, commitment/consistency, scarcity, social proof, unity, liking, and reciprocity.
 - **Meincke et al. (2025), a large-scale study (N approximately 28,000 conversations) measuring how Cialdini-style framing affects LLM compliance.** Reported that persuasion framing moved compliance on a target behavior from roughly 33% to roughly 72%. The headline relevance for skill authoring: the same framing devices that influence people measurably influence models, so the wording of a discipline gate is not cosmetic, it is causal.
 
 The practical takeaway is that a discipline skill's effectiveness depends on more than listing the correct steps. How the gate and its rebuttals are framed determines whether the agent follows them when a rationalization is available.
@@ -29,7 +29,7 @@ Frame the cost of the shortcut as an irreversible loss, not a deferred chore. "S
 
 ### Social proof
 
-Where a behavior is the established norm, say so concretely: "every shipped discipline skill in this catalogue runs its proving command before claiming done". Social proof is strongest when it is specific and true; a vague "best engineers always verify" is weaker than a checkable statement about what the surrounding skills actually do. Use it to normalize the disciplined action, not to shame the shortcut.
+Where a behavior is the established norm, say so concretely: "every shipped discipline skill in this catalog runs its proving command before claiming done". Social proof is strongest when it is specific and true; a vague "best engineers always verify" is weaker than a checkable statement about what the surrounding skills actually do. Use it to normalize the disciplined action, not to shame the shortcut.
 
 ### Unity
 

@@ -198,7 +198,7 @@ def classify_all(proposals: list) -> list[dict]:
 
 def git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
-        ["git", *args], cwd=str(repo), capture_output=True, text=True, check=False
+        ["git", *args], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), cwd=str(repo), capture_output=True, text=True, check=False
     )
     if check and result.returncode != 0:
         raise ApplyError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
@@ -250,7 +250,7 @@ def run_guards(
     for name, command in guards:
         try:
             result = subprocess.run(
-                list(command), cwd=str(repo), capture_output=True, text=True, check=False,
+                list(command), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), cwd=str(repo), capture_output=True, text=True, check=False,
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired:
@@ -261,7 +261,7 @@ def run_guards(
     if changed is not None and changed.suffix == ".sh":
         try:
             shell = subprocess.run(
-                ["shellcheck", "--severity=warning", str(changed)],
+                ["shellcheck", "--severity=warning", str(changed)], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 cwd=str(repo), capture_output=True, text=True, check=False, timeout=timeout,
             )
         except FileNotFoundError:

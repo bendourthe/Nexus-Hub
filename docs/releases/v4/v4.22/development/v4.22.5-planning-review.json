@@ -1,0 +1,227 @@
+{
+  "date": "2026-10-21",
+  "plan": "docs/releases/v4/v4.22/plans/v4.22.5-adoption-data-analysis-qa-and-product-review.md",
+  "corrected_draft_sha256": "09ecfd617ac19c2b91183324c5df32761f1a0c2b10a227bc2e38cc11f83e4c14",
+  "reviewed_initial_draft_lines": 516,
+  "raw_findings": [
+    {
+      "id": "R1",
+      "persona": "coherence",
+      "title": "Baseline invokes bundle/preset introduced only by candidate",
+      "severity": "P1",
+      "line": 331,
+      "confidence": 100,
+      "canonical": "baseline-install",
+      "requires_human_decision": false
+    },
+    {
+      "id": "R2",
+      "persona": "coherence",
+      "title": "Trial episode total omits earlier and final exercises",
+      "severity": "P2",
+      "line": 182,
+      "confidence": 100,
+      "canonical": "episode-allocation",
+      "requires_human_decision": true
+    },
+    {
+      "id": "R3",
+      "persona": "feasibility",
+      "title": "Define valid baseline install and invocation",
+      "severity": "P2",
+      "line": 331,
+      "confidence": 100,
+      "canonical": "baseline-install",
+      "requires_human_decision": false
+    },
+    {
+      "id": "R4",
+      "persona": "product",
+      "title": "Freeze product-review brief acceptance",
+      "severity": "P1",
+      "line": 372,
+      "confidence": 100,
+      "canonical": "brief-oracle",
+      "requires_human_decision": false
+    },
+    {
+      "id": "R5",
+      "persona": "scope-guardian",
+      "title": "Mandatory QA expands standalone product-pulse behavior",
+      "severity": "P2",
+      "line": 305,
+      "confidence": 100,
+      "canonical": "standalone-pulse",
+      "requires_human_decision": true
+    },
+    {
+      "id": "R6",
+      "persona": "design",
+      "title": "Mandatory QA degrades existing product-pulse installations",
+      "severity": "P2",
+      "line": 305,
+      "confidence": 100,
+      "canonical": "standalone-pulse",
+      "requires_human_decision": false
+    },
+    {
+      "id": "R7",
+      "persona": "security",
+      "title": "Exclude credential-bearing configuration from evidence",
+      "severity": "P2",
+      "line": 238,
+      "confidence": 75,
+      "canonical": "evidence-secrets",
+      "requires_human_decision": false
+    },
+    {
+      "id": "R8",
+      "persona": "security",
+      "title": "Unauthorized side effects must fail C08",
+      "severity": "P2",
+      "line": 39,
+      "confidence": 100,
+      "canonical": "hostile-actions",
+      "requires_human_decision": false
+    }
+  ],
+  "pipeline": [
+    "canonicalize same root cause by document section and normalized title",
+    "deduplicate",
+    "cross-lens promotion once capped100",
+    "no noninteractive advisory demotion",
+    "gate>=75 exceptP0>=50"
+  ],
+  "merged_findings": [
+    {
+      "id": "baseline-install",
+      "source_findings": [
+        "R1",
+        "R3"
+      ],
+      "personas": [
+        "coherence",
+        "feasibility"
+      ],
+      "severity": "P1",
+      "confidence": 100,
+      "promotion_applied": true,
+      "status": "corrected-in-draft",
+      "suggested_fix": "Use an evaluation-only six-owner packaging overlay with old source, valid installer flags and the same business task; candidate discovery separately."
+    },
+    {
+      "id": "episode-allocation",
+      "source_findings": [
+        "R2"
+      ],
+      "personas": [
+        "coherence"
+      ],
+      "severity": "P2",
+      "confidence": 100,
+      "promotion_applied": false,
+      "status": "resolved-by-user",
+      "suggested_fix": "D2 recommends19 behavior-test episodes:1Phase2+16paired+2final; no hard-dollar or whole-implementation cap."
+    },
+    {
+      "id": "brief-oracle",
+      "source_findings": [
+        "R4"
+      ],
+      "personas": [
+        "product"
+      ],
+      "severity": "P1",
+      "confidence": 100,
+      "promotion_applied": false,
+      "status": "corrected-in-draft",
+      "suggested_fix": "Freeze goal/audience, supported findings, caveats and justified actions for C01/C03/C07; unsupported rollout conclusions fail."
+    },
+    {
+      "id": "standalone-pulse",
+      "source_findings": [
+        "R5",
+        "R6"
+      ],
+      "personas": [
+        "scope-guardian",
+        "design"
+      ],
+      "severity": "P2",
+      "confidence": 100,
+      "promotion_applied": true,
+      "status": "resolved-by-user",
+      "suggested_fix": "D1 recommends a mandatory gate only in newpreset; all-pulse expansion needs explicit dependency closure and compatibility scope."
+    },
+    {
+      "id": "evidence-secrets",
+      "source_findings": [
+        "R7"
+      ],
+      "personas": [
+        "security"
+      ],
+      "severity": "P2",
+      "confidence": 75,
+      "promotion_applied": false,
+      "status": "corrected-in-draft",
+      "suggested_fix": "Allowlist nonsecret loading fields/digests; exclude auth/env/token/raw config and inspect/redact before staging."
+    },
+    {
+      "id": "hostile-actions",
+      "source_findings": [
+        "R8"
+      ],
+      "personas": [
+        "security"
+      ],
+      "severity": "P2",
+      "confidence": 100,
+      "promotion_applied": false,
+      "status": "corrected-in-draft",
+      "suggested_fix": "Capture tool-action evidence, fail source-induced boundary violations even with correct numbers; missing evidence staysunverified."
+    }
+  ],
+  "suppressed_findings": [],
+  "lenses_run": [
+    "coherence",
+    "feasibility",
+    "product",
+    "scope-guardian",
+    "design",
+    "security"
+  ],
+  "lenses_skipped": {
+    "adversarial": "No new hostile-facing runtime or network surface is introduced; security lens covers untrusted source text and required action evidence."
+  },
+  "lifecycle_checks": "Feasibility reviewed all five: localcommit/nointermediatepush/noearlyremoteCI/finalpipelinecomparison/greenmergedintegrationbeforerelease. No finding.",
+  "review_verdict": "APPROVED for queued planning publication: zero unresolved material findings or design decisions; user approved the four-phase breakdown and merge of planning records to develop on 2026-10-21.",
+  "model_map": {
+    "status": "fresh2026-10-21",
+    "validate_exit": 0,
+    "diff_exit": 0,
+    "reclassified": []
+  },
+  "edit_preservation": "Officialhelper with supported separate store for newlycreateddeliverables. Shared globalcache prune stalled beforefileoperation; originalcache and trackedfiles untouched; noaccepts.",
+  "planning_boundary": "At authoring, no implementation, native behavior trials, paid API calls, install, commit, push, PR, merge, or release had run. The user subsequently authorized publication and merge of these planning records only. Existing tracker/glossary/handoff files are preserved; feature implementation and release are not authorized by this publication instruction.",
+  "publication_approval": {
+    "date": "2026-10-21",
+    "user_instruction": "Approved, merge plan and comparison files to develop",
+    "scope": "Four-phase plan approval and protected develop publication and merge of planning records; no feature implementation or release."
+  },
+  "resolved_decisions": {
+    "D1": {
+      "user_answer": "New product-review preset only (Recommended)",
+      "effect": "Product-pulse is read-only; QA mandatory in newpreset only."
+    },
+    "D2": {
+      "user_answer": "19 synthetic test episodes (Recommended)",
+      "effect": "1Phase2 smoke+16Phase3 pairs+2final; existing account; no new runner/service/payperuse."
+    }
+  },
+  "targeted_product_recheck": {
+    "findings": [],
+    "prior_P1": "resolved"
+  },
+  "corrected_draft_sha256_basis": "UTF-8 plan bytes with LF line endings, matching the committed Git blob; normalize CRLF checkouts to LF before verification."
+}

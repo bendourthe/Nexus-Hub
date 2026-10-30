@@ -1,6 +1,6 @@
 ### Step 1: Identify the Function Under Test and Its Input Domain
 
-Examine the function signature, documentation, and implementation to catalogue every parameter, its type, its valid range, and any implicit constraints.
+Examine the function signature, documentation, and implementation to catalog every parameter, its type, its valid range, and any implicit constraints.
 
 **Python example (target function):**
 ```python

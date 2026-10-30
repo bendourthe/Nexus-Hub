@@ -18,7 +18,7 @@ tags:
 
 Audit Nexus-Hub skills for quality, not just structure. `scripts/validate_skills.py` answers "does this skill parse and have the required fields"; this skill answers "is this skill any good": does its body teach the agent what to do, are its Common Rationalizations real failure modes, is its Verification observable, and are its Tier-1 fields tight. It pairs a deterministic checklist (the `--quality` pass of the validator) with the agent's holistic reading, and caches per-skill results so repeat runs only re-score what changed.
 
-This is the local-only reverse-engineered analogue of ECC's `skill-stocktake` holistic-audit pattern. The content is re-authored to Nexus-Hub's own frontmatter and quality conventions (see `AGENTS.md` "Write SKILL.md"); no upstream text is copied.
+This is the local-only reverse-engineered analog of ECC's `skill-stocktake` holistic-audit pattern. The content is re-authored to Nexus-Hub's own frontmatter and quality conventions (see `AGENTS.md` "Write SKILL.md"); no upstream text is copied.
 
 ## When to Use This Skill
 

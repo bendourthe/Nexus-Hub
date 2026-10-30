@@ -127,6 +127,13 @@ REMOVAL_FAILED = "removal-failed"
 Runner = Callable[[list[str], Path | None], tuple[int, str, str]]
 
 
+import runpy as _process_runpy
+from pathlib import Path as _ProcessPath
+
+_PROCESS_POLICY = _process_runpy.run_path(str(_ProcessPath(__file__).resolve().parents[0] / "nexus_process.py"))
+_PROCESS_POLICY["install_no_window_default"]()
+
+
 def _exec(argv: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
     """Run one command; (rc, stdout, stderr). rc -1 means it did not run in time."""
     env = dict(os.environ, GH_PROMPT_DISABLED="1", GIT_TERMINAL_PROMPT="0", NO_COLOR="1",
@@ -623,6 +630,22 @@ class TreeScan:
     unreadable: bool = False
 
 
+def _walk_root(root: str) -> str:
+    """Where the walk starts: on Windows the extended-length form, so files deeper than MAX_PATH stay readable.
+
+    A checkout under a longer parent directory can hold tracked files past 260 characters that git
+    itself reads (`core.longpaths`); without the prefix every such tree reads as unreadable and is kept.
+    """
+    if os.name != "nt":
+        return root
+    full = os.path.abspath(root)
+    if full.startswith("\\\\?\\"):
+        return full
+    if full.startswith("\\\\"):
+        return "\\\\?\\UNC\\" + full[2:]
+    return "\\\\?\\" + full
+
+
 def scan_tree(root: str) -> TreeScan:
     """Walk the whole worktree, allowlisted directories included, never following a link.
 
@@ -635,7 +658,8 @@ def scan_tree(root: str) -> TreeScan:
     if top.is_symlink() or (hasattr(os.path, "isjunction") and os.path.isjunction(top)):
         scan.link = True
         return scan
-    stack: list[tuple[str, bool]] = [(root, False)]
+    walk = _walk_root(root)
+    stack: list[tuple[str, bool]] = [(walk, False)]
     while stack:
         current, allowed = stack.pop()
         try:
@@ -646,7 +670,7 @@ def scan_tree(root: str) -> TreeScan:
             continue
         for entry in entries:
             if entry.name == ".git":
-                scan.nested_git |= _norm(current) != _norm(root)
+                scan.nested_git |= _norm(current) != _norm(walk)
                 continue
             if _is_link(entry):
                 scan.link = True
@@ -1116,6 +1140,9 @@ def main(argv: list[str] | None = None) -> int:
         if isinstance(target, int):
             return target
         own = target[0] if target else _own_record(args, host)
+    except _checker()._minor_module().ObservationUnavailable:
+        print("BLOCKED: cannot-verify")
+        return EXIT_BLOCKED
     except (RuntimeError, _checker().Malformed) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

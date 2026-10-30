@@ -302,6 +302,7 @@ def test_real_commit_hook(repo: Path, kind: str) -> None:
     commit(repo, author=CURSOR if kind == "amend-inherited" else TARGET)
     (repo / "scripts").mkdir()
     (repo / "scripts/check_commit_attribution.py").write_bytes(SCRIPT.read_bytes())
+    (repo / "scripts/nexus_process.py").write_bytes((SCRIPT.parent / "nexus_process.py").read_bytes())
     hooks = repo / ".githooks"
     hooks.mkdir()
     hook = hooks / "commit-msg"
@@ -376,6 +377,7 @@ def test_hook_survives_fresh_crlf_checkout(repo: Path, tmp_path: Path) -> None:
     )
     (repo / ".githooks/commit-msg").chmod(0o755)
     (repo / "scripts/check_commit_attribution.py").write_bytes(SCRIPT.read_bytes())
+    (repo / "scripts/nexus_process.py").write_bytes((SCRIPT.parent / "nexus_process.py").read_bytes())
     (repo / ".gitattributes").write_bytes(
         (SCRIPT.parent.parent / ".gitattributes").read_bytes()
     )

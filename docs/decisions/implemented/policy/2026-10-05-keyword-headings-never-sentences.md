@@ -14,7 +14,7 @@ The rule lives in three places, each with its own job:
 
 - **The Writing Discipline block** of all 13 substantive instruction templates, byte-identical across them (the existing parity validators enforce that), so every platform's agent carries it in context.
 - **The Markdown style guide** (`catalog/style-guides/markdown.md`, section 9), beside the other heading rules.
-- **The anti-slop editing skill**, as the named pattern "Sentence headings" with before and after examples, so Edit and Detect modes can find and fix it. Its "Formatting slop" entry no longer lists Title Case headings as slop: the rule concerns the form of a heading, not its capitalisation, and the maintainer's own examples are title-cased keyword phrases.
+- **The anti-slop editing skill**, as the named pattern "Sentence headings" with before and after examples, so Edit and Detect modes can find and fix it. Its "Formatting slop" entry no longer lists Title Case headings as slop: the rule concerns the form of a heading, not its capitalization, and the maintainer's own examples are title-cased keyword phrases.
 
 ## Alternatives considered
 
@@ -22,7 +22,7 @@ The rule lives in three places, each with its own job:
 
 **Ship the rule in a later minor.** Considered and declined by the maintainer, who asked for it with the Training rebuild that exposed it.
 
-**Prescribe a capitalisation style as well.** Heading case varies by house style and by language; prescribing it would overrule projects with an established convention for no gain against the tell itself. Rejected.
+**Prescribe a capitalization style as well.** Heading case varies by house style and by language; prescribing it would overrule projects with an established convention for no gain against the tell itself. Rejected.
 
 ## Consequences
 

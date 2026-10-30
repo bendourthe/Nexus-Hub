@@ -136,7 +136,7 @@ describe.each(["copilot-usage-monitor", "cursor-usage-monitor"])(
       const root = mkdtempSync(join(tmpdir(), "usage-package-fifo-"));
       const entry = join(root, "extension.js");
       try {
-        expect(spawnSync("mkfifo", [entry]).status).toBe(0);
+        expect(spawnSync("mkfifo", [entry], { windowsHide: true }).status).toBe(0);
         const result = spawnSync(process.execPath, ["-e", [
           "try {",
           "require(process.argv[1]).discoverRuntimeFiles(process.argv[2], process.argv[3]);",
@@ -145,7 +145,7 @@ describe.each(["copilot-usage-monitor", "cursor-usage-monitor"])(
           "if (error.message !== 'runtime module is missing: ' + process.argv[2]) throw error;",
           "console.log(error.message);",
           "}"
-        ].join("\n"), script, entry, root], { encoding: "utf8", timeout: 2000 });
+        ].join("\n"), script, entry, root], { encoding: "utf8", timeout: 2000, windowsHide: true });
         expect(result.error).toBeUndefined();
         expect(result.status, result.stderr).toBe(0);
         expect(result.stdout.trim()).toBe(`runtime module is missing: ${entry}`);

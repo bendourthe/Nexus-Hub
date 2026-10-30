@@ -38,7 +38,7 @@
   var POWER_TICKS = { spread: 600, rapid: 600, missiles: 540, wingman: 900, pierce: 600, slow: 480, magnet: 900 };
   var TIMED = ["weapon", "spread", "rapid", "missiles", "wingman", "pierce", "slow", "magnet"];
   /* R14: upgrades ride on carriers. A carrier is chosen when it spawns, from the drops stream,
-     glows in its upgrade's colour, and always drops that upgrade when destroyed. */
+     glows in its upgrade's color, and always drops that upgrade when destroyed. */
   /* R36: a quarter of carriers now hold a hazard, so the carrier rates rose (0.26 and 0.3 before) to
      keep upgrades dropping about as often as in R33, with the hazards on top */
   var CARRY_ENEMY = 0.34, CARRY_ROCK = 0.4;
@@ -46,7 +46,7 @@
   var TRANS_FLASH = 120;            /* the tick inside it where the map changes */
 
   /* Damage at Easy; each level multiplies it (DIFFICULTY.damage). A bomb's blast falls off
-     with distance from DAMAGE.blast at the centre to a fifth of it at the rim. */
+     with distance from DAMAGE.blast at the center to a fifth of it at the rim. */
   var DAMAGE = {
     needle: 6, shot: 10, beam: 32, blast: 34, bossShot: 14, test: 10, agentShot: 8, mine: 20,
     collision: { interceptor: 14, gunship: 22, lancer: 26, bomber: 30, agent: 16, boss: 45 },
@@ -109,7 +109,7 @@
      finale after it falls; reduced motion shortens both to still frames.
      R40 (T120): three concentric shield layers guard the megaship, outermost first; each must break
      before the next is exposed, then the four corner nodes, then the core. `r` is a layer's radius in
-     the logo's own units (the nodes reach 247 from the centre). Agent launches speed up and the cap
+     the logo's own units (the nodes reach 247 from the center). Agent launches speed up and the cap
      rises over AGENT_RAMP ticks of the fight. */
   var BOSS_SHIELDS = [
     { name: "Outer shield", hp: 425, r: 300, color: "#a78bfa" },
@@ -169,7 +169,7 @@
      margin: the latest spawn leaves this many ticks before the level ends, so it can still be caught. */
   var RARE = { size: 1.4, fall: 0.6, margin: 360, bossRevive: 0.5 };
   var PICKUP_R = 14, PICKUP_FALL = 1.8, RARE_KINDS = { atomic: true, revive: true };
-  /* colour, short name, the full effect (the API and screen readers), and the short effect
+  /* color, short name, the full effect (the API and screen readers), and the short effect
      the start screen's key shows on one line (R16: short enough to fit at phone width) */
   var POWER_LOOK = {
     shield: ["#60a5fa", "Shield", "A second bar of 50 that takes damage first", "+50 barrier"],
@@ -193,8 +193,8 @@
      (the ship's fire factor and the form scale it); barrels are the x offsets of the guns. The
      upgrades stack on any weapon: Twin doubles the barrels, Spread adds angled side shots,
      Rapid halves the cooldown, and Pierce lets every round pass through its targets. */
-  /* R18: five ships, each owning one main colour (blue, green, orange, yellow, red); its rounds,
-     its edges, its card, and its preview all wear that colour. The Warden's flak is new: a
+  /* R18: five ships, each owning one main color (blue, green, orange, yellow, red); its rounds,
+     its edges, its card, and its preview all wear that color. The Warden's flak is new: a
      short-range cone of five pellets that fade out after about 200 px. */
   var WEAPONS = {
     cannon: { name: "Twin cannons", desc: "Two heavy rounds side by side", cool: 16, barrels: [-9, 9], color: "#3b82f6" },
@@ -203,13 +203,13 @@
     lance: { name: "Lance beam", desc: "A full-height ray that pulses", cool: 60, barrels: [0], color: "#facc15" },
     burst: { name: "Burst rifle", desc: "Rapid three-round bursts", cool: 16, barrels: [0], color: "#ef4444" }
   };
-  /* R33: the Talon's lance reaches the top of the arena (or the first armour of the boss) and
+  /* R33: the Talon's lance reaches the top of the arena (or the first armor of the boss) and
      pulses while the trigger is held: lit for `on` ticks, then dark for `off` ticks (Rapid cuts the
      dark time to a third, the Fighter and Sentinel forms by a fifth), so it is never on for good.
      While lit it deals `dmg` to everything it overlaps once every `every` ticks; it ignites over
      3 ticks and fades over `fade` ticks, and deals no damage while it fades. The ray already passes
      through every enemy and rock, so Pierce overcharges it instead: half again the damage and a ray
-     more than twice as wide. It still stops at the boss's armour, and the boss's nodes and core take
+     more than twice as wide. It still stops at the boss's armor, and the boss's nodes and core take
      0.4 of its damage (`boss`): an instant ray that never misses ended the fight in about half the
      time any other weapon needed. */
   var LANCE = { on: 24, off: 36, fade: 8, every: 4, dmg: 2, ignite: 3, boss: 0.75, shield: 1 };
@@ -221,19 +221,19 @@
      and a smoke trail of the last `trail` positions, so its homing path shows. Drawing only. */
   var MISSILE_LOOK = { len: 22, wid: 7, head: 13, trail: 18, scale: 2.4 };
   var SHIPS = [
-    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced hull, speed, and guns", weapon: "cannon", colour: "blue",
+    { id: "vanguard", name: "Vanguard", role: "Armored gunship", note: "Balanced hull, speed, and guns", weapon: "cannon", color: "blue",
       hull: 100, speed: 1, fire: 1, flame: "#60a5fa", accent: "#3b82f6", scheme: "Dark steel, blue panels" },
-    { id: "warden", name: "Warden", role: "Escort carrier", note: "Sturdy, wide, and close-range", weapon: "flak", colour: "green",
-      hull: 110, speed: 0.95, fire: 0.9, flame: "#86efac", accent: "#22c55e", scheme: "Olive armour, green wings" },
-    { id: "specter", name: "Specter", role: "Heavy cruiser", note: "Heaviest hull, slowest to turn", weapon: "orb", colour: "orange",
+    { id: "warden", name: "Warden", role: "Escort carrier", note: "Sturdy, wide, and close-range", weapon: "flak", color: "green",
+      hull: 110, speed: 0.95, fire: 0.9, flame: "#86efac", accent: "#22c55e", scheme: "Olive armor, green wings" },
+    { id: "specter", name: "Specter", role: "Heavy cruiser", note: "Heaviest hull, slowest to turn", weapon: "orb", color: "orange",
       hull: 125, speed: 0.85, fire: 1.05, flame: "#fdba74", accent: "#f97316", scheme: "Charcoal, orange crystal" },
-    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance", colour: "yellow",
+    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance", color: "yellow",
       hull: 80, speed: 1.2, fire: 1, flame: "#fde68a", accent: "#facc15", scheme: "Silver, yellow wings" },
-    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Fast bursts, lighter hull", weapon: "burst", colour: "red",
+    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Fast bursts, lighter hull", weapon: "burst", color: "red",
       hull: 90, speed: 1.12, fire: 0.8, flame: "#fca5a5", accent: "#ef4444", scheme: "Gunmetal, red panels" }
   ];
   function shipById(id) { for (var k = 0; k < SHIPS.length; k++) if (SHIPS[k].id === id) return SHIPS[k]; return null; }
-  /* R14: each level, and the boss, has its own map: nebula colours, a set piece, and a star
+  /* R14: each level, and the boss, has its own map: nebula colors, a set piece, and a star
      palette. set: 0 gas giant, 1 ringed planet, 2 red sun and asteroid belt, 3 orbital station. */
   var MAPS = {
     1: { name: "Cyan Reach", set: 0, a: [0.03, 0.2, 0.26], b: [0.08, 0.06, 0.2], planet: [0.13, 1.06, 0.46], pa: [0.03, 0.12, 0.22], pb: [0.25, 0.65, 0.9], env: [0.32, 0.5, 0.62], stars: [0.8, 0.92, 1], bg: ["#030a10", "#071a22"], neb: ["rgba(34,211,238,0.07)", "rgba(99,102,241,0.06)"] },
@@ -256,7 +256,7 @@
   /* The Nexus Hub mark in its own 512-unit space (the guide's shared nexus-mark symbol):
      two crossing bars, four end nodes, a white core, two side plates, and two blades. */
   var LOGO = {
-    centre: [258, 246],
+    center: [258, 246],
     nodes: [[106, 97], [410, 97], [106, 395], [410, 395]],
     nodeR: 34, coreR: 30, barW: 26,
     plates: [[[89, 144], [196, 250], [89, 356]], [[425, 144], [320, 250], [425, 355]]],
@@ -334,9 +334,9 @@
 
   /* ==================================================================== meshes
      Built once in code and uploaded to each WebGL context. A vertex is 12 floats: position,
-     normal, colour, and material (metalness, emission, surface: 0 paint, 1 panelled metal,
+     normal, color, and material (metalness, emission, surface: 0 paint, 1 paneled metal,
      2 rock, 3 glass). Local axes match the world: x right, y up out of the play plane, z down
-     the screen; every craft is modelled with its nose toward -z. */
+     the screen; every craft is modeled with its nose toward -z. */
   var M_PANEL = [0.78, 0, 1], M_METAL = [0.9, 0, 0], M_PAINT = [0.35, 0, 1], M_DARK = [0.55, 0, 0];
   var M_GLASS = [0.9, 0, 3], M_EMIT = [0, 1, 0], M_ROCK = [0, 0, 2], M_HALF = [0.4, 0.55, 0];
   function v3sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
@@ -369,7 +369,7 @@
   function rotX(a) { var c = Math.cos(a), s = Math.sin(a); return [1, 0, 0, 0, c, -s, 0, s, c]; }
 
   /* A smooth loft through rings of equal length (closed around each ring). Normals come from
-     central differences, turned outward from each ring's centre. */
+     central differences, turned outward from each ring's center. */
   function loft(m, rings, col, mat, capCol, capMat) {
     var nr = rings.length, nv = rings[0].length, i, j;
     var cen = rings.map(function (r) {
@@ -560,10 +560,10 @@
     white: [0.82, 0.85, 0.88], steel: [0.56, 0.6, 0.65], gun: [0.3, 0.32, 0.36], dark: [0.12, 0.13, 0.15],
     cyan: [0.12, 0.78, 0.95], cyanHot: [0.55, 0.95, 1.0], glass: [0.05, 0.22, 0.32]
   };
-  /* The player's ships (R14): one parameterised builder, four designs, three forms each. A
-     spec names a lofted body (or a faceted kite), stacked armour plates, a canopy, a core
+  /* The player's ships (R14): one parameterized builder, four designs, three forms each. A
+     spec names a lofted body (or a faceted kite), stacked armor plates, a canopy, a core
      light, swept wings with emissive edge strips in the ship's accent, fins, pods, and engines.
-     Every design is modelled at form-1 size; later forms add parts and scale up. */
+     Every design is modeled at form-1 size; later forms add parts and scale up. */
   function strip(m, a, b, y, w, colr) {
     /* offset perpendicular to the edge, toward the back of the craft (inside a leading edge) */
     var dx = b[0] - a[0], dz = b[1] - a[1], l = Math.sqrt(dx * dx + dz * dz) || 1, nx = -dz / l * w, nz = dx / l * w;
@@ -610,7 +610,7 @@
   }
   var FORM_SCALE = { 1: 1, 2: 1.24, 3: 1.52 };
   var SHIP_SPEC = {
-    /* Armoured central hull with stacked plating and a round core light; wide V wings with blue
+    /* Armored central hull with stacked plating and a round core light; wide V wings with blue
        edge strips; engine pods under the wings. R18: dark steel with blue wings and blue edges. */
     vanguard: function (f) {
       var steel = [0.26, 0.34, 0.52], plate = [0.38, 0.47, 0.66], cyan = [0.25, 0.55, 1];
@@ -686,7 +686,7 @@
       };
     },
     /* R18: a broad flying wing on two tail booms, blunt-nosed and heavy, with a green core and
-       green wing panels on olive armour. Its outline (a wide flat delta between two booms with
+       green wing panels on olive armor. Its outline (a wide flat delta between two booms with
        twin tails) reads unlike every other ship's. Later forms add canards and outer booms. */
     warden: function (f) {
       var olive = [0.27, 0.33, 0.22], dark = [0.14, 0.17, 0.12], green = [0.2, 0.9, 0.35];
@@ -803,10 +803,10 @@
     [[0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2]].forEach(function (t) { m.tri(p[t[0]], p[t[1]], p[t[2]], [0.5, 0.52, 0.56], M_METAL, [(p[t[0]][0] + p[t[1]][0] + p[t[2]][0]), (p[t[0]][1] + p[t[1]][1] + p[t[2]][1]), (p[t[0]][2] + p[t[1]][2] + p[t[2]][2])]); });
     return { mesh: m };
   }
-  /* The megaship in the logo's own 512-unit space, centred on the logo centre: the side plates
-     and blades become bevelled armour, the bars glowing struts. The logo outline is unchanged. */
+  /* The megaship in the logo's own 512-unit space, centered on the logo center: the side plates
+     and blades become bevelled armor, the bars glowing struts. The logo outline is unchanged. */
   function bossMeshes() {
-    var cx = LOGO.centre[0], cy = LOGO.centre[1], hullM = new Mesh();
+    var cx = LOGO.center[0], cy = LOGO.center[1], hullM = new Mesh();
     function loc(t) { return t.map(function (p) { return [p[0] - cx, p[1] - cy]; }); }
     LOGO.plates.forEach(function (t) { slab(hullM, loc(t), 0, 26, 7, [0.04, 0.42, 0.5], M_PANEL, [0.08, 0.55, 0.64]); });
     LOGO.blades.forEach(function (t) { slab(hullM, loc(t), 4, 18, 4, [0.4, 0.86, 0.9], M_METAL); });
@@ -907,7 +907,7 @@
       g.beginPath(); g.moveTo(t.p[0][0], t.p[0][1]); g.lineTo(t.p[1][0], t.p[1][1]); g.lineTo(t.p[2][0], t.p[2][1]); g.closePath(); g.fill(); g.stroke();
     });
     cv.unitScale = s;
-    cv.centre = [(minX + maxX) / 2, (minY + maxY) / 2];
+    cv.center = [(minX + maxX) / 2, (minY + maxY) / 2];
     return cv;
   }
   /* The game-view sprite of a ship for the 2D renderer: top down under the camera tilt. */
@@ -1017,7 +1017,7 @@
         else if (ry > ty - 30) hit = 1;
       }
     }
-    /* the drone: a small dark hexagon with a red eye; it flashes in the weapon's colour when hit */
+    /* the drone: a small dark hexagon with a red eye; it flashes in the weapon's color when hit */
     g.save(); g.translate(sx, ty);
     g.fillStyle = hit ? "#f8fafc" : "#1e293b"; g.strokeStyle = hit ? "#ffffff" : "#64748b"; g.lineWidth = 1.5;
     g.beginPath(); for (k = 0; k < 6; k++) g.lineTo(Math.cos(k * 1.047) * 13, Math.sin(k * 1.047) * 9); g.closePath(); g.fill(); g.stroke();
@@ -1385,7 +1385,7 @@
     summary.appendChild(sumScore);
     summary.appendChild(sumTable);
     /* R14: the start screen. Pick one of four ships (a radio group: click, tap, or arrow keys),
-       read the upgrade colour key, then launch with the Start button. */
+       read the upgrade color key, then launch with the Start button. */
     var hangar = el("div", "ss-hangar");
     var PV_DPR = Math.min(2, Math.max(1, Math.round(window.devicePixelRatio || 1)));
     hangar.setAttribute("role", "radiogroup");
@@ -1479,7 +1479,7 @@
     var key = el("div", "ss-key");
     key.appendChild(el("p", "ss-key-title", "Upgrades: hidden in some enemies and rocks; Atomic blast and Revive come once per level"));
     var keyList = el("ul", "ss-key-list");
-    keyList.setAttribute("aria-label", "Upgrade colour key");
+    keyList.setAttribute("aria-label", "Upgrade color key");
     POWER_ORDER.forEach(function (kind) {
       var look = POWER_LOOK[kind], li = el("li", "ss-key-item");
       li.setAttribute("data-upgrade", kind);
@@ -1543,7 +1543,7 @@
     });
     /* R16: the overlay never scrolls. The CSS sizes the start screen from the arena (container
        query units), and this is the safety net: if the panel is still taller or wider than the
-       arena, it is scaled down to fit, centred, so nothing is ever clipped. */
+       arena, it is scaled down to fit, centered, so nothing is ever clipped. */
     function fitPanel() {
       var transform = "", margin = "";
       if (!overlay.hidden && overlay.clientHeight) {
@@ -1668,7 +1668,7 @@
       var cssH = Math.min(w * 600 / 960, arenaCap());
       world = { w: Math.max(960, Math.min(1500, Math.round(600 * w / cssH))), h: 600 };
     }
-    /* Full screen: centre the arena (canvas and HUD canvas) in the screen and pin the button to
+    /* Full screen: center the arena (canvas and HUD canvas) in the screen and pin the button to
        its top-right corner; out of full screen, hand both back to the stylesheet. */
     function fsPlace(cssW, cssH) {
       if (!fsBtn) return;
@@ -1738,7 +1738,7 @@
       var cssH = cssW * world.h / world.w;
       if (cssH > arenaCap()) cssH = arenaCap();
       if (fsOn) {
-        /* the largest arena of the world's shape that fits the screen, centred on black */
+        /* the largest arena of the world's shape that fits the screen, centered on black */
         var aw = stage.clientWidth || window.innerWidth, ah = stage.clientHeight || window.innerHeight;
         var fsc = Math.min(aw / world.w, ah / world.h);
         cssW = Math.max(240, Math.floor(world.w * fsc)); cssH = Math.floor(world.h * fsc);
@@ -2536,7 +2536,7 @@
     /* ---------- R42 (T124): the supernova and the wormhole into the Nexus dimension. The Ember
        Belt's star swells and flickers, collapses to a white-blue point, and bursts: a white flash, a
        shock ring, and ejecta that sweep the arena clear. The shock tears open a wormhole whose violet
-       and teal tunnel fills the view; the ship flies through it, centred and steady, while its walls
+       and teal tunnel fills the view; the ship flies through it, centered and steady, while its walls
        stream past, and the tunnel's far end opens onto the Nexus Storm just as the megaship arrives.
        It runs inside the level (no input, no fire, no damage) and ends on the boss's arrival tick. */
     function novaPlan() { return REDUCED ? NOVA_STILL : NOVA; }
@@ -2582,7 +2582,7 @@
     function novaTime(tr) { return tr.still ? NOVA_REP[novaStage(tr)] : tr.t; }
     /* What the passage shows at its current moment, in world units, for both renderers: the star
        (where, how large, how bright, and how hot: 0 ember to 1 white-blue), the shock ring and the
-       glowing remnant inside it, the white flash, the ejecta, and the tunnel (its mouth's centre and
+       glowing remnant inside it, the white flash, the ejecta, and the tunnel (its mouth's center and
        radius, how far the ship has flown, how far its exit has opened, and its spin). */
     function novaAt(tr) {
       var A = NOVA, ta = novaTime(tr), st = tr.star, diag = Math.hypot(world.w, world.h), u, c;
@@ -2632,7 +2632,7 @@
       }
       p.bank *= 0.8;
       var v = novaAt(tr), sx = tr.star.x, sy = tr.star.y;
-      /* what is left of the level flees the swelling star, and the shock ring vaporises it */
+      /* what is left of the level flees the swelling star, and the shock ring vaporizes it */
       [S.enemies, S.asteroids, S.powerUps].forEach(function (list, li) {
         for (var i = list.length - 1; i >= 0; i--) {
           var o = list[i], dx = o.x - sx, dy = o.y - sy, d = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -2777,7 +2777,7 @@
     }
     function burstGap() { return S.player.rapid > 0 ? 2 : 3; }
     /* R33: the ray runs from the nose to the top of the arena, or stops at the first part of the boss
-       it meets (a node, the core, or its armour), which is what it then cuts */
+       it meets (a node, the core, or its armor), which is what it then cuts */
     function lanceReach(sh) {
       var l = Math.hypot(sh.vx, sh.vy) || 1, dx = sh.vx / l, dy = sh.vy / l;
       sh.len = (sh.y + 6) / Math.max(0.2, -dy);
@@ -2806,8 +2806,8 @@
       /* R33: the blades guard the core only while a node lives; once every node is down the core is
          exposed from below too (the lower blade used to sit under it and absorb every straight shot) */
       var shapes = nodesAlive(b) > 0 ? LOGO.plates.concat(LOGO.blades) : LOGO.plates;
-      for (var k = 0; k < shapes.length; k++) if (inTriangle(lx, ly, shapes[k])) return "armour";
-      if (segDist(lx, ly, 106, 97, 410, 395) < LOGO.barW / 2 || segDist(lx, ly, 410, 97, 106, 395) < LOGO.barW / 2) return "armour";
+      for (var k = 0; k < shapes.length; k++) if (inTriangle(lx, ly, shapes[k])) return "armor";
+      if (segDist(lx, ly, 106, 97, 410, 395) < LOGO.barW / 2 || segDist(lx, ly, 410, 97, 106, 395) < LOGO.barW / 2) return "armor";
       return null;
     }
     /* Homing missiles and the wingman fire on their own while they last. */
@@ -2896,19 +2896,19 @@
     }
     /* R43 (T125): a point of the logo, turned with the X frame, in world units */
     function bossOff(b, lx, ly) {
-      var a = b.rot || 0, c = Math.cos(a), sn = Math.sin(a), dx = lx - LOGO.centre[0], dy = ly - LOGO.centre[1];
+      var a = b.rot || 0, c = Math.cos(a), sn = Math.sin(a), dx = lx - LOGO.center[0], dy = ly - LOGO.center[1];
       return [dx * c - dy * sn, dx * sn + dy * c];
     }
     function bossPoint(b, lx, ly) { var o = bossOff(b, lx, ly); return [b.x + o[0] * b.s, b.y + o[1] * b.s]; }
-    /* R43: a world point in the logo's own (unturned) units, for the armour tests */
+    /* R43: a world point in the logo's own (unturned) units, for the armor tests */
     function bossLocal(b, x, y) {
       var a = b.rot || 0, c = Math.cos(a), sn = Math.sin(a), wx = (x - b.x) / b.s, wy = (y - b.y) / b.s;
-      return [wx * c + wy * sn + LOGO.centre[0], -wx * sn + wy * c + LOGO.centre[1]];
+      return [wx * c + wy * sn + LOGO.center[0], -wx * sn + wy * c + LOGO.center[1]];
     }
-    /* R43: how far the X frame reaches above its centre at an angle (logo units, node rims included) */
+    /* R43: how far the X frame reaches above its center at an angle (logo units, node rims included) */
     function bossReachUp(a) {
       var c = Math.cos(a), sn = Math.sin(a), up = 0;
-      LOGO.nodes.forEach(function (n) { var dx = n[0] - LOGO.centre[0], dy = n[1] - LOGO.centre[1]; up = Math.max(up, -(dx * sn + dy * c)); });
+      LOGO.nodes.forEach(function (n) { var dx = n[0] - LOGO.center[0], dy = n[1] - LOGO.center[1]; up = Math.max(up, -(dx * sn + dy * c)); });
       return up + LOGO.nodeR;
     }
     /* R43: the megaship's height: a quarter of the arena down, or lower, so no node ever sits under
@@ -3031,7 +3031,7 @@
       if (b.entered && nodesAlive(b) === 0) {
         b.fireIn -= 1;
         if (b.fireIn <= 0) {
-          /* the exposed core fires a fan of five centred on the ship */
+          /* the exposed core fires a fan of five centered on the ship */
           var cy0 = b.y + LOGO.coreR * b.s, ca = Math.atan2(p.x - b.x, p.y - cy0);
           logAim("boss", "bolt", b.x, cy0, Math.sin(ca) * 4.4, Math.cos(ca) * 4.4);
           for (var k = -2; k <= 2; k++) enemyShot(b.x, cy0, Math.sin(ca + k * 0.28) * 4.4, Math.cos(ca + k * 0.28) * 4.4, "bolt", { src: "bossShot" });
@@ -3050,7 +3050,7 @@
       return segDist(o.x, o.y, s.x, s.y, e[0], e[1]) < s.r + o.r + (extra || 0);
     }
     /* The lance is never used up: once per damage window it cuts the part of the boss where the ray
-       stops (a node, or the core once every node is down; armour takes the hit). */
+       stops (a node, or the core once every node is down; armor takes the hit). */
     function lanceHitsBoss(s) {
       var b = S.boss, st = s.stop;
       if (!b || !st || s.hits.indexOf(st) !== -1) return false;
@@ -3058,7 +3058,7 @@
       /* R40: a shield is a broad target every weapon hits fully, so the lance's boss factor stays off it */
       if (st === "shield") damageShield(s.dmg * LANCE.shield, s.x, b.y + shieldR(b));
       else if (st === "core") { if (nodesAlive(b) === 0) damageCore(s.dmg * LANCE.boss); else deflect(s.x, b.y + LOGO.coreR * b.s); }
-      else if (st !== "armour") damageNode(parseInt(st.slice(4), 10), s.dmg * LANCE.boss);
+      else if (st !== "armor") damageNode(parseInt(st.slice(4), 10), s.dmg * LANCE.boss);
       return false;
     }
     /* R40: a round that strikes the core while a node lives glances off it with a visible spark */
@@ -3210,8 +3210,8 @@
       /* a point along one of the wreck's two bars or on a node, from the fx stream */
       var w = f.wreck, fx = S.rng.fx, u = fx(), bar = fx() < 0.5;
       var a = bar ? [106, 97] : [410, 97], c = bar ? [410, 395] : [106, 395];
-      if (k % 4 === 0) { var n = LOGO.nodes[Math.floor(fx() * 4)]; return [w.x + (n[0] - LOGO.centre[0]) * w.s, w.y + (n[1] - LOGO.centre[1]) * w.s]; }
-      return [w.x + (a[0] + (c[0] - a[0]) * u - LOGO.centre[0]) * w.s, w.y + (a[1] + (c[1] - a[1]) * u - LOGO.centre[1]) * w.s];
+      if (k % 4 === 0) { var n = LOGO.nodes[Math.floor(fx() * 4)]; return [w.x + (n[0] - LOGO.center[0]) * w.s, w.y + (n[1] - LOGO.center[1]) * w.s]; }
+      return [w.x + (a[0] + (c[0] - a[0]) * u - LOGO.center[0]) * w.s, w.y + (a[1] + (c[1] - a[1]) * u - LOGO.center[1]) * w.s];
     }
     /* debris from the wreck spirals into the hole along the disk's plane, faster as it nears it */
     function finaleDebris(f) {
@@ -3762,7 +3762,7 @@
       flames(e.type, { gunship: "#fb7185", interceptor: "#f0abfc", lancer: "#fdba74", bomber: "#fde047", agent: "#67e8f9" }[e.type], 0.85);
     }
     function drawBossGL(b) {
-      var cx = LOGO.centre[0], cy = LOGO.centre[1], g = b.wreck ? 1 : bossGrow(b), s = b.s * g;
+      var g = b.wreck ? 1 : bossGrow(b), s = b.s * g;
       /* R37: through the entrance the hull glows hot as it grows out of the rift; a wreck flickers */
       var hot = b.wreck ? (REDUCED ? 0.5 : 0.25 + 0.45 * Math.abs(Math.sin(b.t * 0.37) * Math.sin(b.t * 0.11))) : b.entered ? 0 : (1 - g) * 1.2 + 0.2;
       /* R43: the X frame turns in the play plane (a yaw in the scene, opposite in sign to the 2D turn) */
@@ -3940,7 +3940,7 @@
         glow(T.x + Math.cos(a) * T.R, T.y + Math.sin(a) * T.R, 10 + 8 * Math.sin(k * 1.7 + T.spin * 20), col(NOVA_LOOK.rim), 0.5 * (1 - T.R / (diag * 0.7)), 6);
       }
     }
-    /* R39 (T122): a missile's smoke trail (grey puffs that widen and fade behind it), its hot exhaust,
+    /* R39 (T122): a missile's smoke trail (gray puffs that widen and fade behind it), its hot exhaust,
        and its bright head */
     var missileMarks = [];
     function missileGL(sh) {
@@ -4228,7 +4228,7 @@
       if (S.finale) { var fs = finaleShip(); ctx.rotate(fs.rot); ctx.scale(fs.s / Math.sqrt(fs.k), fs.s * fs.k); if (fs.e > 0) tagFrame("stretched-ship"); }
       meshes()[key].engines.forEach(function (e) { engine(e[0] * VIS * tl.s, (e[2] - e[1] * 0.55) * VIS * tl.s, Math.max(2, e[3] * 1.6 * tl.s), 22 * tl.s, S.ship.flame); });
       ctx.scale(sc, sc);
-      ctx.drawImage(spr, -spr.width / 2 + spr.centre[0] * spr.unitScale, -spr.height / 2 + spr.centre[1] * spr.unitScale);
+      ctx.drawImage(spr, -spr.width / 2 + spr.center[0] * spr.unitScale, -spr.height / 2 + spr.center[1] * spr.unitScale);
       ctx.restore();
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -4301,7 +4301,7 @@
     }
     /* The power-up's glass capsule and icon; the WebGL HUD reuses the icon over its gem. */
     /* R48 (T133): the two rare pickups, drawn larger than the rest and glowing. The Atomic blast is
-       glowing radioactive material: a green-yellow core hot at its centre, a dark radiation trefoil,
+       glowing radioactive material: a green-yellow core hot at its center, a dark radiation trefoil,
        and a pulsing halo. The Revive is a gold orb with its rising-ship mark and a ring of sparks. */
     function rareIcon(pu) {
       var r = pu.r, t = pu.t, pulse = REDUCED ? 0.5 : 0.5 + 0.5 * Math.sin(t * 0.12), k;
@@ -4368,7 +4368,7 @@
         ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(3.6, 3.5); ctx.lineTo(0, 1.8); ctx.lineTo(-3.6, 3.5); ctx.closePath(); ctx.fill();
       }
       else if (kind === "atomic") {
-        /* the trefoil of a blast, around a hot centre */
+        /* the trefoil of a blast, around a hot center */
         for (var tf = 0; tf < 3; tf++) { var ta = -1.571 + tf * 2.094; ctx.beginPath(); ctx.moveTo(Math.cos(ta - 0.5) * 2.6, Math.sin(ta - 0.5) * 2.6); ctx.arc(0, 0, 8, ta - 0.5, ta + 0.5); ctx.lineTo(Math.cos(ta + 0.5) * 2.6, Math.sin(ta + 0.5) * 2.6); ctx.closePath(); ctx.fill(); }
         ctx.beginPath(); ctx.arc(0, 0, 1.8, 0, 6.283); ctx.fill();
       }
@@ -4453,7 +4453,7 @@
       ctx.rotate((b.rot || 0) + (b.wreck ? b.tilt : 0));
       ctx.scale(b.s * g, b.s * g);
       if (b.wreck) { ctx.globalAlpha = REDUCED ? 0.85 : 0.7 + 0.3 * Math.abs(Math.sin(b.t * 0.37)); ctx.filter = "sepia(0.8) saturate(1.6) hue-rotate(-20deg) brightness(0.75)"; }
-      ctx.translate(-LOGO.centre[0], -LOGO.centre[1]);
+      ctx.translate(-LOGO.center[0], -LOGO.center[1]);
       function tri(t, fill) { ctx.fillStyle = fill; ctx.beginPath(); ctx.moveTo(t[0][0], t[0][1]); ctx.lineTo(t[1][0], t[1][1]); ctx.lineTo(t[2][0], t[2][1]); ctx.closePath(); ctx.fill(); }
       tri(LOGO.plates[0], "#00879f"); tri(LOGO.plates[1], "#00879f");
       tri(LOGO.blades[0], "#5fe6ee"); tri(LOGO.blades[1], "#5fe6ee");
@@ -4469,16 +4469,16 @@
       var exposed = !b.wreck && coreGlows(b);
       if (exposed) {
         /* R40: the last target glows gold-white and pulses, with a ring spreading from it */
-        var cpz = corePulse(), hg = ctx.createRadialGradient(LOGO.centre[0], LOGO.centre[1], 0, LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (4 + 1.6 * cpz));
+        var cpz = corePulse(), hg = ctx.createRadialGradient(LOGO.center[0], LOGO.center[1], 0, LOGO.center[0], LOGO.center[1], LOGO.coreR * (4 + 1.6 * cpz));
         hg.addColorStop(0, "rgba(255,251,235,0.95)"); hg.addColorStop(0.35, "rgba(253,230,138," + (0.55 + 0.35 * cpz).toFixed(2) + ")"); hg.addColorStop(1, "rgba(250,204,21,0)");
-        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (4 + 1.6 * cpz), 0, 6.283); ctx.fill();
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(LOGO.center[0], LOGO.center[1], LOGO.coreR * (4 + 1.6 * cpz), 0, 6.283); ctx.fill();
         var rq = REDUCED ? 0.5 : (b.t % 40) / 40;
         ctx.strokeStyle = "rgba(254,243,199," + (0.9 * (1 - rq)).toFixed(2) + ")"; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (1.6 + 3.4 * rq), 0, 6.283); ctx.stroke();
+        ctx.beginPath(); ctx.arc(LOGO.center[0], LOGO.center[1], LOGO.coreR * (1.6 + 3.4 * rq), 0, 6.283); ctx.stroke();
         tagFrame("core-glow");
       }
       ctx.fillStyle = b.wreck ? "#fb923c" : b.coreFlash > 0 ? "#fde68a" : exposed ? "#fffbeb" : "rgba(242,254,255,0.55)";
-      ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (exposed && !REDUCED ? 1.05 + 0.12 * corePulse() : 1), 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(LOGO.center[0], LOGO.center[1], LOGO.coreR * (exposed && !REDUCED ? 1.05 + 0.12 * corePulse() : 1), 0, 6.283); ctx.fill();
       ctx.filter = "none";
       /* R40: the shield layers still standing; the active one is brighter, its rim as thick as its strength */
       if (!b.wreck && (b.entered || REDUCED)) for (var sl = b.shields.length - 1; sl >= 0; sl--) {
@@ -4487,7 +4487,7 @@
         var act = sl === shieldLayer(b), frac = L.hp / L.max;
         ctx.globalAlpha = act ? 1 : 0.5;
         ctx.fillStyle = L.color + (act ? "1f" : "0d");
-        ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], L.r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(LOGO.center[0], LOGO.center[1], L.r, 0, 6.283); ctx.fill();
         ctx.strokeStyle = L.flash > 0 && act ? "#ffffff" : L.color; ctx.lineWidth = act ? 3 + 7 * frac : 2;
         ctx.stroke();
         ctx.globalAlpha = 1;
@@ -5125,7 +5125,7 @@
       ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r);
       ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
     }
-    /* One labelled bar: a dark track, a lagging ghost of recent damage, the live fill, and ticks. */
+    /* One labeled bar: a dark track, a lagging ghost of recent damage, the live fill, and ticks. */
     function hudBar(x, y, w, h, frac, ghost, c0, c1, label, value, ghostCol) {
       ctx.fillStyle = "rgba(2,8,12,0.72)"; roundRect(x - 4, y - 15, w + 8, h + 19, 6); ctx.fill();
       ctx.font = "800 10.5px " + hudFont; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
@@ -5155,7 +5155,7 @@
       ctx.setTransform(m.s, 0, 0, m.s, m.ox, m.oy);
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.font = "900 " + (small ? 22 : 17) + "px " + hudFont;
-      /* R18: the end card sits in the centre of the arena; a damage number under it moves just
+      /* R18: the end card sits in the center of the arena; a damage number under it moves just
          below it (or above it when there is no room), so the hit always stays readable */
       var avoid = null;
       popupBoxes = [];
@@ -5657,7 +5657,7 @@
       /* R14: the ships on the start screen, and choosing one. A choice made before a run (or
          after one ends) resets the game with that ship; during a run it waits for the next. */
       ships: function () {
-        return SHIPS.map(function (s) { var w = WEAPONS[s.weapon]; return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, colour: s.colour, scheme: s.scheme, weapon: s.weapon, weaponName: w.name, weaponNote: w.desc, weaponColor: w.color }; });
+        return SHIPS.map(function (s) { var w = WEAPONS[s.weapon]; return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, color: s.color, scheme: s.scheme, weapon: s.weapon, weaponName: w.name, weaponNote: w.desc, weaponColor: w.color }; });
       },
       /* R18: true while the start screen's card previews are animating */
       previewing: function () { return !!pvRaf; },
@@ -5733,7 +5733,7 @@
         if (!S || !S.boss) return null;
         var b = S.boss;
         return {
-          centre: [b.x, b.y], scale: b.s, rot: b.rot, quarter: b.q, turning: b.turnT >= 0, nodeR: LOGO.nodeR * b.s, band: hudBandBoss,
+          center: [b.x, b.y], scale: b.s, rot: b.rot, quarter: b.q, turning: b.turnT >= 0, nodeR: LOGO.nodeR * b.s, band: hudBandBoss,
           nodes: LOGO.nodes.map(function (c) { return bossPoint(b, c[0], c[1]); }),
           plates: LOGO.plates.map(function (t) { return t.map(function (c) { return bossPoint(b, c[0], c[1]); }); })
         };

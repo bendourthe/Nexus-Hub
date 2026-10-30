@@ -1,11 +1,14 @@
-"""Registration of the v4.13.2 completion gate and approval capture on every platform.
+"""Approval capture is registered everywhere; the completion gate's Stop registration is not.
 
-The gate must reach each platform with a VERIFIED continuation lever on that
-platform's documented event (docs/policy/completion-levers.json), and approval
-capture must reach each documented prompt-submit event. Both ride
-catalog/hooks/settings.json through the native adapters, except Cursor and
-Antigravity, which build their own hooks.json. Those two now merge only
-Nexus-Hub's entries into a user-edited file and prune only those on teardown.
+The completion gate (v4.13.2) was removed from the default install on 2026-10-28
+(docs/decisions/implemented/tooling/2026-10-28-remove-completion-gate-stop-default.md):
+it re-prompted at the end of every turn of a full /implement run, including turns
+that were waiting on the user, CI, or an approval. Approval capture must still reach
+each documented prompt-submit event. Both used to ride catalog/hooks/settings.json
+through the native adapters, except Cursor and Antigravity, which build their own
+hooks.json. Those two merge only Nexus-Hub's entries into a user-edited file and
+prune only those on teardown, which is also how an older install loses its gate entry.
+Every adapter below is exercised with an install that still carries the old entry.
 """
 
 from __future__ import annotations
@@ -44,44 +47,100 @@ def _scripts_on(events: dict, event: str) -> list[str]:
     return found
 
 
-def test_catalog_registers_both_hooks() -> None:
-    stop = [h["command"] for g in SETTINGS["hooks"]["Stop"] for h in g["hooks"]]
+def test_catalog_registers_capture_and_no_gate() -> None:
+    every = [h["command"] for groups in SETTINGS["hooks"].values() for g in groups for h in g["hooks"]]
     prompt = [h["command"] for g in SETTINGS["hooks"]["UserPromptSubmit"] for h in g["hooks"]]
-    assert "bash .claude/hooks/completion-gate.sh" in stop
     assert "bash .claude/hooks/approval-capture.sh" in prompt
-    assert {script_basename(c) for c in stop} >= {"completion-gate.sh"}
+    assert "completion-gate.sh" not in {script_basename(c) for c in every}
+    # The remaining Stop chain (usage guard, shell check) is untouched.
+    stop = [h["command"] for g in SETTINGS["hooks"]["Stop"] for h in g["hooks"]]
+    assert "python3 .claude/hooks/usage-guard.py" in stop
 
 
-def test_codex_registers_gate_on_stop_and_capture_on_prompt() -> None:
+def test_codex_registers_capture_on_prompt_and_no_gate() -> None:
     events, scripts, _ = build_hook_entries(SETTINGS, HOOKS, BASE)
-    assert any("completion-gate" in c for c in _scripts_on(events, "Stop"))
+    assert not any("completion-gate" in c for event in events for c in _scripts_on(events, event))
     assert any("approval-capture" in c for c in _scripts_on(events, "UserPromptSubmit"))
-    assert {"completion-gate.sh", "completion-gate.ps1"} <= scripts
+    assert not {"completion-gate.sh", "completion-gate.ps1"} & scripts
 
 
 @pytest.mark.parametrize(("spec", "stop_event"), [(GEMINI_CLI_SPEC, "AfterAgent"), (QWEN_SPEC, "Stop")])
 @pytest.mark.parametrize("windows", [False, True])
-def test_settings_platforms_register_gate_on_their_turn_end_event(spec, stop_event: str, windows: bool) -> None:
-    events, _, _ = build_settings_hooks(spec, SETTINGS, HOOKS, BASE, windows)
-    commands = _scripts_on(events, stop_event)
-    suffix = "completion-gate.ps1" if windows else "completion-gate.sh"
-    assert any(suffix in c for c in commands), commands
+def test_settings_platforms_register_no_gate_on_their_turn_end_event(spec, stop_event: str, windows: bool) -> None:
+    events, scripts, _ = build_settings_hooks(spec, SETTINGS, HOOKS, BASE, windows)
+    assert not any("completion-gate" in c for c in _scripts_on(events, stop_event))
+    assert not any("completion-gate" in s for s in scripts)
 
 
 @pytest.mark.parametrize("windows", [False, True])
-def test_kimi_registers_gate_on_stop(windows: bool) -> None:
+def test_kimi_registers_capture_and_no_gate(windows: bool) -> None:
     entries, _, _ = build_kimi_hooks(SETTINGS, HOOKS, BASE, windows)
-    suffix = "completion-gate.ps1" if windows else "completion-gate.sh"
-    stop = [e["command"] for e in entries if e["event"] == "Stop"]
-    assert any(suffix in c for c in stop), stop
+    assert not [e for e in entries if "completion-gate" in e["command"]]
     assert any("approval-capture" in e["command"] for e in entries if e["event"] == "UserPromptSubmit")
 
 
-def test_copilot_routes_the_gate_through_the_bridge_on_stop() -> None:
+def test_copilot_registers_capture_and_no_gate() -> None:
     config, _, _ = build_copilot_hooks(SETTINGS, HOOKS, BASE)
     blob = json.dumps(config["hooks"])
-    assert "copilot Stop --handler completion-gate.sh" in blob
+    assert "completion-gate" not in blob
     assert "--handler approval-capture.sh" in blob
+
+
+# ----- an install that still carries the old entry loses it on the next merge -----------
+
+OLD_BASE = "/home/u/.nexus/hooks"
+STALE_STOP = {"hooks": [{"type": "command", "command": f"bash {OLD_BASE}/completion-gate.sh"}]}
+USER_STOP_GROUP = {"hooks": [{"type": "command", "command": "bash /home/u/my/stop-notes.sh"}]}
+LOOKALIKE_GROUP = {"hooks": [{"type": "command", "command": "bash /home/u/my/completion-gate.sh"}]}
+
+
+def _commands_in(path: Path, event: str) -> list[str]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return [h.get("command", "") for g in data["hooks"].get(event, []) for h in g["hooks"]]
+
+
+def test_codex_merge_retires_a_stale_gate_and_keeps_user_handlers(install_ctx, tmp_path: Path) -> None:
+    from scripts.lib.integrations._codex_native import merge_hooks_json
+
+    dst = tmp_path / "hooks.json"
+    dst.write_text(json.dumps({"hooks": {"Stop": [STALE_STOP, USER_STOP_GROUP, LOOKALIKE_GROUP]}}), encoding="utf-8")
+    events, _, _ = build_hook_entries(SETTINGS, HOOKS, OLD_BASE)
+    merge_hooks_json(install_ctx, "codex", dst, events, OLD_BASE)
+    stop = _commands_in(dst, "Stop")
+    assert f"bash {OLD_BASE}/completion-gate.sh" not in stop
+    assert "bash /home/u/my/stop-notes.sh" in stop
+    assert "bash /home/u/my/completion-gate.sh" in stop
+
+
+@pytest.mark.parametrize(("spec", "stop_event"), [(GEMINI_CLI_SPEC, "AfterAgent"), (QWEN_SPEC, "Stop")])
+def test_settings_json_merge_retires_a_stale_gate(install_ctx, tmp_path: Path, spec, stop_event: str) -> None:
+    from scripts.lib.integrations._settings_hooks import merge_settings_hooks
+
+    dst = tmp_path / "settings.json"
+    dst.write_text(
+        json.dumps({"theme": "dark", "hooks": {stop_event: [STALE_STOP, USER_STOP_GROUP]}}), encoding="utf-8"
+    )
+    events, _, _ = build_settings_hooks(spec, SETTINGS, HOOKS, OLD_BASE, False)
+    merge_settings_hooks(install_ctx, "x", dst, events, OLD_BASE)
+    assert f"bash {OLD_BASE}/completion-gate.sh" not in _commands_in(dst, stop_event)
+    assert "bash /home/u/my/stop-notes.sh" in _commands_in(dst, stop_event)
+    assert json.loads(dst.read_text(encoding="utf-8"))["theme"] == "dark"
+
+
+def test_kimi_managed_block_is_regenerated_without_the_gate(install_ctx, tmp_path: Path) -> None:
+    from scripts.lib.integrations._kimi_native import merge_config_hooks, render_hooks_block
+
+    old_entries, _, _ = build_kimi_hooks(SETTINGS, HOOKS, BASE, False)
+    old_entries.append({"event": "Stop", "command": f"bash {BASE}/completion-gate.sh", "timeout": 30})
+    config = tmp_path / "config.toml"
+    config.write_text("default_model = \"m\"\n\n" + render_hooks_block(old_entries), encoding="utf-8")
+    assert "completion-gate" in config.read_text(encoding="utf-8")
+    new_entries, _, _ = build_kimi_hooks(SETTINGS, HOOKS, BASE, False)
+    merge_config_hooks(install_ctx, "kimi", config, render_hooks_block(new_entries))
+    text = config.read_text(encoding="utf-8")
+    assert "completion-gate" not in text
+    assert 'default_model = "m"' in text
+    assert "approval-capture" in text
 
 
 @pytest.mark.parametrize(
@@ -124,11 +183,28 @@ def _cursor_write(ctx):
     return cursor, root, cursor._write_hooks_json(root, hooks_dst, ctx, "workspace")
 
 
-def test_cursor_registers_gate_and_capture(install_ctx) -> None:
+def test_cursor_registers_capture_and_no_gate(install_ctx) -> None:
     _, root, _ = _cursor_write(install_ctx)
     data = json.loads((root / "hooks.json").read_text(encoding="utf-8"))
-    assert any("completion-gate" in e["command"] for e in data["hooks"]["stop"])
+    assert not any("completion-gate" in e["command"] for e in data["hooks"]["stop"])
+    assert any("usage-guard" in e["command"] for e in data["hooks"]["stop"])
     assert any("approval-capture" in e["command"] for e in data["hooks"]["beforeSubmitPrompt"])
+
+
+def test_cursor_merge_retires_a_stale_gate_and_keeps_user_entries(install_ctx) -> None:
+    """An install from before 2026-10-28 carries a Nexus-owned `stop` gate entry."""
+    cursor, root, _ = _cursor_write(install_ctx)
+    path = root / "hooks.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    guard = next(e for e in data["hooks"]["stop"] if "usage-guard" in e["command"])
+    stale = {"command": guard["command"].replace("usage-guard.py", "completion-gate.sh")}
+    data["hooks"]["stop"] = [stale, USER_STOP, *data["hooks"]["stop"]]
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    _cursor_write(install_ctx)
+    after = json.loads(path.read_text(encoding="utf-8"))
+    assert not any("completion-gate" in e["command"] for e in after["hooks"]["stop"])
+    assert USER_STOP in after["hooks"]["stop"]
+    assert any("usage-guard" in e["command"] for e in after["hooks"]["stop"])
 
 
 def test_cursor_merge_keeps_user_entries_and_is_idempotent(install_ctx) -> None:
@@ -143,7 +219,7 @@ def test_cursor_merge_keeps_user_entries_and_is_idempotent(install_ctx) -> None:
     assert second.action == "unchanged"
     assert (root / "hooks.json").read_bytes() == once
     assert USER_STOP in data["hooks"]["stop"]
-    assert any("completion-gate" in e["command"] for e in data["hooks"]["stop"])
+    assert not any("completion-gate" in e["command"] for e in data["hooks"]["stop"])
     assert (root / "hooks.json.nexus-hub.bak").exists()
 
 
@@ -180,12 +256,27 @@ def _antigravity_write(ctx):
     return integration, parent, integration._write_hooks_json(parent, hooks_dst, ctx, "workspace")
 
 
-def test_antigravity_registers_gate_on_stop_through_the_bridge(install_ctx) -> None:
+def test_antigravity_registers_no_stop_gate(install_ctx) -> None:
     _, parent, _ = _antigravity_write(install_ctx)
-    data = json.loads((parent / "hooks.json").read_text(encoding="utf-8"))
-    stop = data["nexus-hub-guardrails"]["Stop"][0]["hooks"][0]["command"]
-    assert "antigravity Stop --" in stop
-    assert "completion-gate" in stop
+    text = (parent / "hooks.json").read_text(encoding="utf-8")
+    assert "Stop" not in json.loads(text)["nexus-hub-guardrails"]
+    assert "completion-gate" not in text
+
+
+def test_antigravity_rewrite_retires_a_stale_stop_gate(install_ctx) -> None:
+    """The managed set is replaced wholesale, so an older install loses its `Stop` entry."""
+    _, parent, _ = _antigravity_write(install_ctx)
+    path = parent / "hooks.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["nexus-hub-guardrails"]["Stop"] = [
+        {"hooks": [{"command": 'python ".agents/hooks/antigravity-hook-compat.py" antigravity Stop -- bash completion-gate.sh'}]}
+    ]
+    data.update(USER_SET)
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    _antigravity_write(install_ctx)
+    after = json.loads(path.read_text(encoding="utf-8"))
+    assert "Stop" not in after["nexus-hub-guardrails"]
+    assert after["my-hooks"] == USER_SET["my-hooks"]
 
 
 def test_antigravity_merge_and_teardown_preserve_user_sets(install_ctx) -> None:

@@ -546,7 +546,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         translated = translate_payload(payload, event, tool_name)
     try:
         completed = subprocess.run(
-            _resolve_bash_command(command),
+            _resolve_bash_command(command), creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             input=json.dumps(translated),
             text=True,
             capture_output=True,

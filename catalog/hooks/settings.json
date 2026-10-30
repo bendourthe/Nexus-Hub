@@ -36,7 +36,7 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
@@ -90,6 +90,15 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/require-powershell-description.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/console-window-guard.py"
           }
         ]
       },
@@ -297,10 +306,6 @@
       {
         "matcher": "",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/completion-gate.sh"
-          },
           {
             "type": "command",
             "command": "python3 .claude/hooks/usage-guard.py",

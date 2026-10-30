@@ -1,0 +1,30 @@
+{
+ "schema": 1,
+ "events": [
+  {
+   "type": "edit",
+   "path": "feature.py",
+   "before": null,
+   "after": "58a034fdd6a40d53fb96e6cc93e3b4a9270ee9350eb03e67bd5d1d89c63b6e82"
+  },
+  {
+   "type": "edit",
+   "path": "tests/test_feature.py",
+   "before": null,
+   "after": "235a94ffb71e7ff885188984b5468dc3303310b84d9ca641f4b7c0fc77dbca0a"
+  },
+  {
+   "type": "test",
+   "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q"
+   ],
+   "cwd": ".",
+   "exit_code": 0,
+   "output": "........                                                        [100%]\r\n8 passed, 9 subtests passed in 0.17s",
+   "tree_sha256": "7dc4a45d7759f1ebffa042d21376d70f182cd8ec9b3fe590c313ca6cafb7489d"
+  }
+ ]
+}
