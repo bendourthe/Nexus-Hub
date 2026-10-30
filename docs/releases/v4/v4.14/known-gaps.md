@@ -3367,12 +3367,22 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
+
+#### BG-18 (v4.14.7): The real-installer attribution test fails locally on Windows before this plan's changes
+
+**Source phase**: v4.14.7 Phase 2 T017
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 2.3
+
+**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan; the cause (the real installer run on this host not producing Aider's config) is not yet diagnosed. Phase 3 gates Aider and Phase 4 adds the `--platforms` pass-through these tests rely on, so the final state must be re-checked.
+
+**Suggested next step**: In Phase 7's full-suite gate, rerun the three cases after Phase 4, capture the installer's own output for the Aider block, and either fix the cause or record the host condition with evidence.
 
 #### DF-20 (v4.14.7): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
 

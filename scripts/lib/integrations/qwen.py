@@ -27,7 +27,8 @@ not just an instruction file:
 
 Reclassified from instruction-file-only to a full skills + commands + agents mirror
 in v3.15.0 Phase 4 (acting on the Gemini-CLI-class GO from Phase 1). Global scope is
-detection-gated on ``~/.qwen`` (preserving the prior behavior + the Windsurf model).
+detection-gated by ``_detection.detect_platform`` (v4.14.7); a ``~/.qwen`` holding only
+Nexus-Hub files is not evidence.
 
 DF-2 caveat: Qwen open issue #2343 reports project-scoped skills may not auto-load
 on some builds until a restart. Skills are delivered to BOTH the reliable global
@@ -40,6 +41,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._command_surface import mirror_command_surface
+from ._detection import detect_platform
 from ._owned import remove_dir_if_empty
 from ._settings_hooks import QWEN_SPEC
 from ._settings_hooks_mixin import HOOKS_SUBDIR, SettingsHooksMixin
@@ -98,18 +100,20 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Write the ``~/.qwen`` surfaces when Qwen is detected, else skip with a note.
 
-        Detection: the Qwen config root ``~/.qwen`` must exist. When it does not,
-        Qwen is not installed for this user and the global write is skipped (the
-        workspace-scope project surfaces are unaffected).
+        Detection (v4.14.7): ``detect_platform`` with this class's ``detection``
+        spec, so a ``~/.qwen`` holding only Nexus-Hub files is not evidence. When
+        Qwen is not detected the global write is skipped (the workspace-scope
+        project surfaces are unaffected).
         """
         result = WriteResult()
         qwen_root = (ctx.global_root / ".qwen").resolve()
-        if not qwen_root.exists():
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
             ctx.manifest.log(
-                self.key, "~/.qwen not found; skipping global Qwen surfaces"
+                self.key, f"not detected ({detection.evidence}); skipping global Qwen surfaces"
             )
             result.mark_not_detected(
-                "Qwen (~/.qwen) not found; global QWEN.md + skills skipped"
+                f"Qwen Code not detected ({detection.evidence}); global QWEN.md + skills skipped"
             )
             return result
         result.detected = True
