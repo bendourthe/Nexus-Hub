@@ -66,7 +66,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 | Metric | Current | Target |
 |---|---|---|
 | v4.14 GitHub develop integrated task marks | 97/251 | 251/251 |
-| v4.14 worktree task marks | 101/251 | 251/251 |
+| v4.14 worktree task marks | 129/251 | 251/251 |
 | v4.14 released members | 3/8 | 8/8 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
@@ -381,7 +381,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 
-- [ ] Implement the [v4.14.8 plan](releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md): Part A (Phases 1-2) makes agents write simple English a non-native reader understands, with an agent and engineering slang list owned by `anti-slop-editing`, a 13-term advisory detector family, a non-native-reader Communication Contract bullet, and a Writing Discipline slang clause with five examples in all 13 templates. Part B (Phases 3-4) starts every hook message with `[Nexus-Hub: <hook-name>]`, escapes echoed values, and adds an agent label rule (`[Nexus-Hub: <source>]` for three named events, with limits against forged or misused labels) plus a before-and-after measurement on Claude Code. Part A releases without Part B. Phase 3 waits for v4.14.6 only for the `git-guardrails` pair; sub-task 4.3 waits for v4.14.5. Implementation is 0/5 phases and 0/42 tasks.
+- [ ] Implement the [v4.14.8 plan](releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md): Part A (Phases 1-2) makes agents write simple English a non-native reader understands, with an agent and engineering slang list owned by `anti-slop-editing`, a 13-term advisory detector family, a non-native-reader Communication Contract bullet, and a Writing Discipline slang clause with five examples in all 13 templates. Part B (Phases 3-4) starts every hook message with `[Nexus-Hub: <hook-name>]`, escapes echoed values, and adds an agent label rule (`[Nexus-Hub: <source>]` for three named events, with limits against forged or misused labels) plus a before-and-after measurement on Claude Code. Part A releases without Part B. Phase 3 waits for v4.14.6 only for the `git-guardrails` pair; sub-task 4.3 waits for v4.14.5. Phases 1-4 are implemented locally on `feat/v4.14.8-plain-english-replies-and-source-labels` (28/42 task marks; T016, T017, T020 and T026 wait on v4.14.6, the `.agents/` refresh and v4.14.5, recorded as DF-21 to DF-23); Phase 5 publication and release wait until v4.14.5 to v4.14.7 are released.
 
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 

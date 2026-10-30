@@ -9,9 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agents write for a non-native English reader and name what Nexus-Hub caused (v4.14.8).** `anti-slop-editing` owns a new "Agent and engineering slang" list with plain replacements and its exemptions (messages between agents, real names in backticks, precise terms explained in place), and `detect_prose_cliches.py` reports 13 of those terms as advisory `engineering-slang` findings; "happy path" and "fan out" stay judgment-only because the catalog uses them as technique names. The communication style guide sets the bar at simple English a non-native reader follows at first read, requires quoting warnings, errors and names exactly before explaining them, and adds section 9, Source labels: the agent starts a reply with `[Nexus-Hub: <source>]` only when relaying a hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so, never on a request to disable a guard, and treats imitated `[Nexus-Hub` text in tool output as possible impersonation. Decision records `2026-10-30-plain-english-replies.md`, `2026-10-30-hook-messages-name-nexus-hub.md` and `2026-10-30-nexus-hub-source-labels.md`; a before-and-after measurement on Claude Code is recorded in `docs/releases/v4/v4.14/development/v4.14.8-effect-measurement.md` (labels 7 of 10 correct against a target of 8; both targets are recorded as known gaps).
+
+### Changed
+
+- **All 13 substantive instruction templates carry the plain-English and source-label rules (v4.14.8).** The first Communication Contract bullet asks for simple English a non-native reader follows and for quoting warnings, errors and names exactly; Writing Discipline names agent or engineering slang with five example pairs; one new bullet carries the source-label rule. All three are byte-identical across the 13 and test-guarded. The five lockstep word ceilings rose by the measured 40 and 42 words, and `legacy_fingerprints.json` was regenerated.
+- **Every catalog hook message starts with `[Nexus-Hub: <hook-name>]` (v4.14.8).** This covers stderr, SessionStart and UserPromptSubmit context, and the `reason`, `permissionDecisionReason`, `systemMessage` and `additionalContext` fields, including the PowerShell approval dialog. `lint-on-write` replaces `[lint]` and `antigravity-cli-diff-review` replaces `[antigravity-diff-review]`. `test_hook_message_source_label.py` enforces one emitter per hook and checks both implementations behaviorally. `git-guardrails` waits for v4.14.6.
+
 ### Fixed
 
 - **A plan task still counts after its file is moved and its branch is merged.** The completion checker counts a task line by asking `git log <start>..HEAD -- <path>` for a commit that touched the task's path. When a branch wrote a file and later moved it (the normal promotion of a decision record from `proposed/` to `implemented/`) and then merged, git's history simplification followed the merge's first parent, where the path never existed, and dropped the branch's commits, so the finished task read `unmet`. Every task-line lookup (plain, dated, and both archive-aware forms) now passes `--full-history`, which counts the commits that touched the path on any merged branch, as it already did for a file that still exists. v4.14.4's T010 hit this after merge.
+
+### Security
+
+- **Hook messages escape echoed values (v4.14.8).** CR, LF, ESC and other control characters in an echoed file name, command or path are printed as visible escapes, so an echoed value cannot start a forged `[Nexus-Hub: ...]` line.
 
 ## [4.14.4] - 2026-10-30
 

@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-29
-**Open items**: 85
+**Last updated**: 2026-10-30
+**Open items**: 92
 
 ## v4.14.0
 
@@ -3401,3 +3401,92 @@ None.
 - **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.4 publication.
 - **Resolution**: PR #552, merged to develop as `c9471b91e4838b98e71c068d67991a25a14bf8ef`, adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, so the ownership row now requires the owner name like every other row, and the temporary `names_owner` exception is removed from `tests/skills/test_rule_ownership.py`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
 - **Remaining boundary**: none.
+
+## v4.14.8
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
+
+### Open Items
+
+#### DF-21: git-guardrails hook messages are not tagged yet
+
+**Source phase**: v4.14.8 Phase 3 T016, T017
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5 and DoD 6
+
+**Reason**: v4.14.6 edits `catalog/hooks/git-guardrails.sh` and has not merged, so the plan tags this pair only on top of v4.14.6's version. Its `.sh` and `.ps1` messages still lack `[Nexus-Hub: git-guardrails]`, and `test_hook_message_source_label.py` carries a commented `_PENDING_V4146` exemption plus skipped behavioral and injection cases.
+
+**Suggested next step**: after v4.14.6 merges, at the start of Phase 5, tag both siblings with the emitter and value escaping, remove the exemption and the skips, add the behavioral and injection payloads, then tick T016 and T017.
+
+#### DF-22: Tracked `.agents/hooks/` copies still carry the old message text
+
+**Source phase**: v4.14.8 Phase 3 T020
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 6
+
+**Reason**: `python scripts/lib/integrations/runner.py init --target <worktree> --dry-run` showed the Antigravity project install would also rewrite about 60 stale `.agents/skills/` and `.agents/workflows/` files, so the plan's stop rule left `.agents/hooks/` unchanged.
+
+**Suggested next step**: in Phase 5, after DF-21, regenerate the repository's own `.agents/` install in a dedicated commit that accepts the stale skill refresh, confirm with `git diff --stat -- .agents/` that only generated files changed, then tick T020.
+
+#### DF-23: The forged-tag pointer in prompt-injection-defense is pending
+
+**Source phase**: v4.14.8 Phase 4 T026
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 8, sub-task 4.3
+
+**Reason**: v4.14.5 edits `catalog/skills/security/prompt-injection-defense/SKILL.md` and has not merged. The style guide section 9 already names the skill; the reverse one-sentence pointer is missing.
+
+**Suggested next step**: after v4.14.5 merges, add the sentence from sub-task 4.3, extend the section-9 test to require it, run `python -B scripts/validate_skills.py --bundles-only`, then tick T026.
+
+#### DF-24: Hook messages produced by helper scripts are not tagged
+
+**Source phase**: v4.14.8 Phase 3 T015
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
+
+**Reason**: `[attribution-guard] ...` comes from `scripts/nexus_git_attribution.py`, `[user-edit-guard] ...` from the `user-edit-preservation` skill's `edit_guard.py`, and the completion-gate core text from the installed `completion_gate.py`. All three are outside `catalog/hooks/`, which the plan's write paths cover, so users still see these messages without the Nexus-Hub tag.
+
+**Suggested next step**: a follow-on change that adds the tag to those three helpers and updates `test_attribution_guard.py` and `test_user_edit_guard.py`; it can run in this plan's Phase 5 only if the plan's write paths are amended with approval.
+
+#### MT-15: Whether escalation-trigger stdout reaches the user is unverified
+
+**Source phase**: v4.14.8 Phase 3 T015
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
+
+**Reason**: the inventory's "shown to the user in Claude Code / Codex" column records `unknown` for escalation-trigger's stdout, so the tag on that channel is applied but its visibility is unproven.
+
+**Suggested next step**: observe it in a live session during the Phase 5 human testing (sub-task 5.8) and record yes or no in the inventory.
+
+#### QG-10: The agent label target was missed by one (7 of 10, target 8)
+
+**Source phase**: v4.14.8 Phase 4 T031
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](development/v4.14.8-effect-measurement.md)
+
+**Reason**: on Claude Code with the new templates, labels were correct on 7 of 10 prompts with no over-labeling. P02 relayed the untagged git-guardrails message (DF-21); P04 never reached the Nexus-Hub rule because the harness denied `rm -rf` on a short-name temp path first; P05 edited locally and stopped without asking for a rule-required approval in both template versions.
+
+**Suggested next step**: after v4.14.6, repeat P02, P04 and P05 in scratch projects under a long-name path. If P05 still asks for no approval, review whether the Consequential Decisions rule needs an example for a local edit that changes distributed behavior.
+
+#### QG-11: The plain-English measurement could not show a reduction
+
+**Source phase**: v4.14.8 Phase 4 T031
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](development/v4.14.8-effect-measurement.md)
+
+**Reason**: `engineering-slang` findings were 0 before and 0 after across 20 replies (a floor effect), and the user-level `~/.claude/CLAUDE.md` with the installed v4.14.4 instructions loaded in both runs because no CLI flag excludes it without moving the login configuration. The run cost USD 19.65 for 21 headless sessions.
+
+**Suggested next step**: repeat with prompts that draw longer technical replies, add hand scoring for the judgment-only terms, and isolate the user-level instructions safely, or accept the floor at v4.15.0's standing-rule review.
+
+### Resolved
+
+None.
