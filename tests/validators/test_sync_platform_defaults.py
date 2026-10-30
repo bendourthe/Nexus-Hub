@@ -272,6 +272,9 @@ _CODEX_MEMORY_KEYS = (
     "memories.disable_on_external_context",
     "memories.min_rate_limit_remaining_percent",
 )
+# The vendor still accepts this legacy alias of memories.disable_on_external_context, so
+# declaring it would seed the same setting while the canonical key stays omitted.
+_CODEX_ALIAS_KEY = "memories.no_memories_if_mcp_or_web_search"
 # Pending until the configs/platform-defaults.json change that names the five
 # Codex memory keys under `omitted` (and adds `meta.omitted`) lands.
 _PENDING_CODEX_OMITTED = pytest.mark.xfail(
@@ -372,15 +375,16 @@ def test_guard_catches_each_omitted_key(platform: str, key: str):
 def test_codex_names_the_five_memory_keys_as_omitted():
     codex = _REAL_PLATFORMS["codex"]
     omitted = codex.get("omitted", {})
-    assert set(_CODEX_MEMORY_KEYS) <= set(omitted), "Codex `omitted` is missing a memory key"
-    for key in _CODEX_MEMORY_KEYS:
+    keys = (*_CODEX_MEMORY_KEYS, _CODEX_ALIAS_KEY)
+    assert set(keys) <= set(omitted), "Codex `omitted` is missing a memory key or the alias"
+    for key in keys:
         assert isinstance(omitted[key], str) and len(omitted[key]) > 20
     meta_rule = load_source((REAL_SOURCE,)).get("meta", {}).get("omitted", "")
     assert isinstance(meta_rule, str) and "settings" in meta_rule, "meta.omitted rule is absent"
 
 
 @_PENDING_CODEX_OMITTED
-@pytest.mark.parametrize("key", _CODEX_MEMORY_KEYS)
+@pytest.mark.parametrize("key", (*_CODEX_MEMORY_KEYS, _CODEX_ALIAS_KEY))
 def test_guard_catches_each_codex_memory_key_in_the_real_file(key: str):
     """Per-key red case over the real Codex block: the key must already be omitted."""
     platforms = copy.deepcopy(_REAL_PLATFORMS)

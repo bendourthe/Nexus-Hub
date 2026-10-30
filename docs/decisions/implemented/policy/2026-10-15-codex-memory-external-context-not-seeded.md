@@ -14,6 +14,7 @@ OpenAI Codex Memories is off by default and, when a user turns it on, summarizes
 
 - **Record, do not seed.** `memories.disable_on_external_context`, together with `features.memories`, `memories.extract_model`, `memories.consolidation_model`, and `memories.min_rate_limit_remaining_percent`, sits in the Codex `omitted` map of `configs/platform-defaults.json` with a one-sentence reason each, and the `### codex - VERIFIED` section of `docs/policy/platform-defaults-levers.md` records each with its vendor URL, date, and documented default.
 - **Recommend where the risk is taught.** `catalog/skills/security/prompt-injection-defense/SKILL.md` names a host memory store as a persistence channel and recommends the exclusion with its limit. The memory contract's host-generated store class (`docs/policy/memory-substrate-contract.md`) governs how an agent treats injected host memory.
+- **Omit the alias too.** The vendor still accepts `memories.no_memories_if_mcp_or_web_search` as a legacy alias of the same setting, so it is a sixth entry in the Codex `omitted` map; the adversarial pass showed that without it a declared alias passed the guard while seeding the same behavior.
 - **Guard the decision.** The omitted-key guard (`2026-10-15-omitted-defaults-are-never-seeded.md`) fails a test if the key is ever declared under Codex `settings`.
 
 ## Alternatives considered
