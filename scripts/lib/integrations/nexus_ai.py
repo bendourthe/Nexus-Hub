@@ -47,6 +47,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -154,7 +155,19 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         )
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
+        # v4.14.7 (decision D6): write the catalog only when Nexus AI Studio is
+        # installed. Before this, every global install wrote ~/.nexus-ai/catalog
+        # whether or not the app existed.
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            result = WriteResult()
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping the Nexus-AI catalog")
+            result.mark_not_detected(
+                f"Nexus AI Studio not detected ({detection.evidence}); ~/.nexus-ai/catalog skipped"
+            )
+            return result
         result = super().install_global(ctx)
+        result.detected = True
         target = (ctx.global_root / ".nexus-ai" / "catalog").resolve()
         mcp_src = ctx.repo_root / "catalog" / "mcp-configs"
         mcp_dst = target / "mcp-configs"

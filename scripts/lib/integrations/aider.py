@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration
 from .platform_defaults import _seed_yaml, declared_for
 from .result import FileAction, WriteResult
@@ -41,8 +42,20 @@ class AiderIntegration(MarkdownIntegration):
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Seed global attribution settings and the shared policy read path."""
+        """Seed global attribution settings and the shared policy read path.
+
+        v4.14.7 (decision D9): only when Aider is detected, by its executable or
+        an explicit ``--platforms aider``. ``~/.aider.conf.yml`` is never
+        evidence, because this method writes it. A not-detected result also
+        stops the base dispatcher's defaults seeding (``detected is not False``).
+        """
         result = WriteResult()
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping ~/.aider.conf.yml")
+            result.mark_not_detected(f"Aider not detected ({detection.evidence}); ~/.aider.conf.yml skipped")
+            return result
+        result.detected = True
         self._attribution_config(ctx.global_root, ctx, result)
         return result
 
