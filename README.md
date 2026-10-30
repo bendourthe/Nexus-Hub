@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.4 -->
+<!-- nexus-hub-version: 4.14.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.5
+
+**Host-generated memory stays off limits.** The memory contract now separates a store the host fills on its own, such as Codex Memories, from an index the harness keeps. Agents never open, read or edit the host's store, and `prompt-injection-defense` explains how such a store can replay untrusted content and credentials in later sessions, and which Codex setting narrows that.
+
+**Codex memory settings recorded, not imposed.** Codex's Memories settings are documented against OpenAI's reference and deliberately not seeded by the installer, and a test now fails if a platform ever declares a setting it lists as omitted.
+
+**Finished tasks stay finished after a move.** The completion checker now follows a task's file across a rename, so completed work is no longer reported open once its branch is merged.
+
+See [the changelog](CHANGELOG.md#4145---2026-10-30) for the full changes.
 
 ## What's New in v4.14.4
 

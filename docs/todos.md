@@ -358,6 +358,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
 - [ ] Verify on a live Devin Desktop / Windsurf install whether `.windsurf/hooks.json`, `~/.codeium/windsurf/hooks.json` and `~/.codeium/windsurf/memories/global_rules.md` are still read. The 2026-10-30 platform re-verification found the current docs naming only `.devin/hooks.v1.json` and `~/.devin/global_rules.md`; recorded as unconfirmed drift (`windsurf-hooks-path`, `windsurf-global-rules-file`) in `docs/policy/platform-read-contracts.json`. If the old paths are no longer read, plan the adapter and installer change with tests.
+- [ ] Refresh the platform read-contract citations that now redirect: `developers.openai.com/codex/hooks` and `/codex/subagents` (308 to `learn.chatgpt.com`), `geminicli.com/docs/cli/commands/` (now `/docs/reference/commands`), and `docs.cursor.com/en/agent/chat/commands` (308 to `cursor.com/docs`). Found in the v4.14.5 re-verification; legacy URLs only, no path change.
 
 ## Codex skill catalog budget - 2026-10-29
 
