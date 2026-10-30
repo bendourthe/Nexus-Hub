@@ -1,6 +1,6 @@
 # Decision: Opt-in git bypass-flag guard
 
-Status: proposed - an opt-in mode of `git-guardrails` blocks the flags that skip git hooks or commit signing, switched by `~/.nexus-hub/guardrails.json` with no restart, and the hook now also runs for the PowerShell tool. It is defense-in-depth with documented limits, not a security boundary.
+Status: implemented - an opt-in mode of `git-guardrails` blocks the flags that skip git hooks or commit signing, switched by `~/.nexus-hub/guardrails.json` with no restart, and the hook now also runs for the PowerShell tool. It is defense-in-depth with documented limits, not a security boundary.
 
 Hook maintainers and teams that want git hooks and commit signing enforced on agent-run git commands use this record. It fixes the switch, the exhaustive table of blocked and allowed forms, the stripping and scanning rules, the limits, and the PowerShell-tool registration that the `git-guardrails.sh` and `git-guardrails.ps1` tests are generated from.
 
@@ -12,7 +12,7 @@ Nothing stops an agent from passing `--no-verify`, `-n`, or `--no-gpg-sign` to g
 
 A hook built from regular expressions over the raw command string cannot decide every spelling of a bypass. A first draft of this design claimed more than that kind of hook can deliver. The design below states what it matches, what it does not, and who can switch it off.
 
-## Proposal
+## Decision
 
 **Mode.** A dedicated block runs after every existing block (the pattern loop, the persistent execution-indirection check, and the protected-branch guard). It is not added to `DANGEROUS_PATTERNS`, whose message says the user has prevented the command outright. The pattern-list blocks run first and are unchanged, so the new mode never weakens an existing block.
 
@@ -67,11 +67,10 @@ A hook built from regular expressions over the raw command string cannot decide 
 | `bypassPermissions` mode | The existing hook contract steps aside entirely in full-access mode |
 | An agent that edits `~/.nexus-hub/guardrails.json` or the hook itself | The switch lives in a file the agent may be able to write |
 | A flag built at run time (variables, command substitution, `eval`), quoted as a separate word, or passed to a program that runs git later (`xargs`, `python -c`) | The hook matches text, not the argument vector git receives |
-| `git` invoked through a path that contains spaces | The path prefix match does not cross quotes |
 | `git config --unset commit.gpgsign` | It removes signing without setting a false-like value |
 | A malformed `guardrails.json` with `jq` absent in the `.sh` | The warning is best effort without a JSON parser |
 
-**PowerShell-tool registration.** `catalog/hooks/settings.json` registers `git-guardrails` once for the `Bash|PowerShell` matcher, the same single-entry form the console-window guard already uses. A tool call is one tool, so the hook runs once per call. The command stays `bash .claude/hooks/git-guardrails.sh`, the invocation the existing PowerShell-tool hooks (`require-powershell-description.sh`) already use. The hook reads `tool_input.command` the same way for both tools. This change is a protected-path edit that lands through its own reviewed pull request.
+**PowerShell-tool registration.** `catalog/hooks/settings.json` registers `git-guardrails` once for the `Bash|PowerShell` matcher, the same single-entry form the console-window guard already uses. A tool call is one tool, so the hook runs once per call. The command stays `bash .claude/hooks/git-guardrails.sh`, the invocation the existing PowerShell-tool hooks (`require-powershell-description.sh`) already use. The hook reads `tool_input.command` the same way for both tools. That registration is a protected-path edit, so it was delivered as a reviewed patch separate from the hook and test changes.
 
 **Command extraction without jq.** The `.sh` extracted the command with a pattern that stopped at the first escaped double quote when `jq` was absent, so everything after any quoted text went unscanned, for the existing blocks as well. The extraction now accepts escaped characters inside the string. A regression test sends a destructive command after quoted text through both implementations.
 
@@ -87,7 +86,9 @@ A hook built from regular expressions over the raw command string cannot decide 
 - **Register the PowerShell tool as a second entry.** Rejected: two entries for one hook invite a double run and drift. One `Bash|PowerShell` matcher keeps one registration per tool.
 - **Parse the command into an argument vector in both languages.** Rejected for now: a tokenizer written twice (bash and PowerShell) is a larger parity surface than the regular expressions it would replace, and the documented limits already say what a text match cannot see.
 
-## Acceptance criteria
+## Consequences
+
+The following hold, and `catalog/hooks/tests/test_git_guardrails.py` proves them on both implementations:
 
 - With no `guardrails.json`, `git commit -m x --no-verify` exits 0 in both implementations.
 - After `{"block_git_bypass_flags": true}` is written to a temporary home, the same command exits 2 and the very next command is judged by the file as it is then.
@@ -97,7 +98,7 @@ A hook built from regular expressions over the raw command string cannot decide 
 - A PowerShell-tool payload for `git push --force` exits 2.
 - `catalog/hooks/tests/test_git_guardrails.py` proves identical exit codes from `git-guardrails.sh` and `git-guardrails.ps1` for each case above.
 
-## Risks
+**Costs and risks.**
 
 - A regular expression that matches too much blocks legitimate work. The allowed table and the message-stripping rule exist to bound this, and the mode is opt-in.
 - A regular expression that matches too little lets a bypass through. The limits table says so, and no claim of enforcement is made.

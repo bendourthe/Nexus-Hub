@@ -311,7 +311,7 @@ An opt-in mode adds the flags that skip git hooks or commit signing: `--no-verif
 { "block_git_bypass_flags": true }
 ```
 
-This mode is defense-in-depth, not a boundary. It does not see environment-variable skips (`HUSKY=0`, `SKIP=`, `LEFTHOOK=0`, `GIT_CONFIG_*`), git plumbing (`commit-tree`, `update-ref`), shell aliases or scripts, or `bypassPermissions` mode, and an agent that can write `guardrails.json` can switch it off. It grants no permission. The decision record, with the exhaustive table of blocked and allowed forms, is [`2026-10-14-opt-in-git-bypass-flag-guard.md`](../../docs/decisions/proposed/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md).
+This mode is defense-in-depth, not a boundary. It does not see environment-variable skips (`HUSKY=0`, `SKIP=`, `LEFTHOOK=0`, `GIT_CONFIG_*`), git plumbing (`commit-tree`, `update-ref`), shell aliases or scripts, or `bypassPermissions` mode, and an agent that can write `guardrails.json` can switch it off. It grants no permission. The decision record, with the exhaustive table of blocked and allowed forms, is [`2026-10-14-opt-in-git-bypass-flag-guard.md`](../../docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md).
 
 ---
 

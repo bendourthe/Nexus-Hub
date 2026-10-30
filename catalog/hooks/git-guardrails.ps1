@@ -224,7 +224,6 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later
-#   - git invoked through a path that contains spaces
 #   - git config --unset commit.gpgsign
 function Test-BypassModeOn {
     if ($env:NEXUS_GUARD_GIT_BYPASS -ceq '1') { return $true }

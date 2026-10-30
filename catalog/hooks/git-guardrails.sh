@@ -243,7 +243,6 @@ fi
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later
-#   - git invoked through a path that contains spaces
 #   - git config --unset commit.gpgsign
 #   - without jq, a malformed guardrails.json is detected best effort only
 bypass_mode_on() {
