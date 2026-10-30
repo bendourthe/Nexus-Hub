@@ -21,7 +21,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 117/209 integrated task marks, with 4/7 members released: v4.14.0, v4.14.1, v4.14.2 (2026-10-28) and v4.14.3 (2026-10-29, tag `v4.14.3`). v4.14.4 is admitted and publication-started (start head `349cc756f`) with Phases 1-5 committed in its worktree (T001-T022 except T013 by the member; T013 landed as PR #551 because members may not write `catalog/hooks/settings.json`, and the `lint-repair-loop` back-link as PR #552); T023 (full local suite) and T024 (publication) remain. v4.14.3's early member archive is deferred until its merged local branches can be cleaned; the minor close archives it otherwise. v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn.
+**Active work:** v4.14 has 117/251 integrated task marks, with 4/8 members released: v4.14.0, v4.14.1, v4.14.2 (2026-10-28) and v4.14.3 (2026-10-29, tag `v4.14.3`). v4.14.4 is admitted and publication-started (start head `349cc756f`) with Phases 1-5 committed in its worktree (T001-T022 except T013 by the member; T013 landed as PR #551 because members may not write `catalog/hooks/settings.json`, and the `lint-repair-loop` back-link as PR #552); T023 (full local suite) and T024 (publication) remain. v4.14.3's early member archive is deferred until its merged local branches can be cleaned; the minor close archives it otherwise. v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -65,9 +65,9 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 GitHub develop integrated task marks | 97/209 | 209/209 |
-| v4.14 worktree task marks | 101/209 | 209/209 |
-| v4.14 released members | 3/7 | 7/7 |
+| v4.14 GitHub develop integrated task marks | 97/251 | 251/251 |
+| v4.14 worktree task marks | 101/251 | 251/251 |
+| v4.14 released members | 3/8 | 8/8 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
@@ -378,6 +378,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.14.6 Nexus-Hub Settings
 
 - [ ] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 0/6 phases and 0/46 tasks. Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
+
+## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
+
+- [ ] Implement the [v4.14.8 plan](releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md): Part A (Phases 1-2) makes agents write simple English a non-native reader understands, with an agent and engineering slang list owned by `anti-slop-editing`, a 13-term advisory detector family, a non-native-reader Communication Contract bullet, and a Writing Discipline slang clause with five examples in all 13 templates. Part B (Phases 3-4) starts every hook message with `[Nexus-Hub: <hook-name>]`, escapes echoed values, and adds an agent label rule (`[Nexus-Hub: <source>]` for three named events, with limits against forged or misused labels) plus a before-and-after measurement on Claude Code. Part A releases without Part B. Phase 3 waits for v4.14.6 only for the `git-guardrails` pair; sub-task 4.3 waits for v4.14.5. Implementation is 0/5 phases and 0/42 tasks.
 
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
