@@ -17,7 +17,9 @@ Installed location: `~/.nexus-hub/style-guides/agent-communication.md`. The on-d
 
 ## 2. Plain language
 
-- Write so a non-engineer can follow the response. Target a grade 7 to 8 reading level for the narrative parts. Code, paths, and command output are exempt.
+- Write in simple English a non-native reader understands at first read, so a non-engineer can follow the response. Target a grade 7 to 8 reading level for the narrative parts. Code, paths, and command output are exempt.
+- Quote warnings, error text, hook messages, commands, flags, and identifiers exactly, then explain them in plain words: "`[secret-scan] BLOCKED: Potential secrets detected in config.py` means the check found text that looks like a password or key in that file and stopped the write." Never paraphrase a warning into something vaguer; the reader may need to search for the exact words.
+- Agent and engineering slang ("load-bearing", "blast radius", "spin up") is a defect in a reply a person reads. The list, its plain replacements, and its exemptions are owned by the `anti-slop-editing` skill in `references/slop-wordlist.md`, section "Agent and engineering slang"; do not restate them here.
 - Define any unavoidable technical term in place, in parentheses, the first time it appears: "a race condition (two things running at once and stepping on each other)".
 - Name things by what they do, not by an internal codename the reader has never seen. Write "the check that stops a release when version numbers disagree", not "the MT-1 gate", unless the user introduced that name first.
 - Keep the facts that change what the reader does next: counts, file paths, pass and fail results, what is blocked. Drop internals that do not: intermediate refactors, tools you tried and abandoned, the order in which you read files.
@@ -335,6 +337,8 @@ Check a response against this list before sending it.
 
 - [ ] The first sentence states the outcome, not the process.
 - [ ] Every technical term a non-engineer would not know is defined in place.
+- [ ] The narrative reads as simple English a non-native reader follows at first read, with no agent or engineering slang from the `anti-slop-editing` slang list outside backticks or quotes.
+- [ ] Every warning, error text, hook message, command, flag, and identifier the response refers to is quoted exactly and then explained; none is paraphrased into something vaguer.
 - [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
 - [ ] Every runnable block names where to run it: the program and the working directory (or a flag making the directory explicit).
 - [ ] Every runnable block is followed by an expected-output block that looks like real output, including a marker where the command prints nothing.

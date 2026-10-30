@@ -50,11 +50,12 @@ Also use it on request: "summarize what you did", "explain this to me simply", "
 
 ### 2. Keep the language plain
 
-1. Target a grade 7 to 8 reading level for the narrative. Code, paths, and command output are exempt.
-2. Define any unavoidable term in place, in parentheses, at first use.
-3. Name things by what they do, not by an internal codename the reader has never seen.
-4. Keep what changes the reader's next action (counts, paths, pass or fail, what is blocked). Drop what does not (abandoned approaches, the order you read files in).
-5. Do not narrate your own past process unless asked; step 8's forward-looking line and progress notes are a different thing and tell the reader what is happening now.
+1. Write in simple English a non-native reader understands at first read, at a grade 7 to 8 reading level for the narrative. Code, paths, and command output are exempt.
+2. Quote warnings, error text, hook messages, commands, flags, and identifiers exactly, then explain them; never paraphrase a warning into something vaguer. Agent and engineering slang ("load-bearing", "blast radius") is a defect in a reply; the list and its exemptions are owned by `anti-slop-editing` in `references/slop-wordlist.md`, section "Agent and engineering slang".
+3. Define any unavoidable term in place, in parentheses, at first use.
+4. Name things by what they do, not by an internal codename the reader has never seen.
+5. Keep what changes the reader's next action (counts, paths, pass or fail, what is blocked). Drop what does not (abandoned approaches, the order you read files in).
+6. Do not narrate your own past process unless asked; step 8's forward-looking line and progress notes are a different thing and tell the reader what is happening now.
 
 ### 3. Make every command runnable as pasted
 
@@ -178,6 +179,7 @@ This applies wherever open items appear, not only in the closing report. A turn 
 ## Verification
 
 - [ ] The first sentence of the response states the outcome, not the process.
+- [ ] The narrative is simple English a non-native reader follows at first read, every warning, error, hook message, command, and identifier is quoted exactly and then explained, and no agent or engineering slang appears outside backticks or quotes.
 - [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
 - [ ] Every runnable block names the program and the working directory to run it in.
 - [ ] Every runnable block is followed by an expected-output block, including a marker when the command prints nothing.
