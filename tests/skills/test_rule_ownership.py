@@ -23,8 +23,6 @@ class Rule:
     anchor: str
     owner_name: str
     non_owners: tuple[Path, ...]
-    # A non-owner that only must not restate the rule (it need not link to the owner) sets this False.
-    names_owner: bool = True
 
 
 _HANDOFF_SITES = (
@@ -92,7 +90,6 @@ RULES = (
         anchor="Promote a trapdoor to an automated check when a machine can detect it",
         owner_name="[[review-trapdoors]]",
         non_owners=(_SK / "code-cleanup" / "lint-repair-loop" / "SKILL.md",),
-        names_owner=False,
     ),
 )
 
@@ -112,8 +109,7 @@ def test_each_rule_lives_in_its_owner_and_is_only_handed_off_elsewhere(row: Rule
     assert row.anchor in _read(row.owner), f"{row.rule}: owner {_id(row.owner)} lacks its anchor clause"
     for path in row.non_owners:
         text = _read(path)
-        if row.names_owner:
-            assert row.owner_name in text, f"{row.rule}: {_id(path)} is missing the handoff to {row.owner_name}"
+        assert row.owner_name in text, f"{row.rule}: {_id(path)} is missing the handoff to {row.owner_name}"
         # A copy-paste tripwire, not proof of single ownership: it catches the owner's distinctive
         # clause pasted into a non-owner, while a paraphrased restatement still needs review.
         assert row.anchor not in text, f"{row.rule}: {_id(path)} restates the owner's rule"

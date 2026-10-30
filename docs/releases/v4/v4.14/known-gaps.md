@@ -3399,5 +3399,5 @@ None.
 **Reason**: The detectable-trapdoor-promotion ownership row set `names_owner=False` because `lint-repair-loop/SKILL.md` was outside the member's claims and did not name `[[review-trapdoors]]`, so the row proved no restatement but not the handoff.
 
 - **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.4 publication.
-- **Resolution**: PR #552 adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, and the member's ownership row now uses the default `names_owner=True`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
+- **Resolution**: PR #552, merged to develop as `c9471b91e4838b98e71c068d67991a25a14bf8ef`, adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, so the ownership row now requires the owner name like every other row, and the temporary `names_owner` exception is removed from `tests/skills/test_rule_ownership.py`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
 - **Remaining boundary**: none.
