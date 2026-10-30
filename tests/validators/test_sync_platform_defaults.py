@@ -22,11 +22,13 @@ mutate the real catalog; a small set asserts against the real tree.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -39,6 +41,7 @@ if str(REPO_ROOT / "scripts") not in sys.path:
 import sync_platform_defaults as sync  # noqa: E402
 from scripts.lib.integrations import list_keys  # noqa: E402
 from scripts.lib.integrations import claude as claude_integration  # noqa: E402
+from scripts.lib.integrations.platform_defaults import _leaf_paths, load_source  # noqa: E402
 
 # v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
 # own `run:` step, so CI reachability is resolved through the profile
@@ -248,6 +251,201 @@ def test_omitted_keys_state_why_they_were_not_seeded():
             assert isinstance(reason, str) and len(reason) > 20, (
                 f"{name}: omitted key {key!r} needs a substantive reason, got {reason!r}"
             )
+
+
+# --------------------------------------------------------------------------
+# Omitted-key guard (v4.14.5)
+# --------------------------------------------------------------------------
+
+# Loaded the way the seeder loads it, so a file the seeder cannot read fails the
+# guard instead of passing over an empty platform map.
+_REAL_PLATFORMS = load_source((REAL_SOURCE,)).get("platforms", {})
+_OMITTED_PAIRS = [
+    (platform, key)
+    for platform, entry in _REAL_PLATFORMS.items()
+    for key in entry.get("omitted", {})
+]
+_CODEX_MEMORY_KEYS = (
+    "features.memories",
+    "memories.extract_model",
+    "memories.consolidation_model",
+    "memories.disable_on_external_context",
+    "memories.min_rate_limit_remaining_percent",
+)
+# Pending until the configs/platform-defaults.json change that names the five
+# Codex memory keys under `omitted` (and adds `meta.omitted`) lands.
+_PENDING_CODEX_OMITTED = pytest.mark.xfail(
+    strict=False,
+    reason=(
+        "pending the configs/platform-defaults.json change that adds the five Codex "
+        "memory keys to `omitted` and a `meta.omitted` statement"
+    ),
+)
+
+
+def _table_nodes(declared: dict, prefix: str = "") -> list[tuple[str, bool]]:
+    """Every table node as ``(dotted path, is_empty)``, nested tables included."""
+    nodes: list[tuple[str, bool]] = []
+    for key, value in declared.items():
+        if isinstance(value, dict):
+            dotted = f"{prefix}{key}"
+            nodes.append((dotted, not value))
+            nodes.extend(_table_nodes(value, prefix=f"{dotted}."))
+    return nodes
+
+
+def omitted_keys_declared(platforms: dict) -> list[tuple[str, str]]:
+    """Return ``(platform, key)`` for every omitted key a platform also declares.
+
+    ``omitted`` records a key the vendor documents but Nexus-Hub deliberately
+    does not seed. A declared path matches an omitted key when it equals the key
+    or starts with the key followed by ``.``. A table node counts too, so an empty
+    ``{"memories": {}}`` table matches an omitted ``memories.*`` key (the seeder
+    would write the bare table). A non-empty table that merely contains the
+    omitted key's parent does not match; only its leaves can.
+
+    Boundary: this guard covers declared ``settings`` only. Keys an integration
+    writes in code (for example the agent TOML in
+    ``scripts/lib/integrations/_codex_native.py``), profile-scoped keys such as
+    ``[profiles.<name>.memories]``, and environment variables are outside it. The
+    Codex configuration reference fetched on 2026-10-29 documents no
+    profile-scoped ``memories`` override, so the omitted ``memories.*`` keys have
+    no such path today. Deleting an ``omitted`` entry in the same edit that seeds
+    the key passes this test by design; the ``meta.omitted`` rule and review cover
+    that limit.
+
+    A platform without ``omitted`` passes. An ``omitted`` or ``settings`` value
+    that is not an object raises ``TypeError`` naming the platform.
+    """
+    found: set[tuple[str, str]] = set()
+    for name, entry in platforms.items():
+        omitted = entry.get("omitted", {})
+        settings = entry.get("settings", {})
+        if not isinstance(omitted, dict):
+            raise TypeError(f"{name}: `omitted` must be an object, got {type(omitted).__name__}")
+        if not isinstance(settings, dict):
+            raise TypeError(f"{name}: `settings` must be an object, got {type(settings).__name__}")
+        leaves = _leaf_paths(settings)
+        tables = _table_nodes(settings)
+        for key in omitted:
+            under = f"{key}."
+            hit_leaf = any(path == key or path.startswith(under) for path in leaves)
+            hit_table = any(
+                path == key or path.startswith(under) or (empty and key.startswith(f"{path}."))
+                for path, empty in tables
+            )
+            if hit_leaf or hit_table:
+                found.add((name, key))
+    return sorted(found)
+
+
+def _declare(settings: dict, dotted: str, value: object = "x") -> dict:
+    """Return ``settings`` extended with ``dotted`` set to ``value`` (nested tables)."""
+    node = settings
+    *parents, leaf = dotted.split(".")
+    for part in parents:
+        node = node.setdefault(part, {})
+    node[leaf] = value
+    return settings
+
+
+def _platform(settings: dict, omitted: list[str]) -> dict:
+    return {"p": {"settings": settings, "omitted": {key: "reason" for key in omitted}}}
+
+
+def test_no_platform_declares_a_key_it_omits():
+    """The real file never seeds a key its own `omitted` map names."""
+    assert _REAL_PLATFORMS, "load_source returned no platforms; the guard would pass over nothing"
+    assert omitted_keys_declared(_REAL_PLATFORMS) == []
+
+
+@pytest.mark.parametrize(("platform", "key"), _OMITTED_PAIRS)
+def test_guard_catches_each_omitted_key(platform: str, key: str):
+    """Declaring any omitted key on its own platform is reported as exactly that pair."""
+    platforms = copy.deepcopy(_REAL_PLATFORMS)
+    platforms[platform]["settings"] = _declare({}, key)
+
+    assert omitted_keys_declared(platforms) == [(platform, key)]
+
+
+@_PENDING_CODEX_OMITTED
+def test_codex_names_the_five_memory_keys_as_omitted():
+    codex = _REAL_PLATFORMS["codex"]
+    omitted = codex.get("omitted", {})
+    assert set(_CODEX_MEMORY_KEYS) <= set(omitted), "Codex `omitted` is missing a memory key"
+    for key in _CODEX_MEMORY_KEYS:
+        assert isinstance(omitted[key], str) and len(omitted[key]) > 20
+    meta_rule = load_source((REAL_SOURCE,)).get("meta", {}).get("omitted", "")
+    assert isinstance(meta_rule, str) and "settings" in meta_rule, "meta.omitted rule is absent"
+
+
+@_PENDING_CODEX_OMITTED
+@pytest.mark.parametrize("key", _CODEX_MEMORY_KEYS)
+def test_guard_catches_each_codex_memory_key_in_the_real_file(key: str):
+    """Per-key red case over the real Codex block: the key must already be omitted."""
+    platforms = copy.deepcopy(_REAL_PLATFORMS)
+    assert key in platforms["codex"].get("omitted", {})
+    platforms["codex"]["settings"] = _declare({}, key)
+
+    assert omitted_keys_declared(platforms) == [("codex", key)]
+
+
+@pytest.mark.parametrize(
+    ("settings", "omitted", "expected"),
+    [
+        ({"memories": {}}, ["memories.extract_model"], ["memories.extract_model"]),
+        ({"features": {"memories": True}}, ["features.memories"], ["features.memories"]),
+        ({"model": {"name": {"x": 1}}}, ["model.name"], ["model.name"]),
+        ({"model": "m"}, ["model"], ["model"]),
+        ({"memories": {"use_memories": True}}, ["memories.extract_model"], []),
+        ({"model": {"other": 1}}, ["model.name"], []),
+        ({"model_reasoning_effort": "medium"}, ["model"], []),
+        ({"a": 1}, [], []),
+    ],
+    ids=[
+        "empty-table-over-omitted-child",
+        "nested-leaf-equals-key",
+        "leaf-under-omitted-key",
+        "scalar-equals-key",
+        "sibling-leaf-not-flagged",
+        "non-empty-parent-table-not-flagged",
+        "key-prefix-without-dot-not-flagged",
+        "no-omitted-map-passes",
+    ],
+)
+def test_guard_match_rule(settings: dict, omitted: list[str], expected: list[str]):
+    assert omitted_keys_declared(_platform(settings, omitted)) == [("p", key) for key in expected]
+
+
+@pytest.mark.parametrize(
+    ("entry", "field"),
+    [
+        ({"settings": [], "omitted": {}}, "settings"),
+        ({"settings": {}, "omitted": ["model"]}, "omitted"),
+    ],
+)
+def test_guard_rejects_a_malformed_platform_naming_it(entry: dict, field: str):
+    with pytest.raises(TypeError, match=rf"^broken: `{field}` must be an object"):
+        omitted_keys_declared({"broken": entry})
+
+
+def test_real_codex_seed_writes_no_memory_key(tmp_path: Path):
+    """Seeding the real Codex declaration writes the effort default and no memory setting."""
+    tomlkit = pytest.importorskip("tomlkit", reason="TOML seeding needs tomlkit")
+    from scripts.lib.integrations import platform_defaults as pd
+
+    target = tmp_path / "config.toml"
+    source = copy.deepcopy(load_source((REAL_SOURCE,)))
+    source["platforms"]["codex"]["install_target"]["path"] = str(target)
+    ctx = SimpleNamespace(scope="global", dry_run=False, manifest=None)
+
+    actions = pd.seed_platform_defaults("codex", ctx, source)
+
+    assert [a.action for a in actions] == ["created"]
+    written = tomlkit.parse(target.read_text(encoding="utf-8"))
+    assert written["model_reasoning_effort"] == "medium", "positive control: the seed did run"
+    assert "memories" not in written
+    assert "memories" not in written.get("features", {})
 
 
 def test_verified_dates_are_iso_formatted():

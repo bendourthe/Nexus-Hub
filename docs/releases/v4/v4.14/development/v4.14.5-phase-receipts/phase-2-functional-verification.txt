@@ -1,0 +1,38 @@
+real file guard: []
+RED-OK  codex: model -> [('codex', 'model')]
+RED-OK  codex: features.memories -> [('codex', 'features.memories')]
+RED-OK  codex: memories.extract_model -> [('codex', 'memories.extract_model')]
+RED-OK  codex: memories.consolidation_model -> [('codex', 'memories.consolidation_model')]
+RED-OK  codex: memories.disable_on_external_context -> [('codex', 'memories.disable_on_external_context')]
+RED-OK  codex: memories.min_rate_limit_remaining_percent -> [('codex', 'memories.min_rate_limit_remaining_percent')]
+RED-OK  qwen: model.name -> [('qwen', 'model.name')]
+RED-OK  kimi: default_model -> [('kimi', 'default_model')]
+RED-OK  hermes: model.default -> [('hermes', 'model.default')]
+RED-OK  aider: reasoning-effort -> [('aider', 'reasoning-effort')]
+RED-OK  aider: yes-always -> [('aider', 'yes-always')]
+RED-OK  aider: model -> [('aider', 'model')]
+RED-OK  aider: thinking-tokens -> [('aider', 'thinking-tokens')]
+RED-OK  aider: auto-commits -> [('aider', 'auto-commits')]
+RED-OK  gemini-cli: model.name -> [('gemini-cli', 'model.name')]
+RED-OK  gemini-cli: thinkingBudget -> [('gemini-cli', 'thinkingBudget')]
+RED-OK  cursor: model -> [('cursor', 'model')]
+RED-OK  cursor: sandbox.mode -> [('cursor', 'sandbox.mode')]
+RED-OK  antigravity2: toolPermission -> [('antigravity2', 'toolPermission')]
+RED-OK  antigravity2: artifactReviewPolicy -> [('antigravity2', 'artifactReviewPolicy')]
+RED-OK  antigravity2: enableTerminalSandbox -> [('antigravity2', 'enableTerminalSandbox')]
+RED-OK  antigravity2: allowNonWorkspaceAccess -> [('antigravity2', 'allowNonWorkspaceAccess')]
+RED-OK  pi: defaultModel -> [('pi', 'defaultModel')]
+RED-OK  pi: defaultProvider -> [('pi', 'defaultProvider')]
+omitted pairs: 24 mismatches: 0
+codex memory keys omitted: ['features.memories', 'memories.extract_model', 'memories.consolidation_model', 'memories.disable_on_external_context', 'memories.min_rate_limit_remaining_percent']
+actions: [('config.toml', 'created')]
+--- config.toml ---
+# Seeded by Nexus-Hub from configs/platform-defaults.json (edit freely).
+model_reasoning_effort = "medium"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+--- end ---
+positive control (model_reasoning_effort = "medium"): True
+any [memories] table: False
+any memories key under [features]: False
