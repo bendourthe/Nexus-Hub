@@ -92,6 +92,18 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh score
 
 Without either flag, `verification_effort` equals `effort`.
 
+### Harness cost concern
+
+Consider harness cost separately from the five complexity signals. A harness determines initial instructions and tool schemas, context handling, caching, retries, and later calls, so the same model can incur different costs even when observed success rates are close. One historical coding-task study found a larger harness effect on cost than on measured success. The effect was strongly model-conditional; a ratio does not transfer across model generations or establish a cheaper default for another workload.
+
+1. Assess materiality once per plan, not once per phase. Consider a comparison when expected task volume or observed context/retry overhead could change the configuration decision. If the concern is immaterial, emit no extra routing block; revisit only when materially new evidence changes that decision.
+2. Verify the exact model, harness versions, workload, pricing date, and measured outcomes before recommending a pairing. If relevant measurement or web access is unavailable, return `unmeasured for this model; verify before assuming`, name what is unknown, and invent no ratio. Never extrapolate from a neighboring model or generation. This skill ships no numeric cost-ratio table.
+3. Read benchmark evidence with its sample size and multiple-comparison correction. The historical sample used 30 tasks per pairing and Holm correction across 14 comparisons. A non-significant success-rate result means "no difference detected at this power", not equivalence. Uncorrected per-pair results can overstate differences; without a stated sample and correction they do not justify a routing default.
+4. Report cost with task success or quality on the same cases, including uncertainty and unavailable measurements. Cost alone does not establish value, and an undetected quality difference is not permission to select the cheaper harness automatically.
+5. Keep the recommendation advisory for the user's next session. `/route` switches only models exposed by the detected host; it cannot switch harnesses. When a proposed pairing conflicts with the current host or its capabilities, retain the host and report the limitation rather than silently applying a change.
+
+This concern compares harnesses. [Subagent model costs](#subagent-model-costs) covers dispatch cost within the selected harness; it is a separate decision.
+
 ### Step 4: Build or refresh the Current model map
 
 Planning mode MUST attempt public web search on every full `/plan` invocation:
@@ -148,6 +160,8 @@ Present the generic tier, effort, concrete model when verified, all five signal 
 ### Subagent model costs
 
 Subagent model order is invocation, definition `model`, `CLAUDE_CODE_SUBAGENT_MODEL`, then session. Environment `inherit` means unset; definition `inherit` selects the session. Explore/Plan need `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, which overrides pins. Savings require a tier reduction; frontier-to-frontier routing alone proves none. [Vendor reference](https://code.claude.com/docs/en/sub-agents#choose-a-model).
+
+This is dispatch cost within one harness; [harness cost concern](#harness-cost-concern) governs advisory comparisons across harnesses.
 
 ### Step 6: Apply the switch per the platform profile
 
@@ -207,11 +221,15 @@ Whether an effort change keeps the prompt cache depends on the model and host. S
 | "Auto-switching works everywhere, so I'll script it on every platform." | The Claude Code main loop cannot switch its own model mid-session, and Cursor / Copilot / OpenCode expose no scriptable switch at all. Scripting a switch on a manual platform either no-ops silently or errors; the posture must branch on `can_script_switch`. |
 | "When unsure, I'll pick `strong` as a safe middle ground." | Uncertainty maps to `frontier` + `max`. A middle tier silently weakens the no-degradation guarantee. |
 | "It is still failing, so more effort will help." | More effort mostly adds verification. It fixes an edge-case miss, but a wrong approach fails the same way at every effort level and burns the troubleshooting budget. Classify the failure at iteration 2 (Step 7) before choosing the escalation. |
+| "The measured harness ratio should apply to this newer model too." | Harness behavior, model behavior, workload, and pricing can change independently; transferring a ratio can recommend an unmeasured pairing as if its cost and quality were known. |
+| "No significant quality difference means the cheaper harness is equivalent." | A small sample with multiple-comparison correction can miss a real quality gap. Report no difference detected at that power, with cost and quality together, rather than claiming equivalence or changing the default. |
 
 ## Verification
 
 - [ ] Every new plan phase contains only an allowed generic tier and effort; no host-only concrete id is authoritative.
 - [ ] The recommendation states all five signal readings; any `high` maps to `frontier`, and uncertainty maps to `frontier` + `max`.
+- [ ] A material harness consideration is emitted once per plan, separately from scoring, and reports exact-pair cost with quality or explicit unknowns; an unmeasured model receives no inferred ratio.
+- [ ] Benchmark-based routing cites sample size and correction; a non-significant rate result is not presented as equivalence, and a harness recommendation never changes the active host.
 - [ ] `model-map.py validate <candidate.json>` passes before a fresh map is written, and all 16 provider cells are non-empty.
 - [ ] `model-map.py diff <candidate.json>` was run against a fresh candidate and exited 0, or exited 3 and every reported move is carried in the plan's map section with its stated reason.
 - [ ] A fresh map cites official sources for Anthropic, OpenAI, Google, and Cursor; an offline map visibly uses the date from `last-known-model-map.json`.
