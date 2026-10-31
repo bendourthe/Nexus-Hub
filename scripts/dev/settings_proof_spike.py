@@ -18,6 +18,15 @@ Safety properties (each is a failure mode in the plan, sub-task 1.4):
   that probe could have made a billable request.
 - Scratch homes are owner-only, removed in a `finally` block, and a startup
   sweep removes any left behind by an interrupted run.
+- No probe that runs without a sign-in reaches an external host. Codex's `doctor`
+  and `exec` (and Claude's init probe) try to connect to vendor and GitHub hosts
+  even with no credential (measured with Codex 0.136.0: api.openai.com, chatgpt.com,
+  api.github.com, github.com), and a header such as `reasoning effort` is printed
+  before that attempt fails. So every such probe runs with HTTP_PROXY, HTTPS_PROXY
+  and ALL_PROXY pointed at a listener on 127.0.0.1 that forwards nothing and
+  records the host of each attempt (`OfflineSink`). The tools honored the proxy
+  variables for every connection observed; a version that does not would still
+  reach its hosts, which is why the matrix prints what the sink recorded.
 - Each probe is bounded to 120 seconds and recorded `timed out`. A tool that is
   not installed gets `not-observed: tool not installed`, never a pass.
 - Evidence quotes only the single matched field and passes through a redaction
@@ -36,9 +45,11 @@ import json
 import os
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -59,6 +70,69 @@ REDACTIONS = (
     re.compile(r"[A-Fa-f0-9]{40,}"),
     re.compile(r"[A-Za-z0-9+/=_-]{48,}"),
 )
+
+
+class OfflineSink:
+    """A listener on 127.0.0.1 that every no-sign-in probe is pointed at; it answers 502 and forwards nothing.
+
+    The probes that run without a credential still try to reach their vendor, so they are given this address
+    as their proxy. The sink records the host of each attempt, which the matrix prints, so a tool that stops
+    honoring the proxy variables shows up as attempts that are missing instead of as a silent external call.
+    """
+
+    def __init__(self) -> None:
+        self.attempts: list[str] = []
+        self.port = 0
+        self._lock = threading.Lock()
+        self._server: socket.socket | None = None
+
+    def _serve(self, server: socket.socket) -> None:
+        while True:
+            try:
+                connection, _ = server.accept()
+            except OSError:
+                return
+            try:
+                connection.settimeout(1.0)
+                first = connection.recv(2048).decode("latin-1", "replace").splitlines()[:1]
+                with self._lock:
+                    self.attempts.append(first[0] if first else "")
+                connection.sendall(b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+            except OSError:
+                pass
+            finally:
+                connection.close()
+
+    def env(self) -> dict[str, str]:
+        """Proxy variables that send every outbound connection here, starting the listener on first use."""
+        if self._server is None:
+            server = socket.socket()
+            server.bind(("127.0.0.1", 0))
+            server.listen(64)
+            self.port = server.getsockname()[1]
+            self._server = server
+            threading.Thread(target=self._serve, args=(server,), daemon=True).start()
+        url = f"http://127.0.0.1:{self.port}"
+        names = ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy")
+        return {**{name: url for name in names}, "NO_PROXY": "", "no_proxy": ""}
+
+    def hosts(self) -> list[str]:
+        """The distinct hosts the probes tried to reach, from `CONNECT host:port` or an absolute-URI request line."""
+        found = set()
+        with self._lock:
+            lines = list(self.attempts)
+        for line in lines:
+            match = re.match(r"CONNECT ([^ :]+)", line) or re.match(r"[A-Z]+ https?://([^/ :]+)", line)
+            found.add(match.group(1) if match else "(unparsed)")
+        return sorted(found)
+
+    def close(self) -> None:
+        if self._server is not None:
+            self._server.close()
+            self._server = None
+
+
+SINK = OfflineSink()
 
 
 @dataclass
@@ -177,6 +251,10 @@ class Scratch:
         env.update(extra)
         return env
 
+    def offline_env(self, **extra: str) -> dict[str, str]:
+        """`env`, with every outbound connection sent to the local sink. For every probe that runs without a sign-in."""
+        return self.env(**{**SINK.env(), **extra})
+
     def cleanup(self) -> None:
         shutil.rmtree(self.root, ignore_errors=True)
 
@@ -215,7 +293,7 @@ def claude_init(user: dict | None = None, project: dict | None = None, env: dict
             (scratch.cwd / ".claude").mkdir()
             (scratch.cwd / ".claude" / "settings.json").write_text(json.dumps(project), encoding="utf-8")
         argv = [shutil.which("claude") or "claude", "-p", "probe", "--output-format", "stream-json", "--verbose", "--max-turns", "1", "--tools", ""]
-        rc, out, err = run(argv, scratch, scratch.env(CLAUDE_CONFIG_DIR=str(scratch.home), **(env or {})))
+        rc, out, err = run(argv, scratch, scratch.offline_env(CLAUDE_CONFIG_DIR=str(scratch.home), **(env or {})))
         if rc == -1:
             return {"error": "timed out"}
         for line in out.splitlines():
@@ -244,7 +322,7 @@ def codex_report(config: str, project_config: str | None = None, trust: bool = F
             (scratch.cwd / ".codex").mkdir()
             (scratch.cwd / ".codex" / "config.toml").write_text(project_config, encoding="utf-8")
         exe = shutil.which("codex") or "codex"
-        env = scratch.env(CODEX_HOME=str(codex_home))
+        env = scratch.offline_env(CODEX_HOME=str(codex_home))
         rc, out, err = run([exe, "doctor", "--json"], scratch, env)
         report: dict[str, str] = {}
         if rc != -1:
@@ -266,7 +344,8 @@ def codex_report(config: str, project_config: str | None = None, trust: bool = F
 def claude_effort(user: dict, env: dict[str, str] | None = None, project: dict | None = None) -> str:
     """Read the effective effort the way a user would: `/effort status`, a local command.
 
-    It runs with no sign-in and makes no model request, so it costs nothing.
+    It runs with no sign-in and makes no model request, so it costs nothing, and its outbound
+    connection attempts go to the local sink.
     """
     scratch = Scratch()
     try:
@@ -275,7 +354,7 @@ def claude_effort(user: dict, env: dict[str, str] | None = None, project: dict |
             (scratch.cwd / ".claude").mkdir()
             (scratch.cwd / ".claude" / "settings.json").write_text(json.dumps(project), encoding="utf-8")
         argv = [shutil.which("claude") or "claude", "-p", "/effort status", "--output-format", "stream-json", "--verbose", "--max-turns", "1", "--tools", ""]
-        rc, out, err = run(argv, scratch, scratch.env(CLAUDE_CONFIG_DIR=str(scratch.home), **(env or {})))
+        rc, out, err = run(argv, scratch, scratch.offline_env(CLAUDE_CONFIG_DIR=str(scratch.home), **(env or {})))
         for line in out.splitlines():
             if line.startswith("{") and '"type":"result"' in line.replace(" ", ""):
                 result = json.loads(line)
@@ -291,15 +370,16 @@ def claude_effort(user: dict, env: dict[str, str] | None = None, project: dict |
 def codex_effort(effort: str) -> str:
     """Read `reasoning effort` from the header `codex exec` prints before any request.
 
-    A scratch CODEX_HOME with no sign-in is used, so the request that follows fails
-    with 401 and nothing is billed; the header is already on stderr by then.
+    `codex exec` prints the header and then tries to reach the vendor. A scratch CODEX_HOME with no
+    sign-in is used, nothing is billed, and the connection goes to the local sink (`OfflineSink`)
+    instead of an external host, so the header is read without contacting anything outside this machine.
     """
     scratch = Scratch()
     try:
         codex_home = scratch.root / "codexhome"
         codex_home.mkdir()
         (codex_home / "config.toml").write_text(f'model_reasoning_effort = "{effort}"\n[windows]\nsandbox = "unelevated"\n', encoding="utf-8")
-        rc, _, err = run([shutil.which("codex") or "codex", "exec", "--ephemeral", "--skip-git-repo-check", "probe"], scratch, scratch.env(CODEX_HOME=str(codex_home)))
+        rc, _, err = run([shutil.which("codex") or "codex", "exec", "--ephemeral", "--skip-git-repo-check", "probe"], scratch, scratch.offline_env(CODEX_HOME=str(codex_home)))
         match = re.search(r"reasoning effort: ([a-z]+)", err)
         return match.group(1) if match else ("timed out" if rc == -1 else "unreadable")
     finally:
@@ -397,7 +477,7 @@ CANDIDATES = (
     ("W09", "Claude Code VS Code panel: claudeCode.initialPermissionMode", "VS Code user settings value bypassPermissions"),
     ("W10", "Claude Code VS Code panel: claudeCode.allowDangerouslySkipPermissions", "VS Code user settings value true"),
     ("W11", "Codex: model", "config.toml model=gpt-5.6-sol"),
-    ("W12", "Codex: model_reasoning_effort", "config.toml model_reasoning_effort=low and high, read from the codex exec header"),
+    ("W12", "Codex: model_reasoning_effort", "config.toml model_reasoning_effort=low and high, read from the codex exec header (the connection that follows goes to the local sink)"),
     ("W13", "Codex: approval_policy (ask, accept-edits)", "config.toml approval_policy=on-request, sandbox_mode=workspace-write"),
     ("W14", "Codex: approval_policy (full-auto)", "config.toml approval_policy=never, sandbox_mode=workspace-write"),
     ("W15", "Codex: sandbox_mode in a trusted project", "config.toml sandbox_mode=workspace-write, project trusted"),
@@ -534,7 +614,7 @@ def write_matrix(path: Path, rows: list[Row], versions: dict[str, str], before: 
         "",
         f"**Real-file guard**: {len(before)} real configuration files hashed before and after; " + ("CHANGED: " + ", ".join(changed) if changed else "all identical") + ".",
         "",
-        "**Paid probes**: " + ("; ".join(f"{label} USD {cost:.4f}" for label, cost in PAID_COSTS) + f"; total USD {sum(c for _, c in PAID_COSTS):.4f} against a cap of USD 1.00" if PAID_COSTS else "none run (pass --paid-cap)") + ". Effort rows (W06, W07, W12, O02) cost nothing: `/effort status` and the `codex exec` header are local, and no sign-in is present.",
+        "**Paid probes**: " + ("; ".join(f"{label} USD {cost:.4f}" for label, cost in PAID_COSTS) + f"; total USD {sum(c for _, c in PAID_COSTS):.4f} against a cap of USD 1.00" if PAID_COSTS else "none run (pass --paid-cap)") + ". Effort rows (W06, W07, W12, O02) cost nothing: no sign-in is present and no model runs. Nothing here is \"local\" in the sense of making no connection: `codex exec` and `codex doctor` try to reach vendor and GitHub hosts even without a credential, and the `/effort status` run starts the Claude CLI, which may do the same. So every probe without a sign-in ran with its proxy variables pointed at a listener on 127.0.0.1 that forwards nothing (`OfflineSink`); " + (f"it recorded attempts for {len(SINK.hosts())} host(s): {', '.join(SINK.hosts())}. None of them was contacted." if SINK.hosts() else "it recorded no attempt, so either the tools made none or they did not honor the proxy variables; this run cannot tell which.") + " The paid probes, when run, are the only requests that leave the machine.",
         "",
         f"**Count**: {len(rows)} candidates; " + ", ".join(f"{sum(r.verdict == v for r in rows)} {v}" for v in ("proven", "not-proven")) + f", {sum(r.verdict.startswith('not-observed') for r in rows)} not-observed, {sum(r.verdict.startswith('cannot-detect') for r in rows)} cannot-detect.",
         "",

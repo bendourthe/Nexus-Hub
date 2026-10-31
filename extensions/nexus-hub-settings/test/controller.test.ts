@@ -358,6 +358,7 @@ describe("VS Code writes", () => {
     const model = await controller.handle({ type: "set", control: "posture", value: "full-auto", tool: null });
 
     expect(bridge.actions.map((a) => `${a.action}:${a.dryRun ? "dry" : "real"}`)).toEqual(["set:dry", "set:real", "reset:real"]);
+    expect(bridge.actions[2]?.token).toEqual({ action: "reset", control: "posture", value: null, tool: null }); // the undo carries its own confirmation
     expect(model.notice).toMatchObject({ level: "error", text: expect.stringContaining("rolled back the changes it made for posture") });
     expect(model.notice?.lines?.join("\n")).toContain("restored");
     expect(KEY in stub.user).toBe(false);
@@ -422,6 +423,74 @@ describe("reset", () => {
     expect(model.notice?.level).toBe("warn");
     expect(model.notice?.lines?.some((l) => l.includes("changed after Nexus-Hub wrote it"))).toBe(true);
     expect(bridge.actions[0]).toMatchObject({ action: "reset", tool: "claude" });
+  });
+
+  it("plans the reset first and asks no one when it only puts back a safe value", async () => {
+    bridge.handler = (spec) => outcome({ action: "reset", confirmation: { required: false, kind: null }, results: [result({ status: spec.dryRun ? "would-restore" : "restored" })], editor_restores: [] });
+    const controller = make();
+    await controller.refresh();
+
+    const model = await controller.handle({ type: "reset", control: "effort", tool: null });
+
+    expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["reset", true, true], ["reset", false, true]]);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(model.notice).toMatchObject({ level: "info", text: "Reset effort to what was there before." });
+  });
+
+  it("asks before putting back a value that lowers a safety barrier, then sends the confirmation with the reset", async () => {
+    bridge.handler = (spec) =>
+      outcome({
+        action: "reset",
+        confirmation: { required: true, kind: null },
+        results: [result({ status: spec.dryRun ? "would-restore" : "restored", previous: { present: true, value: "bypassPermissions" }, new: { present: true, value: "default" } })],
+        editor_restores: [],
+      });
+    const controller = make();
+    await controller.refresh();
+
+    const model = await controller.handle({ type: "reset", control: "posture", tool: "claude" });
+
+    const request = confirm.mock.calls[0]![0] as { message: string; detail: string; confirmLabel: string };
+    expect(request.message).toBe("Put back a lower safety barrier?");
+    expect(request.detail).toContain('permissions.defaultMode -> "bypassPermissions"');
+    expect(request.detail).toContain("Still prompts or blocks (Claude Code)");
+    expect(bridge.actions[0]).toMatchObject({ action: "reset", dryRun: true });
+    expect(bridge.actions[0]?.token).toBeUndefined();
+    expect(bridge.actions[1]).toMatchObject({ action: "reset", token: { action: "reset", control: "posture", value: null, tool: "claude" } });
+    expect(bridge.actions[1]?.dryRun).toBeUndefined();
+    expect(model.notice).toMatchObject({ level: "info", text: "Reset posture to what was there before." });
+  });
+
+  it("restores nothing and writes no confirmation when the person cancels", async () => {
+    confirm.mockResolvedValue(false);
+    bridge.handler = (spec) => outcome({ action: "reset", confirmation: { required: true, kind: null }, results: [result({ status: "would-restore", previous: { present: true, value: "bypassPermissions" } })], editor_restores: [] });
+    const controller = make();
+    await controller.refresh();
+
+    const model = await controller.handle({ type: "reset", control: "posture", tool: null });
+
+    expect(bridge.actions).toHaveLength(1);
+    expect(bridge.actions[0]?.dryRun).toBe(true);
+    expect(model.notice).toMatchObject({ level: "info", text: "Cancelled. Nothing was restored." });
+  });
+
+  it("names a VS Code key that a reset would put back", async () => {
+    bridge.handler = () => outcome({ action: "reset", confirmation: { required: true, kind: null }, results: [result({ status: "would-editor-restore" })], editor_restores: [restoreEntry] });
+    stub.user[KEY] = true;
+    const controller = make();
+    await controller.refresh();
+
+    await controller.handle({ type: "reset", control: "posture", tool: null });
+
+    expect((confirm.mock.calls[0]![0] as { detail: string }).detail).toContain(`VS Code user settings  ${KEY} -> (not set)`);
+  });
+
+  it("shows the engine's refusal when a reset is not allowed", async () => {
+    bridge.handler = (spec) => (spec.dryRun ? outcome({ action: "reset", confirmation: { required: true, kind: null }, results: [result({ status: "would-restore", previous: { present: true, value: "bypassPermissions" } })] }) : { exitCode: 3, doc: null, message: "refused: CLAUDECODE is set" });
+    const controller = make();
+    await controller.refresh();
+
+    expect((await controller.handle({ type: "reset", control: "posture", tool: null })).notice).toMatchObject({ level: "error", text: "refused: CLAUDECODE is set" });
   });
 
   it("says when there is nothing to reset", async () => {

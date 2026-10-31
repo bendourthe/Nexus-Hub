@@ -29,6 +29,11 @@ describe("message validation against the catalog allowlist", () => {
     expect(ok({ type: "set", control: "git_guardrails", value: "off", tool: null })).toMatchObject({ value: "off" });
   });
 
+  it.each(["constructor", "toString", "hasOwnProperty", "__proto__", "valueOf"])("answers a message typed %s with a refusal instead of throwing", (name) => {
+    bad({ type: name }, "unknown message");
+    bad(JSON.parse(`{"type":"${name}","control":"effort"}`), "unknown message");
+  });
+
   it("requires a tool for a per-tool control and accepts a plain model id", () => {
     bad({ type: "set", control: "model", value: "opus" }, "chosen per tool");
     expect(ok({ type: "set", control: "model", value: "claude-opus-5-5", tool: "claude" })).toMatchObject({ value: "claude-opus-5-5", tool: "claude" });

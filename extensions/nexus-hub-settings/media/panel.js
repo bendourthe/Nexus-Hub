@@ -4,6 +4,13 @@
 // messages. It never builds markup from a string: every value from the engine is set
 // with textContent or a plain attribute, so a hostile model id or file value cannot
 // become markup or script. The host validates every request again.
+//
+// Two rules keep the page usable from the keyboard and by screen reader. While the host
+// is busy a control is marked aria-disabled and ignores clicks but stays focusable and
+// keeps its place, because a control that is really disabled cannot hold focus and the
+// next render would then leave focus on the page body. And a notice is spoken through
+// two live regions that exist before any text is put in them, because text inside an
+// element that is created with its text is usually not announced.
 (function (root, factory) {
   "use strict";
   var api = factory();
@@ -20,6 +27,9 @@
   function createPanel(doc, post) {
     var app = doc.getElementById("app");
     var drafts = {};
+    var starts = {};
+    var openSources = {};
+    var announced = "";
     var model = null;
     var sequence = 0;
 
@@ -60,8 +70,14 @@
       return prefix + "-" + sequence;
     }
 
-    function disabled() {
-      return !model || model.readOnly || model.busy;
+    /** Really disabled: nothing can change, so nothing needs focus. */
+    function locked() {
+      return !model || model.readOnly;
+    }
+
+    /** Waiting for the host: controls keep focus and ignore clicks. */
+    function busy() {
+      return !!(model && model.busy);
     }
 
     function badge(b) {
@@ -71,8 +87,32 @@
       ]);
     }
 
+    function blocked(extra) {
+      return busy() || !!(extra && extra.ready && !extra.ready());
+    }
+
+    // extra: cls, aria (a longer accessible name that starts with the visible text), keepEnabled (never really
+    // disabled: Refresh must work in the error and untrusted states), ready (a function: is there a value to send).
     function button(label, focus, onClick, extra) {
-      return el("button", { type: "button", text: label, "data-focus": focus, disabled: disabled() || (extra && extra.off), class: extra && extra.cls, on: { click: onClick } });
+      var opts = extra || {};
+      return el("button", {
+        type: "button",
+        text: label,
+        "data-focus": focus,
+        "aria-label": opts.aria,
+        disabled: opts.keepEnabled ? false : locked(),
+        "aria-disabled": blocked(opts) ? "true" : null,
+        class: opts.cls,
+        on: {
+          click: function (event) {
+            if (blocked(opts)) {
+              event.preventDefault();
+              return;
+            }
+            onClick(event);
+          },
+        },
+      });
     }
 
     function labeled(labelText, control, id) {
@@ -87,18 +127,46 @@
       return Object.prototype.hasOwnProperty.call(drafts, key) ? drafts[key] : fallback;
     }
 
-    function select(control, key, focus, fallback, labelText) {
+    /** The value a choice starts at: the one the tool already has, else a placeholder (or the only choice). */
+    function startFor(control, current) {
+      if (current && control.choices.indexOf(current) >= 0) {
+        return current;
+      }
+      return control.choices.length === 1 ? control.choices[0] : "";
+    }
+
+    /** Keep a Set button's aria-disabled in step with whether its field holds a value. */
+    function syncSet(key) {
+      var node = app.querySelector('[data-focus="set:' + key + '"]');
+      if (!node) {
+        return;
+      }
+      if (busy() || String(draftValue(key, starts[key]) || "").trim() === "") {
+        node.setAttribute("aria-disabled", "true");
+      } else {
+        node.removeAttribute("aria-disabled");
+      }
+    }
+
+    function select(control, key, focus, start, labelText) {
       var id = uid("sel");
-      var current = draftValue(key, fallback);
-      var node = el("select", { id: id, "data-focus": focus, disabled: disabled(), on: { change: function (event) { drafts[key] = event.target.value; } } });
-      control.choices.forEach(function (choice) {
-        var option = el("option", { value: choice, text: choiceLabel(control, choice) });
-        if (choice === current) {
-          option.setAttribute("selected", "");
-        }
-        node.appendChild(option);
+      starts[key] = start;
+      var current = draftValue(key, start);
+      var placeholder = control.choices.length > 1 && control.choices.indexOf(current) < 0;
+      var node = el("select", {
+        id: id,
+        "data-focus": focus,
+        disabled: locked(),
+        "aria-disabled": busy() ? "true" : null,
+        on: { change: function (event) { drafts[key] = event.target.value; syncSet(key); } },
       });
-      node.value = control.choices.indexOf(current) >= 0 ? current : control.choices[0];
+      if (placeholder) {
+        node.appendChild(el("option", { value: "", text: "Choose a value" }));
+      }
+      control.choices.forEach(function (choice) {
+        node.appendChild(el("option", { value: choice, text: choiceLabel(control, choice) }));
+      });
+      node.value = control.choices.indexOf(current) >= 0 ? current : placeholder ? "" : control.choices[0];
       return labeled(labelText, node, id);
     }
 
@@ -106,6 +174,7 @@
       var id = uid("txt");
       var suggestions = control.suggestions[row.tool] || [];
       var listId = suggestions.length > 0 ? uid("dl") : null;
+      starts[key] = "";
       var input = el("input", {
         type: "text",
         id: id,
@@ -115,8 +184,9 @@
         autocomplete: "off",
         maxlength: "200",
         "data-focus": "txt:" + key,
-        disabled: disabled(),
-        on: { input: function (event) { drafts[key] = event.target.value; } },
+        disabled: locked(),
+        "aria-disabled": busy() ? "true" : null,
+        on: { input: function (event) { drafts[key] = event.target.value; syncSet(key); } },
       });
       var field = labeled("Default model for " + row.toolLabel + " (an alias such as opus, or a full model id)", input, id);
       if (listId) {
@@ -135,20 +205,28 @@
           if (value) {
             post({ type: "set", control: control.id, value: value, tool: row.tool });
           }
+        }, {
+          cls: "primary",
+          aria: "Set for " + row.toolLabel + " (" + control.label + ")",
+          ready: function () { return (draftValue(key, "") || "").trim() !== ""; },
         }));
       }
       if (control.kind === "choice" && control.perToolOverride && row.canSet) {
-        var start = control.choices.indexOf(row.value) >= 0 ? row.value : control.choices[0];
-        kids.push(select(control, key, "pick:" + key, start, "Only for " + row.toolLabel));
+        var start = startFor(control, row.value);
+        kids.push(select(control, key, "pick:" + key, start, control.label + " only for " + row.toolLabel));
         kids.push(button("Set only for " + row.toolLabel, "set:" + key, function () {
           post({ type: "set", control: control.id, value: draftValue(key, start), tool: row.tool });
+        }, {
+          cls: "primary",
+          aria: "Set only for " + row.toolLabel + " (" + control.label + ")",
+          ready: function () { return !!draftValue(key, start); },
         }));
       }
       if (row.removable) {
         kids.push(text("p", row.removable.reason, "hint"));
         kids.push(button("Remove this override", "remove:" + key, function () {
           post({ type: "removeOverride", control: control.id, tool: row.tool });
-        }, { cls: row.removable.weakens ? "danger" : "" }));
+        }, { cls: row.removable.weakens ? "danger" : "", aria: "Remove this override for " + row.toolLabel + " (" + control.label + ")" }));
       }
       return kids;
     }
@@ -177,7 +255,7 @@
     function sourcesNode(control) {
       var items = control.sources.map(function (s) {
         var lines = [
-          text("p", s.key + " in " + s.file + " (" + s.tool + ", " + s.surfaceLabel + ")", "key"),
+          text("p", s.keyLine, "key"),
           text("p", s.admitted ? "Takes effect: " + s.takesEffect : "Not settable: " + s.reason, "detail"),
           text("p", "Source: " + s.source, "detail"),
         ];
@@ -188,18 +266,29 @@
           lines.push(text("p", s.notes, "detail"));
         }
         if (s.layers.length > 0) {
-          lines.push(el("ul", { class: "caveats", "aria-label": "What can override " + s.key }, s.layers.map(function (l) {
+          lines.push(el("ul", { class: "caveats", "aria-label": "What can override " + s.name }, s.layers.map(function (l) {
             return text("li", l.kind + ": " + l.locator + ". " + l.fix);
           })));
         }
         if (s.canOpen) {
-          lines.push(button("Open source for " + s.key, "src:" + s.write, function () {
+          lines.push(button("Open source for " + s.name, "src:" + s.write, function () {
             post({ type: "openSource", control: control.id, write: s.write });
-          }));
+          }, { aria: "Open source for " + s.name + " (" + control.label + (s.name === s.owner ? "" : ", " + s.owner) + ")" }));
         }
         return el("li", { class: "source" }, lines);
       });
-      return el("details", { class: "sources" }, [text("summary", "Show sources and exact keys"), el("ul", {}, items)]);
+      var summary = text("summary", "Show sources and exact keys");
+      summary.setAttribute("data-focus", "sources:" + control.id);
+      summary.setAttribute("aria-label", "Show sources and exact keys for " + control.label);
+      var details = el("details", { class: "sources", open: openSources[control.id] === true }, [summary, el("ul", {}, items)]);
+      details.addEventListener("toggle", function () {
+        if (details.open) {
+          openSources[control.id] = true;
+        } else {
+          delete openSources[control.id];
+        }
+      });
+      return details;
     }
 
     function applyAll(control) {
@@ -213,10 +302,15 @@
         }
       });
       var key = control.id + "|*";
+      var start = startFor(control, first);
       return el("div", { class: "apply" }, [
-        select(control, key, "pick:" + key, first || control.choices[0], control.label),
+        select(control, key, "pick:" + key, start, control.label),
         button("Apply to every tool", "set:" + key, function () {
-          post({ type: "set", control: control.id, value: draftValue(key, first || control.choices[0]), tool: null });
+          post({ type: "set", control: control.id, value: draftValue(key, start), tool: null });
+        }, {
+          cls: "primary",
+          aria: "Apply to every tool (" + control.label + ")",
+          ready: function () { return !!draftValue(key, start); },
         }),
       ]);
     }
@@ -225,7 +319,6 @@
       var headingId = uid("h");
       var kids = [text("h2", control.label)];
       kids[0].setAttribute("id", headingId);
-      kids.push(text("p", control.takesEffect, "hint"));
       if (control.neverWritten.length > 0) {
         kids.push(text("p", "Never written as a default: " + control.neverWritten.join(", ") + ".", "hint"));
       }
@@ -240,7 +333,7 @@
         }),
       ]));
       kids.push(sourcesNode(control));
-      return el("section", { class: "card", "aria-labeledby": headingId }, kids);
+      return el("section", { class: "card", "data-card": control.id, "aria-labelledby": headingId }, kids);
     }
 
     function outcomeNode(outcome) {
@@ -251,12 +344,17 @@
       var rows = outcome.rows.map(function (row) {
         return el("tr", {}, [el("th", { scope: "row", text: row.label }), text("td", row.effort), text("td", row.posture)]);
       });
-      return el("section", { class: "card", "aria-labeledby": "outcome-h" }, [
+      var kids = [
         el("h2", { id: "outcome-h", text: outcome.title }),
         el("div", { class: "scroll" }, [el("table", {}, [el("caption", { text: outcome.title, class: "visually-hidden" }), el("thead", {}, [head]), el("tbody", {}, rows)])]),
-      ]);
+      ];
+      (outcome.notes || []).forEach(function (note) {
+        kids.push(text("p", note, "hint"));
+      });
+      return el("section", { class: "card", "data-card": "outcome", "aria-labelledby": "outcome-h" }, kids);
     }
 
+    /** The visible notice. It carries no live role: the live regions below speak it once. */
     function noticeNode(notice) {
       if (!notice) {
         return null;
@@ -265,11 +363,11 @@
       if (notice.lines && notice.lines.length > 0) {
         kids.push(el("ul", {}, notice.lines.map(function (line) { return text("li", line); })));
       }
-      return el("div", { class: "notice level-" + notice.level, role: notice.level === "error" ? "alert" : "status" }, kids);
+      return el("div", { class: "notice level-" + notice.level, "data-level": notice.level }, kids);
     }
 
     function errorNode(error) {
-      return el("section", { class: "card error-card", role: "alert" }, [
+      return el("section", { class: "card error-card", "data-card": "error", role: "alert" }, [
         text("h2", error.title),
         text("p", error.message),
         text("p", "Run this command in a terminal to see the same result:"),
@@ -284,20 +382,107 @@
         el("div", { class: "title" }, [logo ? el("img", { src: logo, alt: "", width: "28", height: "28" }) : null, text("h1", "Nexus-Hub Settings")]),
         text("p", m.header.note, "hint"),
         text("p", "VS Code profile: " + m.header.profile + ". Platform: " + m.header.platform + ".", "hint"),
-        button("Refresh", "refresh", function () { post({ type: "refresh" }); }, { off: !!(model && model.busy) }),
+        button("Refresh", "refresh", function () { post({ type: "refresh" }); }, { keepEnabled: true }),
       ]);
     }
 
+    function liveRegion(id, role, politeness) {
+      var found = doc.getElementById(id);
+      if (found) {
+        return found;
+      }
+      var created = el("div", { id: id, class: "visually-hidden", role: role, "aria-live": politeness, "aria-atomic": "true" });
+      (doc.body || app.parentNode).appendChild(created);
+      return created;
+    }
+
+    function sentence(line) {
+      return /[.!?]$/.test(line) ? line : line + ".";
+    }
+
+    /** Speak a new notice once. A render while busy repeats the old notice, so it is skipped and re-arms the next one. */
+    function announce(next) {
+      var status = liveRegion("live-status", "status", "polite");
+      var alert = liveRegion("live-alert", "alert", "assertive");
+      if (next.busy) {
+        announced = "";
+        return;
+      }
+      var notice = next.notice;
+      var message = notice ? [notice.text].concat(notice.lines || []).map(sentence).join(" ") : "";
+      var key = notice ? notice.level + "|" + message : "";
+      if (key === announced) {
+        return;
+      }
+      announced = key;
+      status.textContent = "";
+      alert.textContent = "";
+      if (notice) {
+        (notice.level === "error" ? alert : status).textContent = message;
+      }
+    }
+
+    function emptyNode(m) {
+      return text("p", m.busy ? "Loading the current settings..." : "No settings were reported. Choose Refresh to read them again.", m.busy ? "hint" : "notice level-warn");
+    }
+
+    /** What had focus: its data-focus key, its card, and the caret of a text field. */
+    function focusState() {
+      var active = doc.activeElement;
+      if (!active || !active.getAttribute || !app.contains(active)) {
+        return null;
+      }
+      var key = active.getAttribute("data-focus");
+      if (!key) {
+        return null;
+      }
+      var card = active.closest ? active.closest("[data-card]") : null;
+      var caret = typeof active.selectionStart === "number" && active.type === "text" ? [active.selectionStart, active.selectionEnd] : null;
+      return { key: key, card: card ? card.getAttribute("data-card") : null, caret: caret };
+    }
+
+    function clean(value) {
+      return String(value).replace(/["\\]/g, "");
+    }
+
+    /** Put focus back on the same control; failing that on the card's heading; failing that on Refresh. */
+    function restoreFocus(state) {
+      if (!state) {
+        return;
+      }
+      var exact = app.querySelector('[data-focus="' + clean(state.key) + '"]');
+      var target = exact;
+      if (!target && state.card) {
+        var heading = app.querySelector('[data-card="' + clean(state.card) + '"] h2');
+        if (heading) {
+          heading.setAttribute("tabindex", "-1");
+          target = heading;
+        }
+      }
+      if (!target) {
+        target = app.querySelector('[data-focus="refresh"]');
+      }
+      if (target && target.focus) {
+        target.focus();
+        if (target === exact && state.caret && target.setSelectionRange) {
+          target.setSelectionRange(state.caret[0], state.caret[1]);
+        }
+      }
+    }
+
     function render(next) {
-      var focus = doc.activeElement && doc.activeElement.getAttribute ? doc.activeElement.getAttribute("data-focus") : null;
+      var focus = focusState();
       model = next;
       sequence = 0;
+      starts = {};
       var kids = [headerNode(next), noticeNode(next.notice)];
       if (next.readOnlyReason && !next.error) {
         kids.push(text("p", next.readOnlyReason, "notice level-warn"));
       }
       if (next.error) {
         kids.push(errorNode(next.error));
+      } else if (next.controls.length === 0) {
+        kids.push(emptyNode(next));
       } else {
         kids.push(outcomeNode(next.outcome));
         next.controls.forEach(function (control) { kids.push(controlNode(control)); });
@@ -307,12 +492,8 @@
       }
       kids.forEach(function (kid) { if (kid) { app.appendChild(kid); } });
       app.setAttribute("aria-busy", next.busy ? "true" : "false");
-      if (focus) {
-        var again = app.querySelector('[data-focus="' + focus.replace(/["\\]/g, "") + '"]');
-        if (again && again.focus) {
-          again.focus();
-        }
-      }
+      restoreFocus(focus);
+      announce(next);
     }
 
     function onMessage(message) {

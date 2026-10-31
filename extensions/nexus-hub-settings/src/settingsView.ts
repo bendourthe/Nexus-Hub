@@ -53,6 +53,8 @@ export function buildHtml(parts: HtmlParts): string {
 </head>
 <body>
 <main id="app" data-logo="${attr(parts.logoUri)}"><p>Loading the current settings...</p></main>
+<div id="live-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="live-alert" class="visually-hidden" role="alert" aria-live="assertive" aria-atomic="true"></div>
 <script nonce="${attr(parts.nonce)}" src="${attr(parts.scriptUri)}"></script>
 </body>
 </html>`;

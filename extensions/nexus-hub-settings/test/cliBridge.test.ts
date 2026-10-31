@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -44,7 +45,7 @@ else if (scenario === "weird") { console.error("odd"); process.exit(9); }
 else if (scenario === "sleep") { setTimeout(() => {}, 20000); }
 else if (scenario === "token") {
   const seen = tokenFile && fs.existsSync(tokenFile) ? JSON.parse(fs.readFileSync(tokenFile, "utf8")) : null;
-  console.log(JSON.stringify({ schema_version: 1, action: "set", results: [], exit_code: 0, seen }));
+  console.log(JSON.stringify({ schema_version: 1, action: "set", results: [], exit_code: 0, seen, nonce: process.env.NEXUS_SETTINGS_PANEL_NONCE ?? null, raw: tokenFile && fs.existsSync(tokenFile) ? fs.readFileSync(tokenFile, "utf8") : null }));
 }
 else if (scenario === "record") { console.log(JSON.stringify({ schema_version: 1, action: "record-editor-write", exit_code: 0, argv: args })); }
 else if (scenario === "record-fail") { console.error("nexus-hub settings: bad payload"); process.exit(2); }
@@ -309,13 +310,50 @@ describe("actions", () => {
 
     const outcome = await bridge.action({ action: "set", control: "posture", value: "full-auto", tool: null, token: { action: "set", control: "posture", value: "full-auto", tool: null } });
 
-    const seen = (outcome.doc as unknown as { seen: Record<string, unknown> }).seen;
-    expect(seen).toMatchObject({ action: "set", control: "posture", value: "full-auto", tool: null, issued_at: 1_700_000_000.5 });
-    expect(String(seen.token)).toMatch(/^[0-9a-f]{64}$/);
+    const doc = outcome.doc as unknown as { seen: Record<string, unknown>; nonce: string | null; raw: string };
+    expect(doc.seen).toMatchObject({ action: "set", control: "posture", value: "full-auto", tool: null, issued_at: 1_700_000_000.5 });
     expect(fs.existsSync(tokenFile)).toBe(false);
     if (process.platform !== "win32") {
       expect(fs.statSync(tokenFile.replace(/[^/]+$/, "")).mode & 0o077).toBe(0);
     }
+  });
+
+  it("puts only the digest of a fresh nonce in the file and hands the nonce itself to the one command it starts", async () => {
+    const { bridge } = install("token");
+
+    const outcome = await bridge.action({ action: "set", control: "posture", value: "full-auto", tool: null, token: { action: "set", control: "posture", value: "full-auto", tool: null } });
+
+    const doc = outcome.doc as unknown as { seen: { token_sha256: string; token?: unknown }; nonce: string | null; raw: string };
+    expect(doc.nonce).toMatch(/^[0-9a-f]{64}$/);
+    expect(doc.seen.token_sha256).toBe(crypto.createHash("sha256").update(doc.nonce ?? "", "utf8").digest("hex"));
+    expect(doc.seen.token).toBeUndefined();
+    expect(doc.raw).not.toContain(doc.nonce ?? "unreachable");
+  });
+
+  it("uses a different nonce for every confirmation", async () => {
+    const { bridge } = install("token");
+    const spec = { action: "set", control: "posture", value: "full-auto", tool: null } as const;
+
+    const first = (await bridge.action({ ...spec, token: spec })).doc as unknown as { nonce: string };
+    const second = (await bridge.action({ ...spec, token: spec })).doc as unknown as { nonce: string };
+
+    expect(first.nonce).not.toBe(second.nonce);
+  });
+
+  it("never passes a nonce the host happened to hold, and none without a confirmation", async () => {
+    const { bridge } = install("token", { env: { ...process.env, FAKE_SCENARIO: "token", NEXUS_SETTINGS_PANEL_NONCE: "e".repeat(64) } });
+
+    const plain = await bridge.action({ action: "set", control: "effort", value: "high", tool: null });
+
+    expect((plain.doc as unknown as { nonce: string | null }).nonce).toBeNull();
+  });
+
+  it("writes a confirmation for a reset", async () => {
+    const { bridge } = install("token");
+
+    const outcome = await bridge.action({ action: "reset", control: "posture", tool: "claude", token: { action: "reset", control: "posture", value: null, tool: "claude" } });
+
+    expect((outcome.doc as unknown as { seen: Record<string, unknown> }).seen).toMatchObject({ action: "reset", control: "posture", value: null, tool: "claude" });
   });
 
   it("replaces a stale token and removes it even when the command refuses", async () => {

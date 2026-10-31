@@ -55,6 +55,8 @@ export const TIMEOUT_MS = 15_000;
 const MAX_BUFFER = 16 * 1024 * 1024;
 const PYTHON_FLAGS = ["-B", "-X", "utf8"];
 const TOKEN_FILE = "settings-panel-token.json";
+/** The variable that carries the confirmation nonce to the one command the panel starts. */
+export const NONCE_ENV = "NEXUS_SETTINGS_PANEL_NONCE";
 const CONTROL = /^[a-z][a-z_]{0,40}$/;
 const TOOL = /^[a-z][a-z0-9-]{0,40}$/;
 const VALUE_LIMIT = 200;
@@ -162,7 +164,7 @@ export interface ActionOutcome {
 }
 
 export interface TokenSpec {
-  action: "set" | "remove-override";
+  action: "set" | "reset" | "remove-override";
   control: string;
   value: string | null;
   tool: string | null;
@@ -293,12 +295,15 @@ export class CliBridge {
     return found;
   }
 
-  private childEnv(): NodeJS.ProcessEnv {
-    return { ...this.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", PYTHONDONTWRITEBYTECODE: "1" };
+  /** The environment of the child: the host's own, minus any stale nonce, plus this call's nonce when there is one. */
+  private childEnv(extra?: Record<string, string>): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ...this.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", PYTHONDONTWRITEBYTECODE: "1" };
+    delete env[NONCE_ENV];
+    return { ...env, ...extra };
   }
 
   /** Run the CLI with these arguments. Rejects with a `BridgeError` for anything but an exit code. */
-  run(args: string[]): Promise<CliResult> {
+  run(args: string[], extraEnv?: Record<string, string>): Promise<CliResult> {
     const cli = this.cliPath();
     if (!isFile(cli)) {
       return Promise.reject(
@@ -317,7 +322,7 @@ export class CliBridge {
       execFile(
         interpreter.command,
         argv,
-        { cwd: this.root(), env: this.childEnv(), shell: false, windowsHide: true, timeout: this.timeoutMs, maxBuffer: MAX_BUFFER, encoding: "utf8" },
+        { cwd: this.root(), env: this.childEnv(extraEnv), shell: false, windowsHide: true, timeout: this.timeoutMs, maxBuffer: MAX_BUFFER, encoding: "utf8" },
         (error, stdout, stderr) => {
           const out = String(stdout ?? "");
           const err = String(stderr ?? "");
@@ -381,12 +386,12 @@ export class CliBridge {
 
   async action(spec: ActionSpec): Promise<ActionOutcome> {
     const args = buildArgs(spec);
-    const cleanup = spec.token && !spec.dryRun ? this.writeToken(spec.token) : undefined;
+    const issued = spec.token && !spec.dryRun ? this.writeToken(spec.token) : undefined;
     try {
-      const result = await this.run(args);
+      const result = await this.run(args, issued ? { [NONCE_ENV]: issued.nonce } : undefined);
       return this.outcome(result);
     } finally {
-      cleanup?.();
+      issued?.cleanup();
     }
   }
 
@@ -412,16 +417,19 @@ export class CliBridge {
   }
 
   /**
-   * Write the one-time confirmation token (owner-only, valid 30 seconds for this exact
-   * change) that tells the engine a person confirmed. Returns the function that deletes it.
+   * Write the one-time confirmation (owner-only, valid 30 seconds for this exact action, control,
+   * value, and tool) that tells the engine a person confirmed. The file holds only the SHA-256 of a
+   * fresh nonce; the nonce itself goes to the one command this call starts, through that command's
+   * environment, and is never written to disk. Returns the nonce and the function that deletes the file.
    */
-  private writeToken(spec: TokenSpec): () => void {
+  private writeToken(spec: TokenSpec): { nonce: string; cleanup: () => void } {
     const dir = path.join(this.home, ".nexus-hub");
     const file = path.join(dir, TOKEN_FILE);
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
     fs.rmSync(file, { force: true });
+    const nonce = crypto.randomBytes(32).toString("hex");
     const body = {
-      token: crypto.randomBytes(32).toString("hex"),
+      token_sha256: crypto.createHash("sha256").update(nonce, "utf8").digest("hex"),
       issued_at: (this.options.now ?? Date.now)() / 1000,
       action: spec.action,
       control: spec.control,
@@ -429,7 +437,7 @@ export class CliBridge {
       tool: spec.tool,
     };
     fs.writeFileSync(file, JSON.stringify(body), { mode: 0o600, flag: "wx" });
-    return () => fs.rmSync(file, { force: true });
+    return { nonce, cleanup: () => fs.rmSync(file, { force: true }) };
   }
 }
 

@@ -35,7 +35,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-SEGMENT = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.:@\[\]/-]{0,127}$")
+from .readers import plain_data
+
+SEGMENT = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.:@\[\]/-]{0,127}\Z")
 MAX_BYTES = 8_000_000
 MAX_DEPTH = 64
 _BOM = b"\xef\xbb\xbf"
@@ -261,7 +263,33 @@ def load(path: Path, fmt: str, display: str | None = None) -> Loaded:
     return Loaded(Path(path), real, shown, fmt, True, raw, text, data, hashlib.sha256(raw).hexdigest(), bom, _detect_newline(text))
 
 
+def _too_deep(data: Any) -> bool:
+    """Whether `data` nests deeper than `MAX_DEPTH`, measured without recursion."""
+    stack = [(data, 1)]
+    while stack:
+        node, depth = stack.pop()
+        if depth > MAX_DEPTH:
+            return True
+        children = node.values() if isinstance(node, dict) else node if isinstance(node, list) else ()
+        stack.extend((child, depth + 1) for child in children if isinstance(child, (dict, list)))
+    return False
+
+
 def _parse_data(text: str, fmt: str, shown: str) -> dict[str, Any]:
+    try:
+        data = _parse_text(text, fmt, shown)
+        if fmt == "toml":
+            data = plain_data(data)  # dates and times become text, so every later comparison and dump is plain JSON
+    except RecursionError as exc:
+        raise WriterRefusal(f"{shown} is nested too deeply to edit safely") from exc
+    if not isinstance(data, dict):
+        raise WriterRefusal(f"{shown} is not a {fmt.upper()} object")
+    if _too_deep(data):
+        raise WriterRefusal(f"{shown} is nested too deeply to edit safely")
+    return data
+
+
+def _parse_text(text: str, fmt: str, shown: str) -> Any:
     if fmt == "json":
         try:
             data = json.loads(text, object_pairs_hook=_reject_duplicates, parse_constant=_no_constant)
@@ -276,8 +304,6 @@ def _parse_data(text: str, fmt: str, shown: str) -> dict[str, Any]:
         except tomlkit.exceptions.ParseError as exc:
             raise WriterRefusal(f"{shown} is not valid TOML (line {exc.line})") from exc
         data = parsed.unwrap()
-    if not isinstance(data, dict):
-        raise WriterRefusal(f"{shown} is not a {fmt.upper()} object")
     return data
 
 
@@ -652,8 +678,8 @@ def plan_edits(loaded: Loaded, edits: list[Edit], *, delete_when_empty: bool = F
                 None if removing else edit.value, _created_depth(loaded.data, edit.key_path), hint if present else None,
             )
         )
-    expected = _apply_to_data(loaded.data, edits)
     try:
+        expected = _apply_to_data(loaded.data, edits)
         produced = _parse_data(text, loaded.fmt, loaded.display)
     except WriterRefusal as exc:
         raise WriterRefusal(f"the edit to {loaded.display} did not produce a valid file ({exc}); it was left untouched") from exc
@@ -663,7 +689,10 @@ def plan_edits(loaded: Loaded, edits: list[Edit], *, delete_when_empty: bool = F
     if loaded.exists and same(produced, loaded.data):
         payload = loaded.raw  # a no-op edit must not reformat the file
     created = not loaded.exists
-    delete = delete_when_empty and loaded.exists and not produced and any(e.value is ABSENT for e in edits)
+    # A created JSON file that is now `{}` goes; a TOML file goes only when it holds nothing at all, because
+    # comments are not data and a person's notes must survive the reset.
+    emptied = not produced and (loaded.fmt == "json" or not text.strip())
+    delete = delete_when_empty and loaded.exists and emptied and any(e.value is ABSENT for e in edits)
     return Plan(loaded, payload, tuple(changes), created, delete)
 
 
@@ -745,9 +774,21 @@ def _write_temp(parent: Path, payload: bytes) -> Path:
             stream.flush()
             os.fsync(stream.fileno())
     except BaseException:
-        Path(name).unlink(missing_ok=True)
+        _discard(Path(name))
         raise
     return Path(name)
+
+
+def _discard(temp: Path) -> None:
+    """Remove a temporary file even when it inherited a read-only attribute; never raises."""
+    try:
+        temp.unlink(missing_ok=True)
+    except OSError:
+        try:
+            os.chmod(temp, stat.S_IWRITE | stat.S_IREAD)
+            temp.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 def _current_sha(real: Path) -> str | None:
@@ -765,6 +806,8 @@ def commit(plan: Plan) -> bool:
     real = loaded.real
     if _current_sha(real) != loaded.sha:
         raise WriterRefusal(f"{loaded.display} changed while Nexus-Hub was preparing the edit, so it was left untouched")
+    if loaded.exists and not os.access(real, os.W_OK):
+        raise WriterRefusal(f"{loaded.display} is read-only, so it was left untouched: make it writable, then run the command again")
     if plan.delete_file:
         try:
             real.unlink()
@@ -790,7 +833,7 @@ def commit(plan: Plan) -> bool:
     except OSError as exc:
         raise WriterRefusal(f"{loaded.display} could not be written ({exc.strerror or exc})") from exc
     finally:
-        temp.unlink(missing_ok=True)
+        _discard(temp)
     return True
 
 

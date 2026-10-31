@@ -97,18 +97,18 @@ The usual overrides and their fixes:
 
 `remove-override` is for an override that Nexus-Hub probably seeded earlier but has no seed record for, so the installer will not remove it by itself. It applies only to a short list kept in the catalog: the legacy `env.CLAUDE_CODE_EFFORT_LEVEL` for Claude Code, and the `permissions.disableBypassPermissionsMode` block for Claude Code and Copilot CLI.
 
-It removes the key only after you confirm, and it records the removal, so `reset` puts the key back exactly where it was. In the panel it appears as "Remove this override" on a row that has one. A key that is not in the catalog list is never removed, and a removal that lowers a safety barrier follows the [human-presence rule](#human-presence).
+It removes the key only after you confirm, and it records the removal, so `reset` puts the key back exactly where it was. In the panel it appears as "Remove this override" on a row that has one. A key that is not in the catalog list is never removed. Every removal follows the [human-presence rule](#human-presence), including a removal that does not touch a safety barrier, because it deletes a setting you did not choose through Nexus-Hub.
 
 ## Human presence
 
-A change that lowers a safety barrier needs a person. That covers the `full-auto` posture, git-guardrails off, `remove-override` of a safety block, and any VS Code auto-approve write.
+Three kinds of change need a person: a change that lowers a safety barrier (the `full-auto` posture, git-guardrails off, any VS Code auto-approve write), every `remove-override`, and a `reset` that would put back a weaker value than the one Nexus-Hub wrote (for example the `bypassPermissions` you had before you chose Ask). A `reset` that returns a safe value stays open to an agent, and `--dry-run` never asks anyone.
 
 - In a terminal, the command asks you to type `yes`, and only runs when both standard input and standard output are terminals.
-- In the panel, the confirmation dialog lists every key to be written and what will still prompt, and repeats VS Code's own warning for the auto-approve switch, which the configuration API skips.
+- In the panel, the confirmation dialog lists every key to be written (or restored) and what will still prompt, and repeats VS Code's own warning for the auto-approve switch, which the configuration API skips.
 - Both paths are refused when an agent session marker is present (for example `CLAUDECODE=1`), even after confirming. There is no flag that bypasses this.
 - Codex, Copilot CLI, and VS Code document no agent session marker, so for those tools the terminal test is the barrier.
 
-The panel confirms through a one-time token (an owner-only file, valid 30 seconds, for one action). A process running as you can write such a file, so the token stops replays and drift, not a deliberate forgery. The agent marker refusal and the terminal test are the barriers against an agent session.
+The panel confirms through a one-time file (valid 30 seconds, for one action, control, value, and tool) that holds only the digest of a secret the panel hands to the one command it starts, so a file that is planted or merely read is useless. A process running as you can still do everything the panel does, so this stops a planted file and a replay, not a deliberate forgery by a program you run. The agent marker refusal and the terminal test are the barriers against an agent session, and a hook rule that blocks the command inside an agent's tool call is planned as a second layer.
 
 ## Cannot remove
 
@@ -125,6 +125,8 @@ Choosing `full-auto` removes approval prompts, not every barrier. These still ap
 
 - A key is restored only while it still equals what Nexus-Hub wrote. If you changed it since, `reset` refuses, names both values, and drops the entry so the key is treated as yours.
 - A key that did not exist before is removed again, and a key you removed with `remove-override` is put back where it was.
+- A reset that would put back a weaker value (for example `bypassPermissions`) asks for the same confirmation as setting it.
+- Two commands at once are safe: they take turns on a lock file, and the second one waits.
 - VS Code keys the panel wrote are restored in the same profile that wrote them, and only while they still hold what was written.
 - After a successful reset the entry is gone, so the installers' normal seeding resumes for that key.
 

@@ -1,0 +1,861 @@
+{
+ "themes": {
+  "dark": {
+   "textNodes": 294,
+   "minTextRatio": 4.53,
+   "minTextAt": "Apply to every tool (primary, 13px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 11.06
+    },
+    {
+     "text": "In effect",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "In effect",
+     "ratio": 11.06
+    },
+    {
+     "text": "In effect",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "In effect",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Tool default",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Tool default",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Not settable",
+     "ratio": 11.06
+    },
+    {
+     "text": "Tool default",
+     "ratio": 11.06
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.94,
+     "vsPage": 4.71,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": []
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "light": {
+   "textNodes": 294,
+   "minTextRatio": 4.6,
+   "minTextAt": "Every default applies to new sessi (hint, 13px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 10.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 10.55
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.51,
+     "vsPage": 3.43,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": []
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "hc-dark": {
+   "textNodes": 294,
+   "minTextRatio": 10.02,
+   "minTextAt": "Every default applies to new sessi (hint, 13px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 21
+    },
+    {
+     "text": "In effect",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "In effect",
+     "ratio": 21
+    },
+    {
+     "text": "In effect",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "In effect",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Tool default",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Tool default",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Not settable",
+     "ratio": 21
+    },
+    {
+     "text": "Tool default",
+     "ratio": 21
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 7.37,
+     "vsPage": 7.37,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": []
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "hc-light": {
+   "textNodes": 294,
+   "minTextRatio": 5.51,
+   "minTextAt": "Every default applies to new sessi (hint, 13px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 14.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 14.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 14.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 14.55
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 3.99,
+     "vsPage": 3.99,
+     "height": 27,
+     "font": "\"Segoe UI\", system-u",
+     "size": "13px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": []
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  }
+ },
+ "focus": [
+  {
+   "control": "Refresh",
+   "before": "refresh",
+   "during": "refresh",
+   "after": "refresh",
+   "afterTag": "BUTTON",
+   "onBody": false
+  },
+  {
+   "control": "Apply to every tool (effort)",
+   "before": "set:effort|*",
+   "during": "set:effort|*",
+   "after": "set:effort|*",
+   "afterTag": "BUTTON",
+   "onBody": false
+  },
+  {
+   "control": "Apply to every tool (posture)",
+   "before": "set:posture|*",
+   "during": "set:posture|*",
+   "after": "set:posture|*",
+   "afterTag": "BUTTON",
+   "onBody": false
+  },
+  {
+   "control": "Reset Default effort",
+   "before": "reset:effort",
+   "during": "reset:effort",
+   "after": "reset:effort",
+   "afterTag": "BUTTON",
+   "onBody": false
+  },
+  {
+   "control": "Remove this override (control disappears)",
+   "before": "remove:effort|claude",
+   "during": "remove:effort|claude",
+   "after": "H2",
+   "afterTag": "H2",
+   "onBody": false
+  }
+ ],
+ "announced": "Saved high for effort. New sessions only.. Codex: model_reasoning_effort - written",
+ "overriddenRowStart": {
+  "value": "",
+  "firstOption": "Choose a value",
+  "setAriaDisabled": "true"
+ },
+ "sourcesStayOpen": [
+  false,
+  false,
+  true,
+  false,
+  false
+ ],
+ "layout": {
+  "320": {
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 85,
+     "longestWord": 42,
+     "room": 69,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 85,
+     "longestWord": 38,
+     "room": 69,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 85,
+     "longestWord": 45,
+     "room": 69,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 85,
+     "longestWord": 45,
+     "room": 69,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 85,
+     "longestWord": 42,
+     "room": 69,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "420": {
+   "scrollWidth": 420,
+   "clientWidth": 420,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 103,
+     "longestWord": 42,
+     "room": 87,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 103,
+     "longestWord": 38,
+     "room": 87,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 103,
+     "longestWord": 45,
+     "room": 87,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 103,
+     "longestWord": 45,
+     "room": 87,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 103,
+     "longestWord": 42,
+     "room": 87,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "900": {
+   "scrollWidth": 900,
+   "clientWidth": 900,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 189,
+     "longestWord": 42,
+     "room": 173,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 189,
+     "longestWord": 38,
+     "room": 173,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 189,
+     "longestWord": 45,
+     "room": 173,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 189,
+     "longestWord": 45,
+     "room": 173,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 189,
+     "longestWord": 42,
+     "room": 173,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "1440": {
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 303,
+     "longestWord": 42,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 303,
+     "longestWord": 38,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 303,
+     "longestWord": 45,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 303,
+     "longestWord": 45,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 303,
+     "longestWord": 42,
+     "room": 287,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  }
+ },
+ "readOnlyRefresh": {
+  "disabled": false,
+  "ariaDisabled": null
+ },
+ "errorRefresh": {
+  "disabled": false,
+  "ariaDisabled": null
+ }
+}

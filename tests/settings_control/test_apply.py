@@ -8,6 +8,7 @@ a copy with every row admitted in memory, so the writers stay data-driven withou
 from __future__ import annotations
 
 import copy
+import hashlib
 import io
 import json
 import os
@@ -532,8 +533,13 @@ def full_auto(ctx: apply.Context) -> dict[str, Any]:
     return apply.set_control(ctx, "posture", "full-auto", "claude")
 
 
+NONCE = "b" * 64
+
+
 def write_token(m: Machine, **fields: Any) -> Path:
-    token = {"token": "a" * 32, "action": "set", "control": "posture", "value": "full-auto", "tool": "claude", "issued_at": 990.0, **fields}
+    """The panel's confirmation: a file holding only the digest of a nonce that the panel hands to the child it starts."""
+    m.env["NEXUS_SETTINGS_PANEL_NONCE"] = NONCE
+    token = {"token_sha256": hashlib.sha256(NONCE.encode("ascii")).hexdigest(), "action": "set", "control": "posture", "value": "full-auto", "tool": "claude", "issued_at": 990.0, **fields}
     path = m.home / ".nexus-hub" / "settings-panel-token.json"
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(token), encoding="utf-8")
@@ -630,8 +636,8 @@ def test_a_fresh_matching_panel_token_is_consumed_once_and_allows_the_write(mach
 @pytest.mark.parametrize(
     "fields",
     [{"issued_at": 960.0}, {"issued_at": 1010.0}, {"value": "accept-edits"}, {"control": "model"}, {"tool": "codex"}, {"tool": None}, {"action": "remove-override"},
-     {"token": "short"}, {"issued_at": "now"}, {"issued_at": True}],
-    ids=["expired", "future", "other-value", "other-control", "other-tool", "no-tool", "other-action", "short-token", "string-time", "bool-time"],
+     {"token_sha256": "0" * 64}, {"token_sha256": "short"}, {"issued_at": "now"}, {"issued_at": True}],
+    ids=["expired", "future", "other-value", "other-control", "other-tool", "no-tool", "other-action", "wrong-digest", "short-digest", "string-time", "bool-time"],
 )
 def test_an_expired_or_mismatched_token_is_refused_and_still_consumed(machine: Machine, catalog: dict[str, Any], fields: dict[str, Any]) -> None:
     before = seed(machine)

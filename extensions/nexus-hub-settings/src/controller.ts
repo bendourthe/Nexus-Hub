@@ -278,7 +278,8 @@ export class SettingsController {
   /** A VS Code write failed after the engine wrote files: undo the control and say so. */
   private async rollback(control: string, tool: string | null, error: unknown): Promise<ViewModel> {
     const reason = error instanceof EditorWriteError || error instanceof Error ? error.message : String(error);
-    const reset = await this.attempt({ action: "reset", control, tool });
+    // The panel undoes its own change a moment after the person approved it, so this reset carries its own confirmation.
+    const reset = await this.attempt({ action: "reset", control, tool, token: { action: "reset", control, value: null, tool } });
     if ("error" in reset) {
       return reset.error;
     }
@@ -288,8 +289,41 @@ export class SettingsController {
     return this.fail(`${reason} Nexus-Hub rolled back the changes it made for ${control}.`, lines.slice(0, MAX_LINES));
   }
 
+  /** What the person is asked before a reset puts back a value that lowers a safety barrier. */
+  private confirmResetText(doc: ActionDoc): ConfirmRequest {
+    const prior = (state: { present: boolean; value?: unknown } | undefined): string => (state?.present ? JSON.stringify(state.value) : "(not set)");
+    const lines = (doc.results ?? [])
+      .filter((r) => r.status === "would-restore")
+      .map((r) => `${this.label(r.tool)}: ${r.file}  ${(r.key_path ?? []).join(".")} -> ${prior(r.previous)}`);
+    lines.push(...(doc.editor_restores ?? []).map((e) => `${this.label(e.tool)}: VS Code user settings  ${e.key} -> ${prior(e.restore)}`));
+    const parts = ["Putting these values back lowers a safety barrier for NEW sessions. Nexus-Hub will write:", ...lines.map((l) => `  - ${l}`)];
+    const tools = [...new Set((doc.results ?? []).filter((r) => r.status === "would-restore").map((r) => r.tool))];
+    for (const tool of tools) {
+      const cannot = this.report?.tools[tool]?.cannot_remove ?? [];
+      if (cannot.length > 0) {
+        parts.push("", `Still prompts or blocks (${this.label(tool)}):`, ...cannot.map((item) => `  - ${item}`));
+      }
+    }
+    parts.push("", "A session that is already running keeps its current mode.");
+    return { message: "Put back a lower safety barrier?", detail: parts.join("\n"), confirmLabel: "Reset" };
+  }
+
   private async doReset(control: string, tool: string | null): Promise<ViewModel> {
-    const reset = await this.attempt({ action: "reset", control, tool });
+    const planned = await this.attempt({ action: "reset", control, tool, dryRun: true });
+    if ("error" in planned) {
+      return planned.error;
+    }
+    if (!planned.outcome.doc) {
+      return this.fail(planned.outcome.message);
+    }
+    if ((planned.outcome.doc.results ?? []).length === 0) {
+      return this.done({ level: "info", text: `Nothing to reset: Nexus-Hub has no recorded change for ${control}.` });
+    }
+    const required = planned.outcome.doc.confirmation?.required === true;
+    if (required && !(await this.deps.ui.confirm(this.confirmResetText(planned.outcome.doc)))) {
+      return this.done({ level: "info", text: "Cancelled. Nothing was restored." });
+    }
+    const reset = await this.attempt({ action: "reset", control, tool, token: required ? { action: "reset", control, value: null, tool } : undefined });
     if ("error" in reset) {
       return reset.error;
     }

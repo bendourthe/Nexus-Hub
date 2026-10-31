@@ -57,7 +57,7 @@ function optionalTool(raw: unknown): string | null | undefined {
 }
 
 export function validateMessage(raw: unknown, model: ViewModel): Validated {
-  if (!isPlainObject(raw) || typeof raw.type !== "string" || !(raw.type in ALLOWED_KEYS)) {
+  if (!isPlainObject(raw) || typeof raw.type !== "string" || !Object.hasOwn(ALLOWED_KEYS, raw.type)) {
     return fail("unknown message");
   }
   const allowed = ALLOWED_KEYS[raw.type] as readonly string[];

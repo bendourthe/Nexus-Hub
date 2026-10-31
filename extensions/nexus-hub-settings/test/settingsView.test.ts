@@ -32,6 +32,13 @@ describe("the webview page", () => {
     expect(html).toContain('<html lang="en">');
   });
 
+  it("has a polite status region and an assertive alert region before the script runs, so a notice is spoken", () => {
+    const html = buildHtml(PARTS);
+    expect(html).toMatch(/<div id="live-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*><\/div>/);
+    expect(html).toMatch(/<div id="live-alert"[^>]*role="alert"[^>]*aria-live="assertive"[^>]*><\/div>/);
+    expect(html.indexOf('id="live-status"')).toBeLessThan(html.indexOf("<script"));
+  });
+
   it("escapes anything it was given before it reaches an attribute", () => {
     const html = buildHtml({ ...PARTS, logoUri: 'x"><script>alert(1)</script>' });
     expect(html).not.toContain("<script>alert(1)");

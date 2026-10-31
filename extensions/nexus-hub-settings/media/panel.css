@@ -1,5 +1,7 @@
 :root {
   color-scheme: light dark;
+  /* The edge of a field: the foreground color at 60 percent, so it stays at least 3:1 against the field in every theme. */
+  --field-border: color-mix(in srgb, var(--vscode-foreground) 60%, transparent);
 }
 
 body {
@@ -89,8 +91,15 @@ pre {
 }
 
 .row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   padding: 8px 0;
   border-top: 1px solid var(--vscode-panel-border, var(--vscode-widget-border, currentColor));
+}
+
+.row p {
+  margin: 2px 0;
 }
 
 .row-head {
@@ -101,35 +110,46 @@ pre {
   gap: 6px 12px;
 }
 
+.row-head strong {
+  overflow-wrap: anywhere;
+}
+
+/* The state is the text of the badge in the foreground color. The tone colors only the outline and the icon,
+   which repeat what the words say, so no state depends on a color that fails 4.5:1 against the page. */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 1px 8px;
-  border: 1px solid currentColor;
+  color: var(--vscode-foreground);
+  border: 1px solid var(--tone, currentColor);
   border-radius: 10px;
   font-size: 0.92em;
   overflow-wrap: anywhere;
 }
 
+.badge .icon {
+  color: var(--tone, currentColor);
+}
+
 .tone-ok {
-  color: var(--vscode-testing-iconPassed, var(--vscode-foreground));
+  --tone: var(--vscode-testing-iconPassed, var(--vscode-foreground));
 }
 
 .tone-info {
-  color: var(--vscode-textLink-foreground);
+  --tone: var(--vscode-textLink-foreground, var(--vscode-foreground));
 }
 
 .tone-warn {
-  color: var(--vscode-editorWarning-foreground);
+  --tone: var(--vscode-editorWarning-foreground, var(--vscode-foreground));
 }
 
 .tone-muted {
-  color: var(--vscode-descriptionForeground);
+  --tone: var(--vscode-descriptionForeground, var(--vscode-foreground));
 }
 
 .tone-error {
-  color: var(--vscode-editorError-foreground);
+  --tone: var(--vscode-editorError-foreground, var(--vscode-foreground));
 }
 
 .icon::before {
@@ -184,6 +204,12 @@ pre {
   margin: 6px 0;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
 select,
 input[type="text"] {
   width: 100%;
@@ -191,19 +217,31 @@ input[type="text"] {
   padding: 3px 6px;
   color: var(--vscode-input-foreground);
   background: var(--vscode-input-background);
-  border: 1px solid var(--vscode-input-border, var(--vscode-widget-border, currentColor));
+  border: 1px solid var(--field-border);
 }
 
 button {
+  max-width: 100%;
   margin: 4px 6px 4px 0;
   padding: 4px 10px;
-  color: var(--vscode-button-foreground);
-  background: var(--vscode-button-background);
-  border: 1px solid transparent;
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  background: var(--vscode-button-secondaryBackground, transparent);
+  border: 1px solid var(--vscode-button-border, var(--field-border));
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
-button:hover:not(:disabled) {
+button.primary {
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  border-color: var(--vscode-button-border, transparent);
+}
+
+button:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground));
+}
+
+button.primary:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--vscode-button-hoverBackground);
 }
 
@@ -211,7 +249,8 @@ button.danger {
   border-color: var(--vscode-editorWarning-foreground);
 }
 
-button:disabled {
+button:disabled,
+button[aria-disabled="true"] {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -219,7 +258,8 @@ button:disabled {
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+h2[tabindex="-1"]:focus-visible {
   outline: 2px solid var(--vscode-focusBorder);
   outline-offset: 2px;
 }
@@ -256,6 +296,11 @@ td {
   vertical-align: top;
   border-bottom: 1px solid var(--vscode-panel-border, var(--vscode-widget-border, currentColor));
   overflow-wrap: anywhere;
+}
+
+/* A tool name is a short label: it wraps at spaces, never in the middle of a word. */
+th[scope="row"] {
+  overflow-wrap: normal;
 }
 
 .visually-hidden {

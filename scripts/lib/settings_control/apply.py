@@ -14,13 +14,27 @@ not match a catalog row exactly are ignored and reported, and no file path is ev
 taken from the record.
 
 Safety-weakening writes need a person: an interactive terminal (stdin and stdout
-are both a TTY and the person types `yes`) or a one-time panel token. Both are
-refused when an agent-session marker named in the catalog is in the environment.
-There is no flag that bypasses this.
+are both a TTY and the person types `yes`) or a one-time panel confirmation. The
+same holds for every `remove-override` and for a `reset` that would put back a
+weaker value than the one Nexus-Hub wrote. All of them are refused when an
+agent-session marker named in the catalog is in the environment. There is no flag
+that bypasses this.
+
+The panel confirmation is a file holding only the SHA-256 of a nonce, plus the exact
+action, control, value, and tool. The panel hands the nonce itself to the one process
+it starts, through that process's environment, so reading the file yields nothing
+usable. A same-user process that sets the environment itself can still forge a
+confirmation, so the agent-marker refusal and the terminal test are the barriers that
+matter, and an agent-call hook rule (DF-25) is the planned second layer.
+
+Every read-modify-write of the record runs under an exclusive lock file
+(`settings-control.lock`), so two commands at once never lose an entry.
 """
 from __future__ import annotations
 
 import copy
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -28,19 +42,24 @@ import shutil
 import sys
 import tempfile
 import time
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Iterator, Mapping
 
 from . import readers, resolve, writers
 from .catalog import MODEL_ID_SEGMENT, USER_FILE_IDS, WEAKENING_NATIVE, joined_key, load_claude_model_ids, write_groups
 
 SCHEMA_VERSION = 1
 RECORD_NAME = "settings-control.json"
+LOCK_NAME = "settings-control.lock"
+LOCK_SECONDS = 30
 TOKEN_NAME = "settings-panel-token.json"
 TOKEN_SECONDS = 30
-MODEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:@\[\]-]{0,127}$")
+NONCE_ENV = "NEXUS_SETTINGS_PANEL_NONCE"
+NONCE_MIN = 32
+MODEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:@\[\]-]{0,127}\Z")
 MODEL_VALUE_LIMIT = 200
 EXIT_OK, EXIT_PARTIAL, EXIT_USAGE, EXIT_REFUSED, EXIT_NOTHING = 0, 1, 2, 3, 4
 
@@ -141,8 +160,11 @@ def validate_value(control: dict[str, Any], value: str) -> None:
         if value not in allowed:
             raise UsageError(f"{value!r} is not a value for {control['id']}; use one of: " + ", ".join(allowed))
         return
-    if not value or len(value) > MODEL_VALUE_LIMIT or not _printable_ascii(value):
-        raise UsageError(f"{value!r} is not a usable {control['id']} value (1 to {MODEL_VALUE_LIMIT} printable ASCII characters)")
+    if not value or len(value) > MODEL_VALUE_LIMIT or not _printable_ascii(value) or value != value.strip() or value.startswith("-"):
+        raise UsageError(
+            f"{value!r} is not a usable {control['id']} value (1 to {MODEL_VALUE_LIMIT} printable ASCII characters, "
+            "no space at either end, and not starting with a hyphen)"
+        )
 
 
 def _native_for(write: dict[str, Any], value: str) -> tuple[bool, Any, str]:
@@ -160,13 +182,21 @@ def _weakens(write: dict[str, Any], value: str, native: Any) -> bool:
     return isinstance(native, (str, bool)) and (write["tool"], joined_key(write), native) in WEAKENING_NATIVE
 
 
-def check_write_allowed(catalog: dict[str, Any], write: dict[str, Any], native: Any) -> str | None:
-    """Re-run the catalog's own rules for one concrete write at run time; a reason, or None."""
+def _omitted_reason(catalog: dict[str, Any], write: dict[str, Any]) -> str | None:
     joined = joined_key(write)
     exceptions = catalog.get("omitted_user_choice_exceptions", {}).get(write["tool"], [])
     for name in catalog["omitted_keys"].get(write["tool"], []):
         if (joined == name or joined.startswith(name + ".")) and joined not in exceptions:
             return f"{joined} is an omitted key that Nexus-Hub never writes"
+    return None
+
+
+def check_write_allowed(catalog: dict[str, Any], write: dict[str, Any], native: Any) -> str | None:
+    """Re-run the catalog's own rules for one concrete write at run time; a reason, or None."""
+    joined = joined_key(write)
+    omitted = _omitted_reason(catalog, write)
+    if omitted:
+        return omitted
     if write["tool"] == "codex" and write["key_path"] == ["approval_policy"] and native == "untrusted":
         return "untrusted is retired and never written"
     if write["key_path"][-1] == "effortLevel" and native == "max":
@@ -233,6 +263,63 @@ def save_record(home: Path, record: dict[str, Any]) -> None:
         raise RecordError(f"the ownership record cannot be written ({exc.strerror or exc}); {_record_hint(home)}") from exc
 
 
+def _try_lock(fd: int) -> bool:
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return False
+    return True
+
+
+def _unlock(fd: int) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(fd, fcntl.LOCK_UN)
+
+
+@contextmanager
+def record_lock(home: Path, timeout: float | None = None) -> Iterator[None]:
+    """Hold the exclusive cross-process lock that guards every change to the record and the files it describes.
+
+    It is an operating system advisory lock on `settings-control.lock` (fcntl or msvcrt, the same
+    pattern the installer uses), so a process that dies releases it. A command that cannot get the
+    lock in `LOCK_SECONDS` stops with a message and has written nothing.
+    """
+    limit = LOCK_SECONDS if timeout is None else timeout
+    path = record_path(home).with_name(LOCK_NAME)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+    except OSError as exc:
+        raise RecordError(f"the ownership record lock cannot be opened ({exc.strerror or exc}); {_record_hint(home)}") from exc
+    deadline = time.monotonic() + limit
+    try:
+        while not _try_lock(fd):
+            if time.monotonic() >= deadline:
+                raise RecordError("another nexus-hub settings command is updating the record; wait for it to finish, then run this command again")
+            time.sleep(0.05)
+        try:
+            yield
+        finally:
+            _unlock(fd)
+    finally:
+        os.close(fd)
+
+
 @dataclass(frozen=True)
 class Matched:
     kind: str  # "file" | "editor" | "override-removal"
@@ -271,14 +358,24 @@ def _leaf_allowed(write: dict[str, Any], tail: list[str]) -> bool:
     return any(inside(v, tail) for v in write["value_map"].values() if isinstance(v, dict))
 
 
-def match_entry(catalog: dict[str, Any], entry: Any) -> Matched | None:
-    """The catalog row an entry belongs to, by exact tool, file, and key path; None otherwise."""
+def _control_map(catalog: dict[str, Any]) -> dict[str, str]:
+    return {wid: control["id"] for control in catalog["controls"] for wid in control["writes"]}
+
+
+def match_entry(catalog: dict[str, Any], entry: Any, controls: dict[str, str] | None = None) -> Matched | None:
+    """The admitted catalog row an entry belongs to, by exact tool, file, and key path; None otherwise.
+
+    A row that is Not-Settable, or that names an omitted key, never matches: the record is a user file,
+    and an entry for such a key can only be forged or left over from an older catalog.
+    """
     if not _entry_shape_ok(entry):
         return None
     tool, file, path = entry["tool"], entry["file"], entry["key_path"]
-    controls = {wid: control["id"] for control in catalog["controls"] for wid in control["writes"]}
+    controls = _control_map(catalog) if controls is None else controls
     for write in catalog["writes"]:
         if write["tool"] != tool or write["file"] != file:
+            continue
+        if write["admission"] != "admitted" or _omitted_reason(catalog, write):
             continue
         base = write["key_path"]
         head, tail = path[: len(base)], path[len(base):]
@@ -298,8 +395,9 @@ def match_entry(catalog: dict[str, Any], entry: Any) -> Matched | None:
 def _split_record(ctx: Context, record: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], Matched]], list[str]]:
     good: list[tuple[dict[str, Any], Matched]] = []
     ignored: list[str] = []
+    controls = _control_map(ctx.catalog)
     for entry in record["entries"]:
-        matched = match_entry(ctx.catalog, entry)
+        matched = match_entry(ctx.catalog, entry, controls)
         if matched is None:
             shown = ".".join(str(p) for p in entry["key_path"]) if isinstance(entry, dict) and isinstance(entry.get("key_path"), list) else "?"
             tool = entry.get("tool") if isinstance(entry, dict) else "?"
@@ -313,10 +411,12 @@ def owned_keys(ctx: Context) -> dict[str, Any]:
     """Key paths of every valid record entry, grouped by catalog file, for the installers."""
     good, ignored = _split_record(ctx, load_record(ctx.home))
     files: dict[str, list[list[str]]] = {}
+    seen: set[tuple[str, tuple[str, ...]]] = set()
     for entry, matched in good:
-        paths = files.setdefault(matched.file, [])
-        if entry["key_path"] not in paths:
-            paths.append(list(entry["key_path"]))
+        key = (matched.file, tuple(entry["key_path"]))
+        if key not in seen:
+            seen.add(key)
+            files.setdefault(matched.file, []).append(list(entry["key_path"]))
     dotted = {file: [".".join(path) for path in paths] for file, paths in files.items()}  # for jq and PowerShell, which join no arrays
     return {"schema_version": SCHEMA_VERSION, "files": files, "dotted": dotted, "ignored": ignored}
 
@@ -365,8 +465,16 @@ def _token_path(home: Path) -> Path:
     return home / ".nexus-hub" / TOKEN_NAME
 
 
+def _nonce_matches(ctx: Context, digest: Any) -> bool:
+    """True when the nonce this process was started with hashes to the digest in the token file."""
+    nonce = ctx.env.get(NONCE_ENV, "")
+    if not isinstance(digest, str) or len(digest) != 64 or len(nonce) < NONCE_MIN:
+        return False
+    return hmac.compare_digest(hashlib.sha256(nonce.encode("utf-8")).hexdigest().encode("ascii"), digest.lower().encode("ascii", "replace"))
+
+
 def _consume_token(ctx: Context, action: str, control: str, value: str | None, tool: str | None) -> bool:
-    """Read and delete the panel token; True only when it is fresh and names this exact change."""
+    """Read and delete the panel token; True only when it is fresh, names this exact change, and fits this process's nonce."""
     path = _token_path(ctx.home)
     if not path.exists():
         return False
@@ -388,7 +496,7 @@ def _consume_token(ctx: Context, action: str, control: str, value: str | None, t
         age is not None and -5 <= age <= TOKEN_SECONDS
         and token.get("action") == action and token.get("control") == control
         and token.get("value") == value and token.get("tool") == tool
-        and isinstance(token.get("token"), str) and len(token["token"]) >= 32
+        and _nonce_matches(ctx, token.get("token_sha256"))
     )
 
 
@@ -410,14 +518,16 @@ def require_presence(
 ) -> None:
     """Gate a write on a person. Raises `Refusal` (exit 3) with nothing written."""
     markers = [name for name in agent_markers(ctx.catalog) if ctx.env.get(name)]
-    if weakens and markers:
+    needs_person = weakens or action == "remove-override"
+    if needs_person and markers:
+        what = "A change that lowers a safety barrier" if weakens else "Removing a setting you did not choose"
         raise Refusal(
             f"refused: {', '.join(markers)} is set, so an agent session is running this command. "
-            "A change that lowers a safety barrier must be run by a person in an interactive terminal or the Nexus-Hub Settings panel."
+            f"{what} must be run by a person in an interactive terminal or the Nexus-Hub Settings panel."
         )
     if _consume_token(ctx, action, control, value, tool):
         return
-    if not weakens and not (action == "remove-override"):
+    if not needs_person:
         return
     if not ctx.is_tty():
         what = "lowers a safety barrier" if weakens else "removes a setting you did not choose"
@@ -533,55 +643,63 @@ def _commit_group(
         raise
 
 
+def _apply_group(ctx: Context, file: str, group: list[Target], dry_run: bool) -> list[dict[str, Any]]:
+    """Load one file, plan every edit for it, and commit; under the record lock when it writes."""
+    results: list[dict[str, Any]] = []
+    path = _user_path(ctx, file)
+    shown = _display(ctx, path)
+    tool = group[0].tool
+    try:
+        loaded = writers.load(path, _fmt(file), shown)
+    except writers.WriterRefusal as exc:
+        return [_result(t.tool, t.write["id"], shown, t.key_path, "refused", str(exc)) for t in group]
+    edits: list[writers.Edit] = []
+    bases: list[dict[str, Any]] = []
+    owners: dict[tuple[str, ...], Target] = {}
+    for target in group:
+        blockers = [b for b in target.write.get("applies_only_without", []) if b in loaded.data]
+        if blockers:
+            results.append(_result(tool, target.write["id"], shown, target.key_path, "skipped", f"{shown} sets {blockers[0]}, which outranks this key, so no posture is written"))
+            continue
+        for key_path, native in _expand_target(ctx, target, loaded):
+            edits.append(writers.Edit(key_path, native))
+            bases.append({"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)})
+            owners[key_path] = target
+    if not edits:
+        return results
+    try:
+        plan = writers.plan_edits(loaded, edits)
+        if not dry_run:
+            _commit_group(ctx, loaded, plan, bases)
+    except writers.WriterRefusal as exc:
+        return results + [_result(tool, owners[e.key_path].write["id"], shown, e.key_path, "refused", str(exc)) for e in edits]
+    for change in plan.changes:
+        owner = owners[change.key_path]
+        noop = change.previous_present and writers.same(change.previous, change.new)
+        if dry_run:
+            status = "would-keep" if noop else "would-write"
+        else:
+            status = "unchanged" if noop else "written"
+        results.append(
+            _result(
+                tool, owner.write["id"], shown, change.key_path, status,
+                previous=_state(change.previous_present, change.previous), new=_state(change.new_present, change.new),
+                weakens_safety=owner.weakens, file_created=plan.file_created,
+            )
+        )
+    return results
+
+
 def _apply_targets(ctx: Context, targets: list[Target], value: str, dry_run: bool) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     by_file: dict[str, list[Target]] = {}
     for target in targets:
         by_file.setdefault(target.file, []).append(target)
     for file, group in by_file.items():
-        path = _user_path(ctx, file)
-        shown = _display(ctx, path)
-        tool = group[0].tool
-        try:
-            loaded = writers.load(path, _fmt(file), shown)
-        except writers.WriterRefusal as exc:
-            results += [_result(t.tool, t.write["id"], shown, t.key_path, "refused", str(exc)) for t in group]
-            continue
-        edits: list[writers.Edit] = []
-        bases: list[dict[str, Any]] = []
-        owners: dict[tuple[str, ...], Target] = {}
-        for target in group:
-            blockers = [b for b in target.write.get("applies_only_without", []) if b in loaded.data]
-            if blockers:
-                results.append(_result(tool, target.write["id"], shown, target.key_path, "skipped", f"{shown} sets {blockers[0]}, which outranks this key, so no posture is written"))
-                continue
-            for key_path, native in _expand_target(ctx, target, loaded):
-                edits.append(writers.Edit(key_path, native))
-                bases.append({"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)})
-                owners[key_path] = target
-        if not edits:
-            continue
-        try:
-            plan = writers.plan_edits(loaded, edits)
-            if not dry_run:
-                _commit_group(ctx, loaded, plan, bases)
-        except writers.WriterRefusal as exc:
-            results += [_result(tool, owners[e.key_path].write["id"], shown, e.key_path, "refused", str(exc)) for e in edits]
-            continue
-        for change in plan.changes:
-            owner = owners[change.key_path]
-            noop = change.previous_present and writers.same(change.previous, change.new)
-            if dry_run:
-                status = "would-keep" if noop else "would-write"
-            else:
-                status = "unchanged" if noop else "written"
-            results.append(
-                _result(
-                    tool, owner.write["id"], shown, change.key_path, status,
-                    previous=_state(change.previous_present, change.previous), new=_state(change.new_present, change.new),
-                    weakens_safety=owner.weakens, file_created=plan.file_created,
-                )
-            )
+        # The lock spans the read of the file, the record update, and the write, so a second command
+        # waits and then reads what the first one left instead of racing it.
+        with nullcontext() if dry_run else record_lock(ctx.home):
+            results += _apply_group(ctx, file, group, dry_run)
     return results
 
 
@@ -660,11 +778,43 @@ def _describe(state: dict[str, Any]) -> str:
     return json.dumps(state["value"]) if state["present"] else "(not set)"
 
 
+def _restores_weaker(entry: dict[str, Any]) -> bool:
+    """True when putting back this entry's previous value would lower a safety barrier."""
+    previous = entry["previous"]
+    value = previous.get("value") if previous["present"] else None
+    return isinstance(value, (str, bool)) and (entry["tool"], ".".join(entry["key_path"]), value) in WEAKENING_NATIVE
+
+
+def _weak_restores(ctx: Context, record: dict[str, Any], control_id: str, tool: str | None) -> list[dict[str, Any]]:
+    good, _ = _split_record(ctx, record)
+    return [e for e, m in good if m.control == control_id and tool in (None, m.tool) and _restores_weaker(e)]
+
+
 def reset_control(ctx: Context, control_id: str, tool: str | None = None, *, dry_run: bool = False) -> dict[str, Any]:
-    """Restore every key Nexus-Hub wrote for a control, unless it changed since."""
+    """Restore every key Nexus-Hub wrote for a control, unless it changed since.
+
+    A reset is a write like any other: putting back a weaker value than the one Nexus-Hub wrote (for
+    example `bypassPermissions` that a person had before choosing Ask) needs a person, exactly as a
+    `set` to that value would. A reset that restores a safe value or removes a key stays open to an agent.
+    """
     _control(ctx.catalog, control_id)
     _check_tool(ctx.catalog, tool)
-    record = load_record(ctx.home)
+    weak = _weak_restores(ctx, load_record(ctx.home), control_id, tool)
+    confirmation = {"required": bool(weak), "kind": None}
+    if weak and not dry_run:
+        lines = [f"{e['tool']}: {e['file']}  {'.'.join(e['key_path'])} = {json.dumps(e['previous']['value'])}  (restores what was there before)" for e in weak]
+        require_presence(ctx, action="reset", control=control_id, value=None, tool=tool, lines=lines, tools=sorted({e["tool"] for e in weak}), weakens=True)
+        confirmation["kind"] = "confirmed"
+    with nullcontext() if dry_run else record_lock(ctx.home):
+        record = load_record(ctx.home)
+        if weak and not dry_run and any(e not in weak for e in _weak_restores(ctx, record, control_id, tool)):
+            raise Refusal("refused: the record changed while you were confirming, so nothing was restored; run the command again.")
+        doc = _reset_recorded(ctx, control_id, tool, record, dry_run)
+    doc["confirmation"] = confirmation
+    return doc
+
+
+def _reset_recorded(ctx: Context, control_id: str, tool: str | None, record: dict[str, Any], dry_run: bool) -> dict[str, Any]:
     good, ignored = _split_record(ctx, record)
     chosen = [(e, m) for e, m in good if m.control == control_id and tool in (None, m.tool)]
     results: list[dict[str, Any]] = []
@@ -797,10 +947,13 @@ def remove_override(ctx: Context, control_id: str, tool: str, *, dry_run: bool =
     for row, loaded, shown in present:
         edit = writers.Edit(tuple(row["key_path"]), writers.ABSENT)
         try:
-            plan = writers.plan_edits(loaded, [edit])
-            if not dry_run:
-                base = {"kind": "override-removal", "tool": tool, "file": row["file"], "key_path": list(row["key_path"])}
-                _commit_group(ctx, loaded, plan, [base])
+            with nullcontext() if dry_run else record_lock(ctx.home):
+                if not dry_run:  # read again under the lock: another command may have changed the file while a person confirmed
+                    loaded = writers.load(_user_path(ctx, row["file"]), _fmt(row["file"]), shown)
+                plan = writers.plan_edits(loaded, [edit])
+                if not dry_run:
+                    base = {"kind": "override-removal", "tool": tool, "file": row["file"], "key_path": list(row["key_path"])}
+                    _commit_group(ctx, loaded, plan, [base])
         except writers.WriterRefusal as exc:
             results.append(_result(tool, row["id"], shown, row["key_path"], "refused", str(exc)))
             continue
@@ -853,12 +1006,13 @@ def record_editor_write(ctx: Context, payload: str) -> dict[str, Any]:
         raise UsageError('record-editor-write needs a "new" value')
     key_path = tuple(write["key_path"])
     change = writers.Change(key_path, previous["present"], previous.get("value"), True, data["new"], len(key_path))
-    record = load_record(ctx.home)
-    _upsert(record, {"kind": "editor", "tool": write["tool"], "file": write["file"]}, change, file_created=False)
-    profile = data.get("profile")
-    if isinstance(profile, str) and profile and _printable_ascii(profile) and len(profile) <= 100:
-        _find(record["entries"], write["tool"], write["file"], list(key_path))["profile"] = profile  # type: ignore[index]
-    save_record(ctx.home, record)
+    with record_lock(ctx.home):
+        record = load_record(ctx.home)
+        _upsert(record, {"kind": "editor", "tool": write["tool"], "file": write["file"]}, change, file_created=False)
+        profile = data.get("profile")
+        if isinstance(profile, str) and profile and _printable_ascii(profile) and len(profile) <= 100:
+            _find(record["entries"], write["tool"], write["file"], list(key_path))["profile"] = profile  # type: ignore[index]
+        save_record(ctx.home, record)
     return {"schema_version": SCHEMA_VERSION, "action": "record-editor-write", "write": write["id"], "recorded": True, "exit_code": EXIT_OK}
 
 

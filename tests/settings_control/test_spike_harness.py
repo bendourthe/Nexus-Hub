@@ -110,3 +110,54 @@ def test_a_paid_request_that_could_pass_the_cap_is_not_started(monkeypatch: pyte
     monkeypatch.setattr(spike, "PAID_COSTS", [("earlier", 0.90)])
     monkeypatch.setattr(spike, "run", lambda *a, **k: pytest.fail("no request may start past the cap"))
     assert spike.claude_attribution({}, "label", 1.00).startswith("not-run")
+
+
+# --- No probe without a sign-in reaches an external host (fix cycle 1, WN-36) ---------------------
+
+
+def test_the_offline_sink_records_the_host_of_each_attempt_and_forwards_nothing() -> None:
+    import socket
+
+    sink = spike.OfflineSink()
+    try:
+        env = sink.env()
+        assert env["HTTPS_PROXY"] == env["HTTP_PROXY"] == env["ALL_PROXY"] == f"http://127.0.0.1:{sink.port}"
+        assert env["NO_PROXY"] == "" and env["no_proxy"] == ""  # not even a local address bypasses the sink
+        for line in (b"CONNECT api.openai.com:443 HTTP/1.1\r\n\r\n", b"GET http://example.test/x HTTP/1.1\r\n\r\n"):
+            with socket.create_connection(("127.0.0.1", sink.port), timeout=5) as conn:
+                conn.sendall(line)
+                assert conn.recv(64).startswith(b"HTTP/1.1 502")
+        deadline = spike.time.monotonic() + 5
+        while len(sink.attempts) < 2 and spike.time.monotonic() < deadline:
+            spike.time.sleep(0.02)
+        assert sink.hosts() == ["api.openai.com", "example.test"]
+    finally:
+        sink.close()
+
+
+def test_every_free_probe_is_offline_and_the_paid_one_is_not() -> None:
+    import inspect
+
+    scratch = spike.Scratch()
+    try:
+        plain, offline = scratch.env(), scratch.offline_env(CODEX_HOME="x")
+        assert "HTTPS_PROXY" not in plain and offline["HTTPS_PROXY"].startswith("http://127.0.0.1:") and offline["CODEX_HOME"] == "x"
+    finally:
+        scratch.cleanup()
+        spike.SINK.close()
+    for name in ("claude_init", "claude_effort", "codex_effort", "codex_report"):
+        assert "offline_env" in inspect.getsource(getattr(spike, name)), name
+    assert "offline_env" not in inspect.getsource(spike.claude_attribution)  # a paid request must reach its API
+
+
+def test_the_matrix_does_not_call_the_effort_probes_local_and_names_what_the_sink_recorded(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    out = tmp_path / "matrix.md"
+    monkeypatch.setattr(spike.SINK, "attempts", ["CONNECT api.openai.com:443 HTTP/1.1", "CONNECT chatgpt.com:443 HTTP/1.1"])
+    spike.write_matrix(out, [], {"codex": "codex-cli 0.136.0"}, {}, {})
+    text = out.read_text(encoding="utf-8")
+    assert "are local" not in text and "Nothing here is \"local\"" in text
+    assert "api.openai.com, chatgpt.com" in text and "None of them was contacted." in text
+
+    monkeypatch.setattr(spike.SINK, "attempts", [])
+    spike.write_matrix(out, [], {}, {}, {})
+    assert "this run cannot tell which" in out.read_text(encoding="utf-8")

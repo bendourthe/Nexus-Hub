@@ -207,6 +207,44 @@ describe("changes made through the panel reach the real files and reverse exactl
     expect(fs.existsSync(path.join(home, ".nexus-hub", "settings-panel-token.json"))).toBe(false);
   }, 90_000);
 
+  it("asks before a reset puts back a weaker value, restores it only after a person agrees, and refuses inside an agent session", async () => {
+    const original = fs.readFileSync(claudeFile(), "utf8");
+    fs.writeFileSync(claudeFile(), original.replace('"permissions": { "allow"', '"permissions": { "defaultMode": "bypassPermissions", "allow"'));
+    const weaker = sha(claudeFile());
+    const mode = (): string | undefined => (JSON.parse(fs.readFileSync(claudeFile(), "utf8")) as { permissions: { defaultMode?: string } }).permissions.defaultMode;
+    try {
+      const setup = build();
+      await setup.controller.refresh(true);
+      await setup.controller.handle({ type: "set", control: "posture", value: "ask", tool: null });
+      expect(mode()).toBe("default");
+      expect(setup.confirm).not.toHaveBeenCalled();
+      const safer = sha(claudeFile());
+
+      const agent = build({ CLAUDECODE: "1" });
+      await agent.controller.refresh(true);
+      const refused = await agent.controller.handle({ type: "reset", control: "posture", tool: null });
+      expect(refused.notice).toMatchObject({ level: "error", text: expect.stringContaining("CLAUDECODE is set") });
+      expect(sha(claudeFile())).toBe(safer);
+
+      const cancelled = build({}, false);
+      await cancelled.controller.refresh(true);
+      const kept = await cancelled.controller.handle({ type: "reset", control: "posture", tool: null });
+      expect(kept.notice?.text).toBe("Cancelled. Nothing was restored.");
+      expect((cancelled.confirm.mock.calls[0]![0] as { detail: string }).detail).toContain('permissions.defaultMode -> "bypassPermissions"');
+      expect(sha(claudeFile())).toBe(safer);
+
+      const agreed = build();
+      await agreed.controller.refresh(true);
+      const back = await agreed.controller.handle({ type: "reset", control: "posture", tool: null });
+      expect(back.notice).toMatchObject({ level: "info", text: "Reset posture to what was there before." });
+      expect(mode()).toBe("bypassPermissions");
+      expect(sha(claudeFile())).toBe(weaker);
+      expect(fs.existsSync(path.join(home, ".nexus-hub", "settings-panel-token.json"))).toBe(false);
+    } finally {
+      fs.writeFileSync(claudeFile(), original);
+    }
+  }, 180_000);
+
   it("keeps the ownership record readable by the installers after a panel write", async () => {
     const { bridge, controller } = build();
     await controller.refresh(true);

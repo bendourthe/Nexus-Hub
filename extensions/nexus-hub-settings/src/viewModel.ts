@@ -101,6 +101,12 @@ export interface SourceView {
   weakens: boolean;
   notes: string | null;
   layers: { kind: string; locator: string; fix: string }[];
+  /** What to call this write in a button or a list: its key, or the tool and surface when no key is documented. */
+  name: string;
+  /** The one-line description of where the write goes. */
+  keyLine: string;
+  /** The tool and surface that own the write, which tells apart two writes that share a key name. */
+  owner: string;
 }
 
 export interface ControlView {
@@ -145,7 +151,7 @@ export interface ViewModel {
   readOnlyReason: string | null;
   header: { profile: string; platform: string; project: string | null; note: string };
   controls: ControlView[];
-  outcome: { title: string; rows: OutcomeRow[] };
+  outcome: { title: string; rows: OutcomeRow[]; notes: string[] };
   error: ErrorCard | null;
   notice: Notice | null;
   busy: boolean;
@@ -167,7 +173,7 @@ export function emptyModel(profile: string, platform: string): ViewModel {
     readOnlyReason: null,
     header: { profile, platform, project: null, note: NEW_SESSIONS_NOTE },
     controls: [],
-    outcome: { title: OUTCOME_TITLE, rows: [] },
+    outcome: { title: OUTCOME_TITLE, rows: [], notes: [] },
     error: null,
     notice: null,
     busy: false,
@@ -208,22 +214,34 @@ function sourceText(write: ExplainWrite): string {
   return write.source.decision ?? "no source recorded";
 }
 
-function sourcesFor(explain: ExplainData): SourceView[] {
-  return explain.writes.map((write) => ({
-    write: write.id,
-    tool: write.tool,
-    surfaceLabel: SURFACE_LABEL[write.surface],
-    file: write.file,
-    key: joinKey(write),
-    takesEffect: write.takes_effect,
-    admitted: write.admission === "admitted",
-    reason: write.admission === "admitted" ? null : (write.not_settable_reason ?? null),
-    source: sourceText(write),
-    canOpen: isAllowedSource(write.source.url),
-    weakens: write.weakens_safety,
-    notes: write.notes ?? null,
-    layers: write.override_layers.map((layer) => ({ kind: layer.kind, locator: layer.locator, fix: layer.fix })),
-  }));
+/** The catalog's placeholder for a write that has no documented key. It is never shown as if it were a key. */
+const NO_KEY = "<none documented>";
+
+function sourcesFor(explain: ExplainData, report: ShowReport): SourceView[] {
+  return explain.writes.map((write) => {
+    const key = joinKey(write);
+    const surface = SURFACE_LABEL[write.surface];
+    const hasKey = key !== NO_KEY && key !== "";
+    const where = `${toolLabel(report, write.tool)} (${surface})`;
+    return {
+      write: write.id,
+      tool: write.tool,
+      surfaceLabel: surface,
+      file: write.file,
+      key,
+      takesEffect: write.takes_effect,
+      admitted: write.admission === "admitted",
+      reason: write.admission === "admitted" ? null : (write.not_settable_reason ?? null),
+      source: sourceText(write),
+      canOpen: isAllowedSource(write.source.url),
+      weakens: write.weakens_safety,
+      notes: write.notes ?? null,
+      layers: write.override_layers.map((layer) => ({ kind: layer.kind, locator: layer.locator, fix: layer.fix })),
+      owner: where,
+      name: hasKey ? key : where,
+      keyLine: hasKey ? `${key} in ${write.file} (${write.tool}, ${surface})` : `No documented key for ${where}`,
+    };
+  });
 }
 
 interface RowFields {
@@ -302,11 +320,11 @@ function valueMapText(write: ExplainWrite, choice: string): string | null {
   return choice in write.value_map ? JSON.stringify(write.value_map[choice]).replace(/^"|"$/g, "") : null;
 }
 
+/** A cell says only "Not settable"; the reason is written once under the table (`outcomeNotes`), not in every cell. */
 function outcomeCell(writes: ExplainWrite[], choice: string): string {
   const admitted = writes.filter((w) => w.admission === "admitted");
   if (admitted.length === 0) {
-    const reason = writes.find((w) => w.not_settable_reason)?.not_settable_reason;
-    return `Not settable${reason ? `: ${reason}` : ""}`;
+    return "Not settable";
   }
   const parts = admitted.flatMap((w) => {
     const mapped = valueMapText(w, choice);
@@ -335,6 +353,24 @@ export function outcomeRows(explains: Record<string, ExplainData>, report: ShowR
       posture: mine(posture).length > 0 ? outcomeCell(mine(posture), "full-auto") : "Not part of this tool",
     };
   });
+}
+
+/** Why each tool is not settable, grouped by reason so a reason that applies to several tools is written once. */
+export function outcomeNotes(explains: Record<string, ExplainData>, report: ShowReport): string[] {
+  const byReason = new Map<string, string[]>();
+  for (const write of [...(explains.effort?.writes ?? []), ...(explains.posture?.writes ?? [])]) {
+    if (write.admission === "admitted" || !write.not_settable_reason) {
+      continue;
+    }
+    const suffix = write.surface === "cli" ? "" : ` (${SURFACE_LABEL[write.surface]})`;
+    const label = `${toolLabel(report, write.tool)}${suffix}`;
+    const labels = byReason.get(write.not_settable_reason) ?? [];
+    if (!labels.includes(label)) {
+      labels.push(label);
+    }
+    byReason.set(write.not_settable_reason, labels);
+  }
+  return [...byReason.entries()].map(([reason, labels]) => `Not settable for ${labels.join(", ")}: ${reason}`);
 }
 
 function controlView(
@@ -372,7 +408,7 @@ function controlView(
     canApply: rows.some((row) => row.canSet),
     takesEffect: "New sessions only.",
     rows,
-    sources: sourcesFor(explain),
+    sources: sourcesFor(explain, report),
   };
 }
 
@@ -403,7 +439,7 @@ export function buildModel(input: BuildInput): ViewModel {
     readOnlyReason: input.trusted ? null : "This workspace is not trusted, so the panel shows the current state and cannot change anything. Trust the workspace to change a default.",
     header: { profile: input.profile, platform: report.platform, project: report.project, note: NEW_SESSIONS_NOTE },
     controls,
-    outcome: { title: OUTCOME_TITLE, rows: outcomeRows(explains, report) },
+    outcome: { title: OUTCOME_TITLE, rows: outcomeRows(explains, report), notes: outcomeNotes(explains, report) },
     error: null,
     notice: input.notice ?? null,
     busy: false,

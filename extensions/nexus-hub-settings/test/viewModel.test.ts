@@ -8,6 +8,7 @@ import {
   emptyModel,
   errorModel,
   isAllowedSource,
+  outcomeNotes,
   outcomeRows,
   overlayEditorRow,
 } from "../src/viewModel";
@@ -140,9 +141,31 @@ describe("the what-a-new-session-starts-with table", () => {
     const byLabel = Object.fromEntries(rows.map((r) => [r.label, r]));
     expect(byLabel["Claude Code"]).toMatchObject({ effort: "modelSettings.<model-id>.effortLevel = high; effortLevel = high", posture: "permissions.defaultMode = bypassPermissions" });
     expect(byLabel.Codex).toMatchObject({ effort: "model_reasoning_effort = high", posture: "approval_policy = never; sandbox_mode = workspace-write" });
-    expect(byLabel["GitHub Copilot CLI"]!.effort).toMatch(/^Not settable: /);
-    expect(byLabel["VS Code Copilot Chat (VS Code)"]!.posture).toMatch(/^Not settable: /);
-    expect(byLabel["Claude Code (VS Code)"]!.posture).toMatch(/^Not settable: /);
+    expect(byLabel["GitHub Copilot CLI"]!.effort).toBe("Not settable");
+    expect(byLabel["VS Code Copilot Chat (VS Code)"]!.posture).toBe("Not settable");
+    expect(byLabel["Claude Code (VS Code)"]!.posture).toBe("Not settable");
+  });
+
+  it("writes each reason once under the table, naming every tool it applies to", () => {
+    const notes = outcomeNotes(explains(), showReport());
+    expect(notes.length).toBeGreaterThan(0);
+    expect(new Set(notes).size).toBe(notes.length);
+    expect(notes.every((n) => n.startsWith("Not settable for "))).toBe(true);
+    const reasons = notes.map((n) => n.slice(n.indexOf(": ") + 2));
+    expect(new Set(reasons).size).toBe(reasons.length);
+    const view = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted: true, profile: "Default" });
+    expect(view.outcome.notes).toEqual(notes);
+  });
+
+  it("never prints the no-key placeholder as if it were a key", () => {
+    const view = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted: true, profile: "Default" });
+    const source = view.controls.find((c) => c.id === "effort")!.sources.find((s) => s.write === "vscode-copilot.effort")!;
+    expect(source.key).toBe("<none documented>");
+    expect(source.name).toBe("VS Code Copilot Chat (VS Code)");
+    expect(source.keyLine).toBe("No documented key for VS Code Copilot Chat (VS Code)");
+    const real = view.controls.find((c) => c.id === "effort")!.sources.find((s) => s.write === "claude.effort.top_level")!;
+    expect(real.name).toBe("effortLevel");
+    expect(real.keyLine).toContain("effortLevel in ~/.claude/settings.json");
   });
 
   it("says when a tool has no part in a control and when a choice maps to nothing", () => {

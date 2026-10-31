@@ -142,6 +142,15 @@ def display_path(path: Path, home: Path, project: Path | None) -> str:
     return printable(str(path))
 
 
+def _iso(value: Any) -> str:
+    return value.isoformat() if hasattr(value, "isoformat") else str(value)
+
+
+def plain_data(data: Any) -> Any:
+    """A copy of parsed data that is plain JSON: TOML dates and times become ISO text. May raise `RecursionError`."""
+    return json.loads(json.dumps(data, default=_iso))
+
+
 def _parse_toml(text: str) -> Any:
     try:
         import tomlkit  # optional; stdlib tomllib reads the same documents
@@ -190,7 +199,9 @@ def read_file(file_id: str, path: Path, display: str, project: Path | None = Non
         return FileRead(file_id, display, "invalid", detail=f"{display} cannot be read ({exc.strerror or exc})")
     label = "JSON" if fmt == "json" else "TOML"
     try:
-        data = json.loads(text) if fmt == "json" else _parse_toml(text)
+        data = json.loads(text) if fmt == "json" else plain_data(_parse_toml(text))
+    except RecursionError:
+        return FileRead(file_id, display, "invalid", detail=f"{display} is nested too deeply to read")
     except json.JSONDecodeError as exc:
         return FileRead(file_id, display, "invalid", detail=f"{display} is not valid JSON (line {exc.lineno})")
     except ValueError as exc:

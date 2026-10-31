@@ -1,0 +1,921 @@
+{
+ "themes": {
+  "dark": {
+   "textNodes": 293,
+   "minTextRatio": 4.53,
+   "minTextAt": "Refresh (button, 13.3333px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 7.69
+    },
+    {
+     "text": "In effect",
+     "ratio": 8.87
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 8.87
+    },
+    {
+     "text": "In effect",
+     "ratio": 8.87
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "In effect",
+     "ratio": 8.87
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.16
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.16
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Not settable",
+     "ratio": 6.55
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.16
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.18,
+     "vsPage": 1.61,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": [
+     "BUTTON:Apply to every tool x4",
+     "SUMMARY:Show sources and exact keys x5",
+     "BUTTON:Open source for effortLevel x2",
+     "BUTTON:Open source for <none documented> x4",
+     "BUTTON:Open source for model x3"
+    ]
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "light": {
+   "textNodes": 293,
+   "minTextRatio": 2.93,
+   "minTextAt": "Overridden by env CLAUDE_CODE_EFFO (span, 11.96px)",
+   "textBelow4_5": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_EFFO",
+     "cls": "span",
+     "size": "11.96px",
+     "ratio": 2.93,
+     "disabled": false
+    },
+    {
+     "text": "In effect",
+     "cls": "span",
+     "size": "11.96px",
+     "ratio": 4.07,
+     "disabled": false
+    },
+    {
+     "text": "In effect",
+     "cls": "span",
+     "size": "11.96px",
+     "ratio": 4.07,
+     "disabled": false
+    },
+    {
+     "text": "In effect",
+     "cls": "span",
+     "size": "11.96px",
+     "ratio": 4.07,
+     "disabled": false
+    },
+    {
+     "text": "In effect",
+     "cls": "span",
+     "size": "11.96px",
+     "ratio": 4.07,
+     "disabled": false
+    }
+   ],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 2.93
+    },
+    {
+     "text": "In effect",
+     "ratio": 4.07
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "In effect",
+     "ratio": 4.07
+    },
+    {
+     "text": "In effect",
+     "ratio": 4.07
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "In effect",
+     "ratio": 4.07
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Tool default",
+     "ratio": 5.94
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Tool default",
+     "ratio": 5.94
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Not settable",
+     "ratio": 4.6
+    },
+    {
+     "text": "Tool default",
+     "ratio": 5.94
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 1.57,
+     "vsPage": 1.48,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": [
+     "BUTTON:Apply to every tool x4",
+     "SUMMARY:Show sources and exact keys x5",
+     "BUTTON:Open source for effortLevel x2",
+     "BUTTON:Open source for <none documented> x4",
+     "BUTTON:Open source for model x3"
+    ]
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "hc-dark": {
+   "textNodes": 293,
+   "minTextRatio": 7.96,
+   "minTextAt": "Tool default (span, 11.96px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 19.56
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.49
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.49
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.49
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "In effect",
+     "ratio": 10.49
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.96
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.96
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Not settable",
+     "ratio": 10.02
+    },
+    {
+     "text": "Tool default",
+     "ratio": 7.96
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 10.55,
+     "vsPage": 10.55,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": [
+     "BUTTON:Apply to every tool x4",
+     "SUMMARY:Show sources and exact keys x5",
+     "BUTTON:Open source for effortLevel x2",
+     "BUTTON:Open source for <none documented> x4",
+     "BUTTON:Open source for model x3"
+    ]
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  },
+  "hc-light": {
+   "textNodes": 293,
+   "minTextRatio": 5.51,
+   "minTextAt": "Every default applies to new sessi (hint, 13px)",
+   "textBelow4_5": [],
+   "badges": [
+    {
+     "text": "Overridden by env CLAUDE_CODE_",
+     "ratio": 6.61
+    },
+    {
+     "text": "In effect",
+     "ratio": 6.25
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "In effect",
+     "ratio": 6.25
+    },
+    {
+     "text": "In effect",
+     "ratio": 6.25
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "In effect",
+     "ratio": 6.25
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Tool default",
+     "ratio": 8.98
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Tool default",
+     "ratio": 8.98
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Not settable",
+     "ratio": 5.51
+    },
+    {
+     "text": "Tool default",
+     "ratio": 8.98
+    }
+   ],
+   "fieldEdges": [
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "INPUT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 23,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    },
+    {
+     "tag": "SELECT",
+     "vsFill": 8.98,
+     "vsPage": 8.98,
+     "height": 25,
+     "font": "Arial",
+     "size": "13.3333px"
+    }
+   ],
+   "names": {
+    "controls": 51,
+    "unnamed": 0,
+    "duplicates": [
+     "BUTTON:Apply to every tool x4",
+     "SUMMARY:Show sources and exact keys x5",
+     "BUTTON:Open source for effortLevel x2",
+     "BUTTON:Open source for <none documented> x4",
+     "BUTTON:Open source for model x3"
+    ]
+   },
+   "liveRegions": {
+    "status": "status",
+    "alert": "alert"
+   }
+  }
+ },
+ "focus": [
+  {
+   "control": "Refresh",
+   "before": "refresh",
+   "during": "BODY",
+   "after": "BODY",
+   "afterTag": "BODY",
+   "onBody": true
+  },
+  {
+   "control": "Apply to every tool (effort)",
+   "before": "set:effort|*",
+   "during": "BODY",
+   "after": "BODY",
+   "afterTag": "BODY",
+   "onBody": true
+  },
+  {
+   "control": "Apply to every tool (posture)",
+   "before": "set:posture|*",
+   "during": "BODY",
+   "after": "BODY",
+   "afterTag": "BODY",
+   "onBody": true
+  },
+  {
+   "control": "Reset Default effort",
+   "before": "reset:effort",
+   "during": "BODY",
+   "after": "BODY",
+   "afterTag": "BODY",
+   "onBody": true
+  },
+  {
+   "control": "Remove this override (control disappears)",
+   "before": "remove:effort|claude",
+   "during": "BODY",
+   "after": "BODY",
+   "afterTag": "BODY",
+   "onBody": true
+  }
+ ],
+ "announced": "",
+ "overriddenRowStart": {
+  "value": "low",
+  "firstOption": "low",
+  "setAriaDisabled": null
+ },
+ "sourcesStayOpen": [
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "layout": {
+  "320": {
+   "scrollWidth": 340,
+   "clientWidth": 320,
+   "overflowX": true,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 63,
+     "longestWord": 42,
+     "room": 47,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 63,
+     "longestWord": 38,
+     "room": 47,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 63,
+     "longestWord": 45,
+     "room": 47,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 63,
+     "longestWord": 45,
+     "room": 47,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 63,
+     "longestWord": 42,
+     "room": 47,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "420": {
+   "scrollWidth": 420,
+   "clientWidth": 420,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 84,
+     "longestWord": 42,
+     "room": 68,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 84,
+     "longestWord": 38,
+     "room": 68,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 84,
+     "longestWord": 45,
+     "room": 68,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 84,
+     "longestWord": 45,
+     "room": 68,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 84,
+     "longestWord": 42,
+     "room": 68,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "900": {
+   "scrollWidth": 900,
+   "clientWidth": 900,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 185,
+     "longestWord": 42,
+     "room": 169,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 185,
+     "longestWord": 38,
+     "room": 169,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 185,
+     "longestWord": 45,
+     "room": 169,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 185,
+     "longestWord": 45,
+     "room": 169,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 185,
+     "longestWord": 42,
+     "room": 169,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  },
+  "1440": {
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "firstColumn": [
+    {
+     "label": "Claude Code",
+     "width": 303,
+     "longestWord": 42,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "Codex",
+     "width": 303,
+     "longestWord": 38,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "GitHub Copilot CLI",
+     "width": 303,
+     "longestWord": 45,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "VS Code Copilot Chat (VS Code)",
+     "width": 303,
+     "longestWord": 45,
+     "room": 287,
+     "splits": false
+    },
+    {
+     "label": "Claude Code (VS Code)",
+     "width": 303,
+     "longestWord": 42,
+     "room": 287,
+     "splits": false
+    }
+   ],
+   "anySplitTool": false
+  }
+ },
+ "readOnlyRefresh": {
+  "disabled": true,
+  "ariaDisabled": null
+ },
+ "errorRefresh": {
+  "disabled": true,
+  "ariaDisabled": null
+ }
+}
