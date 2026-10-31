@@ -19,6 +19,56 @@
       "model"
     ]
   },
+  "removable_overrides": [
+    {
+      "id": "claude.effort_env",
+      "control": "effort",
+      "tool": "claude",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "env",
+        "CLAUDE_CODE_EFFORT_LEVEL"
+      ],
+      "weakens_safety": false,
+      "reason": "The variable outranks /effort and every saved per-model level, so a persisted effort choice never applies while it is set.",
+      "source": {
+        "url": "https://code.claude.com/docs/en/env-vars",
+        "fetched": "2026-10-30"
+      }
+    },
+    {
+      "id": "claude.disable_bypass",
+      "control": "posture",
+      "tool": "claude",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "permissions",
+        "disableBypassPermissionsMode"
+      ],
+      "weakens_safety": true,
+      "reason": "When set in any settings file it blocks bypassPermissions, so full-auto cannot apply while it is present.",
+      "source": {
+        "url": "https://code.claude.com/docs/en/permission-modes",
+        "fetched": "2026-10-30"
+      }
+    },
+    {
+      "id": "copilot-cli.disable_bypass",
+      "control": "posture",
+      "tool": "copilot-cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "permissions",
+        "disableBypassPermissionsMode"
+      ],
+      "weakens_safety": true,
+      "reason": "Nexus-Hub's own platform-defaults seed writes this block, and it keeps allow-all unavailable until it is removed.",
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      }
+    }
+  ],
   "tools": {
     "claude": {
       "label": "Claude Code",

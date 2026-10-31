@@ -1052,5 +1052,190 @@ def test_settings_template_has_no_bom():
     )
 
 
+# --- (4) Nexus-Hub Settings ownership record (v4.14.6) -------------------------
+#
+# A key `nexus-hub settings` recorded in ~/.nexus-hub/settings-control.json is the user's
+# choice: neither installer may re-seed it or upgrade it, and seeding resumes once `reset`
+# drops the entry. Each installer's core-settings function is extracted and run against a
+# scratch tree (a copy of the CLI core, its library, and a template with a newer model), and
+# every change to the record goes through the real `nexus-hub settings` command.
+
+_CORE_SH_HARNESS = r"""
+set -euo pipefail
+installer="$1"; repo_root="$2"; target="$3"
+GRAY=""; GREEN=""; YELLOW=""
+write_item() { printf '%s\n' "$1"; }
+extract() { sed -n "/^$1() {/,/^}/p" "$installer"; }
+eval "$(extract install_core_settings)"
+install_core_settings "$repo_root" "$target" "Test"
+"""
+
+_CORE_PS_HARNESS = r"""
+$ErrorActionPreference = 'Stop'
+$installer = $args[0]; $repoRoot = $args[1]; $target = $args[2]
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($installer, [ref]$null, [ref]$null)
+$fn = $ast.FindAll({
+    $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $args[0].Name -eq 'Install-CoreSettings'
+}, $true) | Select-Object -First 1
+if (-not $fn) { Write-Error 'Install-CoreSettings not found'; exit 3 }
+Invoke-Expression $fn.Extent.Text
+function Write-Item { param($Message, $Color) Write-Host $Message }
+foreach ($helperName in @('Read-JsonDocument', 'Write-JsonFile')) {
+    $helperAst = $ast.Find({param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $helperName}, $true)
+    if ($helperAst) { Invoke-Expression $helperAst.Extent.Text }
+}
+Install-CoreSettings -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'
+"""
+
+_NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
+def _powershell_for_core():
+    import os
+
+    pinned = os.environ.get("NEXUS_TEST_POWERSHELL")
+    return shutil.which(pinned) if pinned else (shutil.which("pwsh") or shutil.which("powershell"))
+
+
+def _core_runners():
+    runners = []
+    if shutil.which("bash") and shutil.which("jq"):
+        runners.append("bash")
+    if _powershell_for_core():
+        runners.append("powershell")
+    return runners
+
+
+def _core_scratch(tmp_path, template_model):
+    """A scratch repo root (CLI core, library, template) plus a home whose .claude/settings.json holds one user key."""
+    fake = tmp_path / "repo"
+    (fake / "scripts").mkdir(parents=True)
+    for name in ("nexus_hub_cli.py", "nexus_process.py"):
+        shutil.copy2(REPO_ROOT / "scripts" / name, fake / "scripts" / name)
+    shutil.copytree(REPO_ROOT / "scripts" / "lib", fake / "scripts" / "lib",
+                    ignore=shutil.ignore_patterns("__pycache__", "integrations", "installer"))
+    (fake / "catalog" / "hooks").mkdir(parents=True)
+    template = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
+    template["model"] = template_model
+    (fake / "catalog" / "hooks" / "settings.json").write_text(json.dumps(template, indent=2), encoding="utf-8")
+    home = tmp_path / "home"
+    (home / ".claude").mkdir(parents=True)
+    (home / ".claude" / "settings.json").write_text(json.dumps({"customUserSetting": 1}), encoding="utf-8")
+    return fake, home
+
+
+def _nexus_settings(fake, home, *args):
+    import os
+
+    env = {k: v for k, v in os.environ.items() if not k.upper().startswith(("CLAUDE", "NEXUS", "CODEX", "ANTHROPIC"))}
+    env.update({"HOME": str(home), "USERPROFILE": str(home)})
+    done = subprocess.run(
+        [sys.executable, "-B", str(fake / "scripts" / "nexus_hub_cli.py"), "settings", *args, "--project", str(home)],
+        env=env, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL,
+        timeout=120, check=False, creationflags=_NOWIN,
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+    return done
+
+
+def _seed_core(kind, tmp_path, fake, home):
+    """Run one installer's core-settings seeding against the scratch home; return the resulting settings."""
+    target = home / ".claude"
+    if kind == "bash":
+        harness = tmp_path / "core-harness.sh"
+        harness.write_text(_CORE_SH_HARNESS, encoding="utf-8", newline="\n")
+        argv = [shutil.which("bash"), str(harness), str(INSTALLER_SH), str(fake), str(target)]
+    else:
+        harness = tmp_path / "core-harness.ps1"
+        harness.write_text(_CORE_PS_HARNESS, encoding="utf-8")
+        argv = [_powershell_for_core(), "-NoProfile", "-File", str(harness), str(INSTALLER_PS1), str(fake), str(target)]
+    done = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=180, check=False, creationflags=_NOWIN)
+    assert done.returncode == 0, done.stdout + done.stderr
+    return json.loads((target / "settings.json").read_text(encoding="utf-8-sig"))
+
+
+def test_installers_neither_reseed_a_recorded_key_nor_upgrade_it_and_resume_after_reset(tmp_path):
+    """Both installers skip every key path in settings-control.json; a reset puts seeding back."""
+    runners = _core_runners()
+    assert runners, "needs bash with jq, or PowerShell, to run the installer functions"
+    for kind in runners:
+        work = tmp_path / kind
+        work.mkdir()
+        fake, home = _core_scratch(work, "opus")
+        settings = home / ".claude" / "settings.json"
+
+        # A recorded choice that the user later deleted by hand is not seeded back.
+        _nexus_settings(fake, home, "set", "model", "claude-opus-5-5", "--tool", "claude")
+        data = json.loads(settings.read_text(encoding="utf-8"))
+        del data["model"]
+        settings.write_text(json.dumps(data), encoding="utf-8")
+        seeded = _seed_core(kind, work, fake, home)
+        assert "model" not in seeded, f"{kind}: re-seeded a key the record lists"
+        assert seeded["effortLevel"] == "high" and seeded["customUserSetting"] == 1, f"{kind}: unrelated seeding stopped"
+
+        # Reset drops the entry (the key changed since, so it is user-owned), and seeding resumes.
+        _nexus_settings(fake, home, "reset", "model", "--tool", "claude")
+        resumed = _seed_core(kind, work, fake, home)
+        assert resumed["model"] == "opus", f"{kind}: seeding did not resume after reset"
+
+
+def test_installers_do_not_upgrade_a_seed_the_record_lists(tmp_path):
+    """A recorded key equal to an old Nexus-Hub seed stays as the user chose it until reset."""
+    runners = _core_runners()
+    assert runners, "needs bash with jq, or PowerShell, to run the installer functions"
+    for kind in runners:
+        work = tmp_path / kind
+        work.mkdir()
+        fake, home = _core_scratch(work, "opus-next")
+        settings = home / ".claude" / "settings.json"
+        settings.write_text(json.dumps({"model": "opus"}), encoding="utf-8")
+        seeds = home / ".nexus-hub" / "core-settings-seeds.json"
+        seeds.parent.mkdir()
+        seeds.write_text(
+            json.dumps({"schema_version": 1, "target": ".claude/settings.json", "values": {"model": "opus"}, "removed": []}),
+            encoding="utf-8",
+        )
+
+        _nexus_settings(fake, home, "set", "model", "opus", "--tool", "claude")
+        held = _seed_core(kind, work, fake, home)
+        assert held["model"] == "opus", f"{kind}: upgraded a key the record lists"
+
+        _nexus_settings(fake, home, "reset", "model", "--tool", "claude")
+        upgraded = _seed_core(kind, work, fake, home)
+        assert upgraded["model"] == "opus-next", f"{kind}: upgrade did not resume after reset"
+
+
+def test_installers_stop_seeding_when_the_record_cannot_be_read(tmp_path):
+    """An unreadable record means the helper fails, so nothing is seeded blindly."""
+    runners = _core_runners()
+    assert runners, "needs bash with jq, or PowerShell, to run the installer functions"
+    for kind in runners:
+        work = tmp_path / kind
+        work.mkdir()
+        fake, home = _core_scratch(work, "opus")
+        record = home / ".nexus-hub" / "settings-control.json"
+        record.parent.mkdir()
+        record.write_text("{not json", encoding="utf-8")
+        settings = home / ".claude" / "settings.json"
+        before = settings.read_bytes()
+
+        seeded = _seed_core(kind, work, fake, home)
+
+        assert settings.read_bytes() == before and seeded == {"customUserSetting": 1}, f"{kind}: seeded past an unreadable record"
+        assert record.read_text(encoding="utf-8") == "{not json"
+
+
+def test_installer_core_settings_ask_the_helper_and_skip_listed_keys_in_both_installers():
+    """Structural parity: both installers call owned-keys once, from the tree being installed, and skip listed keys."""
+    sh = INSTALLER_SH.read_text(encoding="utf-8")
+    ps = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert sh.count("settings owned-keys --json --home") == 1 and ps.count("settings owned-keys --json --home") == 1
+    assert "$repo_root/scripts/nexus_hub_cli.py" in sh and "scripts\\nexus_hub_cli.py" in ps
+    assert "($skip | index($key)) != null then ." in sh and "$ownedSkip.Contains($key)" in ps
+    assert "core settings were not seeded" in sh and "core settings were not seeded" in ps
+
+
 if __name__ == "__main__":
     _run_all()

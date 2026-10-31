@@ -965,6 +965,19 @@ install_core_settings() {
     fi
     target_name="${resolved_dir##*/}/settings.json"
     record_file="${resolved_dir%/*}/.nexus-hub/core-settings-seeds.json"
+    # v4.14.6: a key `nexus-hub settings` recorded as the user's choice is never re-seeded or upgraded.
+    # The helper runs from the tree being installed (the installed copy may still be the previous
+    # version at this point). A record that cannot be read stops seeding: never seed blindly.
+    local settings_cli="$repo_root/scripts/nexus_hub_cli.py" settings_py="" owned_json owned_skip='[]'
+    if command -v python3 >/dev/null 2>&1; then settings_py=python3; elif command -v python >/dev/null 2>&1; then settings_py=python; fi
+    if [ -f "$settings_cli" ]; then
+        if [ -z "$settings_py" ] \
+            || ! owned_json=$("$settings_py" "$settings_cli" settings owned-keys --json --home "${resolved_dir%/*}") \
+            || ! owned_skip=$(printf '%s\n' "$owned_json" | jq -c '[.dotted["~/.claude/settings.json"][]?]'); then
+            write_item "Warning: could not read the Nexus-Hub Settings ownership record; core settings were not seeded" "$YELLOW" >&2
+            return
+        fi
+    fi
     ownership=$(jq -cn --arg target "$target_name" '{schema_version:1,target:$target,values:{},removed:[]}')
     if [ -e "$record_file" ] || [ -L "$record_file" ]; then
         if [ ! -L "$record_file" ] && jq -e --arg target "$target_name" '
@@ -980,7 +993,7 @@ install_core_settings() {
     fi
     if [ "${_nexus_core_settings_created_path:-}" = "$settings_file" ]; then fresh=true; fi
     local payload merged seed_record
-    if ! payload=$(jq -n --slurpfile existing "$settings_file" --slurpfile template "$template_file" --argjson ownership "$ownership" --argjson fresh "$fresh" '
+    if ! payload=$(jq -n --slurpfile existing "$settings_file" --slurpfile template "$template_file" --argjson ownership "$ownership" --argjson fresh "$fresh" --argjson skip "$owned_skip" '
         def slot($key):
             reduce ($key | split("."))[] as $part
                 ({present:true,value:.};
@@ -1007,14 +1020,15 @@ install_core_settings() {
         ($user_scalar or $user_env) as $user_pair |
         (($user_scalar and $scalar.value != $t.effortLevel) or $user_env) as $user_alternative |
         {config:$e,owned:$prior,removed:($ownership.removed // []),blocked:[]}
-        | if ($desired | has("env.CLAUDE_CODE_EFFORT_LEVEL") | not) then
+        | if ($desired | has("env.CLAUDE_CODE_EFFORT_LEVEL") | not) and (($skip | index("env.CLAUDE_CODE_EFFORT_LEVEL")) == null) then
             if $env.present and (.owned | has("env.CLAUDE_CODE_EFFORT_LEVEL")) and $env.value == .owned["env.CLAUDE_CODE_EFFORT_LEVEL"]
             then .config |= delpaths([["env","CLAUDE_CODE_EFFORT_LEVEL"]]) else . end
             | .owned |= del(."env.CLAUDE_CODE_EFFORT_LEVEL")
           else . end
         | reduce ($desired | to_entries[]) as $entry (.;
             $entry.key as $key | ($key | split(".")) as $path | (.config | slot($key)) as $current |
-            if (.removed | index($key)) != null then
+            if ($skip | index($key)) != null then .
+            elif (.removed | index($key)) != null then
                 if $fresh and $current.present and $current.value == $entry.value then .config |= delpaths([$path]) else . end
                 | .owned |= del(.[$key])
             elif ($current.present | not) and (.owned | has($key)) then

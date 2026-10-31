@@ -209,3 +209,69 @@ def test_the_schema_accepts_a_well_formed_record() -> None:
     jsonschema.validate(_record(), SCHEMA)
     jsonschema.validate(_record(state="overridden-by", layer="env X (shell)", fix="Unset X."), SCHEMA)
     jsonschema.validate(_record(state="not-covered", detail="claude-opus-5-5"), SCHEMA)
+
+
+# --- Write side (v4.14.6 Phase 3) -------------------------------------------------
+
+
+def test_set_dry_run_json_then_set_and_reset_round_trip_with_exit_codes(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    settings = home / ".claude" / "settings.json"
+    settings.parent.mkdir()
+    settings.write_text('{\n  "model": "sonnet",\n  "env": {"KEEP": "1"}\n}\n', encoding="utf-8")
+    before = digest(home)
+
+    dry = run(install, env, "set", "model", "claude-opus-5-5", "--tool", "claude", "--dry-run", "--json", "--project", str(tmp_path))
+    assert dry.returncode == 0, dry.stderr
+    assert json.loads(dry.stdout)["results"][0]["status"] == "would-write" and digest(home) == before
+
+    done = run(install, env, "set", "model", "claude-opus-5-5", "--tool", "claude", "--project", str(tmp_path))
+    assert done.returncode == 0, done.stderr
+    assert json.loads(settings.read_text(encoding="utf-8"))["model"] == "claude-opus-5-5"
+    owned = json.loads(run(install, env, "owned-keys", "--json").stdout)
+    assert owned["dotted"] == {"~/.claude/settings.json": ["model"]}
+
+    reset = run(install, env, "reset", "model", "--tool", "claude", "--project", str(tmp_path))
+    assert reset.returncode == 0, reset.stderr
+    assert digest(home) == {**before, **{k: v for k, v in digest(home).items() if k.startswith(".nexus-hub")}}
+    assert settings.read_text(encoding="utf-8") == '{\n  "model": "sonnet",\n  "env": {"KEEP": "1"}\n}\n'
+
+
+def test_a_safety_weakening_set_without_a_terminal_exits_three_and_writes_nothing(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    (home / ".claude").mkdir()
+    before = digest(home)
+
+    done = run(install, env, "set", "posture", "full-auto", "--tool", "claude", "--project", str(tmp_path))
+
+    assert done.returncode == 3 and "needs a person" in done.stderr
+    assert digest(home) == before
+
+
+def test_usage_errors_exit_two_and_nothing_to_write_exits_four(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    assert run(install, env, "set", "posture", "yolo").returncode == 2
+    assert run(install, env, "set", "model", "x").returncode == 2  # model is chosen per tool
+    assert run(install, env, "remove-override", "effort").returncode == 2  # --tool is required
+    nothing = run(install, env, "set", "effort", "high", "--project", str(tmp_path))
+    assert nothing.returncode == 4 and "not-settable" in nothing.stdout
+
+
+def test_an_unreadable_record_stops_set_and_owned_keys_with_exit_two(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    (home / ".nexus-hub").mkdir()
+    (home / ".nexus-hub" / "settings-control.json").write_text("{nope", encoding="utf-8")
+    (home / ".claude").mkdir()
+
+    assert run(install, env, "set", "model", "x", "--tool", "claude", "--project", str(tmp_path)).returncode == 2
+    owned = run(install, env, "owned-keys", "--json")
+    assert owned.returncode == 2 and "repair or delete" in owned.stderr
+
+
+def test_owned_keys_takes_its_home_from_the_option(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    elsewhere = tmp_path / "elsewhere"
+    (elsewhere / ".nexus-hub").mkdir(parents=True)
+    entry = {"kind": "file", "tool": "claude", "file": "~/.claude/settings.json", "key_path": ["model"],
+             "previous": {"present": False}, "new": {"present": True, "value": "x"}}
+    (elsewhere / ".nexus-hub" / "settings-control.json").write_text(json.dumps({"schema_version": 1, "entries": [entry]}), encoding="utf-8")
+
+    done = run(install, env, "owned-keys", "--json", "--home", str(elsewhere))
+
+    assert done.returncode == 0 and json.loads(done.stdout)["dotted"] == {"~/.claude/settings.json": ["model"]}
+    assert json.loads(run(install, env, "owned-keys", "--json").stdout)["dotted"] == {}

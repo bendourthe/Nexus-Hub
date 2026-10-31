@@ -193,6 +193,36 @@ def validate_structure(catalog: dict[str, Any]) -> list[str]:
         if write["tool"] == "codex" and write["key_path"] in (["approval_policy"], ["sandbox_mode"]) and write.get("applies_only_without") != ["default_permissions"]:
             findings.append(f"{wid}: Codex posture write must declare applies_only_without default_permissions")
     findings += _control_findings(catalog)
+    findings += _removable_findings(catalog)
+    return findings
+
+
+def _removable_findings(catalog: dict[str, Any]) -> list[str]:
+    """Rules for `removable_overrides`: the only keys `remove-override` may delete."""
+    findings: list[str] = []
+    controls = {c["id"] for c in catalog["controls"]}
+    seen: set[str] = set()
+    for row in catalog.get("removable_overrides", []):
+        rid = row.get("id", "<no id>")
+        if rid in seen:
+            findings.append(f"removable override {rid} is listed twice")
+        seen.add(rid)
+        if row.get("control") not in controls:
+            findings.append(f"removable override {rid} names unknown control {row.get('control')}")
+        if row.get("tool") not in catalog["tools"]:
+            findings.append(f"removable override {rid} names unknown tool {row.get('tool')}")
+        if USER_FILE_IDS.get(row.get("file")) is None:
+            findings.append(f"removable override {rid} must name a user-level file")
+        path = row.get("key_path")
+        if not isinstance(path, list) or not path or not all(isinstance(p, str) and p for p in path) or MODEL_ID_SEGMENT in path:
+            findings.append(f"removable override {rid} needs a literal key path")
+        if not isinstance(row.get("weakens_safety"), bool):
+            findings.append(f"removable override {rid} needs a boolean weakens_safety")
+        if not str(row.get("reason", "")).strip():
+            findings.append(f"removable override {rid} needs a reason")
+        source = row.get("source", {})
+        if not str(source.get("url", "")).startswith("https://") or not ISO_DATE.match(str(source.get("fetched", ""))):
+            findings.append(f"removable override {rid} needs an https source url and an ISO fetched date")
     return findings
 
 

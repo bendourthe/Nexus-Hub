@@ -78,3 +78,45 @@ def test_the_bundled_model_ids_load_and_a_bad_list_is_refused(tmp_path: Path) ->
     bad.write_text('{"ids": [1]}', encoding="utf-8")
     with pytest.raises(catalog_mod.CatalogError):
         catalog_mod.load_claude_model_ids(bad)
+
+
+@pytest.mark.parametrize(
+    ("change", "needle"),
+    [
+        ({"control": "nope"}, "unknown control"),
+        ({"tool": "emacs"}, "unknown tool"),
+        ({"file": "~/.claude/settings.local.json"}, "user-level file"),
+        ({"file": "vscode-config"}, "user-level file"),
+        ({"key_path": ["env", "<model-id>"]}, "literal key path"),
+        ({"key_path": []}, "literal key path"),
+        ({"weakens_safety": "yes"}, "boolean weakens_safety"),
+        ({"reason": " "}, "needs a reason"),
+        ({"source": {"url": "http://x", "fetched": "2026-10-30"}}, "https source url"),
+    ],
+)
+def test_a_removable_override_must_name_a_literal_user_level_key(tmp_path: Path, change: dict[str, Any], needle: str) -> None:
+    broken = copy.deepcopy(BUNDLED)
+    broken["removable_overrides"][0].update(change)
+
+    with pytest.raises(catalog_mod.CatalogError) as raised:
+        catalog_mod.load_catalog(_write(tmp_path, broken))
+
+    assert needle in str(raised.value)
+
+
+def test_a_removable_override_listed_twice_is_refused(tmp_path: Path) -> None:
+    broken = copy.deepcopy(BUNDLED)
+    broken["removable_overrides"].append(copy.deepcopy(broken["removable_overrides"][0]))
+
+    with pytest.raises(catalog_mod.CatalogError, match="listed twice"):
+        catalog_mod.load_catalog(_write(tmp_path, broken))
+
+
+def test_the_bundled_removable_overrides_are_exactly_the_three_the_plan_names() -> None:
+    rows = {(r["tool"], tuple(r["key_path"])) for r in catalog_mod.load_catalog()["removable_overrides"]}
+
+    assert rows == {
+        ("claude", ("env", "CLAUDE_CODE_EFFORT_LEVEL")),
+        ("claude", ("permissions", "disableBypassPermissionsMode")),
+        ("copilot-cli", ("permissions", "disableBypassPermissionsMode")),
+    }

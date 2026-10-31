@@ -1220,6 +1220,23 @@ function Install-CoreSettings {
         $targetName = [IO.Path]::GetFileName($targetDirectory) + '/settings.json'
         $recordDirectory = Join-Path ([IO.Path]::GetDirectoryName($targetDirectory)) '.nexus-hub'
         $recordFile = Join-Path $recordDirectory 'core-settings-seeds.json'
+        # v4.14.6: a key `nexus-hub settings` recorded as the user's choice is never re-seeded or upgraded.
+        # The helper runs from the tree being installed (the installed copy may still be the previous
+        # version at this point). A record that cannot be read stops seeding: never seed blindly.
+        $ownedSkip = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        $settingsCli = Join-Path $RepoRoot 'scripts\nexus_hub_cli.py'
+        if (Test-Path -LiteralPath $settingsCli) {
+            $settingsPython = @('python', 'py', 'python3') | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
+            $ownedText = $null
+            if ($settingsPython) { $ownedText = (& $settingsPython $settingsCli settings owned-keys --json --home ([IO.Path]::GetDirectoryName($targetDirectory)) | Out-String) }
+            if (-not $settingsPython -or $LASTEXITCODE -ne 0) {
+                Write-Warning "could not read the Nexus-Hub Settings ownership record; core settings were not seeded"
+                return
+            }
+            $ownedDocument = $ownedText | ConvertFrom-Json
+            $ownedFile = $ownedDocument.dotted.PSObject.Properties | Where-Object { $_.Name -ceq '~/.claude/settings.json' }
+            if ($ownedFile) { foreach ($ownedKey in @($ownedFile.Value)) { [void]$ownedSkip.Add([string]$ownedKey) } }
+        }
         $seedRecord = New-CoreObject
         $seedRecord['schema_version'] = 1; $seedRecord['target'] = $targetName
         $seedRecord['values'] = New-CoreObject; $seedRecord['removed'] = @()
@@ -1266,7 +1283,7 @@ function Install-CoreSettings {
         $userEnv = $effortEnv.Present -and -not ($owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL']))
         $userPair = $userScalar -or $userEnv
         $userAlternative = ($userScalar -and -not (Test-CoreEqual $scalar.Value $templateJson['effortLevel'])) -or $userEnv
-        if (-not $desired.Contains('env.CLAUDE_CODE_EFFORT_LEVEL')) {
+        if (-not $desired.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and -not $ownedSkip.Contains('env.CLAUDE_CODE_EFFORT_LEVEL')) {
             if ($effortEnv.Present -and $owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL'])) {
                 [void](Set-CoreValue $existingJson 'env.CLAUDE_CODE_EFFORT_LEVEL' $null -Remove)
             }
@@ -1277,7 +1294,9 @@ function Install-CoreSettings {
         $blockedModels = $false
         foreach ($key in $desired.Keys) {
             $current = Get-CoreSlot $existingJson $key; $value = $desired[$key]
-            if ($removed.Contains($key)) {
+            if ($ownedSkip.Contains($key)) {
+                continue
+            } elseif ($removed.Contains($key)) {
                 if ($fresh -and $current.Present -and (Test-CoreEqual $current.Value $value)) { [void](Set-CoreValue $existingJson $key $null -Remove) }
                 $owned.Remove($key)
             } elseif (-not $current.Present -and $owned.Contains($key)) {

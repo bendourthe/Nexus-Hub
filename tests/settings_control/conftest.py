@@ -19,7 +19,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.lib.settings_control import catalog as catalog_mod  # noqa: E402
-from scripts.lib.settings_control import readers, resolve  # noqa: E402
+from scripts.lib.settings_control import apply, readers, resolve  # noqa: E402
 
 CLAUDE_IDS = ["claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
 DEFAULT_VERSIONS = {"claude": "2.1.283", "codex": "0.136.0", "copilot": "1.0.0", "code": "1.144.0"}
@@ -76,6 +76,7 @@ class Machine:
         self.env: dict[str, str] = {"PATH": ""}
         self.commands: dict[str, str] = dict(DEFAULT_VERSIONS)
         self.version_errors: dict[str, str] = {}
+        self.said: list[str] = []
 
     def path(self, file_id: str) -> Path:
         found = self.managed if file_id == "claude-managed" else readers.file_path(file_id, self.home, self.env, self.project, "linux")
@@ -115,6 +116,23 @@ class Machine:
             catalog, home=self.home, env=self.env, project=self.project, platform="linux",
             which=which, version_runner=runner, file_overrides={"claude-managed": self.managed},
         )
+
+    def context(self, catalog: dict[str, Any], **seams: Any) -> apply.Context:
+        """A write-side context on this machine: no TTY, a fixed clock, and the fake PATH and versions."""
+
+        def which(command: str) -> str | None:
+            return f"/stub/{command}" if command in self.commands else None
+
+        def runner(argv: list[str]) -> tuple[str | None, str | None]:
+            return self.commands[Path(argv[0]).name], None
+
+        ctx = apply.Context(
+            catalog, home=self.home, env=self.env, project=self.project, platform="linux", claude_ids=list(CLAUDE_IDS),
+            which=which, version_runner=runner, is_tty=lambda: False, ask=lambda prompt: "", clock=lambda: 1000.0, say=self.said.append,
+        )
+        for name, value in seams.items():
+            setattr(ctx, name, value)
+        return ctx
 
     def records(self, catalog: dict[str, Any], ids: list[str] | None = None) -> dict[tuple[str, str, str], dict[str, Any]]:
         found = resolve.resolve(catalog, self.snapshot(catalog), CLAUDE_IDS if ids is None else ids)
