@@ -723,6 +723,12 @@ DEV_ONLY_SCRIPTS = {
     # An end-user install carries no configs/ source to derive from, so like the
     # three guards above it is deliberately not installer-copied.
     "sync_platform_defaults.py",
+    # Repo-internal proof-spike harness (v4.14.6): applies each candidate
+    # Nexus-Hub Settings write in a scratch home and records the effect a fresh
+    # session of the real tool reports. It lives under scripts/dev/, which the
+    # installers never copy; the entry records that intent next to the other
+    # repo-only guards. Meaningless in an end-user ~/.nexus-hub/scripts/.
+    "settings_proof_spike.py",
     # Repo-internal incident-note guard (v3.16.2): asserts every docs/incidents/
     # note carries a Public-Safe Shape section and a Durable fix section with a
     # link in it. Runs in `make validate` and CI. An end-user install has no

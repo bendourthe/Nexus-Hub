@@ -1,0 +1,1237 @@
+{
+  "schema_version": 1,
+  "admitted_on": "2026-10-30",
+  "proof_matrix": "docs/releases/v4/v4.14/development/v4.14.6-proof-matrix.md",
+  "rule": "A write is admitted only with a source and a Proof Record (a proven row in the proof matrix); every other cell is Not-Settable with its reason.",
+  "omitted_keys": {
+    "codex": [
+      "features.memories",
+      "memories.consolidation_model",
+      "memories.disable_on_external_context",
+      "memories.extract_model",
+      "memories.min_rate_limit_remaining_percent",
+      "memories.no_memories_if_mcp_or_web_search",
+      "model"
+    ]
+  },
+  "omitted_user_choice_exceptions": {
+    "codex": [
+      "model"
+    ]
+  },
+  "tools": {
+    "claude": {
+      "label": "Claude Code",
+      "agent_session_markers": [
+        "CLAUDECODE",
+        "CLAUDE_CODE_CHILD_SESSION"
+      ],
+      "marker_source": {
+        "url": "https://code.claude.com/docs/en/env-vars",
+        "fetched": "2026-10-30"
+      },
+      "cannot_remove": [
+        "Explicit ask rules and deny rules (deny blocks in every mode, including bypassPermissions)",
+        "Tools that require user interaction (AskUserQuestion and MCP tools marked requiresUserInteraction)",
+        "Recognized critical-path rm and rmdir removals",
+        "Connector tools your organization set to ask",
+        "Cross-session messaging safeguards",
+        "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
+        "A running session's mode"
+      ]
+    },
+    "codex": {
+      "label": "Codex",
+      "agent_session_markers": [],
+      "marker_source": {
+        "not_found": "No agent-session marker variable appears in the fetched Codex pages (2026-10-30)."
+      },
+      "cannot_remove": [
+        "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
+        "requirements.toml and cloud-managed requirements, which can forbid never",
+        "A running session's approval policy"
+      ]
+    },
+    "copilot-cli": {
+      "label": "GitHub Copilot CLI",
+      "agent_session_markers": [],
+      "marker_source": {
+        "not_found": "No agent-session marker variable appears in the fetched Copilot CLI page (2026-10-30)."
+      },
+      "cannot_remove": [
+        "Deny rules and enterprise restrictions",
+        "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
+        "Non-interactive runs, which ignore defaultPermissionMode"
+      ]
+    },
+    "vscode-copilot": {
+      "label": "VS Code Copilot Chat",
+      "agent_session_markers": [],
+      "marker_source": {
+        "not_found": "No agent-session marker variable appears in the fetched VS Code pages (2026-10-30)."
+      },
+      "cannot_remove": [
+        "Organization policy ChatToolsAutoApprove",
+        "Any workspace-level value that overrides the user setting"
+      ]
+    }
+  },
+  "controls": [
+    {
+      "id": "effort",
+      "label": "Default effort",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "never_written": [
+        "max"
+      ],
+      "writes": [
+        "claude.effort.model_settings",
+        "claude.effort.top_level",
+        "codex.effort",
+        "copilot-cli.effort",
+        "vscode-copilot.effort"
+      ]
+    },
+    {
+      "id": "model",
+      "label": "Default model",
+      "values": {
+        "type": "string"
+      },
+      "per_tool": true,
+      "writes": [
+        "claude.model",
+        "codex.model",
+        "copilot-cli.model",
+        "vscode-copilot.model"
+      ]
+    },
+    {
+      "id": "posture",
+      "label": "Approval posture",
+      "values": [
+        "ask",
+        "accept-edits",
+        "full-auto"
+      ],
+      "writes": [
+        "claude.posture",
+        "claude.skip_dangerous_prompt",
+        "claude-vscode.initial_permission_mode",
+        "claude-vscode.allow_dangerous",
+        "codex.posture",
+        "codex.sandbox_mode",
+        "copilot-cli.default_permission_mode",
+        "copilot-cli.disable_bypass",
+        "vscode-copilot.auto_approve",
+        "vscode-copilot.permissions_default"
+      ]
+    },
+    {
+      "id": "attribution",
+      "label": "Commit attribution off",
+      "values": [
+        "off"
+      ],
+      "writes": [
+        "claude.attribution",
+        "copilot-cli.co_authored",
+        "codex.attribution",
+        "vscode-copilot.attribution"
+      ]
+    },
+    {
+      "id": "git_guardrails",
+      "label": "Git-guardrails mode",
+      "values": [
+        "on",
+        "off"
+      ],
+      "writes": [
+        "internal.git_guardrails"
+      ]
+    }
+  ],
+  "writes": [
+    {
+      "id": "claude.effort.model_settings",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "modelSettings",
+        "<model-id>",
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
+          "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
+          "evidence": "vendor: model-config page",
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "evidence": "O10 (cannot-detect)",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
+      "pending_probe": "W06",
+      "shared_with_platform_defaults": {
+        "platform": "claude",
+        "paths": [
+          [
+            "modelSettings"
+          ]
+        ]
+      },
+      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present. max is not accepted here."
+    },
+    {
+      "id": "claude.effort.top_level",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
+          "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
+          "evidence": "vendor: model-config page",
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "evidence": "O10 (cannot-detect)",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
+      "pending_probe": "W07",
+      "shared_with_platform_defaults": {
+        "platform": "claude",
+        "paths": [
+          [
+            "effortLevel"
+          ]
+        ]
+      },
+      "notes": "Vendor: a user-scope top-level effortLevel does not set the default for Opus 5.5 and later models, so modelSettings is the lever for current models."
+    },
+    {
+      "id": "codex.effort",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "model_reasoning_effort"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "evidence": "O07 (model key proven; same layering documented for every key)",
+          "fix": "Remove model_reasoning_effort from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "evidence": "O11 (cannot-detect)",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
+      "pending_probe": "W12",
+      "shared_with_platform_defaults": {
+        "platform": "codex",
+        "paths": [
+          [
+            "model_reasoning_effort"
+          ]
+        ]
+      },
+      "notes": "The vendor also lists max and ultra for some models; they are never written as a default."
+    },
+    {
+      "id": "copilot-cli.effort",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".github/copilot/settings.json and settings.local.json in the repository",
+          "evidence": "O08 (not observed)",
+          "fix": "Remove effortLevel from the repository settings file."
+        },
+        {
+          "kind": "policy",
+          "locator": "MDM value",
+          "evidence": "O13 (cannot-detect)",
+          "fix": "Ask your administrator."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "pending_probe": "W19"
+    },
+    {
+      "id": "vscode-copilot.effort",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": [],
+      "value_map": {},
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No user-level key is documented: the fetched VS Code Copilot settings reference lists no reasoning-effort setting, and effort is chosen per model in the model picker."
+    },
+    {
+      "id": "claude.model",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "ANTHROPIC_MODEL",
+          "evidence": "O01",
+          "fix": "Unset ANTHROPIC_MODEL where it is set."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json",
+          "evidence": "O03",
+          "fix": "Remove model from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "evidence": "O10 (cannot-detect)",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        },
+        {
+          "kind": "remembered-ui",
+          "locator": "/model saved choice (writes this same user key)",
+          "evidence": "vendor: model-config page",
+          "fix": "Choose the model again with /model, or reset it here."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W01",
+        "O01",
+        "O03"
+      ],
+      "shared_with_platform_defaults": {
+        "platform": "claude",
+        "paths": [
+          [
+            "model"
+          ]
+        ]
+      },
+      "notes": "Value is an alias or a full model id."
+    },
+    {
+      "id": "codex.model",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "evidence": "O07",
+          "fix": "Remove model from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "evidence": "O11 (cannot-detect)",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W11",
+        "O07"
+      ],
+      "notes": "Listed under omitted keys in configs/platform-defaults.json for a seeding reason only; a value the user chooses is not a seed, so the validator carries one named exception."
+    },
+    {
+      "id": "copilot-cli.model",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".github/copilot/settings.json and settings.local.json in the repository",
+          "evidence": "O08 (not observed)",
+          "fix": "Remove model from the repository settings file."
+        },
+        {
+          "kind": "policy",
+          "locator": "MDM value",
+          "evidence": "O13 (cannot-detect)",
+          "fix": "Ask your administrator."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "pending_probe": "W18",
+      "shared_with_platform_defaults": {
+        "platform": "copilot",
+        "paths": [
+          [
+            "model"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "vscode-copilot.model",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": {},
+      "value_map": {},
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/enterprise/policies",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No user-level key is documented: the fetched settings reference lists no default-chat-model key (only inlineChat.defaultModel and chat.planAgent.defaultModel), and the policies page names ChatDefaultModel as an organization policy that controls chat.defaultModel."
+    },
+    {
+      "id": "claude.posture",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "permissions",
+        "defaultMode"
+      ],
+      "values": [
+        "default",
+        "acceptEdits",
+        "bypassPermissions"
+      ],
+      "value_map": {
+        "ask": "default",
+        "accept-edits": "acceptEdits",
+        "full-auto": "bypassPermissions"
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (bypassPermissions and auto are ignored from these files)",
+          "evidence": "O04",
+          "fix": "Remove permissions.defaultMode from the project file."
+        },
+        {
+          "kind": "project-file",
+          "locator": "permissions.disableBypassPermissionsMode in any settings file blocks bypassPermissions",
+          "evidence": "O05",
+          "fix": "Use remove-override to clear a Nexus-Hub-seeded block, or ask the owner of the file that sets it."
+        },
+        {
+          "kind": "remembered-ui",
+          "locator": "VS Code mode indicator: the last mode picked (Manual, Edit automatically, Auto) carries over",
+          "evidence": "vendor: permission-modes page; O06 not observed",
+          "fix": "Pick the mode in the indicator; Nexus-Hub cannot read or clear it."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "evidence": "O10 (cannot-detect)",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/permission-modes",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W02",
+        "W03",
+        "W04",
+        "O04",
+        "O05"
+      ],
+      "notes": "ask maps to the vendor value default (alias manual). The CLI flag --permission-mode and --dangerously-skip-permissions override for one session."
+    },
+    {
+      "id": "claude.skip_dangerous_prompt",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "skipDangerousModePermissionPrompt"
+      ],
+      "values": [
+        true
+      ],
+      "value_map": {
+        "full-auto": true
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the confirmation dialog it skips appears only in an interactive session. Without this key the first interactive full-auto session shows the dialog once and Claude Code writes the key itself when the user accepts.",
+      "pending_probe": "W05"
+    },
+    {
+      "id": "claude-vscode.initial_permission_mode",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "claudeCode.initialPermissionMode"
+      ],
+      "values": [
+        "default",
+        "acceptEdits",
+        "bypassPermissions"
+      ],
+      "value_map": {
+        "ask": "default",
+        "accept-edits": "acceptEdits",
+        "full-auto": "bypassPermissions"
+      },
+      "override_layers": [
+        {
+          "kind": "remembered-ui",
+          "locator": "mode last picked in the panel's mode indicator",
+          "evidence": "O06 (not observed)",
+          "fix": "Pick the mode in the indicator."
+        },
+        {
+          "kind": "project-file",
+          "locator": "workspace values are ignored by the extension (vendor)",
+          "evidence": "vendor: vs-code page",
+          "fix": "No action: the extension reads only user settings."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/vs-code",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "pending_probe": "W09"
+    },
+    {
+      "id": "claude-vscode.allow_dangerous",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "claudeCode.allowDangerouslySkipPermissions"
+      ],
+      "values": [
+        true
+      ],
+      "value_map": {
+        "full-auto": true
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/vs-code",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "pending_probe": "W10"
+    },
+    {
+      "id": "codex.posture",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "approval_policy"
+      ],
+      "values": [
+        "on-request",
+        "never"
+      ],
+      "value_map": {
+        "ask": "on-request",
+        "accept-edits": "on-request",
+        "full-auto": "never"
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "evidence": "O07 (layering proven for model)",
+          "fix": "Remove approval_policy and sandbox_mode from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "evidence": "O11 (cannot-detect)",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W13",
+        "W14",
+        "W15",
+        "W16"
+      ],
+      "shared_with_platform_defaults": {
+        "platform": "codex",
+        "paths": [
+          [
+            "approval_policy"
+          ]
+        ]
+      },
+      "applies_only_without": [
+        "default_permissions"
+      ],
+      "notes": "Pairs with codex.sandbox_mode, which writes sandbox_mode = workspace-write in the same plan. A file using default_permissions gets no posture write (W16: default_permissions wins over sandbox_mode). On Windows workspace-write needs [windows] sandbox in the user's file. The retired value untrusted is never written."
+    },
+    {
+      "id": "codex.sandbox_mode",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "sandbox_mode"
+      ],
+      "values": [
+        "workspace-write"
+      ],
+      "value_map": {
+        "ask": "workspace-write",
+        "accept-edits": "workspace-write",
+        "full-auto": "workspace-write"
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "evidence": "O07 (layering proven for model)",
+          "fix": "Remove sandbox_mode from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "evidence": "O11 (cannot-detect)",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W13",
+        "W14",
+        "W15"
+      ],
+      "shared_with_platform_defaults": {
+        "platform": "codex",
+        "paths": [
+          [
+            "sandbox_mode"
+          ]
+        ]
+      },
+      "applies_only_without": [
+        "default_permissions"
+      ]
+    },
+    {
+      "id": "copilot-cli.default_permission_mode",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "defaultPermissionMode"
+      ],
+      "values": [
+        "manual",
+        "assisted",
+        "allow-all"
+      ],
+      "value_map": {
+        "ask": "manual",
+        "accept-edits": "assisted",
+        "full-auto": "allow-all"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "pending_probe": "W20",
+      "notes": "Newly found in the 2026-10-30 fetch: the plan assumed allow-all was a launch flag only. The vendor lists defaultPermissionMode for new interactive sessions, ignored in non-interactive runs, and a managed permissions.defaultMode overrides it. assisted is a model-review mode, so the accept-edits mapping is unproven even once the tool can be observed."
+    },
+    {
+      "id": "copilot-cli.disable_bypass",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "permissions",
+        "disableBypassPermissionsMode"
+      ],
+      "values": [
+        "disable"
+      ],
+      "value_map": {
+        "full-auto": null
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "pending_probe": "W22",
+      "shared_with_platform_defaults": {
+        "platform": "copilot",
+        "paths": [
+          [
+            "permissions",
+            "disableBypassPermissionsMode"
+          ]
+        ]
+      },
+      "notes": "Remove-override target. The vendor type is the string disable; the maintainer's real file holds the boolean true, which is not the documented type."
+    },
+    {
+      "id": "vscode-copilot.auto_approve",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "chat.tools.global.autoApprove"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "ask": false,
+        "full-auto": true
+      },
+      "override_layers": [
+        {
+          "kind": "policy",
+          "locator": "organization policy ChatToolsAutoApprove",
+          "evidence": "O12 (cannot-detect)",
+          "fix": "Ask your administrator; VS Code shows a lock icon on a managed setting."
+        },
+        {
+          "kind": "project-file",
+          "locator": "workspace settings value",
+          "evidence": "O09 (not observed)",
+          "fix": "Remove the workspace value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "pending_probe": "W23",
+      "notes": "accept-edits is Not-Settable on this surface because the switch is all-or-nothing."
+    },
+    {
+      "id": "vscode-copilot.permissions_default",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "chat.permissions.default"
+      ],
+      "values": [
+        "default",
+        "autoApprove",
+        "autopilot"
+      ],
+      "value_map": {
+        "ask": "default",
+        "full-auto": "autoApprove"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "pending_probe": "W24",
+      "notes": "Newly found in the 2026-10-30 fetch; the plan names only chat.tools.global.autoApprove. Candidate alternative for the same posture."
+    },
+    {
+      "id": "claude.attribution",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "attribution"
+      ],
+      "values": [
+        {
+          "commit": "",
+          "pr": ""
+        }
+      ],
+      "value_map": {
+        "off": {
+          "commit": "",
+          "pr": ""
+        }
+      },
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json",
+          "evidence": "vendor: settings-reference scope Any file",
+          "fix": "Remove attribution from the project file."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "evidence": "O10 (cannot-detect)",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
+      "pending_probe": "W08",
+      "shared_with_platform_defaults": {
+        "platform": "claude",
+        "paths": [
+          [
+            "attribution"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "copilot-cli.co_authored",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "includeCoAuthoredBy"
+      ],
+      "values": [
+        false
+      ],
+      "value_map": {
+        "off": false
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "pending_probe": "W21"
+    },
+    {
+      "id": "codex.attribution",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": [],
+      "value_map": {},
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No vendor key found: the fetched configuration reference (all 156888 characters read) names no commit attribution or co-author setting.",
+      "pending_probe": "W17"
+    },
+    {
+      "id": "vscode-copilot.attribution",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": [],
+      "value_map": {},
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No user-level key is documented in the fetched VS Code Copilot settings reference."
+    },
+    {
+      "id": "internal.git_guardrails",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "block_git_bypass_flags"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "NEXUS_GUARD_GIT_BYPASS (read only from the hook's own environment; 1 forces on, 0 forces off)",
+          "evidence": "decision record 2026-10-14",
+          "fix": "Unset NEXUS_GUARD_GIT_BYPASS in the environment the agent's hooks inherit."
+        }
+      ],
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "git-guardrails": "v4.14.4"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "off"
+      ],
+      "source": {
+        "decision": "docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W25",
+        "W26"
+      ],
+      "notes": "Enforced by the git-guardrails hook where it is registered: Claude Code through catalog/hooks/settings.json. Enforcement on Codex and Copilot is not verified here. Inert under bypassPermissions, per the decision record's documented limits."
+    }
+  ]
+}
