@@ -868,6 +868,27 @@ def _monitor_group(name: str) -> Group:
 
 MONITOR_CHECKS = tuple(_monitor_group(name) for name in ("claude", "codex", "copilot", "cursor", "gemini"))
 
+# The Nexus-Hub Settings panel (v4.14.6). Same four gates as the packaged monitors. Its
+# agreement test also drives the real Python CLI, so the coverage command is handed this
+# run's interpreter (the one the workflow provisions with tomlkit) instead of letting the
+# test pick a system Python that may lack it.
+_NPM = "npm.cmd" if os.name == "nt" else "npm"
+SETTINGS_EXTENSION = Group(
+    name="nexus-hub-settings",
+    explicit_only=True,
+    commands=(
+        Command(name="settings extension compile", argv=[_NPM, "run", "compile"], cwd="extensions/nexus-hub-settings"),
+        Command(
+            name="settings extension coverage",
+            argv=[_NPM, "run", "test:coverage", "--", "--coverage.reportsDirectory", "../../reports/coverage/nexus-hub-settings"],
+            cwd="extensions/nexus-hub-settings",
+            env={"NEXUS_HUB_TEST_PYTHON": PY},
+        ),
+        Command(name="settings extension package", argv=[_NPM, "run", "package"], cwd="extensions/nexus-hub-settings"),
+        Command(name="settings extension packaged contents", argv=[_NPM, "run", "verify:package"], cwd="extensions/nexus-hub-settings"),
+    ),
+)
+
 MEMORY_TESTS = Group(
     name="memory-tests",
     explicit_only=True,
@@ -998,6 +1019,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         EXTENSION_TESTS,
         DOC_COLOCATION,
         *MONITOR_CHECKS,
+        SETTINGS_EXTENSION,
         MEMORY_TESTS,
         CODE_SEARCH_OFFLINE,
         MEMORY_OFFLINE,
