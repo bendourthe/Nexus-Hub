@@ -23,6 +23,48 @@ from pathlib import Path
 
 import pytest
 
+
+@pytest.mark.parametrize("heading", ["# [0.2.0]", "## [0.2.0] - 2026-10-31", "# [0.2.0](https://example.invalid/release) (2026-10-31)"])
+def test_changelog_supported_headings(tmp_path: Path, heading: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_text(heading + "\n", encoding="utf-8")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "met"
+
+
+@pytest.mark.parametrize("body", ["# [0.2.01]\n", "## [0.2.0oops]\n", "### [0.2.0]\n", "```md\n## [0.2.0]\n```\n", "~~~\n# [0.2.0]\n~~~\n", "## [0.2.0](broken\n", "## [0.2.0]suffix\n"])
+def test_changelog_rejects_nonrelease_headings(tmp_path: Path, body: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_text(body, encoding="utf-8")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "unmet"
+
+
+def test_changelog_invalid_utf8_is_unverifiable(tmp_path: Path) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_bytes(b"## [0.2.0]\n\xff")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "cannot-verify"
+
+
+@pytest.mark.parametrize("heading, expected", [("# [0.2.0]", "met"), ("## [0.2.0](https://example.invalid/release) - 2026-10-31", "met"), ("```\n## [0.2.0]\n```", "unmet")])
+def test_changelog_compatibility_through_cli(complete, heading: str, expected: str) -> None:
+    complete.write("CHANGELOG.md", heading + "\n")
+    result = complete.check()
+    assert f"release.changelog {expected}" in result.stdout, result.stdout + result.stderr
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))

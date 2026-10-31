@@ -29,6 +29,79 @@ from pathlib import Path
 
 import pytest
 
+
+def test_ledger_relative_and_absolute_roots_agree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import completion_minor as cm
+
+    ledger = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
+    ledger.parent.mkdir(parents=True)
+    ledger.write_text("# Known Gaps\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    relative, problems = cm.load_ledgers(Path("."))
+    absolute, absolute_problems = cm.load_ledgers(tmp_path)
+    assert [item.rel for item in relative] == [item.rel for item in absolute]
+    assert problems == absolute_problems == []
+
+
+def test_ledger_escape_is_reported_without_traversing(tmp_path: Path) -> None:
+    import completion_minor as cm
+
+    outside = tmp_path / "outside" / "known-gaps.md"
+    outside.parent.mkdir()
+    outside.write_text("# external\n", encoding="utf-8")
+    root = tmp_path / "repo"
+    link = root / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
+    link.parent.mkdir(parents=True)
+    try:
+        link.symlink_to(outside)
+    except OSError as exc:
+        pytest.skip(f"file symlink unavailable: {exc.__class__.__name__}")
+    ledgers, unreadable = cm.load_ledgers(root)
+    assert ledgers == []
+    assert unreadable == ["docs/releases/v0/v0.5/known-gaps.md"]
+
+
+def test_ledger_unavailable_root_is_explicit(tmp_path: Path) -> None:
+    import completion_minor as cm
+
+    with pytest.raises(cm.ObservationUnavailable, match="ledgers.root"):
+        cm.load_ledgers(tmp_path / "absent")
+
+
+def test_ledger_unreadable_file_is_not_omitted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import completion_minor as cm
+
+    target = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("# retained\n", encoding="utf-8")
+    original = Path.open
+
+    def unreadable(self, *args, **kwargs):
+        if self == target:
+            raise PermissionError("unavailable fixture")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", unreadable)
+    ledgers, problems = cm.load_ledgers(tmp_path)
+    assert ledgers == []
+    assert problems == ["docs/releases/v0/v0.5/known-gaps.md"]
+
+
+def test_ledger_windows_short_root_matches(tmp_path: Path) -> None:
+    if os.name != "nt":
+        pytest.skip("Windows short-name root")
+    import ctypes
+    import completion_minor as cm
+
+    target = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("# retained\n", encoding="utf-8")
+    buffer = ctypes.create_unicode_buffer(32768)
+    size = ctypes.windll.kernel32.GetShortPathNameW(str(tmp_path), buffer, len(buffer))
+    if not size or size >= len(buffer) or buffer.value.casefold() == str(tmp_path).casefold():
+        pytest.skip("filesystem provides no distinct Windows short-name alias")
+    assert [item.rel for item in cm.load_ledgers(Path(buffer.value))[0]] == [item.rel for item in cm.load_ledgers(tmp_path)[0]]
+
 from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exported)
     TRANSPORT_OVERRIDE_ENV,
     _git,

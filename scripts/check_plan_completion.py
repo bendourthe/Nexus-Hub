@@ -1423,15 +1423,17 @@ def _tag_status(ctx: Context, tag: str) -> str:
 
 def _changelog_status(ctx: Context) -> str:
     changelog = ctx.root / "CHANGELOG.md"
-    if not changelog.is_file():
+    try:
+        text = changelog.read_text(encoding="utf-8")
+    except FileNotFoundError:
         return "unmet"
+    except (OSError, UnicodeDecodeError):
+        return "cannot-verify"
     bare = ctx.version.lstrip("v")
-    text = changelog.read_text(encoding="utf-8", errors="replace")
-    return (
-        "met"
-        if re.search(rf"^## \[{re.escape(bare)}\]", text, re.MULTILINE)
-        else "unmet"
-    )
+    heading = re.compile(rf"^#{{1,2}}[ \t]+\[{re.escape(bare)}\](?:\([^()\r\n]+\))?(?:[ \t]+[^\r\n]*)?[ \t]*$")
+    lines = text.splitlines()
+    masked, _ = _minor_module().fence_mask(lines)
+    return "met" if any(not mask and heading.fullmatch(line) for line, mask in zip(lines, masked)) else "unmet"
 
 
 VERSION_SYNC_PATH = "scripts/check_version_sync.py"

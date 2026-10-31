@@ -2263,6 +2263,12 @@ def _layout_of(rel: str, major: int, minor: int) -> str | None:
 
 def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     """Every known-gaps ledger at a layout path, and the paths that could not be read."""
+    try:
+        root = root.resolve(strict=True)
+        if not root.is_dir():
+            raise OSError("not a directory")
+    except OSError as exc:
+        raise ObservationUnavailable("ledgers.root") from exc
     seen: dict[str, Path] = {}
     for pattern in LEDGER_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -2270,7 +2276,12 @@ def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     ledgers: list[Ledger] = []
     unreadable: list[str] = []
     for path in seen.values():
-        rel = path.resolve().relative_to(root).as_posix()
+        rel = path.relative_to(root).as_posix()
+        try:
+            path.resolve(strict=True).relative_to(root)
+        except (OSError, ValueError):
+            unreadable.append(rel)
+            continue
         match = _MINOR_DIR_RE.match(rel.split("/")[-2]) if "/" in rel else None
         if not match:
             continue
