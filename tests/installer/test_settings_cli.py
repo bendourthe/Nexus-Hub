@@ -250,7 +250,7 @@ def test_usage_errors_exit_two_and_nothing_to_write_exits_four(install: Path, ho
     assert run(install, env, "set", "posture", "yolo").returncode == 2
     assert run(install, env, "set", "model", "x").returncode == 2  # model is chosen per tool
     assert run(install, env, "remove-override", "effort").returncode == 2  # --tool is required
-    nothing = run(install, env, "set", "effort", "high", "--project", str(tmp_path))
+    nothing = run(install, env, "set", "attribution", "off", "--tool", "codex", "--project", str(tmp_path))
     assert nothing.returncode == 4 and "not-settable" in nothing.stdout
 
 

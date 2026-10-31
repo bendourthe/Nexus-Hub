@@ -1,12 +1,13 @@
 """set, reset, remove-override, record-editor-write, owned-keys, and the human-presence guard
 (v4.14.6 Phase 3, T020 and T021).
 
-The shipped catalog admits Claude and Codex `model` and posture plus git-guardrails. Controls whose rows are
-still Not-Settable (effort, attribution, editor keys, Copilot) are exercised through `admitted`, a copy with
-every row admitted in memory, so the writers stay data-driven without changing an admission decision.
+The shipped catalog admits Claude and Codex `model`, posture, and effort, Claude attribution, and git-guardrails.
+Cells whose rows are still Not-Settable (editor keys, Copilot, Codex attribution) are exercised through `admitted`,
+a copy with every row admitted in memory, so the writers stay data-driven without changing an admission decision.
 """
 from __future__ import annotations
 
+import copy
 import io
 import json
 import os
@@ -224,13 +225,24 @@ def test_unknown_control_value_and_missing_tool_are_usage_errors(machine: Machin
         apply.set_control(ctx, "model", "bad\nvalue", "claude")
 
 
-def test_a_control_with_no_admitted_write_reports_every_cell_not_settable_and_exits_four(machine: Machine, catalog: dict[str, Any]) -> None:
+def test_a_tool_with_no_admitted_write_for_a_control_reports_not_settable_and_exits_four(machine: Machine, catalog: dict[str, Any]) -> None:
     before = seed(machine)
 
-    doc = apply.set_control(machine.context(catalog), "effort", "high")
+    doc = apply.set_control(machine.context(catalog), "attribution", "off", "codex")
 
     assert doc["exit_code"] == 4 and files(machine) == before
     assert {r["status"] for r in doc["results"]} == {"not-settable"}
+
+
+def test_effort_is_written_to_both_claude_keys_and_codex_from_the_shipped_catalog(machine: Machine, catalog: dict[str, Any]) -> None:
+    seed(machine)
+
+    doc = apply.set_control(machine.context(catalog), "effort", "high")
+
+    assert doc["exit_code"] == 0
+    assert claude(machine)["effortLevel"] == "high" and all(claude(machine)["modelSettings"][i]["effortLevel"] == "high" for i in CLAUDE_IDS)
+    assert codex(machine)["model_reasoning_effort"] == "high"
+    assert statuses(doc)[("copilot-cli", "effortLevel")] == "not-settable"
 
 
 def test_dry_run_writes_nothing_and_asks_nobody(machine: Machine, catalog: dict[str, Any]) -> None:
@@ -485,14 +497,32 @@ def test_remove_override_with_the_key_absent_does_nothing(machine: Machine, admi
     assert doc["results"][0]["status"] == "absent" and files(machine) == before
 
 
-def test_remove_override_is_not_available_for_a_control_that_is_not_settable_yet(machine: Machine, catalog: dict[str, Any]) -> None:
+def test_remove_override_is_not_available_for_a_control_that_is_not_settable(machine: Machine, catalog: dict[str, Any]) -> None:
     before = seed(machine)
+    demoted = copy.deepcopy(catalog)
+    for write in demoted["writes"]:
+        if write["id"].startswith("claude.effort."):
+            write["admission"] = "not-settable"
+            write["not_settable_reason"] = "No Proof Record: test copy."
+            write.pop("proof", None)
 
-    doc = apply.remove_override(machine.context(catalog), "effort", "claude")
+    doc = apply.remove_override(machine.context(demoted), "effort", "claude")
 
     assert doc["results"][0]["status"] == "not-settable" and doc["exit_code"] == 4 and files(machine) == before
     with pytest.raises(apply.UsageError, match="no removable override"):
         apply.remove_override(machine.context(catalog), "model", "claude")
+
+
+def test_remove_override_of_the_legacy_effort_variable_works_from_the_shipped_catalog(machine: Machine, catalog: dict[str, Any]) -> None:
+    before = seed(machine)
+    ctx = person(machine.context(catalog))
+
+    doc = apply.remove_override(ctx, "effort", "claude")
+
+    assert doc["results"][0]["status"] == "removed"
+    assert "CLAUDE_CODE_EFFORT_LEVEL" not in claude(machine)["env"]
+    apply.reset_control(ctx, "effort", "claude")
+    assert files(machine) == before
 
 
 # --- Human presence (T021) ---------------------------------------------------

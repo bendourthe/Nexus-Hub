@@ -4,7 +4,7 @@ Status: implemented - a Nexus-Hub Settings control ships only with a fetched ven
 
 Maintainers adding a settings control, and anyone asking why a toggle is missing, use this record. It fixes the admission rule, how it differs from the retired v3.17.2 autonomy controller, the human-presence rule for safety-weakening writes, and the options that lost.
 
-**Date**: 2026-10-15, applied in Phase 1 on 2026-10-30. **Source decision**: maintainer discovery round and plan review of 2026-10-15 (every recommendation accepted). **Plan**: `docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md`.
+**Date**: 2026-10-15, applied in Phase 1 on 2026-10-30 and extended by the probe follow-up on 2026-10-31. **Source decision**: maintainer discovery round and plan review of 2026-10-15 (every recommendation accepted). **Plan**: `docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md`.
 
 ## Problem
 
@@ -22,8 +22,8 @@ A cell with no Proof Record is Not-Settable with its reason, and `max` effort, C
 ## Consequences
 
 - **Difference from v3.17.2.** The retired autonomy controller tried to steer approvals while a session ran and could not guarantee its effect. Nexus-Hub Settings writes documented defaults that each tool reads when a session starts, never intervenes in a running session, and shows what overrides a default instead of claiming it applies.
-- **Fewer controls at first.** Phase 1 admitted the Claude Code and Codex posture and model writes and git-guardrails. Effort, attribution, the VS Code surfaces, and every Copilot CLI cell have no Proof Record yet (a paid request, a VS Code window, or an uninstalled tool is needed), so they ship Not-Settable until observed.
-- **One named exception.** Codex `model` is an omitted key in `configs/platform-defaults.json` because Nexus-Hub must not seed a model id the user's account may not reach. A model the user chooses is not a seed, so the validator carries a single exception for it and fails for any other omitted key.
+- **Fewer controls at first.** Phase 1 admitted the Claude Code and Codex posture and model writes and git-guardrails. The probe follow-up of 2026-10-31 then proved Claude and Codex effort (a free local readout in each tool) and Claude attribution (two Haiku requests, USD 0.0979 kept). The VS Code surfaces, every Copilot CLI cell, and `skipDangerousModePermissionPrompt` still have no Proof Record (a VS Code window, an uninstalled tool, an interactive dialog), so they ship Not-Settable until observed.
+- **One named exception.** Codex `model` is an omitted key in `configs/platform-defaults.json` because Nexus-Hub must not seed a model id the user's account may not reach. A model the user chooses is not a seed, so the validator carries a single exception for it and fails for any other omitted key. The maintainer confirmed this exception on 2026-10-30: an explicit user choice in the panel or command may write it, and installer seeding of it stays forbidden.
 - **Agent markers.** Only Claude Code documents an agent-session marker (`CLAUDECODE`, `CLAUDE_CODE_CHILD_SESSION`). For the other tools the human-presence rule rests on the TTY test.
 
 ## Alternatives considered

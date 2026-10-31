@@ -250,7 +250,7 @@
         {
           "kind": "env",
           "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
-          "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
+          "evidence": "O02 (a shell variable and a settings.json env block each beat user modelSettings; vendor: env-vars page)",
           "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it).",
           "detect": {
             "env": [
@@ -266,7 +266,7 @@
         {
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
-          "evidence": "vendor: model-config page",
+          "evidence": "O02 (a project effortLevel of xhigh beat user modelSettings low)",
           "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json.",
           "detect": {
             "files": [
@@ -312,9 +312,7 @@
         "url": "https://code.claude.com/docs/en/settings-reference",
         "fetched": "2026-10-30"
       },
-      "admission": "not-settable",
-      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
-      "pending_probe": "W06",
+      "admission": "admitted",
       "shared_with_platform_defaults": {
         "platform": "claude",
         "paths": [
@@ -323,7 +321,11 @@
           ]
         ]
       },
-      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present. max is not accepted here."
+      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present; each of the four current ids read back its own level (W06). max is not accepted here.",
+      "proof": [
+        "W06",
+        "O02"
+      ]
     },
     {
       "id": "claude.effort.top_level",
@@ -350,7 +352,7 @@
         {
           "kind": "env",
           "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
-          "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
+          "evidence": "O02 (a shell variable and a settings.json env block each beat user modelSettings; vendor: env-vars page)",
           "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it).",
           "detect": {
             "env": [
@@ -366,7 +368,7 @@
         {
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
-          "evidence": "vendor: model-config page",
+          "evidence": "O02 (a project effortLevel of xhigh beat user modelSettings low)",
           "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json.",
           "detect": {
             "files": [
@@ -412,9 +414,7 @@
         "url": "https://code.claude.com/docs/en/settings-reference",
         "fetched": "2026-10-30"
       },
-      "admission": "not-settable",
-      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
-      "pending_probe": "W07",
+      "admission": "admitted",
       "shared_with_platform_defaults": {
         "platform": "claude",
         "paths": [
@@ -423,7 +423,11 @@
           ]
         ]
       },
-      "notes": "Vendor: a user-scope top-level effortLevel does not set the default for Opus 5.5 and later models, so modelSettings is the lever for current models."
+      "notes": "Observed 2026-10-31: a user-scope top-level effortLevel moves an older model (claude-opus-5) but not claude-opus-5-5, so modelSettings is the lever for current models and this key covers older ones only (W07). A project-file top-level effortLevel applies to every model and beat the user modelSettings (O02).",
+      "proof": [
+        "W07",
+        "O02"
+      ]
     },
     {
       "id": "codex.effort",
@@ -485,9 +489,7 @@
         "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
         "fetched": "2026-10-30"
       },
-      "admission": "not-settable",
-      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
-      "pending_probe": "W12",
+      "admission": "admitted",
       "shared_with_platform_defaults": {
         "platform": "codex",
         "paths": [
@@ -496,7 +498,10 @@
           ]
         ]
       },
-      "notes": "The vendor also lists max and ultra for some models; they are never written as a default."
+      "notes": "Read from the header codex exec prints before any request. The vendor also lists max and ultra for some models; they are never written as a default.",
+      "proof": [
+        "W12"
+      ]
     },
     {
       "id": "copilot-cli.effort",
@@ -1443,9 +1448,7 @@
         "url": "https://code.claude.com/docs/en/settings-reference",
         "fetched": "2026-10-30"
       },
-      "admission": "not-settable",
-      "not_settable_reason": "No Proof Record: observing the effect needs a paid model request or an interactive session, which Phase 1 may not start without approval.",
-      "pending_probe": "W08",
+      "admission": "admitted",
       "shared_with_platform_defaults": {
         "platform": "claude",
         "paths": [
@@ -1453,7 +1456,11 @@
             "attribution"
           ]
         ]
-      }
+      },
+      "proof": [
+        "W08"
+      ],
+      "notes": "Observed 2026-10-31 with one Haiku request per case in a git repository: with the default the session was told to append a Co-Authored-By trailer and a Generated with line; with both strings empty it reported none (W08)."
     },
     {
       "id": "copilot-cli.co_authored",

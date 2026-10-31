@@ -94,3 +94,19 @@ def test_judge_marks_mismatch_not_proven() -> None:
     assert spike.judge({"model": "a"}, {"model": "b"})[1] == "not-proven"
     assert spike.judge({"model": "a"}, {"model": "a"})[1] == "proven"
     assert spike.judge({"error": "timed out"}, {"model": "a"})[1] == "not-observed"
+
+
+def test_credentials_fingerprint_ignores_token_values_but_not_other_content(tmp_path: Path) -> None:
+    target = tmp_path / ".credentials.json"
+    target.write_text('{"claudeAiOauth": {"accessToken": "a", "refreshToken": "b", "expiresAt": 1, "scopes": ["x"]}, "organizationUuid": "o"}', encoding="utf-8")
+    first = spike.fingerprint(target)
+    target.write_text('{"claudeAiOauth": {"accessToken": "c", "refreshToken": "d", "expiresAt": 2, "scopes": ["x"]}, "organizationUuid": "o"}', encoding="utf-8")
+    assert spike.fingerprint(target) == first
+    target.write_text('{"claudeAiOauth": {"accessToken": "c", "refreshToken": "d", "expiresAt": 2, "scopes": ["x", "y"]}, "organizationUuid": "o"}', encoding="utf-8")
+    assert spike.fingerprint(target) != first
+
+
+def test_a_paid_request_that_could_pass_the_cap_is_not_started(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(spike, "PAID_COSTS", [("earlier", 0.90)])
+    monkeypatch.setattr(spike, "run", lambda *a, **k: pytest.fail("no request may start past the cap"))
+    assert spike.claude_attribution({}, "label", 1.00).startswith("not-run")

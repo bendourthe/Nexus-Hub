@@ -95,7 +95,10 @@ def test_catalog_has_no_findings(catalog: dict) -> None:
 
 def test_catalog_is_not_empty_and_admits_only_proven_writes(catalog: dict) -> None:
     admitted = [w["id"] for w in catalog["writes"] if w["admission"] == "admitted"]
-    assert {"claude.model", "claude.posture", "codex.model", "codex.posture", "codex.sandbox_mode", "internal.git_guardrails"} == set(admitted)
+    assert {
+        "claude.model", "claude.posture", "claude.effort.model_settings", "claude.effort.top_level", "claude.attribution",
+        "codex.model", "codex.posture", "codex.sandbox_mode", "codex.effort", "internal.git_guardrails",
+    } == set(admitted)
 
 
 def test_every_not_settable_cell_has_a_reason(catalog: dict) -> None:
@@ -132,7 +135,7 @@ def _mutated(catalog: dict, write_id: str, **changes: object) -> dict:
     [
         ("claude.model", {"proof": ["W05"]}, "admitted without a proven proof-matrix row"),
         ("claude.model", {"proof": []}, "admitted without a proven proof-matrix row"),
-        ("claude.effort.top_level", {"not_settable_reason": ""}, "Not-Settable without a reason"),
+        ("claude.skip_dangerous_prompt", {"not_settable_reason": ""}, "Not-Settable without a reason"),
         ("claude.effort.top_level", {"values": ["low", "max"]}, "max must never be a default"),
         ("codex.posture", {"value_map": {"ask": "untrusted"}}, "untrusted is mapped"),
         ("codex.posture", {"applies_only_without": []}, "applies_only_without default_permissions"),

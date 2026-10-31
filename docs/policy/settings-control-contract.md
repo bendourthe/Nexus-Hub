@@ -2,7 +2,7 @@
 
 **Covers**: the vendor-sourced facts behind the Nexus-Hub Settings catalog (`scripts/lib/settings_control/catalog.json`): which user-level key each tool documents for effort, model, approval posture, and commit attribution, which layers can override it, and what no setting can remove. **Read by**: maintainers adding a control, anyone reviewing a catalog entry, and the `nexus-hub settings explain` text. **Key topics**: admission rule, how `nexus-hub settings show` resolves a state, per-vendor dated sections for Claude Code, Codex, GitHub Copilot (VS Code Copilot Chat and Copilot CLI), findings that changed the plan, and what stays Not-Settable. It extends `docs/policy/platform-defaults-levers.md`, which owns the install-time seeding levers; this file never restates a shared key and links that file instead.
 
-**Last verified**: 2026-10-30 for v4.14.6 Phase 1. Quotes are the text returned by the documentation fetch on that date and may abridge the page; a catalog entry cites the URL and the date, never a blog, forum, or issue.
+**Last verified**: 2026-10-30 for v4.14.6 Phase 1; observations added 2026-10-31 (see Probe follow-up). Quotes are the text returned by the documentation fetch on that date and may abridge the page; a catalog entry cites the URL and the date, never a blog, forum, or issue.
 
 ## Admission rule
 
@@ -64,10 +64,20 @@ Sources: https://code.visualstudio.com/docs/copilot/reference/copilot-settings, 
 
 1. **Copilot CLI documents a posture key.** `defaultPermissionMode` (`manual`, `assisted`, `allow-all`) sets the mode "for new interactive sessions", is ignored in non-interactive runs, and a managed `permissions.defaultMode` overrides it. The plan assumed allow-all was a launch flag only. The key is cataloged Not-Settable until it can be observed.
 2. **VS Code has a second posture key.** `chat.permissions.default` carries `autoApprove`. Cataloged as a candidate beside `chat.tools.global.autoApprove`.
-3. **Copilot CLI is not installed on the proof machine.** Every Copilot CLI cell has no Proof Record.
+3. **Copilot CLI is not installed on the proof machine.** Every Copilot CLI cell has no Proof Record (unchanged by the 2026-10-31 follow-up, which covered Claude Code and Codex only).
 4. **The bypass block type.** The vendor type of `permissions.disableBypassPermissionsMode` is the string `"disable"`. The maintainer's `~/.copilot/settings.json` holds the boolean `true`, which is not the documented type, so whether it blocks anything is unproven.
 5. **Claude protected paths.** The plan listed `.git` and `.claude` under Cannot remove. The vendor page says bypass mode writes to them without a prompt, so they are not listed.
 6. **Codex agent marker.** No Codex, Copilot CLI, or VS Code agent-session marker variable is documented, so the human-presence guard rests on the TTY test for those tools.
+
+## Probe follow-up (2026-10-31)
+
+Observed in a scratch home against Claude Code 2.1.283 and Codex 0.136.0, recorded in the proof matrix (rows W06, W07, W08, W12, O02). Where an observation differs from the vendor text, both are kept.
+
+- **Readouts.** Claude Code answers `/effort status` and `/model` locally in print mode: "Current effort level: low (...)" and "Current model: `claude-haiku-5-5` (effort: low)". `codex exec` prints `reasoning effort: low` in its header before it contacts the API.
+- **Effort layers.** `modelSettings.<id>.effortLevel` read back for each of the four current ids. A top-level `effortLevel` in the user file moved `claude-opus-5` and did not move `claude-opus-5-5`, matching the vendor statement that it does not count for Opus 5.5. `CLAUDE_CODE_EFFORT_LEVEL` beat user `modelSettings` whether exported in the shell or set in a settings `env` block, and a project `effortLevel` of `xhigh` beat user `modelSettings`, matching "applies to every model". Without any setting Haiku read `auto (currently high)` where the vendor page says Haiku 5.5 defaults to `medium`.
+- **Attribution.** With the default, the session was told to append a `Co-Authored-By` trailer and a `Generated with` line; with `attribution = {commit: "", pr: ""}` it reported none. The lines arrive in a system-reminder for a session in a git repository, so only a model request shows them.
+- **A real file is read.** With `CLAUDE_CONFIG_DIR`, `HOME`, and `USERPROFILE` all in a scratch home, Claude Code still loaded the user's `~/.claude/CLAUDE.md` as memory; `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` stopped it. A probe that needs the model to answer from its own instructions must set that variable.
+- **Budget flag.** `--max-budget-usd 0.10` stopped a request only after it cost USD 0.1245, so a budget flag is not a per-request ceiling; the harness keeps its own running tally.
 
 ## Not-Settable cells
 

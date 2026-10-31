@@ -83,6 +83,7 @@ def real_files() -> list[Path]:
     files = [
         home / ".claude" / "settings.json",
         home / ".claude" / "remote-settings.json",
+        home / ".claude" / ".credentials.json",
         home / ".codex" / "config.toml",
         home / ".codex" / "auth.json",
         home / ".copilot" / "settings.json",
@@ -96,11 +97,36 @@ def real_files() -> list[Path]:
     return files
 
 
+TOKEN_KEY = re.compile(r"token|expires", re.IGNORECASE)
+
+
+def _mask_tokens(node: object) -> object:
+    if isinstance(node, dict):
+        return {key: ("<masked>" if TOKEN_KEY.search(key) and not isinstance(value, (dict, list)) else _mask_tokens(value)) for key, value in node.items()}
+    if isinstance(node, list):
+        return [_mask_tokens(item) for item in node]
+    return node
+
+
+def fingerprint(path: Path) -> str:
+    """SHA-256 of a real file; for the Claude sign-in file, of its content with token and expiry values masked.
+
+    Live Claude Code sessions rewrite that file periodically to refresh the access token,
+    so its raw hash changes with no spike running. Everything else in it is still compared.
+    """
+    if not path.is_file():
+        return "absent"
+    data = path.read_bytes()
+    if path.name == ".credentials.json":
+        try:
+            data = json.dumps(_mask_tokens(json.loads(data)), sort_keys=True).encode("utf-8")
+        except ValueError:
+            pass
+    return hashlib.sha256(data).hexdigest()
+
+
 def hash_real_files() -> dict[str, str]:
-    result: dict[str, str] = {}
-    for path in real_files():
-        result[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else "absent"
-    return result
+    return {str(path): fingerprint(path) for path in real_files()}
 
 
 def settled_changes(before: dict[str, str]) -> tuple[dict[str, str], list[str]]:
@@ -237,6 +263,89 @@ def codex_report(config: str, project_config: str | None = None, trust: bool = F
         scratch.cleanup()
 
 
+def claude_effort(user: dict, env: dict[str, str] | None = None, project: dict | None = None) -> str:
+    """Read the effective effort the way a user would: `/effort status`, a local command.
+
+    It runs with no sign-in and makes no model request, so it costs nothing.
+    """
+    scratch = Scratch()
+    try:
+        (scratch.home / "settings.json").write_text(json.dumps(user), encoding="utf-8")
+        if project is not None:
+            (scratch.cwd / ".claude").mkdir()
+            (scratch.cwd / ".claude" / "settings.json").write_text(json.dumps(project), encoding="utf-8")
+        argv = [shutil.which("claude") or "claude", "-p", "/effort status", "--output-format", "stream-json", "--verbose", "--max-turns", "1", "--tools", ""]
+        rc, out, err = run(argv, scratch, scratch.env(CLAUDE_CONFIG_DIR=str(scratch.home), **(env or {})))
+        for line in out.splitlines():
+            if line.startswith("{") and '"type":"result"' in line.replace(" ", ""):
+                result = json.loads(line)
+                if result.get("total_cost_usd"):
+                    raise CredentialLeak("a no-sign-in effort probe reported a cost; run stopped")
+                match = re.search(r"effort level: ([a-z]+)", str(result.get("result")))
+                return match.group(1) if match else "unreadable"
+        return "timed out" if rc == -1 else "no result"
+    finally:
+        scratch.cleanup()
+
+
+def codex_effort(effort: str) -> str:
+    """Read `reasoning effort` from the header `codex exec` prints before any request.
+
+    A scratch CODEX_HOME with no sign-in is used, so the request that follows fails
+    with 401 and nothing is billed; the header is already on stderr by then.
+    """
+    scratch = Scratch()
+    try:
+        codex_home = scratch.root / "codexhome"
+        codex_home.mkdir()
+        (codex_home / "config.toml").write_text(f'model_reasoning_effort = "{effort}"\n[windows]\nsandbox = "unelevated"\n', encoding="utf-8")
+        rc, _, err = run([shutil.which("codex") or "codex", "exec", "--ephemeral", "--skip-git-repo-check", "probe"], scratch, scratch.env(CODEX_HOME=str(codex_home)))
+        match = re.search(r"reasoning effort: ([a-z]+)", err)
+        return match.group(1) if match else ("timed out" if rc == -1 else "unreadable")
+    finally:
+        scratch.cleanup()
+
+
+# Paid probes: every request is capped by the tool's own budget flag and by a running tally.
+PAID_REQUEST_CAP_USD = 0.10
+PAID_RESERVE_USD = 0.15  # the tool's budget flag stops after the fact (a request cost USD 0.1245 under a 0.10 flag), so the tally reserves more
+PAID_COSTS: list[tuple[str, float]] = []
+ATTRIBUTION_PROMPT = (
+    "Do not use any tool. Reply with the exact attribution lines you were told to append to git commit messages and pull request "
+    "descriptions (for example a Co-Authored-By trailer or a 'Generated with' line), copied verbatim. "
+    "If you were given no such lines, reply exactly NONE."
+)
+
+
+def claude_attribution(user: dict, label: str, budget: float) -> str:
+    """One billable Haiku request with a trimmed copy of the real sign-in in a scratch home."""
+    if sum(cost for _, cost in PAID_COSTS) + PAID_RESERVE_USD > budget:
+        return "not-run: the next request could exceed the paid cap"
+    source = Path.home() / ".claude" / ".credentials.json"
+    scratch = Scratch()
+    try:
+        stored = json.loads(source.read_text(encoding="utf-8"))
+        trimmed = scratch.home / ".credentials.json"
+        trimmed.write_text(json.dumps({"claudeAiOauth": stored["claudeAiOauth"], "organizationUuid": stored.get("organizationUuid")}), encoding="utf-8")
+        os.chmod(trimmed, 0o600)
+        before = hashlib.sha256(trimmed.read_bytes()).hexdigest()
+        (scratch.home / "settings.json").write_text(json.dumps({"model": "claude-haiku-5-5", **user}), encoding="utf-8")
+        run(["git", "init", "-q"], scratch, scratch.env())  # the attribution lines are injected for a session in a git repository
+        argv = [shutil.which("claude") or "claude", "-p", ATTRIBUTION_PROMPT, "--model", "claude-haiku-5-5", "--tools", "Bash", "--permission-prompts", "none", "--max-turns", "1", "--max-budget-usd", f"{PAID_REQUEST_CAP_USD:.2f}", "--no-session-persistence", "--output-format", "stream-json", "--verbose"]
+        rc, out, err = run(argv, scratch, scratch.env(CLAUDE_CONFIG_DIR=str(scratch.home), CLAUDE_CODE_DISABLE_CLAUDE_MDS="1"))
+        refreshed = hashlib.sha256(trimmed.read_bytes()).hexdigest() != before if trimmed.exists() else True
+        for line in out.splitlines():
+            if line.startswith("{") and '"type":"result"' in line.replace(" ", ""):
+                result = json.loads(line)
+                cost = float(result.get("total_cost_usd") or 0)
+                PAID_COSTS.append((label, cost))
+                answer = " ".join(str(result.get("result")).split())
+                return f"{answer[:110]} (cost USD {cost:.4f}" + ("; copied token was refreshed" if refreshed else "") + ")"
+        return "timed out" if rc == -1 else redact(" ".join((err or out).split())[:120])
+    finally:
+        scratch.cleanup()
+
+
 def find_bash() -> str | None:
     for path in (r"C:\Program Files\Git\bin\bash.exe", r"C:\Program Files\Git\usr\bin\bash.exe", "/bin/bash", "/usr/bin/bash"):
         if Path(path).is_file():
@@ -282,13 +391,13 @@ CANDIDATES = (
     ("W03", "Claude Code CLI: permissions.defaultMode (accept-edits)", "user settings defaultMode=acceptEdits"),
     ("W04", "Claude Code CLI: permissions.defaultMode (full-auto)", "user settings defaultMode=bypassPermissions"),
     ("W05", "Claude Code CLI: skipDangerousModePermissionPrompt", "user settings skipDangerousModePermissionPrompt=true"),
-    ("W06", "Claude Code CLI: modelSettings.<id>.effortLevel", "user settings modelSettings.claude-sonnet-5-5.effortLevel=low"),
-    ("W07", "Claude Code CLI: top-level effortLevel", "user settings effortLevel=low"),
-    ("W08", "Claude Code CLI: attribution.commit and attribution.pr", "user settings attribution empty strings"),
+    ("W06", "Claude Code CLI: modelSettings.<id>.effortLevel", "user settings modelSettings.<id>.effortLevel=low for each current model id, read with /effort status"),
+    ("W07", "Claude Code CLI: top-level effortLevel", "user settings effortLevel=low, read with /effort status on an older and a current model"),
+    ("W08", "Claude Code CLI: attribution.commit and attribution.pr", "user settings attribution empty strings versus default, Haiku asked to quote its attribution instructions"),
     ("W09", "Claude Code VS Code panel: claudeCode.initialPermissionMode", "VS Code user settings value bypassPermissions"),
     ("W10", "Claude Code VS Code panel: claudeCode.allowDangerouslySkipPermissions", "VS Code user settings value true"),
     ("W11", "Codex: model", "config.toml model=gpt-5.6-sol"),
-    ("W12", "Codex: model_reasoning_effort", "config.toml model_reasoning_effort=low"),
+    ("W12", "Codex: model_reasoning_effort", "config.toml model_reasoning_effort=low and high, read from the codex exec header"),
     ("W13", "Codex: approval_policy (ask, accept-edits)", "config.toml approval_policy=on-request, sandbox_mode=workspace-write"),
     ("W14", "Codex: approval_policy (full-auto)", "config.toml approval_policy=never, sandbox_mode=workspace-write"),
     ("W15", "Codex: sandbox_mode in a trusted project", "config.toml sandbox_mode=workspace-write, project trusted"),
@@ -304,7 +413,7 @@ CANDIDATES = (
     ("W25", "Git-guardrails: block_git_bypass_flags on", "guardrails.json true, hook payload git commit --no-verify"),
     ("W26", "Git-guardrails: block_git_bypass_flags off", "guardrails.json false, same payload"),
     ("O01", "Override: ANTHROPIC_MODEL beats user model", "env ANTHROPIC_MODEL=claude-haiku-5-5 with user model=claude-sonnet-5-5"),
-    ("O02", "Override: CLAUDE_CODE_EFFORT_LEVEL beats modelSettings", "env CLAUDE_CODE_EFFORT_LEVEL=high with modelSettings low"),
+    ("O02", "Override: CLAUDE_CODE_EFFORT_LEVEL and project effortLevel beat user modelSettings", "shell env, settings env block, and project effortLevel=xhigh, each with user modelSettings low"),
     ("O03", "Override: project .claude/settings.json model beats user model", "project model=claude-haiku-5-5, user model=claude-sonnet-5-5"),
     ("O04", "Override: project defaultMode=bypassPermissions is ignored", "project settings defaultMode=bypassPermissions only"),
     ("O05", "Override: permissions.disableBypassPermissionsMode blocks bypass", "user settings defaultMode=bypassPermissions plus disableBypassPermissionsMode=disable"),
@@ -319,7 +428,7 @@ CANDIDATES = (
 )
 
 
-def run_probes(versions: dict[str, str]) -> list[Row]:
+def run_probes(versions: dict[str, str], paid_budget: float = 0.0) -> list[Row]:
     sonnet, haiku = "claude-sonnet-5-5", "claude-haiku-5-5"
     cv, xv = versions["claude"], versions["codex"]
     have_claude, have_codex, have_copilot = bool(cv), bool(xv), bool(versions["copilot"])
@@ -363,6 +472,29 @@ def run_probes(versions: dict[str, str]) -> list[Row]:
     codex("W16", {"sandbox_mode": "workspace-write"}, config='default_permissions = ":workspace"\nsandbox_mode = "read-only"\n', trust=True)
     codex("O07", {"model": "gpt-5.6-sol"}, config='model = "gpt-6-luna"\n', project_config='model = "gpt-5.6-sol"\n', trust=True)
 
+    low = {"effortLevel": "low"}
+    current_ids = ("claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
+    if have_claude:
+        # W06: each current model id reads back its own saved level (set low, default is not low).
+        seen = {i: claude_effort({"model": i, "modelSettings": {i: low}}) for i in current_ids}
+        plain["W06"] = ("; ".join(f"{i} -> {v}" for i, v in seen.items()), "proven" if set(seen.values()) == {"low"} else "not-proven", cv)
+        # W07: a top-level effortLevel moves an older model but not a current one (vendor: Opus 5.5 and later ignore the user-scope key).
+        older, newest = claude_effort({"model": "claude-opus-5", **low}), claude_effort({"model": "claude-opus-5-5", **low})
+        plain["W07"] = (f"claude-opus-5 -> {older}; claude-opus-5-5 -> {newest} (not covered)", "proven" if older == "low" and newest != "low" else "not-proven", cv)
+        shell = claude_effort({"model": haiku, "modelSettings": {haiku: low}}, env={"CLAUDE_CODE_EFFORT_LEVEL": "high"})
+        block = claude_effort({"model": haiku, "env": {"CLAUDE_CODE_EFFORT_LEVEL": "high"}, "modelSettings": {haiku: low}})
+        project = claude_effort({"model": haiku, "modelSettings": {haiku: low}}, project={"effortLevel": "xhigh"})
+        plain["O02"] = (f"shell env high over modelSettings low -> {shell}; settings env block -> {block}; project effortLevel xhigh -> {project}", "proven" if (shell, block, project) == ("high", "high", "xhigh") else "not-proven", cv)
+    if have_codex:
+        low_seen, high_seen = codex_effort("low"), codex_effort("high")
+        plain["W12"] = (f'config low -> "{low_seen}"; config high -> "{high_seen}"', "proven" if (low_seen, high_seen) == ("low", "high") else "not-proven", xv)
+    if have_claude and paid_budget > 0:
+        baseline = claude_attribution({}, "W08 default attribution", paid_budget)
+        sees = any(word in baseline.lower() for word in ("co-authored-by", "generated with"))
+        # Without a visible baseline the empty-string run would prove nothing, so it is not paid for.
+        silenced = claude_attribution({"attribution": {"commit": "", "pr": ""}}, "W08 attribution empty strings", paid_budget) if sees else "not-run: the default run showed no attribution lines"
+        plain["W08"] = (f"default: {baseline} | empty strings: {silenced}", "proven" if sees and silenced.upper().startswith("NONE") else "not-proven", cv)
+
     plain["W25"] = (guard_exit("true", None), "", "git-guardrails.sh")
     plain["W26"] = (guard_exit("false", None), "", "git-guardrails.sh")
     for rid, expected in (("W25", "exit 2"), ("W26", "exit 0")):
@@ -371,7 +503,7 @@ def run_probes(versions: dict[str, str]) -> list[Row]:
 
     fixed = {
         "W05": PAID.replace("a paid model request", "an interactive session (the warning dialog)"),
-        "W06": PAID, "W07": PAID, "W08": PAID, "W12": PAID, "O02": PAID,
+        "W08": PAID + " (run with --paid-cap)",
         "W09": MANUAL, "W10": MANUAL, "W23": MANUAL, "W24": MANUAL, "O06": MANUAL, "O09": MANUAL,
         "W17": "not-observed: no vendor key documented",
         "O10": CANNOT, "O11": CANNOT, "O12": CANNOT, "O13": CANNOT,
@@ -402,6 +534,8 @@ def write_matrix(path: Path, rows: list[Row], versions: dict[str, str], before: 
         "",
         f"**Real-file guard**: {len(before)} real configuration files hashed before and after; " + ("CHANGED: " + ", ".join(changed) if changed else "all identical") + ".",
         "",
+        "**Paid probes**: " + ("; ".join(f"{label} USD {cost:.4f}" for label, cost in PAID_COSTS) + f"; total USD {sum(c for _, c in PAID_COSTS):.4f} against a cap of USD 1.00" if PAID_COSTS else "none run (pass --paid-cap)") + ". Effort rows (W06, W07, W12, O02) cost nothing: `/effort status` and the `codex exec` header are local, and no sign-in is present.",
+        "",
         f"**Count**: {len(rows)} candidates; " + ", ".join(f"{sum(r.verdict == v for r in rows)} {v}" for v in ("proven", "not-proven")) + f", {sum(r.verdict.startswith('not-observed') for r in rows)} not-observed, {sum(r.verdict.startswith('cannot-detect') for r in rows)} cannot-detect.",
         "",
         "| ID | Candidate | Action | Observed field | Verdict | Version |",
@@ -422,6 +556,7 @@ def main() -> int:
     parser.add_argument("--hashes", action="store_true", help="print the real-file hashes and exit")
     parser.add_argument("--matrix", type=Path, help="write the proof matrix markdown here")
     parser.add_argument("--json", type=Path, help="also write the rows as JSON here")
+    parser.add_argument("--paid-cap", type=float, default=0.0, help="total USD the billable probes may spend (default 0: none run)")
     args = parser.parse_args()
     if args.list:
         for rid, candidate, action in CANDIDATES:
@@ -437,7 +572,7 @@ def main() -> int:
     if "not found" in versions["copilot"].lower():
         versions["copilot"] = ""
     try:
-        rows = run_probes(versions)
+        rows = run_probes(versions, args.paid_cap)
     except CredentialLeak as exc:
         print(f"ABORT: {exc}", file=sys.stderr)
         return 4

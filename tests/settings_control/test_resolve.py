@@ -165,13 +165,14 @@ def test_legacy_effort_env_block_is_named_with_its_fix_once_effort_is_admitted(m
     assert record["fix"].startswith("Unset CLAUDE_CODE_EFFORT_LEVEL")
 
 
-def test_the_legacy_effort_override_is_surfaced_while_effort_is_not_settable(machine: Any, catalog: dict[str, Any]) -> None:
+def test_the_legacy_effort_override_is_named_with_its_fix_from_the_shipped_catalog(machine: Any, catalog: dict[str, Any]) -> None:
     machine.put("claude-user", {"env": {"CLAUDE_CODE_EFFORT_LEVEL": "high"}})
 
     record = machine.records(catalog)["effort", "claude", "cli"]
 
-    assert record["state"] == "not-settable"
-    assert any("env CLAUDE_CODE_EFFORT_LEVEL (settings.json env block) = high" in c for c in record["caveats"])
+    assert record["state"] == "overridden-by"
+    assert record["layer"] == "env CLAUDE_CODE_EFFORT_LEVEL (settings.json env block)"
+    assert record["fix"].startswith("Unset CLAUDE_CODE_EFFORT_LEVEL")
 
 
 def test_a_layer_that_agrees_with_the_user_value_overrides_nothing(machine: Any, catalog: dict[str, Any]) -> None:
