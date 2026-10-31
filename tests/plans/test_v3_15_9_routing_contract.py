@@ -294,3 +294,30 @@ def test_contract_defines_exact_enums_and_fallback_markers() -> None:
 
 def test_new_phase_one_markdown_is_ascii() -> None:
     assert _read(CONTRACT_PATH).isascii()
+
+
+def _validate_harness_cost_contract(text: str) -> None:
+    """Keep a portable concern separate from scoring and reject stale multipliers."""
+    body = text.split("---", 2)[-1]
+    if re.search(r"(?<![\w.])\d+(?:\.\d+)?\s*[x\u00d7](?!\w)", body):
+        raise ValueError("numeric cost ratio in the shipped routing body")
+    if len(body.splitlines()) > 800:
+        raise ValueError("routing body exceeds the skill hard cap")
+    concern = re.search(r"(?m)^### Harness cost concern$", body)
+    before = re.search(r"(?m)^### Step 3:", body)
+    after = re.search(r"(?m)^### Step 4:", body)
+    if concern is None or before is None or after is None:
+        raise ValueError("missing separate harness cost concern")
+    if not before.start() < concern.start() < after.start():
+        raise ValueError("harness cost concern must follow scoring, not extend its signals")
+
+
+def test_routing_declares_a_bounded_harness_concern_without_numeric_ratios() -> None:
+    _validate_harness_cost_contract(_read(MODEL_ROUTING_PATH))
+
+
+@pytest.mark.parametrize("multiplier", ("1.25x", "2.0x", "3x", "1.5\u00d7"))
+def test_routing_contract_rejects_an_injected_numeric_cost_ratio(multiplier: str) -> None:
+    contaminated = _read(MODEL_ROUTING_PATH) + f"\nObserved harness cost: {multiplier}.\n"
+    with pytest.raises(ValueError, match="numeric cost ratio"):
+        _validate_harness_cost_contract(contaminated)
