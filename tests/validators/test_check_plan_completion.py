@@ -20,6 +20,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -48,6 +49,173 @@ TRANSPORT_OVERRIDE_ENV = (
     "ALL_PROXY",
 )
 APPROVAL_TEXT = "Yes, push, merge, and release v0.2.0 for acme/demo."
+
+# Independent literal fixtures: no prefix replacement is the compatibility contract.
+V415_HASHES = {
+    "v4.15.1": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451",
+    "v4.15.2": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835",
+}
+V415_ALIASES = [
+    *(("v4.15.1", tid, f"docs/releases/v4/v4.16/development/{old}",
+       f"docs/releases/v4/v4.15/development/{new}")
+      for tids, old, new in (
+          (("T101", "T105"), "detection-evidence.md", "detection-evidence.md"),
+          (("T102", "T103"), "injection-prototype.md", "injection-prototype.md"),
+          (("T104",), "profile-layer-trust-audit.md", "profile-layer-trust-audit.md"),
+          (("T106", "T109", "T110", "T112", "T113", "T115", "T116", "T117", "T118", "T119"),
+           "last-phase-evidence.md", "v4.15.1-last-phase-evidence.md"),
+      ) for tid in tids),
+    ("v4.15.1", "T111", "docs/releases/v4/v4.16/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+    *(("v4.15.1", tid, "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md",
+       f"docs/decisions/{state}/policy/2026-10-31-model-adaptive-runtime-platform-scope.md")
+      for tid, state in (("T107", "proposed"), ("T108", "rejected"))),
+    *(("v4.15.2", tid, f"docs/releases/v4/v4.17/development/{old}",
+       f"docs/releases/v4/v4.15/development/v4.15.2-{new}")
+      for tids, old, new in (
+          (("T001", "T006"), "phase-1-evidence.md", "phase1-evidence.md"),
+          (("T014",), "phase-2-evidence.md", "phase2-evidence.md"),
+          (("T024",), "phase-3-evidence.md", "phase3-evidence.md"),
+          (("T027",), "shared-agents-inventory.md", "shared-agents-inventory.md"),
+          (("T041", "T055"), "claude-agents-evaluation.md", "claude-agents-evaluation.md"),
+          (("T042",), "phase-4-evidence.md", "phase4-evidence.md"),
+          (("T043", "T046", "T047", "T048", "T049", "T050", "T051", "T052"),
+           "last-phase-evidence.md", "last-phase-evidence.md"),
+      ) for tid in tids),
+    ("v4.15.2", "T044", "docs/releases/v4/v4.17/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+    ("v4.15.2", "T039", "tests/integrations/test_org_materialization.py", "tests/installer/test_org_materialization.py"),
+]
+
+
+def _v415_task_repo(tmp_path, version="v4.15.2"):
+    """A real Git history; the private mint stands in for the separately tested parent factory."""
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    import check_plan_completion as ck
+    root = tmp_path / "tasks"
+    root.mkdir()
+    _git(root, "init", "-q")
+    _git(root, "config", "user.name", "Test")
+    _git(root, "config", "user.email", "t@example.invalid")
+    (root / "baseline.txt").write_text("baseline\n")
+    _git(root, "add", ".")
+    _git(root, "commit", "-qm", "baseline")
+    start = _git(root, "rev-parse", "HEAD")
+    budget = ck.Budget(30)
+    ctx = SimpleNamespace(root=root, version=version, rel=f"docs/releases/v4/v4.15/plans/{version}-fixture.md",
+                          git=shutil.which("git"), budget=budget, plan_hash=lambda: "a" * 64)
+    ctx.run = lambda args: ck._run(args, budget)
+    ctx._git_out = lambda *args: _git(root, *args)
+    authority = ck._v415_task_authority(root=root, repo="bendourthe/Nexus-Hub", minor="v4.15", member=version,
+                                      original_sha256=V415_HASHES[version], plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+    assert authority is not None
+    return ck, ctx, start, authority
+
+
+@pytest.mark.parametrize("version,tid,old,new", V415_ALIASES)
+def test_v415_exact_task_target_uses_real_implementation_history(tmp_path, version, tid, old, new):
+    ck, ctx, start, authority = _v415_task_repo(tmp_path, version)
+    target = ctx.root / new
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("real implementation\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "work")
+    assert ck._task_status(ctx, True, old, start) == "unmet"
+    assert ck._task_status(ctx, True, old, start, task_id=tid, task_authority=authority) == "met"
+    assert ck._task_status(ctx, False, old, start, task_id=tid, task_authority=authority) == "unmet"
+
+
+@pytest.mark.parametrize("variant", ["dict", "missing", "task", "literal", "member", "root", "plan", "hash", "issuer"])
+def test_v415_task_authority_rejects_untrusted_or_replayed_tuple(tmp_path, variant):
+    from dataclasses import asdict, replace
+    ck, ctx, start, authority = _v415_task_repo(tmp_path)
+    _, tid, old, new = next(row for row in V415_ALIASES if row[:2] == ("v4.15.2", "T001"))
+    target = ctx.root / new
+    target.parent.mkdir(parents=True)
+    target.write_text("work\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "work")
+    if variant == "dict": authority = asdict(authority)
+    elif variant == "missing": authority = None
+    elif variant == "task": tid = "T999"
+    elif variant == "literal": old = old.replace("phase-1", "phase-9")
+    elif variant == "member": ctx.version = "v4.15.3"
+    elif variant == "root": authority = replace(authority, root=ctx.root.parent)
+    elif variant == "plan": ctx.rel += ".other"
+    elif variant == "hash": ctx.plan_hash = lambda: "b" * 64
+    elif variant == "issuer": authority = replace(authority, _issuer=object())
+    projection = {"schema": 2, "v415_task_authority": True, "original_sha256": V415_HASHES["v4.15.2"]}
+    assert ck._task_status(ctx, True, old, start, projection, task_id=tid, task_authority=authority) == "unmet"
+
+
+def test_v415_no_prefix_or_dummy_old_target_can_replace_corrected_history(tmp_path):
+    ck, ctx, start, authority = _v415_task_repo(tmp_path)
+    _, tid, old, new = next(row for row in V415_ALIASES if row[:2] == ("v4.15.2", "T001"))
+    # The corrected file existed at publication baseline and has never changed.
+    target = ctx.root / new
+    target.parent.mkdir(parents=True)
+    target.write_text("old\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "pre-existing")
+    start = _git(ctx.root, "rev-parse", "HEAD")
+    dummy = ctx.root / old
+    dummy.parent.mkdir(parents=True)
+    dummy.write_text("dummy old target\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "dummy")
+    assert ck._task_status(ctx, True, old, start, task_id=tid, task_authority=authority) == "unmet"
+    assert ck._task_status(ctx, True, old, start) == "met"  # ordinary API remains literal
+    for bad in ({"repo": "other/repo"}, {"minor": "v4.17"}, {"member": "v4.15.3"}, {"original_sha256": "0" * 64}):
+        args = {"root": ctx.root, "repo": "bendourthe/Nexus-Hub", "minor": "v4.15", "member": ctx.version,
+                "original_sha256": V415_HASHES[ctx.version], "plan_rel": ctx.rel, "plan_sha256": ctx.plan_hash()}
+        args.update(bad)
+        assert ck._v415_task_authority(**args) is None
+
+
+def test_v415_descriptor_has_only_the_36_reviewed_literals():
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    import check_plan_completion as ck
+    assert len(V415_ALIASES) == 36
+    assert dict(ck._V415_TASK_TARGETS) == {(version, tid, old): new for version, tid, old, new in V415_ALIASES}
+
+
+def test_v415_proposed_criterion_history_survives_rejected_disposition(tmp_path):
+    ck, ctx, start, authority = _v415_task_repo(tmp_path, "v4.15.1")
+    _, _, old, proposed = next(row for row in V415_ALIASES if row[:2] == ("v4.15.1", "T107"))
+    _, _, _, rejected = next(row for row in V415_ALIASES if row[:2] == ("v4.15.1", "T108"))
+    source = ctx.root / proposed
+    source.parent.mkdir(parents=True)
+    source.write_text("criterion frozen before experiment\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "freeze criterion")
+    assert ck._task_status(ctx, True, old, start, task_id="T107", task_authority=authority) == "met"
+    assert ck._task_status(ctx, True, old, start, task_id="T108", task_authority=authority) == "unmet"
+    destination = ctx.root / rejected
+    destination.parent.mkdir(parents=True)
+    source.rename(destination)
+    _git(ctx.root, "add", "-A")
+    _git(ctx.root, "commit", "-qm", "decline after measurement")
+    assert not source.exists()
+    for tid in ("T107", "T108"):
+        assert ck._task_status(ctx, True, old, start, task_id=tid, task_authority=authority) == "met"
+
+
+def test_evaluate_threads_task_id_and_separate_authority(tmp_path, monkeypatch):
+    ck, ctx, start, authority = _v415_task_repo(tmp_path)
+    ctx.tasks = [("T001", True, "literal.md"), ("T006", False, "literal.md")]
+    calls = []
+    monkeypatch.setattr(ck, "_task_status", lambda *args, **kwargs: calls.append((args, kwargs)) or "unmet")
+    class AfterTasks(Exception):
+        pass
+    def stop_after_tasks(*args):
+        raise AfterTasks
+    monkeypatch.setattr(ck, "_gaps_status", stop_after_tasks)
+    record = {"start_head": start, "schema": 2}
+    with pytest.raises(AfterTasks):
+        ck.evaluate(ctx, record, task_authority=authority)
+    assert [kwargs for _, kwargs in calls] == [
+        {"task_id": "T001", "task_authority": authority},
+        {"task_id": "T006", "task_authority": authority},
+    ]
+    assert all(args[-1] is record for args, _ in calls)
 SECTIONS = (
     "Architecture refactor",
     "Known-gaps reconciliation",

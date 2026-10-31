@@ -38,6 +38,7 @@ import argparse
 import tempfile
 from contextlib import contextmanager
 from contextvars import ContextVar
+from dataclasses import dataclass, field
 from functools import wraps
 import datetime as dt
 import hashlib
@@ -53,7 +54,7 @@ import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
-from types import ModuleType
+from types import MappingProxyType, ModuleType
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
@@ -879,13 +880,14 @@ def _now() -> str:
 # --------------------------------------------------------------------------- predicates
 
 
-def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], int]:
+def evaluate(ctx: Context, record: dict | None, *, task_authority: V415TaskAuthority | None = None) -> tuple[list[tuple[str, str]], int]:
     """Return ([(predicate id, status)], deferred item count)."""
     results: list[tuple[str, str]] = []
     approvals = (record or {}).get("approvals", {})
     start = (record or {}).get("start_head")
     for tid, checked, path in ctx.tasks:
-        results.append((f"task.{tid}", _task_status(ctx, checked, path, start, record)))
+        results.append((f"task.{tid}", _task_status(ctx, checked, path, start, record,
+                                                 task_id=tid, task_authority=task_authority)))
     gaps_status, deferred = _gaps_status(ctx, record)
     results.append(("gaps.version", gaps_status))
     evidence = _evidence_file(ctx, record)
@@ -991,11 +993,101 @@ def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
 DATE_PLACEHOLDER = "YYYY-MM-DD"
 
 
-def _task_status(ctx: Context, checked: bool, path: str, start: str | None, record: dict | None = None) -> str:
+_V415_ORIGINAL_HASHES = MappingProxyType({
+    "v4.15.0": "9a60e8e3d6d608306b431ff13d5dd5355d38c463bbcab16e0bd99b7118330dc8",
+    "v4.15.1": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451",
+    "v4.15.2": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835",
+    "v4.15.3": "97a8f0a291eb844deaa2daf679dd3b8176936f476cc98af662eb1c44931d2cbe",
+    "v4.15.4": "40abcad912dc8ee9b72866832103ae3f896bc597898ae63508bcdd002a85da2c",
+})
+# These are individually reviewed literals, never a release-prefix substitution.
+_V415_TASK_TARGETS = MappingProxyType({
+    **{("v4.15.1", tid, old): new for tids, old, new in (
+        (("T101", "T105"), "docs/releases/v4/v4.16/development/detection-evidence.md", "docs/releases/v4/v4.15/development/detection-evidence.md"),
+        (("T102", "T103"), "docs/releases/v4/v4.16/development/injection-prototype.md", "docs/releases/v4/v4.15/development/injection-prototype.md"),
+        (("T104",), "docs/releases/v4/v4.16/development/profile-layer-trust-audit.md", "docs/releases/v4/v4.15/development/profile-layer-trust-audit.md"),
+        (("T106", "T109", "T110", "T112", "T113", "T115", "T116", "T117", "T118", "T119"), "docs/releases/v4/v4.16/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.1-last-phase-evidence.md"),
+        (("T111",), "docs/releases/v4/v4.16/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+        (("T107",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/proposed/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
+        (("T108",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/rejected/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
+    ) for tid in tids},
+    **{("v4.15.2", tid, old): new for tids, old, new in (
+        (("T001", "T006"), "docs/releases/v4/v4.17/development/phase-1-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"),
+        (("T014",), "docs/releases/v4/v4.17/development/phase-2-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase2-evidence.md"),
+        (("T024",), "docs/releases/v4/v4.17/development/phase-3-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase3-evidence.md"),
+        (("T027",), "docs/releases/v4/v4.17/development/shared-agents-inventory.md", "docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md"),
+        (("T041", "T055"), "docs/releases/v4/v4.17/development/claude-agents-evaluation.md", "docs/releases/v4/v4.15/development/v4.15.2-claude-agents-evaluation.md"),
+        (("T042",), "docs/releases/v4/v4.17/development/phase-4-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase4-evidence.md"),
+        (("T043", "T046", "T047", "T048", "T049", "T050", "T051", "T052"), "docs/releases/v4/v4.17/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-last-phase-evidence.md"),
+        (("T044",), "docs/releases/v4/v4.17/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+        (("T039",), "tests/integrations/test_org_materialization.py", "tests/installer/test_org_materialization.py"),
+    ) for tid in tids},
+})
+_V415_TASK_ISSUER = object()
+
+
+@dataclass(frozen=True, slots=True)
+class V415TaskAuthority:
+    """An in-process capability issued only after the native full-parent checks.
+
+    This is an explicit trusted-code interface, not a serialized record marker or
+    a security boundary against arbitrary Python executing in this process.
+    """
+
+    root: Path
+    repo: str
+    minor: str
+    member: str
+    original_sha256: str
+    plan_rel: str
+    plan_sha256: str
+    _issuer: object = field(repr=False, compare=False)
+
+
+def _v415_task_authority(*, root: Path, repo: str, minor: str, member: str,
+                         original_sha256: str, plan_rel: str, plan_sha256: str) -> V415TaskAuthority | None:
+    """Mint after completion_minor's full-parent factory verifies original identity."""
+    if (repo != "bendourthe/Nexus-Hub" or minor != "v4.15"
+            or _V415_ORIGINAL_HASHES.get(member) != original_sha256
+            or not isinstance(plan_rel, str) or not PLAN_REL_RE.fullmatch(plan_rel)
+            or not isinstance(plan_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_sha256)):
+        return None
+    return V415TaskAuthority(Path(root).resolve(), repo, minor, member, original_sha256,
+                             plan_rel, plan_sha256, _V415_TASK_ISSUER)
+
+
+def _v415_task_target(ctx: Context, path: str, task_id: str | None,
+                      authority: V415TaskAuthority | None, record: dict | None) -> str:
+    if (type(authority) is not V415TaskAuthority or authority._issuer is not _V415_TASK_ISSUER
+            or authority.repo != "bendourthe/Nexus-Hub" or authority.minor != "v4.15"
+            or authority.member != ctx.version or authority.root != ctx.root.resolve()
+            or authority.plan_rel != ctx.rel or authority.plan_sha256 != ctx.plan_hash()
+            or _V415_ORIGINAL_HASHES.get(authority.member) != authority.original_sha256):
+        return path
+    corrected = _V415_TASK_TARGETS.get((authority.member, task_id, path))
+    if corrected is None:
+        return path
+    # A verified archive's existing predicate searches both the archive and its
+    # original active location and excludes archive-only/uncertain changes.
+    archived = (record or {}).get("archived")
+    if isinstance(archived, dict):
+        source, destination = archived.get("from"), archived.get("plan_path")
+        if isinstance(source, str) and isinstance(destination, str) and "/plans/" in source and "/plans/" in destination:
+            active_root = source.rsplit("/plans/", 1)[0]
+            if corrected.startswith(active_root + "/"):
+                candidate = destination.rsplit("/plans/", 1)[0] + corrected[len(active_root):]
+                if _minor_module().task_origin(ctx.version, candidate, archived) == corrected:
+                    return candidate
+    return corrected
+
+
+def _task_status(ctx: Context, checked: bool, path: str, start: str | None, record: dict | None = None,
+                 *, task_id: str | None = None, task_authority: V415TaskAuthority | None = None) -> str:
     if not checked or not path:
         return "unmet"
     if not start:
         return "met"
+    path = _v415_task_target(ctx, path, task_id, task_authority, record)
     # Once any member of the minor carries a signed archived identity, an archive commit
     # (any member's, or the close's) never counts as task work (contract, "Member archive").
     archives = record if _minor_module().archive_active(record) else None

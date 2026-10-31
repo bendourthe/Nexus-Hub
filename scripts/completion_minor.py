@@ -1052,6 +1052,53 @@ def member_identity_ok(ck: ModuleType, member: dict, plan: Plan) -> bool:
             and digest == archived.get("plan_sha256"))
 
 
+def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict, plan: Plan):
+    """Issue exact task compatibility only from the complete authenticated native parent.
+
+    The ordinary per-plan projection carries no trust marker. An archive must also
+    prove its signed original frozen identity, including a minor re-freeze. Existing
+    archive predicates judge its Git landing and exclude uncertain or archive-only work.
+    The issued value is bound to the actual evaluation tree, path and current hash.
+    """
+    if (not isinstance(parent, dict) or not isinstance(member, dict) or not isinstance(plan, Plan)
+            or parent.get("repo") != "bendourthe/Nexus-Hub" or parent.get("minor") != "v4.15"
+            or member.get("version") not in {f"v4.15.{patch}" for patch in range(5)}):
+        return None
+    try:
+        if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent):
+            return None
+        matches = [m for m in parent["members"] if m.get("version") == member.get("version")]
+        if len(matches) != 1 or approval_binding.canonical(matches[0]) != approval_binding.canonical(member):
+            return None
+        current = [p for p in scan_plans(rctx.root, 4, 15) if p.version == member["version"]]
+        if len(current) != 1 or current[0] != plan or not member_identity_ok(ck, member, plan):
+            return None
+        original = plan
+        if "archived" in member:
+            archived = member["archived"]
+            entries = archive_entries(archived)
+            if (not isinstance(archived, dict) or plan.rel != archived.get("plan_path")
+                    or entries is None or not isinstance(entries.get(plan.rel), str)):
+                return None
+            original = _signed_original_plan(rctx, parent, member, plan, ck)
+            if original is None:
+                return None
+        elif plan.rel != member.get("plan_path"):
+            return None
+        root, rel, digest = rctx.root, plan.rel, ck.plan_hash_text(plan.text)
+        if member.get("implementation") is not None:
+            ctx, status, _retired = _worker_context(ck, rctx, parent, member, rctx.budget)
+            if ctx is None or status != "met":
+                return None
+            root, rel, digest = ctx.root, ctx.rel, ctx.plan_hash()
+        return ck._v415_task_authority(root=root, repo=parent["repo"], minor=parent["minor"],
+                                      member=member["version"], original_sha256=ck.plan_hash_text(original.text),
+                                      plan_rel=rel, plan_sha256=digest)
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable,
+            ck.Malformed, ck.MinorConflict):
+        return None
+
+
 def member_moves(version: str, tree: str, tracked: list[str], plan_rel: str | None = None) -> list[tuple[str, str]]:
     """(old prefix, new prefix) for every path member `version` owns in the active `tree`.
 
@@ -3448,7 +3495,8 @@ def evaluate_member(
             result.lines = identity
             result.status = "unmet" if status == "unmet" else "cannot-verify"
             return result
-    results, _deferred = ck.evaluate(ctx, ck.project(record, version))
+    authority = v415_task_authority(ck, rctx, record, member, plan)
+    results, _deferred = ck.evaluate(ctx, ck.project(record, version), task_authority=authority)
     results = identity + results
     if "archive-member" in _classes(record):
         # Only a record carrying the class reports the line, so a record without it
