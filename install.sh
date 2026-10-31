@@ -123,6 +123,11 @@ DOWNLOAD_FAILURE=""
 download_ok() {
     local url="$1" dest="$2" attempt=1 code rc
     local delay="${NEXUS_HUB_RETRY_DELAY:-3}"
+    local -a curl_flags=(-fsSL)
+    # curl's progress bar only when a person is watching stderr; piped runs stay quiet.
+    if [ -t 2 ]; then
+        curl_flags=(-fL --progress-bar)
+    fi
     DOWNLOAD_FAILURE=""
     if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
         log_error "no downloader available to fetch $url -- $( install_hint curl )"
@@ -130,7 +135,7 @@ download_ok() {
     fi
     while [ "$attempt" -le 3 ]; do
         if command -v curl >/dev/null 2>&1; then
-            code="$( curl -fsSL --connect-timeout 15 --max-time 300 -w '%{http_code}' -o "$dest" "$url" )" && return 0
+            code="$( curl "${curl_flags[@]}" --connect-timeout 15 --max-time 300 -w '%{http_code}' -o "$dest" "$url" )" && return 0
             case "$code" in
                 404|410) DOWNLOAD_FAILURE="not-found"; return 1 ;;
                 000|"") DOWNLOAD_FAILURE="network" ;;
@@ -154,8 +159,14 @@ download_ok() {
 # checksums.txt fetches so a missing tag asset does not abort the bootstrap.
 try_download() {
     local url="$1" dest="$2"
+    local -a flags=(-fsSL)
+    # An optional third argument "progress" asks for curl's progress bar, shown
+    # only when stderr is a terminal so a piped or logged run stays quiet.
+    if [ "${3:-}" = "progress" ] && [ -t 2 ]; then
+        flags=(-fL --progress-bar)
+    fi
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL --connect-timeout 15 --max-time 30 -o "$dest" "$url" && return 0
+        curl "${flags[@]}" --connect-timeout 15 --max-time 30 -o "$dest" "$url" && return 0
         return 1
     fi
     if command -v wget >/dev/null 2>&1; then
@@ -163,6 +174,60 @@ try_download() {
         return 1
     fi
     return 1
+}
+
+# Human-readable byte count for the download messages ("186.0 MB", decimal units
+# as GitHub shows them).
+format_bytes() {
+    local bytes="$1"
+    if [ "$bytes" -ge 1000000 ]; then
+        printf '%s.%s MB' "$(( bytes / 1000000 ))" "$(( bytes % 1000000 * 10 / 1000000 ))"
+    elif [ "$bytes" -ge 1000 ]; then
+        printf '%s KB' "$(( bytes / 1000 ))"
+    else
+        printf '%s bytes' "$bytes"
+    fi
+}
+
+# Best-effort size in bytes of a remote archive from a HEAD request. Prints
+# nothing when it is not cheaply known (a local path, a generated branch archive
+# that reports no length, or any failure). Never downloads the body.
+remote_size_bytes() {
+    local url="$1" headers=""
+    case "$url" in
+        http*://*) ;;
+        *) return 0 ;;
+    esac
+    if command -v curl >/dev/null 2>&1; then
+        headers="$( curl -sIL --connect-timeout 10 --max-time 15 "$url" 2>/dev/null || true )"
+    elif command -v wget >/dev/null 2>&1; then
+        headers="$( wget --spider -S -q --timeout=15 "$url" 2>&1 || true )"
+    fi
+    printf '%s\n' "$headers" | tr -d '\r' \
+        | awk 'tolower($1)=="content-length:" && $2+0>0 {n=$2} END {if (n) print n}' || true
+}
+
+# Print what the download delivered ($1 archive, $2 start in $SECONDS), so a long
+# transfer never ends in silence.
+log_download_summary() {
+    local archive="$1" started="$2" size elapsed
+    size="$( wc -c < "$archive" | tr -d '[:space:]' )"
+    elapsed=$(( SECONDS - started ))
+    if [ "$elapsed" -ge 60 ]; then
+        elapsed="$(( elapsed / 60 ))m $( printf '%02d' $(( elapsed % 60 )) )s"
+    else
+        elapsed="${elapsed}s"
+    fi
+    log_info "Downloaded $( format_bytes "$size" ) in $elapsed."
+}
+
+# Log the archive size when a HEAD request reveals it cheaply.
+log_known_size() {
+    local bytes
+    bytes="$( remote_size_bytes "$1" )"
+    if [ -n "$bytes" ]; then
+        log_info "Archive size: $( format_bytes "$bytes" )"
+    fi
 }
 
 # Resolve a Python interpreter. precheck_dependencies already guaranteed one.
@@ -327,7 +392,7 @@ fetch_release_file() {
         cp -- "$base/$name" "$dest" || return 1
         return 0
     fi
-    try_download "$base/$name" "$dest" || return 1
+    try_download "$base/$name" "$dest" "${4:-}" || return 1
 }
 
 # Verify tagged archive $1 (named $2 in SHA256SUMS) for ref $3 against the
@@ -388,7 +453,7 @@ run_standalone() {
         exit 0
     fi
 
-    local ref repo src tarball archive tmp url installer ref_flag="" base name
+    local ref repo src tarball archive tmp url installer ref_flag="" base name started
     # Consume --ref / --ref=<value> here; everything else passes through to the
     # core installer untouched.
     local -a passthru=()
@@ -433,10 +498,13 @@ run_standalone() {
         # A release tag installs the artifact the project PUBLISHED, not GitHub's
         # generated archive, and the download is verified fail-closed below.
         log_info "Downloading Nexus-Hub release $ref ($repo)..."
-        if ! fetch_release_file "$base" "$name" "$archive"; then
+        log_known_size "$base/$name"
+        started="$SECONDS"
+        if ! fetch_release_file "$base" "$name" "$archive" progress; then
             log_error "could not resolve release '$ref' at $base: no $name (a typo, a tag that was never published, or a network failure). List versions at https://github.com/$repo/releases or with: gh release list -R $repo"
             exit 1
         fi
+        log_download_summary "$archive" "$started"
     else
         if [ -n "$tarball" ]; then
             url="$tarball"
@@ -444,6 +512,8 @@ run_standalone() {
             url="https://github.com/$repo/archive/refs/heads/$ref.tar.gz"
         fi
         log_info "Downloading Nexus-Hub catalog ($repo@$ref)..."
+        log_known_size "$url"
+        started="$SECONDS"
         if ! download_ok "$url" "$archive"; then
             case "$DOWNLOAD_FAILURE" in
                 not-found)
@@ -455,6 +525,7 @@ run_standalone() {
             esac
             exit 1
         fi
+        log_download_summary "$archive" "$started"
     fi
 
     assert_archive_safe "$archive"
