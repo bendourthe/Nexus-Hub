@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The install manifest no longer grows without bound.** The install manifest's diagnostic `logs` list was loaded, appended to and saved again by every install, and nothing ever trimmed it, so on a long-lived machine it reached 159,119 lines (13 MB) and every manifest save during an install rewrote all of it. `scripts/lib/integrations/manifest.py` now keeps only the most recent 5,000 lines (`MAX_LOGS`), on save and when an oversized manifest is loaded, so the first install after this release trims an existing trail. Nothing reads the trail back, and tracked files, recorded actions and the install selection are unchanged.
+
 ## [4.14.5] - 2026-10-30
 
 ### Added
