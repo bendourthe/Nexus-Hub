@@ -158,15 +158,20 @@ download_ok() {
 # Like download(), but returns 1 on failure instead of exiting. Used for optional
 # checksums.txt fetches so a missing tag asset does not abort the bootstrap.
 try_download() {
-    local url="$1" dest="$2"
+    local url="$1" dest="$2" max_time=30
     local -a flags=(-fsSL)
-    # An optional third argument "progress" asks for curl's progress bar, shown
-    # only when stderr is a terminal so a piped or logged run stays quiet.
-    if [ "${3:-}" = "progress" ] && [ -t 2 ]; then
-        flags=(-fL --progress-bar)
+    # An optional third argument "progress" marks the release archive. It gets the
+    # 300-second budget download() uses, because a full release archive is over
+    # 150 MB, and curl's progress bar, shown only when stderr is a terminal so a
+    # piped or logged run stays quiet.
+    if [ "${3:-}" = "progress" ]; then
+        max_time=300
+        if [ -t 2 ]; then
+            flags=(-fL --progress-bar)
+        fi
     fi
     if command -v curl >/dev/null 2>&1; then
-        curl "${flags[@]}" --connect-timeout 15 --max-time 30 -o "$dest" "$url" && return 0
+        curl "${flags[@]}" --connect-timeout 15 --max-time "$max_time" -o "$dest" "$url" && return 0
         return 1
     fi
     if command -v wget >/dev/null 2>&1; then
