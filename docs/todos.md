@@ -2,6 +2,21 @@
 
 **Integration branch:** `develop`
 
+**v4.15 local implementation, 2026-10-31:** The genuine minor approval is recorded for v4.15.0 through v4.15.4. Three isolated workers are admitted; the coordinator owns shared files and publication. The snapshot below counts locally checked task lines, not merged work or release completion. No v4.15 branch has been published or released.
+
+| Plan | Local checked task lines | Current state |
+|---|---|---|
+| v4.15.0 | 8/20 | Three conversions and two canonical factual alignments are verified; final comprehensive checks remain open. |
+| v4.15.1 | 10/19 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. |
+| v4.15.2 | 0/55 | Not admitted; v4.15.0 integration is required. The separately authorized guidance prerequisite is qualified and being published. |
+| v4.15.3 | 0/32 | Not admitted; cadence execution requires the merged v4.15.2 evaluator. Four task IDs repeat in the frozen prose. |
+| v4.15.4 | 10/23 | Phases 1-3 are locally committed; archive and worktree boundary qualification continues. |
+| Total | 28/149 (18.8%) | Local task-line progress only; there are 145 distinct task IDs across these plans. |
+
+- [ ] Complete the approved [v4.15 instruction audit](releases/v4/v4.15/development/instruction-necessity-audit.md) candidate and remaining minor work; retain [the queue assessment](releases/v4/v4.15/development/v4.15.0-queue-assessment.md), local phase evidence, and native completion checks as the authority for their respective claims.
+- [ ] Merge only the separately authorized v4.16.2 Phase 1 guidance prerequisite, then record the satisfying commit before v4.15.2's dependent phases. The remaining v4.16.2 phases and its release remain outside this run. Complete the v4.15.2 evaluator before v4.15.3 cadence execution.
+- [ ] Refresh unpublished work onto the integration result of the active v4.14.6 through v4.14.8 sessions, then complete final validation, ordered publication, release, and cleanup. Active v4.14 worktrees and the primary checkout's unrelated edits remain outside this session's edits.
+
 **v4.14 implementation reporting:** Hourly and transition reports plus read-only `/update status` are locally verified in the isolated `feat/v4.14-progress-reports` branch. Counts reuse the existing parser; worker activity, timing, dependencies and estimates require observed evidence.
 
 - [x] Implement and locally verify v4.14 progress reporting and on-demand status: 117 tests pass with 2 skips; 18 fast checks pass. [Evidence](releases/v4/v4.14/development/v4.14-progress-reporting.md).

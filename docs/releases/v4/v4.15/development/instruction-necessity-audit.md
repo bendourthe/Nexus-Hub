@@ -2,7 +2,7 @@
 
 **Version**: v4.15.0
 **Date**: 2026-10-31
-**Status**: Audit complete; the user selected three conversions and no removals. No instruction change has been applied yet.
+**Status**: Three approved conversions applied, conditional recurrence absorbed, and focused checks passed; final validation remains open. No instruction was removed.
 **Source revision**: `ff69aff882f5cc825939507d326edce904ce65eb`
 
 This audit covers the repository's `AGENTS.md` and separately proposes two contextual changes to distributed instruction templates. The user's global instruction files are outside scope. Every trust boundary, data-loss, security, accessibility, verification, and edit-preservation requirement remains in force.
@@ -11,14 +11,16 @@ This audit covers the repository's `AGENTS.md` and separately proposes two conte
 
 | Measurement | Before | After |
 |---|---|---|
-| Source lines, including blank lines | 572 | Pending coordinator changes |
-| UTF-8 bytes with checkout line endings | 68,531 | Pending coordinator changes |
-| Characters after CRLF-to-LF normalization | 67,767 | Pending coordinator changes |
-| Approximate tokens, existing deterministic `estimate_tokens` | 16,243 | Pending coordinator changes |
-| Raw SHA-256 | `9a64393530d9874156ae1df6a22e3083ec8d24eab3a94e98027c9928f704f237` | Pending coordinator changes |
-| LF-normalized SHA-256 | `bd651d10235655a9b368613fd1246e3b4a191468ad1e9b2907fdaf7746bf34cf` | Pending coordinator changes |
+| Source lines, including blank lines | 572 | 572 |
+| UTF-8 bytes with checkout line endings | 68,531 | 68,709 |
+| Characters after CRLF-to-LF normalization | 67,767 | 67,945 |
+| Approximate tokens, existing deterministic `estimate_tokens` | 16,243 | 16,272 |
+| Raw SHA-256 | `9a64393530d9874156ae1df6a22e3083ec8d24eab3a94e98027c9928f704f237` | `976bce6e7a7955960a0207f2d8930faebb55665d0a84d556a58f60661b77f731` |
+| LF-normalized SHA-256 | `bd651d10235655a9b368613fd1246e3b4a191468ad1e9b2907fdaf7746bf34cf` | `de60e523b4f96da5da7d71f3cd6ab0d304c750d999e2e024f214e511f49016fe` |
 
 The token estimate comes from `scripts.check_memory_integration_budget.estimate_tokens`, also imported by `scripts/measure_rendered_context.py`. It counts word runs and standalone punctuation. It is a repeatable approximation, not a provider tokenizer or a measured prompt-cache result. The plan's 541-line figure describes its historical baseline; it is not the current before figure.
+
+The final root-file estimate increased by 29 tokens after C1 and the two factual alignments below. It does not claim a smaller root instruction file. Across all thirteen substantive templates, the sum of the same estimates changed from 40,770 to 40,236, a reduction of 534. That sum compares repository templates, not any single installed session, and proves no behavioral quality, provider charge, latency, or cache result. All eight budgeted documents remain within their existing word ceilings; no ceiling was raised.
 
 ## Enumeration Method
 
@@ -212,12 +214,12 @@ Every shared-section change can affect five machine-guarded templates and eight 
 
 ### Coordinator-Owned Root Delta
 
-`AGENTS.md` is a read-only worker input under the admitted claims. The coordinator would replace only the line beginning `5. **Validate**:` in the pinned checklist, after reviewing intervening integration changes. T204 remains unchecked until the coordinator applies and tests the approved delta.
+`AGENTS.md` is a read-only worker input under the admitted claims. The coordinator applied only the line beginning `5. **Validate**:` under its signed coordinator scope. The coordinator reported strict Unicode, diff, and baseline template-parity checks passing. The worker independently observed exactly one removed and one added root-file line, then completed C2, C3, and the focused tests. T204 can therefore close without this worker writing or accepting a new root-file baseline.
 
-Proposed replacement, not applied:
+Approved replacement, applied by the coordinator:
 
 ```text
-5. **Validate**: at a plan phase boundary, run the checks affected by that phase plus `python scripts/ci/run.py --profile fast`; run `python scripts/ci/run.py --profile full` once on the finished candidate before publication. For new hooks, run their focused parity tests. For installer changes, exercise the affected delivery boundary in a throwaway directory and confirm the artifact reaches its expected path. Outside a plan, run the affected checks and the fast profile before committing, and complete the canonical gate before publication.
+5. **Validate**: per phase, run affected checks plus `python scripts/ci/run.py --profile fast`. Run `python scripts/ci/run.py --profile full` once on the finished candidate before publication. Include affected hook-parity and throwaway installer-delivery checks. Outside plans, use the canonical pre-publication gate.
 ```
 
 ### Removal List
@@ -232,6 +234,8 @@ The user's mandatory per-read explanation and shell-description rules also appea
 
 The independent lexical pass scans nonempty source lines outside fenced code blocks, ignores headings, HTML comments, and table separators, and matches whole words from `must|should|never|do not|required|prefer|use|run|write|before|apply|keep|follow|include|update|register|place|discuss|treat|naming|carry|preserve|filter|gate|record|check|default|every|when|decision|rules`, case-insensitively. It does not read the audit table. Quoted examples are adjudicated separately.
 
+The enumeration and original table apply to the pinned before revision. The coordinator's three root-line changes do not rewrite those historical verdicts. The changed source now has the same 572 physical lines; its two previously deferred facts have the explicit resolutions below.
+
 Reviewed exclusions, all non-obligations:
 
 - Purpose, inventory, loading description, and historical rationale: 5, 11, 46, 96, 98, 102, 254, 336, 362, 389, 414, 416, 481, 494, 528, 554.
@@ -244,11 +248,43 @@ Reviewed semantic additions, each inspected in source and represented by its own
 
 ## Boundary Language
 
-Phase 1 finding: the source explicitly requires verification, user-content preservation, trusted input boundaries, platform parity, and meaningful consent for consequential actions. None is a conversion or removal candidate. Representative scope-fit wording is `Before adding a new module, builder, protocol field, CLI option, fixture, or abstraction, name the shipped behavior, the active call site, or the explicit compatibility contract that requires it`. Its trigger is already contextual and remains a keep verdict. The thirteen-template boundary-language review belongs to Phase 2 and is not claimed complete here.
+The source and all thirteen substantive templates were reviewed for the named boundary concerns. `Autonomous Operation`, `Consequential Decisions`, `Construction Discipline`, `MCP Registry Policy`, and `User Attribution` were compared with their pinned original bodies in every template. All 65 comparisons preserve the original bytes or original absence of a section; generic-instructions has no MCP Registry Policy heading. No safety boundary changed. The two converted conventions govern narration and an optional tool argument, not authority or verification.
+
+Representative source wording is `Before adding a new module, builder, protocol field, CLI option, fixture, or abstraction, name the shipped behavior, the active call site, or the explicit compatibility contract that requires it`. Its trigger is already contextual and remains a keep verdict. The template scope reviewed includes preserving current user content, stopping on destructive actions outside the request, explaining consequential decisions, verification before completion, and keeping platform-neutral bodies free of model-specific claims. No additional boundary-language change is justified by this review. No new model identifier was introduced.
+
+### Template Counterparts
+
+The five lockstep files are base-claude, base-codex, base-cursor, base-gemini, and base-opencode. C3 changed its existing line in all five. C2 changed its existing line in base-claude, base-codex, and base-gemini; the rule was absent in the other two, and no new rule was added. Parity exited 0 after each conceptual change. The worker opened the edited base-codex and base-gemini lines and confirmed their C2 and C3 wording is identical. No invariant block was edited; preservation of the invariant bodies is the valid null branch of this phase's verification expectation.
+
+The eight non-lockstep templates were checked individually:
+
+| Template | Actual C2 counterpart | Actual C3 counterpart | Result |
+|---|---|---|---|
+| base-google-shared.md | Replaced | Replaced | Both current conventions match the approved triggers; protected blocks unchanged. |
+| base-aider.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| base-kimi.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| base-openclaw.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| base-pi.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| base-qwen.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| base-windsurf.md | Absent, no addition | Replaced | Tool-argument convention changed; protected blocks unchanged. |
+| generic-instructions.md | Absent, no addition | Absent, no addition | Entire file byte-identical; no fabricated counterpart. |
+
+Exactly four existing C2 lines and twelve existing C3 lines changed. The three-conversion cap includes the coordinator's C1. The root audit's original verdict distribution remains 162 keep, 1 make contextual, 0 remove, and 2 defer; its one make-contextual verdict is now applied. The two template conventions remain a separate denominator. The two deferred factual contradictions have now been aligned with their existing owners, as recorded below, without removal or a new policy.
+
+### Deferred-Fact Resolution
+
+| Original unit | Existing owner evidence | Coordinator resolution | Remaining obligation |
+|---|---|---|---|
+| R137, retention description | `docs/policy/docs-retention.md` state 3 names one minor behind and history only; state 3b requires proven closure or verified transfer for plans and comparisons and keeps ledgers active by default with bounded exceptions. `scripts/check_docs_retention.py` declares `ARCHIVE_AFTER_MINORS = 1`, `AGING_SUBDIR = "development/history"`, and `ARCHIVES_ROOT = "docs/archives"`. | Root retention summary now matches those already-existing rules and the advisory detector. No archive ran and no new permission to move a ledger was granted. | Resolved as a stale summary, not a new retention-policy decision. The policy's old footer description does not override its explicit state or executable constant. |
+| R147, catalog ownership | `scripts/check_registry_entries.py` states that the four registry files are hand-edited on purpose, emits paste-ready entries, and never writes. `Makefile` lines 91-100 refuses the legacy catalog builder unless explicitly forced in a disposable copy. Root line 244 already describes deliberate hand-maintenance. | Root names the four hand-maintained registry files and preserves other generated artifacts under their owning generators. No data file or generator was changed. | Resolved as a stale generated-data claim, not a blanket license to edit every data artifact. |
+
+The final disposition has 164 retained or factually aligned units, one applied root contextual conversion, zero removals, and zero unresolved deferred units from this audit. The original 165-row table remains the record of what the audit found before repair. There are still only three contextual conversions in total, including C2 and C3. The root diff contains exactly three replaced lines: C1 plus two factual alignments.
 
 ## Recurrence
 
-Pending Phase 2. One root conversion does not by itself justify adding a mandatory step to every release. Evaluate the two template findings and final counts before selecting an existing owner. `catalog/commands/update.md` is an admitted possible owner; no new skill, command, hook, or validator is allowed. A deferral must retain the measured baseline and an owner through the coordinator's known-gap disposition.
+Owner: the existing `/update release` architecture-refactor step in `catalog/commands/update.md`. Its new handoff triggers only when project instructions or substantive templates changed, reviews only the changed standing rules, and compares available project-local line and approximate-token figures. If no baseline exists, it must say so. Unrelated releases do not gain an instruction audit. No new governance step, skill, command, hook, or validator was created.
+
+The warrant is the approved conventions' distribution impact: C2 had four existing counterparts and C3 had twelve among thirteen substantive templates. The owner uses the project's available baseline rather than hardcoding this repository's 165 source units, 572 lines, or 16,243 estimated tokens. Those measurements remain in this release's audit. The plan's requirement for automated governance qualification is satisfied by the complete reproducible structural and mutation exercise in the Phase 2 history: eight tests passed in 22.00 seconds, including seven independent negative controls. Mechanical success does not prove future agent judgment.
 
 ## Inherited Work
 
@@ -263,5 +299,7 @@ Pending Phase 2. One root conversion does not by itself justify adding a mandato
 - ASCII and document-shape checks: PASS, terminal exit 0, `keep=162 make_contextual=1 remove=0 defer=2; ASCII=clean; fences=balanced; heading_labels=clean`.
 - Fast profile: PASS, terminal exit 0, `18 passed, 0 failed, 0 skipped, 0 advisory` in 150.2 seconds. This is the fast profile, not comprehensive validation.
 - Baseline template parity: PASS, terminal exit 0, all five lockstep templates present. The strict Unicode scan of both audit documents exits 0.
-- `git diff --name-only` shows only the T201 plan mark; `git status --short` additionally lists the two new audit documents. No instruction, catalog, script, CI, global instruction file, or coordinator-owned ledger changed. The supported attribution installer created a private worktree Git guard, with the existing hook chain retained; its check reports VERIFIED.
+- The Phase 1 source inspection showed only the T201 plan mark and two new audit documents. Its supported attribution installation created a private worktree Git guard, retained the existing hook chain, and reported VERIFIED. Phase 2 subsequently contains only the approved instruction conventions, conditional release-owner handoff, their evidence, and coordinator-owned source/tracker deltas.
+- Phase 2 focused template contracts: PASS, 163 tests in 7.59 seconds. The recurrence exercise: PASS, eight tests in 22.00 seconds. Strict Unicode and diff checks exit 0; template parity exits 0 after each conceptual edit. These are focused results, not the final comprehensive gate.
+- The initial Phase 2 fast invocation recorded 16 passes and two failed hygiene checks. After causal repairs, the affected hygiene selection passed eight checks in 99.0 seconds; the final shortened templates passed all 163 focused tests again in 17.01 seconds. Personal-path and word-budget checks exit 0, and no word ceiling changed. Fresh and repeated public Codex and Gemini workspace rendering also passed, preserving surrounding user bytes and delivering exactly one managed body with both new conventions.
 - T202 is complete: the user selected three conversions and no removals. T203's generic comprehensive profile obligation is deferred to the finished-candidate gate; the recorded focused checks and fast profile satisfy the phase-1 cadence.
