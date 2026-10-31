@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the v4.13.0 Phase 6 trigger pilot against a real agent CLI.
+"""Stage instruction variants or run the trigger pilot against a real agent CLI.
 
 The plan held Phase 6 because no execution path supplied five controls at once:
 two model tiers, observed skill selection, bounded subprocess time, an
@@ -32,6 +32,13 @@ Usage::
 
     python scripts/run_trigger_pilot.py --protocol <dir> --out <results.json>
     python scripts/run_trigger_pilot.py ... --calibrate 4   # slice first
+    python scripts/run_trigger_pilot.py ... --instruction-full-index full.md \
+        --instruction-pointer pointer.md --stage-only
+
+Instruction mode snapshots caller-provided Markdown into separate A/B CLAUDE.md
+files and holds skill bytes constant. Labels are caller declarations, not a
+semantic certification. --stage-only needs no agent CLI and records UNMEASURED;
+--run explicitly selects live instruction calls, subject to the existing limits.
 
 Exit codes: 0 completed (possibly partial, recorded as such), 2 refused to start.
 """
@@ -46,6 +53,7 @@ import os
 import random
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -62,6 +70,7 @@ TOTAL_WALL_S = 120 * 60
 SEED = 4131
 
 FIXTURE_MARKER = ".nexus-pilot-fixture"
+MAX_INSTRUCTION_BYTES = 2 * 1024 * 1024
 
 MODELS = {"fast": "claude-haiku-4-5-20251001", "strong": "claude-opus-5"}
 
@@ -196,7 +205,90 @@ def _skill_selectors(tool_input: object) -> dict[str, str]:
     return selectors
 
 
-def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict) -> dict[str, str]:
+@dataclass(frozen=True)
+class InstructionInputs:
+    """Validated snapshots; receipts contain hashes, never these private bytes."""
+
+    documents: dict[str, bytes]
+    skills: dict[str, bytes]
+
+    def hashes(self, variant: str) -> dict[str, str]:
+        return {
+            **{name: hashlib.sha256(raw).hexdigest() for name, raw in self.skills.items()},
+            "instruction": hashlib.sha256(self.documents[variant]).hexdigest(),
+        }
+
+
+def _plain_path(path: Path) -> Path:
+    """Reject links/reparse ancestors before reading or claiming a new output."""
+    absolute = Path(os.path.abspath(path))
+    for candidate in (absolute, *absolute.parents):
+        if os.path.lexists(candidate):
+            info = candidate.lstat()
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400):
+                raise ValueError("linked or reparse paths are not supported")
+    return absolute
+
+
+def _snapshot(path: Path, *, markdown: bool) -> bytes:
+    """Bound each regular-file read and reject a changed identity or contents."""
+    path = _plain_path(path)
+    if markdown and path.suffix.lower() != ".md":
+        raise ValueError("instruction input must be Markdown")
+    before = path.stat()
+    if not stat.S_ISREG(before.st_mode):
+        raise ValueError("input must be a regular file")
+    identity = lambda info: (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+    with path.open("rb") as stream:
+        opened = os.fstat(stream.fileno())
+        if not stat.S_ISREG(opened.st_mode) or identity(before) != identity(opened):
+            raise ValueError("input changed before snapshot")
+        raw = stream.read(MAX_INSTRUCTION_BYTES + 1)
+        after = os.fstat(stream.fileno())
+    current = _plain_path(path).stat()
+    if not (identity(before) == identity(opened) == identity(after) == identity(current)):
+        raise ValueError("input changed during preflight")
+    if len(raw) > MAX_INSTRUCTION_BYTES:
+        raise ValueError("input exceeds the 2 MiB limit")
+    text = raw.decode("utf-8-sig")
+    if not text.strip() or "\0" in text:
+        raise ValueError("input must be nonempty UTF-8 without NUL characters")
+    return raw
+
+
+def _instruction_preflight(args: argparse.Namespace, repo: Path) -> InstructionInputs:
+    """Validate all new-mode inputs before any fixture or receipt is written."""
+    if (_plain_path(args.instruction_full_index) == _plain_path(args.instruction_pointer)
+            or os.path.samefile(args.instruction_full_index, args.instruction_pointer)):
+        raise ValueError("instruction arms must use distinct source files")
+    documents = {}
+    for variant, path in (("A", args.instruction_full_index), ("B", args.instruction_pointer)):
+        try:
+            documents[variant] = _snapshot(path, markdown=True)
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"instruction {variant} input is invalid") from exc
+    if documents["A"] == documents["B"]:
+        raise ValueError("instruction arms must have distinct bytes")
+    fixture, out = _plain_path(args.fixture), _plain_path(args.out)
+    if os.path.lexists(fixture) or os.path.lexists(out):
+        raise ValueError("instruction mode requires a new fixture and receipt")
+    if fixture == out or fixture.is_relative_to(out) or out.is_relative_to(fixture):
+        raise ValueError("fixture and receipt must be separate outputs")
+    if any(parent.exists() and not parent.is_dir() for target in (fixture, out) for parent in target.parents):
+        raise ValueError("output ancestors must be directories")
+    for path in (args.instruction_full_index, args.instruction_pointer):
+        source = _plain_path(path)
+        if any(source == target or source.is_relative_to(target) for target in (fixture, out)):
+            raise ValueError("inputs must remain outside outputs")
+    try:
+        skills = {name: _snapshot(repo / "catalog/skills" / rel / "SKILL.md", markdown=False) for name, rel in SKILLS.items()}
+    except (OSError, ValueError) as exc:
+        raise ValueError("skill corpus is invalid") from exc
+    return InstructionInputs(documents, skills)
+
+
+def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict,
+                  instruction_inputs: InstructionInputs | None = None) -> dict[str, str]:
     """Write the four sampled skills into the fixture's PROJECT skills directory.
 
     This is what makes the experiment an experiment. Both arms must differ only
@@ -209,6 +301,16 @@ def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict) -> d
     test is the fixture's, and the user's own catalog cannot leak into a result.
     """
     skills_root = fixture / ".claude" / "skills"
+    if instruction_inputs is not None:
+        # Instruction arms are fresh, separate directories claimed by main.
+        # No description intervention or user-installed corpus participates.
+        skills_root.mkdir(parents=True, exist_ok=False)
+        for name, raw in instruction_inputs.skills.items():
+            dest = skills_root / name
+            dest.mkdir()
+            (dest / "SKILL.md").write_bytes(raw)
+        (fixture / "CLAUDE.md").write_bytes(instruction_inputs.documents[variant])
+        return instruction_inputs.hashes(variant)
     if skills_root.exists():
         # Only ever remove a directory this runner created. `--fixture .` inside
         # a real project would otherwise delete that project's skills.
@@ -303,7 +405,8 @@ class Ledger:
         self.calls += 1
 
 
-def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: dict) -> CallResult:
+def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: dict,
+             instruction_inputs: InstructionInputs | None = None) -> CallResult:
     model_id = MODELS[item["model_tier"]]
     result = CallResult(
         skill=item["skill"],
@@ -313,7 +416,11 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
         model_tier=item["model_tier"],
         model_id=model_id,
     )
-    result.corpus_hashes = stage_variant(item["variant"], fixture, repo, variant_b)
+    if instruction_inputs is None:
+        result.corpus_hashes = stage_variant(item["variant"], fixture, repo, variant_b)
+    else:
+        fixture = fixture / item["variant"]
+        result.corpus_hashes = instruction_inputs.hashes(item["variant"])
     cmd = build_command(item["prompt"], model_id, fixture)
     try:
         proc = subprocess.run(
@@ -379,8 +486,17 @@ def load_matrix(protocol_dir: Path) -> list[dict]:
     return matrix
 
 
-def write_receipt(path: Path, payload: dict) -> None:
+def write_receipt(path: Path, payload: dict, *, exclusive: bool = False) -> None:
     """Replace the on-disk result after each state change, never mid-write."""
+    if exclusive:
+        # New instruction experiments reserve their receipt without a
+        # check-then-replace race. Existing default receipt semantics stay intact.
+        with path.open("x", encoding="utf-8", newline="\n") as stream:
+            json.dump(payload, stream, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        return
     staged = None
     try:
         with tempfile.NamedTemporaryFile(
@@ -405,9 +521,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--fixture", type=Path, default=Path("./.pilot-fixture"))
     ap.add_argument("--calibrate", type=int, default=0, help="run only N calls")
     ap.add_argument("--ceiling", type=float, default=MAX_SPEND_USD)
+    ap.add_argument("--instruction-full-index", type=Path, help="Caller-declared full-index Markdown for arm A")
+    ap.add_argument("--instruction-pointer", type=Path, help="Caller-declared pointer Markdown for arm B")
+    ap.add_argument("--stage-only", action="store_true", help="Stage instruction arms without provider discovery or calls")
+    ap.add_argument("--run", action="store_true", help="Explicitly run the opt-in instruction experiment")
     args = ap.parse_args(argv)
 
-    if not shutil.which("claude"):
+    instruction_mode = args.instruction_full_index is not None or args.instruction_pointer is not None
+    if ((args.stage_only or args.run) and not instruction_mode
+            or instruction_mode and (args.instruction_full_index is None or args.instruction_pointer is None)
+            or instruction_mode and args.stage_only == args.run):
+        print("error: instruction mode requires both inputs and exactly one of --stage-only or --run", file=sys.stderr)
+        return 2
+
+    if not instruction_mode and not shutil.which("claude"):
         print("error: the claude CLI is not on PATH; refusing to start", file=sys.stderr)
         return 2
 
@@ -429,20 +556,71 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
 
-    if os.path.lexists(args.out):
+    if not instruction_mode and os.path.lexists(args.out):
         print(f"error: result receipt already exists: {args.out}", file=sys.stderr)
         return 2
 
-    fixture = args.fixture.resolve()
+    repo = Path(__file__).resolve().parents[1]
+    instruction_inputs = None
+    if instruction_mode:
+        try:
+            instruction_inputs = _instruction_preflight(args, repo)
+            matrix = [] if args.stage_only else load_matrix(args.protocol)
+        except (OSError, ValueError, KeyError, TypeError, SystemExit):
+            print("error: instruction preflight refused invalid inputs, corpus, protocol, or outputs", file=sys.stderr)
+            return 2
+        if args.run and not shutil.which("claude"):
+            print("error: the claude CLI is not on PATH; refusing to start", file=sys.stderr)
+            return 2
+
+    fixture = Path(os.path.abspath(args.fixture)) if instruction_mode else args.fixture.resolve()
+    if instruction_mode:
+        try:
+            # Claims are atomic: neither concurrent fixture nor receipt owners
+            # can be overwritten by this experiment's initial output creation.
+            _plain_path(fixture)
+            _plain_path(args.out)
+            fixture.mkdir(parents=True, exist_ok=False)
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            write_receipt(args.out, {
+                "mode": "instruction", "measurement_status": "UNMEASURED",
+                "staging_complete": False, "complete": False, "calls_made": 0,
+                "total_spend_usd": 0.0, "results": [],
+                "instruction_hashes": {arm: hashlib.sha256(raw).hexdigest() for arm, raw in instruction_inputs.documents.items()},
+            }, exclusive=True)
+            for arm in ("A", "B"):
+                target = fixture / arm
+                target.mkdir(exist_ok=False)
+                (target / FIXTURE_MARKER).write_text("Created by scripts/run_trigger_pilot.py.\n", encoding="utf-8")
+                stage_variant(arm, target, repo, {}, instruction_inputs)
+        except (OSError, ValueError):
+            print("error: instruction output claim or staging failed; no existing output was overwritten", file=sys.stderr)
+            return 2
+        if args.stage_only:
+            try:
+                write_receipt(args.out, {
+                    "mode": "instruction", "measurement_status": "UNMEASURED",
+                    "staging_complete": True, "complete": False, "calls_made": 0,
+                    "total_spend_usd": 0.0, "results": [],
+                    "instruction_hashes": {arm: hashlib.sha256(raw).hexdigest() for arm, raw in instruction_inputs.documents.items()},
+                    "corpus_hashes": {arm: instruction_inputs.hashes(arm) for arm in ("A", "B")},
+                })
+            except OSError:
+                print("error: instruction staging receipt could not be completed", file=sys.stderr)
+                return 2
+            print("instruction arms staged; UNMEASURED; calls: 0; spend: $0.0000")
+            return 0
+    else:
+        matrix = None
     fixture.mkdir(parents=True, exist_ok=True)
     # Mark the fixture as runner-owned so staging may clear it later.
     (fixture / FIXTURE_MARKER).write_text(
         "Created by scripts/run_trigger_pilot.py. Safe to delete.\n", encoding="utf-8"
     )
 
-    repo = Path(__file__).resolve().parents[1]
-    variant_b = json.loads((args.protocol / "pilot-variant-b.json").read_text(encoding="utf-8"))
-    matrix = load_matrix(args.protocol)
+    variant_b = {} if instruction_mode else json.loads((args.protocol / "pilot-variant-b.json").read_text(encoding="utf-8"))
+    if matrix is None:
+        matrix = load_matrix(args.protocol)
     if args.calibrate:
         matrix = matrix[: args.calibrate]
 
@@ -454,6 +632,9 @@ def main(argv: list[str] | None = None) -> int:
 
     def save_receipt(inflight: dict | None = None) -> None:
         write_receipt(args.out, {
+            **({"mode": "instruction", "staging_complete": True,
+                "instruction_hashes": {arm: hashlib.sha256(raw).hexdigest() for arm, raw in instruction_inputs.documents.items()}}
+               if instruction_inputs is not None else {}),
             "seed": SEED,
             "ceiling_usd": ceiling,
             "calls_made": ledger.calls,
@@ -480,7 +661,8 @@ def main(argv: list[str] | None = None) -> int:
             "model_tier": item["model_tier"],
             "reserved_usd": PER_CALL_BUDGET_USD,
         })
-        r = run_call(item, fixture, ledger, repo, variant_b)
+        r = (run_call(item, fixture, ledger, repo, variant_b, instruction_inputs)
+             if instruction_mode else run_call(item, fixture, ledger, repo, variant_b))
         ledger.record(r.cost_usd)
         results.append(r)
         if r.cost_usd > PER_CALL_BUDGET_USD:
