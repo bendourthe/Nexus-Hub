@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-29
-**Open items**: 85
+**Last updated**: 2026-10-30
+**Open items**: 86
 
 ## v4.14.0
 
@@ -3401,3 +3401,38 @@ None.
 - **Disposition**: RESOLVED on 2026-10-29 by the v4.14 coordinator before v4.14.4 publication.
 - **Resolution**: PR #552, merged to develop as `c9471b91e4838b98e71c068d67991a25a14bf8ef`, adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, so the ownership row now requires the owner name like every other row, and the temporary `names_owner` exception is removed from `tests/skills/test_rule_ownership.py`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
 - **Remaining boundary**: none.
+
+## v4.14.5
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-21: Planned follow-on: Codex Memories doctor warning
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.5 Phase 3 T014
+
+**Plan reference**: v4.14.5-adoption-codex-memory-levers.md
+
+**Frozen plan sha256**: df01ad4f07c0cd7f6b36144f8e5c559f77f2cc12087f0bdd5324329479181b0c
+
+**Frozen task sha256**: 68d67f554566c5f2148548f4d7d27150e7954474344c29f260b3975681cd0555
+
+**Reason**: `memories.disable_on_external_context` is recorded and recommended but deliberately not seeded (`docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md`), and `nexus-hub doctor` checks only managed-file drift and organization knowledge, so a user who turns on Codex Memories without that exclusion gets no prompt from Nexus-Hub.
+
+**Suggested next step**: Plan it with `/plan feature`: warn when `features.memories = true` and `memories.disable_on_external_context` is absent or false in `~/.codex/config.toml`, with the one-line fix, following the `diagnose_org_knowledge` pattern, after re-reading the full Codex configuration reference to confirm no profile-scoped `memories` override exists.
+
+### Resolved
+
+None.

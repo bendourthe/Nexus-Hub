@@ -8,7 +8,7 @@
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58",
+      "configs/platform-defaults.json": "dc32de7f2d21d45a08d53e12d5ec2a322c386f7144a10100aea78366b41447a6",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/model.json": "086b9d2c0431181cacc2fabb54a6fb596060710c8c9c01e4a159fd1d357b0c66",
@@ -17,8 +17,8 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "9e1838f8851f53c7ad222ecd600575753fade57c72b96e1a1fffe0ce3b01f339",
-      "scripts/installer.sh": "aca28260bbd119b312036b08460a2740dcf42d6ac30f40628a583133b84183cd",
+      "scripts/installer.ps1": "95dda3df4e9bfd564a783b7913fdea17fc57e5c13fa5943b34249bce3dbb3231",
+      "scripts/installer.sh": "e3851c256c094601098fdc4f3a1a114d1a0b232cda74d676a5e39594d8f31895",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.4-distribution-release-version-review.md",
-      "evidence_sha256": "1e7ce5f6513514946b73fc1195ff6f11002dd489f01eec099eecfb1d01cfaab1"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.5-distribution-release-version-review.md",
+      "evidence_sha256": "48c1b11000961339e4289b867e2ff370033a3f4484b90decf3f4a386981f6e07"
     },
     "build": {
       "status": "pass",

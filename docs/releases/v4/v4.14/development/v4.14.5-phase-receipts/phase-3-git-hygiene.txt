@@ -1,0 +1,105 @@
+Branch hygiene (merged and idle, integration branch develop)
+  KEEP worktree:<HOME>/.codex/worktrees/console-window-guard-nexus-hub no-merged-pr
+  KEEP worktree:<HOME>/.codex/worktrees/publish-v4228-plan/Nexus-Hub detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-codexfix ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-plan-detect open-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.14.7-installer-platform-detection no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/antigravity-usage-groups ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/archive-member ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-lf-validation no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-qualified head-mismatch
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-verdict no-merged-pr
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/codeql-nits
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/codex-console-guard-current no-merged-pr
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/console-guard-scope
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/console-window-guard-build-installer no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/console-window-root-repair local-ahead
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/develop-install-2ef94ca detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/edit-guard-prune head-mismatch
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/lint-repair-trapdoors-link recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/m5-manifest-coordinator-claim ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/remove-completion-gate ignored-not-allowlisted
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/roster-live-source
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/t013-guardrails-powershell recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/task-date-placeholder ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/token-demo recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/usage-gate-test-budget recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/usage-limit-native-decision head-mismatch
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/usage-native-lf-validation no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v2-followon ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-approval-flow no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-approval-publish local-ahead
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-handoff-budget-fix ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4141-tag protected
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-backmerge
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-contract no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-control detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-revision detached
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-tests-evidence
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-treatment detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4143-backmerge recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4143-prompting local-ahead
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4143-release recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4144-gates no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4145-memory no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/win-full-gate untracked
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/windows-console-guard ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/wn28-member-check-budget recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/wn29-profile-input-hardening recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/wn31-antigravity-cli-probe ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/writer-rollback-comment recently-active
+  KEEP branch:chore/platform-contract-v4.14.2 no-merged-pr
+  KEEP branch:codex/console-window-guard no-merged-pr
+  KEEP branch:codex/windows-console-build-install-guard no-merged-pr
+  KEEP branch:develop protected
+  KEEP branch:docs/lint-repair-names-review-trapdoors checked-out
+  REMOVE branch:docs/v4.14.2-tests-evidence
+  KEEP branch:feat/archive-member-on-release checked-out
+  KEEP branch:feat/pptx-slide-formatting-rules no-merged-pr
+  KEEP branch:feat/v4.14.3-adoption-argon-enforcement-and-replayable-gates local-ahead
+  KEEP branch:feat/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard no-merged-pr
+  KEEP branch:feat/v4.14.5-adoption-codex-memory-levers no-merged-pr
+  KEEP branch:feat/v4.14.7-installer-platform-detection no-merged-pr
+  KEEP branch:fix/antigravity-cli-probe checked-out
+  KEEP branch:fix/antigravity-usage-groups checked-out
+  KEEP branch:fix/check-minor-budget-lf-validation no-merged-pr
+  KEEP branch:fix/check-minor-budget-qualified head-mismatch
+  KEEP branch:fix/check-minor-budget-verdict no-merged-pr
+  REMOVE branch:fix/codeql-unused-import-empty-except
+  KEEP branch:fix/codex-windows-sandbox checked-out
+  REMOVE branch:fix/console-guard-scope
+  KEEP branch:fix/console-window-guard-build-installer no-merged-pr
+  KEEP branch:fix/console-window-root-repair local-ahead
+  KEEP branch:fix/controller-handoff-revalidation-budget checked-out
+  KEEP branch:fix/edit-guard-prune-budget head-mismatch
+  KEEP branch:fix/git-guardrails-powershell-matcher checked-out
+  KEEP branch:fix/m5-manifest-coordinator-claim checked-out
+  KEEP branch:fix/member-check-budget checked-out
+  KEEP branch:fix/planned-followon-gap-recognition checked-out
+  KEEP branch:fix/profile-input-hardening checked-out
+  KEEP branch:fix/remove-completion-gate-default checked-out
+  REMOVE branch:fix/roster-test-live-source
+  KEEP branch:fix/task-path-date-placeholder checked-out
+  KEEP branch:fix/token-demo-summarize checked-out
+  KEEP branch:fix/usage-gate-test-budget checked-out
+  KEEP branch:fix/usage-limit-native-decision head-mismatch
+  KEEP branch:fix/usage-native-lf-validation no-merged-pr
+  KEEP branch:fix/v4.14-approval-flow no-merged-pr
+  KEEP branch:fix/v4.14-approval-flow-publish local-ahead
+  KEEP branch:fix/windows-console-window-guard checked-out
+  KEEP branch:fix/windows-full-gate-isolation checked-out
+  KEEP branch:fix/writer-rollback-comment checked-out
+  KEEP branch:main protected
+  KEEP branch:publish/v4.14.7-installer-detection-plan open-pr
+  REMOVE branch:release/v4.14.2-backmerge
+  KEEP branch:release/v4.14.3 checked-out
+  KEEP branch:release/v4.14.3-backmerge checked-out
+  KEEP remote:origin/develop protected
+  KEEP remote:origin/fix/handoff-chat-prompt head-mismatch
+  KEEP remote:origin/main protected
+  KEEP remote:origin/publish/v4.14.7-installer-detection-plan open-pr
+  10 item(s) would be removed by cleanup_merged.py --apply; the rest are kept
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
