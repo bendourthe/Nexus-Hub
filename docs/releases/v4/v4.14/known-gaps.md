@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-30
-**Open items**: 86
+**Last updated**: 2026-10-31
+**Open items**: 85
 
 ## v4.14.0
 
@@ -12,13 +12,13 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 12 | 2 |
+| Deferred (DF) | 11 | 3 |
 | Bugs / regressions (BG) | 2 | 15 |
 | Warnings (WN) | 24 | 2 |
 | Missing tests / coverage gaps (MT) | 4 | 9 |
 | Quality-gate gaps (QG) | 3 | 1 |
 
-The six standard categories contain 45 open items; 35 inherited AR obligations bring the section total to 80. The 23 findings introduced during this run are resolved after their individual acceptance gates and green merged integration passed. Together with the six previously resolved entries, there are 29 resolved items. Every original item body is retained. The remaining 80 open items are inherited obligations; their migration authority is unchanged.
+The six standard categories contain 44 open items; 35 inherited AR obligations bring the section total to 79. The 23 findings introduced during the v4.14.0 run and the six previously resolved entries remain resolved. The inherited pilot tooling candidate below adds one resolution, bringing this section to 30 resolved items. Every original item body is retained. The remaining 79 open items are inherited obligations; their migration authority is unchanged. The pilot resolution takes effect on merge of its maintenance package, whose local qualification and pending integration boundary are recorded below.
 
 ### Current qualification
 
@@ -504,25 +504,6 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 - **Migrated from**: v4.13#DF-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
-
-#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: v4.15.0
-- **Severity**: low - tooling gap; spend cap for this plan was 0
-- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
-- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
-- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
-- **Future plan**: v4.15.0 instruction-necessity review
-
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
-
-**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
-
-**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
-
-- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
-- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
 
 #### DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2
 
@@ -2728,6 +2709,27 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migration evidence**: AR-26 needs the macOS smoke checklist and a live --branch install on a real macOS host; the v4.13.11 host is Windows only and CI covers only the local tarball bootstrap.
 
 ### Resolved
+
+#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: v4.15.0
+- **Severity**: low - tooling gap; spend cap for this plan was 0
+- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
+- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
+- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
+- **Future plan**: v4.15.0 instruction-necessity review
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+
+**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
+
+**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
+
+- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
+- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
+
+**Resolution candidate, 2026-10-31 (v4.15.0 inherited scope)**: The opt-in instruction mode stages exact caller-provided full-index and pointer Markdown in separate A/B CLAUDE.md files, with identical four-skill snapshots. The public stage-only CLI ran with an empty PATH and recorded UNMEASURED, zero calls and zero spend. The existing regression owner passes 219 tests with two pre-existing privilege skips; the final-source fast profile passes all 18 checks. [Pilot variant evidence](../v4.15/development/v4.15.0-pilot-variant-evidence.md) records hashes, race controls and the unchanged live-budget limitations. This resolves the tooling acceptance condition only; no model-selection benefit, default flip, provider-cost guarantee or v4.15 release is claimed. This candidate closure becomes canonical when the enclosing maintenance package merges; remote validation and integration are still pending in this branch. The original body above remains historical provenance.
 
 #### MT-9: Offline policy test still expects inline workflow commands
 
