@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 
-**Historical closeout candidate (2026-10-31):** The reviewed source retains 136 additional legacy obligations, preserves two exact unfinished authorities on scoped retirement, and requires a fresh successful native condition proof. Final qualification covers 186 distinct cases through split evidence; the prior 578-case baseline and one corrected test-double failure remain separate. The quiet real member finishes in 15.453 seconds under the original 20/120-second limits. Supplemental decision, installation and native closeout remain pending. [Evidence](releases/v4/v4.14/development/v2.16-closeout-compatibility-evidence.md).
+**Historical closeout candidate (2026-10-31):** The reviewed source retains 136 additional legacy obligations, preserves two exact unfinished authorities on scoped retirement, and requires a fresh successful native condition proof. Final qualification covers 186 distinct cases through split evidence; the prior 578-case baseline and one corrected test-double failure remain separate. The quiet real member finishes in 15.453 seconds under the original 20/120-second limits. The human approved the exact supplement through the question control, and the matched runtime is installed with verified backups. Native answer capture requires a standalone chat reply; the wrapped control response returned approval-not-captured without changing the signed record. Native migration, retirement and closeout remain pending. [Evidence](releases/v4/v4.14/development/v2.16-closeout-compatibility-evidence.md).
 
 **Consumer closeout compatibility (2026-10-30):** The approved local repair qualifies older recording-only tasks through immutable publication proof and reuses deterministic ledger parsing. Split functional qualification covers 318 distinct cases; the earlier serial checkpoint exceeded 20 seconds. Blocker 5 identity approval is now natively captured, its exact patch is applied, and all 65 actual-source attribution tests pass. The captured blocker 6 follow-up qualifies 353 cases through the passing matrix plus a stronger Windows-oracle rerun, with a 19.375-second quiet consumer observation without exhaustion. The matched runtime is qualified for the approved installation procedure; installed proof is retained separately. Unknown historical debt remains cannot-verify. [Evidence](releases/v4/v4.14/development/v2.16-closeout-compatibility-evidence.md). This does not advance release totals.
 
@@ -43,7 +43,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 |---|---|---|
 | Consumer checker findings dispositioned | 17 | 17 |
 | Conditional decline repair | Installed; 26 final decline, 56 focused and 298 compatibility passes | Native consumer closeout |
-| Historical reconciliation candidate | 186 split-qualified cases; reviewed source only | Native minor completion |
+| Historical reconciliation candidate | Qualified runtime installed; native answer capture pending | Native minor completion |
 | v4.14 tasks | 34/209 | 209/209 |
 | v4.14 released members | 1/7 | 7/7 |
 | v4.14.0 phases | 7/7 | 7/7 |
