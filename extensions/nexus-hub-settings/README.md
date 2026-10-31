@@ -30,7 +30,7 @@ Each tool row has exactly one state: in effect, tool default, overridden by a na
 
 ## Undoing a change
 
-Use "Reset" on a control. It restores what was there before, unless you changed the key since, in which case it leaves your value and says so. See [the settings control contract](../../docs/policy/settings-control-contract.md) for the admission rule and the write rules.
+Use "Reset" on a control. It restores what was there before, unless you changed the key since, in which case it leaves your value and says so. See [the settings guide](../../guides/NEXUS_HUB_SETTINGS.md) for what each control means per tool, the override states and their fixes, `remove-override`, and uninstall, and [the settings control contract](../../docs/policy/settings-control-contract.md) for the admission rule and the write rules.
 
 ## Development
 

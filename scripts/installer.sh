@@ -2492,6 +2492,7 @@ install_vscode_extensions() {
     write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
     write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
+    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2652,6 +2653,12 @@ install_vscode_extensions() {
     select_working_launcher "$antigravity_label" 30 ${antigravity_candidates[@]+"${antigravity_candidates[@]}"}
     antigravity_cli="$selected_launcher"
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
+
+    # The Settings panel (v4.14.6) is Nexus-Hub's own, not a vendor's, so it has its own
+    # header. It installs into VS Code only (never Cursor or Antigravity: it writes VS Code
+    # user settings) and has no status-bar item, so the status hint is empty.
+    write_header "NEXUS-HUB"
+    build_and_install_one_extension "$repo_root/extensions/nexus-hub-settings" "nexus-hub.nexus-hub-settings" "Nexus-Hub Settings" "" "$vscode_cli" "$vscode_label"
 }
 
 # Run a command for at most $1 seconds, appending its output to the file $2.
@@ -2732,6 +2739,9 @@ build_and_install_one_extension() {
     # installed into VS Code is simply absent there.
     local also_cli="${7:-}"
     local also_label="${8:-}"
+    # Usage monitors point at their status-bar label; the Settings panel has none (empty hint).
+    local activation_hint="Look for '${status_hint}' in the status bar."
+    if [ -z "$status_hint" ]; then activation_hint="Open the Nexus-Hub Settings view in the activity bar."; fi
 
     echo ""
     echo -e "  ${DARK_YELLOW}> ${display_name}${RESET}"
@@ -2832,7 +2842,7 @@ build_and_install_one_extension() {
         # --force ensures reinstall even when the version number has not changed
         if "$code_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] ${display_name} extension installed in $code_label!" "$GREEN"
-            write_item "  Restart $code_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
+            write_item "  Restart $code_label to activate. ${activation_hint}" "$RESET"
         else
             write_item "$code_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
@@ -2849,7 +2859,7 @@ build_and_install_one_extension() {
         "$also_cli" --uninstall-extension "$extension_id" 2>/dev/null || true
         if "$also_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] ${display_name} extension installed in $also_label!" "$GREEN"
-            write_item "  Restart $also_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
+            write_item "  Restart $also_label to activate. ${activation_hint}" "$RESET"
         else
             write_item "$also_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$also_cli\" --install-extension \"$vsix_file\"" "$RESET"

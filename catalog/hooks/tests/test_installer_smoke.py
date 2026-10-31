@@ -474,6 +474,61 @@ def test_installers_route_the_gemini_monitor_to_antigravity_only():
         )
 
 
+# The Nexus-Hub Settings panel (v4.14.6). It is not a usage monitor: it writes VS Code
+# user settings and the Claude Code, Codex, and Copilot config files through the
+# `nexus-hub settings` command line, so it installs into VS Code only, under its own
+# NEXUS-HUB header, after the last vendor header.
+SETTINGS_EXTENSION = ("nexus-hub-settings", "nexus-hub.nexus-hub-settings", "Nexus-Hub Settings")
+
+
+def test_installers_build_and_install_the_settings_extension_into_vscode_only():
+    """Both shells build and install the Settings panel, through the VS Code CLI alone.
+
+    Cursor and Antigravity are a follow-on (maintainer decision Q1): the panel writes
+    VS Code user settings, so installing it elsewhere would change that editor's
+    settings, not VS Code's. The status hint is empty because the panel has no
+    status-bar item; a non-empty hint would tell the user to look for something that
+    does not exist.
+    """
+    folder, extension_id, display_name = SETTINGS_EXTENSION
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        assert extension_id in body, f"{path.name} must install {extension_id}"
+        assert body.count(extension_id) == 1, f"{path.name} must install {extension_id} exactly once"
+        is_sh = path is INSTALLER_SH
+        source = f"extensions/{folder}" if is_sh else f"extensions\\{folder}"
+        assert source in body, f"{path.name} must build the {display_name} extension"
+
+        idx = body.index(extension_id)
+        call = body[body.rindex("\n", 0, idx) + 1 : body.index("\n", idx)]
+        cli = ("vscode_cli", "vscodeCli")
+        assert any(name in call for name in cli), f"{path.name} must pass the VS Code CLI into the {display_name} install"
+        for foreign in ("cursor_cli", "cursorCli", "antigravity_cli", "antigravityCli", "AlsoCodeCli"):
+            assert foreign not in call, f"{path.name} must not pass {foreign} into the {display_name} install"
+        assert ('"Nexus-Hub Settings" ""' in call) or ('-StatusHint ""' in call), (
+            f"{path.name} must pass an empty status hint: the panel has no status-bar item"
+        )
+
+        header = 'write_header "NEXUS-HUB"' if is_sh else 'Write-Header -Provider "NEXUS-HUB"'
+        assert header in body, f"{path.name} must present the Settings panel under a NEXUS-HUB header"
+        gemini = body.index("nexus-hub.gemini-usage-monitor")
+        assert gemini < body.index(header) < idx, (
+            f"{path.name} must install the Settings panel after the Gemini monitor, under its own header"
+        )
+        assert "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." in body, (
+            f"{path.name} banner must state that the Settings panel is VS Code only"
+        )
+
+        marker = "legacy_ids=(" if is_sh else "$legacyIds = @("
+        start = body.index(marker)
+        assert extension_id not in body[start : body.index(")", start)], (
+            f"{path.name} lists the shipped {extension_id} in its legacy uninstall array"
+        )
+        assert "Open the Nexus-Hub Settings view in the activity bar." in body, (
+            f"{path.name} must tell the user where the Settings panel lives"
+        )
+
+
 def test_installer_banners_state_the_copilot_monitor_hosts():
     """The extension banner must name the hosts each monitor actually reaches:
     Claude, Codex, and Copilot in VS Code only, the Cursor monitor in Cursor only.

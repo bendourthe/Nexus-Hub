@@ -2620,6 +2620,7 @@ function Install-VSCodeExtensions {
     Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" -Color "White"
     Write-Item -Message "only; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
+    Write-Item -Message "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)
@@ -2780,6 +2781,12 @@ function Install-VSCodeExtensions {
     $antigravityCli = Select-WorkingLauncher -Candidates $antigravityCandidates -DisplayName $antigravityLabel
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\gemini-usage-monitor") -ExtensionId "nexus-hub.gemini-usage-monitor" -DisplayName "Gemini Usage Monitor" -StatusHint "Gemini Usage: --" -CodeCli $antigravityCli -CodeLabel $antigravityLabel
 
+    # The Settings panel (v4.14.6) is Nexus-Hub's own, not a vendor's, so it has its own
+    # header. It installs into VS Code only (never Cursor or Antigravity: it writes VS Code
+    # user settings) and has no status-bar item, so the status hint is empty.
+    Write-Header -Provider "NEXUS-HUB"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\nexus-hub-settings") -ExtensionId "nexus-hub.nexus-hub-settings" -DisplayName "Nexus-Hub Settings" -StatusHint "" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
 }
@@ -2841,6 +2848,9 @@ function Build-And-Install-One-Extension {
     # Cursor is a separate application with its own extension directory, so an
     # extension installed into VS Code is simply absent there.
     param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel, $AlsoCodeCli, $AlsoCodeLabel)
+    # Usage monitors point at their status-bar label; the Settings panel has none (empty hint).
+    $activationHint = "Look for '$StatusHint' in the status bar."
+    if (-not $StatusHint) { $activationHint = "Open the Nexus-Hub Settings view in the activity bar." }
 
     Write-Host ""
     Write-Host "  > $DisplayName" -ForegroundColor DarkYellow
@@ -2936,7 +2946,7 @@ function Build-And-Install-One-Extension {
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
             Write-Item -Message "✓ $DisplayName extension installed in $CodeLabel!" -Color "DarkGreen"
-            Write-Item -Message "  Restart $CodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
+            Write-Item -Message "  Restart $CodeLabel to activate. $activationHint" -Color "White"
         }
         else {
             Write-Item -Message "$CodeLabel install failed. You can install manually:" -Color "Yellow"
@@ -2958,7 +2968,7 @@ function Build-And-Install-One-Extension {
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
             Write-Item -Message "OK: $DisplayName extension installed in $AlsoCodeLabel!" -Color "DarkGreen"
-            Write-Item -Message "  Restart $AlsoCodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
+            Write-Item -Message "  Restart $AlsoCodeLabel to activate. $activationHint" -Color "White"
         }
         else {
             Write-Item -Message "$AlsoCodeLabel install failed. You can install manually:" -Color "Yellow"
