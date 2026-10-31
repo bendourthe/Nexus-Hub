@@ -317,6 +317,43 @@ def mention_eligible(old_rel: str) -> bool:
     return old_rel.startswith(("scripts/", "tests/")) and suffix in CODE_SUFFIXES
 
 
+def archive_link_mapper(root: Path, src: str, dst: str) -> Callable[[str], str]:
+    """The archive target map, shared with immutable-plan reconstruction."""
+    shape = re.fullmatch(r"docs/archives/v(0|[1-9]\d*)/v\1\.(0|[1-9]\d*)", dst)
+    archive = bool(shape and src in {
+        tree.format(M=shape[1], m=shape[2]) for tree in cm.ACTIVE_TREES
+    })
+
+    def mapper(path: str) -> str:
+        if path != src and not path.startswith(src + "/"):
+            return path
+        mapped = dst + path[len(src):]
+        if not archive or not path.startswith(src + "/archives/"):
+            return mapped
+        if ("\\" in path or ":" in path
+                or any(not part or part in {".", ".."} or part.rstrip(". ") != part
+                       for part in path.split("/"))):
+            return mapped
+        canonical = "docs/" + path[len(src) + 1:]
+        candidates = []
+        try:
+            for rel in (path, mapped, canonical):
+                candidate = root
+                for part in rel.split("/"):
+                    candidate /= part
+                    if ck._private_reparse(candidate):
+                        return mapped
+                candidates.append(candidate)
+            if (not candidates[0].exists() and not candidates[1].exists()
+                    and candidates[2].is_file()):
+                return canonical
+        except OSError:
+            return mapped
+        return mapped
+
+    return mapper
+
+
 def plan_repairs(
     root: Path, files: list[tuple[str, str, str]], src: str, dst: str,
 ) -> list[Repair]:
@@ -330,10 +367,7 @@ def plan_repairs(
     and tracker headings). Links inside URLs and code are never touched.
     """
 
-    def mapper(path: str) -> str:
-        if path == src or path.startswith(src + "/"):
-            return dst + path[len(src):]
-        return path
+    mapper = archive_link_mapper(root, src, dst)
 
     repairs: list[Repair] = []
     for read_rel, old_rel, new_rel in files:

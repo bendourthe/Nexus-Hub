@@ -2570,7 +2570,7 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
     start = member.get('member_start_head') if record.get('scope') == 'member' else member.get('start_head')
     if not isinstance(start, str) or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', start) is None:
         return None
-    from minor_close import rewrite_links, rewrite_mentions
+    from minor_close import archive_link_mapper, rewrite_links, rewrite_mentions
     matches = []
     for tree in active:
         rel = f'{tree}/plans/{name}'
@@ -2582,7 +2582,7 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
         versions = list(PLAN_VERSION_RE.finditer(text))
         if len(versions) != 1 or 'v' + '.'.join(versions[0].groups()) != plan.version:
             return None
-        moved = lambda path: archive + path[len(tree):] if path == tree or path.startswith(tree + '/') else path
+        moved = archive_link_mapper(rctx.root, tree, archive)
         repaired, _ = rewrite_links(text, rel.rsplit('/', 1)[0], plan.rel.rsplit('/', 1)[0], moved)
         repaired, _ = rewrite_mentions(repaired, tree, archive, markdown=True)
         if ck.plan_hash_text(repaired) != member.get('plan_sha256'):

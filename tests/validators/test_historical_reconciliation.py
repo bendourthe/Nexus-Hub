@@ -98,3 +98,113 @@ def test_legacy_heading_under_explicit_closed_section_stays_resolved():
     items, problems = cm.parse_ledger_full(text)
     assert problems == [] and len(items) == 1
     assert items[0].state == 'resolved'
+
+
+ARCHIVE_SRC = "docs/releases/v0/v0.5"
+ARCHIVE_DST = "docs/archives/v0/v0.5"
+ARCHIVE_SUFFIX = "archives/v0/v0.4/development/feasibility.md"
+
+
+def _archive_navigation(root, href, moved=False, destination=ARCHIVE_DST):
+    old = ARCHIVE_SRC + "/plans/study.md"
+    new = destination + "/plans/study.md"
+    read = new if moved else old
+    text = "# Study\n\n[Record](" + href + ")\n"
+    path = root / read
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    repairs = mc.plan_repairs(root, [(read, old, new)], ARCHIVE_SRC, destination)
+    return repairs[0].repaired if repairs else text
+
+
+def _canonical_feasibility(root, name="feasibility.md"):
+    path = root / "docs/archives/v0/v0.4/development" / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("# Feasibility\n\n## Proof\n", encoding="utf-8")
+    return path
+
+
+@pytest.mark.parametrize("moved", [False, True])
+def test_misplaced_archive_navigation_uses_existing_canonical_file(tmp_path, moved):
+    _canonical_feasibility(tmp_path)
+    repaired = _archive_navigation(tmp_path, "../" + ARCHIVE_SUFFIX, moved)
+    assert "(../../v0.4/development/feasibility.md)" in repaired
+
+
+@pytest.mark.parametrize("moved", [False, True])
+def test_valid_nested_archive_navigation_is_not_redirected(tmp_path, moved):
+    _canonical_feasibility(tmp_path)
+    nested = tmp_path / (ARCHIVE_DST if moved else ARCHIVE_SRC) / ARCHIVE_SUFFIX
+    nested.parent.mkdir(parents=True, exist_ok=True)
+    nested.write_text("# Different existing nested record\n", encoding="utf-8")
+    repaired = _archive_navigation(tmp_path, "../" + ARCHIVE_SUFFIX, moved)
+    assert "(../" + ARCHIVE_SUFFIX + ")" in repaired
+
+
+@pytest.mark.parametrize("kind", ["missing", "directory"])
+def test_archive_navigation_needs_a_regular_canonical_file(tmp_path, kind):
+    if kind == "directory":
+        (tmp_path / "docs" / ARCHIVE_SUFFIX).mkdir(parents=True)
+    repaired = _archive_navigation(tmp_path, "../" + ARCHIVE_SUFFIX)
+    assert "(../" + ARCHIVE_SUFFIX + ")" in repaired
+
+
+@pytest.mark.parametrize("location", ["old", "moved", "canonical"])
+@pytest.mark.parametrize("uncertainty", ["reparse", "error"])
+def test_uncertain_archive_navigation_keeps_normal_mapping(
+    tmp_path, monkeypatch, location, uncertainty
+):
+    _canonical_feasibility(tmp_path)
+    rel = {
+        "old": ARCHIVE_SRC + "/" + ARCHIVE_SUFFIX,
+        "moved": ARCHIVE_DST + "/" + ARCHIVE_SUFFIX,
+        "canonical": "docs/" + ARCHIVE_SUFFIX,
+    }[location]
+    blocked = tmp_path / rel
+    original = mc.ck._private_reparse
+
+    def inspect(path):
+        if path == blocked:
+            if uncertainty == "error":
+                raise PermissionError("inspection unavailable")
+            return True
+        return original(path)
+
+    monkeypatch.setattr(mc.ck, "_private_reparse", inspect)
+    repaired = _archive_navigation(tmp_path, "../" + ARCHIVE_SUFFIX)
+    assert "(../" + ARCHIVE_SUFFIX + ")" in repaired
+
+
+@pytest.mark.parametrize(
+    "destination", ["docs/releases/v0/v0.6", "docs/archives/v0/v0.6"]
+)
+def test_other_tree_moves_do_not_use_archive_navigation_fallback(tmp_path, destination):
+    _canonical_feasibility(tmp_path)
+    repaired = _archive_navigation(
+        tmp_path, "../" + ARCHIVE_SUFFIX, destination=destination
+    )
+    assert "(../" + ARCHIVE_SUFFIX + ")" in repaired
+
+
+@pytest.mark.parametrize("href", [
+    "https://example.invalid/archives/v0/v0.4/development/feasibility.md",
+    r"../archives/v0/v0.4/..\outside.md",
+    "../archives/v0/v0.4/C:/outside.md",
+    "../archives/v0/v0.4/trailing./outside.md",
+])
+def test_unsafe_archive_navigation_never_probes_candidates(tmp_path, monkeypatch, href):
+    _canonical_feasibility(tmp_path)
+
+    def unexpected(_path):
+        raise AssertionError("unsafe path reached filesystem inspection")
+
+    monkeypatch.setattr(mc.ck, "_private_reparse", unexpected)
+    _archive_navigation(tmp_path, href)
+
+
+def test_canonical_archive_navigation_retains_encoding_query_and_fragment(tmp_path):
+    _canonical_feasibility(tmp_path, "feasibility record.md")
+    repaired = _archive_navigation(
+        tmp_path, "../archives/v0/v0.4/development/feasibility%20record.md?view=1#proof"
+    )
+    assert "(../../v0.4/development/feasibility%20record.md?view=1#proof)" in repaired

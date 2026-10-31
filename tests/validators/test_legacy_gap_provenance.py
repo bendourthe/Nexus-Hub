@@ -149,3 +149,41 @@ def test_wrapped_provenance_cannot_hide_a_second_destination(tmp_path):
     cache = {}
     for _ in range(2):
         assert cm.migration_copy_status([source, target], "v0.6.0", source, source_items[0], proof_cache=cache)[0] == "migration-target-ambiguous"
+
+
+@pytest.mark.parametrize("extra_change", [False, True])
+def test_archived_plan_replay_uses_the_same_navigation_repair(tmp_path, extra_change):
+    from types import SimpleNamespace
+
+    target = tmp_path / "docs/archives/v0/v0.4/development/feasibility.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("# Original feasibility\n", encoding="utf-8")
+    href = "../archives/v0/v0.4/development/feasibility.md"
+    original = FROZEN_PLAN + "\n[Earlier record](" + href + ")\n"
+    repaired = original.replace(href, "../../v0.4/development/feasibility.md")
+    repaired = repaired.replace(
+        "deferral " + GAPS05,
+        "deferral " + GAPS05.replace("docs/releases/", "docs/archives/", 1),
+    )
+    if extra_change:
+        repaired += "\nChanged study scope.\n"
+    rel = "docs/archives/v0/v0.5/plans/v0.5.2-alpha.md"
+    plan = cm.Plan(rel, "v0.5.2", (0, 5, 2), "complete", "alpha", repaired)
+    start = "1" * 40
+
+    def run(argv):
+        assert argv[:4] == ["git", "-C", str(tmp_path), "show"]
+        return (0, original) if argv[-1] == start + ":" + PLAN else (1, "")
+
+    context = SimpleNamespace(root=tmp_path, git="git", run=run)
+    record = {"scope": "minor", "approvals": {"classes": [{"class": "archive-minor"}]}}
+    member = {
+        "plan_path": rel,
+        "plan_sha256": ck.plan_hash_text(repaired),
+        "start_head": start,
+    }
+    found = cm.archived_followon_plan(context, record, member, plan, ck)
+    if extra_change:
+        assert found is None
+    else:
+        assert found is not None and found.text == original
