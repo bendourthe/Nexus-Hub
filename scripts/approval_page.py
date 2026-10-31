@@ -567,6 +567,8 @@ def _phases(display: dict) -> list[dict]:
             continue
         version, tier, effort = str(entry.get("version", "")), entry.get("tier"), entry.get("effort")
         phase, tasks = entry.get("phase"), entry.get("tasks")
+        if not isinstance(tasks, int) or isinstance(tasks, bool) or not 0 <= tasks < 1000:
+            raise PageError("phase task count must be a nonnegative bounded integer")
         if (SCOPE_RE.match(version) and tier in TIERS and effort in EFFORTS
                 and isinstance(phase, int) and not isinstance(phase, bool) and 0 < phase < 100
                 and isinstance(tasks, int) and not isinstance(tasks, bool) and 0 <= tasks < 1000):
@@ -595,7 +597,7 @@ def whole_run_setting(phases: list[dict]) -> tuple[str, str, list[dict]] | None:
 
 def time_estimate(phases: list[dict], releases: int) -> dict[str, float]:
     """Rough hours per part of the run: building, testing, fixing, releasing."""
-    build = sum(MINUTES_PER_TASK[p["effort"]] * max(p["tasks"], 1) for p in phases) / 60
+    build = sum(MINUTES_PER_TASK[p["effort"]] * p["tasks"] for p in phases) / 60
     parts = {"building": build, "testing": build * TESTING_SHARE, "fixing": build * FIXING_SHARE,
              "releasing": releases * RELEASE_MINUTES / 60}
     return {k: round(v * 2) / 2 for k, v in parts.items()}
@@ -658,7 +660,7 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         fixed += f"; {len(movable)} may move to {target}"
     elif not minor and "defer-gaps" in names:
         fixed += "; some may wait for a later version"
-    rows.append(("Fixed", fixed))
+    rows.append(("Open gaps in scope", fixed))
     if minor and "archive-minor" in names and "archive-member" in names:
         rows.append(("Archived", f"The {_scope_token(page)} documents, each plan's own as soon as it is released"))
     elif minor and "archive-minor" in names:
@@ -678,8 +680,11 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         more = f"; more for {_count(len(above), 'phase')}, see Phases" if above else ""
         rows.append(("Run it on", f"{tier.capitalize()} models at {effort} effort{more}"))
         hours = time_estimate(phases, len(releases) if "release" in names else 0)
-        rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
-            f"{_hours(v)} {k}" for k, v in hours.items())))
+        if not any(p["tasks"] for p in phases):
+            rows.append(("Time", f"Release-only: {_hours(hours['releasing'])} remaining" if hours["releasing"] else "No building or release time remains"))
+        else:
+            rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
+                f"{_hours(v)} {k}" for k, v in hours.items())))
     rows.append(("In parallel", _parallel(display)))
     caps = _caps(page)
     if (page.get('autonomy') or {}).get('planned_actions'):

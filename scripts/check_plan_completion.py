@@ -2123,6 +2123,8 @@ def cmd_record_resume(args: argparse.Namespace) -> int:
 
 
 def cmd_record_block(args: argparse.Namespace) -> int:
+    if getattr(args, "items", None) and not _scoped(args):
+        raise Malformed("--item requires minor-scoped approval coverage")
     if _scoped(args):
         return _minor_module().cmd_record_block(sys.modules[__name__], args)
     if args.member:
@@ -2368,6 +2370,7 @@ def build_parser() -> argparse.ArgumentParser:
     check_minor.add_argument("--repo", default=".", help="a path inside the repository")
     check_minor.add_argument("--json", action="store_true")
     check_minor.add_argument("--session")
+    check_minor.add_argument("--detail", action="store_true", help="bounded local read-only diagnostics; never writes completion")
     check_minor.set_defaults(func=cmd_check_minor)
     member_check = sub.add_parser("check-member", help="read-only member check using parent minor approval")
     member_check.add_argument("--minor", required=True)
@@ -2485,6 +2488,7 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
+    block.add_argument("--item", dest="items", action="append", help="canonical minor#gap item requiring uncovered migration authority; repeatable")
     block.add_argument("--purpose", help="concrete action displayed for the decision")
     block.add_argument("--why", help="why that action is needed, bound into the challenge")
     block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")

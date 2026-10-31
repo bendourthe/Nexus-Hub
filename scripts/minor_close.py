@@ -1776,6 +1776,8 @@ def _archive_member(
 
 
 def cmd_status(args: argparse.Namespace) -> int:
+    if getattr(args, "detail", False):
+        return cm.render_detail(ck, args, status_mode=True)
     rctx = _context(args)
     token = args.minor
     cm.parse_minor(ck, token)
@@ -1835,6 +1837,7 @@ def build_parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="print the gaps.minor and archive.minor lines")
     status.add_argument("--minor", required=True)
     status.add_argument("--repo", default=".")
+    status.add_argument("--detail", action="store_true", help="bounded local diagnostics without run-record writes")
     status.set_defaults(func=cmd_status)
     return parser
 

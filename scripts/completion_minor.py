@@ -3705,7 +3705,167 @@ def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | N
     return verdict
 
 
+DETAIL_SECONDS = 10.0
+DETAIL_RECORD_LIMIT = 32
+DETAIL_FINDING_LIMIT = 100
+DETAIL_TEXT_BYTES = 2 * 1024 * 1024
+
+
+def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *, checkpoint=None) -> dict:
+    """Collect local facts only; no completion evaluator or mutation path is called."""
+    parse_minor(ck, token)
+    rctx = ck.RepoContext(Path(repo).resolve(), ck.Budget(DETAIL_SECONDS - 0.5))
+    result = {"verdict": "INCOMPLETE: record.minor", "exit": ck.EXIT_INCOMPLETE,
+              "scanned": 0, "omitted": 0, "incomplete": False, "findings": []}
+    direct = rctx.scoped_record_path("minor:" + token)
+    store = ck._runs_dir()
+    paths = sorted(path for path in store.glob("*.json") if not path.name.endswith(".gate.json"))
+    if direct in paths:
+        paths.remove(direct)
+        paths.insert(0, direct)
+    result["omitted"] = max(0, len(paths) - DETAIL_RECORD_LIMIT)
+    result["incomplete"] = bool(result["omitted"])
+    verified = []
+    for path in paths[:DETAIL_RECORD_LIMIT]:
+        result["scanned"] += 1
+        if path.stat().st_size > DETAIL_TEXT_BYTES:
+            result["incomplete"] = True
+            if path == direct:
+                result["verdict"] = "INCOMPLETE: record.provenance"
+            continue
+        raw = path.read_bytes()
+        record = ck.read_record(rctx, path)
+        if record is None:
+            if path == direct:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            continue
+        if path != direct and (record.get("minor") != token or record.get("repo", "").lower() != rctx.key_repo):
+            continue
+        try:
+            identity = controller_identity(ck, rctx, record, path)
+            own = ck.RepoContext(Path(identity["repo_root"]), rctx.budget)
+            if own.key_repo != rctx.key_repo or not _verified(ck, own, token, record):
+                raise ck.MinorConflict("record-tampered")
+        except (ck.MinorConflict, ck.Malformed, OSError):
+            if path == direct:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            continue
+        verified.append((path, raw, record, identity, own))
+    if len(verified) != 1:
+        if len(verified) > 1:
+            result["verdict"], result["exit"] = "BLOCKED: multiple-minor-authorities", ck.EXIT_BLOCKED
+        return result
+    if result["omitted"]:
+        result["verdict"] = "INCOMPLETE: detail.record-limit"
+        return result
+    path, raw, record, identity, own = verified[0]
+    result["verdict"] = "INCOMPLETE: detail.local-only"
+    if record.get("pause"):
+        result["verdict"], result["exit"] = "PAUSED", ck.EXIT_PAUSED
+    else:
+        blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
+        if blockers:
+            first = blockers[0]
+            category = first.get("category")
+            if category not in ck.BLOCKER_CATEGORIES:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            version = first.get("version")
+            suffix = f" ({version})" if isinstance(version, str) and PLAN_TOKEN_RE.fullmatch(version) else ""
+            result["verdict"], result["exit"] = f"BLOCKED: {category}{suffix}", ck.EXIT_BLOCKED
+    if checkpoint is not None and result["exit"] in (ck.EXIT_BLOCKED, ck.EXIT_PAUSED):
+        checkpoint({key: result[key] for key in ("verdict", "exit", "scanned", "omitted")})
+    findings = [{"path": identity["repo_root"], "item": "controller", "status": "current" if own.root == rctx.root else "mutation-controller-mismatch"}]
+    if session and record.get("session_id") != session:
+        findings.append({"path": "", "item": "session", "status": "bound-to-another-session"})
+    ledger_paths = {path for pattern in LEDGER_GLOBS for path in own.root.glob(pattern)}
+    if any(path.stat().st_size > DETAIL_TEXT_BYTES for path in ledger_paths):
+        result["incomplete"] = True
+        findings.append({"path": "", "item": "ledgers", "status": "text-limit-unavailable"})
+    else:
+        ledgers, unreadable = load_ledgers(own.root)
+        findings.extend({"path": rel, "item": "ledger", "status": "unreadable"} for rel in unreadable)
+        bound, named = migration_class(record)
+        for ledger in ledgers:
+            findings.extend({"path": ledger.rel, "item": "ledger", "status": problem} for problem in ledger.problems)
+            for item in ledger.items:
+                if item.state == "open":
+                    pid = f"v{ledger.minor[0]}.{ledger.minor[1]}#{item.gid}"
+                    covered = pid in bound and (not item.sensitive() or pid in named)
+                    findings.append({"path": ledger.rel, "item": pid, "status": "migration-covered" if covered else "migration-uncovered"})
+    if path.read_bytes() != raw:
+        return {**result, "verdict": "INCOMPLETE: record.changed", "exit": ck.EXIT_INCOMPLETE,
+                "incomplete": True, "findings": []}
+    findings.sort(key=lambda item: (item["path"], item["item"], item["status"]))
+    result["total_findings"] = len(findings)
+    result["display_omitted"] = max(0, len(findings) - DETAIL_FINDING_LIMIT)
+    result["findings"] = findings[:DETAIL_FINDING_LIMIT]
+    return result
+
+
+def diagnostic_detail(ck: ModuleType, repo: str, token: str, session: str | None) -> dict:
+    """A separate process makes blocking filesystem observations interruptible."""
+    import subprocess
+
+    worker = ("import json,sys;sys.path.insert(0,sys.argv[1]);import check_plan_completion as ck;"
+              "import completion_minor as cm;print(json.dumps(cm._local_detail(ck,sys.argv[2],sys.argv[3],sys.argv[4] or None,"
+              "checkpoint=lambda value: print(json.dumps({'checkpoint':value}),flush=True)),sort_keys=True))")
+
+    def unavailable(partial=None):
+        value = {"verdict": "INCOMPLETE: detail.unavailable", "exit": ck.EXIT_INCOMPLETE, "incomplete": True,
+                 "scanned": 0, "omitted": 0, "findings": []}
+        try:
+            text = partial.decode("utf-8") if isinstance(partial, bytes) else partial or ""
+            first = text.splitlines()[0]
+            observed = json.loads(first)["checkpoint"] if len(first) < 2048 else {}
+            verdict, code = observed.get("verdict"), observed.get("exit")
+            allowed = (code == ck.EXIT_PAUSED and verdict == "PAUSED") or (
+                code == ck.EXIT_BLOCKED and isinstance(verdict, str) and re.fullmatch(
+                    r"BLOCKED: (?:" + "|".join(ck.BLOCKER_CATEGORIES) + r")(?: \(v\d+\.\d+\.\d+\))?", verdict))
+            if allowed:
+                value.update({"verdict": verdict, "exit": code, "forced_state_observed_before_timeout": True})
+                for key in ("scanned", "omitted"):
+                    if type(observed.get(key)) is int and observed[key] >= 0:
+                        value[key] = observed[key]
+        except (ValueError, KeyError, IndexError, UnicodeDecodeError, AttributeError):
+            pass
+        return value
+
+    output = None
+    try:
+        proc = subprocess.run([sys.executable, "-I", "-c", worker, str(Path(__file__).resolve().parent), str(repo), token, session or ""],
+                              capture_output=True, text=True, encoding="utf-8", check=False, timeout=DETAIL_SECONDS, env=ck._env(), **ck.NO_WINDOW)
+        output = proc.stdout
+        if proc.returncode or len(proc.stdout.encode("utf-8")) > DETAIL_TEXT_BYTES:
+            raise ValueError("unavailable diagnostic")
+        value = json.loads(proc.stdout.splitlines()[-1])
+        if not isinstance(value, dict) or value.get("exit") not in (0, 1, 2, 3, 4):
+            raise ValueError("invalid diagnostic")
+        return value
+    except subprocess.TimeoutExpired as exc:
+        return unavailable(exc.stdout)
+    except (OSError, ValueError, IndexError):
+        return unavailable(output)
+
+
+def render_detail(ck: ModuleType, args: argparse.Namespace, *, status_mode: bool = False) -> int:
+    parse_minor(ck, args.minor)
+    data = diagnostic_detail(ck, args.repo, args.minor, getattr(args, "session", None))
+    print(data["verdict"])
+    if getattr(args, "json", False):
+        print(json.dumps({"verdict": data["verdict"], "exit": data["exit"], "detail": data}, sort_keys=True))
+    else:
+        print(f"detail scanned={data.get('scanned', 0)} omitted={data.get('omitted', 0)} incomplete={str(data.get('incomplete', True)).lower()} total_findings={data.get('total_findings', 0)} display_omitted={data.get('display_omitted', 0)}")
+        for finding in data.get("findings", []):
+            print("detail " + json.dumps(finding, sort_keys=True))
+    return ck.EXIT_COMPLETE if status_mode and data["verdict"] == "INCOMPLETE: detail.local-only" else data["exit"]
+
+
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
+    if getattr(args, "detail", False):
+        return render_detail(ck, args)
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
     for notice in [*verdict.notices, *rctx.notices]:
@@ -4669,12 +4829,31 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
             raise ck.Malformed(f"{args.member} is not a member of {token}")
     member_classes = ((member or {}).get("approvals") or {}).get("classes") or []
     approved = _classes(record) | {str(c.get("class")) for c in member_classes if isinstance(c, dict)}
-    if args.approval_class and args.approval_class in approved:
+    items = getattr(args, "items", None) or []
+    if items:
+        if args.category != "approval-not-covered" or args.approval_class != "gap-migration":
+            raise ck.Malformed("--item requires approval-not-covered and gap-migration")
+        if len(items) > 100 or any(not re.fullmatch(r"v\d+\.\d+#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", item) for item in items):
+            raise ck.Malformed("invalid scoped approval item")
+        ledgers, unreadable = load_ledgers(rctx.root)
+        if unreadable or any(ledger.problems for ledger in ledgers):
+            raise ck.Malformed("approval items cannot be verified from ledgers")
+        known = {f"v{ledger.minor[0]}.{ledger.minor[1]}#{item.gid}": item for ledger in ledgers for item in ledger.items}
+        if any(item not in known for item in items):
+            raise ck.Malformed("unknown scoped approval item")
+        bound, named = migration_class(record)
+        if all(item in bound and (not known[item].sensitive() or item in named) for item in items):
+            raise ck.Malformed("the approvals already cover every requested item")
+    if not items and args.approval_class and args.approval_class in approved:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
     entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
              'approval_class': args.approval_class, 'request': ck._json_request(getattr(args, 'request', '{}')),
              'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
+    if items:
+        if "items" in entry["request"] and entry["request"]["items"] != sorted(set(items)):
+            raise ck.Malformed("conflicting scoped approval items")
+        entry["request"]["items"] = sorted(set(items))
     if member is not None:
         entry["version"] = args.member
     approval_binding.add_blocker(record, entry)

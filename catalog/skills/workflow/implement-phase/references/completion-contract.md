@@ -176,6 +176,8 @@ The checker rejects a record, reporting `BLOCKED: record-tampered`, when any of 
 
 ### Blockers
 
+An explicit repeatable `record block --minor vX.Y --category approval-not-covered --approval-class gap-migration --item vA.B#WN-3` compares requested canonical gap identifiers with current readable ledgers and frozen migration coverage. Malformed, unknown, unverifiable and all-covered item requests are refused. An uncovered item can be reported even when the migration class exists; its exact item list is bound in the blocker request. This records missing authority only and never changes the frozen approvals or answers a decision. The selector is unavailable to schema-1 records.
+
 A blocker is an entry in the record's `blockers` list with exactly one category from this closed list, the evidence (the command run and its output, truncated to 2000 characters), and `open: true`:
 
 `approval-not-covered`, `unreproducible-red-check`, `user-edit-guard`, `destructive-outside-approval`, `ci-security-change`, `no-progress`, `record-tampered`, `platform-unavailable`.
@@ -185,6 +187,12 @@ A blocker whose question the frozen approvals already answer is rejected at writ
 To answer a blocker, render its current question with `record render --minor vX.Y --session <id> --action answer --blocker <n> [--member vX.Y.Z] --question` (or `<plan>` for one plan), then follow "Manual decisions" and "Approval origin". `record answer` closes only that entry after genuine matching capture, retaining the frozen authority and its HMAC. An invalid index, closed entry, member mismatch or stale condition changes no record. Automatically repaired conditions use native resolution with fresh evidence and automatic provenance, never a fabricated manual answer.
 
 An older hook can create a `no-progress` entry without a verification command. In an approved full-access run, `record resolve` may resume that sole legacy stop from the latest genuine whole-message `Continue`, captured after the blocker. It verifies the current host mode and signed correction policy, refuses a competing manual question or another open blocker, consumes that user event once, and records continuation under existing authority rather than technical repair. It grants no new approval and changes no verification predicate, retry limit, spend limit or edit-conflict decision. A command-bearing no-progress condition keeps the fresh-probe procedure.
+
+### Local Diagnostic Detail
+
+`check-minor vX.Y --detail` and `minor_close.py status --minor vX.Y --detail` are explicit local observations. They preserve an established blocked, paused or tampered verdict and exit, never invoke completion-writing evaluation, consume a decision, render an approval round, or fan out hosting queries. A nonterminal local observation cannot establish completion. Default output and default completion checks remain unchanged.
+
+Detail uses isolated Python startup and a separate process with a ten-second total cap, inspects at most 32 controller candidates and two MiB per inspected record/ledger, and displays at most 100 findings sorted by path and item ID. It reports scanned/omitted counts, totals and incomplete state. An omitted candidate can hide competing ownership, so that case discloses no trusted scope. A record changing during collection invalidates the detail. Invalid signatures disclose no claimed scope, and a tampered direct record cannot be masked by a sibling. Related controller observations require the existing authenticated Git common-directory, repository/remote and plan bindings; they never transfer ownership or redirect mutations. Filesystem or Git observations that exceed the cap terminate the diagnostic worker. A forced verdict authenticated before a later unavailable observation is retained only as that earlier observation, with incomplete state and no findings; the output never upgrades it to current completion evidence.
 
 ### Pause and resume
 

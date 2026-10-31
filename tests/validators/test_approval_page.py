@@ -535,6 +535,30 @@ def _data(classes: list[dict], *, minor: bool = False, **page_extra: object) -> 
             "paste": list(paste.lines), "page": page, "display": {}}
 
 
+def test_zero_task_phases_have_no_build_estimate() -> None:
+    phases = [{"version": "v0.5.2", "phase": 1, "tier": "frontier", "effort": "max", "tasks": 0}]
+    assert approval_page.time_estimate(phases, 1) == {"building": 0, "testing": 0, "fixing": 0, "releasing": 1.0}
+    data = _data([{"class": "push-merge"}, {"class": "release"}])
+    data["display"] = {"phases": phases, "open_gaps": {"v0.5": 2}}
+    page = approval_page.render_page(data)
+    assert "Open gaps in scope" in page
+    assert "Release-only" in page
+    assert "0 h building" not in page
+
+
+def test_mixed_zero_task_phases_do_not_inflate_build_time() -> None:
+    phases = [{"version": "v0.5.2", "phase": n, "tier": "frontier", "effort": "max", "tasks": count} for n, count in [(1, 0), (2, 3)]]
+    assert approval_page.time_estimate(phases, 0)["building"] == 2.0
+
+
+@pytest.mark.parametrize("count", [-1, True, "3", 1000])
+def test_invalid_phase_task_counts_are_not_silently_omitted(count) -> None:
+    data = _data([{"class": "push-merge"}])
+    data["display"] = {"phases": [{"version": "v0.5.2", "phase": 1, "tier": "frontier", "effort": "max", "tasks": count}]}
+    with pytest.raises(approval_page.PageError, match="task count"):
+        approval_page.render_page(data)
+
+
 def _approving(page: str) -> list[str]:
     body = _subsections(_split(page)[2])[APPROVING]
     return [ln[2:] for ln in body.splitlines() if ln.startswith("- ")]
@@ -663,7 +687,7 @@ def test_the_longest_summary_stays_within_the_word_budget() -> None:
     page = approval_page.render_page(data)
     summary, paste, _ = _split(page)
     assert _words(_outcome_free(summary) + paste) <= WORD_BUDGET, _words(_outcome_free(summary) + paste)
-    assert set(_summary_rows(page)) == {"Released", "Fixed", "Archived", "Cleaned up", "Permission prompts",
+    assert set(_summary_rows(page)) == {"Released", "Open gaps in scope", "Archived", "Cleaned up", "Permission prompts",
                                         "Run it on", "Time", "In parallel"}
 
 
