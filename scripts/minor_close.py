@@ -532,7 +532,14 @@ def _insert_entry(text: str, version: str, item: cm.GapItem, gid: str, body: str
             text = text[:open_end] + f"#### {category or item.kind}" + nl + nl + text[open_end:]
             cat_at = open_end  # the new category ends where Open Items did: at the next `###`
         insert_at = _block_end(text, cat_at, 4)
-    level = min(level, item.level)  # keep nested source headings inside the copied item
+    if cm.legacy_title(item.title) is not None:
+        body_lines = body.splitlines(keepends=True)
+        body_mask, unclosed = cm.fence_mask(body_lines)
+        if unclosed or any(not body_mask[n] and re.match(r"^ {0,3}#{1," + str(level) + r"}\s", line)
+                           for n, line in enumerate(body_lines)):
+            raise Refused("legacy-nesting-ambiguous", item.gid)
+    else:
+        level = min(level, item.level)  # keep nested source headings inside the copied item
     before = text[:insert_at]
     if before and not before.endswith(nl + nl):
         before = before.rstrip("\r\n") + nl + nl
@@ -540,7 +547,8 @@ def _insert_entry(text: str, version: str, item: cm.GapItem, gid: str, body: str
 
 
 def _next_gid(text: str, kind: str) -> str:
-    numbers = [int(i.gid.split("-")[1]) for i in cm.parse_ledger(text) if i.kind == kind]
+    numbers = [int(i.gid.split("-")[1]) for i in cm.parse_ledger(text)
+               if i.kind == kind and re.fullmatch(re.escape(kind) + r"-([0-9]+)", i.gid)]
     return f"{kind}-{max(numbers, default=0) + 1}"
 
 
@@ -580,6 +588,9 @@ def plan_migration(
         if not source_minor < target_minor <= cm.minor_of(target_token):
             raise Refused('migration-target-out-of-scope', to)
         target_token = 'v{}.{}'.format(*target_minor)
+    claims = [scope for scope in cm.historical_supplements(record) if pid in scope['request']['ids']]
+    if claims and (len(claims) != 1 or target_token + '.0' != claims[0]['request']['destination']):
+        raise Refused('supplemental-destination-not-approved', pid)
     ledgers, unreadable = cm.load_ledgers(rctx.root)
     if unreadable:
         raise Refused("ledger-unreadable", unreadable[0])
@@ -730,11 +741,60 @@ def apply_migration(plan: MigrationPlan) -> None:
             raise Refused("source-changed", plan.source.rel)
         _write_atomic(plan.source.path, plan.source_after)
     except (OSError, Refused):
-        if not plan.reused:
+        if not plan.reused and _read_exact(plan.target_path) == plan.target_after:
             if plan.target_before is None:
                 plan.target_path.unlink(missing_ok=True)
             else:
                 _write_atomic(plan.target_path, plan.target_before)
+        raise
+
+
+def _restore_repair(plan: MigrationPlan) -> None:
+    """Rollback only this transaction's exact writes; concurrent edits are never overwritten."""
+    for path, before, after in ((plan.source.path, plan.source.text, plan.source_after),
+                                (plan.target_path, plan.target_before, plan.target_after)):
+        if _read_exact(path) == before:
+            continue
+        if _read_exact(path) != after:
+            raise Refused('repair-rollback-conflict', 'preserved concurrent edit')
+        if before is None:
+            path.unlink()
+        else:
+            _write_atomic(path, before)
+
+
+def _repair_cas(record: dict) -> None:
+    import hashlib
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict('minor-record-changed')
+
+
+def _corrective_migrate(rctx: ck.RepoContext, args: argparse.Namespace, pid: str,
+                        evidence: str, date: str) -> MigrationPlan:
+    try:
+        record, _scope, _entry = cm.repair_scope_record(ck, rctx, args.minor, args.session, args.repair_scope)
+    except ValueError as exc:
+        raise Refused('repair-scope-invalid', str(exc)) from exc
+    plan = None
+    attempted = False
+    try:
+        with ck.minor_transaction(record):
+            record, scope, entry = cm.repair_scope_record(ck, rctx, args.minor, args.session, args.repair_scope)
+            if (pid not in scope['request']['repair']['ids']
+                    or (getattr(args, 'to', None) or scope['request']['destination']) != scope['request']['destination']
+                    or not entry.get('request', {}).get('verification')):
+                raise Refused('repair-scope-invalid', 'id, destination or probe binding')
+            plan = plan_migration(rctx, args.minor, record, pid, args.reason, evidence, date,
+                                  to=scope['request']['destination'])
+            _repair_cas(record)
+            if not args.dry_run:
+                attempted = True
+                apply_migration(plan)
+                _repair_cas(record)
+        return plan
+    except BaseException:
+        if plan is not None and attempted:
+            _restore_repair(plan)
         raise
 
 
@@ -753,14 +813,17 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     date = args.date or _today()
     if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
         raise ck.Malformed("--date must be YYYY-MM-DD")
-    record, _path = _record(rctx, token, args.session)
-    if record is None:
-        raise Refused("approval-not-covered", f"no minor record for {token}")
     to = getattr(args, 'to', None)
-    plan = plan_migration(rctx, token, record, pid, args.reason, evidence, date, to=to)
+    if getattr(args, 'repair_scope', None):
+        plan = _corrective_migrate(rctx, args, pid, evidence, date)
+    else:
+        record, _path = _record(rctx, token, args.session)
+        if record is None:
+            raise Refused("approval-not-covered", f"no minor record for {token}")
+        plan = plan_migration(rctx, token, record, pid, args.reason, evidence, date, to=to)
     target_token = 'v{}.{}'.format(*cm.minor_of(to)) if to else cm.next_minor(token)
     verb = "WOULD MIGRATE" if args.dry_run else "MIGRATED"
-    if not args.dry_run:
+    if not args.dry_run and not getattr(args, 'repair_scope', None):
         apply_migration(plan)
     print(f"{verb} {pid} -> {target_token}#{plan.new_gid} ({target_token}.0) {plan.target_rel}")
     return EXIT_OK
@@ -1400,6 +1463,7 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--date")
     migrate.add_argument("--session")
     migrate.add_argument("--dry-run", action="store_true")
+    migrate.add_argument("--repair-scope", help="exact signed corrective scope; retains its named technical blocker")
     migrate.add_argument("--repo", default=".")
     migrate.set_defaults(func=cmd_migrate)
     archive = sub.add_parser("archive", help="archive a closed minor (dry run by default)")

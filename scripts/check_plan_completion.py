@@ -45,6 +45,7 @@ import json
 import os
 import re
 import secrets
+import stat
 import subprocess
 import sys
 import tempfile
@@ -806,6 +807,8 @@ def project(record: dict, version: str) -> dict | None:
         "tag": member.get("tag") or version,
         "cleanup": cleanup,
         "classes": [*(own.get("classes") or []), *(minor.get("classes") or [])],
+        "supplemental_gap_migrations": minor.get("supplemental_gap_migrations", []),
+        "condition_probe_bindings": minor.get("condition_probe_bindings", []),
         "authorization_context": minor.get('authorization_context'),
         "autonomy_policy": minor.get('autonomy_policy'),
         "conditional_outcome": own.get("conditional_outcome"),
@@ -869,7 +872,13 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     for tid, checked, path in ctx.tasks:
         skipped = outcome is not None and tid in outcome["request"]["tasks"]
         results.append((f"task.{tid}", "met" if checked and skipped else _task_status(ctx, checked, path, start)))
-    gaps_status, deferred = _gaps_status(ctx, record)
+    # A dependent local proof uses this evaluation's fresh outcome directly.
+    # The token is never stored on the record, context, or across evaluate calls.
+    if outcome is None:
+        gaps_status, deferred = _gaps_status(ctx, record)
+    else:
+        proof = (ctx, hashlib.sha256(_canonical(outcome)).hexdigest(), (record or {}).get('nonce'), ctx.plan_hash())
+        gaps_status, deferred = _gaps_status(ctx, record, proof)
     results.append(("gaps.version", gaps_status))
     evidence = _evidence_file(ctx)
     results.append(
@@ -1279,7 +1288,7 @@ def _dated_task_status(ctx: Context, path: str, start: str) -> str:
     return "met" if len(matches) == 1 else "unmet"
 
 
-def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
+def _gaps_status(ctx: Context, record: dict | None, _decline_evaluation: tuple | None = None) -> tuple[str, int]:
     gaps = ctx.version_dir / "known-gaps.md"
     if not gaps.exists():
         return "met", 0
@@ -1313,12 +1322,12 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         # migration verifies (completion contract, "Minor gaps and archive"); a
         # per-plan run has no migration, so the marker alone stays unmet.
         if MIGRATED_MARKER_RE.search(item.group("title")) and (
-            _migration_met(ctx, record, gaps, item.group(0), migration_ledgers) or _plan_migration_met(ctx, record, gaps, item.group(0), migration_ledgers)
+            _migration_met(ctx, record, gaps, item.group(0), migration_ledgers, _decline_evaluation) or _plan_migration_met(ctx, record, gaps, item.group(0), migration_ledgers)
         ):
             continue
         # A minor member's open item whose id is in the frozen migratable list waits for
         # the minor close, where `gaps.minor` decides it; the member gate must not wait on it.
-        if _pending_migration(ctx, record, text, item.group(0)):
+        if _pending_migration(ctx, record, text, item.group(0), _decline_evaluation):
             deferred += 1
             continue
         source = re.search(r"\*\*Source phase\*\*:([^\n]*)", body)
@@ -1365,7 +1374,7 @@ def _has_class(record: dict | None, name: str) -> bool:
     return any(isinstance(c, dict) and c.get("class") == name for c in classes)
 
 
-def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str, ledgers: list | None = None) -> bool:
+def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str, ledgers: list | None = None, _decline_evaluation: tuple | None = None) -> bool:
     """True when this migrated item of a minor member verifies against the minor record."""
     if not record or record.get("scope") != "member" or not record.get("minor"):
         return False
@@ -1380,11 +1389,11 @@ def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str, 
     item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"), None)
     if item is None:
         return False
-    status, _reason = cm.verify_migration(ctx, record, str(record["minor"]), ledgers, ledger, item)
+    status, _reason = cm.verify_migration(ctx, record, str(record["minor"]), ledgers, ledger, item, _decline_evaluation=_decline_evaluation)
     return status == "met"
 
 
-def _pending_migration(ctx: Context, record: dict | None, text: str, heading: str) -> bool:
+def _pending_migration(ctx: Context, record: dict | None, text: str, heading: str, _decline_evaluation: tuple | None = None) -> bool:
     """True for a frozen inherited item or exact predeclared recording-only opportunity.
 
     A security or high-severity item is deferred only when the approval also names it
@@ -1403,7 +1412,7 @@ def _pending_migration(ctx: Context, record: dict | None, text: str, heading: st
     item = items[0]
     # The same gate the close uses, so an item that could never migrate there (created
     # during the run, or sensitive at the record's start) is never deferred here either.
-    status, _reason = cm.migration_gate(ctx, record, cm.minor_of(str(record["minor"])), item.gid, item)
+    status, _reason = cm.migration_gate(ctx, record, cm.minor_of(str(record["minor"])), item.gid, item, _decline_evaluation=_decline_evaluation)
     return status == "met"
 
 
@@ -2105,9 +2114,23 @@ def cmd_record_create(args: argparse.Namespace) -> int:
     return 0
 
 
-def _retire(path: Path) -> Path:
+def _private_reparse(path: Path) -> bool:
+    """Inspect the local entry without following symlinks, junctions or cloud reparse points."""
+    try:
+        details = path.lstat()
+    except FileNotFoundError:
+        return False
+    return stat.S_ISLNK(details.st_mode) or bool(getattr(details, 'st_file_attributes', 0) & 0x400)
+
+
+def _retire(path: Path, *, destination: Path | None = None) -> Path:
     """Move a record aside to `runs/retired/`, never deleting it."""
-    retired = _runs_dir() / "retired" / f"{path.stem}.{int(time.time())}.json"
+    directory = _runs_dir().resolve() / 'retired'
+    retired = destination or (directory / f"{path.stem}.{int(time.time())}.{secrets.token_hex(8)}.json")
+    if (_private_reparse(directory)
+            or directory.resolve() != directory or retired.parent.resolve() != directory
+            or retired.is_symlink() or retired.exists()):
+        raise MinorConflict('retirement-destination-conflict')
     retired.parent.mkdir(parents=True, exist_ok=True)
     _restrict(retired.parent, directory=True)
     os.replace(path, retired)
@@ -2500,6 +2523,13 @@ def cmd_record_resolve(args: argparse.Namespace) -> int:
         entry = record.get('blockers', [])[args.blocker]
         if getattr(args, 'member', None) is not None and entry.get('version') != args.member:
             raise ValueError('member differs from the blocker')
+        probe_bindings = [binding for binding in record.get('approvals', {}).get('condition_probe_bindings', [])
+                          if binding.get('blocker') == args.blocker]
+        if probe_bindings:
+            if not _scoped(args) or len(probe_bindings) != 1:
+                raise ValueError('condition probe binding is ambiguous')
+            _minor_module().repair_scope_record(sys.modules[__name__], ctx, args.minor, args.session,
+                                                probe_bindings[0]['scope_id'])
         current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx),
             historical_cwds=historical_host_cwds(record))
         _validate_scoped_paths(ctx.root, (entry.get('request') or {}).get('paths', []))
@@ -2514,7 +2544,12 @@ def cmd_record_resolve(args: argparse.Namespace) -> int:
         else:
             result = approval_binding.resolution(view, args.blocker, args.fingerprint,
                         Path(args.evidence_file) if args.evidence_file else None, current)
-    except (OSError, ValueError, IndexError, TypeError, approval_binding.Refusal) as exc:
+        if probe_bindings:
+            completed = _parse_time(result.get('probe', {}).get('completed_at'))
+            bound_at = _parse_time(probe_bindings[0].get('at'))
+            if completed is None or bound_at is None or completed < bound_at:
+                raise ValueError('condition proof predates the signed probe binding')
+    except (OSError, ValueError, IndexError, TypeError, KeyError, approval_binding.Refusal) as exc:
         print(f'condition not resolved: {exc}', file=sys.stderr)
         return EXIT_BLOCKED
     entry.update(open=False, answered=_now(), resolution=result)
@@ -2554,6 +2589,13 @@ def build_parser() -> argparse.ArgumentParser:
     member_check.add_argument("--repo", default=".", help="the parent minor controller repository")
     member_check.add_argument("--json", action="store_true")
     member_check.set_defaults(func=cmd_check_member)
+    probe = sub.add_parser('probe-condition', help='read-only proof for a signed corrective condition')
+    probe.add_argument('--minor', required=True)
+    probe.add_argument('--member', required=True)
+    probe.add_argument('--repo', default='.')
+    probe.add_argument('--session', required=True)
+    probe.add_argument('--blocker', type=int, required=True)
+    probe.set_defaults(func=lambda args: _minor_module().cmd_probe_condition(sys.modules[__name__], args))
     score_minor = sub.add_parser("score-minor", help="print the minor's monotonic progress score")
     score_minor.add_argument("minor", help="a minor scope token such as v0.5")
     score_minor.add_argument("--repo", default=".", help="a path inside the repository")
@@ -2652,6 +2694,21 @@ def build_parser() -> argparse.ArgumentParser:
     handoff.add_argument('--expected-generation', type=int, required=True)
     handoff.add_argument('--apply', action='store_true')
     handoff.set_defaults(func=lambda args: _minor_module().cmd_record_controller_handoff(sys.modules[__name__], args))
+    retire_owner = record.add_parser('retire-owner', help='retire one exact separately approved older minor authority')
+    retire_owner.add_argument('--minor', required=True)
+    retire_owner.add_argument('--repo', default='.')
+    retire_owner.add_argument('--session', required=True)
+    retire_owner.add_argument('--repair-scope', required=True)
+    retire_owner.add_argument('--record', required=True)
+    retire_owner.set_defaults(func=lambda args: _minor_module().cmd_record_retire_owner(sys.modules[__name__], args))
+    bind = record.add_parser('bind-probe', help='bind one signed condition-repair probe; never resolves a condition')
+    bind.add_argument('--minor', required=True)
+    bind.add_argument('--member', required=True)
+    bind.add_argument('--repo', default='.')
+    bind.add_argument('--session', required=True)
+    bind.add_argument('--blocker', type=int, required=True)
+    bind.add_argument('--repair-scope', required=True)
+    bind.set_defaults(func=lambda args: _minor_module().cmd_record_bind_probe(sys.modules[__name__], args))
     for name, func in (('authorize', cmd_record_authorize), ('adopt-policy', cmd_record_adopt_policy), ('resolve', cmd_record_resolve)):
         operation = record.add_parser(name)
         operation.add_argument('plan', nargs='?')

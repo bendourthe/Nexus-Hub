@@ -109,7 +109,7 @@ def test_legacy_recording_task_requires_bound_identity_and_unchanged_published_b
     unknown["start_head"] = "0" * 40
     assert cm.migration_gate(repo.rctx(), unknown, (0, 5), gap.gid, gap)[0] == "cannot-verify"
     with monkeypatch.context() as patch:
-        patch.setattr(cm, "completion_anchor", lambda *args: ("cannot-verify", None))
+        patch.setattr(cm, "completion_anchor", lambda *args, _decline_evaluation=None: ("cannot-verify", None))
         assert cm.migration_gate(repo.rctx(), record, (0, 5), gap.gid, gap)[0] == "cannot-verify"
     with pytest.raises(mc.Refused):
         mc.plan_migration(repo.rctx(), "v0.5", record, "v0.5#DF-2", "vendor-feature", "proof", "2026-10-30")
