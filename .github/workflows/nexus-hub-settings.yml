@@ -1,0 +1,102 @@
+name: nexus-hub-settings
+
+# Path-filtered: runs only when the nexus-hub-settings extension changes, so it costs
+# action minutes only for that surface (mirrors copilot-usage-monitor.yml). The
+# extension is a Node/TypeScript VSIX with a Vitest suite; the repo-wide ci.yml
+# covers Python only, so this workflow is the extension's gate.
+#
+# Unlike the usage monitors, this extension's agreement test drives the real
+# `nexus-hub settings` Python command line, so the job also provisions Python 3.11
+# with tomlkit and PyYAML (the same constrained versions ci.yml uses). The profile
+# group hands that interpreter to the test through NEXUS_HUB_TEST_PYTHON.
+#
+# The workflow-level path filter is safe only because this check is NOT listed
+# in docs/policy/required-checks.json: a required check from an untriggered
+# workflow would sit Pending forever (AGENTS.md, Required Status Checks).
+#
+# scripts/installer.{sh,ps1} are deliberately NOT trigger paths even though both
+# install this extension. ci.yml already runs
+# catalog/hooks/tests/test_installer_smoke.py on every non-docs change.
+on:
+  # Pull requests only: under a pull-request-only merge policy the post-merge
+  # push is the same tree the pull request already validated. See
+  # docs/policy/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/nexus-hub-settings/**'
+      - '.github/workflows/nexus-hub-settings.yml'
+      - 'scripts/ci/**'
+
+# Read-only: the job builds, tests, and packages, and publishes nothing.
+permissions:
+  contents: read
+
+# Cancel superseded runs of the same ref (the single largest action-minute saver).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Detect the extension
+        id: extension
+        shell: bash
+        # This workflow merges to develop before the extension does, and `scripts/ci/**`
+        # is a trigger path. A pull request from an older base that touches scripts/ci/
+        # therefore has no extension to build, and must pass rather than fail on a
+        # missing package.json. Every later step is conditioned on this output, so
+        # the check still reports Success (a skipped step is not a failure).
+        run: |
+          if [ -f extensions/nexus-hub-settings/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "extensions/nexus-hub-settings is not in this tree; nothing to build."
+          fi
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: steps.extension.outputs.present == 'true'
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/nexus-hub-settings/package-lock.json
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        if: steps.extension.outputs.present == 'true'
+        with:
+          python-version: '3.11'
+
+      - name: Install Python test dependencies
+        if: steps.extension.outputs.present == 'true'
+        # tomlkit writes the Codex file and PyYAML is the seeding helper's YAML reader;
+        # the constraint file pins both to the versions ci.yml tests against.
+        run: python -m pip install --quiet -c scripts/ci/requirements-py311.txt tomlkit PyYAML
+
+      - name: Install dependencies
+        if: steps.extension.outputs.present == 'true'
+        # --ignore-scripts: no dependency lifecycle script runs (AR-60).
+        run: npm ci --ignore-scripts --prefix extensions/nexus-hub-settings
+
+      - name: Repository-native nexus-hub-settings profile
+        if: steps.extension.outputs.present == 'true'
+        run: python scripts/ci/run.py --profile full --only nexus-hub-settings --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always() && steps.extension.outputs.present == 'true'
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always() && steps.extension.outputs.present == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nexus-hub-settings-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

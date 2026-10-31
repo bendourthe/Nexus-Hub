@@ -253,47 +253,126 @@ def fetch_latest_version() -> str:
     return match.group(1)
 
 
-def extract_changelog_section(changelog: str, version: str) -> str:
-    """Return the CHANGELOG block for `version` (`## [X.Y.Z]` to the next `## [`).
+# --- CHANGELOG summary ------------------------------------------------------
 
-    Falls back to the first versioned section (skipping `## [Unreleased]`) when
-    the exact heading is absent, then to an empty string. The result is trimmed
-    to a short summary so `upgrade` stays scannable.
+_VERSION_HEADING_RE = re.compile(r"^## \[(\d+\.\d+\.\d+)\](?:\s*-\s*(\S+))?")
+_SECTION_HEADING_RE = re.compile(r"^### (.+?)\s*$")
+_TOP_BULLET_RE = re.compile(r"^[-*] +(.*\S)\s*$")
+_BOLD_LEAD_RE = re.compile(r"^\*\*(.+?)\*\*")
+_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+_EMPHASIS_RE = re.compile(r"(?<![\w*])\*([^*\s][^*]*?)\*(?![\w*])")
+_ASCII_FIXES = {
+    0x2014: "-", 0x2013: "-", 0x2018: "'", 0x2019: "'", 0x201C: '"', 0x201D: '"', 0x2026: "...",
+}
+
+# Bounds that keep the what's-new block scannable on one screen.
+WHATS_NEW_MAX_VERSIONS = 5
+WHATS_NEW_MAX_ITEMS_PER_SECTION = 3
+WHATS_NEW_ITEM_WIDTH = 100
+
+
+def _plain_text(text: str) -> str:
+    """Strip Markdown emphasis, code ticks and links; keep ASCII for any console."""
+    text = _LINK_RE.sub(r"\1", text)
+    text = text.replace("`", "").replace("**", "").replace("__", "")
+    text = _EMPHASIS_RE.sub(r"\1", text)
+    text = text.translate(_ASCII_FIXES).encode("ascii", "ignore").decode("ascii")
+    return " ".join(text.split())
+
+
+def _shorten(text: str, width: int) -> str:
+    """Trim to `width` characters at a word boundary, adding `...` when cut."""
+    if len(text) <= width:
+        return text
+    cut = text[: width - 3].rsplit(" ", 1)[0].rstrip(" ,;:-(")
+    return (cut or text[: width - 3]) + "..."
+
+
+def _bullet_headline(bullet: str, width: int = WHATS_NEW_ITEM_WIDTH) -> str:
+    """One line for a changelog bullet: its bold lead phrase, else its first sentence."""
+    lead = _BOLD_LEAD_RE.match(bullet)
+    if lead:
+        text = _plain_text(lead.group(1)).rstrip(".:")
+    else:
+        flat = _plain_text(bullet)
+        sentence = re.match(r"(.+?[.!?])(?:\s|$)", flat)
+        text = (sentence.group(1) if sentence else flat).rstrip(".:")
+    return _shorten(text, width)
+
+
+def _parse_changelog_releases(changelog: str) -> list[dict[str, Any]]:
+    """Versioned releases in file order: version, date, and top-level bullets per section.
+
+    Nested sub-bullets (the Activation/Validation/... lines of a capability entry)
+    are indented, so only column-zero bullets are read.
     """
-    lines = changelog.splitlines()
-    target = f"## [{version}]"
+    releases: list[dict[str, Any]] = []
+    release: dict[str, Any] | None = None
+    section: list[str] | None = None
+    for line in changelog.splitlines():
+        heading = _VERSION_HEADING_RE.match(line)
+        if heading:
+            release = {"version": heading.group(1), "date": heading.group(2) or "", "sections": []}
+            releases.append(release)
+            section = None
+            continue
+        if line.startswith("## "):
+            release = None  # `## [Unreleased]` and any non-version heading
+            continue
+        if release is None:
+            continue
+        section_heading = _SECTION_HEADING_RE.match(line)
+        if section_heading:
+            section = []
+            release["sections"].append((section_heading.group(1), section))
+            continue
+        bullet = _TOP_BULLET_RE.match(line)
+        if bullet:
+            if section is None:
+                section = []
+                release["sections"].append(("", section))
+            section.append(bullet.group(1))
+    return releases
 
-    def _slice_from(start_idx: int) -> list[str]:
-        out: list[str] = []
-        for line in lines[start_idx + 1:]:
-            if line.startswith("## ["):
-                break
-            out.append(line)
-        return out
 
-    start = next((i for i, ln in enumerate(lines) if ln.startswith(target)), None)
-    if start is None:
-        start = next(
-            (
-                i
-                for i, ln in enumerate(lines)
-                if ln.startswith("## [") and "[Unreleased]" not in ln
-            ),
-            None,
-        )
-    if start is None:
+def summarize_changelog(changelog: str, installed: str | None, latest: str) -> str:
+    """A short, structured what's-new block for every release after `installed`.
+
+    Newest first, capped at WHATS_NEW_MAX_VERSIONS (the rest become an "and N
+    earlier releases" line). Each release lists one headline per top-level bullet
+    under its changelog section. With no usable installed version only the newest
+    release is shown. Returns an empty string when nothing parses, so the caller
+    prints no notes and the upgrade is never blocked.
+    """
+    releases = [r for r in _parse_changelog_releases(changelog) if compare_semver(r["version"], latest) <= 0]
+    if installed:
+        releases = [r for r in releases if compare_semver(installed, r["version"]) < 0]
+    else:
+        releases = releases[:1]
+    if not releases:
         return ""
 
-    body = _slice_from(start)
-    # Trim leading/trailing blank lines and cap the length for a short summary.
-    while body and not body[0].strip():
-        body.pop(0)
-    while body and not body[-1].strip():
-        body.pop()
-    max_lines = 40
-    if len(body) > max_lines:
-        body = body[:max_lines] + ["...", "(truncated -- see the full CHANGELOG on GitHub)"]
-    return "\n".join(body)
+    shown = releases[:WHATS_NEW_MAX_VERSIONS]
+    lines: list[str] = []
+    for release in shown:
+        lines.append(f"v{release['version']}" + (f" ({release['date']})" if release["date"] else ""))
+        for name, bullets in release["sections"]:
+            headlines = [h for h in (_bullet_headline(b) for b in bullets) if h]
+            if not headlines:
+                continue
+            if name:
+                lines.append(f"  {name}")
+            for headline in headlines[:WHATS_NEW_MAX_ITEMS_PER_SECTION]:
+                lines.append(f"    - {headline}")
+            extra = len(headlines) - WHATS_NEW_MAX_ITEMS_PER_SECTION
+            if extra > 0:
+                lines.append(f"    + {extra} more")
+        lines.append("")
+    if len(releases) > len(shown):
+        lines.append(f"... and {len(releases) - len(shown)} earlier releases")
+        lines.append("")
+    lines.append(f"Full release notes: https://github.com/{_repo()}/releases/tag/v{latest}")
+    return "\n".join(lines)
 
 
 # --- Bootstrap re-run -------------------------------------------------------
@@ -410,7 +489,10 @@ def run_bootstrap(ref: str | None = None) -> int:
         print(f"[dry-run] NEXUS_HUB_REF={env.get('NEXUS_HUB_REF', 'main')}")
         return 0
     _eprint("Upgrading by re-running the install bootstrap...")
-    return subprocess.run(command, env=env, check=False).returncode
+    # Shares this console when one is visible, so the bootstrap's own messages,
+    # download progress bar and any prompt appear here instead of in a hidden
+    # console. Falls back to the windowless default for piped or agent hosts.
+    return _PROCESS_POLICY["run_in_current_console"](command, env=env).returncode
 
 
 # --- Subcommands ------------------------------------------------------------
@@ -499,9 +581,9 @@ def cmd_upgrade(assume_yes: bool, to_ref: str | None = None, to_latest: bool = F
     # Behind (or unknown installed version): show a short what's-new summary.
     try:
         changelog = fetch_text(f"{_raw_base()}/CHANGELOG.md")
-        whats_new = extract_changelog_section(changelog, latest)
-    except FetchError:
-        whats_new = ""  # The version comparison is enough; notes are best-effort.
+        whats_new = summarize_changelog(changelog, installed, latest)
+    except Exception:  # noqa: BLE001 - notes are best-effort; never block the upgrade
+        whats_new = ""  # The version comparison is enough.
 
     print(f"\nA newer version is available ({installed_label} -> {latest}).")
     if whats_new:
