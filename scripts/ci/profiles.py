@@ -426,6 +426,11 @@ TESTS = Group(
             env=_local_src_env("extensions/nexus-code-search/src"),
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
+        # Added in v4.14.6 (settings engine): no profile collected this root, so on
+        # every operating system the read-side tests ran only by hand. The Windows
+        # validator --ignore-glob quarters below target tests/validators only and
+        # neither drop nor double-count this root.
+        _pytest("repo-tests-settings-control", "tests/settings_control", timeout=900),
         _pytest(
             "repo-tests-ci",
             "tests/ci",

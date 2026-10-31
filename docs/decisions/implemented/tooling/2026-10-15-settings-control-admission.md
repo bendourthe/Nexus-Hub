@@ -1,6 +1,6 @@
 # Decision: Settings control admission
 
-Status: implemented - a Nexus-Hub Settings control ships only with a fetched vendor source and an observed effect in a fresh session of the real tool, enforced by `scripts/lib/settings_control/catalog.json` and `tests/validators/test_settings_control_catalog.py`. Every other cell is catalogued Not-Settable with its reason.
+Status: implemented - a Nexus-Hub Settings control ships only with a fetched vendor source and an observed effect in a fresh session of the real tool, enforced by `scripts/lib/settings_control/catalog.json` and `tests/validators/test_settings_control_catalog.py`. Every other cell is cataloged Not-Settable with its reason.
 
 Maintainers adding a settings control, and anyone asking why a toggle is missing, use this record. It fixes the admission rule, how it differs from the retired v3.17.2 autonomy controller, the human-presence rule for safety-weakening writes, and the options that lost.
 

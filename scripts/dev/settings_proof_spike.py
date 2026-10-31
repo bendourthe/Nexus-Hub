@@ -4,7 +4,7 @@
 Summary: repo-internal scaffolding that applies each candidate settings write in a
 scratch home, starts the real tool with its tools turned off and no sign-in, and
 records the single field it reports. A candidate ships as a control only when a
-row here is `proven`; everything else is catalogued Not-Settable with its reason.
+row here is `proven`; everything else is cataloged Not-Settable with its reason.
 
 Safety properties (each is a failure mode in the plan, sub-task 1.4):
 

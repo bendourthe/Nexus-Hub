@@ -1,14 +1,32 @@
 # Settings Control Contract (living)
 
-**Covers**: the vendor-sourced facts behind the Nexus-Hub Settings catalog (`scripts/lib/settings_control/catalog.json`): which user-level key each tool documents for effort, model, approval posture, and commit attribution, which layers can override it, and what no setting can remove. **Read by**: maintainers adding a control, anyone reviewing a catalog entry, and the `nexus-hub settings explain` text. **Key topics**: admission rule, per-vendor dated sections for Claude Code, Codex, GitHub Copilot (VS Code Copilot Chat and Copilot CLI), findings that changed the plan, and what stays Not-Settable. It extends `docs/policy/platform-defaults-levers.md`, which owns the install-time seeding levers; this file never restates a shared key and links that file instead.
+**Covers**: the vendor-sourced facts behind the Nexus-Hub Settings catalog (`scripts/lib/settings_control/catalog.json`): which user-level key each tool documents for effort, model, approval posture, and commit attribution, which layers can override it, and what no setting can remove. **Read by**: maintainers adding a control, anyone reviewing a catalog entry, and the `nexus-hub settings explain` text. **Key topics**: admission rule, how `nexus-hub settings show` resolves a state, per-vendor dated sections for Claude Code, Codex, GitHub Copilot (VS Code Copilot Chat and Copilot CLI), findings that changed the plan, and what stays Not-Settable. It extends `docs/policy/platform-defaults-levers.md`, which owns the install-time seeding levers; this file never restates a shared key and links that file instead.
 
 **Last verified**: 2026-10-30 for v4.14.6 Phase 1. Quotes are the text returned by the documentation fetch on that date and may abridge the page; a catalog entry cites the URL and the date, never a blog, forum, or issue.
 
 ## Admission rule
 
-A write becomes a control only with a fetched primary vendor source and a Proof Record, a `proven` row in `docs/releases/v4/v4.14/development/v4.14.6-proof-matrix.md` produced by `scripts/dev/settings_proof_spike.py` against a fresh session of the real tool. A cell with no Proof Record is catalogued Not-Settable with its reason. The decision is recorded in `docs/decisions/implemented/tooling/2026-10-15-settings-control-admission.md`.
+A write becomes a control only with a fetched primary vendor source and a Proof Record, a `proven` row in `docs/releases/v4/v4.14/development/v4.14.6-proof-matrix.md` produced by `scripts/dev/settings_proof_spike.py` against a fresh session of the real tool. A cell with no Proof Record is cataloged Not-Settable with its reason. The decision is recorded in `docs/decisions/implemented/tooling/2026-10-15-settings-control-admission.md`.
 
 Shared keys (the ones `configs/platform-defaults.json` also seeds) are listed in `docs/policy/platform-defaults-levers.md`. The catalog points to that entry, and `tests/validators/test_settings_control_catalog.py` fails when the key or its value set disagrees.
+
+## Resolution rules
+
+`nexus-hub settings show` reports one record per control, tool, and surface (`cli` rows read files, `vscode-host` rows are read by the panel). Each record has exactly one state. Anything the resolver cannot verify goes in a separate `caveats` list, never in a second state. The rules live in `scripts/lib/settings_control/resolve.py` and read only the catalog, so a change of admission changes a row with no code change.
+
+States are decided in this order for a cell:
+
+1. `not-settable`: no write in the cell is admitted. The catalog reason is shown, and any override layer currently present is listed in `caveats` so a known harm (for example a legacy `env.CLAUDE_CODE_EFFORT_LEVEL`) stays visible.
+2. `tool-not-installed`: neither the tool's command is on `PATH` nor its configuration directory exists.
+3. `cannot-detect`: the user file or a file a layer could live in is not valid JSON or TOML (the line is named), the tool's `--version` call failed or took over 5 seconds for a version-ranged write, or the row belongs to VS Code, which the CLI never parses.
+4. `unverified-for-version`: the installed version is outside the write's proven range. Layers found are still listed in `caveats`.
+5. `overridden-by`: a higher layer sets the key. The layer and its catalog fix line are shown, and further layers are listed as `Also set`.
+6. `not-covered`: Claude effort only, when a current model id has no `modelSettings` entry while some effort value is set.
+7. `in-effect` when the user's file sets the key, otherwise `tool-default`.
+
+Layers are ranked managed file, then environment (the shell, then a settings `env` block), then project file, then user file. An environment layer always overrides, because the vendor says it outranks `/effort` and every saved value. A file layer that holds the same value as the user's own key overrides nothing. Two catalog `detect` gates mirror vendor text: `ignored_values` (the vendor ignores `bypassPermissions` and `auto` from project files) and `when_value_in` (`permissions.disableBypassPermissionsMode` only matters when the user's default is `bypassPermissions`).
+
+Layers no file or API exposes (MDM, server-managed settings, `requirements.toml`, organization policy, the VS Code mode indicator) are `caveats`. Project files are display data only: a file over 1 MB is not read, a symlink leading outside the project is not followed, a Codex project file is read only when `projects."<path>".trust_level` trusts the project or an ancestor, fix lines come from catalog text, and echoed values are cut to 80 characters. Each file is read once into an immutable snapshot.
 
 ## Claude Code (fetched 2026-10-30)
 
@@ -29,7 +47,7 @@ Sources: https://learn.chatgpt.com/docs/config-file/config-basic, https://learn.
 
 - **Precedence.** "1. CLI flags and `--config` overrides 2. Project config files: `.codex/config.toml` (closest wins; trusted projects only) 3. Profile files 4. User config: `~/.codex/config.toml` 5. Cloud-managed `config.toml` defaults 6. System config: `/etc/codex/config.toml` 7. Built-in defaults." "Codex loads project `.codex/` layers only when you trust the project." Whether a change reaches a running session: not found. The page does not name `projects.<path>.trust_level`; the local config uses it.
 - **Keys.** `model` is a string. `model_reasoning_effort` is "Reasoning effort advertised by the selected model, such as `low`, `medium`, `high`, `xhigh`, `max`, or `ultra`", and "Available levels depend on the model and client." `approval_policy`: "`untrusted` is unsupported, and `on-failure` is deprecated; use `on-request` for interactive runs or `never` for non-interactive runs." `sandbox_mode`: `read-only | workspace-write | danger-full-access`. `default_permissions`: "Don't combine with `sandbox_mode` or `[sandbox_workspace_write]`." It does not mention `approval_policy`.
-- **Attribution.** No commit attribution or co-author key appears in the configuration reference (read in full). Catalogued Not-Settable.
+- **Attribution.** No commit attribution or co-author key appears in the configuration reference (read in full). Cataloged Not-Settable.
 - **Managed.** `requirements.toml` "constrains security-sensitive settings users can't override"; `allowed_approval_policies = ["untrusted", "on-request"]` "blocks `--ask-for-approval never`". Per-OS locations were not listed in the fetched text.
 - **Shared reading.** The IDE extension settings are "shared with Codex CLI"; "Codex agents in the app inherit the same configuration as the IDE extension and CLI." ChatGPT Work chats "don't read local Codex configuration files."
 - **Home and sign-in.** `auth.json` under `CODEX_HOME` "(defaults to `~/.codex`)"; "treat `~/.codex/auth.json` like a password: it contains access tokens." No agent-session marker variable is documented.
@@ -44,8 +62,8 @@ Sources: https://code.visualstudio.com/docs/copilot/reference/copilot-settings, 
 
 ## Findings that change the plan
 
-1. **Copilot CLI documents a posture key.** `defaultPermissionMode` (`manual`, `assisted`, `allow-all`) sets the mode "for new interactive sessions", is ignored in non-interactive runs, and a managed `permissions.defaultMode` overrides it. The plan assumed allow-all was a launch flag only. The key is catalogued Not-Settable until it can be observed.
-2. **VS Code has a second posture key.** `chat.permissions.default` carries `autoApprove`. Catalogued as a candidate beside `chat.tools.global.autoApprove`.
+1. **Copilot CLI documents a posture key.** `defaultPermissionMode` (`manual`, `assisted`, `allow-all`) sets the mode "for new interactive sessions", is ignored in non-interactive runs, and a managed `permissions.defaultMode` overrides it. The plan assumed allow-all was a launch flag only. The key is cataloged Not-Settable until it can be observed.
+2. **VS Code has a second posture key.** `chat.permissions.default` carries `autoApprove`. Cataloged as a candidate beside `chat.tools.global.autoApprove`.
 3. **Copilot CLI is not installed on the proof machine.** Every Copilot CLI cell has no Proof Record.
 4. **The bypass block type.** The vendor type of `permissions.disableBypassPermissionsMode` is the string `"disable"`. The maintainer's `~/.copilot/settings.json` holds the boolean `true`, which is not the documented type, so whether it blocks anything is unproven.
 5. **Claude protected paths.** The plan listed `.git` and `.claude` under Cannot remove. The vendor page says bypass mode writes to them without a prompt, so they are not listed.

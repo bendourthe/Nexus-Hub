@@ -38,7 +38,11 @@
         "Cross-session messaging safeguards",
         "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
         "A running session's mode"
-      ]
+      ],
+      "detect": {
+        "command": "claude",
+        "config_dir": "claude-dir"
+      }
     },
     "codex": {
       "label": "Codex",
@@ -50,7 +54,11 @@
         "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
         "requirements.toml and cloud-managed requirements, which can forbid never",
         "A running session's approval policy"
-      ]
+      ],
+      "detect": {
+        "command": "codex",
+        "config_dir": "codex-dir"
+      }
     },
     "copilot-cli": {
       "label": "GitHub Copilot CLI",
@@ -62,7 +70,11 @@
         "Deny rules and enterprise restrictions",
         "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
         "Non-interactive runs, which ignore defaultPermissionMode"
-      ]
+      ],
+      "detect": {
+        "command": "copilot",
+        "config_dir": "copilot-dir"
+      }
     },
     "vscode-copilot": {
       "label": "VS Code Copilot Chat",
@@ -73,7 +85,10 @@
       "cannot_remove": [
         "Organization policy ChatToolsAutoApprove",
         "Any workspace-level value that overrides the user setting"
-      ]
+      ],
+      "detect": {
+        "command": "code"
+      }
     }
   },
   "controls": [
@@ -186,19 +201,54 @@
           "kind": "env",
           "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
           "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
-          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it).",
+          "detect": {
+            "env": [
+              "CLAUDE_CODE_EFFORT_LEVEL"
+            ],
+            "settings_env": [
+              "claude-user",
+              "claude-project",
+              "claude-project-local"
+            ]
+          }
         },
         {
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
           "evidence": "vendor: model-config page",
-          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json.",
+          "detect": {
+            "files": [
+              "claude-project",
+              "claude-project-local"
+            ],
+            "key_paths": [
+              [
+                "effortLevel"
+              ]
+            ]
+          }
         },
         {
           "kind": "managed-file",
           "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
           "evidence": "O10 (cannot-detect)",
-          "fix": "Ask your administrator: managed settings outrank every user value."
+          "fix": "Ask your administrator: managed settings outrank every user value.",
+          "detect": {
+            "files": [
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "effortLevel"
+              ],
+              [
+                "modelSettings"
+              ]
+            ],
+            "residual": "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -251,19 +301,54 @@
           "kind": "env",
           "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
           "evidence": "vendor: env-vars page, 'Takes precedence over --effort, /effort, and the modelSettings and effortLevel settings'",
-          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it).",
+          "detect": {
+            "env": [
+              "CLAUDE_CODE_EFFORT_LEVEL"
+            ],
+            "settings_env": [
+              "claude-user",
+              "claude-project",
+              "claude-project-local"
+            ]
+          }
         },
         {
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
           "evidence": "vendor: model-config page",
-          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json.",
+          "detect": {
+            "files": [
+              "claude-project",
+              "claude-project-local"
+            ],
+            "key_paths": [
+              [
+                "effortLevel"
+              ]
+            ]
+          }
         },
         {
           "kind": "managed-file",
           "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
           "evidence": "O10 (cannot-detect)",
-          "fix": "Ask your administrator: managed settings outrank every user value."
+          "fix": "Ask your administrator: managed settings outrank every user value.",
+          "detect": {
+            "files": [
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "effortLevel"
+              ],
+              [
+                "modelSettings"
+              ]
+            ],
+            "residual": "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -316,13 +401,27 @@
           "kind": "project-file",
           "locator": ".codex/config.toml in a trusted project",
           "evidence": "O07 (model key proven; same layering documented for every key)",
-          "fix": "Remove model_reasoning_effort from the project .codex/config.toml."
+          "fix": "Remove model_reasoning_effort from the project .codex/config.toml.",
+          "detect": {
+            "files": [
+              "codex-project"
+            ],
+            "key_paths": [
+              [
+                "model_reasoning_effort"
+              ]
+            ],
+            "requires_trust": true
+          }
         },
         {
           "kind": "managed-file",
           "locator": "requirements.toml or cloud-managed config.toml defaults",
           "evidence": "O11 (cannot-detect)",
-          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+          "fix": "Ask your administrator: an enforced requirement outranks the user value.",
+          "detect": {
+            "caveat": "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -375,13 +474,27 @@
           "kind": "project-file",
           "locator": ".github/copilot/settings.json and settings.local.json in the repository",
           "evidence": "O08 (not observed)",
-          "fix": "Remove effortLevel from the repository settings file."
+          "fix": "Remove effortLevel from the repository settings file.",
+          "detect": {
+            "files": [
+              "copilot-repo",
+              "copilot-repo-local"
+            ],
+            "key_paths": [
+              [
+                "effortLevel"
+              ]
+            ]
+          }
         },
         {
           "kind": "policy",
           "locator": "MDM value",
           "evidence": "O13 (cannot-detect)",
-          "fix": "Ask your administrator."
+          "fix": "Ask your administrator.",
+          "detect": {
+            "caveat": "An MDM-managed value cannot be read, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -437,25 +550,60 @@
           "kind": "env",
           "locator": "ANTHROPIC_MODEL",
           "evidence": "O01",
-          "fix": "Unset ANTHROPIC_MODEL where it is set."
+          "fix": "Unset ANTHROPIC_MODEL where it is set.",
+          "detect": {
+            "env": [
+              "ANTHROPIC_MODEL"
+            ],
+            "settings_env": [
+              "claude-user",
+              "claude-project",
+              "claude-project-local"
+            ]
+          }
         },
         {
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json",
           "evidence": "O03",
-          "fix": "Remove model from the project file, or set your value in .claude/settings.local.json."
+          "fix": "Remove model from the project file, or set your value in .claude/settings.local.json.",
+          "detect": {
+            "files": [
+              "claude-project",
+              "claude-project-local"
+            ],
+            "key_paths": [
+              [
+                "model"
+              ]
+            ]
+          }
         },
         {
           "kind": "managed-file",
           "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
           "evidence": "O10 (cannot-detect)",
-          "fix": "Ask your administrator: managed settings outrank every user value."
+          "fix": "Ask your administrator: managed settings outrank every user value.",
+          "detect": {
+            "files": [
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "model"
+              ]
+            ],
+            "residual": "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+          }
         },
         {
           "kind": "remembered-ui",
           "locator": "/model saved choice (writes this same user key)",
           "evidence": "vendor: model-config page",
-          "fix": "Choose the model again with /model, or reset it here."
+          "fix": "Choose the model again with /model, or reset it here.",
+          "detect": {
+            "skip": "The /model choice writes this same user key, so it is not a separate layer."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -503,13 +651,27 @@
           "kind": "project-file",
           "locator": ".codex/config.toml in a trusted project",
           "evidence": "O07",
-          "fix": "Remove model from the project .codex/config.toml."
+          "fix": "Remove model from the project .codex/config.toml.",
+          "detect": {
+            "files": [
+              "codex-project"
+            ],
+            "key_paths": [
+              [
+                "model"
+              ]
+            ],
+            "requires_trust": true
+          }
         },
         {
           "kind": "managed-file",
           "locator": "requirements.toml or cloud-managed config.toml defaults",
           "evidence": "O11 (cannot-detect)",
-          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+          "fix": "Ask your administrator: an enforced requirement outranks the user value.",
+          "detect": {
+            "caveat": "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -548,13 +710,27 @@
           "kind": "project-file",
           "locator": ".github/copilot/settings.json and settings.local.json in the repository",
           "evidence": "O08 (not observed)",
-          "fix": "Remove model from the repository settings file."
+          "fix": "Remove model from the repository settings file.",
+          "detect": {
+            "files": [
+              "copilot-repo",
+              "copilot-repo-local"
+            ],
+            "key_paths": [
+              [
+                "model"
+              ]
+            ]
+          }
         },
         {
           "kind": "policy",
           "locator": "MDM value",
           "evidence": "O13 (cannot-detect)",
-          "fix": "Ask your administrator."
+          "fix": "Ask your administrator.",
+          "detect": {
+            "caveat": "An MDM-managed value cannot be read, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -625,25 +801,77 @@
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json (bypassPermissions and auto are ignored from these files)",
           "evidence": "O04",
-          "fix": "Remove permissions.defaultMode from the project file."
+          "fix": "Remove permissions.defaultMode from the project file.",
+          "detect": {
+            "files": [
+              "claude-project",
+              "claude-project-local"
+            ],
+            "key_paths": [
+              [
+                "permissions",
+                "defaultMode"
+              ]
+            ],
+            "ignored_values": [
+              "bypassPermissions",
+              "auto"
+            ]
+          }
         },
         {
           "kind": "project-file",
           "locator": "permissions.disableBypassPermissionsMode in any settings file blocks bypassPermissions",
           "evidence": "O05",
-          "fix": "Use remove-override to clear a Nexus-Hub-seeded block, or ask the owner of the file that sets it."
+          "fix": "Use remove-override to clear a Nexus-Hub-seeded block, or ask the owner of the file that sets it.",
+          "detect": {
+            "files": [
+              "claude-user",
+              "claude-project",
+              "claude-project-local",
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "permissions",
+                "disableBypassPermissionsMode"
+              ]
+            ],
+            "when_value_in": [
+              "bypassPermissions"
+            ]
+          }
         },
         {
           "kind": "remembered-ui",
           "locator": "VS Code mode indicator: the last mode picked (Manual, Edit automatically, Auto) carries over",
           "evidence": "vendor: permission-modes page; O06 not observed",
-          "fix": "Pick the mode in the indicator; Nexus-Hub cannot read or clear it."
+          "fix": "Pick the mode in the indicator; Nexus-Hub cannot read or clear it.",
+          "detect": {
+            "caveat": "The VS Code mode indicator remembers the last mode picked (Manual, Edit automatically, Auto) and Nexus-Hub cannot read it."
+          }
         },
         {
           "kind": "managed-file",
           "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
           "evidence": "O10 (cannot-detect)",
-          "fix": "Ask your administrator: managed settings outrank every user value."
+          "fix": "Ask your administrator: managed settings outrank every user value.",
+          "detect": {
+            "files": [
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "permissions",
+                "defaultMode"
+              ],
+              [
+                "permissions",
+                "disableBypassPermissionsMode"
+              ]
+            ],
+            "residual": "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -723,13 +951,19 @@
           "kind": "remembered-ui",
           "locator": "mode last picked in the panel's mode indicator",
           "evidence": "O06 (not observed)",
-          "fix": "Pick the mode in the indicator."
+          "fix": "Pick the mode in the indicator.",
+          "detect": {
+            "caveat": "The VS Code mode indicator remembers the last mode picked (Manual, Edit automatically, Auto) and Nexus-Hub cannot read it."
+          }
         },
         {
           "kind": "project-file",
           "locator": "workspace values are ignored by the extension (vendor)",
           "evidence": "vendor: vs-code page",
-          "fix": "No action: the extension reads only user settings."
+          "fix": "No action: the extension reads only user settings.",
+          "detect": {
+            "skip": "The extension ignores workspace values, so a workspace file is not a layer."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -799,13 +1033,27 @@
           "kind": "project-file",
           "locator": ".codex/config.toml in a trusted project",
           "evidence": "O07 (layering proven for model)",
-          "fix": "Remove approval_policy and sandbox_mode from the project .codex/config.toml."
+          "fix": "Remove approval_policy and sandbox_mode from the project .codex/config.toml.",
+          "detect": {
+            "files": [
+              "codex-project"
+            ],
+            "key_paths": [
+              [
+                "approval_policy"
+              ]
+            ],
+            "requires_trust": true
+          }
         },
         {
           "kind": "managed-file",
           "locator": "requirements.toml or cloud-managed config.toml defaults",
           "evidence": "O11 (cannot-detect)",
-          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+          "fix": "Ask your administrator: an enforced requirement outranks the user value.",
+          "detect": {
+            "caveat": "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -863,13 +1111,27 @@
           "kind": "project-file",
           "locator": ".codex/config.toml in a trusted project",
           "evidence": "O07 (layering proven for model)",
-          "fix": "Remove sandbox_mode from the project .codex/config.toml."
+          "fix": "Remove sandbox_mode from the project .codex/config.toml.",
+          "detect": {
+            "files": [
+              "codex-project"
+            ],
+            "key_paths": [
+              [
+                "sandbox_mode"
+              ]
+            ],
+            "requires_trust": true
+          }
         },
         {
           "kind": "managed-file",
           "locator": "requirements.toml or cloud-managed config.toml defaults",
           "evidence": "O11 (cannot-detect)",
-          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+          "fix": "Ask your administrator: an enforced requirement outranks the user value.",
+          "detect": {
+            "caveat": "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -999,13 +1261,19 @@
           "kind": "policy",
           "locator": "organization policy ChatToolsAutoApprove",
           "evidence": "O12 (cannot-detect)",
-          "fix": "Ask your administrator; VS Code shows a lock icon on a managed setting."
+          "fix": "Ask your administrator; VS Code shows a lock icon on a managed setting.",
+          "detect": {
+            "caveat": "An organization policy (ChatToolsAutoApprove) cannot be read from outside VS Code."
+          }
         },
         {
           "kind": "project-file",
           "locator": "workspace settings value",
           "evidence": "O09 (not observed)",
-          "fix": "Remove the workspace value."
+          "fix": "Remove the workspace value.",
+          "detect": {
+            "skip": "Workspace values are read by the panel through the editor configuration API."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -1083,13 +1351,35 @@
           "kind": "project-file",
           "locator": ".claude/settings.json and .claude/settings.local.json",
           "evidence": "vendor: settings-reference scope Any file",
-          "fix": "Remove attribution from the project file."
+          "fix": "Remove attribution from the project file.",
+          "detect": {
+            "files": [
+              "claude-project",
+              "claude-project-local"
+            ],
+            "key_paths": [
+              [
+                "attribution"
+              ]
+            ]
+          }
         },
         {
           "kind": "managed-file",
           "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
           "evidence": "O10 (cannot-detect)",
-          "fix": "Ask your administrator: managed settings outrank every user value."
+          "fix": "Ask your administrator: managed settings outrank every user value.",
+          "detect": {
+            "files": [
+              "claude-managed"
+            ],
+            "key_paths": [
+              [
+                "attribution"
+              ]
+            ],
+            "residual": "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+          }
         }
       ],
       "takes_effect": "New sessions only.",
@@ -1212,7 +1502,12 @@
           "kind": "env",
           "locator": "NEXUS_GUARD_GIT_BYPASS (read only from the hook's own environment; 1 forces on, 0 forces off)",
           "evidence": "decision record 2026-10-14",
-          "fix": "Unset NEXUS_GUARD_GIT_BYPASS in the environment the agent's hooks inherit."
+          "fix": "Unset NEXUS_GUARD_GIT_BYPASS in the environment the agent's hooks inherit.",
+          "detect": {
+            "env": [
+              "NEXUS_GUARD_GIT_BYPASS"
+            ]
+          }
         }
       ],
       "takes_effect": "Next command: the hook reads the file on every run.",

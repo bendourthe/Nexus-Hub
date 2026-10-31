@@ -1206,6 +1206,104 @@ def cmd_org(argv: list[str]) -> int:
     return 0
 
 
+# --- Nexus-Hub Settings (read side) -----------------------------------------
+
+
+class SettingsCliError(Exception):
+    """An expected settings CLI failure with a user-actionable message."""
+
+
+def _load_settings_control():
+    """Load the settings engine from the installed ``scripts/lib`` tree on demand.
+
+    Mirrors ``_load_org_knowledge``: both installers copy ``scripts/lib``
+    recursively beside this file, and the package uses relative imports only, so
+    one ``sys.path`` entry is enough and no working directory matters.
+    """
+
+    lib_dir = str(Path(__file__).resolve().parent / "lib")
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    try:
+        return tuple(
+            importlib.import_module(f"settings_control.{name}")
+            for name in ("catalog", "readers", "resolve", "report")
+        )
+    except ImportError as exc:  # pragma: no cover - missing install artifact
+        raise SettingsCliError("settings engine not found; re-run the Nexus-Hub installer") from exc
+
+
+def _settings_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="nexus-hub settings",
+        description="Show the default settings Nexus-Hub manages for Claude Code, Codex, and GitHub Copilot, and what overrides them.",
+    )
+    actions = parser.add_subparsers(dest="settings_command")
+    show = actions.add_parser("show", help="Report the state of every control per tool.")
+    explain = actions.add_parser("explain", help="Describe one control: sources, timing, overrides, and fixes.")
+    explain.add_argument("control", help="Control id (effort, model, posture, attribution, git_guardrails).")
+    for action in (show, explain):
+        action.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
+        action.add_argument("--project", metavar="DIR", help="Project whose settings files are read (default: the current directory).")
+    return parser
+
+
+def _settings_project(value: str | None) -> Path:
+    project = Path(value) if value else Path.cwd()
+    if not project.is_dir():
+        raise SettingsCliError(f"--project is not a directory: {project}")
+    return project.resolve()
+
+
+def _settings_show(as_json: bool, project: str | None) -> int:
+    catalog_mod, readers, resolve, report = _load_settings_control()
+    catalog = catalog_mod.load_catalog()
+    snapshot = readers.take_snapshot(catalog, project=_settings_project(project))
+    document = report.build_report(catalog, snapshot, resolve.resolve(catalog, snapshot))
+    print(json.dumps(document, indent=2) if as_json else report.render_table(document))
+    return 0
+
+
+def _settings_explain(control: str, as_json: bool, project: str | None) -> int:
+    catalog_mod, _readers, _resolve, report = _load_settings_control()
+    catalog = catalog_mod.load_catalog()
+    _settings_project(project)
+    try:
+        data = report.explain_data(catalog, control)
+    except KeyError as exc:
+        raise SettingsCliError(f"unknown control {control!r}; known controls: {exc.args[0]}") from exc
+    print(json.dumps(data, indent=2) if as_json else report.render_explain(data))
+    return 0
+
+
+def cmd_settings(argv: list[str]) -> int:
+    """Dispatch ``nexus-hub settings``; exit 2 for a catalog or argument error."""
+
+    parser = _settings_parser()
+    if not argv:
+        parser.print_help()
+        return 0
+    args = parser.parse_args(argv)
+    try:
+        if args.settings_command == "show":
+            return _settings_show(args.json, args.project)
+        if args.settings_command == "explain":
+            return _settings_explain(args.control, args.json, args.project)
+    except SettingsCliError as exc:
+        _eprint(f"nexus-hub settings: {exc}")
+        return 2
+    except Exception as exc:  # the catalog loader's CatalogError carries every finding
+        findings = getattr(exc, "findings", None)
+        if findings is None:
+            raise
+        _eprint("nexus-hub settings: the settings catalog is not valid:")
+        for finding in findings:
+            _eprint(f"  - {finding}")
+        return 2
+    parser.print_help()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -1276,6 +1374,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Seed this project's surfaces (Antigravity .agents/, Cursor rules, Claude stub).",
     )
     sub.add_parser("doctor", add_help=False, help="Report managed-file health and persistent effort overrides without writing settings.")
+    # `settings` owns a nested parser, so main() intercepts it before this one.
+    sub.add_parser("settings", add_help=False, help="Show the default settings Nexus-Hub manages for each tool and what overrides them.")
     return parser
 
 
@@ -1304,6 +1404,9 @@ def main(argv: list[str] | None = None) -> int:
     # let the dedicated parser enforce the connection lifecycle contract.
     if raw and raw[0] == "org":
         return cmd_org(raw[1:])
+
+    if raw and raw[0] == "settings":
+        return cmd_settings(raw[1:])
 
     if raw and raw[0] == "run-plan":
         return cmd_run_plan(raw[1:])

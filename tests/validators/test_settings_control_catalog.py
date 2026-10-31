@@ -1,130 +1,52 @@
-"""Admission-gate validator for the Nexus-Hub Settings catalog (v4.14.6 Phase 1).
+"""Admission-gate validator for the Nexus-Hub Settings catalog (v4.14.6).
 
 `scripts/lib/settings_control/catalog.json` is the only list of what the settings
 engine may write or report. These tests are the gate: a write ships as a control
 only with a source and a proven row in the proof matrix, and every other cell is
-Not-Settable with its reason. The module also exposes `validate_catalog`, which
-the engine loader imports in Phase 2 so the rules exist once.
+Not-Settable with its reason. The rules that need nothing outside the catalog live
+in `scripts/lib/settings_control/catalog.py`, which the engine loader also runs,
+so they exist once. The checks below need repository files (the proof matrix,
+decision records, `configs/platform-defaults.json`, the model map) that an
+installed tree does not carry.
 """
 from __future__ import annotations
 
 import copy
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = REPO_ROOT / "scripts" / "lib" / "settings_control" / "catalog.json"
-IDS_PATH = REPO_ROOT / "scripts" / "lib" / "settings_control" / "claude_model_ids.json"
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.lib.settings_control.catalog import CATALOG_PATH, CLAUDE_IDS_PATH as IDS_PATH, validate_structure  # noqa: E402
+
 MODEL_MAP_PATH = REPO_ROOT / "catalog" / "skills" / "ai-development" / "model-routing" / "references" / "last-known-model-map.json"
 PLATFORM_DEFAULTS_PATH = REPO_ROOT / "configs" / "platform-defaults.json"
-
-TOOLS = {"claude", "codex", "copilot-cli", "vscode-copilot", "internal"}
-SURFACES = {"cli", "vscode-host", "desktop"}
-LAYER_KINDS = {"env", "project-file", "managed-file", "policy", "remembered-ui"}
-USER_FILES = ("~/.claude/settings.json", "~/.codex/config.toml", "~/.copilot/settings.json", "~/.nexus-hub/guardrails.json", "vscode-config")
-REQUIRED_WRITE_KEYS = {"id", "kind", "tool", "surface", "file", "key_path", "values", "value_map", "override_layers", "takes_effect", "proven_versions", "weakens_safety", "weakening_values", "source", "admission"}
-# (tool, joined key path, native value) pairs that lower a safety barrier.
-WEAKENING_NATIVE = {
-    ("claude", "permissions.defaultMode", "bypassPermissions"),
-    ("claude", "skipDangerousModePermissionPrompt", True),
-    ("claude", "claudeCode.initialPermissionMode", "bypassPermissions"),
-    ("claude", "claudeCode.allowDangerouslySkipPermissions", True),
-    ("codex", "approval_policy", "never"),
-    ("copilot-cli", "defaultPermissionMode", "allow-all"),
-    ("vscode-copilot", "chat.tools.global.autoApprove", True),
-    ("vscode-copilot", "chat.permissions.default", "autoApprove"),
-    ("internal", "block_git_bypass_flags", False),
-}
-ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_catalog() -> dict:
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
-def _native_values(write: dict) -> list:
-    values = write["values"]
-    return values if isinstance(values, list) else []
-
-
-def _joined(write: dict) -> str:
-    return ".".join(str(part) for part in write["key_path"])
-
-
 def validate_catalog(catalog: dict, root: Path = REPO_ROOT) -> list[str]:
     """Return one finding per rule violation; an empty list means the catalog is admitted."""
-    findings: list[str] = []
+    findings = validate_structure(catalog)
     matrix = (root / catalog["proof_matrix"]).read_text(encoding="utf-8")
     proven = set(re.findall(r"^\| ((?:W|O)\d{2}) \|.*\| proven \|[^|]*\|$", matrix, flags=re.MULTILINE))
-    seen_paths: dict[tuple, str] = {}
-    exceptions = catalog.get("omitted_user_choice_exceptions", {})
     for write in catalog["writes"]:
-        wid = write.get("id", "<no id>")
-        missing = REQUIRED_WRITE_KEYS - set(write)
-        if missing:
-            findings.append(f"{wid}: missing fields {sorted(missing)}")
-            continue
-        if write["tool"] not in TOOLS:
-            findings.append(f"{wid}: unknown tool {write['tool']}")
-        if write["surface"] not in SURFACES:
-            findings.append(f"{wid}: unknown surface {write['surface']}")
-        if write["file"] not in USER_FILES:
-            findings.append(f"{wid}: writes {write['file']}, which is not a user-level file")
-        if re.search(r"\.claude/settings|\.codex/config|\.github/copilot|managed", write["file"]) and not write["file"].startswith("~/"):
-            findings.append(f"{wid}: targets a project-level or managed file")
-        for layer in write["override_layers"]:
-            if layer.get("kind") not in LAYER_KINDS or not layer.get("fix") or not layer.get("locator"):
-                findings.append(f"{wid}: malformed override layer {layer.get('locator')}")
+        wid = write["id"]
+        ids = write.get("proof") or []
+        if write["admission"] == "admitted" and ids and any(rid not in proven for rid in ids):
+            findings.append(f"{wid}: admitted without a proven proof-matrix row ({ids})")
         source = write["source"]
-        if write["kind"] == "vendor":
-            if not str(source.get("url", "")).startswith("https://") or not ISO_DATE.match(str(source.get("fetched", ""))):
-                findings.append(f"{wid}: vendor write needs an https source url and an ISO fetched date")
-        elif not (root / source.get("decision", "missing")).is_file():
+        if write["kind"] == "internal" and not (root / source.get("decision", "missing")).is_file():
             findings.append(f"{wid}: internal write cites a decision record that does not exist")
-        if write["admission"] == "admitted":
-            ids = write.get("proof") or []
-            if not ids or any(rid not in proven for rid in ids):
-                findings.append(f"{wid}: admitted without a proven proof-matrix row ({ids})")
-            if not write["proven_versions"]:
-                findings.append(f"{wid}: admitted without a proven tool-version range")
-        elif write["admission"] == "not-settable":
-            if not write.get("not_settable_reason"):
-                findings.append(f"{wid}: Not-Settable without a reason")
-            if write.get("proof"):
-                findings.append(f"{wid}: Not-Settable write must not carry a Proof Record")
-        else:
-            findings.append(f"{wid}: admission must be admitted or not-settable")
-        values = _native_values(write)
-        if write["tool"] == "codex" and write["key_path"] == ["approval_policy"] and "untrusted" in values:
-            findings.append(f"{wid}: untrusted is retired and must never be mapped")
-        mapped = list(write["value_map"].values())
-        if write["tool"] in ("claude", "copilot-cli") and write["key_path"][-1] == "effortLevel" and ("max" in values or "max" in mapped):
-            findings.append(f"{wid}: max must never be a default effort")
-        if write["tool"] == "codex" and write["key_path"] == ["approval_policy"] and "untrusted" in mapped:
-            findings.append(f"{wid}: untrusted is mapped")
-        key = (write["tool"], write["file"], tuple(write["key_path"]))
-        if key in seen_paths and key[2] != ("<none documented>",):
-            findings.append(f"{wid}: same key path as {seen_paths[key]}")
-        seen_paths[key] = wid
-        omitted = catalog["omitted_keys"].get(write["tool"], [])
-        allowed_exception = exceptions.get(write["tool"], [])
-        joined = _joined(write)
-        for name in omitted:
-            if (joined == name or joined.startswith(name + ".")) and joined not in allowed_exception:
-                findings.append(f"{wid}: targets omitted key {name}")
-        for native in values + [v for v in mapped if isinstance(v, (str, bool))]:
-            if isinstance(native, (str, bool)) and (write["tool"], joined, native) in WEAKENING_NATIVE and not write["weakens_safety"]:
-                findings.append(f"{wid}: {native!r} lowers a safety barrier but weakens_safety is false")
-        if write["weakens_safety"] and not write["weakening_values"]:
-            findings.append(f"{wid}: weakens_safety without weakening_values")
-        if write["tool"] == "codex" and write["key_path"] in (["approval_policy"], ["sandbox_mode"]) and write.get("applies_only_without") != ["default_permissions"]:
-            findings.append(f"{wid}: Codex posture write must declare applies_only_without default_permissions")
-    findings += _shared_key_findings(catalog, root)
-    findings += _control_findings(catalog)
-    return findings
+    return findings + _shared_key_findings(catalog, root)
 
 
 def _walk(tree: dict, path: list[str]):
@@ -159,17 +81,6 @@ def _shared_key_findings(catalog: dict, root: Path) -> list[str]:
                 findings.append(f"{write['id']}: platform-defaults value {value!r} is outside the catalog value set")
             if isinstance(values, dict) and values.get("type") == "string" and not isinstance(value, str):
                 findings.append(f"{write['id']}: platform-defaults value is not a string")
-    return findings
-
-
-def _control_findings(catalog: dict) -> list[str]:
-    ids = {w["id"] for w in catalog["writes"]}
-    claimed = [wid for control in catalog["controls"] for wid in control["writes"]]
-    findings = [f"control references unknown write {wid}" for wid in claimed if wid not in ids]
-    findings += [f"write {wid} belongs to no control" for wid in sorted(ids - set(claimed))]
-    for tool, info in catalog["tools"].items():
-        if "cannot_remove" not in info or "agent_session_markers" not in info:
-            findings.append(f"tool {tool} lacks cannot_remove or agent_session_markers")
     return findings
 
 
@@ -259,3 +170,39 @@ def test_two_controls_writing_one_key_path_are_refused(catalog: dict) -> None:
     clone["writes"].append(duplicate)
     clone["controls"][1]["writes"].append("claude.model.copy")
     assert any("same key path" in f for f in validate_catalog(clone))
+
+
+def _with_layer(catalog: dict, write_id: str, layer_changes: dict) -> dict:
+    clone = copy.deepcopy(catalog)
+    write = next(w for w in clone["writes"] if w["id"] == write_id)
+    write["override_layers"][0].update(layer_changes)
+    return clone
+
+
+@pytest.mark.parametrize(
+    ("changes", "needle"),
+    [
+        ({"detect": {"env": ["lower"]}}, "upper-case variable names"),
+        ({"detect": {"env": ["CLAUDE_CODE_EFFORT_LEVEL"], "caveat": "both"}}, "exactly one of"),
+        ({"detect": {}}, "exactly one of"),
+        ({"detect": {"files": ["nowhere"], "key_paths": [["a"]]}}, "unknown file id"),
+        ({"detect": {"files": ["claude-project"]}}, "need key_paths"),
+        ({"detect": {"caveat": " "}}, "text is empty"),
+        ({"detect": {"settings_env": ["claude-user"]}}, "exactly one of"),
+    ],
+)
+def test_detect_specs_fail_closed(catalog: dict, changes: dict, needle: str) -> None:
+    findings = validate_catalog(_with_layer(catalog, "claude.model", changes))
+    assert any(needle in finding for finding in findings), findings
+
+
+def test_a_layer_without_a_detect_spec_is_refused(catalog: dict) -> None:
+    clone = copy.deepcopy(catalog)
+    del next(w for w in clone["writes"] if w["id"] == "claude.model")["override_layers"][0]["detect"]
+    assert any("has no detect spec" in f for f in validate_catalog(clone))
+
+
+def test_a_tool_without_a_detect_command_is_refused(catalog: dict) -> None:
+    clone = copy.deepcopy(catalog)
+    del clone["tools"]["claude"]["detect"]
+    assert any("tool claude lacks a detect command" in f for f in validate_catalog(clone))
