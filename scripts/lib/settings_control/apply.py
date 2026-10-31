@@ -43,7 +43,6 @@ TOKEN_SECONDS = 30
 MODEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:@\[\]-]{0,127}$")
 MODEL_VALUE_LIMIT = 200
 EXIT_OK, EXIT_PARTIAL, EXIT_USAGE, EXIT_REFUSED, EXIT_NOTHING = 0, 1, 2, 3, 4
-PANEL_ACTIONS = ("set", "remove-override")
 
 
 class UsageError(Exception):
