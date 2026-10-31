@@ -236,3 +236,136 @@ print(json.dumps(observed))
         assert isinstance(item["args"], str), item
         expected = os.path.normcase(str(boundary / (item["program"] + ".cmd")))
         assert expected in os.path.normcase(item["args"]), item
+
+
+# --- run_in_current_console: the one sanctioned exception to the no-window default ---
+
+
+class _Stream:
+    def __init__(self, tty):
+        self._tty = tty
+
+    def isatty(self):
+        return self._tty
+
+
+def _fake_console(monkeypatch, module, *, window=1, stdin_tty=True, stdout_tty=True, os_name="nt"):
+    """Make the module believe it runs on os_name with the given console state."""
+    kernel32 = SimpleNamespace(GetConsoleWindow=lambda: window)
+    monkeypatch.setitem(__import__("sys").modules, "ctypes", SimpleNamespace(windll=SimpleNamespace(kernel32=kernel32)))
+    monkeypatch.setattr(module, "os", SimpleNamespace(name=os_name))
+    monkeypatch.setattr(module, "sys", SimpleNamespace(stdin=_Stream(stdin_tty), stdout=_Stream(stdout_tty)))
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        ({}, True),
+        ({"window": 0}, False),
+        ({"stdin_tty": False}, False),
+        ({"stdout_tty": False}, False),
+        ({"os_name": "posix"}, False),
+    ],
+)
+def test_a_console_is_shared_only_when_visible_and_interactive(monkeypatch, kwargs, expected):
+    module = policy()
+    _fake_console(monkeypatch, module, **kwargs)
+    assert module.has_shareable_console() is expected
+
+
+def _recording_subprocess(calls):
+    def run(args, **kw):
+        calls.append((args, kw))
+        return SimpleNamespace(returncode=5)
+
+    import subprocess
+
+    return SimpleNamespace(
+        run=run, CompletedProcess=subprocess.CompletedProcess, CREATE_NO_WINDOW=0x08000000, DETACHED_PROCESS=8, CREATE_NEW_CONSOLE=16,  # nexus: console-window-ok simulated flags only
+    )
+
+
+def test_with_a_visible_console_the_child_shares_it(monkeypatch):
+    module = policy()
+    launched = []
+    calls = []
+    monkeypatch.setattr(module, "subprocess", _recording_subprocess(calls))
+    monkeypatch.setattr(module, "has_shareable_console", lambda: True)
+    monkeypatch.setattr(module, "_launch_in_current_console", lambda args, env, cwd: launched.append((args, env, cwd)) or 7)
+    result = module.run_in_current_console(["nexus-test-program", "arg"], env={"A": "1"})
+    assert result.returncode == 7
+    assert launched == [(["nexus-test-program", "arg"], {"A": "1"}, None)]
+    assert calls == [], "the windowless launch must not also run"
+
+
+@pytest.mark.parametrize("case", ["no-console", "piped-or-agent", "non-windows"])
+def test_without_a_visible_console_it_falls_back_to_the_windowless_launch(monkeypatch, case):
+    module = policy()
+    calls = []
+    monkeypatch.setattr(module, "subprocess", _recording_subprocess(calls))
+    monkeypatch.setattr(module, "_launch_in_current_console", lambda *a: pytest.fail("must not share a console"))
+    _fake_console(
+        monkeypatch,
+        module,
+        window=0 if case == "no-console" else 1,
+        stdout_tty=case != "piped-or-agent",
+        os_name="posix" if case == "non-windows" else "nt",
+    )
+    result = module.run_in_current_console(["nexus-test-program"], env={"A": "1"})
+    assert result.returncode == 5
+    ((args, kw),) = calls
+    assert args == ["nexus-test-program"] and kw["env"] == {"A": "1"}
+    assert kw["creationflags"] & 0x08000000, "the fallback keeps CREATE_NO_WINDOW"
+    assert not kw["creationflags"] & (8 | 16), "never detached, never a new console"  # nexus: console-window-ok flag values asserted only
+
+
+def test_the_helper_accepts_no_stream_flag_or_capture_options():
+    module = policy()
+    for option in ({"stdout": -1}, {"creationflags": 16}, {"capture_output": True}, {"shell": True}):  # nexus: console-window-ok rejected-option check only
+        with pytest.raises(TypeError):
+            module.run_in_current_console(["x"], **option)
+
+
+def test_the_shared_launch_skips_the_default_and_ordinary_launches_keep_it(monkeypatch):
+    module = policy()
+    observed = []
+
+    class Process:
+        def __init__(self, args, bufsize=-1, executable=None, stdin=None, stdout=None, stderr=None,
+                     preexec_fn=None, close_fds=True, shell=False, cwd=None, env=None,
+                     universal_newlines=None, startupinfo=None, creationflags=0):
+            observed.append((args, creationflags))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def wait(self):
+            return 9
+
+    fake = SimpleNamespace(Popen=Process, CREATE_NO_WINDOW=0x08000000, DETACHED_PROCESS=8, CREATE_NEW_CONSOLE=16)  # nexus: console-window-ok simulated flags only
+    monkeypatch.setattr(module, "subprocess", fake)
+    monkeypatch.setattr(module, "os", SimpleNamespace(name="nt"))
+    monkeypatch.setattr(module, "_batch_command", lambda argv, env: argv)
+    original = Process.__init__
+    assert module.install_no_window_default()
+    assert module._original_popen_init() is original, "unwraps every layer of the default"
+
+    assert module._launch_in_current_console(["powershell"], None, None) == 9
+    assert observed == [(["powershell"], 0)], "no creationflags: the child attaches to this console"
+
+    observed.clear()
+    Process(["git"])
+    assert observed == [(["git"], 0x08000000)], "every other launch still gets CREATE_NO_WINDOW"
+
+
+def test_a_real_child_runs_and_reports_its_exit_code_without_a_console(monkeypatch):
+    import sys
+
+    module = policy()
+    # Force the windowless fallback so the test never depends on the host terminal.
+    monkeypatch.setattr(module, "has_shareable_console", lambda: False)
+    result = module.run_in_current_console([sys.executable, "-c", "raise SystemExit(3)"])
+    assert result.returncode == 3

@@ -563,3 +563,82 @@ def test_ps_branch_network_failure_retries_and_says_network(refused_url: str, tm
     assert "attempt 1 of 3" in out and "attempt 2 of 3" in out
     assert "network failure" in out
     assert "does not exist" not in out
+
+
+# --- download feedback --------------------------------------------------------
+# A long download must never be silent: the bootstrap names what it fetches, shows
+# the archive size when a HEAD request reveals it, and reports size and elapsed
+# time when the transfer ends. It reads the same in both implementations.
+
+_SIZE = "[0-9]+(?:[.][0-9])? (?:bytes|KB|MB)"
+
+
+@pytest.fixture
+def served_archive(tmp_path: Path):
+    """Serve a directory over HTTP on localhost; yields (directory, base URL)."""
+    import functools
+    import http.server
+    import threading
+
+    class _Files(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args: object) -> None:
+            return
+
+    root = tmp_path / "served"
+    root.mkdir()
+    server = http.server.ThreadingHTTPServer(
+        ("127.0.0.1", 0), functools.partial(_Files, directory=str(root))
+    )
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        yield root, f"http://127.0.0.1:{server.server_address[1]}"
+    finally:
+        server.shutdown()
+
+
+def _assert_download_feedback(out: str) -> None:
+    assert "Downloading Nexus-Hub catalog" in out
+    assert re.search(f"Archive size: {_SIZE}", out), out
+    assert re.search(f"Downloaded {_SIZE} in [0-9]+s[.]", out), out
+    assert out.index("Archive size") < out.index("Downloaded") < out.index("Extracting catalog"), out
+
+
+@bash_functional
+def test_bash_download_reports_size_and_elapsed_time(served_archive, tmp_path: Path) -> None:
+    root, base = served_archive
+    tarball = _make_stub_tarball(
+        tmp_path, "installer.sh", '#!/usr/bin/env bash\necho "STUB BASH INSTALLER"\n',
+    )
+    shutil.copy(tarball, root / "catalog.tar.gz")
+    env = _download_env(f"{base}/catalog.tar.gz", tmp_path)
+    proc = _run([BASH, "install.sh"], cwd=str(REPO_ROOT), env=env)
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 0, out
+    _assert_download_feedback(out)
+    assert "##" not in out, "no curl progress bar unless stderr is a terminal"
+
+
+@pytest.mark.skipif(not PWSH, reason="PowerShell not available")
+def test_ps_download_reports_size_and_elapsed_time(served_archive, tmp_path: Path) -> None:
+    root, base = served_archive
+    tarball = _make_stub_tarball(
+        tmp_path, "installer.ps1", 'Write-Host "STUB PS INSTALLER"\n',
+    )
+    shutil.copy(tarball, root / "catalog.tar.gz")
+    env = _download_env(f"{base}/catalog.tar.gz", tmp_path)
+    proc = _run(_ps(), cwd=str(REPO_ROOT), env=env)
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 0, out
+    _assert_download_feedback(out)
+
+
+def test_both_bootstraps_declare_the_download_feedback() -> None:
+    sh = INSTALL_SH.read_text(encoding="utf-8")
+    ps = INSTALL_PS1.read_text(encoding="utf-8")
+    for body in (sh, ps):
+        assert "Archive size: " in body and "Downloaded " in body
+    assert "format_bytes" in sh and "log_download_summary" in sh
+    assert "Format-ByteSize" in ps and "Write-DownloadSummary" in ps
+    # The bar appears only when a person is watching, and the PowerShell bar stays.
+    assert "--progress-bar" in sh and "[ -t 2 ]" in sh
+    assert "$ProgressPreference" not in ps
