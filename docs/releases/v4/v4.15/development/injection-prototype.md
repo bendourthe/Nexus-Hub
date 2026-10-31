@@ -3,7 +3,7 @@
 **Date**: 2026-10-31
 **Base**: `ff69aff882f5cc825939507d326edce904ce65eb`
 **Disposition**: UNEVALUATED for model benefit and cache behavior; local byte-size estimates and resolver latency are measured.
-**Criterion**: [The proposed decision](../../../../decisions/proposed/policy/2026-10-31-model-adaptive-runtime-platform-scope.md) fixed a ceiling of 512 estimated tokens per turn before this experiment.
+**Criterion**: [The decision record](../../../../decisions/rejected/policy/2026-10-31-model-adaptive-runtime-platform-scope.md) fixed a ceiling of 512 estimated tokens per turn before this experiment.
 
 ## Method
 
