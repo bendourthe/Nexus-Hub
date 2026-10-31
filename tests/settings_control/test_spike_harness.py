@@ -109,7 +109,8 @@ def test_credentials_fingerprint_ignores_token_values_but_not_other_content(tmp_
 def test_a_paid_request_that_could_pass_the_cap_is_not_started(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(spike, "PAID_COSTS", [("earlier", 0.90)])
     monkeypatch.setattr(spike, "run", lambda *a, **k: pytest.fail("no request may start past the cap"))
-    assert spike.claude_attribution({}, "label", 1.00).startswith("not-run")
+    started, text = spike.claude_commit({}, "label", 1.00)
+    assert not started and text.startswith("not-run")
 
 
 # --- No probe without a sign-in reaches an external host (fix cycle 1, WN-36) ---------------------
@@ -147,7 +148,7 @@ def test_every_free_probe_is_offline_and_the_paid_one_is_not() -> None:
         spike.SINK.close()
     for name in ("claude_init", "claude_effort", "codex_effort", "codex_report"):
         assert "offline_env" in inspect.getsource(getattr(spike, name)), name
-    assert "offline_env" not in inspect.getsource(spike.claude_attribution)  # a paid request must reach its API
+    assert "offline_env" not in inspect.getsource(spike.claude_commit)  # a paid request must reach its API
 
 
 def test_the_matrix_does_not_call_the_effort_probes_local_and_names_what_the_sink_recorded(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -161,3 +162,29 @@ def test_the_matrix_does_not_call_the_effort_probes_local_and_names_what_the_sin
     monkeypatch.setattr(spike.SINK, "attempts", [])
     spike.write_matrix(out, [], {}, {}, {})
     assert "this run cannot tell which" in out.read_text(encoding="utf-8")
+
+
+def test_git_is_cut_off_from_the_users_configuration_for_the_commit_probe() -> None:
+    scratch = spike.Scratch()
+    try:
+        env = spike.isolated_git(scratch)
+        assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+        config = Path(env["GIT_CONFIG_GLOBAL"]).read_text(encoding="utf-8")
+        assert "Probe User" in config and "hooksPath" not in config and "templateDir" not in config
+        assert str(scratch.root) in env["GIT_CONFIG_GLOBAL"]
+    finally:
+        scratch.cleanup()
+    assert spike.ascii_safe("a\U0001F916b") == "a[U+1F916]b"
+    summary = spike.attribution_summary("Add x\n\nCo-Authored-By: Claude Code <noreply@anthropic.com>")
+    assert "Co-Authored-By" in summary and spike.attribution_summary("Add x").endswith("none")
+
+
+def test_the_matrix_prints_the_real_paid_cap_and_the_observed_commit_messages(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(spike, "PAID_COSTS", [("W08 default attribution", 0.5)])
+    monkeypatch.setattr(spike, "PAID_CAP_USD", 0.5)
+    monkeypatch.setattr(spike, "W08_DETAIL", [("default", "Add x\n\n\U0001F916 Generated with Claude Code")])
+    out = tmp_path / "matrix.md"
+    spike.write_matrix(out, [], {}, {}, {})
+    text = out.read_text(encoding="utf-8")
+    assert "against a cap of USD 0.50" in text and "USD 1.00" not in text
+    assert "[U+1F916] Generated with Claude Code" in text and text.isascii()

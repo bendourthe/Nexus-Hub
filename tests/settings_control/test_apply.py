@@ -1,8 +1,8 @@
 """set, reset, remove-override, record-editor-write, owned-keys, and the human-presence guard
 (v4.14.6 Phase 3, T020 and T021).
 
-The shipped catalog admits Claude and Codex `model`, posture, and effort, Claude attribution, and git-guardrails.
-Cells whose rows are still Not-Settable (editor keys, Copilot, Codex attribution) are exercised through `admitted`,
+The shipped catalog admits Claude and Codex `model`, posture, and effort, and git-guardrails.
+Cells whose rows are still Not-Settable (editor keys, Copilot, Claude and Codex attribution) are exercised through `admitted`,
 a copy with every row admitted in memory, so the writers stay data-driven without changing an admission decision.
 """
 from __future__ import annotations
@@ -742,3 +742,13 @@ def _cli(machine: Machine, args: list[str]) -> Any:
         capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=120, check=False,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), env=env,
     )
+
+
+def test_claude_attribution_is_refused_as_not_settable_until_the_commit_probe_is_completed(machine: Machine, catalog: dict[str, Any]) -> None:
+    before = seed(machine)
+
+    doc = apply.set_control(machine.context(catalog), "attribution", "off", "claude")
+
+    assert doc["exit_code"] == 4 and files(machine) == before
+    assert {r["status"] for r in doc["results"]} == {"not-settable"}
+    assert "USD 0.7662" in next(w for w in catalog["writes"] if w["id"] == "claude.attribution")["not_settable_reason"]

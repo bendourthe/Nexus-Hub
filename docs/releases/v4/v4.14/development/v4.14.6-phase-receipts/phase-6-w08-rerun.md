@@ -26,3 +26,5 @@ Before and after (first 16 characters of SHA-256; `.credentials.json` with token
 | VS Code user `settings.json` | `2fba4c0e8293284d` | `cc2bf1bf03d3d898` (the file's other state; it flips with no probe running) |
 
 Scratch folders: no `nexus-spike-*` folder remained under the system temp folder afterwards.
+
+Superseded 2026-10-31 16:00: the maintainer replaced this recitation method with the commit probe; see `phase-6-w08-commit-probe.md` and the evidence file's `### W08 proof history and final outcome`. The kept W08 row described above is no longer in the matrix.

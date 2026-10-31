@@ -240,7 +240,7 @@ print(json.dumps({"exit": doc["exit_code"], "statuses": sorted({r["status"] for 
 """
 JOBS = [
     ("effort", "high", "-"), ("model", "claude-opus-5-5", "claude"), ("model", "gpt-6.2", "codex"),
-    ("posture", "ask", "-"), ("attribution", "off", "-"), ("git_guardrails", "on", "-"),
+    ("posture", "ask", "-"), ("git_guardrails", "on", "-"),
 ]
 
 
@@ -269,12 +269,12 @@ def test_concurrent_commands_keep_every_record_entry_and_every_value(machine: Ma
 
     assert [o["exit"] for o in outcomes] == [0] * len(JOBS), outcomes
     held = {tuple(e["key_path"]) for e in record(machine)["entries"]}
-    for key in [("model",), ("effortLevel",), ("permissions", "defaultMode"), ("attribution", "commit"), ("attribution", "pr"), ("block_git_bypass_flags",), ("model_reasoning_effort",), ("approval_policy",)]:
+    for key in [("model",), ("effortLevel",), ("permissions", "defaultMode"), ("block_git_bypass_flags",), ("model_reasoning_effort",), ("approval_policy",)]:
         assert key in held, f"{key} was written but is not in the record"
     data = claude(machine)
-    assert data["permissions"]["defaultMode"] == "default" and data["effortLevel"] == "high" and data["attribution"] == {"commit": "", "pr": ""}
+    assert data["permissions"]["defaultMode"] == "default" and data["effortLevel"] == "high" and "attribution" not in data
     assert data["env"] == {"KEEP": "yes"}
-    for control in ("effort", "posture", "attribution", "git_guardrails"):
+    for control in ("effort", "posture", "git_guardrails"):
         apply.reset_control(machine.context(catalog), control)
     apply.reset_control(machine.context(catalog), "model", "claude")
     apply.reset_control(machine.context(catalog), "model", "codex")

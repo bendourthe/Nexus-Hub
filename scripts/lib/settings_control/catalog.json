@@ -1448,7 +1448,7 @@
         "url": "https://code.claude.com/docs/en/settings-reference",
         "fetched": "2026-10-30"
       },
-      "admission": "admitted",
+      "admission": "not-settable",
       "shared_with_platform_defaults": {
         "platform": "claude",
         "paths": [
@@ -1457,10 +1457,9 @@
           ]
         ]
       },
-      "proof": [
-        "W08"
-      ],
-      "notes": "Observed 2026-10-31 with one Haiku request per case in a git repository: with the default the session was told to append a Co-Authored-By trailer and a Generated with line; with both strings empty it reported none (W08)."
+      "notes": "Only the commit half was ever observed; the pr text has vendor documentation only. Proving it needs one more request with commit and pr set to empty strings, which the maintainer has not funded.",
+      "pending_probe": "W08",
+      "not_settable_reason": "No Proof Record: the commit probe of 2026-10-31 (Haiku commits a staged file in an isolated scratch git repository) showed the default commit message ending with 'Co-Authored-By: Claude Code <noreply@anthropic.com>', but the empty-string case was not run: the first request cost USD 0.7662, over the USD 0.50 cap, so no pair was observed. An earlier probe that asked the model to recite its instructions was replaced by this method."
     },
     {
       "id": "copilot-cli.co_authored",

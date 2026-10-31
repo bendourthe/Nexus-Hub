@@ -27,7 +27,7 @@ The five controls, and what each one means for each tool today. Run `nexus-hub s
 | Default effort | `low`, `medium`, `high`, `xhigh` (never `max`) | One entry per current Claude model, plus a fallback for older models | Reasoning effort | Not settable: no Proof Record yet | Not settable: effort is chosen per model in the model picker |
 | Default model | A model name, chosen per tool | The `model` default | The `model` default | Not settable: no Proof Record yet | Not settable: only an organization policy sets it |
 | Approval posture | `ask`, `accept-edits`, `full-auto` | The default permission mode | Approval policy, with the workspace-write sandbox kept | Not settable: no Proof Record yet | Not settable: no Proof Record yet |
-| Commit attribution off | `off` | Empty commit and pull request attribution | Not settable: the vendor documents no key | Not settable: no Proof Record yet | Not settable: no user-level key |
+| Commit attribution off | `off` | Not settable: the vendor documents the key and the default commit trailer was observed, but the empty case was not, so there is no Proof Record yet | Not settable: the vendor documents no key | Not settable: no Proof Record yet | Not settable: no user-level key |
 | Git-guardrails mode | `on`, `off` | Nexus-Hub's own switch, read by the hooks on every command | Same switch | Same switch | Same switch |
 
 Reading the table:

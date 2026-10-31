@@ -45,6 +45,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import socket
 import subprocess
 import sys
@@ -225,7 +226,7 @@ def sweep_stale() -> int:
     removed = 0
     for entry in Path(tempfile.gettempdir()).glob("nexus-spike-*"):
         if (entry / MARKER).is_file():
-            shutil.rmtree(entry, ignore_errors=True)
+            shutil.rmtree(entry, onerror=lambda function, path, _excinfo: (os.chmod(path, stat.S_IWRITE), function(path)))
             removed += 1
     return removed
 
@@ -256,7 +257,11 @@ class Scratch:
         return self.env(**{**SINK.env(), **extra})
 
     def cleanup(self) -> None:
-        shutil.rmtree(self.root, ignore_errors=True)
+        def make_writable(function, path, _excinfo):  # git object files are read-only, which stops rmtree on Windows
+            os.chmod(path, stat.S_IWRITE)
+            function(path)
+
+        shutil.rmtree(self.root, onerror=make_writable)
 
 
 def run(argv: list[str], scratch: Scratch, env: dict[str, str], stdin_text: str | None = None) -> tuple[int, str, str]:
@@ -387,20 +392,76 @@ def codex_effort(effort: str) -> str:
 
 
 # Paid probes: every request is capped by the tool's own budget flag and by a running tally.
-PAID_REQUEST_CAP_USD = 0.10
-PAID_RESERVE_USD = 0.15  # the tool's budget flag stops after the fact (a request cost USD 0.1245 under a 0.10 flag), so the tally reserves more
+PAID_REQUEST_CAP_USD = 0.20  # passed to the tool; it stops a request only after the fact
+PAID_CAP_USD = 0.0  # the total the run may spend, set from --paid-cap
+PAID_RESERVE_USD = 0.20  # a request once cost USD 0.1245 under a 0.10 flag, and a commit takes several turns, so the tally reserves more than the flag
 PAID_COSTS: list[tuple[str, float]] = []
-ATTRIBUTION_PROMPT = (
-    "Do not use any tool. Reply with the exact attribution lines you were told to append to git commit messages and pull request "
-    "descriptions (for example a Co-Authored-By trailer or a 'Generated with' line), copied verbatim. "
-    "If you were given no such lines, reply exactly NONE."
-)
+COMMIT_PROMPT = "Commit the one staged file with a commit message of at most six words. Run exactly one git commit command and no other command."
+ATTRIBUTION_LINE = re.compile(r"co-authored-by|generated with", re.IGNORECASE)
+GIT_IDENTITY = ("Probe User", "probe@example.invalid")
+W08_DETAIL: list[tuple[str, str]] = []
 
 
-def claude_attribution(user: dict, label: str, budget: float) -> str:
-    """One billable Haiku request with a trimmed copy of the real sign-in in a scratch home."""
+def isolated_git(scratch: Scratch) -> dict[str, str]:
+    """Environment that cuts git off from the user's configuration.
+
+    The user's global hooks strip or reject AI attribution lines, which would turn "on" into "off", so
+    the global config is a scratch file naming only a dummy identity, the system config is skipped,
+    and the repository is created without a template (an empty `.git/hooks`).
+    """
+    gitconfig = scratch.root / "gitconfig"
+    gitconfig.write_text(f"[user]\n\tname = {GIT_IDENTITY[0]}\n\temail = {GIT_IDENTITY[1]}\n", encoding="utf-8")
+    return {"GIT_CONFIG_GLOBAL": str(gitconfig), "GIT_CONFIG_NOSYSTEM": "1"}
+
+
+def prepare_commit_repo(scratch: Scratch) -> dict[str, str]:
+    """A repository in the scratch working directory with one staged file; returns the isolated environment."""
+    env = scratch.env(**isolated_git(scratch))
+    run(["git", "init", "-q", "--template="], scratch, env)
+    (scratch.cwd / "probe.txt").write_text("probe\n", encoding="utf-8")
+    run(["git", "add", "probe.txt"], scratch, env)
+    return env
+
+
+def git_isolation_check() -> str:
+    """Free check before any paid run: a plain commit keeps a Co-Authored-By trailer in the isolated repository."""
+    scratch = Scratch()
+    try:
+        env = prepare_commit_repo(scratch)
+        _, origins, _ = run(["git", "config", "--show-origin", "--list"], scratch, env)
+        origin_files = [re.sub(r"[\\/]+", "/", line.split("	", 1)[0].removeprefix("file:").strip('"')) for line in origins.splitlines()]
+        stray = [name for name in origin_files if not (name.endswith(("/gitconfig", "/.git/config")) or name == ".git/config")]
+        if stray or re.search(r"hookspath|templatedir", origins, re.IGNORECASE):
+            return "git still reads configuration outside the scratch directory: " + redact("; ".join(stray)[:120])
+        hooks_dir = scratch.cwd / ".git" / "hooks"
+        hooks = list(hooks_dir.iterdir()) if hooks_dir.is_dir() else []
+        if hooks:
+            return "the scratch repository has hooks: " + ", ".join(path.name for path in hooks)
+        run(["git", "commit", "-q", "-m", "probe", "-m", "Co-Authored-By: Probe <probe@example.invalid>"], scratch, env)
+        _, message, _ = run(["git", "log", "-1", "--format=%B"], scratch, env)
+        return "ok" if "Co-Authored-By: Probe" in message else "a plain commit lost its Co-Authored-By trailer"
+    finally:
+        scratch.cleanup()
+
+
+def ascii_safe(text: str) -> str:
+    return "".join(ch if ord(ch) < 128 else f"[U+{ord(ch):04X}]" for ch in text)
+
+
+def attribution_summary(message: str) -> str:
+    lines = [line for line in message.splitlines() if line.strip()]
+    found = [line.strip() for line in lines if ATTRIBUTION_LINE.search(line)]
+    return f'{len(lines)} line(s), attribution: ' + (f'"{ascii_safe(found[0])[:70]}"' + (f" +{len(found) - 1}" if len(found) > 1 else "") if found else "none")
+
+
+def claude_commit(user: dict, label: str, budget: float) -> tuple[bool, str]:
+    """One billable Haiku request that commits a staged file; returns whether a commit exists and its message.
+
+    The sign-in is a trimmed copy of the real one in a scratch config directory. Only `git add` and
+    `git commit` are allowed, and nothing else may prompt.
+    """
     if sum(cost for _, cost in PAID_COSTS) + PAID_RESERVE_USD > budget:
-        return "not-run: the next request could exceed the paid cap"
+        return False, "not-run: the next request could exceed the paid cap"
     source = Path.home() / ".claude" / ".credentials.json"
     scratch = Scratch()
     try:
@@ -410,18 +471,21 @@ def claude_attribution(user: dict, label: str, budget: float) -> str:
         os.chmod(trimmed, 0o600)
         before = hashlib.sha256(trimmed.read_bytes()).hexdigest()
         (scratch.home / "settings.json").write_text(json.dumps({"model": "claude-haiku-5-5", **user}), encoding="utf-8")
-        run(["git", "init", "-q"], scratch, scratch.env())  # the attribution lines are injected for a session in a git repository
-        argv = [shutil.which("claude") or "claude", "-p", ATTRIBUTION_PROMPT, "--model", "claude-haiku-5-5", "--tools", "Bash", "--permission-prompts", "none", "--max-turns", "1", "--max-budget-usd", f"{PAID_REQUEST_CAP_USD:.2f}", "--no-session-persistence", "--output-format", "stream-json", "--verbose"]
-        rc, out, err = run(argv, scratch, scratch.env(CLAUDE_CONFIG_DIR=str(scratch.home), CLAUDE_CODE_DISABLE_CLAUDE_MDS="1"))
+        git_env = prepare_commit_repo(scratch)
+        env = {**git_env, "CLAUDE_CONFIG_DIR": str(scratch.home), "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"}
+        argv = [shutil.which("claude") or "claude", "-p", COMMIT_PROMPT, "--model", "claude-haiku-5-5", "--tools", "Bash", "--allowedTools", "Bash(git add:*)", "Bash(git commit:*)", "--permission-prompts", "none", "--max-turns", "4", "--max-budget-usd", f"{PAID_REQUEST_CAP_USD:.2f}", "--no-session-persistence", "--output-format", "stream-json", "--verbose"]
+        rc, out, err = run(argv, scratch, env)
         refreshed = hashlib.sha256(trimmed.read_bytes()).hexdigest() != before if trimmed.exists() else True
+        cost = 0.0
         for line in out.splitlines():
             if line.startswith("{") and '"type":"result"' in line.replace(" ", ""):
-                result = json.loads(line)
-                cost = float(result.get("total_cost_usd") or 0)
-                PAID_COSTS.append((label, cost))
-                answer = " ".join(str(result.get("result")).split())
-                return f"{answer[:110]} (cost USD {cost:.4f}" + ("; copied token was refreshed" if refreshed else "") + ")"
-        return "timed out" if rc == -1 else redact(" ".join((err or out).split())[:120])
+                cost = float(json.loads(line).get("total_cost_usd") or 0)
+        PAID_COSTS.append((label, cost))
+        rc_log, message, _ = run(["git", "log", "-1", "--format=%B"], scratch, git_env)
+        note = f" (copied token was refreshed)" if refreshed else ""
+        if rc_log != 0 or not message.strip():
+            return False, f"no commit was made, cost USD {cost:.4f}{note}: " + redact(" ".join((err or out).split())[:100])
+        return True, message.strip() + note
     finally:
         scratch.cleanup()
 
@@ -473,7 +537,7 @@ CANDIDATES = (
     ("W05", "Claude Code CLI: skipDangerousModePermissionPrompt", "user settings skipDangerousModePermissionPrompt=true"),
     ("W06", "Claude Code CLI: modelSettings.<id>.effortLevel", "user settings modelSettings.<id>.effortLevel=low for each current model id, read with /effort status"),
     ("W07", "Claude Code CLI: top-level effortLevel", "user settings effortLevel=low, read with /effort status on an older and a current model"),
-    ("W08", "Claude Code CLI: attribution.commit and attribution.pr", "user settings attribution empty strings versus default, Haiku asked to quote its attribution instructions"),
+    ("W08", "Claude Code CLI: attribution.commit and attribution.pr", "Haiku commits a staged file in an isolated scratch git repository, with the default attribution and with attribution commit and pr empty; the commit message is read with git log"),
     ("W09", "Claude Code VS Code panel: claudeCode.initialPermissionMode", "VS Code user settings value bypassPermissions"),
     ("W10", "Claude Code VS Code panel: claudeCode.allowDangerouslySkipPermissions", "VS Code user settings value true"),
     ("W11", "Codex: model", "config.toml model=gpt-5.6-sol"),
@@ -569,11 +633,18 @@ def run_probes(versions: dict[str, str], paid_budget: float = 0.0) -> list[Row]:
         low_seen, high_seen = codex_effort("low"), codex_effort("high")
         plain["W12"] = (f'config low -> "{low_seen}"; config high -> "{high_seen}"', "proven" if (low_seen, high_seen) == ("low", "high") else "not-proven", xv)
     if have_claude and paid_budget > 0:
-        baseline = claude_attribution({}, "W08 default attribution", paid_budget)
-        sees = any(word in baseline.lower() for word in ("co-authored-by", "generated with"))
-        # Without a visible baseline the empty-string run would prove nothing, so it is not paid for.
-        silenced = claude_attribution({"attribution": {"commit": "", "pr": ""}}, "W08 attribution empty strings", paid_budget) if sees else "not-run: the default run showed no attribution lines"
-        plain["W08"] = (f"default: {baseline} | empty strings: {silenced}", "proven" if sees and silenced.upper().startswith("NONE") else "not-proven", cv)
+        isolation = git_isolation_check()
+        if isolation != "ok":
+            plain["W08"] = (f"not-run: {isolation}", "not-observed: git isolation failed", cv)
+        else:
+            default_ok, default_msg = claude_commit({}, "W08 default attribution", paid_budget)
+            sees = default_ok and bool(ATTRIBUTION_LINE.search(default_msg))
+            # Without a visible attribution in the default run the empty-string run would prove nothing, so it is not paid for.
+            quiet_ok, quiet_msg = claude_commit({"attribution": {"commit": "", "pr": ""}}, "W08 attribution empty strings", paid_budget) if sees else (False, "not-run: the default commit showed no attribution")
+            W08_DETAIL.extend([("default (no attribution key)", default_msg), ("attribution commit and pr set to empty strings", quiet_msg)])
+            proven = sees and quiet_ok and not ATTRIBUTION_LINE.search(quiet_msg)
+            shown = lambda ok, msg: attribution_summary(msg) if ok else msg[:60]  # noqa: E731
+            plain["W08"] = (f"default: {shown(default_ok, default_msg)} | empty: {shown(quiet_ok, quiet_msg)}", "proven" if proven else "not-proven", cv)
 
     plain["W25"] = (guard_exit("true", None), "", "git-guardrails.sh")
     plain["W26"] = (guard_exit("false", None), "", "git-guardrails.sh")
@@ -614,7 +685,7 @@ def write_matrix(path: Path, rows: list[Row], versions: dict[str, str], before: 
         "",
         f"**Real-file guard**: {len(before)} real configuration files hashed before and after; " + ("CHANGED: " + ", ".join(changed) if changed else "all identical") + ".",
         "",
-        "**Paid probes**: " + ("; ".join(f"{label} USD {cost:.4f}" for label, cost in PAID_COSTS) + f"; total USD {sum(c for _, c in PAID_COSTS):.4f} against a cap of USD 1.00" if PAID_COSTS else "none run (pass --paid-cap)") + ". Effort rows (W06, W07, W12, O02) cost nothing: no sign-in is present and no model runs. Nothing here is \"local\" in the sense of making no connection: `codex exec` and `codex doctor` try to reach vendor and GitHub hosts even without a credential, and the `/effort status` run starts the Claude CLI, which may do the same. So every probe without a sign-in ran with its proxy variables pointed at a listener on 127.0.0.1 that forwards nothing (`OfflineSink`); " + (f"it recorded attempts for {len(SINK.hosts())} host(s): {', '.join(SINK.hosts())}. None of them was contacted." if SINK.hosts() else "it recorded no attempt, so either the tools made none or they did not honor the proxy variables; this run cannot tell which.") + " The paid probes, when run, are the only requests that leave the machine.",
+        "**Paid probes**: " + ("; ".join(f"{label} USD {cost:.4f}" for label, cost in PAID_COSTS) + f"; total USD {sum(c for _, c in PAID_COSTS):.4f} against a cap of USD {PAID_CAP_USD:.2f}" if PAID_COSTS else "none run (pass --paid-cap)") + ". Effort rows (W06, W07, W12, O02) cost nothing: no sign-in is present and no model runs. Nothing here is \"local\" in the sense of making no connection: `codex exec` and `codex doctor` try to reach vendor and GitHub hosts even without a credential, and the `/effort status` run starts the Claude CLI, which may do the same. So every probe without a sign-in ran with its proxy variables pointed at a listener on 127.0.0.1 that forwards nothing (`OfflineSink`); " + (f"it recorded attempts for {len(SINK.hosts())} host(s): {', '.join(SINK.hosts())}. None of them was contacted." if SINK.hosts() else "it recorded no attempt, so either the tools made none or they did not honor the proxy variables; this run cannot tell which.") + " The paid probes, when run, are the only requests that leave the machine.",
         "",
         f"**Count**: {len(rows)} candidates; " + ", ".join(f"{sum(r.verdict == v for r in rows)} {v}" for v in ("proven", "not-proven")) + f", {sum(r.verdict.startswith('not-observed') for r in rows)} not-observed, {sum(r.verdict.startswith('cannot-detect') for r in rows)} cannot-detect.",
         "",
@@ -627,6 +698,10 @@ def write_matrix(path: Path, rows: list[Row], versions: dict[str, str], before: 
     lines += ["", "## Manual observations", "", "Each needs a human in a VS Code window. They are listed here so one sitting covers them; until observed, their candidates ship Not-Settable.", ""]
     for ids, steps in MANUAL_STEPS:
         lines += [f"- **{ids}**: {steps}", ""]
+    if W08_DETAIL:
+        lines += ["## W08 observed commit messages", "", "The message `git log -1 --format=%B` printed in the isolated scratch repository for each request (author identity is a dummy and is not part of the message; non-ASCII characters are shown as [U+XXXX]).", ""]
+        for label, message in W08_DETAIL:
+            lines += [f"**{label}**", "", "```text", ascii_safe(message), "```", ""]
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8", newline="\n")
 
 
@@ -638,6 +713,8 @@ def main() -> int:
     parser.add_argument("--json", type=Path, help="also write the rows as JSON here")
     parser.add_argument("--paid-cap", type=float, default=0.0, help="total USD the billable probes may spend (default 0: none run)")
     args = parser.parse_args()
+    global PAID_CAP_USD
+    PAID_CAP_USD = args.paid_cap
     if args.list:
         for rid, candidate, action in CANDIDATES:
             print(f"{rid}\t{candidate}\t{action}")
