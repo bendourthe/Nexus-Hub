@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Conditional-decline verification overlaps five independent fresh remote queries on at most three workers under the unchanged shared deadline, preserving every predicate and joining workers on failure.
+
 - The usage-limit question is now one interactive multiple-choice question. When a usage window reaches its threshold, the agent asks once with the host's question tool (in Claude Code, `AskUserQuestion`), offering three clickable choices with none preselected: **Continue on credits**, **Wait for reset**, and **Hand off to another agent or platform**, each explaining what it costs, when the window resets, or what the handoff does. A host without such a tool gets the same three choices once in one short message. While the question is open, a continuation from another hook or a goal no longer asks it again; the agent says it is waiting and ends the turn. Paid credits are still never assumed: only your recorded answer approves them.
 
 - The Codex Usage Monitor dashboard shows **Current Model** (the `model` saved in Codex's `config.toml`, else "Codex default") in place of the account **Plan** section.

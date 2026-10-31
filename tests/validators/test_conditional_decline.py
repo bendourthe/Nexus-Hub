@@ -634,3 +634,226 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
         cm.close_pr_status(ck, minor.rctx(), archived, "v0.5", "acme/demo", ledgers, [])
         == "unmet"
     )
+
+
+@pytest.fixture
+def fresh_queries(decline, monkeypatch):
+    import threading
+
+    state = SimpleNamespace(calls={}, active=0, peak=0, before=lambda name: None, results={})
+    lock = threading.Lock()
+    original_run, original_gh, original_checks = ck._run, ck._gh_json, ck._pr_checks
+
+    def observe(name, query):
+        with lock:
+            state.calls[name] = state.calls.get(name, 0) + 1
+            state.active += 1
+            state.peak = max(state.peak, state.active)
+        try:
+            state.before(name)
+            if name in state.results:
+                result = state.results[name]
+                if isinstance(result, Exception):
+                    raise result
+                return result
+            return query()
+        finally:
+            with lock:
+                state.active -= 1
+
+    def run(argv, *args, **kwargs):
+        if argv[3:5] == ["ls-remote", "origin"]:
+            return observe("branch", lambda: original_run(argv, *args, **kwargs))
+        if argv[3:5] == ["ls-remote", "--tags"]:
+            return observe("tags", lambda: original_run(argv, *args, **kwargs))
+        return original_run(argv, *args, **kwargs)
+
+    monkeypatch.setattr(ck, "_run", run)
+    monkeypatch.setattr(ck, "_gh_json", lambda ctx, repo, *args: observe(
+        "release" if args[0] == "release" else "pr",
+        lambda: original_gh(ctx, repo, *args),
+    ))
+    monkeypatch.setattr(ck, "_pr_checks", lambda *args: observe(
+        "checks", lambda: original_checks(*args),
+    ))
+    return state
+
+
+def test_fresh_queries_overlap_with_three_worker_ceiling(decline, fresh_queries):
+    import threading
+
+    first_wave = threading.Barrier(3, timeout=5)
+    fresh_queries.before = lambda name: first_wave.wait() if name in {"pr", "branch", "checks"} else None
+    result = ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert result["request"] == decline.request
+    assert fresh_queries.calls == dict.fromkeys(["pr", "branch", "checks", "tags", "release"], 1)
+    assert fresh_queries.peak == 3
+    assert fresh_queries.active == 0
+
+
+def test_fresh_queries_require_route_before_scheduling(decline, fresh_queries, monkeypatch):
+    monkeypatch.setattr(ck, "_approved_remote_status", lambda *args: "unmet")
+    with pytest.raises(ValueError, match="remote"):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.calls == {}
+
+
+def test_fresh_queries_are_not_reused_between_validations(decline, fresh_queries):
+    for _ in range(2):
+        decline.ctx.budget = ck.Budget(20)
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.calls == dict.fromkeys(["pr", "branch", "checks", "tags", "release"], 2)
+    assert fresh_queries.active == 0
+
+
+@pytest.mark.parametrize("name, result", [
+    ("pr", None), ("pr", {"state": "OPEN"}),
+    ("branch", (1, "")), ("branch", (0, "")),
+    ("checks", "unmet"), ("checks", "cannot-verify"),
+    ("tags", (1, "")), ("tags", (0, "deadbeef refs/tags/v0.2.0")),
+    ("release", None), ("release", {"tagName": "v0.2.0"}),
+])
+def test_fresh_queries_retain_every_remote_refusal(decline, fresh_queries, name, result):
+    fresh_queries.results[name] = result
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.active == 0
+
+
+@pytest.mark.parametrize("name", ["pr", "branch", "checks", "tags", "release"])
+@pytest.mark.parametrize("error", [RuntimeError("query failed"), subprocess.TimeoutExpired("query", 0.01)])
+def test_fresh_queries_worker_errors_fail_closed_and_join(decline, fresh_queries, name, error):
+    fresh_queries.results[name] = error
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.active == 0
+
+
+def test_fresh_queries_expired_budget_schedules_nothing(decline, fresh_queries):
+    decline.ctx.budget = ck.Budget(0)
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.calls == {}
+
+
+def test_fresh_queries_share_deadline_and_join_on_expiry(decline, fresh_queries):
+    import threading
+
+    expired = threading.Event()
+    first_wave = threading.Barrier(3, timeout=5)
+
+    class SharedBudget:
+        def remaining(self):
+            return 0 if expired.is_set() else 20
+
+    shared = SharedBudget()
+    decline.ctx.budget = shared
+
+    def before(name):
+        assert decline.ctx.budget is shared
+        assert name in {"pr", "branch", "checks"}
+        first_wave.wait()
+        expired.set()
+
+    fresh_queries.before = before
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert set(fresh_queries.calls) == {"pr", "branch", "checks"}
+    assert fresh_queries.active == 0
+
+
+@pytest.mark.parametrize("merge", [[], "malformed", False])
+def test_fresh_queries_malformed_merge_fails_closed(decline, fresh_queries, merge):
+    fresh_queries.results["pr"] = dict(decline.pr, mergeCommit=merge)
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.active == 0
+
+
+@pytest.mark.parametrize("key, value", [
+    ("state", "OPEN"), ("headRefName", "feat/unapproved"),
+    ("baseRefName", "main"), ("headRefOid", "f" * 40),
+    ("mergeCommit", {"oid": "f" * 40}),
+])
+def test_fresh_queries_wrong_pr_identity_fails_closed(decline, fresh_queries, key, value):
+    fresh_queries.results["pr"] = dict(decline.pr, **{key: value})
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert fresh_queries.active == 0
+
+
+def test_fresh_queries_worker_error_cannot_verify_captured_outcome(decline, fresh_queries):
+    binding = ck.conditional_request(decline.ctx, decline.view, decline.request)
+    decline.view["approvals"]["conditional_outcome"] = ck.conditional_capture(
+        {"page": {"conditional_outcome": binding}, "pasted": "Approve fixture"}
+    )
+    fresh_queries.results["checks"] = RuntimeError("query failed")
+    assert ck.conditional_status(decline.ctx, decline.view)[0] == "cannot-verify"
+    assert fresh_queries.active == 0
+
+
+def test_fresh_queries_real_subprocesses_stop_at_shared_deadline(decline, fresh_queries, tmp_path):
+    import os
+    import threading
+    import time
+
+    class SharedBudget:
+        deadline = None
+
+        def start(self):
+            self.deadline = time.monotonic() + 1.5
+
+        def remaining(self):
+            return 20 if self.deadline is None else max(0, self.deadline - time.monotonic())
+
+    budget = SharedBudget()
+    decline.ctx.budget = budget
+    first_wave = threading.Barrier(3, action=budget.start, timeout=5)
+    codes = []
+
+    def before(name):
+        assert name in {"pr", "branch", "checks"}
+        first_wave.wait()
+        marker = tmp_path / (name + ".pid")
+        script = ("import os,time; from pathlib import Path; "
+                  f"Path({str(marker)!r}).write_text(str(os.getpid())); time.sleep(10)")
+        rc, _ = ck._run([sys.executable, "-c", script], budget)
+        codes.append(rc)
+
+    fresh_queries.before = before
+    started = time.monotonic()
+    with pytest.raises(ValueError):
+        ck.conditional_request(decline.ctx, decline.view, decline.request)
+    assert time.monotonic() - started < 4
+    assert codes == [-1, -1, -1]
+    assert fresh_queries.active == 0
+    for name in ("pr", "branch", "checks"):
+        pid = int((tmp_path / (name + ".pid")).read_text())
+        if sys.platform == "win32":
+            import ctypes
+
+            from ctypes import wintypes
+
+            assert pid > 0
+            kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+            kernel.OpenProcess.restype = wintypes.HANDLE
+            kernel.GetExitCodeProcess.argtypes = (wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD))
+            kernel.GetExitCodeProcess.restype = wintypes.BOOL
+            kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
+            kernel.CloseHandle.restype = wintypes.BOOL
+            ctypes.set_last_error(0)
+            handle = kernel.OpenProcess(0x1000, False, pid)
+            if not handle:
+                # Known nonzero child PID: only ERROR_INVALID_PARAMETER proves absence.
+                assert ctypes.get_last_error() == 87, "process lookup failed; absence is unproved"
+                continue
+            try:
+                exit_code = wintypes.DWORD()
+                assert kernel.GetExitCodeProcess(handle, ctypes.byref(exit_code)), ctypes.get_last_error()
+                assert exit_code.value != 259
+            finally:
+                assert kernel.CloseHandle(handle), ctypes.get_last_error()
+        else:
+            with pytest.raises(ProcessLookupError):
+                os.kill(pid, 0)

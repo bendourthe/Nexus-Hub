@@ -35,6 +35,7 @@ import argparse
 import tempfile
 from contextlib import contextmanager
 from contextvars import ContextVar
+from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 import datetime as dt
 import hashlib
@@ -1071,17 +1072,46 @@ def conditional_request(ctx: Context, record: dict, request: object) -> dict:
         raise ValueError("conditional outcome remote cannot be verified")
     repo, branch = approvals.get("repo"), approvals.get("source_branch")
     target, tag = approvals.get("target_branch") or "develop", approvals.get("tag") or ctx.version
-    pr = _gh_json(ctx, repo, "pr", "view", branch, "--json", "state,headRefName,baseRefName,headRefOid,mergeCommit")
+    # Every query stays fresh; only independent I/O overlaps within the shared budget.
+    queries = (
+        lambda: _gh_json(ctx, repo, "pr", "view", branch, "--json", "state,headRefName,baseRefName,headRefOid,mergeCommit"),
+        lambda: _run([ctx.git, "-C", str(ctx.root), "ls-remote", "origin", "refs/heads/" + target], ctx.budget),
+        lambda: _pr_checks(ctx, repo, branch, target, start),
+        lambda: _run([ctx.git, "-C", str(ctx.root), "ls-remote", "--tags", "origin", "refs/tags/" + tag], ctx.budget),
+        lambda: _gh_json(ctx, repo, "release", "view", tag, "--json", "tagName"),
+    )
+
+    def query_with_budget(query):
+        if ctx.budget.remaining() <= 0:
+            raise ValueError("conditional remote budget exhausted")
+        return query()
+
+    if ctx.budget.remaining() <= 0:
+        raise ValueError("conditional remote budget exhausted")
+    try:
+        # Existing subprocess helpers bound running jobs; cancellation stops queued jobs.
+        # The context manager joins running workers even when a query raises.
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            futures = [pool.submit(query_with_budget, query) for query in queries]
+            try:
+                pr, (rc, remote), checks, (tag_rc, tags), release = [future.result() for future in futures]
+            finally:
+                for future in futures:
+                    future.cancel()
+    except Exception as exc:
+        raise ValueError("conditional remote verification failed") from exc
+    if ctx.budget.remaining() <= 0:
+        raise ValueError("conditional remote budget exhausted")
     if (not isinstance(pr, dict) or pr.get("state") != "MERGED" or pr.get("headRefName") != branch
             or pr.get("baseRefName") != target or pr.get("headRefOid") != request["head"]
-            or (pr.get("mergeCommit") or {}).get("oid") != request["merge"]):
+            or not isinstance(pr.get("mergeCommit"), dict)
+            or pr["mergeCommit"].get("oid") != request["merge"]):
         raise ValueError("conditional outcome does not identify the approved merged pull request")
-    rc, remote = _run([ctx.git, "-C", str(ctx.root), "ls-remote", "origin", "refs/heads/" + target], ctx.budget)
     tip = remote.split()[0] if rc == 0 and remote.strip() else ""
     if not tip or any(_run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", a, b], ctx.budget)[0]
                       for a, b in ((start, request["head"]), (request["head"], request["merge"]), (request["merge"], tip))):
         raise ValueError("conditional outcome merge ancestry cannot be verified")
-    if _pr_checks(ctx, repo, branch, target, start) != "met":
+    if checks != "met":
         raise ValueError("conditional outcome requires verified green integration checks")
     for commit in (request["head"], request["merge"]):
         if _run([ctx.git, "-C", str(ctx.root), "diff", "--quiet", start, commit, "--", *sorted(protected)], ctx.budget)[0]:
@@ -1137,11 +1167,12 @@ def conditional_request(ctx: Context, record: dict, request: object) -> dict:
             if minor_close.plan_repairs(ctx.root, [(path, path, moved)], old_tree, archived_tree):
                 raise ValueError("conditional evidence needs archive repair; choose immutable captures")
     local, _ = _run([ctx.git, "-C", str(ctx.root), "show-ref", "--verify", "--quiet", "refs/tags/" + tag], ctx.budget)
-    rc, tags = _run([ctx.git, "-C", str(ctx.root), "ls-remote", "--tags", "origin", "refs/tags/" + tag], ctx.budget)
-    if local != 1 or rc != 0 or tags.strip():
+    if local != 1 or tag_rc != 0 or tags.strip():
         raise ValueError("conditional no-tag outcome has a tag or tag absence cannot be verified")
-    if _gh_json(ctx, repo, "release", "view", tag, "--json", "tagName") is not GH_NOT_FOUND:
+    if release is not GH_NOT_FOUND:
         raise ValueError("conditional no-release outcome has a release or absence cannot be verified")
+    if ctx.budget.remaining() <= 0:
+        raise ValueError("conditional verification budget exhausted")
     return {"request": request, "plan_path": ctx.rel, "protected_paths": sorted(protected), "task_sha256": hashes}
 
 

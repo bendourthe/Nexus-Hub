@@ -37,3 +37,11 @@ The earlier v2.15 ledger conversion deliberately retained 142 legacy diagnostics
 ## Verification
 
 The repair plan requires real local Git publication tests, negative proof boundaries, native signed capture/migration/archive/refreeze coverage, independent review, the affected compatibility matrix and native fast checks. Actual consumer measurements remain separate from hermetic tests. A quiet-host member check and truthful remaining blockers are required before claiming consumer qualification.
+
+## Fresh Remote Queries
+
+The separately captured blocker 6 decision permits three additional fix cycles for the measured deadline, preserving the original exhausted three revisions. Five independent remote proof queries overlap after approved-route preflight on at most three standard-library workers sharing the original deadline. All results are freshly fetched on every invocation. Current-file, evidence, ancestry and local-tag checks remain sequential. Queued work refuses expiry; running workers join on success and failure. Unexpected worker errors and malformed merge metadata become verification failures.
+
+Alternatives considered for this follow-up were retaining the serial checkpoint, raising time limits, or reusing live decline proof. The first leaves the observed deadline failure; the other two are excluded. A fresh-query feasibility probe took 1.844 seconds; revision 1 completed the actual consumer member in 19.375 seconds. This is local observed headroom, not a guarantee against future network delay. Final qualification and installation are tracked in the evidence. No historical closure or publication authority is added.
+
+The final local matrix passed 353 cases. A narrow Windows test-oracle correction then passed its exact real-process rerun; production bytes and every other test definition were unchanged. This split evidence qualifies the source for the approved matched-runtime installation, while historical proof and full native closeout remain separate.
