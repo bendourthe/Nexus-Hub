@@ -26,6 +26,7 @@ import pytest
 from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exported)
     _git,
     _isolated_git_config,
+    _v415_qualification_case,
     _v415_task_repo,
 )
 from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-exported)
@@ -47,6 +48,33 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import check_plan_completion as ck
 import completion_minor as cm
 import minor_close as mc
+
+
+@pytest.mark.parametrize("archived", [False, True], ids=["merged", "archived-current-plan"])
+def test_v415_no_change_historical_publication_survives_later_sibling_inputs(tmp_path, monkeypatch, archived):
+    """The factory's independent merge trust is tested in its owner; this exercises real Git receipt history."""
+    from dataclasses import replace
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    ck.qualify_v415_task(ctx, "T114", authority)
+    publication = _git(ctx.root, "rev-parse", "HEAD")
+    tree = _git(ctx.root, "rev-parse", "HEAD^{tree}")
+    historical = replace(authority, historical_merge=publication, historical_tree=tree)
+    # A legitimate later native helper has a new identity; only independently verified history permits the old producer.
+    monkeypatch.setattr(ck, "_v415_producer_sha", lambda: "f" * 64)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, historical) == "met"
+    (ctx.root / "later-sibling.txt").write_text("a legitimate later member changes shared inputs\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "later member")
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+    if archived:
+        ctx.rel = ctx.rel.replace("docs/releases/", "docs/archives/")
+        ctx.plan_hash = lambda: "b" * 64
+        historical = replace(historical, plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, historical) == "met"
+    bad_merge = replace(historical, historical_merge=_git(ctx.root, "rev-parse", "HEAD"),
+                        historical_tree=_git(ctx.root, "rev-parse", "HEAD^{tree}"))
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, bad_merge) == "unmet"
 
 
 @pytest.mark.parametrize("whole_minor", [False, True], ids=["member", "whole-minor"])

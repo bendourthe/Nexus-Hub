@@ -1052,15 +1052,10 @@ def member_identity_ok(ck: ModuleType, member: dict, plan: Plan) -> bool:
             and digest == archived.get("plan_sha256"))
 
 
-def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict, plan: Plan):
-    """Issue exact task compatibility only from the complete authenticated native parent.
-
-    The ordinary per-plan projection carries no trust marker. An archive must also
-    prove its signed original frozen identity, including a minor re-freeze. Existing
-    archive predicates judge its Git landing and exclude uncertain or archive-only work.
-    The issued value is bound to the actual evaluation tree, path and current hash.
-    """
-    if (not isinstance(parent, dict) or not isinstance(member, dict) or not isinstance(plan, Plan)
+def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict,
+                            plan: Plan | None = None) -> tuple[Plan, Plan] | None:
+    """Authenticate current membership and recover only the compiled original frozen identity."""
+    if (not isinstance(parent, dict) or not isinstance(member, dict) or (plan is not None and not isinstance(plan, Plan))
             or parent.get("repo") != "bendourthe/Nexus-Hub" or parent.get("minor") != "v4.15"
             or member.get("version") not in {f"v4.15.{patch}" for patch in range(5)}):
         return None
@@ -1071,7 +1066,10 @@ def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member:
         if len(matches) != 1 or approval_binding.canonical(matches[0]) != approval_binding.canonical(member):
             return None
         current = [p for p in scan_plans(rctx.root, 4, 15) if p.version == member["version"]]
-        if len(current) != 1 or current[0] != plan or not member_identity_ok(ck, member, plan):
+        if len(current) != 1 or (plan is not None and current[0] != plan):
+            return None
+        plan = current[0]
+        if not member_identity_ok(ck, member, plan):
             return None
         original = plan
         if "archived" in member:
@@ -1085,15 +1083,47 @@ def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member:
                 return None
         elif plan.rel != member.get("plan_path"):
             return None
+        if ck._V415_ORIGINAL_HASHES.get(member["version"]) != ck.plan_hash_text(original.text):
+            return None
+        return plan, original
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable,
+            ck.Malformed, ck.MinorConflict):
+        return None
+
+
+def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict, plan: Plan):
+    """Issue a separate immutable identity; existing archive predicates judge history.
+
+    The ordinary projection carries no trust marker. Original/current identities
+    are authenticated independently, and the token names the actual evaluation tree.
+    """
+    identity = _v415_original_identity(ck, rctx, parent, member, plan)
+    if identity is None:
+        return None
+    plan, original = identity
+    try:
         root, rel, digest = rctx.root, plan.rel, ck.plan_hash_text(plan.text)
+        retired = False
         if member.get("implementation") is not None:
-            ctx, status, _retired = _worker_context(ck, rctx, parent, member, rctx.budget)
+            ctx, status, retired = _worker_context(ck, rctx, parent, member, rctx.budget)
             if ctx is None or status != "met":
                 return None
             root, rel, digest = ctx.root, ctx.rel, ctx.plan_hash()
+        merge = tree = None
+        if retired:
+            state, candidate = _merge_commit(ck, rctx, parent["repo"], member["source_branch"])
+            integration = _integration_ref(rctx, _target(parent))
+            if (state == "merged" and candidate and integration
+                    and _ancestor(rctx, candidate, integration) == "met" and _ancestor(rctx, candidate, "HEAD") == "met"
+                    and _historical_claim_status(rctx, member, candidate, parent, ck) == "met"):
+                merge, tree = candidate, rctx._git_out("rev-parse", candidate + "^{tree}")
         return ck._v415_task_authority(root=root, repo=parent["repo"], minor=parent["minor"],
                                       member=member["version"], original_sha256=ck.plan_hash_text(original.text),
-                                      plan_rel=rel, plan_sha256=digest)
+                                      plan_rel=rel, plan_sha256=digest, record_nonce=parent.get("nonce"),
+                                      member_start_head=member.get("start_head"),
+                                      implementation_sha256=_manifest_implementation_sha256(member),
+                                      source_branch=member.get("source_branch"), target_branch=member.get("target_branch"),
+                                      historical_merge=merge, historical_tree=tree)
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable,
             ck.Malformed, ck.MinorConflict):
         return None
@@ -1238,8 +1268,10 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest"):
-        raise ck.Malformed("--member requires --action answer, supplement-scope or permit-manifest")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest or permit-outputs")
+    if getattr(args, "outputs", None) is not None and args.action != "permit-outputs":
+        raise ck.Malformed("--outputs requires --action permit-outputs")
     if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
         raise ck.Malformed("--merge requires --action supplement-scope")
     if getattr(args, "added_class", None) is not None and args.action != "add-class":
@@ -1281,8 +1313,18 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return record
         page = manifest_permission_page(ck, rctx, token, record, getattr(args, "member", None))
         display = None
+    elif args.action == "permit-outputs":
+        record = _record_for_v415_permission(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        try:
+            value = json.loads(Path(args.outputs).read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
+            raise ck.Malformed("permit-outputs needs a readable --outputs JSON file") from None
+        page = v415_output_permission_page(ck, rctx, token, record, getattr(args, "member", None), value)
+        display = None
     else:
-        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope or permit-manifest")
+        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope, permit-manifest or permit-outputs")
     session = None if args.session == "auto" else args.session
     blocker = args.blocker if args.action == "answer" else None
     try:
@@ -2006,6 +2048,341 @@ def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
         active.pop("manifest_permission_append", None)
     print(f"PERMITTED dormant manifest coordinator duty {args.member}")
     return 0
+
+V415_OUTPUT_PERMISSION = "v415_coordinator_permissions"
+_V415_MANIFEST_OUTPUTS = {"MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json"}
+_V415_HANDBOOKS = "(?:overview|distribution|completion)"
+
+
+def _v415_output_paths(rctx: RepoContext, version: str, value: object) -> list[str]:
+    """Fixed artifact classes, never permission inferred from a directory or manifest."""
+    if not isinstance(value, dict) or set(value) != {"write_paths"} or not isinstance(value["write_paths"], list):
+        raise MinorMalformed("v415-outputs-invalid-input")
+    paths = sorted(_literal_path(rctx.root, p) for p in value["write_paths"])
+    if not paths or len({p.casefold() for p in paths}) != len(paths):
+        raise MinorMalformed("v415-outputs-empty-or-duplicate")
+    for path in paths:
+        handbook = (path in {"docs/handbooks/handbooks.json", "docs/handbooks/README.md"}
+                    or re.fullmatch(r"docs/handbooks/" + _V415_HANDBOOKS + r"\.html(?:\.build\.json)?", path)
+                    or re.fullmatch(r"docs/handbooks/_sources/" + _V415_HANDBOOKS
+                                    + r"/(?:model\.json|source\.md|design\.css|evidence\.json|[a-z0-9][a-z0-9-]*-composition\.html)", path)
+                    or re.fullmatch(re.escape("docs/releases/v4/v4.15/development/evidence/" + version + "-handbooks/")
+                                    + r"[A-Za-z0-9][A-Za-z0-9._-]*\.(?:md|json|log|png)", path))
+        if path.endswith("/") or _sensitive_write(rctx, path, []) or (path not in _V415_MANIFEST_OUTPUTS and not handbook):
+            raise MinorMalformed("v415-outputs-outside-artifact-classes")
+    return paths
+
+
+def _record_for_v415_permission(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
+    """Only approval-not-covered may bootstrap its own bounded permission round."""
+    state = load_minor(ck, rctx, token, None if session == "auto" else session)
+    record = state.record
+    if record is not None and state.forced:
+        blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
+        if (token == "v4.15" and not record.get("pause") and blockers
+                and all(b.get("category") == "approval-not-covered" for b in blockers)
+                and state.forced[1] == ck.EXIT_BLOCKED):
+            return record
+    if state.forced:
+        print(state.forced[0])
+        return state.forced[1]
+    if record is None:
+        raise ck.Malformed("no live minor run record for this scope and session")
+    return record
+
+
+def _v415_original_scope(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                         paths: list[str], *, base: str | None = None) -> bool:
+    """Audit the original union before considering any proposed output additions."""
+    worker, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, base=base, canonical_merged=False)
+    if worker is None or status != "met":
+        return False
+    if member.get("start_head"):
+        head = rctx._git_out("rev-parse", "HEAD")
+        if not head or _historical_claim_status(rctx, member, head, record, ck) != "met":
+            return False
+    for args in (("diff", "--name-only", "--no-renames", "-z", "HEAD", "--"),
+                 ("diff", "--cached", "--name-only", "--no-renames", "-z", "HEAD", "--"),
+                 ("ls-files", "--others", "--exclude-standard", "-z")):
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), *args])
+        if rc or any(_overlap(p, changed) for p in paths for changed in out.split("\0") if changed):
+            return False
+    return True
+
+
+def v415_output_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                                version: str | None, value: object) -> dict:
+    """Render/consume the same exact authenticated output additions and original scope."""
+    member = next((m for m in record.get("members", []) if m.get("version") == version), None)
+    identity = _v415_original_identity(ck, rctx, record, member) if member is not None else None
+    if token != "v4.15" or identity is None or not isinstance(member.get("implementation"), dict):
+        raise ck.Malformed("v415-outputs-outside-reviewed-identity")
+    if member.get("start_head") and version != "v4.15.0":
+        raise ck.Malformed("v415-outputs-started-member-not-zero")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    try:
+        paths = _v415_output_paths(rctx, str(version), value)
+    except MinorMalformed as exc:
+        raise ck.Malformed(str(exc)) from None
+    old = member.get("coordinator_paths", [])
+    entries = member.get(V415_OUTPUT_PERMISSION, [])
+    if not isinstance(old, list) or not isinstance(entries, list) or any(
+            not _v415_output_permission_valid(ck, rctx, record, member, entry) for entry in entries):
+        raise ck.Malformed("v415-outputs-invalid-prior-history")
+    reserved = [*member["implementation"]["write_paths"], *old,
+                *(p for entry in entries for p in entry["page"]["write_paths"])]
+    if any(_overlap(path, prior) for path in paths for prior in reserved):
+        raise ck.Malformed("v415-outputs-already-covered")
+    state, _merge = _merge_commit(ck, rctx, record["repo"], member["source_branch"])
+    if state != "not-merged":
+        raise ck.Malformed("v415-outputs-publication-unverified")
+    if not _v415_original_scope(ck, rctx, record, member, paths):
+        raise ck.Malformed("v415-outputs-original-scope-unverified")
+    base = rctx._git_out("rev-parse", "HEAD")
+    if not base or _coordinator_conflict(ck, rctx, record, member, paths, base):
+        raise ck.Malformed("v415-outputs-active-conflict")
+    return {"action": "permit-outputs", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": version, "plan_sha256": ck.plan_hash_text(identity[1].text),
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "original_read_paths": list(member["implementation"]["read_paths"]),
+            "original_write_paths": list(member["implementation"]["write_paths"]),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "coordinator_paths": list(old), "start_head": member.get("start_head"), "write_paths": paths}
+
+
+def _v415_output_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                                   entry: object, *, verify_capture: bool = False) -> bool:
+    """Historical capture survives legitimate continuation, handoff and archive updates."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        if (not isinstance(page, dict) or set(page) != {
+                "action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256", "member",
+                "plan_sha256", "implementation_sha256", "original_read_paths", "original_write_paths", "source_branch",
+                "target_branch", "coordinator_paths", "start_head", "write_paths"}
+                or not isinstance(accepted, dict) or set(accepted) != {"at", "page_sha256", "round_nonce", "code",
+                    "rendered_at", "text", "allow_short_reply", "authorization_context"}):
+            return False
+        identity = _v415_original_identity(ck, rctx, record, member)
+        implementation = member.get("implementation")
+        if (identity is None or not isinstance(implementation, dict) or page["action"] != "permit-outputs"
+                or page["scope"] != {"kind": "minor", "minor": "v4.15"} or page["record_nonce"] != record["nonce"]
+                or page["repo"] != record["repo"] or page["member"] != member["version"]
+                or page["plan_sha256"] != ck.plan_hash_text(identity[1].text)
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or page["original_read_paths"] != implementation["read_paths"]
+                or page["original_write_paths"] != implementation["write_paths"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]
+                or page["write_paths"] != _v415_output_paths(rctx, member["version"], {"write_paths": page["write_paths"]})):
+            return False
+        old = page["coordinator_paths"]
+        current = member.get("coordinator_paths", [])
+        if (not isinstance(old, list) or any(not isinstance(p, str) for p in old)
+                or not isinstance(current, list) or current[:len(old)] != old
+                or len(set(old)) != len(old) or set(old) & set(page["write_paths"])):
+            return False
+        start = page["start_head"]
+        if start is not None and (member["version"] != "v4.15.0" or start != member.get("start_head")
+                                   or re.fullmatch(r"[0-9a-f]{40,64}", str(start)) is None):
+            return False
+        if member.get("start_head") and not all(p in current for p in page["write_paths"]):
+            return False
+        controller = page["controller"]
+        current_controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
+        generation = controller.get("generation", 0) if isinstance(controller, dict) else None
+        legacy_fields = {"repo_root", "git_common_dir"}
+        transferred_fields = legacy_fields | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if (not isinstance(controller, dict) or type(generation) is not int or generation < 0
+                or set(controller) not in ({"repo_root"}, legacy_fields, transferred_fields)
+                or (bool(generation) != (set(controller) == transferred_fields))
+                or generation > current_controller.get("generation", 0)
+                or (controller.get("origin_root") or controller.get("repo_root")) != record.get("repo_root")
+                or not isinstance(controller.get("repo_root"), str) or not Path(controller["repo_root"]).is_absolute()
+                or ("git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                    or not Path(controller["git_common_dir"]).is_absolute()))
+                or (generation and (not all(isinstance(controller[k], str) and controller[k]
+                                              for k in transferred_fields - {"generation"})
+                    or re.fullmatch(r"[0-9a-f]{40}", controller["head"]) is None
+                    or controller["origin_record_key"] != ck.record_key(Path(record["repo_root"]), record["repo"].lower(), "minor:v4.15")))
+                or (generation == current_controller.get("generation", 0)
+                    and approval_binding.canonical(controller) != approval_binding.canonical(current_controller))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(accepted["round_nonce"], str) or not re.fullmatch(r"[0-9a-f]{32}", accepted["round_nonce"])
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(context, dict) or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or context["session_id"] != page["owner_session"] or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line("permit-outputs", "v4.15", accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, ck.MinorConflict, approval_page.PageError):
+        return False
+
+
+def check_v415_compatibility_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Preserve accepted history; a captured append may change exactly its entry and suffix."""
+    before, after = previous.get("members", []), record.get("members", [])
+    active = ck._MINOR_LEASE.get()
+    appending = active is not None and "v415_output_append" in active
+    if not appending and not any(isinstance(m, dict) and V415_OUTPUT_PERMISSION in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("v415-compatibility-invalid-members")
+    old, new = ({m.get("version"): m for m in members} for members in (before, after))
+    added = []
+    for version in old.keys() | new.keys():
+        left, right = old.get(version, {}).get(V415_OUTPUT_PERMISSION, []), new.get(version, {}).get(V415_OUTPUT_PERMISSION, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("v415-compatibility-not-append-only")
+        if left and (version not in new or approval_binding.canonical(old[version].get("implementation"))
+                     != approval_binding.canonical(new[version].get("implementation"))):
+            raise ck.MinorConflict("v415-compatibility-original-claims-changed")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        if appending:
+            raise ck.MinorConflict("v415-compatibility-captured-append-missing")
+        for version, member in old.items():
+            if not member.get(V415_OUTPUT_PERMISSION):
+                continue
+            candidate = new[version]
+            if any(candidate.get(k) != member.get(k) for k in ("source_branch", "target_branch")):
+                raise ck.MinorConflict("v415-compatibility-identity-changed")
+            if member.get("start_head") or not candidate.get("start_head"):
+                if (candidate.get("start_head") != member.get("start_head")
+                        or candidate.get("coordinator_paths", []) != member.get("coordinator_paths", [])):
+                    raise ck.MinorConflict("v415-compatibility-coordinator-state-changed")
+                continue
+            active = ck._MINOR_LEASE.get()
+            activation = {"member": version, "head": candidate["start_head"],
+                          "paths": candidate.get("coordinator_paths", []), "record_sha256": active["expected"] if active else None}
+            if (not active or approval_binding.canonical(active.get("v415_output_activation")) != approval_binding.canonical(activation)
+                    or not _v415_output_activation(ck, rctx, previous, member, activation["paths"], activation["head"])):
+                raise ck.MinorConflict("v415-compatibility-activation-not-native")
+            restored = json.loads(json.dumps(record))
+            target = next(m for m in restored["members"] if m["version"] == version)
+            for key in ("start_head", "started", "coordinator_paths"):
+                if key in member:
+                    target[key] = member[key]
+                else:
+                    target.pop(key, None)
+            restored.pop("approvals_hmac", None)
+            original = json.loads(json.dumps(previous))
+            original.pop("approvals_hmac", None)
+            if approval_binding.canonical(restored) != approval_binding.canonical(original):
+                raise ck.MinorConflict("v415-compatibility-unrelated-activation-change")
+        return
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("v415-compatibility-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if (version not in old or version not in new
+            or approval_binding.canonical(active.get("v415_output_append")) != approval_binding.canonical(grant)):
+        raise ck.MinorConflict("v415-compatibility-append-not-captured")
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in restored["members"] if m.get("version") == version)
+    target[V415_OUTPUT_PERMISSION].pop()
+    if V415_OUTPUT_PERMISSION not in old[version]:
+        target.pop(V415_OUTPUT_PERMISSION)
+    page = entry.get("page", {})
+    if old[version].get("start_head"):
+        expected_paths = [*old[version].get("coordinator_paths", []), *page.get("write_paths", [])]
+        if version != "v4.15.0" or target.get("coordinator_paths") != expected_paths:
+            raise ck.MinorConflict("v415-compatibility-invalid-coordinator-append")
+        if "coordinator_paths" in old[version]:
+            target["coordinator_paths"] = old[version]["coordinator_paths"]
+        else:
+            target.pop("coordinator_paths", None)
+    restored.pop("approvals_hmac", None)
+    original = json.loads(json.dumps(previous))
+    original.pop("approvals_hmac", None)
+    if approval_binding.canonical(restored) != approval_binding.canonical(original):
+        raise ck.MinorConflict("v415-compatibility-unrelated-record-change")
+    if (page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or page.get("start_head") != old[version].get("start_head")
+            or page.get("coordinator_paths") != old[version].get("coordinator_paths", [])
+            or not _v415_original_scope(ck, rctx, previous, old[version], page.get("write_paths", []))
+            or _coordinator_conflict(ck, rctx, previous, old[version], page.get("write_paths", []), rctx._git_out("rev-parse", "HEAD"))
+            or not _v415_output_permission_valid(ck, rctx, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("v415-compatibility-invalid-entry")
+
+
+def _v415_output_activation(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                             coordinator_paths: list[str], base: str) -> bool:
+    """An ordinary ordered start activates all dormant exact additions after a fresh audit."""
+    entries = member.get(V415_OUTPUT_PERMISSION, [])
+    if not entries:
+        return True
+    if not isinstance(entries, list) or any(not _v415_output_permission_valid(ck, rctx, record, member, e) for e in entries):
+        return False
+    paths = sorted({p for entry in entries for p in entry["page"]["write_paths"]})
+    return (all(p in coordinator_paths for p in paths)
+            and (bool(member.get("start_head")) or _v415_original_scope(ck, rctx, record, member, paths, base=base))
+            and not _coordinator_conflict(ck, rctx, record, member, coordinator_paths, base))
+
+
+@minor_writer
+def cmd_record_permit_outputs(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine exact-output decision without clearing blockers or changing claims."""
+    rctx = repo_context(ck, args)
+    record = _record_for_v415_permission(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    try:
+        value = json.loads(Path(args.outputs).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raise ck.Malformed("v415-outputs-unreadable-input") from None
+    page = v415_output_permission_page(ck, rctx, args.minor, record, args.member, value)
+    consumed = _consume(ck, rctx, args.minor, "permit-outputs", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault(V415_OUTPUT_PERMISSION, []).append(entry)
+    if member.get("start_head"):
+        member["coordinator_paths"] = [*member.get("coordinator_paths", []), *page["write_paths"]]
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["v415_output_append"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("v415_output_append", None)
+    print(f"PERMITTED {'active' if member.get('start_head') else 'dormant'} coordinator outputs {args.member}")
+    return 0
+
 
 # --------------------------------------------------------------------------- known-gaps ledgers
 #
@@ -3893,7 +4270,12 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         except (OSError, ValueError, MinorMalformed):
             return _gate_refusal(ck, version, "invalid-coordinator-claims")
         if member.get("start_head") and proposed != coordinator_paths:
-            return _gate_refusal(ck, version, "coordinator-claims-already-recorded")
+            entries = member.get(V415_OUTPUT_PERMISSION, [])
+            if (entries and proposed == sorted(coordinator_paths)
+                    and all(_v415_output_permission_valid(ck, rctx, record, member, entry) for entry in entries)):
+                proposed = coordinator_paths  # Retry the accepted membership without rewriting its ordered prefix.
+            else:
+                return _gate_refusal(ck, version, "coordinator-claims-already-recorded")
         if _coordinator_conflict(ck, rctx, record, member, proposed, tip):
             return _gate_refusal(ck, version, "coordinator-scope-conflict")
         if ("MANIFEST.sha256" in proposed and not member.get("start_head")
@@ -3901,6 +4283,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
                 and not _manifest_original_scope(ck, rctx, record, member, base=tip)):
             return _gate_refusal(ck, version, "manifest-permission-original-scope-unverified")
         coordinator_paths = proposed
+    if not _v415_output_activation(ck, rctx, record, member, coordinator_paths, tip):
+        return _gate_refusal(ck, version, "v415-output-activation-unverified")
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
         worker, status, _ = _worker_context(ck, rctx, record, candidate, rctx.budget, base=tip, canonical_merged=False)
@@ -3918,7 +4302,14 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         member["coordinator_paths"] = coordinator_paths
     # `members` is signed, so the gate's write is a signed update, never an unsigned edit.
     record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
-    ck._write_record(record_file(ck, rctx, token), record)
+    active = ck._MINOR_LEASE.get()
+    if member.get(V415_OUTPUT_PERMISSION):
+        active["v415_output_activation"] = {"member": version, "head": tip,
+                                             "paths": coordinator_paths, "record_sha256": active["expected"]}
+    try:
+        ck._write_record(record_file(ck, rctx, token), record)
+    finally:
+        active.pop("v415_output_activation", None)
     print(f"STARTED {version} start_head={tip}")
     return 0
 
@@ -4539,7 +4930,11 @@ def _coordinator_claims(ck: ModuleType, rctx: RepoContext, record: dict, member:
         entries = member.get("manifest_coordinator_permissions", [])
         permitted_manifest = (path == "MANIFEST.sha256" and isinstance(entries, list) and len(entries) == 1
                               and _manifest_permission_valid(ck, rctx, record, member, entries[0]))
-        if (path not in protected and not _coordinator_name(path) and not permitted_manifest
+        v415_entries = member.get(V415_OUTPUT_PERMISSION, [])
+        permitted_output = (isinstance(v415_entries, list) and any(
+            _v415_output_permission_valid(ck, rctx, record, member, entry) and path in entry["page"]["write_paths"]
+            for entry in v415_entries))
+        if (path not in protected and not _coordinator_name(path) and not permitted_manifest and not permitted_output
                 and not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(path) + r"(?![A-Za-z0-9_./-])", plan.text)):
             raise MinorMalformed("coordinator-path-outside-plan")
     return paths

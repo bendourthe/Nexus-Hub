@@ -1102,3 +1102,78 @@ def test_supplement_scope_page_rejects_malformed_rows_without_partial_output(cap
         assert approval_page.emit(data, "page") == 2
         output = capsys.readouterr()
         assert output.out == "" and "not rendered" in output.err
+
+
+def _v415_output_permission_data(*, started: bool = False) -> dict:
+    page = {
+        "action": "permit-outputs", "scope": {"kind": "minor", "minor": "v4.15"},
+        "record_nonce": "n" * 32, "repo": "bendourthe/Nexus-Hub", "member": "v4.15.0",
+        "controller": {"repo_root": "C:/fixture/controller"}, "owner_session": "fixture-session",
+        "record_sha256": "0" * 64, "plan_sha256": "1" * 64, "implementation_sha256": "2" * 64,
+        "source_branch": "feat/v4.15.0-review", "target_branch": "develop",
+        "original_read_paths": ["catalog/style-guides/markdown.md"],
+        "original_write_paths": ["templates/base-codex.md"],
+        "coordinator_paths": ["AGENTS.md", "docs/todos.md"],
+        "start_head": "3" * 40 if started else None,
+        "write_paths": ["MANIFEST.sha256", "docs/handbooks/generated/" + "a" * 190 + ".html"],
+    }
+    line = approval_page.plain_line("permit-outputs", "v4.15", "ABCD2345")
+    return {"action": "permit-outputs", "scope": "v4.15", "code": "ABCD2345", "paste": [line],
+            "challenge": "n" * 32, "page": page, "display": {}}
+
+
+@pytest.mark.parametrize("started", [False, True])
+def test_v415_output_page_displays_exact_paths_and_activation(started: bool) -> None:
+    data = _v415_output_permission_data(started=started)
+    before = json.dumps(data, sort_keys=True)
+    rendered = approval_page.render_page(data)
+    for field in ("original_read_paths", "original_write_paths", "coordinator_paths", "write_paths"):
+        for path in data["page"][field]:
+            assert json.dumps(path) in rendered, "Exact paths must never be silently truncated"
+    for field in ("repo", "member", "plan_sha256", "implementation_sha256", "source_branch", "target_branch"):
+        assert approval_page.quoted(data["page"][field]) in rendered
+    assert ("append" if started else "dormant") in rendered
+    assert "Original worker claims" in rendered and "Decline" in rendered
+    assert "/goal" not in rendered and "Done only when" not in rendered
+    assert json.dumps(data, sort_keys=True) == before
+
+
+def test_v415_output_question_keeps_exact_scope_and_capture_requirement() -> None:
+    data = _v415_output_permission_data()
+    question = approval_page.question_data(data)
+    assert question["action_scope"] == data["page"]
+    assert question["capture"]["requires_genuine_prompt_submit"] is True
+    assert question["capture"]["direct_question_callback_supported"] is False
+    assert "displayed" in question["question"] and "output" in question["question"]
+    assert "None" not in question["question"]
+    assert question["compatibility_paste"] == data["paste"]
+
+
+@pytest.mark.parametrize("damage", ["scope", "member", "member-object", "identity", "controller", "paths", "old-paths", "reads", "writes", "start"])
+def test_v415_output_page_rejects_incomplete_display_without_partial_output(damage: str, capsys) -> None:
+    data = _v415_output_permission_data()
+    if damage == "scope":
+        data["page"]["scope"]["minor"] = "v4.16"
+    elif damage == "member":
+        data["page"]["member"] = "v4.16.0"
+    elif damage == "member-object":
+        data["page"]["member"] = {}
+    elif damage == "identity":
+        del data["page"]["plan_sha256"]
+    elif damage == "controller":
+        data["page"]["controller"] = None
+    else:
+        field = {"paths": "write_paths", "old-paths": "coordinator_paths", "reads": "original_read_paths",
+                 "writes": "original_write_paths", "start": "start_head"}[damage]
+        data["page"][field] = {"malformed": True}
+    assert approval_page.emit(data, "page") == 2
+    result = capsys.readouterr()
+    assert result.out == "" and "not rendered" in result.err
+
+
+def test_v415_output_action_is_only_a_minor_compatibility_line() -> None:
+    for scope in ("v4.15.0", "v4.16", "v0.5"):
+        with pytest.raises(approval_page.PageError):
+            approval_page.plain_line("permit-outputs", scope, "ABCD2345")
+    line = approval_page.plain_line("permit-outputs", "v4.15", "ABCD2345")
+    assert "/implement v4.15" in line and "/goal" not in line

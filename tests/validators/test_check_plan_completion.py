@@ -52,8 +52,10 @@ APPROVAL_TEXT = "Yes, push, merge, and release v0.2.0 for acme/demo."
 
 # Independent literal fixtures: no prefix replacement is the compatibility contract.
 V415_HASHES = {
+    "v4.15.0": "9a60e8e3d6d608306b431ff13d5dd5355d38c463bbcab16e0bd99b7118330dc8",
     "v4.15.1": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451",
     "v4.15.2": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835",
+    "v4.15.4": "40abcad912dc8ee9b72866832103ae3f896bc597898ae63508bcdd002a85da2c",
 }
 V415_ALIASES = [
     *(("v4.15.1", tid, f"docs/releases/v4/v4.16/development/{old}",
@@ -216,6 +218,327 @@ def test_evaluate_threads_task_id_and_separate_authority(tmp_path, monkeypatch):
         {"task_id": "T006", "task_authority": authority},
     ]
     assert all(args[-1] is record for args, _ in calls)
+
+
+def _v415_qualification_case(tmp_path, monkeypatch, member="v4.15.1", tid="T114", *, long_path=False):
+    ck, ctx, _start, _authority = _v415_task_repo(tmp_path, member)
+    target = {"T215": ".github/workflows/ci.yml", "T114": ".github/workflows/ci.yml",
+              "T018": "scripts/ci/profiles.py", "T016": "docs/handbooks/handbooks.json"}[tid]
+    contract = "catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md"
+    files = {
+        target: "name: disposable fixture\n",
+        contract: "# Synthetic comparison contract fixture\n",
+        "tests/validators/test_ci_workflow_contract.py": "def test_actual_fixed_entrypoint():\n    assert True\n",
+        "scripts/validate_workflow_security.py": "raise SystemExit(0)\n",
+        "scripts/check_required_check_coverage.py": "print('Required-check coverage: OK -- fixture')\n",
+        "scripts/check_installer_parity.py": "print('installer parity: PASS')\n",
+        "scripts/check_plan_completion.py": "raise RuntimeError('candidate helper must never execute as native authority')\n",
+        "evidence/synthetic-observation.md": "Synthetic retained observation, not vendor or platform qualification.\n",
+        ".gitignore": "__pycache__/\n.pytest_cache/\n*.pyc\n",
+    }
+    if member == "v4.15.0":
+        files["scripts/check_base_template_parity.py"] = "print('base-template parity: PASS')\n"
+    if tid == "T016":
+        files["catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py"] = (
+            "import json,subprocess\n"
+            "print(json.dumps({'candidate': {'revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),"
+            "'working_tree':'clean'},'status':'pass','scope':'full','errors':[],"
+            "'documents':[{'id':'completion','status':'verified'}]}))\n")
+    if long_path:
+        _git(ctx.root, "config", "core.longpaths", "true")
+        files["deep/" + "/".join(["long-path-evidence-segment-123456789"] * 8) + "/receipt.md"] = "deep retained input\n"
+    for rel, text in files.items():
+        path = ck._v415_fs(ctx.root / rel)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "fixed gate fixture baseline")
+    start = _git(ctx.root, "rev-parse", "HEAD")
+    ctx.tasks = [(tid, True, target)]
+    runs = tmp_path / "qualification-runs"
+    runs.mkdir()
+    (runs / ".secret").write_bytes(b"disposable qualification key only")
+    monkeypatch.setenv("NEXUS_HUB_RUNS_DIR", str(runs))
+    identity = {"record_nonce": "disposable-native-run", "member_start_head": start,
+                "implementation_sha256": hashlib.sha256(b"null").hexdigest(),
+                "source_branch": f"feat/{member}-fixture", "target_branch": "develop"}
+    authority = ck._v415_task_authority(root=ctx.root, repo="bendourthe/Nexus-Hub", minor="v4.15",
+                                      member=ctx.version, original_sha256=V415_HASHES[ctx.version],
+                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash(), **identity)
+    reference = {"path": "evidence/synthetic-observation.md", "sha256": ck._v415_sha(
+        (ctx.root / "evidence/synthetic-observation.md").read_bytes())}
+    comparison = {
+        "source_fingerprint": ck._v415_inputs(ctx, "HEAD", ctx.version)["fingerprint"],
+        "contract": {"path": contract, "sha256": ck._v415_sha((ctx.root / contract).read_bytes())},
+        "steps": [{"step": n, "observation": "Synthetic complete step observation with retained evidence",
+                   "references": [reference]} for n in range(1, 7)],
+        "fields": [{"field": n, "observation": "Synthetic complete field observation with retained evidence",
+                    "references": [reference]} for n in range(1, 24)],
+        "required_proof": {"real_installer": [reference], "target_os": [reference]},
+    }
+    evidence = ctx.root / f"docs/releases/v4/v4.15/development/{member}-last-phase-evidence.md"
+    evidence.parent.mkdir(parents=True, exist_ok=True)
+    evidence.write_text("# Fixture evidence\n\n## CI/CD coverage\n\n```v415-ci-comparison\n"
+                        + json.dumps(comparison) + "\n```\n", encoding="utf-8")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "completed comparison fixture")
+    return ck, ctx, start, authority, evidence, comparison
+
+
+def test_v415_qualifier_executes_fixed_snapshot_gates_and_seals_private_proof(tmp_path, monkeypatch):
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    assert ck._task_status(ctx, True, ctx.tasks[0][2], start, task_id="T114", task_authority=authority) == "unmet"
+    path = ck.qualify_v415_task(ctx, "T114", authority)
+    assert path.parent.parent.name == "v415-qualification"
+    body = json.loads(path.read_text(encoding="utf-8"))
+    assert body["outcome"] == "pass" and len(body["gates"]) == 4
+    assert body["producer_sha256"] != ck._v415_sha((ctx.root / "scripts/check_plan_completion.py").read_bytes())
+    assert all(gate["exit_code"] == 0 for gate in body["gates"])
+    assert ck._task_status(ctx, True, ctx.tasks[0][2], start, task_id="T114", task_authority=authority) == "met"
+    assert ck._task_status(ctx, False, ctx.tasks[0][2], start, task_id="T114", task_authority=authority) == "unmet"
+    assert not list(ck._runs_dir().glob("*.json"))
+
+
+@pytest.mark.parametrize("change", ["seal", "nonce", "task", "extra", "report", "source", "target", "section"])
+def test_v415_no_change_proof_rejects_tampering_and_current_drift(tmp_path, monkeypatch, change):
+    ck, ctx, start, authority, evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    path = ck.qualify_v415_task(ctx, "T114", authority)
+    body = json.loads(path.read_text())
+    if change in {"seal", "nonce", "task", "extra"}:
+        body[{"seal": "seal", "nonce": "record_nonce", "task": "task_id", "extra": "unknown"}[change]] = "tampered"
+        path.write_text(json.dumps(body))
+    elif change == "report":
+        (path.parent / body["gates"][0]["report"]).write_text("forged PASS\n")
+    elif change == "source":
+        (ctx.root / "scripts/validate_workflow_security.py").write_text("raise SystemExit(1)\n")
+    elif change == "target":
+        (ctx.root / ctx.tasks[0][2]).write_text("changed literal\n")
+    else:
+        evidence.write_text(evidence.read_text().replace("Synthetic complete step", "Altered complete step"))
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) != "met"
+
+
+@pytest.mark.parametrize("invalid", ["unknown-task", "unchecked", "dirty", "partial-comparison", "no-os-proof",
+                                    "duplicate-key", "duplicate-block", "bool-step", "nonfinite"])
+def test_v415_qualifier_refuses_incomplete_or_unbound_inputs(tmp_path, monkeypatch, invalid):
+    ck, ctx, _start, authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    tid = "T999" if invalid == "unknown-task" else "T114"
+    if invalid == "unchecked": ctx.tasks[0] = ("T114", False, ctx.tasks[0][2])
+    elif invalid == "dirty": (ctx.root / "unexpected.txt").write_text("untracked required input\n")
+    elif invalid in {"partial-comparison", "no-os-proof", "duplicate-key", "duplicate-block", "bool-step", "nonfinite"}:
+        if invalid == "partial-comparison": comparison["fields"].pop()
+        elif invalid == "no-os-proof": comparison["required_proof"]["target_os"] = []
+        elif invalid == "bool-step": comparison["steps"][0]["step"] = True
+        elif invalid == "nonfinite": comparison["fields"][0]["field"] = float("nan")
+        block = json.dumps(comparison)
+        if invalid == "duplicate-key": block = block.replace('"steps":', '"source_fingerprint": "duplicate", "steps":')
+        evidence.write_text("## CI/CD coverage\n\n```v415-ci-comparison\n" + block + "\n```\n")
+        if invalid == "duplicate-block": evidence.write_text(evidence.read_text() + "\n" + evidence.read_text())
+        _git(ctx.root, "add", ".")
+        _git(ctx.root, "commit", "-qm", "invalid comparison fixture")
+    with pytest.raises(ck.Malformed):
+        ck.qualify_v415_task(ctx, tid, authority)
+
+
+def test_v415_snapshot_execution_ignores_transient_live_source_substitution(tmp_path, monkeypatch):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    real = ck._v415_run_gate
+    live = ctx.root / "scripts/validate_workflow_security.py"
+    original = live.read_bytes()
+    seen = []
+    def substitute(snapshot, *args, **kwargs):
+        assert snapshot != ctx.root
+        live.write_text("raise SystemExit(97)\n")
+        try:
+            seen.append(snapshot)
+            return real(snapshot, *args, **kwargs)
+        finally:
+            live.write_bytes(original)
+    monkeypatch.setattr(ck, "_v415_run_gate", substitute)
+    receipt = ck.qualify_v415_task(ctx, "T114", authority)
+    assert seen and json.loads(receipt.read_text())["outcome"] == "pass"
+
+
+def test_v415_qualifier_refuses_persistent_source_drift_after_real_gates(tmp_path, monkeypatch):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    real = ck._v415_run_gate
+    def changed(*args):
+        result = real(*args)
+        (ctx.root / "scripts/validate_workflow_security.py").write_text("raise SystemExit(87)\n")
+        return result
+    monkeypatch.setattr(ck, "_v415_run_gate", changed)
+    with pytest.raises(ck.Malformed, match="candidate-changed"):
+        ck.qualify_v415_task(ctx, "T114", authority)
+    assert json.loads(ck._v415_proof_path(authority, "T114").read_text())["outcome"] == "fail"
+
+
+@pytest.mark.parametrize("failure", ["exit", "timeout", "log-cap"])
+def test_v415_failed_native_attempt_cannot_reuse_an_older_pass(tmp_path, monkeypatch, failure):
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    path = ck.qualify_v415_task(ctx, "T114", authority)
+    if failure == "timeout": monkeypatch.setattr(ck, "_V415_GATE_TIMEOUT", 0.001)
+    elif failure == "log-cap":
+        real = ck._v415_run_gate
+        def capped(*args, **kwargs):
+            with monkeypatch.context() as cap:
+                cap.setattr(ck, "_V415_LOG_CAP", 1)
+                return real(*args, **kwargs)
+        monkeypatch.setattr(ck, "_v415_run_gate", capped)
+    else:
+        real = ck._v415_run_gate
+        def failed(*args, **kwargs):
+            result = real(*args, **kwargs)
+            result["exit_code"] = 13
+            return result
+        monkeypatch.setattr(ck, "_v415_run_gate", failed)
+    with pytest.raises(ck.Malformed):
+        ck.qualify_v415_task(ctx, "T114", authority)
+    assert json.loads(path.read_text())["outcome"] == "fail"
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+
+
+def test_v415_qualification_uses_clean_environment_and_readonly_committed_sources(tmp_path, monkeypatch):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    monkeypatch.setenv("PYTHONPATH", str(ctx.root))
+    monkeypatch.setenv("PYTHONHOME", str(ctx.root))
+    monkeypatch.setenv("PYTHONSTARTUP", str(ctx.root / "private-sentinel.py"))
+    monkeypatch.setenv("PYTEST_ADDOPTS", "--override-ini pythonpath=" + str(ctx.root))
+    monkeypatch.setenv("PYTEST_PLUGINS", "private_mutable_plugin")
+    monkeypatch.setenv("PATH", str(ctx.root) + os.pathsep + os.environ["PATH"])
+    real = ck._v415_run_gate
+    def inspect(snapshot, argv, report, env):
+        assert all(name not in env for name in ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP"))
+        assert all(name not in env for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS"))
+        assert env["PATH"].split(os.pathsep)[:2] == [str(Path(sys.executable).parent), str(Path(ctx.git).parent)]
+        assert str(ctx.root) not in env["PATH"].split(os.pathsep)
+        assert Path(env["HOME"]) != ctx.root and env["NEXUS_HUB_RUNS_DIR"] != str(ck._runs_dir())
+        assert not (snapshot / "scripts/validate_workflow_security.py").stat().st_mode & 0o222
+        return real(snapshot, argv, report, env)
+    monkeypatch.setattr(ck, "_v415_run_gate", inspect)
+    assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
+
+
+def test_v415_public_qualification_validates_full_parent_and_preserves_record_bytes(tmp_path, monkeypatch):
+    ck, ctx, _start, _authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    hosting = tmp_path / "qualification-gh-state.json"
+    hosting.write_text(json.dumps({"pr_state": "OPEN", "checks": []}))
+    monkeypatch.setenv("PATH", str(GH_STUB) + os.pathsep + os.environ["PATH"])
+    monkeypatch.setenv("GH_STUB_STATE", str(hosting))
+    monkeypatch.setenv("GH_STUB_PYTHON", sys.executable)
+    rel = "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md"
+    text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+    (ctx.root / rel).parent.mkdir(parents=True, exist_ok=True)
+    (ctx.root / rel).write_text(text, encoding="utf-8")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "real frozen plan in disposable parent")
+    start = _git(ctx.root, "rev-parse", "HEAD")
+    comparison["source_fingerprint"] = ck._v415_inputs(ctx, "HEAD", ctx.version)["fingerprint"]
+    evidence.write_text("## CI/CD coverage\n\n```v415-ci-comparison\n" + json.dumps(comparison) + "\n```\n")
+    (ctx.root / rel).write_text(text.replace("- [ ] T114", "- [x] T114"), encoding="utf-8")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "actual completed bounded verification duty")
+    _git(ctx.root, "remote", "add", "origin", str(ctx.root))
+    _git(ctx.root, "remote", "set-url", "--push", "origin", "https://github.com/bendourthe/Nexus-Hub.git")
+    rctx = ck.RepoContext(ctx.root, ck.Budget(60))
+    member = {"version": ctx.version, "plan_path": rel, "plan_sha256": ck.plan_hash_text(text), "start_head": start,
+              "source_branch": "feat/v4.15.1-native-fixture", "target_branch": "develop", "approvals": {"classes": []}}
+    record = {"schema": 2, "scope": "minor", "minor": "v4.15", "repo": "bendourthe/Nexus-Hub",
+              "repo_root": str(ctx.root.resolve()), "worktree": str(ctx.root.resolve()), "session_id": SESSION,
+              "nonce": "disposable-public-qualification", "members": [member], "start_head": start,
+              "approvals": {"classes": [], "target_branch": "develop"}}
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False))
+    path = rctx.scoped_record_path("minor:v4.15")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    before = path.read_bytes()
+    argv = [sys.executable, str(CHECKER), "qualify-task", "--minor", "v4.15", "--member", ctx.version,
+            "--task", "T114", "--session", SESSION, "--repo", str(ctx.root)]
+    result = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == "QUALIFIED v4.15.1 T114" and path.read_bytes() == before
+    # Production rejects an uncommitted comparison, even though that whole output is fingerprint-excluded.
+    saved_evidence = evidence.read_bytes()
+    evidence.write_bytes(saved_evidence + b"\nUncommitted semantic evidence\n")
+    refused = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
+    assert refused.returncode != 0 and "clean-active-candidate-required" in refused.stderr and path.read_bytes() == before
+    evidence.write_bytes(saved_evidence)
+    # Committed unchecked/current uncommitted x is not a new committed production witness.
+    full_plan = ctx.root / rel
+    checked_text = full_plan.read_text()
+    full_plan.write_text(checked_text.replace("- [x] T114", "- [ ] T114"))
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "checkbox bookkeeping only")
+    full_plan.write_text(checked_text)
+    refused = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
+    assert refused.returncode != 0 and "clean-active-candidate-required" in refused.stderr and path.read_bytes() == before
+    current_ctx = ck.Context(str(full_plan), ck.Budget(60))
+    cm = ck._minor_module()
+    current_plan = next(p for p in cm.scan_plans(ctx.root, 4, 15) if p.version == ctx.version)
+    current_authority = cm.v415_task_authority(ck, ck.RepoContext(ctx.root, ck.Budget(60)), record, member, current_plan)
+    assert ck.v415_no_change_status(current_ctx, "T114", ".github/workflows/ci.yml", start, current_authority) == "met"
+    # A staged meaning edit hidden behind a restored worktree is not checkbox bookkeeping.
+    full_plan.write_text(checked_text + "\nUnexpected staged instruction\n")
+    _git(ctx.root, "add", "--", rel)
+    full_plan.write_text(checked_text)
+    assert ck.v415_no_change_status(current_ctx, "T114", ".github/workflows/ci.yml", start, current_authority) == "unmet"
+    record["approvals_hmac"] = "0" * 64
+    path.write_text(json.dumps(record), encoding="utf-8")
+    tampered = path.read_bytes()
+    rejected = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
+    assert rejected.returncode != 0 and "record-tampered" in rejected.stdout and path.read_bytes() == tampered
+
+
+@pytest.mark.parametrize("member,tid,count", [("v4.15.0", "T215", 5), ("v4.15.4", "T018", 4), ("v4.15.4", "T016", 1)])
+def test_v415_all_exact_no_change_cases_use_their_fixed_gates(tmp_path, monkeypatch, member, tid, count):
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch, member, tid)
+    path = ck.qualify_v415_task(ctx, tid, authority)
+    assert len(json.loads(path.read_text())["gates"]) == count
+    assert ck.v415_no_change_status(ctx, tid, ctx.tasks[0][2], start, authority) == "met"
+
+
+def test_v415_snapshot_keeps_every_long_tracked_path(tmp_path, monkeypatch):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch, long_path=True)
+    real = ck._v415_run_gate
+    def inspect(snapshot, *args):
+        assert _git(snapshot, "config", "core.longpaths") == "true"
+        found = list(ck._v415_fs(snapshot / "deep").rglob("receipt.md"))
+        assert len(found) == 1 and found[0].read_text() == "deep retained input\n"
+        return real(snapshot, *args)
+    monkeypatch.setattr(ck, "_v415_run_gate", inspect)
+    assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
+
+
+@pytest.mark.parametrize("bad", ["scoped", "inventory", "missing-completion", "wrong-candidate"])
+def test_v415_handbook_no_change_requires_full_candidate_completion_proof(tmp_path, monkeypatch, bad):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch, "v4.15.4", "T016")
+    gate = ctx.root / "catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py"
+    text = gate.read_text()
+    if bad == "scoped": text = text.replace("'scope':'full'", "'scope':['completion']")
+    elif bad == "inventory": text = text.replace("'status':'pass'", "'status':'inventory-only'")
+    elif bad == "missing-completion": text = text.replace("'id':'completion'", "'id':'overview'")
+    else: text = text.replace("subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()", "'0'*40")
+    gate.write_text(text)
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "incomplete handbook fixture")
+    with pytest.raises(ck.Malformed, match="handbook-incomplete"):
+        ck.qualify_v415_task(ctx, "T016", authority)
+
+
+def test_v415_qualification_refuses_private_store_junction_before_writes(tmp_path, monkeypatch):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    sentinel = outside / "sentinel.txt"
+    sentinel.write_text("preserved\n")
+    link = ck._runs_dir() / "v415-qualification"
+    if os.name == "nt":
+        made = subprocess.run([os.environ["COMSPEC"], "/c", "mklink", "/J", str(link), str(outside)],
+                              capture_output=True, text=True, check=False, **ck.NO_WINDOW)
+        assert made.returncode == 0, made.stderr
+    else:
+        link.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ck.Malformed, match="unsafe-path"):
+        ck.qualify_v415_task(ctx, "T114", authority)
+    assert list(outside.iterdir()) == [sentinel] and sentinel.read_text() == "preserved\n"
 SECTIONS = (
     "Architecture refactor",
     "Known-gaps reconciliation",

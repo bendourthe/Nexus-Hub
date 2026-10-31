@@ -1,11 +1,22 @@
-"""M5-only future manifest permission; all captures and authority are disposable fixtures."""
+"""M5 manifest and bounded v4.15 outputs; all captures and authority are disposable fixtures."""
 from __future__ import annotations
 
 import copy
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
 from types import SimpleNamespace
 
 from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
-from .test_completion_minor_record import SESSION, Minor, _no_transport_overrides  # noqa: F401
+from .test_completion_minor_record import (  # noqa: F401
+    SESSION,
+    Minor,
+    _no_transport_overrides,
+)
 
 # Fixture imports initialize the scripts path before the native modules below.
 # isort: split
@@ -20,6 +31,478 @@ VERSION = "v0.5.10"
 PREVIOUS = "v0.5.2"
 PATH = "MANIFEST.sha256"
 FIELD = "manifest_coordinator_permissions"
+V415_FIELD = "v415_coordinator_permissions"
+
+
+@pytest.fixture(params=["v4.15.0", "v4.15.2"], ids=["started-zero", "dormant-two"])
+def v415_outputs_case(request, tmp_path, monkeypatch, minor_git_seed):
+    fx = Minor(tmp_path, monkeypatch, minor_git_seed)
+    _git(fx.work, "checkout", "-q", "develop")
+    version = request.param
+    sources = sorted((Path(__file__).resolve().parents[2] / "docs/releases/v4/v4.15/plans").glob(version + "-*.md"))
+    assert len(sources) == 1
+    rel = "docs/releases/v4/v4.15/plans/" + sources[0].name
+    for source in sources[0].parent.glob("*.md"):
+        if not any(source.name.startswith(f"v4.15.{patch}-") for patch in range(5)):
+            continue
+        target = fx.work / "docs/releases/v4/v4.15/plans" / source.name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    for path, text in ((rel, sources[0].read_text(encoding="utf-8")),
+                       ("MANIFEST.sha256", "disposable baseline manifest\n"),
+                       ("scripts/lib/installer/legacy_fingerprints.json", "{}\n"),
+                       ("docs/README.md", "# Baseline coordinator index\n")):
+        target = fx.work / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+    _git(fx.work, "remote", "set-url", "--push", "origin", "https://github.com/bendourthe/Nexus-Hub.git")
+    fx.commit("original v415 fixture source")
+    fx.publish("develop")
+    base = _git(fx.work, "rev-parse", "HEAD")
+    plan = next(p for p in cm.scan_plans(fx.work, 4, 15) if p.version == version)
+    worker = tmp_path / "v415-worker"
+    branch = "feat/" + version + "-native-permission-fixture"
+    _git(fx.work, "worktree", "add", "-q", "-b", branch, str(worker), base)
+    member = {"version": version, "plan_path": rel, "plan_sha256": ck.plan_hash_text(plan.text),
+              "source_branch": branch, "target_branch": "develop", "release_version": version, "tag": version,
+              "approvals": {"classes": []}, "implementation": {
+                  "base_head": base, "worktree": str(worker.resolve()), "branch": branch,
+                  "depends_on": [], "read_paths": ["src/input.txt"], "write_paths": ["src/owned.txt"],
+                  "started": ck._now()}}
+    if version == "v4.15.0":
+        member.update(start_head=base, coordinator_paths=["docs/README.md"], started=ck._now())
+    ctx = fx.rctx()
+    record = {"schema": ck.SCHEMA_MINOR, "scope": "minor", "minor": "v4.15", "repo": "bendourthe/Nexus-Hub",
+              "remote_url": ctx.remote_url,
+              "repo_root": str(fx.work.resolve()), "worktree": str(fx.work.resolve()), "session_id": SESSION,
+              "nonce": "fixture-v415-permission", "start_head": base, "created": ck._now(), "members": [member],
+              "approvals": {"classes": [{"class": "archive-minor"}], "target_branch": "develop",
+                            "remote_url": ctx.remote_url, "push_remote_url": ctx.push_remote_url, "repo": "bendourthe/Nexus-Hub"},
+              "excluded": [], "blockers": [], "pause": None, "completed": None}
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=True) or b"")
+    path = fx.rctx().scoped_record_path("minor:v4.15")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(record), encoding="utf-8")  # Disposable fixture authority only.
+    assert cm._verified(ck, fx.rctx(), "v4.15", record)
+    return fx, worker, base, version, path
+
+
+def test_v415_output_page_is_exact_and_does_not_expand_original_scope(v415_outputs_case):
+    fx, _worker, _base, version, path = v415_outputs_case
+    record = ck.read_record(fx.rctx(), path)
+    member = _member(record, version)
+    with pytest.raises(cm.MinorMalformed, match="coordinator-path-outside-plan"):
+        cm._coordinator_claims(ck, fx.rctx(), record, member, {"write_paths": ["MANIFEST.sha256"]})
+    before = path.read_bytes()
+    page = cm.v415_output_permission_page(ck, fx.rctx(), "v4.15", record, version,
+                                         {"write_paths": ["scripts/lib/installer/legacy_fingerprints.json", "MANIFEST.sha256"]})
+    assert page["write_paths"] == ["MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json"]
+    assert page["original_read_paths"] == member["implementation"]["read_paths"]
+    assert page["original_write_paths"] == member["implementation"]["write_paths"]
+    assert page["coordinator_paths"] == member.get("coordinator_paths", [])
+    assert page["start_head"] == member.get("start_head")
+    assert V415_FIELD not in member and path.read_bytes() == before
+
+
+def _v415_args(case, *, session=SESSION, paths=None):
+    fx, _worker, _base, version, _path = case
+    outputs = fx.tmp / "v415-outputs.json"
+    outputs.write_text(json.dumps({"write_paths": paths if paths is not None else [
+        "MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json"]}), encoding="utf-8")
+    return ["--minor", "v4.15", "--member", version, "--session", session,
+            "--repo", str(fx.work), "--outputs", str(outputs)]
+
+
+def _v415_render(case, capsys, *, session=SESSION, paths=None, flags=()):
+    fx = case[0]
+    fx.capture(session, "fixture prior v415 output decision", at=0.0)
+    code, out, err = _cli(capsys, "record", "render", "--action", "permit-outputs",
+                          *_v415_args(case, session=session, paths=paths), *flags)
+    assert code == 0, out + err
+    return out.splitlines()[0]
+
+
+def _v415_grant(case, capsys, *, paths=None):
+    line = _v415_render(case, capsys, paths=paths)
+    case[0].capture(SESSION, line)
+    code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(case, paths=paths))
+    assert code == 0, out + err
+    return json.loads(case[4].read_text(encoding="utf-8"))
+
+
+def _v415_signed_write(case, record):
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    ck._write_record(case[4], record)
+
+
+def test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start(v415_outputs_case, capsys):
+    fx, worker, base, version, path = v415_outputs_case
+    before = json.loads(path.read_text(encoding="utf-8"))
+    original = copy.deepcopy(_member(before, version))
+    granted = _v415_grant(v415_outputs_case, capsys)
+    member = _member(granted, version)
+    assert member["implementation"] == original["implementation"]
+    assert member.get("start_head") == original.get("start_head")
+    assert cm._v415_output_permission_valid(ck, fx.rctx(), granted, member, member[V415_FIELD][0])
+    additions = member[V415_FIELD][0]["page"]["write_paths"]
+    assert member.get("coordinator_paths", []) == ([*original["coordinator_paths"], *additions]
+                                                 if version == "v4.15.0" else [])
+    target = worker / PATH
+    saved = target.read_bytes()
+    target.write_text("fixture changed after permission\n", encoding="utf-8")
+    ctx = ck.Context(str(worker / member["plan_path"]), ck.Budget(60))
+    assert cm._implementation_paths(ctx, member, base) == ("met" if version == "v4.15.0" else "unmet")
+    target.write_bytes(saved)
+    if version == "v4.15.2":
+        claims = fx.tmp / "v415-coordinator-claims.json"
+        claims.write_text(json.dumps({"write_paths": additions}), encoding="utf-8")
+        code, out, err = _cli(capsys, "record", "member-start", "--minor", "v4.15", "--member", version,
+                              "--session", SESSION, "--repo", str(fx.work), "--head", base,
+                              "--coordinator-claims", str(claims))
+        assert code == 0, out + err
+        active = json.loads(path.read_text(encoding="utf-8"))
+        assert _member(active, version)["start_head"] == base
+        assert _member(active, version)["coordinator_paths"] == additions
+        assert _member(active, version)[V415_FIELD] == member[V415_FIELD]
+    else:
+        assert member["coordinator_paths"][:len(original["coordinator_paths"])] == original["coordinator_paths"]
+        claims = fx.tmp / "started-v415-coordinator-claims.json"
+        before_retry = path.read_bytes()
+        for proposed, accepted in ((member["coordinator_paths"], True),
+                                   (member["coordinator_paths"][1:], False),
+                                   ([*member["coordinator_paths"], "CHANGELOG.md"], False),
+                                   (["docs/README.md", "docs/handbooks/completion.html"], False)):
+            claims.write_text(json.dumps({"write_paths": proposed}), encoding="utf-8")
+            code, out, err = _cli(capsys, "record", "member-start", "--minor", "v4.15", "--member", version,
+                                  "--session", SESSION, "--repo", str(fx.work), "--head", base,
+                                  "--coordinator-claims", str(claims))
+            assert (code == 0) is accepted, out + err
+            assert path.read_bytes() == before_retry
+
+
+def test_v415_output_scope_rejects_nonartifact_aliases_and_duplicates_without_write(v415_outputs_case):
+    fx, _worker, _base, version, path = v415_outputs_case
+    before = path.read_bytes()
+    for paths in ([], [PATH, PATH], [PATH, PATH.lower()], ["docs/handbooks/"], ["docs/handbooks/*.html"],
+                  ["../MANIFEST.sha256"], ["scripts/ci/profiles.py"], ["scripts/approval_binding.py"],
+                  ["scripts/lib/installer/producer.py"], ["docs/handbooks/_sources/completion/build_presentation.py"],
+                  ["docs/handbooks/_sources/foreign/source.md"], ["docs/handbooks.json"],
+                  ["catalog/hooks/settings.json"], ["configs/permissions/new.json"]):
+        with pytest.raises(ck.Malformed):
+            cm.v415_output_permission_page(ck, fx.rctx(), "v4.15", ck.read_record(fx.rctx(), path), version,
+                                           {"write_paths": paths})
+        assert path.read_bytes() == before
+
+
+def test_v415_output_permission_preserves_absent_empty_prefix(v415_outputs_case, capsys):
+    _fx, _worker, _base, version, path = v415_outputs_case
+    record = json.loads(path.read_text(encoding="utf-8"))
+    _member(record, version).pop("coordinator_paths", None)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")  # Disposable original-prefix shape.
+    granted = _v415_grant(v415_outputs_case, capsys)
+    member = _member(granted, version)
+    if version == "v4.15.0":
+        assert member["coordinator_paths"] == member[V415_FIELD][0]["page"]["write_paths"]
+    else:
+        assert "coordinator_paths" not in member
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.0"], indirect=True)
+def test_v415_started_retry_preserves_large_original_coordinator_membership(v415_outputs_case):
+    fx, _worker, base, version, path = v415_outputs_case
+    record = json.loads(path.read_text(encoding="utf-8"))
+    member = _member(record, version)
+    member["coordinator_paths"] = sorted({p for p in cm._coordinator_paths(fx.rctx(), "v4.15")
+                                          if not p.endswith("/") and not cm._sensitive_write(fx.rctx(), p, [])})
+    assert len(member["coordinator_paths"]) >= 20
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    # Use the public CLI for both the captured grant and the later normal retry.
+    args = _v415_args(v415_outputs_case)
+    fx.capture(SESSION, "fixture large original coordinator scope", at=0.0)
+    rendered = fx.run("record", "render", "--action", "permit-outputs", *args)
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    fx.capture(SESSION, rendered.stdout.splitlines()[0])
+    granted = fx.run("record", "permit-outputs", *args)
+    assert granted.returncode == 0, granted.stdout + granted.stderr
+    before = path.read_bytes()
+    current = json.loads(before)
+    claims = fx.tmp / "large-v415-coordinator-claims.json"
+    claims.write_text(json.dumps({"write_paths": _member(current, version)["coordinator_paths"]}), encoding="utf-8")
+    started = time.monotonic()
+    retried = fx.run("record", "member-start", "--minor", "v4.15", "--member", version, "--session", SESSION,
+                     "--repo", str(fx.work), "--head", base, "--coordinator-claims", str(claims))
+    elapsed = time.monotonic() - started
+    assert retried.returncode == 0, retried.stdout + retried.stderr
+    assert path.read_bytes() == before
+    print(f"native-large-coordinator-retry {len(member['coordinator_paths'])} original paths {elapsed:.2f}s")
+
+
+def test_v415_output_permission_refuses_reparse_ancestor_without_touching_outside(v415_outputs_case, capsys):
+    fx, _worker, _base, _version, path = v415_outputs_case
+    outside = fx.tmp / "outside-handbook-fixture"
+    outside.mkdir()
+    content = outside / "completion.html"
+    content.write_bytes(b"outside fixture bytes must remain private\r\n")
+    before_content, before_record = content.read_bytes(), path.read_bytes()
+    alias = fx.work / "docs/handbooks"
+    assert alias.parent.is_relative_to(fx.work)
+    if os.name == "nt":
+        linked = subprocess.run(["cmd.exe", "/d", "/c", "mklink", "/J", str(alias), str(outside)],
+                                capture_output=True, text=True, check=False)
+        assert linked.returncode == 0, linked.stdout + linked.stderr
+    else:
+        alias.symlink_to(outside, target_is_directory=True)
+    code, out, err = _cli(capsys, "record", "render", "--action", "permit-outputs",
+                          *_v415_args(v415_outputs_case, paths=["docs/handbooks/completion.html"]))
+    assert code != 0 and "implementation-path-alias" in out + err
+    assert content.read_bytes() == before_content and path.read_bytes() == before_record
+
+
+@pytest.mark.parametrize("committed", [False, True])
+def test_v415_original_scope_rechecks_worker_prewrite_before_consume(v415_outputs_case, capsys, committed):
+    fx, worker, _base, _version, path = v415_outputs_case
+    before = path.read_bytes()
+    line = _v415_render(v415_outputs_case, capsys)
+    (worker / PATH).write_text("unclaimed fixture output before capture\n", encoding="utf-8")
+    if committed:
+        _git(worker, "add", PATH)
+        _git(worker, "commit", "-q", "-m", "unclaimed fixture output")
+    fx.capture(SESSION, line)
+    code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and "original-scope-unverified" in out + err
+    assert path.read_bytes() == before
+
+
+def test_v415_capture_missing_foreign_stale_and_replay_never_write(v415_outputs_case, capsys):
+    fx, _worker, _base, version, path = v415_outputs_case
+    before = path.read_bytes()
+    line = _v415_render(v415_outputs_case, capsys)
+    code, _out, _err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and path.read_bytes() == before
+    fx.capture("foreign-v415-owner", line)
+    code, _out, _err = _cli(capsys, "record", "permit-outputs",
+                            *_v415_args(v415_outputs_case, session="foreign-v415-owner"))
+    assert code != 0 and path.read_bytes() == before
+    fx.capture(SESSION, "Decline")
+    code, _out, _err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and path.read_bytes() == before
+    fx.capture(SESSION, line)
+    changed = json.loads(before)
+    changed["blockers"].append({"category": "no-progress", "open": False})
+    path.write_text(json.dumps(changed), encoding="utf-8")  # Fixture-only generation change.
+    stale = path.read_bytes()
+    code, _out, _err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and path.read_bytes() == stale
+    granted = _v415_grant(v415_outputs_case, capsys)
+    accepted = path.read_bytes()
+    code, _out, _err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and path.read_bytes() == accepted
+    assert len(_member(granted, version)[V415_FIELD]) == 1
+
+
+def test_v415_controller_prewrite_cannot_be_legalized_by_captured_permission(v415_outputs_case, capsys):
+    fx, _worker, _base, version, path = v415_outputs_case
+    line = _v415_render(v415_outputs_case, capsys)
+    before = path.read_bytes()
+    (fx.work / PATH).write_text("unclaimed coordinator prewrite\n", encoding="utf-8")
+    fx.capture(SESSION, line)
+    code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and "original-scope-unverified" in out + err
+    assert path.read_bytes() == before
+    if version == "v4.15.0":
+        fx.commit("unclaimed started coordinator contribution")
+        code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+        assert code != 0 and "original-scope-unverified" in out + err
+        assert path.read_bytes() == before
+
+
+def test_v415_native_writer_preserves_history_and_rejects_unrelated_capture_mutation(v415_outputs_case, monkeypatch, capsys):
+    fx, _worker, _base, version, path = v415_outputs_case
+    before = path.read_bytes()
+    line = _v415_render(v415_outputs_case, capsys)
+    fx.capture(SESSION, line)
+    actual_write = ck._write_record
+    def unrelated(target, record):
+        if _member(record, version).get(V415_FIELD):
+            assert ck._MINOR_LEASE.get().get("v415_output_append")
+            record["approvals"]["classes"].append({"class": "unrelated-fixture-authority"})
+            record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        return actual_write(target, record)
+    monkeypatch.setattr(ck, "_write_record", unrelated)
+    code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and "unrelated-record-change" in out + err
+    assert path.read_bytes() == before
+    monkeypatch.setattr(ck, "_write_record", actual_write)
+    granted = _v415_grant(v415_outputs_case, capsys)
+    accepted = path.read_bytes()
+    for change in (lambda r: _member(r, version).pop(V415_FIELD),
+                   lambda r: r["members"].remove(_member(r, version)),
+                   lambda r: _member(r, version)[V415_FIELD][0]["accepted"].update(text="changed"),
+                   lambda r: _member(r, version)[V415_FIELD].append(copy.deepcopy(_member(r, version)[V415_FIELD][0])),
+                   lambda r: _member(r, version)["implementation"]["write_paths"].append("src/unapproved.txt"),
+                   lambda r: _member(r, version).setdefault("coordinator_paths", []).append("docs/handbooks/foreign.html")):
+        record = ck.read_record(fx.rctx(), path)
+        change(record)
+        with pytest.raises(ck.MinorConflict):
+            _v415_signed_write(v415_outputs_case, record)
+        assert path.read_bytes() == accepted
+    assert _member(granted, version)["implementation"]["write_paths"] == ["src/owned.txt"]
+
+
+@pytest.mark.parametrize("hide", ["new-field", "empty-list", "member"])
+def test_v415_first_captured_append_cannot_hide_its_authority_transition(v415_outputs_case, monkeypatch, capsys, hide):
+    fx, _worker, _base, version, path = v415_outputs_case
+    before = path.read_bytes()
+    line = _v415_render(v415_outputs_case, capsys)
+    fx.capture(SESSION, line)
+    actual = ck._write_record
+    def hidden(target, record):
+        if ck._MINOR_LEASE.get().get("v415_output_append"):
+            member = _member(record, version)
+            if hide == "new-field":
+                member.pop(V415_FIELD)
+            elif hide == "empty-list":
+                member[V415_FIELD] = []
+            else:
+                record["members"].remove(member)
+            record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        return actual(target, record)
+    monkeypatch.setattr(ck, "_write_record", hidden)
+    code, out, err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0, out + err
+    assert path.read_bytes() == before
+
+
+def test_v415_permission_bootstrap_preserves_approval_block_and_refuses_other_blockers(v415_outputs_case, capsys):
+    fx, _worker, _base, version, path = v415_outputs_case
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["blockers"] = [{"category": "approval-not-covered", "open": True, "version": version}]
+    path.write_text(json.dumps(record), encoding="utf-8")  # Blockers are fixture-only mutable metadata.
+    granted = _v415_grant(v415_outputs_case, capsys)
+    assert granted["blockers"] == record["blockers"]
+    assert cm.load_minor(ck, fx.rctx(), "v4.15", SESSION).forced[1] == ck.EXIT_BLOCKED
+    for blocker in ({"category": "no-progress", "open": True}, {"category": "platform-unavailable", "open": True}):
+        granted["blockers"].append(blocker)
+        path.write_text(json.dumps(granted), encoding="utf-8")
+        before = path.read_bytes()
+        code, _out, _err = _cli(capsys, "record", "render", "--action", "permit-outputs",
+                                *_v415_args(v415_outputs_case, paths=["docs/handbooks/completion.html"]))
+        assert code == ck.EXIT_BLOCKED and path.read_bytes() == before
+        granted["blockers"].pop()
+
+
+def test_v415_malformed_retained_provenance_refuses_without_exception(v415_outputs_case, capsys):
+    fx, _worker, _base, version, path = v415_outputs_case
+    good = _v415_grant(v415_outputs_case, capsys)
+    before = path.read_bytes()
+    for section, field, value in (("accepted", "text", None), ("accepted", "round_nonce", None),
+                                  ("accepted", "rendered_at", True), ("accepted", "authorization_context", None),
+                                  ("page", "extra", True), ("page", "original_read_paths", []),
+                                  ("page", "implementation_sha256", "0" * 64),
+                                  ("page", "controller", {"repo_root": str(fx.work), "extra": True})):
+        record = copy.deepcopy(good)
+        member = _member(record, version)
+        member[V415_FIELD][0][section][field] = value
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        assert not cm._v415_output_permission_valid(ck, fx.rctx(), record, member, member[V415_FIELD][0])
+        assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("kind", ["read", "write"])
+def test_v415_output_permission_rechecks_other_registered_worker_conflicts(v415_outputs_case, capsys, kind):
+    fx, _worker, base, _version, path = v415_outputs_case
+    record = json.loads(path.read_text(encoding="utf-8"))
+    plan = next(p for p in cm.scan_plans(fx.work, 4, 15) if p.version == "v4.15.4")
+    other_root = fx.tmp / "other-v415-worker"
+    branch = "feat/v4.15.4-other-fixture"
+    _git(fx.work, "worktree", "add", "-q", "-b", branch, str(other_root), base)
+    other = {"version": plan.version, "plan_path": plan.rel, "plan_sha256": ck.plan_hash_text(plan.text),
+             "source_branch": branch, "target_branch": "develop", "release_version": plan.version, "tag": plan.version,
+             "approvals": {"classes": []}, "implementation": {
+                 "base_head": base, "worktree": str(other_root.resolve()), "branch": branch, "depends_on": [],
+                 "read_paths": [PATH] if kind == "read" else [],
+                 "write_paths": ["src/other.txt"] if kind == "read" else [PATH], "started": ck._now()}}
+    record["members"].append(other)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    before = path.read_bytes()
+    code, out, err = _cli(capsys, "record", "render", "--action", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert code != 0 and "active-conflict" in out + err
+    assert path.read_bytes() == before
+    assert cm._worker_context(ck, fx.rctx(), record, other, ck.Budget(60), canonical_merged=False)[1] == "met"
+
+
+def test_v415_permission_survives_native_resume_handoff_and_capture_retention(v415_outputs_case, capsys):
+    fx, _worker, base, version, path = v415_outputs_case
+    granted = _v415_grant(v415_outputs_case, capsys)
+    preserved = copy.deepcopy(_member(granted, version)[V415_FIELD])
+    session = "v415-permission-resumed-owner"
+    fx.capture(session, "fixture native continuation request", at=0.0)
+    code, out, err = _cli(capsys, "record", "render", "--action", "resume", "--minor", "v4.15",
+                          "--session", session, "--repo", str(fx.work))
+    assert code == 0, out + err
+    fx.capture(session, out.splitlines()[0])
+    code, out, err = _cli(capsys, "record", "resume", "--minor", "v4.15", "--session", session, "--repo", str(fx.work))
+    assert code == 0, out + err
+    for folder, pattern in (("prompts", "*.jsonl"), ("consumed-prompts", "*.json")):
+        for receipt in (fx.runs / folder).glob(pattern):
+            receipt.unlink()  # Only disposable fixture retention.
+    resumed = ck.read_record(fx.rctx(), path)
+    assert cm._v415_output_permission_valid(ck, fx.rctx(), resumed, _member(resumed, version), preserved[0])
+    destination = fx.tmp / "v415-next-controller"
+    _git(fx.work, "worktree", "add", "-q", "-b", "v415-next-controller", str(destination), base)
+    code, out, err = _cli(capsys, "record", "controller-handoff", "--minor", "v4.15", "--session", session,
+                          "--repo", str(fx.work), "--to", str(destination), "--head", base,
+                          "--expected-generation", "0", "--apply")
+    assert code == 0 and out.startswith("TRANSFERRED "), out + err
+    ctx = ck.RepoContext(destination, ck.Budget(60))
+    transferred = ck.read_record(ctx, path)
+    assert _member(transferred, version)[V415_FIELD] == preserved
+    assert cm._v415_output_permission_valid(ck, ctx, transferred, _member(transferred, version), preserved[0])
+    assert transferred["session_id"] == session
+
+
+def test_v415_permission_public_cli_from_isolated_installed_helpers(v415_outputs_case):
+    fx, worker, base, version, path = v415_outputs_case
+    installed = fx.tmp / "isolated-installed-scripts"
+    installed.mkdir()
+    source = Path(__file__).resolve().parents[2] / "scripts"
+    for name in ("check_plan_completion.py", "completion_minor.py", "approval_binding.py", "approval_page.py",
+                 "repo_host.py", "completion_budget.py", "nexus_process.py"):
+        shutil.copy2(source / name, installed / name)
+    args = _v415_args(v415_outputs_case)
+    def public(*operation):
+        return subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), *operation, *args],
+                              cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=45, check=False)
+    before = path.read_bytes()
+    fx.capture(SESSION, "fixture installed helper decision", at=0.0)
+    rendered = public("record", "render", "--action", "permit-outputs")
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    refused = public("record", "permit-outputs")
+    assert refused.returncode != 0 and path.read_bytes() == before
+    fx.capture(SESSION, rendered.stdout.splitlines()[0])
+    accepted = public("record", "permit-outputs")
+    assert accepted.returncode == 0, accepted.stdout + accepted.stderr
+    record = ck.read_record(fx.rctx(), path)
+    member = _member(record, version)
+    assert cm._v415_output_permission_valid(ck, fx.rctx(), record, member, member[V415_FIELD][0])
+    for state in ("unmerged", "historical-retired"):
+        if state == "historical-retired":
+            fx.state["pr_by_branch"] = {member["source_branch"]: {"state": "MERGED", "merge_commit": base, "checks": []}}
+            fx.save_state()
+            assert worker.parent == fx.tmp
+            _git(fx.work, "worktree", "remove", str(worker))  # Clean disposable fixture tree only.
+        started = time.monotonic()
+        checked = subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), "check-member",
+                                  "--minor", "v4.15", "--member", version, "--session", SESSION,
+                                  "--repo", str(fx.work), "--json"],
+                                 cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=45, check=False)
+        elapsed = time.monotonic() - started
+        assert checked.returncode == ck.EXIT_INCOMPLETE, checked.stdout + checked.stderr
+        assert json.loads(checked.stdout.splitlines()[-1])["predicates"]["implementation.identity"] == "met"
+        print(f"native-check-member {version} {state} {elapsed:.2f}s")
 
 
 def _member(record, version=VERSION):
