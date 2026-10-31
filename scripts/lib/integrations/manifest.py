@@ -19,6 +19,13 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
+# The `logs` list is a diagnostic trail that nothing reads back, but every
+# install loaded the previous trail, appended its own lines and saved the whole
+# file again. With no bound it reached 159,119 lines (13 MB) on a long-lived
+# machine, so every save rewrote megabytes of history. One full install writes
+# about 2,500 lines, so this keeps the latest run and some history.
+MAX_LOGS = 5000
+
 
 def _hash_path(path: Path) -> Optional[str]:
     """Return SHA-256 hex of `path` if it is a regular file, else None.
@@ -227,7 +234,7 @@ class InstallManifest:
         data: Dict[str, object] = {
             "tracked": self._tracked,
             "shared": self._shared,
-            "logs": self._logs,
+            "logs": self._logs[-MAX_LOGS:],
             "actions": self._actions,
         }
         if any(self._org_tracked.values()):
@@ -250,7 +257,7 @@ class InstallManifest:
         m._shared = dict(data.get("shared", {}))
         m._org_tracked = dict(data.get("org_tracked", {}))
         m._org_shared = dict(data.get("org_shared", {}))
-        m._logs = list(data.get("logs", []))
+        m._logs = list(data.get("logs", []))[-MAX_LOGS:]
         m._actions = dict(data.get("actions", {}))
         selection = data.get("selection")
         m._selection = dict(selection) if isinstance(selection, dict) else None
