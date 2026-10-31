@@ -59,6 +59,33 @@ def test_changelog_invalid_utf8_is_unverifiable(tmp_path: Path) -> None:
     assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "cannot-verify"
 
 
+@pytest.mark.parametrize("change", ["replace", "remove"])
+def test_changelog_concurrent_change_is_not_verified(tmp_path: Path, monkeypatch, change: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    changelog = tmp_path / "CHANGELOG.md"
+    changelog.write_text("## [0.2.0]\n", encoding="utf-8")
+    original_read = Path.read_text
+
+    def changed_after_read(path, *args, **kwargs):
+        text = original_read(path, *args, **kwargs)
+        if path == changelog:
+            if change == "replace":
+                replacement = tmp_path / "replacement.md"
+                replacement.write_text("## [9.9.9]\n", encoding="utf-8")
+                replacement.replace(changelog)
+            else:
+                changelog.unlink()
+        return text
+
+    monkeypatch.setattr(Path, "read_text", changed_after_read)
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) != "met"
+
+
 @pytest.mark.parametrize("heading, expected", [("# [0.2.0]", "met"), ("## [0.2.0](https://example.invalid/release) - 2026-10-31", "met"), ("```\n## [0.2.0]\n```", "unmet")])
 def test_changelog_compatibility_through_cli(complete, heading: str, expected: str) -> None:
     complete.write("CHANGELOG.md", heading + "\n")

@@ -2261,7 +2261,7 @@ def _layout_of(rel: str, major: int, minor: int) -> str | None:
     return None
 
 
-def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
+def load_ledgers(root: Path, *, max_bytes: int | None = None) -> tuple[list[Ledger], list[str]]:
     """Every known-gaps ledger at a layout path, and the paths that could not be read."""
     try:
         root = root.resolve(strict=True)
@@ -2290,8 +2290,16 @@ def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
         if layout is None:
             continue  # the glob is wider than the layouts
         try:
-            with path.open("r", encoding="utf-8", newline="") as handle:
-                text = handle.read()
+            if max_bytes is None:
+                with path.open("r", encoding="utf-8", newline="") as handle:
+                    text = handle.read()
+            else:
+                with path.open("rb") as handle:
+                    raw = handle.read(max_bytes + 1)
+                if len(raw) > max_bytes:
+                    unreadable.append(rel)
+                    continue
+                text = raw.decode("utf-8")
         except (OSError, UnicodeDecodeError):
             unreadable.append(rel)
             continue
@@ -3711,6 +3719,15 @@ DETAIL_FINDING_LIMIT = 100
 DETAIL_TEXT_BYTES = 2 * 1024 * 1024
 
 
+def _detail_record_changed(path: Path, digest: str) -> bool:
+    try:
+        with path.open("rb") as handle:
+            raw = handle.read(DETAIL_TEXT_BYTES + 1)
+        return len(raw) > DETAIL_TEXT_BYTES or hashlib.sha256(raw).hexdigest() != digest
+    except OSError:
+        return True
+
+
 def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *, checkpoint=None) -> dict:
     """Collect local facts only; no completion evaluator or mutation path is called."""
     parse_minor(ck, token)
@@ -3730,11 +3747,19 @@ def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *,
         result["scanned"] += 1
         if path.stat().st_size > DETAIL_TEXT_BYTES:
             result["incomplete"] = True
+            result["omitted"] += 1
             if path == direct:
                 result["verdict"] = "INCOMPLETE: record.provenance"
             continue
-        raw = path.read_bytes()
-        record = ck.read_record(rctx, path)
+        try:
+            record = ck.read_record(rctx, path, max_bytes=DETAIL_TEXT_BYTES)
+        except ObservationUnavailable:
+            result["incomplete"] = True
+            result["omitted"] += 1
+            if path == direct:
+                result["verdict"] = "INCOMPLETE: record.provenance"
+            continue
+        raw = getattr(record, "loaded_sha256", None)
         if record is None:
             if path == direct:
                 result["verdict"], result["exit"] = ck.TAMPERED
@@ -3747,18 +3772,19 @@ def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *,
             own = ck.RepoContext(Path(identity["repo_root"]), rctx.budget)
             if own.key_repo != rctx.key_repo or not _verified(ck, own, token, record):
                 raise ck.MinorConflict("record-tampered")
-        except (ck.MinorConflict, ck.Malformed, OSError):
+        except ck.MinorConflict as exc:
+            if str(exc) == "controller-ownership-unavailable":
+                return {**result, "verdict": "INCOMPLETE: detail.controller-unavailable", "incomplete": True}
             if path == direct:
                 result["verdict"], result["exit"] = ck.TAMPERED
                 return result
             continue
+        except (ck.Malformed, OSError):
+            return {**result, "verdict": "INCOMPLETE: detail.controller-unavailable", "incomplete": True}
         verified.append((path, raw, record, identity, own))
     if len(verified) != 1:
         if len(verified) > 1:
             result["verdict"], result["exit"] = "BLOCKED: multiple-minor-authorities", ck.EXIT_BLOCKED
-        return result
-    if result["omitted"]:
-        result["verdict"] = "INCOMPLETE: detail.record-limit"
         return result
     path, raw, record, identity, own = verified[0]
     result["verdict"] = "INCOMPLETE: detail.local-only"
@@ -3775,6 +3801,12 @@ def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *,
             version = first.get("version")
             suffix = f" ({version})" if isinstance(version, str) and PLAN_TOKEN_RE.fullmatch(version) else ""
             result["verdict"], result["exit"] = f"BLOCKED: {category}{suffix}", ck.EXIT_BLOCKED
+    if result["omitted"]:
+        if _detail_record_changed(path, raw):
+            return {**result, "verdict": "INCOMPLETE: record.changed", "exit": ck.EXIT_INCOMPLETE}
+        if result["exit"] not in (ck.EXIT_BLOCKED, ck.EXIT_PAUSED):
+            result["verdict"] = "INCOMPLETE: detail.record-limit"
+        return result
     if checkpoint is not None and result["exit"] in (ck.EXIT_BLOCKED, ck.EXIT_PAUSED):
         checkpoint({key: result[key] for key in ("verdict", "exit", "scanned", "omitted")})
     findings = [{"path": identity["repo_root"], "item": "controller", "status": "current" if own.root == rctx.root else "mutation-controller-mismatch"}]
@@ -3785,7 +3817,8 @@ def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *,
         result["incomplete"] = True
         findings.append({"path": "", "item": "ledgers", "status": "text-limit-unavailable"})
     else:
-        ledgers, unreadable = load_ledgers(own.root)
+        ledgers, unreadable = load_ledgers(own.root, max_bytes=DETAIL_TEXT_BYTES)
+        result["incomplete"] = result["incomplete"] or bool(unreadable)
         findings.extend({"path": rel, "item": "ledger", "status": "unreadable"} for rel in unreadable)
         bound, named = migration_class(record)
         for ledger in ledgers:
@@ -3795,7 +3828,7 @@ def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *,
                     pid = f"v{ledger.minor[0]}.{ledger.minor[1]}#{item.gid}"
                     covered = pid in bound and (not item.sensitive() or pid in named)
                     findings.append({"path": ledger.rel, "item": pid, "status": "migration-covered" if covered else "migration-uncovered"})
-    if path.read_bytes() != raw:
+    if _detail_record_changed(path, raw):
         return {**result, "verdict": "INCOMPLETE: record.changed", "exit": ck.EXIT_INCOMPLETE,
                 "incomplete": True, "findings": []}
     findings.sort(key=lambda item: (item["path"], item["item"], item["status"]))

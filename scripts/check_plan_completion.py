@@ -716,11 +716,11 @@ class RecordState:
 TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
 
 
-def read_record(ctx: RepoContext, path: Path) -> dict | None:
+def read_record(ctx: RepoContext, path: Path, *, max_bytes: int | None = None) -> dict | None:
     """The raw record at `path`, or None when it sits in a working tree or is unreadable.
 
     Callers treat None for an existing file as `record-tampered`. Unavailable
-    Git provenance raises ObservationUnavailable instead of asserting integrity.
+    Git provenance or an explicit read bound raises ObservationUnavailable instead of asserting integrity.
     """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
@@ -738,9 +738,17 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
         if tracked_rc != 1:
             return None
     try:
-        raw = path.read_bytes()
+        with path.open("rb") as handle:
+            raw = handle.read() if max_bytes is None else handle.read(max_bytes + 1)
+    except OSError as exc:
+        if max_bytes is not None:
+            raise _minor_module().ObservationUnavailable("record.unreadable") from exc
+        return None
+    if max_bytes is not None and len(raw) > max_bytes:
+        raise _minor_module().ObservationUnavailable("record.text-limit")
+    try:
         record = json.loads(raw)
-    except (OSError, ValueError, UnicodeDecodeError):
+    except (ValueError, UnicodeDecodeError):
         return None
     if not isinstance(record, dict):
         return None
@@ -1424,10 +1432,17 @@ def _tag_status(ctx: Context, tag: str) -> str:
 def _changelog_status(ctx: Context) -> str:
     changelog = ctx.root / "CHANGELOG.md"
     try:
-        text = changelog.read_text(encoding="utf-8")
+        before = changelog.stat()
     except FileNotFoundError:
         return "unmet"
+    except OSError:
+        return "cannot-verify"
+    try:
+        text = changelog.read_text(encoding="utf-8")
+        after = changelog.stat()
     except (OSError, UnicodeDecodeError):
+        return "cannot-verify"
+    if any(getattr(before, key) != getattr(after, key) for key in ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")):
         return "cannot-verify"
     bare = ctx.version.lstrip("v")
     heading = re.compile(rf"^#{{1,2}}[ \t]+\[{re.escape(bare)}\](?:\([^()\r\n]+\))?(?:[ \t]+[^\r\n]*)?[ \t]*$")

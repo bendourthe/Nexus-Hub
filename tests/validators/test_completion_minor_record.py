@@ -186,6 +186,84 @@ def test_detail_candidate_limit_discloses_no_trusted_scope(minor) -> None:
     assert minor.record_path().read_bytes() == before
 
 
+@pytest.mark.parametrize("state", ["blocked", "paused"])
+def test_detail_candidate_limit_preserves_forced_verdict(minor, state: str) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    if state == "blocked":
+        assert minor.run("record", "block", "--minor", "v0.5", "--session", SESSION, "--category", "no-progress", "--evidence", "fixture").returncode == 3
+        expected, code = "BLOCKED: no-progress", 3
+    else:
+        value = minor.record()
+        value["pause"] = {"at": "2026-10-31"}
+        minor.record_path().write_text(json.dumps(value), encoding="utf-8")
+        expected, code = "PAUSED", 4
+    for n in range(34):
+        (minor.runs / f"{n:064x}.json").write_text('{"schema": 1}', encoding="utf-8")
+    before = minor.record_path().read_bytes()
+    result = minor.run("check-minor", "v0.5", "--detail", "--json")
+    data = json.loads(result.stdout.splitlines()[1])["detail"]
+    assert result.stdout.splitlines()[0] == expected and result.returncode == code
+    assert data["scanned"] == 32 and data["omitted"] == 3
+    assert data["incomplete"] and not data["findings"]
+    assert minor.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize("stage", ["record", "ledger", "record-recheck"])
+def test_detail_growing_inputs_never_use_unbounded_reads(minor, monkeypatch: pytest.MonkeyPatch, stage: str) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    target = minor.work / "docs/releases/v0/v0.5/known-gaps.md" if stage == "ledger" else minor.record_path()
+    if stage == "ledger":
+        target.write_text(MINOR_LEDGER, encoding="utf-8")
+    real_open = Path.open
+    real_ledgers = cm.load_ledgers
+    active = stage != "record-recheck"
+    reads = []
+
+    class Probe:
+        def __init__(self, handle):
+            self.handle = handle
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return self.handle.__exit__(*args)
+
+        def read(self, size=-1):
+            reads.append(size)
+            assert 0 <= size <= cm.DETAIL_TEXT_BYTES + 1, "diagnostic read must have a physical byte bound"
+            return self.handle.read(size)
+
+    def grown_open(path, mode="r", *args, **kwargs):
+        if active and path == target and mode in ("r", "rb"):
+            with real_open(path, "ab") as writer:
+                writer.write(b" " * (cm.DETAIL_TEXT_BYTES + 1))
+            return Probe(real_open(path, mode, *args, **kwargs))
+        return real_open(path, mode, *args, **kwargs)
+
+    def after_ledgers(root, **kwargs):
+        nonlocal active
+        result = real_ledgers(root, **kwargs)
+        active = True
+        return result
+
+    with monkeypatch.context() as probe:
+        probe.setattr(Path, "open", grown_open)
+        if stage == "record-recheck":
+            probe.setattr(cm, "load_ledgers", after_ledgers)
+        result = cm._local_detail(ck, str(minor.work), "v0.5", SESSION)
+    assert reads and result["incomplete"]
+    assert result["exit"] == 1 and result["verdict"].startswith("INCOMPLETE:")
+    if stage != "ledger":
+        assert not result["findings"]
+    else:
+        assert not any(item["status"].startswith("migration-") for item in result["findings"])
+
+
 def test_detail_timeout_is_unavailable_without_background_waiter(monkeypatch: pytest.MonkeyPatch) -> None:
     def timeout(*args, **kwargs):
         assert kwargs["timeout"] == cm.DETAIL_SECONDS == 10.0
@@ -236,7 +314,7 @@ def test_detail_slow_ledger_preserves_established_forced_verdict(minor, monkeypa
         argv = list(argv)
         if "-c" in argv and "cm._local_detail" in argv[argv.index("-c") + 1]:
             index = argv.index("-c") + 1
-            argv[index] = argv[index].replace("import completion_minor as cm;", "import completion_minor as cm;import os;cm.load_ledgers=lambda root: os.read(os.pipe()[0],1);")
+            argv[index] = argv[index].replace("import completion_minor as cm;", "import completion_minor as cm;import os;cm.load_ledgers=lambda root,**kwargs: os.read(os.pipe()[0],1);")
         return real_run(argv, **kwargs)
 
     monkeypatch.setattr(subprocess, "run", blocked_input)
@@ -257,6 +335,99 @@ def test_detail_child_never_imports_workspace_modules(minor) -> None:
     assert not (hostile / "shadow-import.marker").exists(), result.stdout + result.stderr
     assert result.returncode == 1
     assert "INCOMPLETE: record.minor" in result.stdout
+
+
+def test_detail_related_controller_is_read_only_and_distinct_clone_is_not_related(minor) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    sibling = minor.tmp / "related-sibling"
+    _git(minor.work, "worktree", "add", "--detach", "-q", str(sibling), "HEAD")
+    before = minor.record_path().read_bytes()
+    result = minor.run("check-minor", "v0.5", "--repo", str(sibling), "--detail", "--json")
+    detail = json.loads(result.stdout.splitlines()[1])["detail"]
+    assert any(item["item"] == "controller" and item["status"] == "mutation-controller-mismatch" for item in detail["findings"]), result.stdout + result.stderr
+    denied = minor.run("record", "block", "--minor", "v0.5", "--repo", str(sibling), "--session", SESSION, "--category", "no-progress", "--evidence", "foreign controller mutation")
+    assert denied.returncode != 0
+    assert minor.record_path().read_bytes() == before
+    clone = minor.tmp / "distinct-clone"
+    _git(minor.tmp, "clone", "-q", str(minor.work), str(clone))
+    _git(clone, "remote", "set-url", "--push", "origin", PUSH_URL)
+    unrelated = minor.run("check-minor", "v0.5", "--repo", str(clone), "--detail", "--json")
+    assert json.loads(unrelated.stdout.splitlines()[1])["detail"]["findings"] == []
+    assert minor.record_path().read_bytes() == before
+
+
+def test_detail_record_change_invalidates_collected_scope(minor, monkeypatch: pytest.MonkeyPatch) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    original = cm.load_ledgers
+    changed = minor.record_path().read_bytes() + b"\n"
+
+    def changed_input(root, **kwargs):
+        minor.record_path().write_bytes(changed)
+        return original(root, **kwargs)
+
+    monkeypatch.setattr(cm, "load_ledgers", changed_input)
+    result = cm._local_detail(ck, str(minor.work), "v0.5", SESSION)
+    assert result["verdict"] == "INCOMPLETE: record.changed"
+    assert result["incomplete"] and not result["findings"]
+    assert minor.record_path().read_bytes() == changed
+
+
+def test_detail_signed_deleted_controller_is_unavailable_not_tampered(minor) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    lost = minor.tmp / "lost-controller"
+    _git(minor.work, "worktree", "add", "--detach", "-q", str(lost), "HEAD")
+    value = minor.record()
+    rctx = minor.rctx()
+    value["implementation_controller"] = {"repo_root": str(lost.resolve()), "origin_root": str(minor.work.resolve()),
+        "origin_record_key": minor.record_path().stem, "git_common_dir": cm._common_dir(rctx, minor.work),
+        "generation": 1, "previous_root": str(minor.work.resolve()), "head": _git(minor.work, "rev-parse", "HEAD"), "at": "2026-10-31"}
+    value["approvals_hmac"] = ck._sign(value, ck._secret(create=False))
+    minor.record_path().write_text(json.dumps(value), encoding="utf-8")
+    before = minor.record_path().read_bytes()
+    assert cm._local_detail(ck, str(minor.work), "v0.5", SESSION)["findings"]
+    assert lost.resolve().is_relative_to(minor.tmp.resolve())
+    _git(minor.work, "worktree", "remove", str(lost))
+    result = cm._local_detail(ck, str(minor.work), "v0.5", SESSION)
+    assert result["verdict"] == "INCOMPLETE: detail.controller-unavailable"
+    assert result["incomplete"] and result["findings"] == []
+    assert minor.record_path().read_bytes() == before
+
+
+def test_detail_foreign_remote_discloses_no_related_scope(minor) -> None:
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    record_path = minor.record_path()
+    before = record_path.read_bytes()
+    _git(minor.work, "remote", "set-url", "--push", "origin", "https://github.com/foreign/project.git")
+    result = cm._local_detail(ck, str(minor.work), "v0.5", SESSION)
+    assert not result["findings"] and result["exit"] == 1
+    assert record_path.read_bytes() == before
+
+
+def test_detail_windows_short_alias_resolves_current_controller(minor) -> None:
+    if os.name != "nt":
+        pytest.skip("Windows short-name alias")
+    import ctypes
+
+    approvals = minor.approvals()
+    minor.paste(SESSION, "--approvals", str(approvals))
+    assert minor.run("record", "create", "--minor", "v0.5", "--session", SESSION, "--approvals", str(approvals)).returncode == 0
+    buffer = ctypes.create_unicode_buffer(32768)
+    size = ctypes.windll.kernel32.GetShortPathNameW(str(minor.work), buffer, len(buffer))
+    if not size or size >= len(buffer) or buffer.value.casefold() == str(minor.work).casefold():
+        pytest.skip("filesystem provides no distinct short-name alias")
+    before = minor.record_path().read_bytes()
+    result = minor.run("check-minor", "v0.5", "--repo", buffer.value, "--detail", "--json")
+    data = json.loads(result.stdout.splitlines()[1])["detail"]
+    assert any(item["item"] == "controller" and item["status"] == "current" for item in data["findings"]), result.stdout + result.stderr
+    assert minor.record_path().read_bytes() == before
 
 from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exported)
     TRANSPORT_OVERRIDE_ENV,
