@@ -793,6 +793,29 @@ def test_complete_run_reports_plan_complete(complete: Fixture) -> None:
     assert result.stdout.splitlines()[0] == f"PLAN COMPLETE {PLAN_REL} {head} {nonce}"
 
 
+@pytest.mark.parametrize("with_member", [False, True], ids=["without-member", "with-member"])
+def test_correct_ci_read_never_renders_a_schema_one_approval(complete: Fixture, with_member: bool) -> None:
+    before = {p.relative_to(complete.runs).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+              for p in complete.runs.rglob("*") if p.is_file()}
+    args = ["record", "render", PLAN_REL, "--action", "correct-ci-read", "--session", SESSION]
+    if with_member:
+        args.extend(["--member", "v4.15.4"])
+    result = complete.run(*args)
+    assert result.returncode == 2 and result.stderr.strip() == "error: --action correct-ci-read requires --minor"
+    after = {p.relative_to(complete.runs).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+             for p in complete.runs.rglob("*") if p.is_file()}
+    assert after == before
+
+
+@pytest.mark.parametrize("flag,value", [("--path", "scripts/ci/profiles.py"), ("--checkpoint", "0" * 40)])
+def test_correct_ci_read_has_no_path_or_checkpoint_override(tmp_path: Path, flag: str, value: str) -> None:
+    result = subprocess.run(
+        [sys.executable, str(CHECKER), "record", "correct-ci-read", "--minor", "v4.15", "--member", "v4.15.4",
+         "--session", SESSION, flag, value], cwd=tmp_path, capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 2 and f"unrecognized arguments: {flag}" in result.stderr
+
+
 @pytest.mark.parametrize(
     "changed_url",
     ["https://github.com/evil/fork.git", "git@github.com:acme/demo.git", "git@github-work:evil/fork.git"],

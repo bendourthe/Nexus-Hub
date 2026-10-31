@@ -32,6 +32,8 @@ PREVIOUS = "v0.5.2"
 PATH = "MANIFEST.sha256"
 FIELD = "manifest_coordinator_permissions"
 V415_FIELD = "v415_coordinator_permissions"
+V415_READ_FIELD = "v415_ci_read_corrections"
+V415_READ_CHECKPOINT = "6a45a253c242a97e09bc953a764c024687042b67"
 
 
 @pytest.fixture(params=["v4.15.0", "v4.15.2"], ids=["started-zero", "dormant-two"])
@@ -133,6 +135,352 @@ def _v415_grant(case, capsys, *, paths=None):
 def _v415_signed_write(case, record):
     record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
     ck._write_record(case[4], record)
+
+
+@pytest.fixture
+def v415_ci_case(v415_outputs_case):
+    """Patch only a disposable installed copy's checkpoint to its real fixture commit."""
+    fx, worker, base, version, path = v415_outputs_case
+    assert version == "v4.15.4"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["implementation_controller"] = {"repo_root": str(fx.work.resolve()),
+                                            "git_common_dir": cm._common_dir(fx.rctx(), fx.work)}
+    _member(record, version)["implementation"]["read_paths"] = ["scripts/ci/profiles.py", "src/input.txt"]
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    (worker / "scripts/ci").mkdir(parents=True, exist_ok=True)
+    installed = fx.tmp / "ci-installed-scripts"
+    installed.mkdir()
+    source = Path(__file__).resolve().parents[2] / "scripts"
+    for name in ("check_plan_completion.py", "completion_minor.py", "approval_binding.py", "approval_page.py",
+                 "repo_host.py", "completion_budget.py", "nexus_process.py"):
+        text = (source / name).read_text(encoding="utf-8")
+        if name == "completion_minor.py":
+            text = text.replace(V415_READ_CHECKPOINT, base)
+        (installed / name).write_text(text, encoding="utf-8")
+
+    def run(*args):
+        return subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), *args],
+                              cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=90, check=False)
+
+    def probe(expression):
+        setup = ("import argparse,json; import check_plan_completion as ck; import completion_minor as cm; "
+                 f"rctx=cm.minor_context(ck,{str(fx.work)!r}); "
+                 "record=ck.read_record(rctx,cm.record_file(ck,rctx,'v4.15')); "
+                 "member=next(m for m in record['members'] if m['version']=='v4.15.4'); ")
+        return subprocess.run([sys.executable, "-B", "-c", setup + expression], cwd=installed,
+                              env=fx.env, capture_output=True, text=True, timeout=90, check=False)
+
+    return v415_outputs_case, run, probe
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_read_page_binds_only_the_frozen_reservation(v415_ci_case):
+    case, _run, probe = v415_ci_case
+    before = case[4].read_bytes()
+    result = probe("print(json.dumps(cm.v415_ci_read_correction_page(ck,rctx,'v4.15',record,'v4.15.4')))")
+    assert result.returncode == 0, result.stdout + result.stderr
+    page = json.loads(result.stdout)
+    assert page["path"] == "scripts/ci/profiles.py" and page["checkpoint"] == case[2]
+    assert page["original_read_paths"] == ["scripts/ci/profiles.py", "src/input.txt"]
+    assert page["start_head"] is None and page["member"] == "v4.15.4"
+    assert case[4].read_bytes() == before
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_effective_reads_without_a_capture_remain_original(v415_ci_case):
+    case, _run, probe = v415_ci_case
+    before = case[4].read_bytes()
+    result = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,member)))")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout) == ["scripts/ci/profiles.py", "src/input.txt"]
+    assert case[4].read_bytes() == before
+
+
+def _v415_ci_args(case, *, session=SESSION):
+    return ["--minor", "v4.15", "--member", "v4.15.4", "--session", session, "--repo", str(case[0].work)]
+
+
+def _v415_ci_grant(v415_ci_case):
+    case, run, _probe = v415_ci_case
+    case[0].capture(SESSION, "fixture separate CI reservation decision", at=0.0)
+    rendered = run("record", "render", "--action", "correct-ci-read", *_v415_ci_args(case))
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    case[0].capture(SESSION, rendered.stdout.splitlines()[0])
+    granted = run("record", "correct-ci-read", *_v415_ci_args(case))
+    assert granted.returncode == 0, granted.stdout + granted.stderr
+    return json.loads(case[4].read_text(encoding="utf-8"))
+
+
+def _v415_ci_add_two(case, *, writes=None):
+    fx, _worker, base, _version, path = case
+    plan = next(p for p in cm.scan_plans(fx.work, 4, 15) if p.version == "v4.15.2")
+    branch = "feat/v4.15.2-native-ci-fixture"
+    worker = fx.tmp / "ci-two-worker"
+    _git(fx.work, "worktree", "add", "-q", "-b", branch, str(worker), base)
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["members"].append({"version": "v4.15.2", "plan_path": plan.rel, "plan_sha256": ck.plan_hash_text(plan.text),
+        "source_branch": branch, "target_branch": "develop", "release_version": "v4.15.2", "tag": "v4.15.2",
+        "approvals": {"classes": []}})
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    claims = fx.tmp / "ci-two-claims.json"
+    claims.write_text(json.dumps({"depends_on": [], "read_paths": [],
+                                 "write_paths": writes or ["scripts/ci/profiles.py"]}), encoding="utf-8")
+    return ["record", "member-implement-start", "--minor", "v4.15", "--member", "v4.15.2", "--session", SESSION,
+            "--repo", str(fx.work), "--worktree", str(worker), "--head", base, "--claims", str(claims)]
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_captured_correction_allows_normal_admission_and_raw_claim_resume(v415_ci_case):
+    case, run, probe = v415_ci_case
+    admission = _v415_ci_add_two(case)
+    original = copy.deepcopy(_member(json.loads(case[4].read_text(encoding="utf-8")), "v4.15.4")["implementation"])
+    blocked = run(*admission)
+    assert blocked.returncode == ck.EXIT_BLOCKED and "implementation-scope-conflict" in blocked.stdout
+    granted = _v415_ci_grant(v415_ci_case)
+    assert _member(granted, "v4.15.4")["implementation"] == original
+    assert _member(granted, "v4.15.4").get("start_head") is None
+    admitted = run(*admission)
+    assert admitted.returncode == 0, admitted.stdout + admitted.stderr
+    before = case[4].read_bytes()
+    claims = case[0].tmp / "ci-four-original-claims.json"
+    claims.write_text(json.dumps({k: original[k] for k in ("depends_on", "read_paths", "write_paths")}), encoding="utf-8")
+    resumed = run("record", "member-implement-start", *_v415_ci_args(case), "--worktree", str(case[1]),
+                  "--head", case[2], "--claims", str(claims))
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert case[4].read_bytes() == before
+    effective = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,member)))")
+    assert effective.returncode == 0, effective.stdout + effective.stderr
+    assert json.loads(effective.stdout) == ["src/input.txt"]
+    coordinator = probe("print(cm._coordinator_conflict(ck,rctx,record,next(m for m in record['members'] if m['version']=='v4.15.2'),['scripts/ci/profiles.py'],rctx._git_out('rev-parse','HEAD')))")
+    assert coordinator.returncode == 0 and coordinator.stdout.strip() == "False", coordinator.stdout + coordinator.stderr
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+@pytest.mark.parametrize("change", ["dirty", "later-commit", "broad-read", "write-reservation", "other-write"])
+def test_v415_ci_correction_never_releases_other_or_unreviewed_scope(v415_ci_case, change):
+    case, run, _probe = v415_ci_case
+    admission = _v415_ci_add_two(case, writes=["src/owned.txt"] if change == "other-write" else None)
+    if change in ("broad-read", "write-reservation"):
+        record = json.loads(case[4].read_text(encoding="utf-8"))
+        implementation = _member(record, "v4.15.4")["implementation"]
+        implementation["read_paths" if change == "broad-read" else "write_paths"].append(
+            "scripts/ci/" if change == "broad-read" else "scripts/ci/profiles.py")
+        implementation["read_paths"] = sorted(implementation["read_paths"])
+        implementation["write_paths"] = sorted(implementation["write_paths"])
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        case[4].write_text(json.dumps(record), encoding="utf-8")
+    _v415_ci_grant(v415_ci_case)
+    if change in ("dirty", "later-commit"):
+        path = case[1] / "src/owned.txt"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("a later source epoch\n", encoding="utf-8")
+        if change == "later-commit":
+            _git(case[1], "add", "src/owned.txt")
+            _git(case[1], "commit", "-q", "-m", "later fixture source beyond reviewed checkpoint")
+    before = case[4].read_bytes()
+    result = run(*admission)
+    assert result.returncode == ck.EXIT_BLOCKED and "implementation-scope-conflict" in result.stdout
+    assert case[4].read_bytes() == before
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+@pytest.mark.parametrize("change", ["missing", "foreign", "dirty-worker", "stale-record", "wrong-member", "production-checkpoint"])
+def test_v415_ci_capture_freshness_and_compiled_identity_refuse(v415_ci_case, change):
+    case, run, _probe = v415_ci_case
+    fx = case[0]
+    fx.capture(SESSION, "fixture fresh read reservation decision", at=0.0)
+    rendered = run("record", "render", "--action", "correct-ci-read", *_v415_ci_args(case))
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    if change != "missing":
+        fx.capture("foreign-session" if change == "foreign" else SESSION, rendered.stdout.splitlines()[0])
+    if change == "dirty-worker":
+        (case[1] / "unreviewed.txt").write_text("dirty source\n", encoding="utf-8")
+    elif change in ("stale-record", "wrong-member"):
+        record = json.loads(case[4].read_text(encoding="utf-8"))
+        if change == "stale-record":
+            record["fixture_stale_marker"] = "changed after rendering"
+        else:
+            _member(record, "v4.15.4")["plan_sha256"] = "0" * 64
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        case[4].write_text(json.dumps(record), encoding="utf-8")
+    before = case[4].read_bytes()
+    if change == "production-checkpoint":
+        result = fx.run("record", "correct-ci-read", *_v415_ci_args(case))
+    else:
+        result = run("record", "correct-ci-read", *_v415_ci_args(case))
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert case[4].read_bytes() == before
+    assert V415_READ_FIELD not in _member(json.loads(before), "v4.15.4")
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+@pytest.mark.parametrize("hide", ["new-field", "empty-list", "member", "unrelated-state"])
+def test_v415_ci_captured_append_cannot_hide_or_expand_transition(v415_ci_case, hide):
+    case, run, probe = v415_ci_case
+    case[0].capture(SESSION, "fixture private writer injection control", at=0.0)
+    rendered = run("record", "render", "--action", "correct-ci-read", *_v415_ci_args(case))
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    case[0].capture(SESSION, rendered.stdout.splitlines()[0])
+    before = case[4].read_bytes()
+    mutation = {"new-field": "target.pop(cm.V415_CI_READ_CORRECTION,None)",
+                "empty-list": "target[cm.V415_CI_READ_CORRECTION]=[]",
+                "member": "value['members'].remove(target)",
+                "unrelated-state": "value['unapproved_authority']='injected'"}[hide]
+    result = probe("\noriginal=ck._write_record\ndef injected(path,value):\n"
+        "    target=next(m for m in value['members'] if m['version']=='v4.15.4')\n"
+        f"    {mutation}\n"
+        "    value['approvals_hmac']=ck._sign(value,ck._secret(create=False) or b'')\n"
+        "    return original(path,value)\nck._write_record=injected\n"
+        f"args=argparse.Namespace(minor='v4.15',member='v4.15.4',session={SESSION!r},repo={str(case[0].work)!r},text=None)\n"
+        "cm.cmd_record_correct_ci_read(ck,args)\n")
+    assert result.returncode != 0 and "v415-ci-read-" in result.stderr, result.stdout + result.stderr
+    assert case[4].read_bytes() == before
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_retained_history_and_original_implementation_are_immutable(v415_ci_case):
+    case, _run, probe = v415_ci_case
+    _v415_ci_grant(v415_ci_case)
+    before = case[4].read_bytes()
+    for mutation in ("member.pop(cm.V415_CI_READ_CORRECTION)", "record['members'].remove(member)",
+                     "member[cm.V415_CI_READ_CORRECTION][0]['page']['path']='scripts/'",
+                     "member['implementation']['read_paths'].remove('scripts/ci/profiles.py')",
+                     "member['implementation']['depends_on'].append('v4.15.2')",
+                     "member['start_head']=record['start_head']",
+                     "member['coordinator_paths']=['src/unapproved-coordinator.txt']"):
+        result = probe("\n@cm.minor_writer\ndef mutate(ck,args):\n"
+            f"    {mutation}\n"
+            "    record['approvals_hmac']=ck._sign(record,ck._secret(create=False) or b'')\n"
+            "    ck._write_record(cm.record_file(ck,rctx,'v4.15'),record)\n"
+            f"mutate(ck,argparse.Namespace(repo={str(case[0].work)!r},minor='v4.15',session={SESSION!r}))\n")
+        assert result.returncode != 0 and "v415-ci-read-" in result.stderr, result.stdout + result.stderr
+        assert case[4].read_bytes() == before
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_post_start_candidate_restores_every_raw_read(v415_ci_case):
+    case, _run, probe = v415_ci_case
+    _v415_ci_grant(v415_ci_case)
+    before = case[4].read_bytes()
+    result = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,{**member,'start_head':record['start_head']})))")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout) == ["scripts/ci/profiles.py", "src/input.txt"]
+    restore = probe("print(cm._v415_ci_read_restore(ck,rctx,record,member,record['start_head']))")
+    assert restore.returncode == 0 and restore.stdout.strip() == "False", restore.stdout + restore.stderr
+    assert case[4].read_bytes() == before
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_history_survives_native_resume_without_reopening_capture(v415_ci_case):
+    case, run, probe = v415_ci_case
+    granted = _v415_ci_grant(v415_ci_case)
+    original = copy.deepcopy(_member(granted, "v4.15.4"))
+    session = "v415-ci-native-continued-owner"
+    case[0].capture(session, "fixture native read correction continuation", at=0.0)
+    args = ["--minor", "v4.15", "--session", session, "--repo", str(case[0].work)]
+    rendered = run("record", "render", "--action", "resume", *args)
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    case[0].capture(session, rendered.stdout.splitlines()[0])
+    resumed = run("record", "resume", *args)
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    current = json.loads(case[4].read_text(encoding="utf-8"))
+    assert current["session_id"] == session
+    assert _member(current, "v4.15.4") == original
+    result = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,member)))")
+    assert result.returncode == 0 and json.loads(result.stdout) == ["src/input.txt"], result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+def test_v415_ci_ordered_native_start_restores_reads_after_two_independent_merges(v415_ci_case):
+    case, run, probe = v415_ci_case
+    fx, four_worker, base, _version, path = case
+    admission = _v415_ci_add_two(case)
+    granted = _v415_ci_grant(v415_ci_case)
+    original = copy.deepcopy(_member(granted, "v4.15.4"))
+    admitted = run(*admission)
+    assert admitted.returncode == 0, admitted.stdout + admitted.stderr
+    two = _member(json.loads(path.read_text(encoding="utf-8")), "v4.15.2")
+    two_worker = Path(two["implementation"]["worktree"])
+    profile = two_worker / "scripts/ci/profiles.py"
+    profile.parent.mkdir(parents=True, exist_ok=True)
+    profile.write_text("FINAL_INTEGRATED_PROFILE = True\n", encoding="utf-8")
+    _git(two_worker, "add", "scripts/ci/profiles.py")
+    _git(two_worker, "commit", "-q", "-m", "fixture independent two profile contribution")
+    _git(fx.work, "merge", "--no-ff", "-q", two["source_branch"], "-m", "fixture merge independent two")
+    merge_two = _git(fx.work, "rev-parse", "HEAD")
+    three_worker = fx.tmp / "ci-three-worker"
+    three_branch = "feat/v4.15.3-native-ci-fixture"
+    _git(fx.work, "worktree", "add", "-q", "-b", three_branch, str(three_worker), merge_two)
+    path_three = three_worker / "src/three.txt"
+    path_three.parent.mkdir(parents=True, exist_ok=True)
+    path_three.write_text("independent third contribution\n", encoding="utf-8")
+    _git(three_worker, "add", "src/three.txt")
+    _git(three_worker, "commit", "-q", "-m", "fixture independent three contribution")
+    _git(fx.work, "merge", "--no-ff", "-q", three_branch, "-m", "fixture merge independent three")
+    tip = _git(fx.work, "rev-parse", "HEAD")
+    _git(fx.work, "tag", "v4.15.3", tip)
+    fx.publish("develop", "v4.15.3")
+    _git(four_worker, "merge", "--no-ff", "-q", "origin/develop", "-m", "fixture refresh four from integrated profile")
+    record = json.loads(path.read_text(encoding="utf-8"))
+    plan = next(p for p in cm.scan_plans(fx.work, 4, 15) if p.version == "v4.15.3")
+    record["members"].append({"version": "v4.15.3", "plan_path": plan.rel, "plan_sha256": ck.plan_hash_text(plan.text),
+        "source_branch": three_branch, "target_branch": "develop", "tag": "v4.15.3", "release_version": "v4.15.3",
+        "approvals": {"classes": []}, "start_head": merge_two, "implementation": {
+            "base_head": merge_two, "worktree": str(three_worker.resolve()), "branch": three_branch,
+            "read_paths": [], "write_paths": ["src/three.txt"], "depends_on": [], "started": ck._now()}})
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")
+    fx.state["pr_by_branch"] = {two["source_branch"]: {"state": "MERGED", "merge_commit": merge_two},
+                                three_branch: {"state": "MERGED", "merge_commit": tip}}
+    for missing in (two["source_branch"], three_branch):
+        fx.state["pr_by_branch"][missing]["state"] = "OPEN"
+        fx.save_state()
+        denied = probe(f"print(cm._v415_ci_read_restore(ck,rctx,record,member,{tip!r}))")
+        assert denied.returncode == 0 and denied.stdout.strip() == "False", denied.stdout + denied.stderr
+        fx.state["pr_by_branch"][missing]["state"] = "MERGED"
+    fx.save_state()
+    # Unrelated full release predicates are fixed fixture inputs. Actual merge ancestry,
+    # original contribution scopes, the back-merge tag, restored reads and writer stay native.
+    started = probe("\nfrom types import SimpleNamespace\n"
+        "cm.evaluate_member=lambda *a,**kw: SimpleNamespace(lines=[('fixture.previous-release','met')],exhausted=False,share_exhausted=False)\n"
+        "cm.member_gate=lambda *a,**kw: 'met'\n"
+        f"args=argparse.Namespace(minor='v4.15',member='v4.15.4',session={SESSION!r},repo={str(fx.work)!r},head={tip!r},coordinator_claims=None)\n"
+        "raise SystemExit(cm.cmd_record_member_start(ck,args))\n")
+    assert started.returncode == 0, started.stdout + started.stderr
+    current = _member(json.loads(path.read_text(encoding="utf-8")), "v4.15.4")
+    assert current["implementation"] == original["implementation"]
+    assert current[V415_READ_FIELD] == original[V415_READ_FIELD] and current["start_head"] == tip
+    effective = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,member)))")
+    assert effective.returncode == 0 and json.loads(effective.stdout) == original["implementation"]["read_paths"]
+    assert (four_worker / "scripts/ci/profiles.py").read_text(encoding="utf-8") == "FINAL_INTEGRATED_PROFILE = True\n"
+    assert base != tip
+    old = current["plan_path"]
+    dest = old.replace("docs/releases/", "docs/archives/")
+    old_text = (fx.work / old).read_text(encoding="utf-8")
+    archive_text = old_text.replace("docs/releases/v4/v4.15/", "docs/archives/v4/v4.15/")
+    target = fx.work / dest
+    target.parent.mkdir(parents=True, exist_ok=True)
+    (fx.work / old).unlink()
+    target.write_text(archive_text, encoding="utf-8")
+    fx.commit("fixture signed member archive identity after native start")
+    archive_commit = _git(fx.work, "rev-parse", "HEAD")
+    archive_hash = ck.plan_hash_text(archive_text)
+    record = json.loads(path.read_text(encoding="utf-8"))
+    current = _member(record, "v4.15.4")
+    current["archived"] = {"from": old, "original_sha256": current["plan_sha256"], "plan_path": dest,
+        "plan_sha256": archive_hash, "moved": [[old, dest, _git(fx.work, "rev-parse", f"HEAD:{dest}")]]}
+    for refreeze in (False, True):
+        if refreeze:
+            current.update(plan_path=dest, plan_sha256=archive_hash)
+            current["archived"]["close_commit"] = archive_commit
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        path.write_text(json.dumps(record), encoding="utf-8")
+        retained = probe("print(cm._v415_ci_read_valid(ck,rctx,record,member,member[cm.V415_CI_READ_CORRECTION][0]))")
+        assert retained.returncode == 0 and retained.stdout.strip() == "True", retained.stdout + retained.stderr
+        assert current["implementation"] == original["implementation"]
+        assert current[V415_READ_FIELD] == original[V415_READ_FIELD]
 
 
 def test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start(v415_outputs_case, capsys):

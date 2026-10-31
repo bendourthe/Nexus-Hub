@@ -1268,8 +1268,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs"):
-        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest or permit-outputs")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs or correct-ci-read")
     if getattr(args, "outputs", None) is not None and args.action != "permit-outputs":
         raise ck.Malformed("--outputs requires --action permit-outputs")
     if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
@@ -1323,8 +1323,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             raise ck.Malformed("permit-outputs needs a readable --outputs JSON file") from None
         page = v415_output_permission_page(ck, rctx, token, record, getattr(args, "member", None), value)
         display = None
+    elif args.action == "correct-ci-read":
+        record = _record_for_v415_permission(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = v415_ci_read_correction_page(ck, rctx, token, record, getattr(args, "member", None))
+        display = None
     else:
-        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope, permit-manifest or permit-outputs")
+        raise ck.Malformed("a minor record supports create, answer, pause, resume, add-class, supplement-scope, permit-manifest, permit-outputs or correct-ci-read")
     session = None if args.session == "auto" else args.session
     blocker = args.blocker if args.action == "answer" else None
     try:
@@ -2050,6 +2056,9 @@ def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
     return 0
 
 V415_OUTPUT_PERMISSION = "v415_coordinator_permissions"
+V415_CI_READ_CORRECTION = "v415_ci_read_corrections"
+_V415_CI_READ_PATH = "scripts/ci/profiles.py"
+_V415_CI_READ_CHECKPOINT = "6a45a253c242a97e09bc953a764c024687042b67"
 _V415_MANIFEST_OUTPUTS = {"MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json"}
 _V415_HANDBOOKS = "(?:overview|distribution|completion)"
 
@@ -2156,6 +2165,58 @@ def v415_output_permission_page(ck: ModuleType, rctx: RepoContext, token: str, r
             "coordinator_paths": list(old), "start_head": member.get("start_head"), "write_paths": paths}
 
 
+def _v415_capture_valid(ck: ModuleType, record: dict, page: dict, accepted: object, action: str,
+                         *, verify_capture: bool = False) -> bool:
+    """Share the existing historical controller and genuine capture checks across two exact actions."""
+    try:
+        if not isinstance(accepted, dict) or set(accepted) != {"at", "page_sha256", "round_nonce", "code",
+                "rendered_at", "text", "allow_short_reply", "authorization_context"}:
+            return False
+        controller = page["controller"]
+        current_controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
+        generation = controller.get("generation", 0) if isinstance(controller, dict) else None
+        legacy_fields = {"repo_root", "git_common_dir"}
+        transferred_fields = legacy_fields | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
+        if (not isinstance(controller, dict) or type(generation) is not int or generation < 0
+                or set(controller) not in ({"repo_root"}, legacy_fields, transferred_fields)
+                or (bool(generation) != (set(controller) == transferred_fields))
+                or generation > current_controller.get("generation", 0)
+                or (controller.get("origin_root") or controller.get("repo_root")) != record.get("repo_root")
+                or not isinstance(controller.get("repo_root"), str) or not Path(controller["repo_root"]).is_absolute()
+                or ("git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
+                    or not Path(controller["git_common_dir"]).is_absolute()))
+                or (generation and (not all(isinstance(controller[k], str) and controller[k]
+                                              for k in transferred_fields - {"generation"})
+                    or re.fullmatch(r"[0-9a-f]{40}", controller["head"]) is None
+                    or controller["origin_record_key"] != ck.record_key(Path(record["repo_root"]), record["repo"].lower(), "minor:v4.15")))
+                or (generation == current_controller.get("generation", 0)
+                    and approval_binding.canonical(controller) != approval_binding.canonical(current_controller))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(accepted["round_nonce"], str) or not re.fullmatch(r"[0-9a-f]{32}", accepted["round_nonce"])
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()
+                or not isinstance(accepted["at"], str) or not accepted["at"]
+                or type(accepted["allow_short_reply"]) is not bool):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(context, dict) or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or context["session_id"] != page["owner_session"] or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line(action, "v4.15", accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, ck.MinorConflict, approval_page.PageError):
+        return False
+
+
 def _v415_output_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
                                    entry: object, *, verify_capture: bool = False) -> bool:
     """Historical capture survives legitimate continuation, handoff and archive updates."""
@@ -2194,53 +2255,14 @@ def _v415_output_permission_valid(ck: ModuleType, rctx: RepoContext, record: dic
             return False
         if member.get("start_head") and not all(p in current for p in page["write_paths"]):
             return False
-        controller = page["controller"]
-        current_controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
-        generation = controller.get("generation", 0) if isinstance(controller, dict) else None
-        legacy_fields = {"repo_root", "git_common_dir"}
-        transferred_fields = legacy_fields | {"origin_root", "origin_record_key", "generation", "previous_root", "head", "at"}
-        if (not isinstance(controller, dict) or type(generation) is not int or generation < 0
-                or set(controller) not in ({"repo_root"}, legacy_fields, transferred_fields)
-                or (bool(generation) != (set(controller) == transferred_fields))
-                or generation > current_controller.get("generation", 0)
-                or (controller.get("origin_root") or controller.get("repo_root")) != record.get("repo_root")
-                or not isinstance(controller.get("repo_root"), str) or not Path(controller["repo_root"]).is_absolute()
-                or ("git_common_dir" in controller and (not isinstance(controller["git_common_dir"], str)
-                    or not Path(controller["git_common_dir"]).is_absolute()))
-                or (generation and (not all(isinstance(controller[k], str) and controller[k]
-                                              for k in transferred_fields - {"generation"})
-                    or re.fullmatch(r"[0-9a-f]{40}", controller["head"]) is None
-                    or controller["origin_record_key"] != ck.record_key(Path(record["repo_root"]), record["repo"].lower(), "minor:v4.15")))
-                or (generation == current_controller.get("generation", 0)
-                    and approval_binding.canonical(controller) != approval_binding.canonical(current_controller))):
-            return False
-        key = ck._secret(create=False)
-        if (key is None or not isinstance(accepted["text"], str) or not accepted["text"]
-                or not isinstance(accepted["round_nonce"], str) or not re.fullmatch(r"[0-9a-f]{32}", accepted["round_nonce"])
-                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
-                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
-                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()
-                or not isinstance(accepted["at"], str) or not accepted["at"]
-                or type(accepted["allow_short_reply"]) is not bool):
-            return False
-        context = accepted["authorization_context"]
-        if (not isinstance(context, dict) or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or not isinstance(page["owner_session"], str) or not page["owner_session"]
-                or context["session_id"] != page["owner_session"] or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
-                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
-                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
-            return False
-        allowed = {approval_page.plain_line("permit-outputs", "v4.15", accepted["code"])}
-        if accepted["allow_short_reply"]:
-            allowed.update(("Approve", "Yes", "Continue"))
-        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
-            ck._runs_dir(), context, accepted["rendered_at"]))
+        return _v415_capture_valid(ck, record, page, accepted, "permit-outputs", verify_capture=verify_capture)
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable, ck.MinorConflict, approval_page.PageError):
         return False
 
 
 def check_v415_compatibility_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
     """Preserve accepted history; a captured append may change exactly its entry and suffix."""
+    _check_v415_ci_read_write(ck, rctx, previous, record)
     before, after = previous.get("members", []), record.get("members", [])
     active = ck._MINOR_LEASE.get()
     appending = active is not None and "v415_output_append" in active
@@ -2381,6 +2403,219 @@ def cmd_record_permit_outputs(ck: ModuleType, args: argparse.Namespace) -> int:
     finally:
         active.pop("v415_output_append", None)
     print(f"PERMITTED {'active' if member.get('start_head') else 'dormant'} coordinator outputs {args.member}")
+    return 0
+
+
+def _v415_ci_checkpoint(ck: ModuleType, rctx: RepoContext, record: dict, member: dict) -> bool:
+    """Require the original registered worker's exact clean reviewed commit, not a later descendant."""
+    worker, status, retired = _worker_context(ck, rctx, record, member, rctx.budget, canonical_merged=False)
+    if worker is None or status != "met" or retired:
+        return False
+    rc, dirty = worker.run([worker.git, "-C", str(worker.root), "status", "--porcelain", "--untracked-files=all"])
+    return (rc == 0 and not dirty and worker._git_out("rev-parse", "HEAD") == _V415_CI_READ_CHECKPOINT
+            and _ancestor(worker, member["implementation"]["base_head"], _V415_CI_READ_CHECKPOINT) == "met"
+            and _v415_original_scope(ck, rctx, record, member, [_V415_CI_READ_PATH]))
+
+
+def v415_ci_read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                                  version: str | None) -> dict:
+    """One separately captured reservation correction; the full original implementation is immutable."""
+    member = next((m for m in record.get("members", []) if m.get("version") == version), None)
+    identity = _v415_original_identity(ck, rctx, record, member) if member is not None else None
+    implementation = member.get("implementation") if member else None
+    if (token != "v4.15" or version != "v4.15.4" or identity is None or not isinstance(implementation, dict)
+            or member.get("start_head") or member.get(V415_CI_READ_CORRECTION)
+            or _V415_CI_READ_PATH not in implementation["read_paths"]):
+        raise ck.Malformed("v415-ci-read-outside-reviewed-identity")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    if not _v415_ci_checkpoint(ck, rctx, record, member):
+        raise ck.Malformed("v415-ci-read-checkpoint-unverified")
+    return {"action": "correct-ci-read", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": version, "plan_sha256": ck.plan_hash_text(identity[1].text),
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "original_read_paths": list(implementation["read_paths"]),
+            "original_write_paths": list(implementation["write_paths"]),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "start_head": None, "path": _V415_CI_READ_PATH, "checkpoint": _V415_CI_READ_CHECKPOINT}
+
+
+def _v415_ci_read_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                         entry: object, *, verify_capture: bool = False) -> bool:
+    """Validate immutable historical identity; current checkpoint freshness is a separate predicate."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        identity = _v415_original_identity(ck, rctx, record, member)
+        implementation = member.get("implementation")
+        if (not isinstance(page, dict) or set(page) != {"action", "scope", "record_nonce", "repo", "controller",
+                "owner_session", "record_sha256", "member", "plan_sha256", "implementation_sha256",
+                "original_read_paths", "original_write_paths", "source_branch", "target_branch", "start_head", "path", "checkpoint"}
+                or identity is None or not isinstance(implementation, dict) or member["version"] != "v4.15.4"
+                or page["action"] != "correct-ci-read" or page["scope"] != {"kind": "minor", "minor": "v4.15"}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != "v4.15.4" or page["path"] != _V415_CI_READ_PATH
+                or page["checkpoint"] != _V415_CI_READ_CHECKPOINT or page["start_head"] is not None
+                or page["plan_sha256"] != ck.plan_hash_text(identity[1].text)
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or page["original_read_paths"] != implementation["read_paths"]
+                or page["original_write_paths"] != implementation["write_paths"]
+                or _V415_CI_READ_PATH not in implementation["read_paths"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]):
+            return False
+        return _v415_capture_valid(ck, record, page, accepted, "correct-ci-read", verify_capture=verify_capture)
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ck.MinorConflict):
+        return False
+
+
+def effective_read_paths(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
+                          candidate_state: dict | None = None) -> list[str]:
+    """Subtract one exact literal only while the authenticated correction is fresh and dormant."""
+    reads = member["implementation"]["read_paths"]
+    entries = member.get(V415_CI_READ_CORRECTION, [])
+    state = candidate_state if candidate_state is not None else member
+    if (not member.get("start_head") and not state.get("start_head") and isinstance(entries, list) and len(entries) == 1
+            and _v415_ci_read_valid(ck, rctx, record, member, entries[0])
+            and _v415_ci_checkpoint(ck, rctx, record, member)):
+        return [path for path in reads if path != _V415_CI_READ_PATH]
+    return list(reads)
+
+
+def _v415_ci_read_restore(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, head: str) -> bool:
+    """The ordinary ordered start restores raw reads only after .2 and .3 independently integrate."""
+    entries = member.get(V415_CI_READ_CORRECTION, [])
+    if (not isinstance(entries, list) or len(entries) != 1
+            or not _v415_ci_read_valid(ck, rctx, record, member, entries[0])):
+        return False
+    members = {m["version"]: m for m in ordered_members(record)}
+    if any(version not in members or not _merged_on_base(ck, rctx, record, members[version], head)
+           for version in ("v4.15.2", "v4.15.3")):
+        return False
+    candidate = {**member, "start_head": head}
+    reads = effective_read_paths(ck, rctx, record, member, candidate)
+    if reads != member["implementation"]["read_paths"]:
+        return False
+    for other in members.values():
+        if other["version"] == member["version"] or _merged_on_base(ck, rctx, record, other, head):
+            continue
+        implementation = other.get("implementation")
+        if implementation and any(_overlap(w, p) for w in [*implementation["write_paths"], *other.get("coordinator_paths", [])]
+                                  for p in reads):
+            return False
+    return True
+
+
+def _check_v415_ci_read_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every writer preserves original claims and history; a genuine consume appends exactly one entry."""
+    before, after = previous.get("members", []), record.get("members", [])
+    active = ck._MINOR_LEASE.get()
+    appending = active is not None and "v415_ci_read_append" in active
+    if not appending and not any(isinstance(m, dict) and V415_CI_READ_CORRECTION in m for m in [*before, *after]):
+        return
+    if (not all(isinstance(m, dict) for m in [*before, *after])
+            or len({m.get("version") for m in before}) != len(before)
+            or len({m.get("version") for m in after}) != len(after)):
+        raise ck.MinorConflict("v415-ci-read-invalid-members")
+    old, new = ({m.get("version"): m for m in members} for members in (before, after))
+    added = []
+    for version in old.keys() | new.keys():
+        left = old.get(version, {}).get(V415_CI_READ_CORRECTION, [])
+        right = new.get(version, {}).get(V415_CI_READ_CORRECTION, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) > 1 or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("v415-ci-read-not-append-only")
+        if left:
+            if (version not in new or approval_binding.canonical(old[version].get("implementation"))
+                    != approval_binding.canonical(new[version].get("implementation"))
+                    or any(old[version].get(k) != new[version].get(k) for k in ("source_branch", "target_branch"))):
+                raise ck.MinorConflict("v415-ci-read-original-claims-changed")
+            if (old[version].get("start_head") == new[version].get("start_head")
+                    and old[version].get("coordinator_paths", []) != new[version].get("coordinator_paths", [])):
+                raise ck.MinorConflict("v415-ci-read-coordinator-state-changed")
+            if old[version].get("start_head") != new[version].get("start_head"):
+                restore = {"member": version, "head": new[version].get("start_head"), "record_sha256": active["expected"] if active else None}
+                if (old[version].get("start_head") or not restore["head"] or not active
+                        or approval_binding.canonical(active.get("v415_ci_read_restore")) != approval_binding.canonical(restore)
+                        or not _v415_ci_read_restore(ck, rctx, previous, old[version], restore["head"])):
+                    raise ck.MinorConflict("v415-ci-read-restore-not-native")
+                restored = json.loads(json.dumps(record))
+                target = next(m for m in restored["members"] if m["version"] == version)
+                for key in ("start_head", "started", "coordinator_paths"):
+                    if key in old[version]:
+                        target[key] = old[version][key]
+                    else:
+                        target.pop(key, None)
+                original = json.loads(json.dumps(previous))
+                restored.pop("approvals_hmac", None)
+                original.pop("approvals_hmac", None)
+                if approval_binding.canonical(restored) != approval_binding.canonical(original):
+                    raise ck.MinorConflict("v415-ci-read-unrelated-restore-change")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        if appending:
+            raise ck.MinorConflict("v415-ci-read-captured-append-missing")
+        return
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("v415-ci-read-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": active["expected"]}
+    if (version not in old or version not in new
+            or approval_binding.canonical(active.get("v415_ci_read_append")) != approval_binding.canonical(grant)):
+        raise ck.MinorConflict("v415-ci-read-append-not-captured")
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in restored["members"] if m["version"] == version)
+    target[V415_CI_READ_CORRECTION].pop()
+    if V415_CI_READ_CORRECTION not in old[version]:
+        target.pop(V415_CI_READ_CORRECTION)
+    original = json.loads(json.dumps(previous))
+    restored.pop("approvals_hmac", None)
+    original.pop("approvals_hmac", None)
+    if approval_binding.canonical(restored) != approval_binding.canonical(original):
+        raise ck.MinorConflict("v415-ci-read-unrelated-record-change")
+    page = entry.get("page", {})
+    if (not _v415_ci_read_valid(ck, rctx, record, new[version], entry, verify_capture=True)
+            or page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or not _v415_ci_checkpoint(ck, rctx, previous, old[version])):
+        raise ck.MinorConflict("v415-ci-read-invalid-entry")
+
+
+@minor_writer
+def cmd_record_correct_ci_read(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume the separate genuine correction without modifying a single original claim."""
+    rctx = repo_context(ck, args)
+    record = _record_for_v415_permission(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = v415_ci_read_correction_page(ck, rctx, args.minor, record, args.member)
+    consumed = _consume(ck, rctx, args.minor, "correct-ci-read", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in record["members"] if m["version"] == args.member)
+    member.setdefault(V415_CI_READ_CORRECTION, []).append(entry)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["v415_ci_read_append"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("v415_ci_read_append", None)
+    print(f"CORRECTED dormant CI read reservation {args.member}")
     return 0
 
 
@@ -4285,6 +4520,9 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         coordinator_paths = proposed
     if not _v415_output_activation(ck, rctx, record, member, coordinator_paths, tip):
         return _gate_refusal(ck, version, "v415-output-activation-unverified")
+    if (member.get(V415_CI_READ_CORRECTION) and not member.get("start_head")
+            and not _v415_ci_read_restore(ck, rctx, record, member, tip)):
+        return _gate_refusal(ck, version, "v415-ci-read-restore-unverified")
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
         worker, status, _ = _worker_context(ck, rctx, record, candidate, rctx.budget, base=tip, canonical_merged=False)
@@ -4306,10 +4544,13 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     if member.get(V415_OUTPUT_PERMISSION):
         active["v415_output_activation"] = {"member": version, "head": tip,
                                              "paths": coordinator_paths, "record_sha256": active["expected"]}
+    if member.get(V415_CI_READ_CORRECTION):
+        active["v415_ci_read_restore"] = {"member": version, "head": tip, "record_sha256": active["expected"]}
     try:
         ck._write_record(record_file(ck, rctx, token), record)
     finally:
         active.pop("v415_output_activation", None)
+        active.pop("v415_ci_read_restore", None)
     print(f"STARTED {version} start_head={tip}")
     return 0
 
@@ -4947,7 +5188,8 @@ def _coordinator_conflict(ck: ModuleType, rctx: RepoContext, record: dict, membe
         claims = other.get("implementation")
         if claims:
             _ctx, status, _retired = _worker_context(ck, rctx, record, other, rctx.budget, canonical_merged=False)
-            if status != "met" or any(_overlap(p, q) for p in paths for q in [*claims["read_paths"], *claims["write_paths"], *other.get("coordinator_paths", [])]):
+            reads = effective_read_paths(ck, rctx, record, other)
+            if status != "met" or any(_overlap(p, q) for p in paths for q in [*reads, *claims["write_paths"], *other.get("coordinator_paths", [])]):
                 return True
         else:
             branch = rctx._git_out("rev-parse", "--verify", "-q", f"refs/heads/{other['source_branch']}^{{commit}}")
@@ -5011,6 +5253,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     integration = _integration_ref(rctx, _target(record))
     if not integration or _ancestor(rctx, head, integration) != "met":
         return _implementation_refusal(ck, version, "implementation-base-not-integrated")
+    reads = effective_read_paths(ck, rctx, record, member, candidate) if existing else claims["read_paths"]
     for other in ordered_members(record):
         if other["version"] == version or _merged_on_base(ck, rctx, record, other, head):
             continue
@@ -5023,8 +5266,9 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
         _other_ctx, other_status, _ = _worker_context(ck, rctx, record, other, rctx.budget, canonical_merged=False)
         if other_status != "met":
             return _implementation_refusal(ck, version, "active-implementation-unverified")
-        if any(_overlap(w, p) for w in claims["write_paths"] for p in [*implementation["read_paths"], *implementation["write_paths"], *other.get("coordinator_paths", [])]) or any(
-            _overlap(w, p) for w in [*implementation["write_paths"], *other.get("coordinator_paths", [])] for p in claims["read_paths"]
+        other_reads = effective_read_paths(ck, rctx, record, other)
+        if any(_overlap(w, p) for w in claims["write_paths"] for p in [*other_reads, *implementation["write_paths"], *other.get("coordinator_paths", [])]) or any(
+            _overlap(w, p) for w in [*implementation["write_paths"], *other.get("coordinator_paths", [])] for p in reads
         ):
             return _implementation_refusal(ck, version, "implementation-scope-conflict")
     if not existing:

@@ -2442,6 +2442,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     mode = render_mode(args)  # a flag conflict is refused before any round opens
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
+    if args.action == "correct-ci-read":
+        raise Malformed("--action correct-ci-read requires --minor")
     if getattr(args, "member", None) is not None:
         raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
     if (args.action in ("add-class", "supplement-scope", "permit-manifest", "permit-outputs")
@@ -3051,7 +3053,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--class", dest="added_class", help="with --minor add-class: the class to add")
-    render.add_argument("--member", help="with --minor answer or supplement-scope: the member version")
+    render.add_argument("--member", help="with --minor: the member version for the selected member action")
     render.add_argument("--merge", help="with --minor supplement-scope: the exact reviewed merge")
     render.add_argument("--outputs", help="with --minor permit-outputs: exact write_paths JSON file")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
@@ -3126,6 +3128,13 @@ def build_parser() -> argparse.ArgumentParser:
     outputs.add_argument("--outputs", required=True, help="JSON object containing literal write_paths")
     outputs.add_argument("--text", help="when given, must equal the captured decision")
     outputs.set_defaults(func=lambda args: _minor_module().cmd_record_permit_outputs(sys.modules[__name__], args))
+    correction = record.add_parser("correct-ci-read", help="capture the exact v4.15.4 CI read correction")
+    correction.add_argument("--minor", required=True)
+    correction.add_argument("--repo", default=".")
+    correction.add_argument("--session", required=True)
+    correction.add_argument("--member", required=True, help="the fixed eligible member v4.15.4")
+    correction.add_argument("--text", help="when given, must equal the captured decision")
+    correction.set_defaults(func=lambda args: _minor_module().cmd_record_correct_ci_read(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
