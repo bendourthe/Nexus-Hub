@@ -105,3 +105,40 @@ def test_no_token_uses_fresh_verification_each_time(decline, monkeypatch):
         ctx.budget = ck.Budget(20)
         assert cm.completion_anchor(ck, ctx, view, view)[0] == "met"
     assert len(calls) == 2
+
+
+@pytest.mark.parametrize("decline", [True], indirect=True)
+@pytest.mark.parametrize("change", ["unchanged", "evidence", "origin"])
+def test_archived_cited_capture_keeps_proof_checks(decline, change):
+    import minor_close
+
+    ctx, view = decline.ctx, decline.view
+    binding = ck.conditional_request(ctx, view, decline.request)
+    receipt = ck.conditional_capture(
+        {"page": {"conditional_outcome": binding}, "pasted": "Approve fixture"}
+    )
+    view["approvals"]["conditional_outcome"] = receipt
+    source = "docs/releases/v0/v0.2"
+    destination = "docs/archives/v0/v0.2"
+    moved = destination + ctx.rel[len(source):]
+    repairs = minor_close.plan_repairs(
+        decline.work, [(ctx.rel, ctx.rel, moved)], source, destination
+    )
+    (decline.work / destination).parent.mkdir(parents=True, exist_ok=True)
+    decline.git("mv", source, destination)
+    for repair in repairs:
+        (decline.work / repair.new_rel).write_bytes(repair.after)
+    decline.git("add", ".")
+    decline.git("commit", "-qm", "archive conditional trial")
+    post = ck.Context(str(decline.work / moved), ck.Budget(20))
+    view["plan_sha256"] = post.plan_hash()
+    ck.conditional_rebind(receipt, moved, post.text)
+    if change == "evidence":
+        proof = destination + "/development/result.json"
+        (decline.work / proof).write_text('{"admittedSlots":["changed"]}\n')
+    elif change == "origin":
+        receipt["origin"]["plan_path"] = "docs/releases/v0/v0.3/plans/other.md"
+    status, result = ck.conditional_status(post, view)
+    assert status == ("met" if change == "unchanged" else "cannot-verify")
+    if result is not None:
+        assert result["protected_paths"] == ["src/catalog.json"]

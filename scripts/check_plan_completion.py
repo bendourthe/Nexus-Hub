@@ -1071,10 +1071,13 @@ def conditional_request(ctx: Context, record: dict, request: object) -> dict:
         hashes[tid] = hashlib.sha256(block.encode()).hexdigest()
     # A task may cite its trial result. Bound immutable release captures are proof,
     # not unchanged application inputs; the evidence checks below still apply.
+    evidence_tree = active.removesuffix("plans/")
+    current_evidence_tree = archived.removesuffix("plans/") if ctx.rel.startswith(archived) else evidence_tree
     protected.difference_update(
-        item["path"] for item in evidence if isinstance(item, dict)
+        proof_path for item in evidence if isinstance(item, dict)
         and isinstance(item.get("path"), str)
-        and item["path"].startswith(active.removesuffix("plans/") + "development/")
+        and item["path"].startswith(evidence_tree + "development/")
+        for proof_path in (item["path"], current_evidence_tree + item["path"][len(evidence_tree):])
     )
     approvals = record.get("approvals") or {}
     if _approved_remote_status(ctx, record) != "met":
