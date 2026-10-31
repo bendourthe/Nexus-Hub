@@ -13,7 +13,7 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
-from .catalog import MODEL_ID_SEGMENT, Group, load_claude_model_ids, write_groups
+from .catalog import MODEL_ID_SEGMENT, USER_FILE_IDS, Group, load_claude_model_ids, write_groups
 from .readers import FILE_INFO, Snapshot, printable, user_file_id
 
 ECHO_LIMIT = 80
@@ -197,7 +197,7 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
     rec: dict[str, Any] = {
         "control": group.control["id"], "tool": group.tool, "surface": group.surface, "state": "",
         "value": None, "native": None, "layer": None, "layer_value": None, "fix": None,
-        "detail": None, "caveats": [], "writes": [w["id"] for w in group.writes],
+        "detail": None, "caveats": [], "writes": [w["id"] for w in group.writes], "removable_override": None,
     }
     caveats: list[str] = []
     admitted = [w for w in group.writes if w["admission"] == "admitted"]
@@ -256,7 +256,30 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
     return done("in-effect" if native.found else "tool-default")
 
 
+def _removable_override(rec: dict[str, Any], catalog: dict[str, Any], snap: Snapshot) -> dict[str, Any] | None:
+    """The catalog `removable_overrides` row whose key is present in the user's file, when `remove-override` applies.
+
+    It applies only where the CLI accepts it: the cell has an admitted write on a readable, installed tool. The
+    panel offers its "Remove this override" button from this field instead of guessing from the layer text.
+    """
+    if rec["state"] in ("not-settable", "tool-not-installed", "cannot-detect"):
+        return None
+    for row in catalog.get("removable_overrides", []):
+        if row["control"] != rec["control"] or row["tool"] != rec["tool"]:
+            continue
+        record = snap.files.get(USER_FILE_IDS[row["file"]] or "")
+        if record is None or record.status != "ok":
+            continue
+        found, value = _walk(record.data, list(row["key_path"]))
+        if found and value not in (None, ""):
+            return {"id": row["id"], "weakens_safety": row["weakens_safety"], "reason": row["reason"]}
+    return None
+
+
 def resolve(catalog: dict[str, Any], snapshot: Snapshot, claude_ids: list[str] | None = None) -> list[dict[str, Any]]:
     """One record per control, tool, and surface, in catalog order."""
     ids = load_claude_model_ids() if claude_ids is None else claude_ids
-    return [_resolve_group(group, snapshot, ids) for group in write_groups(catalog)]
+    records = [_resolve_group(group, snapshot, ids) for group in write_groups(catalog)]
+    for rec in records:
+        rec["removable_override"] = _removable_override(rec, catalog, snapshot)
+    return records

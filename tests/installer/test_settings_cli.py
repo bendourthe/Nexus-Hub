@@ -139,6 +139,10 @@ def test_explain_prints_sources_overrides_and_cannot_remove(install: Path, env: 
 def test_explain_json_and_unknown_control(install: Path, env: dict[str, str]) -> None:
     data = json.loads(run(install, env, "explain", "model", "--json").stdout)
     assert data["control"]["id"] == "model" and {w["id"] for w in data["writes"]} >= {"claude.model", "codex.model"}
+    assert data["control"]["per_tool"] is True and data["control"]["never_written"] == []
+    assert data["claude_model_ids"] and all(isinstance(i, str) and i for i in data["claude_model_ids"])
+    effort = json.loads(run(install, env, "explain", "effort", "--json").stdout)
+    assert effort["control"]["per_tool"] is False and effort["control"]["never_written"] == ["max"]
 
     bad = run(install, env, "explain", "nope")
     assert bad.returncode == 2 and "unknown control 'nope'" in bad.stderr and "known controls: effort, model" in bad.stderr
@@ -183,7 +187,7 @@ def test_a_missing_engine_says_to_reinstall(install: Path, env: dict[str, str]) 
 def _record(**changes: object) -> dict:
     base = {
         "control": "model", "tool": "claude", "surface": "cli", "state": "in-effect", "value": "opus", "native": "opus", "layer": None,
-        "layer_value": None, "fix": None, "detail": None, "caveats": [], "writes": ["claude.model"],
+        "layer_value": None, "fix": None, "detail": None, "caveats": [], "writes": ["claude.model"], "removable_override": None,
     }
     return {"schema_version": 1, "project": None, "platform": "linux", "tools": {}, "records": [{**base, **changes}]}
 
@@ -198,6 +202,8 @@ def _record(**changes: object) -> dict:
         {"state": "in-effect", "layer": "env X (shell)", "fix": "do it"},  # a layer only with overridden-by
         {"state": "maybe"},  # unknown state
         {"surface": "elsewhere"},
+        {"removable_override": {"id": "x"}},  # an incomplete removable-override object
+        {"removable_override": {"id": "x", "weakens_safety": "no", "reason": "r"}},
     ],
 )
 def test_the_schema_rejects_an_unexplained_or_unknown_state(changes: dict) -> None:
@@ -209,6 +215,7 @@ def test_the_schema_accepts_a_well_formed_record() -> None:
     jsonschema.validate(_record(), SCHEMA)
     jsonschema.validate(_record(state="overridden-by", layer="env X (shell)", fix="Unset X."), SCHEMA)
     jsonschema.validate(_record(state="not-covered", detail="claude-opus-5-5"), SCHEMA)
+    jsonschema.validate(_record(removable_override={"id": "claude.effort_env", "weakens_safety": False, "reason": "Outranks /effort."}), SCHEMA)
 
 
 # --- Write side (v4.14.6 Phase 3) -------------------------------------------------

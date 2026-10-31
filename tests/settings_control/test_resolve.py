@@ -499,3 +499,49 @@ def test_toml_errors_name_the_line_with_tomlkit(machine: Any, catalog: dict[str,
     record = machine.records(catalog)["model", "codex", "cli"]
 
     assert record["state"] == "cannot-detect" and "is not valid TOML (line 2)" in record["detail"]
+
+
+# --- removable_override: where the panel may offer "Remove this override" (v4.14.6 Phase 4) --------
+
+
+def test_a_present_catalog_override_key_is_reported_as_removable(machine: Any, catalog: dict[str, Any]) -> None:
+    machine.put("claude-user", {"env": {"CLAUDE_CODE_EFFORT_LEVEL": "high"}, "permissions": {"disableBypassPermissionsMode": "disable"}})
+
+    found = machine.records(catalog)
+
+    effort = found["effort", "claude", "cli"]["removable_override"]
+    posture = found["posture", "claude", "cli"]["removable_override"]
+    assert effort["id"] == "claude.effort_env" and effort["weakens_safety"] is False and effort["reason"]
+    assert posture["id"] == "claude.disable_bypass" and posture["weakens_safety"] is True
+
+
+def test_no_removable_override_without_the_key_or_for_other_cells(machine: Any, catalog: dict[str, Any]) -> None:
+    machine.put("claude-user", {"model": "opus"})
+    machine.env["CLAUDE_CODE_EFFORT_LEVEL"] = "high"  # a shell variable is not a key in the user file
+
+    found = machine.records(catalog)
+
+    assert all(record["removable_override"] is None for record in found.values())
+
+
+def test_a_removable_key_is_not_offered_where_the_cli_would_refuse_it(machine: Any, catalog: dict[str, Any]) -> None:
+    machine.put("copilot-user", {"permissions": {"disableBypassPermissionsMode": "disable"}})
+
+    # Copilot CLI posture is Not-Settable in the shipped catalog, and `remove-override` needs an admitted write.
+    assert machine.records(catalog)["posture", "copilot-cli", "cli"]["removable_override"] is None
+
+
+def test_the_copilot_block_is_removable_once_posture_is_admitted(machine: Any, admitted: dict[str, Any]) -> None:
+    machine.put("copilot-user", {"permissions": {"disableBypassPermissionsMode": "disable"}})
+
+    record = machine.records(admitted)["posture", "copilot-cli", "cli"]["removable_override"]
+
+    assert record is not None and record["id"] == "copilot-cli.disable_bypass" and record["weakens_safety"] is True
+
+
+def test_an_unreadable_user_file_offers_no_removal(machine: Any, catalog: dict[str, Any]) -> None:
+    machine.put("claude-user", '{"env": {"CLAUDE_CODE_EFFORT_LEVEL": "high"')
+
+    record = machine.records(catalog)["effort", "claude", "cli"]
+
+    assert record["state"] == "cannot-detect" and record["removable_override"] is None

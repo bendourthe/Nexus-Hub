@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .catalog import load_claude_model_ids
 from .readers import Snapshot
 
 SCHEMA_VERSION = 1
@@ -87,8 +88,11 @@ def explain_data(catalog: dict[str, Any], control_id: str) -> dict[str, Any]:
     used = sorted({w["tool"] for w in writes} & set(catalog["tools"]))
     tools = {t: {"label": catalog["tools"][t]["label"], "cannot_remove": list(catalog["tools"][t]["cannot_remove"])} for t in used}
     return {
-        "control": {"id": control["id"], "label": control["label"], "values": control["values"]},
-        "writes": writes, "tools": tools,
+        "control": {
+            "id": control["id"], "label": control["label"], "values": control["values"],
+            "per_tool": bool(control.get("per_tool")), "never_written": list(control.get("never_written", [])),
+        },
+        "writes": writes, "tools": tools, "claude_model_ids": load_claude_model_ids(),
     }
 
 
