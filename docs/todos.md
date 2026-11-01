@@ -2,6 +2,10 @@
 
 **Integration branch:** `develop`
 
+**v4.15 native prerequisite:** Three implementation phases and final local qualification are committed. All five failed scopes from the earlier comprehensive run have complete combined functional qualification; original timeouts remain failed. Refreshed Windows validators, all eight integration owners, actual producer/PowerShell installer exercises, extension/package checks, the canonical coverage threshold and independent Goal review have passing evidence. The final worktree preserves published v4.14.6. [PR 578](https://github.com/bendourthe/Nexus-Hub/pull/578) is open; its CodeQL snapshot-permission failure was reproduced with two regressions, corrected without suppression, and passed 49 proof/process plus nine console cases and a fresh actual producer/installer exercise. Corrective publication, current-head green integration and exact helper delivery remain open. The original signed v4.15 run and its live reservations remain unchanged. [Evidence](releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
+
+- [ ] Qualify, integrate and deliver the bounded v4.15 native compatibility prerequisite before obtaining its separate genuine native permission decisions and resuming the original release plans.
+
 **v4.14 implementation reporting:** Hourly and transition reports plus read-only `/update status` are locally verified in the isolated `feat/v4.14-progress-reports` branch. Counts reuse the existing parser; worker activity, timing, dependencies and estimates require observed evidence.
 
 - [x] Implement and locally verify v4.14 progress reporting and on-demand status: 117 tests pass with 2 skips; 18 fast checks pass. [Evidence](releases/v4/v4.14/development/v4.14-progress-reporting.md).

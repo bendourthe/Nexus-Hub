@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -149,6 +149,14 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if not isinstance(blocker, int) or isinstance(blocker, bool) or blocker < 0:
             raise PageError("an answer names a non-negative blocker index")
         return _fits(f"Continue /implement {scope} past blocker {blocker} (approval {code})")
+    if action == "correct-ci-read":
+        if scope != "v4.15":
+            raise PageError("the reviewed read correction belongs only to minor v4.15")
+        return _fits(f"Correct the one-file CI read reservation in /implement {scope} (approval {code})")
+    if action == "permit-outputs":
+        if scope != "v4.15":
+            raise PageError("the reviewed output permission belongs only to minor v4.15")
+        return _fits(f"Permit the displayed publication outputs in /implement {scope} (approval {code})")
     if action == "permit-manifest":
         if not MINOR_RE.match(scope):
             raise PageError("the manifest duty is permitted only for a minor run")
@@ -805,6 +813,91 @@ def _section(title: str, body: list[str], level: int = 2) -> list[str]:
 def _action_page(data: dict, paste: PasteSet) -> str:
     action = data["action"]
     scope = data["scope"]
+    if action == "correct-ci-read":
+        page = data.get("page") or {}
+        path_fields = (("Original worker reads", "original_read_paths"), ("Original worker writes", "original_write_paths"))
+        identities = ("repo", "owner_session", "source_branch", "target_branch")
+        hashes = ("record_sha256", "plan_sha256", "implementation_sha256")
+        if (page.get("action") != action or page.get("scope") != {"kind": "minor", "minor": "v4.15"}
+                or page.get("member") != "v4.15.4" or page.get("path") != "scripts/ci/profiles.py"
+                or not isinstance(page.get("checkpoint"), str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", page["checkpoint"])
+                or "start_head" not in page or page["start_head"] is not None
+                or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
+                or any(not isinstance(page.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", page[key]) for key in hashes)
+                or not isinstance(page.get("controller"), dict) or not isinstance(page["controller"].get("repo_root"), str)
+                or not page["controller"]["repo_root"]
+                or any(not isinstance(page.get(field), list)
+                       or any(not isinstance(path, str) or not path for path in page[field]) for _title, field in path_fields)
+                or page["path"] not in page["original_read_paths"]):
+            raise PageError("read correction requires its exact unstarted member, file, checkpoint and original scope")
+        out = _section("CI read reservation correction", [
+            "This temporarily stops v4.15.4 from reserving one shared CI file so v4.15.2 can update it under its own approved write scope.",
+            "Your original worker read and write lists stay unchanged. All other reservations remain active, including broader directory reads.",
+            "The ordinary read reservation resumes at v4.15.4's ordered publication start after the earlier plans are integrated.",
+            "Its final CI comparison must use that later integrated candidate.",
+            "Decline keeps the existing reservation in effect.",
+        ])
+        out += _section("Bound identity", [
+            "Repository: " + quoted(page["repo"]), "Member: " + quoted(page["member"]),
+            "Exact file: " + quoted(page["path"]), "Reviewed source checkpoint: " + quoted(page["checkpoint"]),
+            "Original frozen plan: " + quoted(page["plan_sha256"]),
+            "Original implementation: " + quoted(page["implementation_sha256"]),
+            "Source branch: " + quoted(page["source_branch"]), "Target branch: " + quoted(page["target_branch"]),
+            "Owner session: " + quoted(page["owner_session"]),
+            "Controller: " + json.dumps(page["controller"], ensure_ascii=True, sort_keys=True).replace("`", "\\u0060").replace("~", "\\u007e"),
+            "Current record: " + quoted(page["record_sha256"]),
+        ])
+        for title, field in path_fields:
+            rows = ["- " + json.dumps(path, ensure_ascii=True).replace("`", "\\u0060").replace("~", "\\u007e") for path in page[field]]
+            out += _section(title, rows or ["None."])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
+    if action == "permit-outputs":
+        page = data.get("page") or {}
+        path_fields = (("Original worker reads", "original_read_paths"),
+                       ("Original worker writes", "original_write_paths"),
+                       ("Existing coordinator files", "coordinator_paths"),
+                       ("Additional exact files", "write_paths"))
+        start = page.get("start_head")
+        identities = ("repo", "owner_session", "source_branch", "target_branch")
+        hashes = ("record_sha256", "plan_sha256", "implementation_sha256")
+        if (page.get("action") != action or page.get("scope") != {"kind": "minor", "minor": "v4.15"}
+                or not isinstance(page.get("member"), str) or page["member"] not in {f"v4.15.{patch}" for patch in range(5)}
+                or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
+                or any(not isinstance(page.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", page[key]) for key in hashes)
+                or not isinstance(page.get("controller"), dict) or not isinstance(page["controller"].get("repo_root"), str)
+                or not page["controller"]["repo_root"] or "start_head" not in page
+                or start is not None and (not isinstance(start, str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", start))
+                or any(not isinstance(page.get(field), list)
+                       or any(not isinstance(path, str) or not path for path in page[field]) for _title, field in path_fields)
+                or not page["write_paths"]):
+            raise PageError("output permission requires the exact member, original scope, start and additional files")
+        effect = ("Approving will append the additional exact files to this member's existing coordinator publication scope now."
+                  if start else "Approving registers a dormant permission. It grants no file write before ordinary ordered publication admission.")
+        out = _section("Publication output permission", [
+            "This decision covers only the displayed additional files for " + quoted(page["member"]) + ".",
+            effect,
+            "Original worker claims, publication order, approval classes and spending limits stay unchanged.",
+            "Original-scope checks and active file conflicts must pass before any permission activates.",
+            "Decline leaves these additional files unapproved.",
+        ])
+        out += _section("Bound identity", [
+            "Repository: " + quoted(page.get("repo")),
+            "Source branch: " + quoted(page.get("source_branch")),
+            "Target branch: " + quoted(page.get("target_branch")),
+            "Original frozen plan: " + quoted(page.get("plan_sha256")),
+            "Original implementation: " + quoted(page.get("implementation_sha256")),
+            "Existing publication start: " + quoted(start),
+            "Owner session: " + quoted(page.get("owner_session")),
+            "Controller: " + json.dumps(page["controller"], ensure_ascii=True, sort_keys=True).replace("`", "\\u0060").replace("~", "\\u007e"),
+            "Current record: " + quoted(page.get("record_sha256")),
+        ])
+        for title, field in path_fields:
+            # File lists are exact decision data, so the general prose cap must not truncate them.
+            rows = ["- " + json.dumps(path, ensure_ascii=True).replace("`", "\\u0060").replace("~", "\\u007e") for path in page[field]]
+            out += _section(title, rows or ["None."])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     if action == "permit-manifest":
         page = data.get("page") or {}
         if page.get("path") != "MANIFEST.sha256" or not page.get("member"):
@@ -943,6 +1036,8 @@ def question_data(data: dict) -> dict:
         'retire': 'Retire this run record and its authority',
         'supplement-scope': 'Acknowledge only the displayed exact files in the reviewed historical merge',
         'permit-manifest': 'Register only the displayed dormant member publication manifest duty',
+        'permit-outputs': 'Permit only the displayed exact additional publication output files',
+        'correct-ci-read': 'Temporarily release only the displayed one-file read reservation',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
                       "instead of all at once when the minor closes"),
     }.get(action)
@@ -963,7 +1058,7 @@ def question_data(data: dict) -> dict:
             'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
-            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest') else blocker.get('request') or {},
+            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read') else blocker.get('request') or {},
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
                         'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',

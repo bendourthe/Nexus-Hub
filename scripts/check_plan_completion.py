@@ -38,6 +38,7 @@ import argparse
 import tempfile
 from contextlib import contextmanager
 from contextvars import ContextVar
+from dataclasses import dataclass, field
 from functools import wraps
 import datetime as dt
 import hashlib
@@ -47,13 +48,15 @@ import json
 import os
 import re
 import secrets
+import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
-from types import ModuleType
+from types import MappingProxyType, ModuleType, SimpleNamespace
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
@@ -685,6 +688,7 @@ def _write_record(path: Path, record: dict) -> None:
         previous = json.loads(raw) if raw is not None else {}
         _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_v415_compatibility_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -879,13 +883,14 @@ def _now() -> str:
 # --------------------------------------------------------------------------- predicates
 
 
-def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], int]:
+def evaluate(ctx: Context, record: dict | None, *, task_authority: V415TaskAuthority | None = None) -> tuple[list[tuple[str, str]], int]:
     """Return ([(predicate id, status)], deferred item count)."""
     results: list[tuple[str, str]] = []
     approvals = (record or {}).get("approvals", {})
     start = (record or {}).get("start_head")
     for tid, checked, path in ctx.tasks:
-        results.append((f"task.{tid}", _task_status(ctx, checked, path, start, record)))
+        results.append((f"task.{tid}", _task_status(ctx, checked, path, start, record,
+                                                 task_id=tid, task_authority=task_authority)))
     gaps_status, deferred = _gaps_status(ctx, record)
     results.append(("gaps.version", gaps_status))
     evidence = _evidence_file(ctx, record)
@@ -991,18 +996,779 @@ def _approved_remote_status(ctx: RepoContext, record: dict | None) -> str:
 DATE_PLACEHOLDER = "YYYY-MM-DD"
 
 
-def _task_status(ctx: Context, checked: bool, path: str, start: str | None, record: dict | None = None) -> str:
+_V415_ORIGINAL_HASHES = MappingProxyType({
+    "v4.15.0": "9a60e8e3d6d608306b431ff13d5dd5355d38c463bbcab16e0bd99b7118330dc8",
+    "v4.15.1": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451",
+    "v4.15.2": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835",
+    "v4.15.3": "97a8f0a291eb844deaa2daf679dd3b8176936f476cc98af662eb1c44931d2cbe",
+    "v4.15.4": "40abcad912dc8ee9b72866832103ae3f896bc597898ae63508bcdd002a85da2c",
+})
+# These are individually reviewed literals, never a release-prefix substitution.
+_V415_TASK_TARGETS = MappingProxyType({
+    **{("v4.15.1", tid, old): new for tids, old, new in (
+        (("T101", "T105"), "docs/releases/v4/v4.16/development/detection-evidence.md", "docs/releases/v4/v4.15/development/detection-evidence.md"),
+        (("T102", "T103"), "docs/releases/v4/v4.16/development/injection-prototype.md", "docs/releases/v4/v4.15/development/injection-prototype.md"),
+        (("T104",), "docs/releases/v4/v4.16/development/profile-layer-trust-audit.md", "docs/releases/v4/v4.15/development/profile-layer-trust-audit.md"),
+        (("T106", "T109", "T110", "T112", "T113", "T115", "T116", "T117", "T118", "T119"), "docs/releases/v4/v4.16/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.1-last-phase-evidence.md"),
+        (("T111",), "docs/releases/v4/v4.16/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+        (("T107",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/proposed/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
+        (("T108",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/rejected/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
+    ) for tid in tids},
+    **{("v4.15.2", tid, old): new for tids, old, new in (
+        (("T001", "T006"), "docs/releases/v4/v4.17/development/phase-1-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"),
+        (("T014",), "docs/releases/v4/v4.17/development/phase-2-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase2-evidence.md"),
+        (("T024",), "docs/releases/v4/v4.17/development/phase-3-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase3-evidence.md"),
+        (("T027",), "docs/releases/v4/v4.17/development/shared-agents-inventory.md", "docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md"),
+        (("T041", "T055"), "docs/releases/v4/v4.17/development/claude-agents-evaluation.md", "docs/releases/v4/v4.15/development/v4.15.2-claude-agents-evaluation.md"),
+        (("T042",), "docs/releases/v4/v4.17/development/phase-4-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase4-evidence.md"),
+        (("T043", "T046", "T047", "T048", "T049", "T050", "T051", "T052"), "docs/releases/v4/v4.17/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-last-phase-evidence.md"),
+        (("T044",), "docs/releases/v4/v4.17/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
+        (("T039",), "tests/integrations/test_org_materialization.py", "tests/installer/test_org_materialization.py"),
+    ) for tid in tids},
+})
+_V415_TASK_ISSUER = object()
+
+
+@dataclass(frozen=True, slots=True)
+class V415TaskAuthority:
+    """An in-process capability issued only after the native full-parent checks.
+
+    This is an explicit trusted-code interface, not a serialized record marker or
+    a security boundary against arbitrary Python executing in this process.
+    """
+
+    root: Path
+    repo: str
+    minor: str
+    member: str
+    original_sha256: str
+    plan_rel: str
+    plan_sha256: str
+    _issuer: object = field(repr=False, compare=False)
+    record_nonce: str | None = None
+    member_start_head: str | None = None
+    implementation_sha256: str | None = None
+    source_branch: str | None = None
+    target_branch: str | None = None
+    historical_merge: str | None = None
+    historical_tree: str | None = None
+
+
+def _v415_task_authority(*, root: Path, repo: str, minor: str, member: str,
+                         original_sha256: str, plan_rel: str, plan_sha256: str,
+                         record_nonce: str | None = None, member_start_head: str | None = None,
+                         implementation_sha256: str | None = None, source_branch: str | None = None,
+                         target_branch: str | None = None, historical_merge: str | None = None,
+                         historical_tree: str | None = None) -> V415TaskAuthority | None:
+    """Mint after completion_minor's full-parent factory verifies original identity."""
+    if (repo != "bendourthe/Nexus-Hub" or minor != "v4.15"
+            or _V415_ORIGINAL_HASHES.get(member) != original_sha256
+            or not isinstance(plan_rel, str) or not PLAN_REL_RE.fullmatch(plan_rel)
+            or not isinstance(plan_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_sha256)):
+        return None
+    return V415TaskAuthority(Path(root).resolve(), repo, minor, member, original_sha256,
+                             plan_rel, plan_sha256, _V415_TASK_ISSUER, record_nonce, member_start_head,
+                             implementation_sha256, source_branch, target_branch, historical_merge, historical_tree)
+
+
+_V415_NO_CHANGE = MappingProxyType({
+    ("v4.15.0", "T215"): ".github/workflows/ci.yml",
+    ("v4.15.1", "T114"): ".github/workflows/ci.yml",
+    ("v4.15.4", "T018"): "scripts/ci/profiles.py",
+    ("v4.15.4", "T016"): "docs/handbooks/handbooks.json",
+})
+_V415_EVIDENCE = MappingProxyType({
+    "v4.15.0": ("docs/releases/v4/v4.15/development/last-phase-evidence.md",
+                 "docs/releases/v4/v4.15/development/v4.15.0-last-phase-evidence.md"),
+    "v4.15.1": ("docs/releases/v4/v4.15/development/v4.15.1-last-phase-evidence.md",),
+    "v4.15.4": ("docs/releases/v4/v4.15/development/v4.15.4-last-phase-evidence.md",),
+})
+_V415_FROZEN_PLANS = frozenset("docs/releases/v4/v4.15/plans/" + name for name in (
+    "v4.15.0-instruction-necessity-review.md", "v4.15.1-adoption-model-adaptive-harness.md",
+    "v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+    "v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md", "v4.15.4-checker-evidence-and-diagnostics.md"))
+_V415_COMPARISON_CONTRACT = "catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md"
+_V415_PROOF_DOMAIN = b"nexus-v415-unchanged-task-v1\0"
+_V415_GATE_TIMEOUT = 300
+_V415_LOG_CAP = 8 * 1024 * 1024
+
+
+def _v415_fs(path: Path) -> Path:
+    """Reuse the published installed sibling; only validated internal file operations use it."""
+    try:
+        return _sibling("validate_unicode_safety").filesystem_path(path)
+    except (ImportError, AttributeError):
+        raise Malformed("qualification-filesystem-helper-unavailable") from None
+
+
+@contextmanager
+def _v415_private_snapshot():
+    root = Path(tempfile.mkdtemp(prefix="nq-")).resolve()
+    try:
+        yield root
+    finally:
+        # This exact freshly created directory is the only recursive cleanup target.
+        if root.parent != Path(tempfile.gettempdir()).resolve() or not root.name.startswith("nq-"):
+            raise Malformed("qualification-cleanup-containment")
+        _v415_plain(root)
+        def readonly(function, path, _error):
+            os.chmod(_v415_fs(Path(path)), 0o700)
+            function(_v415_fs(Path(path)))
+        shutil.rmtree(_v415_fs(root), onerror=readonly)
+
+
+def _v415_plain(path: Path) -> None:
+    path = _v415_fs(path)
+    for part in (path, *path.parents):
+        try:
+            info = part.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            raise Malformed("qualification-unsafe-path")
+
+
+def _v415_read(path: Path, cap: int = _V415_LOG_CAP) -> bytes:
+    path = _v415_fs(path)
+    _v415_plain(path)
+    before = path.stat()
+    if not stat.S_ISREG(before.st_mode) or before.st_size > cap:
+        raise Malformed("qualification-input-cap")
+    with path.open("rb") as stream:
+        opened = os.fstat(stream.fileno())
+        data = stream.read(cap + 1)
+        after = os.fstat(stream.fileno())
+    _v415_plain(path)
+    def identity(value):
+        return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns
+    if len(data) > cap or any(identity(value) != identity(before) for value in (opened, after, path.stat())):
+        raise Malformed("qualification-input-changed")
+    return data
+
+
+def _v415_git(ctx: Context, *args: str, raw_text: bool = False) -> str:
+    rc, out = ctx.run([ctx.git, "-c", "core.longpaths=true", "-C", str(ctx.root), *args])
+    if rc:
+        raise Malformed("qualification-git-unavailable")
+    return out if raw_text or "-z" in args else out.strip()
+
+
+def _v415_inputs(ctx: Context, ref: str, member: str, *, working: bool = False) -> dict:
+    """All tracked modes/blobs; only exact final outputs and known plan marks normalize."""
+    raw = _v415_git(ctx, "ls-tree", "-r", "-l", "-z", ref)
+    rows, entries, total = [], {}, 0
+    for entry in raw.split("\0"):
+        if not entry:
+            continue
+        meta, path = entry.split("\t", 1)
+        mode, kind, blob, size = meta.split()
+        parts = path.split("/")
+        if (mode not in {"100644", "100755"} or kind != "blob" or len(entries) >= 30000
+                or path.startswith("/") or "\\" in path or "\ufffd" in path
+                or any(p in {"", ".", ".."} or p.casefold() == ".git" or ":" in p or p.endswith((".", " ")) for p in parts)):
+            raise Malformed("qualification-unsafe-tree")
+        total += int(size)
+        if total > 512 * 1024 * 1024:
+            raise Malformed("qualification-tree-cap")
+        entries[path] = (mode, blob)
+        if path in _V415_EVIDENCE.get(member, ()):
+            continue
+        value = blob
+        if path in _V415_FROZEN_PLANS:
+            text = _v415_git(ctx, "show", f"{ref}:{path}", raw_text=True)
+            if "\ufffd" in text:
+                raise Malformed("qualification-invalid-plan-text")
+            value = "plan:" + plan_hash_text(text)
+        rows.append([path, mode, value])
+    if working:
+        if not _minor_module().v415_index_flags_visible(ctx):
+            raise Malformed("qualification-hidden-index-flags")
+        changed = _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all", "-z")
+        for line in changed.split("\0"):
+            if not line:
+                continue
+            path = line[3:]
+            if line[:2] not in {" M", "M ", "MM"} or path not in entries:
+                raise Malformed("qualification-dirty-candidate")
+            if path in _V415_EVIDENCE.get(member, ()):
+                continue
+            if (path not in _V415_FROZEN_PLANS
+                    or plan_hash_text(_v415_read(ctx.root / path).decode("utf-8").replace("\r\n", "\n").replace("\r", "\n"))
+                    != plan_hash_text(_v415_git(ctx, "show", f"{ref}:{path}", raw_text=True))):
+                raise Malformed("qualification-dirty-candidate")
+            if line[0] == "M":
+                staged = _v415_git(ctx, "ls-files", "--stage", "--", path).split()
+                if (not staged or staged[0] != entries[path][0]
+                        or plan_hash_text(_v415_git(ctx, "show", ":" + path, raw_text=True))
+                        != plan_hash_text(_v415_git(ctx, "show", f"{ref}:{path}", raw_text=True))):
+                    raise Malformed("qualification-dirty-candidate")
+            if os.name != "nt" and bool((ctx.root / path).stat().st_mode & 0o111) != (entries[path][0] == "100755"):
+                raise Malformed("qualification-dirty-candidate")
+    return {"fingerprint": hashlib.sha256(_canonical(rows)).hexdigest(), "entries": entries,
+            "tree": _v415_git(ctx, "rev-parse", f"{ref}^{{tree}}"), "count": len(entries)}
+
+
+def _v415_sha(data: bytes) -> str:
+    return hashlib.sha256(data if b"\0" in data else data.replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _v415_producer_sha() -> str:
+    return _v415_sha(Path(__file__).read_bytes())
+
+
+def _v415_json(data: str | bytes):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise Malformed("qualification-json-duplicate-key")
+            result[key] = value
+        return result
+    def finite(_value):
+        raise Malformed("qualification-json-nonfinite")
+    try:
+        return json.loads(data, object_pairs_hook=unique, parse_constant=finite)
+    except RecursionError:
+        raise Malformed("qualification-json-depth") from None
+
+
+def _v415_blob_bytes(ctx: Context, ref: str, path: str, *, working: bool = False) -> bytes:
+    if working:
+        return _v415_read(ctx.root / path)
+    # Exact Git blob output, including binary evidence, never passes a text decoder.
+    rc, out = ctx.run([ctx.git, "-C", str(ctx.root), "rev-parse", f"{ref}:{path}"])
+    if rc or not re.fullmatch(r"[0-9a-f]{40,64}", out.strip()):
+        raise Malformed("qualification-reference-unavailable")
+    if int(_v415_git(ctx, "cat-file", "-s", out.strip())) > _V415_LOG_CAP:
+        raise Malformed("qualification-reference-cap")
+    proc = subprocess.run([ctx.git, "-C", str(ctx.root), "cat-file", "blob", out.strip()],
+                          capture_output=True, timeout=max(0.01, ctx.budget.remaining()), env=_env(), check=False, **NO_WINDOW)
+    if proc.returncode or len(proc.stdout) > _V415_LOG_CAP:
+        raise Malformed("qualification-reference-cap")
+    return proc.stdout
+
+
+def _v415_semantic(ctx: Context, ref: str, member: str, inputs: dict, *, working: bool = False) -> dict:
+    sections, markers = [], 0
+    for path in _V415_EVIDENCE[member]:
+        if path not in inputs["entries"]:
+            continue
+        text = _v415_blob_bytes(ctx, ref, path, working=working).decode("utf-8").replace("\r\n", "\n")
+        markers += len(re.findall(r"^```v415-ci-comparison$", text, re.MULTILINE))
+        if len(re.findall(r"^## CI/CD coverage\s*$", text, re.MULTILINE)) > 1:
+            raise Malformed("qualification-comparison-shape")
+        match = re.search(r"^## CI/CD coverage\s*\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+        if match and "```v415-ci-comparison\n" in match.group(1):
+            sections.append((path, match.group(1)))
+    if len(sections) != 1 or markers != 1:
+        raise Malformed("qualification-comparison-missing")
+    evidence, section = sections[0]
+    blocks = re.findall(r"^```v415-ci-comparison\n(.*?)\n```", section, re.MULTILINE | re.DOTALL)
+    if len(blocks) != 1:
+        raise Malformed("qualification-comparison-shape")
+    data = _v415_json(blocks[0])
+    if (not isinstance(data, dict) or set(data) != {"source_fingerprint", "contract", "steps", "fields", "required_proof"}
+            or data["source_fingerprint"] != inputs["fingerprint"]):
+        raise Malformed("qualification-comparison-binding")
+    references = {}
+    def bind(reference):
+        if (not isinstance(reference, dict) or set(reference) != {"path", "sha256"}
+                or reference["path"] not in inputs["entries"] or reference["path"] in _V415_EVIDENCE[member]):
+            raise Malformed("qualification-reference-shape")
+        if reference["path"] in references:
+            if reference != references[reference["path"]]:
+                raise Malformed("qualification-reference-binding")
+            return
+        digest = _v415_sha(_v415_blob_bytes(ctx, ref, reference["path"], working=working))
+        if digest != reference["sha256"]:
+            raise Malformed("qualification-reference-binding")
+        references[reference["path"]] = reference
+    if data["contract"].get("path") != _V415_COMPARISON_CONTRACT:
+        raise Malformed("qualification-contract-binding")
+    bind(data["contract"])
+    for key, number, count in (("steps", "step", 6), ("fields", "field", 23)):
+        rows = data[key]
+        if not isinstance(rows, list) or len(rows) != count:
+            raise Malformed("qualification-comparison-incomplete")
+        for index, row in enumerate(rows, 1):
+            if (not isinstance(row, dict) or set(row) != {number, "observation", "references"}
+                    or type(row[number]) is not int or row[number] != index
+                    or not isinstance(row["observation"], str) or len(row["observation"].strip()) < 16
+                    or re.search(r"\b(?:TBD|TODO|UNEVALUATED|unverified|unavailable|partial|not run)\b", row["observation"], re.IGNORECASE)
+                    or not isinstance(row["references"], list) or not 1 <= len(row["references"]) <= 8):
+                raise Malformed("qualification-comparison-incomplete")
+            for reference in row["references"]:
+                bind(reference)
+    if not isinstance(data["required_proof"], dict) or set(data["required_proof"]) != {"real_installer", "target_os"}:
+        raise Malformed("qualification-required-proof")
+    for category in data["required_proof"].values():
+        if not isinstance(category, list) or not 1 <= len(category) <= 16:
+            raise Malformed("qualification-required-proof")
+        for reference in category:
+            bind(reference)
+    return {"evidence": evidence, "section_sha256": hashlib.sha256(section.encode()).hexdigest(),
+            "references": sorted(references.values(), key=lambda r: r["path"]),
+            "review": "coordinator-authored; structure-and-binding-only"}
+
+
+def _v415_gates(member: str, tid: str) -> list[list[str]]:
+    if (member, tid) == ("v4.15.4", "T016"):
+        return [["catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py", "--root", "."]]
+    gates = [["-m", "pytest", "-q", "tests/validators/test_ci_workflow_contract.py"],
+             ["scripts/validate_workflow_security.py"], ["scripts/check_required_check_coverage.py"],
+             ["scripts/check_installer_parity.py"]]
+    if member == "v4.15.0":
+        gates.append(["scripts/check_base_template_parity.py"])
+    return gates
+
+
+def _v415_case(ctx: Context, tid: str, authority: V415TaskAuthority | None) -> str:
+    if (type(authority) is not V415TaskAuthority or authority._issuer is not _V415_TASK_ISSUER
+            or str(ctx.root).startswith(("\\\\?\\", "\\\\.\\"))
+            or authority.root != ctx.root.resolve() or authority.member != ctx.version
+            or authority.repo != "bendourthe/Nexus-Hub" or authority.minor != "v4.15"
+            or _V415_ORIGINAL_HASHES.get(ctx.version) != authority.original_sha256
+            or authority.plan_rel != ctx.rel or authority.plan_sha256 != ctx.plan_hash()
+            or any(not isinstance(value, str) or not value for value in (authority.record_nonce, authority.source_branch, authority.target_branch))
+            or not isinstance(authority.member_start_head, str) or not re.fullmatch(r"[0-9a-f]{40,64}", authority.member_start_head)
+            or not isinstance(authority.implementation_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", authority.implementation_sha256)):
+        raise Malformed("qualification-authority-unavailable")
+    if (authority.historical_merge is None) != (authority.historical_tree is None) or any(
+            value is not None and (not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{40,64}", value))
+            for value in (authority.historical_merge, authority.historical_tree)):
+        raise Malformed("qualification-authority-unavailable")
+    target = _V415_NO_CHANGE.get((authority.member, tid))
+    if target is None or (tid, True, target) not in ctx.tasks:
+        raise Malformed("qualification-task-unavailable")
+    return target
+
+
+def _v415_proof_path(authority: V415TaskAuthority, tid: str) -> Path:
+    key = hashlib.sha256(_canonical([authority.repo, authority.minor, authority.record_nonce, authority.member, tid])).hexdigest()
+    return _v415_fs(_runs_dir() / "v415-qualification" / key / "latest.json")
+
+
+def _v415_proof_identity(authority: V415TaskAuthority, tid: str, target: str) -> dict:
+    return {"repo": authority.repo, "minor": authority.minor, "member": authority.member,
+            "original_sha256": authority.original_sha256, "record_nonce": authority.record_nonce,
+            "start_head": authority.member_start_head, "implementation_sha256": authority.implementation_sha256,
+            "source_branch": authority.source_branch, "target_branch": authority.target_branch,
+            "task_id": tid, "literal": target}
+
+
+@contextmanager
+def _v415_windows_gate(command: list[str], snapshot: Path, env: dict, output):
+    """Atomically create a hidden process inside a private kill-on-close Windows job."""
+    import ctypes
+    import ctypes.wintypes as w
+    import msvcrt
+
+    size_t = ctypes.c_size_t
+    class BasicLimits(ctypes.Structure):
+        _fields_ = [("process_time", ctypes.c_longlong), ("job_time", ctypes.c_longlong), ("flags", w.DWORD),
+                    ("minimum", size_t), ("maximum", size_t), ("active", w.DWORD), ("affinity", size_t),
+                    ("priority", w.DWORD), ("scheduling", w.DWORD)]
+    class ExtendedLimits(ctypes.Structure):
+        _fields_ = [("basic", BasicLimits), ("io", ctypes.c_ulonglong * 6), ("process_memory", size_t),
+                    ("job_memory", size_t), ("peak_process", size_t), ("peak_job", size_t)]
+    class Accounting(ctypes.Structure):
+        _fields_ = [("times", ctypes.c_longlong * 4), ("faults", w.DWORD), ("total", w.DWORD),
+                    ("active", w.DWORD), ("terminated", w.DWORD)]
+    class Startup(ctypes.Structure):
+        _fields_ = [("cb", w.DWORD), ("reserved", w.LPWSTR), ("desktop", w.LPWSTR), ("title", w.LPWSTR),
+                    *[(name, w.DWORD) for name in ("x", "y", "width", "height", "columns", "rows", "fill", "flags")],
+                    ("show", w.WORD), ("reserved_size", w.WORD), ("reserved_bytes", w.LPVOID),
+                    ("stdin", w.HANDLE), ("stdout", w.HANDLE), ("stderr", w.HANDLE)]
+    class StartupEx(ctypes.Structure):
+        _fields_ = [("startup", Startup), ("attributes", w.LPVOID)]
+    class ProcessInfo(ctypes.Structure):
+        _fields_ = [("process", w.HANDLE), ("thread", w.HANDLE), ("pid", w.DWORD), ("tid", w.DWORD)]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    signatures = (
+        ("CreateJobObjectW", [w.LPVOID, w.LPCWSTR], w.HANDLE),
+        ("SetInformationJobObject", [w.HANDLE, ctypes.c_int, w.LPVOID, w.DWORD], w.BOOL),
+        ("QueryInformationJobObject", [w.HANDLE, ctypes.c_int, w.LPVOID, w.DWORD, w.LPVOID], w.BOOL),
+        ("InitializeProcThreadAttributeList", [w.LPVOID, w.DWORD, w.DWORD, ctypes.POINTER(size_t)], w.BOOL),
+        ("UpdateProcThreadAttribute", [w.LPVOID, w.DWORD, size_t, w.LPVOID, size_t, w.LPVOID, w.LPVOID], w.BOOL),
+        ("DeleteProcThreadAttributeList", [w.LPVOID], None),
+        ("CreateProcessW", [w.LPCWSTR, w.LPWSTR, w.LPVOID, w.LPVOID, w.BOOL, w.DWORD,
+                            w.LPVOID, w.LPCWSTR, w.LPVOID, ctypes.POINTER(ProcessInfo)], w.BOOL),
+        ("GetExitCodeProcess", [w.HANDLE, ctypes.POINTER(w.DWORD)], w.BOOL),
+        ("WaitForSingleObject", [w.HANDLE, w.DWORD], w.DWORD),
+        ("TerminateJobObject", [w.HANDLE, w.UINT], w.BOOL),
+        ("CloseHandle", [w.HANDLE], w.BOOL),
+    )
+    for name, arguments, result in signatures:
+        function = getattr(kernel, name)
+        function.argtypes, function.restype = arguments, result
+    def checked(result):
+        if not result:
+            raise ctypes.WinError(ctypes.get_last_error())
+    job = kernel.CreateJobObjectW(None, None)
+    checked(job)
+    process, attributes = ProcessInfo(), None
+    try:
+        limits = ExtendedLimits()
+        limits.basic.flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE; no breakaway permissions.
+        checked(kernel.SetInformationJobObject(job, 9, ctypes.byref(limits), ctypes.sizeof(limits)))
+        size = size_t()
+        kernel.InitializeProcThreadAttributeList(None, 2, 0, ctypes.byref(size))
+        if not size.value:
+            raise OSError("qualification-atomic-job-unavailable")
+        buffer = ctypes.create_string_buffer(size.value)
+        checked(kernel.InitializeProcThreadAttributeList(buffer, 2, 0, ctypes.byref(size)))
+        attributes = buffer
+        jobs = (w.HANDLE * 1)(job)
+        checked(kernel.UpdateProcThreadAttribute(attributes, 0, 0x2000D, ctypes.byref(jobs), ctypes.sizeof(jobs), None, None))
+        with open(os.devnull, "rb") as input_stream:
+            inherited = [msvcrt.get_osfhandle(input_stream.fileno()), msvcrt.get_osfhandle(output.fileno())]
+            old_flags = [os.get_handle_inheritable(handle) for handle in inherited]
+            try:
+                for handle in inherited:
+                    os.set_handle_inheritable(handle, True)
+                handles = (w.HANDLE * 2)(*inherited)
+                checked(kernel.UpdateProcThreadAttribute(attributes, 0, 0x20002, ctypes.byref(handles), ctypes.sizeof(handles), None, None))
+                startup = StartupEx()
+                startup.startup.cb, startup.startup.flags = ctypes.sizeof(startup), 0x100
+                startup.startup.stdin, startup.startup.stdout, startup.startup.stderr = inherited[0], inherited[1], inherited[1]
+                startup.attributes = ctypes.addressof(attributes)
+                environment = ctypes.create_unicode_buffer("\0".join(f"{k}={v}" for k, v in sorted(env.items(), key=lambda item: item[0].upper())) + "\0\0")
+                line = ctypes.create_unicode_buffer(subprocess.list2cmdline(command))
+                checked(kernel.CreateProcessW(command[0], line, None, None, True,
+                        subprocess.CREATE_NO_WINDOW | 0x80000 | 0x400, environment, str(snapshot), ctypes.byref(startup), ctypes.byref(process)))
+            finally:
+                for handle, original in zip(inherited, old_flags):
+                    os.set_handle_inheritable(handle, original)
+        checked(kernel.CloseHandle(process.thread))
+        process.thread = None
+        def poll():
+            state = kernel.WaitForSingleObject(process.process, 0)
+            if state == 258:
+                return None
+            if state != 0:
+                raise OSError("qualification-process-observation-unavailable")
+            code = w.DWORD()
+            checked(kernel.GetExitCodeProcess(process.process, ctypes.byref(code)))
+            return code.value
+        yield poll
+    finally:
+        try:
+            checked(kernel.TerminateJobObject(job, 1))
+            deadline = time.monotonic() + 5
+            while True:
+                accounting = Accounting()
+                checked(kernel.QueryInformationJobObject(job, 1, ctypes.byref(accounting), ctypes.sizeof(accounting), None))
+                if not accounting.active:
+                    break
+                if time.monotonic() >= deadline:
+                    raise OSError("qualification-process-tree-not-drained")
+                time.sleep(0.01)
+        finally:
+            for handle in (process.thread, process.process, job):
+                if handle:
+                    kernel.CloseHandle(handle)
+            if attributes is not None:
+                kernel.DeleteProcThreadAttributeList(attributes)
+
+
+@contextmanager
+def _v415_gate_process(command: list[str], snapshot: Path, env: dict, output):
+    if os.name == "nt":
+        with _v415_windows_gate(command, snapshot, env, output) as poll:
+            yield poll
+        return
+    import signal
+    if not all(hasattr(os, name) for name in ("waitid", "WNOWAIT", "P_PID")):
+        raise OSError("qualification-owned-process-observation-unavailable")
+    process = subprocess.Popen(command, cwd=snapshot, env=env, stdin=subprocess.DEVNULL,
+                               stdout=output, stderr=subprocess.STDOUT, start_new_session=True, **NO_WINDOW)
+    def poll():
+        result = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        if result is None:
+            return None
+        return result.si_status if result.si_code == os.CLD_EXITED else -result.si_status
+    try:
+        yield poll
+    finally:
+        # WNOWAIT retains our leader's identity until the private process group is stopped.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            # The owned leader/group already exited; the mandatory leader reap still runs below.
+            pass
+        finally:
+            process.wait(timeout=5)
+
+
+def _v415_run_gate(snapshot: Path, argv: list[str], report: Path, env: dict) -> dict:
+    """Only called with the compiled gate argv and a private materialized snapshot."""
+    command = [sys.executable, *[(str(snapshot / p) if p.endswith(".py") else p) for p in argv]]
+    _v415_plain(report)
+    with report.open("xb") as output:
+        try:
+            with _v415_gate_process(command, snapshot, env, output) as poll:
+                deadline = time.monotonic() + _V415_GATE_TIMEOUT
+                code = poll()
+                while code is None:
+                    if time.monotonic() >= deadline or os.fstat(output.fileno()).st_size > _V415_LOG_CAP:
+                        code = -1
+                        break
+                    time.sleep(0.025)
+                    code = poll()
+        except (OSError, subprocess.SubprocessError):
+            code = -1
+    _restrict(report, directory=False)
+    data = _v415_read(report)
+    if len(data) > _V415_LOG_CAP:
+        raise Malformed("qualification-report-cap")
+    return {"argv": argv, "exit_code": code, "report": report.name, "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def _v415_publish_proof(path: Path, attempt: Path, body: dict, key: bytes, filename: str) -> None:
+    sealed = {**body, "seal": hmac.new(key, _V415_PROOF_DOMAIN + _canonical(body), hashlib.sha256).hexdigest()}
+    _v415_plain(attempt)
+    retained = attempt / filename
+    with retained.open("xb") as handle:
+        handle.write(_canonical(sealed))
+        handle.flush()
+        os.fsync(handle.fileno())
+    _restrict(retained, directory=False)
+    temporary = attempt / ("sealed-" + secrets.token_hex(12) + ".json")
+    with temporary.open("xb") as handle:
+        handle.write(_canonical(sealed))
+        handle.flush()
+        os.fsync(handle.fileno())
+    _restrict(temporary, directory=False)
+    _v415_plain(path)
+    os.replace(temporary, path)
+
+
+def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> Path:
+    """Execute fixed gates on a clean committed copy; no approvals or run records change."""
+    target = _v415_case(ctx, tid, authority)
+    if not _minor_module().v415_index_flags_visible(ctx):
+        raise Malformed("qualification-hidden-index-flags")
+    if authority.historical_merge is not None or _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all"):
+        raise Malformed("qualification-clean-active-candidate-required")
+    commit = _v415_git(ctx, "rev-parse", "HEAD")
+    if ctx.run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", authority.member_start_head, commit])[0]:
+        raise Malformed("qualification-baseline-not-in-candidate")
+    inputs = _v415_inputs(ctx, commit, ctx.version)
+    baseline = _v415_inputs(ctx, authority.member_start_head, ctx.version)
+    if target not in inputs["entries"] or baseline["entries"].get(target) != inputs["entries"][target]:
+        raise Malformed("qualification-target-changed")
+    gates = _v415_gates(ctx.version, tid)
+    if any((p not in inputs["entries"]) for gate in gates for p in gate if p.endswith(".py")):
+        raise Malformed("qualification-gate-missing")
+    semantic = None if tid == "T016" else _v415_semantic(ctx, commit, ctx.version, inputs)
+    path = _v415_proof_path(authority, tid)
+    _v415_plain(path.parent)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _restrict(path.parent, directory=True)
+    attempt = path.parent / ("attempt-" + secrets.token_hex(12))
+    attempt.mkdir()
+    _restrict(attempt, directory=True)
+    body = {"kind": "v415-unchanged-task", "receipt_schema": 1,
+            **_v415_proof_identity(authority, tid, target), "created": _now(), "candidate": commit,
+            "tree": inputs["tree"], "fingerprint": inputs["fingerprint"], "tracked_count": inputs["count"],
+            "exclusions": list(_V415_EVIDENCE[ctx.version]), "target_blob": list(inputs["entries"][target]),
+            "semantic": semantic, "gate_definitions": gates, "gates": [], "outcome": "fail",
+            "gate_sources": {p: inputs["entries"][p][1] for gate in gates for p in gate if p.endswith(".py")},
+            "runtime": {"python": sys.version.split()[0], "implementation": sys.implementation.name},
+            "producer_sha256": _v415_producer_sha()}
+    key = _secret(create=False)
+    if key is None:
+        raise Malformed("qualification-secret-unavailable")
+    _v415_publish_proof(path, attempt, body, key, "incomplete.json")
+    try:
+        with _v415_private_snapshot() as private_root:
+            _restrict(private_root, directory=True)
+            snapshot, home = private_root / "s", private_root / "h"
+            home.mkdir()
+            env = _env()
+            for name in list(env):
+                if (name.startswith(("PYTHON", "PYTEST")) or name in {"BASH_ENV", "ENV", "NODE_OPTIONS"}
+                        or any(word in name.upper() for word in ("TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "KEY"))):
+                    env.pop(name, None)
+            tool_paths = [str(Path(sys.executable).parent), str(Path(ctx.git).parent)]
+            for entry in env.get("PATH", "").split(os.pathsep):
+                if not Path(entry).is_absolute() or Path(entry).resolve().is_relative_to(ctx.root):
+                    continue
+                tool_paths.append(entry)
+            env["PATH"] = os.pathsep.join(tool_paths)
+            env.update(HOME=str(home), USERPROFILE=str(home), APPDATA=str(home / "a"), LOCALAPPDATA=str(home / "l"),
+                       NEXUS_HUB_HOME=str(home / "n"), NEXUS_HUB_RUNS_DIR=str(home / "r"),
+                       NEXUS_EDIT_GUARD_DIR=str(home / "g"), NEXUS_EDIT_GUARD_SESSION="v415-qualification",
+                       PYTHONNOUSERSITE="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+            for args in ([ctx.git, "-c", "core.longpaths=true", "init", "-q", "--template=", str(snapshot)],
+                         [ctx.git, "-C", str(snapshot), "config", "core.longpaths", "true"],
+                         [ctx.git, "-C", str(snapshot), "-c", "core.hooksPath=" + str(home / "hooks"), "fetch", "-q", "--no-tags", "--depth=1", str(ctx.root), commit],
+                         [ctx.git, "-C", str(snapshot), "-c", "core.autocrlf=false", "-c", "core.hooksPath=" + str(home / "hooks"), "checkout", "-q", "--detach", "FETCH_HEAD"]):
+                process = subprocess.run(args, env=env, capture_output=True, timeout=120, check=False, **NO_WINDOW)
+                if process.returncode:
+                    raise Malformed("qualification-snapshot-unavailable")
+            # Checkout object identity, not the source workspace, defines every executed input.
+            for rel in inputs["entries"]:
+                _v415_plain(snapshot / rel)
+                os.chmod(_v415_fs(snapshot / rel), 0o500 if inputs["entries"][rel][0] == "100755" else 0o400)
+            for index, argv in enumerate(gates):
+                report = attempt / f"gate-{index}.log"
+                result = _v415_run_gate(snapshot, argv, report, env)
+                result["report"] = attempt.name + "/" + report.name
+                body["gates"].append(result)
+                if result["exit_code"] != 0:
+                    raise Malformed("qualification-gate-failed")
+                output = _v415_read(report).decode("utf-8", errors="replace")
+                if argv[:2] == ["-m", "pytest"] and not re.search(r"\b[1-9]\d* passed\b", output):
+                    raise Malformed("qualification-gate-incomplete")
+                if tid == "T016":
+                    result_data = _v415_json(output)
+                    if (result_data.get("status") != "pass" or result_data.get("scope") != "full"
+                            or result_data.get("errors") != [] or not result_data.get("documents")
+                            or result_data.get("candidate") != {"revision": commit, "working_tree": "clean"}
+                            or not any(row.get("id") == "completion" for row in result_data["documents"])
+                            or any(row.get("status") not in {"verified", "verified-opt-out"} for row in result_data["documents"])):
+                        raise Malformed("qualification-handbook-incomplete")
+            clean = subprocess.run([ctx.git, "-C", str(snapshot), "status", "--porcelain=v1", "--untracked-files=all"],
+                                   env=env, capture_output=True, timeout=30, check=False, **NO_WINDOW)
+            if (clean.returncode or clean.stdout.strip()
+                    or not _minor_module().v415_index_flags_visible(SimpleNamespace(root=snapshot, git=ctx.git, run=ctx.run))):
+                raise Malformed("qualification-snapshot-changed")
+        if (_v415_git(ctx, "rev-parse", "HEAD") != commit
+                or _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all")
+                or not _minor_module().v415_index_flags_visible(ctx)
+                or _v415_inputs(ctx, commit, ctx.version)["fingerprint"] != inputs["fingerprint"]
+                or _v415_producer_sha() != body["producer_sha256"]):
+            raise Malformed("qualification-candidate-changed")
+        body["outcome"] = "pass"
+    finally:
+        _v415_publish_proof(path, attempt, body, key, "receipt.json")
+    return path
+
+
+def qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> Path:
+    try:
+        return _qualify_v415_task(ctx, tid, authority)
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, subprocess.SubprocessError):
+        raise Malformed("qualification-input-or-execution-unavailable") from None
+
+
+def v415_no_change_status(ctx: Context, tid: str, path: str, start: str | None,
+                           authority: V415TaskAuthority | None) -> str:
+    """Bounded read-only proof verification; never executes a gate."""
+    try:
+        target = _v415_case(ctx, tid, authority)
+        if target != path or start != authority.member_start_head:
+            return "unmet"
+        location = _v415_proof_path(authority, tid)
+        if not location.exists():
+            return "unmet"
+        body = _v415_json(_v415_read(location, 512 * 1024))
+        seal = body.pop("seal")
+        key = _secret(create=False)
+        expected = {"kind", "receipt_schema", "created", "candidate", "tree", "fingerprint", "tracked_count", "exclusions", "target_blob",
+                    "semantic", "gate_definitions", "gate_sources", "runtime", "gates", "outcome", "producer_sha256", *_v415_proof_identity(authority, tid, target)}
+        if (set(body) != expected or key is None or not isinstance(seal, str)
+                or not hmac.compare_digest(seal, hmac.new(key, _V415_PROOF_DOMAIN + _canonical(body), hashlib.sha256).hexdigest())
+                or any(body.get(k) != v for k, v in _v415_proof_identity(authority, tid, target).items())
+                or body["kind"] != "v415-unchanged-task" or body["receipt_schema"] != 1 or body["outcome"] != "pass"
+                or type(body["receipt_schema"]) is not int or type(body["tracked_count"]) is not int
+                or not 1 <= body["tracked_count"] <= 30000
+                or any(not isinstance(body[k], str) or not re.fullmatch(r"[0-9a-f]{64}", body[k]) for k in ("fingerprint", "producer_sha256"))
+                or not isinstance(body["tree"], str) or not re.fullmatch(r"[0-9a-f]{40,64}", body["tree"])
+                or body["exclusions"] != list(_V415_EVIDENCE[ctx.version]) or body["gate_definitions"] != _v415_gates(ctx.version, tid)):
+            return "unmet"
+        if not isinstance(body["created"], str) or dt.datetime.fromisoformat(body["created"]).tzinfo is None:
+            return "unmet"
+        candidate = body["candidate"]
+        if not isinstance(candidate, str) or not re.fullmatch(r"[0-9a-f]{40,64}", candidate):
+            return "unmet"
+        if ctx.run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", start, candidate])[0]:
+            return "unmet"
+        reference = candidate
+        if authority.historical_merge is not None:
+            if (_v415_git(ctx, "rev-parse", f"{authority.historical_merge}^{{tree}}") != authority.historical_tree
+                    or ctx.run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", candidate, authority.historical_merge])[0]):
+                return "unmet"
+            reference = authority.historical_merge
+        else:
+            if ctx.run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", candidate, "HEAD"])[0]:
+                return "unmet"
+            if body["producer_sha256"] != _v415_producer_sha():
+                return "unmet"
+            current = _v415_inputs(ctx, "HEAD", ctx.version, working=True)
+            if current["fingerprint"] != body["fingerprint"]:
+                return "unmet"
+        inputs = _v415_inputs(ctx, candidate, ctx.version)
+        publication = inputs if reference == candidate else _v415_inputs(ctx, reference, ctx.version)
+        baseline = _v415_inputs(ctx, start, ctx.version)
+        if (inputs["fingerprint"] != body["fingerprint"] or publication["fingerprint"] != body["fingerprint"]
+                or inputs["tree"] != body["tree"] or inputs["count"] != body["tracked_count"]
+                or list(inputs["entries"].get(target, ())) != body["target_blob"]
+                or baseline["entries"].get(target) != inputs["entries"].get(target)
+                or body["gate_sources"] != {p: inputs["entries"][p][1] for gate in body["gate_definitions"] for p in gate if p.endswith(".py")}
+                or not isinstance(body["runtime"], dict) or set(body["runtime"]) != {"python", "implementation"}
+                or any(not isinstance(value, str) or not value for value in body["runtime"].values())):
+            return "unmet"
+        if tid != "T016" and (body["semantic"] != _v415_semantic(ctx, candidate, ctx.version, inputs)
+                    or body["semantic"] != _v415_semantic(ctx, reference, ctx.version, publication)
+                    or (authority.historical_merge is None and body["semantic"] != _v415_semantic(ctx, "HEAD", ctx.version, current, working=True))):
+            return "unmet"
+        gates = _v415_gates(ctx.version, tid)
+        if not isinstance(body["gates"], list) or len(body["gates"]) != len(gates):
+            return "unmet"
+        for expected_argv, gate in zip(gates, body["gates"]):
+            if (set(gate) != {"argv", "exit_code", "report", "sha256"} or gate["argv"] != expected_argv
+                    or type(gate["exit_code"]) is not int or gate["exit_code"] != 0
+                    or not re.fullmatch(r"attempt-[0-9a-f]{24}/gate-[0-9]+\.log", gate["report"])
+                    or hashlib.sha256(_v415_read(location.parent / gate["report"])).hexdigest() != gate["sha256"]):
+                return "unmet"
+        return "met"
+    except (Malformed, OSError, ValueError, TypeError, KeyError, AttributeError, subprocess.SubprocessError):
+        return "unmet"
+
+
+def _v415_task_target(ctx: Context, path: str, task_id: str | None,
+                      authority: V415TaskAuthority | None, record: dict | None) -> str:
+    if (type(authority) is not V415TaskAuthority or authority._issuer is not _V415_TASK_ISSUER
+            or authority.repo != "bendourthe/Nexus-Hub" or authority.minor != "v4.15"
+            or authority.member != ctx.version or authority.root != ctx.root.resolve()
+            or authority.plan_rel != ctx.rel or authority.plan_sha256 != ctx.plan_hash()
+            or _V415_ORIGINAL_HASHES.get(authority.member) != authority.original_sha256):
+        return path
+    corrected = _V415_TASK_TARGETS.get((authority.member, task_id, path))
+    if corrected is None:
+        return path
+    # A verified archive's existing predicate searches both the archive and its
+    # original active location and excludes archive-only/uncertain changes.
+    archived = (record or {}).get("archived")
+    if isinstance(archived, dict):
+        source, destination = archived.get("from"), archived.get("plan_path")
+        if isinstance(source, str) and isinstance(destination, str) and "/plans/" in source and "/plans/" in destination:
+            active_root = source.rsplit("/plans/", 1)[0]
+            if corrected.startswith(active_root + "/"):
+                candidate = destination.rsplit("/plans/", 1)[0] + corrected[len(active_root):]
+                if _minor_module().task_origin(ctx.version, candidate, archived) == corrected:
+                    return candidate
+    return corrected
+
+
+def _task_status(ctx: Context, checked: bool, path: str, start: str | None, record: dict | None = None,
+                 *, task_id: str | None = None, task_authority: V415TaskAuthority | None = None) -> str:
     if not checked or not path:
         return "unmet"
     if not start:
         return "met"
+    path = _v415_task_target(ctx, path, task_id, task_authority, record)
     # Once any member of the minor carries a signed archived identity, an archive commit
     # (any member's, or the close's) never counts as task work (contract, "Member archive").
     archives = record if _minor_module().archive_active(record) else None
     if path.count(DATE_PLACEHOLDER) == 1:
         return _dated_task_status(ctx, path, start, archives)
     if archives is not None:
-        return _minor_module().archive_task_status(ctx, ctx.version, path, start, archives)
+        status = _minor_module().archive_task_status(ctx, ctx.version, path, start, archives)
+        return v415_no_change_status(ctx, task_id, path, start, task_authority) if status == "unmet" else status
     rc, out = _run(
         [
             ctx.git,
@@ -1019,7 +1785,7 @@ def _task_status(ctx: Context, checked: bool, path: str, start: str | None, reco
     )
     if rc != 0:
         return "cannot-verify"
-    return "met" if out.strip() else "unmet"
+    return "met" if out.strip() else v415_no_change_status(ctx, task_id, path, start, task_authority)
 
 
 def _dated_task_status(ctx: Context, path: str, start: str, archives: dict | None = None) -> str:
@@ -1787,6 +2553,32 @@ def cmd_check_member(args: argparse.Namespace) -> int:
     return _minor_module().cmd_check_member(sys.modules[__name__], args)
 
 
+def cmd_qualify_task(args: argparse.Namespace) -> int:
+    """Only an authenticated active native parent can execute the compiled gates."""
+    cm, me = _minor_module(), sys.modules[__name__]
+    rctx = cm.repo_context(me, args)
+    rctx.budget = Budget(1800)
+    state = cm.load_minor(me, rctx, args.minor, args.session)
+    if state.forced:
+        print(state.forced[0])
+        return state.forced[1]
+    if state.record is None:
+        raise MinorConflict("qualification-parent-unavailable")
+    record = state.record
+    member = next((m for m in record["members"] if m["version"] == args.member), None)
+    plan = next((p for p in cm.scan_plans(rctx.root, *cm.parse_minor(me, args.minor)) if p.version == args.member), None)
+    if member is None or plan is None:
+        raise MinorConflict("qualification-member-unavailable")
+    with minor_transaction(record):
+        authority = cm.v415_task_authority(me, rctx, record, member, plan)
+        if authority is None:
+            raise MinorConflict("qualification-authority-unavailable")
+        ctx = Context(str(authority.root / authority.plan_rel), Budget(1800))
+        qualify_v415_task(ctx, args.task, authority)
+    print(f"QUALIFIED {args.member} {args.task}")
+    return 0
+
+
 def cmd_record_member_implement_start(args: argparse.Namespace) -> int:
     return _minor_module().cmd_record_member_implement_start(sys.modules[__name__], args)
 
@@ -1808,10 +2600,13 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     mode = render_mode(args)  # a flag conflict is refused before any round opens
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
+    if args.action == "correct-ci-read":
+        raise Malformed("--action correct-ci-read requires --minor")
     if getattr(args, "member", None) is not None:
         raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
-    if args.action in ("add-class", "supplement-scope", "permit-manifest") or getattr(args, "added_class", None) is not None:
-        raise Malformed("--action add-class, supplement-scope, permit-manifest and --class require --minor")
+    if (args.action in ("add-class", "supplement-scope", "permit-manifest", "permit-outputs")
+            or getattr(args, "added_class", None) is not None or getattr(args, "outputs", None) is not None):
+        raise Malformed("--action add-class, supplement-scope, permit-manifest, permit-outputs, --outputs and --class require --minor")
     if getattr(args, "merge", None) is not None:
         raise Malformed("--merge requires --minor with --action supplement-scope")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
@@ -2374,6 +3169,13 @@ def build_parser() -> argparse.ArgumentParser:
     member_check.add_argument("--repo", default=".", help="the parent minor controller repository")
     member_check.add_argument("--json", action="store_true")
     member_check.set_defaults(func=cmd_check_member)
+    qualify = sub.add_parser("qualify-task", help="execute fixed native proof for an exact unchanged v4.15 task")
+    qualify.add_argument("--minor", required=True)
+    qualify.add_argument("--member", required=True)
+    qualify.add_argument("--task", required=True)
+    qualify.add_argument("--session", required=True)
+    qualify.add_argument("--repo", default=".")
+    qualify.set_defaults(func=cmd_qualify_task)
     score_minor = sub.add_parser("score-minor", help="print the minor's monotonic progress score")
     score_minor.add_argument("minor", help="a minor scope token such as v0.5")
     score_minor.add_argument("--repo", default=".", help="a path inside the repository")
@@ -2409,8 +3211,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--class", dest="added_class", help="with --minor add-class: the class to add")
-    render.add_argument("--member", help="with --minor answer or supplement-scope: the member version")
+    render.add_argument("--member", help="with --minor: the member version for the selected member action")
     render.add_argument("--merge", help="with --minor supplement-scope: the exact reviewed merge")
+    render.add_argument("--outputs", help="with --minor permit-outputs: exact write_paths JSON file")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
@@ -2475,6 +3278,21 @@ def build_parser() -> argparse.ArgumentParser:
     permit.add_argument("--member", required=True)
     permit.add_argument("--text", help="when given, must equal the captured decision")
     permit.set_defaults(func=lambda args: _minor_module().cmd_record_permit_manifest(sys.modules[__name__], args))
+    outputs = record.add_parser("permit-outputs", help="capture exact v4.15 coordinator output permissions")
+    outputs.add_argument("--minor", required=True)
+    outputs.add_argument("--repo", default=".")
+    outputs.add_argument("--session", required=True)
+    outputs.add_argument("--member", required=True)
+    outputs.add_argument("--outputs", required=True, help="JSON object containing literal write_paths")
+    outputs.add_argument("--text", help="when given, must equal the captured decision")
+    outputs.set_defaults(func=lambda args: _minor_module().cmd_record_permit_outputs(sys.modules[__name__], args))
+    correction = record.add_parser("correct-ci-read", help="capture the exact v4.15.4 CI read correction")
+    correction.add_argument("--minor", required=True)
+    correction.add_argument("--repo", default=".")
+    correction.add_argument("--session", required=True)
+    correction.add_argument("--member", required=True, help="the fixed eligible member v4.15.4")
+    correction.add_argument("--text", help="when given, must equal the captured decision")
+    correction.set_defaults(func=lambda args: _minor_module().cmd_record_correct_ci_read(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
