@@ -1,0 +1,76 @@
+{
+  "base": "71ee34194",
+  "commits": [
+    "1abd57ac3",
+    "4af153530",
+    "44b778000",
+    "b3d802285",
+    "a2acc644e",
+    "139b3967b",
+    "640381bab",
+    "db6d1c85f"
+  ],
+  "changed": 108,
+  "added": 94,
+  "empty_directories": [],
+  "duplicate_groups": [
+    [
+      "assets/nexus-hub-favicon/android-chrome-512x512.png",
+      "extensions/nexus-hub-settings/icon.png",
+      "extensions/nexus-hub-settings/media/logo.png"
+    ],
+    [
+      "extensions/claude-usage-monitor/.npmrc",
+      "extensions/codex-usage-monitor/.npmrc",
+      "extensions/copilot-usage-monitor/.npmrc",
+      "extensions/cursor-usage-monitor/.npmrc",
+      "extensions/gemini-usage-monitor/.npmrc",
+      "extensions/nexus-hub-settings/.npmrc"
+    ],
+    [
+      "extensions/claude-usage-monitor/LICENSE",
+      "extensions/codex-usage-monitor/LICENSE",
+      "extensions/copilot-usage-monitor/LICENSE",
+      "extensions/gemini-usage-monitor/LICENSE",
+      "extensions/nexus-hub-settings/LICENSE"
+    ]
+  ],
+  "orphans": [
+    "extensions/nexus-hub-settings/test/editorWrites.test.ts",
+    "extensions/nexus-hub-settings/test/fixtures/explain-attribution.json",
+    "extensions/nexus-hub-settings/test/fixtures/explain-effort.json",
+    "extensions/nexus-hub-settings/test/fixtures/explain-git_guardrails.json",
+    "extensions/nexus-hub-settings/test/fixtures/explain-model.json",
+    "extensions/nexus-hub-settings/test/fixtures/explain-posture.json",
+    "extensions/nexus-hub-settings/test/messages.test.ts",
+    "extensions/nexus-hub-settings/test/panel.test.ts",
+    "extensions/nexus-hub-settings/test/settingsView.test.ts",
+    "extensions/nexus-hub-settings/test/viewModel.test.ts"
+  ],
+  "deep_new_directories": [],
+  "single_child_chains": [],
+  "by_top_level": {
+    "CHANGELOG.md": 1,
+    "MANIFEST.sha256": 1,
+    "catalog/hooks": 1,
+    "configs/installer-parity.json": 1,
+    "docs/decisions": 1,
+    "docs/handbooks": 1,
+    "docs/policy": 1,
+    "docs/releases": 29,
+    "docs/todos.md": 1,
+    "extensions/nexus-hub-settings": 43,
+    "guides/NEXUS_HUB_SETTINGS.md": 1,
+    "guides/website": 1,
+    "scripts/ci": 1,
+    "scripts/dev": 1,
+    "scripts/installer.ps1": 1,
+    "scripts/installer.sh": 1,
+    "scripts/lib": 11,
+    "scripts/nexus_hub_cli.py": 1,
+    "tests/ci": 1,
+    "tests/installer": 1,
+    "tests/settings_control": 6,
+    "tests/validators": 2
+  }
+}

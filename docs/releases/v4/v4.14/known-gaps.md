@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-30
-**Open items**: 86
+**Last updated**: 2026-11-01
+**Open items**: 103
 
 ## v4.14.0
 
@@ -12,13 +12,13 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 12 | 2 |
+| Deferred (DF) | 11 | 3 |
 | Bugs / regressions (BG) | 2 | 15 |
 | Warnings (WN) | 24 | 2 |
 | Missing tests / coverage gaps (MT) | 4 | 9 |
 | Quality-gate gaps (QG) | 3 | 1 |
 
-The six standard categories contain 45 open items; 35 inherited AR obligations bring the section total to 80. The 23 findings introduced during this run are resolved after their individual acceptance gates and green merged integration passed. Together with the six previously resolved entries, there are 29 resolved items. Every original item body is retained. The remaining 80 open items are inherited obligations; their migration authority is unchanged.
+The six standard categories contain 44 open items; 35 inherited AR obligations bring the section total to 79. The 23 findings introduced during the v4.14.0 run and the six previously resolved entries remain resolved. The inherited pilot tooling candidate below adds one resolution, bringing this section to 30 resolved items. Every original item body is retained. The remaining 79 open items are inherited obligations; their migration authority is unchanged. The pilot resolution takes effect on merge of its maintenance package, whose local qualification and pending integration boundary are recorded below.
 
 ### Current qualification
 
@@ -505,25 +505,6 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
 
-#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: v4.15.0
-- **Severity**: low - tooling gap; spend cap for this plan was 0
-- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
-- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
-- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
-- **Future plan**: v4.15.0 instruction-necessity review
-
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
-
-**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
-
-**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
-
-- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
-- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
-
 #### DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2
 
 **Carry-forward contract (v4.13.11)**:
@@ -739,6 +720,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 - **Migrated from**: v4.13#DF-12 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Claude Code 2.1.283 does not recognize claude-sonnet-5-5 or expose effort, so the approved paid matrix cannot run.
+- **v4.14.6 observation (2026-10-31)**: Claude Code 2.1.283 reports the effective effort through the local command `/effort status` and reads back a per-model `modelSettings.<id>.effortLevel` for `claude-sonnet-5-5` (proof rows W06 and O02, re-run from the v4.14.6 final-phase build), so the effort half of the stated blocker no longer holds; whether the pilot wrapper's run metadata shows effort, and the maintainer's approval of the paid 15-run matrix, were not tested.
 
 #### WN-19 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
 
@@ -2729,6 +2711,27 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 ### Resolved
 
+#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: v4.15.0
+- **Severity**: low - tooling gap; spend cap for this plan was 0
+- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
+- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
+- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
+- **Future plan**: v4.15.0 instruction-necessity review
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+
+**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
+
+**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
+
+- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
+- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
+
+**Resolution candidate, 2026-10-31 (v4.15.0 inherited scope)**: The opt-in instruction mode stages exact caller-provided full-index and pointer Markdown in separate A/B CLAUDE.md files, with identical four-skill snapshots. The public stage-only CLI ran with an empty PATH and recorded UNMEASURED, zero calls and zero spend. The existing regression owner passes 219 tests with two pre-existing privilege skips; the final-source fast profile passes all 18 checks. [Pilot variant evidence](../v4.15/development/v4.15.0-pilot-variant-evidence.md) records hashes, race controls and the unchanged live-budget limitations. This resolves the tooling acceptance condition only; no model-selection benefit, default flip, provider-cost guarantee or v4.15 release is claimed. This candidate closure becomes canonical when the enclosing maintenance package merges; remote validation and integration are still pending in this branch. The original body above remains historical provenance.
+
 #### MT-9: Offline policy test still expects inline workflow commands
 
 - **Source phase**: v4.14.0 Phase7, T024/T028 current actual offline profile.
@@ -3436,3 +3439,436 @@ None.
 ### Resolved
 
 None.
+
+## v4.14.6
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 18 | 0 |
+| Bugs / regressions (BG) | 0 | 4 |
+| Warnings (WN) | 0 | 4 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-24: Planned follow-on: Cursor and Antigravity hosting
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Nexus-Hub Settings panel is hosted in VS Code only (maintainer decision Q1, 2026-10-15) because a write from Cursor or Antigravity would change that editor's settings, not VS Code's, so both installers pass only the VS Code command line and leave the Cursor and Antigravity extension folders untouched.
+
+**Suggested next step**: Plan it with `/plan feature`: per-host catalog surfaces and proof rows, a three-host installer signature in both installers, and Not-Settable for the `chat.*` Copilot keys outside VS Code.
+
+#### DF-25: Planned follow-on: Agent-call hook rule
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The human-presence rule rests on the agent-session marker and an interactive terminal, and the Phase 6 adversarial pass reproduced a bypass (finding AF-3 in `development/v4.14.6-last-phase-evidence.md`): a same-user process that unsets the marker and writes the one-time panel token file makes `set posture full-auto` succeed, so a git-guardrails rule that blocks `nexus-hub settings set` and `remove-override` in agent tool calls is the defense in depth the plan deferred (interview Q4).
+
+**Suggested next step**: Plan it with `/plan feature`: add the rule on hook-capable platforms, add it as the second layer over the nonce handoff that fix cycle 1 shipped (Write rules 6 and 7 of `docs/policy/settings-control-contract.md` already state the forged-confirmation residual, reproduced as AF-3d), because a same-user process that sets the environment itself can still forge the confirmation.
+
+#### DF-26: Planned follow-on: Advanced per-tool controls
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code `showThinkingSummaries`, `autoCompactEnabled`, `autoCompactWindow` and `outputStyle`, Codex `model_reasoning_summary`, `web_search`, `[sandbox_workspace_write].network_access` and `[history].persistence`, VS Code Copilot `chat.useAgentsMdFile`, `chat.useClaudeMdFile`, `chat.tools.terminal.autoApprove`, `chat.tools.urls.autoApprove` and `chat.agent.maxRequests`, and Copilot CLI `logLevel` are documented and observable but outside the five-control scope, and telemetry opt-outs are excluded because disabling telemetry also disables feature-flag fetching in Claude Code.
+
+**Suggested next step**: Plan it with `/plan feature`: run each key through the Phase 1 admission (a fetched vendor source and a proven row in a fresh scratch session) and add only the keys that prove, observing `chat.agent.maxRequests` first because its at-cap behavior is undocumented.
+
+#### DF-27: Planned follow-on: VS Code Copilot Chat: Not-Settable, because it is set per model in the model picker
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level reasoning-effort setting for Copilot Chat, so the cell is Not-Settable in `scripts/lib/settings_control/catalog.json` (write `vscode-copilot.effort`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented effort key appears.
+
+#### DF-28: Planned follow-on: VS Code Copilot Chat: Not-Settable, because only the organization policy `ChatDefaultModel` exists
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level default-model setting for Copilot Chat (only the organization policy `ChatDefaultModel`, which no file or API exposes), so the cell is Not-Settable (write `vscode-copilot.model`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented user-level model key appears.
+
+#### DF-29: Planned follow-on: Codex: whatever Phase 1 verifies, otherwise Not-Settable
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Phase 1 found no Codex key that controls commit attribution in the vendor pages fetched on 2026-10-30 (proof row W17), so the cell is Not-Settable (write `codex.attribution`).
+
+**Suggested next step**: Re-read the Codex configuration reference at each release contract pass and admit a write through the Phase 1 proof if a documented attribution key appears.
+
+#### DF-30: Planned follow-on: VS Code Copilot Chat: Not-Settable.
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level commit-attribution setting for Copilot Chat, so the cell is Not-Settable (write `vscode-copilot.attribution`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented key appears.
+
+#### DF-31: Planned follow-on: Persisting `max` effort, a Copilot CLI allow-all mode, or a VS Code Copilot Chat default model
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code accepts `max` in neither `effortLevel` nor `modelSettings`, Copilot CLI allow-all is a launch flag with no persisted setting, and VS Code has no user-level default model, so `show` reports each cell as Not-Settable with its reason and `set` never writes them.
+
+**Suggested next step**: Re-check each vendor's settings reference at the release contract pass and admit a write through the Phase 1 proof if a documented persisted setting appears for any of the three.
+
+#### DF-32: Planned follow-on: Copilot CLI
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: All five Copilot CLI cells (effort, model, default permission mode, removal of the `permissions.disableBypassPermissionsMode` block, commit co-author line) have no Proof Record because `copilot` is not installed on the proof machine (spike rows W18 to W22 and O08 are not-observed), so each is Not-Settable and the Copilot CLI part of the maintainer's outcome (DoD 8) is not delivered.
+
+**Suggested next step**: Install the Copilot CLI on a proof machine, run `python scripts/dev/settings_proof_spike.py`, and admit each write that proves, then re-run the Phase 1 proof matrix from the built candidate.
+
+#### DF-33: Planned follow-on: Claude Code: `permissions.defaultMode` and VS Code `claudeCode.initialPermissionMode`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Claude Code VS Code panel cells (`claudeCode.initialPermissionMode`, `claudeCode.allowDangerouslySkipPermissions`, and the remembered-mode override; spike rows W09, W10 and O06) need one manual sitting in a VS Code window, so they are Not-Settable and the panel row reads Not settable; this is the same host-only class as AR-16, whose blocker text cites AR-32.
+
+**Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md` in a scratch VS Code profile with the Claude Code extension, record what the mode indicator shows, and admit the writes that prove.
+
+#### DF-34: Planned follow-on: `chat.tools.global.autoApprove: true`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The VS Code Copilot Chat posture cells (`chat.tools.global.autoApprove`, `chat.permissions.default`, and the workspace override; spike rows W23, W24 and O09) need the same manual sitting, and the panel's confirmation modal (its default button, and VS Code's own auto-approve warning text) was asserted in tests but never driven in a real window.
+
+**Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md`, copy the auto-approve warning text into the contract, drive the panel's confirmation in a real window, and admit the writes that prove.
+
+#### DF-35: Planned follow-on: `skipDangerousModePermissionPrompt`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The plan has `full-auto` also write `skipDangerousModePermissionPrompt`, but its effect is a confirmation dialog visible only in an interactive Claude Code session (spike row W05), so the write is Not-Settable and a fresh Claude Code session may still show the bypass warning after a Full auto choice.
+
+**Suggested next step**: Observe Claude Code's bypass-permissions warning in an interactive session with and without the key, admit `claude.skip_dangerous_prompt` if it proves, and otherwise state in the guide that Full auto still shows the dialog.
+
+#### DF-36: Planned follow-on: the tool's documented agent-session marker
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Only Claude Code has documented agent-session markers in the catalog (`CLAUDECODE`, `CLAUDE_CODE_CHILD_SESSION`); the Codex, Copilot CLI and VS Code Copilot Chat pages name none, so for an agent running in those tools the human-presence rule rests on the terminal test alone.
+
+**Suggested next step**: Re-read each vendor's environment-variable documentation at the release contract pass and add any documented marker to `agent_session_markers` in `scripts/lib/settings_control/catalog.json` with its source.
+
+#### DF-37: Planned follow-on: an absolute Python interpreter
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The panel finds Python from the machine-scope `nexusHubSettings.pythonPath` setting or a fixed list of standard install locations (it never reads PATH), and neither installer records the interpreter it used, so a machine whose only Python lives elsewhere shows the panel's install-Python error until the user sets the path.
+
+**Suggested next step**: Have both installers write the resolved interpreter path where the panel can read it (for example a line in the install manifest), with a test for each installer.
+
+#### DF-38: Planned follow-on: `attribution.commit` and `attribution.pr`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code documents `attribution.commit` and `attribution.pr`, and the isolated real-commit probe (2026-10-31, scratch git configuration with no hooks) observed the default commit trailer `Co-Authored-By: Claude Code <noreply@anthropic.com>`, but the empty-value commit was not run because the first commit request (USD 0.7662) exhausted the approved cap, and the earlier recitation-based proof did not reproduce. Without the off case the control is not proven, so `claude.attribution` ships Not-Settable. Attribution probes cost USD 1.1623 in total.
+
+**Suggested next step**: With a maintainer-approved cap of at least USD 1.00, run the isolated real-commit W08 probe in `scripts/dev/settings_proof_spike.py` for the empty-string case only; if that commit carries no attribution trailer, admit `claude.attribution` and regenerate the proof matrix from the harness.
+
+#### DF-39: Planned follow-on: Extract a shared `config_io` module and move the platform-defaults seeder onto the new lossless writers
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The plan review's design finding was recorded as a refactor candidate for 6.1: the platform-defaults seeder (`scripts/lib/integrations/platform_defaults.py`) and the new settings writers both read and write the same user files through separate code, and moving the seeder onto the lossless writers would change every platform's seeding path and re-test it, which is outside this plan, so the Phase 6 scan left it unchanged.
+
+**Suggested next step**: Plan it with `/plan refactor`: extract the shared reader and writer, move the seeder onto it behind the existing seeding tests for every platform, and keep the seed-record and ownership-record formats unchanged.
+
+#### DF-40: Planned follow-on: a path-filtered CI workflow
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: `.github/workflows/nexus-hub-settings.yml` triggers only on `extensions/nexus-hub-settings/**`, `scripts/ci/**` and itself, and the repository-wide `ci.yml` does not run the extension's tests (the profile group is explicit-only), so a pull request that changes only `scripts/lib/settings_control/**` or `scripts/nexus_hub_cli.py` can break the panel's agreement test and its captured engine fixtures without any check running them.
+
+**Suggested next step**: With the maintainer's approval of a pipeline change, add `scripts/lib/settings_control/**` and `scripts/nexus_hub_cli.py` to that workflow's `paths` (it is not a required check, so the filter stays safe), and re-run `tests/workflows`.
+
+#### DF-41: Planned follow-on: Both installers build and install the extension into VS Code
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Bash installer could not run natively on the proof host (no `jq`, and `bash` is the WSL stub), so only the Windows installer was run into a scratch home (four times across Phases 5 and 6, exit 0 each), and the Linux and macOS postconditions were not observed locally.
+
+**Suggested next step**: Quote the `installer-smoke` legs for ubuntu, macos and windows from the integration pull request under Publication and integration, and run the manual steps on a Mac after `nexus-hub upgrade`.
+
+### Resolved
+
+#### WN-35: The repository README does not link the Nexus-Hub Settings guide - RESOLVED 2026-11-01
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: `guides/NEXUS_HUB_SETTINGS.md` exists and is linked from the extension README, but `README.md` has no link to it (a Phase 5 write-claim limit), so a user reading the repository front page cannot find the settings command or panel.
+
+**Suggested next step**: Add one line to `README.md` that links `guides/NEXUS_HUB_SETTINGS.md` and runs `nexus-hub settings show`, and re-run `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"`.
+
+**Resolution**: The v4.14.6 release commit adds the README What's New entry, which links `guides/NEXUS_HUB_SETTINGS.md` and names `nexus-hub settings show`, `set` and `reset`; `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"` passes.
+
+#### BG-18: Human-presence refusal is skipped by a non-weakening `remove-override` and by `reset` - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: `require_presence` refused an agent-session marker only when `weakens` was true, so a non-safety `remove-override` succeeded under a marker (AF-1), `reset_control` never called it, so an agent could restore a weaker value such as `bypassPermissions` or `block_git_bypass_flags` false (AF-2), and the panel token carried a plain string nothing verified, so planting a file was enough (AF-3).
+
+**Resolution**: Every `remove-override` is refused under a marker; a `reset` whose restore value is in the catalog's weakening set needs a person (terminal and `yes`, or a panel confirmation) and is refused under a marker, while a reset to a safe value stays open to an agent and `--dry-run` needs nobody; the confirmation file now holds only the SHA-256 of a nonce the panel hands to the one command it starts. Proof: `tests/settings_control/test_apply_hardening.py`, `extensions/nexus-hub-settings/test/agreement.test.ts` against the real CLI, and 32 adversarial re-run checks with 0 failed. **Documented limit, not closed**: a same-user process that writes the file, sets the nonce, and unsets the marker still succeeds (AF-3d); the marker refusal, the terminal test, and the planned agent-call hook rule (DF-25) are the barriers, stated in Write rules 6 and 7 of `docs/policy/settings-control-contract.md` and in the guide. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-19: The ownership record loses entries when two `nexus-hub settings` commands run at once - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: A refused write saved a stale record snapshot and the record had no lock (AF-4); 12 of 15 concurrent trials left a written key unrecorded.
+
+**Resolution**: One exclusive lock file (`settings-control.lock`, `fcntl` or `msvcrt`) spans the file read, the record update, and the write in `set`, `remove-override`, `reset`, and `record-editor-write`; a command that cannot get it in 30 seconds stops with a message. Proof: three trials of six real processes (red before, green after, `reset` returns the original bytes) and 15 re-run trials of four concurrent commands with 0 bad. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-20: The panel loses keyboard focus after every action or refresh and disables Refresh in error states - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P1
+
+**Reason**: `disabled()` included the busy state, so the busy render disabled the focused control and the idle render read the page body (C1); Refresh shared that state (C3); the sources element closed on every render (C4).
+
+**Resolution**: Controls are `aria-disabled` and ignore clicks while busy but stay focusable, only a read-only panel really disables them, focus is restored to the same control (else the card heading, else Refresh), Refresh is never disabled, and open sources stay open. Proof: Chromium audit, focus on the page body in 5 of 5 flows before and 0 after; Vitest for each flow. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-21: Light-theme badge text and input borders fail WCAG contrast in the panel - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P1
+
+**Reason**: Badge text took the tone color, 2.93:1 and 4.07:1 on `#f8f8f8` (C2), and field edges were 1.57:1 and 1.18:1 (C6).
+
+**Resolution**: Badge text is the foreground color (10.55:1 light, 11.06:1 dark) with the tone on the outline and icon only, and field edges are the foreground at 60 percent (3.5:1 or more in light and dark). Proof: `extensions/nexus-hub-settings/test/contrast.test.ts` (4.5:1 text and 3:1 edge and focus ring against Dark Modern, Light Modern, and modeled high-contrast dark and light) and the Chromium computed values. The real high-contrast themes were modeled, not read from a running VS Code. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-33: Engine robustness defects on unusual or hostile files and values - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: Nine low-severity defects (AF-5 to AF-10, AF-12, AF-13): a read-only file gave a traceback, a stray temp file and a stale entry; `reset` deleted a comment-only TOML file; deeply nested JSON and TOML dates raised; a forged record entry for a Not-Settable row was written back; `$` accepted a trailing newline; a blank model value was written; `owned-keys` was quadratic.
+
+**Resolution**: Each fixed with a regression test (a read-only refusal, delete only an empty created TOML file, a depth limit and `RecursionError` catch, TOML dates read as plain data, an entry matches only an admitted non-omitted row, `\Z`, blank, padded or hyphen-leading values refused, set-based `owned-keys`); `owned-keys` on 60,000 entries went from 80.6 s to 1.5 s. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-34: Panel layout, copy and ARIA findings from the rendered-surface audit - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: C5 to C17 and AF-11: overflow at 320 px, a mid-word tool column, a preselected first value, an unannounced notice, a misspelled `aria-labeledby`, repeated Not settable text and accessible names, no inherited font, every button primary, an empty state, and a webview validator that threw on `constructor`.
+
+**Resolution**: All fixed in the panel sources and `messages.ts` (`Object.hasOwn`); the audit shows no overflow at 320, 420, 900 and 1440 px and no duplicate or missing accessible name. C15 and C17 were fixed from the one-line summaries because the delegate's own text was not kept, so they are the least certain. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-36: The proof spike's wording calls the `codex exec` header read local - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: `codex exec` and `codex doctor` try to reach vendor and GitHub hosts even without a credential, and so do the free Claude probes; measured through a local proxy sink: `api.openai.com`, `chatgpt.com`, `api.github.com`, `github.com`, `api.anthropic.com`.
+
+**Resolution**: Every no-sign-in probe now runs with its proxy variables pointed at a listener on 127.0.0.1 that forwards nothing and records each host (`OfflineSink`); the matrix text says so. The free run gives the same 39 rows and 20 proven; only W08 (paid) differs from the committed matrix. **Remaining**: the committed `development/v4.14.6-proof-matrix.md` still contains the old sentence, because it is outside this cycle's write list; replace that sentence with the text `write_matrix` now produces (see `phase-6-fix1/proof-matrix-rerun-offline.md`) or regenerate during the W08 re-proof. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.

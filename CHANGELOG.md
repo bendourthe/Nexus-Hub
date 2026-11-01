@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.6] - 2026-11-01
+
+### Added
+
+- **Nexus-Hub Settings: one place to set the defaults new Claude Code, Codex, and GitHub Copilot sessions start with.** The `nexus-hub settings` commands (`show`, `explain`, `set`, `reset`, `remove-override`) and a "Nexus-Hub Settings" panel in VS Code cover four controls that ship with a proof today: default effort, default model, approval posture, and git-guardrails mode. A fifth, commit attribution off, is listed but shown "Not settable" in every tool: Claude Code documents the key and its default commit trailer was observed, but the empty-value case has no proof yet, Codex documents no key, and Copilot has no proof. Every control that ships was observed changing a fresh session first; a cell with no such proof is shown "Not settable" with its reason instead of a switch that does nothing. `show` reports exactly one state per control and tool (in effect, tool default, overridden by a named file, variable, or policy with a one-line fix, not settable, and so on), including the legacy `env.CLAUDE_CODE_EFFORT_LEVEL` that outranks `/effort`. Each change is recorded in `~/.nexus-hub/settings-control.json`, so `reset` restores exactly what was replaced, and both installers and the platform-defaults seeder skip any key you chose. A change that lowers a safety barrier needs a person at a terminal or a confirmed panel dialog and is refused inside an agent session. The installers build and install the panel into VS Code only.
+
+    - Activation: install or upgrade Nexus-Hub (the installers build the panel when the `code` command is found), then open the "Nexus-Hub Settings" view in the VS Code activity bar or run `nexus-hub settings show`. Nothing is written until you run `nexus-hub settings set <control> <value>` or confirm a change in the panel.
+    - Validation: run `nexus-hub settings show` (add `--json` for machine-readable output) and read the one state per control and tool; run `nexus-hub settings explain <control>` for the file, key, and proof behind each write; `code --list-extensions` lists `nexus-hub.nexus-hub-settings`.
+    - Rollback: run `nexus-hub settings reset <control>` (or "Reset" in the panel) to restore what was replaced; remove the panel with `code --uninstall-extension nexus-hub.nexus-hub-settings`; deleting `~/.nexus-hub/settings-control.json` returns installer seeding to normal.
+    - Authority: the panel and commands cannot change a running session, cannot override an organization policy, cannot make a tool honor a setting it does not document, and never let an agent enable a safety-weakening default. They write only user-level files and send nothing over a network.
+    - Docs: [`guides/NEXUS_HUB_SETTINGS.md`](guides/NEXUS_HUB_SETTINGS.md), with the admission rule and vendor sources in [`docs/policy/settings-control-contract.md`](docs/policy/settings-control-contract.md).
+
+- **A `nexus-hub-settings` group in the repository-native CI profile.** `python scripts/ci/run.py --profile full --only nexus-hub-settings` compiles the panel, runs its tests with coverage, packages it, and verifies the packaged contents.
+
+### Changed
+
+- **Both installers build and install `extensions/nexus-hub-settings` into VS Code only.** It installs under its own `NEXUS-HUB` header after the vendor headers, never into Cursor or Antigravity (the panel writes VS Code user settings), and the installers point at the activity-bar view because the panel has no status-bar item.
+
+- The platform read-contract records the 2026-11-01 re-verification for v4.14.6 over the same 75 rows as v4.14.5: 59 MATCH, 11 DRIFT and 5 UNVERIFIED. The Antigravity 2.0 CLI rules row moved from DRIFT to MATCH because the vendor's rules page no longer documents the CLI-only path; the paths Nexus-Hub writes are still documented. The two Devin Desktop / Windsurf rows read the same, so the live-install check in `docs/todos.md` remains the follow-up; no installed path changes.
+
+- **`model-routing` weighs harness cost as a separate, advisory concern.** Once per plan, when expected volume or observed context or retry overhead could change the decision, the skill considers the harness (instructions, tool schemas, caching, retries) apart from the five complexity signals. It recommends a model and harness pairing only from measured evidence on the exact model and harness versions, reports cost together with quality and its uncertainty, never transfers a ratio to another model, and never switches the active host; it ships no cost-ratio table.
+
+### Fixed
+
+- **`nexus-hub upgrade` now shows a readable what's-new summary and visible progress.** The what's-new block lists every release newer than the installed one (newest first, at most five, then an "earlier releases" count) with one line per changelog entry grouped under Added, Changed, Fixed and Removed, and a link to the full release notes, instead of pasting up to 40 raw lines of the latest section. The upgrade also ran the install bootstrap with the shared hidden-window default, so the bootstrap's own messages and download progress bar went to a hidden console and the upgrade looked frozen for minutes. A new `run_in_current_console` helper in `scripts/nexus_process.py` now lets the bootstrap share your console, but only when this process owns a visible console and both stdin and stdout are terminals; piped, agent, IDE and non-Windows launches keep the windowless default, and every other launch still gets `CREATE_NO_WINDOW`. `install.ps1` and `install.sh` also print the archive size when a HEAD request reveals it and the downloaded size and elapsed time when the transfer ends, and `install.sh` shows curl's progress bar when stderr is a terminal. On macOS and Linux, `install.sh` also gave the release archive download only 30 seconds, so a pinned install or upgrade failed on any connection slower than about 6 MB/s; the archive now gets the same 300 seconds as `install.ps1`.
+
+- **The install manifest no longer grows without bound.** The install manifest's diagnostic `logs` list was loaded, appended to and saved again by every install, and nothing ever trimmed it, so on a long-lived machine it reached 159,119 lines (13 MB) and every manifest save during an install rewrote all of it. `scripts/lib/integrations/manifest.py` now keeps only the most recent 5,000 lines (`MAX_LOGS`), on save and when an oversized manifest is loaded, so the first install after this release trims an existing trail. Nothing reads the trail back, and tracked files, recorded actions and the install selection are unchanged.
+
 ## [4.14.5] - 2026-10-30
 
 ### Added

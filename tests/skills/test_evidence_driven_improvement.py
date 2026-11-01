@@ -1881,6 +1881,265 @@ class TestRunnerStagingCannotProduceIdenticalArms:
 
 
 # ---------------------------------------------------------------------------
+class TestRunnerInstructionVariants:
+    """Instruction experiments vary project instructions, never descriptions."""
+
+    @staticmethod
+    def arguments(tmp_path: Path) -> list[str]:
+        full = tmp_path / "full.md"
+        pointer = tmp_path / "pointer.md"
+        full.write_text("# Full index\nPRIVATE-INSTRUCTION-SENTINEL\n- skill\n", encoding="utf-8")
+        pointer.write_text("# Pointer\nPRIVATE-INSTRUCTION-SENTINEL\nSee skills.\n", encoding="utf-8")
+        return [
+            "--protocol", str(tmp_path), "--out", str(tmp_path / "receipt.json"),
+            "--fixture", str(tmp_path / "fixture"),
+            "--instruction-full-index", str(full), "--instruction-pointer", str(pointer),
+        ]
+
+    def test_public_cli_stages_distinct_arms_without_claude(self, tmp_path: Path) -> None:
+        import hashlib
+        import os
+
+        args = self.arguments(tmp_path)
+        env = {**os.environ, "PATH": "", "PYTHONDONTWRITEBYTECODE": "1"}
+        proc = subprocess.run(
+            [sys.executable, "-B", str(_ROOT / "scripts/run_trigger_pilot.py"), *args, "--stage-only"],
+            env=env, capture_output=True, text=True, timeout=30, check=False,
+        )
+        assert proc.returncode == 0, proc.stderr
+        payload = json.loads((tmp_path / "receipt.json").read_text(encoding="utf-8"))
+        assert payload["mode"] == "instruction"
+        assert payload["staging_complete"] is True
+        assert payload["complete"] is False
+        assert payload["measurement_status"] == "UNMEASURED"
+        assert payload["calls_made"] == payload["total_spend_usd"] == 0
+        assert payload["results"] == []
+        for arm, filename in (("A", "full.md"), ("B", "pointer.md")):
+            original = (tmp_path / filename).read_bytes()
+            assert (tmp_path / "fixture" / arm / "CLAUDE.md").read_bytes() == original
+            assert payload["instruction_hashes"][arm] == hashlib.sha256(original).hexdigest()
+        for name, rel in _runner().SKILLS.items():
+            expected = (_ROOT / "catalog/skills" / rel / "SKILL.md").read_bytes()
+            for arm in ("A", "B"):
+                assert (tmp_path / "fixture" / arm / ".claude/skills" / name / "SKILL.md").read_bytes() == expected
+        logged = proc.stdout + proc.stderr + json.dumps(payload)
+        assert "PRIVATE-INSTRUCTION-SENTINEL" not in logged
+        assert str(tmp_path) not in logged
+
+    @pytest.mark.parametrize("case", ["no-pair", "one-input", "run-and-stage", "no-action"])
+    def test_invalid_modes_refuse_before_writes_or_cli_lookup(self, case, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        if case == "no-pair":
+            args = args[:6] + ["--stage-only"]
+        elif case == "one-input":
+            args = args[:-2] + ["--stage-only"]
+        elif case == "run-and-stage":
+            args += ["--run", "--stage-only"]
+        monkeypatch.setattr(m.shutil, "which", lambda _: pytest.fail("provider discovery before refusal"))
+        assert m.main(args) == 2
+        assert not (tmp_path / "fixture").exists()
+        assert not (tmp_path / "receipt.json").exists()
+
+    @pytest.mark.parametrize("case", ["empty", "bom-only", "nul", "invalid-utf8", "oversized", "same-bytes", "same-path", "missing", "directory", "wrong-suffix"])
+    def test_invalid_input_is_rejected_before_any_output(self, case, monkeypatch, tmp_path: Path, capsys) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        pointer = tmp_path / "pointer.md"
+        content = {"empty": b" \n", "bom-only": b"\xef\xbb\xbf", "nul": b"PRIVATE-INSTRUCTION-SENTINEL\0", "invalid-utf8": b"\xff", "oversized": b"x" * (2 * 1024 * 1024 + 1)}
+        if case in content:
+            pointer.write_bytes(content[case])
+        elif case == "same-bytes":
+            pointer.write_bytes((tmp_path / "full.md").read_bytes())
+        elif case == "same-path":
+            args[-1] = str(tmp_path / "full.md")
+        elif case == "missing":
+            pointer.unlink()
+        elif case == "directory":
+            pointer.unlink()
+            pointer.mkdir()
+        else:
+            args[-1] = str(pointer.with_suffix(".txt"))
+            pointer.rename(args[-1])
+        monkeypatch.setattr(m.shutil, "which", lambda _: pytest.fail("provider discovery before refusal"))
+        assert m.main([*args, "--stage-only"]) == 2
+        assert not (tmp_path / "fixture").exists()
+        assert not (tmp_path / "receipt.json").exists()
+        captured = capsys.readouterr()
+        assert "PRIVATE-INSTRUCTION-SENTINEL" not in captured.err
+        assert str(tmp_path) not in captured.err
+
+    @pytest.mark.parametrize("existing", ["fixture", "receipt.json"])
+    def test_existing_output_is_preserved(self, existing, tmp_path: Path) -> None:
+        args = self.arguments(tmp_path)
+        target = tmp_path / existing
+        if existing == "fixture":
+            target.mkdir()
+            target = target / "user.md"
+        target.write_text("user-owned", encoding="utf-8")
+        assert _runner().main([*args, "--stage-only"]) == 2
+        assert target.read_text(encoding="utf-8") == "user-owned"
+
+    def test_instruction_run_uses_each_arm_with_constant_skills(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        (tmp_path / "pilot-prompts.json").write_text(json.dumps({"prompts": [{"skill": "context-engineering", "prompt_id": "p1", "prompt_class": "positive", "prompt": "public synthetic prompt"}]}), encoding="utf-8")
+        monkeypatch.setattr(m.shutil, "which", lambda _: "controlled-fake-claude")
+        observed = []
+
+        def fake_call(command, **kwargs):
+            arm = Path(kwargs["cwd"])
+            observed.append(arm.name)
+            expected = tmp_path / ("full.md" if arm.name == "A" else "pointer.md")
+            assert (arm / "CLAUDE.md").read_bytes() == expected.read_bytes()
+            assert command[command.index("--setting-sources") + 1] == "project"
+            assert command[command.index("--max-budget-usd") + 1] == str(m.PER_CALL_BUDGET_USD)
+            assert "--strict-mcp-config" in command
+            assert kwargs["timeout"] == m.PER_CALL_TIMEOUT_S
+            return subprocess.CompletedProcess(command, 0, _stream(_INIT, {"type": "result", "total_cost_usd": 0.0}), "")
+
+        monkeypatch.setattr(m.subprocess, "run", fake_call)
+        assert m.main([*args, "--run", "--calibrate", "4"]) == 0
+        assert sorted(observed) == ["A", "A", "B", "B"]
+        rows = json.loads((tmp_path / "receipt.json").read_text(encoding="utf-8"))["results"]
+        assert len(rows) == 4
+        assert all(len(row["corpus_hashes"]["instruction"]) == 64 for row in rows)
+
+    def test_concurrent_fixture_claim_cannot_be_overwritten(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        preflight = m._instruction_preflight
+
+        def concurrent_claim(options, repo):
+            inputs = preflight(options, repo)
+            options.fixture.mkdir()
+            (options.fixture / "other-owner.md").write_text("other owner", encoding="utf-8")
+            return inputs
+
+        monkeypatch.setattr(m, "_instruction_preflight", concurrent_claim)
+        assert m.main([*args, "--stage-only"]) == 2
+        assert (tmp_path / "fixture/other-owner.md").read_text(encoding="utf-8") == "other owner"
+        assert not (tmp_path / "receipt.json").exists()
+
+    def test_concurrent_receipt_claim_cannot_be_overwritten(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        write_receipt = m.write_receipt
+
+        def concurrent_claim(path, payload, *, exclusive=False):
+            assert exclusive is True
+            path.write_text("other owner's receipt", encoding="utf-8")
+            return write_receipt(path, payload, exclusive=exclusive)
+
+        monkeypatch.setattr(m, "write_receipt", concurrent_claim)
+        assert m.main([*args, "--stage-only"]) == 2
+        assert (tmp_path / "receipt.json").read_text(encoding="utf-8") == "other owner's receipt"
+        assert not (tmp_path / "fixture/A").exists()
+
+    def test_staging_uses_validated_snapshots(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        original = (tmp_path / "full.md").read_bytes()
+        preflight = m._instruction_preflight
+
+        def change_after_snapshot(options, repo):
+            inputs = preflight(options, repo)
+            options.instruction_full_index.write_text("changed after preflight", encoding="utf-8")
+            return inputs
+
+        monkeypatch.setattr(m, "_instruction_preflight", change_after_snapshot)
+        assert m.main([*args, "--stage-only"]) == 0
+        assert (tmp_path / "fixture/A/CLAUDE.md").read_bytes() == original
+
+    @pytest.mark.parametrize("ceiling", ["0", "-1", "nan", "inf"])
+    def test_existing_ceiling_refusal_is_not_bypassed(self, ceiling, tmp_path: Path) -> None:
+        args = self.arguments(tmp_path)
+        assert _runner().main([*args, "--stage-only", "--ceiling", ceiling]) == 2
+        assert not (tmp_path / "fixture").exists()
+        assert not (tmp_path / "receipt.json").exists()
+
+    def test_linked_input_parent_is_rejected(self, tmp_path: Path) -> None:
+        import os
+
+        args = self.arguments(tmp_path)
+        source = tmp_path / "source"
+        source.mkdir()
+        (source / "pointer.md").write_text("# Pointer\n", encoding="utf-8")
+        link = tmp_path / "linked"
+        try:
+            if os.name == "nt":
+                proc = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(source)], capture_output=True, check=False)
+                if proc.returncode != 0:
+                    pytest.skip("junction creation unavailable")
+            else:
+                link.symlink_to(source, target_is_directory=True)
+            args[-1] = str(link / "pointer.md")
+            assert _runner().main([*args, "--stage-only"]) == 2
+            assert not (tmp_path / "fixture").exists()
+            assert not (tmp_path / "receipt.json").exists()
+            assert (source / "pointer.md").read_text(encoding="utf-8") == "# Pointer\n"
+        finally:
+            if link.is_symlink():
+                link.unlink()
+            elif os.path.lexists(link):
+                link.rmdir()
+
+    def test_regular_file_output_parent_refuses_before_fixture_claim(self, tmp_path: Path) -> None:
+        args = self.arguments(tmp_path)
+        args[3] = str(tmp_path / "full.md" / "receipt.json")
+        assert _runner().main([*args, "--stage-only"]) == 2
+        assert not (tmp_path / "fixture").exists()
+
+    def test_fixture_link_inserted_after_preflight_does_not_redirect_creation(self, monkeypatch, tmp_path: Path) -> None:
+        import os
+
+        m = _runner()
+        args = self.arguments(tmp_path)
+        preflight = m._instruction_preflight
+        target = tmp_path / "must-not-create"
+        link = tmp_path / "fixture"
+
+        def insert_link(options, repo):
+            inputs = preflight(options, repo)
+            if os.name == "nt":
+                proc = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True, check=False)
+                if proc.returncode != 0:
+                    pytest.skip("junction creation unavailable")
+            else:
+                link.symlink_to(target, target_is_directory=True)
+            return inputs
+
+        monkeypatch.setattr(m, "_instruction_preflight", insert_link)
+        try:
+            assert m.main([*args, "--stage-only"]) == 2
+            assert not target.exists()
+            assert not (tmp_path / "receipt.json").exists()
+        finally:
+            if link.is_symlink():
+                link.unlink()
+            elif os.path.lexists(link):
+                link.rmdir()
+
+    def test_late_receipt_failure_has_no_private_path_traceback(self, monkeypatch, tmp_path: Path, capsys) -> None:
+        m = _runner()
+        args = self.arguments(tmp_path)
+        write_receipt = m.write_receipt
+
+        def fail_final_receipt(path, payload, *, exclusive=False):
+            if not exclusive:
+                raise OSError(str(tmp_path / "private-source-path"))
+            return write_receipt(path, payload, exclusive=True)
+
+        monkeypatch.setattr(m, "write_receipt", fail_final_receipt)
+        assert m.main([*args, "--stage-only"]) == 2
+        captured = capsys.readouterr()
+        assert str(tmp_path) not in captured.err
+        assert "could not be completed" in captured.err
+        payload = json.loads((tmp_path / "receipt.json").read_text(encoding="utf-8"))
+        assert payload["complete"] is False
+        assert payload["staging_complete"] is False
+
+
 # Phase 7: the representation ladder gains the oracle it was missing.
 #
 # Two independent reviews found the same hole: `representation-cases.json`
