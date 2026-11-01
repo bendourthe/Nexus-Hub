@@ -362,7 +362,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Dependency maintenance - 2026-11-01
 
 - [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
-- [ ] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merges, and confirm Dependabot security updates remain enabled in the repository settings.
+- [ ] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merges, and decide whether to turn on Dependabot vulnerability alerts in the repository settings (they were off on 2026-11-01, so no automated notice reports a vulnerable dependency).
 
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
