@@ -17,8 +17,8 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "0b7de238182494762e465e78ad7927c904e3e09846ffa737aabfd9a1a142f0a1",
-      "scripts/installer.sh": "b114a782b8db5b14d4c3bc86f80e6c06fb2c51ca72e7e3b298aa6e93d37fcb8f",
+      "scripts/installer.ps1": "4558199847b8cf9ce632df5cc42b151699a9720fa9bc85e5c27ea5de2a1e1af0",
+      "scripts/installer.sh": "5a38698a4da4eb8fe5c3c902ce65db14171794b14296803b43695603ef55ab72",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.6-distribution-handbook-review.md",
-      "evidence_sha256": "7819a6e828697d49c7c677bf5f34e8506d913a2853fb1a1a22bc0dea88355daa"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.6-distribution-release-version-review.md",
+      "evidence_sha256": "71aa16a93e064d581e06dbf90834fc3dc222ebf9f6e33c212de4e98851720591"
     },
     "build": {
       "status": "pass",
