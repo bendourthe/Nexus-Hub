@@ -359,6 +359,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
 - [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
 
+## Dependency maintenance - 2026-11-01
+
+- [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
+- [ ] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merges, and confirm Dependabot security updates remain enabled in the repository settings.
+
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
 - [ ] Verify on a live Devin Desktop / Windsurf install whether `.windsurf/hooks.json`, `~/.codeium/windsurf/hooks.json` and `~/.codeium/windsurf/memories/global_rules.md` are still read. The 2026-10-30 platform re-verification found the current docs naming only `.devin/hooks.v1.json` and `~/.devin/global_rules.md`; recorded as unconfirmed drift (`windsurf-hooks-path`, `windsurf-global-rules-file`) in `docs/policy/platform-read-contracts.json`. If the old paths are no longer read, plan the adapter and installer change with tests.
