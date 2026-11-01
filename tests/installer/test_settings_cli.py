@@ -15,7 +15,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import jsonschema
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -62,11 +61,33 @@ def run(install: Path, env: dict[str, str], *args: str, cwd: Path | None = None)
     )
 
 
+def schema_checker():
+    """The `jsonschema` module, or a skip of only the calling test when this job does not install it.
+
+    The Windows installer shards install a small requirements set without `jsonschema`, so a
+    module-level import would stop every test in this file from being collected there. The
+    schema checks still run in the Linux `tests` job, which gets `jsonschema` through `mcp`.
+    """
+    return pytest.importorskip("jsonschema")
+
+
 def digest(root: Path) -> dict[str, str]:
     return {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob("*")) if p.is_file()}
 
 
-def test_show_json_validates_and_reports_an_override_with_exit_zero(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+def test_show_json_validates_against_the_schema(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    jsonschema = schema_checker()
+    (home / ".claude").mkdir()
+    (home / ".claude" / "settings.json").write_text(json.dumps({"model": "opus"}), encoding="utf-8")
+    env["ANTHROPIC_MODEL"] = "claude-haiku-5-5"
+
+    done = run(install, env, "show", "--json", "--project", str(tmp_path))
+
+    assert done.returncode == 0, done.stderr
+    jsonschema.validate(json.loads(done.stdout), SCHEMA)
+
+
+def test_show_json_reports_an_override_with_exit_zero(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
     (home / ".claude").mkdir()
     (home / ".claude" / "settings.json").write_text(json.dumps({"model": "opus"}), encoding="utf-8")
     env["ANTHROPIC_MODEL"] = "claude-haiku-5-5"
@@ -75,7 +96,6 @@ def test_show_json_validates_and_reports_an_override_with_exit_zero(install: Pat
     document = json.loads(done.stdout)
 
     assert done.returncode == 0, done.stderr
-    jsonschema.validate(document, SCHEMA)
     record = next(r for r in document["records"] if (r["control"], r["tool"]) == ("model", "claude"))
     assert (record["state"], record["layer"]) == ("overridden-by", "env ANTHROPIC_MODEL (shell)")
     assert record["fix"] == "Unset ANTHROPIC_MODEL where it is set."
@@ -207,11 +227,13 @@ def _record(**changes: object) -> dict:
     ],
 )
 def test_the_schema_rejects_an_unexplained_or_unknown_state(changes: dict) -> None:
+    jsonschema = schema_checker()
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(_record(**changes), SCHEMA)
 
 
 def test_the_schema_accepts_a_well_formed_record() -> None:
+    jsonschema = schema_checker()
     jsonschema.validate(_record(), SCHEMA)
     jsonschema.validate(_record(state="overridden-by", layer="env X (shell)", fix="Unset X."), SCHEMA)
     jsonschema.validate(_record(state="not-covered", detail="claude-opus-5-5"), SCHEMA)

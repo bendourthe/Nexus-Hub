@@ -1,3 +1,5 @@
+import * as os from "node:os";
+import * as path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SettingsController } from "../src/controller";
 import { SettingsViewProvider, buildHtml, contentSecurityPolicy, newNonce } from "../src/settingsView";
@@ -21,11 +23,11 @@ describe("the webview page", () => {
 
   it("has exactly one script element, carrying the nonce and a src, and no inline handlers or styles", () => {
     const html = buildHtml(PARTS);
-    const scripts = html.match(/<script\b[^>]*>/g) ?? [];
+    const scripts = html.match(/<script\b[^>]*>/gi) ?? [];
     expect(scripts).toHaveLength(1);
     expect(scripts[0]).toContain(`nonce="${PARTS.nonce}"`);
     expect(scripts[0]).toContain(`src="${PARTS.scriptUri}"`);
-    expect(html).not.toMatch(/<script[^>]*>[^<]+<\/script>/);
+    expect(html).not.toMatch(/<script[^>]*>[^<]+<\/script\s*>/i);
     expect(html).not.toMatch(/\son[a-z]+=/i);
     expect(html).not.toMatch(/\sstyle=/i);
     expect(html).toContain(`data-logo="${PARTS.logoUri}"`);
@@ -102,13 +104,14 @@ describe("the view provider", () => {
   it("limits resources to the media folder, enables only its own script, and posts renders to the page", () => {
     const { view, webview } = fakeView();
     const { controller, model, push } = fakeController();
-    const provider = new SettingsViewProvider(Uri.file("C:\\ext"), controller as unknown as SettingsController);
+    const extensionRoot = path.join(os.tmpdir(), "nhs-ext");
+    const provider = new SettingsViewProvider(Uri.file(extensionRoot), controller as unknown as SettingsController);
 
     provider.resolveWebviewView(view as never);
 
     const options = webview.options as { enableScripts: boolean; localResourceRoots: Uri[] };
     expect(options.enableScripts).toBe(true);
-    expect(options.localResourceRoots.map((u) => u.fsPath)).toEqual(["C:\\ext\\media"]);
+    expect(options.localResourceRoots.map((u) => u.fsPath)).toEqual([path.join(extensionRoot, "media")]);
     expect(webview.html).toContain("panel.js");
     expect(webview.html).toContain("script-src 'nonce-");
     push(model);

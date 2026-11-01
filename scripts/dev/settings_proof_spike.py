@@ -100,6 +100,8 @@ class OfflineSink:
                     self.attempts.append(first[0] if first else "")
                 connection.sendall(b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
             except OSError:
+                # The probing client hung up or timed out mid-exchange. The attempt is already
+                # recorded when the request line arrived, and the listener must keep accepting.
                 pass
             finally:
                 connection.close()
@@ -196,6 +198,8 @@ def fingerprint(path: Path) -> str:
         try:
             data = json.dumps(_mask_tokens(json.loads(data)), sort_keys=True).encode("utf-8")
         except ValueError:
+            # A credentials file that is not valid JSON is hashed as raw bytes: a changed or
+            # damaged file still changes the fingerprint, which is what the comparison needs.
             pass
     return hashlib.sha256(data).hexdigest()
 

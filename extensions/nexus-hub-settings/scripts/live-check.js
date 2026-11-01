@@ -14,7 +14,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const REPO = path.resolve(__dirname, "..", "..", "..");
-const EXT_ID = "nexus-hub.nexus-hub-settings";
 
 function arg(name) {
   const at = process.argv.indexOf(`--${name}`);

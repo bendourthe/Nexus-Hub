@@ -24,6 +24,7 @@ import {
   buildArgs,
   candidateInterpreters,
   installRoot,
+  quoteArg,
 } from "../src/cliBridge";
 
 const FAKE_CLI = `
@@ -45,7 +46,7 @@ else if (scenario === "weird") { console.error("odd"); process.exit(9); }
 else if (scenario === "sleep") { setTimeout(() => {}, 20000); }
 else if (scenario === "token") {
   const seen = tokenFile && fs.existsSync(tokenFile) ? JSON.parse(fs.readFileSync(tokenFile, "utf8")) : null;
-  console.log(JSON.stringify({ schema_version: 1, action: "set", results: [], exit_code: 0, seen, nonce: process.env.NEXUS_SETTINGS_PANEL_NONCE ?? null, raw: tokenFile && fs.existsSync(tokenFile) ? fs.readFileSync(tokenFile, "utf8") : null }));
+  console.log(JSON.stringify({ schema_version: 1, action: "set", results: [], exit_code: 0, seen, nonce: process.env.NEXUS_SETTINGS_PANEL_NONCE ?? null, raw: tokenFile && fs.existsSync(tokenFile) ? fs.readFileSync(tokenFile, "utf8") : null, mode: tokenFile && fs.existsSync(tokenFile) ? fs.statSync(tokenFile).mode & 0o777 : null }));
 }
 else if (scenario === "record") { console.log(JSON.stringify({ schema_version: 1, action: "record-editor-write", exit_code: 0, argv: args })); }
 else if (scenario === "record-fail") { console.error("nexus-hub settings: bad payload"); process.exit(2); }
@@ -164,13 +165,70 @@ describe("install root and interpreter discovery", () => {
     expect(bridge.describe()).toContain("python");
   });
 
-  it("finds an existing standard-location interpreter through discovery", () => {
+  it("finds the newest existing Windows interpreter, with the file system modeled so any host can run it", () => {
+    const root = "C:\\Users\\a\\AppData\\Local\\Programs\\Python";
+    const present = new Set([`${root}\\Python311\\python.exe`, `${root}\\Python312\\python.exe`]);
+    const bridge = new CliBridge({
+      platform: "win32",
+      env: { LOCALAPPDATA: "C:\\Users\\a\\AppData\\Local", SystemRoot: "C:\\Windows" },
+      listDir: (dir) => (dir === root ? ["Python311", "Python312", "Python313"] : []),
+      isFile: (target) => present.has(target),
+    });
+    expect(bridge.interpreter().command).toBe(`${root}\\Python312\\python.exe`);
+  });
+
+  it.each(["linux", "darwin"] as const)("finds the first existing fixed POSIX location on %s", (platform) => {
+    const first = (existing: string[]) =>
+      new CliBridge({ platform, env: {}, listDir: () => [], isFile: (target) => existing.includes(target) }).interpreter();
+
+    expect(first(["/usr/bin/python3", "/usr/local/bin/python3", "/opt/homebrew/bin/python3"]).command).toBe("/usr/bin/python3");
+    expect(first(["/usr/local/bin/python3", "/opt/homebrew/bin/python3"]).command).toBe("/usr/local/bin/python3");
+    expect(first(["/opt/homebrew/bin/python3"]).command).toBe("/opt/homebrew/bin/python3");
+    expect(first(["/opt/homebrew/bin/python3"]).args).toEqual(["-B", "-X", "utf8"]);
+    expect(() => first([])).toThrow("no Python 3 interpreter");
+  });
+
+  it("discovers through the real file system on this host: an existing absolute file, or the no-python error", () => {
+    const bridge = new CliBridge({ env: process.env });
+    let found: { command: string } | undefined;
+    try {
+      found = bridge.interpreter();
+    } catch (error) {
+      expect((error as BridgeError).kind).toBe("no-python");
+      return;
+    }
+    expect(path.isAbsolute(found.command)).toBe(true);
+    // lstat, not stat: the Microsoft Store Python is an app-execution alias that stat cannot follow.
+    expect(() => fs.lstatSync(found.command)).not.toThrow();
+  });
+
+  it.runIf(process.platform === "win32")("finds an existing standard-location interpreter through the real file system", () => {
     const base = temp("py");
     const exe = path.join(base, "Programs", "Python", "Python312", "python.exe");
     fs.mkdirSync(path.dirname(exe), { recursive: true });
     fs.writeFileSync(exe, "");
     const bridge = new CliBridge({ platform: "win32", env: { LOCALAPPDATA: base, SystemRoot: path.join(base, "none") } });
     expect(bridge.interpreter().command).toBe(path.win32.join(base, "Programs", "Python", "Python312", "python.exe"));
+  });
+});
+
+describe("command text for the error card", () => {
+  it("leaves a plain argument alone and quotes one with a space, keeping Windows backslashes single", () => {
+    expect(quoteArg("settings", "win32")).toBe("settings");
+    expect(quoteArg("C:\\Python312\\python.exe", "win32")).toBe("C:\\Python312\\python.exe");
+    expect(quoteArg("C:\\Program Files\\Python312\\python.exe", "win32")).toBe('"C:\\Program Files\\Python312\\python.exe"');
+  });
+
+  it("escapes a quote, and the backslashes before a quote or the closing quote, by the Windows rules", () => {
+    expect(quoteArg('say "hi"', "win32")).toBe('"say \\"hi\\""');
+    expect(quoteArg('a\\"b c', "win32")).toBe('"a\\\\\\"b c"');
+    expect(quoteArg("C:\\my dir\\\\", "win32")).toBe('"C:\\my dir\\\\\\\\"');
+  });
+
+  it("quotes anything a POSIX shell would interpret and escapes backslash, quote, dollar, and backtick", () => {
+    expect(quoteArg("/usr/bin/python3", "linux")).toBe("/usr/bin/python3");
+    expect(quoteArg("--project=/home/a b/work", "linux")).toBe('"--project=/home/a b/work"');
+    expect(quoteArg('a\\b$c`d"e', "darwin")).toBe('"a\\\\b\\$c\\`d\\"e"');
   });
 });
 
@@ -310,11 +368,34 @@ describe("actions", () => {
 
     const outcome = await bridge.action({ action: "set", control: "posture", value: "full-auto", tool: null, token: { action: "set", control: "posture", value: "full-auto", tool: null } });
 
-    const doc = outcome.doc as unknown as { seen: Record<string, unknown>; nonce: string | null; raw: string };
+    const doc = outcome.doc as unknown as { seen: Record<string, unknown>; nonce: string | null; raw: string; mode: number | null };
     expect(doc.seen).toMatchObject({ action: "set", control: "posture", value: "full-auto", tool: null, issued_at: 1_700_000_000.5 });
     expect(fs.existsSync(tokenFile)).toBe(false);
     if (process.platform !== "win32") {
-      expect(fs.statSync(tokenFile.replace(/[^/]+$/, "")).mode & 0o077).toBe(0);
+      // The mode of the FILE as the command saw it while it existed (the file is deleted before this line runs).
+      expect(doc.mode).not.toBeNull();
+      expect((doc.mode as number) & 0o077).toBe(0);
+      expect((doc.mode as number) & 0o600).toBe(0o600);
+    }
+  });
+
+  it.runIf(process.platform !== "win32")("creates the token owner-only even when the process umask would allow everyone", async (context) => {
+    let previous: number;
+    try {
+      previous = process.umask(0);
+    } catch {
+      context.skip();
+      return;
+    }
+    try {
+      const { bridge } = install("token");
+      const spec = { action: "set", control: "posture", value: "full-auto", tool: null } as const;
+
+      const doc = (await bridge.action({ ...spec, token: spec })).doc as unknown as { mode: number };
+
+      expect(doc.mode & 0o777).toBe(0o600);
+    } finally {
+      process.umask(previous);
     }
   });
 

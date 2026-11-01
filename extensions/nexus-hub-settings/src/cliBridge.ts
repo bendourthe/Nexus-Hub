@@ -48,6 +48,8 @@ export interface BridgeOptions {
   /** Test seam: use this interpreter and skip discovery. */
   interpreter?: Interpreter;
   listDir?: (dir: string) => string[];
+  /** Test seam: decide which discovered interpreter candidates exist, instead of asking the file system. */
+  isFile?: (target: string) => boolean;
   now?: () => number;
 }
 
@@ -144,8 +146,41 @@ function isFile(target: string): boolean {
   }
 }
 
-function quote(part: string): string {
-  return /[\s"]/.test(part) ? `"${part.replace(/"/g, '\\"')}"` : part;
+/**
+ * One argument as a person would paste it into a terminal, for the error card and the "run this
+ * yourself" line. The panel never runs this string: `execFile` receives the argument array.
+ * Backslashes are escaped by the quoting rules of the platform's own shell, so a path that ends in
+ * a backslash or contains a quote still reads back as the same single argument.
+ */
+export function quoteArg(part: string, platform: NodeJS.Platform): string {
+  if (platform === "win32") {
+    return /[\s"]/.test(part) ? quoteWindows(part) : part;
+  }
+  return /[^A-Za-z0-9_@%+=:,./-]/.test(part) ? quotePosix(part) : part;
+}
+
+/** POSIX shells keep a backslash, a quote, a dollar sign, and a backtick special inside double quotes. */
+function quotePosix(part: string): string {
+  let out = '"';
+  for (const char of part) {
+    out += char === "\\" || char === '"' || char === "$" || char === "`" ? `\\${char}` : char;
+  }
+  return `${out}"`;
+}
+
+/** Windows (CommandLineToArgvW) doubles the backslashes that precede a quote, or the closing quote. */
+function quoteWindows(part: string): string {
+  let out = '"';
+  let slashes = 0;
+  for (const char of part) {
+    if (char === "\\") {
+      slashes += 1;
+      continue;
+    }
+    out += char === '"' ? `${"\\".repeat(slashes * 2 + 1)}"` : `${"\\".repeat(slashes)}${char}`;
+    slashes = 0;
+  }
+  return `${out}${"\\".repeat(slashes * 2)}"`;
 }
 
 export interface CliResult {
@@ -252,7 +287,7 @@ export class CliBridge {
       interpreter = undefined;
     }
     const lead = interpreter ? [interpreter.command, ...interpreter.args] : ["python"];
-    return [...lead, this.cliPath(), ...args].map(quote).join(" ");
+    return [...lead, this.cliPath(), ...args].map((part) => quoteArg(part, this.platform)).join(" ");
   }
 
   private installHint(): string {
@@ -283,7 +318,8 @@ export class CliBridge {
         return [];
       }
     });
-    const found = candidateInterpreters(this.platform, this.env, list).find((candidate) => isFile(candidate.command));
+    const exists = this.options.isFile ?? isFile;
+    const found = candidateInterpreters(this.platform, this.env, list).find((candidate) => exists(candidate.command));
     if (!found) {
       throw new BridgeError(
         "no-python",
@@ -317,7 +353,7 @@ export class CliBridge {
       return Promise.reject(error);
     }
     const argv = [...interpreter.args, cli, ...args];
-    const command = [interpreter.command, ...argv].map(quote).join(" ");
+    const command = [interpreter.command, ...argv].map((part) => quoteArg(part, this.platform)).join(" ");
     return new Promise<CliResult>((resolve, reject) => {
       execFile(
         interpreter.command,
