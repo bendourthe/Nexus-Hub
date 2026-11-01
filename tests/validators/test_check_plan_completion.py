@@ -318,6 +318,71 @@ def test_v415_no_change_proof_rejects_tampering_and_current_drift(tmp_path, monk
     assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) != "met"
 
 
+def test_v415_deeply_nested_receipt_is_unmet_without_parser_escape(tmp_path, monkeypatch):
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    receipt = ck.qualify_v415_task(ctx, "T114", authority)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "met"
+    receipt.write_text("[" * 2000 + "0" + "]" * 2000)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+
+
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+@pytest.mark.parametrize("relative", ["scripts/validate_workflow_security.py", ".github/workflows/ci.yml"])
+def test_v415_hidden_index_flags_refuse_producer_and_active_reader_without_mutation(tmp_path, monkeypatch, flag, relative):
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    ck.qualify_v415_task(ctx, "T114", authority)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "met"
+    _git(ctx.root, "update-index", flag, "--", relative)
+    target = ctx.root / relative
+    target.write_text("raise SystemExit(93)\n" if relative.startswith("scripts/") else "name: hidden workflow change\n")
+    assert _git(ctx.root, "status", "--porcelain=v1", "--untracked-files=all") == ""
+    flags, content = _git(ctx.root, "ls-files", "-v", "--", relative), target.read_bytes()
+    reader = ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority)
+    producer_refusal = None
+    try:
+        ck.qualify_v415_task(ctx, "T114", authority)
+    except ck.Malformed as error:
+        producer_refusal = str(error)
+    assert _git(ctx.root, "ls-files", "-v", "--", relative) == flags
+    assert target.read_bytes() == content
+    assert (reader, producer_refusal) == ("unmet", "qualification-hidden-index-flags")
+
+
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_qualifier_refuses_hidden_index_mutation_during_real_gates(tmp_path, monkeypatch, flag):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    real = ck._v415_run_gate
+    relative = "scripts/validate_workflow_security.py"
+    def changed(*args):
+        result = real(*args)
+        _git(ctx.root, "update-index", flag, "--", relative)
+        (ctx.root / relative).write_text("raise SystemExit(93)\n")
+        return result
+    monkeypatch.setattr(ck, "_v415_run_gate", changed)
+    with pytest.raises(ck.Malformed, match="qualification-candidate-changed"):
+        ck.qualify_v415_task(ctx, "T114", authority)
+    assert _git(ctx.root, "status", "--porcelain=v1", "--untracked-files=all") == ""
+    assert (ctx.root / relative).read_text() == "raise SystemExit(93)\n"
+    assert _git(ctx.root, "ls-files", "-v", "--", relative).startswith("h " if flag == "--assume-unchanged" else "S ")
+
+
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_qualifier_refuses_hidden_snapshot_index_mutation(tmp_path, monkeypatch, flag):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    real = ck._v415_run_gate
+    def changed(snapshot, *args):
+        result = real(snapshot, *args)
+        _git(snapshot, "update-index", flag, "--", "baseline.txt")
+        target = snapshot / "baseline.txt"
+        target.chmod(0o644)
+        target.write_text("hidden snapshot mutation\n")
+        assert _git(snapshot, "status", "--porcelain=v1", "--untracked-files=all") == ""
+        return result
+    monkeypatch.setattr(ck, "_v415_run_gate", changed)
+    with pytest.raises(ck.Malformed, match="qualification-snapshot-changed"):
+        ck.qualify_v415_task(ctx, "T114", authority)
+
+
 @pytest.mark.parametrize("invalid", ["unknown-task", "unchecked", "dirty", "partial-comparison", "no-os-proof",
                                     "duplicate-key", "duplicate-block", "bool-step", "nonfinite"])
 def test_v415_qualifier_refuses_incomplete_or_unbound_inputs(tmp_path, monkeypatch, invalid):
@@ -397,6 +462,83 @@ def test_v415_failed_native_attempt_cannot_reuse_an_older_pass(tmp_path, monkeyp
     assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
 
 
+def test_v415_abrupt_replacement_attempt_invalidates_older_pass(tmp_path, monkeypatch):
+    from dataclasses import fields
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    receipt = ck.qualify_v415_task(ctx, "T114", authority)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "met"
+    identity = {f.name: getattr(authority, f.name) for f in fields(authority) if f.name != "_issuer"}
+    identity["root"] = str(identity["root"])
+    private = tmp_path / "abrupt-private-snapshot"
+    private.mkdir()
+    code = f"""
+import contextlib, json, os, sys
+from pathlib import Path
+from types import SimpleNamespace
+sys.path.insert(0, {str(CHECKER.parent)!r})
+import check_plan_completion as ck
+identity = json.loads({json.dumps(identity)!r})
+identity['root'] = Path(identity['root'])
+budget = ck.Budget(60)
+ctx = SimpleNamespace(root=identity['root'], git={ctx.git!r}, version={ctx.version!r}, rel={ctx.rel!r}, budget=budget,
+                      plan_hash=lambda: {ctx.plan_hash()!r}, tasks={ctx.tasks!r})
+ctx.run = lambda argv: ck._run(argv, budget)
+authority = ck._v415_task_authority(**identity)
+ck._v415_private_snapshot = lambda: contextlib.nullcontext(Path({str(private)!r}))
+ck._v415_run_gate = lambda *args, **kwargs: os._exit(73)
+ck.qualify_v415_task(ctx, 'T114', authority)
+"""
+    result = subprocess.run([sys.executable, "-c", code], env=os.environ.copy(), capture_output=True,
+                            text=True, timeout=45, check=False)
+    state = json.loads(receipt.read_text())
+    assert (result.returncode, state["outcome"], ck.v415_no_change_status(
+        ctx, "T114", ctx.tasks[0][2], start, authority)) == (73, "fail", "unmet"), result.stderr
+
+
+@pytest.mark.parametrize("mode", ["timeout", "log-cap", "exception", "normal-exit", "abrupt-parent"])
+def test_v415_gate_owns_descendants_until_final_cleanup(tmp_path, mode):
+    if mode == "abrupt-parent" and os.name != "nt":
+        pytest.skip("Windows kill-on-job-close covers abrupt supervisor exit; POSIX cleanup requires a live supervisor")
+    snapshot = tmp_path / "snapshot"
+    snapshot.mkdir()
+    ready, survived, report = tmp_path / "child-ready", tmp_path / "child-survived", tmp_path / "gate.log"
+    child = ("import time; from pathlib import Path; "
+             f"Path({str(ready)!r}).write_text('ready'); time.sleep(4); Path({str(survived)!r}).write_text('orphan')")
+    gate = ("import os, subprocess, sys, time\nfrom pathlib import Path\n"
+            f"subprocess.Popen([sys.executable, '-c', {child!r}], creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))\n"
+            f"while not Path({str(ready)!r}).exists(): time.sleep(0.01)\n"
+            + ("print('x' * 1024, flush=True)\n" if mode == "log-cap" else "print('child-ready', flush=True)\n")
+            + ("" if mode == "normal-exit" else "time.sleep(6)\n"))
+    (snapshot / "gate.py").write_text(gate)
+    driver = tmp_path / "driver.py"
+    driver.write_text(f"""
+import os, sys
+from pathlib import Path
+sys.path.insert(0, {str(CHECKER.parent)!r})
+import check_plan_completion as ck
+ck._V415_GATE_TIMEOUT = 3
+if {mode!r} == 'log-cap': ck._V415_LOG_CAP = 512
+if {mode!r} in ('exception', 'abrupt-parent'):
+    original = ck.os.fstat
+    def interrupted(fd):
+        if Path({str(ready)!r}).exists():
+            if {mode!r} == 'abrupt-parent': os._exit(73)
+            raise OSError('controlled observation interruption')
+        return original(fd)
+    ck.os.fstat = interrupted
+try:
+    ck._v415_run_gate(Path({str(snapshot)!r}), ['gate.py'], Path({str(report)!r}), dict(os.environ))
+except (ck.Malformed, OSError):
+    pass
+""")
+    result = subprocess.run([sys.executable, str(driver)], env=os.environ.copy(), capture_output=True,
+                            text=True, timeout=15, check=False)
+    assert result.returncode == (73 if mode == "abrupt-parent" else 0), result.stderr
+    assert ready.exists(), "the controlled gate must actually spawn its child"
+    time.sleep(4.3)
+    assert not survived.exists(), f"descendant survived gate {mode} cleanup"
+
+
 def test_v415_qualification_uses_clean_environment_and_readonly_committed_sources(tmp_path, monkeypatch):
     ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
     monkeypatch.setenv("PYTHONPATH", str(ctx.root))
@@ -418,7 +560,8 @@ def test_v415_qualification_uses_clean_environment_and_readonly_committed_source
     assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
 
 
-def test_v415_public_qualification_validates_full_parent_and_preserves_record_bytes(tmp_path, monkeypatch):
+@pytest.mark.parametrize("deep_comparison", [False, True], ids=["valid", "deep-committed-comparison"])
+def test_v415_public_qualification_validates_full_parent_and_preserves_record_bytes(tmp_path, monkeypatch, deep_comparison):
     ck, ctx, _start, _authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
     hosting = tmp_path / "qualification-gh-state.json"
     hosting.write_text(json.dumps({"pr_state": "OPEN", "checks": []}))
@@ -452,6 +595,15 @@ def test_v415_public_qualification_validates_full_parent_and_preserves_record_by
     before = path.read_bytes()
     argv = [sys.executable, str(CHECKER), "qualify-task", "--minor", "v4.15", "--member", ctx.version,
             "--task", "T114", "--session", SESSION, "--repo", str(ctx.root)]
+    if deep_comparison:
+        evidence.write_text("## CI/CD coverage\n\n```v415-ci-comparison\n" + "[" * 2000 + "0" + "]" * 2000 + "\n```\n")
+        _git(ctx.root, "add", ".")
+        _git(ctx.root, "commit", "-qm", "deep comparison in clean committed candidate")
+        assert _git(ctx.root, "status", "--porcelain=v1", "--untracked-files=all") == ""
+        refused = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
+        assert refused.returncode == ck.EXIT_MALFORMED and "qualification-json-depth" in refused.stderr
+        assert "Traceback" not in refused.stderr and path.read_bytes() == before
+        return
     result = subprocess.run(argv, env=os.environ.copy(), capture_output=True, text=True, timeout=60, check=False)
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout.strip() == "QUALIFIED v4.15.1 T114" and path.read_bytes() == before
@@ -1127,32 +1279,34 @@ def test_a_record_from_another_session_is_ignored(complete: Fixture) -> None:
     assert result.returncode == 1
 
 
-def _resign(complete: Fixture, record: dict) -> None:
+def _resign(complete: Fixture, record: dict, monkeypatch: pytest.MonkeyPatch) -> None:
     import importlib.util
 
     spec = importlib.util.spec_from_file_location("cpc_for_resign", CHECKER)
     module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
     spec.loader.exec_module(module)
     record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
     complete.record_path().write_text(json.dumps(record), encoding="utf-8")
 
 
 @pytest.mark.parametrize("session", [SESSION, None])
-def test_an_old_record_never_expires(complete: Fixture, session: str | None) -> None:
+def test_an_old_record_never_expires(complete: Fixture, session: str | None, monkeypatch: pytest.MonkeyPatch) -> None:
     """An approval holds however long the run takes (completion contract, "Run record lifetime")."""
     record = json.loads(complete.record_path().read_text(encoding="utf-8"))
     record["created"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)).isoformat()
-    _resign(complete, record)
+    _resign(complete, record, monkeypatch)
     result = complete.check(session)
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout.startswith("PLAN COMPLETE") and "stale" not in result.stderr
 
 
-def test_plan_complete_stamps_the_record_and_ends_its_liveness(complete: Fixture) -> None:
+def test_plan_complete_stamps_the_record_and_ends_its_liveness(complete: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
     import importlib.util
 
     spec = importlib.util.spec_from_file_location("cpc_for_live", CHECKER)
     module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
     spec.loader.exec_module(module)
     ctx = module.RepoContext(complete.work, module.Budget(60))
     path = complete.record_path()
@@ -1170,11 +1324,12 @@ def test_plan_complete_stamps_the_record_and_ends_its_liveness(complete: Fixture
     assert complete.check().stdout.splitlines()[0] == "BLOCKED: record-tampered"
 
 
-def test_a_record_without_a_stamp_keeps_its_pre_existing_signature(complete: Fixture) -> None:
+def test_a_record_without_a_stamp_keeps_its_pre_existing_signature(complete: Fixture, monkeypatch: pytest.MonkeyPatch) -> None:
     import importlib.util
 
     spec = importlib.util.spec_from_file_location("cpc_for_payload", CHECKER)
     module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
     spec.loader.exec_module(module)
     record = json.loads(complete.record_path().read_text(encoding="utf-8"))
     assert "completed" not in module._hmac_payload(record)

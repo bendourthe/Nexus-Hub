@@ -2106,6 +2106,8 @@ def _v415_original_scope(ck: ModuleType, rctx: RepoContext, record: dict, member
     worker, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, base=base, canonical_merged=False)
     if worker is None or status != "met":
         return False
+    if not v415_index_flags_visible(worker) or not v415_index_flags_visible(rctx):
+        return False
     if member.get("start_head"):
         head = rctx._git_out("rev-parse", "HEAD")
         if not head or _historical_claim_status(rctx, member, head, record, ck) != "met":
@@ -2404,6 +2406,18 @@ def cmd_record_permit_outputs(ck: ModuleType, args: argparse.Namespace) -> int:
         active.pop("v415_output_append", None)
     print(f"PERMITTED {'active' if member.get('start_head') else 'dormant'} coordinator outputs {args.member}")
     return 0
+
+
+def v415_index_flags_visible(rctx: RepoContext) -> bool:
+    """A clean status proves freshness only when tracked edits cannot be hidden by index flags."""
+    try:
+        rc, flags = rctx.run([rctx.git, "-C", str(rctx.root), "ls-files", "-v", "-z"])
+    except (OSError, ObservationUnavailable):
+        return False
+    if rc != 0 or not isinstance(flags, str) or (flags and not flags.endswith("\0")):
+        return False
+    return all(len(row) > 2 and row[1] == " " and row[0].isupper() and row[0] != "S"
+               for row in flags.split("\0")[:-1])
 
 
 def _v415_ci_checkpoint(ck: ModuleType, rctx: RepoContext, record: dict, member: dict) -> bool:

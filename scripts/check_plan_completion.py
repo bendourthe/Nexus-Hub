@@ -56,7 +56,7 @@ import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
-from types import MappingProxyType, ModuleType
+from types import MappingProxyType, ModuleType, SimpleNamespace
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
@@ -1181,6 +1181,8 @@ def _v415_inputs(ctx: Context, ref: str, member: str, *, working: bool = False) 
             value = "plan:" + plan_hash_text(text)
         rows.append([path, mode, value])
     if working:
+        if not _minor_module().v415_index_flags_visible(ctx):
+            raise Malformed("qualification-hidden-index-flags")
         changed = _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all", "-z")
         for line in changed.split("\0"):
             if not line:
@@ -1224,7 +1226,10 @@ def _v415_json(data: str | bytes):
         return result
     def finite(_value):
         raise Malformed("qualification-json-nonfinite")
-    return json.loads(data, object_pairs_hook=unique, parse_constant=finite)
+    try:
+        return json.loads(data, object_pairs_hook=unique, parse_constant=finite)
+    except RecursionError:
+        raise Malformed("qualification-json-depth") from None
 
 
 def _v415_blob_bytes(ctx: Context, ref: str, path: str, *, working: bool = False) -> bytes:
@@ -1351,26 +1356,165 @@ def _v415_proof_identity(authority: V415TaskAuthority, tid: str, target: str) ->
             "task_id": tid, "literal": target}
 
 
+@contextmanager
+def _v415_windows_gate(command: list[str], snapshot: Path, env: dict, output):
+    """Atomically create a hidden process inside a private kill-on-close Windows job."""
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes as w
+
+    size_t = ctypes.c_size_t
+    class BasicLimits(ctypes.Structure):
+        _fields_ = [("process_time", ctypes.c_longlong), ("job_time", ctypes.c_longlong), ("flags", w.DWORD),
+                    ("minimum", size_t), ("maximum", size_t), ("active", w.DWORD), ("affinity", size_t),
+                    ("priority", w.DWORD), ("scheduling", w.DWORD)]
+    class ExtendedLimits(ctypes.Structure):
+        _fields_ = [("basic", BasicLimits), ("io", ctypes.c_ulonglong * 6), ("process_memory", size_t),
+                    ("job_memory", size_t), ("peak_process", size_t), ("peak_job", size_t)]
+    class Accounting(ctypes.Structure):
+        _fields_ = [("times", ctypes.c_longlong * 4), ("faults", w.DWORD), ("total", w.DWORD),
+                    ("active", w.DWORD), ("terminated", w.DWORD)]
+    class Startup(ctypes.Structure):
+        _fields_ = [("cb", w.DWORD), ("reserved", w.LPWSTR), ("desktop", w.LPWSTR), ("title", w.LPWSTR),
+                    *[(name, w.DWORD) for name in ("x", "y", "width", "height", "columns", "rows", "fill", "flags")],
+                    ("show", w.WORD), ("reserved_size", w.WORD), ("reserved_bytes", w.LPVOID),
+                    ("stdin", w.HANDLE), ("stdout", w.HANDLE), ("stderr", w.HANDLE)]
+    class StartupEx(ctypes.Structure):
+        _fields_ = [("startup", Startup), ("attributes", w.LPVOID)]
+    class ProcessInfo(ctypes.Structure):
+        _fields_ = [("process", w.HANDLE), ("thread", w.HANDLE), ("pid", w.DWORD), ("tid", w.DWORD)]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    signatures = (
+        ("CreateJobObjectW", [w.LPVOID, w.LPCWSTR], w.HANDLE),
+        ("SetInformationJobObject", [w.HANDLE, ctypes.c_int, w.LPVOID, w.DWORD], w.BOOL),
+        ("QueryInformationJobObject", [w.HANDLE, ctypes.c_int, w.LPVOID, w.DWORD, w.LPVOID], w.BOOL),
+        ("InitializeProcThreadAttributeList", [w.LPVOID, w.DWORD, w.DWORD, ctypes.POINTER(size_t)], w.BOOL),
+        ("UpdateProcThreadAttribute", [w.LPVOID, w.DWORD, size_t, w.LPVOID, size_t, w.LPVOID, w.LPVOID], w.BOOL),
+        ("DeleteProcThreadAttributeList", [w.LPVOID], None),
+        ("CreateProcessW", [w.LPCWSTR, w.LPWSTR, w.LPVOID, w.LPVOID, w.BOOL, w.DWORD,
+                            w.LPVOID, w.LPCWSTR, w.LPVOID, ctypes.POINTER(ProcessInfo)], w.BOOL),
+        ("GetExitCodeProcess", [w.HANDLE, ctypes.POINTER(w.DWORD)], w.BOOL),
+        ("WaitForSingleObject", [w.HANDLE, w.DWORD], w.DWORD),
+        ("TerminateJobObject", [w.HANDLE, w.UINT], w.BOOL),
+        ("CloseHandle", [w.HANDLE], w.BOOL),
+    )
+    for name, arguments, result in signatures:
+        function = getattr(kernel, name)
+        function.argtypes, function.restype = arguments, result
+    def checked(result):
+        if not result:
+            raise ctypes.WinError(ctypes.get_last_error())
+    job = kernel.CreateJobObjectW(None, None)
+    checked(job)
+    process, attributes = ProcessInfo(), None
+    try:
+        limits = ExtendedLimits()
+        limits.basic.flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE; no breakaway permissions.
+        checked(kernel.SetInformationJobObject(job, 9, ctypes.byref(limits), ctypes.sizeof(limits)))
+        size = size_t()
+        kernel.InitializeProcThreadAttributeList(None, 2, 0, ctypes.byref(size))
+        if not size.value:
+            raise OSError("qualification-atomic-job-unavailable")
+        buffer = ctypes.create_string_buffer(size.value)
+        checked(kernel.InitializeProcThreadAttributeList(buffer, 2, 0, ctypes.byref(size)))
+        attributes = buffer
+        jobs = (w.HANDLE * 1)(job)
+        checked(kernel.UpdateProcThreadAttribute(attributes, 0, 0x2000D, ctypes.byref(jobs), ctypes.sizeof(jobs), None, None))
+        with open(os.devnull, "rb") as input_stream:
+            inherited = [msvcrt.get_osfhandle(input_stream.fileno()), msvcrt.get_osfhandle(output.fileno())]
+            old_flags = [os.get_handle_inheritable(handle) for handle in inherited]
+            try:
+                for handle in inherited:
+                    os.set_handle_inheritable(handle, True)
+                handles = (w.HANDLE * 2)(*inherited)
+                checked(kernel.UpdateProcThreadAttribute(attributes, 0, 0x20002, ctypes.byref(handles), ctypes.sizeof(handles), None, None))
+                startup = StartupEx()
+                startup.startup.cb, startup.startup.flags = ctypes.sizeof(startup), 0x100
+                startup.startup.stdin, startup.startup.stdout, startup.startup.stderr = inherited[0], inherited[1], inherited[1]
+                startup.attributes = ctypes.addressof(attributes)
+                environment = ctypes.create_unicode_buffer("\0".join(f"{k}={v}" for k, v in sorted(env.items(), key=lambda item: item[0].upper())) + "\0\0")
+                line = ctypes.create_unicode_buffer(subprocess.list2cmdline(command))
+                checked(kernel.CreateProcessW(command[0], line, None, None, True,
+                        subprocess.CREATE_NO_WINDOW | 0x80000 | 0x400, environment, str(snapshot), ctypes.byref(startup), ctypes.byref(process)))
+            finally:
+                for handle, original in zip(inherited, old_flags):
+                    os.set_handle_inheritable(handle, original)
+        checked(kernel.CloseHandle(process.thread))
+        process.thread = None
+        def poll():
+            state = kernel.WaitForSingleObject(process.process, 0)
+            if state == 258:
+                return None
+            if state != 0:
+                raise OSError("qualification-process-observation-unavailable")
+            code = w.DWORD()
+            checked(kernel.GetExitCodeProcess(process.process, ctypes.byref(code)))
+            return code.value
+        yield poll
+    finally:
+        try:
+            checked(kernel.TerminateJobObject(job, 1))
+            deadline = time.monotonic() + 5
+            while True:
+                accounting = Accounting()
+                checked(kernel.QueryInformationJobObject(job, 1, ctypes.byref(accounting), ctypes.sizeof(accounting), None))
+                if not accounting.active:
+                    break
+                if time.monotonic() >= deadline:
+                    raise OSError("qualification-process-tree-not-drained")
+                time.sleep(0.01)
+        finally:
+            for handle in (process.thread, process.process, job):
+                if handle:
+                    kernel.CloseHandle(handle)
+            if attributes is not None:
+                kernel.DeleteProcThreadAttributeList(attributes)
+
+
+@contextmanager
+def _v415_gate_process(command: list[str], snapshot: Path, env: dict, output):
+    if os.name == "nt":
+        with _v415_windows_gate(command, snapshot, env, output) as poll:
+            yield poll
+        return
+    import signal
+    if not all(hasattr(os, name) for name in ("waitid", "WNOWAIT", "P_PID")):
+        raise OSError("qualification-owned-process-observation-unavailable")
+    process = subprocess.Popen(command, cwd=snapshot, env=env, stdin=subprocess.DEVNULL,
+                               stdout=output, stderr=subprocess.STDOUT, start_new_session=True, **NO_WINDOW)
+    def poll():
+        result = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        if result is None:
+            return None
+        return result.si_status if result.si_code == os.CLD_EXITED else -result.si_status
+    try:
+        yield poll
+    finally:
+        # WNOWAIT retains our leader's identity until the private process group is stopped.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        finally:
+            process.wait(timeout=5)
+
+
 def _v415_run_gate(snapshot: Path, argv: list[str], report: Path, env: dict) -> dict:
     """Only called with the compiled gate argv and a private materialized snapshot."""
     command = [sys.executable, *[(str(snapshot / p) if p.endswith(".py") else p) for p in argv]]
     _v415_plain(report)
     with report.open("xb") as output:
         try:
-            process = subprocess.Popen(command, cwd=snapshot, env=env, stdout=output, stderr=subprocess.STDOUT, **NO_WINDOW)
-            deadline = time.monotonic() + _V415_GATE_TIMEOUT
-            try:
-                while process.poll() is None:
+            with _v415_gate_process(command, snapshot, env, output) as poll:
+                deadline = time.monotonic() + _V415_GATE_TIMEOUT
+                code = poll()
+                while code is None:
                     if time.monotonic() >= deadline or os.fstat(output.fileno()).st_size > _V415_LOG_CAP:
-                        process.kill()
-                        process.wait(timeout=5)
+                        code = -1
                         break
                     time.sleep(0.025)
-                code = process.returncode
-            finally:
-                if process.poll() is None:
-                    process.kill()
-                    process.wait(timeout=5)
+                    code = poll()
         except (OSError, subprocess.SubprocessError):
             code = -1
     _restrict(report, directory=False)
@@ -1380,9 +1524,30 @@ def _v415_run_gate(snapshot: Path, argv: list[str], report: Path, env: dict) -> 
     return {"argv": argv, "exit_code": code, "report": report.name, "sha256": hashlib.sha256(data).hexdigest()}
 
 
+def _v415_publish_proof(path: Path, attempt: Path, body: dict, key: bytes, filename: str) -> None:
+    sealed = {**body, "seal": hmac.new(key, _V415_PROOF_DOMAIN + _canonical(body), hashlib.sha256).hexdigest()}
+    _v415_plain(attempt)
+    retained = attempt / filename
+    with retained.open("xb") as handle:
+        handle.write(_canonical(sealed))
+        handle.flush()
+        os.fsync(handle.fileno())
+    _restrict(retained, directory=False)
+    temporary = attempt / ("sealed-" + secrets.token_hex(12) + ".json")
+    with temporary.open("xb") as handle:
+        handle.write(_canonical(sealed))
+        handle.flush()
+        os.fsync(handle.fileno())
+    _restrict(temporary, directory=False)
+    _v415_plain(path)
+    os.replace(temporary, path)
+
+
 def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> Path:
     """Execute fixed gates on a clean committed copy; no approvals or run records change."""
     target = _v415_case(ctx, tid, authority)
+    if not _minor_module().v415_index_flags_visible(ctx):
+        raise Malformed("qualification-hidden-index-flags")
     if authority.historical_merge is not None or _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all"):
         raise Malformed("qualification-clean-active-candidate-required")
     commit = _v415_git(ctx, "rev-parse", "HEAD")
@@ -1414,6 +1579,7 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
     key = _secret(create=False)
     if key is None:
         raise Malformed("qualification-secret-unavailable")
+    _v415_publish_proof(path, attempt, body, key, "incomplete.json")
     try:
         with _v415_private_snapshot() as private_root:
             _restrict(private_root, directory=True)
@@ -1465,27 +1631,18 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
                         raise Malformed("qualification-handbook-incomplete")
             clean = subprocess.run([ctx.git, "-C", str(snapshot), "status", "--porcelain=v1", "--untracked-files=all"],
                                    env=env, capture_output=True, timeout=30, check=False, **NO_WINDOW)
-            if clean.returncode or clean.stdout.strip():
+            if (clean.returncode or clean.stdout.strip()
+                    or not _minor_module().v415_index_flags_visible(SimpleNamespace(root=snapshot, git=ctx.git, run=ctx.run))):
                 raise Malformed("qualification-snapshot-changed")
         if (_v415_git(ctx, "rev-parse", "HEAD") != commit
                 or _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all")
+                or not _minor_module().v415_index_flags_visible(ctx)
                 or _v415_inputs(ctx, commit, ctx.version)["fingerprint"] != inputs["fingerprint"]
                 or _v415_producer_sha() != body["producer_sha256"]):
             raise Malformed("qualification-candidate-changed")
         body["outcome"] = "pass"
     finally:
-        body["seal"] = hmac.new(key, _V415_PROOF_DOMAIN + _canonical(body), hashlib.sha256).hexdigest()
-        _v415_plain(attempt)
-        retained = attempt / "receipt.json"
-        with retained.open("xb") as handle:
-            handle.write(_canonical(body))
-        _restrict(retained, directory=False)
-        temporary = attempt / "sealed.json"
-        with temporary.open("xb") as handle:
-            handle.write(_canonical(body))
-        _restrict(temporary, directory=False)
-        _v415_plain(path)
-        os.replace(temporary, path)
+        _v415_publish_proof(path, attempt, body, key, "receipt.json")
     return path
 
 

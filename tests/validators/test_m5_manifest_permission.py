@@ -258,6 +258,122 @@ def test_v415_ci_captured_correction_allows_normal_admission_and_raw_claim_resum
 
 
 @pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_ci_hidden_index_edits_do_not_release_reads_or_allow_admission(v415_ci_case, flag):
+    case, run, probe = v415_ci_case
+    admission = _v415_ci_add_two(case)
+    granted = _v415_ci_grant(v415_ci_case)
+    original = copy.deepcopy(_member(granted, "v4.15.4"))
+    rel = "scripts/lib/installer/legacy_fingerprints.json"
+    target = case[1] / rel
+    _git(case[1], "update-index", flag, "--", rel)
+    target.write_text('{"unreviewed_hidden_fixture_edit":true}\n', encoding="utf-8")
+    assert not _git(case[1], "status", "--porcelain")
+    flags = _git(case[1], "ls-files", "-v", "--", rel)
+    content, before = target.read_bytes(), case[4].read_bytes()
+    effective = probe("print(json.dumps(cm.effective_read_paths(ck,rctx,record,member,member)))")
+    result = run(*admission)
+    assert effective.returncode == 0, effective.stdout + effective.stderr
+    assert json.loads(effective.stdout) == original["implementation"]["read_paths"], (
+        effective.stdout + result.stdout + result.stderr)
+    assert result.returncode == ck.EXIT_BLOCKED and "implementation-scope-conflict" in result.stdout
+    assert case[4].read_bytes() == before and target.read_bytes() == content
+    assert _git(case[1], "ls-files", "-v", "--", rel) == flags
+    assert _member(json.loads(before), "v4.15.4") == original
+
+
+@pytest.mark.parametrize("rc,flags,expected", [
+    (0, "H tracked.txt\0", True), (0, "H path\nh filename.txt\0", True), (0, "", True),
+    (0, "h tracked.txt\0", False), (0, "S tracked.txt\0", False), (0, "s tracked.txt\0", False),
+    (1, "H tracked.txt\0", False), (-1, "", False), (0, None, False),
+    (0, "H tracked.txt", False), (0, "H \0", False), (0, "H tracked.txt\0\0", False),
+])
+def test_v415_index_flags_visibility_is_nul_delimited_and_fail_closed(rc, flags, expected):
+    calls = []
+
+    def run(argv):
+        calls.append(argv)
+        return rc, flags
+
+    ctx = SimpleNamespace(root=Path("fixture-root"), git="fixture-git", run=run)
+    assert cm.v415_index_flags_visible(ctx) is expected
+    assert calls == [["fixture-git", "-C", str(ctx.root), "ls-files", "-v", "-z"]]
+
+
+@pytest.mark.parametrize("error", [OSError("unreadable index"), cm.ObservationUnavailable("index")])
+def test_v415_index_flags_visibility_refuses_unavailable_observation(error):
+    def unavailable(_argv):
+        raise error
+
+    ctx = SimpleNamespace(root=Path("fixture-root"), git="fixture-git", run=unavailable)
+    assert cm.v415_index_flags_visible(ctx) is False
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.2"], indirect=True)
+@pytest.mark.parametrize("actor", ["controller", "source-worker"])
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_outputs_hidden_prewrite_refuses_new_render_and_consume(v415_outputs_case, capsys, actor, flag):
+    fx, worker, _base, _version, path = v415_outputs_case
+    line = _v415_render(v415_outputs_case, capsys)
+    fx.capture(SESSION, line)
+    root = fx.work if actor == "controller" else worker
+    _git(root, "update-index", flag, "--", "MANIFEST.sha256")
+    target = root / "MANIFEST.sha256"
+    target.write_text("unreviewed hidden original-scope prewrite\n", encoding="utf-8")
+    assert not _git(root, "status", "--porcelain")
+    flags, content, before = _git(root, "ls-files", "-v", "--", "MANIFEST.sha256"), target.read_bytes(), path.read_bytes()
+    rendered, out, err = _cli(capsys, "record", "render", "--action", "permit-outputs", *_v415_args(v415_outputs_case))
+    if rendered == 0:
+        fx.capture(SESSION, out.splitlines()[0])  # Real capture even on the pre-fix vulnerable path.
+    consumed, consumed_out, consumed_err = _cli(capsys, "record", "permit-outputs", *_v415_args(v415_outputs_case))
+    assert rendered != 0 and consumed != 0, out + err + consumed_out + consumed_err
+    assert path.read_bytes() == before and target.read_bytes() == content
+    assert _git(root, "ls-files", "-v", "--", "MANIFEST.sha256") == flags
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_ci_controller_hidden_prewrite_refuses_new_grant(v415_ci_case, flag):
+    case, run, _probe = v415_ci_case
+    fx = case[0]
+    rel = "scripts/ci/profiles.py"
+    target = fx.work / rel
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("fixture tracked controller profile baseline\n", encoding="utf-8")
+    fx.commit("fixture track controller profile before capture")
+    fx.publish("develop")
+    fx.capture(SESSION, "fixture new read correction decision", at=0.0)
+    rendered = run("record", "render", "--action", "correct-ci-read", *_v415_ci_args(case))
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    fx.capture(SESSION, rendered.stdout.splitlines()[0])
+    _git(fx.work, "update-index", flag, "--", rel)
+    target.write_text("unreviewed hidden controller profile prewrite\n", encoding="utf-8")
+    assert not _git(fx.work, "status", "--porcelain")
+    flags, content, before = _git(fx.work, "ls-files", "-v", "--", rel), target.read_bytes(), case[4].read_bytes()
+    rendered = run("record", "render", "--action", "correct-ci-read", *_v415_ci_args(case))
+    if rendered.returncode == 0:
+        fx.capture(SESSION, rendered.stdout.splitlines()[0])
+    consumed = run("record", "correct-ci-read", *_v415_ci_args(case))
+    assert rendered.returncode != 0 and consumed.returncode != 0, rendered.stdout + rendered.stderr + consumed.stdout + consumed.stderr
+    assert case[4].read_bytes() == before and target.read_bytes() == content
+    assert _git(fx.work, "ls-files", "-v", "--", rel) == flags
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.2"], indirect=True)
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_v415_outputs_history_ignores_later_flags_but_new_scope_audit_refuses(v415_outputs_case, capsys, flag):
+    fx, _worker, _base, version, path = v415_outputs_case
+    granted = _v415_grant(v415_outputs_case, capsys)
+    member = _member(granted, version)
+    _git(fx.work, "update-index", flag, "--", "docs/README.md")
+    before, flags = path.read_bytes(), _git(fx.work, "ls-files", "-v", "--", "docs/README.md")
+    assert cm._v415_output_permission_valid(ck, fx.rctx(), granted, member, member[V415_FIELD][0])
+    assert not cm._v415_original_scope(ck, fx.rctx(), granted, member, ["MANIFEST.sha256"])
+    assert path.read_bytes() == before
+    assert _git(fx.work, "ls-files", "-v", "--", "docs/README.md") == flags
+
+
+@pytest.mark.parametrize("v415_outputs_case", ["v4.15.4"], indirect=True)
 @pytest.mark.parametrize("change", ["dirty", "later-commit", "broad-read", "write-reservation", "other-write"])
 def test_v415_ci_correction_never_releases_other_or_unreviewed_scope(v415_ci_case, change):
     case, run, _probe = v415_ci_case
@@ -483,16 +599,31 @@ def test_v415_ci_ordered_native_start_restores_reads_after_two_independent_merge
         assert current[V415_READ_FIELD] == original[V415_READ_FIELD]
 
 
-def test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start(v415_outputs_case, capsys):
+@pytest.mark.parametrize("handbook_paths", [
+    [],
+    ["docs/handbooks/handbooks.json", "docs/handbooks/README.md"],
+    [f"docs/handbooks/{name}.html{suffix}" for name in ("overview", "distribution", "completion")
+     for suffix in ("", ".build.json")],
+    [f"docs/handbooks/_sources/{name}/{leaf}" for name in ("overview", "distribution", "completion")
+     for leaf in ("model.json", "source.md", "design.css", "evidence.json", "native-composition.html")],
+    ["docs/releases/v4/v4.15/development/evidence/{version}-handbooks/" + leaf
+     for leaf in ("render.md", "build.json", "render.log", "desktop.png")],
+], ids=["manifests", "handbook-index", "handbook-pages", "handbook-sources", "member-evidence"])
+def test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start(
+        v415_outputs_case, capsys, handbook_paths):
     fx, worker, base, version, path = v415_outputs_case
     before = json.loads(path.read_text(encoding="utf-8"))
     original = copy.deepcopy(_member(before, version))
-    granted = _v415_grant(v415_outputs_case, capsys)
+    requested = ["MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json",
+                 *(p.format(version=version) for p in handbook_paths)]
+    granted = _v415_grant(v415_outputs_case, capsys, paths=requested)
     member = _member(granted, version)
     assert member["implementation"] == original["implementation"]
     assert member.get("start_head") == original.get("start_head")
     assert cm._v415_output_permission_valid(ck, fx.rctx(), granted, member, member[V415_FIELD][0])
     additions = member[V415_FIELD][0]["page"]["write_paths"]
+    assert additions == sorted(requested)
+    assert granted["approvals"] == before["approvals"]
     assert member.get("coordinator_paths", []) == ([*original["coordinator_paths"], *additions]
                                                  if version == "v4.15.0" else [])
     target = worker / PATH
@@ -512,6 +643,7 @@ def test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_s
         assert _member(active, version)["start_head"] == base
         assert _member(active, version)["coordinator_paths"] == additions
         assert _member(active, version)[V415_FIELD] == member[V415_FIELD]
+        assert _member(active, version)["implementation"] == original["implementation"]
     else:
         assert member["coordinator_paths"][:len(original["coordinator_paths"])] == original["coordinator_paths"]
         claims = fx.tmp / "started-v415-coordinator-claims.json"

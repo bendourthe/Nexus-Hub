@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Preserve the original signed v4.15 plan identities while recognizing 36 exact historical task-target corrections, qualifying four fixed unchanged-target cases against sealed native gate receipts, and supporting separately captured exact output permissions and the one-file v4.15.4 read-reservation correction. Current-source qualification rejects hidden Git index flags, malformed deep JSON and interrupted replacement proofs; Windows gate processes use atomic job ownership and bounded cleanup. These helpers do not grant live permissions, change original claims or complete a release; actual permission changes still require genuine native decisions.
+
 ## [4.14.6] - 2026-11-01
 
 ### Added
