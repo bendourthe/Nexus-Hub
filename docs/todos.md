@@ -21,7 +21,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 6/7 members released through v4.14.5 (2026-10-30, tag `v4.14.5`). v4.14.6 (Nexus-Hub Settings) is admitted with start head `71ee34194`; Phases 1 to 5 and T037-T044 are committed locally (44/46 tasks), including fix cycle 1 for the deep-pass defects; commit attribution ships Not-Settable after its real-commit proof ran out of budget. The full local suite (T045) and one publication (T046) are next. PR #568 (readable upgrade notes and visible upgrade output), PR #569 (install manifest log cap) and PR #571 (the settings extension workflow, T033) landed on develop and are merged into the v4.14.6 branch. v4.14.7 and v4.14.8 were implemented by parallel agents and are admitted after v4.14.6 releases; the v4.14.8 plan returns from v4.15.5 to v4.14 at that point.
+**Active work:** v4.14 has v4.14.0 through v4.14.6 released (v4.14.6 Nexus-Hub Settings on 2026-11-01, tag `v4.14.6`). v4.14.7 and v4.14.8 were implemented by parallel agents and are admitted next; the v4.14.8 plan returns from v4.15.5 to v4.14 first. The minor closes after v4.14.8 releases.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -61,7 +61,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Finish the v4.14.6 final phase (T037 to T046), publish it once, release it with `/update release 4.14.6`, then admit, release and close v4.14.7 and v4.14.8 and close the minor.
+**Next:** Return the v4.14.8 plan to v4.14, admit v4.14.7 and v4.14.8 with the maintainer's approval, release both, then close the minor.
 
 | Metric | Current | Target |
 |---|---|---|
@@ -378,7 +378,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.14.6 Nexus-Hub Settings
 
-- [ ] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 44/46 tasks (2026-10-31). Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
+- [x] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 44/46 tasks (2026-10-31). Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
 
 ## Queued work - v4.15.5 plain-English replies and Nexus-Hub source labels
 
