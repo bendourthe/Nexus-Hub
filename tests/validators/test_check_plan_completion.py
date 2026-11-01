@@ -220,7 +220,8 @@ def test_evaluate_threads_task_id_and_separate_authority(tmp_path, monkeypatch):
     assert all(args[-1] is record for args, _ in calls)
 
 
-def _v415_qualification_case(tmp_path, monkeypatch, member="v4.15.1", tid="T114", *, long_path=False):
+def _v415_qualification_case(tmp_path, monkeypatch, member="v4.15.1", tid="T114", *, long_path=False,
+                             executable=False):
     ck, ctx, _start, _authority = _v415_task_repo(tmp_path, member)
     target = {"T215": ".github/workflows/ci.yml", "T114": ".github/workflows/ci.yml",
               "T018": "scripts/ci/profiles.py", "T016": "docs/handbooks/handbooks.json"}[tid]
@@ -251,7 +252,11 @@ def _v415_qualification_case(tmp_path, monkeypatch, member="v4.15.1", tid="T114"
         path = ck._v415_fs(ctx.root / rel)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
+    if executable:
+        os.chmod(ck._v415_fs(ctx.root / "scripts/validate_workflow_security.py"), 0o700)
     _git(ctx.root, "add", ".")
+    if executable:
+        _git(ctx.root, "update-index", "--chmod=+x", "scripts/validate_workflow_security.py")
     _git(ctx.root, "commit", "-qm", "fixed gate fixture baseline")
     start = _git(ctx.root, "rev-parse", "HEAD")
     ctx.tasks = [(tid, True, target)]
@@ -539,8 +544,19 @@ except (ck.Malformed, OSError):
     assert not survived.exists(), f"descendant survived gate {mode} cleanup"
 
 
-def test_v415_qualification_uses_clean_environment_and_readonly_committed_sources(tmp_path, monkeypatch):
-    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+@pytest.mark.parametrize("executable", [False, True], ids=["regular", "git-executable"])
+def test_v415_qualification_uses_clean_environment_and_readonly_committed_sources(tmp_path, monkeypatch, executable):
+    ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(
+        tmp_path, monkeypatch, executable=executable)
+    entries = ck._v415_inputs(ctx, "HEAD", ctx.version)["entries"]
+    gate_rel = "scripts/validate_workflow_security.py"
+    assert entries[gate_rel][0] == ("100755" if executable else "100644")
+    chmod_requests = []
+    real_chmod = ck.os.chmod
+    def observe_chmod(path, mode, *args, **kwargs):
+        chmod_requests.append((Path(path).resolve(), mode))
+        return real_chmod(path, mode, *args, **kwargs)
+    monkeypatch.setattr(ck.os, "chmod", observe_chmod)
     monkeypatch.setenv("PYTHONPATH", str(ctx.root))
     monkeypatch.setenv("PYTHONHOME", str(ctx.root))
     monkeypatch.setenv("PYTHONSTARTUP", str(ctx.root / "private-sentinel.py"))
@@ -548,6 +564,7 @@ def test_v415_qualification_uses_clean_environment_and_readonly_committed_source
     monkeypatch.setenv("PYTEST_PLUGINS", "private_mutable_plugin")
     monkeypatch.setenv("PATH", str(ctx.root) + os.pathsep + os.environ["PATH"])
     real = ck._v415_run_gate
+    executed = []
     def inspect(snapshot, argv, report, env):
         assert all(name not in env for name in ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP"))
         assert all(name not in env for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS"))
@@ -555,9 +572,24 @@ def test_v415_qualification_uses_clean_environment_and_readonly_committed_source
         assert str(ctx.root) not in env["PATH"].split(os.pathsep)
         assert Path(env["HOME"]) != ctx.root and env["NEXUS_HUB_RUNS_DIR"] != str(ck._runs_dir())
         assert not (snapshot / "scripts/validate_workflow_security.py").stat().st_mode & 0o222
+        # Inspect the Git-mode variant first so both insecure old masks establish RED.
+        for rel in [gate_rel, *(name for name in entries if name != gate_rel)]:
+            target = ck._v415_fs(snapshot / rel)
+            requested = [mode for path, mode in chmod_requests if path == target.resolve()]
+            assert requested, rel
+            for mode in requested:
+                assert not mode & 0o077, f"{rel}: requested {oct(mode)} for Git {entries[rel][0]}"
+                assert mode & 0o400 and not mode & 0o200, rel
+                assert bool(mode & 0o100) == (entries[rel][0] == "100755"), rel
+            if os.name != "nt":
+                actual = target.stat().st_mode
+                assert not actual & 0o077 and actual & 0o400 and not actual & 0o200, rel
+                assert bool(actual & 0o100) == (entries[rel][0] == "100755"), rel
+        executed.append(argv)
         return real(snapshot, argv, report, env)
     monkeypatch.setattr(ck, "_v415_run_gate", inspect)
     assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
+    assert executed == ck._v415_gates(ctx.version, "T114")
 
 
 @pytest.mark.parametrize("deep_comparison", [False, True], ids=["valid", "deep-committed-comparison"])

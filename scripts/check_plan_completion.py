@@ -1360,8 +1360,8 @@ def _v415_proof_identity(authority: V415TaskAuthority, tid: str, target: str) ->
 def _v415_windows_gate(command: list[str], snapshot: Path, env: dict, output):
     """Atomically create a hidden process inside a private kill-on-close Windows job."""
     import ctypes
+    import ctypes.wintypes as w
     import msvcrt
-    from ctypes import wintypes as w
 
     size_t = ctypes.c_size_t
     class BasicLimits(ctypes.Structure):
@@ -1495,6 +1495,7 @@ def _v415_gate_process(command: list[str], snapshot: Path, env: dict, output):
         try:
             os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError:
+            # The owned leader/group already exited; the mandatory leader reap still runs below.
             pass
         finally:
             process.wait(timeout=5)
@@ -1610,7 +1611,7 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
             # Checkout object identity, not the source workspace, defines every executed input.
             for rel in inputs["entries"]:
                 _v415_plain(snapshot / rel)
-                os.chmod(_v415_fs(snapshot / rel), 0o555 if inputs["entries"][rel][0] == "100755" else 0o444)
+                os.chmod(_v415_fs(snapshot / rel), 0o500 if inputs["entries"][rel][0] == "100755" else 0o400)
             for index, argv in enumerate(gates):
                 report = attempt / f"gate-{index}.log"
                 result = _v415_run_gate(snapshot, argv, report, env)
