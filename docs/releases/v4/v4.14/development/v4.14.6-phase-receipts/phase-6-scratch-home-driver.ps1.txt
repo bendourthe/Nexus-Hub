@@ -1,0 +1,191 @@
+# T036 driver: run the real Windows installer into a scratch home and observe the Phase 5 verification expectation.
+# Nothing here targets the real VS Code, Cursor, Antigravity, ~/.claude, ~/.codex, ~/.copilot, ~/.gemini or ~/.nexus-hub.
+# Usage (Windows PowerShell 5.1): copy this file to a .ps1, then
+#   git checkout-index -a -f --prefix=C:/nh6/src/          (a scratch copy of the staged tree)
+#   $env:NEXUS_SCRATCH_PYTHON = '<absolute path of a Python 3.11 that has tomlkit and PyYAML>'
+#   .\driver.ps1 -Stage baseline | install1 | observe | host | set | install2 | after   (or -Stage all)
+param([string]$Stage = 'all')
+$ErrorActionPreference = 'Stop'
+$root = 'C:\nh6'
+$src = "$root\src"
+$home5 = "$root\home"
+$ext = "$root\ext"
+$ud = "$root\ud"
+$bin = "$root\bin"
+$log = "$root\logs"
+$py = $env:NEXUS_SCRATCH_PYTHON
+if (-not $py -or -not (Test-Path -LiteralPath $py)) { throw 'Set NEXUS_SCRATCH_PYTHON to an absolute Python 3.11 path that has tomlkit and PyYAML.' }
+$realCode = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd"
+$codeExe = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe"
+$realHome = $env:USERPROFILE
+$script:npmCache = (& npm config get cache | Select-Object -First 1)
+$extId = 'nexus-hub.nexus-hub-settings'
+
+function Get-Sha([string]$p) { if (Test-Path -LiteralPath $p -PathType Leaf) { (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash.Substring(0, 16).ToLower() } else { 'absent' } }
+function Get-ListSha([string]$p, [string[]]$skip = @()) {
+    if (-not (Test-Path -LiteralPath $p)) { return 'absent' }
+    $lines = Get-ChildItem -LiteralPath $p -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {
+        $f = $_.FullName; -not ($skip | Where-Object { $f -like "*\$_\*" })
+    } | Sort-Object FullName | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" }
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($lines -join "`n"))
+    $h = ([BitConverter]::ToString($sha.ComputeHash($bytes)) -replace '-', '').Substring(0, 16).ToLower()
+    "$h ($(@($lines).Count) files)"
+}
+function Get-NamesSha([string]$p) {
+    if (-not (Test-Path -LiteralPath $p)) { return 'absent' }
+    $names = (Get-ChildItem -LiteralPath $p -Directory -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.Name }) -join ','
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $h = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($names))) -replace '-', '').Substring(0, 16).ToLower()
+    "$h ($(@($names -split ',' | Where-Object { $_ }).Count) entries)"
+}
+function Get-RealState {
+    [ordered]@{
+        'vscode user settings.json' = Get-Sha "$env:APPDATA\Code\User\settings.json"
+        'claude settings.json' = Get-Sha "$realHome\.claude\settings.json"
+        'codex config.toml' = Get-Sha "$realHome\.codex\config.toml"
+        'copilot settings.json' = Get-Sha "$realHome\.copilot\settings.json"
+        'real vscode extensions folder (names)' = Get-NamesSha "$realHome\.vscode\extensions"
+        'real cursor extensions folder (names)' = Get-NamesSha "$realHome\.cursor\extensions"
+        'real antigravity extensions folder (names)' = Get-NamesSha "$realHome\.antigravity-ide\extensions"
+        'nexus-hub tree (no runs, edit-guard, provenance, usage-probe)' = Get-ListSha "$realHome\.nexus-hub" @('runs', 'edit-guard', 'provenance', 'usage-probe')
+        'gemini tree' = Get-ListSha "$realHome\.gemini"
+    }
+}
+
+function Invoke-Hidden([string]$exe, [string[]]$argv, [hashtable]$envMap, [string]$logFile, [int]$timeoutSec) {
+    $psi = New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName = $exe
+    $psi.Arguments = ($argv | ForEach-Object { if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ } }) -join ' '
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = [Text.Encoding]::UTF8
+    $psi.StandardErrorEncoding = [Text.Encoding]::UTF8
+    $psi.WorkingDirectory = $root
+    $psi.EnvironmentVariables.Clear()
+    foreach ($k in $envMap.Keys) { $psi.EnvironmentVariables[$k] = [string]$envMap[$k] }
+    $p = New-Object Diagnostics.Process
+    $p.StartInfo = $psi
+    [void]$p.Start()
+    # Synchronous, ordered capture: two async readers, joined after exit (events interleave lines).
+    $outTask = $p.StandardOutput.ReadToEndAsync()
+    $errTask = $p.StandardError.ReadToEndAsync()
+    $done = $p.WaitForExit($timeoutSec * 1000)
+    if (-not $done) {
+        $k = New-Object Diagnostics.ProcessStartInfo; $k.FileName = 'taskkill.exe'; $k.Arguments = "/T /F /PID $($p.Id)"; $k.UseShellExecute = $false; $k.CreateNoWindow = $true
+        [void][Diagnostics.Process]::Start($k).WaitForExit(15000)
+    } else { $p.WaitForExit() }
+    [void]$outTask.Wait(20000); [void]$errTask.Wait(20000)
+    $stdout = $(if ($outTask.IsCompleted) { $outTask.Result } else { '' })
+    $stderr = $(if ($errTask.IsCompleted) { $errTask.Result } else { '' })
+    [IO.File]::WriteAllText($logFile, $stdout + $(if ($stderr) { "`n--- stderr ---`n" + $stderr } else { '' }), (New-Object Text.UTF8Encoding($false)))
+    [pscustomobject]@{ ExitCode = $(if ($done) { $p.ExitCode } else { 124 }); TimedOut = (-not $done); Output = $stdout; Stderr = $stderr }
+}
+
+function New-ScratchEnv {
+    $sys = "$env:SystemRoot\System32"
+    $path = "$bin;C:\Program Files\nodejs;C:\Program Files\Git\cmd;$(Split-Path $py);$sys;$env:SystemRoot;$sys\WindowsPowerShell\v1.0"
+    @{
+        SystemRoot = $env:SystemRoot; ComSpec = $env:ComSpec; PATHEXT = $env:PATHEXT; PROCESSOR_ARCHITECTURE = $env:PROCESSOR_ARCHITECTURE
+        NUMBER_OF_PROCESSORS = $env:NUMBER_OF_PROCESSORS; OS = $env:OS; windir = $env:windir
+        TEMP = "$root\tmp"; TMP = "$root\tmp"
+        HOME = $home5; USERPROFILE = $home5; HOMEDRIVE = 'C:'; HOMEPATH = '\nh6\home'
+        APPDATA = "$home5\AppData\Roaming"; LOCALAPPDATA = "$home5\AppData\Local"
+        NEXUS_HUB_HOME = "$home5\.nexus-hub"
+        npm_config_cache = $script:npmCache
+        NEXUS_HUB_NPM_TIMEOUT = '600'
+        PATH = $path
+    }
+}
+
+function Initialize-Scratch {
+    foreach ($d in @($home5, $ext, $ud, $bin, $log, "$root\tmp")) { Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue }
+    foreach ($d in @($home5, "$home5\AppData\Roaming", "$home5\AppData\Local", $ext, $ud, $bin, $log, "$root\tmp", "$home5\.claude", "$home5\.codex")) { New-Item -ItemType Directory -Force $d | Out-Null }
+    $nl = "`r`n"
+    [IO.File]::WriteAllText("$bin\code.cmd", "@echo off$nl" + "call `"$realCode`" --extensions-dir `"$ext`" --user-data-dir `"$ud`" %*$nl" + "exit /b %ERRORLEVEL%$nl")
+    [IO.File]::WriteAllText("$bin\claude.cmd", "@echo off${nl}echo 2.1.283 (Claude Code)$nl")
+    [IO.File]::WriteAllText("$bin\codex.cmd", "@echo off${nl}echo codex-cli 0.136.0$nl")
+    New-Item -ItemType Directory -Force "$ud\User" | Out-Null
+    $pyJson = $py -replace '\\', '\\'
+    [IO.File]::WriteAllText("$ud\User\settings.json", "{`n  `"nexusHubSettings.pythonPath`": `"$pyJson`"`n}`n")
+    # A legacy override and a user model, so the first install and `show` have something real to report.
+    [IO.File]::WriteAllText("$home5\.claude\settings.json", "{`n  `"model`": `"opus`",`n  `"env`": { `"CLAUDE_CODE_EFFORT_LEVEL`": `"high`" },`n  `"permissions`": { `"allow`": [`"Bash(git status)`"] }`n}`n")
+    [IO.File]::WriteAllText("$home5\.codex\config.toml", "# scratch codex file`nmodel = `"gpt-6-astra`"`nmodel_reasoning_effort = `"medium`"`n[windows]`nsandbox = `"unelevated`"`n")
+}
+
+function Invoke-Installer([string]$label) {
+    $a = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', "$src\scripts\installer.ps1", '-Yes', '-Platforms', 'claude,codex')
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    $r = Invoke-Hidden "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" $a (New-ScratchEnv) "$log\installer-$label.log" 3000
+    "installer $label : exit $($r.ExitCode) timedOut=$($r.TimedOut) in $([int]$sw.Elapsed.TotalSeconds)s"
+}
+
+function Invoke-Cli([string[]]$cliArgs, [string]$label) {
+    $a = @('-B', '-X', 'utf8', "$home5\.nexus-hub\scripts\nexus_hub_cli.py") + $cliArgs
+    $r = Invoke-Hidden $py $a (New-ScratchEnv) "$log\cli-$label.log" 120
+    $r
+}
+
+$report = [ordered]@{ started = (Get-Date).ToString('s') }
+if ($Stage -in 'all', 'baseline') {
+    $report.before = Get-RealState
+    $report.before | ConvertTo-Json | Set-Content "$root\real-before.json" -Encoding UTF8
+    "baseline written"
+}
+if ($Stage -in 'all', 'install1') {
+    Initialize-Scratch
+    Invoke-Installer 'run1'
+}
+if ($Stage -in 'all', 'observe') {
+    $list = & cmd.exe /c "`"$realCode`" --extensions-dir `"$ext`" --user-data-dir `"$ud`" --list-extensions --show-versions" 2>&1 | Out-String
+    $list | Set-Content "$root\list-extensions.txt" -Encoding UTF8
+    "list-extensions:`n$list"
+    $show = Invoke-Cli @('settings', 'show', '--json') 'show1'
+    [IO.File]::WriteAllText("$root\show1.json", $show.Output)
+    "cli show exit $($show.ExitCode)"
+}
+if ($Stage -in 'all', 'host') {
+    $dev = "$root\dev-ext"; New-Item -ItemType Directory -Force $dev, "$root\workspace" | Out-Null
+    [IO.File]::WriteAllText("$dev\package.json", '{"name":"live-host","version":"0.0.0","publisher":"nexus-hub","engines":{"vscode":"^1.85.0"}}')
+    foreach ($trusted in @($true, $false)) {
+        $label = $(if ($trusted) { 'trusted' } else { 'untrusted' })
+        $out = "$root\live-$label.json"; Remove-Item $out -Force -ErrorAction SilentlyContinue
+        $envMap = New-ScratchEnv
+        $envMap.NEXUS_LIVE_OUT = $out; $envMap.NEXUS_LIVE_USER_SETTINGS = "$ud\User\settings.json"
+        $a = @("--user-data-dir=$ud", "--extensions-dir=$ext", "--extensionDevelopmentPath=$dev", "--extensionTestsPath=$src\extensions\nexus-hub-settings\scripts\live-runner.js", '--disable-gpu', '--disable-updates', '--disable-telemetry', '--skip-welcome', '--skip-release-notes', '--no-sandbox')
+        if ($trusted) { $a += '--disable-workspace-trust' }
+        $a += "$root\workspace"
+        $r = Invoke-Hidden $codeExe $a $envMap "$log\host-$label.log" 200
+        "host $label : exit $($r.ExitCode) timedOut=$($r.TimedOut) out=$(Test-Path $out)"
+    }
+}
+if ($Stage -in 'all', 'set') {
+    $before = [ordered]@{ claude = Get-Sha "$home5\.claude\settings.json"; codex = Get-Sha "$home5\.codex\config.toml" }
+    $res = @()
+    foreach ($c in @(@('effort', 'low'), @('model', 'sonnet', '--tool', 'claude'), @('model', 'gpt-test-model', '--tool', 'codex'), @('attribution', 'off'), @('posture', 'accept-edits'))) {
+        $r = Invoke-Cli (@('settings', 'set') + $c) ("set-" + ($c -join '-'))
+        $res += "set $($c -join ' ') -> exit $($r.ExitCode)"
+    }
+    $res
+    $after = [ordered]@{ claude = Get-Sha "$home5\.claude\settings.json"; codex = Get-Sha "$home5\.codex\config.toml"; record = Get-Sha "$home5\.nexus-hub\settings-control.json" }
+    ($before, $after) | ConvertTo-Json | Set-Content "$root\set-hashes.json" -Encoding UTF8
+    Copy-Item "$home5\.claude\settings.json" "$root\claude-after-set.json" -Force
+    Copy-Item "$home5\.codex\config.toml" "$root\codex-after-set.toml" -Force
+    Copy-Item "$home5\.nexus-hub\settings-control.json" "$root\record-after-set.json" -Force
+    $show = Invoke-Cli @('settings', 'show', '--json') 'show2'
+    [IO.File]::WriteAllText("$root\show2.json", $show.Output)
+}
+if ($Stage -in 'all', 'install2') {
+    Invoke-Installer 'run2'
+    $show = Invoke-Cli @('settings', 'show', '--json') 'show3'
+    [IO.File]::WriteAllText("$root\show3.json", $show.Output)
+    "claude settings after rerun: $(Get-Sha "$home5\.claude\settings.json")  codex: $(Get-Sha "$home5\.codex\config.toml")  record: $(Get-Sha "$home5\.nexus-hub\settings-control.json")"
+}
+if ($Stage -in 'all', 'after') {
+    $after = Get-RealState
+    $after | ConvertTo-Json | Set-Content "$root\real-after.json" -Encoding UTF8
+    $before = Get-Content "$root\real-before.json" -Raw | ConvertFrom-Json
+    foreach ($k in $after.Keys) { "{0,-44} before={1}  after={2}  {3}" -f $k, $before.$k, $after[$k], $(if ($before.$k -eq $after[$k]) { 'identical' } else { 'DIFFERENT' }) }
+}

@@ -17,8 +17,8 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "95dda3df4e9bfd564a783b7913fdea17fc57e5c13fa5943b34249bce3dbb3231",
-      "scripts/installer.sh": "e3851c256c094601098fdc4f3a1a114d1a0b232cda74d676a5e39594d8f31895",
+      "scripts/installer.ps1": "0b7de238182494762e465e78ad7927c904e3e09846ffa737aabfd9a1a142f0a1",
+      "scripts/installer.sh": "b114a782b8db5b14d4c3bc86f80e6c06fb2c51ca72e7e3b298aa6e93d37fcb8f",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -26,7 +26,7 @@
       "scripts/lib/integrations/cursor.py": "c817dd5ab0dfdede40014c2b1a444a8bf06bea5bd278182d8fe4fa69f45f0420",
       "scripts/lib/integrations/runner.py": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320",
       "scripts/nexus_git_attribution.py": "66d64f0f49ea6cb12e95c85f2cc12d0c0fdccdd238a458f20f5bb8b6090cef7f",
-      "scripts/nexus_hub_cli.py": "d04b80574964332d02b8b601ea144ddc055a017cc8cd9c5647c5ff7e4b7648e4",
+      "scripts/nexus_hub_cli.py": "cac6d21ee35b49f0c4c427d3551537782ce9e78a5250de04b33de2062a587218",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
     },
     "output_sha256": "105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1"
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/upgrade-feedback-handbook-review.md",
-      "evidence_sha256": "62f697eb024bc414fcaecedba4974e9f6f7993179ad94f0c5a98ac2e144df677"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.6-distribution-handbook-review.md",
+      "evidence_sha256": "7819a6e828697d49c7c677bf5f34e8506d913a2853fb1a1a22bc0dea88355daa"
     },
     "build": {
       "status": "pass",
