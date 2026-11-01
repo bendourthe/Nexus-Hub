@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-31
-**Open items**: 104
+**Last updated**: 2026-11-01
+**Open items**: 103
 
 ## v4.14.0
 
@@ -3449,25 +3449,11 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 18 | 0 |
 | Bugs / regressions (BG) | 0 | 4 |
-| Warnings (WN) | 1 | 3 |
+| Warnings (WN) | 0 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
-
-#### WN-35: The repository README does not link the Nexus-Hub Settings guide
-
-**Disposition**: open
-
-**Source phase**: v4.14.6 Phase 6 T042
-
-**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
-
-**Severity**: P3
-
-**Reason**: `guides/NEXUS_HUB_SETTINGS.md` exists and is linked from the extension README, but `README.md` has no link to it (a Phase 5 write-claim limit), so a user reading the repository front page cannot find the settings command or panel.
-
-**Suggested next step**: Add one line to `README.md` that links `guides/NEXUS_HUB_SETTINGS.md` and runs `nexus-hub settings show`, and re-run `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"`.
 
 #### DF-24: Planned follow-on: Cursor and Antigravity hosting
 
@@ -3758,6 +3744,22 @@ None.
 **Suggested next step**: Quote the `installer-smoke` legs for ubuntu, macos and windows from the integration pull request under Publication and integration, and run the manual steps on a Mac after `nexus-hub upgrade`.
 
 ### Resolved
+
+#### WN-35: The repository README does not link the Nexus-Hub Settings guide - RESOLVED 2026-11-01
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: `guides/NEXUS_HUB_SETTINGS.md` exists and is linked from the extension README, but `README.md` has no link to it (a Phase 5 write-claim limit), so a user reading the repository front page cannot find the settings command or panel.
+
+**Suggested next step**: Add one line to `README.md` that links `guides/NEXUS_HUB_SETTINGS.md` and runs `nexus-hub settings show`, and re-run `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"`.
+
+**Resolution**: The v4.14.6 release commit adds the README What's New entry, which links `guides/NEXUS_HUB_SETTINGS.md` and names `nexus-hub settings show`, `set` and `reset`; `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"` passes.
 
 #### BG-18: Human-presence refusal is skipped by a non-weakening `remove-override` and by `reset` - RESOLVED 2026-10-31
 
