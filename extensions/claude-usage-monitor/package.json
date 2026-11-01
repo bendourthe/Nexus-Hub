@@ -213,6 +213,6 @@
     "svgpath": "2.6.0",
     "ttf2woff2": "8.0.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
   }
 }
