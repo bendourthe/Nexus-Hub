@@ -256,7 +256,7 @@ def save_record(home: Path, record: dict[str, Any]) -> None:
                 writers.owner_only_windows(temp)
             else:
                 os.chmod(temp, 0o600)
-            os.replace(temp, path)
+            writers.replace_file(temp, path)
         finally:
             temp.unlink(missing_ok=True)
     except OSError as exc:

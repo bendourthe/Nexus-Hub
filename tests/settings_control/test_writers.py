@@ -507,3 +507,65 @@ def test_a_garbled_or_hostile_hint_never_corrupts_the_file(tmp_path: Path, hint:
     w.write_json_keys(target, [w.Edit(("env", "b"), 2, restore=hint)])  # type: ignore[arg-type]
 
     assert json.loads(target.read_text(encoding="utf-8")) == {"env": {"a": 1, "c": 3, "b": 2}}
+
+
+def _flaky_replace(failures: int, winerror: int):
+    real = os.replace
+    calls = {"n": 0}
+
+    def fake(src, dst):
+        calls["n"] += 1
+        if calls["n"] <= failures:
+            exc = PermissionError(13, "Access is denied")
+            exc.winerror = winerror
+            raise exc
+        real(src, dst)
+
+    return fake, calls
+
+
+@pytest.mark.parametrize("winerror", [5, 32])
+def test_replace_file_retries_a_transient_windows_scanner_lock(tmp_path: Path, monkeypatch, winerror: int) -> None:
+    source, target = tmp_path / "new.json", tmp_path / "settings.json"
+    source.write_text("new", encoding="utf-8")
+    target.write_text("old", encoding="utf-8")
+    fake, calls = _flaky_replace(2, winerror)
+    monkeypatch.setattr(w.sys, "platform", "win32")
+    monkeypatch.setattr(w.os, "replace", fake)
+    monkeypatch.setattr(w.time, "sleep", lambda _s: None)
+
+    w.replace_file(source, target)
+
+    assert target.read_text(encoding="utf-8") == "new"
+    assert calls["n"] == 3
+
+
+def test_replace_file_gives_up_after_the_bounded_retries(tmp_path: Path, monkeypatch) -> None:
+    source, target = tmp_path / "new.json", tmp_path / "settings.json"
+    source.write_text("new", encoding="utf-8")
+    target.write_text("old", encoding="utf-8")
+    fake, calls = _flaky_replace(100, 5)
+    monkeypatch.setattr(w.sys, "platform", "win32")
+    monkeypatch.setattr(w.os, "replace", fake)
+    monkeypatch.setattr(w.time, "sleep", lambda _s: None)
+
+    with pytest.raises(PermissionError):
+        w.replace_file(source, target)
+
+    assert calls["n"] == len(w._REPLACE_DELAYS) + 1
+    assert target.read_text(encoding="utf-8") == "old"
+
+
+@pytest.mark.parametrize(("platform", "winerror"), [("win32", 1224), ("linux", 5)])
+def test_replace_file_does_not_retry_other_errors_or_platforms(tmp_path: Path, monkeypatch, platform: str, winerror: int) -> None:
+    source, target = tmp_path / "new.json", tmp_path / "settings.json"
+    source.write_text("new", encoding="utf-8")
+    fake, calls = _flaky_replace(1, winerror)
+    monkeypatch.setattr(w.sys, "platform", platform)
+    monkeypatch.setattr(w.os, "replace", fake)
+    monkeypatch.setattr(w.time, "sleep", lambda _s: None)
+
+    with pytest.raises(PermissionError):
+        w.replace_file(source, target)
+
+    assert calls["n"] == 1

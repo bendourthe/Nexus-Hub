@@ -31,6 +31,7 @@ import re
 import stat
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -791,6 +792,27 @@ def _discard(temp: Path) -> None:
             pass
 
 
+# Windows can refuse a rename for a moment while another process (typically an
+# antivirus or indexing scan of the just-written temp file) holds the file open:
+# winerror 5 (access denied) or 32 (sharing violation). A bare write-then-replace
+# loop with no Nexus-Hub code hit this 7 times in 1,500 on the maintainer's
+# workstation, so a single attempt would fail roughly one settings write in 200.
+_TRANSIENT_WINERRORS = (5, 32)
+_REPLACE_DELAYS = (0.01, 0.02, 0.04, 0.08, 0.16)
+
+
+def replace_file(source: Path, target: Path) -> None:
+    """`os.replace`, retried briefly on Windows for transient scanner locks only."""
+    for delay in (*_REPLACE_DELAYS, None):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError as exc:
+            if delay is None or sys.platform != "win32" or getattr(exc, "winerror", None) not in _TRANSIENT_WINERRORS:
+                raise
+            time.sleep(delay)
+
+
 def _current_sha(real: Path) -> str | None:
     try:
         return hashlib.sha256(real.read_bytes()).hexdigest() if real.is_file() else None
@@ -825,7 +847,7 @@ def commit(plan: Plan) -> bool:
         if _current_sha(real) != loaded.sha:
             raise WriterRefusal(f"{loaded.display} changed while Nexus-Hub was writing, so it was left untouched")
         if loaded.exists:
-            os.replace(temp, real)
+            replace_file(temp, real)
         else:
             os.link(temp, real)  # fails if the file appeared meanwhile
     except FileExistsError as exc:
