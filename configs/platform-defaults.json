@@ -9,7 +9,8 @@
     "lever_contract": "docs/policy/platform-defaults-levers.md - the per-platform VERIFIED / UNVERIFIED classification with evidence. Populated in v3.16.0 Phase 2; a platform may not appear here without a VERIFIED row there.",
     "generator": "python scripts/sync_platform_defaults.py --apply   (regenerate derived artifacts)\npython scripts/sync_platform_defaults.py --check   (fail on drift; runs in `make validate` and CI)",
     "env_precedence_warning": "An environment override can outrank a saved scalar or per-model choice. Claude effort deliberately seeds modelSettings instead of the overriding environment variable; other platform contracts retain their existing policy.",
-    "last_updated": "2026-10-16",
+    "omitted": "A key named in a platform's omitted map is a vendor-documented setting that Nexus-Hub deliberately does not seed, so it is never declared under that platform's settings. Seeding one later means removing it from omitted in the same edit, with a decision record under docs/decisions/. tests/validators/test_sync_platform_defaults.py fails when a declared settings path equals an omitted key or sits under it; it covers declared settings only, not keys an integration writes in code, profile-scoped keys, or environment variables.",
+    "last_updated": "2026-10-29",
     "seeding_policy": "Absent defaults are seeded without replacing user-owned values. Claude alone records core values it actually seeds and may upgrade a matching recorded seed; missing or invalid ownership records preserve existing choices. Other platforms retain seed-if-absent behavior. Claude effort is high, other effort defaults remain medium unless their rationale states otherwise. Approval defaults retain the approval-required direction.",
     "install_target_note": "install_target names the file the platform's integration writes at install time, distinct from derived_artifacts (repo files generated from this source). mode='write' seeds the file; mode='already-delivered' means an existing installer path already carries the values; mode='not-writable' means the lever is declared for the record but deliberately not written, with the reason stated."
   },
@@ -113,7 +114,13 @@
       },
       "derived_artifacts": [],
       "omitted": {
-        "model": "No vendor-documented safe default. A provider-scoped model id the user's account cannot reach would break the CLI."
+        "model": "No vendor-documented safe default. A provider-scoped model id the user's account cannot reach would break the CLI.",
+        "features.memories": "Off by default; turning it on summarizes and persists the user's threads, a privacy choice the user owns, and the vendor redaction of secrets is best-effort.",
+        "memories.extract_model": "The configuration reference documents no default and no list of ids the account can reach, so a pinned id can break background extraction on a plan or sign-in mode that lacks it.",
+        "memories.consolidation_model": "The configuration reference documents no default and no list of ids the account can reach, so a pinned id can break background consolidation on a plan or sign-in mode that lacks it.",
+        "memories.disable_on_external_context": "Recommended in prompt-injection-defense but not seeded: it reduces memory poisoning only for threads that used MCP tools, web search, or tool search, see docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md.",
+        "memories.no_memories_if_mcp_or_web_search": "Legacy alias the vendor still accepts for memories.disable_on_external_context; declaring it would seed the same setting, so it is omitted with the canonical key.",
+        "memories.min_rate_limit_remaining_percent": "The vendor default of 25 already holds background memory passes back when the rate-limit window is low, so no Nexus-Hub value improves on it."
       },
       "notes": "Seeded at user level (~/.codex/config.toml). Re-verified 2026-10-01: the vendor no longer lists approval_policy or sandbox_mode among the keys a project-scoped config cannot override, so a trusted project may override them."
     },

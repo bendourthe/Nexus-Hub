@@ -360,6 +360,45 @@ function Get-BranchArchive {
     return $state
 }
 
+# Human-readable byte count for the download messages ("186.0 MB", decimal units
+# as GitHub shows them), culture-invariant.
+function Format-ByteSize {
+    param([int64]$Bytes)
+    $inv = [System.Globalization.CultureInfo]::InvariantCulture
+    if ($Bytes -ge 1000000) { return ($Bytes / 1000000).ToString("F1", $inv) + " MB" }
+    if ($Bytes -ge 1000) { return ($Bytes / 1000).ToString("F0", $inv) + " KB" }
+    return "$Bytes bytes"
+}
+
+# Whole-second elapsed time for the download summary ("42s", "3m 05s").
+function Format-Elapsed {
+    param([TimeSpan]$Span)
+    $total = [int][math]::Round($Span.TotalSeconds)
+    if ($total -ge 60) { return ("{0}m {1:00}s" -f [int][math]::Floor($total / 60), ($total % 60)) }
+    return "${total}s"
+}
+
+# Best-effort size of a remote archive from a HEAD request, or $null when it is
+# not cheaply known (a local path, a generated branch archive that reports no
+# length, or any failure). Never downloads the body and never fails the bootstrap.
+function Get-RemoteSizeBytes {
+    param([string]$Url)
+    if ($Url -notmatch '^https?://') { return $null }
+    try {
+        $head = Invoke-WebRequest -Uri $Url -Method Head -UseBasicParsing -TimeoutSec 10
+        $raw = @($head.Headers['Content-Length'])[0]
+        if ($raw -match '^\d+$' -and [int64]$raw -gt 0) { return [int64]$raw }
+    } catch {}
+    return $null
+}
+
+# Print what the download delivered, so a long transfer never ends in silence.
+function Write-DownloadSummary {
+    param([string]$Path, $Stopwatch)
+    $size = (Get-Item -LiteralPath $Path).Length
+    Write-BootstrapInfo "Downloaded $(Format-ByteSize $size) in $(Format-Elapsed $Stopwatch.Elapsed)."
+}
+
 function Assert-ReleaseArchiveChecksum {
     param([string]$ArchivePath, [string]$Name, [string]$Ref, [string]$Base)
     if ($env:NEXUS_HUB_SKIP_CHECKSUM -eq '1') {
@@ -472,16 +511,23 @@ function Invoke-Standalone {
             }
             $archive = Join-Path $tmp "nexus-hub.tar.gz"
             Write-BootstrapInfo "Downloading Nexus-Hub release $ref ($repo)..."
+            $knownBytes = Get-RemoteSizeBytes -Url "$assetBase/$assetName"
+            if ($knownBytes) { Write-BootstrapInfo "Archive size: $(Format-ByteSize $knownBytes)" }
+            $clock = [System.Diagnostics.Stopwatch]::StartNew()
             $state = Get-ReleaseFile -Base $assetBase -Name $assetName -Dest $archive
             if ($state -ne "ok") {
                 Write-BootstrapError "could not resolve release '$ref' at $assetBase : no $assetName (a typo, a tag that was never published, or a network failure). List versions at https://github.com/$repo/releases or with: gh release list -R $repo"
                 exit 1
             }
+            Write-DownloadSummary -Path $archive -Stopwatch $clock
         } else {
             $ext = if ($useTar) { "tar.gz" } else { "zip" }
             $archive = Join-Path $tmp ("nexus-hub." + $ext)
             $url = if ($tarball) { $tarball } else { "https://github.com/$repo/archive/refs/heads/$ref.$ext" }
             Write-BootstrapInfo "Downloading Nexus-Hub catalog ($repo@$ref)..."
+            $knownBytes = Get-RemoteSizeBytes -Url $url
+            if ($knownBytes) { Write-BootstrapInfo "Archive size: $(Format-ByteSize $knownBytes)" }
+            $clock = [System.Diagnostics.Stopwatch]::StartNew()
             $state = Get-BranchArchive -Url $url -Dest $archive
             if ($state -eq "not-found") {
                 Write-BootstrapError "branch '$ref' does not exist in $repo (HTTP 404; a typo?). List releases at https://github.com/$repo/releases or pin one with -Ref vX.Y.Z"
@@ -493,6 +539,7 @@ function Invoke-Standalone {
                 Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: network failure ($script:DownloadDetail). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com"
                 exit 1
             }
+            Write-DownloadSummary -Path $archive -Stopwatch $clock
         }
 
         Assert-ArchiveSafe -ArchivePath $archive -UseTar $useTar -TarExe $tarExe

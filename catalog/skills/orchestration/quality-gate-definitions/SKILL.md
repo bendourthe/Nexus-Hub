@@ -7,7 +7,7 @@ overview_l1: "This skill provides reusable GO/NO-GO quality gate definitions for
 
 # Quality Gate Definitions
 
-A library of reusable quality gate definitions that can be plugged into any multi-phase workflow. Each gate defines required and optional criteria, automatic and manual checks, and configurable pass/fail behavior. Use these gates as building blocks rather than reinventing checkpoint criteria for every workflow.
+A library of reusable quality gate definitions that can be plugged into any multi-phase workflow. Each gate defines required and optional criteria, automatic and manual checks, and configurable behavior for every outcome, with templates for tracking results. Use these gates as building blocks rather than reinventing checkpoint criteria for every workflow.
 
 ## When to Use This Skill
 
@@ -15,21 +15,9 @@ Use this skill for:
 
 - Setting up quality checkpoints in multi-phase development workflows
 - Defining GO/NO-GO criteria before implementation, testing, or deployment
-- Standardizing quality expectations across team members and projects
-- Configuring automated checks that run at phase transitions
-- Any workflow where you need explicit approval criteria between phases
+- Standardizing quality expectations, or configuring automated checks, at phase transitions
 
 **Trigger phrases**: "quality gate", "GO/NO-GO criteria", "gate check", "phase transition criteria", "checkpoint definition", "approval criteria", "gate library", "pass/fail criteria"
-
-## What This Skill Does
-
-Provides quality gate capabilities including:
-
-- **Gate Type Selection**: Choosing the right gate type for each workflow transition
-- **Criteria Definition**: Specifying required, optional, automatic, and manual checks
-- **Behavior Configuration**: Defining what happens on pass, fail, or partial pass
-- **Gate Templates**: Ready-to-use checklists for common gate types
-- **Result Tracking**: Reporting templates for gate outcomes and audit trails
 
 ## Instructions
 
@@ -93,7 +81,18 @@ Define what happens when a gate passes, fails, or partially passes.
 | **PASS** | Proceed | All required criteria met. Move to next phase. |
 | **FAIL (fixable)** | Retry | One or more required criteria failed but can be fixed. Return to current phase, fix, and re-run gate. |
 | **FAIL (blocking)** | Stop | A required criterion failed and cannot be fixed within current scope. Escalate to human decision-maker. |
-| **PARTIAL** | Conditional proceed | All required criteria met but one or more optional criteria failed. Proceed with documented exceptions. |
+| **UNGATED** | Stop and explain | The gate could not judge the work, so it has no verdict. Never proceeds as PASS. Follow "After UNGATED or exhausted FAIL". |
+| **PARTIAL** | Conditional proceed | All required criteria met but one or more optional criteria failed or were not measured. Proceed with documented exceptions. |
+
+**Precedence.** The gate takes the highest outcome among its criteria: FAIL (blocking) > FAIL (fixable) > UNGATED > PARTIAL > PASS. List every criterion behind the outcome, not only the one that decided it.
+
+**UNGATED.** A gate is UNGATED when any of these holds for a required criterion: the gate has no required criteria; an automatic criterion has no measured value or a zero denominator; a manual criterion has no recorded judgment (an approver and a date); a `pass^k` criterion has fewer than k recorded trials; or its check could not run. An unmeasured optional criterion yields PARTIAL, not UNGATED. UNGATED never proceeds as PASS, because a gate that measured nothing says nothing.
+
+**Reason categories.** Record why as one fixed category, never as raw error text (it can carry paths, hostnames, or tokens): `no-criteria`, `not-measured`, `zero-denominator`, `no-judgment`, `too-few-trials`, `tool-missing`, or `timeout`. A tool permanently unavailable within the current scope is FAIL (blocking), not UNGATED, only when the gate definition says the tool must exist.
+
+**Regression.** If an earlier run of the same gate measured a required criterion and this run did not, report that beside the outcome as a regression.
+
+**Worked example: a manual criterion.** The `plan-approved` gate has four required manual criteria, each needing a recorded judgment. All four carrying an approver and a date (for example, "R1: A. Rivera, 2026-10-14") gives PASS. R4 left blank gives UNGATED (`no-judgment`). R4 recorded as rejected gives FAIL (fixable).
 
 **Behavior Configuration Template**:
 
@@ -111,6 +110,7 @@ Define what happens when a gate passes, fails, or partially passes.
   - Which criteria failed
   - What needs to change
 - Re-run gate after fixes (max {N} retries)
+- When the retries are used up, follow "After UNGATED or exhausted FAIL"
 
 **On FAIL (blocking)**:
 - Log failure details to {artifact file}
@@ -119,10 +119,36 @@ Define what happens when a gate passes, fails, or partially passes.
 - Do not proceed until blocker is resolved
 
 **On PARTIAL**:
-- Log which optional criteria failed
+- Log which optional criteria failed or were not measured
 - Document accepted risk in {artifact file}
 - Proceed with acknowledgment
+
+**On UNGATED**:
+- Log the outcome, the reason category for each criterion behind it, and any regression to {artifact file}
+- Do not announce a pass and do not proceed to Phase {N+1}
+- Follow "After UNGATED or exhausted FAIL"
 ```
+
+### After UNGATED or exhausted FAIL
+
+An UNGATED outcome, or a FAIL whose retries are used up, stops the workflow and goes through this one flow. The agent never loops silently and never gives up silently.
+
+**Interactive run.** Show the user a message of at most five lines, in plain words with no jargon:
+
+```text
+Gate {name} could not be judged.
+What: {the criterion that could not be judged}
+Why: {the reason in plain words, not raw error text}
+To fix: {what would make it judgeable}
+Choose: "try again" or "record as a known gap"
+```
+
+- **Retries.** "Try again" allows at most two further attempts. After two further failed attempts, the agent records the known gap itself through `[[known-gaps-tracker]]` as a `QG` item, with why it failed and what would resolve it.
+- **Who accepts.** Only the user accepts a known gap interactively, and the gap names who accepted it. A gap recorded at the retry limit names that reason instead.
+
+**Unattended run.** With no user to ask, record the known gap immediately, with the same explanation, naming "unattended run" as the reason.
+
+**Missing evidence.** Report a gate input that could not be produced under `[[verification-before-completion]]`, never as approval. `/implement`'s troubleshooting loop hands off to this section instead of defining a retry flow of its own.
 
 ### Step 4: Implement Gate Checks
 
@@ -370,7 +396,17 @@ Any required criterion failing blocks the merge. Fix the cause (green CI, addres
 
 ### Step 5: Track Gate Results
 
-Record every gate execution for auditability. This is especially valuable for teams and for post-mortems.
+Record every gate run so a reader can recompute its verdict from the record and git alone. Every rerun is a new record and never overwrites an earlier one. Each record stores:
+
+- The gate name, the definition's repository path and the commit SHA the run ran against, and the sha256 of the definition's canonical form.
+- Per criterion: the measured value (a number or a boolean, nothing else), the threshold, the comparison, the producing command with the sha256 of its output, and the outcome.
+- Any other input as a hash per `[[egress-redaction]]`, never raw and never as a length.
+
+**Canonical form** (defined only here). The definition block runs from its `## Gate:` heading to the next heading of equal or higher level, or to the end of the enclosing code fence or file. Use LF line endings, strip trailing whitespace from every line, drop trailing blank lines, end with one LF, encode as UTF-8 without BOM, and hash with sha256. The digest detects drift; fetch the old definition from git by path and SHA, never from the working tree.
+
+**Recompute.** Compare each measured value with its threshold using the stated comparison (`<=`, `>=`, `<`, `>`, `==`, `!=`). A missing measured value or threshold is `not measured` and is never inferred. Then apply the Step 3 precedence. Whether a FAIL is fixable or blocking is a recorded judgment, not recomputed.
+
+**Limits.** The record proves internal consistency, not that the measured values were honest, which is why each value cites its producing command and an output hash. A definition SHA that git can no longer reach is reported as "definition unavailable", never replaced with the current definition. Flag a run whose definition changed in the same change set (`changed-in-run: yes`). When one gate and commit have two records, keep both in order; the later stands only if it states why (`stands-because`). Tool-call decision records belong to `ai-agent-development/references/decision-policy-harness.md`.
 
 **Gate Result Reporting Template**:
 
@@ -380,28 +416,8 @@ Record every gate execution for auditability. This is especially valuable for te
 ## Summary
 | Gate | Result | Date | Attempts |
 |------|--------|------|----------|
-| plan-approved | PASS | [date] | 1 |
-| code-compiles | PASS | [date] | 1 |
 | lint-passes | PARTIAL | [date] | 2 |
-| tests-pass | PASS | [date] | 1 |
-| coverage-threshold | PASS | [date] | 1 |
-| no-security-vulns | PASS | [date] | 1 |
-| performance-budget | N/A | [date] | - |
-
-## Detailed Results
-
-### Gate: lint-passes (Attempt 1 - FAIL)
-**Date**: [timestamp]
-**Failed Criteria**:
-- R1: 3 lint errors in `src/processor.ts`
-**Action Taken**: Auto-fixed 2 errors, manually fixed 1
-
-### Gate: lint-passes (Attempt 2 - PARTIAL)
-**Date**: [timestamp]
-**Passed Required**: All
-**Failed Optional**:
-- O1: 2 warnings remaining (cosmetic, documented)
-**Decision**: Proceed with documented exceptions
+| coverage-threshold | UNGATED (not-measured) | [date] | 1 |
 
 ## Exceptions Log
 | Gate | Criterion | Accepted Risk | Approved By |
@@ -409,28 +425,43 @@ Record every gate execution for auditability. This is especially valuable for te
 | lint-passes | O1 (zero warnings) | 2 cosmetic warnings | [name] |
 ```
 
+**Worked examples** (the sha256 on the second line is the published digest of that gate's block above; the commit SHA and output hashes are illustrative):
+
+```gate-record
+gate: lint-passes | run: 1 | date: 2026-10-14T10:02:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: d5cb9b64a68fc5b83e4397d770aaa37f6a893110823b87b70a196a81f0f0ec62 | changed-in-run: no
+R1 | required | 3 | <= | 0 | ruff check . | sha256:e464090ceb8960eb0e45db18e47ee013a509bc25e24da1a77328521e63b09250 | not met
+outcome: FAIL (fixable)
+```
+
+```gate-record
+gate: lint-passes | run: 2 | date: 2026-10-14T10:20:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: d5cb9b64a68fc5b83e4397d770aaa37f6a893110823b87b70a196a81f0f0ec62 | changed-in-run: no
+R1 | required | 0 | <= | 0 | ruff check . | sha256:943b39331457bfaab35f842e1bbd41582f29bd19feeff0f951a514606fcfb88a | met
+O1 | optional | 2 | <= | 0 | ruff check . | sha256:943b39331457bfaab35f842e1bbd41582f29bd19feeff0f951a514606fcfb88a | not met
+stands-because: errors fixed; 2 cosmetic warnings accepted
+outcome: PARTIAL
+```
+
+```gate-record
+gate: coverage-threshold | run: 1 | date: 2026-10-14T10:40:00Z
+definition: catalog/skills/orchestration/quality-gate-definitions/SKILL.md@0123456789abcdef0123456789abcdef01234567 | sha256: 6939c92715671a57f191b48055268d348acb9f013f1a633e9f5b852c9c53f8ad | changed-in-run: no
+R1 | required | - | >= | 80 | pytest --cov | sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | not measured
+R2 | required | 91 | >= | 80 | coverage diff | sha256:632ab7c6afadacdbb30c307a97e4220f3c3a1a161c293584dd2e815064633daa | met
+outcome: UNGATED (not-measured: R1)
+```
+
 ## Merge-Readiness Contract
 
-The `merge-ready` gate above is a named, machine-checkable contract: a change is mergeable only when its required criteria all hold. Unlike the single-purpose gates (tests, lint, coverage), it is a COMPOSITE that binds the others plus PR hygiene into one verifiable statement, so "ready to merge" stops being a feeling and becomes a checklist backed by evidence.
-
-The contract composes disciplines already in the catalog:
-
-- **CI + review gates** (tests-pass, lint-passes, coverage-threshold, no-security-vulns above) supply R1-R2.
-- **The evidence discipline** in [[verification-before-completion]] supplies R5: each gate is verified against the PR's live current-head state (the status rollup, the latest review submissions, `mergeable`), never a stale top-level comment or a remembered green check. A usage-limit or missing-review result is MISSING EVIDENCE, not approval.
-- **The project's review trapdoors** ([[review-trapdoors]]) supply R6: the curated recurring-blocker list is applied before the change is called mergeable.
-
-The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not mandate: a solo maintainer cannot honor a no-self-merge rule, and a hotfix may need a time-boxed self-merge escape hatch. The options (no-self-merge by default, a net-lines / one-concern ceiling, a bus-factor self-merge escape hatch) are documented in the [merge-readiness-contract style guide](../../../style-guides/merge-readiness-contract.md) (installed at `~/.nexus-hub/style-guides/merge-readiness-contract.md`); a project adopts the subset that fits its team size and risk. See [[git-branching-workflow]] for how the merge fits the branching model, [[pr-description-writer]] for the issue-linkage and one-concern hygiene the contract checks, and [[shipping-and-launch]] for the release step the contract gates.
+The `merge-ready` gate above is a COMPOSITE, machine-checkable contract: a change is mergeable only when its required criteria all hold, so "ready to merge" becomes a checklist backed by evidence. It composes disciplines already in the catalog. The CI and review gates (tests-pass, lint-passes, coverage-threshold, no-security-vulns above) supply R1-R2. The evidence discipline in [[verification-before-completion]] supplies R5: each gate is verified against the PR's live current-head state (the status rollup, the latest review submissions, `mergeable`), never a stale top-level comment or a remembered green check. The project's review trapdoors ([[review-trapdoors]]) supply R6: the curated recurring-blocker list is applied before the change is called mergeable. The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not mandate: a solo maintainer cannot honor a no-self-merge rule, and a hotfix may need a time-boxed self-merge escape hatch. The options (no-self-merge by default, a net-lines / one-concern ceiling, a bus-factor self-merge escape hatch) are documented in the [merge-readiness-contract style guide](../../../style-guides/merge-readiness-contract.md) (installed at `~/.nexus-hub/style-guides/merge-readiness-contract.md`); a project adopts the subset that fits its team size and risk. See [[git-branching-workflow]] for how the merge fits the branching model, [[pr-description-writer]] for the issue-linkage and one-concern hygiene the contract checks, and [[shipping-and-launch]] for the release step the contract gates.
 
 ## Best Practices
 
 - **Start with fewer gates** and add more as your workflow matures; over-gating slows velocity without proportional quality gains
-- **Automate every criterion that can be automated** to reduce human bottlenecks and inconsistency
-- **Set thresholds based on your project's current state**, not ideals; a project at 60% coverage should not gate at 90% overnight
-- **Review gate definitions quarterly** and adjust thresholds as the project improves
+- **Automate every criterion that can be automated**, and keep each check fast (under 5 minutes) to avoid workflow stalls
+- **Set thresholds based on your project's current state**, not ideals; a project at 60% coverage should not gate at 90% overnight, and review them quarterly
 - **Never disable a required criterion to pass a gate**; if a criterion is consistently blocking, either fix the underlying issue or reclassify it as optional with documented rationale
-- **Keep gate checks fast** (under 5 minutes each) to avoid workflow stalls
-- **Use the PARTIAL outcome** judiciously; it should be the exception, not the norm
-- **Share gate results** with the team so everyone knows the quality bar and can see trends over time
+- **Use the PARTIAL outcome** judiciously, and share gate results with the team so everyone can see the quality bar and its trend
 
 ## Common Rationalizations
 
@@ -438,6 +469,7 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 |---|---|
 | "This criterion is blocking the gate, so I will disable it just this once." | A required criterion disabled "just once" is the exact path by which untested or insecure code reaches the next phase. If a criterion blocks consistently, fix the underlying issue or reclassify it as optional with documented rationale -- never silently waive it. |
 | "More gates with stricter thresholds means higher quality." | Over-gating slows velocity without proportional quality gains, and a 90% coverage gate on a 60%-coverage project just gets routinely overridden until the gate means nothing. Set thresholds against the project's current state. |
+| "The tool timed out, so it is UNGATED and I can move on." | A timeout reports UNGATED (`timeout`) and then goes through "After UNGATED or exhausted FAIL": the user is asked, or the gap is recorded. It never silently proceeds, because UNGATED is not a quiet PASS. |
 | "I will eyeball whether the gate passed instead of defining explicit criteria." | A gate without explicit, mostly-automated criteria is a subjective judgment dressed up as a checkpoint. Two reviewers will pass and fail the same change, and the audit trail records nothing useful. |
 
 ## Verification
@@ -447,6 +479,7 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 - [ ] Pass / fail / partial behavior is defined for each gate
 - [ ] Thresholds are set against the project's current state, not an aspirational ideal
 - [ ] Gate outcomes are recorded in the result-tracking template for the audit trail
+- [ ] Every logged result is one of PASS, PARTIAL, UNGATED, FAIL (fixable), or FAIL (blocking), and none is PASS without evidence for each required criterion
 
 ## Related Skills
 
@@ -456,7 +489,9 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 - [[plan-before-code]] - Planning phase that feeds into the plan-approved gate
 - [[cross-model-orchestrator]] - Multi-model workflows that use gates at model transitions
 - [[research-plan-implement]] - RPI workflow that uses gates between research, plan, and implement phases
-- [[verification-before-completion]] - supplies the merge-readiness contract's evidence discipline (verify each gate against live current-head state)
+- [[verification-before-completion]] - supplies the merge-readiness contract's evidence discipline (verify each gate against live current-head state) and owns how missing evidence is reported
+- [[known-gaps-tracker]] - records the `QG` gap that "After UNGATED or exhausted FAIL" ends in
+- [[egress-redaction]] - owns the hash rule for any gate-record input that is not a number or a boolean
 - [[review-trapdoors]] - the project-specific recurring-blocker check the merge-readiness contract requires
 - [[multi-agent-code-review]] - the review pass whose clean result the merge-readiness contract composes
 - [[shipping-and-launch]] - the release step the merge-readiness contract gates

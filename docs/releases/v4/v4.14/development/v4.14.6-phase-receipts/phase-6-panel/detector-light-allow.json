@@ -1,0 +1,35 @@
+{
+  "allowlist": "C:\\Users\\<user>\\AppData\\Local\\Temp\\claude\\c--Users-<user>-Documents-Benjamin-nexus-Nexus-Hub\\e9cbd4b6-cc37-422f-9e36-476a7b5be657\\scratchpad\\detector-allowlist.json",
+  "file": "C:\\nh6\\panelrender\\panel-light.html",
+  "findings": [],
+  "font_floor_px": 12.0,
+  "fragment": null,
+  "gate_findings": 0,
+  "minimum_text_box_px": {
+    "height": 12.0,
+    "width": 16.0
+  },
+  "page_pass": true,
+  "status": "pass",
+  "suppressed_findings": 8,
+  "theme": null,
+  "tolerance_px": 1.0,
+  "viewports": [
+    {
+      "height": 900,
+      "width": 320
+    },
+    {
+      "height": 900,
+      "width": 420
+    },
+    {
+      "height": 900,
+      "width": 900
+    },
+    {
+      "height": 900,
+      "width": 1440
+    }
+  ]
+}

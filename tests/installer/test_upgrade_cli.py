@@ -78,6 +78,19 @@ _SAMPLE_CHANGELOG = """# Changelog
 
 - nothing yet
 
+## [3.8.0] - 2026-06-20
+
+### Added
+
+- **A guard with a bold lead.** A long explanation that the summary must not print, because the lead says enough.
+    - Activation: set the flag in the settings file.
+    - Validation: run the check command.
+- A plain bullet with no bold lead. Its second sentence is dropped from the summary.
+
+### Fixed
+
+- **Upgrade notes are readable.** The `nexus-hub upgrade` output is now short and structured.
+
 ## [3.7.0] - 2026-06-17
 
 ### Added
@@ -174,21 +187,99 @@ def test_compare_semver(installed: str, latest: str, expected: int) -> None:
     assert cli.compare_semver(installed, latest) == expected
 
 
-# --- CHANGELOG extraction ---------------------------------------------------
+# --- CHANGELOG summary ------------------------------------------------------
 
 
-def test_changelog_section_exact_heading() -> None:
-    section = cli.extract_changelog_section(_SAMPLE_CHANGELOG, "3.7.0")
-    assert "nexus-hub upgrade" in section
-    assert "Older stuff" not in section, "must stop at the next version heading"
-    assert "nothing yet" not in section, "must not bleed into Unreleased"
+def _summary(installed: str | None, latest: str, changelog: str = _SAMPLE_CHANGELOG) -> str:
+    return cli.summarize_changelog(changelog, installed, latest)
 
 
-def test_changelog_section_falls_back_and_skips_unreleased() -> None:
-    section = cli.extract_changelog_section(_SAMPLE_CHANGELOG, "9.9.9")
-    # 9.9.9 has no heading -> first versioned section (3.7.0), skipping Unreleased.
-    assert "nexus-hub upgrade" in section
-    assert "nothing yet" not in section
+def test_summary_covers_every_release_after_installed_newest_first() -> None:
+    out = _summary("3.6.0", "3.8.0")
+    assert out.index("v3.8.0 (2026-06-20)") < out.index("v3.7.0 (2026-06-17)")
+    assert "v3.6.0" not in out, "the installed release is not new"
+    assert "Older stuff" not in out
+    assert "nothing yet" not in out, "must not bleed into Unreleased"
+
+
+def test_summary_is_structured_by_section_with_one_line_per_top_level_bullet() -> None:
+    lines = _summary("3.7.0", "3.8.0").splitlines()
+    assert lines[0] == "v3.8.0 (2026-06-20)"
+    assert lines[1:] == [
+        "  Added",
+        "    - A guard with a bold lead",
+        "    - A plain bullet with no bold lead",
+        "  Fixed",
+        "    - Upgrade notes are readable",
+        "",
+        "Full release notes: https://github.com/bendourthe/Nexus-Hub/releases/tag/v3.8.0",
+    ]
+
+
+def test_summary_skips_nested_sub_bullets_and_body_text() -> None:
+    out = _summary("3.7.0", "3.8.0")
+    for dropped in ("Activation", "Validation", "settings file", "long explanation", "second sentence"):
+        assert dropped.lower() not in out.lower()
+
+
+def test_summary_headline_strips_markdown() -> None:
+    assert cli._bullet_headline("**`agent-memory` points at the [host store](docs/x.md).** More text.") == (
+        "agent-memory points at the host store"
+    )
+    assert cli._bullet_headline("Use *emphasis* and `code` here. Then more.") == "Use emphasis and code here"
+
+
+def test_summary_headline_truncates_at_a_word_boundary() -> None:
+    headline = cli._bullet_headline("word " * 60)
+    assert len(headline) <= cli.WHATS_NEW_ITEM_WIDTH
+    assert headline.endswith("...") and not headline.endswith(" ...")
+    assert "wor..." not in headline, "must not cut inside a word"
+
+
+def test_summary_caps_items_per_section() -> None:
+    bullets = "\n".join(f"- **Item {n}.** body" for n in range(1, 8))
+    out = _summary("1.0.0", "2.0.0", f"## [2.0.0] - 2026-01-01\n\n### Added\n\n{bullets}\n")
+    cap = cli.WHATS_NEW_MAX_ITEMS_PER_SECTION
+    assert f"Item {cap}" in out and f"Item {cap + 1}" not in out
+    assert f"+ {7 - cap} more" in out
+
+
+def test_summary_caps_versions_and_counts_the_rest() -> None:
+    changelog = "".join(
+        f"## [1.{n}.0] - 2026-01-{n:02d}\n\n### Added\n\n- **Release {n}.**\n\n" for n in range(9, 0, -1)
+    )
+    out = _summary("1.0.0", "1.9.0", changelog)
+    cap = cli.WHATS_NEW_MAX_VERSIONS
+    assert sum(1 for line in out.splitlines() if line.startswith("v1.")) == cap
+    assert f"... and {9 - cap} earlier releases" in out
+    assert "v1.9.0" in out and "v1.1.0" not in out
+
+
+def test_summary_without_installed_version_shows_only_the_newest_release() -> None:
+    out = _summary(None, "3.8.0")
+    assert "v3.8.0" in out and "v3.7.0" not in out
+
+
+def test_summary_falls_back_to_released_sections_when_latest_is_ahead_of_the_changelog() -> None:
+    # Latest 9.9.9 has no heading: every released section after installed still shows.
+    out = _summary("3.6.0", "9.9.9")
+    assert "v3.8.0" in out and "v3.7.0" in out and "nothing yet" not in out
+
+
+@pytest.mark.parametrize(
+    "changelog",
+    ["", "no headings here", "## [Unreleased]\n- **x.**\n", "## [bad]\n- y\n"],
+)
+def test_summary_is_empty_when_nothing_parses(changelog: str) -> None:
+    assert _summary("1.0.0", "2.0.0", changelog) == ""
+
+
+def test_summary_output_is_ascii_for_any_console() -> None:
+    smart = "Smart " + chr(0x201C) + "quotes" + chr(0x201D) + " " + chr(0x2014) + " and caf" + chr(0xE9)
+    changelog = f"## [2.0.0] - 2026-01-01\n\n### Added\n\n- **{smart}.**\n"
+    out = _summary("1.0.0", "2.0.0", changelog)
+    out.encode("ascii")
+    assert 'Smart "quotes" - and caf' in out
 
 
 # --- fetch_text -------------------------------------------------------------
@@ -233,7 +324,7 @@ def test_upgrade_behind_shows_whats_new_and_skips(tmp_path: Path) -> None:
     home = tmp_path / "home"
     home.mkdir()
     (home / "VERSION").write_text("3.6.0\n", encoding="utf-8")
-    raw = _write_remote_fixture(tmp_path / "remote", "3.7.0", _SAMPLE_CHANGELOG)
+    raw = _write_remote_fixture(tmp_path / "remote", "3.8.0", _SAMPLE_CHANGELOG)
     # No --yes and stdin is not a TTY -> safe default is to NOT upgrade.
     proc = _run_cli(
         ["upgrade"],
@@ -243,9 +334,28 @@ def test_upgrade_behind_shows_whats_new_and_skips(tmp_path: Path) -> None:
     assert proc.returncode == 0, proc.stderr
     out = proc.stdout
     assert "newer version is available" in out.lower()
-    assert "3.7.0" in out
-    assert "nexus-hub upgrade" in out, "must print the what's-new CHANGELOG block"
+    assert "What's new" in out
+    assert "v3.8.0 (2026-06-20)" in out and "v3.7.0 (2026-06-17)" in out, "every release since the install"
+    assert "  Added\n    - A guard with a bold lead" in out, "structured: section, then one line per bullet"
+    assert "Activation" not in out, "nested sub-bullets are skipped"
+    assert "releases/tag/v3.8.0" in out, "points at the full notes"
     assert "skipped" in out.lower()
+
+
+def test_upgrade_notes_failure_never_blocks_the_upgrade(tmp_path: Path, monkeypatch, capsys) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / "VERSION").write_text("3.6.0\n", encoding="utf-8")
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(home))
+    monkeypatch.setenv("NEXUS_HUB_RAW_BASE", _write_remote_fixture(tmp_path / "remote", "3.8.0", _SAMPLE_CHANGELOG))
+
+    def boom(*_args: object) -> str:
+        raise ValueError("unparseable changelog")
+
+    monkeypatch.setattr(cli, "summarize_changelog", boom)
+    assert cli.cmd_upgrade(assume_yes=False) == 0
+    out = capsys.readouterr().out
+    assert "newer version is available" in out and "What's new" not in out
 
 
 def test_upgrade_behind_confirmed_dry_run(tmp_path: Path) -> None:
@@ -266,6 +376,32 @@ def test_upgrade_behind_confirmed_dry_run(tmp_path: Path) -> None:
     assert "dry-run" in proc.stdout.lower()
     # The re-run targets the project's own GitHub bootstrap.
     assert "install.sh" in proc.stdout or "install.ps1" in proc.stdout
+
+
+def test_run_bootstrap_runs_through_the_current_console_helper(monkeypatch) -> None:
+    """The bootstrap must share the user's console, not get the hidden-console default."""
+    seen: list[tuple[list[str], dict[str, str] | None]] = []
+
+    def fake_helper(args, *, env=None, cwd=None):
+        seen.append((args, env))
+        return subprocess.CompletedProcess(args, 4)
+
+    monkeypatch.delenv("NEXUS_HUB_UPGRADE_DRY_RUN", raising=False)
+    monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", fake_helper)
+    assert cli.run_bootstrap("v9.9.9") == 4
+    ((command, env),) = seen
+    assert command == cli._bootstrap_command()
+    assert env is not None and env["NEXUS_HUB_REF"] == "v9.9.9"
+
+
+def test_run_bootstrap_dry_run_launches_nothing(monkeypatch, capsys) -> None:
+    def must_not_run(*_args, **_kwargs):
+        raise AssertionError("dry run must not launch the bootstrap")
+
+    monkeypatch.setenv("NEXUS_HUB_UPGRADE_DRY_RUN", "1")
+    monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", must_not_run)
+    assert cli.run_bootstrap() == 0
+    assert "[dry-run]" in capsys.readouterr().out
 
 
 def test_upgrade_offline_fails_clearly(tmp_path: Path) -> None:

@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.3 -->
+<!-- nexus-hub-version: 4.14.6 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,34 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.6
+
+**Nexus-Hub Settings.** One place for the defaults new Claude Code, Codex and GitHub Copilot sessions start with. `nexus-hub settings show` reports what each tool will actually use and what overrides it, `set` and `reset` change a default and put it back, and a VS Code panel does the same with a confirmation for anything that lowers a safety barrier. A setting is settable only after a real session was observed honoring it, so commit attribution ships Not-Settable for now. Start with [the settings guide](guides/NEXUS_HUB_SETTINGS.md).
+
+**Upgrades you can see.** `nexus-hub upgrade` shows a short summary per release and runs the install bootstrap in your own console, so its messages, progress bar and prompts are visible. On macOS and Linux the release archive download gets 300 seconds instead of 30, and the install manifest's log trail no longer grows with every install.
+
+See [the changelog](CHANGELOG.md#4146---2026-11-01) for the full changes and capability usage instructions.
+
+## What's New in v4.14.5
+
+**Host-generated memory stays off limits.** The memory contract now separates a store the host fills on its own, such as Codex Memories, from an index the harness keeps. Agents never open, read or edit the host's store, and `prompt-injection-defense` explains how such a store can replay untrusted content and credentials in later sessions, and which Codex setting narrows that.
+
+**Codex memory settings recorded, not imposed.** Codex's Memories settings are documented against OpenAI's reference and deliberately not seeded by the installer, and a test now fails if a platform ever declares a setting it lists as omitted.
+
+**Finished tasks stay finished after a move.** The completion checker now follows a task's file across a rename, so completed work is no longer reported open once its branch is merged.
+
+See [the changelog](CHANGELOG.md#4145---2026-10-30) for the full changes.
+
+## What's New in v4.14.4
+
+**Gates that say when they could not judge.** A quality gate that measured nothing now reports UNGATED instead of passing, with fixed reason categories, and the agent either retries or records a known gap, never a silent pass. Gate records carry enough to be recomputed from the record and git alone.
+
+**Opt-in git bypass-flag guard.** `git-guardrails` can block `--no-verify`, `-n` on commit, `--no-gpg-sign` and `gpgsign=false` when you turn the mode on in `~/.nexus-hub/guardrails.json`, and it now also runs for git commands sent through Claude Code's PowerShell tool.
+
+**Trapdoors promoted on evidence.** `review-trapdoors` turns a recurring review blocker into an automated check once a machine can detect it, shown failing on the original problem and then passing.
+
+See [the changelog](CHANGELOG.md#4144---2026-10-30) for the full changes and capability usage instructions.
 
 ## What's New in v4.14.3
 
