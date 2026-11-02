@@ -9,11 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.7] - 2026-11-02
+
 ### Added
 
 - **`nexus-hub prune-undetected`: remove Nexus-Hub files left for tools that are not installed.** `nexus-hub doctor` now lists Nexus-Hub files that belong to a tool it cannot find, and `nexus-hub prune-undetected` removes them. It previews by default and removes only with `--yes`; `--integrations <keys>` narrows it and `--unforce <key>` clears a remembered `--platforms` choice. It deletes only unchanged Nexus-Hub output: never a file you changed or added, a `*.nexus-hub.bak` backup, a link, a settings file (it only removes Nexus-Hub hook entries from Kimi and Qwen settings), or anything outside the platform's own folder, and never a tool that is detected or that you forced. It also recognizes the obsolete `~/.agent` and home-root `~/.opencode` folders older versions created, and removes one only when every file in it is unchanged Nexus-Hub output. Check with `nexus-hub doctor`; roll back by reinstalling the platform. See `docs/policy/platform-detection.md`.
 
+    - Activation: run `nexus-hub prune-undetected` to preview; add `--yes` to remove eligible unchanged output.
+    - Validation: run the preview again and compare its findings with `nexus-hub doctor`.
+    - Rollback: reinstall the platform with the tool present or an explicit supported platform choice.
+    - Authority: this command does not grant permission to delete changed files, user settings, backups, links or detected tools.
+    - Docs: [Platform detection and stale-surface removal](docs/policy/platform-detection.md).
+
 ### Changed
+
+- The platform read-contract was reviewed on 2026-11-02 for this release across 17 integration groups, with documented drift and unverified compatibility paths retained explicitly; advisory default levers were reviewed in the same pass. These grouped findings are not a fresh recount of the previous 75-row totals. See [the release verification](docs/releases/v4/v4.14/development/v4.14.7-platform-verification.md).
 
 - The Cursor Usage Monitor dashboard expresses reset countdowns in weeks, days, hours, and minutes, omitting zero units and keeping the reset date. For example, `1533 min remaining` becomes `1 day 1 hour 33 minutes remaining`.
 
@@ -21,9 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Capability usage note: forcing a platform with `--platforms`.** Activation: name the platform on a global install, for example `scripts/installer.sh --platforms qwen` (`-Platforms qwen` on Windows); the choice is remembered, so later installs keep it. Validation: `nexus-hub doctor` labels the platform user-forced and the install output shows its surfaces instead of a NOT DETECTED line. Disable or roll back: `nexus-hub prune-undetected --unforce <key>`, after which the next install evaluates the platform normally. Authority it does not grant: it never installs the tool, never changes the tool's own settings beyond the seeded Nexus-Hub defaults, and never forces OpenClaw, Devin Desktop, or Copilot, which keep their own checks. Documentation: `docs/policy/platform-detection.md`.
 
+    - Activation: name a supported platform with `--platforms qwen` or `-Platforms qwen` during global installation.
+    - Validation: `nexus-hub doctor` labels the platform user-forced, and install output lists its delivered surfaces.
+    - Rollback: `nexus-hub prune-undetected --unforce qwen` clears the remembered choice for later installs.
+    - Authority: this choice does not install the vendor tool or force OpenClaw, Devin Desktop or Copilot past their own checks. Hermes and Pi currently require the direct runner path documented in the guide.
+    - Docs: [Platform detection and explicit choices](docs/policy/platform-detection.md).
+
 - **Dependency updates applied as one maintainer commit, and Dependabot version-update pull requests turned off.** The commit-attribution check accepts only the maintainer's identity (plus GitHub merge commits), so every Dependabot-authored commit failed `validate` and its pull request could never merge. The updates from the 12 open Dependabot pull requests are now applied directly: `vitest` and `@vitest/coverage-v8` 4.1.11 to 4.1.12 together in the Claude, Codex, Copilot, Cursor, and Gemini usage monitors (Dependabot split them into separate pull requests, and each half alone fails `npm ci` with ERESOLVE because the coverage plugin peers on the exact `vitest` version), `@types/node` 26.6.5 to 26.6.6 in the Cursor monitor, `actions/setup-python` 7.0.0 to 7.1.0, and `actions/setup-node` 4.4.0 to 7.1.0 (every workflow use sets only `node-version`, `cache: npm`, and `cache-dependency-path`, so the v5 automatic-cache, v6 npm-only-cache, and v7 ESM and `NODE_AUTH_TOKEN` changes do not affect this repository). `.github/dependabot.yml` now sets `open-pull-requests-limit: 0` on every ecosystem, which stops version-update pull requests. Dependabot vulnerability alerts and security updates are separate repository settings that this file does not control; both were off on 2026-11-01. Dependency bumps are now made by the maintainer.
 
 ### Fixed
+
+- **Resume a plan safely in a new session.** A genuinely captured native resume approval can transfer a per-plan run to the current session while preserving its frozen scope, original budgets, blockers and approval integrity. Pause and blocker answers retain their existing session restrictions.
 
 - Preserve the original signed v4.15 plan identities while recognizing 36 exact historical task-target corrections, qualifying four fixed unchanged-target cases against sealed native gate receipts, and supporting separately captured exact output permissions and the one-file v4.15.4 read-reservation correction. Current-source qualification rejects hidden Git index flags, malformed deep JSON and interrupted replacement proofs; Windows gate processes use atomic job ownership and bounded cleanup. These helpers do not grant live permissions, change original claims or complete a release; actual permission changes still require genuine native decisions.
 

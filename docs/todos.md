@@ -2,9 +2,9 @@
 
 **Integration branch:** `develop`
 
-- [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor remains unverified.
+- [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor now verifies readable countdowns in all three live dashboard labels; see [installed-host evidence](releases/v4/v4.14/development/cursor-countdown-installed-qualification.md).
 
-- [ ] Integrate the readable countdown change with v4.14.7 through develop; installed-Cursor verification remains open.
+- [x] Integrate the readable countdown change with v4.14.7 through develop and verify installed Cursor; PR #595 is merged and all three live countdown labels use readable units. Release publication remains open.
 
 **v4.15 native prerequisite:** Three implementation phases and final local qualification are committed. All five failed scopes from the earlier comprehensive run have complete combined functional qualification; original timeouts remain failed. Refreshed Windows validators, all eight integration owners, actual producer/PowerShell installer exercises, extension/package checks, the canonical coverage threshold and independent Goal review have passing evidence. The final worktree preserves published v4.14.6. [PR 578](https://github.com/bendourthe/Nexus-Hub/pull/578) is open; its CodeQL snapshot-permission failure was reproduced with two regressions, corrected without suppression, and passed 49 proof/process plus nine console cases and a fresh actual producer/installer exercise. Corrective publication, current-head green integration and exact helper delivery remain open. The original signed v4.15 run and its live reservations remain unchanged. [Evidence](releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
 
@@ -73,7 +73,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 | Metric | Current | Target |
 |---|---|---|
-| Cursor reset countdown | 371 passed, 2 skipped; compiled; integration pending | Next release |
+| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified | v4.14.7 publication |
 | Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
 | v4.14 GitHub develop integrated task marks | 97/256 | 256/256 |
 | v4.14 worktree task marks | 101/256 | 256/256 |

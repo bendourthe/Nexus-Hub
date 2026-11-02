@@ -280,3 +280,7 @@ The current platform discovery pass reuses the genuine October 16 Claude subagen
 ### 2026-10-20 - v4.14.1 release verification
 
 Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.
+
+### 2026-11-02 - v4.14.7 advisory release review
+
+Reviewed the documented behavioral-default families in the [release platform verification](../releases/v4/v4.14/development/v4.14.7-platform-verification.md). Existing unverified platforms and the Windows Hermes path caveat remain explicit. No lever key, seeded default, source record or gating policy changed; this advisory review does not establish fresh installed-host enforcement.
