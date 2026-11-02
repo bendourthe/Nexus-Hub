@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-11-01
-**Open items**: 106
+**Open items**: 110
 
 ## v4.14.0
 
@@ -3880,10 +3880,10 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 1 | 3 |
-| Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 1 | 6 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -3918,6 +3918,46 @@ None.
 
 **Suggested next step**: If a vendor documents a `.ps1`-only install, add `.PS1` to the probed extensions for that platform's spec and a test with a planted `.ps1` shim.
 
+#### DF-43 (v4.14.7): Seeded settings files are kept by prune-undetected
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
+
+**Reason**: `nexus-hub prune-undetected --yes` keeps `~/.aider.conf.yml`, `~/.hermes/config.yaml`, `~/.pi/agent/settings.json`, and the seeded values in the Kimi `config.toml` and Qwen `settings.json` (it strips only Nexus-Hub's hook entries from the last two), because Nexus-Hub writes seeded defaults without a per-key record of which values it wrote, so it cannot prove the user did not edit them. A machine like the maintainer's 2026-10-29 audit keeps `~/.aider.conf.yml` and a Hermes `config.yaml` after the command; the command names them as kept.
+
+**Suggested next step**: Record each seeded key and value in the manifest when seeding (the platform-defaults seed record already tracks seeds), then remove a seeded file only when every key still equals its seed. Plan it with `/plan` after v4.14.7.
+
+#### DF-44 (v4.14.7): Hermes and Pi have no installer entry
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D8
+
+**Reason**: Neither `scripts/installer.sh` nor `scripts/installer.ps1` invokes an integration for `hermes` or `pi`, and both reject them as `--platforms` keys, so they are installed only by calling `runner.py` directly. This predates v4.14.7, and decision D8 limits installer edits to the forced pass-through and the evidence lines. As a result the NOT DETECTED remedy text for these two keys ("name it with --platforms hermes") is not usable through an installer, and forcing either platform works only with `runner.py install --forced <key>`.
+
+**Suggested next step**: Decide whether the installers should install Hermes and Pi. If yes, add the key to the known-platform list, the global call, and the vocabulary entry in both installers, with an installer-parity entry. If no, drop the two integrations from the user-facing remedy text.
+
+#### WN-37 (v4.14.7): Nexus-AI vendor-folder evidence could be circular
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D6
+
+**Reason**: D6 names only the installed application and `~/.nexus-ai`. The detection spec also counts `~/.nexus` (minus `context` and `observations.jsonl`) and `~/.gemma-code` as evidence that Nexus AI Studio is present. Nexus-Hub's own tools write project-relative `.nexus/` folders (code index, knowledge files), so a session started in the home folder could create `~/.nexus/...` entries that read as Nexus AI Studio data. The exclusion list is a two-name denylist, which is the shape of rule the plan set out to remove.
+
+**Suggested next step**: Confirm which entries the app itself creates under `~/.nexus` (`core/storage/paths.ts` in the Nexus-AI repository) and replace the denylist with an allowlist of those names, or drop `~/.nexus` and keep the application path and `~/.nexus-ai`.
+
+#### MT-16 (v4.14.7): Removal was exercised end to end only for Kimi, and four hostile cases were not run
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+
+**Reason**: The Tier 3 adversarial pass ran every `prune-undetected --yes` attack against a real Kimi install. It did not run: the Qwen `settings.json` pruner and the shared-marker removal for the other platforms against a hostile file; a tracked file replaced by a symlink (the host refused symlink creation, WinError 1314; junctions were covered); short (8.3) names and paths on another drive letter; and a manifest edited inside the platform folder to track the folder itself with a far-future install time. The last is a self-attack through a file only the user's own account can write, so it is not a privilege boundary, but it is untested.
+
+**Suggested next step**: Add a parametrized removal test across Qwen, Pi, Hermes, and Aider using the same fixture as `tests/integrations/test_stale_surfaces.py`, plus a symlink case behind a `pytest.skip` when symlink creation is denied and a case that rejects a tracked path equal to the platform folder.
+
 ### Resolved
 
 #### BG-22 (v4.14.7): The real-installer attribution test failed locally on Windows before this plan's changes
@@ -3950,4 +3990,32 @@ None.
 
 **Resolution (2026-10-30, Phase 7)**: `InstallManifest.record_actions` now stores `recorded_at`, the wall-clock install time, and `_stale._classify_dir` compares against it, falling back to the folder mtime for manifests written before the field existed. `test_folder_rule_compares_against_install_time_not_the_copied_folder_mtime` covers the new rule, the conservative fallback, and a later edit; the stale-surface, detection, lifecycle, and harness-audit files pass together (86 passed) with the stray caches present.
 
+#### BG-26 (v4.14.7): prune-undetected deleted files behind a linked parent folder - RESOLVED 2026-11-01
 
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+
+**Reason**: The adversarial pass moved `~/.kimi-code/skills` to another folder and linked it back with a junction (a dotfiles-manager layout). `_stale.py` checked only the last path component for a link, so `--yes` deleted all 1,377 files behind the link and then removed the link; the dry run reported none kept.
+
+**Resolution**: `_via_link` rejects any path with a symlink or junction between the platform folder and the entry, at plan time and again before each unlink; empty-folder removal skips links. Regression `test_a_linked_parent_folder_is_never_deleted_through` fails without the guard; the real-runner re-run row `A-C7` keeps 1,377 of 1,377 files.
+
+#### BG-27 (v4.14.7): prune-undetected deleted user files that kept an old timestamp - RESOLVED 2026-11-01
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.1
+
+**Reason**: The folder rule compared only modification time with the install record, so a file the user copied into a tracked skill folder with its original timestamp (Explorer, `cp -p`) read as unchanged and was deleted. Two independent reviews found it. The same rule also deleted a file the user already had in the folder before Nexus-Hub merged into it.
+
+**Resolution**: A file is removed only when neither its modification nor its creation or change time is later than the install record and, when a catalog is available beside the runner, the current catalog ships a file of that name; otherwise it is kept and reported. Regressions `test_a_copied_in_file_that_kept_an_old_timestamp_is_kept` and `test_a_file_the_catalog_does_not_ship_is_kept_even_if_it_predates_the_install` each fail without their guard.
+
+#### BG-28 (v4.14.7): Manifest and command robustness findings from the adversarial pass - RESOLVED 2026-11-01
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-tasks 1.3 and 6.3
+
+**Reason**: Five more findings. (1) Two concurrent runs that both judged a dead holder's lock stale could both take it, and a run that waited 30 seconds continued without the lock, so one run's manifest entries were lost. (2) A manifest that parsed as JSON but had the wrong field types crashed `doctor`, `prune-undetected`, and install with a traceback. (3) Classifying stale entries compared every entry with every earlier one, taking 68 seconds for 8,000 entries while holding the lock. (4) Removing an obsolete layout crashed with a traceback and a half-removed tree when a file was read-only or open elsewhere. (5) `--unforce KIMI` did nothing, silently, while `--forced` accepted any case. Also found: `doctor` did not label a user-forced platform although the docs said it did, and `--integrations` still removed obsolete layouts.
+
+**Resolution**: The manifest lock is now an operating-system lock the system releases when a run ends (a live holder makes the second run stop with exit 2 after 30 seconds); the manifest shape is validated on load and a bad file is set aside; entry de-duplication uses a set; the layout remover stops and names a file it cannot delete; `--unforce` is case-insensitive and says when nothing was cleared; `doctor` prints a user-forced line; a run narrowed with `--integrations` leaves obsolete layouts alone. Each has a regression test, and the real-runner rows `A-B3`, `A-E3`, `A-E3b`, and `A-E3c` pass.

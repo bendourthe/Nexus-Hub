@@ -224,3 +224,124 @@ def test_folder_rule_compares_against_install_time_not_the_copied_folder_mtime(t
     assert [e.verdict for e in _classify_dir(folder, legacy, [tmp_path])] == [KEEP]
     os.utime(copied, (stamp + 3600, stamp + 3600))
     assert [e.verdict for e in _classify_dir(folder, record, [tmp_path])] == [KEEP]
+
+# ---------------------------------------------------------------------------
+# Deep-pass findings (v4.14.7 Phase 7, T044): the adversarial pass found two
+# ways `prune-undetected --yes` could delete what the user owns.
+# ---------------------------------------------------------------------------
+
+
+def _redirect(link: Path, real: Path) -> None:
+    """Make ``link`` a symlink (or, on Windows, a junction) to ``real``."""
+    try:
+        link.symlink_to(real, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        if os.name != "nt":
+            pytest.skip("symlink creation is not permitted on this host")
+        import _winapi  # a directory junction needs no privilege
+
+        _winapi.CreateJunction(str(real), str(link))
+
+
+def test_a_linked_parent_folder_is_never_deleted_through(stale_kimi: Path, tmp_path: Path) -> None:
+    # A dotfiles manager moves ~/.kimi-code/skills elsewhere and links it back.
+    skills = stale_kimi / ".kimi-code" / "skills"
+    elsewhere = tmp_path / "dotfiles" / "kimi-skills"
+    elsewhere.parent.mkdir()
+    skills.rename(elsewhere)
+    _redirect(skills, elsewhere)
+    outside = sorted(p for p in elsewhere.rglob("*") if p.is_file())
+    assert outside
+    stale = plan_platform(_ctx(stale_kimi), get("kimi"))
+    through_link = [e for e in stale.entries if "skills" in Path(e.path).parts and e.verdict != GONE]
+    assert through_link and all(e.verdict == KEEP for e in through_link)
+
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, yes=True)) == 0
+
+    assert all(p.is_file() for p in outside), "files behind the link were deleted"
+    assert skills.exists(), "the link itself was removed"
+
+
+def test_a_copied_in_file_that_kept_an_old_timestamp_is_kept(stale_kimi: Path) -> None:
+    import time
+
+    time.sleep(2.5)  # past the two-second timestamp slack the folder rule allows
+    mine = _a_skill_file(stale_kimi).parent / "my-own-notes.md"
+    mine.write_text("mine", encoding="utf-8")
+    os.utime(mine, (1_577_836_800, 1_577_836_800))  # Explorer and `cp -p` keep the source's mtime
+    shipped = _a_skill_file(stale_kimi)
+
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, yes=True)) == 0
+
+    assert mine.read_text(encoding="utf-8") == "mine"
+    assert not shipped.exists(), "an unchanged Nexus-Hub file was not removed"
+
+
+def test_a_file_the_catalog_does_not_ship_is_kept_even_if_it_predates_the_install(tmp_path: Path, fake_tools, monkeypatch) -> None:
+    # A note the user already kept inside a skill folder Nexus-Hub later merged
+    # into has an old timestamp of its own, so only the catalog comparison
+    # protects it. (A folder the catalog does not ship is never tracked at all.)
+    home = tmp_path / "home"
+    own = home / ".kimi-code" / "skills" / "adversarial-verifier" / "my-notes.md"
+    own.parent.mkdir(parents=True)
+    own.write_text("my notes", encoding="utf-8")
+    fake_tools("kimi")
+    assert runner.cmd_install(_install_args(home)) == 0
+    monkeypatch.setattr(_detection, "safe_which", lambda _name: None)
+    stale = plan_platform(_ctx(home), get("kimi"))
+    mine = [e for e in stale.entries if Path(e.path).name == own.name]  # entries may carry a long-path prefix
+    assert [e.verdict for e in mine] == [KEEP] and "catalog ships" in mine[0].reason
+    shipped = own.parent / "SKILL.md"
+
+    assert runner.cmd_prune_undetected(_prune_args(home, yes=True)) == 0
+
+    assert own.read_text(encoding="utf-8") == "my notes"
+    assert not shipped.exists(), "the file the catalog ships was not removed"
+
+
+def test_doctor_labels_a_user_forced_platform(stale_kimi: Path, capsys) -> None:
+    manifest_path = runner._manifest_path(stale_kimi)
+    manifest = InstallManifest.load(manifest_path)
+    manifest.set_forced("kimi")
+    manifest.save(manifest_path)
+    runner._report_stale(stale_kimi)
+    out = capsys.readouterr().out
+    assert "kimi: user-forced" in out and "--unforce kimi" in out
+    assert "stale Nexus-Hub surfaces" not in out
+
+
+def test_unforce_is_case_insensitive_and_says_when_nothing_was_cleared(stale_kimi: Path, capsys) -> None:
+    manifest_path = runner._manifest_path(stale_kimi)
+    manifest = InstallManifest.load(manifest_path)
+    manifest.set_forced("kimi")
+    manifest.save(manifest_path)
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, unforce="KIMI")) == 0
+    out = capsys.readouterr().out
+    assert "kimi: the explicit --platforms choice is cleared" in out
+    assert not InstallManifest.load(manifest_path).is_forced("kimi")
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, unforce="qwen")) == 0
+    assert "qwen: not named with --platforms, nothing to clear" in capsys.readouterr().out
+
+
+def test_narrowing_with_integrations_leaves_obsolete_layouts_alone(stale_kimi: Path, monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(runner, "_prune_legacy", lambda home, apply: calls.append(apply) or False)
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, yes=True, keys="kimi")) == 0
+    assert calls == []
+    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, yes=True)) == 0
+    assert calls == [True]
+
+
+def test_classifying_many_entries_is_not_quadratic(stale_kimi: Path) -> None:
+    import time
+
+    manifest_path = runner._manifest_path(stale_kimi)
+    manifest = InstallManifest.load(manifest_path)
+    root = stale_kimi / ".kimi-code" / "skills"
+    for i in range(6000):
+        manifest.track("kimi", str(root / f"gone-{i:05d}"))
+    manifest.save(manifest_path)
+    started = time.monotonic()
+    stale = plan_platform(_ctx(stale_kimi), get("kimi"))
+    assert time.monotonic() - started < 20  # about a minute with the old pairwise scan
+    assert sum(1 for e in stale.entries if e.verdict == GONE) >= 6000

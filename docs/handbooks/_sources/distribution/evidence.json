@@ -24,7 +24,7 @@
       "scripts/lib/integrations/aider.py": "a17eba595c153f0e18cdc90757e16ee206bd729f14ecb690bdb022c26c3e0e09",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/cursor.py": "c817dd5ab0dfdede40014c2b1a444a8bf06bea5bd278182d8fe4fa69f45f0420",
-      "scripts/lib/integrations/runner.py": "f4ec00f98554b6890271e07303e0f34a6c6a9d5844fcf61f44120c69c48dde26",
+      "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_git_attribution.py": "66d64f0f49ea6cb12e95c85f2cc12d0c0fdccdd238a458f20f5bb8b6090cef7f",
       "scripts/nexus_hub_cli.py": "1eef938316f17f6a65d51e855fb8be7cbcc48a7267d7e65e7aec54b08c9c45ae",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
@@ -35,7 +35,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.14/development/v4.14.7-distribution-handbook-review.md",
-      "evidence_sha256": "d9853fcce82d7b9d7683ee129d21cd217d15cfed94d9b8c506b57c260509521d"
+      "evidence_sha256": "990afbce7ed89cda27dcce7f41be4a9ab5db21c3a60d85e7b55e62a03cf2aa10"
     },
     "build": {
       "status": "pass",

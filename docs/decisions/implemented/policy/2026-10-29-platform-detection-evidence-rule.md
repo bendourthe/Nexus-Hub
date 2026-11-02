@@ -1,6 +1,6 @@
 # Decision: Platform Detection Evidence Rule
 
-Status: proposed - gated platforms are detected only by evidence Nexus-Hub did not create (PATH, vendor entries, app paths, or an explicit --platforms)
+Status: implemented - gated platforms are detected only by evidence Nexus-Hub did not create (PATH, vendor entries, app paths, or an explicit --platforms), shipped in v4.14.7
 
 Plan: `docs/releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md`. Policy: `docs/policy/platform-detection.md`.
 
@@ -8,9 +8,9 @@ Plan: `docs/releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md`. Po
 
 Kimi, Qwen, Hermes, and Pi treated "the tool's home folder exists" as proof the tool was installed, and Nexus-Hub wrote into that same folder. On the maintainer's machine `~/.kimi-code`, `~/.qwen`, and `~/.hermes` were all created in the same minute on 2026-08-08, during the v3.16.0 defaults-seeding work (commit `7ea867c04` landed 41 minutes later), and every later install then counted all three tools as present although none was ever installed. Nexus-AI and Aider were never gated at all, and OpenCode's global surfaces were ungated while its completion plugin was gated on the folder its own first install creates. A second folder-existence detector in `docs/policy/platform-read-contracts.json` drove `nexus-hub verify`, so fixing the installer alone would have left verify telling users to reinstall a platform the installer then skips.
 
-## Proposal
+## Decision
 
-One rule, declared per integration and evaluated in one place. A gated platform is detected when the user forced it with `--platforms`, when its home root or a vendor-only folder holds an entry Nexus-Hub did not write, when a declared executable resolves on `PATH` (with corroboration for collision-prone names), or when a declared application path exists. Tracked files, declared Nexus-Hub names, OS metadata, and Nexus-Hub backups and temporaries are never evidence. Install, verify, and the stale-surface report all call the same function. A not-detected install keeps the previous action record so file hashes survive.
+One rule, declared per integration and evaluated in one place. A gated platform is detected when the user forced it with `--platforms`, when its home root or a vendor-only folder holds an entry Nexus-Hub did not write, when a declared executable resolves on `PATH` (with corroboration for collision-prone names), or when a declared application path exists. Tracked files, declared Nexus-Hub names, OS metadata, and Nexus-Hub backups and temporaries are never evidence. Install, verify, and the stale-surface report all call the same function. A not-detected install keeps the previous action record so file hashes survive. Files an earlier install left for a tool that is not detected are reported by `nexus-hub doctor` and removed only by `nexus-hub prune-undetected --yes`, which deletes a file only when it is unchanged Nexus-Hub output.
 
 ## Alternatives considered
 
@@ -20,16 +20,12 @@ One rule, declared per integration and evaluated in one place. A gated platform 
 - **File-content rule for shared configs (Aider's `~/.aider.conf.yml`).** Rejected: Nexus-Hub writes that file without tracking it, so "the file exists or is untracked" reintroduces the circular test, and a content classifier over a file both parties edit is fragile. Aider is detected by its executable only, with `--platforms aider` as the override.
 - **Backups (`*.nexus-hub.bak`) as vendor evidence.** Considered after the plan review and rejected during implementation: the merge helpers write a backup whenever the config already existed, including a config Nexus-Hub seeded in the same install, so the maintainer's Kimi-free `~/.kimi-code` held one. Backups are neutral.
 
-## Acceptance criteria
+## Consequences
 
-- On a home with none of the seven tools, a global install writes none of their roots or files, twice in a row.
-- A root holding only files a previous install wrote is not detected on the next install.
-- A stub executable, a vendor entry, an application path, or `--platforms <key>` each makes exactly that platform install.
-- For every gated platform with a verify row, `nexus-hub verify` and the install gate agree on absent, Nexus-only, and executable states.
+- On a home with none of the seven tools, a global install writes none of their roots or files, twice in a row, and the install output lists each skipped platform with its evidence and one remedy line.
+- A root holding only files a previous install wrote is not detected on the next install. A stub executable, a vendor entry, an application path, or `--platforms <key>` each makes exactly that platform install, and `nexus-hub verify` and the install gate agree on absent, Nexus-only, and executable states.
 - Detection never creates the root it inspects and never executes the resolved file.
-
-## Risks
-
-- **False negatives** for tools installed without a PATH entry and with no tool-created entry yet. Mitigation: `--platforms <key>` forces and records the platform; the install output names the remedy.
-- **False positives** from a same-named command. Mitigation: corroboration for verified collisions (Hermes); `pi` remains unverified and is not corroborated.
-- **Unverified install locations** (Nexus AI Studio's Windows subfolder). Mitigation: two spellings probed, `~/.nexus` app data checked as well, and the override.
+- False negatives remain possible for tools installed without a PATH entry and with no tool-created entry yet. `--platforms <key>` forces and records the platform, and the install output names the remedy; `nexus-hub prune-undetected --unforce <key>` rolls it back.
+- False positives remain possible from a same-named command. Hermes needs corroboration because its JavaScript-engine namesake is verified; `pi` is unverified and is not corroborated.
+- Install locations that are unverified (Nexus AI Studio's Windows subfolder, a `.ps1`-only npm shim) rely on the override, and are recorded in `docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md` and the v4.14.7 known gaps.
+- Machines that already carry stale Nexus-only folders keep them until the user runs the removal command, so the fix does not change existing disks silently.

@@ -292,7 +292,10 @@ def test_not_detected_install_keeps_previous_hashes(tmp_path: Path, monkeypatch:
     assert runner.cmd_install(_args(target)) == 0
     after = InstallManifest.load(runner._manifest_path(target)).actions_for("kimi")
     assert after == before
-    assert not (runner._manifest_path(target).parent / "install-manifest.json.lock").exists()
+    from scripts.lib.integrations.manifest import manifest_lock
+
+    with manifest_lock(runner._manifest_path(target), timeout=2) as held:  # released when the install ended
+        assert held is True
 
 
 def test_corrupt_manifest_is_set_aside(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
@@ -384,3 +387,207 @@ def test_summary_carries_evidence_and_remedy_when_not_detected(tmp_path: Path) -
     assert platform["detected"] is False
     assert platform["evidence"] == "aider not on PATH"
     assert platform["remedy"] == "Install Aider, then run `nexus-hub upgrade`, or name it with --platforms aider."
+
+
+# ---------------------------------------------------------------------------
+# Real install layouts (v4.14.7 Phase 7, T044)
+#
+# One acceptance row per gated platform, built from the layout the vendor's own
+# installer produces (docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md),
+# resolved by the real `safe_which` against real PATH directories. The other
+# tests inject a fake `which`; these prove an installed tool is still FOUND.
+# ---------------------------------------------------------------------------
+
+
+def _stub_command(directory: Path, name: str, nt_ext: str) -> Path:
+    """Create the file a vendor installer drops: `<name><ext>` on Windows, an
+    executable `<name>` elsewhere. It is never executed, only resolved."""
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / (name + nt_ext if os.name == "nt" else name)
+    path.write_bytes(b"stub\n")
+    path.chmod(0o755)
+    return path
+
+
+def _real_which(*directories: Path):
+    search = os.pathsep.join(str(d) for d in directories)
+    return lambda name: safe_which(name, path=search)
+
+
+# (key, directory under the home, command, Windows extension, expected kind).
+# A layout that also puts a vendor-owned entry in the platform's root is
+# credited to the root check, which runs before the PATH probe.
+REAL_EXECUTABLE_LAYOUTS = [
+    pytest.param("kimi", ".local/bin", "kimi", ".exe", "executable", id="kimi-install-script-or-uv-tool"),
+    pytest.param("qwen", "AppData/Roaming/npm", "qwen", ".cmd", "executable", id="qwen-npm-cmd-shim"),
+    pytest.param("pi", "AppData/Roaming/npm", "pi", ".cmd", "executable", id="pi-npm-cmd-shim"),
+    pytest.param("aider", ".local/bin", "aider", ".exe", "executable", id="aider-pipx"),
+    pytest.param("opencode", "AppData/Roaming/npm", "opencode", ".cmd", "executable", id="opencode-npm-cmd-shim"),
+    pytest.param("opencode", ".opencode/bin", "opencode", ".exe", "root", id="opencode-curl-installer"),
+    pytest.param("hermes", "AppData/Local/hermes/hermes-agent/venv/Scripts", "hermes", ".exe", "executable", id="hermes-installer-windows"),
+    pytest.param("hermes", ".hermes/hermes-agent/venv/bin", "hermes", ".exe", "root", id="hermes-installer-posix"),
+]
+
+
+@pytest.mark.parametrize(("key", "relative", "name", "ext", "kind"), REAL_EXECUTABLE_LAYOUTS)
+def test_real_layout_installed_tool_is_found(
+    home: Path, monkeypatch: pytest.MonkeyPatch, key: str, relative: str, name: str, ext: str, kind: str
+) -> None:
+    monkeypatch.setenv("PATHEXT", ".COM;.EXE;.BAT;.CMD")
+    directory = home / relative
+    _stub_command(directory, name, ext)
+    present = detect_platform(_ctx(home, which=_real_which(directory)), get(key))
+    assert present.detected and present.kind == kind, present
+    # The same machine with the vendor directory off PATH is not detected, so
+    # the row proves the layout, not a lucky default.
+    if kind == "executable":
+        absent = detect_platform(_ctx(home, which=_real_which(home / "elsewhere")), get(key))
+        assert not absent.detected and f"{name} not on PATH" in absent.evidence
+
+
+def test_real_layout_npm_shim_set_is_found_through_the_cmd_shim(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """npm writes a `.cmd`, a `.ps1`, and an extensionless shim side by side."""
+    monkeypatch.setenv("PATHEXT", ".COM;.EXE;.BAT;.CMD")
+    directory = home / "AppData" / "Roaming" / "npm"
+    directory.mkdir(parents=True)
+    for suffix in ("", ".cmd", ".ps1"):
+        (directory / f"qwen{suffix}").write_bytes(b"stub\n")
+    (directory / "qwen").chmod(0o755)
+    verdict = detect_platform(_ctx(home, which=_real_which(directory)), get("qwen"))
+    assert verdict.detected and verdict.kind == "executable"
+
+
+def test_real_layout_hermes_javascript_engine_is_not_hermes_agent(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PATHEXT", ".COM;.EXE;.BAT;.CMD")
+    engine = home / "tools" / "hermes-engine" / "bin"
+    _stub_command(engine, "hermes", ".exe")
+    verdict = detect_platform(_ctx(home, which=_real_which(engine)), get("hermes"))
+    assert not verdict.detected and "hermes not on PATH" in verdict.evidence
+
+
+def test_real_layout_opencode_curl_install_off_path_is_found_by_its_vendor_folder(home: Path) -> None:
+    _stub_command(home / ".opencode" / "bin", "opencode", ".exe")
+    verdict = detect_platform(_ctx(home), get("opencode"))
+    assert verdict.detected and verdict.kind == "root" and ".opencode" in verdict.evidence
+
+
+def test_real_layout_opencode_data_folder_is_found(home: Path) -> None:
+    data = home / ".local" / "share" / "opencode"
+    data.mkdir(parents=True)
+    (data / "auth.json").write_text("{}", encoding="utf-8")
+    verdict = detect_platform(_ctx(home), get("opencode"))
+    assert verdict.detected and verdict.kind == "root"
+
+
+@pytest.mark.parametrize(
+    ("platform", "relative"),
+    [
+        pytest.param("win32", "AppData/Local/Programs/Nexus AI Studio", id="nexus-ai-windows-per-user-installer"),
+        pytest.param("darwin", "Applications/Nexus AI Studio.app", id="nexus-ai-macos-app-bundle"),
+    ],
+)
+def test_real_layout_nexus_ai_installed_never_launched_is_found(
+    home: Path, monkeypatch: pytest.MonkeyPatch, platform: str, relative: str
+) -> None:
+    from types import SimpleNamespace
+
+    monkeypatch.setenv("LOCALAPPDATA", str(home / "AppData" / "Local"))
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))
+    monkeypatch.setattr(_detection, "sys", SimpleNamespace(platform=platform))
+    absent = detect_platform(_ctx(home), get("nexus-ai"))
+    assert not absent.detected and "application not installed" in absent.evidence
+    (home / relative).mkdir(parents=True)  # the app folder; `~/.nexus-ai` never created
+    assert not (home / ".nexus-ai").exists()
+    verdict = detect_platform(_ctx(home), get("nexus-ai"))
+    assert verdict.detected and verdict.kind == "app", verdict
+
+# ---------------------------------------------------------------------------
+# Manifest lock and shape (v4.14.7 Phase 7, T044 adversarial findings)
+# ---------------------------------------------------------------------------
+
+
+def test_a_lock_held_by_a_live_run_times_out_instead_of_continuing(tmp_path: Path) -> None:
+    from scripts.lib.integrations.manifest import ManifestLockTimeout, manifest_lock
+
+    manifest_path = tmp_path / "install-manifest.json"
+    with manifest_lock(manifest_path) as held:
+        assert held is True
+        with pytest.raises(ManifestLockTimeout):
+            with manifest_lock(manifest_path, timeout=0.6):
+                pytest.fail("entered the critical section without the lock")
+    with manifest_lock(manifest_path, timeout=5) as again:  # released when the holder left
+        assert again is True
+
+
+def test_a_lock_file_left_by_a_crashed_run_never_blocks(tmp_path: Path) -> None:
+    from scripts.lib.integrations.manifest import manifest_lock
+
+    manifest_path = tmp_path / "install-manifest.json"
+    (tmp_path / "install-manifest.json.lock").write_text("3999999", encoding="ascii")
+    with manifest_lock(manifest_path, timeout=5) as held:  # nobody holds the operating-system lock
+        assert held is True
+
+
+def test_the_runner_reports_a_lock_timeout_without_a_traceback(tmp_path: Path, monkeypatch, capsys) -> None:
+    from scripts.lib.integrations import manifest as manifest_module
+
+    real_lock = manifest_module.manifest_lock
+    monkeypatch.setattr(runner, "manifest_lock", lambda path, **kw: real_lock(path, timeout=0.4))
+    with real_lock(runner._manifest_path(tmp_path)):
+        assert runner.main(["prune-undetected", "--target", str(tmp_path)]) == 2
+    assert "held by another running Nexus-Hub" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"actions": {"kimi": ["oops"]}},
+        {"tracked": {"kimi": "C:/x"}},
+        {"tracked": {"kimi": [1, 2]}},
+        {"shared": []},
+        {"actions": {"kimi": [{"path": 5}]}},
+        {"logs": "text"},
+    ],
+)
+def test_a_manifest_with_the_wrong_shape_is_set_aside_not_fatal(tmp_path: Path, payload: dict, capsys) -> None:
+    path = tmp_path / "install-manifest.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    manifest = InstallManifest.load(path)
+    assert manifest.files_for("kimi") == [] and manifest.actions_for("kimi") == []
+    assert not path.exists() and list(tmp_path.glob("install-manifest.json.corrupt-*"))
+    assert "unreadable" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Install-level regression for the circular folder test (plan sub-task 2.3)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("key", "executable", "root"),
+    [
+        ("kimi", "kimi", ".kimi-code"),
+        ("qwen", "qwen", ".qwen"),
+        ("hermes", "hermes", ".hermes"),
+        ("pi", "pi", ".pi"),
+    ],
+)
+def test_a_root_holding_only_what_the_previous_install_wrote_is_not_detected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, key: str, executable: str, root: str
+) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    prefix = "/opt/hermes-agent/bin" if key == "hermes" else "/opt/bin"  # Hermes needs its install path as corroboration
+    monkeypatch.setattr(_detection, "safe_which", lambda name: f"{prefix}/{name}" if name == executable else None)
+    first = _install(home, key)["platforms"][0]
+    assert first["detected"] is True and (home / root).is_dir()
+    written = sorted(p.relative_to(home).as_posix() for p in (home / root).rglob("*") if p.is_file())
+    assert written, "the first install wrote nothing, so the regression proves nothing"
+
+    monkeypatch.setattr(_detection, "safe_which", lambda name: None)  # the tool is not installed
+    second = _install(home, key)["platforms"][0]
+    assert second["detected"] is False
+    assert "only Nexus-Hub files" in second["evidence"]
+    assert sorted(p.relative_to(home).as_posix() for p in (home / root).rglob("*") if p.is_file()) == written
+

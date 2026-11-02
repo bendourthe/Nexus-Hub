@@ -427,7 +427,11 @@ def remove_legacy_layout(verdict: LegacyLayoutVerdict, dry_run: bool) -> List[Fi
             actions.append(FileAction(path=str(path), action="kept", reason="changed during removal; stopped"))
             return actions
         if not dry_run:
-            long_path(path).unlink()
+            try:
+                long_path(path).unlink()
+            except OSError as exc:  # read-only or open in another program: stop, keep the rest
+                actions.append(FileAction(path=str(path), action="kept", reason=f"locked or read-only ({exc.strerror or exc}); stopped"))
+                return actions
         actions.append(FileAction(path=str(path), action="removed"))
     folders = sorted({p.parent for p in verdict.recognized} | {verdict.root}, key=lambda p: len(str(p)), reverse=True)
     extra = set()

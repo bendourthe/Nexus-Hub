@@ -621,3 +621,20 @@ def test_committed_fingerprints_recognize_a_real_historical_tree(tmp_path: Path,
     runner.cmd_prune_undetected(argparse.Namespace(target=str(tmp_path), integrations=None, yes=True, unforce=""))
     assert not (tmp_path / ".agent").exists()
     assert "removed" in capsys.readouterr().out
+
+
+def test_a_locked_file_stops_legacy_removal_and_is_reported(tmp_path: Path, monkeypatch) -> None:
+    root = _plant(tmp_path)
+    verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
+    blocked = verdict.recognized[-1]
+    real_unlink = Path.unlink
+
+    def deny(self, *args, **kwargs):
+        if self.name == blocked.name:
+            raise PermissionError(13, "Access is denied")
+        return real_unlink(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", deny)
+    actions = legacy.remove_legacy_layout(verdict, dry_run=False)  # must not raise
+    assert blocked.is_file()
+    assert any(a.action == "kept" and "locked or read-only" in (a.reason or "") for a in actions)

@@ -345,6 +345,7 @@ class InstallManifest:
             data = json.loads(io_path.read_text(encoding="utf-8"))
             if not isinstance(data, dict):
                 raise ValueError("manifest root is not an object")
+            _check_shape(data)
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             aside = io_path.with_name(f"{io_path.name}.corrupt-{time.strftime('%Y%m%d%H%M%S')}")
             try:
@@ -361,53 +362,110 @@ class InstallManifest:
         return cls.from_dict(data)
 
 
+_LIST_FIELDS = ("tracked", "shared", "org_tracked", "org_shared")
+
+
+def _check_shape(data: Dict[str, object]) -> None:
+    """Reject valid JSON whose fields have the wrong type.
+
+    Every later reader assumes ``{key: [path, ...]}`` for the tracked and shared
+    maps and ``{key: [record, ...]}`` for actions. A manifest that parses but
+    does not have that shape used to crash doctor, prune, and install with a
+    traceback; it is now set aside like any other unreadable manifest.
+    """
+    for name in _LIST_FIELDS:
+        value = data.get(name, {})
+        if not isinstance(value, dict) or not all(
+            isinstance(k, str) and isinstance(v, list) and all(isinstance(p, str) for p in v)
+            for k, v in value.items()
+        ):
+            raise ValueError(f"manifest field {name!r} is not a map of path lists")
+    actions = data.get("actions", {})
+    if not isinstance(actions, dict) or not all(
+        isinstance(v, list) and all(isinstance(r, dict) and isinstance(r.get("path", ""), str) for r in v)
+        for v in actions.values()
+    ):
+        raise ValueError("manifest field 'actions' is not a map of record lists")
+    if not isinstance(data.get("logs", []), list):
+        raise ValueError("manifest field 'logs' is not a list")
+
+
+class ManifestLockTimeout(RuntimeError):
+    """Another live Nexus-Hub run holds the manifest lock past the timeout."""
+
+
+def _try_lock(fd: int) -> bool:
+    """Take an exclusive, non-blocking operating-system lock on ``fd``."""
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return True
+    except OSError:
+        return False
+
+
+def _unlock(fd: int) -> None:
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_UN)
+    except OSError:
+        pass
+
+
 @contextmanager
-def manifest_lock(path: Path, timeout: float = 30.0, stale_after: float = 600.0):
+def manifest_lock(path: Path, timeout: float = 30.0):
     """Serialize load-modify-save of one manifest across processes (v4.14.7).
 
-    Takes ``<manifest>.lock`` with an exclusive create. A lock older than
-    ``stale_after`` seconds belongs to a crashed process and is removed. After
-    ``timeout`` seconds the caller proceeds without the lock and a warning is
-    printed: a stuck lock must never stop an install, and the atomic save
-    still prevents a torn file.
+    Holds an operating-system lock (``msvcrt.locking`` on Windows, ``flock``
+    elsewhere) on ``<manifest>.lock`` for the duration. The operating system
+    releases it when the holding process ends, so a crashed run can never leave
+    a stale lock behind and there is no stale-lock guessing, which two runs
+    could otherwise both win. The lock file itself is never deleted: removing
+    it while another run waits on the old file would let two runs hold
+    different files. If a live holder keeps the lock past ``timeout`` seconds
+    this raises ``ManifestLockTimeout`` instead of continuing, because two runs
+    that each load the manifest and then save it overwrite one another's
+    entries, and a manifest that loses a platform's records can no longer prove
+    which files Nexus-Hub owns. Waiting and retrying is the safe outcome.
     """
     from .base import long_path  # lazy: base imports this module
 
     lock = long_path(path).with_name(Path(path).name + ".lock")
-    held = False
-    deadline = time.monotonic() + timeout
+    fd = None
     try:
         lock.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(str(lock), os.O_RDWR | os.O_CREAT)
     except OSError:
-        pass
-    while True:
-        try:
-            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.write(fd, str(os.getpid()).encode("ascii"))
-            os.close(fd)
-            held = True
-            break
-        except FileExistsError:
-            try:
-                if time.time() - lock.stat().st_mtime > stale_after:
-                    lock.unlink()
-                    continue
-            except OSError:
-                pass
+        fd = None  # a read-only location: the save will report its own error
+    held = False
+    if fd is not None:
+        deadline = time.monotonic() + timeout
+        while not (held := _try_lock(fd)):
             if time.monotonic() >= deadline:
-                print(
-                    f"[warn] {lock} is held by another install; continuing without it.",
-                    file=sys.stderr,
+                os.close(fd)
+                raise ManifestLockTimeout(
+                    f"{lock} is held by another running Nexus-Hub install or prune. "
+                    "Wait for it to finish, then run this command again."
                 )
-                break
             time.sleep(0.2)
-        except OSError:
-            break  # a read-only location: the save will report its own error
     try:
         yield held
     finally:
-        if held:
-            try:
-                lock.unlink()
-            except OSError:
-                pass
+        if fd is not None:
+            if held:
+                _unlock(fd)
+            os.close(fd)

@@ -586,7 +586,7 @@ wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh
 irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex
 ```
 
-That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
+That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. For Kimi Code CLI, Qwen Code, Hermes, Pi, Aider, OpenCode, and Nexus AI Studio, "have" means the installer found the tool itself (its command on `PATH`, files the tool wrote, or its application), not a folder an earlier Nexus-Hub install created; the skip note says what it looked for, and `nexus-hub doctor` lists leftover Nexus-Hub files for tools you do not have, which `nexus-hub prune-undetected` removes (preview first, `--yes` to delete). See `docs/policy/platform-detection.md`. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
 
 **Done.** The installer writes to `~/.nexus-hub/` (the user-global catalog) and into each supported assistant's per-platform config locations. If a legacy `~/.devai-hub/` install is detected, you will see a single migration prompt at the top of the run -- answer `Y` (default) to migrate in place.
 
@@ -595,7 +595,7 @@ After the installer completes:
 - **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
-**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants, and naming one that the installer did not find (for example `--platforms qwen`) installs it anyway; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
 
 ### Claude Code plugin (subscribe-style alternative)
 

@@ -4,7 +4,7 @@ v4.14.7 Phase 1. Before this module, Kimi, Qwen, Hermes, and Pi treated "the
 tool's home folder exists" as proof the tool was installed, while Nexus-Hub
 wrote into that same folder. One earlier write therefore made every later
 install count the tool as present (decision record
-``docs/decisions/proposed/policy/2026-10-29-platform-detection-evidence-rule.md``).
+``docs/decisions/implemented/policy/2026-10-29-platform-detection-evidence-rule.md``).
 
 Each gated integration declares a ``"detection"`` entry in its class-level
 ``config`` dict, and :func:`detect_platform` evaluates it in this order:

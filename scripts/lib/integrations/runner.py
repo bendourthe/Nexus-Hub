@@ -52,7 +52,11 @@ from scripts.lib.integrations.lifecycle import (  # noqa: E402
     repair as lifecycle_repair,
     stale_report_lines,
 )
-from scripts.lib.integrations.manifest import InstallManifest, manifest_lock  # noqa: E402
+from scripts.lib.integrations.manifest import (  # noqa: E402
+    InstallManifest,
+    ManifestLockTimeout,
+    manifest_lock,
+)
 from scripts.lib.integrations.result import WriteResult  # noqa: E402
 
 
@@ -998,6 +1002,10 @@ def _stale_ctx(home: Path, manifest: InstallManifest, dry_run: bool) -> InstallC
     )
 
 
+def _stale_integrations_keys(requested: Optional[List[str]]) -> List[str]:
+    return [i.key for i in _stale_integrations(requested)]
+
+
 def _stale_integrations(requested: Optional[List[str]]) -> list:
     keys = requested or list_keys()
     out = []
@@ -1018,6 +1026,12 @@ def _render_stale(stale) -> None:
 def _report_stale(home: Path, requested: Optional[List[str]] = None) -> None:
     """Doctor's stale-surface section (v4.14.7 Phase 5). Read-only."""
     manifest = InstallManifest.load(_manifest_path(home))
+    for key in _stale_integrations_keys(requested):
+        if manifest.is_forced(key):
+            print(
+                f"[doctor] {key}: user-forced (named with --platforms; "
+                f"clear with `nexus-hub prune-undetected --unforce {key}`)"
+            )
     for line in stale_report_lines(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested)):
         print(line)
     for line in legacy_report_lines(home):
@@ -1066,11 +1080,13 @@ def cmd_prune_undetected(args: argparse.Namespace) -> int:
     manifest_path = _manifest_path(home)
     with manifest_lock(manifest_path):
         manifest = InstallManifest.load(manifest_path)
-        unforced = [k.strip() for k in (args.unforce or "").split(",") if k.strip()]
+        unforced = [k.strip().lower() for k in (args.unforce or "").split(",") if k.strip()]
         for key in unforced:
             if manifest.is_forced(key):
                 manifest.clear_forced(key)
                 print(f"[unforce] {key}: the explicit --platforms choice is cleared")
+            else:
+                print(f"[unforce] {key}: not named with --platforms, nothing to clear")
         requested = [k.strip() for k in args.integrations.split(",") if k.strip()] if args.integrations else None
         ctx = _stale_ctx(home, manifest, dry_run=not args.yes)
         stale = find_stale(ctx, _stale_integrations(requested))
@@ -1089,8 +1105,9 @@ def cmd_prune_undetected(args: argparse.Namespace) -> int:
                         print(f"    kept: {f.path} ({f.reason})")
         if args.yes or unforced:
             manifest.save(manifest_path)
-    # v4.14.7 Phase 6: obsolete ~/.agent and home-root ~/.opencode trees.
-    legacy = _prune_legacy(home, args.yes)
+    # v4.14.7 Phase 6: obsolete ~/.agent and home-root ~/.opencode trees. A run
+    # narrowed with --integrations is about those platforms only.
+    legacy = _prune_legacy(home, args.yes) if requested is None else False
     if (stale or legacy) and not args.yes:
         print("Dry run: nothing was removed. Re-run with --yes to remove the items marked to remove or trim.")
     return 0
@@ -1681,7 +1698,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: List[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except ManifestLockTimeout as exc:
+        print(f"[error] {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

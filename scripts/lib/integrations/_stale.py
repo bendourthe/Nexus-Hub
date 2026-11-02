@@ -12,8 +12,13 @@ unchanged Nexus-Hub output:
 - a tracked file with a recorded hash is unlinked only when its current hash
   still matches;
 - a tracked directory carries no per-file hash, so a file inside it is
-  unlinked only when it was not modified after the directory was recorded, and
-  files added later are kept;
+  unlinked only when neither its modification time nor its creation or change
+  time is later than the install record (a copy that kept its old timestamp
+  still has a fresh creation time) and, when a catalog is available to compare,
+  only when the current catalog ships a file of that name; files added later
+  are kept;
+- a path that reaches a folder through a symlink or junction is never followed,
+  deleted through, or removed;
 - a shared instruction file loses only its Nexus-Hub marker block;
 - a merged settings file (Kimi ``config.toml``, Qwen ``settings.json``) loses
   only Nexus-Hub's hook entries, through the integration's own pruner;
@@ -30,7 +35,7 @@ import hashlib
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from ._detection import _norm, detect_platform, detection_spec
 from ._owned import _is_junction, _is_symlink
@@ -51,6 +56,7 @@ class StaleEntry:
     reason: str
     size: Optional[int] = None
     mtime: Optional[float] = None
+    sha256: Optional[str] = None
 
 
 @dataclass
@@ -86,6 +92,64 @@ def _linked(path: Path) -> bool:
         return path.is_file() and os.lstat(long_path(path)).st_nlink > 1
     except OSError:
         return False
+
+
+def _via_link(path: Path, roots: List[Path]) -> bool:
+    """True when a folder between a root and ``path`` is a symlink or junction.
+
+    ``_linked`` looks only at the last component, so a dotfiles-managed parent
+    folder would otherwise be read and deleted through.
+    """
+    spelled = _norm(path)
+    for root in roots:
+        base = _norm(root).rstrip(os.sep)
+        if spelled == base or not spelled.startswith(base + os.sep):
+            continue
+        parent = path.parent
+        while _norm(parent).startswith(base + os.sep):
+            if _is_symlink(parent) or _is_junction(parent):
+                return True
+            parent = parent.parent
+    return False
+
+
+_CATALOG_CACHE: Dict[str, Optional[Tuple[FrozenSet[str], FrozenSet[str]]]] = {}
+
+
+def _catalog_names(repo_root) -> Optional[Tuple[FrozenSet[str], FrozenSet[str]]]:
+    """Names the catalog ships: (skill or command folder names, file stems).
+
+    Looks in ``<repo_root>/catalog`` and ``<repo_root>/src/catalog`` (an
+    installed runner sits beside the bootstrap's source copy). Returns None when
+    neither exists, and the caller then relies on the timestamp rule alone.
+    """
+    for candidate in (Path(repo_root) / "catalog", Path(repo_root) / "src" / "catalog"):
+        key = str(candidate)
+        if key in _CATALOG_CACHE:
+            return _CATALOG_CACHE[key]
+        if not candidate.is_dir():
+            continue
+        folders, stems = set(), set()
+        for current, _dirs, files in os.walk(candidate):
+            here = Path(current)
+            for name in files:
+                if name.lower() == "skill.md":
+                    folders.add(here.name.lower())
+                else:
+                    stems.add(Path(name).stem.lower())
+        commands = candidate / "commands"
+        if commands.is_dir():
+            folders.update(p.stem.lower() for p in commands.glob("*.md"))  # command-skill wrappers
+        _CATALOG_CACHE[key] = (frozenset(folders), frozenset(stems))
+        return _CATALOG_CACHE[key]
+    return None
+
+
+def _catalog_ships(path: Path, catalog: Tuple[FrozenSet[str], FrozenSet[str]]) -> bool:
+    folders, stems = catalog
+    if path.name.lower() == "skill.md":
+        return path.parent.name.lower() in folders
+    return path.stem.lower() in stems
 
 
 def _within(path: Path, roots: List[Path]) -> bool:
@@ -128,7 +192,7 @@ def _tracked(manifest, key) -> List[str]:
     return list(seen.values())
 
 
-def _classify_dir(directory: Path, record: Optional[dict], roots: List[Path]) -> List[StaleEntry]:
+def _classify_dir(directory: Path, record: Optional[dict], roots: List[Path], catalog=None) -> List[StaleEntry]:
     # copytree copies the source folder's mtime, so a source file newer than
     # its folder would read as changed. Compare against the install time;
     # a record written before recorded_at existed falls back to the folder's
@@ -158,8 +222,10 @@ def _classify_dir(directory: Path, record: Optional[dict], roots: List[Path]) ->
                 entries.append(StaleEntry(str(path), KEEP, "a backup of your configuration"))
             elif not isinstance(recorded, (int, float)):
                 entries.append(StaleEntry(str(path), KEEP, "no install record for this folder"))
-            elif info.st_mtime > recorded + _MTIME_SLACK:
+            elif max(info.st_mtime, info.st_ctime) > recorded + _MTIME_SLACK:
                 entries.append(StaleEntry(str(path), KEEP, "changed or added after Nexus-Hub installed it"))
+            elif catalog is not None and not _catalog_ships(path, catalog):
+                entries.append(StaleEntry(str(path), KEEP, "not a file the current catalog ships (it may be yours)"))
             else:
                 entries.append(StaleEntry(str(path), REMOVE, "unchanged since install", info.st_size, info.st_mtime))
     return entries
@@ -172,11 +238,14 @@ def _classify(ctx, integ, spec, roots: List[Path]) -> List[StaleEntry]:
     configs = _shared_configs(ctx, spec)
     shared = {_norm(p) for p in manifest.shared_for(key)}
     entries: List[StaleEntry] = []
+    seen = set()
+    catalog = _catalog_names(getattr(ctx, "repo_root", None) or ".")
     for raw in _tracked(manifest, key) + manifest.shared_for(key):
         path = Path(raw)
         spelled = _norm(path)
-        if any(_norm(e.path) == spelled for e in entries):
+        if spelled in seen:
             continue
+        seen.add(spelled)
         if spelled not in configs and not _within(path, roots):
             entries.append(StaleEntry(raw, KEEP, "outside the platform's folder"))
             continue
@@ -185,6 +254,8 @@ def _classify(ctx, integ, spec, roots: List[Path]) -> List[StaleEntry]:
             continue
         if _linked(path):
             entries.append(StaleEntry(raw, KEEP, "a link (never followed)"))
+        elif _via_link(path, roots):
+            entries.append(StaleEntry(raw, KEEP, "inside a linked folder (never followed)"))
         elif path.name.lower().endswith(".nexus-hub.bak"):
             entries.append(StaleEntry(raw, KEEP, "a backup of your configuration"))
         elif spelled in configs:
@@ -195,7 +266,7 @@ def _classify(ctx, integ, spec, roots: List[Path]) -> List[StaleEntry]:
         elif spelled in shared:
             entries.append(StaleEntry(raw, STRIP, "shared file: only the Nexus-Hub block is removed"))
         elif path.is_dir():
-            entries.extend(_classify_dir(path, records.get(spelled), roots))
+            entries.extend(_classify_dir(path, records.get(spelled), roots, catalog))
         else:
             record = records.get(spelled)
             recorded = (record or {}).get("sha256")
@@ -203,7 +274,7 @@ def _classify(ctx, integ, spec, roots: List[Path]) -> List[StaleEntry]:
                 entries.append(StaleEntry(raw, KEEP, "no install record for this file"))
             elif _sha256(path) == recorded:
                 info = os.lstat(long_path(path))
-                entries.append(StaleEntry(raw, REMOVE, "unchanged since install", info.st_size, info.st_mtime))
+                entries.append(StaleEntry(raw, REMOVE, "unchanged since install", info.st_size, info.st_mtime, recorded))
             else:
                 entries.append(StaleEntry(raw, KEEP, "you changed it after install"))
     unique: Dict[str, StaleEntry] = {}
@@ -251,7 +322,9 @@ def _unchanged(entry: StaleEntry) -> bool:
         info = os.lstat(long_path(Path(entry.path)))
     except OSError:
         return False
-    return info.st_size == entry.size and info.st_mtime == entry.mtime and info.st_nlink <= 1
+    if not (info.st_size == entry.size and info.st_mtime == entry.mtime and info.st_nlink <= 1):
+        return False
+    return entry.sha256 is None or _sha256(Path(entry.path)) == entry.sha256
 
 
 def _strip(ctx, integ, path: Path) -> FileAction:
@@ -272,7 +345,7 @@ def _remove_empty_dirs(roots: List[Path], touched: List[Path], result: WriteResu
     candidates = set()
     for path in touched:
         parent = path.parent
-        while _within(parent, roots):
+        while _within(parent, roots) and not _linked(parent):
             candidates.add(parent)
             if any(_norm(parent) == _norm(r) for r in roots):
                 break
@@ -299,6 +372,9 @@ def apply_platform(ctx, integ, stale: StalePlatform) -> WriteResult:
     for entry in stale.entries:
         path = Path(entry.path)
         if entry.verdict == REMOVE:
+            if _linked(path) or _via_link(path, roots):
+                result.files.append(FileAction(path=entry.path, action="kept", reason="became a link during removal"))
+                continue
             if not _unchanged(entry):
                 result.files.append(FileAction(path=entry.path, action="kept", reason="changed during removal"))
                 continue
