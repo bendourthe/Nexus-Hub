@@ -1,15 +1,21 @@
 version: 2
 
-# Monthly cadence with a low open-PR limit. Each Dependabot PR triggers CI, and
-# CI minutes are a single account-wide GitHub Actions pool shared across all
-# repos, so keep the churn small. Do NOT auto-merge.
+# Version-update pull requests are disabled (open-pull-requests-limit: 0 on every
+# ecosystem). scripts/check_commit_attribution.py accepts only the maintainer's
+# identity by a deliberately closed allowlist, so a Dependabot-authored commit can
+# never pass the required check. The maintainer applies dependency updates as their
+# own commits instead. Dependabot vulnerability alerts and security updates are
+# separate repository settings, not controlled by this file (both were off on
+# 2026-11-01). The entries below remain so the ecosystems stay declared
+# (tests assert that every usage monitor is tracked) and the ignore rules persist.
+# Do NOT auto-merge.
 
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - github-actions
@@ -18,7 +24,7 @@ updates:
     directory: /extensions/claude-usage-monitor
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - npm
@@ -34,7 +40,7 @@ updates:
     directory: /extensions/codex-usage-monitor
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - npm
@@ -50,7 +56,7 @@ updates:
     directory: /extensions/cursor-usage-monitor
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - npm
@@ -66,7 +72,7 @@ updates:
     directory: /extensions/gemini-usage-monitor
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - npm
@@ -82,7 +88,7 @@ updates:
     directory: /extensions/copilot-usage-monitor
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - npm
@@ -98,7 +104,7 @@ updates:
     directory: /extensions/nexus-skill-server
     schedule:
       interval: monthly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - python
