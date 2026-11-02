@@ -350,15 +350,15 @@ def test_a_prior_hook_flag_does_not_duplicate_the_question(
         ("cursor", {"loop_count": 1}),
     ],
 )
-def test_first_crossing_at_a_flagged_stop_continues_once_and_stays_bounded(
+def test_first_crossing_at_a_flagged_stop_is_silent_and_does_not_consume_offer(
     guard, dirs, project, platform, flag
 ):
     guard.readings[platform] = reading(platform, 99.5)
     first = run(guard, dirs, platform, payload(platform, "stop", project, **flag))
-    assert first is not None
+    assert first is None
     for _ in range(10):
         assert run(guard, dirs, platform, payload(platform, "stop", project, **flag)) is None
-    assert run(guard, dirs, platform, payload(platform, "tool", project)) is None
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
 
 
 @pytest.mark.parametrize(
@@ -976,12 +976,13 @@ def test_a_pending_answer_is_not_an_approval(guard, dirs, project):
 
 
 def test_directive_asks_once_as_an_interactive_three_way_choice(guard):
-    text = guard.decision_directive({"id": "private-fixture"}, "Usage limit: fixture.")
+    text = guard.decision_directive({"id": "private-fixture", "platform": "claude", "project": "fixture"},
+                                    "Usage limit: fixture.")
     assert "functions.request_user_input_async" in text
     assert "Wait for reset (Recommended), Hand off, Continue on credits" in text
     assert "Never preselect credits" in text
-    assert "one concise text question" in text
-    assert "do not retry or fall back" in text
+    assert "one concise plain text question" in text
+    assert "post-tool hook saves the submitted answer" in text
     assert text.isascii()
 
 

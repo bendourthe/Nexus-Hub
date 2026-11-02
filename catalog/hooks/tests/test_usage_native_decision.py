@@ -135,7 +135,8 @@ def test_delivery_directive_names_actual_api_and_safe_order(case):
     text = json.dumps(output)
     assert "functions.request_user_input_async" in text
     assert text.index("Wait for reset (Recommended)") < text.index("Hand off, Continue on credits")
-    assert "do not retry or fall back" in text
+    assert "post-tool hook saves the submitted answer" in text
+    assert "legacy claim cannot succeed" in text
 
 @pytest.mark.parametrize("answer", ["pending", "wait", "handoff", "credits"])
 def test_gate_uses_shared_decision_without_rewriting_progress(case, monkeypatch, tmp_path, answer):
@@ -390,12 +391,15 @@ def test_history_failure_refuses_to_rotate_answered_decision(case, monkeypatch):
     assert guard.evaluate(payload, time.monotonic()) is None
 
 
-def test_lost_offered_output_is_recovered_without_second_ui_delivery(case):
+def test_offered_output_is_not_repeated_and_explicit_recovery_remains_available(case):
     guard, project, payload, _, _ = case
     first = guard.evaluate(payload, time.monotonic())  # Simulate lost context before any agent claim.
     old = guard.pending_decision("codex", payload)
     recovered = guard.evaluate(dict(payload, session_id="recovery"), time.monotonic())
-    assert recovered == first and recovered is not None
+    assert first is not None and recovered is not None
+    assert "Usage decision " in json.dumps(recovered)
+    assert "Usage limit:" not in json.dumps(recovered)
+    assert guard.evaluate(dict(payload, session_id="recovery"), time.monotonic()) is None
     assert guard.pending_decision("codex", payload)["id"] == old["id"]
     assert guard.decision_transition("codex", project, old["id"], "claim", tool="private-fixture")["claimed"]
     assert guard.evaluate(payload, time.monotonic()) is None
