@@ -89,10 +89,13 @@
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/vscode": "1.85.0",
-    "@vscode/vsce": "3.9.2",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vscode/vsce": "4.1.0",
+    "@vitest/coverage-v8": "4.1.12",
     "happy-dom": "21.0.4",
     "typescript": "5.9.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }
