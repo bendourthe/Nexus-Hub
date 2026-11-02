@@ -23,14 +23,13 @@ out to shell tools; all file operations use pathlib and shutil.
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-from ._paths import _EXTENDED_PREFIX, long_path  # noqa: F401  (re-exported: `from .base import long_path`)
+from ._paths import long_path
 from .manifest import InstallManifest
 from .result import FileAction, WriteResult
 
