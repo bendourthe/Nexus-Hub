@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from ._paths import _EXTENDED_PREFIX, long_path  # noqa: F401  (re-exported: `from .base import long_path`)
 from .manifest import InstallManifest
 from .result import FileAction, WriteResult
 
@@ -503,30 +504,6 @@ class IntegrationBase:
             dst.write_bytes(content_bytes)
         ctx.manifest.track(integration_key, str(dst))
         return FileAction(path=str(dst), action="created")
-
-
-_EXTENDED_PREFIX = "\\\\?\\"
-
-
-def long_path(path: Path) -> Path:
-    """Return ``path`` in Windows extended-length form; unchanged elsewhere.
-
-    Windows rejects a path over 260 characters (MAX_PATH) unless the host enabled
-    the LongPathsEnabled policy, so a flattened skill's nested bundled files can
-    fail to copy into a deep repository with WinError 3 (AR-11). The ``\\\\?\\``
-    prefix lifts the limit per call. It also disables Win32 normalization, which
-    is why the path is made absolute and backslash-separated first. Only the file
-    operations use this form; manifests and reports keep the plain path.
-    """
-    if os.name != "nt":
-        return path
-    text = str(path)
-    if text.startswith(_EXTENDED_PREFIX):
-        return path
-    absolute = os.path.abspath(text)
-    if absolute.startswith("\\\\"):
-        return Path(_EXTENDED_PREFIX + "UNC\\" + absolute[2:])
-    return Path(_EXTENDED_PREFIX + absolute)
 
 
 def _tree_matches(src: Path, dst: Path) -> bool:

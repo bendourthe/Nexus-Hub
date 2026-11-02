@@ -482,7 +482,15 @@ def test_real_layout_opencode_data_folder_is_found(home: Path) -> None:
 @pytest.mark.parametrize(
     ("platform", "relative"),
     [
-        pytest.param("win32", "AppData/Local/Programs/Nexus AI Studio", id="nexus-ai-windows-per-user-installer"),
+        pytest.param(
+            "win32",
+            "AppData/Local/Programs/Nexus AI Studio",
+            id="nexus-ai-windows-per-user-installer",
+            # The spec spells the folder `%LOCALAPPDATA%/...`, which only the Windows
+            # `os.path.expandvars` expands. The detector evaluates a win32 entry only on
+            # win32, so faking `sys.platform` cannot make another host expand it.
+            marks=pytest.mark.skipif(os.name != "nt", reason="`%VAR%` expansion exists only on Windows"),
+        ),
         pytest.param("darwin", "Applications/Nexus AI Studio.app", id="nexus-ai-macos-app-bundle"),
     ],
 )
@@ -590,4 +598,3 @@ def test_a_root_holding_only_what_the_previous_install_wrote_is_not_detected(
     assert second["detected"] is False
     assert "only Nexus-Hub files" in second["evidence"]
     assert sorted(p.relative_to(home).as_posix() for p in (home / root).rglob("*") if p.is_file()) == written
-

@@ -23,6 +23,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from ._paths import long_path
+
 # The `logs` list is a diagnostic trail that nothing reads back, but every
 # install loaded the previous trail, appended its own lines and saved the whole
 # file again. With no bound it reached 159,119 lines (13 MB) on a long-lived
@@ -311,8 +313,6 @@ class InstallManifest:
         rather than a truncated file that would cost every later doctor and
         removal run its ownership data.
         """
-        from .base import long_path  # lazy: base imports this module
-
         io_path = long_path(path)  # AR-11: a deep project root passes MAX_PATH
         io_path.parent.mkdir(parents=True, exist_ok=True)
         tmp = io_path.with_name(f"{io_path.name}.{os.getpid()}.tmp")
@@ -324,6 +324,8 @@ class InstallManifest:
                 try:
                     tmp.unlink()
                 except OSError:
+                    # Best effort: the manifest itself is already swapped in (or the
+                    # original error is propagating), and a leftover ``*.tmp`` is harmless.
                     pass
 
     @classmethod
@@ -336,8 +338,6 @@ class InstallManifest:
         manifest is returned, so detection falls back to the declared Nexus-Hub
         entry names.
         """
-        from .base import long_path  # lazy: base imports this module
-
         io_path = long_path(path)
         if not io_path.exists():
             return cls()
@@ -423,6 +423,8 @@ def _unlock(fd: int) -> None:
 
             fcntl.flock(fd, fcntl.LOCK_UN)
     except OSError:
+        # The operating system drops the lock when the descriptor closes just
+        # below (or when the process ends), so a failed explicit unlock changes nothing.
         pass
 
 
@@ -442,8 +444,6 @@ def manifest_lock(path: Path, timeout: float = 30.0):
     entries, and a manifest that loses a platform's records can no longer prove
     which files Nexus-Hub owns. Waiting and retrying is the safe outcome.
     """
-    from .base import long_path  # lazy: base imports this module
-
     lock = long_path(path).with_name(Path(path).name + ".lock")
     fd = None
     try:

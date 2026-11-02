@@ -262,19 +262,22 @@ def test_a_linked_parent_folder_is_never_deleted_through(stale_kimi: Path, tmp_p
     assert skills.exists(), "the link itself was removed"
 
 
-def test_a_copied_in_file_that_kept_an_old_timestamp_is_kept(stale_kimi: Path) -> None:
+def test_a_copied_in_file_that_kept_an_old_timestamp_is_kept(tmp_path: Path) -> None:
     import time
 
-    time.sleep(2.5)  # past the two-second timestamp slack the folder rule allows
-    mine = _a_skill_file(stale_kimi).parent / "my-own-notes.md"
-    mine.write_text("mine", encoding="utf-8")
-    os.utime(mine, (1_577_836_800, 1_577_836_800))  # Explorer and `cp -p` keep the source's mtime
-    shipped = _a_skill_file(stale_kimi)
-
-    assert runner.cmd_prune_undetected(_prune_args(stale_kimi, yes=True)) == 0
-
-    assert mine.read_text(encoding="utf-8") == "mine"
-    assert not shipped.exists(), "an unchanged Nexus-Hub file was not removed"
+    folder = tmp_path / "skills" / "demo"
+    folder.mkdir(parents=True)
+    copied = folder / "my-own-notes.md"
+    copied.write_text("mine", encoding="utf-8")
+    os.utime(copied, (1_577_836_800, 1_577_836_800))  # Explorer and `cp -p` keep the source's mtime
+    # The file is brand new on disk (its creation or change time is now) although its
+    # modification time is 2020. Compared with an install record from an hour ago it
+    # must be kept; compared with a record made after it was written it is "unchanged".
+    # Fixing both records relative to now makes the check independent of test timing.
+    long_ago = {"recorded_at": time.time() - 3600}
+    just_after = {"recorded_at": time.time() + 60}
+    assert [e.verdict for e in _classify_dir(folder, long_ago, [tmp_path])] == [KEEP]
+    assert [e.verdict for e in _classify_dir(folder, just_after, [tmp_path])] == [REMOVE]
 
 
 def test_a_file_the_catalog_does_not_ship_is_kept_even_if_it_predates_the_install(tmp_path: Path, fake_tools, monkeypatch) -> None:

@@ -571,7 +571,7 @@ def test_a_file_added_after_classification_makes_removal_partial(tmp_path: Path)
 
 
 def test_a_file_changed_after_classification_stops_removal(tmp_path: Path) -> None:
-    root = _plant(tmp_path)
+    _plant(tmp_path)
     verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
     target = verdict.recognized[0]
     target.write_bytes(b"changed in between, longer than before\n")
@@ -624,7 +624,7 @@ def test_committed_fingerprints_recognize_a_real_historical_tree(tmp_path: Path,
 
 
 def test_a_locked_file_stops_legacy_removal_and_is_reported(tmp_path: Path, monkeypatch) -> None:
-    root = _plant(tmp_path)
+    _plant(tmp_path)
     verdict = legacy.classify_legacy_layout(tmp_path, "agent", _doc(_FILES))
     blocked = verdict.recognized[-1]
     real_unlink = Path.unlink

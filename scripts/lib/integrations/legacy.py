@@ -37,12 +37,15 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
-from .base import InstallContext
+from ._paths import long_path
 from .result import FileAction
 
-CleanupFn = Callable[[InstallContext], Optional[FileAction]]
+if TYPE_CHECKING:  # type-only: `base` imports this module lazily, so a runtime import would be a cycle
+    from .base import InstallContext
+
+CleanupFn = Callable[["InstallContext"], Optional[FileAction]]
 
 
 import runpy as _process_runpy
@@ -328,8 +331,6 @@ def _rendered_matches(path: Path, lines: Optional[set]) -> bool:
 
 def classify_legacy_layout(home: Path, layout: str, fingerprints: Optional[dict] = None) -> LegacyLayoutVerdict:
     """Classify one obsolete layout tree under ``home``. Read-only and fail-closed."""
-    from .base import long_path
-
     doc = fingerprints if fingerprints is not None else load_layout_fingerprints()
     spec = (doc or {}).get("layouts", {}).get(layout)
     if not spec:
@@ -397,8 +398,6 @@ def classify_legacy_layout(home: Path, layout: str, fingerprints: Optional[dict]
 
 
 def _sha256_file(path: Path) -> Optional[str]:
-    from .base import long_path
-
     try:
         return hashlib.sha256(long_path(path).read_bytes()).hexdigest()
     except OSError:
@@ -413,8 +412,6 @@ def remove_legacy_layout(verdict: LegacyLayoutVerdict, dry_run: bool) -> List[Fi
     with ``rmdir``, so a file that appears after classification keeps its folder
     and the result is reported as partial.
     """
-    from .base import long_path
-
     if verdict.status != "removable":
         return []
     actions: List[FileAction] = []
