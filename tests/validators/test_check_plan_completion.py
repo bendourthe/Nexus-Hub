@@ -1488,6 +1488,70 @@ def test_pause_wins_over_blocker_and_resume_restores(complete: Fixture) -> None:
     assert complete.check().stdout.splitlines()[0] == "BLOCKED: no-progress"
 
 
+@pytest.mark.parametrize("caller", ["session-two", "auto"])
+def test_resume_cross_session_preserves_original_authority(tmp_path: Path, caller: str) -> None:
+    fx = _build(tmp_path, {"class": "repush", "bound": 3, "text": APPROVAL_TEXT},
+                {"class": "spend", "bound": {"example": 0}, "text": APPROVAL_TEXT})
+    fx.run("record", "block", PLAN_REL, "--session", SESSION,
+           "--category", "no-progress", "--evidence", "retained failure")
+    fx.paste(SESSION, "--action", "pause")
+    assert fx.run("record", "pause", PLAN_REL, "--session", SESSION).returncode == 0
+    before = json.loads(fx.record_path().read_text())
+    fx.capture("session-two", "/implement v0.2.0", at=0.0)
+    line = fx.render(caller, "--action", "resume")
+    fx.capture("session-two", line)
+    result = fx.run("record", "resume", PLAN_REL, "--session", caller)
+    assert result.returncode == 0, result.stdout + result.stderr
+    after = json.loads(fx.record_path().read_text())
+    assert after["session_id"] == "session-two" and after["pause"] is None
+    assert after["approvals_hmac"] != before["approvals_hmac"]
+    for key in before.keys() - {"session_id", "pause", "approvals_hmac"}:
+        assert after[key] == before[key], key
+    checked = fx.check("session-two")
+    assert checked.stdout.splitlines()[0] == "BLOCKED: no-progress"
+    assert "record-tampered" not in checked.stdout
+
+
+def test_resume_cross_session_requires_capture(complete: Fixture) -> None:
+    complete.capture("session-two", "/implement v0.2.0", at=0.0)
+    complete.render("session-two", "--action", "resume")
+    before = complete.record_path().read_bytes()
+    refused = complete.run("record", "resume", PLAN_REL, "--session", "session-two")
+    assert refused.returncode == 3
+    assert "reason: approval-not-captured" in refused.stdout
+    assert complete.record_path().read_bytes() == before
+
+
+def test_resume_cross_session_rejects_another_sessions_capture(complete: Fixture) -> None:
+    complete.capture("session-two", "/implement v0.2.0", at=0.0)
+    line = complete.render("session-two", "--action", "resume")
+    complete.capture("session-three", "/implement v0.2.0", line)
+    before = complete.record_path().read_bytes()
+    refused = complete.run("record", "resume", PLAN_REL, "--session", "session-three")
+    assert refused.returncode == 3
+    assert "reason: session-mismatch" in refused.stdout
+    assert complete.record_path().read_bytes() == before
+
+
+def test_resume_cross_session_is_single_use(complete: Fixture) -> None:
+    complete.paste("session-two", "--action", "resume")
+    assert complete.run("record", "resume", PLAN_REL, "--session", "session-two").returncode == 0
+    before = complete.record_path().read_bytes()
+    replayed = complete.run("record", "resume", PLAN_REL, "--session", "session-two")
+    assert replayed.returncode == 3
+    assert "reason: code-used" in replayed.stdout
+    assert complete.record_path().read_bytes() == before
+
+
+def test_resume_cross_session_refuses_tampered_authority(complete: Fixture) -> None:
+    complete.edit_record(repo="evil/fork")
+    before = complete.record_path().read_bytes()
+    rendered = complete.run("record", "render", PLAN_REL, "--session", "session-two", "--action", "resume")
+    assert rendered.returncode == 3
+    assert "BLOCKED: record-tampered" in rendered.stdout
+    assert complete.record_path().read_bytes() == before
+
+
 def test_pause_text_must_come_from_the_user(complete: Fixture) -> None:
     result = complete.run(
         "record",

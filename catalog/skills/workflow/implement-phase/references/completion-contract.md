@@ -251,6 +251,8 @@ An older hook can create a `no-progress` entry without a verification command. I
 
 `/implement pause` is always honored through native user-origin capture and makes the checker report `PAUSED`. Resume follows the same manual decision and capture rules, preserving original scope and limits. Repeated rendering reuses the unchanged decision. A resume alone never clears technical blockers or proves a repair succeeded.
 
+A per-plan resume may adopt the existing signed record into the session that genuinely captured the rendered decision, matching minor-level resume. Native code verifies the original record before rendering and consuming, updates only its session binding and pause state, and re-signs it. Original approvals, cleanup scope, nonce, creation time, starting head, blockers and bounds remain intact. Pause and blocker answers still require the owning session; missing capture, a different bound session, replay or tampering grants no takeover.
+
 ### Usage-limit handoff
 
 **Default status (2026-10-28).** No turn-end gate is registered by default: a full run ends on the checker's verdict, and `nexus-hub run-plan` resumes a session that ended before it. The gate, its usage-handoff rule below, and its hook-owned state apply only where a user opted in to it (`docs/policy/completion-levers.md` names the opt-in), and `completion_gate.py capture` still records genuine approval pastes for the approval flow.

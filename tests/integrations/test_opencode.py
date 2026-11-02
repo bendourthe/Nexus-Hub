@@ -99,7 +99,7 @@ def test_opencode_preserves_skills_commands(install_ctx: InstallContext):
 
 
 @pytest.mark.parametrize("scope", ["workspace", "global"])
-def test_opencode_writes_no_unread_rules_dir(install_ctx: InstallContext, scope: str):
+def test_opencode_writes_no_unread_rules_dir(install_ctx: InstallContext, scope: str, fake_tools):
     """AR-51: OpenCode reads AGENTS.md plus the `instructions` array, never rules/.
 
     https://opencode.ai/docs/rules/ (fetched 2026-10-10) lists project AGENTS.md,
@@ -108,6 +108,7 @@ def test_opencode_writes_no_unread_rules_dir(install_ctx: InstallContext, scope:
     """
     if scope == "global":
         (install_ctx.target_root / ".config" / "opencode").mkdir(parents=True)
+        fake_tools("opencode")  # v4.14.7: global scope needs OpenCode detected
         ctx = replace(install_ctx, scope="global", explicit_target=True)
         get("opencode").install(ctx)
         root = install_ctx.target_root / ".config" / "opencode"
@@ -129,8 +130,9 @@ def test_opencode_no_hooks_surface(install_ctx: InstallContext):
     ), "no hooks FileAction should be produced for OpenCode"
 
 
-def test_opencode_global_writes_agents(install_ctx: InstallContext):
+def test_opencode_global_writes_agents(install_ctx: InstallContext, fake_tools):
     """Global install writes agents under ~/.config/opencode/agents (dry-run)."""
+    fake_tools("opencode")
     result = get("opencode").dry_run(replace(install_ctx, scope="global"))
     joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
     assert "/.config/opencode/agents" in joined, (
@@ -144,3 +146,46 @@ def test_opencode_idempotent_workspace_install(install_ctx: InstallContext):
     result = get("opencode").install(install_ctx)
     actions = {a.action for a in result.files}
     assert "unchanged" in actions, f"second install should produce 'unchanged'; got {actions}"
+
+
+
+# ---------------------------------------------------------------------------
+# v4.14.7: OpenCode detection gates surfaces and plugin together
+# ---------------------------------------------------------------------------
+
+
+def _global(install_ctx: InstallContext) -> InstallContext:
+    return replace(install_ctx, scope="global", explicit_target=True)
+
+
+def test_opencode_absent_writes_nothing_on_two_installs(install_ctx: InstallContext, monkeypatch) -> None:
+    """Before v4.14.7 the first install created ~/.config/opencode and the second,
+    seeing that folder, added the executable completion plugin."""
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    ctx = _global(install_ctx)
+    for _ in range(2):
+        result = get("opencode").install(ctx)
+        assert result.detected is False
+    assert not (install_ctx.target_root / ".config" / "opencode").exists()
+
+
+def test_opencode_nexus_only_config_folder_gets_no_plugin(install_ctx: InstallContext, monkeypatch) -> None:
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    root = install_ctx.target_root / ".config" / "opencode"
+    (root / "skills").mkdir(parents=True)
+    (root / "AGENTS.md").write_text("x", encoding="utf-8")
+    result = get("opencode").install(_global(install_ctx))
+    assert result.detected is False
+    assert not (root / "plugins").exists()
+
+
+def test_opencode_detected_on_first_install_gets_surfaces_and_plugin(
+    install_ctx: InstallContext, monkeypatch, fake_tools
+) -> None:
+    monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
+    fake_tools("opencode")
+    result = get("opencode").install(_global(install_ctx))
+    root = install_ctx.target_root / ".config" / "opencode"
+    assert result.detected is True
+    assert (root / "AGENTS.md").is_file()
+    assert (root / "plugins" / "nexus-completion-gate.ts").is_file()

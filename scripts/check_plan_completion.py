@@ -2629,7 +2629,7 @@ def cmd_record_render(args: argparse.Namespace) -> int:
             print("no live run record to retire for this plan", file=sys.stderr)
             return EXIT_MALFORMED
     else:
-        loaded = _load_for_update(args)
+        loaded = _load_for_update(args, allow_other_session=args.action == "resume")
         if isinstance(loaded, int):
             return loaded
         page = _action_page(ctx, loaded[1], args.action, args.blocker)
@@ -2836,9 +2836,11 @@ def cmd_record_retire(args: argparse.Namespace) -> int:
     return 0
 
 
-def _load_for_update(args: argparse.Namespace) -> tuple[Context, dict] | int:
+def _load_for_update(
+    args: argparse.Namespace, *, allow_other_session: bool = False
+) -> tuple[Context, dict] | int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
-    session = None if getattr(args, "session", None) == "auto" else args.session
+    session = None if allow_other_session or getattr(args, "session", None) == "auto" else args.session
     state = load_record(ctx, session)
     if state.record is None:
         if state.forced:
@@ -2854,20 +2856,21 @@ def _load_for_update(args: argparse.Namespace) -> tuple[Context, dict] | int:
 
 def _consume_action(
     args: argparse.Namespace, action: str
-) -> tuple[Context, dict, dict] | int:
-    loaded = _load_for_update(args)
+) -> tuple[Context, dict, dict, str] | int:
+    loaded = _load_for_update(args, allow_other_session=action == "resume")
     if isinstance(loaded, int):
         return loaded
     ctx, record = loaded
     page = _action_page(ctx, record, action, getattr(args, "blocker", None))
-    # The paste must land in the session the record is bound to: an answer captured
-    # in any other session, such as one the agent launched, clears nothing.
+    # Only a genuine resume capture may carry the record into another session.
+    # Pause and blocker answers still require the existing owner's session.
+    required = None if action == "resume" else str(record.get("session_id") or "")
     consumed = _consume(
-        ctx, action, page, args.session, args.text, str(record.get("session_id") or "")
+        ctx, action, page, args.session, args.text, required
     )
     if isinstance(consumed, int):
         return consumed
-    return ctx, record, consumed[0]
+    return ctx, record, consumed[0], consumed[1]
 
 
 def cmd_record_answer(args: argparse.Namespace) -> int:
@@ -2878,7 +2881,7 @@ def cmd_record_answer(args: argparse.Namespace) -> int:
     consumed = _consume_action(args, "answer")
     if isinstance(consumed, int):
         return consumed
-    ctx, record, pending = consumed
+    ctx, record, pending, _session = consumed
     record["blockers"][args.blocker].update(open=False, answered=_now())
     record["approvals"]["classes"].append(
         {"class": "answer", "blocker": args.blocker, "text": approval_binding.pasted(pending)}
@@ -2895,7 +2898,7 @@ def cmd_record_pause(args: argparse.Namespace) -> int:
     consumed = _consume_action(args, "pause")
     if isinstance(consumed, int):
         return consumed
-    ctx, record, pending = consumed
+    ctx, record, pending, _session = consumed
     record["pause"] = {"at": _now(), "text_sha256": pending["paste_digests"][0]}
     _write_record(ctx.record_path(), record)
     print("PAUSED")
@@ -2908,8 +2911,10 @@ def cmd_record_resume(args: argparse.Namespace) -> int:
     consumed = _consume_action(args, "resume")
     if isinstance(consumed, int):
         return consumed
-    ctx, record, _pending = consumed
+    ctx, record, _pending, session = consumed
     record["pause"] = None
+    record["session_id"] = session
+    record["approvals_hmac"] = _sign(record, _secret(create=False) or b"")
     _write_record(ctx.record_path(), record)
     print("RESUMED")
     return 0

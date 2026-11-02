@@ -30,7 +30,7 @@ from scripts.lib.integrations.base import InstallContext
 )
 @pytest.mark.parametrize("scope", ["workspace", "global"])
 def test_catalog_model_alias_is_claude_only(
-    install_ctx: InstallContext, monkeypatch: pytest.MonkeyPatch, key: str, scope: str
+    install_ctx: InstallContext, monkeypatch: pytest.MonkeyPatch, key: str, scope: str, fake_tools
 ):
     repo = install_ctx.target_root / "source"
     agents = repo / "catalog/agents"
@@ -45,6 +45,8 @@ def test_catalog_model_alias_is_claude_only(
     target.mkdir()
     if scope == "global" and key in {"qwen", "copilot"}:
         (target / f".{key}").mkdir()
+    if scope == "global":
+        fake_tools(key)  # v4.14.7: gated platforms need detection evidence
     monkeypatch.setenv("NEXUS_HUB_HOME", str(install_ctx.target_root / "nexus-state"))
     monkeypatch.setattr(
         "scripts.lib.integrations.copilot._vscode_user_dir", lambda *args: None

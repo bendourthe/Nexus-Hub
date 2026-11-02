@@ -2,6 +2,10 @@
 
 **Integration branch:** `develop`
 
+- [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor remains unverified.
+
+- [ ] Integrate the readable countdown change with v4.14.7 through develop; installed-Cursor verification remains open.
+
 **v4.15 native prerequisite:** Three implementation phases and final local qualification are committed. All five failed scopes from the earlier comprehensive run have complete combined functional qualification; original timeouts remain failed. Refreshed Windows validators, all eight integration owners, actual producer/PowerShell installer exercises, extension/package checks, the canonical coverage threshold and independent Goal review have passing evidence. The final worktree preserves published v4.14.6. [PR 578](https://github.com/bendourthe/Nexus-Hub/pull/578) is open; its CodeQL snapshot-permission failure was reproduced with two regressions, corrected without suppression, and passed 49 proof/process plus nine console cases and a fresh actual producer/installer exercise. Corrective publication, current-head green integration and exact helper delivery remain open. The original signed v4.15 run and its live reservations remain unchanged. [Evidence](releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
 
 - [ ] Qualify, integrate and deliver the bounded v4.15 native compatibility prerequisite before obtaining its separate genuine native permission decisions and resuming the original release plans.
@@ -69,9 +73,11 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 GitHub develop integrated task marks | 97/209 | 209/209 |
-| v4.14 worktree task marks | 101/209 | 209/209 |
-| v4.14 released members | 3/7 | 7/7 |
+| Cursor reset countdown | 371 passed, 2 skipped; compiled; integration pending | Next release |
+| Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
+| v4.14 GitHub develop integrated task marks | 97/256 | 256/256 |
+| v4.14 worktree task marks | 101/256 | 256/256 |
+| v4.14 released members | 3/8 | 8/8 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
@@ -393,7 +399,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.14.7 installer platform detection
 
-- [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 0/7 phases and 0/47 tasks on develop; the work so far lives on the unpublished branch `feat/v4.14.7-installer-platform-detection`.
+- [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 46/47 tasks on the unpublished branch `feat/v4.14.7-installer-platform-detection` (phases 1 to 7 complete locally; merged with develop through v4.14.6 on 2026-11-01, full local gate green, evidence in `docs/releases/v4/v4.14/development/v4.14.7-last-phase-evidence.md`); T047, the single publication and integration pull request, is the coordinator's. On develop the work still shows 0/47.
+
+- [ ] Complete native session transfer before publishing v4.14.7: the separately authorized source repair `88ac04221` is integrated locally with 107 passing approval regressions and no new Ruff diagnostics; a fresh genuine native resume decision remains required. Preserve the signed record and all frozen budgets. PR #595 remains open. See [repair evidence](releases/v4/v4.14/development/native-per-plan-session-transfer.md).
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 

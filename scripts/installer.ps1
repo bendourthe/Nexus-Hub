@@ -358,8 +358,25 @@ $script:UndetectedPlatforms = @()
 function Reset-UndetectedPlatforms { $script:UndetectedPlatforms = @() }
 
 function Add-UndetectedPlatform {
-    param([string]$Name, [string]$Reason = "not detected")
-    $script:UndetectedPlatforms += [pscustomobject]@{ Name = $Name; Reason = $Reason }
+    param([string]$Name, [string]$Reason = "not detected", [string]$Remedy = "")
+    $script:UndetectedPlatforms += [pscustomobject]@{ Name = $Name; Reason = $Reason; Remedy = $Remedy }
+}
+
+function Resolve-UndetectedReason {
+    # Why a platform delivered no surface, and how to recover (v4.14.7). Mirrors
+    # render_platform_from_summary in the bash installer; the runner's summary
+    # carries the detection evidence and a one-line remedy.
+    param($PlatformSummary)
+    $reason = "not detected"
+    $remedy = ""
+    if ($PlatformSummary -and $PlatformSummary.notes -and (@($PlatformSummary.notes).Count -gt 0) -and -not ($PlatformSummary.detected -eq $false)) {
+        $reason = "no surface at this scope"
+    }
+    if ($PlatformSummary -and $PlatformSummary.evidence) {
+        $reason = "not detected: $($PlatformSummary.evidence)"
+        if ($PlatformSummary.remedy) { $remedy = [string]$PlatformSummary.remedy }
+    }
+    return [pscustomobject]@{ Reason = $reason; Remedy = $remedy }
 }
 
 function Write-ChecklistRow {
@@ -400,6 +417,7 @@ function Write-UndetectedGroup {
     Write-Host "  > NOT DETECTED (skipped)" -ForegroundColor DarkGray
     foreach ($p in $script:UndetectedPlatforms) {
         Write-Host ("    - {0} ({1})" -f $p.Name, $p.Reason) -ForegroundColor DarkGray
+        if ($p.Remedy) { Write-Host ("      {0}" -f $p.Remedy) -ForegroundColor DarkGray }
     }
 }
 
@@ -2527,6 +2545,9 @@ function Invoke-RegistryPlatform {
     if ($Scope -eq "workspace") {
         $argsList += @("--target", $TargetPath)
     }
+    # v4.14.7 (decision D5): forward an explicit -Platforms choice so the runner
+    # installs the platform even when detection finds no evidence.
+    if ($Scope -eq "global" -and $script:PlatformsExplicit) { $argsList += @("--forced", $IntegrationKey) }
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
     if ($InstructionOnly) { $argsList += "--instruction-only" }
     # v3.16.1 Phase 6.2: forward the selectors so the registry resolves the same
@@ -2591,14 +2612,12 @@ function Invoke-RegistryPlatform {
     }
     if ($surfaceCount -eq 0) {
         # Not delivered here (undetected tool, or no surface at this scope).
-        $reason = "not detected"
-        if ($platformSummary -and $platformSummary.notes -and (@($platformSummary.notes).Count -gt 0) -and -not ($platformSummary.detected -eq $false)) {
-            $reason = "no surface at this scope"
-        }
+        $undetected = Resolve-UndetectedReason -PlatformSummary $platformSummary
+        $reason = $undetected.Reason
         if ($Provider) {
             # Global install: collect into the single grouped section rather than
             # printing a colored header with nothing under it.
-            Add-UndetectedPlatform -Name $DisplayName -Reason $reason
+            Add-UndetectedPlatform -Name $DisplayName -Reason $reason -Remedy $undetected.Remedy
         }
         else {
             # Workspace / caller-managed header: keep an inline note so nothing vanishes.
@@ -4300,6 +4319,8 @@ $script:TempFiles = @()
 
 # Validate -Platforms into the internal platform-key set (empty/absent = all).
 $script:SelectedPlatforms = Resolve-Platforms -PlatformsArg $Platforms
+# v4.14.7 (decision D5): a platform the user named explicitly bypasses detection.
+$script:PlatformsExplicit = -not [string]::IsNullOrWhiteSpace($Platforms)
 
 # --- Resolve the install selection (v3.16.1 Phase 6.2) -------------------
 # Deliberately beside the -Platforms validation above and BEFORE any write: an
