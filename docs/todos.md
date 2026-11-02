@@ -362,7 +362,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Dependency maintenance - 2026-11-01
 
 - [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
-- [ ] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merges, and decide whether to turn on Dependabot vulnerability alerts in the repository settings (they were off on 2026-11-01, so no automated notice reports a vulnerable dependency).
+- [x] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merged, and turn on Dependabot vulnerability alerts in the repository settings (done 2026-11-01; the alerts reported 285 open items on first scan).
+- [x] Apply the Dependabot security updates as one maintainer commit: regenerate `scripts/ci/requirements-py311.txt` with `uv pip compile` (uv 0.13.4, pillow 13.0.0, pypdf 6.21.4, certifi, virtualenv, filelock, msgpack, opentelemetry-api, setuptools), move `@vscode/vsce` to 4.1.0 with a `minimatch` 11.0.1 override in the six extensions, and refresh their lockfiles.
+- [ ] After the security-update pull request merges, confirm the Dependabot alert count dropped, and decide whether to override `glob` to 14.0.2 or later in the four fantasticon-based usage monitors (the only remaining `npm audit` finding, moderate, not a Dependabot alert).
 
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
