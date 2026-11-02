@@ -217,8 +217,11 @@
     "@types/node": "26.6.6",
     "@types/vscode": "1.85.0",
     "@vitest/coverage-v8": "4.1.12",
-    "@vscode/vsce": "3.9.2",
+    "@vscode/vsce": "4.1.0",
     "typescript": "7.0.2",
     "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }

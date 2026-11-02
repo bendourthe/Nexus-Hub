@@ -362,7 +362,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Dependency maintenance - 2026-11-01
 
 - [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
-- [ ] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merges, and decide whether to turn on Dependabot vulnerability alerts in the repository settings (they were off on 2026-11-01, so no automated notice reports a vulnerable dependency).
+- [x] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merged, and turn on Dependabot vulnerability alerts in the repository settings (done 2026-11-01; the alerts reported 285 open items on first scan).
+- [x] Apply the Dependabot security updates as one maintainer commit: regenerate `scripts/ci/requirements-py311.txt` with `uv pip compile` (uv 0.13.4, pillow 13.0.0, pypdf 6.21.4, certifi, virtualenv, filelock, msgpack, opentelemetry-api, setuptools), move `@vscode/vsce` to 4.1.0 with a `minimatch` 11.0.1 override in the six extensions, and refresh their lockfiles.
+- [ ] After the security-update pull request merges, confirm the Dependabot alert count dropped, and decide whether to override `glob` to 14.0.2 or later in the four fantasticon-based usage monitors (the only remaining `npm audit` finding, moderate, not a Dependabot alert).
 
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
@@ -392,6 +394,8 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.14.7 installer platform detection
 
 - [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 46/47 tasks on the unpublished branch `feat/v4.14.7-installer-platform-detection` (phases 1 to 7 complete locally; merged with develop through v4.14.6 on 2026-11-01, full local gate green, evidence in `docs/releases/v4/v4.14/development/v4.14.7-last-phase-evidence.md`); T047, the single publication and integration pull request, is the coordinator's. On develop the work still shows 0/47.
+
+- [ ] Resolve the native per-plan session-transfer limitation before publishing v4.14.7 from a new session: PR #595 remains open, develop through PR #596 is merged locally, and the installed resume renderer cannot load the old session-bound record for the new session. Preserve the signed record and all frozen budgets; continue in the original session or obtain separate authorization for a supported transfer repair. See the v4.14.7 last-phase evidence resumption checkpoint.
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 
