@@ -74,6 +74,7 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 | Metric | Current | Target |
 |---|---|---|
 | Cursor reset countdown | 371 passed, 2 skipped; compiled; integration pending | Next release |
+| Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
 | v4.14 GitHub develop integrated task marks | 97/256 | 256/256 |
 | v4.14 worktree task marks | 101/256 | 256/256 |
 | v4.14 released members | 3/8 | 8/8 |
@@ -400,7 +401,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 46/47 tasks on the unpublished branch `feat/v4.14.7-installer-platform-detection` (phases 1 to 7 complete locally; merged with develop through v4.14.6 on 2026-11-01, full local gate green, evidence in `docs/releases/v4/v4.14/development/v4.14.7-last-phase-evidence.md`); T047, the single publication and integration pull request, is the coordinator's. On develop the work still shows 0/47.
 
-- [ ] Resolve the native per-plan session-transfer limitation before publishing v4.14.7 from a new session: PR #595 remains open, develop through PR #596 is merged locally, and the installed resume renderer cannot load the old session-bound record for the new session. Preserve the signed record and all frozen budgets; continue in the original session or obtain separate authorization for a supported transfer repair. See the v4.14.7 last-phase evidence resumption checkpoint.
+- [ ] Complete native session transfer before publishing v4.14.7: the separately authorized source repair `88ac04221` is integrated locally with 107 passing approval regressions and no new Ruff diagnostics; a fresh genuine native resume decision remains required. Preserve the signed record and all frozen budgets. PR #595 remains open. See [repair evidence](releases/v4/v4.14/development/native-per-plan-session-transfer.md).
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 
