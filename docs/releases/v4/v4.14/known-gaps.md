@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-01
+**Last updated**: 2026-11-02
 **Open items**: 110
 
 ## v4.14.0
@@ -3880,83 +3880,13 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
-| Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 1 | 0 |
-| Missing tests / coverage gaps (MT) | 2 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 6 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
-
-#### BG-24 (v4.14.7): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
-
-**Source phase**: v4.14.7 Phase 7 T046
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
-
-**Reason**: `scripts/ci/run.py` removes each pytest scratch folder with `tempfile.TemporaryDirectory.cleanup()`, which on a Windows host without registry long-path support fails with `OSError: [WinError 145] The directory is not empty` when a long-path test left folders past 260 characters. The runner then marks the group failed with `original status=pass`: in the 2026-10-30 full profile, `hook-tests` (2755 passed) and `repo-tests-skills` (2635 passed) were reported as failures for this reason alone. Unrelated to detection; it predates this plan. A fallback cannot simply retry with the `\?\` prefix, because `tests/ci/test_ci_engine.py::test_pytest_scratch_cleanup_preserves_command_facts` requires a denied cleanup to leave the folder in place, and a prefixed scratch root would leak into every test's `tmp_path`.
-
-**Suggested next step**: Give the runner a dedicated scratch remover that deletes with the long-path form on Windows only after the normal cleanup fails with a path-length error (WinError 3 or 145), keep a permission denial as a failure, and extend the cleanup test with a past-MAX_PATH case. `scripts/ci/run.py` is shared with the queued v4.14 plans, so schedule it as its own change.
-
-#### DF-42 (v4.14.7): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
-
-**Source phase**: v4.14.7 Phase 1 T001
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Non-Goals
-
-**Reason**: The Hermes Agent installation page (https://hermes-agent.nousresearch.com/docs/getting-started/installation, fetched 2026-10-29) places the Windows install and data under `%LOCALAPPDATA%\hermes`, while `scripts/lib/integrations/hermes.py` writes `~/.hermes/skills` on every OS. Detection now finds a Windows Hermes through its executable location, but the skills it then writes land where Windows Hermes may not read them. Changing the write surface is outside this plan, whose scope is detection.
-
-**Suggested next step**: Verify the Windows Hermes skills path against first-party documentation, then move the Windows global surface under `%LOCALAPPDATA%\hermes` through `[[platform-contract-verification]]`, with a read-contract row and an installer parity check.
-
-#### MT-15 (v4.14.7): A `.ps1`-only npm shim is not found on `PATH`
-
-**Source phase**: v4.14.7 Phase 1 T002
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
-
-**Reason**: `_detection.safe_which` resolves commands through `PATHEXT`, which finds npm's `.cmd` shim but not a `.ps1`-only install. No vendor documents a `.ps1`-only layout, and decision D5 (`--platforms <key>`) is the recovery path, so no test covers that layout.
-
-**Suggested next step**: If a vendor documents a `.ps1`-only install, add `.PS1` to the probed extensions for that platform's spec and a test with a planted `.ps1` shim.
-
-#### DF-43 (v4.14.7): Seeded settings files are kept by prune-undetected
-
-**Source phase**: v4.14.7 Phase 7 T045
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
-
-**Reason**: `nexus-hub prune-undetected --yes` keeps `~/.aider.conf.yml`, `~/.hermes/config.yaml`, `~/.pi/agent/settings.json`, and the seeded values in the Kimi `config.toml` and Qwen `settings.json` (it strips only Nexus-Hub's hook entries from the last two), because Nexus-Hub writes seeded defaults without a per-key record of which values it wrote, so it cannot prove the user did not edit them. A machine like the maintainer's 2026-10-29 audit keeps `~/.aider.conf.yml` and a Hermes `config.yaml` after the command; the command names them as kept.
-
-**Suggested next step**: Record each seeded key and value in the manifest when seeding (the platform-defaults seed record already tracks seeds), then remove a seeded file only when every key still equals its seed. Plan it with `/plan` after v4.14.7.
-
-#### DF-44 (v4.14.7): Hermes and Pi have no installer entry
-
-**Source phase**: v4.14.7 Phase 7 T045
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D8
-
-**Reason**: Neither `scripts/installer.sh` nor `scripts/installer.ps1` invokes an integration for `hermes` or `pi`, and both reject them as `--platforms` keys, so they are installed only by calling `runner.py` directly. This predates v4.14.7, and decision D8 limits installer edits to the forced pass-through and the evidence lines. As a result the NOT DETECTED remedy text for these two keys ("name it with --platforms hermes") is not usable through an installer, and forcing either platform works only with `runner.py install --forced <key>`.
-
-**Suggested next step**: Decide whether the installers should install Hermes and Pi. If yes, add the key to the known-platform list, the global call, and the vocabulary entry in both installers, with an installer-parity entry. If no, drop the two integrations from the user-facing remedy text.
-
-#### WN-37 (v4.14.7): Nexus-AI vendor-folder evidence could be circular
-
-**Source phase**: v4.14.7 Phase 7 T045
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D6
-
-**Reason**: D6 names only the installed application and `~/.nexus-ai`. The detection spec also counts `~/.nexus` (minus `context` and `observations.jsonl`) and `~/.gemma-code` as evidence that Nexus AI Studio is present. Nexus-Hub's own tools write project-relative `.nexus/` folders (code index, knowledge files), so a session started in the home folder could create `~/.nexus/...` entries that read as Nexus AI Studio data. The exclusion list is a two-name denylist, which is the shape of rule the plan set out to remove.
-
-**Suggested next step**: Confirm which entries the app itself creates under `~/.nexus` (`core/storage/paths.ts` in the Nexus-AI repository) and replace the denylist with an allowlist of those names, or drop `~/.nexus` and keep the application path and `~/.nexus-ai`.
-
-#### MT-16 (v4.14.7): Removal was exercised end to end only for Kimi, and four hostile cases were not run
-
-**Source phase**: v4.14.7 Phase 7 T044
-
-**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
-
-**Reason**: The Tier 3 adversarial pass ran every `prune-undetected --yes` attack against a real Kimi install. It did not run: the Qwen `settings.json` pruner and the shared-marker removal for the other platforms against a hostile file; a tracked file replaced by a symlink (the host refused symlink creation, WinError 1314; junctions were covered); short (8.3) names and paths on another drive letter; and a manifest edited inside the platform folder to track the folder itself with a far-future install time. The last is a self-attack through a file only the user's own account can write, so it is not a privilege boundary, but it is untested.
-
-**Suggested next step**: Add a parametrized removal test across Qwen, Pi, Hermes, and Aider using the same fixture as `tests/integrations/test_stale_surfaces.py`, plus a symlink case behind a `pytest.skip` when symlink creation is denied and a case that rejects a tracked path equal to the platform folder.
 
 ### Resolved
 
@@ -4019,3 +3949,107 @@ None.
 **Reason**: Five more findings. (1) Two concurrent runs that both judged a dead holder's lock stale could both take it, and a run that waited 30 seconds continued without the lock, so one run's manifest entries were lost. (2) A manifest that parsed as JSON but had the wrong field types crashed `doctor`, `prune-undetected`, and install with a traceback. (3) Classifying stale entries compared every entry with every earlier one, taking 68 seconds for 8,000 entries while holding the lock. (4) Removing an obsolete layout crashed with a traceback and a half-removed tree when a file was read-only or open elsewhere. (5) `--unforce KIMI` did nothing, silently, while `--forced` accepted any case. Also found: `doctor` did not label a user-forced platform although the docs said it did, and `--integrations` still removed obsolete layouts.
 
 **Resolution**: The manifest lock is now an operating-system lock the system releases when a run ends (a live holder makes the second run stop with exit 2 after 30 seconds); the manifest shape is validated on load and a bad file is set aside; entry de-duplication uses a set; the layout remover stops and names a file it cannot delete; `--unforce` is case-insensitive and says when nothing was cleared; `doctor` prints a user-forced line; a run narrowed with `--integrations` leaves obsolete layouts alone. Each has a regression test, and the real-runner rows `A-B3`, `A-E3`, `A-E3b`, and `A-E3c` pass.
+
+## v4.14.8
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 2 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
+
+**Reason**: `scripts/ci/run.py` removes each pytest scratch folder with `tempfile.TemporaryDirectory.cleanup()`, which on a Windows host without registry long-path support fails with `OSError: [WinError 145] The directory is not empty` when a long-path test left folders past 260 characters. The runner then marks the group failed with `original status=pass`: in the 2026-10-30 full profile, `hook-tests` (2755 passed) and `repo-tests-skills` (2635 passed) were reported as failures for this reason alone. Unrelated to detection; it predates this plan. A fallback cannot simply retry with the `\?\` prefix, because `tests/ci/test_ci_engine.py::test_pytest_scratch_cleanup_preserves_command_facts` requires a denied cleanup to leave the folder in place, and a prefixed scratch root would leak into every test's `tmp_path`.
+
+**Suggested next step**: Give the runner a dedicated scratch remover that deletes with the long-path form on Windows only after the normal cleanup fails with a path-length error (WinError 3 or 145), keep a permission denial as a failure, and extend the cleanup test with a past-MAX_PATH case. `scripts/ci/run.py` is shared with the queued v4.14 plans, so schedule it as its own change.
+
+- **Carried from**: v4.14.7#BG-24 on 2026-11-02
+
+#### DF-45 (v4.14.8): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
+
+**Source phase**: v4.14.7 Phase 1 T001
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Non-Goals
+
+**Reason**: The Hermes Agent installation page (https://hermes-agent.nousresearch.com/docs/getting-started/installation, fetched 2026-10-29) places the Windows install and data under `%LOCALAPPDATA%\hermes`, while `scripts/lib/integrations/hermes.py` writes `~/.hermes/skills` on every OS. Detection now finds a Windows Hermes through its executable location, but the skills it then writes land where Windows Hermes may not read them. Changing the write surface is outside this plan, whose scope is detection.
+
+**Suggested next step**: Verify the Windows Hermes skills path against first-party documentation, then move the Windows global surface under `%LOCALAPPDATA%\hermes` through `[[platform-contract-verification]]`, with a read-contract row and an installer parity check.
+
+- **Carried from**: v4.14.7#DF-42 on 2026-11-02
+
+#### MT-17 (v4.14.8): A `.ps1`-only npm shim is not found on `PATH`
+
+**Source phase**: v4.14.7 Phase 1 T002
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
+
+**Reason**: `_detection.safe_which` resolves commands through `PATHEXT`, which finds npm's `.cmd` shim but not a `.ps1`-only install. No vendor documents a `.ps1`-only layout, and decision D5 (`--platforms <key>`) is the recovery path, so no test covers that layout.
+
+**Suggested next step**: If a vendor documents a `.ps1`-only install, add `.PS1` to the probed extensions for that platform's spec and a test with a planted `.ps1` shim.
+
+- **Carried from**: v4.14.7#MT-15 on 2026-11-02
+
+#### DF-46 (v4.14.8): Seeded settings files are kept by prune-undetected
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
+
+**Reason**: `nexus-hub prune-undetected --yes` keeps `~/.aider.conf.yml`, `~/.hermes/config.yaml`, `~/.pi/agent/settings.json`, and the seeded values in the Kimi `config.toml` and Qwen `settings.json` (it strips only Nexus-Hub's hook entries from the last two), because Nexus-Hub writes seeded defaults without a per-key record of which values it wrote, so it cannot prove the user did not edit them. A machine like the maintainer's 2026-10-29 audit keeps `~/.aider.conf.yml` and a Hermes `config.yaml` after the command; the command names them as kept.
+
+**Suggested next step**: Record each seeded key and value in the manifest when seeding (the platform-defaults seed record already tracks seeds), then remove a seeded file only when every key still equals its seed. Plan it with `/plan` after v4.14.7.
+
+- **Carried from**: v4.14.7#DF-43 on 2026-11-02
+
+#### DF-47 (v4.14.8): Hermes and Pi have no installer entry
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D8
+
+**Reason**: Neither `scripts/installer.sh` nor `scripts/installer.ps1` invokes an integration for `hermes` or `pi`, and both reject them as `--platforms` keys, so they are installed only by calling `runner.py` directly. This predates v4.14.7, and decision D8 limits installer edits to the forced pass-through and the evidence lines. As a result the NOT DETECTED remedy text for these two keys ("name it with --platforms hermes") is not usable through an installer, and forcing either platform works only with `runner.py install --forced <key>`.
+
+**Suggested next step**: Decide whether the installers should install Hermes and Pi. If yes, add the key to the known-platform list, the global call, and the vocabulary entry in both installers, with an installer-parity entry. If no, drop the two integrations from the user-facing remedy text.
+
+- **Carried from**: v4.14.7#DF-44 on 2026-11-02
+
+#### WN-38 (v4.14.8): Nexus-AI vendor-folder evidence could be circular
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D6
+
+**Reason**: D6 names only the installed application and `~/.nexus-ai`. The detection spec also counts `~/.nexus` (minus `context` and `observations.jsonl`) and `~/.gemma-code` as evidence that Nexus AI Studio is present. Nexus-Hub's own tools write project-relative `.nexus/` folders (code index, knowledge files), so a session started in the home folder could create `~/.nexus/...` entries that read as Nexus AI Studio data. The exclusion list is a two-name denylist, which is the shape of rule the plan set out to remove.
+
+**Suggested next step**: Confirm which entries the app itself creates under `~/.nexus` (`core/storage/paths.ts` in the Nexus-AI repository) and replace the denylist with an allowlist of those names, or drop `~/.nexus` and keep the application path and `~/.nexus-ai`.
+
+- **Carried from**: v4.14.7#WN-37 on 2026-11-02
+
+#### MT-18 (v4.14.8): Removal was exercised end to end only for Kimi, and four hostile cases were not run
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+
+**Reason**: The Tier 3 adversarial pass ran every `prune-undetected --yes` attack against a real Kimi install. It did not run: the Qwen `settings.json` pruner and the shared-marker removal for the other platforms against a hostile file; a tracked file replaced by a symlink (the host refused symlink creation, WinError 1314; junctions were covered); short (8.3) names and paths on another drive letter; and a manifest edited inside the platform folder to track the folder itself with a far-future install time. The last is a self-attack through a file only the user's own account can write, so it is not a privilege boundary, but it is untested.
+
+**Suggested next step**: Add a parametrized removal test across Qwen, Pi, Hermes, and Aider using the same fixture as `tests/integrations/test_stale_surfaces.py`, plus a symlink case behind a `pytest.skip` when symlink creation is denied and a case that rejects a tracked path equal to the platform folder.
+
+- **Carried from**: v4.14.7#MT-16 on 2026-11-02
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|

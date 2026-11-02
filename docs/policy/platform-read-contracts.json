@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_verified": "2026-11-01",
-    "verified_for_version": "4.14.6",
-    "verified_for_version_note": "v4.14.6 release pass (2026-11-01): all 14 machine-contract platforms plus the Hermes, Aider and Antigravity 1.0 rows re-fetched from first-party documentation over the same 75 rows as v4.14.5: 59 MATCH, 11 DRIFT, 5 UNVERIFIED (release_verification_v4_14_6). Surface rows only; the advisory lever contract was not re-fetched in this pass. One row changed: antigravity2-cli-rules moved from DRIFT to MATCH because the vendor rules page no longer documents the CLI-only rules path; the ~/.gemini/GEMINI.md and ~/.gemini/config rules tree Nexus-Hub writes are still documented. The two Devin Desktop / Windsurf rows read the same as in v4.14.5; a live check remains the follow-up. No redirect to a new host for a current citation. Code-vs-contract 14/14. No authenticated host-consumption claim.",
+    "last_verified": "2026-11-02",
+    "verified_for_version": "4.14.7",
+    "verified_for_version_note": "v4.14.7 release pass (2026-11-02): 17 integration groups reviewed against first-party documentation, with drift, additive capabilities and unverified compatibility paths retained explicitly in docs/releases/v4/v4.14/development/v4.14.7-platform-verification.md. Grouping differs from the historical 75 surface rows; no fresh 59/11/5 recount or authenticated platform-consumption claim is made. Advisory behavioral-default levers were reviewed separately in the same pass. Code-versus-contract remains an independent gate.",
     "candidate_review_note": "2026-10-12 v4.13.11 CANDIDATE review only; no release freshness re-stamp. Current primary-source findings and pre-repair raw-source binding are retained in docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/platform-readonly-review-continuation.json. Candidate delivery now adds selected personal Copilot command-skills, selected-agent/profile-aware OpenClaw workspace resolution, and native Antigravity pre/post edit guards. The prior last_verified and verified_for_version values remain the genuine 4.13.10 release stamp; authenticated host consumption and final full-gate success are not inferred.",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
     "path_tokens": "In install_verify paths, '~/' resolves to the user home and '{project}/' to the requested workspace. '{openclaw_workspace}/' resolves the selected configured agent: its entry workspace wins; a sole entry otherwise inherits the default; a fleet requires agents.defaults.systemAgent.agentId and derives agents.defaults.workspace/<agentId> or <stateDir>/workspace-<agentId>. The ordinary default uses agents.defaults.workspace, then literal OPENCLAW_WORKSPACE_DIR resolved against the working directory without tilde or environment-variable expansion, then <stateDir>/workspace. State and config locations honor OPENCLAW_HOME, OPENCLAW_PROFILE, OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH.",
@@ -504,6 +504,14 @@
       "None observed: every cited first-party page was fetched from its recorded host without a cross-host redirect or 404 (two candidate sub-pages, learn.chatgpt.com/docs/subagents and kimi.com .../customization/agents-md.html, returned 404 and were replaced by learn.chatgpt.com/docs/agent-configuration/subagents and the data-locations page)."
     ],
     "delivery_decision": "No adapter, installer, contract_checks, or install_verify change. Antigravity workflow emission removal stays v4.14 AR-35; the Devin workspace preference stays DF-2. Suggested follow-up for a tested plan: verify the OpenCode v2 global skills path before v2 becomes the default install."
+  },
+  "release_verification_v4_14_7": {
+    "verified": "2026-11-02",
+    "candidate": "92face60b20083481216e2ee8055753f3a78c623",
+    "scope": "17 integration groups; separate advisory lever review",
+    "evidence": "docs/releases/v4/v4.14/development/v4.14.7-platform-verification.md",
+    "historical_totals_recounted": false,
+    "authenticated_host_consumption_inferred": false
   },
   "release_verification_v4_14_6": {
     "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
