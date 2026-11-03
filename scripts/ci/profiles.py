@@ -171,7 +171,13 @@ HYGIENE = Group(
 # fetch-depth 0 for the attribution check).
 LEGACY_FINGERPRINTS = Group(
     name="legacy-fingerprints",
-    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+    commands=(
+        _py("build_legacy_fingerprints", "--check", timeout=120),
+        # v4.14.7: every file Nexus-Hub wrote into the obsolete ~/.agent and
+        # home-root ~/.opencode layouts. Its source ranges are closed history,
+        # so it drifts only if the builder itself changes.
+        _py("build_legacy_layout_fingerprints", "--check", timeout=120),
+    ),
 )
 
 CATALOG = Group(
@@ -411,10 +417,12 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_detection.py",
             "tests/integrations/test_lifecycle.py",
             "tests/integrations/test_lifecycle_block_rendering.py",
             "tests/integrations/test_selective_install.py",
             "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_stale_surfaces.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
         ),

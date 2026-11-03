@@ -26,6 +26,8 @@ import pytest
 from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exported)
     _git,
     _isolated_git_config,
+    _v415_qualification_case,
+    _v415_task_repo,
 )
 from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-exported)
     SESSION,
@@ -46,6 +48,85 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import check_plan_completion as ck
 import completion_minor as cm
 import minor_close as mc
+
+
+@pytest.mark.parametrize("archived", [False, True], ids=["merged", "archived-current-plan"])
+def test_v415_no_change_historical_publication_survives_later_sibling_inputs(tmp_path, monkeypatch, archived):
+    """The factory's independent merge trust is tested in its owner; this exercises real Git receipt history."""
+    from dataclasses import replace
+    ck, ctx, start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    ck.qualify_v415_task(ctx, "T114", authority)
+    publication = _git(ctx.root, "rev-parse", "HEAD")
+    tree = _git(ctx.root, "rev-parse", "HEAD^{tree}")
+    historical = replace(authority, historical_merge=publication, historical_tree=tree)
+    # A legitimate later native helper has a new identity; only independently verified history permits the old producer.
+    monkeypatch.setattr(ck, "_v415_producer_sha", lambda: "f" * 64)
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, historical) == "met"
+    (ctx.root / "later-sibling.txt").write_text("a legitimate later member changes shared inputs\n")
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "later member")
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, authority) == "unmet"
+    if archived:
+        ctx.rel = ctx.rel.replace("docs/releases/", "docs/archives/")
+        ctx.plan_hash = lambda: "b" * 64
+        historical = replace(historical, plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, historical) == "met"
+    bad_merge = replace(historical, historical_merge=_git(ctx.root, "rev-parse", "HEAD"),
+                        historical_tree=_git(ctx.root, "rev-parse", "HEAD^{tree}"))
+    assert ck.v415_no_change_status(ctx, "T114", ctx.tasks[0][2], start, bad_merge) == "unmet"
+
+
+@pytest.mark.parametrize("whole_minor", [False, True], ids=["member", "whole-minor"])
+@pytest.mark.parametrize("worked", [False, True], ids=["archive-only", "implementation"])
+def test_v415_alias_uses_verified_archive_history(tmp_path, whole_minor, worked):
+    """Real blobs and commits exercise the existing signed archive matcher, not a fake Landing."""
+    ck, ctx, _start, _authority = _v415_task_repo(tmp_path)
+    active = "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"
+    archived = active.replace("docs/releases/", "docs/archives/")
+    old = "docs/releases/v4/v4.17/development/phase-1-evidence.md"
+    plan_from = ctx.rel
+    plan_to = plan_from.replace("docs/releases/", "docs/archives/")
+    for rel, body in ((active, "baseline\n"), (plan_from, "original frozen plan\n")):
+        p = ctx.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body)
+    _git(ctx.root, "add", ".")
+    _git(ctx.root, "commit", "-qm", "publication baseline")
+    start = _git(ctx.root, "rev-parse", "HEAD")
+    if worked:
+        (ctx.root / active).write_text("qualified implementation\n")
+        _git(ctx.root, "add", ".")
+        _git(ctx.root, "commit", "-qm", "implementation")
+    pairs = []
+    for source, destination in ((active, archived), (plan_from, plan_to)):
+        target = ctx.root / destination
+        target.parent.mkdir(parents=True, exist_ok=True)
+        (ctx.root / source).rename(target)
+        pairs.append([source, destination, _git(ctx.root, "hash-object", destination)])
+    _git(ctx.root, "add", "-A")
+    _git(ctx.root, "commit", "-qm", "verified archive")
+    archive_commit = _git(ctx.root, "rev-parse", "HEAD")
+    identity = {"from": plan_from, "original_sha256": ck._V415_ORIGINAL_HASHES[ctx.version],
+                "plan_path": plan_to, "plan_sha256": ctx.plan_hash(), "moved": pairs}
+    record = {"schema": 2, "minor_start_head": start, "archived": identity,
+              "member_archives": [{"version": ctx.version, "archived": identity}]}
+    if whole_minor:
+        # A whole-minor close re-freezes current identity but retains the original anchor.
+        identity["close_commit"] = archive_commit
+        ctx.plan_hash = lambda: "b" * 64
+        identity["plan_sha256"] = ctx.plan_hash()
+    ctx.rel = plan_to
+    authority = ck._v415_task_authority(root=ctx.root, repo="bendourthe/Nexus-Hub", minor="v4.15",
+                                      member=ctx.version, original_sha256=identity["original_sha256"],
+                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+    landing = cm.archive_landing(ctx, record)
+    assert landing is not None and ctx.version in landing.verified and archive_commit in landing.excluded
+    assert ck._task_status(ctx, True, old, start, record, task_id="T001", task_authority=authority) == (
+        "met" if worked else "unmet")
+    # An ambiguous archive landing must remain unavailable, even with real work.
+    landing.uncertain.append((None, frozenset((active, archived))))
+    assert ck._task_status(ctx, True, old, start, record, task_id="T001", task_authority=authority) == "cannot-verify"
 
 ARCHIVE = "docs/archives/v0/v0.5"
 ALPHA = f"{V05}/plans/v0.5.2-alpha.md"

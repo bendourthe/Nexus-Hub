@@ -44,8 +44,9 @@ the user answers pi's own trust prompt. Nexus-Hub does not pre-trust anything on
 the user's behalf; the global surfaces under ``~/.pi/agent`` are not trust-gated
 and carry the catalog regardless.
 
-Global scope is detection-gated on ``~/.pi`` (the Qwen and Windsurf model): a user
-who does not have pi installed receives nothing.
+Global scope is detection-gated by ``_detection.detect_platform`` (v4.14.7): a user
+who does not have pi installed receives nothing, and a ``~/.pi/agent`` holding only
+Nexus-Hub files is not evidence.
 """
 
 from __future__ import annotations
@@ -54,6 +55,7 @@ from pathlib import Path
 
 from ._command_surface import mirror_command_surface
 from ._completion_plugins import install_completion_plugin
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -68,6 +70,18 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Pi"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). The root is ~/.pi/agent,
+        # because ~/.pi itself holds only agent/, which both Pi and Nexus-Hub
+        # create. settings.json is listed because Nexus-Hub seeds it; Pi's own
+        # auth.json, models.json and keybindings.json count as evidence.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["pi"],
+            "root": ".pi/agent",
+            "nexus_entries": ["AGENTS.md", "skills", "prompts", "settings.json"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".pi/agent/settings.json": ""},
+        },
         # Global surfaces live under ~/.pi/agent, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,
@@ -126,16 +140,17 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Write the ``~/.pi/agent`` surfaces when pi is detected, else skip.
 
-        Detection: the pi config root ``~/.pi`` must exist. When it does not, pi is
-        not installed for this user and the global write is skipped; workspace
-        surfaces are unaffected.
+        Detection (v4.14.7): ``detect_platform`` with this class's ``detection``
+        spec, checked at ``~/.pi/agent`` so a folder holding only Nexus-Hub files is
+        not evidence. When pi is not detected the global write is skipped;
+        workspace surfaces are unaffected.
         """
         result = WriteResult()
-        pi_home = (ctx.global_root / PI_ROOT_DIRNAME).resolve()
-        if not pi_home.exists():
-            ctx.manifest.log(self.key, "~/.pi not found; skipping global Pi surfaces")
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global Pi surfaces")
             result.mark_not_detected(
-                "Pi (~/.pi) not found; global AGENTS.md + skills + prompts skipped"
+                f"Pi not detected ({detection.evidence}); global AGENTS.md + skills + prompts skipped", evidence=detection.evidence
             )
             return result
         result.detected = True

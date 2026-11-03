@@ -135,6 +135,67 @@ Fields: `schema` (`2`), `scope` (`"minor"`), `minor` (`vX.Y`), `repo_root`, `rem
 
 A long-running minor may move its coordinator to a permanent checkout with `record controller-handoff --minor vX.Y --session <id> --repo <current-root> --to <target-root> --head <integration-head> --expected-generation <current-generation>`. The command previews the move; add `--apply` only after reviewing that preview. The destination must be a distinct, clean registered worktree in the same repository, at the freshly verified integration tip, outside all frozen cleanup and active worker paths. A live runner, changed record generation, unverified history or destination outside the approved remote prevents the move. The transfer updates the operational controller binding in the same signed record and preserves its original approval, nonce, frozen members, classes, spend and verification limits; an exact completed retry reports `ALREADY TRANSFERRED` without writing again.
 
+### Bounded v4.15 compatibility
+
+The existing `bendourthe/Nexus-Hub` v4.15 run has a compiled compatibility descriptor for its five exact original frozen plan hashes. It selects only 36 individually reviewed task-ID/literal pairs in v4.15.1 and v4.15.2. Frozen plan text is never rewritten. `completion_minor.v415_task_authority` validates the complete signed native parent, exact member equality and original/current plan identity before issuing a separate in-process authority value to the ordinary evaluator. A serialized projection, repository flag, matching basename or release-prefix substitution establishes no authority. Signed archives recover the original frozen plan from its recorded Git anchor; existing archive predicates still exclude archive-only work and preserve `cannot-verify` for uncertain history.
+
+Four exact verification tasks may legitimately leave their literal target unchanged. After their actual work, ordered publication start and clean final candidate commit, the qualified installed checker can produce detached evidence with `qualify-task --minor v4.15 --member <member> --task <task> --session <owner-session> --repo <verified-controller-root>`. It accepts no command or report input. A successful command prints `QUALIFIED <member> <task>`; its sealed receipt and raw reports stay under `runs/v415-qualification/<case-key>/`, outside repository source and root-level record discovery. A newer failed attempt cannot be hidden by an older successful receipt. Ordinary task history still applies when the literal actually changed.
+
+| Member | Task | Unchanged literal | Required gate |
+|---|---|---|---|
+| v4.15.0 | T215 | `.github/workflows/ci.yml` | Four fixed CI gates plus base-template parity |
+| v4.15.1 | T114 | `.github/workflows/ci.yml` | Four fixed CI gates |
+| v4.15.4 | T018 | `scripts/ci/profiles.py` | Four fixed CI gates on the later integrated profile |
+| v4.15.4 | T016 | `docs/handbooks/handbooks.json` | Full candidate-aware handbook check, only when the map genuinely stays unchanged |
+
+The four CI gates are the complete `tests/validators/test_ci_workflow_contract.py` owner, `validate_workflow_security.py`, `check_required_check_coverage.py` and `check_installer_parity.py`. The producer runs their actual candidate implementations in a private committed snapshot with fixed arguments, bounded outputs and isolated process homes. It preserves every tracked file mode and blob in the input fingerprint, including long Windows paths. It verifies source and outputs again afterward. A scoped or inventory-only handbook check never qualifies T016; changed handbook content, source, rendering, retained evidence and required review still need their normal proof.
+
+Each CI case requires exactly one `v415-ci-comparison` JSON fence under `## CI/CD coverage` in its own final evidence. This structure binds the coordinator's actual six-step comparison and all 23 canonical fields; it does not perform the semantic review for the coordinator or replace final comprehensive validation.
+
+| Key | Required content |
+|---|---|
+| `source_fingerprint` | The complete tracked candidate input fingerprint |
+| `contract` | `{path, sha256}` for `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md` |
+| `steps` | Six ordered `{step, observation, references}` objects, numbered 1 through 6 for Detect, Compare, Propose, Approve, Apply and Record |
+| `fields` | 23 ordered `{field, observation, references}` objects, numbered 1 through 23 in the reference table's order |
+| `required_proof` | Nonempty `real_installer` and `target_os` reference arrays |
+
+Every observation describes real inspected evidence and has at least 16 characters. Every reference is `{path, sha256}` for a tracked regular file; a case's excluded final evidence cannot reference itself. Text hashes normalize CRLF to LF; NUL-containing binary inputs retain their raw bytes. Duplicate or malformed structures, missing mandatory evidence, failed or partial gates, source drift and altered receipts refuse qualification.
+
+Prepare the fingerprint from the explicitly staged candidate tree before the one final phase commit. The existing helper below only calculates input data; it executes no gate and creates no proof. Run this Python from the candidate worktree after staging all reviewed non-excluded source and evidence references. Use that fingerprint to fill the excluded final evidence block, stage that file and make the final candidate commit. The producer then requires the committed checked task and fully clean source, including semantic evidence. Later reader normalization permits only the compiled checkbox/status and exact final-evidence bookkeeping exceptions.
+
+```python
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+sys.path.insert(0, str(Path.home() / ".nexus-hub" / "scripts"))
+import check_plan_completion as ck
+
+candidate = Path.cwd()
+plan = candidate / "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md"
+ctx = ck.Context(str(plan), ck.Budget(120))
+tree = subprocess.check_output(["git", "write-tree"], cwd=candidate, text=True).strip()
+contract = "catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md"
+print(json.dumps({
+    "source_fingerprint": ck._v415_inputs(ctx, tree, "v4.15.0")["fingerprint"],
+    "contract": {"path": contract, "sha256": ck._v415_sha(ck._v415_blob_bytes(ctx, tree, contract))},
+}, sort_keys=True))
+```
+
+The proof binds the executing qualified native helper independently of the candidate's checker blob. This permits v4.15.4 to qualify its candidate while its feature changes remain unmerged. Before merge, the reader requires current candidate inputs and executing producer identity. After independently verified member publication, historical validation uses the immutable publication snapshot, merge/tree ancestry and claim audit; later legitimate members or helper adoption do not invalidate an earlier proof. An unsigned projection or archived path rewrite cannot create that historical authority.
+
+The same bounded run may request exact additional coordinator publication outputs with `record render --minor v4.15 --session <id> --action permit-outputs --member v4.15.Z --outputs <file> --question`, then consume the genuine decision with `record permit-outputs --minor v4.15 --session <id> --member v4.15.Z --outputs <file>`. The input file contains `{"write_paths":["literal/repository-relative-file"]}`. Eligible output classes are the two literal generated manifest files, `MANIFEST.sha256` and `scripts/lib/installer/legacy_fingerprints.json`, and bounded handbook source, generated output and member-specific evidence files. A directory, glob, code owner, workflow, hook, permission file or secret never qualifies. Eligibility is not permission: the page displays and binds every requested file, original worker scope, original implementation, current record/controller/session, existing coordinator list and publication start. "Approval origin" owns the genuine capture, session and replay rules.
+
+Before rendering, consuming or activating this permission, native code audits the original scope before adding any new path and checks all active read/write conflicts. It cannot legalize an already unclaimed edit retrospectively. For an unstarted publication, the accepted permission stays dormant until ordinary ordered `member-start` admits exactly its files. For already-started v4.15.0, the captured action may append only the exact new coordinator files after the unchanged ordered prefix. The original implementation dictionary, publication start, branches, approval classes, limits and all other record state remain unchanged. The central record writer permits only the genuinely consumed provenance append and corresponding exact coordinator suffix; every later writer preserves accepted history, including attempts to remove its member.
+
+Creation freshness and historical validity are distinct. A new action requires the current native record bytes, owner, controller generation and capture. Accepted history later validates its immutable original identity and consumed provenance through legitimate continuation and archive; it does not require the record or session to remain forever identical to the creation snapshot. This exception neither clears a blocker nor authorizes release, provider spending, new members or a reset of the run. The matching maintenance evidence is [Native compatibility qualification](../../../../../docs/releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
+
+A separately captured `correct-ci-read` action can correct only v4.15.4's literal `scripts/ci/profiles.py` reservation before that member's publication starts. Render it with `record render --minor v4.15 --session <id> --action correct-ci-read --member v4.15.4 --question`, then consume its genuine decision with `record correct-ci-read --minor v4.15 --session <id> --member v4.15.4`. There is no path or checkpoint override. The page binds the original frozen v4.15.4 hash, full unchanged implementation digest, source/target branches, raw read/write lists, current record/controller/owner and exact clean registered-worker checkpoint `6a45a253c242a97e09bc953a764c024687042b67`. Render, consume and effective use recheck the original scope and checkpoint; later unreviewed source changes refuse the exception.
+
+This action appends immutable signed correction provenance beside the original implementation. It never removes or rewrites raw claims, dependencies, branch, worktree, implementation base or start. While v4.15.4 has no publication start, native conflict checks subtract only that exact read from its effective reservations, in both implementation-admission directions and coordinator conflicts. Broader directory reads and every write remain active. v4.15.2 still needs its own normal exact claims and all remaining conflict checks. An idempotent v4.15.4 resume retains the same original implementation. Its ordinary ordered publication start restores the original read, after independently verified v4.15.2/v4.15.3 integration, and validates the resulting candidate state before writing. T018 still requires the later integrated profile's actual CI comparison. The retained correction remains valid history through continuation and archive; it never substitutes for a new grant or resets authority.
+
 ### Authorization policy
 
 This section is the single owner of when a run continues automatically and when it requests a decision. Commands, planning and implementation skills, release procedures and delegated skills refer here; they do not impose a second consent requirement on an action this policy covers.
@@ -189,6 +250,8 @@ An older hook can create a `no-progress` entry without a verification command. I
 ### Pause and resume
 
 `/implement pause` is always honored through native user-origin capture and makes the checker report `PAUSED`. Resume follows the same manual decision and capture rules, preserving original scope and limits. Repeated rendering reuses the unchanged decision. A resume alone never clears technical blockers or proves a repair succeeded.
+
+A per-plan resume may adopt the existing signed record into the session that genuinely captured the rendered decision, matching minor-level resume. Native code verifies the original record before rendering and consuming, updates only its session binding and pause state, and re-signs it. Original approvals, cleanup scope, nonce, creation time, starting head, blockers and bounds remain intact. Pause and blocker answers still require the owning session; missing capture, a different bound session, replay or tampering grants no takeover.
 
 ### Usage-limit handoff
 

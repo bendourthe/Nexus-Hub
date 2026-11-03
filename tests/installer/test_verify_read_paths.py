@@ -27,6 +27,14 @@ def _load_runner():
 
 runner = _load_runner()
 
+from scripts.lib.integrations import _detection  # noqa: E402  (path set by the runner load)
+
+
+@pytest.fixture(autouse=True)
+def _no_real_path(monkeypatch):
+    """v4.14.7: verify now probes PATH for gated platforms; never read the real one."""
+    monkeypatch.setattr(_detection, "safe_which", lambda _name: None)
+
 
 def _by_label(checks):
     return {c[0]: c for c in checks}
@@ -397,6 +405,8 @@ def test_hermes_verifies_native_skills_only(tmp_path):
     skills = home / ".hermes" / "skills"
     skills.mkdir(parents=True)
     (skills / "x").write_text("x", encoding="utf-8")
+    # v4.14.7: an entry Hermes itself creates, so the root is real evidence.
+    (home / ".hermes" / "logs").mkdir()
 
     check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Hermes"]
 
@@ -413,6 +423,8 @@ def test_opencode_agents_verify_pass(tmp_path):
     (d / "agents").mkdir(parents=True)
     (d / "agents" / "a.md").write_text("a", encoding="utf-8")
     (d / "AGENTS.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+    # v4.14.7: OpenCode's own config file, so the root is real evidence.
+    (d / "opencode.json").write_text("{}", encoding="utf-8")
 
     check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["OpenCode"]
     assert _all_ok(check)
@@ -439,6 +451,8 @@ def _provision_qwen(home: Path) -> Path:
     """Lay down every Qwen surface the read contract verifies."""
     d = home / ".qwen"
     (d / "skills" / "s").mkdir(parents=True)
+    # v4.14.7: an entry Qwen itself creates, so the root is real evidence.
+    (d / "file-history").mkdir()
     (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
     (d / "commands").mkdir(parents=True)
     (d / "commands" / "x.md").write_text("x", encoding="utf-8")
@@ -493,6 +507,8 @@ def _provision_kimi(home: Path) -> Path:
     """Lay down every Kimi surface the read contract verifies."""
     d = home / ".kimi-code"
     (d / "skills" / "s").mkdir(parents=True)
+    # v4.14.7: an entry Kimi itself creates, so the root is real evidence.
+    (d / "sessions").mkdir()
     (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
     (d / "AGENTS.md").write_text("# idx", encoding="utf-8")
     # v3.15.8 Phase 7: verbatim agent Markdown plus the marker-managed hook block.

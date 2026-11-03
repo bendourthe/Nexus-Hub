@@ -37,7 +37,7 @@ migration: the ``~/.kimi/`` writes and the Nexus-Hub-invented ``.kimi/agent.yaml
 companion are dropped (neither is read by the current product). A user still on the
 old ``~/.kimi/`` Kimi CLI therefore no longer receives a surface; existing
 ``~/.kimi/`` files from prior installs are left in place (removed only by an
-explicit ``uninstall``). Global scope is detection-gated on ``~/.kimi-code``.
+explicit ``uninstall``). Global scope is detection-gated (see ``_detection``).
 """
 
 from __future__ import annotations
@@ -53,6 +53,7 @@ from ._kimi_native import (
     prune_config_hooks,
     render_hooks_block,
 )
+from ._detection import detect_platform
 from ._owned import refuse_managed_redirect, remove_dir_if_empty
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
@@ -67,6 +68,18 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Kimi Code CLI"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). `kimi` is the documented
+        # command; Kimi itself creates updates/, bin/, sessions/, logs/,
+        # credentials/ and tui.toml under ~/.kimi-code. The listed names are what
+        # Nexus-Hub writes there (config.toml is seeded), so they never count.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["kimi"],
+            "root": ".kimi-code",
+            "nexus_entries": ["AGENTS.md", "skills", "agents", "hooks", "config.toml"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".kimi-code/config.toml": "kimi-config-hooks"},
+        },
         # Global surfaces live under ~/.kimi-code, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,
@@ -120,19 +133,21 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Write the ``~/.kimi-code`` surfaces when Kimi Code CLI is detected, else skip.
 
-        Detection: the Kimi Code CLI data root ``~/.kimi-code`` must exist. When it
-        does not, Kimi Code CLI is not installed for this user and the global write
-        is skipped (the workspace-scope ``.kimi-code/`` surfaces are unaffected).
+        Detection (v4.14.7): ``detect_platform`` with this class's ``detection``
+        spec, so a ``~/.kimi-code`` holding only Nexus-Hub files is not evidence.
+        When Kimi Code CLI is not detected the global write is skipped (the
+        workspace-scope ``.kimi-code/`` surfaces are unaffected).
         """
         result = WriteResult()
         raw_kimi_root = ctx.global_root / ".kimi-code"
         kimi_root = raw_kimi_root.resolve()
-        if not kimi_root.exists():
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
             ctx.manifest.log(
-                self.key, "~/.kimi-code not found; skipping global Kimi surfaces"
+                self.key, f"not detected ({detection.evidence}); skipping global Kimi surfaces"
             )
             result.mark_not_detected(
-                "Kimi Code CLI (~/.kimi-code) not found; global AGENTS.md + skills skipped"
+                f"Kimi Code CLI not detected ({detection.evidence}); global AGENTS.md + skills skipped", evidence=detection.evidence
             )
             return result
         result.detected = True

@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.6 -->
+<!-- nexus-hub-version: 4.14.7 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.7
+
+**Install only for tools you have.** Global delivery for the detection-gated tools now requires evidence independent of files Nexus-Hub created. The installer explains skipped tools, and an explicit platform choice remains available when detection misses a supported tool. See [platform detection and recovery](docs/policy/platform-detection.md).
+
+**Preview old tool files before removing them.** `nexus-hub doctor` reports stale surfaces, and `nexus-hub prune-undetected` previews unchanged Nexus-Hub output eligible for removal. Add `--yes` to apply; changed files, backups, links and unproven settings stay in place.
+
+**Readable usage countdowns and reliable resumption.** Cursor Usage Monitor now displays reset times in weeks, days, hours and minutes. A native resume approval can safely move a plan into a new session while retaining its original authority and limits. This release also updates dependencies behind reported security alerts.
+
+See [the changelog](CHANGELOG.md#4147---2026-11-02) for all changes and capability usage instructions.
 
 ## What's New in v4.14.6
 
@@ -586,7 +596,7 @@ wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh
 irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex
 ```
 
-That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
+That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. For Kimi Code CLI, Qwen Code, Hermes, Pi, Aider, OpenCode, and Nexus AI Studio, "have" means the installer found the tool itself (its command on `PATH`, files the tool wrote, or its application), not a folder an earlier Nexus-Hub install created; the skip note says what it looked for, and `nexus-hub doctor` lists leftover Nexus-Hub files for tools you do not have, which `nexus-hub prune-undetected` removes (preview first, `--yes` to delete). See `docs/policy/platform-detection.md`. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
 
 **Done.** The installer writes to `~/.nexus-hub/` (the user-global catalog) and into each supported assistant's per-platform config locations. If a legacy `~/.devai-hub/` install is detected, you will see a single migration prompt at the top of the run -- answer `Y` (default) to migrate in place.
 
@@ -595,7 +605,7 @@ After the installer completes:
 - **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
-**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants, and naming one that the installer did not find (for example `--platforms qwen`) installs it anyway; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
 
 ### Claude Code plugin (subscribe-style alternative)
 

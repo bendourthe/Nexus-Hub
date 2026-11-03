@@ -144,8 +144,9 @@ def test_qwen_workspace_writes_skills_agents_and_markdown_commands(fake_home: Pa
     assert "disable-model-invocation: true" in qwen_cmd_skill.read_text(encoding="utf-8")
 
 
-def test_qwen_global_writes_when_detected(fake_home: Path) -> None:
+def test_qwen_global_writes_when_detected(fake_home: Path, fake_tools) -> None:
     (fake_home / ".qwen").mkdir()
+    fake_tools("qwen")  # v4.14.7: detected through its executable
     result = get("qwen").install(_ctx(fake_home, scope="global"))
 
     global_md = fake_home / ".qwen" / "QWEN.md"
@@ -203,6 +204,8 @@ def test_kimi_global_skips_when_not_detected(fake_home: Path) -> None:
 
 def test_kimi_global_writes_when_detected(fake_home: Path) -> None:
     (fake_home / ".kimi-code").mkdir()
+    # v4.14.7: detected through an entry Kimi itself creates.
+    (fake_home / ".kimi-code" / "sessions").mkdir()
     get("kimi").install(_ctx(fake_home, scope="global"))
     assert (fake_home / ".kimi-code" / "AGENTS.md").is_file()
     assert (fake_home / ".kimi-code" / "skills").is_dir()

@@ -17,16 +17,16 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/source.md": "1f64fff31cef9cc21e2a977461cf754503318b50400690f573d8457fb40ba267",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/installer.ps1": "4558199847b8cf9ce632df5cc42b151699a9720fa9bc85e5c27ea5de2a1e1af0",
-      "scripts/installer.sh": "5a38698a4da4eb8fe5c3c902ce65db14171794b14296803b43695603ef55ab72",
+      "scripts/installer.ps1": "8f590868f2a70c236da9bc8f2aeb555135ccb6dc98eff11c62b7d4af7fdb304e",
+      "scripts/installer.sh": "af2ac2d6404a6dcbdd06f16d955c271f97e7ed09cc0f57cc0c5c4331b74f1ed2",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
-      "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
+      "scripts/lib/integrations/aider.py": "a17eba595c153f0e18cdc90757e16ee206bd729f14ecb690bdb022c26c3e0e09",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/cursor.py": "c817dd5ab0dfdede40014c2b1a444a8bf06bea5bd278182d8fe4fa69f45f0420",
-      "scripts/lib/integrations/runner.py": "4a39c230e4ada03a523dece54556c2e102fac6287069194128feda6b9b669320",
+      "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_git_attribution.py": "66d64f0f49ea6cb12e95c85f2cc12d0c0fdccdd238a458f20f5bb8b6090cef7f",
-      "scripts/nexus_hub_cli.py": "cac6d21ee35b49f0c4c427d3551537782ce9e78a5250de04b33de2062a587218",
+      "scripts/nexus_hub_cli.py": "1eef938316f17f6a65d51e855fb8be7cbcc48a7267d7e65e7aec54b08c9c45ae",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
     },
     "output_sha256": "105c97b8d3f46b2c2b97211a84259f72e5ed478bfd3349f925a706eabd3e61d1"
@@ -34,8 +34,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.6-distribution-release-version-review.md",
-      "evidence_sha256": "71aa16a93e064d581e06dbf90834fc3dc222ebf9f6e33c212de4e98851720591"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.7-distribution-release-version-review.md",
+      "evidence_sha256": "eaa4878d2b0f531f254e1ef248da03046a6666db568a6f73c5b43fb3cd54b4a7"
     },
     "build": {
       "status": "pass",

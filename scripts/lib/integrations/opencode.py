@@ -31,6 +31,7 @@ Surfaces (re-verified 2026-07-21, v3.15.0 Phase 3, against https://opencode.ai/d
 from __future__ import annotations
 
 from ._completion_plugins import install_completion_plugin
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -40,6 +41,18 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "OpenCode"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D2). OpenCode keeps its own data
+        # (auth.json, opencode.db, log/) in ~/.local/share/opencode and the curl
+        # installer puts the binary in ~/.opencode/bin; Nexus-Hub writes neither.
+        # Under ~/.config/opencode the listed names are Nexus-Hub's (rules/ is a
+        # pre-v4.13.11 mirror), while opencode.json and tui.json are OpenCode's.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["opencode"],
+            "root": ".config/opencode",
+            "nexus_entries": ["AGENTS.md", "skills", "commands", "agents", "plugins", "rules"],
+            "vendor_roots": {".local/share/opencode": [], ".opencode/bin": []},
+        },
         # v3.14.5: OpenCode's canonical GLOBAL config dir is ~/.config/opencode
         # (XDG), not ~/.opencode -- the latter was a dead global path (the
         # instruction file + commands never reached OpenCode there). Re-verified
@@ -81,15 +94,27 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Install the global surfaces, plus the v4.13.2 completion plugin when detected.
+        """Install the global surfaces, plus the v4.13.2 completion plugin, when detected.
 
-        OpenCode loads every file in ~/.config/opencode/plugins/ at startup. The
-        plugin is added only when that config root existed before this install,
-        so an absent OpenCode never receives executable code.
+        OpenCode loads every file in ~/.config/opencode/plugins/ at startup. One
+        detection verdict (v4.14.7, ``detect_platform``) gates both the surfaces
+        and the plugin, computed before any write. Before v4.14.7 the surfaces
+        were always written and the plugin was gated on the config folder, which
+        the first install itself created, so the second install added executable
+        code even when OpenCode was absent. Now an absent OpenCode receives
+        nothing, on the first install or any later one.
         """
         opencode_root = (ctx.global_root / ".config" / "opencode").resolve()
-        detected = opencode_root.is_dir()
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            result = WriteResult()
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global OpenCode surfaces")
+            result.mark_not_detected(
+                f"OpenCode not detected ({detection.evidence}); global AGENTS.md + skills + commands skipped", evidence=detection.evidence
+            )
+            return result
         result = super().install_global(ctx)
-        if detected and not ctx.instruction_only:
+        result.detected = True
+        if not ctx.instruction_only:
             install_completion_plugin(self, ctx, "opencode", opencode_root / "plugins", result)
         return result

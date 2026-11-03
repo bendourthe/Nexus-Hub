@@ -717,8 +717,8 @@ def cmd_init(argv: list[str]) -> int:
     ).returncode
 
 
-def cmd_doctor(argv: list[str]) -> int:
-    """Expose the existing integration doctor and read-only settings diagnostics."""
+def _run_runner(subcommand: str, argv: list[str]) -> int:
+    """Run one integration-runner subcommand with the user's arguments."""
     root = _init_source_root()
     runner = (
         root / "scripts/lib/integrations/runner.py"
@@ -727,13 +727,23 @@ def cmd_doctor(argv: list[str]) -> int:
     )
     if (root is None and os.environ.get("NEXUS_HUB_SRC")) or not runner.is_file():
         _eprint(
-            "nexus-hub doctor needs the bundled integration runner; "
+            f"nexus-hub {subcommand} needs the bundled integration runner; "
             "set NEXUS_HUB_SRC to a checkout or rerun the installer."
         )
         return 2
     return subprocess.run(
-        [sys.executable, str(runner), "doctor", *argv], check=False
+        [sys.executable, str(runner), subcommand, *argv], check=False
     ).returncode
+
+
+def cmd_doctor(argv: list[str]) -> int:
+    """Expose the existing integration doctor and read-only settings diagnostics."""
+    return _run_runner("doctor", argv)
+
+
+def cmd_prune_undetected(argv: list[str]) -> int:
+    """Preview, then with --yes remove, Nexus-Hub files for tools not installed (v4.14.7)."""
+    return _run_runner("prune-undetected", argv)
 
 
 def cmd_map(argv: list[str]) -> int:
@@ -1522,6 +1532,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Seed this project's surfaces (Antigravity .agents/, Cursor rules, Claude stub).",
     )
     sub.add_parser("doctor", add_help=False, help="Report managed-file health and persistent effort overrides without writing settings.")
+    sub.add_parser(
+        "prune-undetected",
+        add_help=False,
+        help="Preview, then with --yes remove, Nexus-Hub files left for tools that are not installed. Never deletes files you changed, settings files, or backups.",
+    )
     # `settings` owns a nested parser, so main() intercepts it before this one.
     sub.add_parser("settings", add_help=False, help="Show the default settings Nexus-Hub manages for each tool and what overrides them.")
     return parser
@@ -1564,6 +1579,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if raw and raw[0] == "doctor":
         return cmd_doctor(raw[1:])
+
+    if raw and raw[0] == "prune-undetected":
+        return cmd_prune_undetected(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

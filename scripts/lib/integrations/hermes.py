@@ -11,8 +11,8 @@ Skills-only surface: Hermes has no instruction-file surface (no ``base-hermes.md
 so this is a ``SkillsIntegration`` (not ``MarkdownIntegration``). Skills are flattened
 one level (``skills/<name>/SKILL.md``) and each catalog command additionally surfaces
 as a skill, matching the SKILL.md open-standard shape the other flattened platforms
-use. Global scope is detection-gated on ``~/.hermes``, consistent with the other
-extended-platform subclasses (Kimi, Qwen, OpenClaw, Windsurf).
+use. Global scope is detection-gated by ``_detection.detect_platform`` (v4.14.7),
+like Kimi, Qwen, and Pi; a ``~/.hermes`` holding only Nexus-Hub files is not evidence.
 
 The full read-contract is documented in ``docs/policy/platform-read-contracts.md``.
 """
@@ -22,6 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._completion_plugins import PLUGIN_ID, install_completion_plugin
+from ._detection import detect_platform
 from .base import InstallContext, SkillsIntegration
 from .result import WriteResult
 
@@ -30,6 +31,21 @@ class HermesIntegration(SkillsIntegration):
     key = "hermes"
     display_name = "Hermes"
     config = {
+        # v4.14.7: detection evidence (decision D2). `hermes` is collision-prone
+        # (Meta's Hermes JavaScript engine ships a `hermes` binary), so a PATH hit
+        # counts only from the Hermes Agent install locations. The POSIX installer
+        # also places its code at ~/.hermes/hermes-agent, which the root check sees.
+        # config.yaml is listed because Nexus-Hub seeds it.
+        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["hermes"],
+            "corroborate": {"hermes": ["hermes-agent", "/hermes/bin", "\\hermes\\bin"]},
+            "root": ".hermes",
+            "nexus_entries": ["skills", "config.yaml"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".hermes/config.yaml": ""},
+            "app_paths": {"win32": ["%LOCALAPPDATA%/hermes/hermes-agent"]},
+        },
         # Global skills live under ~/.hermes, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
         "global_dir": None,
@@ -45,16 +61,18 @@ class HermesIntegration(SkillsIntegration):
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Write ``~/.hermes/skills`` when Hermes is detected, else skip with a note.
 
-        Detection: the Hermes config root ``~/.hermes`` must exist. When it does not,
-        Hermes is not installed for this user and the global write is skipped (the
-        workspace-scope ``.hermes/`` surfaces are unaffected). Nexus-Hub does not
-        add ``~/.agents/skills`` to the user-owned ``skills.external_dirs`` list.
+        Detection (v4.14.7): ``detect_platform`` with this class's ``detection``
+        spec, so a ``~/.hermes`` holding only Nexus-Hub files is not evidence. When
+        Hermes is not detected the global write is skipped (the workspace-scope
+        ``.hermes/`` surfaces are unaffected). Nexus-Hub does not add
+        ``~/.agents/skills`` to the user-owned ``skills.external_dirs`` list.
         """
         result = WriteResult()
         hermes_root = (ctx.global_root / ".hermes").resolve()
-        if not hermes_root.exists():
-            ctx.manifest.log(self.key, "~/.hermes not found; skipping global Hermes surfaces")
-            result.mark_not_detected("Hermes (~/.hermes) not found; global skills skipped")
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping global Hermes surfaces")
+            result.mark_not_detected(f"Hermes not detected ({detection.evidence}); global skills skipped", evidence=detection.evidence)
             return result
         result.detected = True
         self._ensure_dir(hermes_root, ctx)

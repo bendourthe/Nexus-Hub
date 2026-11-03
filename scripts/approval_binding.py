@@ -43,7 +43,7 @@ import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read")
 SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}\Z", re.ASCII)
@@ -400,8 +400,8 @@ def consume(
 ) -> tuple[dict, str]:
     """Return (pending, bound session) and consume the round, or raise Refusal.
 
-    `required_session` is the session an existing record is bound to: a mid-run
-    answer, pause, or resume must be pasted in that session, never in another one.
+    `required_session` restricts pause and blocker answers to the existing owner.
+    Resume omits it so its genuine capture can bind the new owning session.
     A session with no capture file refuses; there is no terminal fallback, because
     a process that owns the console or a pty can type into it.
     """

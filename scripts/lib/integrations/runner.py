@@ -37,6 +37,8 @@ install_no_window_default()
 
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
+from scripts.lib.integrations._detection import detect_platform, detection_spec  # noqa: E402
+from scripts.lib.integrations._stale import apply_platform, find_stale  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_DRIFTED,
     DIAGNOSTIC_MISSING,
@@ -44,10 +46,17 @@ from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_UNKNOWN,
     DoctorReport,
     doctor as lifecycle_doctor,
+    legacy_report_lines,
     list_installed as lifecycle_list_installed,
+    render_stale,
     repair as lifecycle_repair,
+    stale_report_lines,
 )
-from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
+from scripts.lib.integrations.manifest import (  # noqa: E402
+    InstallManifest,
+    ManifestLockTimeout,
+    manifest_lock,
+)
 from scripts.lib.integrations.result import WriteResult  # noqa: E402
 
 
@@ -316,6 +325,17 @@ def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
         "platform": key,
         "display_name": getattr(integ, "display_name", key),
         "detected": result.detected,
+        **(
+            {
+                "evidence": result.evidence,
+                "remedy": (
+                    f"Install {getattr(integ, 'display_name', key)}, then run "
+                    f"`nexus-hub upgrade`, or name it with --platforms {key}."
+                ),
+            }
+            if result.detected is False and result.evidence
+            else {}
+        ),
         "surfaces": surfaces,
         "notes": list(result.notes)
         + list(
@@ -446,6 +466,29 @@ def _selection_payload(selection) -> Optional[dict]:
 
 
 def cmd_install(args: argparse.Namespace) -> int:
+    """Install under the manifest lock (v4.14.7 Phase 1).
+
+    Two concurrent installs used to load, modify, and save the same manifest,
+    so the last writer silently dropped the other's tracked entries. A dry run
+    writes no manifest and takes no lock.
+    """
+    if args.dry_run:
+        return _cmd_install(args)
+    with manifest_lock(_manifest_path(_resolve_target_root(args))):
+        return _cmd_install(args)
+
+
+def _forced_keys(args: argparse.Namespace, keys: List[str]) -> frozenset:
+    """Platforms the user named explicitly with --platforms (decision D5).
+
+    The installers pass them as ``--forced``; only keys this run installs count.
+    """
+    raw = getattr(args, "forced", None) or ""
+    named = {token.strip().lower() for token in raw.split(",") if token.strip()}
+    return frozenset(named & set(keys))
+
+
+def _cmd_install(args: argparse.Namespace) -> int:
     keys = _resolve_integration_keys(args.integrations)
     target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
@@ -488,6 +531,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         selection=selection,
         legacy_removal_hashes=consents,
         skill_index_mode=_skill_index_mode(),
+        forced_keys=_forced_keys(args, keys),
     )
     from scripts.lib.installer.instruction_merge import legacy_run
 
@@ -508,9 +552,16 @@ def cmd_install(args: argparse.Namespace) -> int:
             result = integ.install(ctx)
             # v2.3.0 / Phase 4 / T010 -- record the per-file actions for
             # doctor / repair / list-installed. Skipped on dry-run since
-            # the manifest is not saved in that case.
-            if not args.dry_run:
+            # the manifest is not saved in that case. v4.14.7: a not-detected
+            # result keeps the previous record, whose per-file hashes are what
+            # the stale-surface report and verified removal compare against.
+            if not args.dry_run and result.detected is not False:
                 manifest.record_actions(key, result.files)
+                if key in ctx.forced_keys and detection_spec(integ) is not None:
+                    # Decision D5: an explicit --platforms choice is kept, so later
+                    # default installs keep the platform and doctor never offers
+                    # its surfaces for removal.
+                    manifest.set_forced(key)
             installed.append((key, integ, result))
             results[key] = result
             _render_write_result(key, result, args.quiet)
@@ -528,7 +579,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         for position, (key, integ, _) in enumerate(installed):
             run.owner = key
             result = integ.install(ctx)
-            if not args.dry_run:
+            if not args.dry_run and result.detected is not False:
                 manifest.record_actions(key, result.files)
             installed[position] = (key, integ, result)
             results[key] = result
@@ -559,6 +610,14 @@ def cmd_install(args: argparse.Namespace) -> int:
     # and suppressed under --quiet), so the installer can render its
     # per-platform checklist even when it runs us quietly.
     summaries: List[dict] = [_build_platform_summary(k, i, r) for k, i, r in installed]
+    # v4.14.7 Phase 5: a skipped platform that still has Nexus-Hub files on disk
+    # gets a pointer to the opt-in removal in its one-line remedy.
+    for entry in summaries:
+        key = entry.get("platform")
+        if entry.get("detected") is False and entry.get("remedy") and (
+            manifest.files_for(key) or manifest.shared_for(key) or manifest.actions_for(key)
+        ):
+            entry["remedy"] += " Old Nexus-Hub files remain: review them with `nexus-hub prune-undetected`."
     # Opt-in structured summary channel (v3.14.5 Phase 1). Written regardless of
     # --quiet and of --dry-run (a dry-run summary reflects what WOULD install).
     summary_path = getattr(args, "summary_json", None)
@@ -681,6 +740,9 @@ def cmd_teardown(args: argparse.Namespace) -> int:
             integ = get(key)
             print(f"[teardown] {integ.display_name}")
             result = integ.teardown(ctx)
+            # v4.14.7: removing a platform also forgets an explicit --platforms
+            # choice, so a later default install evaluates it normally again.
+            manifest.clear_forced(key)
             _render_write_result(key, result, quiet=False)
         except KeyError:
             print(f"[skip:{key}] not in registry", file=sys.stderr)
@@ -921,8 +983,134 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     manifest = InstallManifest.load(manifest_path)
     report = lifecycle_doctor(manifest, requested)
     _render_doctor_report(report, args.json, args.quiet, settings_notes)
+    if not args.json and not args.quiet:
+        # Stale surfaces are a global concept: evaluate the home folder unless
+        # an explicit --target names another one.
+        _report_stale(Path(args.target).expanduser().resolve() if args.target else Path.home(), requested)
     _report_selector_drift(manifest, args)
     return 1 if report.has_issues() else 0
+
+
+def _stale_ctx(home: Path, manifest: InstallManifest, dry_run: bool) -> InstallContext:
+    return InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=home,
+        scope="global",
+        explicit_target=True,
+        dry_run=dry_run,
+        manifest=manifest,
+    )
+
+
+def _stale_integrations_keys(requested: Optional[List[str]]) -> List[str]:
+    return [i.key for i in _stale_integrations(requested)]
+
+
+def _stale_integrations(requested: Optional[List[str]]) -> list:
+    keys = requested or list_keys()
+    out = []
+    for key in keys:
+        try:
+            out.append(get(key))
+        except KeyError:
+            continue
+    return out
+
+
+def _render_stale(stale) -> None:
+    """Print one platform's plan (lines built by `lifecycle.render_stale`)."""
+    for line in render_stale(stale):
+        print(line)
+
+
+def _report_stale(home: Path, requested: Optional[List[str]] = None) -> None:
+    """Doctor's stale-surface section (v4.14.7 Phase 5). Read-only."""
+    manifest = InstallManifest.load(_manifest_path(home))
+    for key in _stale_integrations_keys(requested):
+        if manifest.is_forced(key):
+            print(
+                f"[doctor] {key}: user-forced (named with --platforms; "
+                f"clear with `nexus-hub prune-undetected --unforce {key}`)"
+            )
+    for line in stale_report_lines(_stale_ctx(home, manifest, dry_run=True), _stale_integrations(requested)):
+        print(line)
+    for line in legacy_report_lines(home):
+        print(line)
+
+
+def _prune_legacy(home: Path, apply: bool) -> bool:
+    """Report obsolete layout trees; with ``apply``, remove the fully recognized ones."""
+    from scripts.lib.integrations.legacy import (
+        classify_legacy_layout,
+        load_layout_fingerprints,
+        remove_legacy_layout,
+    )
+
+    doc = load_layout_fingerprints()
+    if doc is None:
+        print("[prune] obsolete-layout fingerprints unavailable; ~/.agent and ~/.opencode not evaluated")
+        return False
+    verdicts = [classify_legacy_layout(home, layout, doc) for layout in sorted(doc["layouts"])]
+    for line in legacy_report_lines(home, verdicts)[1:]:
+        print(line)
+    found = any(v.status != "absent" for v in verdicts)
+    if apply:
+        for verdict in verdicts:
+            actions = remove_legacy_layout(verdict, dry_run=False)
+            if not actions:
+                continue
+            removed = sum(1 for a in actions if a.action == "removed")
+            kept = [a for a in actions if a.action == "kept"]
+            state = "partial" if kept else "removed"
+            print(f"    {verdict.root}: {state} ({removed} item(s) removed)")
+            for action in kept[:10]:
+                print(f"      kept: {action.path} ({action.reason})")
+    return found
+
+
+def cmd_prune_undetected(args: argparse.Namespace) -> int:
+    """Remove Nexus-Hub files left for tools that are not installed (v4.14.7).
+
+    A dry run unless --yes. Never deletes a file the user changed, a settings
+    file, a backup, a link, or anything outside the platform's own folder.
+    --unforce clears an explicit --platforms choice first, so that platform is
+    evaluated like any other.
+    """
+    home = Path(args.target).expanduser().resolve() if args.target else Path.home()
+    manifest_path = _manifest_path(home)
+    with manifest_lock(manifest_path):
+        manifest = InstallManifest.load(manifest_path)
+        unforced = [k.strip().lower() for k in (args.unforce or "").split(",") if k.strip()]
+        for key in unforced:
+            if manifest.is_forced(key):
+                manifest.clear_forced(key)
+                print(f"[unforce] {key}: the explicit --platforms choice is cleared")
+            else:
+                print(f"[unforce] {key}: not named with --platforms, nothing to clear")
+        requested = [k.strip() for k in args.integrations.split(",") if k.strip()] if args.integrations else None
+        ctx = _stale_ctx(home, manifest, dry_run=not args.yes)
+        stale = find_stale(ctx, _stale_integrations(requested))
+        if not stale:
+            print("[prune] no stale Nexus-Hub surfaces found.")
+        for platform in stale:
+            _render_stale(platform)
+            if args.yes:
+                result = apply_platform(ctx, get(platform.key), platform)
+                removed = sum(1 for f in result.files if f.action == "removed")
+                print(f"    removed {removed} item(s)")
+                for note in result.notes:
+                    print(f"    {note}")
+                for f in result.files:
+                    if f.action == "kept" and f.reason:
+                        print(f"    kept: {f.path} ({f.reason})")
+        if args.yes or unforced:
+            manifest.save(manifest_path)
+    # v4.14.7 Phase 6: obsolete ~/.agent and home-root ~/.opencode trees. A run
+    # narrowed with --integrations is about those platforms only.
+    legacy = _prune_legacy(home, args.yes) if requested is None else False
+    if (stale or legacy) and not args.yes:
+        print("Dry run: nothing was removed. Re-run with --yes to remove the items marked to remove or trim.")
+    return 0
 
 
 def _report_selector_drift(manifest: InstallManifest, args: argparse.Namespace) -> None:
@@ -1183,10 +1371,31 @@ def _verify_checks(home: Path, target_root: Path) -> list:
     if not isinstance(entries, list):
         return []
     checks: list = []
+    detect_ctx = None
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        if entry.get("label") == "OpenClaw":
+        integration_key = entry.get("integration")
+        spec_integ = None
+        if isinstance(integration_key, str):
+            try:
+                spec_integ = get(integration_key)
+            except KeyError:
+                spec_integ = None
+        if spec_integ is not None and detection_spec(spec_integ) is not None:
+            # v4.14.7 Phase 1: a gated platform is detected by the same rule the
+            # installer applies, so verify never tells a user to reinstall a
+            # platform the installer would then skip as not detected.
+            if detect_ctx is None:
+                detect_ctx = InstallContext(
+                    repo_root=REPO_ROOT,
+                    target_root=home,
+                    scope="global",
+                    explicit_target=True,
+                    manifest=InstallManifest.load(_manifest_path(home)),
+                )
+            detected = detect_platform(detect_ctx, spec_integ).detected
+        elif entry.get("label") == "OpenClaw":
             from scripts.lib.integrations.openclaw import _openclaw_is_active
 
             try:
@@ -1325,6 +1534,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_install.add_argument("--scope", choices=["global", "workspace"], default="workspace")
     p_install.add_argument("--target", help="Workspace root. Defaults to CWD for workspace scope; for global scope defaults to the user home (~/.nexus-hub lands under it).")
     p_install.add_argument("--integrations", required=True, help="Comma-separated keys, or 'all'.")
+    p_install.add_argument(
+        "--forced",
+        default="",
+        help="Comma-separated keys the user named explicitly with --platforms; they bypass detection and are recorded as user-forced.",
+    )
     p_install.add_argument("--overwrite", action="store_true")
     p_install.add_argument("--dry-run", action="store_true")
     _add_selection_args(p_install)
@@ -1436,6 +1650,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_doctor.add_argument("--quiet", action="store_true")
     p_doctor.set_defaults(func=cmd_doctor)
 
+    p_prune = sub.add_parser(
+        "prune-undetected",
+        help="Preview, then with --yes remove, Nexus-Hub files left for tools that are not installed.",
+    )
+    p_prune.add_argument("--target", help="Home folder to evaluate (default: the user home).")
+    p_prune.add_argument("--integrations", help="Comma-separated keys; default: every gated platform.")
+    p_prune.add_argument("--yes", action="store_true", help="Remove; without it the command only previews.")
+    p_prune.add_argument("--unforce", default="", help="Comma-separated keys whose explicit --platforms choice to clear first.")
+    p_prune.set_defaults(func=cmd_prune_undetected)
+
     p_repair = sub.add_parser(
         "repair",
         help="Re-install integrations that doctor reports as drifted or missing.",
@@ -1474,7 +1698,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: List[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except ManifestLockTimeout as exc:
+        print(f"[error] {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

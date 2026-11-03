@@ -691,6 +691,9 @@ DEV_ONLY_SCRIPTS = {
     # scripts/lib/installer/ module plus its committed fingerprint set.
     "build_legacy_fingerprints.py",
     "measure_rendered_context.py",
+    # v4.14.7: the obsolete-layout fingerprint builder also walks git history;
+    # users get its committed set under scripts/lib/installer/.
+    "build_legacy_layout_fingerprints.py",
     # Maintainer GitHub-attribution hygiene, not a user-facing script.
     "check_commit_attribution.py",
     # Repo-internal co-location guard (v3.17.7): enforces that a /compare
