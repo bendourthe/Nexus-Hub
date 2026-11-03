@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A handoff no longer tells the next agent to wait for the previous platform's usage limit to reset.** A handoff exists so work can continue on another platform right away, but a usage-limit handoff carried the old platform's limit window, percent used, reset time, credits choice, and the ending session's "start no new work" stop into its Next steps and Constraints, and carry-forward copied them into every later handoff. The `session-handoff` skill now writes platform-neutral content: the header trigger is `usage-limit` with no window or percent, the body never names the old platform's usage state or a stop meant for the ending session, carried items of that kind are dropped and counted, and the printed prompt tells the receiver to start now. An older `usage-limit WINDOW PERCENT` header is still carried forward, shortened to `usage-limit`. The usage question asked before a handoff is unchanged. `catalog/hooks/tests/test_session_handoff_contract.py` pins the new contract.
+
 ## [4.14.7] - 2026-11-02
 
 ### Added
