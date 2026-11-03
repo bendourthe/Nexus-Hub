@@ -394,6 +394,7 @@ def test_console_guard_allows_recovery_entry_points(case, command):
 
 def test_real_hook_sequence_records_answer_and_stays_silent(case, tmp_path):
     guard, _, _, _, home = case
+    probe = guard._load_probe()
     root = Path(__file__).resolve().parents[3]
     project = tmp_path / "OneDrive - Supira" / "documents"
     project.mkdir(parents=True)
@@ -401,8 +402,13 @@ def test_real_hook_sequence_records_answer_and_stays_silent(case, tmp_path):
     cache.parent.mkdir(parents=True)
     cache.write_text(json.dumps({"schema_version": 1, "platform": "claude", "data_at": time.time(),
         "windows": [{"name": "weekly", "percent": 100, "resets_at": guard._iso_now(time.time() + 3600),
-                     "source": "private-fixture"}]}), encoding="utf-8")
-    environment = dict(os.environ, NEXUS_HOME=str(home), CLAUDE_PROJECT_DIR=str(project))
+                     "source": probe.PROVIDER_SOURCES["claude"]}]}), encoding="utf-8")
+    cached = probe.cached_probe("claude").to_dict()
+    assert cached["cached"] and cached["windows"][0]["percent"] == 100
+    environment = dict(os.environ, NEXUS_HOME=str(home), CLAUDE_PROJECT_DIR=str(project),
+                       HOME=str(home), USERPROFILE=str(home), NEXUS_USAGE_PROBE_PROVIDERS="claude")
+    for name in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE", "NEXUS_USAGE_PROBE_DISABLED"):
+        environment.pop(name, None)
     body = {"scratchpad_dir": "fixture", "session_id": "actual-hook", "cwd": str(project)}
     def hook(event, **extra):
         result = subprocess.run([sys.executable, str(root / "catalog/hooks/usage-guard.py")],

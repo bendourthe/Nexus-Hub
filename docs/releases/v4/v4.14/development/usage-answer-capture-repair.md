@@ -51,7 +51,7 @@ Result: 298 passed, zero failed, zero skipped in 127.95 seconds. This includes a
 
 Ruff comparison against the base reports zero introduced diagnostics: two existing in usage-guard.py, four existing in nexus_hub_cli.py and one existing in the Cursor integration. The new regression module is clean. Skill bundle validation passes with zero errors and 66 warnings. Registry consistency passes. The changed Markdown passes strict Unicode validation, and the checked guide/test paths pass the personal-path validator. git diff --check passes. Initial edit-guard checks needed no baseline accepts; the later publication-stage write-window recovery is recorded below.
 
-Qualified distributed Git-blob SHA-256 values, exercised from the exported runtime:
+Initially qualified distributed Git-blob SHA-256 values, exercised from the exported runtime; the later fixture correction is recorded below:
 
 | Path | SHA-256 |
 |---|---|
@@ -59,6 +59,14 @@ Qualified distributed Git-blob SHA-256 values, exercised from the exported runti
 | scripts/nexus_hub_cli.py | 1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74 |
 | scripts/lib/integrations/cursor.py | 63a2233c0e109088f3b1c5996b28b02864108dce68c2ba8cf8efbdf492e16207 |
 | catalog/hooks/tests/test_usage_answer_capture.py | c5504fc96a5292c1ee92fe8ff0b47abe179756b360452b09c3e7752499222240 |
+
+## Credential Isolation Correction
+
+The Windows CI hook group on `93719263e` reported 3182 passed, one failed and 15 skipped. The sole failure was the real subprocess sequence's initial offer. Its cache fixture used `private-fixture` as the source, which the real probe correctly rejects. Earlier local passes could fall back to available Claude credentials instead of exercising that cache, so they do not establish the claimed cached subprocess boundary. The other focused results and runtime hashes remain applicable; the cached subprocess proof is withdrawn and replaced by the credential-isolated run below.
+
+The failure was reproduced locally by giving pytest an empty `HOME` and `USERPROFILE`: the same initial offer assertion failed in 0.45 seconds. The fixture now uses the probe's accepted provider-source identifier, asserts that the cached reading contains 100 percent usage, and gives the child hook its own empty home. Hook opt-out variables are removed from that child's environment and the provider set is explicit. No runtime behavior was changed to accommodate the test.
+
+The corrected capture and native-decision modules pass all 106 cases with zero failures or skips under the empty-home environment in 27.21 seconds. The new test module passes Ruff and the distribution manifest is regenerated. Its staged Git-blob SHA-256 is `d37369c57a006e0500e5a973b39193fbba40930bdbad589cd5ebb9773c97d563`. The guard, CLI, Cursor and handoff-skill blobs are unchanged. The protected CI suite must pass again at the new head before integration.
 
 ## Publication Review
 
