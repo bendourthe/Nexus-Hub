@@ -660,6 +660,23 @@ def cmd_run_plan(argv: list[str]) -> int:
     return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
 
 
+def cmd_usage(argv: list[str]) -> int:
+    """Run usage recovery in-process, avoiding a script-path Python command."""
+    import runpy
+    candidates = [Path(__file__).resolve().parents[1] / "catalog" / "hooks",
+                  install_home() / "src" / "catalog" / "hooks", install_home() / "hooks"]
+    candidates.extend(Path.home() / provider / "hooks" for provider in (".claude", ".codex", ".cursor"))
+    candidates.append(Path.home() / ".copilot" / "hooks" / "nexus-hub-scripts")
+    for directory in candidates:
+        helper = directory / "usage-guard.py"
+        if helper.is_file():
+            entry = runpy.run_path(str(helper)).get("usage_cli")
+            if callable(entry):
+                return entry(argv)
+    _eprint("usage-guard.py missing. Re-run the Nexus-Hub installer.")
+    return 2
+
+
 def _is_source_tree(root: Path) -> bool:
     runner = root / "scripts" / "lib" / "integrations" / "runner.py"
     return runner.is_file() and (root / "catalog").is_dir()
@@ -1539,11 +1556,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     # `settings` owns a nested parser, so main() intercepts it before this one.
     sub.add_parser("settings", add_help=False, help="Show the default settings Nexus-Hub manages for each tool and what overrides them.")
+    sub.add_parser("usage", add_help=False, help="Inspect usage decisions or record a user-run recovery answer.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     raw = list(sys.argv[1:] if argv is None else argv)
+    if raw and raw[0] == "usage":
+        return cmd_usage(raw[1:])
     if raw and raw[0] == "attribution":
         return cmd_attribution(raw[1:])
 

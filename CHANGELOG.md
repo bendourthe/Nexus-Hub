@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Save submitted usage-limit answers directly from question and prompt hooks, prevent repeated instructions and Stop loops, and provide `nexus-hub usage status` and `nexus-hub usage decide` recovery commands with provider aliases and consistent project resolution.
+
 ## [4.14.7] - 2026-11-02
 
 ### Added
