@@ -1,0 +1,16 @@
+AF1 case variant Memories.Extract_Model: []
+AF2 literal dotted key: [('codex', 'memories.extract_model')]
+AF3 empty nested table at key: [('codex', 'memories.extract_model')]
+AF4 profile-scoped profiles.p.memories.extract_model: []
+AF5 alias memories.no_memories_if_mcp_or_web_search (patched real file): [('codex', 'memories.no_memories_if_mcp_or_web_search')]
+AF6 array of tables memories=[{extract_model}]: []
+AF7 settings null: RAISES TypeError: codex: `settings` must be an object, got NoneType
+AF8 omitted null: RAISES TypeError: c: `omitted` must be an object, got NoneType
+AF9 platform entry not an object: RAISES AttributeError: 'str' object has no attribute 'get'
+AF10 deep nesting 2000 levels: RAISES RecursionError: maximum recursion depth exceeded while calling a Python object
+AF11 key moved to another platform's settings: []
+AF12 delete omitted entry and declare the key: []
+AF13 features table empty over omitted features.memories: [('codex', 'features.memories')]
+AF14 features table with other leaf: []
+AF15 whitespace key 'memories .extract_model': []
+five-key omitted map, alias declared -> []

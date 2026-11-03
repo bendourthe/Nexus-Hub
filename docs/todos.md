@@ -2,6 +2,14 @@
 
 **Integration branch:** `develop`
 
+- [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor now verifies readable countdowns in all three live dashboard labels; see [installed-host evidence](releases/v4/v4.14/development/cursor-countdown-installed-qualification.md).
+
+- [x] Integrate the readable countdown change with v4.14.7 through develop and verify installed Cursor; PR #595 is merged and all three live countdown labels use readable units. Release publication remains open.
+
+**v4.15 native prerequisite:** Three implementation phases and final local qualification are committed. All five failed scopes from the earlier comprehensive run have complete combined functional qualification; original timeouts remain failed. Refreshed Windows validators, all eight integration owners, actual producer/PowerShell installer exercises, extension/package checks, the canonical coverage threshold and independent Goal review have passing evidence. The final worktree preserves published v4.14.6. [PR 578](https://github.com/bendourthe/Nexus-Hub/pull/578) is open; its CodeQL snapshot-permission failure was reproduced with two regressions, corrected without suppression, and passed 49 proof/process plus nine console cases and a fresh actual producer/installer exercise. Corrective publication, current-head green integration and exact helper delivery remain open. The original signed v4.15 run and its live reservations remain unchanged. [Evidence](releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
+
+- [ ] Qualify, integrate and deliver the bounded v4.15 native compatibility prerequisite before obtaining its separate genuine native permission decisions and resuming the original release plans.
+
 **v4.14 implementation reporting:** Hourly and transition reports plus read-only `/update status` are locally verified in the isolated `feat/v4.14-progress-reports` branch. Counts reuse the existing parser; worker activity, timing, dependencies and estimates require observed evidence.
 
 - [x] Implement and locally verify v4.14 progress reporting and on-demand status: 117 tests pass with 2 skips; 18 fast checks pass. [Evidence](releases/v4/v4.14/development/v4.14-progress-reporting.md).
@@ -21,7 +29,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has 117/251 integrated task marks, with 4/8 members released: v4.14.0, v4.14.1, v4.14.2 (2026-10-28) and v4.14.3 (2026-10-29, tag `v4.14.3`). v4.14.4 is admitted and publication-started (start head `349cc756f`) with Phases 1-5 committed in its worktree (T001-T022 except T013 by the member; T013 landed as PR #551 because members may not write `catalog/hooks/settings.json`, and the `lint-repair-loop` back-link as PR #552); T023 (full local suite) and T024 (publication) remain. v4.14.3's early member archive is deferred until its merged local branches can be cleaned; the minor close archives it otherwise. v4.14.5 Phase 1 contributes 4/22 task marks and awaits its release-order turn.
+**Active work:** v4.14 has v4.14.0 through v4.14.6 released (v4.14.6 Nexus-Hub Settings on 2026-11-01, tag `v4.14.6`). v4.14.7 and v4.14.8 were implemented by parallel agents and are admitted next; the v4.14.8 plan is back in v4.14 (it sat in v4.15 as v4.15.5 for a while). The minor closes after v4.14.8 releases.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -61,13 +69,15 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Run the v4.14.4 local qualification (T023), publish it once (T024), release it with `/update release 4.14.4`, then admit v4.14.5 and v4.14.6 in release order, keeping releases sequential.
+**Next:** Return the v4.14.8 plan to v4.14, admit v4.14.7 and v4.14.8 with the maintainer's approval, release both, then close the minor.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 GitHub develop integrated task marks | 97/251 | 251/251 |
-| v4.14 worktree task marks | 129/251 | 251/251 |
-| v4.14 released members | 3/8 | 8/8 |
+| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified | v4.14.7 publication |
+| Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
+| v4.14 GitHub develop integrated task marks | 256/298 | 298/298 |
+| v4.14 worktree task marks | 284/298 | 298/298 |
+| v4.14 released members | 7/9 | 9/9 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
@@ -355,9 +365,17 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] `/handoff` and the usage-limit handoff print one paste-ready prompt in the chat and write a file only on an explicit request; the milestone checkpoint is retired from all 13 instruction templates, and `usage-guard` and the completion gate read the recorded `handoff` answer instead of a handoff file ([decision record](decisions/implemented/tooling/2026-10-21-handoff-prompt-in-chat.md)).
 - [ ] Update the guide's training story (`guides/website/src/training-story.json`, restamped into `training.html`, with `tests/guides/test_training_story.py`): it still shows `/handoff` writing and the second agent reading `.nexus-hub/handoff.md`. Needs a headless render check of the edited stage.
 
+## Dependency maintenance - 2026-11-01
+
+- [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
+- [x] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merged, and turn on Dependabot vulnerability alerts in the repository settings (done 2026-11-01; the alerts reported 285 open items on first scan).
+- [x] Apply the Dependabot security updates as one maintainer commit: regenerate `scripts/ci/requirements-py311.txt` with `uv pip compile` (uv 0.13.4, pillow 13.0.0, pypdf 6.21.4, certifi, virtualenv, filelock, msgpack, opentelemetry-api, setuptools), move `@vscode/vsce` to 4.1.0 with a `minimatch` 11.0.1 override in the six extensions, and refresh their lockfiles.
+- [ ] After the security-update pull request merges, confirm the Dependabot alert count dropped, and decide whether to override `glob` to 14.0.2 or later in the four fantasticon-based usage monitors (the only remaining `npm audit` finding, moderate, not a Dependabot alert).
+
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
 - [ ] Verify on a live Devin Desktop / Windsurf install whether `.windsurf/hooks.json`, `~/.codeium/windsurf/hooks.json` and `~/.codeium/windsurf/memories/global_rules.md` are still read. The 2026-10-30 platform re-verification found the current docs naming only `.devin/hooks.v1.json` and `~/.devin/global_rules.md`; recorded as unconfirmed drift (`windsurf-hooks-path`, `windsurf-global-rules-file`) in `docs/policy/platform-read-contracts.json`. If the old paths are no longer read, plan the adapter and installer change with tests.
+- [ ] Refresh the platform read-contract citations that now redirect: `developers.openai.com/codex/hooks` and `/codex/subagents` (308 to `learn.chatgpt.com`), `geminicli.com/docs/cli/commands/` (now `/docs/reference/commands`), and `docs.cursor.com/en/agent/chat/commands` (308 to `cursor.com/docs`). Found in the v4.14.5 re-verification; legacy URLs only, no path change.
 
 ## Codex skill catalog budget - 2026-10-29
 
@@ -373,11 +391,17 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.14.5 Codex memory levers
 
 - [x] Complete the [v4.14.5 comparison](releases/v4/v4.14/comparisons/v4.14.5-comparison-codex-memory-models.md) (practitioner article on Codex `[memories]` model overrides, verified against OpenAI's config reference, Memories, and Models pages); adoption target v4.14.5 confirmed by the user on 2026-10-15.
-- [ ] Implement the [v4.14.5 plan](releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md): a host-generated memory store class (never read, untrusted, never copied into the substrate unconfirmed) in the memory-substrate contract, with pointers from `agent-memory` and `prompt-injection-defense` (Phase 1, no dependency); the five Codex memory levers recorded and omitted, not seeded, plus a guard that fails when any platform declares a key it omits (Phase 2, after v4.14.0 merges). Follow-on parked: a `nexus-hub doctor` warning for Codex Memories without the external-context exclusion.
+- [ ] Implement the [v4.14.5 plan](releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md): the host-generated memory store class in the memory-substrate contract with pointers from `agent-memory` and `prompt-injection-defense`, the five Codex memory settings recorded as checked and not seeded (with the legacy alias omitted too), the omitted-key guard test, and two decision records. Member work is committed (`833f00291`, `440c8b5fe`, `3b95cf53c`); T007 and T008 land as PR #560 because their files are outside the member's claims; T021 (full local suite) and T022 (publication) remain.
 
 ## Queued work - v4.14.6 Nexus-Hub Settings
 
-- [ ] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 0/6 phases and 0/46 tasks. Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
+- [x] Implement the [v4.14.6 plan](releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md): one `nexus-hub settings` engine and a VS Code panel that set default effort, default model, approval posture, commit attribution, and git-guardrails mode for Claude Code, Codex, and GitHub Copilot, admitting only settings observed changing a fresh session and showing every overriding layer instead of a dead toggle. Safety-weakening defaults need a human (panel confirmation or an interactive terminal, refused inside agent sessions). Phases 1 to 3 are the releasable core; implementation is 44/46 tasks (2026-10-31). Its design interview amended v4.14.0 sub-task 6.1 to seed Claude effort through `modelSettings`.
+
+## Queued work - v4.14.7 installer platform detection
+
+- [ ] Implement the [v4.14.7 plan](releases/v4/v4.14/plans/v4.14.7-installer-platform-detection.md): the installer writes Kimi, Qwen, Hermes, Pi, Aider, OpenCode, and Nexus-AI surfaces only when the tool is present by evidence the installer did not create (executable on PATH, a non-Nexus entry in the tool's root, or an explicit `--platforms` that forces it); install output shows why each platform was skipped and how to override; `doctor` reports stale Nexus-only surfaces and one dry-run-default command removes only unchanged Nexus-Hub files, stripping just the Nexus block from merged configs. Phases 1 to 5 are the releasable core; Phase 6 (obsolete `~/.agent` and home-root `~/.opencode` removal) is spike-gated and moves to a follow-up plan on NO-GO. Ships after v4.14.6, which also edits both installers. Implementation is 46/47 tasks on the unpublished branch `feat/v4.14.7-installer-platform-detection` (phases 1 to 7 complete locally; merged with develop through v4.14.6 on 2026-11-01, full local gate green, evidence in `docs/releases/v4/v4.14/development/v4.14.7-last-phase-evidence.md`); T047, the single publication and integration pull request, is the coordinator's. On develop the work still shows 0/47.
+
+- [ ] Complete native session transfer before publishing v4.14.7: the separately authorized source repair `88ac04221` is integrated locally with 107 passing approval regressions and no new Ruff diagnostics; a fresh genuine native resume decision remains required. Preserve the signed record and all frozen budgets. PR #595 remains open. See [repair evidence](releases/v4/v4.14/development/native-per-plan-session-transfer.md).
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 

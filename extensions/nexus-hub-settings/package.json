@@ -1,0 +1,101 @@
+{
+  "name": "nexus-hub-settings",
+  "displayName": "Nexus-Hub Settings",
+  "description": "Set default effort, model, approval posture, commit attribution, and git guardrails once for Claude Code, Codex, and GitHub Copilot, and see what overrides each default",
+  "version": "0.1.0",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/nexus-hub-settings"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/nexus-hub-settings#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In an untrusted workspace the panel shows the current state of every default but cannot change anything. Trust the workspace to change a default."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "The panel reads and writes configuration files on the local machine, which a virtual workspace does not have."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "nexusHubSettings.open",
+        "title": "Nexus-Hub Settings: Open",
+        "category": "Nexus-Hub"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nexusHubSettings",
+          "title": "Nexus-Hub Settings",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "nexusHubSettings": [
+        {
+          "id": "nexusHubSettings.view",
+          "name": "Defaults",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Nexus-Hub Settings",
+      "properties": {
+        "nexusHubSettings.pythonPath": {
+          "type": "string",
+          "scope": "machine",
+          "default": "",
+          "markdownDescription": "Absolute path to the Python 3 interpreter that runs the Nexus-Hub command line. Leave empty to search the standard install locations. A relative path, a bare command name, and a workspace value are never used."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "verify:package": "node scripts/verify-package-contents.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/vscode": "1.85.0",
+    "@vscode/vsce": "4.1.0",
+    "@vitest/coverage-v8": "4.1.12",
+    "happy-dom": "21.0.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
+  }
+}

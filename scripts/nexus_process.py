@@ -82,3 +82,73 @@ def install_no_window_default() -> bool:
     init._nexus_console_policy = 2
     subprocess.Popen.__init__ = init
     return True
+
+
+def _is_tty(stream: object) -> bool:
+    try:
+        return bool(stream.isatty())  # type: ignore[attr-defined]
+    except (AttributeError, OSError, ValueError):
+        return False
+
+
+def has_shareable_console() -> bool:
+    """True only when this process owns a visible, interactive console (Windows).
+
+    Both halves are required. ``GetConsoleWindow`` is non-zero only when a console
+    window exists (a host launched with CREATE_NO_WINDOW, or detached, reports
+    zero), and a TTY stdin and stdout prove a person is on the other end rather
+    than a pipe an agent or IDE reads. Anywhere else the answer is False and the
+    caller keeps the windowless default.
+    """
+    if os.name != "nt":
+        return False
+    try:
+        import ctypes
+
+        window = ctypes.windll.kernel32.GetConsoleWindow()  # type: ignore[attr-defined]
+    except (AttributeError, ImportError, OSError):
+        return False
+    return bool(window) and _is_tty(sys.stdin) and _is_tty(sys.stdout)
+
+
+def _original_popen_init() -> object:
+    """The Popen initializer beneath every layer of the Nexus no-window default."""
+    init = subprocess.Popen.__init__
+    while getattr(init, "_nexus_no_window", False) and hasattr(init, "__wrapped__"):
+        init = init.__wrapped__
+    return init
+
+
+def _launch_in_current_console(args: object, env: dict[str, str] | None, cwd: object) -> int:
+    class SharedConsolePopen(subprocess.Popen):
+        def __init__(self, *a: object, **k: object) -> None:
+            _original_popen_init()(self, *a, **k)
+
+    # No creationflags: the child attaches to this process's console, so its
+    # host output, progress bars and prompts appear where the person is looking.
+    with SharedConsolePopen(args, env=env, cwd=cwd) as process:  # nexus: console-window-ok child shares the visible console this process already owns
+        return process.wait()
+
+
+def run_in_current_console(
+    args: object, *, env: dict[str, str] | None = None, cwd: object = None
+) -> subprocess.CompletedProcess:
+    """Run a child attached to this process's console, when one is visible.
+
+    This is the one sanctioned exception to the no-window default, for a long
+    interactive child whose own output must reach the person (the upgrade
+    bootstrap). A child started with CREATE_NO_WINDOW gets a private hidden
+    console, so its host output and progress bar are invisible and any prompt
+    waits unseen. The exception applies only when ``has_shareable_console`` is
+    true. In every other case, including every non-Windows host, this is a plain
+    ``subprocess.run`` under the normal default, which forwards output through
+    the current streams. It never detaches or opens a new console, and it accepts
+    no stream, flag or capture options, so it cannot be used to relax the policy
+    for any other kind of launch.
+    """
+    if not has_shareable_console():
+        return subprocess.run(args, env=env, cwd=cwd, check=False, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    if not isinstance(args, (list, tuple)) or not args:
+        raise ValueError("run_in_current_console needs a non-empty argument list")
+    returncode = _launch_in_current_console(_batch_command(args, env), env, cwd)
+    return subprocess.CompletedProcess(args, returncode)

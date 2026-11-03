@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-30
-**Open items**: 92
+**Last updated**: 2026-11-02
+**Open items**: 117
 
 ## v4.14.0
 
@@ -12,13 +12,13 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 12 | 2 |
+| Deferred (DF) | 11 | 3 |
 | Bugs / regressions (BG) | 2 | 15 |
 | Warnings (WN) | 24 | 2 |
 | Missing tests / coverage gaps (MT) | 4 | 9 |
 | Quality-gate gaps (QG) | 3 | 1 |
 
-The six standard categories contain 45 open items; 35 inherited AR obligations bring the section total to 80. The 23 findings introduced during this run are resolved after their individual acceptance gates and green merged integration passed. Together with the six previously resolved entries, there are 29 resolved items. Every original item body is retained. The remaining 80 open items are inherited obligations; their migration authority is unchanged.
+The six standard categories contain 44 open items; 35 inherited AR obligations bring the section total to 79. The 23 findings introduced during the v4.14.0 run and the six previously resolved entries remain resolved. The inherited pilot tooling candidate below adds one resolution, bringing this section to 30 resolved items. Every original item body is retained. The remaining 79 open items are inherited obligations; their migration authority is unchanged. The pilot resolution takes effect on merge of its maintenance package, whose local qualification and pending integration boundary are recorded below.
 
 ### Current qualification
 
@@ -505,25 +505,6 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
 
-#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: v4.15.0
-- **Severity**: low - tooling gap; spend cap for this plan was 0
-- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
-- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
-- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
-- **Future plan**: v4.15.0 instruction-necessity review
-
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
-
-**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
-
-**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
-
-- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
-- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
-
 #### DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2
 
 **Carry-forward contract (v4.13.11)**:
@@ -739,6 +720,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 - **Migrated from**: v4.13#DF-12 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Claude Code 2.1.283 does not recognize claude-sonnet-5-5 or expose effort, so the approved paid matrix cannot run.
+- **v4.14.6 observation (2026-10-31)**: Claude Code 2.1.283 reports the effective effort through the local command `/effort status` and reads back a per-model `modelSettings.<id>.effortLevel` for `claude-sonnet-5-5` (proof rows W06 and O02, re-run from the v4.14.6 final-phase build), so the effort half of the stated blocker no longer holds; whether the pilot wrapper's run metadata shows effort, and the maintainer's approval of the paid 15-run matrix, were not tested.
 
 #### WN-19 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
 
@@ -2729,6 +2711,27 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 ### Resolved
 
+#### DF-7 (v4.13.3): Pilot variant mode for instruction-file comparisons
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: v4.15.0
+- **Severity**: low - tooling gap; spend cap for this plan was 0
+- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
+- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
+- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
+- **Future plan**: v4.15.0 instruction-necessity review
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+
+**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
+
+**Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
+
+- **Migrated from**: v4.13#DF-2-v4133 on 2026-10-13 (reason: user-deferred)
+- **Migration evidence**: Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
+
+**Resolution candidate, 2026-10-31 (v4.15.0 inherited scope)**: The opt-in instruction mode stages exact caller-provided full-index and pointer Markdown in separate A/B CLAUDE.md files, with identical four-skill snapshots. The public stage-only CLI ran with an empty PATH and recorded UNMEASURED, zero calls and zero spend. The existing regression owner passes 219 tests with two pre-existing privilege skips; the final-source fast profile passes all 18 checks. [Pilot variant evidence](../v4.15/development/v4.15.0-pilot-variant-evidence.md) records hashes, race controls and the unchanged live-budget limitations. This resolves the tooling acceptance condition only; no model-selection benefit, default flip, provider-cost guarantee or v4.15 release is claimed. This candidate closure becomes canonical when the enclosing maintenance package merges; remote validation and integration are still pending in this branch. The original body above remains historical provenance.
+
 #### MT-9: Offline policy test still expects inline workflow commands
 
 - **Source phase**: v4.14.0 Phase7, T024/T028 current actual offline profile.
@@ -3402,6 +3405,551 @@ None.
 - **Resolution**: PR #552, merged to develop as `c9471b91e4838b98e71c068d67991a25a14bf8ef`, adds the Related Skills line naming `[[review-trapdoors]]` to `lint-repair-loop`, so the ownership row now requires the owner name like every other row, and the temporary `names_owner` exception is removed from `tests/skills/test_rule_ownership.py`. Ruff, which the member first could not run, was run through `uvx` on the two new test files and reports `All checks passed!`.
 - **Remaining boundary**: none.
 
+## v4.14.5
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-21: Planned follow-on: Codex Memories doctor warning
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.5 Phase 3 T014
+
+**Plan reference**: v4.14.5-adoption-codex-memory-levers.md
+
+**Frozen plan sha256**: df01ad4f07c0cd7f6b36144f8e5c559f77f2cc12087f0bdd5324329479181b0c
+
+**Frozen task sha256**: 68d67f554566c5f2148548f4d7d27150e7954474344c29f260b3975681cd0555
+
+**Reason**: `memories.disable_on_external_context` is recorded and recommended but deliberately not seeded (`docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md`), and `nexus-hub doctor` checks only managed-file drift and organization knowledge, so a user who turns on Codex Memories without that exclusion gets no prompt from Nexus-Hub.
+
+**Suggested next step**: Plan it with `/plan feature`: warn when `features.memories = true` and `memories.disable_on_external_context` is absent or false in `~/.codex/config.toml`, with the one-line fix, following the `diagnose_org_knowledge` pattern, after re-reading the full Codex configuration reference to confirm no profile-scoped `memories` override exists.
+
+### Resolved
+
+None.
+
+## v4.14.6
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 18 | 0 |
+| Bugs / regressions (BG) | 0 | 4 |
+| Warnings (WN) | 0 | 4 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-24: Planned follow-on: Cursor and Antigravity hosting
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Nexus-Hub Settings panel is hosted in VS Code only (maintainer decision Q1, 2026-10-15) because a write from Cursor or Antigravity would change that editor's settings, not VS Code's, so both installers pass only the VS Code command line and leave the Cursor and Antigravity extension folders untouched.
+
+**Suggested next step**: Plan it with `/plan feature`: per-host catalog surfaces and proof rows, a three-host installer signature in both installers, and Not-Settable for the `chat.*` Copilot keys outside VS Code.
+
+#### DF-25: Planned follow-on: Agent-call hook rule
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The human-presence rule rests on the agent-session marker and an interactive terminal, and the Phase 6 adversarial pass reproduced a bypass (finding AF-3 in `development/v4.14.6-last-phase-evidence.md`): a same-user process that unsets the marker and writes the one-time panel token file makes `set posture full-auto` succeed, so a git-guardrails rule that blocks `nexus-hub settings set` and `remove-override` in agent tool calls is the defense in depth the plan deferred (interview Q4).
+
+**Suggested next step**: Plan it with `/plan feature`: add the rule on hook-capable platforms, add it as the second layer over the nonce handoff that fix cycle 1 shipped (Write rules 6 and 7 of `docs/policy/settings-control-contract.md` already state the forged-confirmation residual, reproduced as AF-3d), because a same-user process that sets the environment itself can still forge the confirmation.
+
+#### DF-26: Planned follow-on: Advanced per-tool controls
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code `showThinkingSummaries`, `autoCompactEnabled`, `autoCompactWindow` and `outputStyle`, Codex `model_reasoning_summary`, `web_search`, `[sandbox_workspace_write].network_access` and `[history].persistence`, VS Code Copilot `chat.useAgentsMdFile`, `chat.useClaudeMdFile`, `chat.tools.terminal.autoApprove`, `chat.tools.urls.autoApprove` and `chat.agent.maxRequests`, and Copilot CLI `logLevel` are documented and observable but outside the five-control scope, and telemetry opt-outs are excluded because disabling telemetry also disables feature-flag fetching in Claude Code.
+
+**Suggested next step**: Plan it with `/plan feature`: run each key through the Phase 1 admission (a fetched vendor source and a proven row in a fresh scratch session) and add only the keys that prove, observing `chat.agent.maxRequests` first because its at-cap behavior is undocumented.
+
+#### DF-27: Planned follow-on: VS Code Copilot Chat: Not-Settable, because it is set per model in the model picker
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level reasoning-effort setting for Copilot Chat, so the cell is Not-Settable in `scripts/lib/settings_control/catalog.json` (write `vscode-copilot.effort`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented effort key appears.
+
+#### DF-28: Planned follow-on: VS Code Copilot Chat: Not-Settable, because only the organization policy `ChatDefaultModel` exists
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level default-model setting for Copilot Chat (only the organization policy `ChatDefaultModel`, which no file or API exposes), so the cell is Not-Settable (write `vscode-copilot.model`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented user-level model key appears.
+
+#### DF-29: Planned follow-on: Codex: whatever Phase 1 verifies, otherwise Not-Settable
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Phase 1 found no Codex key that controls commit attribution in the vendor pages fetched on 2026-10-30 (proof row W17), so the cell is Not-Settable (write `codex.attribution`).
+
+**Suggested next step**: Re-read the Codex configuration reference at each release contract pass and admit a write through the Phase 1 proof if a documented attribution key appears.
+
+#### DF-30: Planned follow-on: VS Code Copilot Chat: Not-Settable.
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: VS Code documents no user-level commit-attribution setting for Copilot Chat, so the cell is Not-Settable (write `vscode-copilot.attribution`).
+
+**Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented key appears.
+
+#### DF-31: Planned follow-on: Persisting `max` effort, a Copilot CLI allow-all mode, or a VS Code Copilot Chat default model
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code accepts `max` in neither `effortLevel` nor `modelSettings`, Copilot CLI allow-all is a launch flag with no persisted setting, and VS Code has no user-level default model, so `show` reports each cell as Not-Settable with its reason and `set` never writes them.
+
+**Suggested next step**: Re-check each vendor's settings reference at the release contract pass and admit a write through the Phase 1 proof if a documented persisted setting appears for any of the three.
+
+#### DF-32: Planned follow-on: Copilot CLI
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: All five Copilot CLI cells (effort, model, default permission mode, removal of the `permissions.disableBypassPermissionsMode` block, commit co-author line) have no Proof Record because `copilot` is not installed on the proof machine (spike rows W18 to W22 and O08 are not-observed), so each is Not-Settable and the Copilot CLI part of the maintainer's outcome (DoD 8) is not delivered.
+
+**Suggested next step**: Install the Copilot CLI on a proof machine, run `python scripts/dev/settings_proof_spike.py`, and admit each write that proves, then re-run the Phase 1 proof matrix from the built candidate.
+
+#### DF-33: Planned follow-on: Claude Code: `permissions.defaultMode` and VS Code `claudeCode.initialPermissionMode`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Claude Code VS Code panel cells (`claudeCode.initialPermissionMode`, `claudeCode.allowDangerouslySkipPermissions`, and the remembered-mode override; spike rows W09, W10 and O06) need one manual sitting in a VS Code window, so they are Not-Settable and the panel row reads Not settable; this is the same host-only class as AR-16, whose blocker text cites AR-32.
+
+**Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md` in a scratch VS Code profile with the Claude Code extension, record what the mode indicator shows, and admit the writes that prove.
+
+#### DF-34: Planned follow-on: `chat.tools.global.autoApprove: true`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The VS Code Copilot Chat posture cells (`chat.tools.global.autoApprove`, `chat.permissions.default`, and the workspace override; spike rows W23, W24 and O09) need the same manual sitting, and the panel's confirmation modal (its default button, and VS Code's own auto-approve warning text) was asserted in tests but never driven in a real window.
+
+**Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md`, copy the auto-approve warning text into the contract, drive the panel's confirmation in a real window, and admit the writes that prove.
+
+#### DF-35: Planned follow-on: `skipDangerousModePermissionPrompt`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The plan has `full-auto` also write `skipDangerousModePermissionPrompt`, but its effect is a confirmation dialog visible only in an interactive Claude Code session (spike row W05), so the write is Not-Settable and a fresh Claude Code session may still show the bypass warning after a Full auto choice.
+
+**Suggested next step**: Observe Claude Code's bypass-permissions warning in an interactive session with and without the key, admit `claude.skip_dangerous_prompt` if it proves, and otherwise state in the guide that Full auto still shows the dialog.
+
+#### DF-36: Planned follow-on: the tool's documented agent-session marker
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Only Claude Code has documented agent-session markers in the catalog (`CLAUDECODE`, `CLAUDE_CODE_CHILD_SESSION`); the Codex, Copilot CLI and VS Code Copilot Chat pages name none, so for an agent running in those tools the human-presence rule rests on the terminal test alone.
+
+**Suggested next step**: Re-read each vendor's environment-variable documentation at the release contract pass and add any documented marker to `agent_session_markers` in `scripts/lib/settings_control/catalog.json` with its source.
+
+#### DF-37: Planned follow-on: an absolute Python interpreter
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The panel finds Python from the machine-scope `nexusHubSettings.pythonPath` setting or a fixed list of standard install locations (it never reads PATH), and neither installer records the interpreter it used, so a machine whose only Python lives elsewhere shows the panel's install-Python error until the user sets the path.
+
+**Suggested next step**: Have both installers write the resolved interpreter path where the panel can read it (for example a line in the install manifest), with a test for each installer.
+
+#### DF-38: Planned follow-on: `attribution.commit` and `attribution.pr`
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: Claude Code documents `attribution.commit` and `attribution.pr`, and the isolated real-commit probe (2026-10-31, scratch git configuration with no hooks) observed the default commit trailer `Co-Authored-By: Claude Code <noreply@anthropic.com>`, but the empty-value commit was not run because the first commit request (USD 0.7662) exhausted the approved cap, and the earlier recitation-based proof did not reproduce. Without the off case the control is not proven, so `claude.attribution` ships Not-Settable. Attribution probes cost USD 1.1623 in total.
+
+**Suggested next step**: With a maintainer-approved cap of at least USD 1.00, run the isolated real-commit W08 probe in `scripts/dev/settings_proof_spike.py` for the empty-string case only; if that commit carries no attribution trailer, admit `claude.attribution` and regenerate the proof matrix from the harness.
+
+#### DF-39: Planned follow-on: Extract a shared `config_io` module and move the platform-defaults seeder onto the new lossless writers
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The plan review's design finding was recorded as a refactor candidate for 6.1: the platform-defaults seeder (`scripts/lib/integrations/platform_defaults.py`) and the new settings writers both read and write the same user files through separate code, and moving the seeder onto the lossless writers would change every platform's seeding path and re-test it, which is outside this plan, so the Phase 6 scan left it unchanged.
+
+**Suggested next step**: Plan it with `/plan refactor`: extract the shared reader and writer, move the seeder onto it behind the existing seeding tests for every platform, and keep the seed-record and ownership-record formats unchanged.
+
+#### DF-40: Planned follow-on: a path-filtered CI workflow
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: `.github/workflows/nexus-hub-settings.yml` triggers only on `extensions/nexus-hub-settings/**`, `scripts/ci/**` and itself, and the repository-wide `ci.yml` does not run the extension's tests (the profile group is explicit-only), so a pull request that changes only `scripts/lib/settings_control/**` or `scripts/nexus_hub_cli.py` can break the panel's agreement test and its captured engine fixtures without any check running them.
+
+**Suggested next step**: With the maintainer's approval of a pipeline change, add `scripts/lib/settings_control/**` and `scripts/nexus_hub_cli.py` to that workflow's `paths` (it is not a required check, so the filter stays safe), and re-run `tests/workflows`.
+
+#### DF-41: Planned follow-on: Both installers build and install the extension into VS Code
+
+**Disposition**: planned-follow-on (OPEN)
+
+**Source phase**: v4.14.6 Phase 6 T038
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Frozen plan sha256**: f625bf6ff19db19e840871fecfdb0b2919c3356103d1d87b5a37c9f53b8e4e41
+
+**Frozen task sha256**: c30c45d752e075bb7a400a0c89c1a1eec94ef56cd0019e558395cf7df8e321db
+
+**Reason**: The Bash installer could not run natively on the proof host (no `jq`, and `bash` is the WSL stub), so only the Windows installer was run into a scratch home (four times across Phases 5 and 6, exit 0 each), and the Linux and macOS postconditions were not observed locally.
+
+**Suggested next step**: Quote the `installer-smoke` legs for ubuntu, macos and windows from the integration pull request under Publication and integration, and run the manual steps on a Mac after `nexus-hub upgrade`.
+
+### Resolved
+
+#### WN-35: The repository README does not link the Nexus-Hub Settings guide - RESOLVED 2026-11-01
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: `guides/NEXUS_HUB_SETTINGS.md` exists and is linked from the extension README, but `README.md` has no link to it (a Phase 5 write-claim limit), so a user reading the repository front page cannot find the settings command or panel.
+
+**Suggested next step**: Add one line to `README.md` that links `guides/NEXUS_HUB_SETTINGS.md` and runs `nexus-hub settings show`, and re-run `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"`.
+
+**Resolution**: The v4.14.6 release commit adds the README What's New entry, which links `guides/NEXUS_HUB_SETTINGS.md` and names `nexus-hub settings show`, `set` and `reset`; `python scripts/check_release_capability_docs.py CHANGELOG.md --strict --surface "Nexus-Hub Settings"` passes.
+
+#### BG-18: Human-presence refusal is skipped by a non-weakening `remove-override` and by `reset` - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: `require_presence` refused an agent-session marker only when `weakens` was true, so a non-safety `remove-override` succeeded under a marker (AF-1), `reset_control` never called it, so an agent could restore a weaker value such as `bypassPermissions` or `block_git_bypass_flags` false (AF-2), and the panel token carried a plain string nothing verified, so planting a file was enough (AF-3).
+
+**Resolution**: Every `remove-override` is refused under a marker; a `reset` whose restore value is in the catalog's weakening set needs a person (terminal and `yes`, or a panel confirmation) and is refused under a marker, while a reset to a safe value stays open to an agent and `--dry-run` needs nobody; the confirmation file now holds only the SHA-256 of a nonce the panel hands to the one command it starts. Proof: `tests/settings_control/test_apply_hardening.py`, `extensions/nexus-hub-settings/test/agreement.test.ts` against the real CLI, and 32 adversarial re-run checks with 0 failed. **Documented limit, not closed**: a same-user process that writes the file, sets the nonce, and unsets the marker still succeeds (AF-3d); the marker refusal, the terminal test, and the planned agent-call hook rule (DF-25) are the barriers, stated in Write rules 6 and 7 of `docs/policy/settings-control-contract.md` and in the guide. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-19: The ownership record loses entries when two `nexus-hub settings` commands run at once - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: A refused write saved a stale record snapshot and the record had no lock (AF-4); 12 of 15 concurrent trials left a written key unrecorded.
+
+**Resolution**: One exclusive lock file (`settings-control.lock`, `fcntl` or `msvcrt`) spans the file read, the record update, and the write in `set`, `remove-override`, `reset`, and `record-editor-write`; a command that cannot get it in 30 seconds stops with a message. Proof: three trials of six real processes (red before, green after, `reset` returns the original bytes) and 15 re-run trials of four concurrent commands with 0 bad. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-20: The panel loses keyboard focus after every action or refresh and disables Refresh in error states - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P1
+
+**Reason**: `disabled()` included the busy state, so the busy render disabled the focused control and the idle render read the page body (C1); Refresh shared that state (C3); the sources element closed on every render (C4).
+
+**Resolution**: Controls are `aria-disabled` and ignore clicks while busy but stay focusable, only a read-only panel really disables them, focus is restored to the same control (else the card heading, else Refresh), Refresh is never disabled, and open sources stay open. Proof: Chromium audit, focus on the page body in 5 of 5 flows before and 0 after; Vitest for each flow. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### BG-21: Light-theme badge text and input borders fail WCAG contrast in the panel - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P1
+
+**Reason**: Badge text took the tone color, 2.93:1 and 4.07:1 on `#f8f8f8` (C2), and field edges were 1.57:1 and 1.18:1 (C6).
+
+**Resolution**: Badge text is the foreground color (10.55:1 light, 11.06:1 dark) with the tone on the outline and icon only, and field edges are the foreground at 60 percent (3.5:1 or more in light and dark). Proof: `extensions/nexus-hub-settings/test/contrast.test.ts` (4.5:1 text and 3:1 edge and focus ring against Dark Modern, Light Modern, and modeled high-contrast dark and light) and the Chromium computed values. The real high-contrast themes were modeled, not read from a running VS Code. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-33: Engine robustness defects on unusual or hostile files and values - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: Nine low-severity defects (AF-5 to AF-10, AF-12, AF-13): a read-only file gave a traceback, a stray temp file and a stale entry; `reset` deleted a comment-only TOML file; deeply nested JSON and TOML dates raised; a forged record entry for a Not-Settable row was written back; `$` accepted a trailing newline; a blank model value was written; `owned-keys` was quadratic.
+
+**Resolution**: Each fixed with a regression test (a read-only refusal, delete only an empty created TOML file, a depth limit and `RecursionError` catch, TOML dates read as plain data, an entry matches only an admitted non-omitted row, `\Z`, blank, padded or hyphen-leading values refused, set-based `owned-keys`); `owned-keys` on 60,000 entries went from 80.6 s to 1.5 s. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-34: Panel layout, copy and ARIA findings from the rendered-surface audit - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P2
+
+**Reason**: C5 to C17 and AF-11: overflow at 320 px, a mid-word tool column, a preselected first value, an unannounced notice, a misspelled `aria-labeledby`, repeated Not settable text and accessible names, no inherited font, every button primary, an empty state, and a webview validator that threw on `constructor`.
+
+**Resolution**: All fixed in the panel sources and `messages.ts` (`Object.hasOwn`); the audit shows no overflow at 320, 420, 900 and 1440 px and no duplicate or missing accessible name. C15 and C17 were fixed from the one-line summaries because the delegate's own text was not kept, so they are the least certain. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+#### WN-36: The proof spike's wording calls the `codex exec` header read local - RESOLVED 2026-10-31
+
+**Disposition**: resolved
+
+**Source phase**: v4.14.6 Phase 6 T042
+
+**Plan reference**: v4.14.6-nexus-hub-settings-extension.md
+
+**Severity**: P3
+
+**Reason**: `codex exec` and `codex doctor` try to reach vendor and GitHub hosts even without a credential, and so do the free Claude probes; measured through a local proxy sink: `api.openai.com`, `chatgpt.com`, `api.github.com`, `github.com`, `api.anthropic.com`.
+
+**Resolution**: Every no-sign-in probe now runs with its proxy variables pointed at a listener on 127.0.0.1 that forwards nothing and records each host (`OfflineSink`); the matrix text says so. The free run gives the same 39 rows and 20 proven; only W08 (paid) differs from the committed matrix. **Remaining**: the committed `development/v4.14.6-proof-matrix.md` still contains the old sentence, because it is outside this cycle's write list; replace that sentence with the text `write_matrix` now produces (see `phase-6-fix1/proof-matrix-rerun-offline.md`) or regenerate during the W08 re-proof. Fix commit `d844102cd` (fix cycle 1).
+
+**Evidence**: `docs/releases/v4/v4.14/development/v4.14.6-last-phase-evidence.md`, subsection `Stabilization after the deep pass, fix cycle 1`, with drivers and raw output in `docs/releases/v4/v4.14/development/v4.14.6-phase-receipts/phase-6-fix1/`.
+
+## v4.14.7
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 6 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+### Resolved
+
+#### BG-22 (v4.14.7): The real-installer attribution test failed locally on Windows before this plan's changes
+
+**Source phase**: v4.14.7 Phase 2 T017
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 2.3
+
+**Reason**: `tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard` fails for `workspace-bash`, `workspace-powershell`, and `global-powershell` with `FileNotFoundError` for the expected `.aider.conf.yml`. The `workspace-powershell` case fails identically on unmodified develop `69b83eee8` in the separate plan worktree on 2026-10-29, so the failure predates this plan. Diagnosis on 2026-10-30 from the sandbox's own `installer.log`: the Python the installer resolves on this host has no PyYAML, and the test sets `PIP_NO_INDEX=1`, so the installer prints `platform-defaults: PyYAML is not installed, so ... .aider.conf.yml was not seeded` and the assertion reads a file that was never written. It is a host precondition, not an installer or detection defect: in the same run the global PowerShell case recorded `forced: {'aider': True}` in the sandbox manifest, proving the Phase 4 `--platforms` pass-through end to end.
+
+**Resolution (2026-10-30, Phase 7)**: The test now probes `import yaml` with the sandbox's own environment. When the probe fails it asserts the installer reported the missing PyYAML, runs every remaining guard assertion, and ends as a skip naming the reason, so a hidden per-user site-packages install is reported rather than read as a defect. Locally the two PowerShell cases now report `SKIPPED ... Aider config not verified: the installer's Python cannot import PyYAML in the isolated environment`; the CI runners install PyYAML system-wide, so they still assert the seeded `.aider.conf.yml`.
+
+#### BG-23 (v4.14.7): A long-path test helper failed whenever the temp root had one particular length
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
+
+**Reason**: `tests/integrations/test_windows_long_paths.py::_root_of_length` appended 49-character segments while the path was shorter than `length - 50`, so it could stop at exactly `length - 1` characters and leave a zero-width padding name (`assert remainder > 0`). `test_write_owned_file_survives_a_temp_name_past_max_path` failed identically on the develop base `69b83eee8` and on this branch at the same temp-root length; CI's shorter temp root never hit the boundary.
+
+**Resolution (2026-10-30, Phase 7)**: The loop now stops one character earlier, so the padding is always at least one character. The file passes at the length that failed (18 passed, 1 pre-existing skip).
+
+#### BG-25 (v4.14.7): Unchanged files in a tracked folder were kept when the source checkout had newer files than their folder
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.1
+
+**Reason**: Found by the full local profile: `test_removal_keeps_everything_the_user_owns` failed once earlier tests left `__pycache__` files in the gitignored catalog. The folder rule compared each file with the tracked folder's recorded `mtime`, but `shutil.copytree` copies the source folder's own mtime, so any source file compiled or edited after checkout read as "changed after install" and stayed. The error was in the safe direction (it kept files, never removed more), but it left unchanged Nexus-Hub output behind on installs from a working checkout.
+
+**Resolution (2026-10-30, Phase 7)**: `InstallManifest.record_actions` now stores `recorded_at`, the wall-clock install time, and `_stale._classify_dir` compares against it, falling back to the folder mtime for manifests written before the field existed. `test_folder_rule_compares_against_install_time_not_the_copied_folder_mtime` covers the new rule, the conservative fallback, and a later edit; the stale-surface, detection, lifecycle, and harness-audit files pass together (86 passed) with the stray caches present.
+
+#### BG-26 (v4.14.7): prune-undetected deleted files behind a linked parent folder - RESOLVED 2026-11-01
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+
+**Reason**: The adversarial pass moved `~/.kimi-code/skills` to another folder and linked it back with a junction (a dotfiles-manager layout). `_stale.py` checked only the last path component for a link, so `--yes` deleted all 1,377 files behind the link and then removed the link; the dry run reported none kept.
+
+**Resolution**: `_via_link` rejects any path with a symlink or junction between the platform folder and the entry, at plan time and again before each unlink; empty-folder removal skips links. Regression `test_a_linked_parent_folder_is_never_deleted_through` fails without the guard; the real-runner re-run row `A-C7` keeps 1,377 of 1,377 files.
+
+#### BG-27 (v4.14.7): prune-undetected deleted user files that kept an old timestamp - RESOLVED 2026-11-01
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.1
+
+**Reason**: The folder rule compared only modification time with the install record, so a file the user copied into a tracked skill folder with its original timestamp (Explorer, `cp -p`) read as unchanged and was deleted. Two independent reviews found it. The same rule also deleted a file the user already had in the folder before Nexus-Hub merged into it.
+
+**Resolution**: A file is removed only when neither its modification nor its creation or change time is later than the install record and, when a catalog is available beside the runner, the current catalog ships a file of that name; otherwise it is kept and reported. Regressions `test_a_copied_in_file_that_kept_an_old_timestamp_is_kept` and `test_a_file_the_catalog_does_not_ship_is_kept_even_if_it_predates_the_install` each fail without their guard.
+
+#### BG-28 (v4.14.7): Manifest and command robustness findings from the adversarial pass - RESOLVED 2026-11-01
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-tasks 1.3 and 6.3
+
+**Reason**: Five more findings. (1) Two concurrent runs that both judged a dead holder's lock stale could both take it, and a run that waited 30 seconds continued without the lock, so one run's manifest entries were lost. (2) A manifest that parsed as JSON but had the wrong field types crashed `doctor`, `prune-undetected`, and install with a traceback. (3) Classifying stale entries compared every entry with every earlier one, taking 68 seconds for 8,000 entries while holding the lock. (4) Removing an obsolete layout crashed with a traceback and a half-removed tree when a file was read-only or open elsewhere. (5) `--unforce KIMI` did nothing, silently, while `--forced` accepted any case. Also found: `doctor` did not label a user-forced platform although the docs said it did, and `--integrations` still removed obsolete layouts.
+
+**Resolution**: The manifest lock is now an operating-system lock the system releases when a run ends (a live holder makes the second run stop with exit 2 after 30 seconds); the manifest shape is validated on load and a bad file is set aside; entry de-duplication uses a set; the layout remover stops and names a file it cannot delete; `--unforce` is case-insensitive and says when nothing was cleared; `doctor` prints a user-forced line; a run narrowed with `--integrations` leaves obsolete layouts alone. Each has a regression test, and the real-runner rows `A-B3`, `A-E3`, `A-E3b`, and `A-E3c` pass.
+
 ## v4.14.8
 
 ### Summary
@@ -3409,15 +3957,99 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Deferred (DF) | 7 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
 ### Open Items
 
-#### DF-21: git-guardrails hook messages are not tagged yet
+#### BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
+
+**Source phase**: v4.14.7 Phase 7 T046
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
+
+**Reason**: `scripts/ci/run.py` removes each pytest scratch folder with `tempfile.TemporaryDirectory.cleanup()`, which on a Windows host without registry long-path support fails with `OSError: [WinError 145] The directory is not empty` when a long-path test left folders past 260 characters. The runner then marks the group failed with `original status=pass`: in the 2026-10-30 full profile, `hook-tests` (2755 passed) and `repo-tests-skills` (2635 passed) were reported as failures for this reason alone. Unrelated to detection; it predates this plan. A fallback cannot simply retry with the `\?\` prefix, because `tests/ci/test_ci_engine.py::test_pytest_scratch_cleanup_preserves_command_facts` requires a denied cleanup to leave the folder in place, and a prefixed scratch root would leak into every test's `tmp_path`.
+
+**Suggested next step**: Give the runner a dedicated scratch remover that deletes with the long-path form on Windows only after the normal cleanup fails with a path-length error (WinError 3 or 145), keep a permission denial as a failure, and extend the cleanup test with a past-MAX_PATH case. `scripts/ci/run.py` is shared with the queued v4.14 plans, so schedule it as its own change.
+
+- **Carried from**: v4.14.7#BG-24 on 2026-11-02
+
+#### DF-45 (v4.14.8): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
+
+**Source phase**: v4.14.7 Phase 1 T001
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Non-Goals
+
+**Reason**: The Hermes Agent installation page (https://hermes-agent.nousresearch.com/docs/getting-started/installation, fetched 2026-10-29) places the Windows install and data under `%LOCALAPPDATA%\hermes`, while `scripts/lib/integrations/hermes.py` writes `~/.hermes/skills` on every OS. Detection now finds a Windows Hermes through its executable location, but the skills it then writes land where Windows Hermes may not read them. Changing the write surface is outside this plan, whose scope is detection.
+
+**Suggested next step**: Verify the Windows Hermes skills path against first-party documentation, then move the Windows global surface under `%LOCALAPPDATA%\hermes` through `[[platform-contract-verification]]`, with a read-contract row and an installer parity check.
+
+- **Carried from**: v4.14.7#DF-42 on 2026-11-02
+
+#### MT-17 (v4.14.8): A `.ps1`-only npm shim is not found on `PATH`
+
+**Source phase**: v4.14.7 Phase 1 T002
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
+
+**Reason**: `_detection.safe_which` resolves commands through `PATHEXT`, which finds npm's `.cmd` shim but not a `.ps1`-only install. No vendor documents a `.ps1`-only layout, and decision D5 (`--platforms <key>`) is the recovery path, so no test covers that layout.
+
+**Suggested next step**: If a vendor documents a `.ps1`-only install, add `.PS1` to the probed extensions for that platform's spec and a test with a planted `.ps1` shim.
+
+- **Carried from**: v4.14.7#MT-15 on 2026-11-02
+
+#### DF-46 (v4.14.8): Seeded settings files are kept by prune-undetected
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
+
+**Reason**: `nexus-hub prune-undetected --yes` keeps `~/.aider.conf.yml`, `~/.hermes/config.yaml`, `~/.pi/agent/settings.json`, and the seeded values in the Kimi `config.toml` and Qwen `settings.json` (it strips only Nexus-Hub's hook entries from the last two), because Nexus-Hub writes seeded defaults without a per-key record of which values it wrote, so it cannot prove the user did not edit them. A machine like the maintainer's 2026-10-29 audit keeps `~/.aider.conf.yml` and a Hermes `config.yaml` after the command; the command names them as kept.
+
+**Suggested next step**: Record each seeded key and value in the manifest when seeding (the platform-defaults seed record already tracks seeds), then remove a seeded file only when every key still equals its seed. Plan it with `/plan` after v4.14.7.
+
+- **Carried from**: v4.14.7#DF-43 on 2026-11-02
+
+#### DF-47 (v4.14.8): Hermes and Pi have no installer entry
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D8
+
+**Reason**: Neither `scripts/installer.sh` nor `scripts/installer.ps1` invokes an integration for `hermes` or `pi`, and both reject them as `--platforms` keys, so they are installed only by calling `runner.py` directly. This predates v4.14.7, and decision D8 limits installer edits to the forced pass-through and the evidence lines. As a result the NOT DETECTED remedy text for these two keys ("name it with --platforms hermes") is not usable through an installer, and forcing either platform works only with `runner.py install --forced <key>`.
+
+**Suggested next step**: Decide whether the installers should install Hermes and Pi. If yes, add the key to the known-platform list, the global call, and the vocabulary entry in both installers, with an installer-parity entry. If no, drop the two integrations from the user-facing remedy text.
+
+- **Carried from**: v4.14.7#DF-44 on 2026-11-02
+
+#### WN-38 (v4.14.8): Nexus-AI vendor-folder evidence could be circular
+
+**Source phase**: v4.14.7 Phase 7 T045
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), decision D6
+
+**Reason**: D6 names only the installed application and `~/.nexus-ai`. The detection spec also counts `~/.nexus` (minus `context` and `observations.jsonl`) and `~/.gemma-code` as evidence that Nexus AI Studio is present. Nexus-Hub's own tools write project-relative `.nexus/` folders (code index, knowledge files), so a session started in the home folder could create `~/.nexus/...` entries that read as Nexus AI Studio data. The exclusion list is a two-name denylist, which is the shape of rule the plan set out to remove.
+
+**Suggested next step**: Confirm which entries the app itself creates under `~/.nexus` (`core/storage/paths.ts` in the Nexus-AI repository) and replace the denylist with an allowlist of those names, or drop `~/.nexus` and keep the application path and `~/.nexus-ai`.
+
+- **Carried from**: v4.14.7#WN-37 on 2026-11-02
+
+#### MT-18 (v4.14.8): Removal was exercised end to end only for Kimi, and four hostile cases were not run
+
+**Source phase**: v4.14.7 Phase 7 T044
+
+**Plan reference**: [v4.14.7 plan](plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+
+**Reason**: The Tier 3 adversarial pass ran every `prune-undetected --yes` attack against a real Kimi install. It did not run: the Qwen `settings.json` pruner and the shared-marker removal for the other platforms against a hostile file; a tracked file replaced by a symlink (the host refused symlink creation, WinError 1314; junctions were covered); short (8.3) names and paths on another drive letter; and a manifest edited inside the platform folder to track the folder itself with a far-future install time. The last is a self-attack through a file only the user's own account can write, so it is not a privilege boundary, but it is untested.
+
+**Suggested next step**: Add a parametrized removal test across Qwen, Pi, Hermes, and Aider using the same fixture as `tests/integrations/test_stale_surfaces.py`, plus a symlink case behind a `pytest.skip` when symlink creation is denied and a case that rejects a tracked path equal to the platform folder.
+
+- **Carried from**: v4.14.7#MT-16 on 2026-11-02
+
+#### DF-48: git-guardrails hook messages are not tagged yet
 
 **Source phase**: v4.14.8 Phase 3 T016, T017
 
@@ -3427,7 +4059,7 @@ None.
 
 **Suggested next step**: after v4.14.6 merges, at the start of Phase 5, tag both siblings with the emitter and value escaping, remove the exemption and the skips, add the behavioral and injection payloads, then tick T016 and T017.
 
-#### DF-22: Tracked `.agents/hooks/` copies still carry the old message text
+#### DF-49: Tracked `.agents/hooks/` copies still carry the old message text
 
 **Source phase**: v4.14.8 Phase 3 T020
 
@@ -3435,9 +4067,9 @@ None.
 
 **Reason**: `python scripts/lib/integrations/runner.py init --target <worktree> --dry-run` showed the Antigravity project install would also rewrite about 60 stale `.agents/skills/` and `.agents/workflows/` files, so the plan's stop rule left `.agents/hooks/` unchanged.
 
-**Suggested next step**: in Phase 5, after DF-21, regenerate the repository's own `.agents/` install in a dedicated commit that accepts the stale skill refresh, confirm with `git diff --stat -- .agents/` that only generated files changed, then tick T020.
+**Suggested next step**: in Phase 5, after DF-48, regenerate the repository's own `.agents/` install in a dedicated commit that accepts the stale skill refresh, confirm with `git diff --stat -- .agents/` that only generated files changed, then tick T020.
 
-#### DF-23: The forged-tag pointer in prompt-injection-defense is pending
+#### DF-50: The forged-tag pointer in prompt-injection-defense is pending
 
 **Source phase**: v4.14.8 Phase 4 T026
 
@@ -3447,7 +4079,7 @@ None.
 
 **Suggested next step**: after v4.14.5 merges, add the sentence from sub-task 4.3, extend the section-9 test to require it, run `python -B scripts/validate_skills.py --bundles-only`, then tick T026.
 
-#### DF-24: Hook messages produced by helper scripts are not tagged
+#### DF-51: Hook messages produced by helper scripts are not tagged
 
 **Source phase**: v4.14.8 Phase 3 T015
 
@@ -3457,7 +4089,7 @@ None.
 
 **Suggested next step**: a follow-on change that adds the tag to those three helpers and updates `test_attribution_guard.py` and `test_user_edit_guard.py`; it can run in this plan's Phase 5 only if the plan's write paths are amended with approval.
 
-#### MT-15: Whether escalation-trigger stdout reaches the user is unverified
+#### MT-19: Whether escalation-trigger stdout reaches the user is unverified
 
 **Source phase**: v4.14.8 Phase 3 T015
 
@@ -3473,7 +4105,7 @@ None.
 
 **Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](development/v4.14.8-effect-measurement.md)
 
-**Reason**: on Claude Code with the new templates, labels were correct on 7 of 10 prompts with no over-labeling. P02 relayed the untagged git-guardrails message (DF-21); P04 never reached the Nexus-Hub rule because the harness denied `rm -rf` on a short-name temp path first; P05 edited locally and stopped without asking for a rule-required approval in both template versions.
+**Reason**: on Claude Code with the new templates, labels were correct on 7 of 10 prompts with no over-labeling. P02 relayed the untagged git-guardrails message (DF-48); P04 never reached the Nexus-Hub rule because the harness denied `rm -rf` on a short-name temp path first; P05 edited locally and stopped without asking for a rule-required approval in both template versions.
 
 **Suggested next step**: after v4.14.6, repeat P02, P04 and P05 in scratch projects under a long-name path. If P05 still asks for no approval, review whether the Consequential Decisions rule needs an example for a local edit that changes distributed behavior.
 
@@ -3489,4 +4121,5 @@ None.
 
 ### Resolved
 
-None.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|

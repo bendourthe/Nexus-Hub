@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.14.4"
+NEXUS_HUB_VERSION="4.14.7"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -177,21 +177,28 @@ checklist_label() {
 
 # Platforms whose tool was not detected on this machine (grouped at run end).
 UNDETECTED_PLATFORMS=()
+# v4.14.7: one remedy line per entry, index-aligned with UNDETECTED_PLATFORMS
+# (empty when the runner reported none).
+UNDETECTED_REMEDIES=()
 
-reset_undetected_platforms() { UNDETECTED_PLATFORMS=(); }
+reset_undetected_platforms() { UNDETECTED_PLATFORMS=(); UNDETECTED_REMEDIES=(); }
 
 add_undetected_platform() {
-    # Args: name reason
+    # Args: name reason [remedy]
     UNDETECTED_PLATFORMS+=("$1 ($2)")
+    UNDETECTED_REMEDIES+=("${3:-}")
 }
 
 write_undetected_group() {
     [ "${#UNDETECTED_PLATFORMS[@]}" -eq 0 ] && return 0
     echo ""
     echo -e "  ${GRAY}> NOT DETECTED (skipped)${RESET}"
-    local entry
-    for entry in "${UNDETECTED_PLATFORMS[@]}"; do
-        echo -e "    ${GRAY}- ${entry}${RESET}"
+    local i
+    for i in "${!UNDETECTED_PLATFORMS[@]}"; do
+        echo -e "    ${GRAY}- ${UNDETECTED_PLATFORMS[$i]}${RESET}"
+        if [ -n "${UNDETECTED_REMEDIES[$i]:-}" ]; then
+            echo -e "      ${GRAY}${UNDETECTED_REMEDIES[$i]}${RESET}"
+        fi
     done
 }
 
@@ -226,6 +233,8 @@ det_s = "true" if det is True else ("false" if det is False else "")
 notes = plat.get("notes") or []
 surfaces = plat.get("surfaces", {}) or {}
 print("META\t%s\t%d\t%d" % (det_s, len(surfaces), len(notes)))
+clean = lambda value: str(value or "").replace("\t", " ").replace("\n", " ")
+print("EVID\t%s\t%s" % (clean(plat.get("evidence")), clean(plat.get("remedy"))))
 for skey, entry in surfaces.items():
     reason = str(entry.get("reason", "")).replace("\t", " ").replace("\n", " ")
     print("ROW\t%s\t%s\t%s\t%s" % (skey, entry.get("status", ""), entry.get("path", ""), reason))
@@ -237,12 +246,18 @@ PYEOF
     note_count="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="META"{print $4; exit}')"
 
     if [ "${surface_count:-0}" -eq 0 ]; then
-        local reason="not detected"
+        local reason="not detected" evidence remedy
         if [ "$detected" != "false" ] && [ "${note_count:-0}" -gt 0 ]; then
             reason="no surface at this scope"
         fi
+        # v4.14.7: the runner states why detection failed and how to recover.
+        evidence="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="EVID"{print $2; exit}')"
+        remedy="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="EVID"{print $3; exit}')"
+        if [ -n "$evidence" ]; then
+            reason="not detected: $evidence"
+        fi
         if [ -n "$provider" ]; then
-            add_undetected_platform "$display" "$reason"
+            add_undetected_platform "$display" "$reason" "$remedy"
         else
             write_item "$display" "$GRAY"
             write_item "($reason)" "$GRAY" 4
@@ -965,6 +980,19 @@ install_core_settings() {
     fi
     target_name="${resolved_dir##*/}/settings.json"
     record_file="${resolved_dir%/*}/.nexus-hub/core-settings-seeds.json"
+    # v4.14.6: a key `nexus-hub settings` recorded as the user's choice is never re-seeded or upgraded.
+    # The helper runs from the tree being installed (the installed copy may still be the previous
+    # version at this point). A record that cannot be read stops seeding: never seed blindly.
+    local settings_cli="$repo_root/scripts/nexus_hub_cli.py" settings_py="" owned_json owned_skip='[]'
+    if command -v python3 >/dev/null 2>&1; then settings_py=python3; elif command -v python >/dev/null 2>&1; then settings_py=python; fi
+    if [ -f "$settings_cli" ]; then
+        if [ -z "$settings_py" ] \
+            || ! owned_json=$("$settings_py" "$settings_cli" settings owned-keys --json --home "${resolved_dir%/*}") \
+            || ! owned_skip=$(printf '%s\n' "$owned_json" | jq -c '[.dotted["~/.claude/settings.json"][]?]'); then
+            write_item "Warning: could not read the Nexus-Hub Settings ownership record; core settings were not seeded" "$YELLOW" >&2
+            return
+        fi
+    fi
     ownership=$(jq -cn --arg target "$target_name" '{schema_version:1,target:$target,values:{},removed:[]}')
     if [ -e "$record_file" ] || [ -L "$record_file" ]; then
         if [ ! -L "$record_file" ] && jq -e --arg target "$target_name" '
@@ -980,7 +1008,7 @@ install_core_settings() {
     fi
     if [ "${_nexus_core_settings_created_path:-}" = "$settings_file" ]; then fresh=true; fi
     local payload merged seed_record
-    if ! payload=$(jq -n --slurpfile existing "$settings_file" --slurpfile template "$template_file" --argjson ownership "$ownership" --argjson fresh "$fresh" '
+    if ! payload=$(jq -n --slurpfile existing "$settings_file" --slurpfile template "$template_file" --argjson ownership "$ownership" --argjson fresh "$fresh" --argjson skip "$owned_skip" '
         def slot($key):
             reduce ($key | split("."))[] as $part
                 ({present:true,value:.};
@@ -1007,14 +1035,15 @@ install_core_settings() {
         ($user_scalar or $user_env) as $user_pair |
         (($user_scalar and $scalar.value != $t.effortLevel) or $user_env) as $user_alternative |
         {config:$e,owned:$prior,removed:($ownership.removed // []),blocked:[]}
-        | if ($desired | has("env.CLAUDE_CODE_EFFORT_LEVEL") | not) then
+        | if ($desired | has("env.CLAUDE_CODE_EFFORT_LEVEL") | not) and (($skip | index("env.CLAUDE_CODE_EFFORT_LEVEL")) == null) then
             if $env.present and (.owned | has("env.CLAUDE_CODE_EFFORT_LEVEL")) and $env.value == .owned["env.CLAUDE_CODE_EFFORT_LEVEL"]
             then .config |= delpaths([["env","CLAUDE_CODE_EFFORT_LEVEL"]]) else . end
             | .owned |= del(."env.CLAUDE_CODE_EFFORT_LEVEL")
           else . end
         | reduce ($desired | to_entries[]) as $entry (.;
             $entry.key as $key | ($key | split(".")) as $path | (.config | slot($key)) as $current |
-            if (.removed | index($key)) != null then
+            if ($skip | index($key)) != null then .
+            elif (.removed | index($key)) != null then
                 if $fresh and $current.present and $current.value == $entry.value then .config |= delpaths([$path]) else . end
                 | .owned |= del(.[$key])
             elif ($current.present | not) and (.owned | has($key)) then
@@ -2402,6 +2431,11 @@ invoke_registry_platform() {
     if [ "$scope" = "workspace" ]; then
         args+=("--target" "$target_path")
     fi
+    # v4.14.7 (decision D5): forward an explicit --platforms choice so the runner
+    # installs the platform even when detection finds no evidence.
+    if [ "$scope" = "global" ] && [ -n "$PLATFORMS_ARG" ]; then
+        args+=("--forced" "$key")
+    fi
     # v3.16.1 Phase 6.1: forward the selectors so the registry resolves the same
     # plan this script did. Passed as separate array elements, never interpolated
     # into a command string, so a selector value cannot inject an argument.
@@ -2478,6 +2512,7 @@ install_vscode_extensions() {
     write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
     write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
+    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2638,6 +2673,12 @@ install_vscode_extensions() {
     select_working_launcher "$antigravity_label" 30 ${antigravity_candidates[@]+"${antigravity_candidates[@]}"}
     antigravity_cli="$selected_launcher"
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
+
+    # The Settings panel (v4.14.6) is Nexus-Hub's own, not a vendor's, so it has its own
+    # header. It installs into VS Code only (never Cursor or Antigravity: it writes VS Code
+    # user settings) and has no status-bar item, so the status hint is empty.
+    write_header "NEXUS-HUB"
+    build_and_install_one_extension "$repo_root/extensions/nexus-hub-settings" "nexus-hub.nexus-hub-settings" "Nexus-Hub Settings" "" "$vscode_cli" "$vscode_label"
 }
 
 # Run a command for at most $1 seconds, appending its output to the file $2.
@@ -2718,6 +2759,9 @@ build_and_install_one_extension() {
     # installed into VS Code is simply absent there.
     local also_cli="${7:-}"
     local also_label="${8:-}"
+    # Usage monitors point at their status-bar label; the Settings panel has none (empty hint).
+    local activation_hint="Look for '${status_hint}' in the status bar."
+    if [ -z "$status_hint" ]; then activation_hint="Open the Nexus-Hub Settings view in the activity bar."; fi
 
     echo ""
     echo -e "  ${DARK_YELLOW}> ${display_name}${RESET}"
@@ -2818,7 +2862,7 @@ build_and_install_one_extension() {
         # --force ensures reinstall even when the version number has not changed
         if "$code_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] ${display_name} extension installed in $code_label!" "$GREEN"
-            write_item "  Restart $code_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
+            write_item "  Restart $code_label to activate. ${activation_hint}" "$RESET"
         else
             write_item "$code_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
@@ -2835,7 +2879,7 @@ build_and_install_one_extension() {
         "$also_cli" --uninstall-extension "$extension_id" 2>/dev/null || true
         if "$also_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] ${display_name} extension installed in $also_label!" "$GREEN"
-            write_item "  Restart $also_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
+            write_item "  Restart $also_label to activate. ${activation_hint}" "$RESET"
         else
             write_item "$also_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$also_cli\" --install-extension \"$vsix_file\"" "$RESET"
