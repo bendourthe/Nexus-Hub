@@ -80,7 +80,7 @@ The hook field and loop checks follow the [Claude hook reference](https://code.c
 
 ## Open Checks
 
-- Integration and runtime installation are pending. The repair is local; no release or remote CI is claimed.
+- PR #599 publishes the repair. Its first validation run exposed stale distribution-handbook evidence for the changed CLI and Cursor adapter. The handbook now explains recovery in both views, tracks the guard as an input and carries a fresh content/build/browser review. The runtime blobs qualified above are unchanged by that documentation correction. Integration and runtime installation remain pending until the current protected checks pass.
 - Verify one genuine Claude Code Desktop question at the limit after adoption: choose the desired answer once, inspect the project ledger, then observe that subsequent Stop and tool events stay quiet.
 - Observe native Cursor and Codex result payloads after installation. Fixture coverage establishes the supported schemas, but does not prove every host version emits them. Typed replies and user-run recovery remain available.
 - The existing live pending spending decision was not changed. The user can select its answer through the repaired capture flow or recovery CLI after installation.

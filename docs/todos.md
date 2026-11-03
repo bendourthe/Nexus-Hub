@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 
-**Usage-answer repair:** The approved repair is on `fix/usage-answer-capture-publish`, refreshed onto develop with upstream behavior preserved. All 763 affected Windows tests, 18 fast-profile checks and 106 exported-runtime checks pass with zero failures or skips. Ten review lenses and targeted rechecks cover the additional contention, compatibility and trust-boundary corrections. Integration: 0/1; adoption: 0/1; genuine Desktop verification: 0/1. [Evidence](releases/v4/v4.14/development/usage-answer-capture-repair.md).
+**Usage-answer repair:** PR #599 publishes the approved repair from `fix/usage-answer-capture-publish`, refreshed onto develop with upstream behavior preserved. All 763 affected Windows tests, 18 fast-profile checks and 106 exported-runtime checks pass with zero failures or skips. Ten review lenses and targeted rechecks cover the additional contention, compatibility and trust-boundary corrections. The stale handbook receipt found by CI is corrected with fresh content, reproducible build and 80 browser-state checks. Integration: 0/1; adoption: 0/1; genuine Desktop verification: 0/1. [Evidence](releases/v4/v4.14/development/usage-answer-capture-repair.md).
 
 - [x] Reproduce the repeated usage interruption and implement direct answer capture plus recovery without agent-run spending commands.
 - [x] Complete final affected Windows tests for the usage-answer repair.
