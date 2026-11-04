@@ -115,8 +115,10 @@
       });
     }
 
-    function labeled(labelText, control, id) {
-      return el("div", { class: "field" }, [el("label", { for: id, text: labelText }), control]);
+    /** A label above its control; an action, when given, sits on the same line as the control. */
+    function labeled(labelText, control, id, action) {
+      var line = action ? el("div", { class: "inline" }, [control, action]) : control;
+      return el("div", { class: "field" }, [el("label", { for: id, text: labelText }), line]);
     }
 
     function choiceLabel(control, choice) {
@@ -148,7 +150,7 @@
       }
     }
 
-    function select(control, key, focus, start, labelText) {
+    function select(control, key, focus, start, labelText, action) {
       var id = uid("sel");
       starts[key] = start;
       var current = draftValue(key, start);
@@ -167,18 +169,34 @@
         node.appendChild(el("option", { value: choice, text: choiceLabel(control, choice) }));
       });
       node.value = control.choices.indexOf(current) >= 0 ? current : placeholder ? "" : control.choices[0];
-      return labeled(labelText, node, id);
+      return labeled(labelText, node, id, action);
     }
 
-    function textInput(control, row, key) {
+    /**
+     * Known model ids are offered as small buttons under the field rather than a datalist: a datalist
+     * opens a native popup over the rows below it, and buttons stay inside the row and reach the keyboard.
+     */
+    function suggestionsNode(row, key, ids, label) {
+      return el("div", { class: "suggestions", role: "group", "aria-label": "Known model ids for " + row.toolLabel }, ids.map(function (name) {
+        return button(name, "suggest:" + key + "|" + name, function () {
+          drafts[key] = name;
+          var field = app.querySelector('[data-focus="txt:' + clean(key) + '"]');
+          if (field) {
+            field.value = name;
+          }
+          syncSet(key);
+        }, { cls: "suggestion", aria: name + " for " + row.toolLabel + " (" + label + ")" });
+      }));
+    }
+
+    function textInput(control, row, key, action) {
       var id = uid("txt");
       var suggestions = control.suggestions[row.tool] || [];
-      var listId = suggestions.length > 0 ? uid("dl") : null;
       starts[key] = "";
       var input = el("input", {
         type: "text",
         id: id,
-        list: listId,
+        placeholder: "opus, or a full model id",
         value: draftValue(key, ""),
         spellcheck: "false",
         autocomplete: "off",
@@ -188,9 +206,9 @@
         "aria-disabled": busy() ? "true" : null,
         on: { input: function (event) { drafts[key] = event.target.value; syncSet(key); } },
       });
-      var field = labeled("Default model for " + row.toolLabel + " (an alias such as opus, or a full model id)", input, id);
-      if (listId) {
-        field.appendChild(el("datalist", { id: listId }, suggestions.map(function (name) { return el("option", { value: name }); })));
+      var field = labeled("Default model for " + row.toolLabel, input, id, action);
+      if (suggestions.length > 0) {
+        field.appendChild(suggestionsNode(row, key, suggestions, control.label));
       }
       return field;
     }
@@ -199,8 +217,7 @@
       var kids = [];
       var key = control.id + "|" + row.tool;
       if (control.kind === "text" && control.perTool && row.canSet) {
-        kids.push(textInput(control, row, key));
-        kids.push(button("Set for " + row.toolLabel, "set:" + key, function () {
+        kids.push(textInput(control, row, key, button("Set", "set:" + key, function () {
           var value = (drafts[key] || "").trim();
           if (value) {
             post({ type: "set", control: control.id, value: value, tool: row.tool });
@@ -209,24 +226,25 @@
           cls: "primary",
           aria: "Set for " + row.toolLabel + " (" + control.label + ")",
           ready: function () { return (draftValue(key, "") || "").trim() !== ""; },
-        }));
+        })));
       }
       if (control.kind === "choice" && control.perToolOverride && row.canSet) {
         var start = startFor(control, row.value);
-        kids.push(select(control, key, "pick:" + key, start, control.label + " only for " + row.toolLabel));
-        kids.push(button("Set only for " + row.toolLabel, "set:" + key, function () {
+        kids.push(select(control, key, "pick:" + key, start, control.label + " only for " + row.toolLabel, button("Set", "set:" + key, function () {
           post({ type: "set", control: control.id, value: draftValue(key, start), tool: row.tool });
         }, {
           cls: "primary",
           aria: "Set only for " + row.toolLabel + " (" + control.label + ")",
           ready: function () { return !!draftValue(key, start); },
-        }));
+        })));
       }
       if (row.removable) {
-        kids.push(text("p", row.removable.reason, "hint"));
-        kids.push(button("Remove this override", "remove:" + key, function () {
-          post({ type: "removeOverride", control: control.id, tool: row.tool });
-        }, { cls: row.removable.weakens ? "danger" : "", aria: "Remove this override for " + row.toolLabel + " (" + control.label + ")" }));
+        kids.push(el("div", { class: "override" }, [
+          text("p", row.removable.reason, "hint"),
+          button("Remove this override", "remove:" + key, function () {
+            post({ type: "removeOverride", control: control.id, tool: row.tool });
+          }, { cls: row.removable.weakens ? "danger" : "", aria: "Remove this override for " + row.toolLabel + " (" + control.label + ")" }),
+        ]));
       }
       return kids;
     }
@@ -235,21 +253,54 @@
       var title = row.toolLabel + (row.surface === "cli" ? "" : " (" + row.surfaceLabel + ")");
       var body = [];
       if (row.value) {
-        body.push(text("p", "Current value: " + row.value, "value"));
+        body.push(el("p", { class: "value" }, [text("span", "Current value: ", "label"), text("code", row.value, "chip")]));
       }
       if (row.state === "overridden-by" && row.layerValue) {
-        body.push(text("p", "The overriding value is " + row.layerValue + ".", "value"));
+        body.push(el("p", { class: "value" }, [text("span", "The overriding value is ", "label"), text("code", row.layerValue, "chip"), doc.createTextNode(".")]));
       }
       if (row.fix) {
         body.push(text("p", "To fix: " + row.fix, "fix"));
       }
-      if (row.detail) {
-        body.push(text("p", row.detail, "detail"));
+      var key = control.id + "|" + row.tool + "|" + row.surface;
+      if (row.state === "not-settable" || row.state === "tool-not-installed") {
+        // Nothing here can be changed, so the reason is folded with the notes instead of filling the card.
+        if (row.detail || row.caveats.length > 0) {
+          body.push(notesNode(key, title, control.label, row.caveats, row.detail, row.state === "not-settable" ? "Why it cannot be set" : "Details"));
+        }
+      } else {
+        if (row.detail) {
+          body.push(text("p", row.detail, "detail"));
+        }
+        if (row.caveats.length > 0) {
+          body.push(notesNode(key, title, control.label, row.caveats, null, null));
+        }
       }
-      if (row.caveats.length > 0) {
-        body.push(el("ul", { class: "caveats", "aria-label": "Notes for " + title }, row.caveats.map(function (c) { return text("li", c); })));
+      return el("li", { class: "row state-" + row.state }, [el("div", { class: "row-head" }, [text("strong", title), badge(row.badge)])].concat(body, rowActions(control, row)));
+    }
+
+    /** Caveats are background that repeats across rows, so they start folded; an opened one stays open across renders. */
+    function notesNode(key, title, controlLabel, caveats, lead, label) {
+      var visible = label || (caveats.length === 1 ? "1 note" : caveats.length + " notes");
+      var summary = text("summary", visible);
+      summary.setAttribute("data-focus", "notes:" + key);
+      summary.setAttribute("aria-label", visible + " for " + title + " (" + controlLabel + ")");
+      var kids = [summary, lead ? text("p", lead, "detail") : null];
+      if (caveats.length > 0) {
+        kids.push(el("ul", { class: "caveats", "aria-label": "Notes for " + title }, caveats.map(function (c) { return text("li", c); })));
       }
-      return el("li", { class: "row" }, [el("div", { class: "row-head" }, [text("strong", title), badge(row.badge)])].concat(body, rowActions(control, row)));
+      return remembered(el("details", { class: "notes", open: openSources["notes:" + key] === true }, kids), "notes:" + key);
+    }
+
+    /** Keep a details element open across renders once the person opened it. */
+    function remembered(details, key) {
+      details.addEventListener("toggle", function () {
+        if (details.open) {
+          openSources[key] = true;
+        } else {
+          delete openSources[key];
+        }
+      });
+      return details;
     }
 
     function sourcesNode(control) {
@@ -280,15 +331,7 @@
       var summary = text("summary", "Show sources and exact keys");
       summary.setAttribute("data-focus", "sources:" + control.id);
       summary.setAttribute("aria-label", "Show sources and exact keys for " + control.label);
-      var details = el("details", { class: "sources", open: openSources[control.id] === true }, [summary, el("ul", {}, items)]);
-      details.addEventListener("toggle", function () {
-        if (details.open) {
-          openSources[control.id] = true;
-        } else {
-          delete openSources[control.id];
-        }
-      });
-      return details;
+      return remembered(el("details", { class: "sources", open: openSources[control.id] === true }, [summary, el("ul", {}, items)]), control.id);
     }
 
     function applyAll(control) {
@@ -304,14 +347,13 @@
       var key = control.id + "|*";
       var start = startFor(control, first);
       return el("div", { class: "apply" }, [
-        select(control, key, "pick:" + key, start, control.label),
-        button("Apply to every tool", "set:" + key, function () {
+        select(control, key, "pick:" + key, start, "Every tool", button("Apply to every tool", "set:" + key, function () {
           post({ type: "set", control: control.id, value: draftValue(key, start), tool: null });
         }, {
           cls: "primary",
           aria: "Apply to every tool (" + control.label + ")",
           ready: function () { return !!draftValue(key, start); },
-        }),
+        })),
       ]);
     }
 
@@ -327,15 +369,16 @@
         kids.push(apply);
       }
       kids.push(el("ul", { class: "rows", "aria-label": control.label + " by tool" }, control.rows.map(function (row) { return rowNode(control, row); })));
-      kids.push(el("div", { class: "actions" }, [
+      kids.push(el("div", { class: "card-foot" }, [
+        sourcesNode(control),
         button("Reset " + control.label + " to what was there before", "reset:" + control.id, function () {
           post({ type: "reset", control: control.id, tool: null });
-        }),
+        }, { cls: "link" }),
       ]));
-      kids.push(sourcesNode(control));
       return el("section", { class: "card", "data-card": control.id, "aria-labelledby": headingId }, kids);
     }
 
+    /** The preview of a High-effort, Full-auto session is reference material: its heading is the summary that unfolds it. */
     function outcomeNode(outcome) {
       if (outcome.rows.length === 0) {
         return null;
@@ -344,14 +387,13 @@
       var rows = outcome.rows.map(function (row) {
         return el("tr", {}, [el("th", { scope: "row", text: row.label }), text("td", row.effort), text("td", row.posture)]);
       });
-      var kids = [
-        el("h2", { id: "outcome-h", text: outcome.title }),
-        el("div", { class: "scroll" }, [el("table", {}, [el("caption", { text: outcome.title, class: "visually-hidden" }), el("thead", {}, [head]), el("tbody", {}, rows)])]),
-      ];
+      var summary = el("summary", { "data-focus": "outcome" }, [el("h2", { id: "outcome-h", text: outcome.title })]);
+      var kids = [summary, el("div", { class: "scroll" }, [el("table", {}, [el("caption", { text: outcome.title, class: "visually-hidden" }), el("thead", {}, [head]), el("tbody", {}, rows)])])];
       (outcome.notes || []).forEach(function (note) {
-        kids.push(text("p", note, "hint"));
+        kids.push(text("p", note, "hint small"));
       });
-      return el("section", { class: "card", "data-card": "outcome", "aria-labelledby": "outcome-h" }, kids);
+      var details = remembered(el("details", { class: "outcome", open: openSources.outcome === true }, kids), "outcome");
+      return el("section", { class: "card", "data-card": "outcome", "aria-labelledby": "outcome-h" }, [details]);
     }
 
     /** The visible notice. It carries no live role: the live regions below speak it once. */
@@ -379,10 +421,15 @@
     function headerNode(m) {
       var logo = app.getAttribute("data-logo");
       return el("header", {}, [
-        el("div", { class: "title" }, [logo ? el("img", { src: logo, alt: "", width: "28", height: "28" }) : null, text("h1", "Nexus-Hub Settings")]),
+        el("div", { class: "title" }, [
+          logo ? el("img", { src: logo, alt: "", width: "28", height: "28" }) : null,
+          el("div", { class: "title-text" }, [
+            text("h1", "Nexus-Hub Settings"),
+            text("p", "VS Code profile: " + m.header.profile + ". Platform: " + m.header.platform + ".", "hint small"),
+          ]),
+          button("Refresh", "refresh", function () { post({ type: "refresh" }); }, { keepEnabled: true }),
+        ]),
         text("p", m.header.note, "hint"),
-        text("p", "VS Code profile: " + m.header.profile + ". Platform: " + m.header.platform + ".", "hint"),
-        button("Refresh", "refresh", function () { post({ type: "refresh" }); }, { keepEnabled: true }),
       ]);
     }
 

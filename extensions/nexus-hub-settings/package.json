@@ -47,6 +47,15 @@
         "category": "Nexus-Hub"
       }
     ],
+    "icons": {
+      "nexus-hub-icon": {
+        "description": "The Nexus-Hub mark",
+        "default": {
+          "fontPath": "./fonts/nexus-hub-icons.woff2",
+          "fontCharacter": "\\E201"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -84,14 +93,18 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "package": "vsce package --no-dependencies",
+    "generate-icons": "node scripts/generate-icon-font.js",
     "verify:package": "node scripts/verify-package-contents.js"
   },
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/vscode": "1.85.0",
-    "@vscode/vsce": "4.1.0",
     "@vitest/coverage-v8": "4.1.12",
+    "@vscode/vsce": "4.1.0",
     "happy-dom": "21.0.4",
+    "svg2ttf": "6.1.0",
+    "svgpath": "2.6.0",
+    "ttf2woff2": "8.0.1",
     "typescript": "5.9.3",
     "vitest": "4.1.12"
   },

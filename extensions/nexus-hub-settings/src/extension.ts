@@ -5,6 +5,7 @@ import { CliBridge } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
 import { profileNameFromStorage } from "./editorWrites";
 import { SettingsViewProvider } from "./settingsView";
+import { SettingsStatusBar } from "./statusBar";
 import { ViewModel } from "./viewModel";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
@@ -83,6 +84,13 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
   for (const glob of ["**/.claude/settings*.json", "**/.codex/config.toml", "**/.github/copilot/settings*.json"]) {
     watch(glob);
   }
+
+  // The status bar shows the same model the panel draws. Reading it once at startup fills the
+  // status bar before the panel is ever opened; every later refresh reaches it through onChange.
+  const statusBar = new SettingsStatusBar(OPEN_COMMAND);
+  const statusUpdates = controller.onChange((model) => statusBar.update(model));
+  context.subscriptions.push(statusBar, statusUpdates);
+  void controller.refresh();
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(SettingsViewProvider.viewType, new SettingsViewProvider(context.extensionUri, controller), {
