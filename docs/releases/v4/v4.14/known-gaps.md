@@ -1,9 +1,9 @@
 # Known Gaps - v4.14
 
 **Project**: Nexus-Hub
-**Status**: in-progress
+**Status**: finalized; v4.14.0 through v4.14.8 are released. All 173 parsed items are resolved (58) or verified migrated to v4.15 (115); no open source items remain. The 115 successor obligations remain open in v4.15. Archival and the green administrative closing pull request are still pending.
 **Last updated**: 2026-11-04
-**Open items**: 1
+**Open items**: 0
 
 ## v4.14.0
 
@@ -1073,7 +1073,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-74 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-74 Gemini CLI and OpenCode document no flag that excludes all configuration, so all-configuration isolation cannot be proved.
 
-### AR-31: Five historical CodeQL alerts and the required-context decision remain open
+### AR-31: Five historical CodeQL alerts and the required-context decision remain open - RESOLVED 2026-11-04
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Security and CI owner
@@ -1112,6 +1112,14 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 - **Migrated from**: v4.13#AR-73 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-73 still has hosted CodeQL alerts #223, #329, #330, #349 and #350 open on the 2026-10-09 read-back; each needs a fix or a maintainer dismissal through the maintainer's gh session, plus a maintainer decision on making CodeQL a required check.
+
+**Resolution, 2026-11-04 (v4.14.8 minor close)**: the maintainer approved each disposition on 2026-11-04, and the five alerts were dismissed on GitHub with these reasons and a comment each (read back as `dismissed`):
+
+- #223 `py/clear-text-logging-sensitive-data`, `scripts/validate_skills.py`: false positive. The printed error carries only the secret-pattern name, the file path and an approximate line number (`scan_text_for_secrets`), never the matched text.
+- #329 and #330 `js/xss-through-dom`, the archived v3.12 worked-example pages `run-a.html` and `run-b.html`: won't fix. Static authored content with no user input, archived evidence that the installer does not distribute.
+- #349 and #350 `py/bad-tag-filter`, the archived v3.12 demo verifiers: false positive. The regular expression measures inline script bytes for a size budget; it is not a sanitizer or filter.
+
+Required-context decision: CodeQL stays a non-required check. Its findings already block merging, because they post as review threads and `develop` requires every conversation to be resolved (observed on PR #605, where a new CodeQL finding held a green pull request until the code was fixed). Making it a required status check would also require it to run unconditionally on every pull request under the required-check policy. Nine other open CodeQL security alerts and 205 quality notes on `main` were outside this item; they are recorded as v4.15 WN-29.
 
 ### AR-30: Manual distribution read-path and prose false-positive exercises remain unperformed - MIGRATED to v4.15.0
 
