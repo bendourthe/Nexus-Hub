@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-03
-**Open items**: 115
+**Last updated**: 2026-11-04
+**Open items**: 1
 
 ## v4.14.0
 
@@ -12,11 +12,11 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 11 | 3 |
-| Bugs / regressions (BG) | 2 | 15 |
-| Warnings (WN) | 24 | 2 |
-| Missing tests / coverage gaps (MT) | 4 | 9 |
-| Quality-gate gaps (QG) | 3 | 1 |
+| Deferred (DF) | 0 | 3 |
+| Bugs / regressions (BG) | 0 | 15 |
+| Warnings (WN) | 0 | 2 |
+| Missing tests / coverage gaps (MT) | 0 | 9 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 The six standard categories contain 44 open items; 35 inherited AR obligations bring the section total to 79. The 23 findings introduced during the v4.14.0 run and the six previously resolved entries remain resolved. The inherited pilot tooling candidate below adds one resolution, bringing this section to 30 resolved items. Every original item body is retained. The remaining 79 open items are inherited obligations; their migration authority is unchanged. The pilot resolution takes effect on merge of its maintenance package, whose local qualification and pending integration boundary are recorded below.
 
@@ -48,7 +48,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 ### Open Items
 
-#### BG-1: The second pilot's per-call budget did not bound reported cost
+#### BG-1: The second pilot's per-call budget did not bound reported cost - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -71,7 +71,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#BG-7-v4130 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: BG-7-v4130 needs a Claude Console workspace API key with a provider-enforced spend cap; the host authenticates only as claude.ai Team (preflight 2026-09-24), so no bounded paid call is possible.
 
-#### WN-1: The shipped catalog under-triggers on its own positive prompts
+#### WN-1: The shipped catalog under-triggers on its own positive prompts - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -92,7 +92,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-3-v4130 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: WN-3-v4130 requires a new paid frozen trigger pilot, which is blocked until BG-7 establishes a provider-enforced spend cap on a Console workspace key.
 
-#### WN-2: The recorded pilot run cannot be re-audited for the loose selection matcher
+#### WN-2: The recorded pilot run cannot be re-audited for the loose selection matcher - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -115,7 +115,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-5-v4130 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: WN-5-v4130's 96 historical tool payloads were never retained and cannot be recovered; future runs retain selectors, so only maintainer acceptance can close the historical clause.
 
-#### BG-2: A test in the full profile writes into the real user's `~/.nexus-hub`
+#### BG-2: A test in the full profile writes into the real user's `~/.nexus-hub` - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -138,7 +138,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#BG-2-v4131 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: BG-2-v4131 keeps finding the concurrent writer of state/locks with a quiet machine running the full-profile groups one by one, and hosted protected-integration verification.
 
-#### WN-3: A user edit made between sessions is preserved but not reported
+#### WN-3: A user edit made between sessions is preserved but not reported - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -155,7 +155,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-1-v4131 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Scenario B re-measurement needs a paid Claude replay run on the maintainer's pilot keys; the hook fix is test-covered only.
 
-#### WN-4: A moved picture was never named in the agent's report
+#### WN-4: A moved picture was never named in the agent's report - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -172,7 +172,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-2-v4131 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Scenario C re-run (three Claude trials per condition) is a paid replay on the maintainer's pilot keys.
 
-#### WN-5: Codex replay runs can see the machine's real user skills
+#### WN-5: Codex replay runs can see the machine's real user skills - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -189,7 +189,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-3-v4131 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Codex resolves home via the Windows known-folder API, so isolation needs a separate OS account or container that is not available on this host.
 
-#### WN-6: Scenario D (deck left open) was not re-measured on Claude after the fixes
+#### WN-6: Scenario D (deck left open) was not re-measured on Claude after the fixes - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -206,7 +206,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-5-v4131 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Post-fix Claude scenario D replay is a paid run on the maintainer's pilot keys.
 
-#### MT-1: No paid measurement of the rule on a platform other than Claude and Codex
+#### MT-1: No paid measurement of the rule on a platform other than Claude and Codex - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -223,7 +223,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#MT-1-v4131 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Measuring the rule on Copilot, Cursor, Gemini or a rule-only platform needs a paid replay on that vendor account.
 
-#### WN-7: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`
+#### WN-7: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE` - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -242,7 +242,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-4-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: OpenCode documents no prompt-submit event and `opencode run` attaches no terminal, so a headless approval cannot be captured.
 
-#### WN-8: On OpenCode a full run proceeds on in-prompt approvals without a run record
+#### WN-8: On OpenCode a full run proceeds on in-prompt approvals without a run record - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -261,7 +261,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-7-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: No OpenCode signal identifies an `/implement` run, so a push/merge/release refusal plugin cannot be keyed reliably.
 
-#### MT-2: Condition B (Codex) has one passing end-to-end run
+#### MT-2: Condition B (Codex) has one passing end-to-end run - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -280,7 +280,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#MT-1-v4132 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Condition B rerun needs the OpenAI pilot key quota (last run returned Quota exceeded).
 
-#### WN-9: The run record's signature does not cover `pause` or `blockers`
+#### WN-9: The run record's signature does not cover `pause` or `blockers` - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -299,7 +299,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-8-v4132 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: WN-8-v4132 signing pause and blockers changes the run-record signature format and was deliberately not changed during a live signed minor run.
 
-#### WN-10: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29
+#### WN-10: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29 - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -330,7 +330,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-9-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: No platform documents a per-prompt user attestation the agent's own tool calls cannot forge.
 
-#### WN-11: `run-plan` checks only global settings for an approval bypass
+#### WN-11: `run-plan` checks only global settings for an approval bypass - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -351,7 +351,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-11-v4132 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Refusing unchecked platform rows changes run-plan behavior on four platforms and needs a maintainer decision.
 
-#### WN-12: Record lifetime and environment edge cases
+#### WN-12: Record lifetime and environment edge cases - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -370,7 +370,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-13 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Confirming the exact `gh pr checks` no-checks stderr needs a freshly opened PR on the maintainer's GitHub account.
 
-#### DF-1: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
+#### DF-1: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -391,7 +391,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-5-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: The prompt-event payload field carrying user text is not verified for Pi, OpenClaw and Hermes plugins.
 
-#### MT-3: No real CLI run exercised a gate refusal or a runner resume
+#### MT-3: No real CLI run exercised a gate refusal or a runner resume - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -408,7 +408,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#MT-2 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Exercising a real gate refusal and runner resume needs a paid Claude/Codex session on the maintainer's keys.
 
-#### DF-2: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
+#### DF-2: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -429,7 +429,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 
 **Update 2026-10-15 (v4.13.13 platform-contract pass)**: re-verified. The Cascade hooks page still reads the workspace `.devin/hooks.json` first and the legacy `.windsurf/hooks.json` only when the `.devin/` file is absent or defines no hooks ([source](https://docs.devin.ai/desktop/cascade/hooks)). The same change now covers skills (`.devin/skills/` preferred, `.windsurf/skills/` legacy and still read; [source](https://docs.devin.ai/desktop/cascade/skills)) and workflows (`.devin/workflows/*.md` preferred, `.windsurf/workflows/*.md` fallback; [source](https://docs.devin.ai/desktop/cascade/workflows)). Nothing breaks today because the legacy paths are still read. Not fixed at release time: moving delivery paths changes `scripts/lib/integrations/windsurf.py`, `docs/policy/platform-read-contracts.json` and their tests together, which is implementation work for a v4.14 plan rather than a release-flow edit.
 
-#### DF-3: Antigravity 1.0 hook support is unconfirmed while the integration declares none
+#### DF-3: Antigravity 1.0 hook support is unconfirmed while the integration declares none - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -448,7 +448,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-2-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: No first-party page confirms hooks for Antigravity 1.0 and no 1.0 install is available to observe one.
 
-#### DF-4: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it
+#### DF-4: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -469,7 +469,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-3-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Devin CLI's hook payload fields are not captured from vendor docs or a live run, so a parity case would be invented.
 
-#### DF-5: OpenClaw and Hermes completion plugins need a manual enable step
+#### DF-5: OpenClaw and Hermes completion plugins need a manual enable step - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -488,7 +488,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-4-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: OpenClaw and Hermes plugin-enable config locations were not stated verbatim by first-party pages (2026-09-25).
 
-#### DF-6 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
+#### DF-6 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `v4.15.2-adoption-harness-economics-and-portable-engineering-system`
@@ -505,7 +505,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
 
-#### DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2
+#### DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2 - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: v4.15.2
@@ -522,7 +522,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-4-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Static measurement is v4.17.3 work, which the plan already binds to the existing estimator.
 
-#### DF-9 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
+#### DF-9 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `v4.14.0-adoption-agent-tooling-and-subagent-cost`
@@ -539,7 +539,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-8 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Owned by v4.16.2 and gated on a v4.17.3 cost/pass-rate pairing receipt not yet produced.
 
-#### MT-4 (v4.13.3): The full installers were not run end to end on a disposable machine
+#### MT-4 (v4.13.3): The full installers were not run end to end on a disposable machine - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: release maintainer
@@ -556,7 +556,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#MT-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: A full installer run needs a disposable machine because it writes real %APPDATA% and VS Code extensions.
 
-#### WN-14 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
+#### WN-14 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -573,7 +573,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-1-v4136 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Needs a human-typed /goal in an interactive Claude Code session with a logging UserPromptSubmit hook; only the headless probe exists.
 
-#### WN-15 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch
+#### WN-15 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide maintainer
@@ -590,7 +590,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-4-v4136 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Triage of 100 pre-existing whole-guide detector findings plus a new whole-page render gate is a multi-view guide project outside this sweep.
 
-#### DF-10 (v4.13.6): Copilot CLI sets no native goal headlessly
+#### DF-10 (v4.13.6): Copilot CLI sets no native goal headlessly - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -607,7 +607,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-1-v4136 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Copilot CLI documents no headless /goal entry point; run_plan.py keeps copilot/cli in INTERACTIVE_GOAL_ROWS.
 
-#### QG-1 (v4.13.6): The non-engineer read-back of the approval page is pending
+#### QG-1 (v4.13.6): The non-engineer read-back of the approval page is pending - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: the user, via the orchestrator
@@ -624,7 +624,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#QG-1-v4136 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: The redesigned approval page needs a non-engineer read-back, which an agent cannot perform.
 
-#### WN-16 (v4.13.9): The GPT-6.1 Sol announcement could not be read
+#### WN-16 (v4.13.9): The GPT-6.1 Sol announcement could not be read - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -643,7 +643,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-1-v4139 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: openai.com/index/introducing-gpt-6-1-sol/ returned HTTP 403; profile claims rest only on the model catalog.
 
-#### WN-17 (v4.13.9): Cursor's primary documentation for `/visualize` was not read
+#### WN-17 (v4.13.9): Cursor's primary documentation for `/visualize` was not read - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -662,7 +662,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-2-v4139 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: cursor.com/docs/agent/chat/commands documents neither /visualize nor command-name precedence; option (b) stands.
 
-#### DF-11 (v4.13.9): The Codex `doctor` advisory was cut from this plan
+#### DF-11 (v4.13.9): The Codex `doctor` advisory was cut from this plan - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -681,7 +681,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#DF-1-v4139 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Reopen requires two primary OpenAI sources confirming the fix version and a second host hazard; neither exists.
 
-#### WN-18 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
+#### WN-18 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer (bendourthe)
@@ -702,7 +702,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-23 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Whether the dated Haiku 4.5 id and its alias share one profile is a maintainer decision tied to DF-11.
 
-#### DF-14 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed
+#### DF-14 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -722,7 +722,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migration evidence**: Claude Code 2.1.283 does not recognize claude-sonnet-5-5 or expose effort, so the approved paid matrix cannot run.
 - **v4.14.6 observation (2026-10-31)**: Claude Code 2.1.283 reports the effective effort through the local command `/effort status` and reads back a per-model `modelSettings.<id>.effortLevel` for `claude-sonnet-5-5` (proof rows W06 and O02, re-run from the v4.14.6 final-phase build), so the effort half of the stated blocker no longer holds; whether the pilot wrapper's run metadata shows effort, and the maintainer's approval of the paid 15-run matrix, were not tested.
 
-#### WN-19 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
+#### WN-19 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -752,7 +752,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-26 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Scoping the all-refs attribution scan or allowing dependabot[bot] is a CI security policy decision for the maintainer.
 
-#### WN-20 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry
+#### WN-20 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: extensions owner
@@ -771,7 +771,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-31 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Needs a live Codex account with an available reset to capture whether the response carries an expiry.
 
-#### QG-2 (v4.13.9): The real-editor and live-limit checks are manual and pending
+#### QG-2 (v4.13.9): The real-editor and live-limit checks are manual and pending - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -790,7 +790,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#QG-7 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: Requires the maintainer's real editors, work Copilot account and live usage-limit crossings.
 
-#### WN-21 (v4.13.10): The missing-file notice is verified in Chromium only
+#### WN-21 (v4.13.10): The missing-file notice is verified in Chromium only - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide owner
@@ -809,7 +809,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-1-v41310 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Safari file:// behavior needs a real macOS Safari, unavailable on this Windows host.
 
-#### WN-22 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app
+#### WN-22 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -828,7 +828,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-9-v41310 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Embedding real app screenshots in the trailer is a maintainer content decision.
 
-#### WN-23 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU
+#### WN-23 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -847,7 +847,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-11-v41310 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Frame rate must be measured on a real GPU laptop and phone; headless SwiftShader figures do not apply.
 
-#### WN-24 (v4.13.10): Minor visual nits left from the revision 2 review
+#### WN-24 (v4.13.10): Minor visual nits left from the revision 2 review - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide owner
@@ -868,7 +868,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-12-v41310 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: WN-12-v41310 keeps five game-engine and IDE-player nits that need slow software-WebGL verification (WN-40).
 
-#### QG-3 (v4.13.10): The learner check has not been run
+#### QG-3 (v4.13.10): The learner check has not been run - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -887,7 +887,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#QG-2-v41310 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Two or three non-technical readers must test the page on desktop and phone; an agent cannot substitute.
 
-#### WN-25 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI
+#### WN-25 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide test maintainer
@@ -904,7 +904,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#WN-40 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.
 
-### AR-35: Antigravity legacy workflow retirement needs a dated vendor check
+### AR-35: Antigravity legacy workflow retirement needs a dated vendor check - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Antigravity integration owner
@@ -944,7 +944,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-77 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-77 Antigravity legacy workflow retirement applies only after the vendor's dated retirement; acting before it would remove a still-read surface.
 
-### AR-34: The public contributor view needs rendered confirmation or GitHub Support disposition
+### AR-34: The public contributor view needs rendered confirmation or GitHub Support disposition - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Repository owner
@@ -985,7 +985,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-76 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-76 needs a fresh public contributor-view check and possibly a GitHub Support ticket from the owner.
 
-### AR-33: GitHub retained read-only PR references require an explicit scope disposition
+### AR-33: GitHub retained read-only PR references require an explicit scope disposition - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Repository owner
@@ -1020,7 +1020,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-75 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-75 retained read-only PR refs need an owner decision or GitHub administrative action.
 
-### AR-32: Gemini and OpenCode eval configuration isolation remains unproved
+### AR-32: Gemini and OpenCode eval configuration isolation remains unproved - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Eval-pipeline owner
@@ -1113,7 +1113,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-73 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-73 still has hosted CodeQL alerts #223, #329, #330, #349 and #350 open on the 2026-10-09 read-back; each needs a fix or a maintainer dismissal through the maintainer's gh session, plus a maintainer decision on making CodeQL a required check.
 
-### AR-30: Manual distribution read-path and prose false-positive exercises remain unperformed
+### AR-30: Manual distribution read-path and prose false-positive exercises remain unperformed - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Installation and writing owners
@@ -1151,7 +1151,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-72 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-72 needs live non-Claude platforms and a person for MT-1 tests 1 and 3.
 
-### AR-29: Repository agent isolation and transitive shared-service reachability remain unqualified
+### AR-29: Repository agent isolation and transitive shared-service reachability remain unqualified - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Agent-isolation owner
@@ -1189,7 +1189,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-71 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-71 transitive reachability and shared-checkout isolation is a large design exercise beyond the bounded 2026-09-24 audit findings.
 
-### AR-28: Writing Discipline benefit has not been judged on real replies
+### AR-28: Writing Discipline benefit has not been judged on real replies - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Writing Discipline owner
@@ -1225,7 +1225,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-70 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-70 needs human judgment of replies on two platforms.
 
-### AR-27: Native browser zoom and OS occlusion need real host qualification
+### AR-27: Native browser zoom and OS occlusion need real host qualification - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide and browser qualification owner
@@ -1266,7 +1266,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-69 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-69 native 200% zoom and OS occlusion need observation on a real host by a person.
 
-### AR-26: OpenClaw tool interception requires an independently scoped typed plugin
+### AR-26: OpenClaw tool interception requires an independently scoped typed plugin - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: OpenClaw integration owner
@@ -1304,7 +1304,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-68 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-68 typed OpenClaw interception needs a plugin surface the vendor does not expose; only lifecycle hooks are documented.
 
-### AR-25: Technical and nontechnical comprehension and final visual review remain unverified
+### AR-25: Technical and nontechnical comprehension and final visual review remain unverified - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide owner and representative readers
@@ -1345,7 +1345,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-67 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-67 needs technical and nontechnical human readers and a final human visual review.
 
-### AR-24: The five-person Training workshop remains unperformed
+### AR-24: The five-person Training workshop remains unperformed - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide owner and five participants
@@ -1400,7 +1400,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-66 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-66 needs a five-person workshop cohort for the v4.2.2 and v4.2.3 origins.
 
-### AR-23: Optional scanner presets lack live none, some, and all-tool receipts
+### AR-23: Optional scanner presets lack live none, some, and all-tool receipts - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Security-audit owner
@@ -1439,7 +1439,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-65 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-65 all-tools leg needs a host provisioned with semgrep, gitleaks, osv-scanner, trivy, checkov and pip-audit together.
 
-### AR-22: Live prompting roster completeness and CLI model qualification remain unproved
+### AR-22: Live prompting roster completeness and CLI model qualification remain unproved - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Prompting-profile owner
@@ -1529,7 +1529,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-64 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-64 needs account-backed CLI and model enumeration to complete the canonical roster, the Codex picker entry and profiles.
 
-### AR-21: The four MCP scaffolders lack real generation and server-start receipts
+### AR-21: The four MCP scaffolders lack real generation and server-start receipts - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: MCP scaffolder owner
@@ -1566,7 +1566,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-63 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-63 needs the scaffold, compile and stdio handshake legs on Linux and macOS; Linux can run in a local Docker container (Docker 29.2.1) but was not run in v4.13.11, and macOS needs a macOS host.
 
-### AR-20: Exact installed helper delivery remains unproved across supported operating systems
+### AR-20: Exact installed helper delivery remains unproved across supported operating systems - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Installer-smoke test owner
@@ -1621,7 +1621,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-62 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-62 keeps the Linux and macOS workspace-installer receipts for v1.1 DF-006 and DF-008; the Linux leg can run in a local Docker container on this host (Docker 29.2.1) but was not run in v4.13.11, and the macOS leg needs a macOS host.
 
-### AR-19: The official Claude plugin directory submission was never made
+### AR-19: The official Claude plugin directory submission was never made - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer (manual form)
@@ -1653,7 +1653,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-39 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-39 is a manual Claude plugin-directory form submission on the maintainer's Anthropic account; README still says if Anthropic later lists.
 
-### AR-18: The Windows notification linger was never measured
+### AR-18: The Windows notification linger was never measured - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a live Windows 10/11 desktop
@@ -1682,7 +1682,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-46 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-46 Windows toast linger needs a person watching a rendered notification to choose a value below the 5500 ms default.
 
-### AR-17: The Cursor usage-monitor live visual smoke was never run
+### AR-17: The Cursor usage-monitor live visual smoke was never run - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a live Cursor host
@@ -1722,7 +1722,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-44 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-44 needs a live Cursor host for the widened visual smoke; no Cursor session was available.
 
-### AR-16: Usage-monitor extension test coverage
+### AR-16: Usage-monitor extension test coverage - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: extensions owner
@@ -1809,7 +1809,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-32 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-32 keeps the legacy-module coverage threshold, the extension-host modules that need a live VS Code host, and the original Codex icon artwork, none available locally.
 
-### AR-15: Presentify verification residuals
+### AR-15: Presentify verification residuals - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: presentify owner
@@ -1939,7 +1939,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-19 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-19 keeps live Wikimedia and Pexels source paths (Pexels needs an API key), GPU Tier-3 generation, agent-vision grading and the unimplemented composition probes; headless rendering works on this host, so only the v3.13 sample visual QA clause is locally runnable and it was not run in v4.13.11.
 
-### AR-14: No repository-wide Ruff baseline
+### AR-14: No repository-wide Ruff baseline - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: CI owner
@@ -1981,7 +1981,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-34 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-34 measures 214 Ruff findings in scripts/lib/integrations and 1619 repo-wide on 2026-10-10, needing a dedicated baseline-and-batches lint cycle.
 
-### AR-13: Subprocess-driven validator tests have no coverage measurement
+### AR-13: Subprocess-driven validator tests have no coverage measurement - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: CI/test infrastructure owner
@@ -2026,7 +2026,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-33 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-33 has no subprocess coverage plumbing; adding it with a measured threshold for tests/validators is CI infrastructure deferred to its own version.
 
-### AR-12: Retired slash-command names remain in skill bodies
+### AR-12: Retired slash-command names remain in skill bodies - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -2068,7 +2068,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-28 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-28 still has about 134 retired slash-command mentions across about 25 skills (90 found for a 10-name sample), a multi-hour context-sensitive sweep.
 
-### AR-11: v3.11 spec-kit items S5, S6, and S8 carry no status claim
+### AR-11: v3.11 spec-kit items S5, S6, and S8 carry no status claim - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -2099,7 +2099,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-15 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-15 upstream delta verification needs a fresh repository comparison against github/spec-kit, which this offline audit cannot perform.
 
-### AR-10: The skill-description eval harness builds CLI flags that do not exist
+### AR-10: The skill-description eval harness builds CLI flags that do not exist - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: eval-pipeline owner
@@ -2196,7 +2196,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-04 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-04 live trigger-rate and technique checks require paid model calls under a bounded spend cap, blocked with BG-7.
 
-### AR-9: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs
+### AR-9: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a host with those tools
@@ -2248,7 +2248,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-57 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-57 needs authenticated Codex, Gemini CLI, Qwen and Kimi installs to observe agent loading, hook firing and the Windows dispatch shell.
 
-### AR-8: Upstream-blocked hook surfaces
+### AR-8: Upstream-blocked hook surfaces - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -2289,7 +2289,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-56 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-56 DF-12 needs Gemini CLI to document directly-written extension hook directories as loaded.
 
-### AR-7: The legacy Cursor global commands write is unverified and redundant
+### AR-7: The legacy Cursor global commands write is unverified and redundant - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer maintainer
@@ -2333,7 +2333,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-47 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-47 needs first-party Cursor documentation or a live read-back confirming ~/.cursor/commands is unread before the redundant write is removed.
 
-### AR-6: Invocation-policy support remains incomplete across five platforms
+### AR-6: Invocation-policy support remains incomplete across five platforms - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -2365,7 +2365,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-38 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-38 remains open after the 2026-10-12 primary-source review: Kimi compatible aliases are qualified; OpenCode documents native policy fields but Nexus-Hub has not mapped them; Antigravity and Hermes lack a documented matching per-skill lever; Nexus-AI reader evidence does not establish invocation control. See docs/policy/skill-invocation-policy-levers.md and the dated carry-forward contract in docs/archives/v4/v4.13/known-gaps.md.
 
-### AR-5: Unverified platform read-path residuals
+### AR-5: Unverified platform read-path residuals - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -2452,7 +2452,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-36 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-36 needs authenticated Antigravity CLI and Cursor UI read-backs, Gemini Code Assist IDE observation and Nexus-AI private-repo access; the 2026-09-27 host was not signed in.
 
-### AR-4: Permission distribution covers few platforms and scopes
+### AR-4: Permission distribution covers few platforms and scopes - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer maintainer
@@ -2509,7 +2509,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-17 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: AR-17 DF-2 needs Gemini and Codex to document a project-scoped permission path; none was documented well enough to write.
 
-### AR-3: Permission-matcher behaviors remain unprobed
+### AR-3: Permission-matcher behaviors remain unprobed - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `platform-contract-verification` owner
@@ -2571,7 +2571,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-16 on 2026-10-13 (reason: user-credential)
 - **Migration evidence**: AR-16 NI-1 needs an interactive Claude Code session on the user's account to observe whether `echo x > file` prompts under a `Bash(echo *)` allow rule.
 
-### AR-2: Two installer tests fail intermittently in long local runs
+### AR-2: Two installer tests fail intermittently in long local runs - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer/test maintainer
@@ -2606,7 +2606,7 @@ AR-16 remains open. The current canonical Node22 monitor profile passes all14 co
 - **Migrated from**: v4.13#AR-40 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-40 can only close on hosted-CI evidence plus repeated clean full installer runs, since a single green local run cannot disprove a non-deterministic OneDrive flake.
 
-### AR-1: No live macOS installer smoke has been recorded
+### AR-1: No live macOS installer smoke has been recorded - MIGRATED to v4.15.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installation owner on a macOS host
@@ -3131,7 +3131,7 @@ Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native co
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -3139,7 +3139,7 @@ Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native co
 
 ### Open Items
 
-#### DF-15: Planned follow-on: the lower-direction modifier
+#### DF-15: Planned follow-on: the lower-direction modifier - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3155,7 +3155,7 @@ Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native co
 
 **Suggested next step**: once the `v4.15.2` harness-pairing instrument exists, run one well-specified Nexus-Hub phase at the tier-default effort and one level lower, compare receipts, and file a decision record either way.
 
-#### DF-16: Planned follow-on: the raise-direction measurement
+#### DF-16: Planned follow-on: the raise-direction measurement - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3182,7 +3182,7 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -3190,7 +3190,7 @@ None.
 
 ### Open Items
 
-#### DF-17: Planned follow-on: the parked write-containment hook
+#### DF-17: Planned follow-on: the parked write-containment hook - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3207,7 +3207,7 @@ None.
 **Suggested next step**: revisit when an out-of-project write is observed in practice, or a user asks for containment, and build it from the parked specification: take the root from `CLAUDE_PROJECT_DIR` then the git toplevel, never the payload `cwd`; check a deny-list first that always asks (`~/.claude/settings*.json`, `~/.claude/hooks/`, `~/.claude/rules/`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/commands/`, `~/.nexus-hub/{hooks,scripts,bin}/`, project `.claude/settings*.json` and `.claude/hooks/`); narrow the allowlist to the session scratchpad and the memory stores, never all of `$TEMP`; one normalization spec for both siblings (separators, drive forms, case-insensitive compare on Windows and macOS, 8.3 long-name expansion, dot segments, whole-segment prefix match, UNC, device paths, and alternate data streams treated as outside); resolve the deepest existing ancestor for new files and test in-project links pointing outside; cover `Write`, `Edit`, `MultiEdit`, and `NotebookEdit` (`notebook_path`); emit `ask` on an unparseable path; label it advisory, since shell writes are not covered; confirm whether `ask` still prompts under `bypassPermissions`; count every hook-count surface (`AGENTS.md`, `README.md`, `data/marketplace.json`, `tests/skills/test_org_authoring_surface.py`, `scripts/stamp_guide_counts.py`).
 
 
-#### DF-18: Planned follow-on: the refactor-first rule
+#### DF-18: Planned follow-on: the refactor-first rule - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3223,7 +3223,7 @@ None.
 
 **Suggested next step**: re-measure once the rule text actually reaches the agent, with the v4.15.2 harness-pairing evaluator or a task prompt that loads the skill, and with a task that does not ask for the feature in a new file; keep the rule until then.
 
-#### DF-19: Planned follow-on: the enumerate-every-copy rule
+#### DF-19: Planned follow-on: the enumerate-every-copy rule - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3412,7 +3412,7 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -3420,7 +3420,7 @@ None.
 
 ### Open Items
 
-#### DF-21: Planned follow-on: Codex Memories doctor warning
+#### DF-21: Planned follow-on: Codex Memories doctor warning - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3447,7 +3447,7 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 18 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 0 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -3455,7 +3455,7 @@ None.
 
 ### Open Items
 
-#### DF-24: Planned follow-on: Cursor and Antigravity hosting
+#### DF-24: Planned follow-on: Cursor and Antigravity hosting - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3471,7 +3471,7 @@ None.
 
 **Suggested next step**: Plan it with `/plan feature`: per-host catalog surfaces and proof rows, a three-host installer signature in both installers, and Not-Settable for the `chat.*` Copilot keys outside VS Code.
 
-#### DF-25: Planned follow-on: Agent-call hook rule
+#### DF-25: Planned follow-on: Agent-call hook rule - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3487,7 +3487,7 @@ None.
 
 **Suggested next step**: Plan it with `/plan feature`: add the rule on hook-capable platforms, add it as the second layer over the nonce handoff that fix cycle 1 shipped (Write rules 6 and 7 of `docs/policy/settings-control-contract.md` already state the forged-confirmation residual, reproduced as AF-3d), because a same-user process that sets the environment itself can still forge the confirmation.
 
-#### DF-26: Planned follow-on: Advanced per-tool controls
+#### DF-26: Planned follow-on: Advanced per-tool controls - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3503,7 +3503,7 @@ None.
 
 **Suggested next step**: Plan it with `/plan feature`: run each key through the Phase 1 admission (a fetched vendor source and a proven row in a fresh scratch session) and add only the keys that prove, observing `chat.agent.maxRequests` first because its at-cap behavior is undocumented.
 
-#### DF-27: Planned follow-on: VS Code Copilot Chat: Not-Settable, because it is set per model in the model picker
+#### DF-27: Planned follow-on: VS Code Copilot Chat: Not-Settable, because it is set per model in the model picker - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3519,7 +3519,7 @@ None.
 
 **Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented effort key appears.
 
-#### DF-28: Planned follow-on: VS Code Copilot Chat: Not-Settable, because only the organization policy `ChatDefaultModel` exists
+#### DF-28: Planned follow-on: VS Code Copilot Chat: Not-Settable, because only the organization policy `ChatDefaultModel` exists - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3535,7 +3535,7 @@ None.
 
 **Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented user-level model key appears.
 
-#### DF-29: Planned follow-on: Codex: whatever Phase 1 verifies, otherwise Not-Settable
+#### DF-29: Planned follow-on: Codex: whatever Phase 1 verifies, otherwise Not-Settable - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3551,7 +3551,7 @@ None.
 
 **Suggested next step**: Re-read the Codex configuration reference at each release contract pass and admit a write through the Phase 1 proof if a documented attribution key appears.
 
-#### DF-30: Planned follow-on: VS Code Copilot Chat: Not-Settable.
+#### DF-30: Planned follow-on: VS Code Copilot Chat: Not-Settable. - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3567,7 +3567,7 @@ None.
 
 **Suggested next step**: Re-read the VS Code Copilot Chat settings reference at each release contract pass and admit the write through the Phase 1 proof if a documented key appears.
 
-#### DF-31: Planned follow-on: Persisting `max` effort, a Copilot CLI allow-all mode, or a VS Code Copilot Chat default model
+#### DF-31: Planned follow-on: Persisting `max` effort, a Copilot CLI allow-all mode, or a VS Code Copilot Chat default model - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3583,7 +3583,7 @@ None.
 
 **Suggested next step**: Re-check each vendor's settings reference at the release contract pass and admit a write through the Phase 1 proof if a documented persisted setting appears for any of the three.
 
-#### DF-32: Planned follow-on: Copilot CLI
+#### DF-32: Planned follow-on: Copilot CLI - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3599,7 +3599,7 @@ None.
 
 **Suggested next step**: Install the Copilot CLI on a proof machine, run `python scripts/dev/settings_proof_spike.py`, and admit each write that proves, then re-run the Phase 1 proof matrix from the built candidate.
 
-#### DF-33: Planned follow-on: Claude Code: `permissions.defaultMode` and VS Code `claudeCode.initialPermissionMode`
+#### DF-33: Planned follow-on: Claude Code: `permissions.defaultMode` and VS Code `claudeCode.initialPermissionMode` - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3615,7 +3615,7 @@ None.
 
 **Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md` in a scratch VS Code profile with the Claude Code extension, record what the mode indicator shows, and admit the writes that prove.
 
-#### DF-34: Planned follow-on: `chat.tools.global.autoApprove: true`
+#### DF-34: Planned follow-on: `chat.tools.global.autoApprove: true` - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3631,7 +3631,7 @@ None.
 
 **Suggested next step**: Run the manual steps in `development/v4.14.6-proof-matrix.md`, copy the auto-approve warning text into the contract, drive the panel's confirmation in a real window, and admit the writes that prove.
 
-#### DF-35: Planned follow-on: `skipDangerousModePermissionPrompt`
+#### DF-35: Planned follow-on: `skipDangerousModePermissionPrompt` - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3647,7 +3647,7 @@ None.
 
 **Suggested next step**: Observe Claude Code's bypass-permissions warning in an interactive session with and without the key, admit `claude.skip_dangerous_prompt` if it proves, and otherwise state in the guide that Full auto still shows the dialog.
 
-#### DF-36: Planned follow-on: the tool's documented agent-session marker
+#### DF-36: Planned follow-on: the tool's documented agent-session marker - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3663,7 +3663,7 @@ None.
 
 **Suggested next step**: Re-read each vendor's environment-variable documentation at the release contract pass and add any documented marker to `agent_session_markers` in `scripts/lib/settings_control/catalog.json` with its source.
 
-#### DF-37: Planned follow-on: an absolute Python interpreter
+#### DF-37: Planned follow-on: an absolute Python interpreter - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3679,7 +3679,7 @@ None.
 
 **Suggested next step**: Have both installers write the resolved interpreter path where the panel can read it (for example a line in the install manifest), with a test for each installer.
 
-#### DF-38: Planned follow-on: `attribution.commit` and `attribution.pr`
+#### DF-38: Planned follow-on: `attribution.commit` and `attribution.pr` - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3695,7 +3695,7 @@ None.
 
 **Suggested next step**: With a maintainer-approved cap of at least USD 1.00, run the isolated real-commit W08 probe in `scripts/dev/settings_proof_spike.py` for the empty-string case only; if that commit carries no attribution trailer, admit `claude.attribution` and regenerate the proof matrix from the harness.
 
-#### DF-39: Planned follow-on: Extract a shared `config_io` module and move the platform-defaults seeder onto the new lossless writers
+#### DF-39: Planned follow-on: Extract a shared `config_io` module and move the platform-defaults seeder onto the new lossless writers - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3711,7 +3711,7 @@ None.
 
 **Suggested next step**: Plan it with `/plan refactor`: extract the shared reader and writer, move the seeder onto it behind the existing seeding tests for every platform, and keep the seed-record and ownership-record formats unchanged.
 
-#### DF-40: Planned follow-on: a path-filtered CI workflow
+#### DF-40: Planned follow-on: a path-filtered CI workflow - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3727,7 +3727,7 @@ None.
 
 **Suggested next step**: With the maintainer's approval of a pipeline change, add `scripts/lib/settings_control/**` and `scripts/nexus_hub_cli.py` to that workflow's `paths` (it is not a required check, so the filter stays safe), and re-run `tests/workflows`.
 
-#### DF-41: Planned follow-on: Both installers build and install the extension into VS Code
+#### DF-41: Planned follow-on: Both installers build and install the extension into VS Code - MIGRATED to v4.15.0
 
 **Disposition**: planned-follow-on (OPEN)
 
@@ -3957,15 +3957,15 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 4 |
-| Bugs / regressions (BG) | 2 | 0 |
-| Warnings (WN) | 3 | 0 |
-| Missing tests / coverage gaps (MT) | 3 | 0 |
-| Quality-gate gaps (QG) | 2 | 0 |
+| Deferred (DF) | 0 | 4 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### BG-30 (v4.14.8): A manifest-permission case fails once under heavy machine load and passes on every quiet rerun
+#### BG-30 (v4.14.8): A manifest-permission case fails once under heavy machine load and passes on every quiet rerun - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 5 T038/T041
 
@@ -3975,7 +3975,7 @@ None.
 
 **Suggested next step**: Rerun the case under deliberate CPU load with `-p no:randomly --tb=long` until it fails or 20 runs pass, capture the assertion, then either make the budget independent of host load or record the test as load-sensitive with a measured bound. Owner: the next plan that touches `completion_minor.py`.
 
-#### BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
+#### BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 7 T046
 
@@ -3987,7 +3987,7 @@ None.
 
 - **Carried from**: v4.14.7#BG-24 on 2026-11-02
 
-#### DF-45 (v4.14.8): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes`
+#### DF-45 (v4.14.8): Hermes on Windows reads `%LOCALAPPDATA%\hermes`, but Nexus-Hub writes `~/.hermes` - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 1 T001
 
@@ -3999,7 +3999,7 @@ None.
 
 - **Carried from**: v4.14.7#DF-42 on 2026-11-02
 
-#### MT-17 (v4.14.8): A `.ps1`-only npm shim is not found on `PATH`
+#### MT-17 (v4.14.8): A `.ps1`-only npm shim is not found on `PATH` - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 1 T002
 
@@ -4011,7 +4011,7 @@ None.
 
 - **Carried from**: v4.14.7#MT-15 on 2026-11-02
 
-#### DF-46 (v4.14.8): Seeded settings files are kept by prune-undetected
+#### DF-46 (v4.14.8): Seeded settings files are kept by prune-undetected - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 7 T045
 
@@ -4023,7 +4023,7 @@ None.
 
 - **Carried from**: v4.14.7#DF-43 on 2026-11-02
 
-#### DF-47 (v4.14.8): Hermes and Pi have no installer entry
+#### DF-47 (v4.14.8): Hermes and Pi have no installer entry - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 7 T045
 
@@ -4035,7 +4035,7 @@ None.
 
 - **Carried from**: v4.14.7#DF-44 on 2026-11-02
 
-#### WN-38 (v4.14.8): Nexus-AI vendor-folder evidence could be circular
+#### WN-38 (v4.14.8): Nexus-AI vendor-folder evidence could be circular - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 7 T045
 
@@ -4047,7 +4047,7 @@ None.
 
 - **Carried from**: v4.14.7#WN-37 on 2026-11-02
 
-#### MT-18 (v4.14.8): Removal was exercised end to end only for Kimi, and four hostile cases were not run
+#### MT-18 (v4.14.8): Removal was exercised end to end only for Kimi, and four hostile cases were not run - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.7 Phase 7 T044
 
@@ -4059,7 +4059,7 @@ None.
 
 - **Carried from**: v4.14.7#MT-16 on 2026-11-02
 
-#### WN-39: Advisory audit report retention differs from the CI contract
+#### WN-39: Advisory audit report retention differs from the CI contract - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 5 T037
 
@@ -4071,7 +4071,7 @@ None.
 
 **Suggested next step**: Approve a seven-day setting or record a justified security-audit retention exception in the canonical policy, then run the affected workflow contracts.
 
-#### WN-40: The lifespan detector treats the first patch tag as minor close
+#### WN-40: The lifespan detector treats the first patch tag as minor close - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 5 T033 and T035
 
@@ -4083,7 +4083,7 @@ None.
 
 **Suggested next step**: Define minor closure from explicit archive/completion evidence, add an active-multi-patch fixture, and qualify the detector in a separately scoped change. Do not delete or move evidence to silence this scan.
 
-#### MT-19: Whether escalation-trigger stdout reaches the user is unverified
+#### MT-19: Whether escalation-trigger stdout reaches the user is unverified - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 3 T015
 
@@ -4093,7 +4093,7 @@ None.
 
 **Suggested next step**: observe it in a live session during the Phase 5 human testing (sub-task 5.8) and record yes or no in the inventory.
 
-#### QG-10: The agent label target was missed by one (7 of 10, target 8)
+#### QG-10: The agent label target was missed by one (7 of 10, target 8) - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 4 T031
 
@@ -4103,7 +4103,7 @@ None.
 
 **Suggested next step**: after v4.14.6, repeat P02, P04 and P05 in scratch projects under a long-name path. If P05 still asks for no approval, review whether the Consequential Decisions rule needs an example for a local edit that changes distributed behavior.
 
-#### QG-11: The plain-English measurement could not show a reduction
+#### QG-11: The plain-English measurement could not show a reduction - MIGRATED to v4.15.0
 
 **Source phase**: v4.14.8 Phase 4 T031
 
