@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Gemini Usage Monitor reads Antigravity usage again.** Antigravity IDE builds from late October 2026 dropped the built-in `extensions/antigravity` folder and serve the Models & Usage data from an `agy --hub` process in `~/.gemini/bin` instead of a `language_server` process. The monitor no longer recognized the IDE ("This monitor reads usage from the Antigravity IDE and only works inside Antigravity") and kept showing its last reading, days old. It now recognizes Antigravity by the editor's own `product.json` name as well, finds the `agy` hub beside the older language server, and tries the hub's `--hub-port` first, which answers plain loopback HTTP. The requests, their fields and the privacy boundary are unchanged: only `127.0.0.1` is contacted, and the CSRF token stays in memory.
+
 ## [4.14.8] - 2026-11-04
 
 ### Added

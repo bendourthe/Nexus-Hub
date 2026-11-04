@@ -94,7 +94,7 @@ The thresholds and colors are application-scoped: they are read from your user s
 
 Antigravity runs a local language server that backs its own Models & Usage screen. The monitor:
 
-1. Finds that server among your own running processes (one PowerShell `Get-CimInstance` call on Windows; `ps` and `lsof` on macOS and Linux), keeping only the server that belongs to this Antigravity install and preferring the one owned by the main process, which is the one the settings screen reads.
+1. Finds that server among your own running processes (one PowerShell `Get-CimInstance` call on Windows; `ps` and `lsof` on macOS and Linux), keeping only the server that belongs to this Antigravity install and preferring the one owned by the main process, which is the one the settings screen reads. Antigravity IDE builds from late October 2026 no longer ship that server inside the editor; they start an `agy --hub` process from `~/.gemini/bin` that answers the same requests, so the monitor also accepts that hub and tries its `--hub-port` first. On those builds the editor is recognized by its own `product.json` name instead of the removed `extensions/antigravity` folder.
 2. Reads the CSRF token the server was launched with from its command line, and its listening loopback ports.
 3. Sends two Connect-protocol JSON requests to `127.0.0.1`: `RetrieveUserQuotaSummary` for the model groups and `GetUserStatus` for the plan name. A port is tried over plain loopback HTTP first, then over HTTPS verified against the certificate Antigravity ships.
 
@@ -102,7 +102,7 @@ The endpoint is cached and rediscovered automatically when Antigravity restarts 
 
 The Gemini group is the headline pair (status bar, "Current Session" and "Weekly"). Every other group appears as extra rows in the tooltip and dashboard and counts toward alerts when `thresholdMetric` is `highest`.
 
-**Caveat**: the language server's RPC interface is internal to Antigravity and may change between releases. Field names were recorded from Antigravity IDE 2.5.5 (October 2026); the monitor reads them defensively and fails soft if they change.
+**Caveat**: the language server's RPC interface is internal to Antigravity and may change between releases. Field names were recorded from Antigravity IDE 2.5.5 (October 2026) and confirmed unchanged on the `agy` hub on 2026-11-04; the monitor reads them defensively and fails soft if they change.
 
 ### Privacy boundary
 

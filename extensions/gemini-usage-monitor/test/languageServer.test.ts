@@ -9,7 +9,10 @@ import {
   QUOTA_SUMMARY_METHOD,
   discoverEndpoint,
   isAntigravityHost,
+  isHubProcess,
+  orderPorts,
   parseCsrfToken,
+  parseHubPort,
   parseLsofPorts,
   parsePsOutput,
   parseWindowsProcessJson,
@@ -48,6 +51,44 @@ describe("selectServers", () => {
     );
     expect(picked.map((p) => p.pid)).toEqual([2, 1]);
   });
+
+  it("adds agy hubs after this install's servers, and only hubs with a token", () => {
+    const agy = process.platform === "win32" ? "C:\\Users\\me\\.gemini\\bin\\agy.exe" : "/home/me/.gemini/bin/agy";
+    const picked = selectServers(
+      [
+        proc(5, "--hub --hub-port=59895 --app_data_dir=antigravity --csrf_token h", agy),
+        proc(6, "--hub --hub-port=1", agy),
+        proc(7, "chat --csrf_token x", agy),
+        proc(2, "--csrf_token b"),
+      ],
+      APP_ROOT,
+    );
+    expect(picked.map((p) => p.pid)).toEqual([2, 5]);
+  });
+
+  it("finds an agy hub on its own when the editor has no built-in server", () => {
+    const hub = proc(9, "--hub --hub-port 40000 --csrf_token h", "/home/me/.gemini/bin/agy");
+    expect(selectServers([hub], APP_ROOT).map((p) => p.pid)).toEqual([9]);
+  });
+});
+
+describe("agy hub helpers", () => {
+  it("recognizes the hub by its executable name and --hub flag", () => {
+    const base = { pid: 1, ports: [] };
+    expect(isHubProcess({ ...base, executable: "C:\\Users\\me\\.gemini\\bin\\agy.exe", commandLine: "agy.exe --hub --csrf_token t" })).toBe(true);
+    expect(isHubProcess({ ...base, executable: "", commandLine: "/home/me/.gemini/bin/agy --hub --csrf_token t" })).toBe(true);
+    expect(isHubProcess({ ...base, executable: "/home/me/.gemini/bin/agy", commandLine: "/home/me/.gemini/bin/agy chat" })).toBe(false);
+    expect(isHubProcess({ ...base, executable: "/usr/bin/legacy-agy-tool", commandLine: "legacy-agy-tool --hub" })).toBe(false);
+  });
+
+  it("reads --hub-port and tries it first", () => {
+    expect(parseHubPort("agy --hub --hub-port=59895 --csrf_token t")).toBe(59895);
+    expect(parseHubPort("agy --hub --hub-port 40000")).toBe(40000);
+    expect(parseHubPort("agy --hub")).toBeNull();
+    expect(orderPorts([59898, 59895], "agy --hub --hub-port=59895")).toEqual([59895, 59898]);
+    expect(orderPorts([59898], "agy --hub --hub-port=59895")).toEqual([59898]);
+    expect(orderPorts([1, 2], "language_server --csrf_token t")).toEqual([1, 2]);
+  });
 });
 
 describe("process and port parsers", () => {
@@ -65,6 +106,12 @@ describe("process and port parsers", () => {
     expect(out).toEqual([{ pid: 12, executable: "/a/language_server_macos_arm", commandLine: "/a/language_server_macos_arm --csrf_token t", ports: [] }]);
   });
 
+  it("parses ps output, keeping agy hubs and skipping other agy commands", () => {
+    const out = parsePsOutput(" 21 /Users/me/.gemini/bin/agy --hub --hub-port=40000 --csrf_token t\n 22 /Users/me/.gemini/bin/agy chat\n");
+    expect(out.map((p) => p.pid)).toEqual([21]);
+    expect(out[0].executable).toBe("/Users/me/.gemini/bin/agy");
+  });
+
   it("parses lsof -Fn listen addresses", () => {
     expect(parseLsofPorts("p12\nf9\nn127.0.0.1:51891\nf10\nn*:51892\nn[::1]:51891\n").sort()).toEqual([51891, 51892]);
   });
@@ -77,6 +124,16 @@ describe("host detection", () => {
     fs.mkdirSync(path.join(root, "extensions", "antigravity"), { recursive: true });
     fs.writeFileSync(path.join(root, "extensions", "antigravity", "package.json"), "{}");
     expect(isAntigravityHost(root)).toBe(true);
+  });
+
+  it("recognizes an Antigravity IDE without the built-in extension by its product.json", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-product-"));
+    fs.writeFileSync(path.join(root, "product.json"), JSON.stringify({ nameShort: "Code", applicationName: "code" }));
+    expect(isAntigravityHost(root)).toBe(false);
+    fs.writeFileSync(path.join(root, "product.json"), JSON.stringify({ nameShort: "Antigravity IDE", applicationName: "antigravity-ide" }));
+    expect(isAntigravityHost(root)).toBe(true);
+    fs.writeFileSync(path.join(root, "product.json"), "not json");
+    expect(isAntigravityHost(root)).toBe(false);
   });
 
   it("discovery stops at not-antigravity without listing processes", async () => {
