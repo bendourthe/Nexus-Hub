@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **All 13 substantive instruction templates carry the plain-English and source-label rules (v4.14.8).** The first Communication Contract bullet asks for simple English a non-native reader follows and for quoting warnings, errors and names exactly; Writing Discipline names agent or engineering slang with five example pairs; one new bullet carries the source-label rule. All three are byte-identical across the 13 and test-guarded. The five lockstep word ceilings rose by the measured 40 and 42 words, and `legacy_fingerprints.json` was regenerated.
 - **Every catalog hook message starts with `[Nexus-Hub: <hook-name>]` (v4.14.8).** This covers stderr, SessionStart and UserPromptSubmit context, and the `reason`, `permissionDecisionReason`, `systemMessage` and `additionalContext` fields, including the PowerShell approval dialog. `lint-on-write` replaces `[lint]` and `antigravity-cli-diff-review` replaces `[antigravity-diff-review]`. `test_hook_message_source_label.py` enforces one emitter per hook and checks both implementations behaviorally. The merged `git-guardrails` pair and relayed attribution, edit-preservation and completion helpers are included; echoed control characters cannot forge a tagged line. Existing allow/block decisions and hook protocols are preserved.
 
+### Fixed
+
+- Save submitted usage-limit answers directly from question and prompt hooks, prevent repeated instructions and Stop loops, and provide `nexus-hub usage status` and `nexus-hub usage decide` recovery commands with provider aliases and consistent project resolution.
+
 ### Security
 
 - Pin glob 14.0.2 in the Claude, Codex, Copilot and Gemini usage-monitor build dependencies to close GHSA-3g3m-2fjr-6pw4. All four audits are clean, their real icon-font generators pass, and their compile, coverage and packaging groups pass. Other dependency versions remain fixed except the patched glob dependency branch and its required path-scurry/lru-cache updates.

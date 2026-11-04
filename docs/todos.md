@@ -2,6 +2,14 @@
 
 **Integration branch:** `develop`
 
+**Usage-answer repair:** PR #599 publishes the approved repair from `fix/usage-answer-capture-publish`, refreshed onto develop with upstream behavior preserved. The broad local run passed 763 tests, but CI exposed one cached-subprocess fixture that could fall back to local credentials. That proof claim is withdrawn; the corrected fixture and all 106 focused cases now pass with credentials isolated. The protected Windows hook job passes at d735c8d25. Linux found a stale Cursor event expectation, now corrected for prompt-answer capture. Runtime hashes are unchanged. The handbook gate and 80 browser-state checks pass. The backed-up sixteen-file hotfix is installed and its actual CLI and temporary installed-hook flows pass; the live spending ledger is unchanged. PR #599 merged into develop at 993f733b3 with all required checks passing; three reruns were needed only because no hosted macOS runner was assigned. The merged tree matches the qualified tree, the post-merge smoke and provenance jobs pass, and all sixteen installed files still match merged source. The pending Claude decision's weekly window reset on 2026-11-03, so genuine Desktop verification needs a new limit crossing. Integration: 1/1; adoption: 1/1; genuine Desktop verification: 0/1. [Evidence](releases/v4/v4.14/development/usage-answer-capture-repair.md).
+
+- [x] Reproduce the repeated usage interruption and implement direct answer capture plus recovery without agent-run spending commands.
+- [x] Complete final affected Windows tests for the usage-answer repair.
+- [x] Integrate the reviewed usage-answer repair through protected develop checks.
+- [x] Install and verify the backed-up, hash-pinned usage-answer hotfix.
+- [ ] Verify a genuine Claude Code Desktop question and answer after adoption.
+
 - [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor now verifies readable countdowns in all three live dashboard labels; see [installed-host evidence](releases/v4/v4.14/development/cursor-countdown-installed-qualification.md).
 
 - [x] Integrate the readable countdown change with v4.14.7 through develop and verify installed Cursor; PR #595 is merged and all three live countdown labels use readable units. Release v4.14.7 is published and its downloaded archive verifies all 2086 manifest entries.

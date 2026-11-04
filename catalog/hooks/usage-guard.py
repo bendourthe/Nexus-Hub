@@ -15,7 +15,9 @@ import json
 import math
 import os
 import re
+import stat
 import sys
+import tempfile
 import threading
 import time
 from datetime import datetime, timezone
@@ -165,7 +167,21 @@ def read_payload(stream: Any) -> dict[str, Any] | None:
 
 
 def _script_dir() -> Path:
-    return Path(__file__).resolve().parent
+    if Path(__file__).is_file():
+        return Path(__file__).resolve().parent
+    # stdin has no __file__ directory. Prefer an explicit local sibling root.
+    override = os.environ.get("NEXUS_USAGE_GUARD_DIR")
+    candidates = ([Path(override)] if override else [
+        _nexus_home() / "hooks", _nexus_home() / "src" / "catalog" / "hooks",
+        Path.home() / ".claude" / "hooks", Path.home() / ".codex" / "hooks",
+        Path.home() / ".cursor" / "hooks",
+    ])
+    for candidate in candidates:
+        if not candidate.is_absolute():
+            raise ValueError("NEXUS_USAGE_GUARD_DIR must be an absolute trusted hook directory")
+        if (candidate / "_usage_probe.py").is_file():
+            return candidate.resolve()
+    raise FileNotFoundError("stdin execution needs NEXUS_USAGE_GUARD_DIR pointing to the hook directory")
 
 
 def _under_claude_hooks(script_dir: Path) -> bool:
@@ -755,10 +771,27 @@ def _spend_reminder_due(
 
 
 DECISION_SCHEMA = 3
+PLATFORM_ALIASES = {"claude-code": "claude", "claude_code": "claude", "openai-codex": "codex",
+                    "github-copilot": "copilot"}
+
+
+def canonical_platform(platform: str) -> str:
+    """Use the same provider slug at hook and command boundaries."""
+    return PLATFORM_ALIASES.get(platform.lower(), platform.lower())
+
+
+def resolve_project(project: Path) -> Path:
+    """Keep non-git paths intact; use the nearest git root for subdirectories."""
+    project = project.resolve()
+    return next((p for p in (project, *project.parents) if (p / ".git").exists()), project)
 
 
 def decision_path(platform: str, project: Path) -> Path:
     """A home-owned ledger; repository JSON cannot grant spending authority."""
+    return _identity_path(canonical_platform(platform), resolve_project(project))
+
+
+def _identity_path(platform: str, project: Path) -> Path:
     identity = str(project.resolve()) + "\0" + platform
     key = hashlib.sha256(identity.encode("utf-8")).hexdigest()
     return state_dir() / "decisions" / (key + ".json")
@@ -768,7 +801,7 @@ def _project_root(platform: str, payload: dict[str, Any]) -> Path | None:
     roots = _handoff_roots(platform, payload)
     if not roots:
         return None
-    return next((p.resolve() for p in roots if (p / ".git").exists()), roots[0].resolve())
+    return resolve_project(roots[0])
 
 
 def _warning_reference_valid(value: object) -> bool:
@@ -777,14 +810,21 @@ def _warning_reference_valid(value: object) -> bool:
 
 
 def pending_decision(platform: str, payload: dict[str, Any],
-                     extra_roots: tuple[Path, ...] = ()) -> dict[str, Any] | None:
+                     extra_roots: tuple[Path, ...] = (), *, decision_id: str = "") -> dict[str, Any] | None:
     """Read the shared decision without changing state or probing usage."""
-    project = extra_roots[0].resolve() if extra_roots else _project_root(platform, payload)
-    if project is None:
+    platform = canonical_platform(platform)
+    roots = list(extra_roots) if extra_roots else _handoff_roots(platform, payload)
+    if not roots:
         return None
-    data = load_state(decision_path(platform, project))
-    if (data.get("schema") != DECISION_SCHEMA or data.get("platform") != platform
-            or data.get("project") != str(project) or not isinstance(data.get("id"), str)):
+    raw_project, project = roots[0].resolve(), resolve_project(roots[0])
+    providers = [platform, *(alias for alias, target in PLATFORM_ALIASES.items() if target == platform)]
+    paths = dict.fromkeys(_identity_path(provider, root) for root in (project, raw_project) for provider in providers)
+    data = next((entry for path in paths if (entry := load_state(path))
+                 and (not decision_id or entry.get("id") == decision_id)), {})
+    if (data.get("schema") != DECISION_SCHEMA or not isinstance(data.get("platform"), str)
+            or canonical_platform(data["platform"]) != platform
+            or not isinstance(data.get("project"), str) or not Path(data["project"]).is_absolute()
+            or resolve_project(Path(data["project"])) != project or not isinstance(data.get("id"), str)):
         return None
     created = _parse_iso(data.get("created_at"))
     recorded = _parse_iso(data.get("recorded_at"))
@@ -829,6 +869,19 @@ def pending_decision(platform: str, payload: dict[str, Any],
                 or not 1 <= len(response) <= 256):
             return None
     return data
+
+
+def _migrate_identity(platform: str, project: Path, data: dict[str, Any]) -> None:
+    """Caller holds ActivityLock; preserve the original facts while moving the ledger key."""
+    source = _identity_path(data["platform"], Path(data["project"]))
+    target = decision_path(platform, project)
+    if source != target and source.is_file():
+        current = load_state(target)
+        if current and current.get("id") != data["id"]:
+            raise ValueError("legacy decision conflicts with the current project decision; use recovery status")
+        if current:
+            return  # The canonical ledger is authoritative, including an already saved answer.
+        os.replace(source, target)
 
 
 def _decision_active(data: dict[str, Any], crossing: list[dict[str, Any]], now: float) -> bool:
@@ -886,7 +939,8 @@ def _archive_failure_notice(path: Path, data: dict[str, Any]) -> str | None:
     if data.get("archive_failure_notified") is True:
         return None
     data["archive_failure_notified"] = True
-    save_state(path, data)  # Best effort; a failed write must not authorize spending.
+    if not save_state(path, data):
+        return None  # Never emit an unrecorded notice that could loop at Stop.
     prior = "credits" if data.get("decision") == "credits" else "usage"
     return (f"Usage state: the prior {prior} episode expired. Its answer history could not "
             "be preserved, so no new spending authority exists. Stop new work and recover "
@@ -900,12 +954,13 @@ def decision_transition(platform: str, project: Path, decision_id: str, action: 
 
     IDs record a host interaction, not a new approval system. The caller must
     copy genuine IDs and the submitted answer from the host, never invent them.
-    An ambiguous API failure stays claimed and must not trigger a text retry.
+    Hook answer capture does not require this legacy agent-driven protocol.
     """
     import secrets
+    platform = canonical_platform(platform)
     if not re.fullmatch(r"[a-z][a-z0-9-]{0,47}", platform):
         raise ValueError("safe platform slug required")
-    project = project.resolve()
+    requested_project, project = project.resolve(), resolve_project(project)
     probe = _load_probe()
     if probe.adoption_active():
         raise ValueError("runtime adoption active; no decision writes")
@@ -913,11 +968,20 @@ def decision_transition(platform: str, project: Path, decision_id: str, action: 
         if not activity.held:
             raise ValueError("usage activity busy; no decision writes")
         path = decision_path(platform, project)
-        data = pending_decision(platform, {}, (project,))
+        data = pending_decision(platform, {}, (requested_project,), decision_id=decision_id)
         if data is None or data["id"] != decision_id:
-            raise ValueError("stale or unknown decision")
+            stored = load_state(path)
+            if not stored:
+                stored = next((item for candidate in path.parent.glob("*.json")
+                               if (item := load_state(candidate)).get("id") == decision_id), {})
+            raise ValueError(f"stale or unknown decision; stored platform={stored.get('platform', platform)} "
+                             f"project={stored.get('project', str(project))} decision_id={stored.get('id', 'none')}")
         if data.get("decision") != "pending":
             raise ValueError("decision already answered")
+        _migrate_identity(platform, project, data)
+        if action != "answer" and _deferred_answer(data) is not None:
+            _consume_answer(platform, project, data)
+            raise ValueError("decision already answered from a captured response")
         delivery = dict(data.get("delivery") or {})
         if action == "claim":
             if delivery.get("state") != "offered":
@@ -942,11 +1006,13 @@ def decision_transition(platform: str, project: Path, decision_id: str, action: 
                         or request_id != delivery.get("request_id") or not response_id
                         or len(response_id) > 256 or answer not in ("wait", "handoff", "credits")):
                     raise ValueError("matching genuine request, response and submitted choice required")
-                stamp = _iso_now(time.time())
-                data.update(decision=answer, response_id=response_id, recorded_at=stamp)
-                if answer == "credits":
-                    # Authorization begins at the genuine answer, not the pending offer.
-                    data["approval"] = dict(data.get("approval") or {}, approved_at=stamp)
+                receipt = _submitted_receipt(data, answer, "legacy-answer", delivery["tool"], response_id)
+                receipt.update(delivery=delivery, response_id=response_id)
+                _defer_answer(data, receipt)
+                result = _consume_answer(platform, project, data)
+                if result["decision"]["decision"] != answer:
+                    raise ValueError("decision already answered: " + result["decision"]["decision"])
+                return {"claimed": False, **result}
             else:
                 raise ValueError("unknown decision action")
         data["delivery"] = delivery
@@ -957,21 +1023,19 @@ def decision_transition(platform: str, project: Path, decision_id: str, action: 
 
 def decision_directive(data: dict[str, Any], message: str) -> str:
     """Tell the agent the executable delivery protocol, never assume host APIs."""
-    return (message + " Decision ID " + data["id"] + ". Reuse this home-owned decision; "
-            "do not write repository usage-decision.json. Inspect the tools actually exposed "
-            "in this session. If functions.request_user_input_async is exposed, call that exact "
-            "API; otherwise use an exposed host-native question API. If none is exposed, use "
-            "one concise text question. First atomically claim this decision with usage-guard.py "
-            "--decision-action claim --project PROJECT --platform PLATFORM --decision-id ID "
-            "--tool ACTUAL_TOOL (or text). Only claimed:true may deliver. Offer exactly: "
+    marker = "[usage-decision:" + data["id"] + "]"
+    return (message + " Decision ID " + data["id"] + ". Platform " + data["platform"] +
+            "; project " + data["project"] + ". Ask once through an exposed native question tool "
+            "(functions.request_user_input_async when available). Include " + marker +
+            " in the question text and use usage_" + data["id"] + " as its question ID when supported. "
+            "The post-tool hook saves the submitted answer; no agent claim or spending CLI is needed. "
+            "If the tool or a legacy claim cannot succeed, ask one concise plain text question. Offer exactly: "
             "Wait for reset (Recommended), Hand off, Continue on credits, in that order. "
             "Never preselect credits. Explain the reported reset time, spending and consequence "
-            "in the options. Bind the actual host request ID using --decision-action delivered "
-            "--claim-id CLAIM --request-id REQUEST. Persist only a genuine submitted response "
-            "using --decision-action answer with the same IDs, --response-id RESPONSE and "
-            "--answer wait|handoff|credits. For text delivery bind text:CLAIM and the actual "
-            "user message ID as response. If an API call may have delivered but failed, mark "
-            "--decision-action uncertain; do not retry or fall back to text. Pending means stop "
+            "in the options. A typed reply credits, wait, handoff, or /usage credits|wait|handoff is "
+            "also captured automatically. From the project directory above, user-run recovery: "
+            "nexus-hub usage decide --platform " + data["platform"] +
+            " --decision-id " + data["id"] + " --answer wait|handoff|credits. Pending means stop "
             "new work and await the existing response; wait stops until reset; handoff prints "
             "the session-handoff prompt and stops; only credits authorizes continued work.")
 
@@ -1008,6 +1072,218 @@ def _decision_status(path: Path, data: dict[str, Any], payload: dict[str, Any]) 
             + action + " Reuse this decision. Do not claim or ask another question; this status grants no spending authority.")
 
 
+def _answer_choice(value: Any) -> str | None:
+    """Accept an explicit choice only, never a mention inside arbitrary prose."""
+    if isinstance(value, dict):
+        value = value.get("answers", value.get("optionIds"))
+    if isinstance(value, list):
+        value = value[0] if len(value) == 1 else None
+    if not isinstance(value, str):
+        return None
+    return {"credits": "credits", "continue on credits": "credits", "wait": "wait",
+            "wait for reset": "wait", "wait for reset (recommended)": "wait",
+            "handoff": "handoff", "hand off": "handoff"}.get(value.strip().lower())
+
+
+def _submitted_answer(data: dict[str, Any], payload: dict[str, Any]) -> str | None:
+    event = payload.get("hook_event_name")
+    if event in ("UserPromptSubmit", "beforeSubmitPrompt"):
+        prompt = payload.get("prompt")
+        if isinstance(prompt, str) and prompt.strip().lower().startswith("/usage "):
+            prompt = prompt.strip()[7:]
+        return _answer_choice(prompt)
+    if event not in ("PostToolUse", "postToolUse"):
+        return None
+    tool = str(payload.get("tool_name", "")).removeprefix("functions.")
+    if tool not in ("AskUserQuestion", "AskQuestion", "ask_question", "cursor/ask_question", "request_user_input",
+                    "request_user_input_async"):
+        return None
+    tool_input = payload.get("tool_input")
+    response = payload.get("tool_response", payload.get("tool_output"))
+    try:
+        tool_input = json.loads(tool_input) if isinstance(tool_input, str) else tool_input
+        response = json.loads(response) if isinstance(response, str) else response
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(tool_input, dict) or not isinstance(response, dict):
+        return None
+    outcome = response.get("outcome")
+    if isinstance(outcome, dict):
+        if outcome.get("outcome") != "answered":
+            return None
+        response = outcome
+    elif outcome is not None and outcome != "answered":
+        return None
+    if (any(response.get(key) for key in ("cancelled", "canceled", "isError", "is_error", "error"))
+            or response.get("status") in ("cancelled", "canceled", "error", "timeout")
+            or payload.get("is_error") is True):
+        return None
+    questions = tool_input.get("questions")
+    answers = response.get("answers")
+    if not isinstance(questions, list):
+        return None
+    found: list[str] = []
+    for question in questions:
+        if not isinstance(question, dict):
+            continue
+        keys = [question.get(key) for key in ("id", "header", "question", "title", "prompt")]
+        if not any(isinstance(key, str) and (
+                "[usage-decision:" + data["id"] + "]" in key or key == "usage_" + data["id"])
+                   for key in keys):
+            continue
+        if isinstance(answers, dict):
+            values = [answers[key] for key in keys if isinstance(key, str) and key in answers]
+        elif isinstance(answers, list):
+            values = [item for item in answers if isinstance(item, dict)
+                      and item.get("questionId") in keys]
+        else:
+            continue
+        for value in values:
+            if isinstance(value, dict) and ("selectedOptionIds" in value or "optionIds" in value):
+                selected = value.get("selectedOptionIds", value.get("optionIds"))
+                if not isinstance(selected, list) or len(selected) != 1:
+                    continue
+                options = question.get("options")
+                labels = [option.get("label") for option in options
+                          if isinstance(option, dict) and option.get("id") == selected[0]] if isinstance(options, list) else []
+                value = labels[0] if len(labels) == 1 else (selected[0] if not options else None)
+            answer = _answer_choice(value)
+            if answer is not None:
+                found.append(answer)
+    return found[0] if found and len(set(found)) == 1 else None
+
+
+def _answer_receipt_path(ident: str, *, create: bool = False) -> Path:
+    """Private capture inbox outside the install tree and its adoption baseline."""
+    home = _nexus_home().resolve()
+    key = hashlib.sha256(str(home).encode()).hexdigest()[:16]
+    directory = home.parent / (".nexus-usage-answers-" + key)
+    if create:
+        directory.mkdir(mode=0o700, exist_ok=True)
+    if directory.exists() or directory.is_symlink():
+        info = directory.lstat()
+        if (not stat.S_ISDIR(info.st_mode) or directory.is_symlink()
+                or (hasattr(os, "getuid") and (info.st_uid != os.getuid() or info.st_mode & 0o077))):
+            raise OSError("usage answer inbox must be a private user-owned directory")
+    return directory / (ident + ".json")
+
+
+def _deferred_answer(data: dict[str, Any]) -> dict[str, Any] | None:
+    receipt = load_state(_answer_receipt_path(data["id"]))
+    stamp = _parse_iso(receipt.get("submitted_at"))
+    created = _parse_iso(data.get("created_at"))
+    if (any(receipt.get(key) != data[key] for key in ("id", "platform", "project"))
+            or receipt.get("answer") not in ("credits", "wait", "handoff")
+            or stamp is None or created is None or not created <= stamp <= time.time() + FUTURE_SKEW_SECONDS
+            or receipt.get("source") not in ("PostToolUse", "postToolUse", "UserPromptSubmit", "beforeSubmitPrompt",
+                                             "user-cli", "legacy-answer")
+            or any(not isinstance(receipt.get(key), str) or len(receipt[key]) > 256
+                   for key in ("tool", "reference"))):
+        return None
+    if receipt["source"] == "legacy-answer":
+        delivery = receipt.get("delivery")
+        response = receipt.get("response_id")
+        if (not isinstance(delivery, dict) or delivery != data.get("delivery")
+                or delivery.get("state") != "delivered" or not isinstance(response, str)
+                or not 1 <= len(response) <= 256):
+            return None
+    return receipt
+
+
+def _defer_answer(data: dict[str, Any], receipt: dict[str, Any]) -> None:
+    path = _answer_receipt_path(data["id"], create=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=".answer-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(receipt, handle)
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            if os.name == "nt":
+                os.rename(temporary, path)  # Windows rename refuses an existing destination.
+            else:
+                os.link(temporary, path)  # POSIX rename would overwrite; a link publishes exclusively.
+        except FileExistsError:
+            if _deferred_answer(data) is None:
+                raise OSError("usage answer receipt is unreadable; use recovery") from None
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+def _submitted_receipt(data: dict[str, Any], answer: str, source: str, tool: str,
+                       reference: str = "") -> dict[str, Any]:
+    return {**{key: data[key] for key in ("id", "platform", "project")}, "answer": answer,
+            "submitted_at": _iso_now(time.time()), "source": source, "tool": tool[:128], "reference": reference[:256]}
+
+
+def _consume_answer(platform: str, project: Path, data: dict[str, Any]) -> dict[str, Any]:
+    """Caller holds ActivityLock; every writer commits the first published receipt."""
+    receipt = _deferred_answer(data)
+    if receipt is None:
+        raise ValueError("submitted answer receipt unavailable")
+    result = _save_submitted_answer(platform, project, data, receipt["answer"], receipt["source"],
+                                    receipt["tool"], receipt["reference"], stamp=receipt["submitted_at"],
+                                    delivery=receipt.get("delivery"), response_id=receipt.get("response_id"))
+    try:
+        _answer_receipt_path(data["id"]).unlink(missing_ok=True)
+    except OSError:
+        pass  # Answered ledgers reject replay even if receipt cleanup fails.
+    return result
+
+
+def capture_answer(platform: str, project: Path, payload: dict[str, Any]) -> bool:
+    """Persist host-submitted answers before probing, including offline recovery."""
+    candidate = pending_decision(platform, payload)
+    if candidate is None or candidate["decision"] != "pending":
+        return False
+    receipt = _deferred_answer(candidate)
+    answer = _submitted_answer(candidate, payload)
+    if receipt is None and answer is None:
+        return False
+    if receipt is None:
+        receipt = _submitted_receipt(candidate, answer, str(payload.get("hook_event_name")),
+                                      str(payload.get("tool_name", "text")),
+                                      str(payload.get("tool_use_id", payload.get("session_id", ""))))
+        _defer_answer(candidate, receipt)  # Reserve before taking the shared lock, including on the fast path.
+    probe = _load_probe()
+    with probe.ActivityLock() as activity:
+        if not activity.held:
+            return True  # Replay this genuine answer on a later event, without asking again.
+        data = pending_decision(platform, payload)
+        if data is None or data["id"] != candidate["id"] or data["decision"] != "pending":
+            return False
+        _consume_answer(platform, project, data)
+        return True
+
+
+def _save_submitted_answer(platform: str, project: Path, data: dict[str, Any], answer: str,
+                           source: str, tool: str, reference: str = "", *, stamp: str | None = None,
+                           delivery: dict[str, Any] | None = None, response_id: str | None = None) -> dict[str, Any]:
+    """Caller holds ActivityLock. Receipt IDs are local audit keys, not invented host IDs."""
+    import secrets
+    stamp = stamp or _iso_now(time.time())
+    receipt = source + ":" + hashlib.sha256((data["id"] + "\0" + reference + "\0" + answer).encode()).hexdigest()
+    data.update(decision=answer, recorded_at=stamp, response_id=response_id or receipt)
+    data["delivery"] = delivery or {"state": "delivered", "tool": tool, "source": source,
+                                   "claim_id": secrets.token_hex(16), "request_id": receipt}
+    if answer == "credits":
+        data["approval"] = dict(data.get("approval") or {}, approved_at=stamp)
+    _migrate_identity(platform, project, data)
+    if not save_state(decision_path(platform, project), data):
+        raise OSError("decision write failed")
+    return {"decision": data}
+
+
+def _emit_offer(path: Path, data: dict[str, Any], platform: str, kind: str, event: str) -> dict[str, Any] | None:
+    """Commit the delivery mark before output so repeated hooks never loop."""
+    if data.get("instruction_sent") or data.get("stop_blocked") or data["delivery"]["state"] != "offered":
+        return None
+    data["instruction_sent"] = True
+    if kind == "stop":
+        data["stop_blocked"] = True
+    return render(platform, kind, event, _offered_directive(data)) if save_state(path, data) else None
+
+
 def _offered_directive(data: dict[str, Any]) -> str:
     """Recover an undelivered offer from its original facts, never a new question."""
     if data.get("origin") == "host-warning":
@@ -1028,9 +1304,15 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
     event = str(payload.get("hook_event_name") or "")
     kind = EVENT_KINDS.get((platform, event))
     project = _project_root(platform, payload)
-    if kind is None or project is None:
+    if project is None or (kind is None and event not in ("beforeSubmitPrompt", "UserPromptSubmit")):
+        return None
+    if kind == "stop" and (payload.get("stop_hook_active") is True
+                           or (platform == "cursor" and isinstance(payload.get("loop_count"), (int, float))
+                               and payload["loop_count"] > 0)):
         return None
     probe = _load_probe()
+    if capture_answer(platform, project, payload) or kind is None:
+        return None
     if probe.adoption_active():
         return None
     deadline = started + HOOK_BUDGET_SECONDS - BUDGET_MARGIN_SECONDS
@@ -1045,7 +1327,9 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
         if not activity.held:
             return None
         path = decision_path(platform, project)
-        data = pending_decision(platform, {}, (project,))
+        data = pending_decision(platform, payload)
+        if data is not None:
+            _migrate_identity(platform, project, data)
         if data is not None and data.get("decision") != "pending":
             marked = set(data.get("cleared_windows") or [])
             observed = {w["name"] for w in cleared if w["name"] in data["windows"]}
@@ -1058,7 +1342,9 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
         if data is not None and _decision_active(data, crossing, now):
             if data.get("decision") != "credits":
                 if data["decision"] == "pending" and data["delivery"]["state"] == "offered":
-                    return render(platform, kind, event, _offered_directive(data))
+                    offered = _emit_offer(path, data, platform, kind, event)
+                    if offered is not None:
+                        return offered
                 notice = _decision_status(path, data, payload) if kind != "stop" else None
                 return render(platform, kind, event, notice) if notice else None
             approval = dict(data.get("approval") or {})
@@ -1074,6 +1360,8 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
                           spend_directive(platform, credit, *reminder_settings(platform)))
 
         if data is not None and data.get("decision") != "pending" and not archive_answer(path, data):
+            if kind == "stop":
+                return None  # Defer the warning to a tool event; never block this decision twice.
             notice = _archive_failure_notice(path, data)
             return render(platform, kind, event, notice) if notice else None
         import secrets
@@ -1094,8 +1382,7 @@ def _evaluate_shared(payload: dict[str, Any], started: float,
             data["status_sessions"] = {session: "pending"}
         if not save_state(path, data):
             return None
-        message = directive(platform, crossing[0], credit, *reminder_settings(platform))
-        return render(platform, kind, event, decision_directive(data, message))
+        return _emit_offer(path, data, platform, kind, event)
 
 
 def offer_warning(platform: str, project: Path, warning_reference: str) -> dict[str, Any]:
@@ -1105,11 +1392,12 @@ def offer_warning(platform: str, project: Path, warning_reference: str) -> dict[
     or native approvals. An answer covers that warning episode only.
     """
     import secrets
+    platform = canonical_platform(platform)
     if not re.fullmatch(r"[a-z][a-z0-9-]{0,47}", platform):
         raise ValueError("safe platform slug required")
     if not _warning_reference_valid(warning_reference):
         raise ValueError("genuine host warning reference required")
-    project = project.resolve()
+    requested_project, project = project.resolve(), resolve_project(project)
     probe = _load_probe()
     if probe.adoption_active():
         raise ValueError("runtime adoption active; no decision writes")
@@ -1117,8 +1405,11 @@ def offer_warning(platform: str, project: Path, warning_reference: str) -> dict[
         if not activity.held:
             raise ValueError("usage activity busy; no decision writes")
         path = decision_path(platform, project)
-        data = pending_decision(platform, {}, (project,))
+        data = pending_decision(platform, {}, (requested_project,))
         if data is not None:
+            _migrate_identity(platform, project, data)
+            if data["decision"] == "pending" and _deferred_answer(data) is not None:
+                data = _consume_answer(platform, project, data)["decision"]
             same_warning = (data.get("origin") == "host-warning"
                             and data.get("warning_reference") == warning_reference)
             if data["decision"] == "pending" or same_warning:
@@ -1165,6 +1456,55 @@ def decision_cli(argv: list[str]) -> int:
         _nexus_msg(_nexus_esc(str(error)))
         return 1
     return 0
+
+
+def usage_cli(argv: list[str]) -> int:
+    """User-run status and recovery; no agent claim or host IDs are required."""
+    import argparse
+    parser = argparse.ArgumentParser(prog="nexus-hub usage")
+    parser.add_argument("action", choices=("status", "decide"))
+    parser.add_argument("--project", type=Path, default=Path.cwd())
+    parser.add_argument("--platform", default="", help="Provider slug; claude-code is accepted as claude.")
+    parser.add_argument("--decision-id", default="", help="Refuse to answer a different decision.")
+    parser.add_argument("--answer", choices=("wait", "handoff", "credits"))
+    args = parser.parse_args(argv)
+    if args.action == "decide" and not args.answer:
+        parser.error("decide requires an explicit --answer wait|handoff|credits")
+    project = resolve_project(args.project)
+    probe = _load_probe()
+    try:
+        with probe.ActivityLock() as activity:
+            if not activity.held:
+                raise ValueError("usage activity busy or runtime adoption active; no decision writes")
+            platforms = [canonical_platform(args.platform)] if args.platform else sorted({
+                canonical_platform(str(load_state(path).get("platform", "")))
+                for path in (state_dir() / "decisions").glob("*.json")})
+            records = [data for platform in platforms
+                       if re.fullmatch(r"[a-z][a-z0-9-]{0,47}", platform)
+                       if (data := pending_decision(platform, {}, (args.project,), decision_id=args.decision_id)) is not None]
+            if args.action == "status":
+                print(json.dumps({"project": str(project), "decisions": records}))
+                return 0
+            matches = [data for data in records if data["decision"] == "pending"
+                       and (not args.decision_id or args.decision_id == data["id"])]
+            if len(matches) != 1:
+                details = [{key: data[key] for key in ("platform", "project", "id", "decision")}
+                           for data in records]
+                raise ValueError("one pending decision required; use --platform and --decision-id. "
+                                 "Stored decisions: " + json.dumps(details))
+            data = matches[0]
+            receipt = _submitted_receipt(data, args.answer, "user-cli", "nexus-hub usage decide")
+            _defer_answer(data, receipt)
+            result = _consume_answer(data["platform"], project, data)
+            if result["decision"]["decision"] != args.answer:
+                raise ValueError("decision already answered: " + result["decision"]["decision"])
+            print(json.dumps(result))
+    except (OSError, ValueError) as error:
+        # The error can quote stored decision details, so it is escaped like any echoed value.
+        _nexus_msg(_nexus_esc(str(error)))
+        return 1
+    return 0
+
 
 def evaluate(payload: dict[str, Any], started: float, script_dir: Path | None = None) -> dict[str, Any] | None:
     """The whole decision for one payload, shared across sessions."""
