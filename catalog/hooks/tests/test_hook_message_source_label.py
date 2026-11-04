@@ -218,7 +218,6 @@ def _structural_problems(path: Path) -> list[str]:
 
 @pytest.mark.parametrize("path", _hook_files(), ids=lambda p: p.name)
 def test_every_hook_message_goes_through_its_tag_emitter(path: Path) -> None:
-    stem = path.name if path.suffix == "" else path.stem
     problems = _structural_problems(path)
     assert not problems, _CONVENTION + "\n" + "\n".join(problems)
 
