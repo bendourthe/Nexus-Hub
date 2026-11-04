@@ -1,0 +1,5 @@
+# Distribution Handbook Review: Antigravity Agent Mode Seed
+
+This record covers the distribution handbook after the Antigravity CLI seed in `configs/platform-defaults.json` changed from `agentMode: "default"` to `agentMode: ""` (v4.15 DF-39). The vendor's [CLI modes page](https://antigravity.google/docs/cli/modes/) no longer lists `"default"` as a value; it documents `""` as the value that selects default mode, which keeps the diff review before file changes.
+
+The handbook does not name the Antigravity CLI seed, its key or its value. Its seeding statements are general: a default is written only when absent, a user's changed value or removal is kept, and a choice identical to an earlier seed cannot be told apart from that seed. All of them still hold, because the seed stays seed-if-absent and existing values, including the earlier `"default"`, are never rewritten. No handbook source, model, generated output or rendered evidence changes; only the input digest of `configs/platform-defaults.json` is refreshed, with this record as its content review.
