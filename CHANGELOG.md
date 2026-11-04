@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Nexus-Hub Settings extension now has a status-bar entry beside the usage monitors: the Nexus-Hub mark, the effort a new session starts with, and a warning count when a default is overridden or unconfirmed. Hovering lists every tool's effort, model, and approval default, and clicking opens the panel. The activity-bar icon is now the Nexus-Hub mark, and the panel follows the usage monitors' style: compact cards, buttons beside their fields, value chips, and folded notes and not-settable reasons. Known model ids appear as buttons under the field instead of a suggestion popup that covered the rows below.
+
 ### Fixed
 
 - Save submitted usage-limit answers directly from question and prompt hooks, prevent repeated instructions and Stop loops, and provide `nexus-hub usage status` and `nexus-hub usage decide` recovery commands with provider aliases and consistent project resolution.

@@ -12,9 +12,13 @@ A VS Code panel that sets the defaults new Claude Code, Codex, and GitHub Copilo
 
 Every control is a default for new sessions only. A session that is already running keeps the value it started with. A control appears only where the value was observed changing a fresh session before it shipped. Anything else is shown as "Not settable" with its reason, never as a toggle that silently does nothing.
 
+## Status bar
+
+The Nexus-Hub mark sits in the status bar just left of the usage monitors, followed by the effort a new session starts with: the value every settable tool agrees on, `mixed` when they differ, or `default` when none is set. When a default is overridden, not covered, unverified, or cannot be detected, a warning icon and a count follow. Hover for every tool's effort, model, and approval default, the other controls, and what needs attention; click to open the full panel. The status bar reads the same model the panel draws, once at startup and again whenever a watched settings file changes.
+
 ## What the panel shows
 
-Each tool row has exactly one state: in effect, tool default, overridden by a named file, variable, or policy (with a one-line fix), not settable (with the reason), not covered, unverified for the installed version, not installed, or cannot detect. Notes the panel cannot verify, such as a mode the tool remembers, appear as separate notes. A table at the top states what a new session starts with if you choose High effort and Full auto, built from the same catalog.
+Each tool row has exactly one state: in effect, tool default, overridden by a named file, variable, or policy (with a one-line fix), not settable (with the reason), not covered, unverified for the installed version, not installed, or cannot detect. A row that cannot be set folds its reason under "Why it cannot be set"; notes the panel cannot verify, such as a mode the tool remembers, fold under a notes link. Known model ids appear as buttons under the model field. A folded preview at the top states what a new session starts with if you choose High effort and Full auto, built from the same catalog.
 
 ## Requirements
 
@@ -41,3 +45,5 @@ npm run test:coverage
 npm run package
 npm run verify:package
 ```
+
+The status-bar mark is a one-glyph icon font. After changing `icons/nexus-hub.svg`, run `npm run generate-icons` and commit the regenerated `fonts/nexus-hub-icons.woff2`.

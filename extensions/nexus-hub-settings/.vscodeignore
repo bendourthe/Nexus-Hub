@@ -4,6 +4,7 @@ coverage/**
 src/**
 test/**
 scripts/**
+icons/**
 tsconfig.json
 vitest.config.mts
 .gitignore

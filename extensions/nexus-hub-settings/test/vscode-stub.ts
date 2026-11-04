@@ -3,7 +3,8 @@
  *
  * It models only what the panel touches: layered configuration (default, user,
  * workspace, workspace folder) with `inspect` and `update`, modal warning dialogs,
- * file watchers, command and webview-view registration, and `env.openExternal`.
+ * file watchers, command and webview-view registration, status-bar items, and
+ * `env.openExternal`.
  * `stub.reset()` clears every store between tests.
  */
 import * as nodePath from "node:path";
@@ -47,6 +48,31 @@ export class Uri {
   }
 }
 
+export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
+
+export class MarkdownString {
+  isTrusted: boolean | { enabledCommands: readonly string[] } = false;
+  constructor(
+    public value = "",
+    public supportThemeIcons = false,
+  ) {}
+}
+
+export interface StatusItem {
+  id: string;
+  alignment: number;
+  priority: number;
+  name?: string;
+  text: string;
+  tooltip?: MarkdownString | string;
+  command?: string;
+  accessibilityInformation?: { label: string; role?: string };
+  shown: boolean;
+  disposed: boolean;
+  show(): void;
+  dispose(): void;
+}
+
 export class RelativePattern {
   constructor(
     readonly base: Uri,
@@ -81,6 +107,7 @@ export const stub = {
   providers: [] as { id: string; provider: unknown; options: unknown }[],
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
+  statusItems: [] as StatusItem[],
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },
@@ -103,6 +130,7 @@ export const stub = {
     this.providers = [];
     this.commands = new Map();
     this.executed = [];
+    this.statusItems = [];
     configEvents.clear();
     trustEvents.clear();
   },
@@ -169,6 +197,24 @@ export const window = {
   async showWarningMessage(message: string, options: unknown, ...buttons: string[]): Promise<string | undefined> {
     stub.warnings.push({ message, options, buttons });
     return stub.warningAnswer(buttons);
+  },
+  createStatusBarItem(id: string, alignment: number, priority: number): StatusItem {
+    const item: StatusItem = {
+      id,
+      alignment,
+      priority,
+      text: "",
+      shown: false,
+      disposed: false,
+      show() {
+        item.shown = true;
+      },
+      dispose() {
+        item.disposed = true;
+      },
+    };
+    stub.statusItems.push(item);
+    return item;
   },
   registerWebviewViewProvider(id: string, provider: unknown, options: unknown) {
     stub.providers.push({ id, provider, options });
