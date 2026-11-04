@@ -25,6 +25,34 @@
 
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: workflow-phase-notice]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 # --- Runtime controls ---
 $hookName = "workflow-phase-notice"
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
@@ -75,5 +103,5 @@ if ($normPath -match '(^|/)docs/.*/plans/[^/]+\.md$') {
 if (-not $phase) { exit 0 }
 
 # --- Emit advisory marker ---
-[Console]::Error.WriteLine("[workflow-phase-notice] $phase-phase artifact written: $normPath. Remember the post-phase docs + commit sequence.")
+Write-NexusMessage "$phase-phase artifact written: $(ConvertTo-NexusVisible $normPath). Remember the post-phase docs + commit sequence."
 exit 0

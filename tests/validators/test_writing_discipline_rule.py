@@ -113,6 +113,29 @@ def test_the_rule_stays_short_enough_to_always_load():
     )
 
 
+@pytest.mark.parametrize("name", _SUBSTANTIVE)
+def test_the_rule_names_engineering_slang_with_five_examples(name: str):
+    """v4.14.8 Part A: the first paragraph bans agent or engineering slang.
+
+    Five example pairs ride in the always-loaded text because a model that never
+    sees an example rarely opens the on-demand list; the 24-term list, its
+    exemptions and the detector stay in anti-slop-editing.
+    """
+    body = instruction_section_body(_read(name), _HEADING)
+    first = body[0]
+    assert "agent or engineering slang" in first, (
+        f"{name}: the first Writing Discipline paragraph no longer names slang"
+    )
+    for pair in (
+        "load-bearing -> needed",
+        "blast radius -> what it affects",
+        "land -> merge",
+        "punt -> postpone",
+        "sanity check -> quick check",
+    ):
+        assert pair in first, f"{name}: example pair {pair!r} missing from the clause"
+
+
 def test_the_rule_is_ascii_only():
     """The block states the ASCII punctuation rule, so a violation in its own text is visible."""
     body = "\n".join(instruction_section_body(_read(_LOCKSTEP[0]), _HEADING))

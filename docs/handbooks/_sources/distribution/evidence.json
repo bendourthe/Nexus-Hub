@@ -9,7 +9,7 @@
       "scripts/installer.sh": "af2ac2d6404a6dcbdd06f16d955c271f97e7ed09cc0f57cc0c5c4331b74f1ed2",
       "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
-      "catalog/hooks/usage-guard.py": "1741642e35644e584c0a53953b98ce04975414ca69955502fa59c8f037451c86",
+      "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -23,7 +23,7 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "66d64f0f49ea6cb12e95c85f2cc12d0c0fdccdd238a458f20f5bb8b6090cef7f",
+      "scripts/nexus_git_attribution.py": "9fe46d95b27cbfc0208b07717e7bb474ac563f39e1e20a8080fced7aa76e0a32",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "63a2233c0e109088f3b1c5996b28b02864108dce68c2ba8cf8efbdf492e16207",
       "scripts/lib/integrations/aider.py": "a17eba595c153f0e18cdc90757e16ee206bd729f14ecb690bdb022c26c3e0e09",
@@ -35,8 +35,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/usage-answer-handbook-review.md",
-      "evidence_sha256": "5aaa4716570f7d68ea2b6d80a8c3c73f9ad30bf88e4f315b74312c7f4720fdd9"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.8-distribution-merge-review.md",
+      "evidence_sha256": "d95678e3c8413524d17411bf7238a3929f7375fb2bc3448c7d4fded9c400d906"
     },
     "build": {
       "status": "pass",

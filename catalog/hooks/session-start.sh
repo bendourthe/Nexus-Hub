@@ -17,6 +17,36 @@ _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: session-start]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stdout (SessionStart context the agent
+# reads); every further argument is a continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1"
+  shift
+  for line in "$@"; do printf '%s\n' "$line"; done
+}
+
 # Banner: one line, facts read from real files only (v4.13.3). The version is
 # printed only when VERSION holds one bounded semver line; any other payload
 # (missing, empty, multi-line, over 32 characters) drops the version and never
@@ -32,19 +62,20 @@ if [ -f "$HOME_DIR/VERSION" ]; then
   fi
 fi
 if [ -n "$_version" ]; then
-  echo "Nexus-Hub v$_version active; full skill index: $HOME_DIR/data/SKILL_INDEX.md"
+  _banner="Nexus-Hub v$_version active; full skill index: $(_nexus_esc "$HOME_DIR")/data/SKILL_INDEX.md"
 else
-  echo "Nexus-Hub active; full skill index: $HOME_DIR/data/SKILL_INDEX.md"
+  _banner="Nexus-Hub active; full skill index: $(_nexus_esc "$HOME_DIR")/data/SKILL_INDEX.md"
 fi
 
 # Git: one line. The harness already supplies branch and recent commits.
 if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   _branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
   _changed=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-  echo "Git: $_branch, $_changed changed file(s)"
+  _git_line="Git: $(_nexus_esc "$_branch"), $_changed changed file(s)"
 else
-  echo "Git: unavailable"
+  _git_line="Git: unavailable"
 fi
+_nexus_msg "$_banner" "$_git_line"
 
 # --- Surface the last-session digest (memory-persistence subset) ---
 if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then
@@ -70,15 +101,15 @@ if [ -f "$DIGEST_PATH" ]; then
   fi
   digest_content=$(head -c "$MAX_CHARS" "$DIGEST_PATH" 2>/dev/null || true)
   if [ -n "$digest_content" ]; then
-    echo ""
-    echo "Last session digest ($DIGEST_REL, capped at $MAX_CHARS chars):"
-    echo ""
-    printf '%s\n' "$digest_content"
     # If we truncated, note it so the agent can decide whether to read the full file.
     digest_size=$(wc -c < "$DIGEST_PATH" 2>/dev/null | tr -d ' ' || echo 0)
+    _digest_rel=$(_nexus_esc "$DIGEST_REL")
+    printf '\n'  # nexus: hook-msg-exempt blank separator before the digest
     if [ -n "$digest_size" ] && [ "$digest_size" -gt "$MAX_CHARS" ]; then
-      echo ""
-      echo "(digest truncated -- read $DIGEST_REL for the full file)"
+      _nexus_msg "Last session digest ($_digest_rel, capped at $MAX_CHARS chars):" "" "$digest_content" "" \
+        "(digest truncated -- read $_digest_rel for the full file)"
+    else
+      _nexus_msg "Last session digest ($_digest_rel, capped at $MAX_CHARS chars):" "" "$digest_content"
     fi
   fi
 fi

@@ -44,9 +44,9 @@ The handoff lives in the chat, not in the project. No handoff file is written un
 | Mode | Trigger | Header trigger value |
 |---|---|---|
 | manual | `/handoff`, or the user asks for a handoff | `manual` |
-| usage-limit | a `Usage limit:` or `Usage credits:` directive, or a platform warning, AND the user chose the handoff | `usage-limit WINDOW PERCENT` |
+| usage-limit | a `Usage limit:` or `Usage credits:` directive, or a platform warning, AND the user chose the handoff | `usage-limit` |
 
-`WINDOW` is `five_hour`, `weekly`, or `monthly`, and `PERCENT` is the number the directive reported (for example `usage-limit weekly 99.2`). For a platform warning that names no figure, use the window it names and the percent `100`, and say so in Open questions and blockers.
+The trigger records only that a usage limit prompted the handoff. It never names the window, the percent used, or the reset time: those describe the platform the handoff is leaving, and the agent that continues runs on its own platform's limits. A handoff is how the work continues elsewhere now, so nothing in it may suggest waiting for the old platform to reset.
 
 Both modes deliver the same way:
 
@@ -75,7 +75,7 @@ A direct manual /handoff invocation already chooses handoff; continue with Step 
 
 ### Step 1: In usage-limit mode, settle the current step first
 
-Do not abandon a half-applied change. Either finish the current step if it is small, or stop at a safe point: no file left half-edited, no command left running. Whatever is unfinished goes into In progress, stated exactly (which file, which function, what is done, what is not). Then continue with Step 2 and, after Step 7, start no new work, even if the user queued more.
+Do not abandon a half-applied change. Either finish the current step if it is small, or stop at a safe point: no file left half-edited, no command left running. Whatever is unfinished goes into In progress, stated exactly (which file, which function, what is done, what is not). Then continue with Step 2 and, after Step 7, start no new work, even if the user queued more. That stop applies to this session only; it never goes into the handoff.
 
 ### Step 2: Find the project root and the repository state
 
@@ -112,8 +112,9 @@ There is no handoff file to update, so carry-forward starts from what this sessi
 For each source that can be trusted:
 
 - Carry forward every unfinished item from its Next steps that this session did not finish. Mark each carried item `(carried from PLATFORM TIMESTAMP)` using that handoff's header values. Never drop an unfinished step because a different platform wrote it.
+- Drop every carried item, constraint, or blocker that only concerns an earlier session's usage: its limit window, percent used, reset time, credits, usage-decision ID, the usage choice its user made, or an instruction for that session to stop or wait (for example "start no new work until the reset"). It described the session that ended and binds no one now. Note in one line under Open questions and blockers how many such items were dropped.
 - Move items this session verified into Done and verified, with their proof.
-- Add that handoff's header timestamp, platform, and trigger to the `Previous handoffs:` line, newest first, keeping at most the five most recent. A legacy file may carry the retired `checkpoint` trigger; copy it as written.
+- Add that handoff's header timestamp, platform, and trigger to the `Previous handoffs:` line, newest first, keeping at most the five most recent. A legacy file may carry the retired `checkpoint` trigger; copy it as written. An older handoff may carry `usage-limit WINDOW PERCENT`; copy it as `usage-limit`.
 
 When a legacy file was read, tell the user, outside the prompt, that `.nexus-hub/handoff.md` is no longer needed and can be deleted. Never delete it yourself. The one exception is Step 8: when the user asked for a file at that same path, the new file replaces it.
 
@@ -145,7 +146,7 @@ The probe path only tests the directory rule; it creates no file. Never edit `.g
 Compose the handoff text with exactly these parts, in this order. It goes into the prompt (Step 7), and into a file only under Step 8:
 
 ````markdown
-# Handoff | 2026-10-01T14:03:27Z | claude | usage-limit weekly 99.2
+# Handoff | 2026-10-01T14:03:27Z | claude | usage-limit
 
 Previous handoffs: 2026-09-30T18:02:11Z codex manual
 
@@ -189,7 +190,7 @@ Focus: the text the user passed to /handoff, when there was one.
 
 Rules for each part:
 
-- **Header line**: exactly `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`, on the first line. `PLATFORM` is the platform's registry key (`claude`, `codex`, `cursor`, `copilot`, `gemini-cli`, `qwen`, `kimi`, `windsurf`, `antigravity2`, `opencode`, `aider`, `pi`, `openclaw`) or `unknown`. The next handoff's carry-forward step parses this line, so keep the separators and order.
+- **Header line**: exactly `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`, on the first line. `PLATFORM` is the platform's registry key (`claude`, `codex`, `cursor`, `copilot`, `gemini-cli`, `qwen`, `kimi`, `windsurf`, `antigravity2`, `opencode`, `aider`, `pi`, `openclaw`) or `unknown`. The next handoff's carry-forward step parses this line, so keep the separators and order. `PLATFORM` records who wrote the handoff, for carry-forward labels only; it never tells the reader which platform to continue on.
 - **Previous handoffs**: present only when an earlier handoff was carried forward (Step 3).
 - **Goal**: the whole task, not the current step.
 - **Done and verified**: each item carries the command or observation that proved it. An item with no proof belongs in In progress, not here.
@@ -201,6 +202,8 @@ Rules for each part:
 - **Repository state**: branch, full HEAD SHA, and a `git status --short` summary, or the no-git sentence from Step 2.
 
 Write every section even when it is empty (`None.`), so a reader and the contract test can rely on the order.
+
+**Platform-neutral content.** The handoff describes the task, never the session that is ending, and is written for whoever continues, on any platform, immediately. Leave out this platform's usage window, percent used, reset time, credits, cost or allowance, the Step 0 decision ID and the user's answer to it, and any instruction for this session to stop or wait. None of it binds the receiving agent, and a "wait for the reset" step would stall the very continuation the handoff exists for. Next steps holds only task work any agent can start now; Constraints holds only constraints on the task.
 
 ### Step 6: Never print secrets
 
@@ -230,6 +233,7 @@ You are resuming a task another agent started. Before acting:
 3. Continue from the first unfinished item in Next steps. Do not redo anything under Done and verified.
 4. Respect every item under Constraints and decisions the user stated.
 5. Do not write handoff files as you work. To hand off again, print a new prompt in the chat in the same format; write a file only if the user asks for one.
+6. Start now, on whatever platform you are. A platform name, usage figure, or reset time below describes the previous session, not you; never wait for another platform's limit to reset.
 
 --- handoff begins ---
 (the composed handoff, verbatim)
@@ -261,6 +265,7 @@ When the user pastes a handoff prompt, follow its numbered steps. When the user 
 |---|---|
 | "The directive says usage is at 100%, so I'll write the handoff straight away." | The user may have pay-per-use credits and want to keep going. Handing off unasked stops their work and makes them restart elsewhere. Step 0 asks first. |
 | "The user said earlier to keep going no matter what, so I'll record credits." | Credits cost money and the figure changed since then. Record `pending`, ask with the current figure, and record only the answer they give now. |
+| "The weekly limit triggered this handoff, so I'll note the reset time and tell the next agent to start no new work until then." | The handoff exists so the work continues elsewhere now. The next agent runs on its own platform's limits; a wait-for-reset step stalls it for nothing, and carry-forward copies it into every later handoff. The stop belongs to this session only. |
 | "I'll print the handoff after this next step; there is still 1% left." | A single large turn can consume more than 1% of a 5-hour window. Once the cap is hit the agent gets no further turn, and the step and the handoff are both lost. |
 | "I'll also save the handoff to a file, just in case." | The user wants the handoff in the chat, where they copy it. A file nobody asked for is clutter in their project. Write one only on an explicit request in this invocation. |
 | "The user asked for a file last time, so I'll write one again." | That request covered that handoff only. Without a new request, this handoff is chat only. |
@@ -281,6 +286,7 @@ When the user pastes a handoff prompt, follow its numbered steps. When the user 
 - [ ] On a `credits` answer, no handoff was printed and the task continued.
 - [ ] One fenced block was printed in the chat that carries the handoff between `--- handoff begins ---` and `--- handoff ends ---`, and the handoff's first line matches `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`.
 - [ ] The handoff contains, in order, `## Goal`, `## Done and verified`, `## In progress`, `## Next steps`, `## Files touched`, `## Constraints and decisions the user stated`, `## Open questions and blockers`, `## Repository state`.
+- [ ] The handoff names no usage window, percent used, reset time, credit or cost figure, or usage-decision ID, and no item under Next steps, Constraints, or Open questions tells the reader to wait or stop; carried items of that kind were dropped and counted in one line.
 - [ ] Repository state shows the branch and the full HEAD SHA that `git rev-parse HEAD` prints, and lists every path in `git status --short` (or carries the no-git sentence).
 - [ ] The Step 6 `grep` over the composed text prints nothing.
 - [ ] Unless the user explicitly asked for a file in this invocation, no handoff file was created or changed: `git status --short --ignored` shows no new handoff file, and an existing `.nexus-hub/handoff.md` is byte-for-byte unchanged.

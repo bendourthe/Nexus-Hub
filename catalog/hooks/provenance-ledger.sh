@@ -54,6 +54,38 @@ _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: provenance-ledger]"
+# The embedded Python reads the tag from the environment.
+export _NEXUS_TAG
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 LEDGER_DIR="${NEXUS_PROVENANCE_DIR:-$HOME/.nexus-hub/cache/provenance}"
 MAX_LINES="${NEXUS_PROVENANCE_MAX:-500}"
 MAX_BYTES="${NEXUS_PROVENANCE_MAX_BYTES:-1048576}"
@@ -63,7 +95,7 @@ fi
 # A supported 4096-byte path, hash and timestamp must fit as one intact row.
 if [ "$MAX_BYTES" -lt 8192 ]; then
     MAX_BYTES=8192
-    printf '[provenance-ledger] byte cap raised to minimum 8192 for complete records.\n' >&2
+    _nexus_msg "byte cap raised to minimum 8192 for complete records."
 fi
 HASH_MAX_BYTES="${NEXUS_PROVENANCE_HASH_MAX_BYTES:-10485760}"
 
@@ -71,7 +103,7 @@ HASH_MAX_BYTES="${NEXUS_PROVENANCE_HASH_MAX_BYTES:-10485760}"
 # Bash command substitution drops raw NUL bytes. Detect them before decoding.
 INPUT=""
 if IFS= read -r -d '' INPUT; then
-    printf '[provenance-ledger] cannot decode payload containing NUL; skipping.\n' >&2
+    _nexus_msg "cannot decode payload containing NUL; skipping."
     exit 0
 fi
 [ -n "${INPUT:-}" ] || exit 0
@@ -90,13 +122,13 @@ _json_str() {
         value=$(printf '%s' "$INPUT" | jq -j "($2 // empty) | @uri" 2>/dev/null || true)
         # Bash cannot store NUL bytes; refuse before decoding instead of aliasing a path.
         if [ "$key" = "file_path" ] && [[ "$value" == *%00* ]]; then
-            printf '[provenance-ledger] cannot record path containing NUL; skipping.\n' >&2
+            _nexus_msg "cannot record path containing NUL; skipping."
             return
         fi
         printf '%b' "${value//%/\\x}"
     elif [ -n "$PY" ]; then
         printf '%s' "$INPUT" | PYTHONIOENCODING=utf-8 "$PY" -c '
-import json, sys
+import json, os, sys
 try:
     data = json.load(sys.stdin)
     key = sys.argv[1]
@@ -104,7 +136,7 @@ try:
     value = source.get(key) or (source.get("path") if key == "file_path" else "")
     if isinstance(value, str):
         if key == "file_path" and "\x00" in value:
-            sys.stderr.write("[provenance-ledger] cannot record path containing NUL; skipping.\n")
+            sys.stderr.write(os.environ["_NEXUS_TAG"] + " cannot record path containing NUL; skipping.\n")
         else:
             sys.stdout.buffer.write(value.encode("utf-8"))
 except (ValueError, TypeError, AttributeError):
@@ -118,7 +150,7 @@ except (ValueError, TypeError, AttributeError):
             | sed -E "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"//; s/\"$//" || true)
         # Only doubled backslashes are provably decodable without a JSON helper.
         case "${v//\\\\/}" in
-            *\\*) printf '[provenance-ledger] cannot decode escaped field without a JSON helper; skipping.\n' >&2; return 1 ;;
+            *\\*) _nexus_msg "cannot decode escaped field without a JSON helper; skipping."; return 1 ;;
         esac
         printf '%s' "${v//\\\\/\\}"
     fi
@@ -206,11 +238,11 @@ if [ "$IS_WRITE" = "1" ] && [ -n "${FILE_PATH:-}" ] && [ "${FILE_PATH}" != "null
             PATH_HASH=$(printf '%s' "$NORM_PATH" | openssl dgst -sha256 | awk '{print $NF}')
         fi
         if ! [[ "$PATH_HASH" =~ ^[0-9a-fA-F]{64}$ ]]; then
-            printf '[provenance-ledger] unsupported TSV path and no complete SHA-256 digest; skipping.\n' >&2
+            _nexus_msg "unsupported TSV path and no complete SHA-256 digest; skipping."
             exit 0
         fi
         NORM_PATH="UNSUPPORTED-PATH-SHA256:$PATH_HASH"
-        printf '[provenance-ledger] recorded path digest without path correlation.\n' >&2
+        _nexus_msg "recorded path digest without path correlation."
     fi
     printf '%s\t%s\t%s\n' "$(date +%s)" "$HASH" "$NORM_PATH" >> "$LEDGER" 2>/dev/null || exit 0
 
@@ -235,7 +267,7 @@ if [ "$IS_WRITE" = "1" ] && [ -n "${FILE_PATH:-}" ] && [ "${FILE_PATH}" != "null
             :
         else
             rm -f "$TMPFILE" 2>/dev/null || true
-            printf '[provenance-ledger] degraded rotation; ledger retained above its cap.\n' >&2
+            _nexus_msg "degraded rotation; ledger retained above its cap."
         fi
     fi
     exit 0
@@ -267,17 +299,15 @@ if [ "$IS_COMMAND" = "1" ] && [ -n "${COMMAND:-}" ] && [ "${COMMAND}" != "null" 
                     *) age="$(( NOW - ts ))s" ;;
                 esac
                 HITS="${HITS}
-  - ${path} (agent-written ${age} ago, hash ${hash:0:12})"
+  - $(_nexus_esc "$path") (agent-written ${age} ago, hash $(_nexus_esc "${hash:0:12}"))"
                 ;;
         esac
     done < "$LEDGER"
 
     if [ -n "$HITS" ]; then
-        {
-            echo "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:${HITS}"
-            echo "  A write the agent made is now reaching an executor. Confirm the command is running what you intend."
-            echo "  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes."
-        } >&2
+        _nexus_msg "TRUST SEAM: this command references a path the agent wrote in this session:${HITS}" \
+            "  A write the agent made is now reaching an executor. Confirm the command is running what you intend." \
+            "  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes."
     fi
 fi
 

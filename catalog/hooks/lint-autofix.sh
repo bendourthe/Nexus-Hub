@@ -31,6 +31,36 @@ trap 'exit 0' ERR
 
 _HOOK_NAME="lint-autofix"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: lint-autofix]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 # --- Opt-in gate (this hook mutates files) ---
 [ "${NEXUS_ENABLE_LINT_AUTOFIX:-0}" = "1" ] || exit 0
 
@@ -108,6 +138,6 @@ ${STAGED}
 EOF
 
 # --- Advisory summary to stderr (never stdout; never blocks) ---
-[ -n "$FIXED" ] && echo "[lint-autofix] formatted and re-staged:${FIXED}" >&2
-[ -n "$SKIPPED" ] && echo "[lint-autofix] skipped (unstaged changes present):${SKIPPED}" >&2
+[ -n "$FIXED" ] && _nexus_msg "formatted and re-staged:$(_nexus_esc "$FIXED")"
+[ -n "$SKIPPED" ] && _nexus_msg "skipped (unstaged changes present):$(_nexus_esc "$SKIPPED")"
 exit 0
