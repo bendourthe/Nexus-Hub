@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-02
-**Open items**: 117
+**Last updated**: 2026-11-03
+**Open items**: 115
 
 ## v4.14.0
 
@@ -3957,13 +3957,23 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 7 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Deferred (DF) | 3 | 4 |
+| Bugs / regressions (BG) | 2 | 0 |
+| Warnings (WN) | 3 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
 ### Open Items
+
+#### BG-30 (v4.14.8): A manifest-permission case fails once under heavy machine load and passes on every quiet rerun
+
+**Source phase**: v4.14.8 Phase 5 T038/T041
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.6 and 5.9
+
+**Reason**: In the 2026-11-03 standalone (no time limit) run of `repo-tests-governance-validators-d-o`, `tests/validators/test_m5_manifest_permission.py::test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start[dormant-two-member-evidence]` failed once (786 passed, 1 failed, 4539.46 s) while extension builds, Vitest and Playwright renders ran on the same host. The runner keeps only the summary tail, so the failing assertion was not captured. The case then passed 5 of 5 targeted reruns (19.5 to 23.0 s each) and its 10-case function passed on both the v4.14.8 candidate and `develop`. v4.14.8 changes none of the modules it imports (`check_plan_completion`, `completion_minor`, `approval_binding`). The test gives the checker a wall-clock `ck.Budget(60)`, the most likely load-sensitive point, but that cause is not proven.
+
+**Suggested next step**: Rerun the case under deliberate CPU load with `-p no:randomly --tb=long` until it fails or 20 runs pass, capture the assertion, then either make the budget independent of host load or record the test as load-sensitive with a measured bound. Owner: the next plan that touches `completion_minor.py`.
 
 #### BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH
 
@@ -4049,45 +4059,29 @@ None.
 
 - **Carried from**: v4.14.7#MT-16 on 2026-11-02
 
-#### DF-48: git-guardrails hook messages are not tagged yet
+#### WN-39: Advisory audit report retention differs from the CI contract
 
-**Source phase**: v4.14.8 Phase 3 T016, T017
+**Source phase**: v4.14.8 Phase 5 T037
 
-**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5 and DoD 6
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-task 5.5
 
-**Reason**: v4.14.6 edits `catalog/hooks/git-guardrails.sh` and has not merged, so the plan tags this pair only on top of v4.14.6's version. Its `.sh` and `.ps1` messages still lack `[Nexus-Hub: git-guardrails]`, and `test_hook_message_source_label.py` carries a commented `_PENDING_V4146` exemption plus skipped behavioral and injection cases.
+**Reason**: The field-by-field comparison finds supply-chain-watch.yml retains its pip-audit JSON for 30 days, while the canonical repository-native profile policy specifies seven days. The workflow is scheduled advisory drift checking and is separate from required pull-request checks. All other inspected report uploads specify seven days. No CI or repository setting was changed; the maintainer requires separate approval for such changes.
 
-**Suggested next step**: after v4.14.6 merges, at the start of Phase 5, tag both siblings with the emitter and value escaping, remove the exemption and the skips, add the behavioral and injection payloads, then tick T016 and T017.
+**Owner**: Repository CI maintainer.
 
-#### DF-49: Tracked `.agents/hooks/` copies still carry the old message text
+**Suggested next step**: Approve a seven-day setting or record a justified security-audit retention exception in the canonical policy, then run the affected workflow contracts.
 
-**Source phase**: v4.14.8 Phase 3 T020
+#### WN-40: The lifespan detector treats the first patch tag as minor close
 
-**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 6
+**Source phase**: v4.14.8 Phase 5 T033 and T035
 
-**Reason**: `python scripts/lib/integrations/runner.py init --target <worktree> --dry-run` showed the Antigravity project install would also rewrite about 60 stale `.agents/skills/` and `.agents/workflows/` files, so the plan's stop rule left `.agents/hooks/` unchanged.
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.1 and 5.3
 
-**Suggested next step**: in Phase 5, after DF-48, regenerate the repository's own `.agents/` install in a dedicated commit that accepts the stale skill refresh, confirm with `git diff --stat -- .agents/` that only generated files changed, then tick T020.
+**Reason**: audit-docs.py lifespan-contradictions exits 1 and reports 570 v4.14 files edited after v4.14.0. Inspection of _release_close_dates shows it chooses the earliest patch tag in a minor. The approved v4.14 workflow explicitly keeps the minor active until v4.14.8 is released and closure is verified. The observations are retained; this scan cannot establish that these active release files were edited after an actual minor close.
 
-#### DF-50: The forged-tag pointer in prompt-injection-defense is pending
+**Owner**: Documentation tooling maintainer.
 
-**Source phase**: v4.14.8 Phase 4 T026
-
-**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 8, sub-task 4.3
-
-**Reason**: v4.14.5 edits `catalog/skills/security/prompt-injection-defense/SKILL.md` and has not merged. The style guide section 9 already names the skill; the reverse one-sentence pointer is missing.
-
-**Suggested next step**: after v4.14.5 merges, add the sentence from sub-task 4.3, extend the section-9 test to require it, run `python -B scripts/validate_skills.py --bundles-only`, then tick T026.
-
-#### DF-51: Hook messages produced by helper scripts are not tagged
-
-**Source phase**: v4.14.8 Phase 3 T015
-
-**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
-
-**Reason**: `[attribution-guard] ...` comes from `scripts/nexus_git_attribution.py`, `[user-edit-guard] ...` from the `user-edit-preservation` skill's `edit_guard.py`, and the completion-gate core text from the installed `completion_gate.py`. All three are outside `catalog/hooks/`, which the plan's write paths cover, so users still see these messages without the Nexus-Hub tag.
-
-**Suggested next step**: a follow-on change that adds the tag to those three helpers and updates `test_attribution_guard.py` and `test_user_edit_guard.py`; it can run in this plan's Phase 5 only if the plan's write paths are amended with approval.
+**Suggested next step**: Define minor closure from explicit archive/completion evidence, add an active-multi-patch fixture, and qualify the detector in a separately scoped change. Do not delete or move evidence to silence this scan.
 
 #### MT-19: Whether escalation-trigger stdout reaches the user is unverified
 
@@ -4121,5 +4115,50 @@ None.
 
 ### Resolved
 
-| ID | Title | Resolved in | Notes |
-|---|---|---|---|
+#### DF-51: Hook messages produced by helper scripts are not tagged
+
+**Source phase**: v4.14.8 Phase 3 T015
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
+
+**Reason**: `[attribution-guard] ...` comes from `scripts/nexus_git_attribution.py`, `[user-edit-guard] ...` from the `user-edit-preservation` skill's `edit_guard.py`, and the completion-gate core text from the installed `completion_gate.py`. All three are outside `catalog/hooks/`, which the plan's write paths cover, so users still see these messages without the Nexus-Hub tag.
+
+**Suggested next step**: a follow-on change that adds the tag to those three helpers and updates `test_attribution_guard.py` and `test_user_edit_guard.py`; it can run in this plan's Phase 5 only if the plan's write paths are amended with approval.
+
+**Resolution (2026-11-03 UTC), Phase 5**: Source diagnostics in nexus_git_attribution.py, edit_guard.py and completion_gate.py now identify Nexus-Hub. Echoed C0/DEL controls are visible escapes, attribution follow-up lines and edit-guard guidance are tagged, and the MCP route cannot forge a second line. Twelve helper regressions pass, including seven unchanged continuation protocols and actual scan/block calls. The earlier wider helper suite passed 411 tests with one skip before the final message-only correction; the canonical full gate remains separate. Installed native scripts were not edited.
+
+#### DF-48: git-guardrails hook messages are not tagged yet
+
+**Source phase**: v4.14.8 Phase 3 T016, T017
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5 and DoD 6
+
+**Reason**: v4.14.6 edits `catalog/hooks/git-guardrails.sh` and has not merged, so the plan tags this pair only on top of v4.14.6's version. Its `.sh` and `.ps1` messages still lack `[Nexus-Hub: git-guardrails]`, and `test_hook_message_source_label.py` carries a commented `_PENDING_V4146` exemption plus skipped behavioral and injection cases.
+
+**Suggested next step**: after v4.14.6 merges, at the start of Phase 5, tag both siblings with the emitter and value escaping, remove the exemption and the skips, add the behavioral and injection payloads, then tick T016 and T017.
+
+**Resolution (2026-11-03 UTC), Phase 5**: Both git-guardrails siblings now use the Nexus-Hub tag and visible value escaping without changing command selection or exit codes. The source-label suite passes 101 cases with one documented no-jq skip, ten sibling-parity cases pass, and the source and regenerated copies pass the paired CLI injection exercise.
+
+#### DF-49: Tracked `.agents/hooks/` copies still carry the old message text
+
+**Source phase**: v4.14.8 Phase 3 T020
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 6
+
+**Reason**: `python scripts/lib/integrations/runner.py init --target <worktree> --dry-run` showed the Antigravity project install would also rewrite about 60 stale `.agents/skills/` and `.agents/workflows/` files, so the plan's stop rule left `.agents/hooks/` unchanged.
+
+**Suggested next step**: in Phase 5, after DF-48, regenerate the repository's own `.agents/` install in a dedicated commit that accepts the stale skill refresh, confirm with `git diff --stat -- .agents/` that only generated files changed, then tick T020.
+
+**Resolution (2026-11-03 UTC), Phase 5**: Antigravity20Integration._install_hooks regenerated only the existing project-hook surface with a fresh in-memory manifest. The Git diff changes only ten tagged hook scripts; hooks.json has no semantic change and the compatibility runner is unchanged. The source and copied secret-scan and git-guardrails hooks pass all eight CLI cases.
+
+#### DF-50: The forged-tag pointer in prompt-injection-defense is pending
+
+**Source phase**: v4.14.8 Phase 4 T026
+
+**Plan reference**: [v4.14.8 plan](plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 8, sub-task 4.3
+
+**Reason**: v4.14.5 edits `catalog/skills/security/prompt-injection-defense/SKILL.md` and has not merged. The style guide section 9 already names the skill; the reverse one-sentence pointer is missing.
+
+**Suggested next step**: after v4.14.5 merges, add the sentence from sub-task 4.3, extend the section-9 test to require it, run `python -B scripts/validate_skills.py --bundles-only`, then tick T026.
+
+**Resolution (2026-11-03 UTC), Phase 5**: The prompt-injection skill now names a forged Nexus-Hub tag as untrusted content and links agent-communication section 9, preserving the incoming v4.14.5 Codex Memories paragraph. Skill bundle validation passes with zero errors and 66 existing warnings.
