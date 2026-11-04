@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-11-04
-**Open items**: 115
+**Open items**: 117
 
 ## v4.15.0
 
@@ -12,9 +12,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 38 | 0 |
+| Deferred (DF) | 39 | 0 |
 | Bugs / regressions (BG) | 4 | 0 |
-| Warnings (WN) | 27 | 0 |
+| Warnings (WN) | 28 | 0 |
 | Missing tests / coverage gaps (MT) | 7 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
@@ -1650,6 +1650,22 @@
 
 - **Migrated from**: v4.14.8#QG-11 on 2026-11-04 (reason: user-deferred)
 - **Migration evidence**: left open by v4.14.8, the last plan of v4.14
+
+#### DF-39: The seeded Antigravity CLI `agentMode` value is no longer a documented value
+
+**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../v4.14/development/v4.14.8-platform-verification.md)).
+
+The [Antigravity CLI modes page](https://antigravity.google/docs/cli/modes/) now lists `agentMode` values `"auto"` (the default where available), `"accept-edits"`, `"plan"`, and `""` for default mode. Nexus-Hub seeds `{"agentMode": "default"}` into `~/.gemini/antigravity-cli/settings.json` when the key is absent (`configs/platform-defaults.json`), and the literal `"default"` is no longer listed. How the CLI treats the old literal is not documented, so the seed may no longer select the diff-review mode it was chosen for. Existing installs already hold the old value, because the seed is written only when the key is absent.
+
+**Owner**: catalog maintainer. **Severity**: medium - the seeded value's effect is undocumented, and an absent key now means `auto` where available. **Status**: open. **Suggested next step**: change the seed to the documented `""`, regenerate the derived artifacts with `sync_platform_defaults.py --apply`, update the lever row and its test, and decide whether installs that already hold `"default"` are migrated.
+
+#### WN-28: The Nexus-AI README now names a settings surface the lever row does not record
+
+**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../v4.14/development/v4.14.8-platform-verification.md)).
+
+The [Nexus-AI README](https://github.com/bendourthe/Nexus-AI) now names `nexus.coding.securityPosture` (Strict, Standard or Unattended; default Standard) and `~/.nexus/settings.json`. The lever row in `docs/policy/platform-defaults-levers.md` records no documented settings surface for Nexus-AI. A README alone does not make a lever VERIFIED.
+
+**Owner**: catalog maintainer. **Severity**: low - no seed is written for Nexus-AI, so nothing installs incorrectly. **Status**: open. **Suggested next step**: confirm the key, path and value domain against Nexus-AI's own documentation, then reclassify the row or record why it stays UNVERIFIED.
 
 ### AR-34: No live macOS installer smoke has been recorded
 

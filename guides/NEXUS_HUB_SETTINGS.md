@@ -2,7 +2,7 @@
 
 Summary: how to set the default effort, model, approval posture, commit attribution, and git-guardrails mode once for Claude Code, Codex, and GitHub Copilot, with the `nexus-hub settings` command or the "Nexus-Hub Settings" panel in VS Code, and how to see and undo anything that stops a default from taking effect.
 Read this when: you want every new agent session to start at the same effort or approval posture, a default you chose is not taking effect, you need to undo a change, or you want to know what the panel can never change.
-Covers: the five controls and what each means per tool, the override states and their fixes, `remove-override`, the human-presence rule, the Cannot remove list, `reset`, uninstall, and the release capability usage gate.
+Covers: the five controls and what each means per tool, the VS Code status bar, the override states and their fixes, `remove-override`, the human-presence rule, the Cannot remove list, `reset`, uninstall, and the release capability usage gate.
 
 Nexus-Hub Settings is the one place where you choose the defaults a new agent session starts with. Each tool keeps its defaults in a different file with a different key and a different set of values, and several other layers (an environment variable, a project file, an organization policy, a mode the tool remembers) can quietly beat the file. The command line writes the files and reports every layer that overrides your choice. The VS Code panel is a thin front end over the same command, so the two always agree.
 
@@ -69,6 +69,12 @@ nexus-hub settings remove-override effort --tool claude
 - `remove-override <control>` removes a known leftover override after you confirm (see [Remove override](#remove-override)).
 
 Writes preserve comments and unrelated keys, follow a symlink to the real file, keep the file's permissions, and are atomic. A file that does not parse is never written.
+
+## Status bar
+
+In VS Code, the Nexus-Hub mark sits in the status bar next to the usage monitors, followed by the effort a new session starts with: the value every settable tool agrees on, `mixed` when they differ, or `default` when none is set. When a default is overridden, not covered, unverified for the installed version, or cannot be detected, a warning icon and a count follow.
+
+Hover over it to see each tool's effort, model, and approval default, the tools that are not settable here, and what needs attention. Click it, or the "Open Nexus-Hub Settings" link in the hover, to open the full panel. The status bar reads the same state as `nexus-hub settings show` and writes nothing. To hide it without uninstalling the panel, right-click the status bar and clear "Nexus-Hub Settings".
 
 ## Override states
 

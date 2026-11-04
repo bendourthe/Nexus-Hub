@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.7 -->
+<!-- nexus-hub-version: 4.14.8 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.14.8
+
+**Plain English, and you can tell what Nexus-Hub said.** Agents are asked to write in simple English that a non-native reader can follow, to quote warnings and errors exactly, and to avoid agent and engineering slang; `anti-slop-editing` lists the slang with plain replacements. Every Nexus-Hub hook and helper message now starts with `[Nexus-Hub: <hook-name>]`, so a Nexus-Hub block or warning is never mistaken for a message from the tool itself.
+
+**Settings at a glance.** The Nexus-Hub Settings extension adds a status-bar entry beside the usage monitors: the Nexus-Hub mark, the effort a new session starts with, and a warning count when a default does not apply. Hover for every tool's defaults; click for the redesigned panel. See [the status bar](guides/NEXUS_HUB_SETTINGS.md#status-bar).
+
+**Usage-limit answers stick, and handoffs move on.** Answers to a usage-limit question are saved directly, with `nexus-hub usage status` and `nexus-hub usage decide` to recover, and a handoff no longer tells the next platform to wait for the previous one's limit to reset.
+
+See [the changelog](CHANGELOG.md#4148---2026-11-04) for all changes and capability usage instructions.
 
 ## What's New in v4.14.7
 
