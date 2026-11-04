@@ -37,7 +37,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14.0 through v4.14.7 are published. v4.14.7 main integration and published-archive verification passed; back-merge PR #602 and post-merge run 41571491693 passed. v4.14.8 has 39/42 checked tasks after the final structural, gap, handbook, hygiene and CI comparison duties; the deep-pass terminal review, full-suite, publication and release qualification remain open. The minor closes after v4.14.8 releases.
+**Active work:** v4.14.0 through v4.14.7 are published. v4.14.8 has all 42 tasks checked: its full local gate passed on the merged tree (14738 tests), PR #605 merged into develop with all checks green, and post-merge run 41805443933 passed. The v4.14.8 release is in progress on `chore/release-v4.14.8`. As the last v4.14 plan, it migrated 115 open gaps to the v4.15 ledger; AR-31 (hosted CodeQL alerts) stays open, so the minor close waits on a maintainer decision for it.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -77,19 +77,19 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Return the v4.14.8 plan to v4.14, admit v4.14.7 and v4.14.8 with the maintainer's approval, release both, then close the minor.
+**Next:** Publish v4.14.8, decide AR-31 (triage the five CodeQL alerts), then close and archive the v4.14 minor.
 
 | Metric | Current | Target |
 |---|---|---|
-| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified | v4.14.7 publication |
+| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified; published in v4.14.7 | Done |
 | Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
-| v4.14 GitHub develop integrated task marks | 256/298 | 298/298 |
-| v4.14 worktree task marks | 295/298 | 298/298 |
-| v4.14 released members | 8/9 | 9/9 |
+| v4.14 GitHub develop integrated task marks | 298/298 with this release commit | 298/298 |
+| v4.14 worktree task marks | 298/298 | 298/298 |
+| v4.14 released members | 8/9; v4.14.8 release in progress | 9/9 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
-| Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
+| Known gaps | v4.14: 1 open (AR-31), 115 migrated to v4.15, 57 resolved; v4.15: 117 open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
