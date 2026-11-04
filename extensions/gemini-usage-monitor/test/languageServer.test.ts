@@ -23,6 +23,9 @@ import {
 
 const APP_ROOT = process.platform === "win32" ? "C:\\Apps\\Antigravity IDE\\resources\\app" : "/opt/antigravity/resources/app";
 const EXE = path.join(APP_ROOT, "extensions", "antigravity", "bin", "language_server_x64");
+const HOME = process.platform === "win32" ? "C:\\Users\\me" : "/home/me";
+const EXT = process.platform === "win32" ? ".exe" : "";
+const AGY = path.join(HOME, ".gemini", "bin", "agy" + EXT);
 
 function proc(pid: number, args: string, executable = EXE): ServerProcess {
   return { pid, executable, commandLine: `${executable} ${args}`, ports: [] };
@@ -53,32 +56,43 @@ describe("selectServers", () => {
   });
 
   it("adds agy hubs after this install's servers, and only hubs with a token", () => {
-    const agy = process.platform === "win32" ? "C:\\Users\\me\\.gemini\\bin\\agy.exe" : "/home/me/.gemini/bin/agy";
     const picked = selectServers(
       [
-        proc(5, "--hub --hub-port=59895 --app_data_dir=antigravity --csrf_token h", agy),
-        proc(6, "--hub --hub-port=1", agy),
-        proc(7, "chat --csrf_token x", agy),
+        proc(5, "--hub --hub-port=59895 --app_data_dir=antigravity --csrf_token h", AGY),
+        proc(6, "--hub --hub-port=1", AGY),
+        proc(7, "chat --csrf_token x", AGY),
         proc(2, "--csrf_token b"),
       ],
       APP_ROOT,
+      HOME,
     );
     expect(picked.map((p) => p.pid)).toEqual([2, 5]);
   });
 
   it("finds an agy hub on its own when the editor has no built-in server", () => {
-    const hub = proc(9, "--hub --hub-port 40000 --csrf_token h", "/home/me/.gemini/bin/agy");
-    expect(selectServers([hub], APP_ROOT).map((p) => p.pid)).toEqual([9]);
+    const hub = proc(9, "--hub --hub-port 40000 --csrf_token h", AGY);
+    expect(selectServers([hub], APP_ROOT, HOME).map((p) => p.pid)).toEqual([9]);
+  });
+
+  it("never trusts an agy hub outside this user's ~/.gemini/bin", () => {
+    const spoof = proc(10, "--hub --hub-port 40001 --csrf_token h", path.join(os.tmpdir(), "agy" + EXT));
+    const otherUser = proc(11, "--hub --hub-port 40002 --csrf_token h", path.join(path.dirname(HOME), "someone", ".gemini", "bin", "agy" + EXT));
+    expect(selectServers([spoof, otherUser], APP_ROOT, HOME)).toEqual([]);
   });
 });
 
 describe("agy hub helpers", () => {
-  it("recognizes the hub by its executable name and --hub flag", () => {
+  it("recognizes the hub by its full path, executable name and --hub flag", () => {
     const base = { pid: 1, ports: [] };
-    expect(isHubProcess({ ...base, executable: "C:\\Users\\me\\.gemini\\bin\\agy.exe", commandLine: "agy.exe --hub --csrf_token t" })).toBe(true);
-    expect(isHubProcess({ ...base, executable: "", commandLine: "/home/me/.gemini/bin/agy --hub --csrf_token t" })).toBe(true);
-    expect(isHubProcess({ ...base, executable: "/home/me/.gemini/bin/agy", commandLine: "/home/me/.gemini/bin/agy chat" })).toBe(false);
-    expect(isHubProcess({ ...base, executable: "/usr/bin/legacy-agy-tool", commandLine: "legacy-agy-tool --hub" })).toBe(false);
+    expect(isHubProcess({ ...base, executable: AGY, commandLine: `${AGY} --hub --csrf_token t` }, HOME)).toBe(true);
+    expect(isHubProcess({ ...base, executable: "", commandLine: `${AGY} --hub --csrf_token t` }, HOME)).toBe(true);
+    expect(isHubProcess({ ...base, executable: AGY, commandLine: `${AGY} chat` }, HOME)).toBe(false);
+    expect(isHubProcess({ ...base, executable: "/usr/bin/legacy-agy-tool", commandLine: "legacy-agy-tool --hub" }, HOME)).toBe(false);
+  });
+
+  it("accepts a bare agy name only where the process list is limited to this user", () => {
+    const bare = { pid: 1, ports: [], executable: "", commandLine: "agy --hub --csrf_token t" };
+    expect(isHubProcess(bare, HOME)).toBe(process.platform !== "win32");
   });
 
   it("reads --hub-port and tries it first", () => {
@@ -102,14 +116,21 @@ describe("process and port parsers", () => {
   });
 
   it("parses ps output, keeping language servers only", () => {
-    const out = parsePsOutput("  12 /a/language_server_macos_arm --csrf_token t\n 13 /bin/zsh\n");
+    const out = parsePsOutput("  12  501 /a/language_server_macos_arm --csrf_token t\n 13 501 /bin/zsh\n");
     expect(out).toEqual([{ pid: 12, executable: "/a/language_server_macos_arm", commandLine: "/a/language_server_macos_arm --csrf_token t", ports: [] }]);
   });
 
-  it("parses ps output, keeping agy hubs and skipping other agy commands", () => {
-    const out = parsePsOutput(" 21 /Users/me/.gemini/bin/agy --hub --hub-port=40000 --csrf_token t\n 22 /Users/me/.gemini/bin/agy chat\n");
+  it("parses ps output, keeping this user's agy hubs and dropping other users' processes", () => {
+    const hub = "/Users/me/.gemini/bin/agy";
+    const stdout = [
+      ` 21 501 ${hub} --hub --hub-port=40000 --csrf_token t`,
+      ` 22 501 ${hub} chat`,
+      ` 23 502 /a/language_server_macos_arm --csrf_token other-user`,
+    ].join("\n");
+    const out = parsePsOutput(stdout, 501, "/Users/me");
     expect(out.map((p) => p.pid)).toEqual([21]);
-    expect(out[0].executable).toBe("/Users/me/.gemini/bin/agy");
+    expect(parsePsOutput(stdout).map((p) => p.pid)).toContain(23);
+    expect(parsePsOutput(stdout, 501).map((p) => p.pid)).not.toContain(23);
   });
 
   it("parses lsof -Fn listen addresses", () => {

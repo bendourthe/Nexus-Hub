@@ -108,6 +108,7 @@ The Gemini group is the headline pair (status bar, "Current Session" and "Weekly
 
 - The monitor makes **no** internet requests of its own. Every request goes to `127.0.0.1`.
 - The CSRF token is held in memory only. It is never logged, stored, or shown.
+- Only your own processes are trusted: an `agy` hub must run from your own `~/.gemini/bin`, and on macOS and Linux processes owned by other users are ignored.
 - The monitor reads only quota and plan data. It cannot change your plan, turn on AI credit overages, or spend credits.
 
 ### Recommendations

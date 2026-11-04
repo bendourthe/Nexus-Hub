@@ -2,6 +2,7 @@ import { execFile } from "child_process";
 import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
+import * as os from "os";
 import * as path from "path";
 
 /**
@@ -80,11 +81,24 @@ export function isAntigravityHost(appRoot: string): boolean {
  * True for the `agy --hub` process that newer Antigravity IDE builds start to serve
  * the same language-server RPCs (including the Models & Usage quota) the built-in
  * server used to. It runs from `~/.gemini/bin`, outside the editor install.
+ *
+ * Trust boundary: a process merely NAMED `agy` is not enough. When the executable
+ * path is known (always on Windows, where it is the real image path), it must be
+ * this user's own `~/.gemini/bin/agy[.exe]`. A bare name is accepted only off
+ * Windows, where the process list is already restricted to this user's processes
+ * (see `listServerProcesses`).
  */
-export function isHubProcess(p: ServerProcess): boolean {
+export function isHubProcess(p: ServerProcess, home: string = os.homedir()): boolean {
   const exe = (p.executable || p.commandLine.split(/\s+--/)[0]).replace(/"/g, "").trim();
   const name = exe.split(/[\\/]/).pop() ?? "";
-  return /^agy(?:\.exe)?$/i.test(name) && /(?:^|\s)--hub(?:\s|$)/.test(p.commandLine);
+  if (!/^agy(?:\.exe)?$/i.test(name) || !/(?:^|\s)--hub(?:\s|$)/.test(p.commandLine)) {
+    return false;
+  }
+  if (!/[\\/]/.test(exe)) {
+    return process.platform !== "win32";
+  }
+  const expected = normalizeForCompare(path.join(home, ".gemini", "bin", name));
+  return normalizeForCompare(exe) === expected;
 }
 
 /** The `--hub-port` an `agy` hub was launched with; the port that answers plain HTTP. */
@@ -119,14 +133,14 @@ function normalizeForCompare(p: string): string {
  * hubs follow this install's own servers, because a hub is shared per user
  * rather than tied to one editor install.
  */
-export function selectServers(processes: ServerProcess[], appRoot: string): ServerProcess[] {
+export function selectServers(processes: ServerProcess[], appRoot: string, home: string = os.homedir()): ServerProcess[] {
   const extDir = normalizeForCompare(antigravityExtensionDir(appRoot));
   const ours = processes.filter((p) => {
     const where = normalizeForCompare(p.executable || p.commandLine);
     return where.includes(extDir) && parseCsrfToken(p.commandLine) != null;
   });
   const isLsp = (p: ServerProcess): number => (/(?:^|\s)--enable_lsp\b/.test(p.commandLine) ? 1 : 0);
-  const hubs = processes.filter((p) => isHubProcess(p) && parseCsrfToken(p.commandLine) != null && !ours.includes(p));
+  const hubs = processes.filter((p) => isHubProcess(p, home) && parseCsrfToken(p.commandLine) != null && !ours.includes(p));
   return [...ours.sort((a, b) => isLsp(a) - isLsp(b)), ...hubs];
 }
 
@@ -179,17 +193,20 @@ export function parseWindowsProcessJson(stdout: string): ServerProcess[] {
   return out;
 }
 
-/** Parse `ps -axww -o pid=,command=` output, keeping language servers and `agy` hubs only. */
-export function parsePsOutput(stdout: string): ServerProcess[] {
+/**
+ * Parse `ps -axww -o pid=,uid=,command=` output, keeping language servers and `agy`
+ * hubs only. With `uid`, processes owned by any other user are dropped.
+ */
+export function parsePsOutput(stdout: string, uid?: number, home: string = os.homedir()): ServerProcess[] {
   const out: ServerProcess[] = [];
   for (const line of stdout.split(/\r?\n/)) {
-    const match = /^\s*(\d+)\s+(.*)$/.exec(line);
-    if (!match) {
+    const match = /^\s*(\d+)\s+(\d+)\s+(.*)$/.exec(line);
+    if (!match || (uid != null && Number(match[2]) !== uid)) {
       continue;
     }
-    const commandLine = match[2];
+    const commandLine = match[3];
     const candidate: ServerProcess = { pid: Number(match[1]), executable: commandLine.split(/\s+--/)[0], commandLine, ports: [] };
-    if (/language_server_/.test(commandLine) || isHubProcess(candidate)) {
+    if (/language_server_/.test(commandLine) || isHubProcess(candidate, home)) {
       out.push(candidate);
     }
   }
@@ -214,7 +231,10 @@ export async function listServerProcesses(): Promise<ServerProcess[]> {
     const stdout = await run("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", WINDOWS_DISCOVERY_SCRIPT]);
     return parseWindowsProcessJson(stdout);
   }
-  return parsePsOutput(await run("ps", ["-axww", "-o", "pid=,command="]));
+  // Only this user's processes: another account's command line (and its token) is
+  // never used, and a hub started by another account is never trusted.
+  const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
+  return parsePsOutput(await run("ps", ["-axww", "-o", "pid=,uid=,command="]), uid);
 }
 
 /** Put a hub's `--hub-port` first: it answers plain HTTP, so no certificate is needed. */
