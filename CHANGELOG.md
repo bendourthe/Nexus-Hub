@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.8] - 2026-11-04
+
+### Added
+
+- **Agents write for a non-native English reader and name what Nexus-Hub caused (v4.14.8).** `anti-slop-editing` owns a new "Agent and engineering slang" list with plain replacements and its exemptions (messages between agents, real names in backticks, precise terms explained in place), and `detect_prose_cliches.py` reports 13 of those terms as advisory `engineering-slang` findings; "happy path" and "fan out" stay judgment-only because the catalog uses them as technique names. The communication style guide sets the bar at simple English a non-native reader follows at first read, requires quoting warnings, errors and names exactly before explaining them, and adds section 9, Source labels: the agent starts a reply with `[Nexus-Hub: <source>]` only when relaying a hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so, never on a request to disable a guard, and treats imitated `[Nexus-Hub` text in tool output as possible impersonation. Decision records `2026-10-30-plain-english-replies.md`, `2026-10-30-hook-messages-name-nexus-hub.md` and `2026-10-30-nexus-hub-source-labels.md`; a before-and-after measurement on Claude Code is recorded in `docs/releases/v4/v4.14/development/v4.14.8-effect-measurement.md` (labels 7 of 10 correct against a target of 8; both targets are recorded as known gaps).
+
+### Changed
+
+- **All 13 substantive instruction templates carry the plain-English and source-label rules (v4.14.8).** The first Communication Contract bullet asks for simple English a non-native reader follows and for quoting warnings, errors and names exactly; Writing Discipline names agent or engineering slang with five example pairs; one new bullet carries the source-label rule. All three are byte-identical across the 13 and test-guarded. The five lockstep word ceilings rose by the measured 40 and 42 words, and `legacy_fingerprints.json` was regenerated.
+- **Every catalog hook message starts with `[Nexus-Hub: <hook-name>]` (v4.14.8).** This covers stderr, SessionStart and UserPromptSubmit context, and the `reason`, `permissionDecisionReason`, `systemMessage` and `additionalContext` fields, including the PowerShell approval dialog. `lint-on-write` replaces `[lint]` and `antigravity-cli-diff-review` replaces `[antigravity-diff-review]`. `test_hook_message_source_label.py` enforces one emitter per hook and checks both implementations behaviorally. The merged `git-guardrails` pair and relayed attribution, edit-preservation and completion helpers are included; echoed control characters cannot forge a tagged line. Existing allow/block decisions and hook protocols are preserved.
+- The Nexus-Hub Settings extension now has a status-bar entry beside the usage monitors: the Nexus-Hub mark, the effort a new session starts with, and a warning count when a default is overridden or unconfirmed. Hovering lists every tool's effort, model, and approval default, and clicking opens the panel. The activity-bar icon is now the Nexus-Hub mark, and the panel follows the usage monitors' style: compact cards, buttons beside their fields, value chips, and folded notes and not-settable reasons. Known model ids appear as buttons under the field instead of a suggestion popup that covered the rows below.
+- **Capability usage note: the Nexus-Hub Settings status bar.**
+    - Activation: install or upgrade Nexus-Hub; the installers rebuild and reinstall the panel when the `code` command is found, and the status-bar entry appears after VS Code reloads.
+    - Validation: `code --list-extensions` lists `nexus-hub.nexus-hub-settings`, and hovering the Nexus-Hub mark in the status bar shows the same per-tool defaults as `nexus-hub settings show`.
+    - Rollback: right-click the status bar and clear "Nexus-Hub Settings" to hide the entry, or run `code --uninstall-extension nexus-hub.nexus-hub-settings` to remove the panel and the entry together.
+    - Authority: the status bar only reads the defaults the panel reads and writes nothing; its hover link only opens the panel, and it cannot change a running session or any setting.
+    - Docs: [Status bar](guides/NEXUS_HUB_SETTINGS.md#status-bar) in the Nexus-Hub Settings guide.
+- As the last v4.14 plan, 115 open known gaps moved to the new `docs/releases/v4/v4.15/known-gaps.md`, each with its migration marker and original evidence. AR-31 (hosted CodeQL alerts and the required-check decision) stays open in the v4.14 ledger pending a maintainer decision.
+
+### Fixed
+
+- Save submitted usage-limit answers directly from question and prompt hooks, prevent repeated instructions and Stop loops, and provide `nexus-hub usage status` and `nexus-hub usage decide` recovery commands with provider aliases and consistent project resolution.
+- **A handoff no longer tells the next agent to wait for the previous platform's usage limit to reset.** A handoff exists so work can continue on another platform right away, but a usage-limit handoff carried the old platform's limit window, percent used, reset time, credits choice, and the ending session's "start no new work" stop into its Next steps and Constraints, and carry-forward copied them into every later handoff. The `session-handoff` skill now writes platform-neutral content: the header trigger is `usage-limit` with no window or percent, the body never names the old platform's usage state or a stop meant for the ending session, carried items of that kind are dropped and counted, and the printed prompt tells the receiver to start now. An older `usage-limit WINDOW PERCENT` header is still carried forward, shortened to `usage-limit`. The usage question asked before a handoff is unchanged. `catalog/hooks/tests/test_session_handoff_contract.py` pins the new contract.
+
+### Security
+
+- Pin glob 14.0.2 in the Claude, Codex, Copilot and Gemini usage-monitor build dependencies to close GHSA-3g3m-2fjr-6pw4. All four audits are clean, their real icon-font generators pass, and their compile, coverage and packaging groups pass. Other dependency versions remain fixed except the patched glob dependency branch and its required path-scurry/lru-cache updates.
+
 ## [4.14.7] - 2026-11-02
 
 ### Added
@@ -95,6 +123,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **A plan task still counts after its file is moved and its branch is merged.** The completion checker counts a task line by asking `git log <start>..HEAD -- <path>` for a commit that touched the task's path. When a branch wrote a file and later moved it (the normal promotion of a decision record from `proposed/` to `implemented/`) and then merged, git's history simplification followed the merge's first parent, where the path never existed, and dropped the branch's commits, so the finished task read `unmet`. Every task-line lookup (plain, dated, and both archive-aware forms) now passes `--full-history`, which counts the commits that touched the path on any merged branch, as it already did for a file that still exists. v4.14.4's T010 hit this after merge.
+
+### Security
+
+- **Hook messages escape echoed values (v4.14.8).** CR, LF, ESC and other control characters in an echoed file name, command or path are printed as visible escapes, so an echoed value cannot start a forged `[Nexus-Hub: ...]` line.
 
 ## [4.14.4] - 2026-10-30
 

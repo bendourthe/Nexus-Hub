@@ -74,7 +74,7 @@
         {
           "id": "verification-text",
           "type": "paragraph",
-          "text": "Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior."
+          "text": "Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior. Usage recovery uses nexus-hub usage status and usage decide. Verify one genuine answer persists and subsequent Stop events stay quiet."
         }
       ],
       "fragment": "docs/handbooks/_sources/distribution/verification-composition.html"

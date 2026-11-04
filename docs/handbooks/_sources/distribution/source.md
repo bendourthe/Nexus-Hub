@@ -20,4 +20,4 @@ Claude core settings keep a separate record of defaults Nexus-Hub actually wrote
 
 ## Inspect outcomes, then test behavior
 
-Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior.
+Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior. Usage recovery uses nexus-hub usage status and usage decide. Verify one genuine answer persists and subsequent Stop events stay quiet.

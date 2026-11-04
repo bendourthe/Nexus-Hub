@@ -1,0 +1,2120 @@
+{
+    "revision":  "493617de21ac948b406ae59acdd3af3c5df98fa4",
+    "classification":  "propose-only, no removals or moves",
+    "scope_files":  4885,
+    "families":  {
+                     ".agents":  1373,
+                     ".claude-plugin":  2,
+                     ".cursor":  25,
+                     ".devcontainer":  3,
+                     "root-convention":  23,
+                     ".githooks":  2,
+                     ".github":  19,
+                     "assets":  16,
+                     "catalog":  1574,
+                     "configs":  14,
+                     "data":  7,
+                     "examples":  4,
+                     "extensions":  662,
+                     "guides":  42,
+                     "infrastructure":  12,
+                     "scripts":  166,
+                     "templates":  340,
+                     "tests":  601
+                 },
+    "empty_tracked_parent_directories":  [
+
+                                         ],
+    "single_child_directory_chains":  [
+                                          "catalog/plugins",
+                                          "configs/examples",
+                                          "configs/examples/org-bundle-example/rules",
+                                          "extensions/nexus-code-search/src",
+                                          "extensions/nexus-context-compressor/src",
+                                          "extensions/nexus-memory/src",
+                                          "extensions/nexus-skill-scanner/src",
+                                          "extensions/nexus-skill-server/src",
+                                          "extensions/nexus-web-fetch/src",
+                                          "tests/e2e",
+                                          "tests/fixtures/interactive-handbooks-qualification/repo/inputs/docs"
+                                      ],
+    "suspicious_root_orphans":  [
+
+                                ],
+    "gap_ledgers":  [
+                        {
+                            "path":  "docs/archives/v1/v1.1/known-gaps.md",
+                            "status":  "finalized",
+                            "open_headings":  11,
+                            "items":  [
+                                          "DF-001 -- `create-skill-or-command` skill does not exist in catalog - RESOLVED",
+                                          "DF-002 -- A4 starting state in plan does not match repo state - CLOSED",
+                                          "DF-003 -- macOS / Linux installer dry-run deferred - RESOLVED",
+                                          "QG-001 -- Cross-OS verification gate ran on one OS only - RESOLVED",
+                                          "DF-004 -- `--dry-run` flag NOT added to either installer - CLOSED",
+                                          "WN-001 -- 4 pre-existing per-skill bundled-resources orphan warnings - RESOLVED",
+                                          "DF-005 -- Phase 4 cross-OS installer dry-run deferred (extends DF-003) - RESOLVED",
+                                          "DF-006 -- Phase 5 cross-OS installer dry-run deferred (extends DF-003 / DF-005) - MIGRATED to v4.13.0",
+                                          "MT-001 -- Real-CLI integration test for the optimizer is not exercised in CI - MIGRATED to v4.13.0",
+                                          "DF-008 -- Phase 7 packager installer registration not exercised on macOS / Linux - MIGRATED to v4.13.0",
+                                          "DF-007 -- Phase 6 mcp-builder bundled scaffolders not exercised end-to-end - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v1/v1.3/known-gaps.md",
+                            "status":  "finalized",
+                            "open_headings":  2,
+                            "items":  [
+                                          "WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5 - RESOLVED",
+                                          "WN-002 -- `make` and `shellcheck` unavailable on Windows dev machine; cp1252 default codec breaks inline `python -c json.load` - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v2/v2.0/known-gaps.md",
+                            "status":  "finalized",
+                            "open_headings":  1,
+                            "items":  [
+                                          "DF-005 -- `README_zh.md` v1.0.0 historical block preserves the old \"DevAI-Hub\" name intentionally - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v2/v2.1/known-gaps.md",
+                            "status":  "ready-to-ship (v2.1.0 base + Phase 9 polish + Phase 10 integration-registry pulled forward from v2.2.0)",
+                            "open_headings":  1,
+                            "items":  [
+                                          "DF-001 - Byte-identical parity migration of the original 4 platforms (Claude / Gemini / Codex / Copilot) into the integration registry **(part 1 resolved in v2.2.0 Phase 3; part 2 carried forward)** - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v2/v2.2/known-gaps.md",
+                            "status":  "finalized for v2.2.0 release (codegraph-and-antigravity Phases 1-6 closed; adoption-antigravity-sdk-python Phases 1-3 closed; ready for `git tag v2.2.0` after the combined release-prep sweep -- AGENTS.md catalog count rebaseline to 207 skills + RELEASE_NOTES / CHANGELOG mention of the new skill)",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v2/v2.3/known-gaps.md",
+                            "status":  "Phases 1-9 of 9 closed (skill-native foundations + CI validators + runtime learning + installer lifecycle \u0026 selective install + skill-quality tooling + framework coverage \u0026 defensive security content + installer instruction-file parity + code-graph quality \u0026 extractor expansion + live-environment verification); v2.3.0 release-readiness workflow running -- 15 open items transferred to the v2.4.0 adoption-compound-engineering-plugin plan (2026-05-30). The sibling adoption-superpowers plan also closed all 6 of 6 phases on 2026-05-30 (process-discipline skills) and recorded one new deferral, DF-v23-9 (visual brainstorming server, not built).",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v2/v2.4/known-gaps.md",
+                            "status":  "complete (Phases 1-8 of 8 closed; Phase 8 - live verification + release readiness; v2.4.0 release-ready). All 13 A-items shipped; all 15 ingested v2.3.0 gaps resolved (11) or dated-deferred (4). Catalog green: make validate exit 0; 1056 tests passed / 4 skipped / 0 failed; code-search eval recall 100% / precision 100%; zero new outbound verified.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.0/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (10 migrated to v4.13 as AR-04, AR-22, AR-25, AR-26, AR-27, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.1/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-06). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.10/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (3 migrated to v4.13 as AR-21, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.11/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (6 migrated to v4.13 as AR-01, AR-11, AR-21, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  3,
+                            "items":  [
+                                          "DF-1 - Residual live-verification gaps (external platform contracts) - MIGRATED to v4.13 (AR-01) - MIGRATED to v4.13.0",
+                                          "WN-2 - Windows MAX_PATH risk when seeding Antigravity `.agents/skills/` into a deep target - MIGRATED to v4.13 (AR-11) - MIGRATED to v4.13.0",
+                                          "WN-3 - Windows-local verification residuals (full integrations/installer suite + README_zh prose) - RESOLVED 2026-09-29"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.12/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (7 migrated to v4.13 as AR-18, AR-36). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  6,
+                            "items":  [
+                                          "DF-1 - PDF text/figure interleaving is approximate - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-2 - Caption text remains duplicated in page paragraph text - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-3 - OCR table recovery is geometry-based; pytesseract path recovers paragraphs only - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-4 - Video / audio media embedding (carried from v3.9, DF-v39-presentify-4) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-5 - Brand custom-font embedding in the baseline builder (carried from v3.9, DF-v39-presentify-5) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "WN-1 - Pre-existing local test failures on the Windows dev host (unrelated to this version) - RESOLVED 2026-09-29"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.13/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (8 migrated to v4.13 as AR-03, AR-18, AR-19). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  10,
+                            "items":  [
+                                          "DF-1 - `.gitignore` matching is best-effort - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-2 - Markdown parser is intentionally minimal - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-3 - No secret redaction on the repository walk - MIGRATED to v4.13 (AR-03) - MIGRATED to v4.13.0",
+                                          "DF-4 - Video / audio media embedding (carried from v3.9 / v3.12) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-5 - Brand web-font embedding (carried from v3.9 / v3.12) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "DF-6 - Tier 2 stock: Coverr / Mixkit sources and general video fetch not implemented - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0",
+                                          "WN-1 - Full-repo validators and browser visual-QA unavailable on the Windows dev host - MIGRATED to v4.13 (AR-19) - MIGRATED to v4.13.0",
+                                          "WN-2 - Deck-PDF prominence path not exercised end-to-end locally - RESOLVED 2026-09-29",
+                                          "MT-1 - No automated verifier check for PDF / PPTX `page_fraction` geometry - RESOLVED 2026-09-29",
+                                          "MT-2 - Live Tier-2 fetch paths and Tier-3 generation not exercised in CI (residual) - MIGRATED to v4.13 (AR-19) - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.14/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (9 migrated to v4.13 as AR-06, AR-08, AR-20, AR-31, AR-32, AR-35). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  24,
+                            "items":  [
+                                          "DF-1-v3145 - Workspace-scope Claude checklist + workspace undetected grouping deferred - MIGRATED to v4.13 (AR-20) - MIGRATED to v4.13.0",
+                                          "DF-2 - Codex `wham/usage` response schema unverified (auto-fetch is best-effort; manual entry is the guaranteed path) - RESOLVED 2026-09-29",
+                                          "DF-3-v3145 - Pre-existing: AGENTS.md \"legacy installer copy blocks\" framing predates the registry migration - MIGRATED to v4.13 (AR-31) - MIGRATED to v4.13.0",
+                                          "DF-4 - Platform additive-surface drift deferred to v3.15.0 (found by the v3.14.5 release re-verification) - CLOSED 2026-09-29",
+                                          "WN-1 - Pre-existing: `qwen.py` imports `FileAction` unused - RESOLVED 2026-09-29",
+                                          "MT-1-v3145 - Usage-monitor extensions\u0027 UI orchestration remains partially host-only - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0",
+                                          "DF-1-v3144 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user\u0027s `codex-2048x2048.png` - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0",
+                                          "DF-2 - Exact Codex-app credential location and field shape are unverified (carried from v3.14.0) - RESOLVED 2026-09-29",
+                                          "MT-1-v3144 - Claude extension UI orchestration remains unit-test-light - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0",
+                                          "DF-1 - Pre-existing `data/skills.json` description drift (not parse-truncation; shares a root with v3.14.2 WN-1 / Advisory) - RESOLVED 2026-09-29",
+                                          "DF-2 - `.claude-plugin/plugin.json` declares a category-nested skills path; PLUGIN-surface discovery unverified - RESOLVED 2026-09-29",
+                                          "DF-3 - 8 non-skill level-2 directories are flattened identically to the Python adapter - RESOLVED 2026-09-29",
+                                          "DF-4 - Stock video requires a user-provided Pexels key (cannot auto-provision) - CLOSED 2026-09-29",
+                                          "DF-5 - Windows file-permission hardening for media.env is best-effort - CLOSED 2026-09-29",
+                                          "DF-6 - Headless aspect auto-pick uses the deck_like signal only after extraction (by design) - CLOSED 2026-09-29",
+                                          "MT-1-v3143 - No dedicated automated regression test for the new strict-YAML gate - MIGRATED to v4.13 (AR-08) - MIGRATED to v4.13.0",
+                                          "QG-1 - The new tests/skills/ module was not CI-gated (RESOLVED in Phase 4.3) - RESOLVED",
+                                          "WN-1-v3142 - Pre-existing: 8 recent skills fail the strict `validate_skills.py` description-length check and are not allowlisted - MIGRATED to v4.13 (AR-06) - MIGRATED to v4.13.0",
+                                          "DF-1 - Exact Codex-app credential location and field shape are unverified - RESOLVED 2026-09-29",
+                                          "DF-3-v3140 - P1: provider failover / settlement invariants as multi-provider-ai reference content - MIGRATED to v4.13 (AR-35) - MIGRATED to v4.13.0",
+                                          "DF-2 - wham/usage is an undocumented endpoint (durability risk) - CLOSED 2026-09-29",
+                                          "BG-1 - Pre-existing: verify_platform_contracts.py not registered in either installer - RESOLVED",
+                                          "MT-1-v3140 - Extension UI modules have no automated tests - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0",
+                                          "QG-1 - The claude-usage-monitor extension is not exercised in CI - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.15/known-gaps.md",
+                            "status":  "archived 2026-09-29; v4.13.11 parser normalization and canonical source-owner reconciliation in progress.",
+                            "open_headings":  4,
+                            "items":  [
+                                          "DF-14 - Completion notification trigger B remains undelivered or unverified on three platforms - MIGRATED to v4.13.0",
+                                          "DF-15 - Codex PermissionRequest settled in v3.15.11 - RESOLVED",
+                                          "DF-16 - Windows notification linger remains unmeasured - MIGRATED to v4.13.0",
+                                          "DF-17 - Legacy Cursor global commands write remains unverified - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.16/known-gaps.md",
+                            "status":  "archived 2026-09-29; v4.13.11 parser normalization and canonical source-owner reconciliation in progress.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.17/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (10 migrated to v4.13 as AR-05, AR-16, AR-17, AR-32, AR-33, AR-34). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  3,
+                            "items":  [
+                                          "NI-4 - Copilot organization precedence remains advisory - CLOSED 2026-09-29",
+                                          "DF-7 - Catalog-content suppression is outside the organization-layer contract - CLOSED 2026-09-29",
+                                          "DF-8 - Platform-native enforcement generation remains administrator-owned - CLOSED 2026-09-29"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.18/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-40). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.19/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (3 migrated to v4.13 as AR-24, AR-42, AR-43). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  3,
+                            "items":  [
+                                          "DF-2 - Docs convention checker covers only the active minor - MIGRATED to v4.13 (AR-42) - MIGRATED to v4.13.0",
+                                          "DF-3 - Semantic reformatters cover a named short list, not ~60 command handlers - MIGRATED to v4.13 (AR-24) - MIGRATED to v4.13.0",
+                                          "DF-4 - Signed execution contracts stay a design study - MIGRATED to v4.13 (AR-43) - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.2/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (16 migrated to v4.13 as AR-06, AR-23, AR-24, AR-28). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.20/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (4 migrated to v4.13 as AR-07, AR-09, AR-38, AR-39). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  10,
+                            "items":  [
+                                          "DF-1-v3203 - No native invocation mapping for platforms with no vendor lever - MIGRATED to v4.13 (AR-38) - MIGRATED to v4.13.0",
+                                          "DF-2-v3203 - Official Claude plugin directory listing not submitted - MIGRATED to v4.13 (AR-39) - MIGRATED to v4.13.0",
+                                          "WN-3 - Full-tree `validate_no_personal_paths.py` is too slow to finish in the implement loop on OneDrive - RESOLVED 2026-09-29",
+                                          "DF-1 - Comparison item X1: outbound enrichment scripts - CLOSED 2026-09-29",
+                                          "DF-2 - Comparison item X2: verbatim comparison-catalog prose - CLOSED 2026-09-29",
+                                          "DF-3 - Comparison item X3: vendor-SKU skills - CLOSED 2026-09-29",
+                                          "DF-4 - Comparison item X4: `allowed-tools` frontmatter - CLOSED 2026-09-29",
+                                          "DF-5 - Comparison item X5: free-text taxonomy fields - CLOSED 2026-09-29",
+                                          "WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier - MIGRATED to v4.13 (AR-07) - MIGRATED to v4.13.0",
+                                          "MT-1 - Most catalog skills still lack `evals/trigger-cases.json` - MIGRATED to v4.13 (AR-09) - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.21/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-41). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  1,
+                            "items":  [
+                                          "DF-1 - Nexus-Hub catalog has no product atlas HTML - MIGRATED to v4.13 (AR-41) - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.3/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (0 migrated to v4.13). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.4/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (0 migrated to v4.13). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.6/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.7/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (2 migrated to v4.13 as AR-26, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.8/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (3 migrated to v4.13 as AR-26, AR-29, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v3/v3.9/known-gaps.md",
+                            "status":  "finalized; archived 2026-09-29; 0 open items (5 migrated to v4.13 as AR-18, AR-26, AR-37). Per-section status lines below are historical and were written before release.",
+                            "open_headings":  0,
+                            "items":  [
+
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.0/known-gaps.md",
+                            "status":  "finalized for the v4.0.0 release",
+                            "open_headings":  7,
+                            "items":  [
+                                          "DF-1 (resolved) - The non-lockstep templates lacked a release-gate contract check - RESOLVED",
+                                          "WN-2 (resolved) - A concurrent branch added a thirteenth instruction template - RESOLVED",
+                                          "MT-1-v400 - No runtime check that a response actually follows the contract - MIGRATED to v4.13.0",
+                                          "MT-3 (resolved) - The local gate did not enforce the CI Python floor - RESOLVED",
+                                          "DF-1 - Report artifacts are published to the run summary, not uploaded - RESOLVED",
+                                          "DF-2 - The `full` profile has not been run end to end on this host - RESOLVED",
+                                          "WN-1 - The new event topology has not been exercised against real GitHub - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.1/known-gaps.md",
+                            "status":  "finalized; the two open deferred items remain owned by this ledger",
+                            "open_headings":  2,
+                            "items":  [
+                                          "DF-1-v410 - Prompting profile layer does not match the live Codex roster - MIGRATED to v4.13.0",
+                                          "DF-1-v411 - Live optional scanners were not executed on the implementation host - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.10/known-gaps.md",
+                            "status":  "implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Two bounded items below remain known limitations, not unfinished plan tasks.",
+                            "open_headings":  7,
+                            "items":  [
+                                          "WN-3 - `tests/skills/test_target_manifest.py` is red on `develop` - RESOLVED",
+                                          "DF-1 - Skill registration is documented as three files, but five carry catalog state - RESOLVED",
+                                          "WN-1 - The residual-reference check scans Markdown only - RESOLVED",
+                                          "WN-2 - The fast profile does not reach `tests/validators/` - RESOLVED",
+                                          "MT-1 - The repository description still states the old catalog size - RESOLVED",
+                                          "WN-4 - The scoped weekly bar is display-only and will not warn the user - RESOLVED",
+                                          "MT-2 - The two weekly bars were not exercised in a running extension host - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.11/known-gaps.md",
+                            "status":  "released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation merged into `develop` through PR #232 at `c54dbeb4`, completing T025 as historical closure inside the later released family. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.",
+                            "open_headings":  18,
+                            "items":  [
+                                          "MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders",
+                                          "MT-4 - RESOLVED: label-versus-shape collisions are measured in the rendered pass",
+                                          "BG-2 - RESOLVED: the reading offset is restored instantly rather than animated",
+                                          "BG-3 - RESOLVED: an existing web page is now a first-class source",
+                                          "BG-4 - RESOLVED: an invisible brand mark now fails its gate",
+                                          "BG-5 - RESOLVED: a deformed data mark now fails its gate",
+                                          "WN-2 - RESOLVED: opening-screen content must be readable at first paint",
+                                          "WN-3 - CLOSED as authoring guidance: composition balance is not automatable",
+                                          "WN-4 - RESOLVED: the axis claim now matches what the runtime provides",
+                                          "BG-6 - RESOLVED: the reading view no longer hides content behind an undiscoverable scroll",
+                                          "MT-5 - No automated coverage for values fabricated mid-animation - CLOSED",
+                                          "MT-6 - RESOLVED: print contrast is measured against the surface that will actually paint",
+                                          "WN-5 - RESOLVED: an opaque out-of-flow layer occludes rather than collides",
+                                          "MT-7 - RESOLVED: a declared layout property must be the computed one",
+                                          "MT-8 - RESOLVED: focus restoration is now gated, and the reported defect was a harness artifact",
+                                          "MT-9 - A control that exists but does nothing is not detected; the obvious check does not work - RESOLVED",
+                                          "MT-10 - No authored connector diagram has qualified the new geometry checks - RESOLVED",
+                                          "QG-2 - CLOSED AS UNMET: two of three sustained across six rounds, carried forward"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.12/known-gaps.md",
+                            "status":  "released",
+                            "open_headings":  10,
+                            "items":  [
+                                          "BG-2: New-branch push could trust another remote\u0027s history - RESOLVED",
+                                          "BG-3: Shared attribution hooks depend on the installer worktree - RESOLVED",
+                                          "WN-1: Existing CI-profile lint findings - RESOLVED",
+                                          "WN-2: Existing CI reporting and tooling-lock differences - RESOLVED",
+                                          "WN-3: Repository description count drift - RESOLVED",
+                                          "WN-4: Unexplained Windows file-replacement failure - RESOLVED",
+                                          "QG-1: GitHub retains read-only pull-request refs - MIGRATED to v4.13.0",
+                                          "QG-2: GitHub contributor-view confirmation pending - MIGRATED to v4.13.0",
+                                          "QG-3: Independent adversarial review incomplete - RESOLVED",
+                                          "QG-4: Windows whole-repository profile timed out - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.13/known-gaps.md",
+                            "status":  "finalized; v4.13.0 through v4.13.11 are released. All 209 parsed items are resolved (126) or verified migrated to v4.14 (83); no open source items remain. The 83 successor obligations remain open in v4.14. Archival and the green administrative closing pull request are still pending.",
+                            "open_headings":  105,
+                            "items":  [
+                                          "BG-7-v4130: The second pilot\u0027s per-call budget did not bound reported cost - MIGRATED to v4.14.0",
+                                          "WN-2: Tool-span attributes unverified at the pinned revision - RESOLVED 2026-09-22",
+                                          "WN-3-v4130: The shipped catalog under-triggers on its own positive prompts - MIGRATED to v4.14.0",
+                                          "WN-5-v4130: The recorded pilot run cannot be re-audited for the loose selection matcher - MIGRATED to v4.14.0",
+                                          "WN-6: Symlink refusal is unproven on Windows without developer mode - RESOLVED",
+                                          "BG-2-v4131: A test in the full profile writes into the real user\u0027s `~/.nexus-hub` - MIGRATED to v4.14.0",
+                                          "WN-7-v4131: A generated-with footer followed by a long clause passes the attribution hook - RESOLVED",
+                                          "WN-1-v4131: A user edit made between sessions is preserved but not reported - MIGRATED to v4.14.0",
+                                          "WN-2-v4131: A moved picture was never named in the agent\u0027s report - MIGRATED to v4.14.0",
+                                          "WN-3-v4131: Codex replay runs can see the machine\u0027s real user skills - MIGRATED to v4.14.0",
+                                          "WN-4-v4131: Antigravity 2.0 and Windsurf do not receive the guard hooks - RESOLVED",
+                                          "WN-5-v4131: Scenario D (deck left open) was not re-measured on Claude after the fixes - MIGRATED to v4.14.0",
+                                          "WN-6-v4131: Accepted blind spots of `user-edit-guard` - CLOSED",
+                                          "MT-1-v4131: No paid measurement of the rule on a platform other than Claude and Codex - MIGRATED to v4.14.0",
+                                          "WN-4-v4132: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE` - MIGRATED to v4.14.0",
+                                          "WN-7-v4132: On OpenCode a full run proceeds on in-prompt approvals without a run record - MIGRATED to v4.14.0",
+                                          "MT-1-v4132: Condition B (Codex) has one passing end-to-end run - MIGRATED to v4.14.0",
+                                          "WN-8-v4132: The run record\u0027s signature does not cover `pause` or `blockers` - MIGRATED to v4.14.0",
+                                          "WN-9-v4132: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29 - MIGRATED to v4.14.0",
+                                          "WN-11-v4132: `run-plan` checks only global settings for an approval bypass - MIGRATED to v4.14.0",
+                                          "WN-12-v4132: `integration.checks` and `release.version-sync` read the working tree - RESOLVED",
+                                          "WN-13: Record lifetime and environment edge cases - MIGRATED to v4.14.0",
+                                          "DF-5-v4132: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf - MIGRATED to v4.14.0",
+                                          "DF-6: Copilot CLI gets no goal at all - RESOLVED",
+                                          "DF-7-v4132: Recorded design deltas from Phases 2, 4, and 6 - CLOSED",
+                                          "MT-2: No real CLI run exercised a gate refusal or a runner resume - MIGRATED to v4.14.0",
+                                          "DF-1-v4132: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model - MIGRATED to v4.14.0",
+                                          "DF-2-v4132: Antigravity 1.0 hook support is unconfirmed while the integration declares none - MIGRATED to v4.14.0",
+                                          "DF-3-v4132: Devin CLI reads Claude Code\u0027s hook files, so Claude registrations also reach it - MIGRATED to v4.14.0",
+                                          "DF-4-v4132: OpenClaw and Hermes completion plugins need a manual enable step - MIGRATED to v4.14.0",
+                                          "DF-1-v4133 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand - MIGRATED to v4.14.0",
+                                          "DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons - MIGRATED to v4.14.0",
+                                          "DF-3-v4133 (v4.13.3): Plan state in the session digest - RESOLVED",
+                                          "DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.15.2 - MIGRATED to v4.14.0",
+                                          "DF-5-v4133 (v4.13.3): Shared cleanup-aware merge requirement for v4.15.2 - RESOLVED",
+                                          "DF-6-v4133 (v4.13.3): Pointer consumer installed before its shared-path provider across installer runner calls - RESOLVED",
+                                          "DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented` - RESOLVED 2026-09-28",
+                                          "DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents - MIGRATED to v4.14.0",
+                                          "WN-1-v4133 (v4.13.3): An uncooperative writer can race the final hash check - CLOSED",
+                                          "WN-2 (v4.13.3): Copilot host-scope mismatch - RESOLVED 2026-09-28 UTC - RESOLVED",
+                                          "MT-1-v4133 (v4.13.3): The full installers were not run end to end on a disposable machine - MIGRATED to v4.14.0",
+                                          "WN-5-v4133 (v4.13.3): Read-path drift found by the release contract pass - RESOLVED",
+                                          "WN-6-v4133 (v4.13.3): Behavioral-lever drift found by the release contract pass - MIGRATED to v4.14.0",
+                                          "WN-1-v4134 (v4.13.4): The header navigation overflows under the matrix\u0027s 200% CSS zoom at 1280x720 - RESOLVED",
+                                          "WN-2 (v4.13.4): An idle game labels its toggle \"Pause game\" - CLOSED",
+                                          "WN-1-v4136 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless - MIGRATED to v4.14.0",
+                                          "WN-2-v4136 (v4.13.6): Most older known-gaps ledgers read cannot-verify for a minor-scope run - RESOLVED",
+                                          "MT-1-v4136 (v4.13.6): The guide\u0027s scope-matching test checks no scope - RESOLVED",
+                                          "WN-4-v4136 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch - MIGRATED to v4.14.0",
+                                          "WN-5 (v4.13.6): v4.13.2 WN-9 is only partly closed - CLOSED",
+                                          "DF-1-v4136 (v4.13.6): Copilot CLI sets no native goal headlessly - MIGRATED to v4.14.0",
+                                          "QG-1-v4136 (v4.13.6): The non-engineer read-back of the approval page is pending - MIGRATED to v4.14.0",
+                                          "QG-2-v4136 (v4.13.6): The edited guide card had no full accessibility or design audit - RESOLVED",
+                                          "WN-6-v4136 (v4.13.6): Unusual branch, surface, and vendor names reach the approval page as written - RESOLVED",
+                                          "WN-1-v4139 (v4.13.9): The GPT-6.1 Sol announcement could not be read - MIGRATED to v4.14.0",
+                                          "WN-2-v4139 (v4.13.9): Cursor\u0027s primary documentation for `/visualize` was not read - MIGRATED to v4.14.0",
+                                          "DF-1-v4139 (v4.13.9): The Codex `doctor` advisory was cut from this plan - MIGRATED to v4.14.0",
+                                          "DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell - MIGRATED to v4.14.0",
+                                          "DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile - MIGRATED to v4.14.0",
+                                          "WN-21 (v4.13.9): A reasoning example asks the model to write its analysis into the reply - RESOLVED",
+                                          "WN-22 (v4.13.9): A self-consistency example asks for written-out step-by-step reasoning - RESOLVED",
+                                          "WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED - MIGRATED to v4.14.0",
+                                          "DF-12 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed - MIGRATED to v4.14.0",
+                                          "WN-24 (v4.13.9): The skill-eval-loop Claude adapter command no longer matches the installed CLI - CLOSED",
+                                          "WN-25 (v4.13.9): The profiling-harness test fails intermittently under host load - RESOLVED",
+                                          "WN-26 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail - MIGRATED to v4.14.0",
+                                          "BG-12 (v4.13.9): `/usage` dispatches to a `check-usage` skill that does not exist - RESOLVED",
+                                          "WN-27 (v4.13.9): The all-refs attribution scan fails on fetched Dependabot branches - CLOSED",
+                                          "WN-28 (v4.13.9): Dependabot does not track the Copilot Usage Monitor\u0027s npm dependencies - RESOLVED",
+                                          "WN-29 (v4.13.9): `codexUsage.authPath` can still be set by a workspace - RESOLVED",
+                                          "WN-30 (v4.13.9): Definition of Done 1 says \"VS Code and Cursor\"; the installers install the Copilot monitor into VS Code only - RESOLVED",
+                                          "WN-31 (v4.13.9): Definition of Done 7 asks for a reset\u0027s expiry; Codex serves a count and no expiry - MIGRATED to v4.14.0",
+                                          "WN-32 (v4.13.9): The monitor workflows differ in packaging checks, and two do not trigger on their own file - RESOLVED",
+                                          "WN-33 (v4.13.9): Redirecting HOME does not isolate the usage probe\u0027s Cursor reader on Windows - RESOLVED",
+                                          "QG-7 (v4.13.9): The real-editor and live-limit checks are manual and pending - MIGRATED to v4.14.0",
+                                          "QG-8 (v4.13.9): The run record was never captured, so the checker cannot sign off the run - CLOSED",
+                                          "WN-35 (v4.13.9): The governance test group outgrows its 2700 s local cap on Windows - RESOLVED",
+                                          "BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1 - RESOLVED",
+                                          "BG-14 (v4.13.9): `learning-capture.sh` silently drops an event over 128 KiB on Linux - RESOLVED",
+                                          "WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation - RESOLVED",
+                                          "WN-37 (v4.13.9): Multi-byte text grows two to six times in hook output on Windows - RESOLVED",
+                                          "WN-38 (v4.13.9): The hook test step outgrows its 1800 s local cap on Windows - RESOLVED",
+                                          "WN-1-v41310 (v4.13.10): The missing-file notice is verified in Chromium only - MIGRATED to v4.14.0",
+                                          "WN-5-v41310 (v4.13.10): A game started through the API on a hidden stage runs unseen - RESOLVED",
+                                          "WN-6-v41310 (v4.13.10): Three minor accessibility findings in shared markup - RESOLVED",
+                                          "WN-8-v41310 (v4.13.10): The Foundations opening figure is taller than a phone screen - RESOLVED",
+                                          "WN-9-v41310 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app - MIGRATED to v4.14.0",
+                                          "WN-11-v41310 (v4.13.10): The WebGL game\u0027s frame rate is unverified on a real GPU - MIGRATED to v4.14.0",
+                                          "WN-12-v41310 (v4.13.10): Minor visual nits left from the revision 2 review - MIGRATED to v4.14.0",
+                                          "QG-2-v41310 (v4.13.10): The learner check has not been run - MIGRATED to v4.14.0",
+                                          "WN-39 (v4.13.11): Scheduled supply-chain audit reports vulnerable PyJWT 2.14.0 - RESOLVED",
+                                          "BG-15 (v4.13.11): Existing migration destination reuse accepts an incomplete residual copy - RESOLVED",
+                                          "WN-40 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI - MIGRATED to v4.14.0",
+                                          "BG-16 (v4.13.11): Approval preparation draft uses incorrect action bounds - RESOLVED",
+                                          "BG-17 (v4.13.11): Minor run cannot answer a recorded member blocker - RESOLVED",
+                                          "BG-18 (v4.13.11): Description hooks drop tool-input fields when they rewrite a command - RESOLVED",
+                                          "BG-19 (v4.13.11): The prompting edit engine loses line endings, overwrites concurrent edits, and has no guard timeout - RESOLVED",
+                                          "BG-20 (v4.13.11): `enumerate-models.ps1` prints nothing when the platform CLI fails - RESOLVED",
+                                          "BG-21 (v4.13.11): Committed skill-index rows left the legacy fingerprint set stale - RESOLVED",
+                                          "WN-41 (v4.13.11): Command files dispatch to skills removed in v3.2.0 - RESOLVED",
+                                          "WN-42 (v4.13.11): Foundations Model status overlaps its name - RESOLVED",
+                                          "WN-43 (v4.13.11): Cheatsheets cards lack headings, share copy-button names, and misalign scopes - RESOLVED",
+                                          "WN-44 (v4.13.11): Installer help claims a sunset warning that is no longer printed - RESOLVED",
+                                          "WN-45 (v4.13.11): Three PowerShell hooks decode child-process output through the console code page - RESOLVED",
+                                          "WN-46 (v4.13.11): Teardown and prune paths are not long-path aware on Windows - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.2/known-gaps.md",
+                            "status":  "finalized 2026-08-31, at `/update release`; shipped within the v4.3.0 cut",
+                            "open_headings":  2,
+                            "items":  [
+                                          "DF-2-v422 - The five-person workshop validation was not run - MIGRATED to v4.13.0",
+                                          "DF-2-v423 - The five-person workshop validation was not run - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.3/known-gaps.md",
+                            "status":  "finalized for the v4.3.0 release",
+                            "open_headings":  6,
+                            "items":  [
+                                          "DF-1 - Inline workflow validators remain outside repository-native profiles - RESOLVED",
+                                          "DF-2 - Pip caches are not keyed by dependency manifests - RESOLVED",
+                                          "DF-3 - Report profile does not aggregate or publish structured evidence - RESOLVED",
+                                          "DF-4 - OpenClaw tool interception requires a typed plugin - MIGRATED to v4.13.0",
+                                          "DF-5 (resolved post-release) - The ownership guard has no per-write managed root and refuses silently - RESOLVED",
+                                          "WN-3 - Optional platform surfaces remain unverified - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.4/known-gaps.md",
+                            "status":  "v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator\u0027s Home and Foundations review lifted the publication hold",
+                            "open_headings":  12,
+                            "items":  [
+                                          "DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks - RESOLVED",
+                                          "WN-1 - Phase 1 ran one model tier below the plan\u0027s recommendation - CLOSED",
+                                          "WN-2 - The Phase 1 superseded-assertion register was incomplete - CLOSED",
+                                          "BG-46 - Mobile Training introduction leaves an isolated it on the second heading line; D06/D12 are partial - RESOLVED",
+                                          "BG-47 - Fullscreen idle terminal reserves excessive blank space before its reply placeholder; D06/D12 are partial - RESOLVED",
+                                          "MT-446-3 - Linux browser verification is unavailable: Ubuntu has no installed browser or Playwright runtime; installer success is separate evidence - RESOLVED",
+                                          "BG-48 - A hostile-input test fixture appears in the shipped describe reply and distracts from the teaching example - RESOLVED",
+                                          "MT-446-1 - Technical and non-technical comprehension plus final user visual review are unverified; D13 and T026 remain open - MIGRATED to v4.13.0",
+                                          "MT-446-2 - Native 200% browser zoom and OS occlusion delivery are not proven by effective-width reflow or an instrumented hidden-state test - MIGRATED to v4.13.0",
+                                          "WN-446-1 - Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial - RESOLVED",
+                                          "WN-446-2 - Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert - RESOLVED",
+                                          "QG-446-1 - Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.5/known-gaps.md",
+                            "status":  "v4.5.0 finalized 2026-09-04 at `/update release`; integrated via PR #162 (merge `765d9f32`) and PR #163",
+                            "open_headings":  4,
+                            "items":  [
+                                          "DF-1 - Whether the always-on Writing Discipline clause improves replies is unverified by a person - MIGRATED to v4.13.0",
+                                          "DF-2 - No transitive-reachability or shared-writable-service enumeration has been performed on this repository\u0027s own agent surface - MIGRATED to v4.13.0",
+                                          "WN-2 - Phases 3, 5, and 7 ran one effort level below the plan\u0027s recommendation - CLOSED",
+                                          "MT-1 - The four human and manual tests have not been run - MIGRATED to v4.13.0"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.7/known-gaps.md",
+                            "status":  "released. v4.7.0 was published on 2026-09-06 at tag `v4.7.0` (`667cc465`) after integration in PR #167 (`ca8e663e`). MT-1\u0027s hosted observation gate was verified after release; WN-2 records the separate failing default-branch schedule.",
+                            "open_headings":  5,
+                            "items":  [
+                                          "DF-2 - The Codex CLI does not yet list `gpt-6-astra`, so the codex profile entry reads DRIFTED - MIGRATED to v4.13.0",
+                                          "DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded - MIGRATED to v4.13.0",
+                                          "DF-5 - Per-skill presentation metadata (report item E6) deliberately excluded - MIGRATED to v4.13.0",
+                                          "WN-1 - Phases 2, 6, and 7 ran one effort level below the plan\u0027s recommendation - CLOSED",
+                                          "WN-2 - Scheduled `main` supply-chain audit remains red - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.8/known-gaps.md",
+                            "status":  "FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.",
+                            "open_headings":  4,
+                            "items":  [
+                                          "DF-1 - The Goal\u0027s \"every review deliverable names its verifier class\" reached the evaluation skill but no review skill - RESOLVED",
+                                          "WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check - CLOSED",
+                                          "WN-3 - Bash hook tests cannot run on the Windows dev host - RESOLVED",
+                                          "MT-1 - capture_screenshot.py was not unit-tested - RESOLVED 2026-09-23"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/archives/v4/v4.9/known-gaps.md",
+                            "status":  "released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries have source-availability or roster-qualification limits; the private workstation residue was removed separately.",
+                            "open_headings":  4,
+                            "items":  [
+                                          "WN-1 - Private independent verification-harness cleanup was policy-blocked - RESOLVED",
+                                          "MT-2 - Platform-specific filesystem cases need their matching host - RESOLVED",
+                                          "MT-3 - Pre-rule handbook does not exercise the slide-specific checks - MIGRATED to v4.13.0",
+                                          "QG-1 (resolved) - The Windows CI job selects the new filesystem tests - RESOLVED"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/releases/v4/v4.14/known-gaps.md",
+                            "status":  "in-progress",
+                            "open_headings":  114,
+                            "items":  [
+                                          "BG-1: The second pilot\u0027s per-call budget did not bound reported cost",
+                                          "WN-1: The shipped catalog under-triggers on its own positive prompts",
+                                          "WN-2: The recorded pilot run cannot be re-audited for the loose selection matcher",
+                                          "BG-2: A test in the full profile writes into the real user\u0027s `~/.nexus-hub`",
+                                          "WN-3: A user edit made between sessions is preserved but not reported",
+                                          "WN-4: A moved picture was never named in the agent\u0027s report",
+                                          "WN-5: Codex replay runs can see the machine\u0027s real user skills",
+                                          "WN-6: Scenario D (deck left open) was not re-measured on Claude after the fixes",
+                                          "MT-1: No paid measurement of the rule on a platform other than Claude and Codex",
+                                          "WN-7: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`",
+                                          "WN-8: On OpenCode a full run proceeds on in-prompt approvals without a run record",
+                                          "MT-2: Condition B (Codex) has one passing end-to-end run",
+                                          "WN-9: The run record\u0027s signature does not cover `pause` or `blockers`",
+                                          "WN-10: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29",
+                                          "WN-11: `run-plan` checks only global settings for an approval bypass",
+                                          "WN-12: Record lifetime and environment edge cases",
+                                          "DF-1: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf",
+                                          "MT-3: No real CLI run exercised a gate refusal or a runner resume",
+                                          "DF-2: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model",
+                                          "DF-3: Antigravity 1.0 hook support is unconfirmed while the integration declares none",
+                                          "DF-4: Devin CLI reads Claude Code\u0027s hook files, so Claude registrations also reach it",
+                                          "DF-5: OpenClaw and Hermes completion plugins need a manual enable step",
+                                          "DF-6 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand",
+                                          "DF-8 (v4.13.3): Static-measurement ownership split for v4.15.2",
+                                          "DF-9 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents",
+                                          "MT-4 (v4.13.3): The full installers were not run end to end on a disposable machine",
+                                          "WN-14 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless",
+                                          "WN-15 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch",
+                                          "DF-10 (v4.13.6): Copilot CLI sets no native goal headlessly",
+                                          "QG-1 (v4.13.6): The non-engineer read-back of the approval page is pending",
+                                          "WN-16 (v4.13.9): The GPT-6.1 Sol announcement could not be read",
+                                          "WN-17 (v4.13.9): Cursor\u0027s primary documentation for `/visualize` was not read",
+                                          "DF-11 (v4.13.9): The Codex `doctor` advisory was cut from this plan",
+                                          "WN-18 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED",
+                                          "DF-14 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed",
+                                          "WN-19 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail",
+                                          "WN-20 (v4.13.9): Definition of Done 7 asks for a reset\u0027s expiry; Codex serves a count and no expiry",
+                                          "QG-2 (v4.13.9): The real-editor and live-limit checks are manual and pending",
+                                          "WN-21 (v4.13.10): The missing-file notice is verified in Chromium only",
+                                          "WN-22 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app",
+                                          "WN-23 (v4.13.10): The WebGL game\u0027s frame rate is unverified on a real GPU",
+                                          "WN-24 (v4.13.10): Minor visual nits left from the revision 2 review",
+                                          "QG-3 (v4.13.10): The learner check has not been run",
+                                          "WN-25 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI",
+                                          "AR-35: Antigravity legacy workflow retirement needs a dated vendor check",
+                                          "AR-34: The public contributor view needs rendered confirmation or GitHub Support disposition",
+                                          "AR-33: GitHub retained read-only PR references require an explicit scope disposition",
+                                          "AR-32: Gemini and OpenCode eval configuration isolation remains unproved",
+                                          "AR-31: Five historical CodeQL alerts and the required-context decision remain open",
+                                          "AR-30: Manual distribution read-path and prose false-positive exercises remain unperformed",
+                                          "AR-29: Repository agent isolation and transitive shared-service reachability remain unqualified",
+                                          "AR-28: Writing Discipline benefit has not been judged on real replies",
+                                          "AR-27: Native browser zoom and OS occlusion need real host qualification",
+                                          "AR-26: OpenClaw tool interception requires an independently scoped typed plugin",
+                                          "AR-25: Technical and nontechnical comprehension and final visual review remain unverified",
+                                          "AR-24: The five-person Training workshop remains unperformed",
+                                          "AR-23: Optional scanner presets lack live none, some, and all-tool receipts",
+                                          "AR-22: Live prompting roster completeness and CLI model qualification remain unproved",
+                                          "AR-21: The four MCP scaffolders lack real generation and server-start receipts",
+                                          "AR-20: Exact installed helper delivery remains unproved across supported operating systems",
+                                          "AR-19: The official Claude plugin directory submission was never made",
+                                          "AR-18: The Windows notification linger was never measured",
+                                          "AR-17: The Cursor usage-monitor live visual smoke was never run",
+                                          "AR-16: Usage-monitor extension test coverage",
+                                          "AR-15: Presentify verification residuals",
+                                          "AR-14: No repository-wide Ruff baseline",
+                                          "AR-13: Subprocess-driven validator tests have no coverage measurement",
+                                          "AR-12: Retired slash-command names remain in skill bodies",
+                                          "AR-11: v3.11 spec-kit items S5, S6, and S8 carry no status claim",
+                                          "AR-10: The skill-description eval harness builds CLI flags that do not exist",
+                                          "AR-9: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs",
+                                          "AR-8: Upstream-blocked hook surfaces",
+                                          "AR-7: The legacy Cursor global commands write is unverified and redundant",
+                                          "AR-6: Invocation-policy support remains incomplete across five platforms",
+                                          "AR-5: Unverified platform read-path residuals",
+                                          "AR-4: Permission distribution covers few platforms and scopes",
+                                          "AR-3: Permission-matcher behaviors remain unprobed",
+                                          "AR-2: Two installer tests fail intermittently in long local runs",
+                                          "AR-1: No live macOS installer smoke has been recorded",
+                                          "DF-15: Planned follow-on: the lower-direction modifier",
+                                          "DF-16: Planned follow-on: the raise-direction measurement",
+                                          "DF-17: Planned follow-on: the parked write-containment hook",
+                                          "DF-18: Planned follow-on: the refactor-first rule",
+                                          "DF-19: Planned follow-on: the enumerate-every-copy rule",
+                                          "DF-21: Planned follow-on: Codex Memories doctor warning",
+                                          "DF-24: Planned follow-on: Cursor and Antigravity hosting",
+                                          "DF-25: Planned follow-on: Agent-call hook rule",
+                                          "DF-26: Planned follow-on: Advanced per-tool controls",
+                                          "DF-27: Planned follow-on: VS Code Copilot Chat: Not-Settable, because it is set per model in the model picker",
+                                          "DF-28: Planned follow-on: VS Code Copilot Chat: Not-Settable, because only the organization policy `ChatDefaultModel` exists",
+                                          "DF-29: Planned follow-on: Codex: whatever Phase 1 verifies, otherwise Not-Settable",
+                                          "DF-30: Planned follow-on: VS Code Copilot Chat: Not-Settable.",
+                                          "DF-31: Planned follow-on: Persisting `max` effort, a Copilot CLI allow-all mode, or a VS Code Copilot Chat default model",
+                                          "DF-32: Planned follow-on: Copilot CLI",
+                                          "DF-33: Planned follow-on: Claude Code: `permissions.defaultMode` and VS Code `claudeCode.initialPermissionMode`",
+                                          "DF-34: Planned follow-on: `chat.tools.global.autoApprove: true`",
+                                          "DF-35: Planned follow-on: `skipDangerousModePermissionPrompt`",
+                                          "DF-36: Planned follow-on: the tool\u0027s documented agent-session marker",
+                                          "DF-37: Planned follow-on: an absolute Python interpreter",
+                                          "DF-38: Planned follow-on: `attribution.commit` and `attribution.pr`",
+                                          "DF-39: Planned follow-on: Extract a shared `config_io` module and move the platform-defaults seeder onto the new lossless writers",
+                                          "DF-40: Planned follow-on: a path-filtered CI workflow",
+                                          "DF-41: Planned follow-on: Both installers build and install the extension into VS Code",
+                                          "BG-29 (v4.14.8): The local runner turns a green pytest group red when its scratch folder holds paths past MAX_PATH",
+                                          "DF-45 (v4.14.8): Hermes on Windows reads `%LOCALAPPDATA%\\hermes`, but Nexus-Hub writes `~/.hermes`",
+                                          "MT-17 (v4.14.8): A `.ps1`-only npm shim is not found on `PATH`",
+                                          "DF-46 (v4.14.8): Seeded settings files are kept by prune-undetected",
+                                          "DF-47 (v4.14.8): Hermes and Pi have no installer entry",
+                                          "WN-38 (v4.14.8): Nexus-AI vendor-folder evidence could be circular",
+                                          "MT-18 (v4.14.8): Removal was exercised end to end only for Kimi, and four hostile cases were not run",
+                                          "DF-51: Hook messages produced by helper scripts are not tagged",
+                                          "MT-19: Whether escalation-trigger stdout reaches the user is unverified",
+                                          "QG-10: The agent label target was missed by one (7 of 10, target 8)",
+                                          "QG-11: The plain-English measurement could not show a reduction"
+                                      ]
+                        },
+                        {
+                            "path":  "docs/releases/v4/v4.17/known-gaps.md",
+                            "status":  "in-progress",
+                            "open_headings":  1,
+                            "items":  [
+                                          "DF-1: The first real minor-scope run has not happened yet"
+                                      ]
+                        }
+                    ],
+    "workflows":  [
+                      {
+                          "path":  ".github/workflows/ci.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ]
+                                                          },
+                                         "merge_group":  null,
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "changes":  {
+                                                       "runner":  "ubuntu-latest",
+                                                       "if":  null,
+                                                       "needs":  null,
+                                                       "permissions":  null
+                                                   },
+                                       "validate":  {
+                                                        "runner":  "ubuntu-latest",
+                                                        "if":  null,
+                                                        "needs":  null,
+                                                        "permissions":  null
+                                                    },
+                                       "shellcheck":  {
+                                                          "runner":  "ubuntu-24.04",
+                                                          "if":  null,
+                                                          "needs":  null,
+                                                          "permissions":  null
+                                                      },
+                                       "tests":  {
+                                                     "runner":  "ubuntu-latest",
+                                                     "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                     "needs":  "changes",
+                                                     "permissions":  null
+                                                 },
+                                       "guide-render":  {
+                                                            "runner":  "ubuntu-latest",
+                                                            "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                            "needs":  "changes",
+                                                            "permissions":  null
+                                                        },
+                                       "tests-windows":  {
+                                                             "runner":  "windows-latest",
+                                                             "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                             "needs":  "changes",
+                                                             "permissions":  null
+                                                         },
+                                       "tests-windows-installer":  {
+                                                                       "runner":  "windows-latest",
+                                                                       "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                       "needs":  "changes",
+                                                                       "permissions":  null
+                                                                   },
+                                       "tests-windows-validators":  {
+                                                                        "runner":  "windows-latest",
+                                                                        "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                        "needs":  "changes",
+                                                                        "permissions":  null
+                                                                    },
+                                       "tests-windows-validators-2":  {
+                                                                          "runner":  "windows-latest",
+                                                                          "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                          "needs":  "changes",
+                                                                          "permissions":  null
+                                                                      },
+                                       "tests-windows-installer-core":  {
+                                                                            "runner":  "windows-latest",
+                                                                            "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                            "needs":  "changes",
+                                                                            "permissions":  null
+                                                                        },
+                                       "bootstrap":  {
+                                                         "runner":  "${{ matrix.os }}",
+                                                         "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                         "needs":  "changes",
+                                                         "permissions":  null
+                                                     },
+                                       "bootstrap-windows":  {
+                                                                 "runner":  "windows-latest",
+                                                                 "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                 "needs":  "changes",
+                                                                 "permissions":  null
+                                                             },
+                                       "install-smoke":  {
+                                                             "runner":  "${{ matrix.os }}",
+                                                             "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                             "needs":  "changes",
+                                                             "permissions":  null
+                                                         },
+                                       "installer-smoke":  {
+                                                               "runner":  "${{ matrix.os }}",
+                                                               "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                               "needs":  "changes",
+                                                               "permissions":  null
+                                                           },
+                                       "claude-plugin-load":  {
+                                                                  "runner":  "ubuntu-latest",
+                                                                  "if":  "${{ !cancelled() \u0026\u0026 needs.changes.outputs.relevant != \u0027false\u0027 }}",
+                                                                  "needs":  "changes",
+                                                                  "permissions":  {
+                                                                                      "contents":  "read"
+                                                                                  }
+                                                              },
+                                       "report":  {
+                                                      "runner":  "ubuntu-latest",
+                                                      "if":  "always()",
+                                                      "needs":  [
+                                                                    "validate",
+                                                                    "shellcheck",
+                                                                    "tests",
+                                                                    "guide-render",
+                                                                    "tests-windows",
+                                                                    "tests-windows-installer",
+                                                                    "tests-windows-validators",
+                                                                    "tests-windows-validators-2",
+                                                                    "tests-windows-installer-core",
+                                                                    "bootstrap",
+                                                                    "bootstrap-windows",
+                                                                    "install-smoke",
+                                                                    "installer-smoke",
+                                                                    "claude-plugin-load"
+                                                                ],
+                                                      "permissions":  null
+                                                  },
+                                       "ci-required":  {
+                                                           "runner":  "ubuntu-latest",
+                                                           "if":  "always()",
+                                                           "needs":  [
+                                                                         "changes",
+                                                                         "validate",
+                                                                         "shellcheck",
+                                                                         "tests",
+                                                                         "guide-render",
+                                                                         "tests-windows",
+                                                                         "tests-windows-installer",
+                                                                         "tests-windows-validators",
+                                                                         "tests-windows-validators-2",
+                                                                         "tests-windows-installer-core",
+                                                                         "bootstrap",
+                                                                         "bootstrap-windows",
+                                                                         "install-smoke",
+                                                                         "installer-smoke",
+                                                                         "claude-plugin-load",
+                                                                         "report"
+                                                                     ],
+                                                           "permissions":  null
+                                                       }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "validate",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "shellcheck",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "guide-render",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests-windows",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests-windows-installer",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests-windows-validators",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests-windows-validators-2",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "tests-windows-installer-core",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "bootstrap",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "bootstrap-windows",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "install-smoke",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "installer-smoke",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "claude-plugin-load",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "report",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "validate",
+                                               "run":  "python scripts/ci/run.py --profile full \\\n  --only catalog-parse,pre-commit,hygiene,legacy-fingerprints,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \\\n  --reports-dir reports\n"
+                                           },
+                                           {
+                                               "job":  "shellcheck",
+                                               "run":  "python scripts/ci/run.py --profile platform \\\n  --only shell-lint,powershell-parse --reports-dir reports\n"
+                                           },
+                                           {
+                                               "job":  "tests",
+                                               "run":  "python scripts/ci/run.py --profile full \\\n  --only tests,extension-tests --reports-dir reports\n"
+                                           },
+                                           {
+                                               "job":  "guide-render",
+                                               "run":  "python scripts/ci/run.py --profile full --only ${{ matrix.group }} --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "tests-windows",
+                                               "run":  "python scripts/ci/run.py --profile platform --only interpreters,windows-hooks --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "tests-windows-installer",
+                                               "run":  "python scripts/ci/run.py --profile platform --only windows-installer --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "tests-windows-validators",
+                                               "run":  "python scripts/ci/run.py --profile platform --only windows-validators --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "tests-windows-validators-2",
+                                               "run":  "python scripts/ci/run.py --profile platform --only windows-validators-2 --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "tests-windows-installer-core",
+                                               "run":  "python scripts/ci/run.py --profile platform --only windows-installer-core --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "bootstrap",
+                                               "run":  "python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "bootstrap-windows",
+                                               "run":  "python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "install-smoke",
+                                               "run":  "python scripts/ci/run.py --profile platform --only registry-smoke --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "installer-smoke",
+                                               "run":  "python scripts/ci/run.py --profile platform --only workspace-smoke --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "installer-smoke",
+                                               "run":  "python scripts/ci/run.py --profile platform --only macos-attribution --reports-dir reports/attribution"
+                                           },
+                                           {
+                                               "job":  "claude-plugin-load",
+                                               "run":  "python scripts/ci/run.py --profile platform --only host-plugin-load --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "report",
+                                               "run":  "python scripts/ci/run.py --profile report --reports-dir reports \\\n  --expect-artifact ci-validation-reports=$RESULT_VALIDATE \\\n  --expect-artifact ci-shell-reports=$RESULT_SHELLCHECK \\\n  --expect-artifact ci-test-reports=$RESULT_TESTS \\\n  --expect-artifact ci-guide-render-report-engine=$RESULT_GUIDE_RENDER \\\n  --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \\\n  --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \\\n  --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS \\\n  --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER \\\n  --expect-artifact ci-windows-validators-reports=$RESULT_TESTS_WINDOWS_VALIDATORS \\\n  --expect-artifact ci-windows-validators-2-reports=$RESULT_TESTS_WINDOWS_VALIDATORS_2 \\\n  --expect-artifact ci-windows-installer-core-reports=$RESULT_TESTS_WINDOWS_INSTALLER_CORE \\\n  --expect-artifact ci-bootstrap-reports-ubuntu-latest=$RESULT_BOOTSTRAP \\\n  --expect-artifact ci-bootstrap-reports-macos-latest=$RESULT_BOOTSTRAP \\\n  --expect-artifact ci-bootstrap-windows-reports=$RESULT_BOOTSTRAP_WINDOWS \\\n  --expect-artifact ci-registry-smoke-reports-ubuntu-latest=$RESULT_INSTALL_SMOKE \\\n  --expect-artifact ci-registry-smoke-reports-macos-latest=$RESULT_INSTALL_SMOKE \\\n  --expect-artifact ci-registry-smoke-reports-windows-latest=$RESULT_INSTALL_SMOKE \\\n  --expect-artifact ci-workspace-smoke-reports-ubuntu-latest=$RESULT_INSTALLER_SMOKE \\\n  --expect-artifact ci-workspace-smoke-reports-macos-latest=$RESULT_INSTALLER_SMOKE \\\n  --expect-artifact ci-workspace-smoke-reports-windows-latest=$RESULT_INSTALLER_SMOKE \\\n  --expect-artifact ci-host-plugin-reports=$RESULT_CLAUDE_PLUGIN_LOAD\n"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/claude-usage-monitor.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/claude-usage-monitor/**",
+                                                                            ".github/workflows/claude-usage-monitor.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only claude-usage-monitor --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/code-search.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/nexus-code-search/**",
+                                                                            ".github/workflows/code-search.yml",
+                                                                            "scripts/ci/**",
+                                                                            "scripts/ci/requirements.in",
+                                                                            "scripts/ci/requirements-py311.txt"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "test-network-blocked":  {
+                                                                    "runner":  "ubuntu-latest",
+                                                                    "if":  null,
+                                                                    "needs":  null,
+                                                                    "permissions":  null
+                                                                }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "test-network-blocked",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "test-network-blocked",
+                                               "run":  "python scripts/ci/run.py --profile full --only code-search-offline --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/codeql.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "scripts/**/*.py",
+                                                                            "infrastructure/**/*.py",
+                                                                            "extensions/**/*.ts",
+                                                                            "extensions/**/*.js"
+                                                                        ]
+                                                          },
+                                         "schedule":  [
+                                                          {
+                                                              "cron":  "0 0 * * 0"
+                                                          }
+                                                      ],
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "analyze":  {
+                                                       "runner":  "ubuntu-latest",
+                                                       "if":  null,
+                                                       "needs":  null,
+                                                       "permissions":  {
+                                                                           "security-events":  "write"
+                                                                       }
+                                                   }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d",
+                                       "github/codeql-action/autobuild@24c54180a607b1449ed407dd24f251e4e9147c8d",
+                                       "github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+
+                                      ],
+                          "profiles":  [
+
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/codex-usage-monitor.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/codex-usage-monitor/**",
+                                                                            ".github/workflows/codex-usage-monitor.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only codex-usage-monitor --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/copilot-usage-monitor.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/copilot-usage-monitor/**",
+                                                                            ".github/workflows/copilot-usage-monitor.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only copilot-usage-monitor --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/cursor-usage-monitor.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/cursor-usage-monitor/**",
+                                                                            "tests/fixtures/cursor-usage/**",
+                                                                            ".github/workflows/cursor-usage-monitor.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          },
+                                       "e2e-cursor-profile":  {
+                                                                  "runner":  "ubuntu-latest",
+                                                                  "if":  null,
+                                                                  "needs":  "build-and-test",
+                                                                  "permissions":  null
+                                                              },
+                                       "cursor-required":  {
+                                                               "runner":  "ubuntu-latest",
+                                                               "if":  "always()",
+                                                               "needs":  [
+                                                                             "build-and-test",
+                                                                             "e2e-cursor-profile"
+                                                                         ],
+                                                               "permissions":  null
+                                                           }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  null,
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "e2e-cursor-profile",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only cursor-usage-monitor --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "e2e-cursor-profile",
+                                               "run":  "python scripts/ci/run.py --profile platform --only cursor-profile --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/doc-colocation.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ]
+                                                          },
+                                         "merge_group":  null,
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "colocation":  {
+                                                          "runner":  "ubuntu-latest",
+                                                          "if":  null,
+                                                          "needs":  null,
+                                                          "permissions":  null
+                                                      }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "colocation",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "colocation",
+                                               "run":  "python scripts/ci/run.py --profile full --only doc-colocation --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/gemini-usage-monitor.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/gemini-usage-monitor/**",
+                                                                            ".github/workflows/gemini-usage-monitor.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only gemini-usage-monitor --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/nexus-hub-settings.yml",
+                          "events":  {
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/nexus-hub-settings/**",
+                                                                            ".github/workflows/nexus-hub-settings.yml",
+                                                                            "scripts/ci/**"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "build-and-test":  {
+                                                              "runner":  "ubuntu-latest",
+                                                              "if":  null,
+                                                              "needs":  null,
+                                                              "permissions":  null
+                                                          }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "build-and-test",
+                                              "if":  "always() \u0026\u0026 steps.extension.outputs.present == \u0027true\u0027",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "build-and-test",
+                                               "run":  "python scripts/ci/run.py --profile full --only nexus-hub-settings --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/nexus-memory.yml",
+                          "events":  {
+                                         "workflow_dispatch":  null,
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ],
+                                                              "paths":  [
+                                                                            "extensions/nexus-memory/**",
+                                                                            ".github/workflows/nexus-memory.yml",
+                                                                            "scripts/ci/**",
+                                                                            "scripts/ci/requirements.in",
+                                                                            "scripts/ci/requirements-py311.txt"
+                                                                        ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "test":  {
+                                                    "runner":  "ubuntu-latest",
+                                                    "if":  null,
+                                                    "needs":  null,
+                                                    "permissions":  null
+                                                },
+                                       "test-network-blocked":  {
+                                                                    "runner":  "ubuntu-latest",
+                                                                    "if":  null,
+                                                                    "needs":  null,
+                                                                    "permissions":  null
+                                                                },
+                                       "test-locking-matrix":  {
+                                                                   "runner":  "${{ matrix.os }}",
+                                                                   "if":  "github.event_name == \u0027workflow_dispatch\u0027 || github.event_name == \u0027pull_request\u0027",
+                                                                   "needs":  null,
+                                                                   "permissions":  null
+                                                               },
+                                       "memory-required":  {
+                                                               "runner":  "ubuntu-latest",
+                                                               "if":  "always()",
+                                                               "needs":  [
+                                                                             "test",
+                                                                             "test-network-blocked",
+                                                                             "test-locking-matrix"
+                                                                         ],
+                                                               "permissions":  null
+                                                           }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "test",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "test-network-blocked",
+                                              "if":  "always()",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "test-locking-matrix",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "test",
+                                               "run":  "python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "test-network-blocked",
+                                               "run":  "python scripts/ci/run.py --profile full --only memory-offline --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "test-locking-matrix",
+                                               "run":  "python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/npm-audit.yml",
+                          "events":  {
+                                         "schedule":  [
+                                                          {
+                                                              "cron":  "17 6 * * 1"
+                                                          }
+                                                      ],
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "audit":  {
+                                                     "runner":  "ubuntu-latest",
+                                                     "if":  null,
+                                                     "needs":  null,
+                                                     "permissions":  null
+                                                 }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+
+                                      ],
+                          "profiles":  [
+
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/post-merge.yml",
+                          "events":  {
+                                         "push":  {
+                                                      "branches":  [
+                                                                       "main",
+                                                                       "develop"
+                                                                   ]
+                                                  },
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  false
+                                          },
+                          "jobs":  {
+                                       "smoke":  {
+                                                     "runner":  "ubuntu-latest",
+                                                     "if":  null,
+                                                     "needs":  null,
+                                                     "permissions":  null
+                                                 },
+                                       "provenance":  {
+                                                          "runner":  "ubuntu-latest",
+                                                          "if":  null,
+                                                          "needs":  null,
+                                                          "permissions":  null
+                                                      }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "smoke",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "smoke",
+                                               "run":  "python scripts/ci/run.py --profile fast --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/presentify-extractor.yml",
+                          "events":  {
+                                         "workflow_dispatch":  null,
+                                         "pull_request":  {
+                                                              "branches":  [
+                                                                               "main",
+                                                                               "develop"
+                                                                           ]
+                                                          }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  true
+                                          },
+                          "jobs":  {
+                                       "detect":  {
+                                                      "runner":  "ubuntu-latest",
+                                                      "if":  null,
+                                                      "needs":  null,
+                                                      "permissions":  null
+                                                  },
+                                       "extractor-tests":  {
+                                                               "runner":  "ubuntu-latest",
+                                                               "if":  "always() \u0026\u0026 (github.event_name == \u0027pull_request\u0027 || github.event_name == \u0027workflow_dispatch\u0027)",
+                                                               "needs":  "detect",
+                                                               "permissions":  null
+                                                           },
+                                       "render":  {
+                                                      "runner":  "ubuntu-latest",
+                                                      "if":  "${{ !cancelled() \u0026\u0026 needs.detect.outputs.presentify == \u0027true\u0027 }}",
+                                                      "needs":  "detect",
+                                                      "permissions":  null
+                                                  },
+                                       "verify":  {
+                                                      "runner":  "ubuntu-latest",
+                                                      "if":  "always()",
+                                                      "needs":  [
+                                                                    "detect",
+                                                                    "extractor-tests",
+                                                                    "render"
+                                                                ],
+                                                      "permissions":  null
+                                                  }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "extractor-tests",
+                                              "if":  "always() \u0026\u0026 needs.detect.result == \u0027success\u0027 \u0026\u0026 needs.detect.outputs.presentify == \u0027true\u0027",
+                                              "days":  7
+                                          },
+                                          {
+                                              "job":  "render",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "extractor-tests",
+                                               "run":  "python scripts/ci/run.py --profile full --only presentify-verify --reports-dir reports"
+                                           },
+                                           {
+                                               "job":  "render",
+                                               "run":  "python scripts/ci/run.py --profile full --only presentify-render --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/release.yml",
+                          "events":  {
+                                         "push":  {
+                                                      "tags":  [
+                                                                   "v*"
+                                                               ]
+                                                  },
+                                         "workflow_dispatch":  {
+                                                                   "inputs":  {
+                                                                                  "ref":  {
+                                                                                              "description":  "Tag or ref to check (defaults to the triggering ref)",
+                                                                                              "required":  false,
+                                                                                              "type":  "string"
+                                                                                          }
+                                                                              }
+                                                               }
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  false
+                                          },
+                          "jobs":  {
+                                       "release-readiness":  {
+                                                                 "runner":  "ubuntu-latest",
+                                                                 "if":  null,
+                                                                 "needs":  null,
+                                                                 "permissions":  null
+                                                             },
+                                       "publish-artifact":  {
+                                                                "runner":  "ubuntu-latest",
+                                                                "if":  null,
+                                                                "needs":  "release-readiness",
+                                                                "permissions":  {
+                                                                                    "contents":  "write",
+                                                                                    "id-token":  "write",
+                                                                                    "attestations":  "write"
+                                                                                }
+                                                            }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "release-readiness",
+                                              "if":  "always()",
+                                              "days":  7
+                                          }
+                                      ],
+                          "profiles":  [
+                                           {
+                                               "job":  "release-readiness",
+                                               "run":  "python scripts/ci/run.py --profile release --reports-dir reports"
+                                           }
+                                       ]
+                      },
+                      {
+                          "path":  ".github/workflows/supply-chain-watch.yml",
+                          "events":  {
+                                         "schedule":  [
+                                                          {
+                                                              "cron":  "0 6 * * 1"
+                                                          }
+                                                      ],
+                                         "workflow_dispatch":  null
+                                     },
+                          "permissions":  {
+                                              "contents":  "read"
+                                          },
+                          "concurrency":  {
+                                              "group":  "${{ github.workflow }}-${{ github.ref }}",
+                                              "cancel-in-progress":  false
+                                          },
+                          "jobs":  {
+                                       "audit":  {
+                                                     "runner":  "ubuntu-latest",
+                                                     "if":  null,
+                                                     "needs":  null,
+                                                     "permissions":  null
+                                                 }
+                                   },
+                          "refs":  [
+                                       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                                       "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                                       "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+                                   ],
+                          "unpinned":  [
+
+                                       ],
+                          "uploads":  [
+                                          {
+                                              "job":  "audit",
+                                              "if":  "always()",
+                                              "days":  30
+                                          }
+                                      ],
+                          "profiles":  [
+
+                                       ]
+                      }
+                  ],
+    "duplicate_group_count":  1219,
+    "deep_file_count":  1176,
+    "detector_cli":  {
+                         "script_sha256":  "eac4fe016baa0ad3ff22e0e37c32af8820d490aab34290a26f24e16f4e7ab75d",
+                         "rows":  [
+                                      {
+                                          "case":  "all_terms",
+                                          "exit":  0,
+                                          "slang_findings":  13,
+                                          "matched_expected":  true
+                                      },
+                                      {
+                                          "case":  "quoted_terms",
+                                          "exit":  0,
+                                          "slang_findings":  0,
+                                          "matched_expected":  true
+                                      },
+                                      {
+                                          "case":  "code_terms",
+                                          "exit":  0,
+                                          "slang_findings":  0,
+                                          "matched_expected":  true
+                                      },
+                                      {
+                                          "case":  "judgment_only",
+                                          "exit":  0,
+                                          "slang_findings":  0,
+                                          "matched_expected":  true
+                                      },
+                                      {
+                                          "case":  "explicit_failure",
+                                          "exit":  1,
+                                          "slang_findings":  1,
+                                          "matched_expected":  true
+                                      }
+                                  ]
+                     },
+    "glob_qualification":  [
+                               {
+                                   "monitor":  "claude",
+                                   "audit_exit":  0,
+                                   "vulnerabilities":  0,
+                                   "glob":  [
+                                                [
+                                                    "node_modules/glob",
+                                                    "14.0.2"
+                                                ]
+                                            ],
+                                   "font_exit":  0,
+                                   "fonts":  [
+                                                 [
+                                                     "claude-icons.ttf",
+                                                     1612
+                                                 ],
+                                                 [
+                                                     "claude-icons.woff2",
+                                                     648
+                                                 ]
+                                             ],
+                                   "evidence_dir":  "[redacted:local-evidence-path]"
+                               },
+                               {
+                                   "monitor":  "codex",
+                                   "audit_exit":  0,
+                                   "vulnerabilities":  0,
+                                   "glob":  [
+                                                [
+                                                    "node_modules/glob",
+                                                    "14.0.2"
+                                                ]
+                                            ],
+                                   "font_exit":  0,
+                                   "fonts":  [
+                                                 [
+                                                     "codex-icons.ttf",
+                                                     9488
+                                                 ],
+                                                 [
+                                                     "codex-icons.woff2",
+                                                     852
+                                                 ]
+                                             ],
+                                   "evidence_dir":  "[redacted:local-evidence-path]"
+                               },
+                               {
+                                   "monitor":  "copilot",
+                                   "audit_exit":  0,
+                                   "vulnerabilities":  0,
+                                   "glob":  [
+                                                [
+                                                    "node_modules/glob",
+                                                    "14.0.2"
+                                                ]
+                                            ],
+                                   "font_exit":  0,
+                                   "fonts":  [
+                                                 [
+                                                     "copilot-icons.woff2",
+                                                     996
+                                                 ]
+                                             ],
+                                   "evidence_dir":  "[redacted:local-evidence-path]"
+                               },
+                               {
+                                   "monitor":  "gemini",
+                                   "audit_exit":  0,
+                                   "vulnerabilities":  0,
+                                   "glob":  [
+                                                [
+                                                    "node_modules/glob",
+                                                    "14.0.2"
+                                                ]
+                                            ],
+                                   "font_exit":  0,
+                                   "fonts":  [
+                                                 [
+                                                     "gemini-icons.ttf",
+                                                     1716
+                                                 ],
+                                                 [
+                                                     "gemini-icons.woff2",
+                                                     796
+                                                 ]
+                                             ],
+                                   "evidence_dir":  "[redacted:local-evidence-path]"
+                               }
+                           ],
+    "publication_redactions":  "Four machine-local evidence directories are redacted for publication; original local qualification logs remain retained."
+}

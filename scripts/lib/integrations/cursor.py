@@ -134,8 +134,8 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
 
         `usage-guard` (v4.13.7) runs on `postToolUse` (answered with
         `additional_context`) and `stop` (answered with `followup_message`).
-        `beforeSubmitPrompt` has no context field, so it is not registered there;
-        the first tool call after the prompt carries the directive. This native
+        `beforeSubmitPrompt` captures typed answers without injecting context;
+        the first tool call after the prompt carries a new directive. This native
         registration is the only Cursor path: the guard is silent when Cursor runs
         it from an imported `.claude/hooks/` registration, so one event never
         injects the directive twice.
@@ -158,6 +158,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                 ],
                 "beforeSubmitPrompt": [
                     {"command": command_for("approval-capture.sh")},
+                    {"command": command_for("usage-guard.py"), "timeout": 10},
                 ],
             },
         }

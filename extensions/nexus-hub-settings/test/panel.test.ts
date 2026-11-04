@@ -22,8 +22,10 @@ function fresh(over: Partial<ViewModel> = {}, trusted = true): ViewModel {
   return { ...buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted, profile: "Default" }), ...over };
 }
 
+/** Find a button by its visible text or, for a short inline action such as "Set", by its accessible name. */
 function button(label: string | RegExp): HTMLButtonElement {
-  const found = [...app.querySelectorAll("button")].find((b) => (typeof label === "string" ? b.textContent === label : label.test(b.textContent ?? "")));
+  const names = (b: Element): string[] => [b.textContent ?? "", b.getAttribute("aria-label") ?? ""];
+  const found = [...app.querySelectorAll("button")].find((b) => names(b).some((name) => (typeof label === "string" ? name === label : label.test(name))));
   if (!found) {
     throw new Error(`no button ${String(label)}`);
   }
@@ -232,15 +234,43 @@ describe("accessibility", () => {
     expect((app.querySelector("input[type='text']") as HTMLInputElement).value).toBe("claude-opus-5-5");
   });
 
-  it("gives a text field a datalist of known ids only where the engine supplied them", () => {
+  it("folds a not-settable row's reason and notes, and keeps a fold the person opened open across a render", () => {
     panel.render(fresh());
-    const inputs = [...app.querySelectorAll("input[type='text']")] as HTMLInputElement[];
-    const claude = inputs.find((i) => i.getAttribute("data-focus")?.endsWith("|claude"))!;
-    const codex = inputs.find((i) => i.getAttribute("data-focus")?.endsWith("|codex"))!;
-    expect(document.getElementById(claude.getAttribute("list")!)?.querySelectorAll("option").length).toBeGreaterThan(0);
-    expect(codex.hasAttribute("list")).toBe(false);
+    const effort = app.querySelectorAll("section.card")[1]!;
+    const copilot = [...effort.querySelectorAll("li.row")].find((r) => r.textContent?.includes("GitHub Copilot CLI"))!;
+    const fold = copilot.querySelector("details.notes") as HTMLDetailsElement;
+    expect(fold.querySelector("summary")?.textContent).toBe("Why it cannot be set");
+    expect(fold.open).toBe(false);
+    expect(fold.querySelector("p.detail")?.textContent).toContain("No Proof Record");
+    expect(copilot.querySelector(":scope > p.detail")).toBeNull();
+
+    fold.open = true;
+    fold.dispatchEvent(new Event("toggle"));
+    panel.render(fresh());
+    const again = [...app.querySelectorAll("section.card")[1]!.querySelectorAll("li.row")].find((r) => r.textContent?.includes("GitHub Copilot CLI"))!;
+    expect((again.querySelector("details.notes") as HTMLDetailsElement).open).toBe(true);
+  });
+
+  it("offers known model ids as buttons that fill the field, only where the engine supplied them", () => {
+    panel.render(fresh());
+    const claude = app.querySelector("input[data-focus='txt:model|claude']") as HTMLInputElement;
+    const codex = app.querySelector("input[data-focus='txt:model|codex']") as HTMLInputElement;
+    const chips = [...(claude.closest(".field")?.querySelectorAll(".suggestions button") ?? [])] as HTMLButtonElement[];
+    expect(chips.length).toBeGreaterThan(0);
+    expect(codex.closest(".field")?.querySelector(".suggestions")).toBeNull();
+    expect(app.querySelector("datalist")).toBeNull();
     expect(claude.getAttribute("autocomplete")).toBe("off");
     expect(claude.getAttribute("maxlength")).toBe("200");
+
+    const set = button("Set for Claude Code (Default model)");
+    expect(set.getAttribute("aria-disabled")).toBe("true");
+    const chip = chips[0]!;
+    expect(chip.getAttribute("aria-label")?.startsWith(chip.textContent ?? "-")).toBe(true);
+    chip.click();
+    expect(claude.value).toBe(chip.textContent);
+    expect(set.hasAttribute("aria-disabled")).toBe(false);
+    set.click();
+    expect(posted.at(-1)).toEqual({ type: "set", control: "model", value: chip.textContent, tool: "claude" });
   });
 });
 
@@ -252,7 +282,7 @@ describe("keyboard focus across an action", () => {
   it.each([
     ["Refresh", "refresh"],
     ["Apply to every tool", "set:effort|*"],
-    ["Set only for Codex", "set:effort|codex"],
+    ["Set only for Codex (Default effort)", "set:effort|codex"],
     ["Reset Approval posture to what was there before", "reset:posture"],
     ["Remove this override", "remove:effort|claude"],
   ])("keeps focus on %s through the busy render and the idle render that follow a click", (label, key) => {
@@ -484,17 +514,17 @@ describe("requests the panel posts", () => {
     const select = effort.querySelector("select[data-focus='pick:effort|codex']") as HTMLSelectElement;
     expect(select.value).toBe("high");
     pick(select, "low");
-    button("Set only for Codex").click();
+    button("Set only for Codex (Default effort)").click();
     expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value: "low", tool: "codex" });
   });
 
   it("sets a model per tool from the typed value, and ignores an empty one", () => {
     panel.render(fresh());
-    button("Set for Codex").click();
+    button("Set for Codex (Default model)").click();
     expect(posted).toEqual([]);
     const input = app.querySelector("input[data-focus='txt:model|codex']") as HTMLInputElement;
     type(input, "  gpt-6-astra  ");
-    button("Set for Codex").click();
+    button("Set for Codex (Default model)").click();
     expect(posted.at(-1)).toEqual({ type: "set", control: "model", value: "gpt-6-astra", tool: "codex" });
   });
 

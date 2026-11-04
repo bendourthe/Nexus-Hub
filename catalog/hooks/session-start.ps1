@@ -23,6 +23,35 @@ $disabled = $env:NEXUS_DISABLED_HOOKS
 if ($disabled -and $disabled.Split(',') -contains $hookName) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: session-start]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stdout (SessionStart context the agent
+# reads); every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    Write-Output "$script:NexusTag $Message"
+    foreach ($line in $More) { Write-Output $line }
+}
+
 # Banner: one line, facts read from real files only (v4.13.3). The version is
 # printed only when VERSION holds one bounded semver line; any other payload
 # (missing, empty, multi-line, over 32 characters) drops the version and never
@@ -43,10 +72,11 @@ if (Test-Path -LiteralPath $versionFile -PathType Leaf) {
     } catch { $version = "" }
 }
 $indexPath = "$homeDir/data/SKILL_INDEX.md"
+$indexShown = ConvertTo-NexusVisible $indexPath
 if ($version) {
-    Write-Output "Nexus-Hub v$version active; full skill index: $indexPath"
+    $banner = "Nexus-Hub v$version active; full skill index: $indexShown"
 } else {
-    Write-Output "Nexus-Hub active; full skill index: $indexPath"
+    $banner = "Nexus-Hub active; full skill index: $indexShown"
 }
 
 # Git: one line. The harness already supplies branch and recent commits.
@@ -59,10 +89,11 @@ if ($inRepo) {
     $branch = (git symbolic-ref --short HEAD 2>$null)
     if (-not $branch) { $branch = "detached" }
     $changed = @(git status --porcelain 2>$null | Where-Object { $_ -ne "" }).Count
-    Write-Output ("Git: {0}, {1} changed file(s)" -f $branch, $changed)
+    $gitLine = ("Git: {0}, {1} changed file(s)" -f (ConvertTo-NexusVisible $branch), $changed)
 } else {
-    Write-Output "Git: unavailable"
+    $gitLine = "Git: unavailable"
 }
+Write-NexusMessage $banner @($gitLine)
 
 # --- Surface the last-session digest ---
 if ($env:NEXUS_SESSION_DIGEST -eq "off") { exit 0 }
@@ -94,14 +125,13 @@ if (Test-Path $digestPath -PathType Leaf) {
         }
 
         if ($digestText) {
-            Write-Output ""
-            Write-Output ("Last session digest ({0}, capped at {1} chars):" -f $digestRel, $maxChars)
-            Write-Output ""
-            Write-Output $digestText
+            $digestShown = ConvertTo-NexusVisible $digestRel
+            Write-Output ""  # nexus: hook-msg-exempt blank separator before the digest
+            $more = @("", $digestText)
             if ($truncated) {
-                Write-Output ""
-                Write-Output ("(digest truncated -- read {0} for the full file)" -f $digestRel)
+                $more += @("", ("(digest truncated -- read {0} for the full file)" -f $digestShown))
             }
+            Write-NexusMessage ("Last session digest ({0}, capped at {1} chars):" -f $digestShown, $maxChars) $more
         }
     } catch {
         # Never fail the hook on read errors.

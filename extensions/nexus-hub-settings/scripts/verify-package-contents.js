@@ -16,7 +16,8 @@ const STATIC_REQUIRED = [
   "media/panel.js",
   "media/panel.css",
   "media/logo.png",
-  "media/icon.svg"
+  "media/icon.svg",
+  "fonts/nexus-hub-icons.woff2"
 ];
 
 const FORBIDDEN = [

@@ -2,9 +2,17 @@
 
 **Integration branch:** `develop`
 
+**Usage-answer repair:** PR #599 publishes the approved repair from `fix/usage-answer-capture-publish`, refreshed onto develop with upstream behavior preserved. The broad local run passed 763 tests, but CI exposed one cached-subprocess fixture that could fall back to local credentials. That proof claim is withdrawn; the corrected fixture and all 106 focused cases now pass with credentials isolated. The protected Windows hook job passes at d735c8d25. Linux found a stale Cursor event expectation, now corrected for prompt-answer capture. Runtime hashes are unchanged. The handbook gate and 80 browser-state checks pass. The backed-up sixteen-file hotfix is installed and its actual CLI and temporary installed-hook flows pass; the live spending ledger is unchanged. PR #599 merged into develop at 993f733b3 with all required checks passing; three reruns were needed only because no hosted macOS runner was assigned. The merged tree matches the qualified tree, the post-merge smoke and provenance jobs pass, and all sixteen installed files still match merged source. The pending Claude decision's weekly window reset on 2026-11-03, so genuine Desktop verification needs a new limit crossing. Integration: 1/1; adoption: 1/1; genuine Desktop verification: 0/1. [Evidence](releases/v4/v4.14/development/usage-answer-capture-repair.md).
+
+- [x] Reproduce the repeated usage interruption and implement direct answer capture plus recovery without agent-run spending commands.
+- [x] Complete final affected Windows tests for the usage-answer repair.
+- [x] Integrate the reviewed usage-answer repair through protected develop checks.
+- [x] Install and verify the backed-up, hash-pinned usage-answer hotfix.
+- [ ] Verify a genuine Claude Code Desktop question and answer after adoption.
+
 - [x] Implement readable Cursor dashboard reset countdowns for the next release, with weeks, days, hours, and minutes. Source commit `ed4976312923d3abf63745dba7f58f0a0c934d50` has 371 passing monitor tests, 2 existing skips, successful compilation and Chromium verification; target-branch verification also passes all 371 tests with 2 existing skips and TypeScript compilation. Installed Cursor now verifies readable countdowns in all three live dashboard labels; see [installed-host evidence](releases/v4/v4.14/development/cursor-countdown-installed-qualification.md).
 
-- [x] Integrate the readable countdown change with v4.14.7 through develop and verify installed Cursor; PR #595 is merged and all three live countdown labels use readable units. Release publication remains open.
+- [x] Integrate the readable countdown change with v4.14.7 through develop and verify installed Cursor; PR #595 is merged and all three live countdown labels use readable units. Release v4.14.7 is published and its downloaded archive verifies all 2086 manifest entries.
 
 **v4.15 native prerequisite:** Three implementation phases and final local qualification are committed. All five failed scopes from the earlier comprehensive run have complete combined functional qualification; original timeouts remain failed. Refreshed Windows validators, all eight integration owners, actual producer/PowerShell installer exercises, extension/package checks, the canonical coverage threshold and independent Goal review have passing evidence. The final worktree preserves published v4.14.6. [PR 578](https://github.com/bendourthe/Nexus-Hub/pull/578) is open; its CodeQL snapshot-permission failure was reproduced with two regressions, corrected without suppression, and passed 49 proof/process plus nine console cases and a fresh actual producer/installer exercise. Corrective publication, current-head green integration and exact helper delivery remain open. The original signed v4.15 run and its live reservations remain unchanged. [Evidence](releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
 
@@ -29,7 +37,7 @@
 
 - [ ] Integrate the inline Node and attribution-stream follow-ups and complete reviewed runtime adoption and global hook delivery; merged affected tests, isolated workspace installer and latest idle observation are verified, while installed console-guard deployment remains open.
 - [ ] Repair source-guard recognition of external Python helpers invoked through pythonw.exe and qualify installed console-hook delivery with safe and unsafe controls.
-**Active work:** v4.14 has v4.14.0 through v4.14.6 released (v4.14.6 Nexus-Hub Settings on 2026-11-01, tag `v4.14.6`). v4.14.7 and v4.14.8 were implemented by parallel agents and are admitted next; the v4.14.8 plan is back in v4.14 (it sat in v4.15 as v4.15.5 for a while). The minor closes after v4.14.8 releases.
+**Active work:** v4.14.0 through v4.14.7 are published. v4.14.8 has all 42 tasks checked: its full local gate passed on the merged tree (14738 tests), PR #605 merged into develop with all checks green, and post-merge run 41805443933 passed. The v4.14.8 release is in progress on `chore/release-v4.14.8`. As the last v4.14 plan, it migrated 115 open gaps to the v4.15 ledger; AR-31 (hosted CodeQL alerts) stays open, so the minor close waits on a maintainer decision for it.
 
 **Retained v4.14.2 evidence:** Phases 1-5 are committed and Phase 6 evidence is assembled. The original full profile recorded 63 passing commands and three timeouts; the complete hooks rerun passed 2671 tests. Guides and governance reruns were pending at that member checkpoint. T033 now records the reconciled complete composite local gate, including terminal Windows and Linux full-payload workspace and bootstrap delivery. Earlier failed runs and scoped limits remain retained; this is not a fresh unfiltered full-profile pass.
 
@@ -69,19 +77,19 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
 
-**Next:** Return the v4.14.8 plan to v4.14, admit v4.14.7 and v4.14.8 with the maintainer's approval, release both, then close the minor.
+**Next:** Publish v4.14.8, decide AR-31 (triage the five CodeQL alerts), then close and archive the v4.14 minor.
 
 | Metric | Current | Target |
 |---|---|---|
-| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified | v4.14.7 publication |
+| Cursor reset countdown | 371 passed, 2 skipped; compiled; merged; installed host verified; published in v4.14.7 | Done |
 | Native per-plan session transfer | 107 approval tests passed; combined fast gate 18/18 | Genuine resume decision |
-| v4.14 GitHub develop integrated task marks | 97/256 | 256/256 |
-| v4.14 worktree task marks | 101/256 | 256/256 |
-| v4.14 released members | 3/8 | 8/8 |
+| v4.14 GitHub develop integrated task marks | 298/298 with this release commit | 298/298 |
+| v4.14 worktree task marks | 298/298 | 298/298 |
+| v4.14 released members | 8/9; v4.14.8 release in progress | 9/9 |
 | v4.14.0 phases | 7/7 | 7/7 |
 | v4.14.1 phases | 5/5 | 5/5 |
 | v4.14.2 task marks | 34/34 | 34/34 |
-| Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
+| Known gaps | v4.14: 1 open (AR-31), 115 migrated to v4.15, 57 resolved; v4.15: 117 open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -370,7 +378,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Apply the 12 failing Dependabot pull requests (vitest and coverage plugin together in five usage monitors, Cursor `@types/node`, `actions/setup-python` 7.1.0, `actions/setup-node` 7.1.0) as one maintainer commit and set `open-pull-requests-limit: 0` in `.github/dependabot.yml`.
 - [x] Close the 12 superseded Dependabot pull requests (#582 to #593) after the maintenance pull request merged, and turn on Dependabot vulnerability alerts in the repository settings (done 2026-11-01; the alerts reported 285 open items on first scan).
 - [x] Apply the Dependabot security updates as one maintainer commit: regenerate `scripts/ci/requirements-py311.txt` with `uv pip compile` (uv 0.13.4, pillow 13.0.0, pypdf 6.21.4, certifi, virtualenv, filelock, msgpack, opentelemetry-api, setuptools), move `@vscode/vsce` to 4.1.0 with a `minimatch` 11.0.1 override in the six extensions, and refresh their lockfiles.
-- [ ] After the security-update pull request merges, confirm the Dependabot alert count dropped, and decide whether to override `glob` to 14.0.2 or later in the four fantasticon-based usage monitors (the only remaining `npm audit` finding, moderate, not a Dependabot alert).
+- [x] Confirm the security-update alert count dropped and repair the remaining glob audit finding: main reports 94 open Dependabot alerts (8 critical, 42 high, 36 medium, 8 low), compared with 285 before v4.14.7. The four affected monitors pin glob 14.0.2; all four npm audits report zero vulnerabilities, all four real font generators pass, and the four repository-native monitor groups pass all 10 compile, coverage and package checks. Recount the remaining Dependabot alerts after the next main release merge.
 
 ## Devin Desktop / Windsurf read paths - 2026-10-30
 
@@ -405,7 +413,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.14.8 plain-English replies and Nexus-Hub source labels
 
-- [ ] Implement the [v4.14.8 plan](releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md): Part A (Phases 1-2) makes agents write simple English a non-native reader understands, with an agent and engineering slang list owned by `anti-slop-editing`, a 13-term advisory detector family, a non-native-reader Communication Contract bullet, and a Writing Discipline slang clause with five examples in all 13 templates. Part B (Phases 3-4) starts every hook message with `[Nexus-Hub: <hook-name>]`, escapes echoed values, and adds an agent label rule (`[Nexus-Hub: <source>]` for three named events, with limits against forged or misused labels) plus a before-and-after measurement on Claude Code. Part A releases without Part B. Phase 3 waits for v4.14.6 only for the `git-guardrails` pair; sub-task 4.3 waits for v4.14.5. Implementation is 0/5 phases and 0/42 tasks.
+- [ ] Implement the [v4.14.8 plan](releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md): Part A (Phases 1-2) makes agents write simple English a non-native reader understands, with an agent and engineering slang list owned by `anti-slop-editing`, a 13-term advisory detector family, a non-native-reader Communication Contract bullet, and a Writing Discipline slang clause with five examples in all 13 templates. Part B (Phases 3-4) starts every hook message with `[Nexus-Hub: <hook-name>]`, escapes echoed values, and adds an agent label rule (`[Nexus-Hub: <source>]` for three named events, with limits against forged or misused labels) plus a before-and-after measurement on Claude Code. Part A releases without Part B. Phase 3 waits for v4.14.6 only for the `git-guardrails` pair; sub-task 4.3 waits for v4.14.5. Phases 1-4 are implemented locally on `feat/v4.14.8-plain-english-replies-and-source-labels` (28/42 task marks; T016, T017, T020 and T026 wait on v4.14.6, the `.agents/` refresh and v4.14.5, recorded as DF-21 to DF-23); Phase 5 publication and release wait until v4.14.5 to v4.14.7 are released.
 
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
