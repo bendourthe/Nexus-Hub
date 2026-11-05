@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Three CodeQL findings fixed (WN-29 triage).** The Cursor Usage Monitor decoded `&amp;` before the other HTML entities, so an escaped entity such as `&amp;lt;` turned into `<` instead of the literal text `&lt;`; `&amp;` is now decoded last. The test that keeps `nexus-hub` from naming any host other than GitHub matched "github.com" anywhere in the line, so a URL such as `https://evil.example/?next=github.com` would have passed; it now compares the parsed host name. The presentation scorer's script matcher now also matches end tags written as `</script >`.
+
 ## [4.14.8] - 2026-11-04
 
 ### Added
