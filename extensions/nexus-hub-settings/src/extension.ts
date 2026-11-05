@@ -1,6 +1,7 @@
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { installLiveEffort } from "./liveEffort";
 import { CliBridge } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
 import { profileNameFromStorage } from "./editorWrites";
@@ -57,10 +58,12 @@ export function userPythonPath(): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-export function activate(context: vscode.ExtensionContext): ExtensionApi {
+export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
+  const liveEffort = await installLiveEffort(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const controller = new SettingsController({
     bridge,
+    liveEffort: liveEffort ? () => liveEffort.summary() : undefined,
     ui: vscodeUi(),
     isTrusted: () => vscode.workspace.isTrusted,
     project: firstFolder,
@@ -86,6 +89,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     const watcher = vscode.workspace.createFileSystemWatcher(pattern);
     context.subscriptions.push(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule));
   };
+  if (liveEffort) { watch(new vscode.RelativePattern(vscode.Uri.file(liveEffort.directory), "*.json")); }
   for (const file of watchedFiles(process.env, os.homedir())) {
     watch(new vscode.RelativePattern(vscode.Uri.file(path.dirname(file)), path.basename(file)));
   }

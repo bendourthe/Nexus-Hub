@@ -38,7 +38,7 @@ describe("activation", () => {
   it("routes allowlisted hover effort choices through the existing controller", async () => {
     const handle = vi.spyOn(SettingsController.prototype, "handle").mockResolvedValue({} as never);
     try {
-      activate(context() as never);
+      await activate(context() as never);
       for (const value of [null, {}, "off", "constructor", "<script>"]) { await stub.commands.get(SET_EFFORT_COMMAND)?.(value); }
       expect(handle).not.toHaveBeenCalled();
       await stub.commands.get(SET_EFFORT_COMMAND)?.("medium");
@@ -51,15 +51,15 @@ describe("activation", () => {
   });
   it("toggles the user compact preference from the hover", async () => {
     stub.defaults["nexusHubSettings.compactStatusBar"] = true;
-    activate(context() as never);
+    await activate(context() as never);
     await stub.commands.get(COMPACT_COMMAND)?.();
     expect(stub.user["nexusHubSettings.compactStatusBar"]).toBe(false);
     await stub.commands.get(COMPACT_COMMAND)?.();
     expect(stub.user["nexusHubSettings.compactStatusBar"]).toBe(true);
   });
-  it("registers the webview view, the open command, and watchers for every file the state depends on", () => {
+  it("registers the webview view, the open command, and watchers for every file the state depends on", async () => {
     const ctx = context();
-    activate(ctx as never);
+    await activate(ctx as never);
 
     expect(stub.providers.map((p) => p.id)).toEqual(["nexusHubSettings.view"]);
     expect(stub.providers[0]?.options).toEqual({ webviewOptions: { retainContextWhenHidden: true } });
@@ -69,13 +69,13 @@ describe("activation", () => {
   });
 
   it("opens the panel by focusing its view", async () => {
-    activate(context() as never);
+    await activate(context() as never);
     await stub.commands.get(OPEN_COMMAND)?.();
     expect(stub.executed).toContain("nexusHubSettings.view.focus");
   });
 
   it("reads the current model on request and shows the install card when Nexus-Hub is missing", async () => {
-    const api = activate(context() as never);
+    const api = await activate(context() as never);
     const model = await api.getViewModel();
     expect(model.status).toBe("error");
     expect(model.error?.title).toBe("Nexus-Hub is not installed");
@@ -85,7 +85,7 @@ describe("activation", () => {
   it("re-reads after a file or setting change, debounced, and ignores unrelated settings", async () => {
     vi.useFakeTimers();
     const ctx = context();
-    activate(ctx as never);
+    await activate(ctx as never);
 
     stub.watchers[0]!.change.fire(undefined);
     stub.watchers[1]!.create.fire(undefined);

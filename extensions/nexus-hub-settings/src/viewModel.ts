@@ -1,3 +1,4 @@
+import type { LiveEffortSummary } from "./liveEffort";
 import { isDeepStrictEqual } from "node:util";
 import type { EditorLayers } from "./editorWrites";
 import { ExplainData, ExplainWrite, ShowRecord, ShowReport, State, Surface } from "./types";
@@ -160,6 +161,7 @@ export interface ViewModel {
   busy: boolean;
   preferences?: PreferencesSummary;
   codexAvailable?: boolean;
+  liveEffort?: LiveEffortSummary;
 }
 
 export interface PreferencesSummary {

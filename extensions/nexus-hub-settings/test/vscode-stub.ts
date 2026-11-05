@@ -108,6 +108,7 @@ export const stub = {
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
   statusItems: [] as StatusItem[],
+  vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean }>(),
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },
@@ -131,6 +132,7 @@ export const stub = {
     this.commands = new Map();
     this.executed = [];
     this.statusItems = [];
+    this.vendorExtensions.clear();
     configEvents.clear();
     trustEvents.clear();
   },
@@ -239,3 +241,5 @@ export const env = {
     return true;
   },
 };
+
+export const extensions = { getExtension: (id: string) => stub.vendorExtensions.get(id) };

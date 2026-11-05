@@ -8,6 +8,7 @@ import {
   precheckEditorWrites,
   restoreEditorWrites,
 } from "./editorWrites";
+import type { LiveEffortSummary } from "./liveEffort";
 import { Incoming } from "./messages";
 import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowRecord, ShowReport } from "./types";
 import {
@@ -58,6 +59,7 @@ export interface ControllerDeps {
   profile: () => string;
   platform: string;
   codexAvailable?: () => boolean;
+  liveEffort?: () => Promise<LiveEffortSummary>;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
@@ -192,6 +194,8 @@ export class SettingsController {
           return this.synchronize(true);
         case "newCodex":
           if (this.deps.isTrusted() && this.deps.codexAvailable?.()) {
+            await this.synchronize(true);
+            if (this.model.error || this.report?.records.some((row) => row.control === "effort" && row.tool === "codex" && row.matches_default === false)) { return this.model; }
             try { await this.deps.ui.openCodex?.(); }
             catch { this.model = { ...this.model, notice: { level: "error", text: "Could not open a new Codex agent. Try Codex: New Codex Agent from the command palette." } }; }
           }
@@ -225,6 +229,7 @@ export class SettingsController {
       this.report = report;
       this.model = buildModel({ report, explains: this.explains, inspect: this.inspect, trusted: this.deps.isTrusted(), profile, notice });
       this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
+      this.model.liveEffort = await this.deps.liveEffort?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

@@ -14,6 +14,7 @@ const STATIC_REQUIRED = [
   "LICENSE",
   "icon.png",
   "media/panel.js",
+  "media/effort-launcher.cs",
   "media/panel.css",
   "media/logo.png",
   "media/icon.svg",

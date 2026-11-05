@@ -24,7 +24,7 @@ describe("manifest", () => {
   it("matches the plan: publisher, engines, activation, command, and an activity-bar view", () => {
     expect(manifest.publisher).toBe("nexus-hub");
     expect(manifest.engines).toEqual({ vscode: "^1.85.0", node: ">=22.0.0" });
-    expect(manifest.activationEvents).toEqual(["onStartupFinished"]);
+    expect(manifest.activationEvents).toEqual(["*"]);
     expect(manifest.contributes.commands).toEqual([{ command: "nexusHubSettings.newCodexAgent", title: "Nexus-Hub Settings: New Codex agent", category: "Nexus-Hub" }, { command: "nexusHubSettings.open", title: "Nexus-Hub Settings: Open", category: "Nexus-Hub" }]);
     expect(manifest.contributes.viewsContainers.activitybar).toHaveLength(1);
     const view = manifest.contributes.views[manifest.contributes.viewsContainers.activitybar[0].id][0];
@@ -118,10 +118,16 @@ describe("process launches", () => {
     let launches = 0;
     for (const file of files) {
       const text = fs.readFileSync(file, "utf8");
-      expect(text, file).not.toMatch(/(?<![.\w])(spawn|spawnSync|exec|execSync|fork)\s*\(/);
+      const streamingPolicy = path.basename(file) === "nativeStreamProcess.ts";
+      if (streamingPolicy) {
+        expect(text.match(/\bspawn\s*\(/g)).toHaveLength(1);
+        expect(text).toContain("windowsHide: true");
+        expect(text).toContain("shell: false");
+        expect(text).toContain('stdio: ["pipe", "pipe", "pipe"]');
+      } else { expect(text, file).not.toMatch(/(?<![.\w])(spawn|spawnSync|exec|execSync|fork)\s*\(/); }
       for (const imported of text.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']node:child_process["']/g)) {
         const names = (imported[1] ?? "").split(",").map((n) => n.trim()).filter(Boolean);
-        expect(names.every((n) => n === "execFile" || n === "execFileSync"), `${file} imports ${names.join(",")}`).toBe(true);
+        expect(names.every((n) => n === "execFile" || n === "execFileSync" || (streamingPolicy && n === "spawn")), `${file} imports ${names.join(",")}`).toBe(true);
       }
       expect(text, file).not.toMatch(/import\s+\*\s+as\s+\w+\s+from\s*["']node:child_process["']/);
       expect(text, file).not.toMatch(/shell:\s*true|detached:\s*true|DETACHED_PROCESS|CREATE_NEW_CONSOLE/);

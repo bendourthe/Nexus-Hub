@@ -2,7 +2,7 @@
   "name": "nexus-hub-settings",
   "displayName": "Nexus-Hub Settings",
   "description": "Set one shared effort preference and control the main Nexus-Hub protections from a compact settings panel",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -26,7 +26,7 @@
     "ui"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "*"
   ],
   "main": "./out/extension.js",
   "capabilities": {

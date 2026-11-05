@@ -93,6 +93,15 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--vscode-t
   header { align-items: flex-start; flex-wrap: wrap; }
   .effort-section { padding: 12px; }
   .setting-row { gap: 8px; }
+  .effort-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .effort-choices::before, .effort-choices::after { display: none; }
+  button.effort-choice, button.effort-choice:first-child, button.effort-choice:last-child { display: block; padding: 6px; min-height: 28px; border: 1px solid transparent; border-radius: 4px; text-align: left; }
+  .effort-dot { display: none; }
+  .effort-choice[aria-checked='true'] { border-color: var(--nexus-accent); background: color-mix(in srgb, var(--nexus-accent) 10%, transparent); }
+}
+
+@media (max-width: 180px) {
+  .effort-choices { grid-template-columns: minmax(0, 1fr); }
 }
 
 .compatibility { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hairline); color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 11px; }

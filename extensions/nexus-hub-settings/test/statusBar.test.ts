@@ -21,6 +21,11 @@ function realistic(): ViewModel {
 }
 
 describe("the configured shared effort", () => {
+  it.each([false, true])("shows live next-request behavior and native errors %s", (failed) => {
+    const m = model([control("effort", [row("internal", "in-effect", "high")])]);
+    m.liveEffort = { connected: 1, applied: failed ? 0 : 1, reloadRequired: false, ...failed ? { error: "Native update refused." } : {} };
+    const summary = summarize(m, OPEN); expect(summary.tooltip).toContain(failed ? "Review application" : "Next request"); expect(summary.text.includes("$(warning)")).toBe(failed);
+  });
   it("shows the saved preference even when a platform overrides it", () => {
     expect(statusEffort(realistic())).toBe("high");
     expect(summarizePreferences(realistic()).needsAttention).toBe(true);
@@ -45,14 +50,18 @@ describe("compact status summary", () => {
     expect(summary.accessibilityLabel).toContain("default effort high");
     expect(summary.accessibilityLabel).toContain("needs attention");
   });
-  it("shows a compact native effort scale and named guard states", () => {
+  it("shows effort once on one line and keeps named guard states", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
     expect(tooltip.length).toBeLessThan(1000);
-    expect(tooltip).toContain("Low $(");
-    expect(tooltip).toContain("$(record)");
+    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Settings: High effort**");
+    expect(tooltip.split("\n")).toHaveLength(5);
+    expect(tooltip).not.toContain("\n\n");
+    expect(tooltip.match(/High/g)).toHaveLength(1);
+    expect(tooltip).not.toMatch(/\| Default effort|\$\(record\)|Low \$\(/);
     expect(tooltip).toContain("My edits");
     expect(tooltip).toContain("Nexus Settings");
-    expect(tooltip).toContain("**2 / 3 on**");
+    expect(tooltip).toContain("$(check) Git safety");
+    expect(tooltip).toContain("$(circle-slash) Git bypass");
     expect(tooltip).not.toMatch(/data:image|<svg|setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
     expect(tooltip).toContain("Review application in Settings");
     expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);

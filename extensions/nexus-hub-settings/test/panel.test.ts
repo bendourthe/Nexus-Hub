@@ -45,6 +45,17 @@ beforeEach(() => {
 });
 
 describe("shared settings view", () => {
+  it.each([
+    [{ connected: 2, applied: 2, reloadRequired: false }, "Applied to 2 connected sessions.", false],
+    [{ connected: 2, applied: 1, reloadRequired: false }, "Applying effort to connected sessions...", false],
+    [{ connected: 0, applied: 0, reloadRequired: true }, "Reload the editor once to connect existing sessions.", false],
+    [{ connected: 0, applied: 0, reloadRequired: false }, "Applies on the next request. Open an agent to connect.", false],
+    [{ connected: 1, applied: 0, reloadRequired: false, error: "Native update refused." }, "Native update refused.", true],
+  ] as const)("reports actual bridge state %j", (liveEffort, message, attention) => {
+    const model = fresh({ liveEffort }); model.preferences!.needsAttention = false; panel.render(model);
+    expect(app.querySelector("#effort-status")?.textContent).toBe(message);
+    expect(app.querySelector("#effort-status")?.classList.contains("attention")).toBe(attention);
+  });
   it.each(["low", "max", "ultra"])("saves %s and positions the endpoint fill", (value) => {
     const model = fresh();
     model.controls.find((c) => c.id === "effort")!.rows.find((row) => row.tool === "internal")!.value = value;
@@ -306,6 +317,9 @@ describe("webview protocol", () => {
 
 it("opens a fresh native Codex agent only through the available action", () => {
   panel.render(fresh({ codexAvailable: true }));
+  expect(app.querySelector(".effort-section .native-action")?.textContent).toBe("New Codex agent");
+  expect(app.querySelector("#effort-status")?.textContent).toContain("Existing Codex chats keep their effort");
+  expect(app.querySelector("footer .native-action")).toBeNull();
   button("New Codex agent").click();
   expect(posted).toEqual([{ type: "newCodex" }]);
   panel.render(fresh({ codexAvailable: false }));

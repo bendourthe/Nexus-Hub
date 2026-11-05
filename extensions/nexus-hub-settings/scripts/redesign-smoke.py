@@ -136,9 +136,20 @@ def main() -> None:
             if theme == "light":
                 page.evaluate("document.body.classList.add('vscode-light')")
                 page.add_style_tag(content=":root{--vscode-foreground:#222;--vscode-descriptionForeground:#555;--vscode-sideBar-background:#fff;--vscode-editor-background:#fff;--vscode-input-background:#fff;--vscode-input-foreground:#222;--vscode-textLink-foreground:#006b80;background:#fff}")
-            for width in (320, 420, 900):
+            for width in (140, 180, 220, 280, 320, 420, 900):
                 page.set_viewport_size({"width": width, "height": 900})
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"Overflow at {width}"
+                assert page.evaluate("""() => [...document.querySelectorAll('.effort-choice')].every(button => {
+                    const label = button.querySelector('.effort-label');
+                    const range = document.createRange(); range.selectNodeContents(label);
+                    const outer = button.getBoundingClientRect();
+                    return [...range.getClientRects()].every(rect => rect.left >= outer.left - 1 && rect.right <= outer.right + 1 && rect.top >= outer.top - 1 && rect.bottom <= outer.bottom + 1);
+                })"""), f"Effort label outside its own choice at {width}"
+                if width <= 280:
+                    for value, name in (("low", "Low"), ("ultra", "Ultra")):
+                        page.get_by_role("radio", name=name, exact=True).click()
+                        page.wait_for_function("value => document.querySelector('[role=radio][data-value=' + value + ']').getAttribute('aria-checked') === 'true'", arg=value)
+                        assert json.loads((home / ".nexus-hub/preferences.json").read_text())["default_effort"] == value
                 screenshot = work / f"panel-{theme}-{width}.png"
                 page.screenshot(path=str(screenshot), full_page=True)
                 observations["screenshots"].append(str(screenshot))

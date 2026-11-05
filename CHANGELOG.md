@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Settings 0.4.0 keeps effort labels readable in narrow panels, restores a compact hover with named guardrail states, and connects native Claude Code and Codex sessions to the shared effort preference for subsequent requests. Claude Ultra enables Ultracode; Codex mapping follows advertised model capabilities. Initial connection requires an editor reload. The bridge preserves native permissions, unrelated settings and custom launch configurations.
+
 ## [4.14.8] - 2026-11-04
 
 ### Added

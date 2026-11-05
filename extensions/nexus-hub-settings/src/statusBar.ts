@@ -41,12 +41,10 @@ export function summarize(model: ViewModel | undefined, openCommand: string, com
     return { text: `${NEXUS_ICON} ${prefix}Unavailable $(error)`, accessibilityLabel: "Nexus Settings, unavailable", tooltip: `${escapeMarkdown(model.error.title)}\n\n${open}` };
   }
   const summary = summarizePreferences(model);
+  const attention = summary.needsAttention || !!model.liveEffort?.error;
   const effort = summary.effort || "Default";
   const titled = EFFORT_LABELS[effort] || "Default";
   const protection = summary.guardsAvailable ? `Configured guardrails: ${summary.guardsEnabled} of ${summary.guardsAvailable} on` : "Configured guardrails: unavailable";
-  const levels = Object.keys(EFFORT_LABELS);
-  const selected = levels.indexOf(effort);
-  const scale = levels.map((_, index) => index === selected ? "$(record)" : index < selected ? "$(circle-filled)" : "$(circle-outline)").join(" ");
   const guards = [["git_safety", "Git safety"], ["secret_scan", "Secrets"], ["edit_preservation", "My edits"], ["large_file_warning", "Large files"], ["git_guardrails", "Git bypass"]].map(([id, label]) => {
     const control = model.controls.find((item) => item.id === id);
     const row = control?.rows.find((item) => item.tool === "internal") ?? control?.rows[0];
@@ -57,21 +55,13 @@ export function summarize(model: ViewModel | undefined, openCommand: string, com
   });
   const links = model.codexAvailable && !model.readOnly ? `${open} | [New Codex agent](command:nexusHubSettings.newCodexAgent)` : open;
   const tooltip = [
-    `### ${NEXUS_ICON} Nexus Settings`,
-    "",
-    "| Default effort | Guardrails |",
-    "| :-- | :-- |",
-    `| **${titled}** | **${summary.guardsEnabled} / ${summary.guardsAvailable} on** |`,
-    "",
-    `Low ${scale} Ultra`,
-    "",
-    `${guards.slice(0, 3).join(" &nbsp; ")}  \n${guards.slice(3).join(" &nbsp; ")}`,
-    "",
-    summary.needsAttention ? "$(warning) Review application in Settings." : "New sessions only.",
-    "",
+    `**Nexus Settings: ${titled} effort**`,
+    guards.slice(0, 3).join(" &nbsp; "),
+    guards.slice(3).join(" &nbsp; "),
+    attention ? "$(warning) Review application in Settings." : model.liveEffort ? "Next request in connected sessions." : "New sessions only.",
     links,
-  ].join("\n");
-  return { text: `${NEXUS_ICON} ${prefix}${titled} (effort)${summary.needsAttention ? " $(warning)" : ""}`, accessibilityLabel: `Nexus Settings, default effort ${effort}, ${protection.toLowerCase()}${summary.needsAttention ? ", needs attention" : ""}`, tooltip };
+  ].join("  \n");
+  return { text: `${NEXUS_ICON} ${prefix}${titled} (effort)${attention ? " $(warning)" : ""}`, accessibilityLabel: `Nexus Settings, default effort ${effort}, ${protection.toLowerCase()}${attention ? ", needs attention" : ""}`, tooltip };
 }
 
 export class SettingsStatusBar implements vscode.Disposable {

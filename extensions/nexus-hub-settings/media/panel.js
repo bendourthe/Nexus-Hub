@@ -68,6 +68,16 @@
         refresh,
       ]);
     }
+    function effortApplication(summary) {
+      if (summary.needsAttention) { return summary.effortStatus; }
+      var live = model.liveEffort;
+      if (live) {
+        if (live.error) { return live.error; }
+        if (live.connected > 0) { return live.applied === live.connected ? "Applied to " + live.applied + " connected session" + (live.applied === 1 ? "." : "s.") : "Applying effort to connected sessions..."; }
+        return live.reloadRequired ? "Reload the editor once to connect existing sessions." : "Applies on the next request. Open an agent to connect.";
+      }
+      return model.codexAvailable ? "New agents only. Existing Codex chats keep their effort." : summary.effortStatus;
+    }
     function effortSection(summary) {
       var c = control("effort");
       if (!c) { return null; }
@@ -99,7 +109,8 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
         group,
-        el("p", { id: "effort-status", class: summary.needsAttention ? "application-status attention" : "application-status", text: summary.effortStatus }),
+        el("p", { id: "effort-status", class: summary.needsAttention || (model.liveEffort && model.liveEffort.error) ? "application-status attention" : "application-status", text: effortApplication(summary) }),
+        model.codexAvailable && !model.readOnly ? button("New Codex agent", "new-codex", function () { if (!blocked()) { post({ type: "newCodex" }); } }, { class: "native-action" }) : null,
       ]);
     }
     function guardState(c) {
@@ -130,13 +141,10 @@
     }
     function compatibility() {
       var node = el("footer", { class: "compatibility" }, [
-        text("p", "Automatic effort: Claude Code and Codex new agents."),
+        text("p", "Automatic effort: Claude Code and Codex."),
         text("p", "Manual effort: GitHub Copilot, Cursor and Antigravity agents."),
-        text("p", "Existing Codex drafts keep their selection. Open a new agent to use this default."),
+        text("p", "Older Codex clients map Max and Ultra to Extra high."),
       ]);
-      if (model.codexAvailable && !model.readOnly) {
-        node.appendChild(button("New Codex agent", "new-codex", function () { if (!blocked()) { post({ type: "newCodex" }); } }, { class: "native-action" }));
-      }
       return node;
     }
     function notice() {
@@ -173,7 +181,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), text("p", "Effort applies to new sessions. Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
+        children.push(notice(), effortSection(preferences()), guardSection(), text("p", (model.liveEffort ? "Effort applies on the next request in connected sessions. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

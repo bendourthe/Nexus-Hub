@@ -91,6 +91,11 @@ beforeEach(() => {
 });
 
 describe("saved default synchronization", () => {
+  it("reads live native acknowledgments into the same model exposed to the panel", async () => {
+    const live = { connected: 2, applied: 2, reloadRequired: false }; const reader = vi.fn(async () => live);
+    const controller = make({ liveEffort: reader }); const model = await controller.refresh();
+    expect(reader).toHaveBeenCalled(); expect(model.liveEffort).toEqual(live);
+  });
   function shared(value = "ultra"): void {
     const row = structuredClone(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!);
     bridge.report.records.push({ ...row, tool: "internal", value, state: "in-effect", writes: [] });
@@ -666,6 +671,21 @@ describe("opening sources", () => {
 
 
 describe("fresh Codex agent", () => {
+  it("reads configuration again before opening the native composer", async () => {
+    const openCodex = vi.fn(async () => { expect(bridge.calls.filter((c) => c === "show")).toHaveLength(2); });
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    await controller.refresh();
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledOnce();
+  });
+  it("does not open a composer if fresh configuration cannot be read", async () => {
+    const openCodex = vi.fn(async () => {});
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    await controller.refresh();
+    bridge.showError = new Error("read failed");
+    expect((await controller.handle({ type: "newCodex" })).status).toBe("error");
+    expect(openCodex).not.toHaveBeenCalled();
+  });
   it("reports an explicit native launch failure", async () => {
     const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex: async () => { throw new Error("missing command"); } } });
     await controller.refresh();

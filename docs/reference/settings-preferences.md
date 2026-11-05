@@ -8,7 +8,7 @@ The desired effort is stored in the user's `~/.nexus-hub/preferences.json` as `d
 
 Claude Code uses the authoritative user `env.CLAUDE_CODE_EFFORT_LEVEL` setting, valid persistent model fallbacks and existing project effort keys. Existing editor launch overrides are synchronized through the host configuration API while preserving unrelated environment entries. Codex uses its native reasoning-effort configuration, existing profiles and existing project effort keys. Ownership records retain the previous values, bind project writes to the project identity, and support exact reset. Managed policy remains outside user control. Vendor settings are admitted only when their documented behavior has been exercised, as the settings-control contract requires.
 
-An effort preference is a default for new sessions, not a command to change an already running model. Unsupported clients retain their own behavior. The panel has no platform-specific selectors; the CLI remains available for detailed diagnosis.
+The effort preference controls new-session defaults and, with the Settings 0.4.0 Windows bridge connected, subsequent requests in existing Claude Code and Codex extension sessions. A response already executing retains its current effort. Unsupported clients retain their own behavior. The panel has no platform-specific selectors; the CLI remains available for detailed diagnosis.
 
 | Shared choice | Claude native effort | Codex common native effort |
 |---|---|---|
@@ -21,7 +21,7 @@ An effort preference is a default for new sessions, not a command to change an a
 
 The installed Codex CLI rejects raw `max` and `ultra`, even when cached model metadata lists them; its IDE also filters unsupported levels before choosing a new-session default. The common mapping avoids this silent fallback. Model capability metadata can lower a Codex mapping further. Claude Ultra maps to maximum effort without enabling the separate orchestration mode. Readback compares the actual mapped native value with the shared choice rather than comparing different names as strings.
 
-The extension reconciles changed supported defaults on startup and file/configuration changes in trusted workspaces, with one attempt per distinct unresolved conflict. Existing sessions retain their explicit session state. GitHub Copilot's public model API does not expose the supported per-model effort values or a configuration setter; this extension does not guess them or use the global debugging override. The installed Cursor and Antigravity native IDE agents have no verified writable public effort control. Their CLI settings are separate surfaces. These three effort integrations remain open rather than being represented as enforced.
+The extension reconciles supported defaults on startup and file/configuration changes in trusted workspaces, with one attempt per distinct unresolved conflict. The Windows live bridge uses `claudeCode.claudeProcessWrapper` and `chatgpt.cliExecutable`, requiring one initial editor reload. It applies native effort controls to connected sessions and enforces the latest mapping on subsequent requests, including ordinary new-chat requests carrying cached effort. Codex mapping follows advertised model capabilities; Claude Ultra enables Ultracode. Native permission and input fields are preserved. GitHub Copilot, native Cursor and native Antigravity have no verified writable effort integration and remain footer compatibility notes. Claude and Codex extensions hosted in those editors are separate supported surfaces.
 
 ## Guardrail Switches
 
