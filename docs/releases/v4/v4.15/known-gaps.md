@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-11-04
-**Open items**: 117
+**Open items**: 118
 
 ## v4.15.0
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
 | Bugs / regressions (BG) | 4 | 0 |
-| Warnings (WN) | 29 | 0 |
+| Warnings (WN) | 30 | 0 |
 | Missing tests / coverage gaps (MT) | 7 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
@@ -1678,6 +1678,18 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 **Triage, 2026-11-04**: every one of the nine security alerts now has a disposition. Fixed in PR #611: #177 (the Cursor Usage Monitor decodes `&amp;` last), #136 and #137 (the CLI host test compares the parsed host name), and #211 (the script matcher accepts end tags such as `</script >`); the follow-up CodeQL finding on the first regex fix (#530) is fixed in the same pull request. Dismissed on GitHub with the maintainer's approval and a recorded reason each: #147 and #148 (won't fix: the Claude and Codex monitors send the user's own token to the vendor's fixed HTTPS usage URL), #156 (won't fix: the media-key script stores the key the user entered in their own env file, 0600 on POSIX), #157 (false positive: only the last 4 characters are printed), and #433 (used in tests: a test asserting a synthetic example's text).
 
 **Owner**: security and CI owner. **Severity**: low - the security alerts are resolved; what remains is the 205 quality notes. **Status**: open for the quality notes only. **Suggested next step**: decide, rule by rule, whether to fix or suppress the quality notes, starting with the largest groups (unused imports, empty `except` blocks, unused locals).
+
+#### WN-30: Some rostered models have no fresh prompting profile after the 2026-11-04 full refresh
+
+**Source phase**: `/tune-prompting` full-roster refresh on 2026-11-04 (58 models researched, 229 agents; 532 of 562 claims survived three-skeptic verification; 51 profiles refreshed).
+
+- `codex-auto-review` (Codex roster): OpenAI's documentation has no prompting or calling guidance for it, so it stays UNVERIFIED with no profile.
+- Cursor's Grok 4.7: Cursor's model pages show only the display name, never a model id, so it cannot be rostered or profiled without inventing an id.
+- `composer-2.5-fast` (Cursor) and Antigravity's variants `claude-opus-4-6-thinking`, `gemini-3.8-flash-high`, `gemini-3.8-flash-low` and `gemini-3.8-flash-medium` keep their earlier profiles: research on the base model may not hold for a fixed-speed or fixed-effort variant, so their claims were not copied over.
+- 15 hand-curated, test-guarded profiles were kept unchanged rather than overwritten: claude-sonnet-5-5, gpt-6-astra, gpt-6.1-sol, gpt-5.6-luna, gpt-5.6-sol, gpt-5.6-terra, gemini-4-argon, gemini-3.5-flash-lite, gemini-3.6-flash, gemini-3.7-flash, gemini-3.8-flash, composer-2.5, composer-2.5-fast, cursor-grok-4.5 and cursor-grok-4.6. Their tests pin required coverage, saved evidence quotes and source-scope notes that an automated refresh does not produce. The new verified claims for the eleven of them that were researched are kept in the run's results for a careful, test-backed merge.
+- Eleven claims were tagged model-agnostic by the vendor's own pages, but each is that vendor's API guidance (OpenAI Responses and reasoning tokens, Gemini Interactions and thought signatures, Gemini Live audio, Gemini image prompting). None was proposed for a shared catalog body, because shared bodies are read on every platform; they stay in the per-model profiles.
+
+**Owner**: catalog maintainer. **Severity**: low - every other rostered model is refreshed and both refreshed rosters read IN SYNC. **Status**: open. **Suggested next step**: research the variants on their own Antigravity and Cursor documentation, and add Grok 4.7 once Cursor publishes its model id.
 
 ### AR-34: No live macOS installer smoke has been recorded
 
