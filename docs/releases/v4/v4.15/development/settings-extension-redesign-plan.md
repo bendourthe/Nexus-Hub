@@ -22,9 +22,9 @@ Recommended model tier: frontier. Recommended effort level: high. Recommended ve
 
 ## Phase 2: Verification and Delivery
 
-- [ ] T005: Run affected Python and extension tests, coverage, package integrity, focused security review and the repository fast checks.
-- [ ] T006: Exercise the rendered panel and installed configuration consumers end to end in a scratch profile; inspect narrow/wide and light/dark rendering.
-- [ ] T007: Reconcile documentation and evidence, commit the verified local result, back up and deliver runtime consumers, then install and verify the active extension package.
+- [x] T005: Run affected Python and extension tests, coverage, package integrity, focused security review and the repository fast checks.
+- [x] T006: Exercise the rendered panel and installed configuration consumers end to end in a scratch profile; inspect narrow/wide and light/dark rendering.
+- [x] T007: Reconcile documentation and evidence, commit the verified local result, back up and deliver runtime consumers, then install and verify the active extension package.
 
 ## Plan Delta
 
