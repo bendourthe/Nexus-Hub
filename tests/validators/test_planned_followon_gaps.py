@@ -62,10 +62,10 @@ def frozen_text(rel: str, frozen: str) -> str:
     """A real frozen plan's text wherever it lives now, always hashing to `frozen`.
 
     The active path first; else the archive path, while that copy still hashes to
-    `frozen`; else a bundled frozen snapshot, so shallow CI needs no Git history.
+    `frozen`; else a frozen release snapshot, so shallow CI needs no Git history.
     A member archive (or the minor close) repairs the archived copy's references.
     """
-    for candidate in (rel, ARCHIVE + rel[len(ACTIVE):], f"tests/fixtures/frozen-plans/{Path(rel).name}"):
+    for candidate in (rel, ARCHIVE + rel[len(ACTIVE):], f"{ARCHIVE}/development/frozen-plan-fixtures/{Path(rel).name}"):
         path = REPO_ROOT / candidate
         if path.is_file() and ck.plan_hash_text(text := path.read_text(encoding="utf-8")) == frozen:
             return text
