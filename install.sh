@@ -526,7 +526,7 @@ run_standalone() {
                 http-error)
                     log_error "could not download branch '$ref' from $repo after 3 attempts: the server returned an error (a missing branch or a GitHub outage). Re-run, or pin a release with --ref vX.Y.Z" ;;
                 *)
-                    log_error "could not download branch '$ref' from $repo after 3 attempts: network failure (connection dropped or GitHub unreachable). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com" ;;
+                    log_error "could not download branch '$ref' from $repo after 3 attempts: network failure (connection dropped or GitHub unreachable). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com, or install a published release, which downloads from a different host: re-run with NEXUS_HUB_REF set to a tag from https://github.com/$repo/releases (for example NEXUS_HUB_REF=vX.Y.Z)" ;;
             esac
             exit 1
         fi

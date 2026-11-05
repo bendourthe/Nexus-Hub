@@ -27,7 +27,7 @@
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "63a2233c0e109088f3b1c5996b28b02864108dce68c2ba8cf8efbdf492e16207",
       "scripts/lib/integrations/aider.py": "a17eba595c153f0e18cdc90757e16ee206bd729f14ecb690bdb022c26c3e0e09",
-      "configs/platform-defaults.json": "dc32de7f2d21d45a08d53e12d5ec2a322c386f7144a10100aea78366b41447a6",
+      "configs/platform-defaults.json": "453a8c2cf30bba598b6e3e25592fa6f041142928df7b2a9960ba95b88f42cf86",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
     },
     "output_sha256": "7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c"
@@ -35,8 +35,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.8-distribution-release-version-review.md",
-      "evidence_sha256": "e55374840b70aebb1ef0c31d087300ad0b5ac97f64cd73c8f871ee96f77e0f4b"
+      "evidence": "docs/releases/v4/v4.15/development/antigravity-agent-mode-distribution-handbook-review.md",
+      "evidence_sha256": "7ed12211d2b5afe8e8c029bc1f0ea9f8133616559a8249c1a35dcfba8060f155"
     },
     "build": {
       "status": "pass",

@@ -167,7 +167,12 @@ export function mapQuotaSummary(summary: unknown, userStatus?: unknown, now = Da
   }
   const primary = pickPrimaryGroup(groups);
   const additionalLimits: UsageMetricRow[] = [];
-  for (const g of groups) {
+  // Gemini groups first, so every Gemini limit sits directly under the headline
+  // Gemini pair and the other groups (Claude and GPT) follow. The sort is stable,
+  // so each block keeps the order Antigravity lists it in.
+  const isGemini = (g: QuotaGroup): number => (/gemini/i.test(g.name) ? 0 : 1);
+  const ordered = [...groups].sort((a, b) => isGemini(a) - isGemini(b));
+  for (const g of ordered) {
     const name = titleGroup(g.name);
     if (g !== primary) {
       if (isTracked(g.session)) {

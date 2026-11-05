@@ -190,7 +190,7 @@ def test_antigravity_seeds_documented_default_agent_mode(tmp_path: Path, monkeyp
     actions = pd.seed_platform_defaults("antigravity2", Ctx())
 
     target = fake_home / ".gemini" / "antigravity-cli" / "settings.json"
-    assert json.loads(target.read_text(encoding="utf-8")) == {"agentMode": "default"}
+    assert json.loads(target.read_text(encoding="utf-8")) == {"agentMode": ""}
     assert [a.action for a in actions] == ["created"]
 
 
