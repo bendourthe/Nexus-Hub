@@ -1,0 +1,52 @@
+{
+  "candidate": {
+    "revision": "c1d0caf1e496e77ea03f516e9b8381591e27cd66",
+    "working_tree": "clean"
+  },
+  "changed_inputs": {
+    "overview": [],
+    "distribution": [
+      "scripts/lib/integrations/aider.py"
+    ]
+  },
+  "aider_ast_identical": true,
+  "aider_before_sha256": "a17eba595c153f0e18cdc90757e16ee206bd729f14ecb690bdb022c26c3e0e09",
+  "aider_after_sha256": "821c49d0cf5207397b837ddccc827fe2ca25146d1c7051ced63da556e5a1fc33",
+  "documents": [
+    {
+      "id": "overview",
+      "command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/overview/model.json",
+        "--out",
+        "docs/handbooks/overview.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f",
+      "output_sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f"
+    },
+    {
+      "id": "distribution",
+      "command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: 7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c",
+      "output_sha256": "7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c"
+    }
+  ],
+  "status": "pass"
+}

@@ -19,7 +19,7 @@ range's own generator, extracted from ``9b30ad29e^``. Rendered instruction
 files are listed by name; the legacy classifier recognizes them line by line
 against ``legacy_fingerprints.json``. The output is
 ``scripts/lib/installer/legacy_layout_fingerprints.json``; the spike that
-justified it is ``docs/releases/v4/v4.14/development/v4.14.7-legacy-layout-spike.md``.
+justified it is ``docs/archives/v4/v4.14/development/v4.14.7-legacy-layout-spike.md``.
 
     python scripts/build_legacy_layout_fingerprints.py            # regenerate
     python scripts/build_legacy_layout_fingerprints.py --check    # fail when stale
