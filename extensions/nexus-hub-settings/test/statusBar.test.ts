@@ -45,14 +45,13 @@ describe("compact status summary", () => {
     expect(summary.accessibilityLabel).toContain("default effort high");
     expect(summary.accessibilityLabel).toContain("needs attention");
   });
-  it("separates hover sections and offers trusted effort actions without platform tables", () => {
+  it("keeps the native hover to four short lines and one settings link", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
-    expect(tooltip).toContain("\n\n---\n\n");
-    expect(tooltip).toContain("$(circle-filled) **High**");
-    expect(tooltip).toContain("command:nexusHubSettings.setEffort?%5B%22low%22%5D");
-    expect(tooltip).toContain("Default effort: High");
+    expect(tooltip.split("\n")).toHaveLength(4);
+    expect(tooltip).toContain("Nexus Settings: High effort");
     expect(tooltip).toContain("Configured guardrails: 2 of 3 on");
-    expect(tooltip).not.toMatch(/\| Tool|Claude|Codex|Copilot|settings\.json|model_reasoning/);
+    expect(tooltip).not.toMatch(/\||data:image|<svg|setEffort|Show full label|Claude|Codex|Copilot|settings\.json|model_reasoning/);
+    expect(tooltip).toContain("Review application in Settings");
     expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);
   });
   it("does not show a warning when the known configuration is applied", () => {
@@ -66,7 +65,7 @@ describe("compact status summary", () => {
   it("keeps unsupported coverage visible without adding platform rows", () => {
     const summary = summarizePreferences(model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]));
     expect(summary.needsAttention).toBe(false);
-    expect(summary.effortStatus).toContain("Some platforms cannot accept");
+    expect(summary.effortStatus).toContain("Some clients require a manual setting");
   });
   it("treats unreadable guards as unavailable, not as off or enabled", () => {
     const summary = summarizePreferences(model([control("git_safety", [row("internal", "cannot-detect")])]));
@@ -83,7 +82,7 @@ describe("compact status summary", () => {
   it("flags an unreadable shared preference even when native values agree", () => {
     const summary = summarizePreferences(model([control("effort", [row("internal", "cannot-detect"), row("codex", "in-effect", "high")])]));
     expect(summary.needsAttention).toBe(true);
-    expect(summary.effortStatus).toContain("cannot be verified");
+    expect(summary.effortStatus).toContain("need synchronization");
   });
   it("uses the readable Extra high label", () => {
     expect(summarize(model([control("effort", [row("internal", "in-effect", "xhigh")])]), OPEN).text).toBe("$(nexus-hub-icon) Extra high (effort)");
@@ -103,11 +102,11 @@ describe("compact status summary", () => {
   it("uses the requested prefix only in full mode", () => {
     expect(summarize(realistic(), OPEN, false).text).toBe("$(nexus-hub-icon) Nexus Settings: High (effort) $(warning)");
   });
-  it("keeps compatibility notes without a warning and disables hover writes in read-only or busy states", () => {
+  it("keeps the hover read-only in every state", () => {
     const m = model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]);
     expect(summarize(m, OPEN).text).not.toContain("$(warning)");
-    expect(summarize(m, OPEN).tooltip).toContain("Some platforms cannot accept");
-    expect(summarize(m, OPEN).tooltip).toContain("data:image/svg+xml,");
+    expect(summarize(m, OPEN).tooltip).toContain("New sessions only");
+    expect(summarize(m, OPEN).tooltip).not.toContain("data:image");
     for (const locked of [{ ...m, readOnly: true }, { ...m, busy: true }]) {
       expect(summarize(locked, OPEN).tooltip).not.toContain("](command:nexusHubSettings.setEffort");
     }
@@ -131,7 +130,7 @@ describe("SettingsStatusBar", () => {
     expect(STATUS_PRIORITY).toBeGreaterThan(105);
     bar.update(realistic());
     expect(item?.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
-    expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN, "nexusHubSettings.setEffort", "nexusHubSettings.toggleCompactStatusBar"] });
+    expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN] });
     expect(item?.accessibilityInformation?.role).toBe("button");
     bar.dispose();
     expect(item?.disposed).toBe(true);

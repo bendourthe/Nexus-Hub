@@ -197,7 +197,6 @@ describe.each(NAMES)("panel.css contrast in %s", (name) => {
     ["a code block", () => body(), () => over(colorOf("pre", "background", theme), page())],
     ["an effort label", () => colorOf(".effort-label", "color", theme), () => page()],
     ["the selected effort label", () => colorOf(".effort-choice[aria-checked='true'] .effort-label", "color", theme), () => page()],
-    ["the current effort", () => colorOf(".effort-value", "color", theme), () => page()],
     ["a plain button", () => colorOf("button", "color", theme), () => over(colorOf("button", "background", theme), page())],
   ])("gives %s at least 4.5:1", (_label, foreground, background) => {
     expect(ratio(foreground(), background())).toBeGreaterThanOrEqual(4.5);

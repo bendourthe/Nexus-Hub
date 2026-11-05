@@ -13,7 +13,14 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
-from .catalog import MODEL_ID_SEGMENT, USER_FILE_IDS, Group, load_claude_model_ids, write_groups
+from .catalog import (
+    MODEL_ID_SEGMENT,
+    USER_FILE_IDS,
+    Group,
+    load_claude_model_ids,
+    write_groups,
+)
+from .effort import COMMON_CODEX_LEVELS, mapped
 from .readers import FILE_INFO, Snapshot, printable, user_file_id
 
 ECHO_LIMIT = 80
@@ -153,7 +160,26 @@ def _probe_all(writes: list[dict[str, Any]], snap: Snapshot, claude_ids: list[st
                 return [], [], invalid
             hits += found
             caveats += extra
+    # A shared Claude default owns the supported env lever. Lower persistent
+    # fallback values may differ (max maps to xhigh there) without being conflicts.
+    desired = _requested_effort(snap)
+    if desired and any(w["id"] == "claude.effort.existing_env" for w in writes):
+        env_write = next(w for w in writes if w["id"] == "claude.effort.existing_env")
+        expected = mapped(env_write, desired)
+        user = snap.files.get("claude-user")
+        found, actual = _walk(user.data, env_write["key_path"]) if user is not None and user.status == "ok" else (False, None)
+        if found and actual == expected:
+            hits = [h for h in hits if not (h.label.startswith("env CLAUDE_CODE_EFFORT_LEVEL") and h.value == expected)]
+            # The settings env value replaces inherited shell effort in normal
+            # sessions and outranks project effortLevel/modelSettings keys.
+            hits = [h for h in hits if not h.label.endswith("(shell)") and not (h.rank == 2 and "env block" not in h.label)]
     return sorted(dict.fromkeys(hits), key=lambda h: h.rank), caveats, None
+
+
+def _requested_effort(snap: Snapshot) -> str | None:
+    preferences = snap.files.get("nexus-preferences")
+    value = preferences.data.get("default_effort") if preferences is not None and preferences.status == "ok" else None
+    return value if isinstance(value, str) else None
 
 
 def _vtuple(version: str) -> tuple[int, ...]:
@@ -236,8 +262,19 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
     caveats += extra
 
     primary = admitted[0]
+    requested = _requested_effort(snap) if group.control["id"] == "effort" else None
+    if requested and group.tool == "claude":
+        env_primary = next((w for w in admitted if w["id"] == "claude.effort.existing_env"), None)
+        if env_primary:
+            primary = env_primary
     native = natives[primary["id"]]
     rec.update(value=_display(primary, native), native=native.entries if native.entries is not None else native.value)
+    if requested:
+        expected = mapped(primary, requested, snap.codex_effort_levels if snap.codex_effort_levels is not None else COMMON_CODEX_LEVELS)
+        matches = native.found and (all(v == expected for v in native.entries.values()) if native.entries is not None else native.value == expected)
+        rec.update(matches_default=bool(matches and not hits), mapped_effort=expected if isinstance(expected, str) else None)
+        if matches:
+            rec["value"] = requested
     if not native.found and "default" in primary:
         rec.update(value="/".join(_control_values(primary, primary["default"])), native=primary["default"])
         return done("in-effect", "Using the Nexus-Hub default.")
@@ -254,7 +291,8 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
                 return done("unverified-for-version", tool.version)
     if native.found and primary["value_map"] and not _control_values(primary, native.value) and native.entries is None:
         caveats.append(f"{'.'.join(str(p) for p in primary['key_path'])} holds {_echo(native.value)}, which is not a value Nexus-Hub writes.")
-    caveats += _companion_notes(admitted, natives, snap)
+    if not requested:
+        caveats += _companion_notes(admitted, natives, snap)
     if hits:
         winner = hits[0]
         caveats += [f"Also set: {h.label} = {h.value}." for h in hits[1:] if h.label != winner.label]

@@ -84,13 +84,38 @@ def main() -> None:
         page.goto(page_file.as_uri())
         page.get_by_role("radiogroup", name="Default effort", exact=True).wait_for()
         assert page.locator("select").count() == 0
-        assert page.get_by_role("radio").count() == 4
+        assert page.get_by_role("radio").count() == 6
         assert page.get_by_role("switch").count() == 5
+        assert page.locator(".effort-value").count() == 0
+        card_spacing = page.evaluate("""() => {
+            const heading = document.querySelector('.section-heading').getBoundingClientRect();
+            const track = document.querySelector('.effort-choices').getBoundingClientRect();
+            return track.top - heading.bottom;
+        }""")
+        assert 0 <= card_spacing <= 6, f"Excess effort card spacing: {card_spacing}"
+        observations["effort_heading_gap"] = card_spacing
         page.get_by_role("radio", name="Medium", exact=True).click()
         page.wait_for_function("document.querySelector('[role=radio][data-value=medium]').getAttribute('aria-checked') === 'true'")
         assert json.loads((home / ".nexus-hub/preferences.json").read_text())["default_effort"] == "medium"
         assert json.loads((home / ".claude/settings.json").read_text())["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "medium"
         assert 'model_reasoning_effort = "medium"' in (home / ".codex/config.toml").read_text()
+        for level in ("max", "ultra", "low"):
+            page.locator(f"[role=radio][data-value={level}]").click()
+            page.wait_for_function("level => document.querySelector('[role=radio][data-value=' + level + ']').getAttribute('aria-checked') === 'true'", arg=level)
+            assert json.loads((home / ".nexus-hub/preferences.json").read_text())["default_effort"] == level
+            if level in ("max", "ultra"):
+                assert 'model_reasoning_effort = "xhigh"' in (home / ".codex/config.toml").read_text()
+                assert json.loads((home / ".claude/settings.json").read_text())["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "max"
+        for level, fraction in (("low", 0), ("ultra", 1)):
+            page.locator(f"[role=radio][data-value={level}]").click()
+            page.wait_for_function("level => document.querySelector('[role=radio][data-value=' + level + ']').getAttribute('aria-checked') === 'true'", arg=level)
+            geometry = page.evaluate("""() => {
+                const group = document.querySelector('.effort-choices').getBoundingClientRect();
+                const dot = document.querySelector('[aria-checked=true] .effort-dot').getBoundingClientRect();
+                return {left: group.left, right: group.right, center: dot.x + dot.width / 2, height: dot.height};
+            }""")
+            assert abs(geometry["center"] - (geometry["left"] + 10 if fraction == 0 else geometry["right"] - 10)) < 1
+            assert geometry["height"] == 20
         warning = page.get_by_role("switch", name="Large-file warnings", exact=True)
         warning.click()
         page.wait_for_function("document.querySelector('[data-setting=large_file_warning]').getAttribute('aria-checked') === 'false'")

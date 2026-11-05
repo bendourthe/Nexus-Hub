@@ -164,6 +164,52 @@ def test_workspace_and_payload_cannot_choose_the_preferences(hook):
     assert_protected(name, invoke(payload))
 
 
+@pytest.mark.parametrize(
+    "hook", [(name, kind) for name in KEYS if name != "large-file-guard" for kind in ("sh", "ps1")],
+    indirect=True, ids=lambda item: "-".join(item),
+)
+@pytest.mark.parametrize("value", [True, False, "absent", "malformed", "true", 1, None])
+def test_enabled_settings_guards_apply_in_full_access(hook, value):
+    name, key, _work, invoke, configure, payload = hook
+    if value == "malformed":
+        configure('{"' + key + '":true')
+    elif value != "absent":
+        configure({key: value})
+    payload["permission_mode"] = "bypassPermissions"
+    result = invoke(payload)
+    if value is False:
+        assert result.returncode == 0, result.stderr
+    else:
+        assert_protected(name, result)
+
+
+def test_nested_mode_cannot_lift_an_explicit_guard(hook):
+    name, key, _work, invoke, configure, payload = hook
+    configure({key: True})
+    payload["permission_mode"] = "default"
+    payload["tool_input"]["permission_mode"] = "bypassPermissions"
+    assert_protected(name, invoke(payload))
+
+
+@pytest.mark.parametrize(
+    "hook", [("git-guardrails", "sh"), ("git-guardrails", "ps1")],
+    indirect=True, ids=["git-guardrails-sh", "git-guardrails-ps1"],
+)
+@pytest.mark.parametrize("general,bypass,command,expected", [
+    (True, False, "git reset --hard", 2),
+    (False, True, "git reset --hard", 0),
+    (False, True, "git commit --no-verify", 2),
+    (True, False, "git commit --no-verify", 0),
+])
+def test_git_full_access_guards_are_independent(hook, general, bypass, command, expected):
+    _name, _key, _work, invoke, configure, payload = hook
+    configure({"block_dangerous_git": general, "block_git_bypass_flags": bypass})
+    payload["permission_mode"] = "bypassPermissions"
+    payload["tool_input"]["command"] = command
+    result = invoke(payload)
+    assert result.returncode == expected, result.stderr
+
+
 @pytest.mark.parametrize("enabled", [True, False])
 def test_malformed_payload_retains_existing_allow_behavior(hook, enabled):
     _name, key, _work, invoke, configure, _payload = hook

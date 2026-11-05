@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { CliBridge } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
 import { profileNameFromStorage } from "./editorWrites";
+import { syncEditorEffort } from "./editorEffort";
 import { SettingsViewProvider } from "./settingsView";
 import { COMPACT_COMMAND, EFFORT_LABELS, SET_EFFORT_COMMAND, SettingsStatusBar } from "./statusBar";
 import { ViewModel } from "./viewModel";
@@ -64,6 +65,10 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     project: firstFolder,
     profile: () => profileNameFromStorage(context.globalStorageUri.fsPath),
     platform: process.platform === "win32" ? "windows" : process.platform === "darwin" ? "macos" : "linux",
+    syncEditorEffort: (records) => syncEditorEffort(records, async (key, previous) => {
+      const storageKey = `effort-backup:${key}`;
+      if (context.globalState.get(storageKey) === undefined) { await context.globalState.update(storageKey, previous); }
+    }),
   });
 
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -71,7 +76,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     if (timer) {
       clearTimeout(timer);
     }
-    timer = setTimeout(() => void controller.refresh(), REFRESH_DELAY_MS);
+    timer = setTimeout(() => void controller.synchronizeDefaults().catch((error: unknown) => console.error("Nexus Settings synchronization failed", error)), REFRESH_DELAY_MS);
   };
   context.subscriptions.push({ dispose: () => timer && clearTimeout(timer) });
 
@@ -91,7 +96,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
   const statusBar = new SettingsStatusBar(OPEN_COMMAND);
   const statusUpdates = controller.onChange((model) => statusBar.update(model));
   context.subscriptions.push(statusBar, statusUpdates);
-  void controller.refresh();
+  void controller.synchronizeDefaults().catch((error: unknown) => console.error("Nexus Settings synchronization failed", error));
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(SettingsViewProvider.viewType, new SettingsViewProvider(context.extensionUri, controller), {

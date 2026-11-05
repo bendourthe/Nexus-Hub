@@ -646,6 +646,16 @@ def _edit_toml(loaded: Loaded, edits: list[Edit]) -> str:
             node = node[part]
         node[edit.key_path[-1]] = edit.value
     text = tomlkit.dumps(doc)
+    # tomlkit inserts a separator before the first table when adding a root
+    # default. Keep the existing separator so removing that default is lossless.
+    if any(len(edit.key_path) == 1 and edit.value is not ABSENT and edit.key_path[0] not in loaded.data for edit in edits):
+        first = re.search(r"(?m)^[ \t]*\[[^\r\n]*\][^\r\n]*", loaded.text)
+        if first:
+            old_prefix = loaded.text[:first.start()]
+            whitespace = old_prefix[len(old_prefix.rstrip("\r\n \t")):]
+            index = text.find(first.group())
+            if index >= 0:
+                text = text[:index].rstrip("\r\n \t") + (whitespace or loaded.newline) + text[index:]
     if loaded.newline == "\r\n":
         text = text.replace("\r\n", "\n").replace("\n", "\r\n")
     return text

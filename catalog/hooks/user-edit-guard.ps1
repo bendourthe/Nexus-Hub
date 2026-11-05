@@ -70,16 +70,7 @@ if ($inputBytes.Length -eq 0) {
 if ($inputBytes.Length -eq 0) { exit 0 }
 $inputText = (New-Object System.Text.UTF8Encoding($false)).GetString($inputBytes)
 
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the user
-# chose to run without approval gates, so a block downgrades to a warning. The
-# helper still runs so its read/write records stay current for later modes.
-# Contract: docs/policy/permission-mode-contract.md
-$fullAccess = $false
-try {
-    $hostPayload = $inputText | ConvertFrom-Json -ErrorAction Stop
-    $fullAccess = $hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions'
-} catch { }
-
+# Nexus Settings guard switches apply in every host permission mode.
 $budget = 2.0
 if ($env:NEXUS_EDIT_GUARD_TIMEOUT_SECONDS) {
     $parsed = 0.0
@@ -101,10 +92,6 @@ function Invoke-Fallback {
     }
     if ("$inside".Trim() -eq "true") {
         Write-NexusMessage "WARNING (git worktree, not blocked): $message"
-        exit 0
-    }
-    if ($fullAccess) {
-        Write-NexusMessage "WARNING (full access, not blocked): $message"
         exit 0
     }
     Write-NexusMessage "BLOCKED: $message" @("Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$hookName.")
@@ -176,9 +163,5 @@ $process.WaitForExit()
 [Console]::Error.Write($stderrTask.Result)  # nexus: hook-msg-exempt relays edit_guard.py output verbatim
 
 $status = $process.ExitCode
-if ($status -eq 2 -and $fullAccess) {
-    Write-NexusMessage "WARNING (full access, not blocked): see the message above."
-    exit 0
-}
 if ($status -eq 0 -or $status -eq 2) { exit $status }
 Invoke-Fallback "edit_guard.py failed"

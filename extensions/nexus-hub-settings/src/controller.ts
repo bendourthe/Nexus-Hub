@@ -9,7 +9,7 @@ import {
   restoreEditorWrites,
 } from "./editorWrites";
 import { Incoming } from "./messages";
-import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowReport } from "./types";
+import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowRecord, ShowReport } from "./types";
 import {
   ErrorCard,
   Notice,
@@ -56,6 +56,7 @@ export interface ControllerDeps {
   project: () => string | undefined;
   profile: () => string;
   platform: string;
+  syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
 const MAX_LINES = 14;
@@ -105,6 +106,7 @@ export class SettingsController {
   private chain: Promise<unknown> = Promise.resolve();
   private readonly listeners: ((model: ViewModel) => void)[] = [];
   private readonly inspect: (key: string) => EditorLayers;
+  private lastReconcile = "";
 
   constructor(private readonly deps: ControllerDeps) {
     this.inspect = deps.inspect ?? inspectKey;
@@ -153,13 +155,39 @@ export class SettingsController {
     return this.enqueue(() => this.reload(null, full));
   }
 
+  /** Reapply the saved default after native-file changes, once per distinct conflict. */
+  synchronizeDefaults(): Promise<ViewModel> {
+    return this.enqueue(() => this.synchronize());
+  }
+
+  private async synchronize(force = false): Promise<ViewModel> {
+      if (force) { this.lastReconcile = ""; }
+      await this.reload(null, false);
+      if (this.model.readOnly || this.model.error || !this.report) { return this.model; }
+      const rows = this.report.records.filter((row) => row.control === "effort");
+      const desired = rows.find((row) => row.tool === "internal")?.value;
+      if (!desired) { return this.model; }
+      const signature = JSON.stringify(rows.map((row) => [row.tool, row.surface, row.value, row.layer_value, row.state, row.mapped_effort, row.matches_default]));
+      const drift = rows.some((row) => row.tool !== "internal" && row.matches_default === false && !["not-settable", "tool-not-installed", "cannot-detect", "unverified-for-version"].includes(row.state));
+      if (drift && signature !== this.lastReconcile) {
+        this.lastReconcile = signature;
+        const applied = await this.doSet("effort", desired, null);
+        if (applied.status === "error" || applied.notice?.level === "error") { this.lastReconcile = ""; }
+        return applied;
+      }
+      const result = await this.deps.syncEditorEffort?.(rows);
+      if (result?.issues.length) { this.model = { ...this.model, notice: { level: "warn", text: "Some editor defaults could not be synchronized.", lines: result.issues } }; }
+      return this.model;
+  }
+
   handle(message: Incoming): Promise<ViewModel> {
     return this.enqueue(async () => {
       switch (message.type) {
         case "ready":
           return this.model.controls.length > 0 || this.model.status === "error" ? this.model : this.reload(null, true);
         case "refresh":
-          return this.reload(null, true);
+          await this.reload(null, true);
+          return this.synchronize(true);
         case "set":
           return this.doSet(message.control, message.value, message.tool);
         case "reset":
@@ -276,9 +304,11 @@ export class SettingsController {
     const exitNote = out.exitCode === 0 ? "" : " Some settings could not be applied.";
     const refreshed = await this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `${label} saved.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
     if (control === "effort" && tool === null && !refreshed.error) {
+      const editorSync = await this.deps.syncEditorEffort?.(this.report?.records.filter((row) => row.control === "effort") ?? []);
+      lines.push(...(editorSync?.changed ?? []), ...(editorSync?.issues ?? []));
       const summary = summarizePreferences(refreshed);
       const confirmed = summary.effort === value;
-      this.model = { ...refreshed, notice: { level: !confirmed || summary.needsAttention || out.exitCode !== 0 ? "warn" : "info", text: confirmed ? `Default effort saved.${exitNote} ${summary.effortStatus}` : "The saved effort could not be confirmed. Refresh and try again.", lines: lines.slice(0, MAX_LINES) } };
+      this.model = { ...refreshed, notice: { level: !confirmed || summary.needsAttention || out.exitCode !== 0 || editorSync?.issues.length ? "warn" : "info", text: confirmed ? `Default effort saved.${exitNote} ${summary.effortStatus}` : "The saved effort could not be confirmed. Refresh and try again.", lines: lines.slice(0, MAX_LINES) } };
     }
     return this.model;
   }

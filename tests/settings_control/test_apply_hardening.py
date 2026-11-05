@@ -273,7 +273,7 @@ def test_concurrent_commands_keep_every_record_entry_and_every_value(machine: Ma
         assert key in held, f"{key} was written but is not in the record"
     data = claude(machine)
     assert data["permissions"]["defaultMode"] == "default" and data["effortLevel"] == "high" and "attribution" not in data
-    assert data["env"] == {"KEEP": "yes"}
+    assert data["env"] == {"KEEP": "yes", "CLAUDE_CODE_EFFORT_LEVEL": "high"}
     for control in ("effort", "posture", "git_guardrails"):
         apply.reset_control(machine.context(catalog), control)
     apply.reset_control(machine.context(catalog), "model", "claude")

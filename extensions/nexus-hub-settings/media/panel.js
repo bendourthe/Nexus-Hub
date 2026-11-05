@@ -48,13 +48,13 @@
       if (model.preferences) { return model.preferences; }
       var effort = control("effort");
       var shared = effort && effort.rows.find(function (row) { return row.tool === "internal"; });
-      var native = effort ? effort.rows.filter(function (row) { return row.tool !== "internal" && row.state !== "tool-not-installed"; }) : [];
+      var native = effort ? effort.rows.filter(function (row) { return row.tool !== "internal" && row.installed !== false && row.state !== "tool-not-installed"; }) : [];
       var values = Array.from(new Set(native.filter(function (row) { return row.canSet; }).map(effective).filter(Boolean)));
       var chosen = shared && shared.value || (values.length === 1 ? values[0] : "");
       if (!effort || effort.choices.indexOf(chosen) < 0) { chosen = ""; }
-      var conflict = native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && effective(row) !== chosen); });
+      var conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(shared.state) >= 0) || native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && (row.matchesDefault === false || row.matchesDefault === undefined && effective(row) !== chosen)); });
       var unsupported = native.some(function (row) { return row.state === "not-settable"; });
-      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Another setting overrides this default, or its application cannot be verified." : unsupported ? "Applied where supported. Some platforms cannot accept this default." : chosen ? "Applied to supported platforms for new sessions." : "Choose the default for new sessions." };
+      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : unsupported ? "Mapped to supported defaults. Some clients require a manual setting." : chosen ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions." };
     }
     function button(label, key, action, attrs) {
       var node = el("button", Object.assign({ type: "button", text: label, "data-focus": key }, attrs || {}));
@@ -72,12 +72,11 @@
       var c = control("effort");
       if (!c) { return null; }
       var current = model.busy && drafts.effort !== undefined ? drafts.effort : summary.effort;
-      var labels = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra high" };
+      var labels = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra high", max: "Max", ultra: "Ultra" };
       var choices = c.choices.filter(function (value) { return Object.prototype.hasOwnProperty.call(labels, value); });
       var selected = choices.indexOf(current);
       var group = el("div", { id: "effort", role: "radiogroup", class: "effort-choices", "aria-labelledby": "effort-title", "aria-describedby": "effort-status" });
-      group.style.setProperty("--effort-fill", selected < 0 ? "0%" : (selected + 0.5) / choices.length * 100 + "%");
-      var valueLabel = text("p", labels[current] || "Choose a default", "effort-value");
+      group.style.setProperty("--effort-fill", selected < 0 ? "0%" : selected / Math.max(1, choices.length - 1) * 100 + "%");
       choices.forEach(function (value, index) {
         var radio = button("", "effort:" + value, function () {
           if (blocked() || !c.canApply || value === current) { return; }
@@ -99,7 +98,7 @@
       });
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
-        valueLabel, group,
+        group,
         el("p", { id: "effort-status", class: summary.needsAttention ? "application-status attention" : "application-status", text: summary.effortStatus }),
       ]);
     }
@@ -163,7 +162,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), text("p", "Effort applies to new sessions. Guardrails apply on the next hook run; full-access modes and hook overrides can bypass them.", "footnote"));
+        children.push(notice(), effortSection(preferences()), guardSection(), text("p", "Effort applies to new sessions. Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"));
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

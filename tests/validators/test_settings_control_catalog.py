@@ -105,6 +105,8 @@ def test_catalog_is_not_empty_and_admits_only_proven_writes(catalog: dict) -> No
         "codex.model", "codex.posture", "codex.sandbox_mode", "codex.effort", "internal.git_guardrails",
         "internal.effort", "claude.effort.existing_env", "internal.git_safety", "internal.secret_scan",
         "internal.edit_preservation", "internal.large_file_warning",
+        "claude.effort.project", "claude.effort.project_local", "claude.effort.project_env", "claude.effort.project_local_env",
+        "codex.effort.project", "codex.effort.profiles",
     } == set(admitted)
 
 
@@ -147,7 +149,7 @@ def _mutated(catalog: dict, write_id: str, **changes: object) -> dict:
         ("codex.posture", {"value_map": {"ask": "untrusted"}}, "untrusted is mapped"),
         ("codex.posture", {"applies_only_without": []}, "applies_only_without default_permissions"),
         ("claude.posture", {"weakens_safety": False, "weakening_values": []}, "weakens_safety is false"),
-        ("claude.model", {"file": ".claude/settings.json"}, "not a user-level file"),
+        ("claude.model", {"file": ".claude/settings.json"}, "project-level or managed file"),
         ("codex.model", {"source": {"url": "http://example.com", "fetched": "x"}}, "https source url"),
         ("internal.git_guardrails", {"source": {"decision": "docs/decisions/none.md"}}, "decision record that does not exist"),
         ("claude.model", {"admission": "maybe"}, "admission must be"),

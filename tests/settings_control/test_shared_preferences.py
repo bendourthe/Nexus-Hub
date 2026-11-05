@@ -44,13 +44,13 @@ def test_shared_effort_synchronizes_existing_user_override_and_resets_exactly(ma
     assert all(machine.path(key).read_bytes() == raw for key, raw in before.items())
 
 
-def test_shared_effort_does_not_create_an_environment_override(machine: Machine, catalog: dict[str, Any]) -> None:
+def test_shared_effort_creates_the_authoritative_environment_override(machine: Machine, catalog: dict[str, Any]) -> None:
     machine.put("claude-user", {"env": {"KEEP": "yes"}})
 
     apply.set_control(machine.context(catalog), "effort", "medium")
 
     native = json.loads(machine.path("claude-user").read_text())
-    assert native["env"] == {"KEEP": "yes"}
+    assert native["env"] == {"KEEP": "yes", "CLAUDE_CODE_EFFORT_LEVEL": "medium"}
     assert machine.records(catalog)["effort", "claude", "cli"]["state"] == "in-effect"
 
 
@@ -133,7 +133,7 @@ def test_invalid_guard_values_are_unknown_not_reported_disabled(machine: Machine
 
 
 @pytest.mark.parametrize("scope", ["shell", "project", "managed"])
-def test_shared_effort_does_not_hide_external_overrides(machine: Machine, catalog: dict[str, Any], scope: str) -> None:
+def test_shared_effort_synchronizes_user_overrides_but_keeps_managed_caps_visible(machine: Machine, catalog: dict[str, Any], scope: str) -> None:
     if scope == "shell":
         machine.env["CLAUDE_CODE_EFFORT_LEVEL"] = "low"
     else:
@@ -142,7 +142,10 @@ def test_shared_effort_does_not_hide_external_overrides(machine: Machine, catalo
     apply.set_control(machine.context(catalog), "effort", "high")
 
     row = machine.records(catalog)["effort", "claude", "cli"]
-    assert row["state"] == "overridden-by" and row["layer_value"] == "low"
+    if scope == "managed":
+        assert row["state"] == "overridden-by" and row["layer_value"] == "low"
+    else:
+        assert row["state"] == "in-effect" and row["matches_default"]
     assert machine.records(catalog)["effort", "internal", "cli"]["value"] == "high"
 
 

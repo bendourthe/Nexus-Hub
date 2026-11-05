@@ -197,7 +197,7 @@ def test_explain_json_and_unknown_control(install: Path, env: dict[str, str]) ->
     assert data["control"]["per_tool"] is True and data["control"]["never_written"] == []
     assert data["claude_model_ids"] and all(isinstance(i, str) and i for i in data["claude_model_ids"])
     effort = json.loads(run(install, env, "explain", "effort", "--json").stdout)
-    assert effort["control"]["per_tool"] is False and effort["control"]["never_written"] == ["max"]
+    assert effort["control"]["per_tool"] is False and effort["control"]["never_written"] == []
 
     bad = run(install, env, "explain", "nope")
     assert bad.returncode == 2 and "unknown control 'nope'" in bad.stderr and "known controls: effort, model" in bad.stderr

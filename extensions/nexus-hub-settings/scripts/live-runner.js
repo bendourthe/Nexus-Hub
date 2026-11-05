@@ -58,6 +58,18 @@ exports.run = async function run() {
   result.steps.precheck = { ok: pre.ok, apply: pre.ok ? pre.apply.map((w) => w.key) : [], skipped: pre.ok ? pre.skipped.map((s) => s.write.key) : [] };
 
   if (vscode.workspace.isTrusted) {
+    const native = require(path.join(ext.extensionPath, "out", "editorEffort.js"));
+    const envKey = "claudeCode.environmentVariables";
+    const config = vscode.workspace.getConfiguration();
+    const previousEnv = config.inspect(envKey).globalValue;
+    await config.update(envKey, [{ name: "CLAUDE_CODE_EFFORT_LEVEL", value: "low" }, { name: "NEXUS_SMOKE_KEEP", value: "unchanged" }], vscode.ConfigurationTarget.Global);
+    const backups = [];
+    const synchronized = await native.syncEditorEffort([{ control: "effort", tool: "claude", mapped_effort: "max" }], async (key, value) => { backups.push({ key, value }); });
+    assert.deepEqual(config.inspect(envKey).globalValue, [{ name: "CLAUDE_CODE_EFFORT_LEVEL", value: "max" }, { name: "NEXUS_SMOKE_KEEP", value: "unchanged" }]);
+    assert.equal(backups.length, 1);
+    assert.equal(synchronized.issues.length, 0);
+    result.steps.nativeEditorEffort = { mapped: "max", unrelatedPreserved: true, backups: backups.length };
+    await config.update(envKey, previousEnv, vscode.ConfigurationTarget.Global);
     const recorded = [];
     const applied = await editor.applyEditorWrites(pre.apply, async (w, previous) => void recorded.push({ key: w.key, previous }));
     const settingsFile = process.env.NEXUS_LIVE_USER_SETTINGS;

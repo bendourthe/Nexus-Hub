@@ -23,6 +23,7 @@ function fresh(over: Partial<ViewModel> = {}, trusted = true): ViewModel {
     model.controls.push({ ...guard, id, label: id, rows: guard.rows.map((row) => ({ ...row, value: "on", state: "in-effect" })) });
   }
   const effort = model.controls.find((c) => c.id === "effort")!;
+  effort.choices = ["low", "medium", "high", "xhigh", "max", "ultra"];
   effort.rows.push({ ...effort.rows.find((row) => row.tool === "codex")!, tool: "internal", toolLabel: "Nexus-Hub", value: "high", state: "in-effect" });
   Object.assign(model, over);
   model.preferences = summarizePreferences(model);
@@ -44,18 +45,30 @@ beforeEach(() => {
 });
 
 describe("shared settings view", () => {
+  it.each(["low", "max", "ultra"])("saves %s and positions the endpoint fill", (value) => {
+    const model = fresh();
+    model.controls.find((c) => c.id === "effort")!.rows.find((row) => row.tool === "internal")!.value = value;
+    model.preferences = summarizePreferences(model);
+    panel.render(model);
+    expect(app.querySelector("[aria-checked='true'][role='radio']")?.getAttribute("data-value")).toBe(value);
+    expect(app.querySelector<HTMLElement>(".effort-choices")!.style.getPropertyValue("--effort-fill")).toBe(value === "low" ? "0%" : value === "ultra" ? "100%" : "80%");
+    panel.render(fresh());
+    pick(value);
+    expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value, tool: null });
+  });
   it("shows one effort selector and five switches, without platform rows or model fields", () => {
     panel.render(fresh());
     expect(app.querySelector("h1")?.textContent).toBe("Nexus Settings");
     expect(app.querySelector("select")).toBeNull();
     expect(app.querySelectorAll("[role='radiogroup']")).toHaveLength(1);
-    expect(app.querySelectorAll("[role='radio']")).toHaveLength(4);
+    expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);
     expect(app.querySelectorAll("button[role='switch']")).toHaveLength(5);
     expect(app.querySelector("table, input[type='text']")).toBeNull();
     expect(app.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
     expect(app.querySelector("img")?.getAttribute("src")).toBe("vscode-webview://x/logo.png");
     expect(app.querySelector("img")?.getAttribute("alt")).toBe("");
     expect(app.querySelector(".engine-update")).toBeNull();
+    expect(app.querySelector(".effort-value")).toBeNull();
   });
   it("keeps all five guardrails visible when an old engine lacks four controls", () => {
     const oldModel = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted: true, profile: "Default" });
@@ -77,7 +90,7 @@ describe("shared settings view", () => {
     model.preferences = summarizePreferences(model);
     panel.render(model);
     expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("low");
-    expect(app.querySelector("#effort-status")?.textContent).toContain("overrides");
+    expect(app.querySelector("#effort-status")?.textContent).toContain("need synchronization");
   });
   it("auto-saves a changed effort once for all tools", () => {
     panel.render(fresh());
@@ -87,13 +100,25 @@ describe("shared settings view", () => {
     pick("low");
     expect(posted).toHaveLength(1);
   });
-  it("uses a placeholder when no shared or common default exists", () => {
+  it("keeps a native mapped effort in sync when a preference summary is absent", () => {
+    const model = fresh();
+    const effort = model.controls.find((c) => c.id === "effort")!;
+    const shared = { ...effort.rows.find((row) => row.tool === "internal")!, value: "ultra" };
+    const native = { ...effort.rows.find((row) => row.tool === "codex")!, value: "xhigh", state: "in-effect" as const, matchesDefault: true };
+    effort.rows = [shared, native];
+    delete model.preferences;
+    panel.render(model);
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("ultra");
+    expect(app.querySelector("#effort-status")?.textContent).toBe("Mapped to native defaults for new sessions.");
+    expect(app.querySelector("#effort-status")?.classList.contains("attention")).toBe(false);
+  });
+  it("leaves the effort bar unselected when no shared or common default exists", () => {
     const model = fresh();
     model.controls.find((c) => c.id === "effort")!.rows.forEach((row) => { row.value = null; row.layerValue = null; });
     model.preferences = summarizePreferences(model);
     panel.render(model);
     expect(app.querySelector("[role='radio'][aria-checked='true']")).toBeNull();
-    expect(app.textContent).toContain("Choose a default");
+    expect(app.querySelector("[role='radiogroup']")?.getAttribute("aria-labelledby")).toBe("effort-title");
   });
   it("does not send invalid choices", () => {
     const model = fresh();
@@ -154,7 +179,7 @@ describe("shared settings view", () => {
   });
   it("shows coverage limits as one short status, without a platform matrix", () => {
     panel.render(fresh());
-    expect(app.querySelector("#effort-status")?.textContent).toContain("Some platforms cannot accept");
+    expect(app.querySelector("#effort-status")?.textContent).toContain("Some clients require a manual setting");
     expect(app.querySelector("table")).toBeNull();
   });
   it("does not repeat technical result lines in successful notices", () => {
@@ -179,7 +204,7 @@ describe("shared settings view", () => {
 
 describe("workspace, busy and focus handling", () => {
   it("uses one tab stop and supports arrow, Home and End selection", () => {
-    for (const [key, value] of [["ArrowRight", "xhigh"], ["ArrowLeft", "medium"], ["Home", "low"], ["End", "xhigh"]]) {
+    for (const [key, value] of [["ArrowRight", "xhigh"], ["ArrowLeft", "medium"], ["Home", "low"], ["End", "ultra"]]) {
       panel.render(fresh());
       const selected = app.querySelector<HTMLButtonElement>("[role='radio'][aria-checked='true']")!;
       expect(app.querySelectorAll("[role='radio'][tabindex='0']")).toHaveLength(1);

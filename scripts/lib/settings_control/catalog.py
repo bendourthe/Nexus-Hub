@@ -32,8 +32,13 @@ USER_FILE_IDS: dict[str, str | None] = {
     "~/.copilot/settings.json": "copilot-user",
     "~/.nexus-hub/guardrails.json": "nexus-guardrails",
     "~/.nexus-hub/preferences.json": "nexus-preferences",
+    ".claude/settings.json": "claude-project",
+    ".claude/settings.local.json": "claude-project-local",
+    ".codex/config.toml": "codex-project",
     "vscode-config": None,
 }
+PROJECT_FILES = frozenset({".claude/settings.json", ".claude/settings.local.json", ".codex/config.toml"})
+PROFILE_ID_SEGMENT = "<profile-id>"
 #: Every file id a layer may name. The reader owns the path of each.
 FILE_IDS = frozenset(
     {
@@ -146,7 +151,14 @@ def validate_structure(catalog: dict[str, Any]) -> list[str]:
             findings.append(f"{wid}: unknown surface {write['surface']}")
         if write["file"] not in USER_FILE_IDS:
             findings.append(f"{wid}: writes {write['file']}, which is not a user-level file")
-        if re.search(r"\.claude/settings|\.codex/config|\.github/copilot|managed", write["file"]) and not write["file"].startswith("~/"):
+        effort_ids = next((c["writes"] for c in catalog["controls"] if c["id"] == "effort"), [])
+        project_effort = (
+            wid in effort_ids and write["file"] in PROJECT_FILES and write.get("only_when_present") is True
+            and write["key_path"] in (["effortLevel"], ["env", "CLAUDE_CODE_EFFORT_LEVEL"], ["model_reasoning_effort"])
+            and write["tool"] == ("claude" if write["file"].startswith(".claude/") else "codex")
+            and write["kind"] == "vendor" and not write["weakens_safety"]
+        )
+        if re.search(r"\.claude/settings|\.codex/config|\.github/copilot|managed", write["file"]) and not write["file"].startswith("~/") and not project_effort:
             findings.append(f"{wid}: targets a project-level or managed file")
         for layer in write["override_layers"]:
             if layer.get("kind") not in LAYER_KINDS or not layer.get("fix") or not layer.get("locator"):

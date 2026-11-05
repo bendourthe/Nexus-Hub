@@ -25,7 +25,7 @@
 # the switch file is read on every run, so it needs no restart. This mode is
 # defense-in-depth, NOT a boundary. Its limits: environment-variable skips (HUSKY=0,
 # SKIP=, LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell
-# aliases and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+# aliases and scripts, and an agent that edits guardrails.json
 # itself. The full list is on the mode's block below and in
 # docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
 #
@@ -106,26 +106,7 @@ DANGEROUS_PATTERNS=(
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-_HOST_MODE=""
-if command -v jq >/dev/null 2>&1; then
-  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  _MODE_PYTHON=$(command -v python3 || command -v python)
-  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
-import json, sys
-try:
-    payload = json.load(sys.stdin)
-    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
-    if isinstance(mode, str):
-        print(mode)
-except (ValueError, TypeError):
-    pass' 2>/dev/null || true)
-fi
-if [ "$_HOST_MODE" = "bypassPermissions" ]; then exit 0; fi
-
+# Nexus Settings guard switches apply in every host permission mode.
 # Extract the command from tool_input.command
 # The `|| true` on both branches is load-bearing under `set -euo pipefail`: a
 # grep that matches nothing, or jq on a malformed payload, returns non-zero, and a
@@ -288,7 +269,6 @@ fi
 #   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
 #   - git plumbing (commit-tree, update-ref, hash-object)
 #   - shell aliases, wrapper scripts, and git aliases
-#   - bypassPermissions mode (this whole hook steps aside)
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later

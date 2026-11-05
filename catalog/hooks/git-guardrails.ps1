@@ -36,7 +36,7 @@
 
     Limits of the opt-in bypass-flag mode: environment-variable skips (HUSKY=0, SKIP=,
     LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell aliases
-    and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+    and scripts, and an agent that edits guardrails.json
     itself. The full list is on the mode's block below and in
     docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
 
@@ -117,13 +117,7 @@ $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
 # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
 if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-try {
-    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
-} catch { }
+# Nexus Settings guard switches apply in every host permission mode.
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }
@@ -258,7 +252,6 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
 #   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
 #   - git plumbing (commit-tree, update-ref, hash-object)
 #   - shell aliases, wrapper scripts, and git aliases
-#   - bypassPermissions mode (this whole hook steps aside)
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later

@@ -149,11 +149,11 @@
         "low",
         "medium",
         "high",
-        "xhigh"
+        "xhigh",
+        "max",
+        "ultra"
       ],
-      "never_written": [
-        "max"
-      ],
+      "never_written": [],
       "writes": [
         "internal.effort",
         "claude.effort.model_settings",
@@ -161,7 +161,13 @@
         "claude.effort.existing_env",
         "codex.effort",
         "copilot-cli.effort",
-        "vscode-copilot.effort"
+        "vscode-copilot.effort",
+        "claude.effort.project",
+        "claude.effort.project_local",
+        "claude.effort.project_env",
+        "claude.effort.project_local_env",
+        "codex.effort.project",
+        "codex.effort.profiles"
       ]
     },
     {
@@ -282,13 +288,17 @@
         "low",
         "medium",
         "high",
-        "xhigh"
+        "xhigh",
+        "max",
+        "ultra"
       ],
       "value_map": {
         "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "max",
+        "ultra": "ultra"
       },
       "override_layers": [],
       "takes_effect": "Saved as the shared preference and applied to supported native defaults for new sessions.",
@@ -328,7 +338,9 @@
         "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
       },
       "override_layers": [
         {
@@ -406,7 +418,7 @@
           ]
         ]
       },
-      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present; each of the four current ids read back its own level (W06). max is not accepted here.",
+      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present; each of the four current ids read back its own level (W06). max is not accepted here. Nexus Max and Ultra persist xhigh here; the environment lever supplies native max.",
       "proof": [
         "W06",
         "O02"
@@ -431,7 +443,9 @@
         "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
       },
       "override_layers": [
         {
@@ -509,7 +523,7 @@
           ]
         ]
       },
-      "notes": "Observed 2026-10-31: a user-scope top-level effortLevel moves an older model (claude-opus-5) but not claude-opus-5-5, so modelSettings is the lever for current models and this key covers older ones only (W07). A project-file top-level effortLevel applies to every model and beat the user modelSettings (O02).",
+      "notes": "Observed 2026-10-31: a user-scope top-level effortLevel moves an older model (claude-opus-5) but not claude-opus-5-5, so modelSettings is the lever for current models and this key covers older ones only (W07). A project-file top-level effortLevel applies to every model and beat the user modelSettings (O02). Nexus Max and Ultra persist xhigh here; the environment lever supplies native max.",
       "proof": [
         "W07",
         "O02"
@@ -528,13 +542,17 @@
         "low",
         "medium",
         "high",
-        "xhigh"
+        "xhigh",
+        "max",
+        "ultra"
       ],
       "value_map": {
         "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
       },
       "override_layers": [
         {
@@ -584,10 +602,11 @@
           ]
         ]
       },
-      "notes": "Read from the header codex exec prints before any request. The vendor also lists max and ultra for some models; they are never written as a default.",
+      "notes": "Uses the selected model capabilities and the common installed-client ceiling xhigh. Native Codex CLI 0.136.0 rejects max and ultra despite cached model metadata; the IDE also filters native max. Nexus Max and Ultra therefore map to xhigh, or a lower model-supported level. The shared preference retains the requested name.",
       "proof": [
-        "W12"
-      ]
+        "W34"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md"
     },
     {
       "id": "copilot-cli.effort",
@@ -1684,13 +1703,16 @@
         "low",
         "medium",
         "high",
-        "xhigh"
+        "xhigh",
+        "max"
       ],
       "value_map": {
         "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "max",
+        "ultra": "max"
       },
       "override_layers": [],
       "takes_effect": "New sessions only.",
@@ -1705,12 +1727,11 @@
         "fetched": "2026-11-04"
       },
       "admission": "admitted",
-      "notes": "Synchronizes an existing user-owned effort environment key to the shared choice; never creates this override when absent. Shell, project and managed overrides remain separate.",
+      "notes": "Authoritative user-owned effort environment value. Max and Ultra map to native max; Ultra does not enable the separate ultracode workflow setting.",
       "proof": [
-        "W32"
+        "W33"
       ],
-      "only_when_present": true,
-      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md"
     },
     {
       "id": "internal.git_safety",
@@ -1857,6 +1878,274 @@
       "notes": "The registered Nexus-Hub hook reads this boolean on every call. Missing or malformed configuration keeps the guard enabled; host permission-mode behavior is unchanged.",
       "default": true,
       "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
+    {
+      "id": "claude.effort.project",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "proof": [
+        "W35"
+      ],
+      "only_when_present": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md"
+    },
+    {
+      "id": "claude.effort.project_local",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.local.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "proof": [
+        "W35"
+      ],
+      "only_when_present": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md"
+    },
+    {
+      "id": "claude.effort.project_env",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.json",
+      "key_path": [
+        "env",
+        "CLAUDE_CODE_EFFORT_LEVEL"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max",
+        "ultra": "max"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/env-vars",
+        "fetched": "2026-11-04"
+      },
+      "admission": "admitted",
+      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "proof": [
+        "W35"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md",
+      "only_when_present": true
+    },
+    {
+      "id": "claude.effort.project_local_env",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.local.json",
+      "key_path": [
+        "env",
+        "CLAUDE_CODE_EFFORT_LEVEL"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max",
+        "ultra": "max"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/env-vars",
+        "fetched": "2026-11-04"
+      },
+      "admission": "admitted",
+      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "proof": [
+        "W35"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md",
+      "only_when_present": true
+    },
+    {
+      "id": "codex.effort.project",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": ".codex/config.toml",
+      "key_path": [
+        "model_reasoning_effort"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "notes": "Uses the selected model capabilities and the common installed-client ceiling xhigh. Native Codex CLI 0.136.0 rejects max and ultra despite cached model metadata; the IDE also filters native max. Nexus Max and Ultra therefore map to xhigh, or a lower model-supported level. The shared preference retains the requested name.",
+      "proof": [
+        "W35"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md",
+      "only_when_present": true
+    },
+    {
+      "id": "codex.effort.profiles",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "profiles",
+        "<profile-id>",
+        "model_reasoning_effort"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "xhigh",
+        "ultra": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "notes": "Uses the selected model capabilities and the common installed-client ceiling xhigh. Native Codex CLI 0.136.0 rejects max and ultra despite cached model metadata; the IDE also filters native max. Nexus Max and Ultra therefore map to xhigh, or a lower model-supported level. The shared preference retains the requested name.",
+      "proof": [
+        "W36"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md",
+      "only_when_present": true
     }
   ]
 }

@@ -224,7 +224,9 @@ def _snake_case(name: str) -> str:
 def _antigravity_tool_input(value: object) -> dict[str, Any]:
     if not isinstance(value, dict):
         return {}
-    translated: dict[str, Any] = dict(value)
+    # Native Cwd/Overwrite plus lowercase aliases are duplicate JSON keys to
+    # PowerShell's case-insensitive parser. Emit the canonical shape only.
+    translated: dict[str, Any] = {}
     for key, item in value.items():
         snake = _snake_case(str(key))
         translated.setdefault(snake, item)
@@ -248,7 +250,7 @@ def _antigravity_tool_input(value: object) -> dict[str, Any]:
         for chunk in chunks:
             if not isinstance(chunk, dict):
                 continue
-            edit: dict[str, Any] = dict(chunk)
+            edit: dict[str, Any] = {}
             for key, item in chunk.items():
                 edit.setdefault(_snake_case(str(key)), item)
             edit_replacement = edit.get("replacement_content")

@@ -220,8 +220,8 @@ def test_unknown_control_value_and_missing_tool_are_usage_errors(machine: Machin
         apply.set_control(ctx, "model", "claude-opus-5-5")
     with pytest.raises(apply.UsageError, match="unknown tool"):
         apply.set_control(ctx, "model", "x", "emacs")
-    with pytest.raises(apply.UsageError, match="never written"):
-        apply.set_control(ctx, "effort", "max")
+    with pytest.raises(apply.UsageError, match="not a value"):
+        apply.set_control(ctx, "effort", "impossible")
     with pytest.raises(apply.UsageError, match="not a usable model value"):
         apply.set_control(ctx, "model", "bad\nvalue", "claude")
 

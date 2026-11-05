@@ -27,8 +27,8 @@ block in the sibling .json):
     hook scripts under ``.cursor/hooks/``. Gated on ``hooks_supported``.
 
 Cursor's hook event model differs from Claude's and hooks receive a Cursor-shaped
-stdin JSON. ``git-guardrails`` maps onto the dedicated blocking
-``beforeShellExecution`` event, while completion notification maps to ``stop``.
+stdin JSON. The four Settings guards use generic ``preToolUse`` events, and
+``postToolUse`` records the edit-preservation ledger. Completion uses ``stop``.
 The installer copies both shell siblings and registers the one native to the
 installing host, so Windows never depends on Bash or WSL path translation.
 """
@@ -90,7 +90,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         "hooks_supported": True,
     }
 
-    # The native Cursor surface uses its dedicated shell and completion events.
+    # The native Cursor surface uses generic tool events and completion events.
     # Cursor separately imports the broader Claude-compatible hook set from
     # settings.json; the compatibility launcher normalizes those event responses.
     # `_notify_common.sh` is a MODULE, not a registered hook: notify-on-complete.sh
@@ -99,6 +99,9 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
     _CURATED_HOOK_SCRIPTS = (
         "cursor-hook-compat.py",
         "git-guardrails.sh",
+        "secret-scan.sh",
+        "user-edit-guard.sh",
+        "large-file-guard.sh",
         "_notify_common.sh",
         "notify-on-complete.sh",
         # v4.13.2: prompt capture (`beforeSubmitPrompt`). The completion gate's
@@ -112,9 +115,9 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
     def _hook_registration(self, command_for) -> dict:
         """Return the Cursor hooks.json body (schema: version 1, hooks object).
 
-        git-guardrails runs on every shell execution and self-filters to
-        destructive git commands, so no matcher is needed (beforeShellExecution
-        already scopes to shell commands).
+        Settings guards self-filter their inputs on generic preToolUse; the
+        dedicated shell registration is omitted to avoid running Git checks twice.
+        postToolUse records reads and successful writes for edit preservation.
 
         `stop` carries the end-of-task completion notification (v3.15.10). Verified
         2026-08-04, and re-verified 2026-08-06 against cursor.com/docs/hooks (the
@@ -143,14 +146,13 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         return {
             "version": 1,
             "hooks": {
-                "beforeShellExecution": [
-                    {
-                        "command": command_for("git-guardrails.sh"),
-                        "failClosed": True,
-                    },
+                "preToolUse": [
+                    {"command": command_for(script), "failClosed": True}
+                    for script in ("git-guardrails.sh", "secret-scan.sh", "user-edit-guard.sh", "large-file-guard.sh")
                 ],
                 "postToolUse": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},
+                    {"command": command_for("user-edit-guard.sh")},
                 ],
                 "stop": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},

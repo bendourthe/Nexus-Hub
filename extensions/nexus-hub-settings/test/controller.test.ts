@@ -90,6 +90,57 @@ beforeEach(() => {
   trusted = true;
 });
 
+describe("saved default synchronization", () => {
+  function shared(value = "ultra"): void {
+    const row = structuredClone(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!);
+    bridge.report.records.push({ ...row, tool: "internal", value, state: "in-effect", writes: [] });
+    bridge.all.effort!.control.values = ["low", "medium", "high", "xhigh", "max", "ultra"];
+  }
+
+  it("reapplies native drift once per distinct value without repeated attempts on a locked default", async () => {
+    shared();
+    const row = bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!;
+    Object.assign(row, { matches_default: false, mapped_effort: "max", value: "high", state: "in-effect" });
+    bridge.handler = (spec) => outcome({ results: [result({ status: spec.dryRun ? "would-write" : "written" })] });
+    const controller = make();
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    row.value = "medium";
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(2);
+  });
+
+  it("synchronizes editor overrides for a matching native default and refuses changes without trust", async () => {
+    shared();
+    bridge.report.records.filter((r) => r.control === "effort" && r.tool !== "internal").forEach((row) => { row.matches_default = true; });
+    const sync = vi.fn().mockResolvedValue({ changed: [], issues: [] });
+    const controller = make({ syncEditorEffort: sync });
+    await controller.synchronizeDefaults();
+    expect(sync).toHaveBeenCalledOnce();
+    expect(bridge.actions).toHaveLength(0);
+    trusted = false;
+    await controller.synchronizeDefaults();
+    expect(sync).toHaveBeenCalledOnce();
+  });
+
+  it("retries unchanged native drift after a transient failure and on explicit Refresh", async () => {
+    shared();
+    Object.assign(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!, { matches_default: false, mapped_effort: "max", value: "high", state: "in-effect" });
+    bridge.actionError = new Error("temporary write failure");
+    const controller = make();
+    await controller.synchronizeDefaults();
+    expect(controller.current().status).toBe("error");
+    bridge.actionError = undefined;
+    bridge.handler = (spec) => outcome({ results: [result({ status: spec.dryRun ? "would-write" : "written" })] });
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    await controller.handle({ type: "refresh" });
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(2);
+  });
+});
+
 describe("reading", () => {
   it("shows the engine's truth and reads each control's description once", async () => {
     const controller = make();
@@ -196,7 +247,7 @@ describe("set", () => {
     expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["set", true, true], ["set", false, true]]);
     expect(bridge.actions.every((a) => a.project === "C:\\work\\project")).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Applied where supported. Some platforms cannot accept this default." });
+    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Mapped to supported defaults. Some clients require a manual setting." });
   });
 
   it("asks first for a safety-weakening change, listing keys, VS Code's warning, and the Cannot remove items", async () => {

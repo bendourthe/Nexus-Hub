@@ -108,8 +108,8 @@ def test_cursor_workspace_writes_schema_valid_hooks_json(install_ctx: InstallCon
     assert hooks_json.exists(), "hooks.json not written"
     data = json.loads(hooks_json.read_text(encoding="utf-8"))
     assert data["version"] == 1, "Cursor hooks.json requires version: 1"
-    assert "beforeShellExecution" in data["hooks"], "git-guardrails maps to beforeShellExecution"
-    entry = data["hooks"]["beforeShellExecution"][0]
+    assert "beforeShellExecution" not in data["hooks"], "generic guards must not duplicate shell checks"
+    entry = data["hooks"]["preToolUse"][0]
     expected_suffix = "git-guardrails.ps1\"" if os.name == "nt" else "git-guardrails.sh\""
     assert entry["command"].endswith(expected_suffix), entry
     assert entry["failClosed"] is True, "security-critical shell hook must fail closed"
@@ -117,6 +117,12 @@ def test_cursor_workspace_writes_schema_valid_hooks_json(install_ctx: InstallCon
     assert (cursor_root / "hooks" / "cursor-hook-compat.py").exists()
     assert (cursor_root / "hooks" / "git-guardrails.sh").exists(), "bash hook not copied"
     assert (cursor_root / "hooks" / "git-guardrails.ps1").exists(), "PowerShell hook not copied"
+    for guard in ("git-guardrails", "secret-scan", "user-edit-guard", "large-file-guard"):
+        entries = [item for item in data["hooks"]["preToolUse"] if guard in item["command"]]
+        assert len(entries) == 1 and entries[0]["failClosed"] is True
+        assert (cursor_root / "hooks" / f"{guard}.sh").exists()
+        assert (cursor_root / "hooks" / f"{guard}.ps1").exists()
+    assert any("user-edit-guard" in item["command"] for item in data["hooks"]["postToolUse"])
 
 
 def test_cursor_windows_registration_uses_powershell(
@@ -262,6 +268,22 @@ def test_cursor_hooks_gated_on_hooks_supported(install_ctx: InstallContext):
     cursor_root = install_ctx.target_root / ".cursor"
     assert not (cursor_root / "hooks.json").exists(), "hooks.json must be gated on hooks_supported"
     assert not any(fa.path.endswith("hooks.json") for fa in result.files)
+
+
+def test_cursor_hook_upgrade_preserves_user_entries_and_removes_old_shell_guard(install_ctx: InstallContext):
+    cursor_root = install_ctx.target_root / ".cursor"
+    cursor_root.mkdir()
+    dst = cursor_root / "hooks.json"
+    user = {"command": "python C:/custom/audit.py", "timeout": 12}
+    old = {"command": "python .cursor/hooks/cursor-hook-compat.py bash .cursor/hooks/git-guardrails.sh", "failClosed": True}
+    dst.write_text(json.dumps({"version": 1, "hooks": {"beforeShellExecution": [user, old]}}), encoding="utf-8")
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", install_ctx, "workspace")
+    hooks = json.loads(dst.read_text(encoding="utf-8"))["hooks"]
+    assert hooks["beforeShellExecution"] == [user]
+    assert len([entry for entry in hooks["preToolUse"] if "git-guardrails" in entry["command"]]) == 1
+    once = dst.read_bytes()
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", install_ctx, "workspace")
+    assert dst.read_bytes() == once
 
 
 def test_cursor_global_targets_cursor_root(install_ctx: InstallContext):

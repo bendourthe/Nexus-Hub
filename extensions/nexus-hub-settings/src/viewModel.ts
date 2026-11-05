@@ -86,6 +86,8 @@ export interface RowView {
   /** The row's tool can be written for this control (set is allowed for it). */
   canSet: boolean;
   removable: { tool: string; weakens: boolean; reason: string } | null;
+  matchesDefault?: boolean;
+  mappedEffort?: string;
 }
 
 export interface SourceView {
@@ -177,7 +179,7 @@ export function summarizePreferences(model: Pick<ViewModel, "controls">): Prefer
   const effective = (row: RowView): string | null => row.state === "overridden-by" ? row.layerValue : row.value;
   const values = [...new Set(native.filter((row) => row.canSet).map(effective).filter((value): value is string => !!value))];
   const effort = shared?.value && control?.choices.includes(shared.value) ? shared.value : values.length === 1 && control?.choices.includes(values[0]!) ? values[0]! : "";
-  const conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].includes(shared.state)) || native.some((row) => row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state) || (effort !== "" && effective(row) !== effort)));
+  const conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].includes(shared.state)) || native.some((row) => row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state) || (effort !== "" && (row.matchesDefault === false || (row.matchesDefault === undefined && effective(row) !== effort)))));
   const unsupported = native.some((row) => row.state === "not-settable");
   const guards = model.controls.filter((item) => (GUARDRAIL_IDS as readonly string[]).includes(item.id));
   const available = guards.filter((item) => item.canApply && item.rows.some((row) => !["cannot-detect", "unverified-for-version"].includes(row.state)));
@@ -188,7 +190,7 @@ export function summarizePreferences(model: Pick<ViewModel, "controls">): Prefer
   }).length;
   return {
     effort,
-    effortStatus: conflict ? "Another setting overrides this default, or its application cannot be verified." : unsupported ? "Applied where supported. Some platforms cannot accept this default." : effort ? "Applied to supported platforms for new sessions." : "Choose the default for new sessions.",
+    effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : unsupported ? "Mapped to supported defaults. Some clients require a manual setting." : effort ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions.",
     needsAttention: conflict || available.length !== guards.length,
     guardsEnabled: enabled,
     guardsAvailable: available.length,
@@ -353,6 +355,8 @@ function rowFor(record: ShowRecord, report: ShowReport, fields: RowFields): RowV
     removable: record.removable_override
       ? { tool: record.tool, weakens: record.removable_override.weakens_safety, reason: record.removable_override.reason }
       : null,
+    matchesDefault: record.matches_default,
+    mappedEffort: record.mapped_effort,
   };
 }
 
