@@ -26,6 +26,28 @@ exports.run = async function run() {
   await vscode.commands.executeCommand("nexusHubSettings.open");
   result.steps.openedView = true;
 
+  const assert = require("node:assert/strict");
+  const status = require(path.join(ext.extensionPath, "out", "statusBar.js"));
+  const readCompact = () => vscode.workspace.getConfiguration("nexusHubSettings").get("compactStatusBar", true);
+  const compact = readCompact();
+  await vscode.commands.executeCommand(status.COMPACT_COMMAND);
+  assert.equal(readCompact(), !compact);
+  await vscode.commands.executeCommand(status.COMPACT_COMMAND);
+  assert.equal(readCompact(), compact);
+  result.steps.compactToggle = true;
+  const preferenceFile = path.join(process.env.USERPROFILE, ".nexus-hub", "preferences.json");
+  const before = fs.existsSync(preferenceFile) ? fs.readFileSync(preferenceFile, "utf8") : null;
+  await vscode.commands.executeCommand(status.SET_EFFORT_COMMAND, "medium");
+  if (vscode.workspace.isTrusted) {
+    assert.equal(JSON.parse(fs.readFileSync(preferenceFile, "utf8")).default_effort, "medium");
+    const readback = await api.getViewModel();
+    assert.equal(readback.preferences.effort, "medium");
+    result.steps.hoverEffort = { saved: "medium", summary: status.summarize(readback, "nexusHubSettings.open").text };
+  } else {
+    assert.equal(fs.existsSync(preferenceFile) ? fs.readFileSync(preferenceFile, "utf8") : null, before);
+    result.steps.hoverEffort = { readOnly: true, unchanged: true };
+  }
+
   const editor = require(path.join(ext.extensionPath, "out", "editorWrites.js"));
   const key = "chat.tools.global.autoApprove";
   const missing = "claudeCode.initialPermissionMode";

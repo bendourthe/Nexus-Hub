@@ -34,9 +34,7 @@ function button(label: string): HTMLButtonElement {
   return found;
 }
 function pick(value: string): void {
-  const select = app.querySelector<HTMLSelectElement>("select")!;
-  select.value = value;
-  select.dispatchEvent(new Event("change", { bubbles: true }));
+  app.querySelector<HTMLButtonElement>(`[role='radio'][data-value='${value}']`)?.click();
 }
 beforeEach(() => {
   document.body.innerHTML = '<main id="app" data-logo="vscode-webview://x/logo.png"></main><div id="live-status" role="status" aria-live="polite"></div><div id="live-alert" role="alert" aria-live="assertive"></div>';
@@ -49,7 +47,9 @@ describe("shared settings view", () => {
   it("shows one effort selector and five switches, without platform rows or model fields", () => {
     panel.render(fresh());
     expect(app.querySelector("h1")?.textContent).toBe("Nexus Settings");
-    expect(app.querySelectorAll("select")).toHaveLength(1);
+    expect(app.querySelector("select")).toBeNull();
+    expect(app.querySelectorAll("[role='radiogroup']")).toHaveLength(1);
+    expect(app.querySelectorAll("[role='radio']")).toHaveLength(4);
     expect(app.querySelectorAll("button[role='switch']")).toHaveLength(5);
     expect(app.querySelector("table, input[type='text']")).toBeNull();
     expect(app.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
@@ -76,7 +76,7 @@ describe("shared settings view", () => {
     model.controls.find((c) => c.id === "effort")!.rows.find((row) => row.tool === "internal")!.value = "low";
     model.preferences = summarizePreferences(model);
     panel.render(model);
-    expect(app.querySelector<HTMLSelectElement>("select")!.value).toBe("low");
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("low");
     expect(app.querySelector("#effort-status")?.textContent).toContain("overrides");
   });
   it("auto-saves a changed effort once for all tools", () => {
@@ -92,11 +92,14 @@ describe("shared settings view", () => {
     model.controls.find((c) => c.id === "effort")!.rows.forEach((row) => { row.value = null; row.layerValue = null; });
     model.preferences = summarizePreferences(model);
     panel.render(model);
-    expect(app.querySelector<HTMLSelectElement>("select")!.value).toBe("");
+    expect(app.querySelector("[role='radio'][aria-checked='true']")).toBeNull();
     expect(app.textContent).toContain("Choose a default");
   });
   it("does not send invalid choices", () => {
-    panel.render(fresh());
+    const model = fresh();
+    model.controls.find((c) => c.id === "effort")!.choices.push("bogus");
+    panel.render(model);
+    expect(app.querySelector("[data-value='bogus']")).toBeNull();
     pick("bogus");
     expect(posted).toEqual([]);
   });
@@ -147,7 +150,7 @@ describe("shared settings view", () => {
       expect(description?.textContent).toBeTruthy();
       expect(toggle.tagName).toBe("BUTTON");
     }
-    expect(app.querySelector("label[for='effort']")).not.toBeNull();
+    expect(app.querySelector("[role='radiogroup']")?.getAttribute("aria-labelledby")).toBe("effort-title");
   });
   it("shows coverage limits as one short status, without a platform matrix", () => {
     panel.render(fresh());
@@ -175,11 +178,26 @@ describe("shared settings view", () => {
 });
 
 describe("workspace, busy and focus handling", () => {
+  it("uses one tab stop and supports arrow, Home and End selection", () => {
+    for (const [key, value] of [["ArrowRight", "xhigh"], ["ArrowLeft", "medium"], ["Home", "low"], ["End", "xhigh"]]) {
+      panel.render(fresh());
+      const selected = app.querySelector<HTMLButtonElement>("[role='radio'][aria-checked='true']")!;
+      expect(app.querySelectorAll("[role='radio'][tabindex='0']")).toHaveLength(1);
+      selected.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+      expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value, tool: null });
+      expect(document.activeElement?.getAttribute("data-value")).toBe(value);
+    }
+  });
+  it("does not save the current choice again", () => {
+    panel.render(fresh());
+    pick("high");
+    expect(posted).toEqual([]);
+  });
   it("allows only refresh in a read-only workspace", () => {
     panel.render(fresh({}, false));
     expect(app.textContent).toContain("Trust this workspace");
     expect([...app.querySelectorAll<HTMLButtonElement>("[role='switch']")].every((node) => node.disabled)).toBe(true);
-    expect(app.querySelector<HTMLSelectElement>("select")!.disabled).toBe(true);
+    expect([...app.querySelectorAll<HTMLButtonElement>("[role='radio']")].every((node) => node.disabled)).toBe(true);
     button("Refresh").click();
     expect(posted).toEqual([{ type: "refresh" }]);
   });
@@ -193,13 +211,13 @@ describe("workspace, busy and focus handling", () => {
   });
   it("keeps effort focus through saving and restores a cancelled choice from readback", () => {
     panel.render(fresh());
-    app.querySelector<HTMLSelectElement>("select")!.focus();
+    app.querySelector<HTMLButtonElement>("[data-value='medium']")!.focus();
     pick("medium");
     panel.render(fresh({ busy: true }));
-    expect(app.querySelector<HTMLSelectElement>("select")!.value).toBe("medium");
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("medium");
     panel.render(fresh({ notice: { level: "info", text: "Cancelled. Nothing was written." } }));
-    expect(app.querySelector<HTMLSelectElement>("select")!.value).toBe("high");
-    expect(document.activeElement?.getAttribute("data-focus")).toBe("effort");
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("high");
+    expect(document.activeElement?.getAttribute("data-focus")).toBe("effort:medium");
   });
   it("preserves switch focus across readback", () => {
     panel.render(fresh());
@@ -250,7 +268,7 @@ describe("webview protocol", () => {
     panelModule.boot({ document, acquireVsCodeApi: () => ({ postMessage: post }), addEventListener: (name: string, cb: (event: { data: unknown }) => void) => void (listeners[name] = cb) });
     expect(post).toHaveBeenCalledWith({ type: "ready" });
     listeners.message!({ data: { type: "render", model: fresh() } });
-    expect(app.querySelector("select")).not.toBeNull();
+    expect(app.querySelector("[role='radiogroup']")).not.toBeNull();
   });
   it("does not build HTML strings, invoke eval, or contact a network", () => {
     const source = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../media/panel.js"), "utf8");

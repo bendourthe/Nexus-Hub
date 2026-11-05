@@ -4,6 +4,8 @@ import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OPEN_COMMAND, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
 import { Uri, stub } from "./vscode-stub";
+import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
+import { SettingsController } from "../src/controller";
 
 let scratch: string;
 const savedHub = process.env.NEXUS_HUB_HOME;
@@ -33,6 +35,28 @@ afterEach(() => {
 });
 
 describe("activation", () => {
+  it("routes allowlisted hover effort choices through the existing controller", async () => {
+    const handle = vi.spyOn(SettingsController.prototype, "handle").mockResolvedValue({} as never);
+    try {
+      activate(context() as never);
+      for (const value of [null, {}, "off", "constructor", "<script>"]) { await stub.commands.get(SET_EFFORT_COMMAND)?.(value); }
+      expect(handle).not.toHaveBeenCalled();
+      await stub.commands.get(SET_EFFORT_COMMAND)?.("medium");
+      expect(handle).toHaveBeenCalledWith({ type: "set", control: "effort", value: "medium", tool: null });
+      handle.mockClear();
+      stub.trusted = false;
+      await stub.commands.get(SET_EFFORT_COMMAND)?.("high");
+      expect(handle).not.toHaveBeenCalled();
+    } finally { handle.mockRestore(); }
+  });
+  it("toggles the user compact preference from the hover", async () => {
+    stub.defaults["nexusHubSettings.compactStatusBar"] = true;
+    activate(context() as never);
+    await stub.commands.get(COMPACT_COMMAND)?.();
+    expect(stub.user["nexusHubSettings.compactStatusBar"]).toBe(false);
+    await stub.commands.get(COMPACT_COMMAND)?.();
+    expect(stub.user["nexusHubSettings.compactStatusBar"]).toBe(true);
+  });
   it("registers the webview view, the open command, and watchers for every file the state depends on", () => {
     const ctx = context();
     activate(ctx as never);

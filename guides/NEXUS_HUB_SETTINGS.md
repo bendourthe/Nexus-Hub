@@ -2,11 +2,11 @@
 
 Summary: how to set the default effort, model, approval posture, commit attribution, and git-guardrails mode once for Claude Code, Codex, and GitHub Copilot, with the `nexus-hub settings` command or the "Nexus-Hub Settings" panel in VS Code, and how to see and undo anything that stops a default from taking effect.
 Read this when: you want every new agent session to start at the same effort or approval posture, a default you chose is not taking effect, you need to undo a change, or you want to know what the panel can never change.
-Covers: the five controls and what each means per tool, the VS Code status bar, the override states and their fixes, `remove-override`, the human-presence rule, the Cannot remove list, `reset`, uninstall, and the release capability usage gate.
+Covers: the five controls and what each means per tool, compact status labels, hover effort actions, the stepped effort control, the override states and their fixes, `remove-override`, the human-presence rule, the Cannot remove list, `reset`, uninstall, and the release capability usage gate.
 
 Nexus-Hub Settings is the one place where you choose the defaults a new agent session starts with. Each tool keeps its defaults in a different file with a different key and a different set of values, and several other layers (an environment variable, a project file, an organization policy, a mode the tool remembers) can quietly beat the file. The command line writes the files and reports every layer that overrides your choice. The VS Code panel is a thin front end over the same command, so the two always agree.
 
-Effort and native approval controls are defaults for new sessions. The five Nexus-Hub guardrail switches are read on the next hook invocation. The compact Settings 0.2.0 panel exposes one effort selector and those five switches; the CLI retains the detailed native controls described below. Shared effort persistence and the guardrail keys are documented in the [preference reference](../docs/reference/settings-preferences.md).
+Effort and native approval controls are defaults for new sessions. The five Nexus-Hub guardrail switches are read on the next hook invocation. The compact Settings 0.2.1 panel exposes one stepped effort control and those five switches in the logo's cyan palette; the CLI retains the detailed native controls described below. Use arrow keys, Home or End to choose an effort step. Shared effort persistence and the guardrail keys are documented in the [preference reference](../docs/reference/settings-preferences.md).
 
 A control exists only where its effect was observed changing a fresh session before it shipped. Everything else is shown as "Not settable" with its reason, never as a switch that silently does nothing. The admission rule and the vendor sources are in the [settings control contract](../docs/policy/settings-control-contract.md).
 
@@ -72,9 +72,9 @@ Writes preserve comments and unrelated keys, follow a symlink to the real file, 
 
 ## Status bar
 
-In VS Code, the Nexus mark sits next to the usage monitors with a clear label such as `Nexus High`. It uses the stored shared effort preference, with a warning marker when application is incomplete or overridden.
+In VS Code, the Nexus mark sits next to the usage monitors with a compact label such as `High (effort)`. Turn off `nexusHubSettings.compactStatusBar` to show `Nexus Settings: High (effort)`. It uses the stored shared effort preference. A warning marker means a conflicting or unverified default, or an unavailable guardrail. An unsupported platform is described in a compatibility note without a warning marker.
 
-The hover gives a short effort, guardrail and readiness summary with an open action. Click it to open Settings. The panel contains one autosaving effort selector and five named switches; `nexus-hub settings show` retains detailed diagnosis. The status bar writes nothing. To hide it without uninstalling the panel, right-click the status bar and clear "Nexus Settings".
+The multiline hover separates effort, guardrails and actions. Its cyan effort segments are command links that save through the panel's existing settings controller; they are inactive in an untrusted workspace or while saving. Native VS Code hovers support Markdown images and command links rather than HTML form controls. The hover also switches compact mode. Clicking the status-bar label opens Settings. The panel contains one autosaving stepped effort control and five named switches; `nexus-hub settings show` retains detailed diagnosis. To hide the entry without uninstalling the panel, right-click the status bar and clear "Nexus Settings".
 
 ## Override states
 

@@ -82,11 +82,12 @@ def main() -> None:
         page.on("pageerror", lambda error: observations["console_errors"].append(str(error)))
         page.expose_function("smokeDispatch", dispatch)
         page.goto(page_file.as_uri())
-        page.get_by_role("combobox", name="Default effort", exact=True).wait_for()
-        assert page.locator("select").count() == 1
+        page.get_by_role("radiogroup", name="Default effort", exact=True).wait_for()
+        assert page.locator("select").count() == 0
+        assert page.get_by_role("radio").count() == 4
         assert page.get_by_role("switch").count() == 5
-        page.get_by_role("combobox", name="Default effort", exact=True).select_option("medium")
-        page.wait_for_function("document.querySelector('#effort').getAttribute('aria-disabled') !== 'true'")
+        page.get_by_role("radio", name="Medium", exact=True).click()
+        page.wait_for_function("document.querySelector('[role=radio][data-value=medium]').getAttribute('aria-checked') === 'true'")
         assert json.loads((home / ".nexus-hub/preferences.json").read_text())["default_effort"] == "medium"
         assert json.loads((home / ".claude/settings.json").read_text())["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "medium"
         assert 'model_reasoning_effort = "medium"' in (home / ".codex/config.toml").read_text()
@@ -107,6 +108,7 @@ def main() -> None:
         observations["hook"] = {"off_exit": off.returncode, "off_output": off.stderr, "on_exit": on.returncode, "on_output": on.stderr}
         for theme in ("dark", "light"):
             if theme == "light":
+                page.evaluate("document.body.classList.add('vscode-light')")
                 page.add_style_tag(content=":root{--vscode-foreground:#222;--vscode-descriptionForeground:#555;--vscode-sideBar-background:#fff;--vscode-editor-background:#fff;--vscode-input-background:#fff;--vscode-input-foreground:#222;--vscode-textLink-foreground:#006b80;background:#fff}")
             for width in (320, 420, 900):
                 page.set_viewport_size({"width": width, "height": 900})

@@ -189,7 +189,7 @@ export function summarizePreferences(model: Pick<ViewModel, "controls">): Prefer
   return {
     effort,
     effortStatus: conflict ? "Another setting overrides this default, or its application cannot be verified." : unsupported ? "Applied where supported. Some platforms cannot accept this default." : effort ? "Applied to supported platforms for new sessions." : "Choose the default for new sessions.",
-    needsAttention: conflict || unsupported || available.length !== guards.length,
+    needsAttention: conflict || available.length !== guards.length,
     guardsEnabled: enabled,
     guardsAvailable: available.length,
   };

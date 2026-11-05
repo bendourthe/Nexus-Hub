@@ -15,11 +15,11 @@ Effort applies to new sessions; guardrail switches are read on the next hook inv
 
 ## Status bar
 
-The status bar shows `Nexus High`, for example, using the shared effort preference. A warning marker appears when application needs attention. The short hover contains the effort, the number of configured guardrails, a readiness message and the open action. Click to open Settings.
+The status bar shows `High (effort)` by default, or `Nexus Settings: High (effort)` when `nexusHubSettings.compactStatusBar` is off. The multiline hover has clickable effort choices, guardrail counts, application details and a compact-mode action. VS Code's native hover uses command links for the choices; the settings panel uses a rounded stepped control. A warning means an overridden or unverified default, or an unavailable guardrail. Unsupported platforms are explained as a compatibility note. Click the status bar to open Settings.
 
 ## What the panel shows
 
-One autosaving selector, five switches and a short application status. The main view contains no model fields, platform selectors, diagnostic tables or scenario previews. Failed changes expose technical details only when needed. Keyboard focus survives a save, and changes are announced to screen readers.
+One autosaving stepped effort control, five switches and a short application status. The effort control and enabled guardrails use the logo's cyan palette. Use arrow keys, Home or End to select effort, or click a labeled step. The main view contains no model fields, platform selectors, diagnostic tables or scenario previews. Failed changes expose technical details only when needed. Keyboard focus survives a save, and changes are announced to screen readers.
 
 ## Requirements
 

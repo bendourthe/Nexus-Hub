@@ -41,21 +41,23 @@ describe("the configured shared effort", () => {
 describe("compact status summary", () => {
   it("names Nexus and the configured effort, with one attention indicator", () => {
     const summary = summarize(realistic(), OPEN);
-    expect(summary.text).toBe("$(nexus-hub-icon) Nexus High $(warning)");
+    expect(summary.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
     expect(summary.accessibilityLabel).toContain("default effort high");
     expect(summary.accessibilityLabel).toContain("needs attention");
   });
-  it("keeps hover at five lines without platform tables, models, paths or details", () => {
+  it("separates hover sections and offers trusted effort actions without platform tables", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
-    expect(tooltip.split("\n")).toHaveLength(5);
+    expect(tooltip).toContain("\n\n---\n\n");
+    expect(tooltip).toContain("$(circle-filled) **High**");
+    expect(tooltip).toContain("command:nexusHubSettings.setEffort?%5B%22low%22%5D");
     expect(tooltip).toContain("Default effort: High");
     expect(tooltip).toContain("Configured guardrails: 2 of 3 on");
     expect(tooltip).not.toMatch(/\| Tool|Claude|Codex|Copilot|settings\.json|model_reasoning/);
-    expect(tooltip.endsWith(`[Open Nexus Settings](command:${OPEN})`)).toBe(true);
+    expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);
   });
   it("does not show a warning when the known configuration is applied", () => {
     const m = model([control("effort", [row("internal", "in-effect", "low"), row("codex", "in-effect", "low")]), control("git_safety", [row("internal", "in-effect", "on")])]);
-    expect(summarize(m, OPEN).text).toBe("$(nexus-hub-icon) Nexus Low");
+    expect(summarize(m, OPEN).text).toBe("$(nexus-hub-icon) Low (effort)");
   });
   it("does not mark a matching project override as a conflicting value", () => {
     const m = model([control("effort", [row("internal", "in-effect", "high"), row("claude", "overridden-by", "medium", "high")])]);
@@ -63,7 +65,7 @@ describe("compact status summary", () => {
   });
   it("keeps unsupported coverage visible without adding platform rows", () => {
     const summary = summarizePreferences(model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]));
-    expect(summary.needsAttention).toBe(true);
+    expect(summary.needsAttention).toBe(false);
     expect(summary.effortStatus).toContain("Some platforms cannot accept");
   });
   it("treats unreadable guards as unavailable, not as off or enabled", () => {
@@ -84,32 +86,52 @@ describe("compact status summary", () => {
     expect(summary.effortStatus).toContain("cannot be verified");
   });
   it("uses the readable Extra high label", () => {
-    expect(summarize(model([control("effort", [row("internal", "in-effect", "xhigh")])]), OPEN).text).toBe("$(nexus-hub-icon) Nexus Extra high");
+    expect(summarize(model([control("effort", [row("internal", "in-effect", "xhigh")])]), OPEN).text).toBe("$(nexus-hub-icon) Extra high (effort)");
   });
   it("escapes error text and leaves only the panel command trusted", () => {
     const m: ViewModel = { ...model([]), status: "error", error: { title: "[bad](command:terminal)<img>", message: "secret path", command: "private", fix: "" } };
     const summary = summarize(m, OPEN);
-    expect(summary.text).toBe("$(nexus-hub-icon) Nexus $(error)");
+    expect(summary.text).toBe("$(nexus-hub-icon) Unavailable $(error)");
     expect(summary.tooltip).toContain(escapeMarkdown(m.error!.title));
     expect(summary.tooltip).not.toContain("](command:terminal)");
     expect(summary.tooltip).not.toContain("secret path");
   });
   it("has a named reading state", () => {
-    expect(summarize(undefined, OPEN).text).toBe("$(nexus-hub-icon) Nexus");
+    expect(summarize(undefined, OPEN).text).toBe("$(nexus-hub-icon) Reading...");
     expect(summarize(model([]), OPEN).tooltip).toContain("Reading settings");
+  });
+  it("uses the requested prefix only in full mode", () => {
+    expect(summarize(realistic(), OPEN, false).text).toBe("$(nexus-hub-icon) Nexus Settings: High (effort) $(warning)");
+  });
+  it("keeps compatibility notes without a warning and disables hover writes in read-only or busy states", () => {
+    const m = model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]);
+    expect(summarize(m, OPEN).text).not.toContain("$(warning)");
+    expect(summarize(m, OPEN).tooltip).toContain("Some platforms cannot accept");
+    expect(summarize(m, OPEN).tooltip).toContain("data:image/svg+xml,");
+    for (const locked of [{ ...m, readOnly: true }, { ...m, busy: true }]) {
+      expect(summarize(locked, OPEN).tooltip).not.toContain("](command:nexusHubSettings.setEffort");
+    }
   });
 });
 
 describe("SettingsStatusBar", () => {
   beforeEach(() => stub.reset());
+  it("updates the label immediately when compact mode changes", () => {
+    const bar = new SettingsStatusBar(OPEN);
+    bar.update(realistic());
+    stub.user["nexusHubSettings.compactStatusBar"] = false;
+    stub.fireConfig("nexusHubSettings.compactStatusBar");
+    expect(stub.statusItems[0]?.text).toContain("Nexus Settings: High (effort)");
+    bar.dispose();
+  });
   it("opens the settings panel, has an accessible name, and trusts only that command", () => {
     const bar = new SettingsStatusBar(OPEN);
     const [item] = stub.statusItems;
     expect(item).toMatchObject({ id: "nexusHubSettings.status", alignment: StatusBarAlignment.Right, priority: STATUS_PRIORITY, command: OPEN, shown: true });
     expect(STATUS_PRIORITY).toBeGreaterThan(105);
     bar.update(realistic());
-    expect(item?.text).toBe("$(nexus-hub-icon) Nexus High $(warning)");
-    expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN] });
+    expect(item?.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
+    expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN, "nexusHubSettings.setEffort", "nexusHubSettings.toggleCompactStatusBar"] });
     expect(item?.accessibilityInformation?.role).toBe("button");
     bar.dispose();
     expect(item?.disposed).toBe(true);

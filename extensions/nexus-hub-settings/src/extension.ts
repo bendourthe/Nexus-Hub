@@ -5,7 +5,7 @@ import { CliBridge } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
 import { profileNameFromStorage } from "./editorWrites";
 import { SettingsViewProvider } from "./settingsView";
-import { SettingsStatusBar } from "./statusBar";
+import { COMPACT_COMMAND, EFFORT_LABELS, SET_EFFORT_COMMAND, SettingsStatusBar } from "./statusBar";
 import { ViewModel } from "./viewModel";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
@@ -98,6 +98,14 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
       webviewOptions: { retainContextWhenHidden: true },
     }),
     vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
+    vscode.commands.registerCommand(SET_EFFORT_COMMAND, async (value: unknown) => {
+      if (!vscode.workspace.isTrusted || typeof value !== "string" || !Object.hasOwn(EFFORT_LABELS, value)) { return; }
+      return controller.handle({ type: "set", control: "effort", value, tool: null });
+    }),
+    vscode.commands.registerCommand(COMPACT_COMMAND, async () => {
+      const config = vscode.workspace.getConfiguration("nexusHubSettings");
+      await config.update("compactStatusBar", !config.get<boolean>("compactStatusBar", true), vscode.ConfigurationTarget.Global);
+    }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (["claudeCode", "chat", "nexusHubSettings"].some((section) => event.affectsConfiguration(section))) {
         schedule();

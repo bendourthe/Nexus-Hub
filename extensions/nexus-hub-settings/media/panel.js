@@ -54,7 +54,7 @@
       if (!effort || effort.choices.indexOf(chosen) < 0) { chosen = ""; }
       var conflict = native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && effective(row) !== chosen); });
       var unsupported = native.some(function (row) { return row.state === "not-settable"; });
-      return { effort: chosen, needsAttention: !!(conflict || unsupported), effortStatus: conflict ? "Another setting overrides this default, or its application cannot be verified." : unsupported ? "Applied where supported. Some platforms cannot accept this default." : chosen ? "Applied to supported platforms for new sessions." : "Choose the default for new sessions." };
+      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Another setting overrides this default, or its application cannot be verified." : unsupported ? "Applied where supported. Some platforms cannot accept this default." : chosen ? "Applied to supported platforms for new sessions." : "Choose the default for new sessions." };
     }
     function button(label, key, action, attrs) {
       var node = el("button", Object.assign({ type: "button", text: label, "data-focus": key }, attrs || {}));
@@ -71,20 +71,35 @@
     function effortSection(summary) {
       var c = control("effort");
       if (!c) { return null; }
-      var select = el("select", { id: "effort", "data-focus": "effort", "data-setting": "effort", "aria-describedby": "effort-status", disabled: model.readOnly || !c.canApply, "aria-disabled": model.busy || pending ? "true" : null });
       var current = model.busy && drafts.effort !== undefined ? drafts.effort : summary.effort;
-      if (!current) { select.appendChild(el("option", { value: "", text: "Choose a default", selected: true, disabled: true })); }
       var labels = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra high" };
-      c.choices.forEach(function (value) { select.appendChild(el("option", { value: value, text: labels[value] || value })); });
-      select.value = current || "";
-      select.addEventListener("change", function () {
-        if (blocked() || !c.canApply || c.choices.indexOf(select.value) < 0) { select.value = current || ""; return; }
-        drafts.effort = select.value;
-        send({ type: "set", control: "effort", value: select.value, tool: null });
+      var choices = c.choices.filter(function (value) { return Object.prototype.hasOwnProperty.call(labels, value); });
+      var selected = choices.indexOf(current);
+      var group = el("div", { id: "effort", role: "radiogroup", class: "effort-choices", "aria-labelledby": "effort-title", "aria-describedby": "effort-status" });
+      group.style.setProperty("--effort-fill", selected < 0 ? "0%" : (selected + 0.5) / choices.length * 100 + "%");
+      var valueLabel = text("p", labels[current] || "Choose a default", "effort-value");
+      choices.forEach(function (value, index) {
+        var radio = button("", "effort:" + value, function () {
+          if (blocked() || !c.canApply || value === current) { return; }
+          drafts.effort = value;
+          send({ type: "set", control: "effort", value: value, tool: null });
+        }, { role: "radio", class: "effort-choice", "data-setting": "effort", "data-value": value, "aria-label": labels[value], "aria-checked": value === current ? "true" : "false", tabindex: index === (selected < 0 ? 0 : selected) ? "0" : "-1", disabled: model.readOnly || !c.canApply, "aria-disabled": model.busy || pending ? "true" : null });
+        radio.appendChild(el("span", { class: "effort-dot", "aria-hidden": "true" }));
+        radio.appendChild(text("span", labels[value], "effort-label"));
+        radio.addEventListener("keydown", function (event) {
+          if (blocked() || !c.canApply) { return; }
+          var next = event.key === "ArrowRight" || event.key === "ArrowDown" ? (index + 1) % choices.length : event.key === "ArrowLeft" || event.key === "ArrowUp" ? (index + choices.length - 1) % choices.length : event.key === "Home" ? 0 : event.key === "End" ? choices.length - 1 : -1;
+          if (next < 0) { return; }
+          event.preventDefault();
+          var target = group.querySelectorAll("button")[next];
+          target.focus();
+          target.click();
+        });
+        group.appendChild(radio);
       });
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
-        el("div", { class: "section-heading" }, [el("label", { id: "effort-title", for: "effort", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
-        select,
+        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
+        valueLabel, group,
         el("p", { id: "effort-status", class: summary.needsAttention ? "application-status attention" : "application-status", text: summary.effortStatus }),
       ]);
     }
