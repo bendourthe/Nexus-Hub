@@ -144,7 +144,6 @@ def _git(rctx: ck.RepoContext, *args: str) -> tuple[int, str]:
                     code = poll()
                 if code is None:
                     timed_out = True
-                    code = -1
         except BaseException as exc:
             raise RetainState("rollback-failed", "archive writer termination is unverified; retain state") from exc
         # Windows activation brokers can launch a hook outside the owned job. A forced

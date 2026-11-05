@@ -1352,7 +1352,7 @@ def test_complete_recovery_set_is_owned_before_any_rollback(
 
 
 def test_external_repair_replacement_is_refused_before_writing(repo: Close, monkeypatch: pytest.MonkeyPatch) -> None:
-    files, head = _batch_archive(repo, ["payload.txt"])
+    _batch_archive(repo, ["payload.txt"])
     repo.write("docs/todos.md", f"Reference {V05}/data/payload.txt\n")
     repo.commit("external repair fixture")
     files = _git(repo.work, "ls-files").splitlines()
@@ -1556,7 +1556,7 @@ def test_ordinary_archive_rollback_preserves_clean_noncanonical_bytes(
 
 @pytest.mark.parametrize("index_only", [False, True], ids=["content", "index-only"])
 def test_exact_content_restore_uses_literal_pathspecs(repo: Close, index_only: bool) -> None:
-    _files, _head = _batch_archive(repo, ["[ab].md"])
+    _batch_archive(repo, ["[ab].md"])
     repo.write("docs/archives/v0/v0.5/data/a.md", "unrelated matching filename\n")
     repo.commit("literal pathspec fixture")
     head = repo.head()
@@ -1665,7 +1665,7 @@ def test_unverified_writer_exit_retains_partial_state_without_rollback(
 
 
 def test_expired_started_batch_retains_state_after_the_stop_attempt(repo: Close, monkeypatch: pytest.MonkeyPatch) -> None:
-    _files, _head = _batch_archive(repo, ["a.txt", "b.txt"])
+    _batch_archive(repo, ["a.txt", "b.txt"])
     ctx = repo.rctx()
     expired = []
     class Budget:
@@ -1749,16 +1749,16 @@ def test_failed_filesystem_compensation_never_reaches_index_reset(
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows file-sharing locks prevent the second native rename")
 def test_windows_locked_second_file_recovers_the_first_move_without_an_index_update(repo: Close) -> None:
-    import ctypes
-    from ctypes import wintypes
+    import ctypes.wintypes
 
     files, head = _batch_archive(repo, ["a.txt", "b.txt"])
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
-                                  wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
-    kernel.CreateFileW.restype = wintypes.HANDLE
-    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
-    kernel.CloseHandle.restype = wintypes.BOOL
+    kernel.CreateFileW.argtypes = [ctypes.wintypes.LPCWSTR, ctypes.wintypes.DWORD, ctypes.wintypes.DWORD,
+                                  ctypes.wintypes.LPVOID, ctypes.wintypes.DWORD, ctypes.wintypes.DWORD,
+                                  ctypes.wintypes.HANDLE]
+    kernel.CreateFileW.restype = ctypes.wintypes.HANDLE
+    kernel.CloseHandle.argtypes = [ctypes.wintypes.HANDLE]
+    kernel.CloseHandle.restype = ctypes.wintypes.BOOL
     handle = kernel.CreateFileW(str(repo.work / f"{V05}/data/b.txt"), 0x80000000, 3, None, 3, 0x80, None)
     assert handle != ctypes.c_void_p(-1).value
     try:
