@@ -58,7 +58,7 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
         # v4.14.7: detection evidence (decision D2). `qwen` is the npm bin name;
         # Qwen itself creates file-history/, locales/ and debug/ under ~/.qwen.
         # settings.json is listed because Nexus-Hub seeds it.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["qwen"],
             "root": ".qwen",

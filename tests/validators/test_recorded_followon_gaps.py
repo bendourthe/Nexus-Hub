@@ -31,7 +31,7 @@ import completion_minor as cm
 
 VERSION = "v4.14.2"
 NAME = "v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md"
-ACTIVE = "docs/releases/v4/v4.14"
+ACTIVE = "docs/archives/v4/v4.14"
 PLAN_REL = f"{ACTIVE}/plans/{NAME}"
 GAPS = f"{ACTIVE}/known-gaps.md"
 FROZEN = "5e5d95b9f3dc65d0fbbbf5ee3f40defc65cd6a30caebaf8361b70a532413d892"
