@@ -1,6 +1,6 @@
 # Nexus-Hub Settings
 
-A compact VS Code panel with one shared effort selector and five Nexus-Hub guardrail switches. Changes save automatically through the `nexus-hub settings` engine and are read back before the panel reports the result. The original cyan Nexus logo identifies the extension, dashboard, sidebar and status-bar entry.
+A compact panel for VS Code, Cursor and Antigravity with one shared effort selector and five Nexus-Hub guardrail switches. Changes save automatically through the `nexus-hub settings` engine and are read back before the panel reports the result. The original cyan Nexus logo identifies the extension, dashboard, sidebar and status-bar entry.
 
 ## What it controls
 
@@ -11,11 +11,11 @@ A compact VS Code panel with one shared effort selector and five Nexus-Hub guard
 - **Large-file warnings**: advisory warnings for unusually large writes.
 - **Block Git bypass flags**: checks for skipping hooks or commit signing.
 
-Effort applies to new sessions; guardrail switches are read on the next hook invocation. The panel reports incomplete application when a platform is unsupported or a higher-priority setting overrides the preference. Existing host permission modes still apply. Native model and approval controls remain available through the CLI rather than separate selectors in the panel.
+Effort applies to new sessions; guardrail switches are read on the next hook invocation, including in full-access mode. Claude Max and Ultra map to native `max`; Codex maps both to its compatible `xhigh`, with a lower mapping when a model requires it. Supported defaults and existing effort overrides are synchronized with the saved preference. Copilot, native Cursor and native Antigravity effort remain unavailable through a verified public setting; managed policies and existing session state remain outside user-default control. Native model and approval controls remain available through the CLI rather than separate selectors in the panel.
 
 ## Status bar
 
-The status bar shows `High (effort)` by default, or `Nexus Settings: High (effort)` when `nexusHubSettings.compactStatusBar` is off. The multiline hover has clickable effort choices, guardrail counts, application details and a compact-mode action. VS Code's native hover uses command links for the choices; the settings panel uses a rounded stepped control. A warning means an overridden or unverified default, or an unavailable guardrail. Unsupported platforms are explained as a compatibility note. Click the status bar to open Settings.
+The status bar shows `High (effort)` by default, or `Nexus Settings: High (effort)` when `nexusHubSettings.compactStatusBar` is off. The compact native Markdown hover shows the effort, configured guardrail count, a short application status and one Open Settings link. The panel uses a rounded stepped control without a duplicate selected-value label. A warning means synchronization needs attention or a guardrail is unavailable. Click the status bar to open Settings.
 
 ## What the panel shows
 
