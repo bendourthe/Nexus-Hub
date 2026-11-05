@@ -12,7 +12,7 @@ const execute = promisify(execFile);
 const digest = (value: string | Buffer): string => createHash("sha256").update(value).digest("hex");
 const owned = (root: string, file: unknown): file is string => typeof file === "string" && path.relative(root, file) !== "" && !path.relative(root, file).startsWith("..") && !path.isAbsolute(path.relative(root, file));
 const exists = async (file: string): Promise<boolean> => { try { return (await fs.stat(file)).isFile(); } catch { return false; } };
-export interface LiveEffortSummary { connected: number; applied: number; reloadRequired: boolean; error?: string }
+export interface LiveEffortSummary { connected: number; applied: number; reloadRequired: boolean; missing?: string[]; error?: string }
 export interface LiveEffortBridge { directory: string; summary(): Promise<LiveEffortSummary> }
 
 async function immutable(file: string, content: Buffer | string): Promise<void> {
@@ -63,9 +63,11 @@ export async function installLiveEffort(context: vscode.ExtensionContext): Promi
   const directory = path.join(hub, "live-effort");
   const statuses = path.join(directory, "sessions");
   let reloadRequired = false, setupError: string | undefined;
+  let inspector: string | undefined, inspectedAt = 0, unbridged: Provider[] = [];
   try {
     await fs.mkdir(statuses, { recursive: true });
     const runtime = await prepareWindowsRuntime(context.extensionUri.fsPath, directory);
+    inspector = runtime.launcher;
     for (const item of available) {
       try {
       const config = vscode.workspace.getConfiguration();
@@ -98,6 +100,7 @@ export async function installLiveEffort(context: vscode.ExtensionContext): Promi
     directory: statuses,
     async summary(): Promise<LiveEffortSummary> {
       let connected = 0, applied = 0, error = setupError;
+      const seen = new Set<Provider>();
       let requested: unknown;
       try { requested = (JSON.parse(await fs.readFile(path.join(hub, "preferences.json"), "utf8")) as { default_effort?: unknown }).default_effort; } catch { /* The settings engine reports an unreadable preference. */ }
       for (const file of await fs.readdir(statuses).catch(() => [])) {
@@ -105,16 +108,28 @@ export async function installLiveEffort(context: vscode.ExtensionContext): Promi
         try {
           const metadata = await fs.stat(path.join(statuses, file));
           if (!metadata.isFile() || metadata.size > 16384) { continue; }
-          const state = JSON.parse(await fs.readFile(path.join(statuses, file), "utf8")) as { pid?: number; childPid?: number; requested?: unknown; applied?: boolean; sessions?: number; error?: string };
+          const state = JSON.parse(await fs.readFile(path.join(statuses, file), "utf8")) as { pid?: number; childPid?: number; clientPid?: number; provider?: Provider; requested?: unknown; applied?: boolean; sessions?: number; error?: string };
+          if (state.clientPid !== process.pid || !available.some((item) => item.provider === state.provider)) { continue; }
           if (!Number.isInteger(state.pid) || !Number.isInteger(state.childPid) || state.pid! <= 0 || state.childPid! <= 0) { continue; }
           process.kill(state.pid!, 0); process.kill(state.childPid!, 0);
+          seen.add(state.provider!);
           const count = Number.isInteger(state.sessions) && state.sessions! > 0 && state.sessions! <= 10000 ? state.sessions! : 0;
           connected += count;
           if (effort(requested) && state.requested === requested && state.applied) { applied += count; }
           if (typeof state.error === "string" && state.error) { error = state.error.slice(0, 500); }
         } catch { /* Stale, partial or unreadable status records do not represent connected sessions. */ }
       }
-      return { connected, applied, reloadRequired, ...error ? { error } : {} };
+      if (inspector && Date.now() - inspectedAt > 1000) {
+        inspectedAt = Date.now();
+        try {
+          const result = await execute(inspector, ["--nexus-editor-connections", String(process.pid)], { windowsHide: true, timeout: 2000, maxBuffer: 4096 });
+          const clients: unknown = JSON.parse(result.stdout);
+          if (!Array.isArray(clients)) { throw new Error("Invalid client status"); }
+          unbridged = clients.filter((client): client is Provider => client === "claude" || client === "codex");
+        } catch { error ??= "The editor's agent connections could not be verified."; }
+      }
+      const missing = available.filter((item) => unbridged.includes(item.provider)).map((item) => item.provider === "claude" ? "Claude Code" : "Codex");
+      return { connected, applied, reloadRequired: missing.length > 0 || (reloadRequired && !seen.size), missing, ...error ? { error } : {} };
     },
   };
 }

@@ -10,6 +10,8 @@ Native approval controls remain defaults for new sessions. Settings 0.4.0 also c
 
 A control exists only where its effect was observed changing a fresh session before it shipped. Everything else is shown as "Not settable" with its reason, never as a switch that silently does nothing. The admission rule and the vendor sources are in the [settings control contract](../docs/policy/settings-control-contract.md).
 
+The Settings 0.4.0 native tests did not prove immediate picker refresh in every editor. Interactive verification found that Claude can keep a stale effort label after native effort changes, and Codex drafts can retain a cached label. Connected Codex conversations update their picker on real settings notifications. Settings 0.4.1 distinguishes an unbridged process that needs an editor reload from a native effort acknowledgment; it does not claim to refresh every vendor picker. See the [editor follow-up evidence](../docs/releases/v4/v4.15/development/settings-041-editor-followup.md).
+
 ## Release Capability Usage Gate
 
 - **Activation:** install or upgrade Nexus-Hub. The installers build Settings once and install the same package into each detected VS Code, Cursor and Antigravity editor. Open "Nexus-Hub Settings" in the activity bar. A saved shared effort is reconciled on startup and supported settings changes in trusted workspaces; the CLI also accepts explicit `nexus-hub settings set ...` changes.

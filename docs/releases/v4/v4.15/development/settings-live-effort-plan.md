@@ -17,7 +17,8 @@ This bounded local-delivery plan adds live effort control to already-open Claude
 - [x] Verify ordinary new requests use the current preference even when the client sends an older explicit effort; verify permissions and unrelated fields remain intact.
 - [x] Install the final package in VS Code, Cursor and Antigravity and compare all installed runtime assets with the VSIX.
 - [x] Update the progress tracker and evidence, run attribution and required local checks, and create one local delivery commit.
-- [ ] Verify the connected existing-chat and ordinary-new-chat flows interactively in real editors. On 2026-11-05 the user explicitly took ownership of editor verification after installation; this remains open and is not claimed from native protocol tests.
+- [x] Exercise the installed editor flow after the user's failed test. Native Claude effort changes, its existing picker stays stale, and unbridged Codex processes need a connection reload. A connected Codex conversation visibly updates; ordinary new-chat draft labels can remain cached. These results are recorded as partial behavior, not full live UI qualification.
+- [ ] Finish immediate picker synchronization through a verified vendor interface. No external setter or refresh command was found in the installed Claude or Codex extension APIs; vendor bundles, private databases and user tabs are preserved.
 
 CI impact: extension compilation, tests, package-content checks and native protocol tests cover the new runtime. This plan does not change CI pipeline files or authorize remote publication.
 

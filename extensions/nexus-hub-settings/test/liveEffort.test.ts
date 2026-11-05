@@ -35,6 +35,37 @@ describe.skipIf(process.platform !== "win32")("real Windows protocol launcher", 
     const customized = { ...stub.user }; const again = await installLiveEffort(context);
     expect(stub.user).toEqual(customized); expect((await again!.summary()).error).toContain("preserved");
   }, 45000);
+  it("does not count other windows or hide a missing provider behind acknowledged Claude sessions", async () => {
+    const { context, directory } = await installation(); const bridge = await installLiveEffort(context);
+    await fs.writeFile(path.join(directory, "preferences.json"), '{"default_effort":"medium"}');
+    const record = { pid: process.pid, childPid: process.pid, clientPid: process.pid, requested: "medium", applied: true, sessions: 2 };
+    await fs.writeFile(path.join(bridge!.directory, `${process.pid}-aaaa.json`), JSON.stringify({ ...record, provider: "claude" }));
+    await fs.writeFile(path.join(bridge!.directory, `${process.pid}-bbbb.json`), JSON.stringify({ ...record, provider: "codex", clientPid: process.pid + 1, sessions: 20 }));
+    const executable = path.join(directory, "codex.exe"); await fs.copyFile(process.execPath, executable);
+    const child = spawn(executable, ["-e", "console.log('ready');process.stdin.resume()"], { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
+    const finished = new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("close", (code) => code === 0 ? resolve() : reject(new Error("Test native process failed"))); });
+    try {
+      await new Promise<void>((resolve, reject) => { child.stdout.once("data", () => resolve()); child.once("error", reject); });
+      expect(await bridge!.summary()).toMatchObject({ connected: 2, applied: 2, missing: ["Codex"], reloadRequired: true });
+    } finally { child.stdin.end(); await finished; }
+    await fs.writeFile(path.join(bridge!.directory, `${process.pid}-cccc.json`), JSON.stringify({ ...record, provider: "codex", sessions: 0 }));
+    const refreshed = await installLiveEffort(context);
+    expect(await refreshed!.summary()).toMatchObject({ connected: 2, applied: 2, missing: [], reloadRequired: false });
+  }, 45000);
+  it("records the real editor client parent from the Windows launcher", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-client-")); directories.push(directory);
+    const runtime = await prepareWindowsRuntime(extension, directory); const launcher = path.join(directory, "bridge.exe"); await fs.copyFile(runtime.launcher, launcher);
+    await fs.writeFile(path.join(directory, "preferences.json"), '{"default_effort":"medium"}');
+    const statusDirectory = path.join(directory, "status");
+    await fs.writeFile(path.join(directory, "bridge.json"), JSON.stringify({ provider: "codex", target: process.execPath, runtime: process.execPath, script: runtime.script, preferences: path.join(directory, "preferences.json"), statusDirectory }));
+    const child = spawn(launcher, ["-e", "console.log('{}');process.stdin.resume()", "app-server"], { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
+    const finished = new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("close", (code) => code === 0 ? resolve() : reject(new Error("Launcher failed"))); });
+    try {
+      await new Promise<void>((resolve, reject) => { child.stdout.once("data", () => resolve()); child.once("error", reject); });
+      const files = await fs.readdir(statusDirectory); const state = JSON.parse(await fs.readFile(path.join(statusDirectory, files.find((file) => file.endsWith(".json"))!), "utf8"));
+      expect(state.clientPid).toBe(process.pid);
+    } finally { child.stdin.end(); await finished; }
+  }, 45000);
   it("preserves workspace overrides and custom Claude wrappers while connecting Codex", async () => {
     const { context } = await installation(); stub.user["claudeCode.claudeProcessWrapper"] = "C:\\my-wrapper.exe";
     await installLiveEffort(context); expect(stub.user["claudeCode.claudeProcessWrapper"]).toBe("C:\\my-wrapper.exe"); expect(stub.updates.map((entry) => entry.key)).toEqual(["chatgpt.cliExecutable"]);

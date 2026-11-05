@@ -1,6 +1,6 @@
 # Settings Preferences
 
-This reference defines the shared preferences used by Nexus-Hub Settings 0.3.0 and their hook consumers. Read it when adding a switch, reviewing a native effort mapping, or diagnosing a preference that is saved but overridden. It covers persistence, effective defaults, workspace trust, confirmation, native limitations, reset and runtime delivery.
+This reference defines the shared preferences used by Nexus-Hub Settings and their hook consumers. Read it when adding a switch, reviewing a native effort mapping, or diagnosing a preference that is saved but overridden. It covers persistence, effective defaults, workspace trust, confirmation, native limitations, reset and runtime delivery.
 
 ## Shared Effort
 
@@ -17,11 +17,13 @@ The effort preference controls new-session defaults and, with the Settings 0.4.0
 | High | `high` | `high` |
 | Extra high | `xhigh` | `xhigh` |
 | Max | `max` | `xhigh` |
-| Ultra | `max` | `xhigh` |
+| Ultra | `xhigh` with Ultracode | `xhigh` |
 
-The installed Codex CLI rejects raw `max` and `ultra`, even when cached model metadata lists them; its IDE also filters unsupported levels before choosing a new-session default. The common mapping avoids this silent fallback. Model capability metadata can lower a Codex mapping further. Claude Ultra maps to maximum effort without enabling the separate orchestration mode. Readback compares the actual mapped native value with the shared choice rather than comparing different names as strings.
+Legacy Codex configuration defaults use the common mapping above. Connected Codex sessions use the active model's advertised capabilities, including native `max` and `ultra` when supported. The current native protocol exercise accepts all six levels; a narrower model capability list lowers the mapping. Claude Ultra enables Ultracode with `xhigh` effort. Readback compares the mapped native value with the shared choice rather than comparing different names as strings.
 
 The extension reconciles supported defaults on startup and file/configuration changes in trusted workspaces, with one attempt per distinct unresolved conflict. The Windows live bridge uses `claudeCode.claudeProcessWrapper` and `chatgpt.cliExecutable`, requiring one initial editor reload. It applies native effort controls to connected sessions and enforces the latest mapping on subsequent requests, including ordinary new-chat requests carrying cached effort. Codex mapping follows advertised model capabilities; Claude Ultra enables Ultracode. Native permission and input fields are preserved. GitHub Copilot, native Cursor and native Antigravity have no verified writable effort integration and remain footer compatibility notes. Claude and Codex extensions hosted in those editors are separate supported surfaces.
+
+An editor process that started before the bridge was configured still needs a reload. Settings 0.4.1 checks direct native children of the current extension host and scopes acknowledgment records to that host. A healthy process in another window cannot hide an unbridged Codex process in this one. Native acknowledgment and visible picker state are separate. Settings 0.4.2 adds reversible, exact-hash native UI adapters for Claude Code 2.1.318 and Codex 26.1021.22027, calling their own cached-settings/state-push and composer-effort setters. Vendor originals and restore receipts live under `~/.nexus-hub/native-ui/`; customized or different builds are preserved. The Codex editor-title menu uses its existing new-panel command. [Qualification evidence](../releases/v4/v4.15/development/settings-042-native-ui-evidence.md) separates automated native checks from visible editor verification.
 
 ## Guardrail Switches
 

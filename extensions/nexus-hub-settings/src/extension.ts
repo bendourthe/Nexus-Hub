@@ -9,6 +9,7 @@ import { syncEditorEffort } from "./editorEffort";
 import { SettingsViewProvider } from "./settingsView";
 import { COMPACT_COMMAND, EFFORT_LABELS, SET_EFFORT_COMMAND, SettingsStatusBar } from "./statusBar";
 import { ViewModel } from "./viewModel";
+import { installNativeUi } from "./vendorUi";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
 export interface ExtensionApi {
@@ -60,10 +61,12 @@ export function userPythonPath(): string | undefined {
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
   const liveEffort = await installLiveEffort(context);
+  const nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const controller = new SettingsController({
     bridge,
     liveEffort: liveEffort ? () => liveEffort.summary() : undefined,
+    uiEffort: nativeUi ? () => nativeUi.summary() : undefined,
     ui: vscodeUi(),
     isTrusted: () => vscode.workspace.isTrusted,
     project: firstFolder,
@@ -100,7 +103,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   // The status bar shows the same model the panel draws. Reading it once at startup fills the
   // status bar before the panel is ever opened; every later refresh reaches it through onChange.
   const statusBar = new SettingsStatusBar(OPEN_COMMAND);
-  const statusUpdates = controller.onChange((model) => statusBar.update(model));
+  const statusUpdates = controller.onChange((model) => { statusBar.update(model); void nativeUi?.synchronize(); });
   context.subscriptions.push(statusBar, statusUpdates);
   void controller.synchronizeDefaults().catch((error: unknown) => console.error("Nexus Settings synchronization failed", error));
 

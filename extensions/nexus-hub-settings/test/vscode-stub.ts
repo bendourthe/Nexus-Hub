@@ -49,8 +49,10 @@ export class Uri {
 }
 
 export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
+export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
 
 export class MarkdownString {
+  supportHtml = false;
   isTrusted: boolean | { enabledCommands: readonly string[] } = false;
   constructor(
     public value = "",
@@ -108,7 +110,7 @@ export const stub = {
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
   statusItems: [] as StatusItem[],
-  vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean }>(),
+  vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean; exports?: unknown }>(),
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },

@@ -9,6 +9,7 @@ import {
   restoreEditorWrites,
 } from "./editorWrites";
 import type { LiveEffortSummary } from "./liveEffort";
+import type { UiEffortSummary } from "./vendorUi";
 import { Incoming } from "./messages";
 import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowRecord, ShowReport } from "./types";
 import {
@@ -60,6 +61,7 @@ export interface ControllerDeps {
   platform: string;
   codexAvailable?: () => boolean;
   liveEffort?: () => Promise<LiveEffortSummary>;
+  uiEffort?: () => UiEffortSummary;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
@@ -230,6 +232,7 @@ export class SettingsController {
       this.model = buildModel({ report, explains: this.explains, inspect: this.inspect, trusted: this.deps.isTrusted(), profile, notice });
       this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
       this.model.liveEffort = await this.deps.liveEffort?.();
+      this.model.uiEffort = this.deps.uiEffort?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

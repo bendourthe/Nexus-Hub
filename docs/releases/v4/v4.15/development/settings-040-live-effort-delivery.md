@@ -2,6 +2,8 @@
 
 Local delivery record for the compact responsive selector and native live-effort bridge. Covers the built VSIX, native readback and protocol checks, installed payloads, review fixes, and the remaining user-owned editor verification.
 
+Qualification correction: the user's subsequent editor test failed immediate picker synchronization. The native backend evidence below remains valid, but it must not be read as proof that existing Claude labels or Codex draft labels update immediately. See the [0.4.1 editor follow-up](settings-041-editor-followup.md). The original two VS Code windows had unbridged Codex processes, which the aggregate acknowledgment count failed to identify.
+
 ## Result
 
 Settings 0.4.0 is packaged and installed in VS Code, Cursor and Antigravity. Its shared preference updates connected Claude Code and Codex native sessions for their next request. A response already executing retains its current effort. The initial executable connection requires an editor reload; a connection notice can require a further reload if a vendor process started before the launch setting was updated. Copilot and the native Cursor and Antigravity agents remain unsupported effort surfaces listed in the footer.

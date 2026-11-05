@@ -70,10 +70,16 @@
     }
     function effortApplication(summary) {
       if (summary.needsAttention) { return summary.effortStatus; }
+      var nativeUi = model.uiEffort;
+      if (nativeUi) {
+        if (nativeUi.errors.length) { return nativeUi.errors.join(" "); }
+        return nativeUi.reloadRequired ? "Reload the editor once to activate native effort updates." : "Saved.";
+      }
       var live = model.liveEffort;
       if (live) {
         if (live.error) { return live.error; }
-        if (live.connected > 0) { return live.applied === live.connected ? "Applied to " + live.applied + " connected session" + (live.applied === 1 ? "." : "s.") : "Applying effort to connected sessions..."; }
+        if (live.missing && live.missing.length) { return "Reload the editor to connect " + live.missing.join(" and ") + "."; }
+        if (live.connected > 0) { return "Saved. Native UI synchronization is unavailable."; }
         return live.reloadRequired ? "Reload the editor once to connect existing sessions." : "Applies on the next request. Open an agent to connect.";
       }
       return model.codexAvailable ? "New agents only. Existing Codex chats keep their effort." : summary.effortStatus;
@@ -109,8 +115,7 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
         group,
-        el("p", { id: "effort-status", class: summary.needsAttention || (model.liveEffort && model.liveEffort.error) ? "application-status attention" : "application-status", text: effortApplication(summary) }),
-        model.codexAvailable && !model.readOnly ? button("New Codex agent", "new-codex", function () { if (!blocked()) { post({ type: "newCodex" }); } }, { class: "native-action" }) : null,
+        el("p", { id: "effort-status", class: summary.needsAttention || (model.liveEffort && model.liveEffort.error) || (model.uiEffort && model.uiEffort.errors.length) ? "application-status attention" : "application-status", text: effortApplication(summary) }),
       ]);
     }
     function guardState(c) {

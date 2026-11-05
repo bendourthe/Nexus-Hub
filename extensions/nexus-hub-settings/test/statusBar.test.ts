@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { SettingsStatusBar, STATUS_PRIORITY, escapeMarkdown, statusEffort, summarize } from "../src/statusBar";
+import { SettingsStatusBar, STATUS_PRIORITY, effortIndicator, escapeMarkdown, statusEffort, summarize } from "../src/statusBar";
 import type { State } from "../src/types";
 import { badgeFor, emptyModel, summarizePreferences, type ControlView, type RowView, type ViewModel } from "../src/viewModel";
 import { MarkdownString, StatusBarAlignment, stub } from "./vscode-stub";
@@ -44,6 +44,13 @@ describe("the configured shared effort", () => {
 });
 
 describe("compact status summary", () => {
+  it.each(["low", "medium", "high", "xhigh", "max", "ultra"])("draws one read-only selected position for %s", (value) => {
+    for (const light of [true, false]) {
+      const svg = decodeURIComponent(/data:image\/svg\+xml,([^\"]+)/.exec(effortIndicator(value, light))![1]!);
+      expect(svg.match(/font-weight="700"/g)).toHaveLength(1); expect(svg.match(/<circle/g)).toHaveLength(6);
+      expect(svg).toContain(light ? "#007580" : "#00c9dc"); expect(svg).not.toMatch(/on[a-z]+=|script|foreignObject/);
+    }
+  });
   it("names Nexus and the configured effort, with one attention indicator", () => {
     const summary = summarize(realistic(), OPEN);
     expect(summary.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
@@ -52,17 +59,22 @@ describe("compact status summary", () => {
   });
   it("shows effort once on one line and keeps named guard states", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
-    expect(tooltip.length).toBeLessThan(1000);
-    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Settings: High effort**");
-    expect(tooltip.split("\n")).toHaveLength(5);
-    expect(tooltip).not.toContain("\n\n");
-    expect(tooltip.match(/High/g)).toHaveLength(1);
+    expect(tooltip.length).toBeLessThan(8000);
+    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Hub Settings**");
+    expect(tooltip.split("\n")).toHaveLength(9);
+    expect(tooltip).toContain("**Effort Level**");
+    expect(tooltip).toContain("**Guardrails**");
+    expect(tooltip).toContain('alt="High effort"');
+    const svg = decodeURIComponent(/data:image\/svg\+xml,([^\"]+)/.exec(tooltip)![1]!);
+    expect(svg).toContain('font-weight="700">High</text>');
+    expect(svg).toContain('width="264" height="48"');
+    expect(svg).not.toMatch(/onclick|script|foreignObject/);
     expect(tooltip).not.toMatch(/\| Default effort|\$\(record\)|Low \$\(/);
     expect(tooltip).toContain("My edits");
-    expect(tooltip).toContain("Nexus Settings");
+    expect(tooltip).toContain("Nexus Hub Settings");
     expect(tooltip).toContain("$(check) Git safety");
     expect(tooltip).toContain("$(circle-slash) Git bypass");
-    expect(tooltip).not.toMatch(/data:image|<svg|setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
+    expect(tooltip).not.toMatch(/setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
     expect(tooltip).toContain("Review application in Settings");
     expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);
   });
@@ -118,7 +130,7 @@ describe("compact status summary", () => {
     const m = model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]);
     expect(summarize(m, OPEN).text).not.toContain("$(warning)");
     expect(summarize(m, OPEN).tooltip).toContain("New sessions only");
-    expect(summarize(m, OPEN).tooltip).not.toContain("data:image");
+    expect(summarize(m, OPEN).tooltip).toContain("data:image/svg+xml");
     for (const locked of [{ ...m, readOnly: true }, { ...m, busy: true }]) {
       expect(summarize(locked, OPEN).tooltip).not.toContain("](command:nexusHubSettings.setEffort");
     }
@@ -143,6 +155,7 @@ describe("SettingsStatusBar", () => {
     bar.update(realistic());
     expect(item?.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
     expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN] });
+    expect((item?.tooltip as MarkdownString).supportHtml).toBe(true);
     expect(item?.accessibilityInformation?.role).toBe("button");
     bar.dispose();
     expect(item?.disposed).toBe(true);

@@ -15,7 +15,7 @@ Connected Claude Code and Codex sessions apply effort changes on their next requ
 
 ## Status bar
 
-The status bar shows `High (effort)` by default, or `Nexus Settings: High (effort)` when `nexusHubSettings.compactStatusBar` is off. Its compact hover has one effort line and two lines of named guardrail on/off indicators, followed by session timing and links. A warning means an available setting failed to synchronize or a guardrail is unavailable. Unsupported editors alone do not produce a warning. Click the status bar to open Settings.
+The status bar shows `High (effort)` by default, or `Nexus Settings: High (effort)` when `nexusHubSettings.compactStatusBar` is off. Its compact hover has a single Nexus Hub Settings title, an Effort Level section with a read-only cyan stepped bar, and a Guardrails section with named on/off indicators. A warning means an available setting failed to synchronize or a guardrail is unavailable. Unsupported editors alone do not produce a warning. Click the status bar to open Settings.
 
 ## What the panel shows
 
@@ -23,9 +23,13 @@ One autosaving effort control, five switches and a short application status. Wid
 
 ## Live Connection
 
-On Windows, the extension connects installed Claude Code and Codex extensions through their native executable settings. Reload the editor once after the first connection. Later changes update already-open native sessions without restarting them. The panel reports native acknowledgments; an empty composer may retain its cached label until its next native request, whose effort is enforced by the bridge. The bridge does not change permissions, sandbox settings, prompts or vendor files. Existing custom wrappers and workspace launch overrides are preserved and reported when they prevent connection.
+On Windows, the extension connects installed Claude Code and Codex extensions through their native executable settings. A process that started before the first connection needs an editor reload. The panel identifies missing connections separately in each editor window; another window's native process cannot establish this window's connection. The bridge does not change permissions, sandbox settings or prompts. Existing custom wrappers and workspace launch overrides are preserved and reported when they prevent connection.
 
-The same shared preference is accessible to scripts with `nexus-hub settings set effort high --json`. Other extensions can inspect `(await vscode.extensions.getExtension("nexus-hub.nexus-hub-settings").activate()).getViewModel()`; its `liveEffort` field contains connected and applied session counts, reload state and any connection error. These counts cover native processes connected through the bridge, not every editor process on the machine.
+Settings 0.4.2 also installs reversible UI adapters for Claude Code 2.1.318 and Codex 26.1021.22027. These vendors do not export an external effort-picker setter. The adapters expose their existing internal setters: Claude applies effort flags, refreshes its cached settings and pushes its normal UI state; Codex updates each open composer's effort through its native model-settings callback while keeping its model and service tier. Repeated synchronization also reaches new tabs. The existing Codex editor-title button uses its native new-tab command and retains the Codex icon. The Settings panel no longer offers replacement agents as a live-update workaround.
+
+Only exact verified source hashes are patched. Original vendor files and a restore receipt are stored under `~/.nexus-hub/native-ui/`; independent changes and unsupported versions are preserved. A restart loads the adapted native extensions and menu. Vendor upgrades require a newly verified adapter. Native process readback, adapter availability and visible picker behavior are distinct checks; see the [0.4.2 evidence](../../docs/releases/v4/v4.15/development/settings-042-native-ui-evidence.md) for the current qualification limits.
+
+The same shared preference is accessible to scripts with `nexus-hub settings set effort high --json`. Other extensions can inspect `(await vscode.extensions.getExtension("nexus-hub.nexus-hub-settings").activate()).getViewModel()`; `liveEffort` describes connected native processes, and `uiEffort` reports adapter installation or reload errors. Neither field by itself proves that every visible picker rendered the change.
 
 The persistent bridge is stored in `~/.nexus-hub/live-effort/` so an extension update does not remove a running session's executable. To disconnect it, disable Settings, then restore `claudeCode.claudeProcessWrapper` and `chatgpt.cliExecutable` to their previous values in User Settings. The extension saves original values in its global state and does not replace a later custom launch setting.
 

@@ -234,6 +234,7 @@ export function runProxy(config: ProxyConfig, originalArgs: string[]): void {
   let args = [...originalArgs];
   const target = config.provider === "claude" && args[0] && path.isAbsolute(args[0]) ? args.shift()! : config.target;
   const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE;
+  const clientPid = Number(env.NEXUS_EFFORT_CLIENT_PID); delete env.NEXUS_EFFORT_CLIENT_PID;
   let privateSettings: string | undefined;
   if (config.provider === "claude" && args.includes("stream-json")) {
     try {
@@ -266,7 +267,7 @@ export function runProxy(config: ProxyConfig, originalArgs: string[]): void {
       }
     };
     const protocol = new EffortProtocol(config.provider, (line) => child.stdin.write(line + "\n"), (line) => process.stdout.write(line + "\n"), (state) => {
-      status = JSON.stringify({ ...state, pid: process.pid, childPid: child.pid, updatedAt: Date.now() }); retries = 40;
+      status = JSON.stringify({ ...state, pid: process.pid, childPid: child.pid, clientPid: Number.isInteger(clientPid) && clientPid > 0 ? clientPid : undefined, updatedAt: Date.now() }); retries = 40;
       clearTimeout(statusTimer); publishStatus();
     });
     try {

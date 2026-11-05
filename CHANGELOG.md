@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Settings 0.4.2 adds reversible, exact-version Claude and Codex UI adapters that call the vendors' native effort setters, and routes the Codex editor-title icon to its new-tab command. Vendor originals are backed up and unexpected builds are preserved. The panel removes the replacement-agent workaround and stops treating native-process acknowledgment counts as proof of visible picker synchronization. Automated checks and remaining visual verification are recorded separately.
+
+- Settings 0.4.1 adds a read-only cyan effort bar and separate Effort Level and Guardrails sections to the status hover. Native acknowledgment counts are scoped to the current editor process, and native clients running outside the bridge trigger a connection notice. Native effort acknowledgment does not establish that a vendor's cached picker label refreshed; immediate picker synchronization remains open.
+
 - Settings 0.4.0 keeps effort labels readable in narrow panels, restores a compact hover with named guardrail states, and connects native Claude Code and Codex sessions to the shared effort preference for subsequent requests. Claude Ultra enables Ultracode; Codex mapping follows advertised model capabilities. Initial connection requires an editor reload. The bridge preserves native permissions, unrelated settings and custom launch configurations.
 
 ## [4.14.8] - 2026-11-04

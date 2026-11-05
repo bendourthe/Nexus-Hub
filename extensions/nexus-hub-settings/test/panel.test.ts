@@ -46,8 +46,9 @@ beforeEach(() => {
 
 describe("shared settings view", () => {
   it.each([
-    [{ connected: 2, applied: 2, reloadRequired: false }, "Applied to 2 connected sessions.", false],
-    [{ connected: 2, applied: 1, reloadRequired: false }, "Applying effort to connected sessions...", false],
+    [{ connected: 2, applied: 2, reloadRequired: false }, "Saved. Native UI synchronization is unavailable.", false],
+    [{ connected: 2, applied: 2, reloadRequired: true, missing: ["Codex"] }, "Reload the editor to connect Codex.", false],
+    [{ connected: 2, applied: 1, reloadRequired: false }, "Saved. Native UI synchronization is unavailable.", false],
     [{ connected: 0, applied: 0, reloadRequired: true }, "Reload the editor once to connect existing sessions.", false],
     [{ connected: 0, applied: 0, reloadRequired: false }, "Applies on the next request. Open an agent to connect.", false],
     [{ connected: 1, applied: 0, reloadRequired: false, error: "Native update refused." }, "Native update refused.", true],
@@ -315,13 +316,13 @@ describe("webview protocol", () => {
 });
 
 
-it("opens a fresh native Codex agent only through the available action", () => {
-  panel.render(fresh({ codexAvailable: true }));
-  expect(app.querySelector(".effort-section .native-action")?.textContent).toBe("New Codex agent");
-  expect(app.querySelector("#effort-status")?.textContent).toContain("Existing Codex chats keep their effort");
-  expect(app.querySelector("footer .native-action")).toBeNull();
-  button("New Codex agent").click();
-  expect(posted).toEqual([{ type: "newCodex" }]);
-  panel.render(fresh({ codexAvailable: false }));
+it("does not offer replacement sessions as a live-update workaround", () => {
+  const model = fresh({ codexAvailable: true, uiEffort: { reloadRequired: false, errors: [] } });
+  model.preferences!.needsAttention = false;
+  panel.render(model);
+  expect(app.querySelector("#effort-status")?.textContent).toBe("Saved.");
   expect(app.querySelector(".native-action")).toBeNull();
+  expect(posted).toEqual([]);
+  model.uiEffort!.reloadRequired = true; panel.render(model);
+  expect(app.querySelector("#effort-status")?.textContent).toContain("activate native effort updates");
 });
