@@ -28,13 +28,13 @@ def test_all_six_choices_map_to_valid_claude_and_advertised_codex_levels(machine
 
     claude = json.loads(machine.path("claude-user").read_text())
     assert claude["effortLevel"] == ("xhigh" if requested in ("max", "ultra") else requested)
-    assert claude["env"] == {"KEEP": "yes", "CLAUDE_CODE_EFFORT_LEVEL": "max" if requested == "ultra" else requested}
-    assert "ultracode" not in claude
+    assert claude["env"] == {"KEEP": "yes", "CLAUDE_CODE_EFFORT_LEVEL": "xhigh" if requested == "ultra" else requested}
+    assert claude["ultracode"] is (requested == "ultra")
     codex_native = "xhigh" if requested in ("max", "ultra") else requested
     assert tomllib.loads(machine.path("codex-user").read_text())["model_reasoning_effort"] == codex_native
     native = [r for r in result["after"] if r["tool"] in ("claude", "codex")]
     assert all(r["state"] == "in-effect" and r["matches_default"] and r["value"] == requested for r in native)
-    assert {r["tool"]: r["mapped_effort"] for r in native} == {"claude": "max" if requested == "ultra" else requested, "codex": codex_native}
+    assert {r["tool"]: r["mapped_effort"] for r in native} == {"claude": "xhigh" if requested == "ultra" else requested, "codex": codex_native}
 
     apply.reset_control(machine.context(catalog), "effort")
     assert all(machine.path(key).read_bytes() == raw for key, raw in original.items())
@@ -52,8 +52,8 @@ def test_deleted_authoritative_claude_environment_key_is_detected_and_recreated(
     drift = machine.records(catalog)["effort", "claude", "cli"]
 
     assert drift["matches_default"] is False
-    assert drift["mapped_effort"] == ("max" if requested == "ultra" else requested)
-    assert drift["value"] != requested
+    assert drift["mapped_effort"] == ("xhigh" if requested == "ultra" else requested)
+    assert drift["state"] == "in-effect"  # Existing per-model effort is still readable; the missing authority needs repair.
     repaired = apply.set_control(ctx, "effort", requested)
     row = next(r for r in repaired["after"] if r["tool"] == "claude")
     assert row["matches_default"] and row["value"] == requested
@@ -101,7 +101,7 @@ def test_existing_project_keys_sync_and_restore_without_touching_permission_rule
     result = apply.set_control(machine.context(catalog), "effort", "ultra")
 
     claude = json.loads(machine.path("claude-project").read_text())
-    assert claude["effortLevel"] == "xhigh" and claude["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "max"
+    assert claude["effortLevel"] == "xhigh" and claude["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "xhigh"
     assert claude["permissions"]["defaultMode"] == "plan" and claude["env"]["KEEP"] == "yes"
     assert tomllib.loads(machine.path("codex-project").read_text())["model_reasoning_effort"] == "xhigh"
     assert next(r for r in result["after"] if r["tool"] == "claude")["matches_default"]
@@ -149,3 +149,24 @@ def test_existing_profiles_map_their_own_model_and_reset_exactly(machine, catalo
     assert "model_reasoning_effort" not in profiles["empty"]
     apply.reset_control(machine.context(catalog), "effort")
     assert machine.path("codex-user").read_bytes() == before
+
+
+def test_ultracode_toggle_is_required_and_resets_with_effort(machine, catalog):
+    machine.put("claude-user", '{"model":"opus", "env":{"KEEP":"yes"}}\n')
+    original = machine.path("claude-user").read_bytes()
+    apply.set_control(machine.context(catalog), "effort", "ultra")
+    data = json.loads(machine.path("claude-user").read_text())
+    assert data["ultracode"] is True
+    assert data["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "xhigh"
+    data["ultracode"] = False
+    machine.put("claude-user", data)
+    drift = next(row for row in apply._after(machine.context(catalog), "effort", None) if row["control"] == "effort" and row["tool"] == "claude")
+    assert drift["matches_default"] is False
+    apply.set_control(machine.context(catalog), "effort", "ultra")
+    assert json.loads(machine.path("claude-user").read_text())["ultracode"] is True
+    apply.set_control(machine.context(catalog), "effort", "max")
+    data = json.loads(machine.path("claude-user").read_text())
+    assert data["ultracode"] is False
+    assert data["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "max"
+    apply.reset_control(machine.context(catalog), "effort")
+    assert json.loads(machine.path("claude-user").read_bytes()) == json.loads(original)

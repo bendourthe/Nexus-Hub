@@ -105,7 +105,8 @@ def main() -> None:
             assert json.loads((home / ".nexus-hub/preferences.json").read_text())["default_effort"] == level
             if level in ("max", "ultra"):
                 assert 'model_reasoning_effort = "xhigh"' in (home / ".codex/config.toml").read_text()
-                assert json.loads((home / ".claude/settings.json").read_text())["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "max"
+                assert json.loads((home / ".claude/settings.json").read_text())["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == ("xhigh" if level == "ultra" else "max")
+                assert json.loads((home / ".claude/settings.json").read_text())["ultracode"] is (level == "ultra")
         for level, fraction in (("low", 0), ("ultra", 1)):
             page.locator(f"[role=radio][data-value={level}]").click()
             page.wait_for_function("level => document.querySelector('[role=radio][data-value=' + level + ']').getAttribute('aria-checked') === 'true'", arg=level)

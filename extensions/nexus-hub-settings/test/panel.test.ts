@@ -64,7 +64,7 @@ describe("shared settings view", () => {
     expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);
     expect(app.querySelectorAll("button[role='switch']")).toHaveLength(5);
     expect(app.querySelector("table, input[type='text']")).toBeNull();
-    expect(app.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
+    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
     expect(app.querySelector("img")?.getAttribute("src")).toBe("vscode-webview://x/logo.png");
     expect(app.querySelector("img")?.getAttribute("alt")).toBe("");
     expect(app.querySelector(".engine-update")).toBeNull();
@@ -82,7 +82,7 @@ describe("shared settings view", () => {
     expect(document.getElementById("live-status")?.textContent).toContain("Update the Nexus-Hub settings engine");
     for (const node of switches.filter((item) => item.disabled)) { node.click(); }
     expect(posted).toEqual([]);
-    expect(app.textContent).not.toMatch(/Claude Code|Codex|Copilot/);
+    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Claude Code|Codex|Copilot/);
   });
   it("starts at the saved shared choice instead of an overriding platform value", () => {
     const model = fresh();
@@ -177,9 +177,11 @@ describe("shared settings view", () => {
     }
     expect(app.querySelector("[role='radiogroup']")?.getAttribute("aria-labelledby")).toBe("effort-title");
   });
-  it("shows coverage limits as one short status, without a platform matrix", () => {
+  it("keeps coverage information in the footer without a persistent warning", () => {
     panel.render(fresh());
-    expect(app.querySelector("#effort-status")?.textContent).toContain("Some clients require a manual setting");
+    expect(app.querySelector("#effort-status")?.textContent).not.toContain("manual");
+    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot, Cursor and Antigravity");
+    expect(app.querySelector(".notice[data-level=warn]")).toBeNull();
     expect(app.querySelector("table")).toBeNull();
   });
   it("does not repeat technical result lines in successful notices", () => {
@@ -299,4 +301,13 @@ describe("webview protocol", () => {
     const source = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../media/panel.js"), "utf8");
     expect(source).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|\beval\(|\bfetch\(|XMLHttpRequest/);
   });
+});
+
+
+it("opens a fresh native Codex agent only through the available action", () => {
+  panel.render(fresh({ codexAvailable: true }));
+  button("New Codex agent").click();
+  expect(posted).toEqual([{ type: "newCodex" }]);
+  panel.render(fresh({ codexAvailable: false }));
+  expect(app.querySelector(".native-action")).toBeNull();
 });

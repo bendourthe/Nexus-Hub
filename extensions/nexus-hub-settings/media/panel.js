@@ -54,7 +54,7 @@
       if (!effort || effort.choices.indexOf(chosen) < 0) { chosen = ""; }
       var conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(shared.state) >= 0) || native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && (row.matchesDefault === false || row.matchesDefault === undefined && effective(row) !== chosen)); });
       var unsupported = native.some(function (row) { return row.state === "not-settable"; });
-      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : unsupported ? "Mapped to supported defaults. Some clients require a manual setting." : chosen ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions." };
+      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : chosen ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions." };
     }
     function button(label, key, action, attrs) {
       var node = el("button", Object.assign({ type: "button", text: label, "data-focus": key }, attrs || {}));
@@ -128,6 +128,17 @@
       if (!rows.length) { return null; }
       return el("section", { class: "settings-section", "aria-labelledby": "guardrails-title" }, [el("h2", { id: "guardrails-title", text: "Guardrails" }), el("ul", { class: "setting-list" }, rows)]);
     }
+    function compatibility() {
+      var node = el("footer", { class: "compatibility" }, [
+        text("p", "Automatic effort: Claude Code and Codex new agents."),
+        text("p", "Manual effort: GitHub Copilot, Cursor and Antigravity agents."),
+        text("p", "Existing Codex drafts keep their selection. Open a new agent to use this default."),
+      ]);
+      if (model.codexAvailable && !model.readOnly) {
+        node.appendChild(button("New Codex agent", "new-codex", function () { if (!blocked()) { post({ type: "newCodex" }); } }, { class: "native-action" }));
+      }
+      return node;
+    }
     function notice() {
       if (!model.notice) { return null; }
       var n = model.notice;
@@ -162,7 +173,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), text("p", "Effort applies to new sessions. Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"));
+        children.push(notice(), effortSection(preferences()), guardSection(), text("p", "Effort applies to new sessions. Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

@@ -262,16 +262,26 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
     caveats += extra
 
     primary = admitted[0]
+    env_primary = None
     requested = _requested_effort(snap) if group.control["id"] == "effort" else None
     if requested and group.tool == "claude":
         env_primary = next((w for w in admitted if w["id"] == "claude.effort.existing_env"), None)
-        if env_primary:
+        if env_primary and natives[env_primary["id"]].found:
             primary = env_primary
     native = natives[primary["id"]]
     rec.update(value=_display(primary, native), native=native.entries if native.entries is not None else native.value)
     if requested:
-        expected = mapped(primary, requested, snap.codex_effort_levels if snap.codex_effort_levels is not None else COMMON_CODEX_LEVELS)
-        matches = native.found and (all(v == expected for v in native.entries.values()) if native.entries is not None else native.value == expected)
+        authority = env_primary or primary
+        actual = natives[authority["id"]]
+        expected = mapped(authority, requested, snap.codex_effort_levels if snap.codex_effort_levels is not None else COMMON_CODEX_LEVELS)
+        matches = actual.found and (all(v == expected for v in actual.entries.values()) if actual.entries is not None else actual.value == expected)
+        if group.tool == "claude":
+            mode_rows = [write for write in admitted if write["key_path"] == ["ultracode"]]
+            for write in mode_rows:
+                mode = natives[write["id"]]
+                if write.get("only_when_present") and not mode.found:
+                    continue
+                matches = matches and ((mode.value is True) == (requested == "ultra"))
         rec.update(matches_default=bool(matches and not hits), mapped_effort=expected if isinstance(expected, str) else None)
         if matches:
             rec["value"] = requested

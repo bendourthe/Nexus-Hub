@@ -93,9 +93,5 @@ export async function syncEditorEffort(
       }
     }
   }
-  const copilotRegistered = vscode.workspace.getConfiguration().inspect("github.copilot.chat.reasoningEffortOverride")?.defaultValue !== undefined;
-  if (copilotRegistered && records.some((record) => record.control === "effort" && record.tool === "vscode-copilot" && record.state !== "tool-not-installed")) {
-    result.issues.push("GitHub Copilot requires per-model effort values; its public editor API does not expose the supported levels for an automatic update.");
-  }
   return result;
 }

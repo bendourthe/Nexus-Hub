@@ -10,6 +10,7 @@ import type { ViewModel } from "./viewModel";
 export type Incoming =
   | { type: "ready" }
   | { type: "refresh" }
+  | { type: "newCodex" }
   | { type: "set"; control: string; value: string; tool: string | null }
   | { type: "reset"; control: string; tool: string | null }
   | { type: "removeOverride"; control: string; tool: string }
@@ -20,6 +21,7 @@ export type Validated = { ok: true; message: Incoming } | { ok: false; reason: s
 const ALLOWED_KEYS: Record<string, readonly string[]> = {
   ready: ["type"],
   refresh: ["type"],
+  newCodex: ["type"],
   set: ["type", "control", "value", "tool"],
   reset: ["type", "control", "tool"],
   removeOverride: ["type", "control", "tool"],
@@ -69,6 +71,9 @@ export function validateMessage(raw: unknown, model: ViewModel): Validated {
   }
   if (WRITES.has(raw.type) && model.readOnly) {
     return fail("the panel is read-only");
+  }
+  if (raw.type === "newCodex") {
+    return !model.readOnly && model.codexAvailable ? { ok: true, message: { type: "newCodex" } } : fail("Codex is unavailable or the panel is read-only");
   }
   const control = model.controls.find((c) => c.id === raw.control);
   if (!control) {

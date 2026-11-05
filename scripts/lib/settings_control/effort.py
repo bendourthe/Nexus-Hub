@@ -1,7 +1,7 @@
 """Portable effort mappings and bounded reads of Codex's advertised model capabilities.
 
 Claude's persistent effort keys stop at xhigh; its environment lever accepts max.
-Ultra maps to max on Claude without enabling its separate workflow setting.
+Ultra maps to xhigh plus the native Ultracode workflow setting on Claude.
 Codex levels are model-specific. Shared defaults use the common client vocabulary
 low/medium/high/xhigh because the installed CLI rejects max and ultra even when
 its model cache advertises them. Model metadata may lower that ceiling further.

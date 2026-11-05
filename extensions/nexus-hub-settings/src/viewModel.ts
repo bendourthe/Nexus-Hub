@@ -159,6 +159,7 @@ export interface ViewModel {
   notice: Notice | null;
   busy: boolean;
   preferences?: PreferencesSummary;
+  codexAvailable?: boolean;
 }
 
 export interface PreferencesSummary {
@@ -180,7 +181,6 @@ export function summarizePreferences(model: Pick<ViewModel, "controls">): Prefer
   const values = [...new Set(native.filter((row) => row.canSet).map(effective).filter((value): value is string => !!value))];
   const effort = shared?.value && control?.choices.includes(shared.value) ? shared.value : values.length === 1 && control?.choices.includes(values[0]!) ? values[0]! : "";
   const conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].includes(shared.state)) || native.some((row) => row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state) || (effort !== "" && (row.matchesDefault === false || (row.matchesDefault === undefined && effective(row) !== effort)))));
-  const unsupported = native.some((row) => row.state === "not-settable");
   const guards = model.controls.filter((item) => (GUARDRAIL_IDS as readonly string[]).includes(item.id));
   const available = guards.filter((item) => item.canApply && item.rows.some((row) => !["cannot-detect", "unverified-for-version"].includes(row.state)));
   const enabled = available.filter((item) => {
@@ -190,7 +190,7 @@ export function summarizePreferences(model: Pick<ViewModel, "controls">): Prefer
   }).length;
   return {
     effort,
-    effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : unsupported ? "Mapped to supported defaults. Some clients require a manual setting." : effort ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions.",
+    effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : effort ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions.",
     needsAttention: conflict || available.length !== guards.length,
     guardsEnabled: enabled,
     guardsAvailable: available.length,

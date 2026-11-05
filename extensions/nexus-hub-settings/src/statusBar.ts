@@ -44,12 +44,33 @@ export function summarize(model: ViewModel | undefined, openCommand: string, com
   const effort = summary.effort || "Default";
   const titled = EFFORT_LABELS[effort] || "Default";
   const protection = summary.guardsAvailable ? `Configured guardrails: ${summary.guardsEnabled} of ${summary.guardsAvailable} on` : "Configured guardrails: unavailable";
+  const levels = Object.keys(EFFORT_LABELS);
+  const selected = levels.indexOf(effort);
+  const scale = levels.map((_, index) => index === selected ? "$(record)" : index < selected ? "$(circle-filled)" : "$(circle-outline)").join(" ");
+  const guards = [["git_safety", "Git safety"], ["secret_scan", "Secrets"], ["edit_preservation", "My edits"], ["large_file_warning", "Large files"], ["git_guardrails", "Git bypass"]].map(([id, label]) => {
+    const control = model.controls.find((item) => item.id === id);
+    const row = control?.rows.find((item) => item.tool === "internal") ?? control?.rows[0];
+    const known = !!control?.canApply && !!row && !["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state);
+    const value = row ? effectiveValue(row) : null;
+    const on = value === "on" || value === "true" || (row?.state === "tool-default" && id !== "git_guardrails");
+    return `$(${!known ? "question" : on ? "check" : "circle-slash"}) ${label}`;
+  });
+  const links = model.codexAvailable && !model.readOnly ? `${open} | [New Codex agent](command:nexusHubSettings.newCodexAgent)` : open;
   const tooltip = [
-    `**Nexus Settings: ${titled} effort**`,
-    protection,
+    `### ${NEXUS_ICON} Nexus Settings`,
+    "",
+    "| Default effort | Guardrails |",
+    "| :-- | :-- |",
+    `| **${titled}** | **${summary.guardsEnabled} / ${summary.guardsAvailable} on** |`,
+    "",
+    `Low ${scale} Ultra`,
+    "",
+    `${guards.slice(0, 3).join(" &nbsp; ")}  \n${guards.slice(3).join(" &nbsp; ")}`,
+    "",
     summary.needsAttention ? "$(warning) Review application in Settings." : "New sessions only.",
-    open,
-  ].join("  \n");
+    "",
+    links,
+  ].join("\n");
   return { text: `${NEXUS_ICON} ${prefix}${titled} (effort)${summary.needsAttention ? " $(warning)" : ""}`, accessibilityLabel: `Nexus Settings, default effort ${effort}, ${protection.toLowerCase()}${summary.needsAttention ? ", needs attention" : ""}`, tooltip };
 }
 
@@ -71,7 +92,7 @@ export class SettingsStatusBar implements vscode.Disposable {
     this.model = model;
     const summary = summarize(model, this.openCommand, vscode.workspace.getConfiguration("nexusHubSettings").get<boolean>("compactStatusBar", true));
     const tooltip = new vscode.MarkdownString(summary.tooltip, true);
-    tooltip.isTrusted = { enabledCommands: [this.openCommand] };
+    tooltip.isTrusted = { enabledCommands: this.model?.codexAvailable && !this.model.readOnly ? [this.openCommand, "nexusHubSettings.newCodexAgent"] : [this.openCommand] };
     this.item.text = summary.text;
     this.item.tooltip = tooltip;
     this.item.accessibilityInformation = { label: summary.accessibilityLabel, role: "button" };

@@ -35,6 +35,7 @@ export function watchedFiles(env: NodeJS.ProcessEnv, home: string): string[] {
 
 export function vscodeUi(): UiLike {
   return {
+    async openCodex(): Promise<void> { await vscode.commands.executeCommand("chatgpt.newCodexPanel"); },
     async confirm(request: ConfirmRequest): Promise<boolean> {
       const choice = await vscode.window.showWarningMessage(request.message, { modal: true, detail: request.detail }, request.confirmLabel);
       return choice === request.confirmLabel;
@@ -65,6 +66,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     project: firstFolder,
     profile: () => profileNameFromStorage(context.globalStorageUri.fsPath),
     platform: process.platform === "win32" ? "windows" : process.platform === "darwin" ? "macos" : "linux",
+    codexAvailable: () => !!vscode.extensions?.getExtension("openai.chatgpt"),
     syncEditorEffort: (records) => syncEditorEffort(records, async (key, previous) => {
       const storageKey = `effort-backup:${key}`;
       if (context.globalState.get(storageKey) === undefined) { await context.globalState.update(storageKey, previous); }
@@ -102,6 +104,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     vscode.window.registerWebviewViewProvider(SettingsViewProvider.viewType, new SettingsViewProvider(context.extensionUri, controller), {
       webviewOptions: { retainContextWhenHidden: true },
     }),
+    vscode.commands.registerCommand("nexusHubSettings.newCodexAgent", () => controller.handle({ type: "newCodex" })),
     vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
     vscode.commands.registerCommand(SET_EFFORT_COMMAND, async (value: unknown) => {
       if (!vscode.workspace.isTrusted || typeof value !== "string" || !Object.hasOwn(EFFORT_LABELS, value)) { return; }

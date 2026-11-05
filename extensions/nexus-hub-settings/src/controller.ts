@@ -44,6 +44,7 @@ export interface ConfirmRequest {
 }
 
 export interface UiLike {
+  openCodex?(): Promise<void>;
   confirm(request: ConfirmRequest): Promise<boolean>;
   openExternal(url: string): Promise<boolean>;
 }
@@ -56,6 +57,7 @@ export interface ControllerDeps {
   project: () => string | undefined;
   profile: () => string;
   platform: string;
+  codexAvailable?: () => boolean;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
@@ -188,6 +190,12 @@ export class SettingsController {
         case "refresh":
           await this.reload(null, true);
           return this.synchronize(true);
+        case "newCodex":
+          if (this.deps.isTrusted() && this.deps.codexAvailable?.()) {
+            try { await this.deps.ui.openCodex?.(); }
+            catch { this.model = { ...this.model, notice: { level: "error", text: "Could not open a new Codex agent. Try Codex: New Codex Agent from the command palette." } }; }
+          }
+          return this.model;
         case "set":
           return this.doSet(message.control, message.value, message.tool);
         case "reset":
@@ -216,6 +224,7 @@ export class SettingsController {
       }
       this.report = report;
       this.model = buildModel({ report, explains: this.explains, inspect: this.inspect, trusted: this.deps.isTrusted(), profile, notice });
+      this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

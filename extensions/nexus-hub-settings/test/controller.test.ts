@@ -247,7 +247,7 @@ describe("set", () => {
     expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["set", true, true], ["set", false, true]]);
     expect(bridge.actions.every((a) => a.project === "C:\\work\\project")).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Mapped to supported defaults. Some clients require a manual setting." });
+    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Mapped to native defaults for new sessions." });
   });
 
   it("asks first for a safety-weakening change, listing keys, VS Code's warning, and the Cannot remove items", async () => {
@@ -661,5 +661,29 @@ describe("opening sources", () => {
     await controller.refresh(true);
     await controller.handle({ type: "openSource", control: "posture", write: "claude.posture" });
     expect(open).toHaveBeenCalledTimes(1);
+  });
+});
+
+
+describe("fresh Codex agent", () => {
+  it("reports an explicit native launch failure", async () => {
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex: async () => { throw new Error("missing command"); } } });
+    await controller.refresh();
+    expect((await controller.handle({ type: "newCodex" })).notice).toMatchObject({ level: "error", text: expect.stringContaining("Could not open") });
+  });
+  it("uses the native action only when trusted and installed", async () => {
+    const openCodex = vi.fn(async () => {});
+    let available = true;
+    const controller = make({ codexAvailable: () => available, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    expect((await controller.refresh()).codexAvailable).toBe(true);
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledTimes(1);
+    available = false;
+    await controller.handle({ type: "newCodex" });
+    trusted = false;
+    available = true;
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledTimes(1);
+    expect(bridge.actions).toHaveLength(0);
   });
 });

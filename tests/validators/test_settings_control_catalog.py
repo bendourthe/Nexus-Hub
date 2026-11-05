@@ -107,6 +107,7 @@ def test_catalog_is_not_empty_and_admits_only_proven_writes(catalog: dict) -> No
         "internal.edit_preservation", "internal.large_file_warning",
         "claude.effort.project", "claude.effort.project_local", "claude.effort.project_env", "claude.effort.project_local_env",
         "codex.effort.project", "codex.effort.profiles",
+        "claude.effort.ultracode", "claude.effort.ultracode_project", "claude.effort.ultracode_project_local",
     } == set(admitted)
 
 

@@ -92,3 +92,16 @@ describe("message validation against the catalog allowlist", () => {
     expect(validText(5)).toBe(false);
   });
 });
+
+
+describe("native Codex action", () => {
+  it("requires the installed client and a trusted writable panel", () => {
+    const m = model();
+    bad({ type: "newCodex" }, "unavailable", m);
+    m.codexAvailable = true;
+    expect(ok({ type: "newCodex" }, m)).toEqual({ type: "newCodex" });
+    bad({ type: "newCodex", command: "arbitrary.command" }, "unexpected fields", m);
+    m.readOnly = true;
+    bad({ type: "newCodex" }, "read-only", m);
+  });
+});

@@ -154,7 +154,8 @@ def validate_structure(catalog: dict[str, Any]) -> list[str]:
         effort_ids = next((c["writes"] for c in catalog["controls"] if c["id"] == "effort"), [])
         project_effort = (
             wid in effort_ids and write["file"] in PROJECT_FILES and write.get("only_when_present") is True
-            and write["key_path"] in (["effortLevel"], ["env", "CLAUDE_CODE_EFFORT_LEVEL"], ["model_reasoning_effort"])
+            and (write["key_path"] in (["effortLevel"], ["env", "CLAUDE_CODE_EFFORT_LEVEL"], ["model_reasoning_effort"])
+                 or (write["tool"] == "claude" and write["key_path"] == ["ultracode"]))
             and write["tool"] == ("claude" if write["file"].startswith(".claude/") else "codex")
             and write["kind"] == "vendor" and not write["weakens_safety"]
         )

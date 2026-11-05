@@ -94,3 +94,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--vscode-t
   .effort-section { padding: 12px; }
   .setting-row { gap: 8px; }
 }
+
+.compatibility { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hairline); color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 11px; }
+.compatibility p + p { margin-top: 4px; }
+button.native-action { margin-top: 8px; font-size: 11px; background: transparent; }

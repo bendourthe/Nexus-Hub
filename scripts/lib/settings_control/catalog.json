@@ -167,7 +167,10 @@
         "claude.effort.project_env",
         "claude.effort.project_local_env",
         "codex.effort.project",
-        "codex.effort.profiles"
+        "codex.effort.profiles",
+        "claude.effort.ultracode",
+        "claude.effort.ultracode_project",
+        "claude.effort.ultracode_project_local"
       ]
     },
     {
@@ -1712,7 +1715,7 @@
         "high": "high",
         "xhigh": "xhigh",
         "max": "max",
-        "ultra": "max"
+        "ultra": "xhigh"
       },
       "override_layers": [],
       "takes_effect": "New sessions only.",
@@ -1727,7 +1730,7 @@
         "fetched": "2026-11-04"
       },
       "admission": "admitted",
-      "notes": "Authoritative user-owned effort environment value. Max and Ultra map to native max; Ultra does not enable the separate ultracode workflow setting.",
+      "notes": "Nexus Ultra uses xhigh effort plus the separate ultracode setting. Max uses native max.",
       "proof": [
         "W33"
       ],
@@ -1988,7 +1991,7 @@
         "high": "high",
         "xhigh": "xhigh",
         "max": "max",
-        "ultra": "max"
+        "ultra": "xhigh"
       },
       "override_layers": [],
       "takes_effect": "New sessions only.",
@@ -2003,7 +2006,7 @@
         "fetched": "2026-11-04"
       },
       "admission": "admitted",
-      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "notes": "Nexus Ultra uses xhigh effort plus the separate ultracode setting. Max uses native max.",
       "proof": [
         "W35"
       ],
@@ -2033,7 +2036,7 @@
         "high": "high",
         "xhigh": "xhigh",
         "max": "max",
-        "ultra": "max"
+        "ultra": "xhigh"
       },
       "override_layers": [],
       "takes_effect": "New sessions only.",
@@ -2048,7 +2051,7 @@
         "fetched": "2026-11-04"
       },
       "admission": "admitted",
-      "notes": "Synchronizes only an existing project effort key. Ownership and reset are bound to the exact project path.",
+      "notes": "Nexus Ultra uses xhigh effort plus the separate ultracode setting. Max uses native max.",
       "proof": [
         "W35"
       ],
@@ -2145,6 +2148,125 @@
         "W36"
       ],
       "proof_matrix": "docs/releases/v4/v4.15/development/settings-platform-enforcement-proof.md",
+      "only_when_present": true
+    },
+    {
+      "id": "claude.effort.ultracode",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "ultracode"
+      ],
+      "values": [
+        false,
+        true
+      ],
+      "value_map": {
+        "low": false,
+        "medium": false,
+        "high": false,
+        "xhigh": false,
+        "max": false,
+        "ultra": true
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "claude-vscode": "2.1.318"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/model-config",
+        "fetched": "2026-11-05"
+      },
+      "admission": "admitted",
+      "notes": "Ultracode is a native workflow toggle, not a value accepted by effortLevel or CLAUDE_CODE_EFFORT_LEVEL.",
+      "proof": [
+        "W37"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-ultracode-proof.md"
+    },
+    {
+      "id": "claude.effort.ultracode_project",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.json",
+      "key_path": [
+        "ultracode"
+      ],
+      "values": [
+        false,
+        true
+      ],
+      "value_map": {
+        "low": false,
+        "medium": false,
+        "high": false,
+        "xhigh": false,
+        "max": false,
+        "ultra": true
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "claude-vscode": "2.1.318"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/model-config",
+        "fetched": "2026-11-05"
+      },
+      "admission": "admitted",
+      "notes": "Ultracode is a native workflow toggle, not a value accepted by effortLevel or CLAUDE_CODE_EFFORT_LEVEL.",
+      "proof": [
+        "W37"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-ultracode-proof.md",
+      "only_when_present": true
+    },
+    {
+      "id": "claude.effort.ultracode_project_local",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": ".claude/settings.local.json",
+      "key_path": [
+        "ultracode"
+      ],
+      "values": [
+        false,
+        true
+      ],
+      "value_map": {
+        "low": false,
+        "medium": false,
+        "high": false,
+        "xhigh": false,
+        "max": false,
+        "ultra": true
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "claude-vscode": "2.1.318"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/model-config",
+        "fetched": "2026-11-05"
+      },
+      "admission": "admitted",
+      "notes": "Ultracode is a native workflow toggle, not a value accepted by effortLevel or CLAUDE_CODE_EFFORT_LEVEL.",
+      "proof": [
+        "W37"
+      ],
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-ultracode-proof.md",
       "only_when_present": true
     }
   ]

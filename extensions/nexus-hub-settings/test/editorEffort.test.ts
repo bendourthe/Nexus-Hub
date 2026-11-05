@@ -154,11 +154,11 @@ describe("editor effort synchronization", () => {
     expect(stub.updates).toHaveLength(0);
   });
 
-  it("reports the Copilot schema gap without guessing or changing model settings", async () => {
+  it("keeps unsupported Copilot compatibility out of synchronization errors", async () => {
     stub.defaults["github.copilot.chat.reasoningEffortOverride"] = null;
     const result = await syncEditorEffort([record({ tool: "vscode-copilot", mapped_effort: undefined })], async () => undefined);
     expect(result.changed).toEqual([]);
-    expect(result.issues.join(" ")).toContain("public editor API does not expose");
+    expect(result.issues).toEqual([]);
     expect(stub.updates).toHaveLength(0);
     expect((await syncEditorEffort([record({ tool: "vscode-copilot", state: "tool-not-installed" })], async () => undefined)).issues).toEqual([]);
   });

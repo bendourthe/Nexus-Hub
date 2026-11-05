@@ -45,12 +45,15 @@ describe("compact status summary", () => {
     expect(summary.accessibilityLabel).toContain("default effort high");
     expect(summary.accessibilityLabel).toContain("needs attention");
   });
-  it("keeps the native hover to four short lines and one settings link", () => {
+  it("shows a compact native effort scale and named guard states", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
-    expect(tooltip.split("\n")).toHaveLength(4);
-    expect(tooltip).toContain("Nexus Settings: High effort");
-    expect(tooltip).toContain("Configured guardrails: 2 of 3 on");
-    expect(tooltip).not.toMatch(/\||data:image|<svg|setEffort|Show full label|Claude|Codex|Copilot|settings\.json|model_reasoning/);
+    expect(tooltip.length).toBeLessThan(1000);
+    expect(tooltip).toContain("Low $(");
+    expect(tooltip).toContain("$(record)");
+    expect(tooltip).toContain("My edits");
+    expect(tooltip).toContain("Nexus Settings");
+    expect(tooltip).toContain("**2 / 3 on**");
+    expect(tooltip).not.toMatch(/data:image|<svg|setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
     expect(tooltip).toContain("Review application in Settings");
     expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);
   });
@@ -65,7 +68,7 @@ describe("compact status summary", () => {
   it("keeps unsupported coverage visible without adding platform rows", () => {
     const summary = summarizePreferences(model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]));
     expect(summary.needsAttention).toBe(false);
-    expect(summary.effortStatus).toContain("Some clients require a manual setting");
+    expect(summary.effortStatus).not.toContain("manual");
   });
   it("treats unreadable guards as unavailable, not as off or enabled", () => {
     const summary = summarizePreferences(model([control("git_safety", [row("internal", "cannot-detect")])]));
