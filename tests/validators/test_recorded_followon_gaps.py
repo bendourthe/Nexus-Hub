@@ -17,12 +17,25 @@ from pathlib import Path
 
 import pytest
 
-from .test_check_plan_completion import _isolated_git_config  # noqa: F401  (autouse fixture re-exported)
+from .test_check_plan_completion import (
+    _isolated_git_config,  # noqa: F401  (autouse fixture re-exported)
+)
 from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-exported)
     _no_transport_overrides,
 )
 from .test_gap_migration_and_archive import Close
-from .test_planned_followon_gaps import frozen_text
+from .test_planned_followon_gaps import (
+    FROZEN as TEMPLATE_FROZEN,
+)
+from .test_planned_followon_gaps import (
+    FROZEN_TEXT as TEMPLATE_TEXT,
+)
+from .test_planned_followon_gaps import (
+    PLAN_REL as TEMPLATE_PLAN_REL,
+)
+from .test_planned_followon_gaps import (
+    frozen_text,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
@@ -31,7 +44,8 @@ import completion_minor as cm
 
 VERSION = "v4.14.2"
 NAME = "v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md"
-ACTIVE = "docs/archives/v4/v4.14"
+# Fixtures retain their historical active origin after this repository archives it.
+ACTIVE = "docs/releases/v4/v4.14"
 PLAN_REL = f"{ACTIVE}/plans/{NAME}"
 GAPS = f"{ACTIVE}/known-gaps.md"
 FROZEN = "5e5d95b9f3dc65d0fbbbf5ee3f40defc65cd6a30caebaf8361b70a532413d892"
@@ -187,10 +201,8 @@ def test_a_plan_changed_after_freezing_is_denied(repo: Recorded) -> None:
 
 
 def test_the_exact_template_tasks_are_unchanged() -> None:
-    v4141 = REPO_ROOT / ACTIVE / "plans" / "v4.14.1-adoption-effort-allocation.md"
-    text = v4141.read_text(encoding="utf-8")
-    original = cm.Plan(str(v4141.relative_to(REPO_ROOT)).replace("\\", "/"), "v4.14.1", (4, 14, 1), "queued", "x", text)
-    frozen = ck.plan_hash_text(text)
+    original = cm.Plan(TEMPLATE_PLAN_REL, "v4.14.1", (4, 14, 1), "queued", "x", TEMPLATE_TEXT)
+    frozen = TEMPLATE_FROZEN
     assert cm.planned_followon_entry(ck, original, "T004", frozen) is not None
     # A templated task keeps its derived reason: the free-text form never applies to it.
     assert cm.recorded_followon_task(ck, original, "T004", frozen) is None

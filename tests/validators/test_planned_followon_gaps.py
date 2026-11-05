@@ -49,7 +49,8 @@ import minor_close as mc
 
 VERSION = "v4.14.1"
 NAME = "v4.14.1-adoption-effort-allocation.md"
-ACTIVE = "docs/archives/v4/v4.14"
+# Synthetic repositories and frozen Git-history lookup retain the active origin.
+ACTIVE = "docs/releases/v4/v4.14"
 ARCHIVE = "docs/archives/v4/v4.14"
 PLAN_REL = f"{ACTIVE}/plans/{NAME}"
 GAPS = f"{ACTIVE}/known-gaps.md"
