@@ -285,11 +285,8 @@ def test_a_refused_write_removes_only_its_own_entries_from_a_record_another_comm
     machine.put("claude-user", '{"model": "sonnet"}\n')
     machine.put("codex-user", 'model = "gpt-6.1-sol"\n')
     real_commit = writers.commit
-    state = {"calls": 0}
-
     def commit(plan: writers.Plan) -> bool:
-        state["calls"] += 1
-        if state["calls"] == 2:  # the second file group is refused after the first one was recorded
+        if plan.loaded.real == machine.path("codex-user"):
             raise writers.WriterRefusal("refused for the test")
         return real_commit(plan)
 

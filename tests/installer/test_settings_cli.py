@@ -134,6 +134,41 @@ def test_project_must_be_a_directory(install: Path, env: dict[str, str], tmp_pat
     assert done.returncode == 2 and "--project is not a directory" in done.stderr and done.stdout == ""
 
 
+def test_installed_cli_applies_shared_effort_and_restores_existing_override(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    user = home / ".claude" / "settings.json"
+    user.parent.mkdir()
+    original = '{\n  "env": {"CLAUDE_CODE_EFFORT_LEVEL": "low", "KEEP": "yes"}\n}\n'
+    user.write_text(original, encoding="utf-8")
+
+    changed = run(install, env, "set", "effort", "high", "--json", "--project", str(tmp_path))
+    assert changed.returncode == 0, changed.stderr
+    assert json.loads((home / ".nexus-hub" / "preferences.json").read_text()) == {"default_effort": "high"}
+    assert json.loads(user.read_text())["env"] == {"CLAUDE_CODE_EFFORT_LEVEL": "high", "KEEP": "yes"}
+    shown = run(install, env, "show", "--json", "--project", str(tmp_path))
+    rows = {(r["control"], r["tool"]): r for r in json.loads(shown.stdout)["records"]}
+    assert rows["effort", "internal"]["value"] == "high"
+    assert rows["effort", "claude"]["state"] == "in-effect"
+
+    reset = run(install, env, "reset", "effort", "--json", "--project", str(tmp_path))
+
+    assert reset.returncode == 0, reset.stderr
+    assert user.read_text(encoding="utf-8") == original
+    assert not (home / ".nexus-hub" / "preferences.json").exists()
+
+
+def test_installed_cli_reports_default_guards_and_enforces_off_confirmation(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
+    shown = run(install, env, "show", "--json", "--project", str(tmp_path))
+    rows = {r["control"]: r for r in json.loads(shown.stdout)["records"] if r["tool"] == "internal"}
+    assert all(rows[control]["value"] == "on" for control in ("git_safety", "secret_scan", "edit_preservation", "large_file_warning"))
+
+    refused = run(install, env, "set", "secret_scan", "off", "--json", "--project", str(tmp_path))
+
+    assert refused.returncode == 3 and not (home / ".nexus-hub" / "guardrails.json").exists()
+    warning = run(install, env, "set", "large_file_warning", "off", "--json", "--project", str(tmp_path))
+    assert warning.returncode == 0, warning.stderr
+    assert json.loads((home / ".nexus-hub" / "guardrails.json").read_text()) == {"warn_large_files": False}
+
+
 def test_project_files_are_read_from_the_named_project(install: Path, home: Path, env: dict[str, str], tmp_path: Path) -> None:
     project = tmp_path / "proj"
     (project / ".claude").mkdir(parents=True)
@@ -177,7 +212,8 @@ def test_settings_without_an_action_prints_help(install: Path, env: dict[str, st
 def test_a_catalog_that_breaks_a_rule_is_refused_with_the_findings(install: Path, env: dict[str, str]) -> None:
     path = install.parent / "lib" / "settings_control" / "catalog.json"
     catalog = json.loads(path.read_text(encoding="utf-8"))
-    del catalog["writes"][0]["override_layers"][0]["detect"]
+    write = next(w for w in catalog["writes"] if w["id"] == "claude.effort.model_settings")
+    del write["override_layers"][0]["detect"]
     path.write_text(json.dumps(catalog), encoding="utf-8")
 
     done = run(install, env, "show")

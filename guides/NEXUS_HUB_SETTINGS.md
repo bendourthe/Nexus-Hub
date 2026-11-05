@@ -6,7 +6,7 @@ Covers: the five controls and what each means per tool, the VS Code status bar, 
 
 Nexus-Hub Settings is the one place where you choose the defaults a new agent session starts with. Each tool keeps its defaults in a different file with a different key and a different set of values, and several other layers (an environment variable, a project file, an organization policy, a mode the tool remembers) can quietly beat the file. The command line writes the files and reports every layer that overrides your choice. The VS Code panel is a thin front end over the same command, so the two always agree.
 
-Every control is a default for new sessions only. A session that is already running keeps the value it started with.
+Effort and native approval controls are defaults for new sessions. The five Nexus-Hub guardrail switches are read on the next hook invocation. The compact Settings 0.2.0 panel exposes one effort selector and those five switches; the CLI retains the detailed native controls described below. Shared effort persistence and the guardrail keys are documented in the [preference reference](../docs/reference/settings-preferences.md).
 
 A control exists only where its effect was observed changing a fresh session before it shipped. Everything else is shown as "Not settable" with its reason, never as a switch that silently does nothing. The admission rule and the vendor sources are in the [settings control contract](../docs/policy/settings-control-contract.md).
 
@@ -14,7 +14,7 @@ A control exists only where its effect was observed changing a fresh session bef
 
 - **Activation:** install or upgrade Nexus-Hub (the installers build and install the VS Code panel when the `code` command is found), then run `nexus-hub settings show`, or open the "Nexus-Hub Settings" view in the VS Code activity bar. A default is written only when you run `nexus-hub settings set ...` or confirm a change in the panel.
 - **Validation:** run `nexus-hub settings show` (add `--json` for machine-readable output). Each control and tool prints exactly one state. After a `set`, a fresh session in the tool shows the value, and `nexus-hub settings explain <control>` names the file, key, and proof for each write.
-- **Rollback:** run `nexus-hub settings reset <control>` (or "Reset" on the control in the panel). To remove the panel itself, run `code --uninstall-extension nexus-hub.nexus-hub-settings`.
+- **Rollback:** run `nexus-hub settings reset <control>`. To remove the panel itself, run `code --uninstall-extension nexus-hub.nexus-hub-settings`.
 - **Authority:** the panel and command cannot change a running session, cannot override an organization policy, cannot make a tool honor a setting it does not document, and never let an agent enable a safety-weakening default. A change that lowers a safety barrier needs a person at a terminal or a confirmed panel dialog, and it is refused inside an agent session. Nothing is sent over a network, and only user-level files are written.
 - **Docs:** this guide is the canonical operating reference.
 
@@ -39,7 +39,7 @@ Reading the table:
 
 ### What a new session starts with
 
-If you choose High effort and Full auto, the intended result per tool is below. The panel shows this table at the top, generated from the same catalog, and marks a cell "Not settable" wherever no write is admitted.
+If you choose High effort and Full auto through the CLI, the intended result per tool is below. This is CLI reference material; the compact panel does not expose this scenario table or a native approval-mode selector.
 
 | Tool | Intended result | Today |
 |---|---|---|
@@ -72,9 +72,9 @@ Writes preserve comments and unrelated keys, follow a symlink to the real file, 
 
 ## Status bar
 
-In VS Code, the Nexus-Hub mark sits in the status bar next to the usage monitors, followed by the effort a new session starts with: the value every settable tool agrees on, `mixed` when they differ, or `default` when none is set. When a default is overridden, not covered, unverified for the installed version, or cannot be detected, a warning icon and a count follow.
+In VS Code, the Nexus mark sits next to the usage monitors with a clear label such as `Nexus High`. It uses the stored shared effort preference, with a warning marker when application is incomplete or overridden.
 
-Hover over it to see each tool's effort, model, and approval default, the tools that are not settable here, and what needs attention. Click it, or the "Open Nexus-Hub Settings" link in the hover, to open the full panel. The status bar reads the same state as `nexus-hub settings show` and writes nothing. To hide it without uninstalling the panel, right-click the status bar and clear "Nexus-Hub Settings".
+The hover gives a short effort, guardrail and readiness summary with an open action. Click it to open Settings. The panel contains one autosaving effort selector and five named switches; `nexus-hub settings show` retains detailed diagnosis. The status bar writes nothing. To hide it without uninstalling the panel, right-click the status bar and clear "Nexus Settings".
 
 ## Override states
 

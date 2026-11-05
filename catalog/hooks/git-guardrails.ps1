@@ -47,6 +47,21 @@
 # Never fail loudly on internal errors.
 $ErrorActionPreference = "Continue"
 
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        $guardSettings = Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+
 # Nexus-Hub source label; echoed values cannot forge a new tagged line.
 $script:NexusTag = "[Nexus-Hub: git-guardrails]"
 function ConvertTo-NexusVisible {
@@ -158,6 +173,7 @@ function Remove-HeredocBodies {
 
 # $scan drives every block decision below; $command is kept for reporting and for
 # the written-content warning.
+if (-not (Test-NexusGuardrailDisabled -Key "block_dangerous_git")) {
 $scan = Remove-HeredocBodies -Text $command
 
 # --- Check command against each pattern ---
@@ -211,6 +227,8 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
             }
         }
     }
+}
+
 }
 
 # --- Opt-in git bypass-flag guard (v4.14.4; parity with the .sh) ---

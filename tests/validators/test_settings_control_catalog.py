@@ -36,10 +36,15 @@ def load_catalog() -> dict:
 def validate_catalog(catalog: dict, root: Path = REPO_ROOT) -> list[str]:
     """Return one finding per rule violation; an empty list means the catalog is admitted."""
     findings = validate_structure(catalog)
-    matrix = (root / catalog["proof_matrix"]).read_text(encoding="utf-8")
-    proven = set(re.findall(r"^\| ((?:W|O)\d{2}) \|.*\| proven \|[^|]*\|$", matrix, flags=re.MULTILINE))
     for write in catalog["writes"]:
         wid = write["id"]
+        matrix_path = root / write.get("proof_matrix", catalog["proof_matrix"])
+        if not matrix_path.is_file():
+            findings.append(f"{wid}: proof matrix does not exist")
+            proven = set()
+        else:
+            matrix = matrix_path.read_text(encoding="utf-8")
+            proven = set(re.findall(r"^\| ((?:W|O)\d{2}) \|.*\| proven \|[^|]*\|$", matrix, flags=re.MULTILINE))
         ids = write.get("proof") or []
         if write["admission"] == "admitted" and ids and any(rid not in proven for rid in ids):
             findings.append(f"{wid}: admitted without a proven proof-matrix row ({ids})")
@@ -98,6 +103,8 @@ def test_catalog_is_not_empty_and_admits_only_proven_writes(catalog: dict) -> No
     assert {
         "claude.model", "claude.posture", "claude.effort.model_settings", "claude.effort.top_level",
         "codex.model", "codex.posture", "codex.sandbox_mode", "codex.effort", "internal.git_guardrails",
+        "internal.effort", "claude.effort.existing_env", "internal.git_safety", "internal.secret_scan",
+        "internal.edit_preservation", "internal.large_file_warning",
     } == set(admitted)
 
 

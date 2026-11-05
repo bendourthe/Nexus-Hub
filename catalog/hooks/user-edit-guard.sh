@@ -21,10 +21,38 @@
 # looks like a write is blocked outside a git worktree and warned inside one;
 # it is never passed silently outside a worktree.
 #
-# Essential: stays on under NEXUS_HOOK_PROFILE=minimal. The only switch is the
-# user's own NEXUS_DISABLED_HOOKS=user-edit-guard.
+# Essential: stays on under NEXUS_HOOK_PROFILE=minimal. Disable through the
+# user's NEXUS_DISABLED_HOOKS=user-edit-guard or Settings protect_user_edits=false.
 
 set -euo pipefail
+
+# Read Settings on every invocation. Only JSON false disables this protection.
+_nexus_guardrail_disabled() {
+  local guard_home="${HOME:-${USERPROFILE:-}}" guard_file
+  [ -n "$guard_home" ] || return 1
+  guard_file="$guard_home/.nexus-hub/guardrails.json"
+  [ -f "$guard_file" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e -s --arg key "$1" 'length == 1 and (.[0] | type) == "object" and .[0][$key] == false' "$guard_file" >/dev/null 2>&1
+    return $?
+  fi
+  local guard_py guard_verdict
+  for guard_py in python3 python; do
+    command -v "$guard_py" >/dev/null 2>&1 || continue
+    guard_verdict=$("$guard_py" -c 'import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        config = json.load(stream)
+    print("disabled" if isinstance(config, dict) and config.get(sys.argv[2]) is False else "enabled")
+except (OSError, ValueError, TypeError):
+    print("enabled")' "$guard_file" "$1" 2>/dev/null) || continue
+    guard_verdict=${guard_verdict//$'\r'/}
+    if [ "$guard_verdict" = "disabled" ]; then return 0; fi
+    if [ "$guard_verdict" = "enabled" ]; then return 1; fi
+  done
+  return 1
+}
+if _nexus_guardrail_disabled protect_user_edits; then exit 0; fi
 
 _HOOK_NAME="user-edit-guard"
 _DISABLED="${NEXUS_DISABLED_HOOKS:-}"

@@ -54,10 +54,18 @@ describe("manifest", () => {
     }
   });
 
-  it("uses the Nexus-Hub logo as the extension icon and the panel logo", () => {
+  it("uses the original Nexus mark consistently on every Settings surface", () => {
     const logo = fs.readFileSync(path.join(repo, "assets", "nexus-hub-favicon", "android-chrome-512x512.png"));
-    expect(fs.readFileSync(path.join(ext, "icon.png")).equals(logo)).toBe(true);
-    expect(fs.readFileSync(path.join(ext, "media", "logo.png")).equals(logo)).toBe(true);
+    const settingsIcon = fs.readFileSync(path.join(ext, manifest.icon));
+    expect(settingsIcon.equals(logo)).toBe(true);
+    expect(fs.readFileSync(path.join(ext, "media", "logo.png")).equals(settingsIcon)).toBe(true);
+    expect(settingsIcon.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+    expect(settingsIcon.readUInt32BE(16)).toBe(512);
+    expect(settingsIcon.readUInt32BE(20)).toBe(512);
+    expect(settingsIcon[25]).toBe(6); // RGBA supports a transparent background.
+    const sidebar = fs.readFileSync(path.join(ext, "media", "icon.svg"), "utf8");
+    const statusBar = fs.readFileSync(path.join(ext, "icons", "nexus-hub.svg"), "utf8");
+    expect(statusBar).toBe(sidebar);
   });
 
   it("keeps developer files out of the package", () => {

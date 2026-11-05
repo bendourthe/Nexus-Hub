@@ -78,7 +78,7 @@ def _user_native(write: dict[str, Any], snap: Snapshot, claude_ids: list[str]) -
 
 
 def _control_values(write: dict[str, Any], native: Any) -> list[str]:
-    return [control for control, mapped in write["value_map"].items() if mapped == native]
+    return [control for control, mapped in write["value_map"].items() if type(mapped) is type(native) and mapped == native]
 
 
 def _display(write: dict[str, Any], native: Native) -> str | None:
@@ -118,6 +118,10 @@ def _probe(write: dict[str, Any], layer: dict[str, Any], snap: Snapshot, user_va
             record = snap.files[file_id]
             block = record.data.get("env") if record.status == "ok" else None
             if isinstance(block, dict) and block.get(name) not in (None, ""):
+                if detect.get("matching_user_value_is_not_override") and file_id == "claude-user":
+                    values = list(user_value.values()) if isinstance(user_value, dict) else [user_value]
+                    if values and all(v == block[name] for v in values):
+                        continue
                 hits.append(Hit(_RANK_ENV, f"env {name} ({_env_source(record)} env block)", fix, _echo(block[name])))
     for file_id in detect.get("files", []):
         record = snap.files[file_id]
@@ -180,6 +184,8 @@ def _companion_notes(admitted: list[dict[str, Any]], natives: dict[str, Native],
         for write in admitted[1:]:
             expected = write["value_map"].get(chosen[0])
             actual = natives[write["id"]]
+            if write.get("only_when_present") and not actual.found:
+                continue
             key = ".".join(str(p) for p in write["key_path"])
             if expected is None and actual.found:
                 notes.append(f"{key} is set to {_echo(actual.value)}, which Nexus-Hub does not write for {chosen[0]}.")
@@ -232,6 +238,11 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
     primary = admitted[0]
     native = natives[primary["id"]]
     rec.update(value=_display(primary, native), native=native.entries if native.entries is not None else native.value)
+    if not native.found and "default" in primary:
+        rec.update(value="/".join(_control_values(primary, primary["default"])), native=primary["default"])
+        return done("in-effect", "Using the Nexus-Hub default.")
+    if "default" in primary and not _control_values(primary, native.value):
+        return done("cannot-detect", "The guardrail setting must be a JSON boolean.")
     for write in admitted:
         ranged = write["proven_versions"]
         if "min" in ranged or "max" in ranged:

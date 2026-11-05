@@ -40,7 +40,7 @@ describe("activation", () => {
     expect(stub.providers.map((p) => p.id)).toEqual(["nexusHubSettings.view"]);
     expect(stub.providers[0]?.options).toEqual({ webviewOptions: { retainContextWhenHidden: true } });
     expect(stub.commands.has(OPEN_COMMAND)).toBe(true);
-    expect(stub.watchers).toHaveLength(5 + 3);
+    expect(stub.watchers).toHaveLength(6 + 3);
     expect(ctx.subscriptions.length).toBeGreaterThan(10);
   });
 
@@ -92,6 +92,7 @@ describe("what the panel watches", () => {
       path.join("h", ".codex", "config.toml"),
       path.join("h", ".copilot", "settings.json"),
       path.join("h", ".nexus-hub", "guardrails.json"),
+      path.join("h", ".nexus-hub", "preferences.json"),
       path.join("h", ".nexus-hub", "settings-control.json"),
     ]);
     const overridden = watchedFiles({ CLAUDE_CONFIG_DIR: path.join("c"), CODEX_HOME: path.join("x"), COPILOT_HOME: "  " }, path.join("h"));

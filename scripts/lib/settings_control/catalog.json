@@ -155,8 +155,10 @@
         "max"
       ],
       "writes": [
+        "internal.effort",
         "claude.effort.model_settings",
         "claude.effort.top_level",
+        "claude.effort.existing_env",
         "codex.effort",
         "copilot-cli.effort",
         "vscode-copilot.effort"
@@ -220,9 +222,91 @@
       "writes": [
         "internal.git_guardrails"
       ]
+    },
+    {
+      "id": "git_safety",
+      "label": "Git safety",
+      "values": [
+        "on",
+        "off"
+      ],
+      "writes": [
+        "internal.git_safety"
+      ]
+    },
+    {
+      "id": "secret_scan",
+      "label": "Secret scanning",
+      "values": [
+        "on",
+        "off"
+      ],
+      "writes": [
+        "internal.secret_scan"
+      ]
+    },
+    {
+      "id": "edit_preservation",
+      "label": "Protect my edits",
+      "values": [
+        "on",
+        "off"
+      ],
+      "writes": [
+        "internal.edit_preservation"
+      ]
+    },
+    {
+      "id": "large_file_warning",
+      "label": "Large-file warnings",
+      "values": [
+        "on",
+        "off"
+      ],
+      "writes": [
+        "internal.large_file_warning"
+      ]
     }
   ],
   "writes": [
+    {
+      "id": "internal.effort",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/preferences.json",
+      "key_path": [
+        "default_effort"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "Saved as the shared preference and applied to supported native defaults for new sessions.",
+      "proven_versions": {
+        "nexus-hub-settings": "0.2.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "decision": "docs/reference/settings-preferences.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W27"
+      ],
+      "notes": "This records the requested default. Native tool rows separately report whether it applies.",
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
     {
       "id": "claude.effort.model_settings",
       "kind": "vendor",
@@ -260,7 +344,8 @@
               "claude-user",
               "claude-project",
               "claude-project-local"
-            ]
+            ],
+            "matching_user_value_is_not_override": true
           }
         },
         {
@@ -362,7 +447,8 @@
               "claude-user",
               "claude-project",
               "claude-project-local"
-            ]
+            ],
+            "matching_user_value_is_not_override": true
           }
         },
         {
@@ -1583,6 +1669,194 @@
         "W26"
       ],
       "notes": "Enforced by the git-guardrails hook where it is registered: Claude Code through catalog/hooks/settings.json. Enforcement on Codex and Copilot is not verified here. Inert under bypassPermissions, per the decision record's documented limits."
+    },
+    {
+      "id": "claude.effort.existing_env",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "env",
+        "CLAUDE_CODE_EFFORT_LEVEL"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "override_layers": [],
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/env-vars",
+        "fetched": "2026-11-04"
+      },
+      "admission": "admitted",
+      "notes": "Synchronizes an existing user-owned effort environment key to the shared choice; never creates this override when absent. Shell, project and managed overrides remain separate.",
+      "proof": [
+        "W32"
+      ],
+      "only_when_present": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
+    {
+      "id": "internal.git_safety",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "block_dangerous_git"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "override_layers": [],
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "nexus-hub-settings": "0.2.0"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "off"
+      ],
+      "source": {
+        "decision": "docs/reference/settings-preferences.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W28"
+      ],
+      "notes": "The registered Nexus-Hub hook reads this boolean on every call. Missing or malformed configuration keeps the guard enabled; host permission-mode behavior is unchanged.",
+      "default": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
+    {
+      "id": "internal.secret_scan",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "scan_secrets"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "override_layers": [],
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "nexus-hub-settings": "0.2.0"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "off"
+      ],
+      "source": {
+        "decision": "docs/reference/settings-preferences.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W29"
+      ],
+      "notes": "The registered Nexus-Hub hook reads this boolean on every call. Missing or malformed configuration keeps the guard enabled; host permission-mode behavior is unchanged.",
+      "default": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
+    {
+      "id": "internal.edit_preservation",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "protect_user_edits"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "override_layers": [],
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "nexus-hub-settings": "0.2.0"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "off"
+      ],
+      "source": {
+        "decision": "docs/reference/settings-preferences.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W30"
+      ],
+      "notes": "The registered Nexus-Hub hook reads this boolean on every call. Missing or malformed configuration keeps the guard enabled; host permission-mode behavior is unchanged.",
+      "default": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
+    },
+    {
+      "id": "internal.large_file_warning",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "warn_large_files"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "override_layers": [],
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "nexus-hub-settings": "0.2.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "decision": "docs/reference/settings-preferences.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W31"
+      ],
+      "notes": "The registered Nexus-Hub hook reads this boolean on every call. Missing or malformed configuration keeps the guard enabled; host permission-mode behavior is unchanged.",
+      "default": true,
+      "proof_matrix": "docs/releases/v4/v4.15/development/settings-extension-redesign-proof.md"
     }
   ]
 }

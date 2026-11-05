@@ -19,6 +19,7 @@ import {
   emptyModel,
   errorModel,
   isAllowedSource,
+  summarizePreferences,
 } from "./viewModel";
 
 /**
@@ -271,8 +272,15 @@ export class SettingsController {
       return this.rollback(control, tool, error);
     }
     lines.push(...pre.skipped.map((s) => `skipped: ${s.reason}`));
-    const exitNote = out.exitCode === 0 ? "" : " Some cells were not written; see the lines below.";
-    return this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `Saved ${value} for ${control}. New sessions only.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
+    const label = this.model.controls.find((item) => item.id === control)?.label ?? control;
+    const exitNote = out.exitCode === 0 ? "" : " Some settings could not be applied.";
+    const refreshed = await this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `${label} saved.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
+    if (control === "effort" && tool === null && !refreshed.error) {
+      const summary = summarizePreferences(refreshed);
+      const confirmed = summary.effort === value;
+      this.model = { ...refreshed, notice: { level: !confirmed || summary.needsAttention || out.exitCode !== 0 ? "warn" : "info", text: confirmed ? `Default effort saved.${exitNote} ${summary.effortStatus}` : "The saved effort could not be confirmed. Refresh and try again.", lines: lines.slice(0, MAX_LINES) } };
+    }
+    return this.model;
   }
 
   /** A VS Code write failed after the engine wrote files: undo the control and say so. */

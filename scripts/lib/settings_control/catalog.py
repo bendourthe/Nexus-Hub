@@ -31,6 +31,7 @@ USER_FILE_IDS: dict[str, str | None] = {
     "~/.codex/config.toml": "codex-user",
     "~/.copilot/settings.json": "copilot-user",
     "~/.nexus-hub/guardrails.json": "nexus-guardrails",
+    "~/.nexus-hub/preferences.json": "nexus-preferences",
     "vscode-config": None,
 }
 #: Every file id a layer may name. The reader owns the path of each.
@@ -39,7 +40,7 @@ FILE_IDS = frozenset(
         "claude-user", "claude-project", "claude-project-local", "claude-managed",
         "codex-user", "codex-project",
         "copilot-user", "copilot-repo", "copilot-repo-local",
-        "nexus-guardrails",
+        "nexus-guardrails", "nexus-preferences",
     }
 )
 DIR_IDS = frozenset({"claude-dir", "codex-dir", "copilot-dir"})
@@ -60,6 +61,9 @@ WEAKENING_NATIVE = {
     ("vscode-copilot", "chat.tools.global.autoApprove", True),
     ("vscode-copilot", "chat.permissions.default", "autoApprove"),
     ("internal", "block_git_bypass_flags", False),
+    ("internal", "block_dangerous_git", False),
+    ("internal", "scan_secrets", False),
+    ("internal", "protect_user_edits", False),
 }
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ENV_NAME = re.compile(r"^[A-Z][A-Z0-9_]*$")
@@ -168,6 +172,10 @@ def validate_structure(catalog: dict[str, Any]) -> list[str]:
         else:
             findings.append(f"{wid}: admission must be admitted or not-settable")
         values = _native_values(write)
+        if "default" in write and (write["kind"] != "internal" or not any(type(write["default"]) is type(v) and write["default"] == v for v in values)):
+            findings.append(f"{wid}: default must be an allowed internal native value")
+        if "only_when_present" in write and not isinstance(write["only_when_present"], bool):
+            findings.append(f"{wid}: only_when_present must be boolean")
         if write["tool"] == "codex" and write["key_path"] == ["approval_policy"] and "untrusted" in values:
             findings.append(f"{wid}: untrusted is retired and must never be mapped")
         mapped = list(write["value_map"].values())

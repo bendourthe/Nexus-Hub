@@ -1,524 +1,83 @@
 :root {
   color-scheme: light dark;
-  /* The edge of a field: the foreground color at 60 percent, so it stays at least 3:1 against the field in every theme. */
-  --field-border: color-mix(in srgb, var(--vscode-foreground) 60%, transparent);
-  /* Hairlines between rows: decoration only, never the edge of something a person must find. */
-  --hairline: color-mix(in srgb, var(--vscode-foreground) 12%, transparent);
-  --radius: 4px;
+  --field-border: color-mix(in srgb, var(--vscode-foreground) 65%, transparent);
+  --hairline: color-mix(in srgb, var(--vscode-foreground) 16%, transparent);
 }
-
+* { box-sizing: border-box; }
 body {
-  padding: 0 14px 24px;
+  margin: 0;
+  padding: 0 18px 24px;
   color: var(--vscode-foreground);
   background: var(--vscode-sideBar-background, var(--vscode-editor-background));
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
-  line-height: 1.45;
+  line-height: 1.5;
 }
-
-main {
-  display: block;
-  width: 100%;
-}
-
-h1 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* Card titles follow the usage monitors: small capitals, so the controls below them carry the weight. */
-h2 {
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-p {
-  margin: 4px 0;
-}
-
-header {
-  padding: 14px 0 4px;
-}
-
-header .title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-header .title img {
-  flex: none;
-  border-radius: 6px;
-}
-
-.title-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.title-text p {
-  margin: 0;
-}
-
-.hint {
-  color: var(--vscode-descriptionForeground);
-}
-
-.small,
-.detail {
-  font-size: 12px;
-}
-
-.detail {
-  color: var(--vscode-descriptionForeground);
-}
-
-.card {
-  margin: 12px 0;
-  padding: 12px 14px;
-  background: var(--vscode-editor-background);
-  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border, currentColor));
-  border-radius: 6px;
-}
-
-.notice {
-  margin: 10px 0;
-  padding: 8px 12px;
-  border: 1px solid var(--vscode-inputValidation-infoBorder, var(--vscode-focusBorder));
-  border-radius: var(--radius);
-  background: var(--vscode-textBlockQuote-background);
-  font-size: 12px;
-}
-
-.notice ul {
-  margin: 4px 0 0;
-  padding-left: 18px;
-}
-
-.notice.level-warn {
-  border-color: var(--vscode-editorWarning-foreground);
-}
-
-.notice.level-error,
-.error-card {
-  border-color: var(--vscode-editorError-foreground);
-}
-
-pre {
-  margin: 6px 0;
-  padding: 6px 8px;
-  overflow-x: auto;
-  background: var(--vscode-textCodeBlock-background);
-  border-radius: var(--radius);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.rows {
-  margin: 4px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.row {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
-  padding: 10px 0;
-  border-top: 1px solid var(--hairline);
-}
-
-.row p {
-  margin: 0;
-}
-
-.row-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px 10px;
-}
-
-.row-head strong {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-/* A row that cannot be set is information only: quieter, so the rows that can be changed stand out. */
-.row.state-not-settable .row-head strong,
-.row.state-tool-not-installed .row-head strong {
-  font-weight: 500;
-}
-
-.value .label {
-  color: var(--vscode-descriptionForeground);
-}
-
-.chip {
-  display: inline-block;
-  padding: 0 6px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--vscode-foreground) 10%, transparent);
-  font-family: var(--vscode-editor-font-family, monospace);
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-
-/* The state is the text of the badge in the foreground color. The tone colors only the outline, the tint and the icon,
-   which repeat what the words say, so no state depends on a color that fails 4.5:1 against the page. */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 8px;
-  color: var(--vscode-foreground);
-  background: color-mix(in srgb, var(--tone, transparent) 12%, transparent);
-  border: 1px solid var(--tone, currentColor);
-  border-radius: 10px;
-  font-size: 11px;
-  line-height: 18px;
-  overflow-wrap: anywhere;
-}
-
-.badge .icon {
-  color: var(--tone, currentColor);
-}
-
-.tone-ok {
-  --tone: var(--vscode-testing-iconPassed, var(--vscode-foreground));
-}
-
-.tone-info {
-  --tone: var(--vscode-textLink-foreground, var(--vscode-foreground));
-}
-
-.tone-warn {
-  --tone: var(--vscode-editorWarning-foreground, var(--vscode-foreground));
-}
-
-.tone-muted {
-  --tone: var(--vscode-descriptionForeground, var(--vscode-foreground));
-}
-
-.tone-error {
-  --tone: var(--vscode-editorError-foreground, var(--vscode-foreground));
-}
-
-.icon::before {
-  display: inline-block;
-  min-width: 1em;
-  text-align: center;
-  font-weight: bold;
-}
-
-.icon-check::before {
-  content: "\2713";
-}
-
-.icon-dot::before {
-  content: "\2022";
-}
-
-.icon-warning::before {
-  content: "\0021";
-}
-
-.icon-lock::before {
-  content: "\2212";
-}
-
-.icon-info::before {
-  content: "i";
-}
-
-.icon-x::before {
-  content: "\00D7";
-}
-
-.icon-question::before {
-  content: "?";
-}
-
-.caveats {
-  margin: 4px 0 2px;
-  padding-left: 18px;
-  color: var(--vscode-descriptionForeground);
-  font-size: 12px;
-}
-
-.fix {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 6px 0 0;
-}
-
-.field > label {
-  color: var(--vscode-descriptionForeground);
-  font-size: 12px;
-}
-
-/* A control and the button that applies it share one line; the button keeps its own width. */
-.inline {
-  display: flex;
-  align-items: stretch;
-  gap: 6px;
-}
-
-.inline > select,
-.inline > input {
-  flex: 1;
-  min-width: 0;
-}
-
-.inline > button {
-  flex: none;
-  margin: 0;
-}
-
-.apply {
-  margin: 0 0 4px;
-}
-
-button,
-input,
+main { width: 100%; min-width: 0; max-width: 36rem; margin-inline: auto; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 24px 0 26px; }
+.brand { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.brand img { flex: 0 0 auto; object-fit: contain; }
+h1 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
+h2 { margin: 0; font-size: 13px; font-weight: 600; }
+p { margin: 0; }
+.hint { color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 12px; }
+.brand .hint { margin-top: 2px; }
+.settings-section { margin-bottom: 24px; }
+.effort-section { padding: 18px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--vscode-editor-background); }
+.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.section-heading label { font-size: 13px; font-weight: 600; }
+.save-state { font-size: 11px; white-space: nowrap; }
 select {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--field-border);
+  border-radius: 4px;
+  color: var(--vscode-input-foreground, var(--vscode-foreground));
+  background: var(--vscode-input-background, var(--vscode-editor-background));
   font: inherit;
 }
-
-select,
-input[type="text"] {
-  width: 100%;
-  min-height: 26px;
-  box-sizing: border-box;
-  padding: 2px 6px;
-  color: var(--vscode-input-foreground);
-  background: var(--vscode-input-background);
-  border: 1px solid var(--field-border);
-  border-radius: 2px;
-}
-
-input::placeholder {
-  color: var(--vscode-descriptionForeground);
-  opacity: 1;
-}
-
+.application-status { margin-top: 10px; font-size: 12px; }
+.attention { border-left: 2px solid var(--vscode-editorWarning-foreground); padding-left: 9px; }
+.setting-list { list-style: none; padding: 0; margin: 8px 0 0; }
+.setting-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--hairline); }
+.setting-row:last-child { border-bottom: 0; }
+.setting-copy { min-width: 0; }
+.setting-label { display: block; font-weight: 600; font-size: 13px; }
+.setting-copy .hint { margin-top: 3px; }
 button {
-  align-self: flex-start;
-  max-width: 100%;
-  margin: 4px 6px 0 0;
-  padding: 4px 12px;
+  font: inherit;
   color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
-  background: var(--vscode-button-secondaryBackground, transparent);
-  border: 1px solid var(--vscode-button-border, transparent);
-  border-radius: var(--radius);
-  font-size: 12px;
-  line-height: 16px;
-  overflow-wrap: anywhere;
+  background: var(--vscode-button-secondaryBackground, var(--vscode-editor-background));
+  border: 1px solid var(--field-border);
+  border-radius: 4px;
+  padding: 5px 9px;
   cursor: pointer;
 }
-
-button.primary {
-  color: var(--vscode-button-foreground);
-  background: var(--vscode-button-background);
-  border-color: var(--vscode-button-border, transparent);
-}
-
-button:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground));
-}
-
-button.primary:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: var(--vscode-button-hoverBackground);
-}
-
-button.danger {
-  border-color: var(--vscode-editorWarning-foreground);
-}
-
-/* Text-weight actions: Reset in a card footer. Still a real button, with the same focus ring. */
-button.link {
-  margin: 0;
-  padding: 2px 0;
-  color: var(--vscode-textLink-foreground);
-  background: transparent;
-  border-color: transparent;
-  text-align: left;
-}
-
-button.link:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: transparent;
-  text-decoration: underline;
-}
-
-.suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-button.suggestion {
-  margin: 0;
-  padding: 0 8px;
-  border: 1px solid var(--hairline);
-  border-radius: 10px;
-  font-family: var(--vscode-editor-font-family, monospace);
-  font-size: 11px;
-  line-height: 18px;
-}
-
-.override {
-  display: flex;
-  flex-direction: column;
-  margin-top: 4px;
-  padding: 6px 10px;
-  border-left: 2px solid var(--vscode-editorWarning-foreground);
-  background: color-mix(in srgb, var(--vscode-editorWarning-foreground) 6%, transparent);
-  font-size: 12px;
-}
-
-.override p {
-  margin: 0;
-}
-
-button:disabled,
-button[aria-disabled="true"] {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-button:focus-visible,
-select:focus-visible,
-input:focus-visible,
-summary:focus-visible,
-h2[tabindex="-1"]:focus-visible {
-  outline: 2px solid var(--vscode-focusBorder);
-  outline-offset: 2px;
-}
-
-summary {
-  width: fit-content;
-  cursor: pointer;
-  color: var(--vscode-textLink-foreground);
-  font-size: 12px;
-}
-
-summary h2 {
-  display: inline;
-  margin: 0;
-  color: var(--vscode-foreground);
-}
-
-/* The preview's heading is a sentence, so it reads as one rather than in small capitals. */
-.outcome summary h2 {
-  font-size: 12px;
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.notes .detail {
-  margin: 4px 0 0;
-}
-
-.outcome[open] > summary {
-  margin-bottom: 8px;
-}
-
-.notes {
-  margin-top: 2px;
-}
-
-.card-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--hairline);
-}
-
-.card-foot .sources[open] {
-  flex-basis: 100%;
-}
-
-.sources ul {
-  margin: 6px 0 0;
-  padding-left: 0;
-  list-style: none;
-}
-
-.source {
-  margin: 8px 0;
-  padding-top: 6px;
-  border-top: 1px dashed var(--hairline);
-  font-size: 12px;
-}
-
-.key {
-  font-family: var(--vscode-editor-font-family, monospace);
-  overflow-wrap: anywhere;
-}
-
-.scroll {
-  overflow-x: auto;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 12px;
-}
-
-th,
-td {
-  padding: 5px 8px 5px 0;
-  text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid var(--hairline);
-  overflow-wrap: anywhere;
-}
-
-thead th {
-  color: var(--vscode-descriptionForeground);
-  font-weight: 600;
-}
-
-td {
-  font-family: var(--vscode-editor-font-family, monospace);
-}
-
-/* A tool name is a short label: it wraps at spaces, never in the middle of a word. */
-th[scope="row"] {
-  overflow-wrap: normal;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-@media (forced-colors: active) {
-  .badge,
-  .card,
-  .chip,
-  button.suggestion {
-    border-color: CanvasText;
-  }
+button.refresh { font-size: 11px; background: transparent; flex: 0 0 auto; }
+button:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--vscode-focusBorder); outline-offset: 3px; }
+button[aria-disabled='true'], select[aria-disabled='true'] { cursor: progress; }
+button:disabled, select:disabled { cursor: not-allowed; }
+button.switch { display: flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; min-height: 32px; padding: 4px; border: 0; background: transparent; }
+.switch-track { display: block; width: 34px; height: 20px; border-radius: 10px; border: 1px solid var(--field-border); background: var(--vscode-input-background, var(--vscode-editor-background)); padding: 2px; }
+.switch-thumb { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--vscode-foreground); }
+.switch[aria-checked='true'] .switch-track { background: var(--vscode-button-background); border-color: var(--vscode-button-background); }
+.switch[aria-checked='true'] .switch-thumb { margin-left: 14px; background: var(--vscode-button-foreground); }
+.footnote { padding-top: 4px; font-size: 11px; }
+.notice, .read-only { margin: 0 0 16px; padding: 10px 12px; border-left: 2px solid var(--vscode-focusBorder); background: var(--vscode-textBlockQuote-background, var(--vscode-editor-background)); font-size: 12px; overflow-wrap: anywhere; }
+.notice[data-level='error'] { border-color: var(--vscode-editorError-foreground); }
+.notice[data-level='warn'] { border-color: var(--vscode-editorWarning-foreground); }
+.notice details, .error-card details { margin-top: 8px; }
+summary { cursor: pointer; }
+.error-card { padding: 14px; border: 1px solid var(--hairline); border-radius: 6px; }
+.error-card p { margin-top: 8px; overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--vscode-textCodeBlock-background, var(--vscode-editor-background)); padding: 10px; }
+.empty-state { padding: 16px 0; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 280px) {
+  body { padding-inline: 12px; }
+  header { align-items: flex-start; flex-wrap: wrap; }
+  .effort-section { padding: 12px; }
+  .setting-row { gap: 8px; }
 }

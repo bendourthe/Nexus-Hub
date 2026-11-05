@@ -31,6 +31,22 @@
 
 $ErrorActionPreference = "Continue"
 
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        $guardSettings = Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+if (Test-NexusGuardrailDisabled -Key "scan_secrets") { exit 0 }
+
 # --- Nexus-Hub source label (v4.14.8) ---
 # Every message this hook prints starts with the tag, so a reader can tell a
 # Nexus-Hub message from a harness message. The hook name in the tag is the

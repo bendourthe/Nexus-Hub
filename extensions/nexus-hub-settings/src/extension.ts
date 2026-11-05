@@ -27,6 +27,7 @@ export function watchedFiles(env: NodeJS.ProcessEnv, home: string): string[] {
     path.join(dir("CODEX_HOME", ".codex"), "config.toml"),
     path.join(dir("COPILOT_HOME", ".copilot"), "settings.json"),
     path.join(home, ".nexus-hub", "guardrails.json"),
+    path.join(home, ".nexus-hub", "preferences.json"),
     path.join(home, ".nexus-hub", "settings-control.json"),
   ];
 }

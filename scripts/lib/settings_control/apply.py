@@ -5,8 +5,8 @@ writes, their value maps, admission, and weakening values all come from
 `catalog.json`, so a catalog edit changes behavior with no code change. A write
 whose catalog row is Not-Settable is reported as skipped with the catalog's reason.
 
-The ownership record `~/.nexus-hub/settings-control.json` is the only record of
-user choices. It holds, per tool, file, and key path (a segment array), the first
+The shared effort choice lives in `~/.nexus-hub/preferences.json`. The ownership
+record `~/.nexus-hub/settings-control.json` holds, per tool, file, and key path (a segment array), the first
 previous value and the value Nexus-Hub wrote. `reset` restores a key only while its
 current value still equals what was written; otherwise it refuses, names both
 values, and drops the entry as user-owned. Entries whose tool, file, and key path do
@@ -446,8 +446,9 @@ def _upsert(record: dict[str, Any], base: dict[str, Any], change: writers.Change
         "previous": _state(change.previous_present, change.previous), "new": _state(change.new_present, change.new),
         "created_depth": change.created_depth, "file_created": file_created, "at": now,
     }
-    if change.removal and not change.new_present:
-        entry["restore_hint"] = change.removal  # the exact text taken out, so reset can put it back in place
+    hint = base.get("restore_hint") or (change.removal if not change.new_present else None)
+    if hint:
+        entry["restore_hint"] = hint  # retain the original text and position across a later override removal
     record["entries"].append(entry)
 
 
@@ -614,6 +615,8 @@ def _plan_set(ctx: Context, control: dict[str, Any], value: str, tool: str | Non
 
 def _expand_target(ctx: Context, target: Target, loaded: writers.Loaded) -> list[tuple[tuple[str, ...], Any]]:
     """Concrete (key path, value) pairs for a target: model ids and dict leaves expanded."""
+    if target.write.get("only_when_present") and not writers.lookup(loaded.data, target.key_path)[0]:
+        return []
     if MODEL_ID_SEGMENT in target.key_path:
         at = list(target.key_path).index(MODEL_ID_SEGMENT)
         present = writers.lookup(loaded.data, target.key_path[:at])[1]
@@ -663,7 +666,11 @@ def _apply_group(ctx: Context, file: str, group: list[Target], dry_run: bool) ->
             continue
         for key_path, native in _expand_target(ctx, target, loaded):
             edits.append(writers.Edit(key_path, native))
-            bases.append({"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)})
+            base = {"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)}
+            if target.write.get("only_when_present") and loaded.fmt == "json":
+                removal = writers.plan_edits(loaded, [writers.Edit(key_path, writers.ABSENT)])
+                base["restore_hint"] = removal.changes[0].removal
+            bases.append(base)
             owners[key_path] = target
     if not edits:
         return results

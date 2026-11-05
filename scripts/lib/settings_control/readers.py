@@ -37,6 +37,7 @@ FILE_INFO: dict[str, tuple[str, str]] = {
     "copilot-repo": ("project", "json"),
     "copilot-repo-local": ("project", "json"),
     "nexus-guardrails": ("user", "json"),
+    "nexus-preferences": ("user", "json"),
 }
 assert set(FILE_INFO) == FILE_IDS  # one vocabulary, no drift between catalog and readers
 
@@ -113,6 +114,8 @@ def file_path(file_id: str, home: Path, env: Mapping[str, str], project: Path | 
         return dir_path("copilot-dir", home, env) / "settings.json"
     if file_id == "nexus-guardrails":
         return home / ".nexus-hub" / "guardrails.json"
+    if file_id == "nexus-preferences":
+        return home / ".nexus-hub" / "preferences.json"
     if project is None:
         return None
     relative = {

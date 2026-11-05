@@ -14,8 +14,8 @@
     that looks like a write is blocked outside a git worktree and warned inside
     one; it is never passed silently outside a worktree.
 
-    Essential: stays on under NEXUS_HOOK_PROFILE=minimal. The only switch is the
-    user's own NEXUS_DISABLED_HOOKS=user-edit-guard.
+    Essential: stays on under NEXUS_HOOK_PROFILE=minimal. Disable through the
+    user's NEXUS_DISABLED_HOOKS=user-edit-guard or Settings protect_user_edits=false.
 
 .NOTES
     The payload is forwarded as raw bytes, so a non-ASCII path reaches Python
@@ -23,6 +23,22 @@
 #>
 
 $ErrorActionPreference = "Continue"
+
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        $guardSettings = Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+if (Test-NexusGuardrailDisabled -Key "protect_user_edits") { exit 0 }
 $hookName = "user-edit-guard"
 
 # --- Nexus-Hub source label (v4.14.8) ---

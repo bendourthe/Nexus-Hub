@@ -196,7 +196,7 @@ describe("set", () => {
     expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["set", true, true], ["set", false, true]]);
     expect(bridge.actions.every((a) => a.project === "C:\\work\\project")).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(model.notice).toMatchObject({ level: "info", text: "Saved high for effort. New sessions only." });
+    expect(model.notice).toMatchObject({ level: "warn", text: "Default effort saved. Applied where supported. Some platforms cannot accept this default." });
   });
 
   it("asks first for a safety-weakening change, listing keys, VS Code's warning, and the Cannot remove items", async () => {
@@ -280,7 +280,7 @@ describe("set", () => {
     const model = await controller.handle({ type: "set", control: "effort", value: "high", tool: null });
 
     expect(model.notice).toMatchObject({ level: "warn" });
-    expect(model.notice?.text).toContain("Some cells were not written");
+    expect(model.notice?.text).toContain("Some settings could not be applied");
     expect(model.notice?.lines?.join("\n")).toContain("refused: config.toml does not parse");
   });
 

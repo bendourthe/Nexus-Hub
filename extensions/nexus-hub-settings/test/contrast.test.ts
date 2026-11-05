@@ -189,13 +189,11 @@ describe.each(NAMES)("panel.css contrast in %s", (name) => {
   it.each([
     ["body text", () => body(), () => page()],
     ["hint text", () => colorOf(".hint", "color", theme), () => page()],
-    ["notes under a row", () => colorOf(".caveats", "color", theme), () => page()],
-    ["badge text", () => colorOf(".badge", "color", theme), () => page()],
     ["a notice", () => body(), () => over(colorOf(".notice", "background", theme), page())],
     ["a code block", () => body(), () => over(colorOf("pre", "background", theme), page())],
     ["a text field", () => colorOf("select", "color", theme), () => over(colorOf("select", "background", theme), page())],
     ["a plain button", () => colorOf("button", "color", theme), () => over(colorOf("button", "background", theme), page())],
-    ["a primary button", () => colorOf("button.primary", "color", theme), () => over(colorOf("button.primary", "background", theme), page())],
+    ["an enabled switch thumb", () => colorOf(".switch[aria-checked='true'] .switch-thumb", "background", theme), () => colorOf(".switch[aria-checked='true'] .switch-track", "background", theme)],
   ])("gives %s at least 4.5:1", (_label, foreground, background) => {
     expect(ratio(foreground(), background())).toBeGreaterThanOrEqual(4.5);
   });
@@ -214,15 +212,11 @@ describe.each(NAMES)("panel.css contrast in %s", (name) => {
 });
 
 describe("panel.css structure that the ratios rely on", () => {
-  it("draws badge text in the foreground color, never in a tone color", () => {
-    for (const theme of Object.values(THEMES)) {
-      expect(colorOf(".badge", "color", theme)).toEqual(colorOf("body", "color", theme));
-    }
-    for (const tone of ["ok", "info", "warn", "muted", "error"]) {
-      expect(Object.keys(rule(`.tone-${tone}`))).toEqual(["--tone"]);
-    }
-    expect(rule(".badge").border).toContain("var(--tone");
-    expect(rule(".badge .icon").color).toBe("var(--tone, currentColor)");
+  it("keeps settings controls keyboard reachable with visible focus", () => {
+    expect(rule("button:focus-visible").outline).toContain("2px solid");
+    expect(rule("select:focus-visible").outline).toContain("2px solid");
+    expect(rule("button.switch").background).toBe("transparent");
+    expect(CSS).not.toMatch(/outline:\s*none/);
   });
 
   it("measures the ratios it reports", () => {
