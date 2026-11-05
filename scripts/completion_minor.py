@@ -3487,11 +3487,19 @@ def _signed_original_plan(rctx: RepoContext, record: dict, member: dict, plan: P
 
 def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
     """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
-    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(item.body.replace('\r\n', '\n').strip())
-    tail = (r'\n\n- \*\*Migrated from\*\*: ' + re.escape(f'{source}#{item.gid}')
+    body = item.body.replace('\r\n', '\n').strip()
+    recorded = RECORDED_BODY_RE.fullmatch(body)
+    # The single-plan carry writer names the source patch; the minor writer
+    # names its minor. Both labels must identify this exact recording task.
+    if (recorded is None or section_version(item.section) != recorded['version']
+            or source != 'v{}.{}'.format(*minor_of(recorded['version']))):
+        return False
+    labels = '|'.join(re.escape(f'{version}#{item.gid}') for version in (source, recorded['version']))
+    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(body)
+    tail = (r'\n\n- \*\*Migrated from\*\*: (?:' + labels + ')'
             + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
             + r'\n- \*\*Migration evidence\*\*: [^\n]+')
-    return (copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
+    return (item.kind == 'DF' and copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
             and copy.title == MIGRATED_RE.sub('', item.title).rstrip()
             and re.fullmatch(tail, suffix) is not None)
 
