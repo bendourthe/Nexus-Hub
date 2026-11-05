@@ -32,6 +32,8 @@
 #                                default: the tag's GitHub Release assets
 #   NEXUS_HUB_RETRY_DELAY        seconds between branch-archive download
 #                                attempts (default: 3; tests set 0)
+#   NEXUS_HUB_PROGRESS_SECONDS   seconds between download progress lines
+#                                (default: 5; tests set 0)
 #
 # Pinning (v4.7.0): `-Ref <tag-or-branch>` (consumed here, not passed on) or
 # NEXUS_HUB_REF selects what to install. A release tag (vX.Y.Z) downloads the
@@ -314,6 +316,59 @@ function Get-ReleaseAssetBase {
     return "https://github.com/$Repo/releases/download/$Ref"
 }
 
+# Stream $Url into $Dest and print one short progress line every few seconds.
+# Invoke-WebRequest on Windows PowerShell 5.1 redraws its progress bar for every
+# received block, which slows a large download enough for the connection to be
+# dropped; hiding that bar instead would make the download look frozen. This
+# reads in 1 MB blocks and reports at most once per interval, so the transfer
+# stays fast and visibly moves. HttpWebRequest uses the same system proxy and
+# TLS settings as Invoke-WebRequest. Errors are rethrown as the underlying
+# WebException, so a caller's status-code handling is unchanged.
+function Invoke-ProgressDownload {
+    param([string]$Url, [string]$Dest, [int]$TimeoutSec = 300)
+    $interval = 5
+    if ($env:NEXUS_HUB_PROGRESS_SECONDS -match '^\d+$') { $interval = [int]$env:NEXUS_HUB_PROGRESS_SECONDS }
+    $response = $null; $in = $null; $out = $null
+    try {
+        try {
+            $request = [System.Net.HttpWebRequest]::Create($Url)
+            $request.Timeout = $TimeoutSec * 1000
+            $request.ReadWriteTimeout = $TimeoutSec * 1000
+            $request.AllowAutoRedirect = $true
+            $request.UserAgent = "Nexus-Hub-bootstrap"
+            $response = $request.GetResponse()
+            $total = $response.ContentLength
+            $in = $response.GetResponseStream()
+            $out = [System.IO.File]::Create($Dest)
+            $buffer = New-Object byte[] 1048576
+            $received = [int64]0
+            $clock = [System.Diagnostics.Stopwatch]::StartNew()
+            $lastReport = 0
+            while (($read = $in.Read($buffer, 0, $buffer.Length)) -gt 0) {
+                $out.Write($buffer, 0, $read)
+                $received += $read
+                if ($clock.Elapsed.TotalSeconds - $lastReport -ge $interval) {
+                    $lastReport = $clock.Elapsed.TotalSeconds
+                    if ($total -gt 0) {
+                        $percent = [int][Math]::Floor(100 * $received / $total)
+                        Write-BootstrapInfo "  received $(Format-ByteSize $received) of $(Format-ByteSize $total) ($percent%)"
+                    } else {
+                        Write-BootstrapInfo "  received $(Format-ByteSize $received)"
+                    }
+                }
+            }
+        } catch [System.Management.Automation.MethodInvocationException] {
+            # A .NET call wraps its exception; rethrow the WebException itself.
+            if ($_.Exception.InnerException) { throw $_.Exception.InnerException }
+            throw
+        }
+    } finally {
+        if ($out) { $out.Dispose() }
+        if ($in) { $in.Dispose() }
+        if ($response) { $response.Dispose() }
+    }
+}
+
 # Fetch published file $Name from $Base into $Dest. Returns "ok", "missing"
 # (local directory without the file), or "failed" (network or copy failure).
 function Get-ReleaseFile {
@@ -324,7 +379,7 @@ function Get-ReleaseFile {
         try { Copy-Item -LiteralPath $candidate -Destination $Dest -Force; return "ok" } catch { return "failed" }
     }
     try {
-        Invoke-WebRequest -Uri ("$Base/$Name") -OutFile $Dest -UseBasicParsing -TimeoutSec 300
+        Invoke-ProgressDownload -Url ("$Base/$Name") -Dest $Dest -TimeoutSec 300
         return "ok"
     } catch {
         return "failed"
@@ -341,7 +396,7 @@ function Get-BranchArchive {
     $state = "network"
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         try {
-            Invoke-WebRequest -Uri $Url -OutFile $Dest -UseBasicParsing -TimeoutSec 300
+            Invoke-ProgressDownload -Url $Url -Dest $Dest -TimeoutSec 300
             return "ok"
         } catch {
             $script:DownloadDetail = $_.Exception.Message
@@ -536,7 +591,7 @@ function Invoke-Standalone {
                 Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: the server returned an error ($script:DownloadDetail). Re-run, or pin a release with -Ref vX.Y.Z"
                 exit 1
             } elseif ($state -ne "ok") {
-                Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: network failure ($script:DownloadDetail). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com"
+                Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: network failure ($script:DownloadDetail). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com, or install a published release, which downloads from a different host: set `$env:NEXUS_HUB_REF to a tag from https://github.com/$repo/releases (for example `$env:NEXUS_HUB_REF = 'vX.Y.Z') and re-run"
                 exit 1
             }
             Write-DownloadSummary -Path $archive -Stopwatch $clock
