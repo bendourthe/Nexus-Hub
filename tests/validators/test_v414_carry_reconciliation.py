@@ -231,11 +231,13 @@ def test_malformed_unsigned_auxiliary_classes_are_refused(reconciliation, classe
     assert verify(reconciliation)[0] != "met"
 
 
-def test_malformed_unsigned_auxiliary_root_is_refused(reconciliation):
+@pytest.mark.parametrize("codepoint", [0, 0xD800, 0xDFFF])
+def test_malformed_unsigned_auxiliary_root_is_refused(reconciliation, codepoint):
     _repo, _rctx, _minor, last, save = reconciliation
-    last["repo_root"] += "\x00"
+    last["repo_root"] += chr(codepoint)
     last["worktree"] = last["repo_root"]
     save(sign=False)
+    assert ck._sign(last, ck._secret(create=False)) == last["approvals_hmac"]
     assert verify(reconciliation)[0] != "met"
 
 
@@ -244,4 +246,13 @@ def test_malformed_auxiliary_signature_is_refused(reconciliation, signature):
     _repo, _rctx, _minor, last, save = reconciliation
     last["approvals_hmac"] = signature
     save(sign=False)
+    assert verify(reconciliation)[0] != "met"
+
+
+@pytest.mark.parametrize("blockers", [None, 7, {}, [None], [{"open": True}]])
+def test_malformed_mutable_auxiliary_blockers_are_refused(reconciliation, blockers):
+    _repo, _rctx, _minor, last, save = reconciliation
+    last["blockers"] = blockers
+    save(sign=False)
+    assert ck._sign(last, ck._secret(create=False)) == last["approvals_hmac"]
     assert verify(reconciliation)[0] != "met"

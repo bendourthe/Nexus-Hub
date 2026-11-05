@@ -3604,6 +3604,9 @@ def reconciled_v414_carry(
     approvals = (last or {}).get("approvals") or {}
     if not isinstance(approvals, dict) or not isinstance(approvals.get("classes"), list):
         return False
+    blockers = last.get("blockers", [])
+    if not isinstance(blockers, list) or any(not isinstance(blocker, dict) or blocker.get("open") for blocker in blockers):
+        return False
     if (not last or last.get("schema") != 1 or last.get("repo") != "bendourthe/Nexus-Hub"
             or last.get("nonce") != binding["last_nonce"] or last.get("plan") != binding["plan"]
             or last.get("plan_sha256") != binding["plan_hash"]
@@ -3611,9 +3614,12 @@ def reconciled_v414_carry(
             or approvals.get("repo") != "bendourthe/Nexus-Hub" or approvals.get("source_branch") != binding["branch"]
             or approvals.get("target_branch") != "develop" or not ck._has_class(last, "carry-gaps")):
         return False
-    root = Path(str(last.get("repo_root", "")))
-    if (ck.record_key(root, last["repo"].lower(), "plan:" + binding["plan"]) != path.stem
-            or not root.is_absolute() or str(root.resolve()) != str(root) or last.get("worktree") != str(root)):
+    try:
+        root = Path(last.get("repo_root", ""))
+        if (ck.record_key(root, last["repo"].lower(), "plan:" + binding["plan"]) != path.stem
+                or not root.is_absolute() or str(root.resolve()) != str(root) or last.get("worktree") != str(root)):
+            return False
+    except (OSError, TypeError, ValueError):
         return False
     try:
         ctx = ck.Context(str(root / binding["plan"]), rctx.budget)

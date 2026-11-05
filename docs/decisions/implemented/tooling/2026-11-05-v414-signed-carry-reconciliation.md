@@ -14,6 +14,8 @@ Retain the original classes, bounds, member list, hashes, budgets, and record id
 
 Authenticate the raw auxiliary record before interpreting its metadata or paths, then retain the complete native plan validation and ownership checks. Compare both current ledger entries against the immutable published commit after only the stock archive path repairs and CRLF conversion. Disable Git object replacement for pinned publication reads and keep those blobs in a separate cache namespace. Require the matching local tag and existing published-release check. Both copies must remain nonsensitive, uniquely present, and semantically unchanged; the destination remains open. The ordinary migration writer and its frozen-bound preflight are unchanged.
 
+The native signature authenticates its declared approval fields. The unsigned owner root is independently bound by the pinned record key, with malformed path or encoding failures refused. Mutable blockers must be a list of dictionaries with no open entry before the native loader runs. These checks preserve the existing approval payload and record schema.
+
 The separate recording-task reader accepts the exact source patch already proved by the frozen task and anchored Source phase, preserving existing labels and canonical-copy restrictions. The inherited AR-77 repair changes only paragraph order, preserving every line and proving both transfers.
 
 ## Alternatives considered
