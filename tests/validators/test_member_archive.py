@@ -716,6 +716,22 @@ def test_an_archive_merged_after_a_concurrent_tracker_edit_is_not_task_work(memb
     assert (omega["task.T001"], omega["task.T002"]) == ("met", "met" if worked else "unmet")
 
 
+def test_member_archive_reuses_its_validated_repair_preview(members: Members, monkeypatch: pytest.MonkeyPatch) -> None:
+    members.setup()
+    real = mc.plan_moves_repairs
+    calls = []
+
+    def planned(*args, **kwargs):
+        calls.append(True)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(mc, "plan_moves_repairs", planned)
+    assert mc.main(["archive-member", "--minor", "v0.5", "--member", "v0.5.2", "--session", SESSION,
+                    "--apply", "--link-checker", str(LINK_CHECKER), "--repo", str(members.work)]) == mc.EXIT_OK
+    assert calls == [True]
+    assert "archived" in members.member() and members.load().forced is None
+
+
 def test_an_archive_commit_changed_before_it_lands_is_refused_and_unsealed(
     members: Members, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture,
 ) -> None:

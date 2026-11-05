@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-04
-**Open items**: 118
+**Last updated**: 2026-11-05
+**Open items**: 119
 
 ## v4.15.0
 
@@ -13,7 +13,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
-| Bugs / regressions (BG) | 4 | 0 |
+| Bugs / regressions (BG) | 5 | 0 |
 | Warnings (WN) | 30 | 0 |
 | Missing tests / coverage gaps (MT) | 7 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
@@ -1690,6 +1690,20 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 - Eleven claims were tagged model-agnostic by the vendor's own pages, but each is that vendor's API guidance (OpenAI Responses and reasoning tokens, Gemini Interactions and thought signatures, Gemini Live audio, Gemini image prompting). None was proposed for a shared catalog body, because shared bodies are read on every platform; they stay in the per-model profiles.
 
 **Owner**: catalog maintainer. **Severity**: low - every other rostered model is refreshed and both refreshed rosters read IN SYNC. **Status**: open. **Suggested next step**: research the variants on their own Antigravity and Cursor documentation, and add Grok 4.7 once Cursor publishes its model id.
+
+#### BG-5: Windows Store Python 3.12 rejects stable native qualification reports
+
+**Source phase**: v4.14 minor-close repair qualification on 2026-11-05. **Plan reference**: [archive batching repair](../v4.14/development/v4.14-archive-batching-repair.md), local consumer qualification. This is an independently reproduced limitation in the existing v4.15 qualification path, not a migration of a v4.14 gap.
+
+**Reason**: On the observed Windows Store Python 3.12.10 build, a stable file written after creation has creation time in `Path.stat().st_ctime_ns` but modification time in `os.fstat().st_ctime_ns`. Device, inode, size, modification time, and birth time agree. The unchanged strict `_v415_read` therefore raises `qualification-input-changed` on the gate report before either historical-publication assertion. A fresh process importing only `check_plan_completion` reproduces this with a delayed-write file; that script is unchanged from develop `4b6c6105d`. The complete three-consumer run recorded 204 passes and these two failures. Its isolated child also reported missing pytest when only the parent user's package site provided it; installing the declared test dependencies in a private environment addresses that setup issue, not the timestamp mismatch.
+
+**Evidence**: Both unchanged historical-publication cases and the strict delayed-file reader pass in a private Python 3.11.15 environment matching CI. The full replacement consumer run is recorded separately in the repair evidence. The observed Python 3.12 native minor-archive success and partial-failure rollback also remain separate evidence; they do not exercise this v4.15 report reader.
+
+**Owner**: native qualification maintainer. **Severity**: medium - false refusal blocks the v4.15 qualification path on the observed host. **Status**: open.
+
+**Suggested next step**: Establish a consistent trusted Windows timestamp identity across path and descriptor reads, retain replacement and active-writer detection, and qualify delayed writes plus native report production under Python 3.11 and the affected Python 3.12 build. Provision declared dependencies inside the isolated runner rather than disabling package isolation. Other Python 3.12 builds have not been qualified by this observation.
+
+**Proving command**: From the repository root on Windows PowerShell 5.1 with the observed Store build: `python -m pytest tests/validators/test_member_archive.py -k test_v415_no_change_historical_publication_survives_later_sibling_inputs -q`. Retain the reader error, dependency evidence, and an independent stable delayed-file probe; require both unchanged cases to pass after the runtime correction.
 
 ### AR-34: No live macOS installer smoke has been recorded
 
