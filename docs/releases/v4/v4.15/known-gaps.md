@@ -12,9 +12,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 39 | 0 |
+| Deferred (DF) | 38 | 1 |
 | Bugs / regressions (BG) | 4 | 0 |
-| Warnings (WN) | 28 | 0 |
+| Warnings (WN) | 29 | 0 |
 | Missing tests / coverage gaps (MT) | 7 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
@@ -1651,13 +1651,15 @@
 - **Migrated from**: v4.14.8#QG-11 on 2026-11-04 (reason: user-deferred)
 - **Migration evidence**: left open by v4.14.8, the last plan of v4.14
 
-#### DF-39: The seeded Antigravity CLI `agentMode` value is no longer a documented value
+#### DF-39: The seeded Antigravity CLI `agentMode` value is no longer a documented value - RESOLVED 2026-11-04
 
 **Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../v4.14/development/v4.14.8-platform-verification.md)).
 
 The [Antigravity CLI modes page](https://antigravity.google/docs/cli/modes/) now lists `agentMode` values `"auto"` (the default where available), `"accept-edits"`, `"plan"`, and `""` for default mode. Nexus-Hub seeds `{"agentMode": "default"}` into `~/.gemini/antigravity-cli/settings.json` when the key is absent (`configs/platform-defaults.json`), and the literal `"default"` is no longer listed. How the CLI treats the old literal is not documented, so the seed may no longer select the diff-review mode it was chosen for. Existing installs already hold the old value, because the seed is written only when the key is absent.
 
-**Owner**: catalog maintainer. **Severity**: medium - the seeded value's effect is undocumented, and an absent key now means `auto` where available. **Status**: open. **Suggested next step**: change the seed to the documented `""`, regenerate the derived artifacts with `sync_platform_defaults.py --apply`, update the lever row and its test, and decide whether installs that already hold `"default"` are migrated.
+**Owner**: catalog maintainer. **Severity**: medium. **Status**: resolved 2026-11-04 on `fix/installer-download-progress-and-antigravity-mode`.
+
+**Resolution**: `configs/platform-defaults.json` now seeds `{"agentMode": ""}` (verified 2026-11-04 against the CLI modes page), the lever row and detail in `docs/policy/platform-defaults-levers.md` match, `test_antigravity_seeds_documented_default_agent_mode` expects the empty string, `sync_platform_defaults.py --check` reports no derived drift, and the distribution handbook evidence is refreshed with a [content review](development/antigravity-agent-mode-distribution-handbook-review.md). Existing values, including the earlier `"default"`, are deliberately not rewritten: the seed is seed-if-absent, and a seeded value cannot be told apart from one the user chose; the changelog tells users how to adopt `""` themselves.
 
 #### WN-28: The Nexus-AI README now names a settings surface the lever row does not record
 
@@ -1666,6 +1668,16 @@ The [Antigravity CLI modes page](https://antigravity.google/docs/cli/modes/) now
 The [Nexus-AI README](https://github.com/bendourthe/Nexus-AI) now names `nexus.coding.securityPosture` (Strict, Standard or Unattended; default Standard) and `~/.nexus/settings.json`. The lever row in `docs/policy/platform-defaults-levers.md` records no documented settings surface for Nexus-AI. A README alone does not make a lever VERIFIED.
 
 **Owner**: catalog maintainer. **Severity**: low - no seed is written for Nexus-AI, so nothing installs incorrectly. **Status**: open. **Suggested next step**: confirm the key, path and value domain against Nexus-AI's own documentation, then reclassify the row or record why it stays UNVERIFIED.
+
+#### WN-29: Nine CodeQL security alerts and 205 quality notes remain open on main
+
+**Source phase**: v4.14 AR-31 triage on 2026-11-04, after its five alerts (#223, #329, #330, #349, #350) were dismissed with recorded reasons.
+
+The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/heads/main`. Nine carry a security severity and were not part of AR-31: #136 and #137 (`py/incomplete-url-substring-sanitization`, `tests/installer/test_upgrade_cli.py`), #433 (the same rule, `tests/validators/test_egress_redaction_boundaries.py`), #156 and #157 (clear-text storage and logging of sensitive data, `scripts/setup_media_keys.py`), #211 (`py/bad-tag-filter`, `document-to-interactive-html/scripts/visual_qa_score.py`), #177 (`js/double-escaping`, the Cursor usage monitor's normalizer), and #147 and #148 (`js/file-access-to-http`, the Claude and Codex usage monitor providers). The other 205 are quality notes and warnings, led by unused imports, empty `except` blocks and unused locals.
+
+**Triage, 2026-11-04**: every one of the nine security alerts now has a disposition. Fixed in PR #611: #177 (the Cursor Usage Monitor decodes `&amp;` last), #136 and #137 (the CLI host test compares the parsed host name), and #211 (the script matcher accepts end tags such as `</script >`); the follow-up CodeQL finding on the first regex fix (#530) is fixed in the same pull request. Dismissed on GitHub with the maintainer's approval and a recorded reason each: #147 and #148 (won't fix: the Claude and Codex monitors send the user's own token to the vendor's fixed HTTPS usage URL), #156 (won't fix: the media-key script stores the key the user entered in their own env file, 0600 on POSIX), #157 (false positive: only the last 4 characters are printed), and #433 (used in tests: a test asserting a synthetic example's text).
+
+**Owner**: security and CI owner. **Severity**: low - the security alerts are resolved; what remains is the 205 quality notes. **Status**: open for the quality notes only. **Suggested next step**: decide, rule by rule, whether to fix or suppress the quality notes, starting with the largest groups (unused imports, empty `except` blocks, unused locals).
 
 ### AR-34: No live macOS installer smoke has been recorded
 
