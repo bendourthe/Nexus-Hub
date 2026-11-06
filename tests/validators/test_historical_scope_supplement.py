@@ -8,16 +8,24 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 from contextlib import contextmanager
 
 import pytest
 
 from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
-from .test_completion_minor_record import Minor, SESSION, _no_transport_overrides  # noqa: F401
+from .test_completion_minor_record import (  # noqa: F401
+    SESSION,
+    Minor,
+    _no_transport_overrides,
+)
 
+# Fixture imports initialize the repository script path before runtime modules.
+# isort: split
 import approval_binding
 import check_plan_completion as ck
 import completion_minor as cm
+import minor_close as mc
 
 MINOR = "v0.5"
 VERSION = "v0.5.2"
@@ -46,8 +54,15 @@ def _tree_rows(root, base, merge):
 
 
 @pytest.fixture
-def scope_case(tmp_path, monkeypatch, minor_git_seed):
+def scope_case(tmp_path, monkeypatch, minor_git_seed, request):
     fx = Minor(tmp_path, monkeypatch, minor_git_seed)
+    if getattr(request, "param", None) == "archive-reference":
+        plan = fx.work / "docs/releases/v0/v0.5/plans/v0.5.2-alpha.md"
+        plan.write_text(plan.read_text(encoding="utf-8") +
+                        "\nEvidence root: docs/releases/v0/v0.5/development/proof.md\n", encoding="utf-8")
+        fx.commit("fixture plan includes an archive reference")
+        _git(fx.work, "branch", "-f", "develop", "HEAD")
+        fx.publish("main", "develop")
     created = fx.create()
     assert created.returncode == 0, created.stdout + created.stderr
     base = _git(fx.work, "rev-parse", "HEAD")
@@ -406,3 +421,53 @@ def test_native_resume_and_controller_handoff_preserve_historical_supplement(sco
     assert moved_state.forced is None and moved_state.record is not None
     assert cm._historical_claim_status(ck.RepoContext(target, ck.Budget(60)), _member(moved),
                                        descriptor["merge"], moved, ck=ck) == "met"
+
+
+def _archive_granted_scope(fx, descriptor, capsys):
+    granted = _grant(fx, descriptor, capsys)
+    original_entry = approval_binding.canonical(_member(granted)["historical_scope_supplements"])
+    active, archived = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    (fx.work / archived).parent.mkdir(parents=True, exist_ok=True)
+    _git(fx.work, "mv", active, archived)
+    for plan in (fx.work / archived / "plans").glob("*.md"):
+        repaired, _ = mc.rewrite_mentions(plan.read_text(encoding="utf-8"), active, archived, markdown=True)
+        plan.write_text(repaired, encoding="utf-8")
+    fx.commit("archive fixture plans with stock path repairs")
+    path = fx.record_path()
+    with ck.minor_lease(path, hashlib.sha256(path.read_bytes()).hexdigest(), fx.rctx()):
+        mc.refreeze(fx.rctx(), fx.record(), path, MINOR)
+    record = fx.record()
+    member = _member(record)
+    assert approval_binding.canonical(member["historical_scope_supplements"]) == original_entry
+    assert member["plan_sha256"] != member["historical_scope_supplements"][0]["page"]["plan_sha256"]
+    assert member["archived"]["original_sha256"] == member["historical_scope_supplements"][0]["page"]["plan_sha256"]
+    state = cm.load_minor(ck, fx.rctx(), MINOR, SESSION)
+    assert state.forced is None and state.record is not None
+    return record
+
+
+@pytest.mark.parametrize("scope_case", ["archive-reference"], indirect=True)
+def test_native_archive_preserves_accepted_historical_scope(scope_case, capsys):
+    fx, descriptor = scope_case
+    record = _archive_granted_scope(fx, descriptor, capsys)
+    before = fx.record_path().read_bytes()
+    assert _historical(fx, descriptor, record) == "met"
+    assert fx.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize("scope_case", ["archive-reference"], indirect=True)
+@pytest.mark.parametrize("damage", ["missing-original", "wrong-original-hash", "changed-archived-plan"])
+def test_archived_scope_still_requires_its_original_plan_witness(scope_case, capsys, damage):
+    fx, descriptor = scope_case
+    record = _archive_granted_scope(fx, descriptor, capsys)
+    member = _member(record)
+    if damage == "missing-original":
+        member["archived"]["from"] = "missing/" + member["archived"]["from"].rsplit("/", 1)[-1]
+        fx.write_record(record, resign=True)  # A disposable signed malformed archive, never production authority.
+    elif damage == "wrong-original-hash":
+        member["archived"]["original_sha256"] = "0" * 64
+        fx.write_record(record, resign=True)
+    else:
+        plan = fx.work / member["plan_path"]
+        plan.write_text(plan.read_text(encoding="utf-8") + "\nChanged plan scope.\n", encoding="utf-8")
+    assert _historical(fx, descriptor, fx.record()) != "met"
