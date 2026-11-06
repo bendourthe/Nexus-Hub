@@ -44,6 +44,17 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
   }
   let running = false;
   let current: UiEffortSummary = { reloadRequired: false, errors: setupErrors };
+  const pending = new Map<string, Promise<unknown>>();
+  const updateProvider = async (id: string, work: () => Promise<unknown>): Promise<void> => {
+    let update = pending.get(id);
+    if (!update) {
+      update = Promise.resolve().then(work); pending.set(id, update);
+      void update.then(() => pending.delete(id), () => pending.delete(id));
+    }
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try { await Promise.race([update, new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error("The native update timed out.")), 5000); })]); }
+    finally { if (timeout) { clearTimeout(timeout); } }
+  };
   const synchronize = async (): Promise<void> => {
     if (running || !vscode.workspace.isTrusted) { return; }
     running = true;
@@ -65,17 +76,19 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
           else { try { await vscode.commands.executeCommand(CURSOR_FAST_COMMAND, {value: session.fastMode, revision: defaults.fastRevision}); } catch { next.errors.push("Cursor: The native speed update failed."); } }
         }
       }
-      for (const item of available) {
-        if (!installed.has(item.id)) { continue; }
-        if (!item.extension.isActive) { continue; }
+      await Promise.all(available.map(async (item) => {
+        if (!installed.has(item.id)) { return; }
+        if (!item.extension.isActive) { return; }
         const api = item.extension.exports as Partial<NativeApi> | undefined;
-        if (![2, 3].includes(api?.nexusEffortBridgeVersion ?? 0) || typeof api?.applyNexusEffort !== "function") { next.reloadRequired = true; continue; }
+        if (![2, 3].includes(api?.nexusEffortBridgeVersion ?? 0) || typeof api?.applyNexusEffort !== "function") { next.reloadRequired = true; return; }
         try {
-          if (api.nexusEffortBridgeVersion === 3 && api.applyNexusDefaults) { await api.applyNexusDefaults(defaults); }
-          else { if (preference) { await api.applyNexusEffort(preference.value, preference.revision); } if (session.fastMode !== null) { next.reloadRequired = true; } }
+          await updateProvider(item.id, async () => {
+            if (api.nexusEffortBridgeVersion === 3 && api.applyNexusDefaults) { await api.applyNexusDefaults(defaults); }
+            else { if (preference) { await api.applyNexusEffort!(preference.value, preference.revision); } if (session.fastMode !== null) { next.reloadRequired = true; } }
+          });
         }
         catch { next.errors.push(`${item.label}: The native effort update failed.`); }
-      }
+      }));
       current = next;
     } finally { running = false; }
   };

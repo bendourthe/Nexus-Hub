@@ -34,8 +34,8 @@ export function mappedEffort(provider: Provider, wanted: Effort, available: read
   return EFFORTS.slice(0, EFFORTS.indexOf(wanted) + 1).filter((level) => available.includes(level)).at(-1) ?? available.find(effort) ?? null;
 }
 
-/** Remove only the startup effort pin; preserve every other supplied setting. */
-export function claudeLaunchArgs(args: string[], saveSettings?: (content: string) => string): string[] {
+/** Merge configured Nexus speed and effort while preserving every unrelated launch setting. */
+export function claudeLaunchArgs(args: string[], saveSettings?: (content: string) => string, fastMode?: boolean, clearEffort = true): string[] {
   const result = [...args];
   let index = -1, inline = false;
   result.forEach((argument, at) => { if (argument === "--settings" || argument.startsWith("--settings=")) { index = at; inline = argument !== "--settings"; } });
@@ -53,7 +53,7 @@ export function claudeLaunchArgs(args: string[], saveSettings?: (content: string
       settings = parsed;
     } catch { return result; }
   }
-  const merged = JSON.stringify({ ...settings, env: { ...(object(settings.env) ? settings.env : {}), CLAUDE_CODE_EFFORT_LEVEL: "" } });
+  const merged = JSON.stringify({ ...settings, ...(typeof fastMode === "boolean" ? {fastMode} : {}), ...(clearEffort ? {env: { ...(object(settings.env) ? settings.env : {}), CLAUDE_CODE_EFFORT_LEVEL: "" }} : {}) });
   if (merged.length > 16000) { return result; }
   const replacement = fileBased ? saveSettings!(merged) : merged;
   if (index < 0) { result.push("--settings", replacement); }
@@ -215,6 +215,7 @@ export class EffortProtocol {
       for (const [pendingId, pending] of this.pending) { if (pending.thread === packet.params.threadId) { this.pending.delete(pendingId); clearTimeout(this.timers.get(pendingId)); this.timers.delete(pendingId); } }
       this.codexState();
     }
+    const firstInitialize = original?.method === "initialize" && !this.ready;
     if (original && (typeof id === "string" || typeof id === "number")) {
       this.requests.delete(id);
       if (original.method === "initialize" && !response.error && response.subtype !== "error") { this.ready = true; }
@@ -242,9 +243,9 @@ export class EffortProtocol {
         }
       }
     }
-    if (this.provider === "claude" && original?.method === "initialize" && this.wanted && this.ready) { this.heldInitialize = line; this.apply(); return; }
+    if (this.provider === "claude" && firstInitialize && this.wanted && this.ready) { this.heldInitialize = line; this.apply(); return; }
     this.client(line);
-    if (original?.method === "initialize" || original?.method === "thread/start" || original?.method === "thread/resume" || original?.method === "thread/fork") { this.apply(); }
+    if ((original?.method === "initialize" && (this.provider !== "claude" || firstInitialize)) || original?.method === "thread/start" || original?.method === "thread/resume" || original?.method === "thread/fork") { this.apply(); }
   }
 }
 
@@ -257,13 +258,15 @@ export function runProxy(config: ProxyConfig, originalArgs: string[]): void {
   let privateSettings: string | undefined;
   if (config.provider === "claude" && args.includes("stream-json")) {
     try {
-      const preference: unknown = JSON.parse(fs.readFileSync(config.preferences, "utf8"));
-      if (object(preference) && effort(preference.default_effort)) {
-        env.CLAUDE_CODE_EFFORT_LEVEL = "";
+      const preference = readEffortPreference(config.preferences);
+      let fastMode: boolean | undefined;
+      try { const value: unknown = JSON.parse(fs.readFileSync(path.join(path.dirname(config.preferences), "session-defaults.json"), "utf8")); if (object(value) && typeof value.fastMode === "boolean") { fastMode = value.fastMode; } } catch { /* Unset speed preserves native launch settings. */ }
+      if (preference || fastMode !== undefined) {
+        if (preference) { env.CLAUDE_CODE_EFFORT_LEVEL = ""; }
         args = claudeLaunchArgs(args, (content) => {
           privateSettings = fs.mkdtempSync(path.join(path.dirname(config.preferences), "live-effort-settings-"));
           const file = path.join(privateSettings, "settings.json"); fs.writeFileSync(file, content, { flag: "wx", mode: 0o600 }); return file;
-        });
+        }, fastMode, !!preference);
       }
     } catch { /* With no shared preference the original native environment is preserved. */ }
   }

@@ -1,13 +1,11 @@
 /** These adapters retain the vendor's model support, account, and billing checks. */
-export const CLAUDE_FAST_API = `async applyNexusFastMode(value,revision){if(typeof value!=="boolean"||typeof revision!=="string"||revision.length>512)throw Error("Invalid Nexus fast mode");for(const comm of zre?.allComms??[]){const config=await comm.config;if(config)comm.send({type:"request",channelId:"",requestId:"",request:{type:"update_state",state:{...comm.getCurrentState()},config:{...config,nexusFast:{value,revision}}}})}return{queued:true}},async applyNexusDefaults(settings){if(settings.effort)await this.applyNexusEffort(settings.effort,settings.effortRevision);if(typeof settings.fastMode==="boolean")await this.applyNexusFastMode(settings.fastMode,settings.fastRevision)}`;
+export const CLAUDE_FAST_API = `async applyNexusFastMode(value,revision){if(typeof value!=="boolean"||typeof revision!=="string"||revision.length>512)throw Error("Invalid Nexus fast mode");this.nexusFastRevisions??=new WeakMap();let updated=0;for(const comm of zre?.allComms??[]){let revisions=this.nexusFastRevisions.get(comm);if(!revisions){revisions=new Map();this.nexusFastRevisions.set(comm,revisions)}for(const[channelId]of comm.channels){if(revisions.get(channelId)===revision)continue;revisions.set(channelId,revision);await comm.withChannel(channelId,async channel=>{await channel.query.applyFlagSettings({fastMode:value});const actual=await channel.query.reinitialize();if(!["off","on","cooldown"].includes(actual.fast_mode_state))throw Error("Claude did not report its Fast state");comm.nexusFastStates??={};comm.nexusFastStates[channelId]={revision,state:actual.fast_mode_state};const config=await comm.config;comm.send({type:"request",channelId,requestId:"",request:{type:"update_state",state:{...comm.getCurrentState(),nexusFast:comm.nexusFastStates},config}});updated++})}if(comm.nexusFastStates){const config=await comm.config;comm.send({type:"request",channelId:"",requestId:"",request:{type:"update_state",state:{...comm.getCurrentState(),nexusFast:comm.nexusFastStates},config}})}}return{updated}},async applyNexusDefaults(settings){if(settings.effort)await this.applyNexusEffort(settings.effort,settings.effortRevision);if(typeof settings.fastMode==="boolean")await this.applyNexusFastMode(settings.fastMode,settings.fastRevision)}`;
 
 export const CLAUDE_FAST_ADOPT = `
-const nexusFast=r?.nexusFast;
-if(nexusFast&&typeof nexusFast.value==="boolean"&&typeof nexusFast.revision==="string"&&this.nexusFastRevision!==nexusFast.revision&&this.connection.value&&(!nexusFast.value||this.currentModelSupportsFastMode.value)){
+const nexusFast=r?.nexusFast?.[this.claudeChannelId];
+if(nexusFast&&["off","on","cooldown"].includes(nexusFast.state)&&typeof nexusFast.revision==="string"&&this.nexusFastRevision!==nexusFast.revision){
   this.nexusFastRevision=nexusFast.revision;
-  const known=typeof this.connection.value.claudeConfig.value?.fast_mode_state==="string";
-  const on=this.fastModeState.value!=="off";
-  if(!known||on!==nexusFast.value)queueMicrotask(()=>{void Promise.resolve(this.send(nexusFast.value?"/fast on":"/fast off",void 0,!1,{kind:"human"},{cancelParkedDialogs:!1})).catch(()=>{})});
+  this.fastModeState.value=nexusFast.state;
 }
 `;
 
@@ -24,14 +22,14 @@ window.addEventListener("message",event=>{
   if([data.effortRevision,data.fastRevision].some(value=>value!==undefined&&(typeof value!=="string"||value.length>512)))return;
   for(const observer of nexusDefaultsObservers)observer(data);
 },true);
-function nexusUseDefaultsBridge(settings,select,hostId,sessionId){
+function nexusUseDefaultsBridge(settings,select,hostId,sessionId,selectNextTurn,isDraft){
   const catalog=it({hostId,enabled:hostId==="local"&&!settings.isLoading}).data;
   const ref=Rt.useRef(null);
-  ref.current??={applied:new Map(),pending:new Map(),queue:Promise.resolve()};
+  ref.current??={applied:new Map(),pending:new Map(),failed:new Map(),queue:Promise.resolve()};
   Rt.useEffect(()=>{
     const state=ref.current;
     const observer=message=>{
-      if(hostId!=="local"||settings.isLoading)return;
+      if(hostId!=="local"||settings.isLoading||sessionId==null&&!isDraft)return;
       const model=catalog?.models?.find(item=>item.model===settings.model);
       if(!model)return;
       const session=sessionId??"draft", prior=state.applied.get(session)??{};
@@ -43,19 +41,22 @@ function nexusUseDefaultsBridge(settings,select,hostId,sessionId){
       const changeFast=typeof message.fastMode==="boolean"&&typeof message.fastRevision==="string"&&prior.fast!==message.fastRevision&&(!message.fastMode||fastTier);
       if(!changeEffort&&!changeFast)return;
       const key=JSON.stringify([message.effortRevision,message.fastRevision]);
+      if(state.failed.get(session)===key||sessionId!=null&&typeof selectNextTurn!=="function")return;
       if(state.pending.get(session)?.key===key)return;
       const entry={key};state.pending.set(session,entry);
       state.queue=state.queue.catch(()=>{}).then(async()=>{
         if(state.pending.get(session)!==entry)return;
         if(changeFast||changeEffort&&settings.reasoningEffort!==effort){
-          const result=await select(settings.model,changeEffort?effort:settings.reasoningEffort,{persistAsDefault:false,...changeFast?{serviceTier:message.fastMode?fastTier.id:"default"}:{}});
+          const speed=changeFast?{serviceTier:message.fastMode?fastTier.id:"default"}:{};
+          const level=changeEffort?effort:settings.reasoningEffort;
+          const result=sessionId==null?await select(settings.model,level,{persistAsDefault:false,...speed}):await selectNextTurn(settings.model,level,{threadSettings:speed});
           if(result===false)throw Error("Native default update was refused");
         }
         if(state.pending.get(session)===entry){state.applied.set(session,{...prior,...changeEffort?{effort:message.effortRevision}:{},...changeFast?{fast:message.fastRevision}:{}});state.pending.delete(session)}
-      }).catch(()=>{if(state.pending.get(session)===entry)state.pending.delete(session)});
+      }).catch(()=>{if(state.pending.get(session)===entry){state.failed.set(session,key);state.pending.delete(session)}});
     };
     nexusDefaultsObservers.add(observer);
     return()=>nexusDefaultsObservers.delete(observer);
-  },[settings.model,settings.reasoningEffort,settings.isLoading,select,hostId,sessionId,catalog]);
+  },[settings.model,settings.reasoningEffort,settings.isLoading,select,selectNextTurn,hostId,sessionId,isDraft,catalog]);
 }
 `;

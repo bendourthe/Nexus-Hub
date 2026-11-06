@@ -4,6 +4,15 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { EFFORTS, EffortProtocol, claudeLaunchArgs, mappedEffort, readEffortPreference, requestEffortApply, type LiveState } from "../src/liveEffortProxy";
 
+it("adds configured Claude startup speed while preserving unrelated settings and unset native speed", () => {
+  for (const fastMode of [true, false]) {
+    const args = claudeLaunchArgs(["--settings", JSON.stringify({keep: "value", fastMode: !fastMode})], undefined, fastMode);
+    expect(JSON.parse(args[1]!)).toMatchObject({keep: "value", fastMode});
+  }
+  expect(JSON.parse(claudeLaunchArgs(["--settings", '{"fastMode":true}'])[1]!).fastMode).toBe(true);
+  expect(JSON.parse(claudeLaunchArgs(["--settings", '{"env":{"CLAUDE_CODE_EFFORT_LEVEL":"high"}}'], undefined, true, false)[1]!).env.CLAUDE_CODE_EFFORT_LEVEL).toBe("high");
+});
+
 function session(provider: "claude" | "codex") {
   const native: string[] = [], client: string[] = [], states: LiveState[] = [];
   const bridge = new EffortProtocol(provider, (line) => native.push(line), (line) => client.push(line), (state) => states.push(state));
@@ -139,6 +148,12 @@ describe("live effort protocol boundary", () => {
     const read = JSON.parse(s.native.at(-1)!); expect(read.request.subtype).toBe("get_settings");
     s.receive({ type: "control_response", response: { request_id: read.request_id, subtype: "success", response: { applied: { effort: "xhigh", ultracode: true } } } });
     expect(s.client).toEqual([JSON.stringify(initialized)]); expect(s.states.at(-1)).toMatchObject({ applied: true, requested: "ultra" });
+    const beforeRefresh = s.native.length;
+    s.send({type: "control_request", request_id: "refresh", request: {subtype: "initialize"}});
+    const refreshed = {type: "control_response", response: {request_id: "refresh", subtype: "success", response: {fast_mode_state: "on"}}};
+    s.receive(refreshed);
+    expect(s.native).toHaveLength(beforeRefresh + 1);
+    expect(s.client.at(-1)).toBe(JSON.stringify(refreshed));
     s.bridge.setEffort("low"); expect(JSON.parse(s.native.at(-1)!).request.settings).toEqual({ effortLevel: "low", ultracode: false });
   });
   it("reports a native refusal and releases initialization without pretending the change applied", () => {

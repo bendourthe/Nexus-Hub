@@ -77,7 +77,7 @@ export function patchedUiSource(vendor: UiVendor, relative: string, original: st
     const host = replaceOnce(original, tail, tail.slice(0, -1) + ";" + CODEX_UI_API + "}");
     return replaceOnce(host, CODEX_ORIGINAL_PANEL, CODEX_NEW_PANEL);
   }
-  const hook = replaceOnce(original, "let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?", "nexusUseEffortBridge(y,S,h.hostId,r);nexusUseDefaultsBridge(y,S,h.hostId,r);let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?");
+  const hook = replaceOnce(original, "let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?", "nexusUseEffortBridge(y,S,h.hostId,r);nexusUseDefaultsBridge(y,S,h.hostId,r,C,_);let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?");
   return hook.replace("//# sourceMappingURL=", CODEX_UI_HOOK + CODEX_DEFAULTS_HOOK + "\n//# sourceMappingURL=");
 }
 

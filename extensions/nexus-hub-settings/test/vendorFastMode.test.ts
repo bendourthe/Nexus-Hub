@@ -3,28 +3,30 @@ import { CLAUDE_FAST_ADOPT, CODEX_DEFAULTS_HOOK } from "../src/vendorFastMode";
 import { CLAUDE_UI_API } from "../src/vendorUiPatch";
 import { CURSOR_FAST_ACTION, mapCursorFast, type CursorModel } from "../src/cursorEffort";
 
-it("publishes Claude speed choices without writing effort flags or bypassing native commands", async () => {
-  const comm = {config: Promise.resolve({keep: true}), getCurrentState: () => ({ready: true}), send: vi.fn()};
+it("applies Claude speed through native session settings and publishes confirmed state only once", async () => {
+  const query = {applyFlagSettings: vi.fn(async () => {}), reinitialize: vi.fn(async () => ({fast_mode_state: "on"}))};
+  const comm = {channels: new Map([["one", {}]]), withChannel: async (_id: string, run: (channel: {query: typeof query}) => unknown) => run({query}), config: Promise.resolve({keep: true}), getCurrentState: () => ({ready: true}), send: vi.fn()};
   const api = new Function("zre", CLAUDE_UI_API)({allComms: [comm]});
   await api.applyNexusDefaults({fastMode: true, fastRevision: "fast-1"});
-  expect(comm.send).toHaveBeenCalledWith({type: "request", channelId: "", requestId: "", request: {type: "update_state", state: {ready: true}, config: {keep: true, nexusFast: {value: true, revision: "fast-1"}}}});
+  expect(query.applyFlagSettings).toHaveBeenCalledWith({fastMode: true});
+  expect(comm.send).toHaveBeenCalledWith({type: "request", channelId: "one", requestId: "", request: {type: "update_state", state: {ready: true, nexusFast: {one: {revision: "fast-1", state: "on"}}}, config: {keep: true}}});
+  await api.applyNexusDefaults({fastMode: true, fastRevision: "fast-1"});
+  expect(query.applyFlagSettings).toHaveBeenCalledTimes(1);
   await expect(api.applyNexusFastMode("true", "bad")).rejects.toThrow("Invalid");
 });
 
-it("uses Claude's native fast command only on supported models and preserves later manual choices", async () => {
+it("adopts only confirmed Claude state for the matching channel and preserves later manual choices", () => {
   const apply = new Function("r", CLAUDE_FAST_ADOPT);
-  const store = {connection: {value: {claudeConfig: {value: {ready: true}}}}, currentModelSupportsFastMode: {value: false}, fastModeState: {value: "off"}, send: vi.fn(), applySettings: vi.fn(), queueSettingsApply: vi.fn(async (work: () => Promise<void>) => work())};
-  apply.call(store, {nexusFast: {value: true, revision: "on"}}); await Promise.resolve(); expect(store.send).not.toHaveBeenCalled();
-  store.currentModelSupportsFastMode.value = true;
-  apply.call(store, {nexusFast: {value: true, revision: "on"}}); await Promise.resolve();
-  expect(store.send).toHaveBeenCalledWith("/fast on", undefined, false, {kind: "human"}, {cancelParkedDialogs: false});
-  apply.call(store, {nexusFast: {value: true, revision: "on"}}); await Promise.resolve(); expect(store.send).toHaveBeenCalledTimes(1);
-  store.fastModeState.value = "on";
-  apply.call(store, {nexusFast: {value: false, revision: "off"}}); await Promise.resolve();
-  expect(store.send).toHaveBeenLastCalledWith("/fast off", undefined, false, {kind: "human"}, {cancelParkedDialogs: false});
+  const store = {claudeChannelId: "one", fastModeState: {value: "off"}};
+  apply.call(store, {nexusFast: {other: {state: "on", revision: "on"}}});
+  expect(store.fastModeState.value).toBe("off");
+  apply.call(store, {nexusFast: {one: {state: "on", revision: "on"}}});
+  expect(store.fastModeState.value).toBe("on");
   store.fastModeState.value = "off";
-  apply.call(store, {nexusFast: {value: false, revision: "blank-off"}}); await Promise.resolve();
-  expect(store.send).toHaveBeenCalledTimes(3);
+  apply.call(store, {nexusFast: {one: {state: "on", revision: "on"}}});
+  expect(store.fastModeState.value).toBe("off");
+  apply.call(store, {nexusFast: {one: {state: "cooldown", revision: "reapply"}}});
+  expect(store.fastModeState.value).toBe("cooldown");
 });
 
 it("combines Codex effort and speed atomically while keeping manual changes independent", async () => {
@@ -37,26 +39,62 @@ it("combines Codex effort and speed atomically while keeping manual changes inde
     {addEventListener: (_type: string, callback: typeof listeners[number]) => listeners.push(callback)},
     {useRef: () => ref, useEffect: (effect: () => () => void) => {cleanup = effect();}}, () => catalog,
   );
-  const render = (id: string) => {cleanup(); hook(settings, select, "local", id);};
+  const render = (id: string) => {cleanup(); hook(settings, select, "local", id, select);};
   const send = async (effortRevision: string, fastMode: boolean, fastRevision: string) => {
     listeners.forEach(callback => callback({data: {type: "nexus-defaults-v2", effort: "high", effortRevision, fastMode, fastRevision}, stopImmediatePropagation() {}}));
     for (let i = 0; i < 12; i++) { await Promise.resolve(); }
   };
   render("one"); await send("e1", true, "f1");
-  expect(select).toHaveBeenLastCalledWith("same-model", "high", {persistAsDefault: false, serviceTier: "priority"});
+  expect(select).toHaveBeenLastCalledWith("same-model", "high", {threadSettings: {serviceTier: "priority"}});
   settings = {...settings, reasoningEffort: "low"}; render("one");
   await send("e1", true, "f1"); expect(select).toHaveBeenCalledTimes(1);
   await send("e1", false, "f2");
-  expect(select).toHaveBeenLastCalledWith("same-model", "low", {persistAsDefault: false, serviceTier: "default"});
+  expect(select).toHaveBeenLastCalledWith("same-model", "low", {threadSettings: {serviceTier: "default"}});
   render("two"); await send("e1", false, "f2");
-  expect(select).toHaveBeenLastCalledWith("same-model", "high", {persistAsDefault: false, serviceTier: "default"});
+  expect(select).toHaveBeenLastCalledWith("same-model", "high", {threadSettings: {serviceTier: "default"}});
   render("one"); await send("e1", false, "f2"); expect(select).toHaveBeenCalledTimes(3);
   await send("e2", true, "f3");
-  expect(select).toHaveBeenLastCalledWith("same-model", "high", {persistAsDefault: false, serviceTier: "priority"});
+  expect(select).toHaveBeenLastCalledWith("same-model", "high", {threadSettings: {serviceTier: "priority"}});
 });
 
 const model: CursorModel = {name: "same-model", parameterDefinitions: [{id: "fast", name: "Fast", parameterType: {booleanParameter: {values: [{value: "true"}, {value: "false"}]}}}]};
+it("uses Codex's next-turn contract for existing conversations and does not retry a rejected revision", async () => {
+  let listener: (event: {data: unknown; stopImmediatePropagation(): void}) => void = () => {};
+  const ref = {current: null};
+  const draft = vi.fn(async () => true), next = vi.fn(async () => {throw Error("not ready");});
+  const hook = new Function("window", "Rt", "it", CODEX_DEFAULTS_HOOK + ";return nexusUseDefaultsBridge;")(
+    {addEventListener: (_: string, cb: typeof listener) => {listener = cb;}},
+    {useRef: () => ref, useEffect: (effect: () => unknown) => effect()},
+    () => ({data: {models: [{model: "same", serviceTiers: [{id: "priority", name: "Fast"}]}]}}),
+  );
+  hook({model: "same", reasoningEffort: "medium", isLoading: false}, draft, "local", "existing", next);
+  const send = async (revision: string) => {
+    listener({data: {type: "nexus-defaults-v2", fastMode: true, fastRevision: revision}, stopImmediatePropagation() {}});
+    for (let i=0;i<12;i++) await Promise.resolve();
+  };
+  await send("one"); await send("one"); await send("one");
+  expect(draft).not.toHaveBeenCalled();
+  expect(next).toHaveBeenCalledTimes(1);
+  expect(next).toHaveBeenLastCalledWith("same", "medium", {threadSettings: {serviceTier: "priority"}});
+  await send("reapply"); expect(next).toHaveBeenCalledTimes(2);
+});
 const selections = [{modelId: model.name, parameters: [{id: "fast", value: "false"}, {id: "effort", value: "high"}, {id: "context", value: "256k"}]}];
+it("waits for a writable Codex draft instead of changing account defaults for an empty restored tab", async () => {
+  let listener: (event: {data: unknown; stopImmediatePropagation(): void}) => void = () => {};
+  const ref = {current: null}, draft = vi.fn(async () => true);
+  let cleanup = () => {};
+  const hook = new Function("window", "Rt", "it", CODEX_DEFAULTS_HOOK + ";return nexusUseDefaultsBridge;")(
+    {addEventListener: (_: string, cb: typeof listener) => {listener=cb;}},
+    {useRef: () => ref, useEffect: (effect: () => () => void) => {cleanup=effect();}},
+    () => ({data: {models: [{model: "same", serviceTiers: [{id: "priority", name: "Fast"}]}]}}),
+  );
+  const settings = {model: "same", reasoningEffort: "medium", isLoading: false};
+  const send = async () => {listener({data: {type: "nexus-defaults-v2", fastMode: true, fastRevision: "one"}, stopImmediatePropagation() {}}); for(let i=0;i<12;i++) await Promise.resolve();};
+  hook(settings,draft,"local",null,undefined,false); await send(); await send();
+  expect(draft).not.toHaveBeenCalled(); cleanup();
+  hook(settings,draft,"local",null,undefined,true); await send();
+  expect(draft).toHaveBeenCalledExactlyOnceWith("same","medium",{persistAsDefault:false,serviceTier:"priority"});
+});
 it("uses only Cursor's advertised fast parameter and compatible native variants", () => {
   const mapped = mapCursorFast([model], selections, true);
   expect(mapped.supported).toBe(1);

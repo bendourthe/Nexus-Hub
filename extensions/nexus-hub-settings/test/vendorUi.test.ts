@@ -57,6 +57,26 @@ it("reports a loaded old UI instead of claiming a live update", async () => {
   stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true });
   expect((await setup())!.summary().reloadRequired).toBe(true);
 });
+it("keeps Codex updating when Claude stalls and does not duplicate the pending Claude request", async () => {
+  vi.useFakeTimers();
+  const claude = vi.fn(() => new Promise(() => {})), codex = vi.fn(async () => {});
+  for (const [id, apply] of [["anthropic.claude-code", claude], ["openai.chatgpt", codex]] as const) {
+    stub.vendorExtensions.set(id, {extensionPath: id, isActive: true, exports: {nexusEffortBridgeVersion: 3, applyNexusEffort: vi.fn(), applyNexusDefaults: apply}});
+  }
+  try {
+    const starting = setup();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(codex).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(5000);
+    const bridge = (await starting)!;
+    expect(bridge.summary().errors).toEqual(["Claude Code: The native effort update failed."]);
+    await write("low");
+    const updating = bridge.synchronize();
+    await vi.advanceTimersByTimeAsync(5000); await updating;
+    expect(claude).toHaveBeenCalledTimes(1);
+    expect(codex).toHaveBeenLastCalledWith(expect.objectContaining({effort: "low"}));
+  } finally {subscriptions.forEach(item => item.dispose()); vi.useRealTimers();}
+});
 it("preserves an unsupported build and reports its adapter failure", async () => {
   const apply = vi.fn(); stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true, exports: { nexusEffortBridgeVersion: 2, applyNexusEffort: apply } });
   vi.mocked(installVendorUi).mockRejectedValueOnce(Error("Build changed and preserved"));

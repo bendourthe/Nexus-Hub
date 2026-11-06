@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 
-- [ ] Finish Nexus Hub 0.7.0 shared Fast mode and the installer-delivered Codex tab/sidebar preference. Focused tests and disposable adapter checks pass; native speed, history and restored-state verification remain in progress.
+- [x] Deliver Nexus Hub 0.7.1 Fast fixes: existing Claude and Codex conversations switched off/on live at Medium, the repeated Codex model-setting errors stopped, and the duplicate divider was removed. Installed payloads: 30/30 in VS Code, Cursor and Antigravity; tests: 395 passed, one skipped. Exact Fast-on preferences and Medium restored. [Evidence](releases/v4/v4.15/development/settings-071-fast-fix-evidence.md). The independent background-tab startup timeout remains tracked below.
 
 - [x] Install Nexus Hub 0.5.3 notes cleanup in VS Code, Cursor and Antigravity: collapsed Details inside the effort card, no subtitle, no notes below Version, and Refresh explained and moved into Details. Native collapse/expand/refresh observed; focused checks: 45/45; installed payloads: 27/27 in each editor; runtime unchanged: 17/17. [Evidence](releases/v4/v4.15/development/settings-053-details-evidence.md).
 - [x] Install Nexus Hub 0.6.0 with live effort support for Cursor 3.29.9's built-in Agent. Native polling, manual session overrides, new Agents, Apply to all, and compatible effort mapping were exercised in a private copy; the installed Nexus selector also changed an open Cursor Agent live. Full suite: 378 passed, one skipped. Installed payloads: 28/28 files in VS Code, Cursor and Antigravity. Extra high and all Nexus preferences restored. [Evidence](releases/v4/v4.15/development/settings-060-cursor-native-evidence.md).
