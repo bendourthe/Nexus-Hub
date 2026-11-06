@@ -37,7 +37,11 @@ def main() -> None:
         page.goto(source.as_uri())
         page.wait_for_function("!!window.readmeDemos")
         page.evaluate("document.fonts.ready")
-        for kind in ("settings", "workflow"):
+        commands = page.evaluate("window.readmeDemos.commandGroups.flatMap(group => group.items.map(item => item[0]))")
+        for command in commands:
+            name = command.split()[0].removeprefix("/")
+            assert (ROOT / "catalog/commands" / (name + ".md")).is_file(), f"Missing catalog command: {command}"
+        for kind in page.evaluate("Object.keys(window.readmeDemos.scenes)"):
             count = page.evaluate("kind => window.readmeDemos.scenes[kind].length", kind)
             frames: list[Image.Image] = []
             durations: list[int] = []
