@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { CLAUDE_FAST_ADOPT, CLAUDE_FAST_API, CODEX_DEFAULTS_API, CODEX_DEFAULTS_HOOK } from "./vendorFastMode";
 import { CURSOR_WORKBENCH_HASH, CURSOR_WORKBENCH_PATH, CURSOR_WORKBENCH_VERSION, patchCursorWorkbench } from "./cursorEffort";
 
 export type UiVendor = "claude" | "codex" | "cursor";
@@ -6,12 +7,15 @@ export const uiHash = (value: string): string => createHash("sha256").update(val
 const levels = '["low","medium","high","xhigh","max","ultra"]';
 const validate = `if(!${levels}.includes(e))throw Error("Invalid Nexus effort");`;
 
-export const CLAUDE_UI_API = `return{nexusEffortBridgeVersion:2,async applyNexusEffort(e,revision=e){${validate}const level=e==="ultra"?"xhigh":e;let updated=0;this.nexusRevisions??=new WeakMap();for(const comm of zre?.allComms??[]){const applied=comm.cachedClaudeSettings?.applied;if(this.nexusRevisions.get(comm)!==revision&&(applied?.effort!==level||Boolean(applied?.ultracode)!==(e==="ultra"))){for(const[id]of comm.channels){await comm.writeUserSettingsAndPush(id,{effortLevel:level,ultracode:e==="ultra"},true);updated++}}const actual=comm.cachedClaudeSettings?.applied;if(this.nexusRevisions.get(comm)!==revision&&comm.channels.size&&(actual?.effort!==level||Boolean(actual?.ultracode)!==(e==="ultra")))throw Error("Claude did not apply the requested effort");this.nexusRevisions.set(comm,revision);const config=await comm.config;if(config)comm.send({type:"request",channelId:"",requestId:"",request:{type:"update_state",state:{...comm.getCurrentState(),nexusEffort:{effort:e,revision}},config:{...config,nexusEffort:{effort:e,revision}}}})}return{updated}}}`;
+const CLAUDE_EFFORT_API = `return{nexusEffortBridgeVersion:2,async applyNexusEffort(e,revision=e){${validate}const level=e==="ultra"?"xhigh":e;let updated=0;this.nexusRevisions??=new WeakMap();for(const comm of zre?.allComms??[]){const applied=comm.cachedClaudeSettings?.applied;if(this.nexusRevisions.get(comm)!==revision&&(applied?.effort!==level||Boolean(applied?.ultracode)!==(e==="ultra"))){for(const[id]of comm.channels){await comm.writeUserSettingsAndPush(id,{effortLevel:level,ultracode:e==="ultra"},true);updated++}}const actual=comm.cachedClaudeSettings?.applied;if(this.nexusRevisions.get(comm)!==revision&&comm.channels.size&&(actual?.effort!==level||Boolean(actual?.ultracode)!==(e==="ultra")))throw Error("Claude did not apply the requested effort");this.nexusRevisions.set(comm,revision);const config=await comm.config;if(config)comm.send({type:"request",channelId:"",requestId:"",request:{type:"update_state",state:{...comm.getCurrentState(),nexusEffort:{effort:e,revision}},config:{...config,nexusEffort:{effort:e,revision}}}})}return{updated}}}`;
 // Claude deliberately seeds effort once. Adopt later verified host changes through its own signal owner.
 export const CLAUDE_UI_ADOPT = `const nexus=r?.nexusEffort;if(nexus&&${levels}.includes(nexus.effort)&&this.nexusEffortRevision!==nexus.revision){this.nexusEffortRevision=nexus.revision;this.adoptAppliedEffort({effort:nexus.effort==="ultra"?"xhigh":nexus.effort,ultracodeRequested:nexus.effort==="ultra"},{available:true})}`;
-export const CODEX_UI_API = `return{nexusEffortBridgeVersion:2,applyNexusEffort(e,revision=e){${validate}$e.broadcastToAllViews({type:"nexus-effort-v1",effort:e,revision});return{queued:true}}}`;
+const CODEX_EFFORT_API = `return{nexusEffortBridgeVersion:2,applyNexusEffort(e,revision=e){${validate}$e.broadcastToAllViews({type:"nexus-effort-v1",effort:e,revision});return{queued:true}}}`;
 const CODEX_ORIGINAL_PANEL = 'async createNewPanel(){let e=F1("/extension/panel/new"),r=Be.window.activeTextEditor?.viewColumn??Be.ViewColumn.Active;await Be.commands.executeCommand("vscode.openWith",e,t.customEditorViewType,{viewColumn:r,preserveFocus:!1,preview:!1})}';
 export const CODEX_NEW_PANEL = CODEX_ORIGINAL_PANEL.replace('F1("/extension/panel/new")', 'F1("/extension/panel/new?nexus="+(0,w8e.randomUUID)())');
+
+export const CLAUDE_UI_API = CLAUDE_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("async applyNexusEffort(", CLAUDE_FAST_API + ",async applyNexusEffort(");
+export const CODEX_UI_API = CODEX_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("applyNexusEffort(", CODEX_DEFAULTS_API + ",applyNexusEffort(");
 
 // This hook calls the same setter as the native effort picker. It does not synthesize server notifications.
 export const CODEX_UI_HOOK = `
@@ -66,15 +70,15 @@ export function patchedUiSource(vendor: UiVendor, relative: string, original: st
     return replaceOnce(original, 'if(n)nre(e,t,n)}function Xbr(e,t)', `if(n)nre(e,t,n);${CLAUDE_UI_API}}function Xbr(e,t)`);
   }
   if (vendor === "claude") {
-    return replaceOnce(original, "let r=this.connection.value?.config.value,s=r?.claudeSettings?.applied,a=", "let r=this.connection.value?.config.value;" + CLAUDE_UI_ADOPT + "let s=r?.claudeSettings?.applied,a=");
+    return replaceOnce(original, "let r=this.connection.value?.config.value,s=r?.claudeSettings?.applied,a=", "let r=this.connection.value?.config.value;" + CLAUDE_UI_ADOPT + CLAUDE_FAST_ADOPT + "let s=r?.claudeSettings?.applied,a=");
   }
   if (relative === "out/extension.js") {
     const tail = 'ie().warning("Desktop bridge init failed",{safe:{},sensitive:{error:Se}})}})()}';
     const host = replaceOnce(original, tail, tail.slice(0, -1) + ";" + CODEX_UI_API + "}");
     return replaceOnce(host, CODEX_ORIGINAL_PANEL, CODEX_NEW_PANEL);
   }
-  const hook = replaceOnce(original, "let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?", "nexusUseEffortBridge(y,S,h.hostId,r);let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?");
-  return hook.replace("//# sourceMappingURL=", CODEX_UI_HOOK + "\n//# sourceMappingURL=");
+  const hook = replaceOnce(original, "let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?", "nexusUseEffortBridge(y,S,h.hostId,r);nexusUseDefaultsBridge(y,S,h.hostId,r);let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?");
+  return hook.replace("//# sourceMappingURL=", CODEX_UI_HOOK + CODEX_DEFAULTS_HOOK + "\n//# sourceMappingURL=");
 }
 
 export function codexTabManifest(original: string): string {
@@ -87,6 +91,14 @@ export function codexTabManifest(original: string): string {
   if (!sidebar?.icon || !panel || !menu.some((entry: { command?: string }) => entry.command === "chatgpt.openSidebar")) { throw new Error("The Codex editor menu changed and was preserved."); }
   panel.icon = sidebar.icon;
   panel.title = "Open Codex in New Tab";
-  for (const entry of menu) { if (entry.command === "chatgpt.openSidebar") { entry.command = "chatgpt.newCodexPanel"; } }
+  commands.push({command: "nexusHubSettings.openCodex", title: "Open Codex", icon: sidebar.icon});
+  for (const entry of [...menu]) {
+    if (entry.command !== "chatgpt.openSidebar") { continue; }
+    const originalWhen = typeof entry.when === "string" && entry.when ? " && (" + entry.when + ")" : "";
+    menu.push({...entry, command: "nexusHubSettings.openCodex", when: "nexusHubSettings.enabled" + originalWhen});
+    entry.when = "!nexusHubSettings.enabled" + originalWhen;
+  }
+  manifest.contributes.menus.commandPalette ??= [];
+  manifest.contributes.menus.commandPalette.push({command: "nexusHubSettings.openCodex", when: "nexusHubSettings.enabled"});
   return JSON.stringify(manifest, null, 2) + "\n";
 }

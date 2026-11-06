@@ -6,10 +6,11 @@ import { installRoot } from "./cliBridge";
 import { readEffortPreference } from "./liveEffortProxy";
 import { installVendorUi } from "./vendorUiInstall";
 import type { UiVendor } from "./vendorUiPatch";
-import { CURSOR_EFFORT_COMMAND } from "./cursorEffort";
+import { CURSOR_EFFORT_COMMAND, CURSOR_FAST_COMMAND } from "./cursorEffort";
+import { readSessionDefaults, SESSION_DEFAULTS_FILE } from "./sessionDefaults";
 
 export interface UiEffortSummary { reloadRequired: boolean; errors: string[] }
-interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string, revision: string): unknown }
+interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string, revision: string): unknown; applyNexusDefaults?(settings: {effort?: string; effortRevision?: string; fastMode?: boolean; fastRevision?: string}): unknown }
 const providers: { vendor: UiVendor; id: string; label: string }[] = [
   { vendor: "claude", id: "anthropic.claude-code", label: "Claude Code" },
   { vendor: "codex", id: "openai.chatgpt", label: "Codex" },
@@ -48,21 +49,31 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
     running = true;
     try {
       const preference = readEffortPreference(path.join(hub, "preferences.json"));
-      if (!preference) { return; }
+      const session = readSessionDefaults(path.join(hub, SESSION_DEFAULTS_FILE));
+      if (!preference && session.fastMode === null) { return; }
+      const defaults = {effort: preference?.value, effortRevision: preference?.revision, fastMode: session.fastMode ?? undefined, fastRevision: session.fastMode === null ? undefined : String(session.fastMode) + ":" + session.fastRevision};
       const next: UiEffortSummary = { reloadRequired: menuReloadRequired, errors: [...setupErrors] };
       if (cursorInstalled) {
-        if (!(await vscode.commands.getCommands(true)).includes(CURSOR_EFFORT_COMMAND)) { next.reloadRequired = true; }
+        const commands = await vscode.commands.getCommands(true);
+        if (!commands.includes(CURSOR_EFFORT_COMMAND)) { next.reloadRequired = true; }
         else {
-          try { await vscode.commands.executeCommand(CURSOR_EFFORT_COMMAND, {effort: preference.value, revision: preference.revision}); }
+          try { if (preference) { await vscode.commands.executeCommand(CURSOR_EFFORT_COMMAND, {effort: preference.value, revision: preference.revision}); } }
           catch { next.errors.push("Cursor: The native effort update failed."); }
+        }
+        if (session.fastMode !== null) {
+          if (!commands.includes(CURSOR_FAST_COMMAND)) { next.reloadRequired = true; }
+          else { try { await vscode.commands.executeCommand(CURSOR_FAST_COMMAND, {value: session.fastMode, revision: defaults.fastRevision}); } catch { next.errors.push("Cursor: The native speed update failed."); } }
         }
       }
       for (const item of available) {
         if (!installed.has(item.id)) { continue; }
         if (!item.extension.isActive) { continue; }
         const api = item.extension.exports as Partial<NativeApi> | undefined;
-        if (api?.nexusEffortBridgeVersion !== 2 || typeof api.applyNexusEffort !== "function") { next.reloadRequired = true; continue; }
-        try { await api.applyNexusEffort(preference.value, preference.revision); }
+        if (![2, 3].includes(api?.nexusEffortBridgeVersion ?? 0) || typeof api?.applyNexusEffort !== "function") { next.reloadRequired = true; continue; }
+        try {
+          if (api.nexusEffortBridgeVersion === 3 && api.applyNexusDefaults) { await api.applyNexusDefaults(defaults); }
+          else { if (preference) { await api.applyNexusEffort(preference.value, preference.revision); } if (session.fastMode !== null) { next.reloadRequired = true; } }
+        }
         catch { next.errors.push(`${item.label}: The native effort update failed.`); }
       }
       current = next;

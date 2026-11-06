@@ -8,7 +8,7 @@ export interface CursorModel {
   parameterDefinitions?: {
     id: string;
     name?: string;
-    parameterType?: { enumParameter?: { values: { value: string; displayName?: string }[] } };
+    parameterType?: { enumParameter?: { values: { value: string; displayName?: string }[] }; booleanParameter?: { values: {value: string}[] } };
   }[];
 }
 
@@ -55,6 +55,7 @@ export function mapCursorEffort(
 }
 
 export const CURSOR_EFFORT_COMMAND = "nexusHubSettings.cursor.applyEffort";
+export const CURSOR_FAST_COMMAND = "nexusHubSettings.cursor.applyFastMode";
 export const CURSOR_WORKBENCH_PATH = "out/vs/workbench/workbench.desktop.main.js";
 export const CURSOR_WORKBENCH_HASH = "5aec61924cced4345b0a5c67c741bf56aa6358f6b791cb71129be0de08e2800f";
 export const CURSOR_WORKBENCH_VERSION = "3.29.9";
@@ -109,11 +110,83 @@ export const CURSOR_EFFORT_ACTION = `ut(class extends It {
   }
 }),`;
 
+export function mapCursorFast(models: CursorModel[], selected: CursorSelection[], enabled: boolean, compatible: (model: CursorModel, parameters: CursorParameter[]) => boolean = () => true): {selectedModels: CursorSelection[]; supported: number} {
+  if (typeof enabled !== "boolean") { throw new Error("Invalid Nexus fast mode"); }
+  let supported = 0;
+  const selectedModels = selected.map(entry => {
+    const model = models.find(item => item.name === entry.modelId || item.idAliases?.includes(entry.modelId));
+    if (!model) { return entry; }
+    const definitions = (model.parameterDefinitions ?? []).filter(item => (item.id.toLowerCase() === "fast" || item.name?.toLowerCase() === "fast") && item.parameterType?.booleanParameter);
+    if (definitions.length !== 1) { return entry; }
+    const definition = definitions[0]!, value = String(enabled);
+    if (!definition.parameterType!.booleanParameter!.values.some(item => item.value === value)) { return entry; }
+    const parameters = (entry.parameters ?? []).filter(item => item.id !== definition.id).map(item => ({...item}));
+    parameters.push({id: definition.id, value});
+    if (!compatible(model, parameters)) { return entry; }
+    supported++;
+    return {...entry, parameters};
+  });
+  return {selectedModels, supported};
+}
+
+export const CURSOR_FAST_ACTION = `ut(class extends It {
+  constructor(){super({id:"${CURSOR_FAST_COMMAND}",title:{value:"Nexus Hub Fast Mode",original:"Nexus Hub Fast Mode"},f1:false})}
+  run(accessor,args){
+    if(!args||typeof args.value!=="boolean"||typeof args.revision!=="string"||args.revision.length>512)throw Error("Invalid Nexus fast mode request");
+    const models=accessor.get(zb),data=accessor.get(to),mapper=${mapCursorFast.toString()};
+    if(!models.getAvailableDefaultModels().some(model=>mapper([model],[{modelId:model.name}],args.value).supported))return{ready:false,updated:0};
+    const state=this.nexusFast??={applied:new WeakMap(),manual:new Set(),reading:false};
+    if(state.revision!==args.revision){state.revision=args.revision;state.manual.clear()}
+    state.value=args.value;
+    const map=(selected,maxMode)=>mapper(models.getAvailableDefaultModels(),selected.map(item=>({...item,parameters:models.resolveModelParametersForSubmission(item.modelId,item.parameters,maxMode)})),state.value,(model,parameters)=>{
+      if(!model.variants?.length)return true;
+      const actual=g3i(model,parameters,maxMode)?.parameterValues;
+      return actual?.length===parameters.length&&parameters.every(item=>actual.some(value=>value.id===item.id&&value.value===item.value));
+    });
+    if(!state.original){
+      state.original=models.getModelConfig;
+      state.setOriginal=models.setModelConfigForComposer;
+      models.getModelConfig=function(surface){
+        const config=state.original.call(this,surface);
+        if(state.reading||!["composer","background-composer","plan-execution"].includes(surface))return config;
+        state.reading=true;
+        try{const mapped=map(this.deriveSelectedModels(config),config.maxMode===true);return mapped.supported?{...config,selectedModels:mapped.selectedModels}:config}
+        finally{state.reading=false}
+      };
+      models.setModelConfigForComposer=function(handle,change,surface,options){
+        if(options?.updateGlobalConfig===true&&change.selectedModels){
+          const before=this.deriveSelectedModels(this.getEffectiveModelConfigForComposer(handle));
+          const catalog=this.getAvailableDefaultModels();
+          const changed=change.selectedModels.some(item=>{
+            const definition=catalog.find(model=>model.name===item.modelId)?.parameterDefinitions?.find(parameter=>(parameter.id.toLowerCase()==="fast"||parameter.name?.toLowerCase()==="fast")&&parameter.parameterType?.booleanParameter);
+            if(!definition)return false;
+            const old=before.find(prior=>prior.modelId===item.modelId)?.parameters?.find(parameter=>parameter.id===definition.id)?.value;
+            return item.parameters?.find(parameter=>parameter.id===definition.id)?.value!==old;
+          });
+          if(changed)state.manual.add(handle.composerId??handle.data.composerId);
+        }
+        return state.setOriginal.call(this,handle,change,surface,options);
+      };
+    }
+    let updated=0;
+    for(const id of data.selectedComposerIds){
+      if(state.manual.has(id))continue;
+      const handle=data.getHandleIfLoaded(id);
+      if(!handle||state.applied.get(handle)===args.revision)continue;
+      const config=models.getEffectiveModelConfigForComposer(handle),mapped=map(models.deriveSelectedModels(config),config.maxMode===true);
+      if(!mapped.supported)continue;
+      models.setModelConfigForComposer(handle,{selectedModels:mapped.selectedModels},undefined,{updateGlobalConfig:false});
+      state.applied.set(handle,args.revision);updated++;
+    }
+    return{ready:true,updated};
+  }
+}),`;
+
 export function patchCursorWorkbench(original: string): string {
   if (createHash("sha256").update(original).digest("hex") !== CURSOR_WORKBENCH_HASH) { throw new Error("This Cursor build has not been qualified; its workbench was preserved."); }
   const index = original.indexOf(CURSOR_ACTION_ANCHOR);
   if (index < 0 || original.indexOf(CURSOR_ACTION_ANCHOR, index + CURSOR_ACTION_ANCHOR.length) >= 0) { throw new Error("Cursor's model action registration changed and was preserved."); }
-  return original.slice(0, index) + CURSOR_EFFORT_ACTION + original.slice(index);
+  return original.slice(0, index) + CURSOR_EFFORT_ACTION + CURSOR_FAST_ACTION + original.slice(index);
 }
 
 /** Retain every integrity entry; update only the digest for our exact workbench output. */

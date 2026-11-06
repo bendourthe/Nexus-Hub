@@ -53,7 +53,8 @@ describe("native UI effort adapters", () => {
     const original = { unrelated: { keep: true }, contributes: { commands: [{ command: "chatgpt.openSidebar", icon: { light: "black.svg", dark: "white.svg" } }, { command: "chatgpt.newCodexPanel", icon: "$(plus)" }], menus: { "editor/title": [{ command: "chatgpt.openSidebar", group: "navigation" }] } } };
     const result = JSON.parse(codexTabManifest(JSON.stringify(original)));
     expect(result.unrelated).toEqual(original.unrelated);
-    expect(result.contributes.menus["editor/title"]).toEqual([{ command: "chatgpt.newCodexPanel", group: "navigation" }]);
+    expect(result.contributes.menus["editor/title"]).toEqual([{command: "chatgpt.openSidebar", group: "navigation", when: "!nexusHubSettings.enabled"}, {command: "nexusHubSettings.openCodex", group: "navigation", when: "nexusHubSettings.enabled"}]);
+    expect(result.contributes.commands.at(-1)).toMatchObject({command: "nexusHubSettings.openCodex", icon: original.contributes.commands[0].icon});
     expect(result.contributes.commands[1].icon).toEqual(original.contributes.commands[0].icon);
   });
 });

@@ -5,6 +5,8 @@ A compact panel for VS Code, Cursor and Antigravity with one shared effort selec
 ## What it controls
 
 - **Default effort**: one preference for supported native defaults and connected Claude Code and Codex sessions.
+- **Fast mode**: an independent shared speed preference for supported Claude Code, Codex and Cursor sessions. Until chosen, existing speeds are preserved. Fast mode may increase usage or cost and follows each provider's model and account restrictions.
+- **Open Codex in tabs**: an Editor switch that controls the existing Codex toolbar button. On opens independent editor tabs with Nexus history access; off opens the native activity pane. The preference survives extension and Nexus installer updates.
 - **Git safety**: dangerous Git commands and protected-branch checks.
 - **Secret scanning**: credential checks before writes.
 - **Protect my edits**: checks before overwriting user changes.
@@ -14,6 +16,8 @@ A compact panel for VS Code, Cursor and Antigravity with one shared effort selec
 Changing the Nexus default updates connected Claude Code, Codex, and qualified Cursor Agent sessions once. A later manual effort selection belongs to that session and is preserved until the Nexus default changes again or you click Apply to all. Newly connected sessions receive the Nexus default within the synchronization interval. The next request uses the selected effort. A response already running keeps its current effort. Claude Max maps to native `max`; Ultra enables Ultracode with `xhigh` effort. Codex and Cursor use each model's advertised effort values, mapping higher Nexus levels to the highest compatible native value while preserving the model and unrelated parameters. Guardrail switches are read on the next hook invocation, including in full-access mode. Copilot and native Antigravity effort require manual selection. Native model and approval controls remain available through the CLI.
 
 ## Status bar
+
+Fast mode uses Claude's native `/fast on` and `/fast off` actions, Codex's advertised Fast service tier, and Cursor's advertised Fast model parameter. It does not lower effort or choose another model. Manual speed and effort choices are independent and last until the corresponding Nexus preference changes or Apply to all reapplies both. Claude's native model, organization and usage-credit checks remain active; see [Claude Code Fast mode](https://code.claude.com/docs/en/fast-mode). Speed changes apply to the next request, not a response already running.
 
 The status bar shows `High (effort)` by default, or `Nexus Hub: High (effort)` when `nexusHubSettings.compactStatusBar` is off. Its compact hover has a single Nexus Hub title, an Effort Level section with a read-only cyan stepped bar, and a Guardrails section with named on/off indicators. A warning means an available setting failed to synchronize or a guardrail is unavailable. Unsupported editors alone do not produce a warning. Click the status bar to open Settings.
 
@@ -31,13 +35,13 @@ Only exact verified source hashes are patched. Original vendor files and a resto
 
 Cursor 3.29.9 requires an exact-build adapter in the IDE's own workbench because its public extension API has no effort setter. The adapter uses Cursor's native model catalog and per-session setter, preserving context size and Fast mode. Installation backs up the workbench and product manifest, then updates only that workbench's checksum while retaining every other integrity entry. Fully exit and restart Cursor after the first installation. `restoreVendorUi(receiptPath)` restores the backed-up bytes when the installed files still match the adapter output. Auto and models without an advertised effort parameter keep their native behavior. Cursor upgrades require a newly qualified build.
 
-The same shared preference is accessible to scripts with `nexus-hub settings set effort high --json`. Other extensions can inspect `(await vscode.extensions.getExtension("nexus-hub.nexus-hub-settings").activate()).getViewModel()`; `liveEffort` describes connected native processes, and `uiEffort` reports adapter installation or reload errors. Neither field by itself proves that every visible picker rendered the change.
+The shared effort preference is accessible to scripts with `nexus-hub settings set effort high --json`. Other extensions can inspect `(await vscode.extensions.getExtension("nexus-hub.nexus-hub-settings").activate()).getViewModel()` and call the returned API's `setFastMode(boolean)` or `setCodexTabs(boolean)`. Both actions require a trusted workspace. Shared speed and navigation values live in `~/.nexus-hub/session-defaults.json`; effort and guardrails retain their existing engine-owned preferences. `liveEffort` describes connected native processes, and `uiEffort` reports adapter installation or reload errors. Neither field by itself proves that every visible picker rendered the change.
 
 The persistent bridge is stored in `~/.nexus-hub/live-effort/` so an extension update does not remove a running session's executable. To disconnect it, disable Settings, then restore `claudeCode.claudeProcessWrapper` and `chatgpt.cliExecutable` to their previous values in User Settings. The extension saves original values in its global state and does not replace a later custom launch setting.
 
 ## History and Upgrades
 
-The Codex editor toolbar includes a Codex History button. It reads local session titles from the Codex history index and opens the selected conversation in a native Codex editor tab. It does not read conversation content. The Codex sidebar remains available for full history and remote sessions.
+The Codex editor toolbar includes a Codex History button. It reads local session titles from the Codex history index and opens the selected conversation in a native Codex editor tab. It does not read conversation content. The Codex sidebar remains available for full history and remote sessions, and through the Open Codex in tabs switch. The installer-delivered adapter retains the native sidebar button as a fallback when Nexus is disabled.
 
 The Settings panel shows the installed Nexus-Hub version. Check for upgrades opens the existing interactive Nexus-Hub CLI upgrade flow in a terminal, where you can review the available update before accepting installation. The extension identifier and existing configuration keys stay unchanged during the Nexus Hub rename.
 

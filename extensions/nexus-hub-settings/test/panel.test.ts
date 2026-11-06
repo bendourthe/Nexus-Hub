@@ -78,13 +78,14 @@ describe("shared settings view", () => {
     pick(value);
     expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value, tool: null });
   });
-  it("shows one effort selector and five switches, without platform rows or model fields", () => {
+  it("shows one effort selector, Fast mode and five guardrails without platform rows", () => {
     panel.render(fresh());
     expect(app.querySelector("h1")?.textContent).toBe("Nexus Hub");
     expect(app.querySelector("select")).toBeNull();
     expect(app.querySelectorAll("[role='radiogroup']")).toHaveLength(1);
     expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);
-    expect(app.querySelectorAll("button[role='switch']")).toHaveLength(5);
+    expect(app.querySelectorAll(".setting-list button[role='switch']")).toHaveLength(5);
+    expect(app.querySelector(".effort-section button[data-setting='fast']")).toBeTruthy();
     expect(app.querySelector("table, input[type='text']")).toBeNull();
     expect(app.querySelector(".effort-choices")?.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
     expect(app.querySelector("img")?.getAttribute("src")).toBe("vscode-webview://x/logo.png");
@@ -92,10 +93,21 @@ describe("shared settings view", () => {
     expect(app.querySelector(".engine-update")).toBeNull();
     expect(app.querySelector(".effort-value")).toBeNull();
   });
+  it("posts strict Fast and Codex tab preferences without changing effort or exposing provider selectors", () => {
+    const model = {...fresh(), codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "first", codexTabs: true}};
+    panel.render(model);
+    app.querySelector<HTMLButtonElement>("[data-setting='fast']")!.click();
+    expect(posted.at(-1)).toEqual({type: "setFastMode", value: true});
+    panel.render({...model, sessionDefaults: {...model.sessionDefaults, fastMode: true}});
+    app.querySelector<HTMLButtonElement>("[data-setting='codexTabs']")!.click();
+    expect(posted.at(-1)).toEqual({type: "setCodexTabs", value: false});
+    expect(app.querySelector(".effort-section [data-setting='fast']")).toBeTruthy();
+    expect(app.querySelector(".editor-section [data-setting='codexTabs']")).toBeTruthy();
+  });
   it("keeps all five guardrails visible when an old engine lacks four controls", () => {
     const oldModel = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted: true, profile: "Default" });
     panel.render(oldModel);
-    const switches = [...app.querySelectorAll<HTMLButtonElement>("button[role='switch']")];
+    const switches = [...app.querySelectorAll<HTMLButtonElement>(".setting-list button[role='switch']")];
     expect(switches).toHaveLength(5);
     expect(switches.filter((node) => node.disabled)).toHaveLength(4);
     expect(button("Block Git bypass flags").disabled).toBe(false);

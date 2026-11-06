@@ -61,8 +61,8 @@ export async function installVendorUi(vendor: UiVendor, extension: string, stora
     const current = await fs.readFile(file, "utf8");
     const original = uiHash(current) === originalHash ? current : await fs.readFile(path.join(backups, originalHash), "utf8");
     const after = patchedUiSource(vendor, relative, original);
-    const prior = new Set(["e67e98679c28e285ec0cd80817d43588c155fdaa9ab7bc5100060d13e68e570e", "6a3b6783ed1d802f65deb540202c71cdb9b845379b9ace60be6d4a34ac6ea4c3", "eb20cbb9b45ca16410ed52debb01dd06067ecc787b6150c6d8b60e0a716eb1ba", "f465a08dbe889b5e27f93a868d2da4c5827416b8cd1f6e47f4dc91b7a4f7c006", "1af5b79c4df2a2e8d424b843004aedea2d640ecdad583ef31471b349137ca10c"]);
-    if (current !== original && current !== after && (vendor === "cursor" || !prior.has(uiHash(current)))) { throw new Error("A customized native extension file was preserved."); }
+    const prior = new Set(vendor === "cursor" ? ["e5f988de7ba83d5a5be0d5ec9885016e535ac93dad05f6928c27c4e3724e3e50"] : ["c00182705e37d9252b38c2242b14e302c676d69edf3d7ca3559b53281378d51d", "0fb29035fa289e055929949d32079e20393ac27b8048873482e40a4e85223b5a", "335b71af876a09a7ed7f204ebda3d796a028183aa7caeae159d4611fd167d4fe", "a4ab33595b77c8940a2bbda7e8b4038d78e790570ca93317d1f42ef63ffe978a", "e67e98679c28e285ec0cd80817d43588c155fdaa9ab7bc5100060d13e68e570e", "6a3b6783ed1d802f65deb540202c71cdb9b845379b9ace60be6d4a34ac6ea4c3", "eb20cbb9b45ca16410ed52debb01dd06067ecc787b6150c6d8b60e0a716eb1ba", "f465a08dbe889b5e27f93a868d2da4c5827416b8cd1f6e47f4dc91b7a4f7c006", "1af5b79c4df2a2e8d424b843004aedea2d640ecdad583ef31471b349137ca10c"]);
+    if (current !== original && current !== after && !prior.has(uiHash(current))) { throw new Error("A customized native extension file was preserved."); }
     plan.push({ relative, file, before: current, after, original: originalHash, written: uiHash(after) });
   }
   if (vendor === "codex" || vendor === "cursor") {

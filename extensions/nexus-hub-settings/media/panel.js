@@ -109,6 +109,7 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" }), button("Apply to all", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
         group,
+        sessionToggle("fast", "Fast mode", model.sessionDefaults && model.sessionDefaults.fastMode, "setFastMode", "May increase usage or cost."),
         effortDetails(),
       ]);
     }
@@ -117,6 +118,15 @@
       if (!row || !c.canApply || ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0) { return { known: false, on: false }; }
       var value = effective(row);
       return { known: true, on: value === "on" || value === "true" || (row.state === "tool-default" && c.id !== "git_guardrails") };
+    }
+    function sessionToggle(id, label, value, type, hint) {
+      var toggle = button("", "session:" + id, function () { if (!blocked()) { send({ type: type, value: value !== true }); } }, {role: "switch", class: "switch", "data-setting": id, "aria-checked": value === true ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "description-" + id, disabled: model.readOnly, "aria-disabled": blocked() ? "true" : null});
+      toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
+      return el("div", {class: "setting-row session-row", title: value == null ? "No shared speed is set. Existing session speeds stay unchanged until chosen. Fast mode may increase usage or cost." : hint}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, text: label, class: "setting-label"}), el("p", {id: "description-" + id, text: value == null ? "Not set; may cost more." : hint, class: "hint"})]), toggle]);
+    }
+    function editorSection() {
+      if (!model.codexAvailable) { return null; }
+      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [el("h2", {id: "editor-title", text: "Editor"}), sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with a history button. Turn off for the activity pane.")]);
     }
     function guardRow(spec) {
       var installed = control(spec[0]);
@@ -181,7 +191,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
+        children.push(notice(), effortSection(preferences()), guardSection(), editorSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

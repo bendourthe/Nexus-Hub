@@ -37,8 +37,8 @@ async function main() {
     }
     if (vendor === "codex") {
       const manifest = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
-      assert(manifest.contributes.menus["editor/title"].some((item) => item.command === "chatgpt.newCodexPanel"));
-      assert(!manifest.contributes.menus["editor/title"].some((item) => item.command === "chatgpt.openSidebar"));
+      assert(manifest.contributes.menus["editor/title"].some((item) => item.command === "nexusHubSettings.openCodex"));
+      assert(manifest.contributes.menus["editor/title"].some((item) => item.command === "chatgpt.openSidebar" && item.when.startsWith("!nexusHubSettings.enabled")));
     }
     assert.equal((await installVendorUi(vendor, root, path.join(scratch, "backups"))).changed, false);
     const relative = Object.keys(recipe.files)[0];

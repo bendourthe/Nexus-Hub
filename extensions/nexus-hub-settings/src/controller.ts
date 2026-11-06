@@ -10,6 +10,7 @@ import {
 } from "./editorWrites";
 import type { LiveEffortSummary } from "./liveEffort";
 import type { UiEffortSummary } from "./vendorUi";
+import type { SessionDefaults } from "./sessionDefaults";
 import { Incoming } from "./messages";
 import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowRecord, ShowReport } from "./types";
 import {
@@ -60,11 +61,14 @@ export interface ControllerDeps {
   profile: () => string;
   platform: string;
   codexAvailable?: () => boolean;
-  liveEffort?: () => Promise<LiveEffortSummary>;
-  uiEffort?: () => UiEffortSummary;
+  liveEffort?: () => Promise<LiveEffortSummary | undefined>;
+  uiEffort?: () => UiEffortSummary | undefined;
   applyAll?: () => Promise<void>;
   upgrade?: () => Promise<void>;
   hubVersion?: () => string;
+  sessionDefaults?: () => SessionDefaults;
+  setFastMode?: (value: boolean) => Promise<void>;
+  setCodexTabs?: (value: boolean) => Promise<void>;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
@@ -208,6 +212,13 @@ export class SettingsController {
         case "applyAll":
           if (this.deps.isTrusted()) { await this.deps.applyAll?.(); }
           return this.reload({ level: "info", text: "Requested the default effort for all connected sessions." }, false);
+        case "setFastMode":
+        case "setCodexTabs":
+          if (this.deps.isTrusted()) {
+            if (message.type === "setFastMode") { await this.deps.setFastMode?.(message.value); }
+            else { await this.deps.setCodexTabs?.(message.value); }
+          }
+          return this.reload(null, false);
         case "upgrade":
           if (this.deps.isTrusted()) { await this.deps.upgrade?.(); }
           return this.model;
@@ -243,6 +254,7 @@ export class SettingsController {
       this.model.liveEffort = await this.deps.liveEffort?.();
       this.model.uiEffort = this.deps.uiEffort?.();
       this.model.hubVersion = this.deps.hubVersion?.();
+      this.model.sessionDefaults = this.deps.sessionDefaults?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

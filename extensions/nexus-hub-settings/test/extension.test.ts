@@ -6,6 +6,9 @@ import { OPEN_COMMAND, activate, deactivate, firstFolder, userPythonPath, vscode
 import { Uri, stub } from "./vscode-stub";
 import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
 import { SettingsController } from "../src/controller";
+import { SESSION_DEFAULTS_FILE, writeSessionDefault } from "../src/sessionDefaults";
+import * as nativeUi from "../src/vendorUi";
+import * as liveEffort from "../src/liveEffort";
 
 let scratch: string;
 const savedHub = process.env.NEXUS_HUB_HOME;
@@ -35,6 +38,45 @@ afterEach(() => {
 });
 
 describe("activation", () => {
+  it("starts live adapters when an initially untrusted workspace becomes trusted", async () => {
+    const native = vi.spyOn(nativeUi, "installNativeUi").mockResolvedValue(undefined);
+    const live = vi.spyOn(liveEffort, "installLiveEffort").mockResolvedValue(undefined);
+    const ctx = context();
+    try {
+      stub.trusted = false;
+      await activate(ctx as never);
+      expect(native).toHaveBeenCalledTimes(1);
+      stub.trusted = true;
+      stub.fireTrust();
+      await vi.waitFor(() => expect(native).toHaveBeenCalledTimes(2));
+      expect(live).toHaveBeenCalledTimes(2);
+    } finally {
+      ctx.subscriptions.forEach(item => item.dispose());
+      native.mockRestore();
+      live.mockRestore();
+    }
+  });
+  it("routes the Codex toolbar through the shared tab preference", async () => {
+    await activate(context() as never);
+    await stub.commands.get("nexusHubSettings.openCodex")?.();
+    expect(stub.executed.at(-1)).toBe("chatgpt.newCodexPanel");
+    writeSessionDefault(path.join(process.env.NEXUS_HUB_HOME!, SESSION_DEFAULTS_FILE), "codexTabs", false);
+    await stub.commands.get("nexusHubSettings.openCodex")?.();
+    expect(stub.executed.at(-1)).toBe("chatgpt.openSidebar");
+    stub.trusted = false; const count = stub.executed.length;
+    await stub.commands.get("nexusHubSettings.openCodex")?.();
+    expect(stub.executed).toHaveLength(count);
+  });
+  it("exposes boolean-only Fast and editor preference actions to other extensions", async () => {
+    const handle = vi.spyOn(SettingsController.prototype, "handle").mockResolvedValue({} as never);
+    try {
+      const api = await activate(context() as never);
+      expect(() => api.setFastMode("on" as never)).toThrow("boolean");
+      expect(() => api.setCodexTabs(null as never)).toThrow("boolean");
+      await api.setFastMode(true); expect(handle).toHaveBeenLastCalledWith({type: "setFastMode", value: true});
+      await api.setCodexTabs(false); expect(handle).toHaveBeenLastCalledWith({type: "setCodexTabs", value: false});
+    } finally {handle.mockRestore();}
+  });
   it("routes allowlisted hover effort choices through the existing controller", async () => {
     const handle = vi.spyOn(SettingsController.prototype, "handle").mockResolvedValue({} as never);
     try {
@@ -64,7 +106,7 @@ describe("activation", () => {
     expect(stub.providers.map((p) => p.id)).toEqual(["nexusHubSettings.view"]);
     expect(stub.providers[0]?.options).toEqual({ webviewOptions: { retainContextWhenHidden: true } });
     expect(stub.commands.has(OPEN_COMMAND)).toBe(true);
-    expect(stub.watchers).toHaveLength(6 + 3);
+    expect(stub.watchers).toHaveLength(6 + 3 + 1);
     expect(ctx.subscriptions.length).toBeGreaterThan(10);
   });
 

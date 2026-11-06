@@ -45,6 +45,8 @@ button.effort-choice:last-child { align-items: flex-end; }
 .setting-list { list-style: none; padding: 0; margin: 8px 0 0; }
 .setting-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--hairline); }
 .setting-row:last-child { border-bottom: 0; }
+.effort-section .session-row { border-top: 1px solid var(--hairline); margin-top: 12px; padding-bottom: 4px; }
+.editor-section { border-top: 1px solid var(--hairline); padding-top: 24px; }
 .setting-copy { min-width: 0; }
 .setting-label { display: block; font-weight: 600; font-size: 13px; }
 .setting-copy .hint { margin-top: 3px; }

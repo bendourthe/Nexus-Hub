@@ -13,6 +13,8 @@ export type Incoming =
   | { type: "newCodex" }
   | { type: "applyAll" }
   | { type: "upgrade" }
+  | { type: "setFastMode"; value: boolean }
+  | { type: "setCodexTabs"; value: boolean }
   | { type: "set"; control: string; value: string; tool: string | null }
   | { type: "reset"; control: string; tool: string | null }
   | { type: "removeOverride"; control: string; tool: string }
@@ -26,6 +28,8 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
   newCodex: ["type"],
   applyAll: ["type"],
   upgrade: ["type"],
+  setFastMode: ["type", "value"],
+  setCodexTabs: ["type", "value"],
   set: ["type", "control", "value", "tool"],
   reset: ["type", "control", "tool"],
   removeOverride: ["type", "control", "tool"],
@@ -33,7 +37,7 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
 };
 
 const TEXT_LIMIT = 200;
-const WRITES = new Set(["set", "reset", "removeOverride"]);
+const WRITES = new Set(["set", "reset", "removeOverride", "setFastMode", "setCodexTabs"]);
 
 function fail(reason: string): Validated {
   return { ok: false, reason };
@@ -75,6 +79,9 @@ export function validateMessage(raw: unknown, model: ViewModel): Validated {
   }
   if (WRITES.has(raw.type) && model.readOnly) {
     return fail("the panel is read-only");
+  }
+  if (raw.type === "setFastMode" || raw.type === "setCodexTabs") {
+    return typeof raw.value === "boolean" ? {ok: true, message: {type: raw.type, value: raw.value}} : fail("invalid toggle value");
   }
   if (raw.type === "newCodex") {
     return !model.readOnly && model.codexAvailable ? { ok: true, message: { type: "newCodex" } } : fail("Codex is unavailable or the panel is read-only");

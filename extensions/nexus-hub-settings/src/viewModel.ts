@@ -1,5 +1,6 @@
 import type { LiveEffortSummary } from "./liveEffort";
 import type { UiEffortSummary } from "./vendorUi";
+import type { SessionDefaults } from "./sessionDefaults";
 import { isDeepStrictEqual } from "node:util";
 import type { EditorLayers } from "./editorWrites";
 import { ExplainData, ExplainWrite, ShowRecord, ShowReport, State, Surface } from "./types";
@@ -165,6 +166,7 @@ export interface ViewModel {
   liveEffort?: LiveEffortSummary;
   uiEffort?: UiEffortSummary;
   hubVersion?: string;
+  sessionDefaults?: SessionDefaults;
 }
 
 export interface PreferencesSummary {

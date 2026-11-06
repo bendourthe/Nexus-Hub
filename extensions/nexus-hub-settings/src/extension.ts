@@ -13,10 +13,13 @@ import { ViewModel } from "./viewModel";
 import { openCodexHistory } from "./codexHistory";
 import { requestEffortApply } from "./liveEffortProxy";
 import { installNativeUi } from "./vendorUi";
+import { readSessionDefaults, SESSION_DEFAULTS_FILE, writeSessionDefault } from "./sessionDefaults";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
 export interface ExtensionApi {
   getViewModel(): Promise<ViewModel>;
+  setFastMode(value: boolean): Promise<ViewModel>;
+  setCodexTabs(value: boolean): Promise<ViewModel>;
 }
 
 const REFRESH_DELAY_MS = 400;
@@ -63,13 +66,17 @@ export function userPythonPath(): string | undefined {
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
-  const liveEffort = await installLiveEffort(context);
-  const nativeUi = await installNativeUi(context);
+  let liveEffort = await installLiveEffort(context);
+  let nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const hub = installRoot(process.env, os.homedir());
+  const sessionFile = path.join(hub, SESSION_DEFAULTS_FILE);
   const controller = new SettingsController({
+    sessionDefaults: () => readSessionDefaults(sessionFile),
+    setFastMode: async (value) => { writeSessionDefault(sessionFile, "fastMode", value); await nativeUi?.synchronize(); },
+    setCodexTabs: async (value) => { writeSessionDefault(sessionFile, "codexTabs", value); },
     hubVersion: () => { try { return fs.readFileSync(path.join(hub, "VERSION"), "utf8").trim().slice(0, 40); } catch { return "Unknown"; } },
-    applyAll: async () => { requestEffortApply(path.join(hub, "preferences.json")); await nativeUi?.synchronize(); },
+    applyAll: async () => { requestEffortApply(path.join(hub, "preferences.json")); writeSessionDefault(sessionFile, "applyAll"); await nativeUi?.synchronize(); },
     upgrade: async () => {
       const interpreter = bridge.interpreter();
       const args = [...interpreter.args, path.join(hub, "scripts", "nexus_hub_cli.py"), "upgrade"];
@@ -83,8 +90,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
       terminal.show();
     },
     bridge,
-    liveEffort: liveEffort ? () => liveEffort.summary() : undefined,
-    uiEffort: nativeUi ? () => nativeUi.summary() : undefined,
+    liveEffort: async () => liveEffort?.summary(),
+    uiEffort: () => nativeUi?.summary(),
     ui: vscodeUi(),
     isTrusted: () => vscode.workspace.isTrusted,
     project: firstFolder,
@@ -98,7 +105,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   });
 
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let disposed = false;
+  context.subscriptions.push({dispose: () => { disposed = true; }});
   const schedule = (): void => {
+    if (disposed) { return; }
     if (timer) {
       clearTimeout(timer);
     }
@@ -111,6 +121,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     context.subscriptions.push(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule));
   };
   if (liveEffort) { watch(new vscode.RelativePattern(vscode.Uri.file(liveEffort.directory), "*.json")); }
+  watch(new vscode.RelativePattern(vscode.Uri.file(hub), SESSION_DEFAULTS_FILE));
   for (const file of watchedFiles(process.env, os.homedir())) {
     watch(new vscode.RelativePattern(vscode.Uri.file(path.dirname(file)), path.basename(file)));
   }
@@ -131,6 +142,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     }),
     vscode.commands.registerCommand("nexusHubSettings.newCodexAgent", () => controller.handle({ type: "newCodex" })),
     vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
+    vscode.commands.registerCommand("nexusHubSettings.openCodex", () => {
+      if (!vscode.workspace.isTrusted) { return; }
+      return vscode.commands.executeCommand(readSessionDefaults(sessionFile).codexTabs ? "chatgpt.newCodexPanel" : "chatgpt.openSidebar");
+    }),
     vscode.commands.registerCommand("nexusHubSettings.applyAll", () => controller.handle({ type: "applyAll" })),
     vscode.commands.registerCommand("nexusHubSettings.upgrade", () => controller.handle({ type: "upgrade" })),
     vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
@@ -147,10 +162,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         schedule();
       }
     }),
-    vscode.workspace.onDidGrantWorkspaceTrust(schedule),
+    vscode.workspace.onDidGrantWorkspaceTrust(async () => {
+      schedule();
+      const firstSubscription = context.subscriptions.length;
+      if (!liveEffort) {
+        liveEffort = await installLiveEffort(context);
+        if (liveEffort) { watch(new vscode.RelativePattern(vscode.Uri.file(liveEffort.directory), "*.json")); }
+      }
+      if (disposed) { context.subscriptions.slice(firstSubscription).forEach(item => item.dispose()); return; }
+      nativeUi ??= await installNativeUi(context);
+      if (disposed) { context.subscriptions.slice(firstSubscription).forEach(item => item.dispose()); return; }
+      schedule();
+    }),
   );
 
-  return { getViewModel: () => controller.refresh(true) };
+  await vscode.commands.executeCommand("setContext", "nexusHubSettings.enabled", true);
+  context.subscriptions.push({dispose: () => { void Promise.resolve(vscode.commands.executeCommand("setContext", "nexusHubSettings.enabled", false)).catch(() => undefined); }});
+  return {
+    getViewModel: () => controller.refresh(true),
+    setFastMode: (value) => { if (typeof value !== "boolean") { throw new Error("Fast mode must be a boolean."); } return controller.handle({type: "setFastMode", value}); },
+    setCodexTabs: (value) => { if (typeof value !== "boolean") { throw new Error("Codex tabs must be a boolean."); } return controller.handle({type: "setCodexTabs", value}); },
+  };
 }
 
 export function deactivate(): void {
