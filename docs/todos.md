@@ -440,6 +440,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
 
+## Queued work - v4.15.5 stuck-turn notice and environment-fact replay
+
+- [x] Complete the [v4.15.5 comparison](releases/v4/v4.15/comparisons/v4.15.5-comparison-token-economizer-and-agent-scripts.md) against microsoft/TokenEconomizer and steipete/agent-scripts.
+- [ ] Implement the confirmed [v4.15.5 plan](releases/v4/v4.15/plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md): four skill text rules, a per-user hashed turn ledger with a stuck-turn advisory notice on every derived platform (default decided by measurement on real transcripts), and opt-in allowlisted environment-fact replay. Scope, placement, four phases and six grill decisions confirmed on 2026-11-05; implementation is 0/4 phases and 0/36 tasks. The unused-tool report is deferred to v4.16.4.
+
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
 
 - [x] Complete the [v4.16.3 two-source comparison](releases/v4/v4.16/comparisons/v4.16.3-comparison-tool-output-containment-and-context-attribution.md) (context-mode MCP server, turn-inspector mod); adoption target v4.16.3 confirmed by the user on 2026-10-13.
