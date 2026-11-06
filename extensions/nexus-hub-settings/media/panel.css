@@ -26,7 +26,6 @@ h1 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
 h2 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.35; }
 p { margin: 0; }
 .hint { color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 12px; }
-.brand .hint { margin-top: 2px; }
 .settings-section { margin-bottom: 24px; }
 .effort-section { padding: 12px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--vscode-editor-background); }
 .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -67,7 +66,6 @@ button.switch { display: flex; align-items: center; justify-content: center; fle
 .switch-thumb { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--vscode-foreground); }
 .switch[aria-checked='true'] .switch-track { background: linear-gradient(90deg, var(--nexus-blue), var(--nexus-cyan)); border-color: var(--nexus-blue); }
 .switch[aria-checked='true'] .switch-thumb { margin-left: 14px; background: #ffffff; border: 1px solid var(--nexus-outline); }
-.footnote { padding-top: 4px; font-size: 11px; }
 .notice, .read-only { margin: 0 0 16px; padding: 10px 12px; border-left: 2px solid var(--vscode-focusBorder); background: var(--vscode-textBlockQuote-background, var(--vscode-editor-background)); font-size: 12px; overflow-wrap: anywhere; }
 .notice[data-level='error'] { border-color: var(--vscode-editorError-foreground); }
 .notice[data-level='warn'] { border-color: var(--vscode-editorWarning-foreground); }
@@ -118,3 +116,9 @@ button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nex
 @media (forced-colors: active) {
   button.action-button { border-color: ButtonText; background: ButtonFace; color: ButtonText; }
 }
+
+.settings-details { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--vscode-descriptionForeground, var(--vscode-foreground)); }
+.settings-details summary { width: fit-content; color: var(--vscode-foreground); }
+.settings-details > p { margin-top: 10px; }
+.settings-details .compatibility { margin-block: 10px; padding-top: 0; border-top: 0; font-size: inherit; }
+.settings-details .refresh { margin-top: 10px; }

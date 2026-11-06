@@ -21,6 +21,7 @@
     var drafts = {};
     var announced = "";
     var detailsOpen = false;
+    var effortDetailsOpen = false;
     function el(tag, attrs, children) {
       var node = doc.createElement(tag);
       Object.keys(attrs || {}).forEach(function (key) {
@@ -59,12 +60,23 @@
       node.addEventListener("click", action);
       return node;
     }
+    function refreshButton() {
+      return button("Refresh", "refresh", function () { if (!model.busy && !pending) { post({ type: "refresh" }); } }, { class: "refresh", "aria-disabled": model.busy || pending ? "true" : null });
+    }
     function header() {
-      var refresh = button("Refresh", "refresh", function () { if (!model.busy && !pending) { post({ type: "refresh" }); } }, { class: "refresh", "aria-disabled": model.busy || pending ? "true" : null });
-      return el("header", {}, [
-        el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), el("div", {}, [text("h1", "Nexus Hub"), text("p", "Shared defaults and guardrails", "hint")])]),
-        refresh,
+      return el("header", {}, [el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), text("h1", "Nexus Hub")])]);
+    }
+    function effortDetails() {
+      var node = el("details", { class: "settings-details", open: effortDetailsOpen || null }, [
+        el("summary", { text: "Details", "data-focus": "details" }),
+        text("p", "New sessions use the global effort level. Changing it also updates supported connected sessions. Manual session choices stay until the next global change or Apply to all."),
+        compatibility(),
+        text("p", "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks."),
+        text("p", "Refresh rereads settings and retries synchronization after external changes."),
+        refreshButton(),
       ]);
+      node.addEventListener("toggle", function () { effortDetailsOpen = node.open; });
+      return node;
     }
     function effortSection(summary) {
       var c = control("effort");
@@ -97,6 +109,7 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" }), button("Apply to all", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
         group,
+        effortDetails(),
       ]);
     }
     function guardState(c) {
@@ -127,8 +140,8 @@
     }
     function compatibility() {
       var node = el("footer", { class: "compatibility" }, [
-        text("p", "Automatic effort: Claude Code and Codex."),
-        text("p", "Manual effort: GitHub Copilot, Cursor and Antigravity agents."),
+        text("p", "Automatic effort: Claude Code and Codex extensions."),
+        text("p", "Manual effort: GitHub Copilot, Cursor and Antigravity native agents."),
         text("p", "Older Codex clients map Max and Ultra to Extra high."),
       ]);
       return node;
@@ -162,17 +175,17 @@
       app.setAttribute("aria-busy", model.busy ? "true" : "false");
       var children = [header()];
       if (model.error) {
-        children.push(el("section", { class: "error-card", role: "alert" }, [text("h2", model.error.title), text("p", model.error.message), text("p", model.error.fix, "hint"), el("details", {}, [text("summary", "Technical details"), el("pre", {}, [text("code", model.error.command)])])]));
+        children.push(el("section", { class: "error-card", role: "alert" }, [text("h2", model.error.title), text("p", model.error.message), text("p", model.error.fix, "hint"), el("details", {}, [text("summary", "Technical details"), el("pre", {}, [text("code", model.error.command)])])]), refreshButton());
       } else if (!model.controls.length) {
-        children.push(text("p", model.busy ? "Loading settings..." : "No settings were reported. Choose Refresh to try again.", "empty-state"));
+        children.push(text("p", model.busy ? "Loading settings..." : "No settings were reported. Choose Refresh to try again.", "empty-state"), refreshButton());
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
+        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {
-        var target = Array.from(app.querySelectorAll("[data-focus]")).find(function (node) { return node.getAttribute("data-focus") === focused && !node.disabled; }) || app.querySelector("[data-focus='refresh']");
+        var target = Array.from(app.querySelectorAll("[data-focus]")).find(function (node) { return node.getAttribute("data-focus") === focused && !node.disabled; }) || app.querySelector("[data-focus='details']") || app.querySelector("[data-focus='refresh']");
         if (target) { target.focus(); }
       }
       announce();

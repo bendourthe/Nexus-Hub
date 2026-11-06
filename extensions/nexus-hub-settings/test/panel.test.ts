@@ -48,8 +48,24 @@ describe("shared settings view", () => {
   it("keeps transient effort status out of the effort card", () => {
     panel.render(fresh({ liveEffort: { connected: 1, applied: 0, reloadRequired: true, error: "Native update refused." } }));
     expect(app.querySelector("#effort-title")?.textContent).toBe("Global effort level");
-    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Auto-save|Saving|Saved|Native update|Reload|synchronization/);
+    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Auto-save|Saving|Saved|Native update|Reload/);
     expect(app.querySelector("#effort-status, .save-state")).toBeNull();
+  });
+  it("keeps behavior notes and refresh in a collapsed Details section across readback", () => {
+    panel.render(fresh());
+    const detail = app.querySelector<HTMLDetailsElement>(".effort-section .settings-details")!;
+    expect(detail.open).toBe(false);
+    expect(detail.querySelector("summary")?.textContent).toBe("Details");
+    expect(detail.textContent).toContain("Manual session choices stay");
+    expect(detail.contains(button("Refresh"))).toBe(true);
+    expect(app.querySelector("header")?.textContent).toBe("Nexus Hub");
+    expect(app.querySelector(".version-section")?.textContent).not.toContain("guardrails apply");
+    detail.open = true;
+    detail.dispatchEvent(new Event("toggle"));
+    panel.render(fresh());
+    expect(app.querySelector<HTMLDetailsElement>(".settings-details")?.open).toBe(true);
+    button("Refresh").click();
+    expect(posted).toEqual([{ type: "refresh" }]);
   });
   it.each(["low", "max", "ultra"])("saves %s and positions the endpoint fill", (value) => {
     const model = fresh();
@@ -70,7 +86,7 @@ describe("shared settings view", () => {
     expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);
     expect(app.querySelectorAll("button[role='switch']")).toHaveLength(5);
     expect(app.querySelector("table, input[type='text']")).toBeNull();
-    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
+    expect(app.querySelector(".effort-choices")?.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
     expect(app.querySelector("img")?.getAttribute("src")).toBe("vscode-webview://x/logo.png");
     expect(app.querySelector("img")?.getAttribute("alt")).toBe("");
     expect(app.querySelector(".engine-update")).toBeNull();
@@ -88,7 +104,7 @@ describe("shared settings view", () => {
     expect(document.getElementById("live-status")?.textContent).toContain("Update the Nexus-Hub settings engine");
     for (const node of switches.filter((item) => item.disabled)) { node.click(); }
     expect(posted).toEqual([]);
-    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Claude Code|Codex|Copilot/);
+    expect(app.querySelector(".effort-choices")?.textContent).not.toMatch(/Claude Code|Codex|Copilot/);
   });
   it("starts at the saved shared choice instead of an overriding platform value", () => {
     const model = fresh();
@@ -185,7 +201,7 @@ describe("shared settings view", () => {
   it("keeps coverage information in the footer without a persistent warning", () => {
     panel.render(fresh());
     expect(app.querySelector("#effort-status")).toBeNull();
-    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot, Cursor and Antigravity");
+    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot, Cursor and Antigravity native");
     expect(app.querySelector(".notice[data-level=warn]")).toBeNull();
     expect(app.querySelector("table")).toBeNull();
   });
@@ -259,13 +275,13 @@ describe("workspace, busy and focus handling", () => {
     panel.render(fresh());
     expect(document.activeElement?.getAttribute("data-focus")).toBe("toggle:edit_preservation");
   });
-  it("falls back to refresh when the focused setting disappears", () => {
+  it("falls back to Details when the focused setting disappears", () => {
     panel.render(fresh());
     button("Protect my edits").focus();
     const model = fresh();
     model.controls = model.controls.filter((c) => c.id !== "edit_preservation");
     panel.render(model);
-    expect(document.activeElement?.getAttribute("data-focus")).toBe("refresh");
+    expect(document.activeElement?.getAttribute("data-focus")).toBe("details");
   });
   it("does not take focus from outside the panel", () => {
     panel.render(fresh());
