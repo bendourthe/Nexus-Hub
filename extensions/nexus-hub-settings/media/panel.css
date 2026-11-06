@@ -29,7 +29,7 @@ p { margin: 0; }
 .brand .hint { margin-top: 2px; }
 .settings-section { margin-bottom: 24px; }
 .effort-section { padding: 12px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--vscode-editor-background); }
-.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
 .section-heading label { font-size: 13px; font-weight: 600; }
 .effort-choices { display: grid; grid-template-columns: minmax(24px, 1fr) repeat(4, minmax(0, 2fr)) minmax(24px, 1fr); position: relative; isolation: isolate; margin-inline: 0; }
 .effort-choices::before, .effort-choices::after { content: ""; position: absolute; top: 0; left: 0; height: 20px; border-radius: 999px; z-index: -1; }
@@ -105,9 +105,13 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--vscode-t
 .compatibility p + p { margin-top: 4px; }
 button.native-action { margin-top: 8px; font-size: 11px; background: transparent; }
 
-.section-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
-.version-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 12px; }
-.installed-version { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.version-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.installed-version { min-width: 0; flex: 1; font-size: 13px; line-height: 1.5; }
+.version-label { font-weight: 600; }
+.version-number { font-weight: 400; }
+.section-heading h2 { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.section-heading .action-button, .version-row .action-button { flex: 0 0 auto; max-width: 48%; overflow-wrap: anywhere; }
+.guardrails-section, .version-section { border-top: 1px solid var(--hairline); padding-top: 20px; }
 .version-row .action-button { margin-inline-start: auto; }
 button.action-button { min-height: 32px; padding: 6px 12px; border: 1px solid color-mix(in srgb, var(--nexus-accent) 45%, transparent); border-radius: 6px; color: var(--vscode-foreground); background: color-mix(in srgb, var(--nexus-accent) 10%, var(--vscode-editor-background)); font-size: 12px; font-weight: 500; line-height: 1.4; }
 button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nexus-accent); background: color-mix(in srgb, var(--nexus-accent) 18%, var(--vscode-editor-background)); }

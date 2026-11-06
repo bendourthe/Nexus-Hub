@@ -95,9 +95,8 @@
         group.appendChild(radio);
       });
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
-        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" })]),
+        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" }), button("Apply to all", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
         group,
-        el("div", { class: "section-actions" }, [button("Apply to all sessions", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
       ]);
     }
     function guardState(c) {
@@ -124,7 +123,7 @@
     function guardSection() {
       var rows = GUARDS.map(guardRow).filter(Boolean);
       if (!rows.length) { return null; }
-      return el("section", { class: "settings-section", "aria-labelledby": "guardrails-title" }, [el("h2", { id: "guardrails-title", text: "Guardrails" }), el("ul", { class: "setting-list" }, rows)]);
+      return el("section", { class: "settings-section guardrails-section", "aria-labelledby": "guardrails-title" }, [el("h2", { id: "guardrails-title", text: "Guardrails" }), el("ul", { class: "setting-list" }, rows)]);
     }
     function compatibility() {
       var node = el("footer", { class: "compatibility" }, [
@@ -169,7 +168,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [text("p", "Installed version: " + (model.hubVersion || "Unknown"), "installed-version"), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
+        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {
