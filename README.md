@@ -23,6 +23,42 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills acr
 
 ---
 
+## Shared IDE Controls
+
+**Planned for v4.15.0:** the upgraded Nexus Hub extension brings shared effort, Fast mode, guardrails, usage alerts, and extension controls into one panel in VS Code, Cursor, and Antigravity. These animated VS Code mockups illustrate the behavior; example sessions and outputs are not recordings of an agent run.
+
+![Animated VS Code mockup: change global effort, keep a manual session override, reapply the default, and control Fast mode, guardrails, usage alerts, and Codex tabs](assets/readme/nexus-hub-settings.gif)
+
+[Static image](assets/readme/nexus-hub-settings.png) | [Editable offline preview](guides/website/readme-demos.html#settings)
+
+
+- **One default, with session choices.** Changing global effort updates supported open sessions and the default for new ones. A manual change stays local to that session until the next global change or **Apply to all**.
+
+- **Speed and protections.** Fast mode is separate from reasoning effort and may increase usage or cost. Its toggle is disabled where unsupported. Enabled guardrails act on the next supported hook event.
+
+- **Quiet monitoring.** Turn usage alerts off together or per provider; taskbar colors and monitoring remain active. VS Code shows Claude Code, Codex, and Copilot choices. Cursor and Antigravity each show one master toggle for their own monitor.
+
+- **Provider controls where they belong.** VS Code groups Claude Code and Codex recovery controls by extension. Codex tabs include History and Refresh. Cursor and Antigravity omit these VS Code extension controls.
+
+## Development Workflow
+
+The [interactive guide](guides/website/nexus-hub-guide.html) teaches a six-command loop. This mockup follows its example game: a small hit should reduce health, not destroy the ship. Each step leaves an artifact the next step can use.
+
+![Animated development workflow in a VS Code mockup: describe maps the project, review finds defects, plan defines phases, implement changes the code, test checks behavior, and update prepares the release](assets/readme/nexus-hub-workflow.gif)
+
+[Static image](assets/readme/nexus-hub-workflow.png) | [Editable offline preview and text walkthrough](guides/website/readme-demos.html#workflow)
+
+| Step | Purpose | Output |
+|---|---|---|
+| `/describe` | Understand the existing project | Project map |
+| `/review` | Find and prioritize defects | Findings with evidence |
+| `/plan` | Define scope and verification | Phases and acceptance criteria |
+| `/implement` | Build and verify each phase | Changes and local commits |
+| `/test` | Exercise failures and boundaries | Regression tests and observed behavior |
+| `/update release` | Synchronize release artifacts | Version and release documentation |
+
+Merge, tagging, and publication follow the project's release gates and authorization. For the full exercise, open [Training](guides/website/training.html). To play either preview locally, clone or download the repository and open `guides/website/readme-demos.html`; playback is opt-in, and every scene has a text walkthrough.
+
 ## How Nexus-Hub fits with Nexus
 
 <p align="center">
