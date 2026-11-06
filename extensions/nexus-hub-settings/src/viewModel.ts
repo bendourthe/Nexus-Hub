@@ -1,4 +1,4 @@
-import type { UsageAlerts } from "./usageAlerts";
+import type { AlertProvider, UsageAlerts } from "./usageAlerts";
 import type { LiveEffortSummary } from "./liveEffort";
 import type { UiEffortSummary } from "./vendorUi";
 import type { SessionDefaults } from "./sessionDefaults";
@@ -169,6 +169,7 @@ export interface ViewModel {
   hubVersion?: string;
   sessionDefaults?: SessionDefaults;
   usageAlerts?: UsageAlerts;
+  usageAlertProviders?: AlertProvider[];
 }
 
 export interface PreferencesSummary {

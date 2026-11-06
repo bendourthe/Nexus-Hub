@@ -70,6 +70,7 @@ export interface ControllerDeps {
   hubVersion?: () => string;
   sessionDefaults?: () => SessionDefaults;
   usageAlerts?: () => UsageAlerts;
+  usageAlertProviders?: () => AlertProvider[];
   setUsageAlert?: (provider: AlertProvider | "all", enabled: boolean) => Promise<void>;
   setFastMode?: (value: boolean) => Promise<void>;
   setCodexTabs?: (value: boolean) => Promise<void>;
@@ -266,6 +267,7 @@ export class SettingsController {
       this.model.hubVersion = this.deps.hubVersion?.();
       this.model.sessionDefaults = this.deps.sessionDefaults?.();
       this.model.usageAlerts = this.deps.usageAlerts?.();
+      this.model.usageAlertProviders = this.deps.usageAlertProviders?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

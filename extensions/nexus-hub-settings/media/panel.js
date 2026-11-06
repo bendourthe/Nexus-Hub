@@ -135,15 +135,17 @@
     }
     function usageAlertsSection() {
       var providers = [["claude", "Claude Code"], ["codex", "Codex"], ["copilot", "GitHub Copilot"], ["cursor", "Cursor"], ["gemini", "Gemini / Antigravity"]];
+      var scope = model.usageAlertProviders || ["claude", "codex", "copilot"];
+      providers = providers.filter(function (item) { return scope.indexOf(item[0]) !== -1; });
       var values = model.usageAlerts || {};
       var enabled = providers.filter(function (item) { return values[item[0]] !== false; }).length;
       function row(provider, label, value, master) {
         var id = "alert-" + provider;
         var toggle = button("", "usage-alert:" + provider, function () { send({type: "setUsageAlert", provider: provider, enabled: value !== true}); }, {role: master ? "checkbox" : "switch", class: "switch", "data-setting": id, "aria-checked": value === "mixed" ? "mixed" : value ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "usage-alerts-description", disabled: model.readOnly, "aria-disabled": blocked() ? "true" : null});
         toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
-        return el("div", {class: "setting-row" + (master ? " alerts-master" : "")}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, class: "setting-label", text: label}), master ? text("p", enabled + " of 5 enabled", "hint") : null]), toggle]);
+        return el("div", {class: "setting-row" + (master ? " alerts-master" : "")}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, class: "setting-label", text: label}), master && providers.length > 1 ? text("p", enabled + " of " + providers.length + " enabled", "hint") : null]), toggle]);
       }
-      return el("section", {class: "settings-section usage-alerts-section", "aria-labelledby": "usage-alerts-title"}, [el("h2", {id: "usage-alerts-title", text: "Usage alerts"}), row("all", "All usage alerts", enabled === 5 ? true : enabled === 0 ? false : "mixed", true), el("p", {id: "usage-alerts-description", text: "Warnings dismiss after 10 seconds. Taskbar colors stay active.", class: "hint alerts-description"}), el("div", {class: "alerts-list"}, providers.map(function (item) { return row(item[0], item[1], values[item[0]] !== false, false); }))]);
+      return el("section", {class: "settings-section usage-alerts-section", "aria-labelledby": "usage-alerts-title"}, [el("h2", {id: "usage-alerts-title", text: "Usage alerts"}), row("all", providers.length === 1 ? providers[0][1] + " alerts" : "All usage alerts", enabled === providers.length ? true : enabled === 0 ? false : "mixed", true), el("p", {id: "usage-alerts-description", text: "Warnings dismiss after 10 seconds. Taskbar colors stay active.", class: "hint alerts-description"}), providers.length > 1 ? el("div", {class: "alerts-list"}, providers.map(function (item) { return row(item[0], item[1], values[item[0]] !== false, false); })) : null]);
     }
     function guardRow(spec) {
       var installed = control(spec[0]);

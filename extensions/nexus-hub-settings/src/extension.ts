@@ -1,4 +1,4 @@
-import { ALERT_PROVIDERS, type AlertProvider, USAGE_ALERTS_FILE, readUsageAlerts, writeUsageAlert } from "./usageAlerts";
+import { alertProvidersForEditor, ALERT_PROVIDERS, type AlertProvider, USAGE_ALERTS_FILE, readUsageAlerts, writeUsageAlert } from "./usageAlerts";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -113,8 +113,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const controller = new SettingsController({
     restartExtension: restartProvider,
+    usageAlertProviders: () => alertProvidersForEditor(vscode.env.appName),
     usageAlerts: () => readUsageAlerts(path.join(hub, USAGE_ALERTS_FILE)),
-    setUsageAlert: async (provider, enabled) => { writeUsageAlert(path.join(hub, USAGE_ALERTS_FILE), provider, enabled); },
+    setUsageAlert: async (provider, enabled) => { writeUsageAlert(path.join(hub, USAGE_ALERTS_FILE), provider, enabled, alertProvidersForEditor(vscode.env.appName)); },
     sessionDefaults: () => readSessionDefaults(sessionFile),
     setFastMode: async (value) => { writeSessionDefault(sessionFile, "fastMode", value); await nativeUi?.synchronize(); },
     setCodexTabs: async (value) => { writeSessionDefault(sessionFile, "codexTabs", value); },

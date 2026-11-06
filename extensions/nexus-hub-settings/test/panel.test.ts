@@ -381,3 +381,20 @@ it("shows a prominent mixed master and lets it enable every provider", () => {
   panel.render(fresh()); app.querySelector<HTMLButtonElement>("[data-setting='alert-codex']")!.click();
   expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"codex",enabled:false});
 });
+
+it("shows only VS Code providers and ignores hidden providers in the master state", () => {
+  panel.render(fresh({usageAlertProviders: ["claude","codex","copilot"], usageAlerts: {claude:true,codex:true,copilot:true,cursor:false,gemini:false}}));
+  expect(app.querySelectorAll(".alerts-list .setting-row")).toHaveLength(3);
+  expect(app.querySelector("[data-setting='alert-cursor']")).toBeNull();
+  expect(app.querySelector("[data-setting='alert-gemini']")).toBeNull();
+  expect(app.querySelector("[data-setting='alert-all']")?.getAttribute("aria-checked")).toBe("true");
+  expect(app.querySelector(".alerts-master .hint")?.textContent).toBe("3 of 3 enabled");
+});
+it.each(["cursor", "gemini"] as const)("shows only the master for %s and follows its provider", provider => {
+  panel.render(fresh({usageAlertProviders: [provider], usageAlerts: {claude:true,codex:true,copilot:true,cursor:false,gemini:false}}));
+  expect(app.querySelector(".alerts-list")).toBeNull();
+  const master = app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!;
+  expect(master.getAttribute("aria-checked")).toBe("false");
+  expect(app.querySelectorAll(".usage-alerts-section button")).toHaveLength(1);
+  master.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:true});
+});

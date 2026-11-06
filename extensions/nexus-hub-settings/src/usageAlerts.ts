@@ -5,6 +5,11 @@ import { randomUUID } from "node:crypto";
 export const ALERT_PROVIDERS = ["claude", "codex", "copilot", "cursor", "gemini"] as const;
 export type AlertProvider = typeof ALERT_PROVIDERS[number];
 export type UsageAlerts = Record<AlertProvider, boolean>;
+export function alertProvidersForEditor(appName: string): AlertProvider[] {
+  if (/cursor/i.test(appName)) { return ["cursor"]; }
+  if (/antigravity|gemini/i.test(appName)) { return ["gemini"]; }
+  return ["claude", "codex", "copilot"];
+}
 export const USAGE_ALERTS_FILE = "usage-alerts.json";
 
 function read(file: string): Record<string, unknown> {
@@ -20,15 +25,16 @@ export function readUsageAlerts(file: string): UsageAlerts {
   const data = read(file);
   return Object.fromEntries(ALERT_PROVIDERS.map(provider => [provider, data[provider] !== false])) as UsageAlerts;
 }
-export function writeUsageAlert(file: string, provider: AlertProvider | "all", enabled: boolean): void {
+export function writeUsageAlert(file: string, provider: AlertProvider | "all", enabled: boolean, scope: readonly AlertProvider[] = ALERT_PROVIDERS): void {
   if (provider !== "all" && !ALERT_PROVIDERS.includes(provider) || typeof enabled !== "boolean") { throw new Error("Invalid usage-alert preference."); }
+  if (!scope.length || scope.some(key => !ALERT_PROVIDERS.includes(key)) || provider !== "all" && !scope.includes(provider)) { throw new Error("Invalid usage-alert scope."); }
   fs.mkdirSync(path.dirname(file), {recursive: true});
   const lock = file + ".lock", temporary = file + "." + randomUUID();
   let descriptor: number | undefined;
   try {
     descriptor = fs.openSync(lock, "wx");
     const data = read(file);
-    for (const key of provider === "all" ? ALERT_PROVIDERS : [provider]) { data[key] = enabled; }
+    for (const key of provider === "all" ? scope : [provider]) { data[key] = enabled; }
     fs.writeFileSync(temporary, JSON.stringify(data, null, 2) + "\n", {flag: "wx"});
     fs.renameSync(temporary, file);
   } finally {
