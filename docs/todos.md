@@ -2,6 +2,14 @@
 
 **Integration branch:** `develop`
 
+**v4.14 controller reconciliation:** The approved V2 reader and preservation repairs are committed locally at `c4e865e30`; all 13 real carry pairs pass both readers with unchanged native-record hashes. The stabilized reader passes 52 focused cases, including malformed mutable runtime metadata; the broader 273-case run is retained separately. The fast profile passed all 18 checks. The original controller's checkpoint is `c5a4b00d8`, with all seven frozen hashes intact, and the genuine source archive dry run passed under the pinned Python 3.11 toolchain with guards and budgets unchanged. The expanded canonical-LF qualification retains 46 passing commands plus a passing pre-commit rerun; final snapshot validation gates publication. Green source integration, qualified single-helper delivery, original native archive/re-freeze, final receipts, and `MINOR COMPLETE v4.14` remain open. [Local evidence](archives/v4/v4.14/development/v4.14-controller-reconciliation-evidence.md).
+
+- [x] Reproduce and qualify exact patch provenance through both existing readers without changing approval bounds or copy content.
+
+- [x] Repair inherited AR-77 paragraph ordering while preserving all lines, titles, states, and provenance.
+
+- [ ] Resolve the separately reviewed later-plan carry authority, integrate and adopt the authorized repair, and obtain genuine native minor completion before retiring the remaining v4.14 worktrees.
+
 **v4.14 minor close:** PR #612 merged into develop as `4b6c6105d` after all checks completed, and the local closing branch merged develop as `a64ff0075`. A fresh archive dry run passed, but the native apply exhausted its transaction/rollback path and left 26 identical-content renames; all 26 were reversed with `git mv`, restoring a clean worktree. A private 20-move measurement with the same 9,180-entry index extrapolates to about 316 seconds for the 820 file moves alone, exceeding the helper's 180-second work budget. The separately approved batching repair merged as `2cb37c5b4`, was delivered with a verified backup, and passed installed native qualification. The closing branch merged develop as `5bb30db23`. The real native archive succeeded at `ca0805634`: 821 files moved, 171 link updates, 151 path-mention updates, 38 repaired files, zero newly broken links, and a natively repointed run record. All 847 post-command guard records passed; the full fast profile then passed all 18 checks in 52.6 seconds. Closing publication, cleanup, and native minor completion remain open. [Evidence and repair proposal](archives/v4/v4.14/development/v4.14-minor-close-evidence.md).
 
 - [x] Merge PR #612 on green after verified attribution and merge develop into the v4.14 closing branch.

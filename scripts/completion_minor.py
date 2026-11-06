@@ -3193,20 +3193,23 @@ def migration_copy_status(
     return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
-def _ledger_blob(rctx: RepoContext, commit: str, rel: str) -> tuple[str, str]:
+def _ledger_blob(rctx: RepoContext, commit: str, rel: str, *, no_replace: bool = False) -> tuple[str, str]:
     """Reuse only successful immutable blob reads within this evaluation context."""
     key = (commit.lower(), rel) if re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", commit) else None
+    if key is not None and no_replace:
+        key = (*key, "no-replace")
+    git = [rctx.git, *(["--no-replace-objects"] if no_replace else [])]
     cache = getattr(rctx, "_minor_blob_cache", None)
     if cache is None:
         cache = rctx._minor_blob_cache = {}
     if key is not None and key in cache:
         return "met", cache[key]
-    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+    rc, _ = rctx.run([*git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
     if rc == -1:
         return "cannot-verify", ""
     if rc != 0:
         return "unmet", ""
-    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+    rc, out = rctx.run([*git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
     if rc != 0:
         return "cannot-verify", ""
     if key is not None:
@@ -3487,11 +3490,19 @@ def _signed_original_plan(rctx: RepoContext, record: dict, member: dict, plan: P
 
 def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
     """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
-    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(item.body.replace('\r\n', '\n').strip())
-    tail = (r'\n\n- \*\*Migrated from\*\*: ' + re.escape(f'{source}#{item.gid}')
+    body = item.body.replace('\r\n', '\n').strip()
+    recorded = RECORDED_BODY_RE.fullmatch(body)
+    # The single-plan carry writer names the source patch; the minor writer
+    # names its minor. Both labels must identify this exact recording task.
+    if (recorded is None or section_version(item.section) != recorded['version']
+            or source != 'v{}.{}'.format(*minor_of(recorded['version']))):
+        return False
+    labels = '|'.join(re.escape(f'{version}#{item.gid}') for version in (source, recorded['version']))
+    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(body)
+    tail = (r'\n\n- \*\*Migrated from\*\*: (?:' + labels + ')'
             + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
             + r'\n- \*\*Migration evidence\*\*: [^\n]+')
-    return (copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
+    return (item.kind == 'DF' and copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
             and copy.title == MIGRATED_RE.sub('', item.title).rstrip()
             and re.fullmatch(tail, suffix) is not None)
 
@@ -3528,6 +3539,141 @@ def migration_gate(
     if (open_then[0].sensitive() or (current is not None and current.sensitive())) and pid not in named:
         return "unmet", "security-not-named"
     return "met", "approved"
+
+
+# Recovery is limited to these already published dispositions and original authorities.
+# It never authorizes a new write, extends a bound, or changes a native record.
+V414_CARRY_RECONCILIATION = {
+    "minor_key": "8d590b2e3417c12ec5a7feeae6c28be68447158dae645353f30390e4e60b14ae",
+    "minor_nonce": "67bf1ecccb04e9a42741f95dc27cb5eb",
+    "minor_page": "b45332eb70acb1399b880a92f8f6d8e56e3bbe1de829bf4aa19d564c58bbb34b",
+    "start": "317dc4b8fad5e2ee3a3a7a033744d86e2e28376e",
+    "last_key": "a338088bb90e5344dcf11d0230356213886803bf969f14751aa9b142a1967770",
+    "last_nonce": "26d619e3fbb1eaa46d17046305717573",
+    "last_page": "e1ac363d4abad66fbd55bf98c8939c49c0ba744c815ef33491b2e45eed35ba0d",
+    "plan": "docs/archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md",
+    "plan_hash": "1f831caa2f0ad8dabf3e01623520406c4a9d6351f893c4cf8f1c8a6267008e44",
+    "branch": "feat/v4.14.8-plain-english-replies-and-source-labels",
+    "release": "befcbfabae6d9042c3437d617af3724416644696",
+}
+V414_CARRIED_IDS = {
+    "BG-30": "BG-3", "BG-29": "BG-4", "DF-45": "DF-36", "MT-17": "MT-5",
+    "DF-46": "DF-37", "DF-47": "DF-38", "WN-38": "WN-25", "MT-18": "MT-6",
+    "WN-39": "WN-26", "WN-40": "WN-27", "MT-19": "MT-7", "QG-10": "QG-4", "QG-11": "QG-5",
+}
+
+
+def reconciled_v414_carry(
+    rctx: RepoContext, record: dict | None, ledgers: list[Ledger], ledger: Ledger, item: GapItem,
+    copy: GapItem,
+) -> bool:
+    """Read only: authenticate the original runs and their exact published carry pair.
+
+    The seven frozen members remain mandatory. The later plan's signed carry
+    approval is insufficient alone: mutable copies must match immutable release
+    content, after only the native archive's path repairs and newline conversion.
+    """
+    import check_plan_completion as ck
+    from minor_close import rewrite_links, rewrite_mentions
+
+    binding = V414_CARRY_RECONCILIATION
+    if (not record or record.get("schema") != 2 or record.get("scope") != "minor"
+            or record.get("minor") != "v4.14" or record.get("repo") != "bendourthe/Nexus-Hub"
+            or record.get("nonce") != binding["minor_nonce"] or record.get("start_head") != binding["start"]
+            or (record.get("approvals") or {}).get("page_sha256") != binding["minor_page"]
+            or ledger.minor != (4, 14) or item.gid not in V414_CARRIED_IDS
+            or item.state != "migrated" or item.target != "v4.15.0"
+            or copy.gid != V414_CARRIED_IDS[item.gid] or copy.state != "open"
+            or item.sensitive() or copy.sensitive() or ledger.problems):
+        return False
+    if sorted(str(m.get("version")) for m in record.get("members", []) if isinstance(m, dict)) != [
+        f"v4.14.{patch}" for patch in range(7)
+    ]:
+        return False
+    parent_path = getattr(record, "record_path", rctx.scoped_record_path("minor:v4.14"))
+    if parent_path.stem != binding["minor_key"] or not _verified(ck, rctx, "v4.14", record):
+        return False
+    path = ck._runs_dir() / (binding["last_key"] + ".json")
+    last = ck.read_record(rctx, path)
+    key = ck._secret(create=False)
+    signature = (last or {}).get("approvals_hmac")
+    if (not last or key is None or not isinstance(signature, str)
+            or re.fullmatch(r"[0-9a-f]{64}", signature) is None
+            or not hmac.compare_digest(signature, ck._sign(last, key))):
+        return False
+    approvals = (last or {}).get("approvals") or {}
+    if not isinstance(approvals, dict) or not isinstance(approvals.get("classes"), list):
+        return False
+    blockers = last.get("blockers", [])
+    if not isinstance(blockers, list) or any(not isinstance(blocker, dict) or blocker.get("open") for blocker in blockers):
+        return False
+    if (not last or last.get("schema") != 1 or last.get("repo") != "bendourthe/Nexus-Hub"
+            or last.get("nonce") != binding["last_nonce"] or last.get("plan") != binding["plan"]
+            or last.get("plan_sha256") != binding["plan_hash"]
+            or approvals.get("page_sha256") != binding["last_page"]
+            or approvals.get("repo") != "bendourthe/Nexus-Hub" or approvals.get("source_branch") != binding["branch"]
+            or approvals.get("target_branch") != "develop" or not ck._has_class(last, "carry-gaps")):
+        return False
+    try:
+        root = Path(last.get("repo_root", ""))
+        if (ck.record_key(root, last["repo"].lower(), "plan:" + binding["plan"]) != path.stem
+                or not root.is_absolute() or str(root.resolve()) != str(root) or last.get("worktree") != str(root)):
+            return False
+    except (OSError, TypeError, ValueError):
+        return False
+    try:
+        ctx = ck.Context(str(root / binding["plan"]), rctx.budget)
+        state = ck._load_schema1(ctx, last, None, ck.RecordState())
+    except (ck.Malformed, OSError, ValueError):
+        return False
+    if (state.record is None or state.forced is not None or ctx.key_repo != last["repo"].lower()
+            or rctx.key_repo != last["repo"].lower()
+            or not (common := _common_dir(rctx, rctx.root)) or common != _common_dir(rctx, root)):
+        return False
+    rc, tag_commit = rctx.run([rctx.git, "--no-replace-objects", "-C", str(rctx.root), "rev-parse", "--verify", "refs/tags/v4.14.8^{commit}"])
+    if rc == -1:
+        raise ObservationUnavailable("migration.publication")
+    if rc != 0 or tag_commit.strip() != binding["release"]:
+        return False
+    publications = _memo(rctx, "_v414_published_carry")
+    publication_key = (last["repo"], binding["release"])
+    publication = publications.get(publication_key) or shipped(ck, rctx, last["repo"], "v4.14.8")
+    if publication == "cannot-verify":
+        raise ObservationUnavailable("migration.publication")
+    if publication != "met":
+        return False
+    publications[publication_key] = publication
+    active, archived = "docs/releases/v4/v4.14", "docs/archives/v4/v4.14"
+
+    def moved(rel: str) -> str:
+        return archived + rel[len(active):] if rel == active or rel.startswith(active + "/") else rel
+
+    def canonical(text: str, rel: str) -> list[GapItem]:
+        text, _ = rewrite_links(text.replace("\r\n", "\n"), rel.rsplit("/", 1)[0], moved(rel).rsplit("/", 1)[0], moved)
+        text, _ = rewrite_mentions(text, active, archived, markdown=True)
+        items, problems = parse_ledger_full(text)
+        return [] if problems else items
+
+    targets = [target for target in ledgers if target.minor == (4, 15)]
+    if len(targets) != 1 or targets[0].problems or len([source for source in ledgers if source.minor == (4, 14)]) != 1:
+        return False
+    for rel, current_ledger, current in ((active + "/known-gaps.md", ledger, item),
+                                         ("docs/releases/v4/v4.15/known-gaps.md", targets[0], copy)):
+        status, text = _ledger_blob(rctx, binding["release"], rel, no_replace=True)
+        if status == "cannot-verify":
+            raise ObservationUnavailable("migration.publication")
+        if status != "met":
+            return False
+        published = [old for old in canonical(text, rel) if old.gid == current.gid]
+        present = [now for now in canonical(current_ledger.text, current_ledger.rel) if now.gid == current.gid]
+        if len(published) != 1 or len(present) != 1:
+            return False
+        old, now = published[0], present[0]
+        if (old.title, old.body, section_version(old.section)) != (now.title, now.body, section_version(now.section)):
+            return False
+        if old.sensitive() or now.sensitive():
+            return False
+    return plan_migration_met(ledgers, ledger, item)
 
 
 def verify_migration(
@@ -3567,6 +3713,9 @@ def verify_migration(
         return "unmet", "migration-target-not-next-minor"
     copy = found[1]
     gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
+    if (gate == "unmet" and reason == "migration-not-approved"
+            and reconciled_v414_carry(rctx, record, ledgers, ledger, item, copy)):
+        gate, reason = "met", "published-plan-carry"
     if gate != "met":
         return gate, reason
     if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy):
