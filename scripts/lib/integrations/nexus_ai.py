@@ -70,7 +70,7 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         # .nexus/observations.jsonl when a session runs from the home folder, so
         # those names are excluded. The per-user NSIS install lives under
         # %LOCALAPPDATA% (subfolder name UNVERIFIED; both spellings probed).
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "root": ".nexus-ai",
             "nexus_entries": ["catalog"],

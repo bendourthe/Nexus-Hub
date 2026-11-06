@@ -74,7 +74,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         # because ~/.pi itself holds only agent/, which both Pi and Nexus-Hub
         # create. settings.json is listed because Nexus-Hub seeds it; Pi's own
         # auth.json, models.json and keybindings.json count as evidence.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["pi"],
             "root": ".pi/agent",

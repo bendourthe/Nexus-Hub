@@ -1468,7 +1468,7 @@
 
 **Source phase**: v4.14.8 Phase 5 T038/T041
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.6 and 5.9
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.6 and 5.9
 
 **Reason**: In the 2026-11-03 standalone (no time limit) run of `repo-tests-governance-validators-d-o`, `tests/validators/test_m5_manifest_permission.py::test_v415_genuine_permission_preserves_claims_and_activates_only_at_native_start[dormant-two-member-evidence]` failed once (786 passed, 1 failed, 4539.46 s) while extension builds, Vitest and Playwright renders ran on the same host. The runner keeps only the summary tail, so the failing assertion was not captured. The case then passed 5 of 5 targeted reruns (19.5 to 23.0 s each) and its 10-case function passed on both the v4.14.8 candidate and `develop`. v4.14.8 changes none of the modules it imports (`check_plan_completion`, `completion_minor`, `approval_binding`). The test gives the checker a wall-clock `ck.Budget(60)`, the most likely load-sensitive point, but that cause is not proven.
 
@@ -1481,7 +1481,7 @@
 
 **Source phase**: v4.14.7 Phase 7 T046
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 7.9
 
 **Reason**: `scripts/ci/run.py` removes each pytest scratch folder with `tempfile.TemporaryDirectory.cleanup()`, which on a Windows host without registry long-path support fails with `OSError: [WinError 145] The directory is not empty` when a long-path test left folders past 260 characters. The runner then marks the group failed with `original status=pass`: in the 2026-10-30 full profile, `hook-tests` (2755 passed) and `repo-tests-skills` (2635 passed) were reported as failures for this reason alone. Unrelated to detection; it predates this plan. A fallback cannot simply retry with the `\?\` prefix, because `tests/ci/test_ci_engine.py::test_pytest_scratch_cleanup_preserves_command_facts` requires a denied cleanup to leave the folder in place, and a prefixed scratch root would leak into every test's `tmp_path`.
 
@@ -1496,7 +1496,7 @@
 
 **Source phase**: v4.14.7 Phase 1 T001
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), Non-Goals
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), Non-Goals
 
 **Reason**: The Hermes Agent installation page (https://hermes-agent.nousresearch.com/docs/getting-started/installation, fetched 2026-10-29) places the Windows install and data under `%LOCALAPPDATA%\hermes`, while `scripts/lib/integrations/hermes.py` writes `~/.hermes/skills` on every OS. Detection now finds a Windows Hermes through its executable location, but the skills it then writes land where Windows Hermes may not read them. Changing the write surface is outside this plan, whose scope is detection.
 
@@ -1511,7 +1511,7 @@
 
 **Source phase**: v4.14.7 Phase 1 T002
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 1.2
 
 **Reason**: `_detection.safe_which` resolves commands through `PATHEXT`, which finds npm's `.cmd` shim but not a `.ps1`-only install. No vendor documents a `.ps1`-only layout, and decision D5 (`--platforms <key>`) is the recovery path, so no test covers that layout.
 
@@ -1526,7 +1526,7 @@
 
 **Source phase**: v4.14.7 Phase 7 T045
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), Goal (stale surfaces removable by one explicit command)
 
 **Reason**: `nexus-hub prune-undetected --yes` keeps `~/.aider.conf.yml`, `~/.hermes/config.yaml`, `~/.pi/agent/settings.json`, and the seeded values in the Kimi `config.toml` and Qwen `settings.json` (it strips only Nexus-Hub's hook entries from the last two), because Nexus-Hub writes seeded defaults without a per-key record of which values it wrote, so it cannot prove the user did not edit them. A machine like the maintainer's 2026-10-29 audit keeps `~/.aider.conf.yml` and a Hermes `config.yaml` after the command; the command names them as kept.
 
@@ -1541,7 +1541,7 @@
 
 **Source phase**: v4.14.7 Phase 7 T045
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), decision D8
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), decision D8
 
 **Reason**: Neither `scripts/installer.sh` nor `scripts/installer.ps1` invokes an integration for `hermes` or `pi`, and both reject them as `--platforms` keys, so they are installed only by calling `runner.py` directly. This predates v4.14.7, and decision D8 limits installer edits to the forced pass-through and the evidence lines. As a result the NOT DETECTED remedy text for these two keys ("name it with --platforms hermes") is not usable through an installer, and forcing either platform works only with `runner.py install --forced <key>`.
 
@@ -1556,7 +1556,7 @@
 
 **Source phase**: v4.14.7 Phase 7 T045
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), decision D6
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), decision D6
 
 **Reason**: D6 names only the installed application and `~/.nexus-ai`. The detection spec also counts `~/.nexus` (minus `context` and `observations.jsonl`) and `~/.gemma-code` as evidence that Nexus AI Studio is present. Nexus-Hub's own tools write project-relative `.nexus/` folders (code index, knowledge files), so a session started in the home folder could create `~/.nexus/...` entries that read as Nexus AI Studio data. The exclusion list is a two-name denylist, which is the shape of rule the plan set out to remove.
 
@@ -1571,7 +1571,7 @@
 
 **Source phase**: v4.14.7 Phase 7 T044
 
-**Plan reference**: [v4.14.7 plan](../v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
+**Plan reference**: [v4.14.7 plan](../../../archives/v4/v4.14/plans/v4.14.7-installer-platform-detection.md), sub-task 5.3
 
 **Reason**: The Tier 3 adversarial pass ran every `prune-undetected --yes` attack against a real Kimi install. It did not run: the Qwen `settings.json` pruner and the shared-marker removal for the other platforms against a hostile file; a tracked file replaced by a symlink (the host refused symlink creation, WinError 1314; junctions were covered); short (8.3) names and paths on another drive letter; and a manifest edited inside the platform folder to track the folder itself with a far-future install time. The last is a self-attack through a file only the user's own account can write, so it is not a privilege boundary, but it is untested.
 
@@ -1586,7 +1586,7 @@
 
 **Source phase**: v4.14.8 Phase 5 T037
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-task 5.5
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-task 5.5
 
 **Reason**: The field-by-field comparison finds supply-chain-watch.yml retains its pip-audit JSON for 30 days, while the canonical repository-native profile policy specifies seven days. The workflow is scheduled advisory drift checking and is separate from required pull-request checks. All other inspected report uploads specify seven days. No CI or repository setting was changed; the maintainer requires separate approval for such changes.
 
@@ -1601,7 +1601,7 @@
 
 **Source phase**: v4.14.8 Phase 5 T033 and T035
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.1 and 5.3
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), sub-tasks 5.1 and 5.3
 
 **Reason**: audit-docs.py lifespan-contradictions exits 1 and reports 570 v4.14 files edited after v4.14.0. Inspection of _release_close_dates shows it chooses the earliest patch tag in a minor. The approved v4.14 workflow explicitly keeps the minor active until v4.14.8 is released and closure is verified. The observations are retained; this scan cannot establish that these active release files were edited after an actual minor close.
 
@@ -1616,7 +1616,7 @@
 
 **Source phase**: v4.14.8 Phase 3 T015
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 5
 
 **Reason**: the inventory's "shown to the user in Claude Code / Codex" column records `unknown` for escalation-trigger's stdout, so the tag on that channel is applied but its visibility is unproven.
 
@@ -1629,7 +1629,7 @@
 
 **Source phase**: v4.14.8 Phase 4 T031
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](../v4.14/development/v4.14.8-effect-measurement.md)
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](../../../archives/v4/v4.14/development/v4.14.8-effect-measurement.md)
 
 **Reason**: on Claude Code with the new templates, labels were correct on 7 of 10 prompts with no over-labeling. P02 relayed the untagged git-guardrails message (DF-48); P04 never reached the Nexus-Hub rule because the harness denied `rm -rf` on a short-name temp path first; P05 edited locally and stopped without asking for a rule-required approval in both template versions.
 
@@ -1642,7 +1642,7 @@
 
 **Source phase**: v4.14.8 Phase 4 T031
 
-**Plan reference**: [v4.14.8 plan](../v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](../v4.14/development/v4.14.8-effect-measurement.md)
+**Plan reference**: [v4.14.8 plan](../../../archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md), DoD 10; [measurement](../../../archives/v4/v4.14/development/v4.14.8-effect-measurement.md)
 
 **Reason**: `engineering-slang` findings were 0 before and 0 after across 20 replies (a floor effect), and the user-level `~/.claude/CLAUDE.md` with the installed v4.14.4 instructions loaded in both runs because no CLI flag excludes it without moving the login configuration. The run cost USD 19.65 for 21 headless sessions.
 
@@ -1653,7 +1653,7 @@
 
 #### DF-39: The seeded Antigravity CLI `agentMode` value is no longer a documented value - RESOLVED 2026-11-04
 
-**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../v4.14/development/v4.14.8-platform-verification.md)).
+**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../../../archives/v4/v4.14/development/v4.14.8-platform-verification.md)).
 
 The [Antigravity CLI modes page](https://antigravity.google/docs/cli/modes/) now lists `agentMode` values `"auto"` (the default where available), `"accept-edits"`, `"plan"`, and `""` for default mode. Nexus-Hub seeds `{"agentMode": "default"}` into `~/.gemini/antigravity-cli/settings.json` when the key is absent (`configs/platform-defaults.json`), and the literal `"default"` is no longer listed. How the CLI treats the old literal is not documented, so the seed may no longer select the diff-review mode it was chosen for. Existing installs already hold the old value, because the seed is written only when the key is absent.
 
@@ -1663,7 +1663,7 @@ The [Antigravity CLI modes page](https://antigravity.google/docs/cli/modes/) now
 
 #### WN-28: The Nexus-AI README now names a settings surface the lever row does not record
 
-**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../v4.14/development/v4.14.8-platform-verification.md)).
+**Source phase**: v4.14.8 release review, advisory lever re-fetch on 2026-11-04 ([platform verification](../../../archives/v4/v4.14/development/v4.14.8-platform-verification.md)).
 
 The [Nexus-AI README](https://github.com/bendourthe/Nexus-AI) now names `nexus.coding.securityPosture` (Strict, Standard or Unattended; default Standard) and `~/.nexus/settings.json`. The lever row in `docs/policy/platform-defaults-levers.md` records no documented settings surface for Nexus-AI. A README alone does not make a lever VERIFIED.
 
@@ -1693,7 +1693,7 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 #### BG-5: Windows Store Python 3.12 rejects stable native qualification reports
 
-**Source phase**: v4.14 minor-close repair qualification on 2026-11-05. **Plan reference**: [archive batching repair](../v4.14/development/v4.14-archive-batching-repair.md), local consumer qualification. This is an independently reproduced limitation in the existing v4.15 qualification path, not a migration of a v4.14 gap.
+**Source phase**: v4.14 minor-close repair qualification on 2026-11-05. **Plan reference**: [archive batching repair](../../../archives/v4/v4.14/development/v4.14-archive-batching-repair.md), local consumer qualification. This is an independently reproduced limitation in the existing v4.15 qualification path, not a migration of a v4.14 gap.
 
 **Reason**: On the observed Windows Store Python 3.12.10 build, a stable file written after creation has creation time in `Path.stat().st_ctime_ns` but modification time in `os.fstat().st_ctime_ns`. Device, inode, size, modification time, and birth time agree. The unchanged strict `_v415_read` therefore raises `qualification-input-changed` on the gate report before either historical-publication assertion. A fresh process importing only `check_plan_completion` reproduces this with a delayed-write file; that script is unchanged from develop `4b6c6105d`. The complete three-consumer run recorded 204 passes and these two failures. Its isolated child also reported missing pytest when only the parent user's package site provided it; installing the declared test dependencies in a private environment addresses that setup issue, not the timestamp mismatch.
 
