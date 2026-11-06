@@ -2,6 +2,30 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Worktree Root
+
+**Definition**: The configured local parent directory for linked worktrees across repositories, proposed for standardized use by the v4.15.6 plan.
+
+**Avoid**: main repository, clone root, vendor cache
+
+**Relationships**: Contains repository-identity namespaces and their linked worktrees; main checkouts and installed Nexus-Hub files have separate locations.
+
+## Repository Identity
+
+**Definition**: A local identity that ties a worktree namespace to one proven Git common directory and distinguishes separate clones even when they share a basename or remote.
+
+**Avoid**: repository basename, remote URL, branch name
+
+**Relationships**: Owns a worktree namespace; each linked worktree also has its own identity and working directory.
+
+## Worktree Migration Manifest
+
+**Definition**: A reviewed local list of exact worktree operations with bound source/destination identities, preservation evidence, authorization, and state preconditions.
+
+**Avoid**: approval record, cleanup verdict, branch list
+
+**Relationships**: Describes proposed operations; execution receipts prove outcomes, and the applicable native authority remains separate.
+
 ## Keyword Style
 
 **Definition**: A title or heading form that names a topic, category, or object as a noun phrase, with no finite verb, no clause, no stated conclusion, and no terminal punctuation (for example "Revenue by Region").
