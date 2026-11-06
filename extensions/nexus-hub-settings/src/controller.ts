@@ -1,3 +1,4 @@
+import type { AlertProvider, UsageAlerts } from "./usageAlerts";
 import { ActionOutcome, ActionSpec, BridgeError } from "./cliBridge";
 import {
   EditorLayers,
@@ -68,6 +69,8 @@ export interface ControllerDeps {
   restartExtension?: (provider: "claude" | "codex") => Promise<void>;
   hubVersion?: () => string;
   sessionDefaults?: () => SessionDefaults;
+  usageAlerts?: () => UsageAlerts;
+  setUsageAlert?: (provider: AlertProvider | "all", enabled: boolean) => Promise<void>;
   setFastMode?: (value: boolean) => Promise<void>;
   setCodexTabs?: (value: boolean) => Promise<void>;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
@@ -213,6 +216,9 @@ export class SettingsController {
         case "applyAll":
           if (this.deps.isTrusted()) { await this.deps.applyAll?.(); }
           return this.reload({ level: "info", text: "Requested the default effort for all connected sessions." }, false);
+        case "setUsageAlert":
+          if (this.deps.isTrusted()) { await this.deps.setUsageAlert?.(message.provider, message.enabled); }
+          return this.reload(null, false);
         case "setFastMode":
         case "setCodexTabs":
           if (this.deps.isTrusted()) {
@@ -259,6 +265,7 @@ export class SettingsController {
       this.model.uiEffort = this.deps.uiEffort?.();
       this.model.hubVersion = this.deps.hubVersion?.();
       this.model.sessionDefaults = this.deps.sessionDefaults?.();
+      this.model.usageAlerts = this.deps.usageAlerts?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

@@ -78,3 +78,7 @@ The status-bar mark is a one-glyph icon font. After changing `icons/nexus-hub.sv
 ## Installation Defaults and Restarts
 
 Fresh installations start with Medium effort, Fast mode off, and Open Codex in tabs on. Existing preference files are preserved during upgrades. The Extensions section groups settings by provider. Restart Codex restarts only its app-server and then refreshes its open tabs with their saved conversations. Restart Claude Code restarts idle Claude session processes and schedules busy sessions to restart after their current turn. Neither restarts the shared extension host. A Refresh Codex Tab button beside History rebuilds only the current panel. Refreshing replaces the composer, so send or copy an unsent draft first. Codex restart may interrupt running Codex requests; saved conversations are retained.
+
+## Usage Alerts
+
+Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch and separate Claude Code, Codex, GitHub Copilot, Cursor, and Gemini / Antigravity switches. The master switches every provider together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.

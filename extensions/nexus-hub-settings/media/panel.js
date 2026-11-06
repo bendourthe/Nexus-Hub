@@ -133,6 +133,18 @@
         el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
       ]);
     }
+    function usageAlertsSection() {
+      var providers = [["claude", "Claude Code"], ["codex", "Codex"], ["copilot", "GitHub Copilot"], ["cursor", "Cursor"], ["gemini", "Gemini / Antigravity"]];
+      var values = model.usageAlerts || {};
+      var enabled = providers.filter(function (item) { return values[item[0]] !== false; }).length;
+      function row(provider, label, value, master) {
+        var id = "alert-" + provider;
+        var toggle = button("", "usage-alert:" + provider, function () { send({type: "setUsageAlert", provider: provider, enabled: value !== true}); }, {role: master ? "checkbox" : "switch", class: "switch", "data-setting": id, "aria-checked": value === "mixed" ? "mixed" : value ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "usage-alerts-description", disabled: model.readOnly, "aria-disabled": blocked() ? "true" : null});
+        toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
+        return el("div", {class: "setting-row" + (master ? " alerts-master" : "")}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, class: "setting-label", text: label}), master ? text("p", enabled + " of 5 enabled", "hint") : null]), toggle]);
+      }
+      return el("section", {class: "settings-section usage-alerts-section", "aria-labelledby": "usage-alerts-title"}, [el("h2", {id: "usage-alerts-title", text: "Usage alerts"}), row("all", "All usage alerts", enabled === 5 ? true : enabled === 0 ? false : "mixed", true), el("p", {id: "usage-alerts-description", text: "Warnings dismiss after 10 seconds. Taskbar colors stay active.", class: "hint alerts-description"}), el("div", {class: "alerts-list"}, providers.map(function (item) { return row(item[0], item[1], values[item[0]] !== false, false); }))]);
+    }
     function guardRow(spec) {
       var installed = control(spec[0]);
       var c = installed || { id: spec[0], rows: [], canApply: false };
@@ -196,7 +208,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), editorSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
+        children.push(notice(), effortSection(preferences()), guardSection(), editorSection(), usageAlertsSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

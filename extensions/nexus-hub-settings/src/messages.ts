@@ -1,3 +1,4 @@
+import { ALERT_PROVIDERS, type AlertProvider } from "./usageAlerts";
 import type { ViewModel } from "./viewModel";
 
 /**
@@ -14,6 +15,7 @@ export type Incoming =
   | { type: "applyAll" }
   | { type: "upgrade" }
   | { type: "restartExtension"; provider: "claude" | "codex" }
+  | { type: "setUsageAlert"; provider: AlertProvider | "all"; enabled: boolean }
   | { type: "setFastMode"; value: boolean }
   | { type: "setCodexTabs"; value: boolean }
   | { type: "set"; control: string; value: string; tool: string | null }
@@ -30,6 +32,7 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
   applyAll: ["type"],
   upgrade: ["type"],
   restartExtension: ["type", "provider"],
+  setUsageAlert: ["type", "provider", "enabled"],
   setFastMode: ["type", "value"],
   setCodexTabs: ["type", "value"],
   set: ["type", "control", "value", "tool"],
@@ -39,7 +42,7 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
 };
 
 const TEXT_LIMIT = 200;
-const WRITES = new Set(["set", "reset", "removeOverride", "setFastMode", "setCodexTabs"]);
+const WRITES = new Set(["set", "reset", "removeOverride", "setFastMode", "setCodexTabs", "setUsageAlert"]);
 
 function fail(reason: string): Validated {
   return { ok: false, reason };
@@ -81,6 +84,9 @@ export function validateMessage(raw: unknown, model: ViewModel): Validated {
   }
   if (WRITES.has(raw.type) && model.readOnly) {
     return fail("the panel is read-only");
+  }
+  if (raw.type === "setUsageAlert") {
+    return (raw.provider === "all" || ALERT_PROVIDERS.includes(raw.provider as AlertProvider)) && typeof raw.enabled === "boolean" ? {ok: true, message: {type: "setUsageAlert", provider: raw.provider as AlertProvider | "all", enabled: raw.enabled}} : fail("invalid usage-alert preference");
   }
   if (raw.type === "setFastMode" || raw.type === "setCodexTabs") {
     return typeof raw.value === "boolean" ? {ok: true, message: {type: raw.type, value: raw.value}} : fail("invalid toggle value");

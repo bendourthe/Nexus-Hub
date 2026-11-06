@@ -370,3 +370,14 @@ it("keeps Codex navigation and restart in the Codex group, separate from Claude"
   expect(groups[0].querySelector("h3")?.textContent).toBe("Claude Code");
   expect(groups[0].querySelector("[data-setting='codexTabs']")).toBeNull();
 });
+
+it("shows a prominent mixed master and lets it enable every provider", () => {
+  panel.render(fresh({usageAlerts: {claude:true,codex:false,copilot:false,cursor:false,gemini:false}}));
+  const master = app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!;
+  expect(master.getAttribute("aria-checked")).toBe("mixed"); expect(master.closest(".alerts-master")).not.toBeNull();
+  master.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:true});
+  panel.render(fresh({usageAlerts: {claude:true,codex:true,copilot:true,cursor:true,gemini:true}}));
+  app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:false});
+  panel.render(fresh()); app.querySelector<HTMLButtonElement>("[data-setting='alert-codex']")!.click();
+  expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"codex",enabled:false});
+});

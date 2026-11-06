@@ -1,13 +1,20 @@
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as vscode from "vscode";
 import { WarningViewProvider, WARNING_ACTIVE_CONTEXT } from "../src/warningView";
 
 describe("warning expiry", () => {
-  beforeEach(() => vi.useFakeTimers());
+  const savedHome = process.env.NEXUS_HUB_HOME;
+  let home: string;
+  beforeEach(() => { vi.useFakeTimers(); home = fs.mkdtempSync(path.join(os.tmpdir(), "usage-alerts-")); process.env.NEXUS_HUB_HOME = home; });
   afterEach(() => {
     vi.clearAllTimers();
     vi.useRealTimers();
     vi.restoreAllMocks();
+    fs.rmSync(home, {recursive: true, force: true});
+    if (savedHome === undefined) { delete process.env.NEXUS_HUB_HOME; } else { process.env.NEXUS_HUB_HOME = savedHome; }
   });
 
   const suggestion = {
@@ -26,25 +33,25 @@ describe("warning expiry", () => {
     return { provider, command, callbacks, show };
   }
 
-  it("keeps the alert for 59 seconds and dismisses it after one minute", async () => {
+  it("keeps the alert for 9 seconds and dismisses it after ten seconds", async () => {
     const { command, show } = setup();
     await show();
     command.mockClear();
-    await vi.advanceTimersByTimeAsync(59_999);
+    await vi.advanceTimersByTimeAsync(9_999);
     expect(command).not.toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false);
     await vi.advanceTimersByTimeAsync(1);
     expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false);
   });
 
-  it("gives a replacement alert its own full minute", async () => {
+  it("gives a replacement alert its own full ten seconds", async () => {
     const { command, show } = setup();
     await show();
-    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(5_000);
     await show();
     command.mockClear();
-    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(5_000);
     expect(command).not.toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false);
-    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(5_000);
     expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false);
   });
 
@@ -61,7 +68,23 @@ describe("warning expiry", () => {
     receive({ command: "cancel" });
     await Promise.resolve();
     command.mockClear();
-    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(10_000);
     expect(command).not.toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false);
   });
+  it("suppresses only disabled warning panels and permits re-enabling", async () => {
+    const {command, show} = setup();
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({claude: false}));
+    await show(); expect(command).not.toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, true);
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({claude: true}));
+    await show(); expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, true);
+  });
+  it("closes a visible warning when shared preferences disable it", async () => {
+    vi.useRealTimers();
+    const {provider, command, show} = setup(); const subscription = provider.watchAlerts();
+    await show(); command.mockClear();
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({claude: false}));
+    try { await vi.waitFor(() => expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false), {timeout: 2500}); }
+    finally { subscription.dispose(); vi.useFakeTimers(); }
+  });
+
 });

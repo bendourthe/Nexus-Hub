@@ -105,3 +105,10 @@ describe("native Codex action", () => {
     bad({ type: "newCodex" }, "read-only", m);
   });
 });
+
+it("accepts only known usage-alert providers and rejects read-only writes", () => {
+  expect(ok({type:"setUsageAlert",provider:"all",enabled:false})).toEqual({type:"setUsageAlert",provider:"all",enabled:false});
+  for (const provider of ["other", "__proto__", null, {}]) { bad({type:"setUsageAlert",provider,enabled:false}, "invalid usage-alert"); }
+  bad({type:"setUsageAlert",provider:"claude",enabled:"false"}, "invalid usage-alert");
+  bad({type:"setUsageAlert",provider:"codex",enabled:true}, "read-only", model(false));
+});

@@ -139,3 +139,12 @@ button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nex
   :root { --section-divider: CanvasText; }
   .provider-icon { background: CanvasText; }
 }
+
+.usage-alerts-section { border-top: 2px solid var(--section-divider); padding-top: 20px; }
+.alerts-master { margin-top: 14px; padding: 12px; border: 1px solid color-mix(in srgb, var(--nexus-accent) 40%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--nexus-accent) 7%, var(--vscode-editor-background)); }
+.alerts-master .setting-label { font-size: 14px; }
+.alerts-description { margin-top: 10px; }
+.alerts-list .setting-row { min-height: 50px; padding-block: 8px; }
+.switch[aria-checked='mixed'] .switch-track { background: color-mix(in srgb, var(--nexus-accent) 25%, transparent); }
+.switch[aria-checked='mixed'] .switch-thumb { width: 12px; height: 3px; margin: 5px auto; background: var(--vscode-foreground); border-radius: 1px; }
+@media (forced-colors: active) { .alerts-master { border-color: ButtonText; background: Canvas; } }

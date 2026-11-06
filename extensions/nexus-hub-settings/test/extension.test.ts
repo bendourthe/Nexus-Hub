@@ -106,7 +106,7 @@ describe("activation", () => {
     expect(stub.providers.map((p) => p.id)).toEqual(["nexusHubSettings.view"]);
     expect(stub.providers[0]?.options).toEqual({ webviewOptions: { retainContextWhenHidden: true } });
     expect(stub.commands.has(OPEN_COMMAND)).toBe(true);
-    expect(stub.watchers).toHaveLength(6 + 3 + 1);
+    expect(stub.watchers).toHaveLength(6 + 3 + 2);
     expect(ctx.subscriptions.length).toBeGreaterThan(10);
   });
 
