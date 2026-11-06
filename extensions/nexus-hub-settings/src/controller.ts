@@ -65,6 +65,7 @@ export interface ControllerDeps {
   uiEffort?: () => UiEffortSummary | undefined;
   applyAll?: () => Promise<void>;
   upgrade?: () => Promise<void>;
+  restartExtension?: (provider: "claude" | "codex") => Promise<void>;
   hubVersion?: () => string;
   sessionDefaults?: () => SessionDefaults;
   setFastMode?: (value: boolean) => Promise<void>;
@@ -219,6 +220,9 @@ export class SettingsController {
             else { await this.deps.setCodexTabs?.(message.value); }
           }
           return this.reload(null, false);
+        case "restartExtension":
+          if (this.deps.isTrusted()) { await this.deps.restartExtension?.(message.provider); }
+          return this.model;
         case "upgrade":
           if (this.deps.isTrusted()) { await this.deps.upgrade?.(); }
           return this.model;

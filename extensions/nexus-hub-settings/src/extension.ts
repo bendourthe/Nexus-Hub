@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { initializeInstallationDefaults } from "./installationDefaults";
 import { installLiveEffort } from "./liveEffort";
 import { CliBridge, installRoot } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
@@ -65,13 +66,26 @@ export function userPythonPath(): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+export async function restartProvider(provider: "claude" | "codex"): Promise<void> {
+  if (!vscode.workspace.isTrusted) { return; }
+  const name = provider === "claude" ? "Claude Code" : "Codex";
+  if (!vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt")) {
+    await vscode.window.showWarningMessage(`${name} is not installed in this editor.`);
+    return;
+  }
+  const choice = await vscode.window.showWarningMessage(`Restart ${name}?`, {modal: true, detail: "VS Code restarts the shared extension host. This also restarts other extensions in this window, including Claude Code and Codex. Running requests may be interrupted. Saved conversations are retained."}, "Restart extensions");
+  if (choice === "Restart extensions") { await vscode.commands.executeCommand("workbench.action.restartExtensionHost"); }
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
+  const hub = installRoot(process.env, os.homedir());
+  if (vscode.workspace.isTrusted && fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
   let liveEffort = await installLiveEffort(context);
   let nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
-  const hub = installRoot(process.env, os.homedir());
   const sessionFile = path.join(hub, SESSION_DEFAULTS_FILE);
   const controller = new SettingsController({
+    restartExtension: restartProvider,
     sessionDefaults: () => readSessionDefaults(sessionFile),
     setFastMode: async (value) => { writeSessionDefault(sessionFile, "fastMode", value); await nativeUi?.synchronize(); },
     setCodexTabs: async (value) => { writeSessionDefault(sessionFile, "codexTabs", value); },
@@ -163,6 +177,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
       }
     }),
     vscode.workspace.onDidGrantWorkspaceTrust(async () => {
+      if (fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
       schedule();
       const firstSubscription = context.subscriptions.length;
       if (!liveEffort) {

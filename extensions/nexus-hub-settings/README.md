@@ -74,3 +74,7 @@ npm run verify:package
 ```
 
 The status-bar mark is a one-glyph icon font. After changing `icons/nexus-hub.svg`, run `npm run generate-icons` and commit the regenerated `fonts/nexus-hub-icons.woff2`.
+
+## Installation Defaults and Restarts
+
+Fresh installations start with Medium effort, Fast mode off, and Open Codex in tabs on. Existing preference files are preserved during upgrades. The Extensions section offers Claude Code and Codex restart buttons. These ask for confirmation because VS Code restarts its shared extension host, including other extensions in the window, and running requests may be interrupted. Saved conversations are retained.

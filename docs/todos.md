@@ -2,6 +2,10 @@
 
 **Integration branch:** `develop`
 
+- [x] Deliver Nexus Hub 0.7.2 installation defaults and Extensions restart controls. Installed in VS Code, Cursor and Antigravity with 31/31 matching payloads each; 400 tests passed, one skipped. Native shared-host restart and panel recovery verified in a disposable editor window. Next-release integration remains tracked below.
+
+- [ ] Include Nexus Hub extension 0.7.2 or newer in the next release: integrate the complete `feat/settings-redesign-20261104` branch with its settings engine, hook consumers, runtime proxies and native adapters, then verify Windows and POSIX installers build the same package for every locally detected editor. Fresh-install defaults: Medium, Fast off, Codex tabs on. Preserve existing preferences on upgrade. Do not publish an older settings package. [Release handoff](releases/v4/v4.15/development/settings-072-release-handoff.md).
+
 - [x] Deliver Nexus Hub 0.7.1 Fast fixes: existing Claude and Codex conversations switched off/on live at Medium, the repeated Codex model-setting errors stopped, and the duplicate divider was removed. Installed payloads: 30/30 in VS Code, Cursor and Antigravity; tests: 395 passed, one skipped. Exact Fast-on preferences and Medium restored. [Evidence](releases/v4/v4.15/development/settings-071-fast-fix-evidence.md). The independent background-tab startup timeout remains tracked below.
 
 - [x] Install Nexus Hub 0.5.3 notes cleanup in VS Code, Cursor and Antigravity: collapsed Details inside the effort card, no subtitle, no notes below Version, and Refresh explained and moved into Details. Native collapse/expand/refresh observed; focused checks: 45/45; installed payloads: 27/27 in each editor; runtime unchanged: 17/17. [Evidence](releases/v4/v4.15/development/settings-053-details-evidence.md).

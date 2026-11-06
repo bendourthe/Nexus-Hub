@@ -13,6 +13,7 @@ export type Incoming =
   | { type: "newCodex" }
   | { type: "applyAll" }
   | { type: "upgrade" }
+  | { type: "restartExtension"; provider: "claude" | "codex" }
   | { type: "setFastMode"; value: boolean }
   | { type: "setCodexTabs"; value: boolean }
   | { type: "set"; control: string; value: string; tool: string | null }
@@ -28,6 +29,7 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
   newCodex: ["type"],
   applyAll: ["type"],
   upgrade: ["type"],
+  restartExtension: ["type", "provider"],
   setFastMode: ["type", "value"],
   setCodexTabs: ["type", "value"],
   set: ["type", "control", "value", "tool"],
@@ -82,6 +84,9 @@ export function validateMessage(raw: unknown, model: ViewModel): Validated {
   }
   if (raw.type === "setFastMode" || raw.type === "setCodexTabs") {
     return typeof raw.value === "boolean" ? {ok: true, message: {type: raw.type, value: raw.value}} : fail("invalid toggle value");
+  }
+  if (raw.type === "restartExtension") {
+    return !model.readOnly && (raw.provider === "claude" || raw.provider === "codex") ? {ok: true, message: {type: "restartExtension", provider: raw.provider}} : fail("invalid restart request");
   }
   if (raw.type === "newCodex") {
     return !model.readOnly && model.codexAvailable ? { ok: true, message: { type: "newCodex" } } : fail("Codex is unavailable or the panel is read-only");

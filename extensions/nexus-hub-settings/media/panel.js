@@ -126,7 +126,9 @@
     }
     function editorSection() {
       if (!model.codexAvailable) { return null; }
-      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [el("h2", {id: "editor-title", text: "Editor"}), sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with a history button. Turn off for the activity pane.")]);
+      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [el("h2", {id: "editor-title", text: "Extensions"}), sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with a history button. Turn off for the activity pane."), el("ul", {class: "setting-list"}, [
+        ["claude", "Claude Code"], ["codex", "Codex"]
+      ].map(function (provider) { return el("li", {class: "setting-row"}, [el("span", {class: "setting-label", text: provider[1]}), button("Restart", "restart-" + provider[0], function () { send({type: "restartExtension", provider: provider[0]}); }, {class: "action-button", "aria-label": "Restart " + provider[1], "aria-disabled": blocked() ? "true" : null})]); })), text("p", "Restarting uses the shared extension host and may interrupt running requests.", "hint")]);
     }
     function guardRow(spec) {
       var installed = control(spec[0]);

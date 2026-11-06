@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPEN_COMMAND, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
+import { OPEN_COMMAND, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
 import { Uri, stub } from "./vscode-stub";
 import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
 import { SettingsController } from "../src/controller";
@@ -194,4 +194,16 @@ describe("host helpers", () => {
     expect(await ui.openExternal("https://code.claude.com/docs")).toBe(true);
     expect(stub.opened).toEqual(["https://code.claude.com/docs"]);
   });
+});
+
+it("restarts the shared host only after explicit confirmation and preserves cancellation", async () => {
+  stub.vendorExtensions.set("openai.chatgpt", {} as never);
+  stub.warningAnswer = () => undefined;
+  await restartProvider("codex");
+  expect(stub.executed).not.toContain("workbench.action.restartExtensionHost");
+  stub.warningAnswer = (buttons) => buttons[0];
+  await restartProvider("codex");
+  expect(stub.executed).toContain("workbench.action.restartExtensionHost");
+  stub.executed = []; stub.trusted = false;
+  await restartProvider("codex"); expect(stub.executed).toEqual([]);
 });

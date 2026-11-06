@@ -349,3 +349,13 @@ it("does not offer replacement sessions as a live-update workaround", () => {
   model.uiEffort!.reloadRequired = true; panel.render(model);
   expect(app.querySelector("#effort-status")).toBeNull();
 });
+
+it("groups provider restart buttons under Extensions and sends only provider identifiers", () => {
+  panel.render(fresh({codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "initial", codexTabs: true}}));
+  expect(app.querySelector("#editor-title")?.textContent).toBe("Extensions");
+  app.querySelector<HTMLButtonElement>("[aria-label='Restart Claude Code']")!.click();
+  expect(posted).toEqual([{type: "restartExtension", provider: "claude"}]);
+  panel.render(fresh({codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "initial", codexTabs: true}}));
+  app.querySelector<HTMLButtonElement>("[aria-label='Restart Codex']")!.click();
+  expect(posted.at(-1)).toEqual({type: "restartExtension", provider: "codex"});
+});
