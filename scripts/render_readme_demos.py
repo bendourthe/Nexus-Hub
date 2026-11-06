@@ -41,6 +41,9 @@ def main() -> None:
         for command in commands:
             name = command.split()[0].removeprefix("/")
             assert (ROOT / "catalog/commands" / (name + ".md")).is_file(), f"Missing catalog command: {command}"
+        website = (ROOT / "guides/website/nexus-hub-guide.html").read_text(encoding="utf-8")
+        for command in page.evaluate("window.readmeDemos.installCommands"):
+            assert command in website, "Install command differs from the website source"
         for kind in page.evaluate("Object.keys(window.readmeDemos.scenes)"):
             count = page.evaluate("kind => window.readmeDemos.scenes[kind].length", kind)
             frames: list[Image.Image] = []
