@@ -38,8 +38,6 @@
       if (blocked()) { return; }
       pending = true;
       app.querySelectorAll("select, button[data-setting]").forEach(function (control) { control.setAttribute("aria-disabled", "true"); });
-      var state = app.querySelector(".save-state");
-      if (state) { state.textContent = "Saving..."; }
       post(message);
     }
     function control(id) { return (model.controls || []).find(function (item) { return item.id === id; }); }
@@ -68,22 +66,6 @@
         refresh,
       ]);
     }
-    function effortApplication(summary) {
-      if (summary.needsAttention) { return summary.effortStatus; }
-      var nativeUi = model.uiEffort;
-      if (nativeUi) {
-        if (nativeUi.errors.length) { return nativeUi.errors.join(" "); }
-        return nativeUi.reloadRequired ? "Reload the editor once to activate native effort updates." : "Saved.";
-      }
-      var live = model.liveEffort;
-      if (live) {
-        if (live.error) { return live.error; }
-        if (live.missing && live.missing.length) { return "Reload the editor to connect " + live.missing.join(" and ") + "."; }
-        if (live.connected > 0) { return "Saved. Native UI synchronization is unavailable."; }
-        return live.reloadRequired ? "Reload the editor once to connect existing sessions." : "Applies on the next request. Open an agent to connect.";
-      }
-      return model.codexAvailable ? "New agents only. Existing Codex chats keep their effort." : summary.effortStatus;
-    }
     function effortSection(summary) {
       var c = control("effort");
       if (!c) { return null; }
@@ -91,7 +73,7 @@
       var labels = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra high", max: "Max", ultra: "Ultra" };
       var choices = c.choices.filter(function (value) { return Object.prototype.hasOwnProperty.call(labels, value); });
       var selected = choices.indexOf(current);
-      var group = el("div", { id: "effort", role: "radiogroup", class: "effort-choices", "aria-labelledby": "effort-title", "aria-describedby": "effort-status" });
+      var group = el("div", { id: "effort", role: "radiogroup", class: "effort-choices", "aria-labelledby": "effort-title" });
       group.style.setProperty("--effort-fill", selected < 0 ? "0%" : selected / Math.max(1, choices.length - 1) * 100 + "%");
       choices.forEach(function (value, index) {
         var radio = button("", "effort:" + value, function () {
@@ -113,10 +95,9 @@
         group.appendChild(radio);
       });
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
-        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
+        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" })]),
         group,
-        button("Apply to all sessions", "applyAll", function () { send({ type: "applyAll" }); }, { "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null }),
-        el("p", { id: "effort-status", class: summary.needsAttention || (model.liveEffort && model.liveEffort.error) || (model.uiEffort && model.uiEffort.errors.length) ? "application-status attention" : "application-status", text: effortApplication(summary) }),
+        el("div", { class: "section-actions" }, [button("Apply to all sessions", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
       ]);
     }
     function guardState(c) {
@@ -156,6 +137,7 @@
     function notice() {
       if (!model.notice) { return null; }
       var n = model.notice;
+      if (n.level === "info") { return null; }
       var node = el("div", { class: "notice", "data-level": n.level }, [text("p", n.text)]);
       if (n.level !== "info" && n.lines && n.lines.length) {
         var detail = el("details", { open: detailsOpen || null }, [text("summary", "Technical details"), el("ul", {}, n.lines.slice(0, 8).map(function (line) { return text("li", line); }))]);
@@ -187,7 +169,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section", "aria-label": "Nexus Hub version" }, [text("h2", "Nexus Hub"), text("p", "Installed version: " + (model.hubVersion || "Unknown"), "hint"), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { "aria-disabled": blocked() ? "true" : null })]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
+        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [text("p", "Installed version: " + (model.hubVersion || "Unknown"), "installed-version"), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

@@ -23,15 +23,14 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand { display: flex; gap: 10px; align-items: center; min-width: 0; }
 .brand img { flex: 0 0 auto; object-fit: contain; }
 h1 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
-h2 { margin: 0; font-size: 13px; font-weight: 600; }
+h2 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.35; }
 p { margin: 0; }
 .hint { color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 12px; }
 .brand .hint { margin-top: 2px; }
 .settings-section { margin-bottom: 24px; }
 .effort-section { padding: 12px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--vscode-editor-background); }
-.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
 .section-heading label { font-size: 13px; font-weight: 600; }
-.save-state { font-size: 11px; white-space: nowrap; }
 .effort-choices { display: grid; grid-template-columns: minmax(24px, 1fr) repeat(4, minmax(0, 2fr)) minmax(24px, 1fr); position: relative; isolation: isolate; margin-inline: 0; }
 .effort-choices::before, .effort-choices::after { content: ""; position: absolute; top: 0; left: 0; height: 20px; border-radius: 999px; z-index: -1; }
 .effort-choices::before { width: 100%; border: 1px solid var(--field-border); background: var(--vscode-input-background, var(--vscode-editor-background)); }
@@ -44,8 +43,6 @@ button.effort-choice:last-child { align-items: flex-end; }
 .effort-choice[aria-checked='true'] .effort-dot::before { width: 18px; height: 18px; border: 2px solid var(--nexus-outline); background: #ffffff; }
 .effort-label { white-space: normal; font-size: 11px; color: var(--vscode-foreground); }
 .effort-choice[aria-checked='true'] .effort-label { color: var(--nexus-accent); font-weight: 600; }
-.application-status { margin-top: 10px; font-size: 12px; }
-.attention { border-left: 2px solid var(--vscode-editorWarning-foreground); padding-left: 9px; }
 .setting-list { list-style: none; padding: 0; margin: 8px 0 0; }
 .setting-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--hairline); }
 .setting-row:last-child { border-bottom: 0; }
@@ -107,3 +104,13 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--vscode-t
 .compatibility { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hairline); color: var(--vscode-descriptionForeground, var(--vscode-foreground)); font-size: 11px; }
 .compatibility p + p { margin-top: 4px; }
 button.native-action { margin-top: 8px; font-size: 11px; background: transparent; }
+
+.section-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.version-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 12px; }
+.installed-version { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.version-row .action-button { margin-inline-start: auto; }
+button.action-button { min-height: 32px; padding: 6px 12px; border: 1px solid color-mix(in srgb, var(--nexus-accent) 45%, transparent); border-radius: 6px; color: var(--vscode-foreground); background: color-mix(in srgb, var(--nexus-accent) 10%, var(--vscode-editor-background)); font-size: 12px; font-weight: 500; line-height: 1.4; }
+button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nexus-accent); background: color-mix(in srgb, var(--nexus-accent) 18%, var(--vscode-editor-background)); }
+@media (forced-colors: active) {
+  button.action-button { border-color: ButtonText; background: ButtonFace; color: ButtonText; }
+}

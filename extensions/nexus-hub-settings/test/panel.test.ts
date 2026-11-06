@@ -45,17 +45,11 @@ beforeEach(() => {
 });
 
 describe("shared settings view", () => {
-  it.each([
-    [{ connected: 2, applied: 2, reloadRequired: false }, "Saved. Native UI synchronization is unavailable.", false],
-    [{ connected: 2, applied: 2, reloadRequired: true, missing: ["Codex"] }, "Reload the editor to connect Codex.", false],
-    [{ connected: 2, applied: 1, reloadRequired: false }, "Saved. Native UI synchronization is unavailable.", false],
-    [{ connected: 0, applied: 0, reloadRequired: true }, "Reload the editor once to connect existing sessions.", false],
-    [{ connected: 0, applied: 0, reloadRequired: false }, "Applies on the next request. Open an agent to connect.", false],
-    [{ connected: 1, applied: 0, reloadRequired: false, error: "Native update refused." }, "Native update refused.", true],
-  ] as const)("reports actual bridge state %j", (liveEffort, message, attention) => {
-    const model = fresh({ liveEffort }); model.preferences!.needsAttention = false; panel.render(model);
-    expect(app.querySelector("#effort-status")?.textContent).toBe(message);
-    expect(app.querySelector("#effort-status")?.classList.contains("attention")).toBe(attention);
+  it("keeps transient effort status out of the effort card", () => {
+    panel.render(fresh({ liveEffort: { connected: 1, applied: 0, reloadRequired: true, error: "Native update refused." } }));
+    expect(app.querySelector("#effort-title")?.textContent).toBe("Global effort level");
+    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Auto-save|Saving|Saved|Native update|Reload|synchronization/);
+    expect(app.querySelector("#effort-status, .save-state")).toBeNull();
   });
   it.each(["low", "max", "ultra"])("saves %s and positions the endpoint fill", (value) => {
     const model = fresh();
@@ -102,13 +96,13 @@ describe("shared settings view", () => {
     model.preferences = summarizePreferences(model);
     panel.render(model);
     expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("low");
-    expect(app.querySelector("#effort-status")?.textContent).toContain("need synchronization");
+    expect(app.querySelector("#effort-status")).toBeNull();
   });
   it("auto-saves a changed effort once for all tools", () => {
     panel.render(fresh());
     pick("medium");
     expect(posted).toEqual([{ type: "set", control: "effort", value: "medium", tool: null }]);
-    expect(app.querySelector(".save-state")?.textContent).toBe("Saving...");
+    expect(app.querySelector(".save-state")).toBeNull();
     pick("low");
     expect(posted).toHaveLength(1);
   });
@@ -121,8 +115,7 @@ describe("shared settings view", () => {
     delete model.preferences;
     panel.render(model);
     expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("ultra");
-    expect(app.querySelector("#effort-status")?.textContent).toBe("Mapped to native defaults for new sessions.");
-    expect(app.querySelector("#effort-status")?.classList.contains("attention")).toBe(false);
+    expect(app.querySelector("#effort-status")).toBeNull();
   });
   it("leaves the effort bar unselected when no shared or common default exists", () => {
     const model = fresh();
@@ -191,14 +184,15 @@ describe("shared settings view", () => {
   });
   it("keeps coverage information in the footer without a persistent warning", () => {
     panel.render(fresh());
-    expect(app.querySelector("#effort-status")?.textContent).not.toContain("manual");
+    expect(app.querySelector("#effort-status")).toBeNull();
     expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot, Cursor and Antigravity");
     expect(app.querySelector(".notice[data-level=warn]")).toBeNull();
     expect(app.querySelector("table")).toBeNull();
   });
-  it("does not repeat technical result lines in successful notices", () => {
+  it("keeps success feedback out of the visual panel", () => {
     panel.render(fresh({ notice: { level: "info", text: "Saved.", lines: ["private setting detail"] } }));
-    expect(app.querySelector(".notice")?.textContent).toBe("Saved.");
+    expect(app.querySelector(".notice")).toBeNull();
+    expect(document.getElementById("live-status")?.textContent).toBe("Saved.");
     expect(app.textContent).not.toContain("private setting detail");
   });
   it("keeps error details folded and inserts hostile data as text", () => {
@@ -320,9 +314,9 @@ it("does not offer replacement sessions as a live-update workaround", () => {
   const model = fresh({ codexAvailable: true, uiEffort: { reloadRequired: false, errors: [] } });
   model.preferences!.needsAttention = false;
   panel.render(model);
-  expect(app.querySelector("#effort-status")?.textContent).toBe("Saved.");
+  expect(app.querySelector("#effort-status")).toBeNull();
   expect(app.querySelector(".native-action")).toBeNull();
   expect(posted).toEqual([]);
   model.uiEffort!.reloadRequired = true; panel.render(model);
-  expect(app.querySelector("#effort-status")?.textContent).toContain("activate native effort updates");
+  expect(app.querySelector("#effort-status")).toBeNull();
 });
