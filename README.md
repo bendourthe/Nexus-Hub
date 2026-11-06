@@ -34,7 +34,7 @@ The installer detects supported tools, copies the harness files, and verifies th
 
 `/describe` maps the project, `/review` finds issues, `/plan` defines the changes, `/implement` builds them, `/test` checks behavior, and `/update release` prepares the release.
 
-![VS Code mockup showing the six-command workflow, from project mapping through release preparation](assets/readme/nexus-hub-workflow.gif)
+![Original interactive guide IDE showing the six-command workflow, from project mapping through release preparation](assets/readme/nexus-hub-workflow.gif)
 
 [Static preview](assets/readme/nexus-hub-workflow.png) | [Detailed workflows](docs/guides/development-workflows.md)
 
@@ -50,9 +50,9 @@ Provide the relevant project files to the receiving app. In installed agent inte
 
 ## Commands
 
-Run **`/skills list`** for the current cheatsheet, arguments, aliases, and common workflows. These examples run inside an installed agent integration.
+Run **`/skills list`** for the current cheatsheet, arguments, aliases, and common workflows. The guide cards below show command scopes and usage.
 
-![VS Code agent chat showing a command cheatsheet and examples of a scoped review and handoff](assets/readme/nexus-hub-commands.gif)
+![Command cards from the interactive guide, with scopes and lines ready to copy](assets/readme/nexus-hub-commands.gif)
 
 [Static preview](assets/readme/nexus-hub-commands.png) | [Command catalog](catalog/commands/)
 

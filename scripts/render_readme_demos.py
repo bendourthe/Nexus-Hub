@@ -1,95 +1,61 @@
-"""Render the local README mockups as reproducible GIFs and static posters.
+"""Render README media from the original guide, shipped settings panel and desktop handoff.
 
 Requires locally installed Playwright Chromium and Pillow. No network calls.
 """
 from __future__ import annotations
 
 import argparse
-import io
 import json
-import sys
 from pathlib import Path
 
-from PIL import Image
+from nexus_process import install_no_window_default
 from playwright.sync_api import sync_playwright
+from readme_guide_capture import (
+    capture_commands,
+    capture_installation,
+    capture_settings,
+    capture_workflow,
+    save_frames,
+    shot,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-from nexus_process import install_no_window_default
-
 install_no_window_default()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True, help="New output directory; existing files are never overwritten")
+    parser.add_argument("--only", choices=["installation", "workflow", "settings", "commands", "continuity"])
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    source = ROOT / "guides/website/readme-demos.html"
-    report: dict[str, object] = {"source": str(source.relative_to(ROOT)), "mockup": True, "artifacts": []}
-    artifacts: list[dict[str, object]] = []
+    artifacts, errors = [], []
     with sync_playwright() as runtime:
         browser = runtime.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1200, "height": 1100}, device_scale_factor=1, reduced_motion="reduce")
-        errors: list[str] = []
+        page = browser.new_page(viewport={"width": 1440, "height": 1100}, device_scale_factor=1, reduced_motion="reduce")
         page.on("pageerror", lambda error: errors.append(str(error)))
-        page.goto(source.as_uri())
-        page.wait_for_function("!!window.readmeDemos")
-        page.evaluate("document.fonts.ready")
-        commands = page.evaluate("window.readmeDemos.commandGroups.flatMap(group => group.items.map(item => item[0]))")
-        for command in commands:
-            name = command.split()[0].removeprefix("/")
-            assert (ROOT / "catalog/commands" / (name + ".md")).is_file(), f"Missing catalog command: {command}"
-        website = (ROOT / "guides/website/nexus-hub-guide.html").read_text(encoding="utf-8")
-        for command in page.evaluate("window.readmeDemos.installCommands"):
-            assert command in website, "Install command differs from the website source"
-        for kind in page.evaluate("Object.keys(window.readmeDemos.scenes)"):
-            count = page.evaluate("kind => window.readmeDemos.scenes[kind].length", kind)
-            frames: list[Image.Image] = []
-            durations: list[int] = []
-            posters: list[Image.Image] = []
-            stage = page.locator(f"#{kind}-stage")
+        page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
+        for kind, capture in (("installation", capture_installation), ("workflow", capture_workflow), ("settings", capture_settings), ("commands", capture_commands)):
+            if not args.only or args.only == kind:
+                artifacts.append(capture(page, ROOT, output))
+                print(kind + " captured", flush=True)
+        if not args.only or args.only == "continuity":
+            page.goto((ROOT / "guides/website/readme-demos.html").as_uri())
+            page.wait_for_function("!!window.readmeDemos")
+            frames = []
+            count = page.evaluate("window.readmeDemos.scenes.continuity.length")
             for index in range(count):
-                page.evaluate("([kind,index]) => window.readmeDemos.render(kind,index)", [kind, index])
-                page.wait_for_function("Array.from(document.images).every(i => i.complete)")
-                assert page.evaluate("Array.from(document.images).every(i => i.naturalWidth > 0)"), "A local image did not load"
-                frame = Image.open(io.BytesIO(stage.screenshot())).convert("RGB")
-                posters.append(frame)
-                frames.append(frame)
-                durations.append(3900 if kind == "settings" else 5200)
-                # Capture an eased pointer transition before the next state appears.
-                if index + 1 < count:
-                    for progress in (0.2, 0.4, 0.6, 0.8, 1):
-                        page.evaluate("([kind,index,next,progress]) => window.readmeDemos.render(kind,index,{next,progress})", [kind, index, index + 1, progress])
-                        # The GIF intentionally demonstrates motion; the HTML preview remains opt-in.
-                        page.locator(f"#{kind}-stage .mock-pointer").evaluate("el => el.style.display = 'block'")
-                        frames.append(Image.open(io.BytesIO(stage.screenshot())).convert("RGB"))
-                        durations.append(80)
-            assert len({frame.size for frame in frames}) == 1, "Scene geometry changed between frames"
-            # One palette across all scenes prevents color flicker between frames.
-            sample = Image.new("RGB", (320 * count, 220))
-            for index, frame in enumerate(posters):
-                sample.paste(frame.resize((320, 220)), (320 * index, 0))
-            palette = sample.quantize(colors=128, method=Image.Quantize.MEDIANCUT)
-            indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
-            gif = output / f"nexus-hub-{kind}.gif"
-            indexed[0].save(gif, save_all=True, append_images=indexed[1:], duration=durations, loop=0, optimize=True, disposal=1)
-            posters[0].save(output / f"nexus-hub-{kind}.png", optimize=True)
-            for index, frame in enumerate(posters):
-                frame.save(output / f"{kind}-scene-{index + 1:02}.png", optimize=True)
-            with Image.open(gif) as result:
-                duration = 0
-                for index in range(result.n_frames):
-                    result.seek(index)
-                    duration += result.info["duration"]
-                assert result.n_frames > count
-                assert gif.stat().st_size < 4 * 1024 * 1024, "README animation exceeds the 4 MiB budget"
-                artifacts.append({"kind": kind, "width": result.width, "height": result.height, "frames": result.n_frames, "duration_ms": duration, "bytes": gif.stat().st_size, "scenes": count})
+                page.evaluate("i=>window.readmeDemos.render('continuity',i)", index)
+                page.wait_for_function("Array.from(document.images).every(i=>i.complete)")
+                assert page.locator(".native-window").count() == 2
+                assert page.locator(".process-strip [aria-current=step]").count() == 1
+                frames.append(shot(page.locator("#continuity-stage")))
+                frames[-1].save(output / f"continuity-scene-{index+1:02}.png", optimize=True)
+            artifacts.append(save_frames(output,"continuity",frames,[5200]*count,"guides/website/readme-platforms.{js,css}",count))
         assert not errors, errors
         browser.close()
-    report["artifacts"] = artifacts
-    report["browser_errors"] = errors
+    report = {"artifacts": artifacts, "browser_errors": errors, "execution": "Illustrations only; no installer, agent or user settings executed"}
     (output / "render-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report))
 
