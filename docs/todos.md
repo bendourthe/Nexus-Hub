@@ -460,6 +460,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
 
+## Queued work - v4.15.7 CI speed without coverage loss
+
+- [ ] Implement the confirmed [v4.15.7 plan](releases/v4/v4.15/plans/v4.15.7-adoption-ci-speed-without-coverage-loss.md), seeded by the [CI speed comparison](releases/v4/v4.15/comparisons/v4.15.7-comparison-ci-speed-and-untangle-codebase.md). Measured baseline: median 50 min per code PR across 14 runs, with one serial 47.8 min Linux `tests` job on the critical path. Five phases: latency audit in `cicd-architect`, Linux test matrix with a node-ID partition proof, Windows job split, opt-in pre-push gate with develop-seeded caches and a blobless `changes` checkout, then the final phase. Release gate: first green integration attempt at 30 min or less; the 10-PR median is a dated follow-up. No test is removed. Critiqued by six lenses and confirmed on 2026-11-06; implementation is 0/5 phases and 0/28 tasks. Phases 2 to 4 are serial with v4.15.4 (`scripts/ci/profiles.py`).
+- [ ] Hand the comparison's U1 to U5 codebase-untangling ideas to the v4.18.2 de-slop repair plan when it is next refreshed, and the distributed pre-push fast gate (C6) to the v4.17.0 push-size-guard plan.
+
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
 
 - [x] Complete the [v4.16.3 two-source comparison](releases/v4/v4.16/comparisons/v4.16.3-comparison-tool-output-containment-and-context-attribution.md) (context-mode MCP server, turn-inspector mod); adoption target v4.16.3 confirmed by the user on 2026-10-13.
