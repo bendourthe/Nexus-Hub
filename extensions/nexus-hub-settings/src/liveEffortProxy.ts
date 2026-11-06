@@ -11,6 +11,24 @@ export type Provider = "claude" | "codex";
 const object = (value: unknown): value is Packet => !!value && typeof value === "object" && !Array.isArray(value);
 export const effort = (value: unknown): value is Effort => typeof value === "string" && (EFFORTS as readonly string[]).includes(value);
 
+/** A new value or explicit Apply action is an event; ordinary polling is not. */
+export function readEffortPreference(file: string): { value: Effort; revision: string } | null {
+  try {
+    const data: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (!object(data) || !effort(data.default_effort)) { return null; }
+    let token = "";
+    try { const event = JSON.parse(fs.readFileSync(path.join(path.dirname(file), "effort-apply.json"), "utf8")); if (event.effort === data.default_effort && typeof event.token === "string") { token = event.token; } } catch { /* No explicit reapply yet. */ }
+    return { value: data.default_effort, revision: data.default_effort + ":" + token };
+  } catch { return null; }
+}
+export function requestEffortApply(file: string): void {
+  const preference = readEffortPreference(file);
+  if (!preference) { throw new Error("Choose a default effort first."); }
+  const target = path.join(path.dirname(file), "effort-apply.json"), temporary = target + "." + randomUUID();
+  try { fs.writeFileSync(temporary, JSON.stringify({ effort: preference.value, token: randomUUID() }), { flag: "wx" }); fs.renameSync(temporary, target); }
+  finally { try { fs.unlinkSync(temporary); } catch { /* The atomic move consumed it. */ } }
+}
+
 export function mappedEffort(provider: Provider, wanted: Effort, available: readonly string[] = EFFORTS.slice(0, 4)): string | null {
   if (provider === "claude") { return wanted === "ultra" ? "xhigh" : wanted; }
   return EFFORTS.slice(0, EFFORTS.indexOf(wanted) + 1).filter((level) => available.includes(level)).at(-1) ?? available.find(effort) ?? null;
@@ -52,12 +70,14 @@ export interface LiveState {
   sessions?: number;
   error?: string;
 }
-interface Pending { type: "claude-apply" | "claude-read" | "codex-apply"; wanted: Effort; mapped: string; thread?: string }
+interface Pending { revision?: string; type: "claude-apply" | "claude-read" | "codex-apply"; wanted: Effort; mapped: string; thread?: string }
 
 /** Owns only effort fields and its own request IDs. Vendor requests and permissions remain intact. */
 export class EffortProtocol {
   private wanted: Effort | null = null;
   private ready = false;
+  private revision = "";
+  private readonly manual = new Set<string>();
   private serial = 0;
   private readonly prefix = `nexus-effort-${randomUUID()}-`;
   private readonly pending = new Map<string, Pending>();
@@ -75,15 +95,19 @@ export class EffortProtocol {
   setModels(model: string | undefined, models: Map<string, string[]>): void { this.fallbackModel = model; for (const [name, levels] of models) { this.models.set(name, levels); } }
   private mapped(wanted: Effort, model?: string): string | null { return mappedEffort(this.provider, wanted, this.models.get(model ?? this.fallbackModel ?? "")); }
   private codexState(): void {
-    const states = [...this.threads.values()].filter((state) => !this.wanted || this.mapped(this.wanted, state.model) !== null);
+    const states = [...this.threads.entries()].filter(([id]) => !this.manual.has(id)).map(([, state]) => state).filter((state) => !this.wanted || this.mapped(this.wanted, state.model) !== null);
     const applied = !!this.wanted && states.length > 0 && states.every((state) => state.applied === this.mapped(this.wanted!, state.model));
     const mappings = new Set(states.map((state) => this.wanted ? this.mapped(this.wanted, state.model) : null));
     this.report({ provider: this.provider, requested: this.wanted, mapped: mappings.size === 1 ? [...mappings][0]! : this.wanted ? this.mapped(this.wanted) : null, sessions: states.length, applied, ...!applied && states.length && !this.pending.size ? { error: "A native session has not acknowledged the selected effort." } : {} });
   }
   private releaseInitialize(): void { if (this.heldInitialize) { this.client(this.heldInitialize); this.heldInitialize = undefined; } }
-  private superseded(request: Pending): boolean { return request.wanted !== this.wanted || (this.provider === "codex" && !!this.wanted && request.mapped !== this.mapped(this.wanted, request.thread ? this.threads.get(request.thread)?.model : undefined)); }
-  setEffort(value: Effort | null): void {
-    if (this.wanted === value) { return; }
+  private superseded(request: Pending): boolean { return request.revision !== this.revision || request.wanted !== this.wanted || (this.provider === "codex" && !!this.wanted && request.mapped !== this.mapped(this.wanted, request.thread ? this.threads.get(request.thread)?.model : undefined)); }
+  setEffort(value: Effort | null, revision = value ?? ""): void {
+    if (this.wanted === value && this.revision === revision) { return; }
+    const reapply = this.wanted === value;
+    this.revision = revision;
+    for (const [id, state] of this.threads) { if (reapply || this.manual.has(id)) { state.applied = undefined; } }
+    this.manual.clear();
     this.wanted = value;
     if (!value) { this.releaseInitialize(); }
     this.report({ provider: this.provider, requested: value, applied: false, mapped: value ? this.mapped(value) : null, sessions: this.provider === "claude" ? Number(this.ready) : this.threads.size });
@@ -92,6 +116,7 @@ export class EffortProtocol {
   }
   private send(request: Pending): void {
     const id = this.prefix + ++this.serial;
+    request = { ...request, revision: request.revision ?? this.revision };
     this.pending.set(id, request);
     const timer = setTimeout(() => {
       if (!this.pending.delete(id)) { return; }
@@ -112,6 +137,7 @@ export class EffortProtocol {
       if (!this.claudeBusy && mapped) { this.claudeBusy = true; this.send({ type: "claude-apply", wanted: this.wanted, mapped }); }
     } else {
       for (const [thread, state] of this.threads) {
+        if (this.manual.has(thread)) { continue; }
         const mapped = this.mapped(this.wanted, state.model);
         if (mapped && state.applied !== mapped && ![...this.pending.values()].some((p) => p.thread === thread)) { this.send({ type: "codex-apply", wanted: this.wanted, mapped, thread }); }
       }
@@ -134,20 +160,13 @@ export class EffortProtocol {
     const mapped = this.mapped(this.wanted, selected);
     if (!mapped) { this.native(line); return; }
     let changed = false;
-    if (this.provider === "claude" && method === "apply_flag_settings" && object(request.settings) && ("effortLevel" in request.settings || "ultracode" in request.settings)) {
-      request.settings = { ...request.settings, effortLevel: mapped, ultracode: this.wanted === "ultra" }; changed = true;
-    }
+    // Native picker changes are session choices. Never rewrite their settings or turns.
     if (this.provider === "codex") {
-      if (method === "turn/start") {
-        request.effort = mapped;
-        if (object(request.collaborationMode) && object(request.collaborationMode.settings)) { request.collaborationMode.settings.reasoning_effort = mapped; }
-        changed = true;
-      } else if (method === "thread/start" || method === "thread/resume" || method === "thread/fork") {
+      if (method === "thread/start" || method === "thread/resume" || method === "thread/fork") {
         request.config = { ...(object(request.config) ? request.config : {}), model_reasoning_effort: mapped }; changed = true;
-      } else if (method === "thread/settings/update" && ("effort" in request || "model" in request || object(request.collaborationMode))) {
-        request.effort = mapped;
-        if (mode) { mode.reasoning_effort = mapped; }
-        changed = true;
+      } else if ((method === "thread/settings/update" || method === "turn/start") && typeof request.threadId === "string") {
+        const chosen = typeof request.effort === "string" ? request.effort : mode?.reasoning_effort;
+        if (typeof chosen === "string" && chosen !== mapped) { this.manual.add(request.threadId); }
       }
     }
     this.native(changed ? JSON.stringify(packet) : line);
@@ -174,7 +193,7 @@ export class EffortProtocol {
         this.claudeBusy = false;
         const settings = object(response.response) && object(response.response.applied) ? response.response.applied : {};
         const applied = settings.effort === own.mapped && settings.ultracode === (own.wanted === "ultra");
-        if (own.wanted === this.wanted) { this.report({ provider: this.provider, requested: this.wanted, mapped: own.mapped, applied, sessions: 1, ...applied ? {} : { error: "The native effort did not match the saved preference." } }); this.releaseInitialize(); }
+        if (!this.superseded(own)) { this.report({ provider: this.provider, requested: this.wanted, mapped: own.mapped, applied, sessions: 1, ...applied ? {} : { error: "The native effort did not match the saved preference." } }); this.releaseInitialize(); }
         else { this.apply(); }
       } else {
         this.codexState();
@@ -280,15 +299,17 @@ export function runProxy(config: ProxyConfig, originalArgs: string[]): void {
       }
     } catch { /* Missing model metadata uses the compatible effort scale. */ }
     const reread = (): void => {
-      try { const value: unknown = JSON.parse(fs.readFileSync(config.preferences, "utf8")); protocol.setEffort(object(value) && effort(value.default_effort) ? value.default_effort : null); }
-      catch { protocol.setEffort(null); }
+      const preference = readEffortPreference(config.preferences);
+      protocol.setEffort(preference?.value ?? null, preference?.revision);
     };
-    reread(); fs.watchFile(config.preferences, { interval: 250, persistent: false }, reread);
+    const eventFile = path.join(path.dirname(config.preferences), "effort-apply.json");
+    reread();
+    for (const file of [config.preferences, eventFile]) { fs.watchFile(file, { interval: 250, persistent: false }, reread); }
     const input = readline.createInterface({ input: process.stdin }); const output = readline.createInterface({ input: child.stdout });
     input.on("line", (line) => protocol.fromClient(line)); output.on("line", (line) => protocol.fromNative(line));
-    input.on("close", () => { fs.unwatchFile(config.preferences, reread); child.stdin.end(); });
+    input.on("close", () => { fs.unwatchFile(config.preferences, reread); fs.unwatchFile(eventFile, reread); child.stdin.end(); });
     child.once("exit", () => {
-      fs.unwatchFile(config.preferences, reread); clearTimeout(statusTimer);
+      fs.unwatchFile(config.preferences, reread); fs.unwatchFile(eventFile, reread); clearTimeout(statusTimer);
       for (const file of [statusFile, statusFile + ".tmp"]) { try { fs.unlinkSync(file); } catch { /* Only this process's unique status files are removed. */ } }
     });
   }

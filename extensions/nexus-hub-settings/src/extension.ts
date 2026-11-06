@@ -1,14 +1,17 @@
+import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { installLiveEffort } from "./liveEffort";
-import { CliBridge } from "./cliBridge";
+import { CliBridge, installRoot } from "./cliBridge";
 import { ConfirmRequest, SettingsController, UiLike } from "./controller";
 import { profileNameFromStorage } from "./editorWrites";
 import { syncEditorEffort } from "./editorEffort";
 import { SettingsViewProvider } from "./settingsView";
 import { COMPACT_COMMAND, EFFORT_LABELS, SET_EFFORT_COMMAND, SettingsStatusBar } from "./statusBar";
 import { ViewModel } from "./viewModel";
+import { openCodexHistory } from "./codexHistory";
+import { requestEffortApply } from "./liveEffortProxy";
 import { installNativeUi } from "./vendorUi";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
@@ -63,7 +66,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   const liveEffort = await installLiveEffort(context);
   const nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
+  const hub = installRoot(process.env, os.homedir());
   const controller = new SettingsController({
+    hubVersion: () => { try { return fs.readFileSync(path.join(hub, "VERSION"), "utf8").trim().slice(0, 40); } catch { return "Unknown"; } },
+    applyAll: async () => { requestEffortApply(path.join(hub, "preferences.json")); await nativeUi?.synchronize(); },
+    upgrade: async () => {
+      const interpreter = bridge.interpreter();
+      const args = [...interpreter.args, path.join(hub, "scripts", "nexus_hub_cli.py"), "upgrade"];
+      const quote = (part: string): string => "'" + part.replace(/'/g, "''") + "'";
+      const windows = process.platform === "win32";
+      const terminal = vscode.window.createTerminal({
+        name: "Nexus Hub Upgrade", cwd: hub,
+        shellPath: windows ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe") : interpreter.command,
+        shellArgs: windows ? ["-NoLogo", "-NoProfile", "-NoExit", "-Command", "& " + [interpreter.command, ...args].map(quote).join(" ")] : args,
+      });
+      terminal.show();
+    },
     bridge,
     liveEffort: liveEffort ? () => liveEffort.summary() : undefined,
     uiEffort: nativeUi ? () => nativeUi.summary() : undefined,
@@ -112,6 +130,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
       webviewOptions: { retainContextWhenHidden: true },
     }),
     vscode.commands.registerCommand("nexusHubSettings.newCodexAgent", () => controller.handle({ type: "newCodex" })),
+    vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
+    vscode.commands.registerCommand("nexusHubSettings.applyAll", () => controller.handle({ type: "applyAll" })),
+    vscode.commands.registerCommand("nexusHubSettings.upgrade", () => controller.handle({ type: "upgrade" })),
     vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
     vscode.commands.registerCommand(SET_EFFORT_COMMAND, async (value: unknown) => {
       if (!vscode.workspace.isTrusted || typeof value !== "string" || !Object.hasOwn(EFFORT_LABELS, value)) { return; }

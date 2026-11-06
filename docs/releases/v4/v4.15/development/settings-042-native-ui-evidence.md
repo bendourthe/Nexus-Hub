@@ -57,3 +57,9 @@ The private test host was stopped after its checks. The user's two working edito
 ## Open Verification
 
 After loading the update in an unlocked editor, observe the same existing Claude and Codex conversation controls and an unsent Codex draft across repeated Nexus effort changes, including Ultra/Ultracode. Check the native toolbar button and parallel-tab layout visually. This gate remains open until the actual controls are observed changing without replacement tabs.
+
+## Follow-up
+
+The final [Nexus Hub 0.5.0 delivery](settings-050-session-overrides-evidence.md) supersedes the prototype below and records observed existing-conversation picker changes, manual overrides, explicit reapplication and installed payload verification.
+
+Unlocked verification later confirmed a Codex draft changed from Extra high to Medium, but Claude remained Extra high even after a real request. The Claude picker deliberately seeds its effort signal once, so a backend settings push alone was insufficient. The [0.4.3 correction](settings-043-claude-picker-evidence.md) records the additional frontend adapter and its remaining verification gate.

@@ -3,12 +3,12 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { installRoot } from "./cliBridge";
-import { effort } from "./liveEffortProxy";
+import { readEffortPreference } from "./liveEffortProxy";
 import { installVendorUi } from "./vendorUiInstall";
 import type { UiVendor } from "./vendorUiPatch";
 
 export interface UiEffortSummary { reloadRequired: boolean; errors: string[] }
-interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string): unknown }
+interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string, revision: string): unknown }
 const providers: { vendor: UiVendor; id: string; label: string }[] = [
   { vendor: "claude", id: "anthropic.claude-code", label: "Claude Code" },
   { vendor: "codex", id: "openai.chatgpt", label: "Codex" },
@@ -40,23 +40,21 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
     if (running || !vscode.workspace.isTrusted) { return; }
     running = true;
     try {
-      let value: unknown;
-      try { value = (JSON.parse(await fs.readFile(path.join(hub, "preferences.json"), "utf8")) as { default_effort?: unknown }).default_effort; }
-      catch { return; } // The settings engine owns preference parse errors.
-      if (!effort(value)) { return; }
+      const preference = readEffortPreference(path.join(hub, "preferences.json"));
+      if (!preference) { return; }
       const next: UiEffortSummary = { reloadRequired: menuReloadRequired, errors: [...setupErrors] };
       for (const item of available) {
         if (!installed.has(item.id)) { continue; }
         if (!item.extension.isActive) { continue; }
         const api = item.extension.exports as Partial<NativeApi> | undefined;
-        if (api?.nexusEffortBridgeVersion !== 1 || typeof api.applyNexusEffort !== "function") { next.reloadRequired = true; continue; }
-        try { await api.applyNexusEffort(value as string); }
+        if (api?.nexusEffortBridgeVersion !== 2 || typeof api.applyNexusEffort !== "function") { next.reloadRequired = true; continue; }
+        try { await api.applyNexusEffort(preference.value, preference.revision); }
         catch { next.errors.push(`${item.label}: The native effort update failed.`); }
       }
       current = next;
     } finally { running = false; }
   };
-  // Repeated messages also reach newly opened and restored composers. Unopened vendors are not activated.
+  // Revision-aware messages initialize new composers without resetting manual choices. Unopened vendors are not activated.
   const timer = setInterval(() => void synchronize().catch(() => undefined), 1000);
   context.subscriptions.push({ dispose: () => clearInterval(timer) });
   await synchronize();

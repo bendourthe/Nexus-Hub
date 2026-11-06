@@ -62,6 +62,9 @@ export interface ControllerDeps {
   codexAvailable?: () => boolean;
   liveEffort?: () => Promise<LiveEffortSummary>;
   uiEffort?: () => UiEffortSummary;
+  applyAll?: () => Promise<void>;
+  upgrade?: () => Promise<void>;
+  hubVersion?: () => string;
   syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
@@ -202,6 +205,12 @@ export class SettingsController {
             catch { this.model = { ...this.model, notice: { level: "error", text: "Could not open a new Codex agent. Try Codex: New Codex Agent from the command palette." } }; }
           }
           return this.model;
+        case "applyAll":
+          if (this.deps.isTrusted()) { await this.deps.applyAll?.(); }
+          return this.reload({ level: "info", text: "Requested the default effort for all connected sessions." }, false);
+        case "upgrade":
+          if (this.deps.isTrusted()) { await this.deps.upgrade?.(); }
+          return this.model;
         case "set":
           return this.doSet(message.control, message.value, message.tool);
         case "reset":
@@ -233,6 +242,7 @@ export class SettingsController {
       this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
       this.model.liveEffort = await this.deps.liveEffort?.();
       this.model.uiEffort = this.deps.uiEffort?.();
+      this.model.hubVersion = this.deps.hubVersion?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

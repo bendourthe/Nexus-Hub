@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { EFFORTS, EffortProtocol, claudeLaunchArgs, mappedEffort, type LiveState } from "../src/liveEffortProxy";
+import { EFFORTS, EffortProtocol, claudeLaunchArgs, mappedEffort, readEffortPreference, requestEffortApply, type LiveState } from "../src/liveEffortProxy";
 
 function session(provider: "claude" | "codex") {
   const native: string[] = [], client: string[] = [], states: LiveState[] = [];
@@ -104,16 +104,16 @@ describe("live effort protocol boundary", () => {
     const s = session("codex"); const line = '{"id":2,"method":"turn/start","params":{"threadId":"t","effort":"low"}}';
     s.bridge.fromClient(line); expect(s.native).toEqual([line]);
   });
-  it("enforces current effort on ordinary new and existing chat requests without changing permissions or input", () => {
+  it("keeps session effort and input intact while new sessions use the Nexus default", () => {
     const s = session("codex"); s.bridge.setEffort("ultra");
     const params = { threadId: "existing", model: "test", effort: "low", approvalPolicy: "on-request", sandboxPolicy: { type: "readOnly" }, input: [{ type: "text", text: "keep this exactly" }], collaborationMode: { mode: "plan", settings: { model: "test", reasoning_effort: "low", developer_instructions: "keep" } } };
     s.send({ id: 2, method: "turn/start", params });
-    expect(JSON.parse(s.native.at(-1)!)).toEqual({ id: 2, method: "turn/start", params: { ...params, effort: "ultra", collaborationMode: { ...params.collaborationMode, settings: { ...params.collaborationMode.settings, reasoning_effort: "ultra" } } } });
+    expect(JSON.parse(s.native.at(-1)!)).toEqual({ id: 2, method: "turn/start", params });
     s.send({ id: 3, method: "thread/start", params: { model: "test", config: { model_reasoning_effort: "low", approval_policy: "on-request", sandbox_mode: "read-only" } } });
     expect(JSON.parse(s.native.at(-1)!).params.config).toEqual({ model_reasoning_effort: "ultra", approval_policy: "on-request", sandbox_mode: "read-only" });
     const mode = { mode: "plan", settings: { model: "test", reasoning_effort: "low", developer_instructions: "keep" } };
     s.send({ id: 4, method: "thread/settings/update", params: { threadId: "existing", collaborationMode: mode, approvalPolicy: "on-request" } });
-    expect(JSON.parse(s.native.at(-1)!).params).toEqual({ threadId: "existing", effort: "ultra", collaborationMode: { ...mode, settings: { ...mode.settings, reasoning_effort: "ultra" } }, approvalPolicy: "on-request" });
+    expect(JSON.parse(s.native.at(-1)!).params).toEqual({ threadId: "existing", collaborationMode: mode, approvalPolicy: "on-request" });
   });
   it("updates a loaded Codex thread and forwards its real settings notification", () => {
     const s = session("codex"); s.bridge.setEffort("high");
@@ -149,9 +149,49 @@ describe("live effort protocol boundary", () => {
     s.receive({ type: "control_response", response: { request_id: apply.request_id, subtype: "error", error: "unsupported" } });
     expect(s.states.at(-1)).toMatchObject({ applied: false, error: expect.stringContaining("refused") }); expect(s.client).toHaveLength(1);
   });
-  it("replaces stale explicit Claude effort without changing other live flags", () => {
+  it("preserves manual Claude effort without changing other live flags", () => {
     const s = session("claude"); s.bridge.setEffort("max");
     s.send({ type: "control_request", request_id: "user", request: { subtype: "apply_flag_settings", settings: { effortLevel: "low", outputStyle: "concise" } } });
-    expect(JSON.parse(s.native.at(-1)!).request.settings).toEqual({ effortLevel: "max", ultracode: false, outputStyle: "concise" });
+    expect(JSON.parse(s.native.at(-1)!).request.settings).toEqual({ effortLevel: "low", outputStyle: "concise" });
   });
+});
+
+it("preserves a session override until the default changes or Apply all creates a new revision", () => {
+  const s = session("codex"); s.bridge.setEffort("low", "first");
+  s.send({ id: 1, method: "initialize", params: {} }); s.receive({ id: 1, result: {} });
+  s.send({ id: 2, method: "thread/start", params: { model: "test" } });
+  s.receive({ id: 2, result: { thread: { id: "one" }, model: "test", reasoningEffort: "low" } });
+  s.send({ id: 3, method: "thread/settings/update", params: { threadId: "one", effort: "medium" } });
+  const count = s.native.length;
+  s.bridge.setEffort("low", "first"); expect(s.native).toHaveLength(count);
+  s.send({ id: 4, method: "turn/start", params: { threadId: "one", effort: "medium" } });
+  expect(JSON.parse(s.native.at(-1)!).params.effort).toBe("medium");
+  s.send({ id: 5, method: "thread/start", params: { model: "test", config: { model_reasoning_effort: "medium" } } });
+  expect(JSON.parse(s.native.at(-1)!).params.config.model_reasoning_effort).toBe("low");
+  s.bridge.setEffort("low", "reapply");
+  expect(JSON.parse(s.native.at(-1)!)).toMatchObject({ method: "thread/settings/update", params: { threadId: "one", effort: "low" } });
+});
+it("publishes a distinct reapply event without changing the saved default", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nexus-apply-")), file = path.join(dir, "preferences.json");
+  try {
+    fs.writeFileSync(file, JSON.stringify({ default_effort: "low" }));
+    const before = readEffortPreference(file)!; requestEffortApply(file);
+    const after = readEffortPreference(file)!;
+    expect(after.value).toBe("low"); expect(after.revision).not.toBe(before.revision);
+    expect(readEffortPreference(file)).toEqual(after);
+    fs.writeFileSync(file, JSON.stringify({ default_effort: "high" }));
+    expect(readEffortPreference(file)).toEqual({ value: "high", revision: "high:" });
+  } finally { fs.rmSync(dir, { recursive: true }); }
+});
+
+it("reapplies the same default after an older in-flight acknowledgment", () => {
+  const s = session("codex"); s.bridge.setEffort("low", "initial");
+  s.send({ id: 1, method: "initialize", params: {} }); s.receive({ id: 1, result: {} });
+  s.send({ id: 2, method: "thread/resume", params: { threadId: "one" } });
+  s.receive({ id: 2, result: { thread: { id: "one" }, model: "test" } });
+  const old = JSON.parse(s.native.at(-1)!);
+  s.bridge.setEffort("low", "apply-all"); s.receive({ id: old.id, result: {} });
+  const next = JSON.parse(s.native.at(-1)!);
+  expect(next.method).toBe("thread/settings/update"); expect(next.id).not.toBe(old.id);
+  expect(next.params).toEqual({ threadId: "one", effort: "low" });
 });

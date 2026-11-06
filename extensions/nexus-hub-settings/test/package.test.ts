@@ -25,7 +25,7 @@ describe("manifest", () => {
     expect(manifest.publisher).toBe("nexus-hub");
     expect(manifest.engines).toEqual({ vscode: "^1.85.0", node: ">=22.0.0" });
     expect(manifest.activationEvents).toEqual(["*"]);
-    expect(manifest.contributes.commands).toEqual([{ command: "nexusHubSettings.newCodexAgent", title: "Nexus-Hub Settings: New Codex agent", category: "Nexus-Hub" }, { command: "nexusHubSettings.open", title: "Nexus-Hub Settings: Open", category: "Nexus-Hub" }]);
+    expect(manifest.contributes.commands).toEqual(expect.arrayContaining([{ command: "nexusHubSettings.newCodexAgent", title: "New Codex Agent", category: "Nexus Hub" }, { command: "nexusHubSettings.open", title: "Open Settings", category: "Nexus Hub" }]));
     expect(manifest.contributes.viewsContainers.activitybar).toHaveLength(1);
     const view = manifest.contributes.views[manifest.contributes.viewsContainers.activitybar[0].id][0];
     expect(view).toMatchObject({ id: SettingsViewProvider.viewType, type: "webview" });

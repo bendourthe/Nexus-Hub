@@ -23,15 +23,15 @@ afterEach(async () => {
   if (original === undefined) { delete process.env.NEXUS_HUB_HOME; } else { process.env.NEXUS_HUB_HOME = original; }
 });
 it("updates both active UI owners repeatedly and picks up newly activated vendors", async () => {
-  const claude = { extensionPath: "claude", isActive: true, exports: { nexusEffortBridgeVersion: 1, applyNexusEffort: vi.fn() } };
-  const codex = { extensionPath: "codex", isActive: false, exports: { nexusEffortBridgeVersion: 1, applyNexusEffort: vi.fn() } };
+  const claude = { extensionPath: "claude", isActive: true, exports: { nexusEffortBridgeVersion: 2, applyNexusEffort: vi.fn() } };
+  const codex = { extensionPath: "codex", isActive: false, exports: { nexusEffortBridgeVersion: 2, applyNexusEffort: vi.fn() } };
   stub.vendorExtensions.set("anthropic.claude-code", claude); stub.vendorExtensions.set("openai.chatgpt", codex);
   const bridge = (await setup())!;
-  expect(claude.exports.applyNexusEffort).toHaveBeenLastCalledWith("medium");
+  expect(claude.exports.applyNexusEffort).toHaveBeenLastCalledWith("medium", "medium:");
   expect(codex.exports.applyNexusEffort).not.toHaveBeenCalled(); expect(bridge.summary().reloadRequired).toBe(false);
   codex.isActive = true; await write("ultra"); await bridge.synchronize();
-  expect(claude.exports.applyNexusEffort).toHaveBeenLastCalledWith("ultra"); expect(codex.exports.applyNexusEffort).toHaveBeenLastCalledWith("ultra");
-  await write("low"); await bridge.synchronize(); expect(codex.exports.applyNexusEffort).toHaveBeenLastCalledWith("low");
+  expect(claude.exports.applyNexusEffort).toHaveBeenLastCalledWith("ultra", "ultra:"); expect(codex.exports.applyNexusEffort).toHaveBeenLastCalledWith("ultra", "ultra:");
+  await write("low"); await bridge.synchronize(); expect(codex.exports.applyNexusEffort).toHaveBeenLastCalledWith("low", "low:");
   await write("bad"); await bridge.synchronize(); expect(codex.exports.applyNexusEffort).toHaveBeenCalledTimes(2);
 });
 it("reports a loaded old UI instead of claiming a live update", async () => {
@@ -39,7 +39,7 @@ it("reports a loaded old UI instead of claiming a live update", async () => {
   expect((await setup())!.summary().reloadRequired).toBe(true);
 });
 it("preserves an unsupported build and reports its adapter failure", async () => {
-  const apply = vi.fn(); stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true, exports: { nexusEffortBridgeVersion: 1, applyNexusEffort: apply } });
+  const apply = vi.fn(); stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true, exports: { nexusEffortBridgeVersion: 2, applyNexusEffort: apply } });
   vi.mocked(installVendorUi).mockRejectedValueOnce(Error("Build changed and preserved"));
   const bridge = (await setup())!; expect(bridge.summary().errors).toEqual(["Codex: Build changed and preserved"]); expect(apply).not.toHaveBeenCalled();
 });

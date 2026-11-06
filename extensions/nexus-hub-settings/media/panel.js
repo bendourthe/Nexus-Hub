@@ -64,7 +64,7 @@
     function header() {
       var refresh = button("Refresh", "refresh", function () { if (!model.busy && !pending) { post({ type: "refresh" }); } }, { class: "refresh", "aria-disabled": model.busy || pending ? "true" : null });
       return el("header", {}, [
-        el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), el("div", {}, [text("h1", "Nexus Settings"), text("p", "Shared defaults and guardrails", "hint")])]),
+        el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), el("div", {}, [text("h1", "Nexus Hub"), text("p", "Shared defaults and guardrails", "hint")])]),
         refresh,
       ]);
     }
@@ -115,6 +115,7 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Default effort" }), text("span", model.busy || pending ? "Saving..." : "Auto-save", "save-state")]),
         group,
+        button("Apply to all sessions", "applyAll", function () { send({ type: "applyAll" }); }, { "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null }),
         el("p", { id: "effort-status", class: summary.needsAttention || (model.liveEffort && model.liveEffort.error) || (model.uiEffort && model.uiEffort.errors.length) ? "application-status attention" : "application-status", text: effortApplication(summary) }),
       ]);
     }
@@ -186,7 +187,7 @@
       } else {
         if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
         if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
-        children.push(notice(), effortSection(preferences()), guardSection(), text("p", (model.liveEffort ? "Effort applies on the next request in connected sessions. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
+        children.push(notice(), effortSection(preferences()), guardSection(), el("section", { class: "settings-section", "aria-label": "Nexus Hub version" }, [text("h2", "Nexus Hub"), text("p", "Installed version: " + (model.hubVersion || "Unknown"), "hint"), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { "aria-disabled": blocked() ? "true" : null })]), text("p", (model.liveEffort ? "Changing the default updates connected sessions. Manual session choices stay until the next default change or Apply to all. " : "Effort applies to new sessions. ") + "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks.", "footnote"), compatibility());
       }
       app.replaceChildren.apply(app, children.filter(Boolean));
       if (focused) {

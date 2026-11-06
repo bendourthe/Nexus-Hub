@@ -40,13 +40,13 @@ export function escapeMarkdown(text: string): string {
 }
 
 export function summarize(model: ViewModel | undefined, openCommand: string, compact = true, light = false): StatusSummary {
-  const open = `[Open Nexus Settings](command:${openCommand})`;
-  const prefix = compact ? "" : "Nexus Settings: ";
+  const open = `[Open Settings](command:${openCommand})`;
+  const prefix = compact ? "" : "Nexus Hub: ";
   if (!model || (model.controls.length === 0 && !model.error)) {
-    return { text: `${NEXUS_ICON} ${prefix}Reading...`, accessibilityLabel: "Nexus Settings, reading", tooltip: `Reading settings...\n\n${open}` };
+    return { text: `${NEXUS_ICON} ${prefix}Reading...`, accessibilityLabel: "Nexus Hub, reading", tooltip: `Reading settings...\n\n${open}` };
   }
   if (model.error) {
-    return { text: `${NEXUS_ICON} ${prefix}Unavailable $(error)`, accessibilityLabel: "Nexus Settings, unavailable", tooltip: `${escapeMarkdown(model.error.title)}\n\n${open}` };
+    return { text: `${NEXUS_ICON} ${prefix}Unavailable $(error)`, accessibilityLabel: "Nexus Hub, unavailable", tooltip: `${escapeMarkdown(model.error.title)}\n\n${open}` };
   }
   const summary = summarizePreferences(model);
   const attention = summary.needsAttention || !!model.liveEffort?.error;
@@ -63,7 +63,7 @@ export function summarize(model: ViewModel | undefined, openCommand: string, com
   });
   const links = model.codexAvailable && !model.readOnly ? `${open} | [New Codex agent](command:nexusHubSettings.newCodexAgent)` : open;
   const tooltip = [
-    "**Nexus Hub Settings**",
+    "**Nexus Hub**",
     "",
     "**Effort Level**",
     effortIndicator(effort, light),
@@ -73,7 +73,7 @@ export function summarize(model: ViewModel | undefined, openCommand: string, com
     attention ? "$(warning) Review application in Settings." : model.liveEffort?.missing?.length ? `Reload to connect ${model.liveEffort.missing.join(" and ")}.` : model.liveEffort ? "Next request in connected sessions." : "New sessions only.",
     links,
   ].join("  \n");
-  return { text: `${NEXUS_ICON} ${prefix}${titled} (effort)${attention ? " $(warning)" : ""}`, accessibilityLabel: `Nexus Settings, default effort ${effort}, ${protection.toLowerCase()}${attention ? ", needs attention" : ""}`, tooltip };
+  return { text: `${NEXUS_ICON} ${prefix}${titled} (effort)${attention ? " $(warning)" : ""}`, accessibilityLabel: `Nexus Hub, default effort ${effort}, ${protection.toLowerCase()}${attention ? ", needs attention" : ""}`, tooltip };
 }
 
 export class SettingsStatusBar implements vscode.Disposable {

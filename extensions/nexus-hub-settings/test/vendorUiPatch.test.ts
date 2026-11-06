@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { CLAUDE_UI_API, CODEX_UI_API, CODEX_UI_HOOK, CODEX_NEW_PANEL, codexTabManifest } from "../src/vendorUiPatch";
+import { CLAUDE_UI_API, CLAUDE_UI_ADOPT, CODEX_UI_API, CODEX_UI_HOOK, CODEX_NEW_PANEL, codexTabManifest } from "../src/vendorUiPatch";
 
 describe("native UI effort adapters", () => {
   it("opens distinct Codex custom-editor documents while retaining the normal new-chat route", async () => {
@@ -16,18 +16,24 @@ describe("native UI effort adapters", () => {
     expect(first.slice(2)).toEqual(["native-codex-editor", { viewColumn: 3, preserveFocus: false, preview: false }]);
   });
   it("updates Claude through its own effort flags, readback and UI push owner", async () => {
-    const write = vi.fn(async () => undefined);
-    const comm = { cachedClaudeSettings: { applied: { effort: "high", ultracode: false } }, channels: new Map([["existing", {}], ["draft", {}]]), writeUserSettingsAndPush: write };
+    const write = vi.fn(async (_id: string, settings: { effortLevel: string; ultracode: boolean }): Promise<void> => { comm.cachedClaudeSettings.applied = { effort: settings.effortLevel, ultracode: settings.ultracode }; });
+    const comm = { cachedClaudeSettings: { applied: { effort: "high", ultracode: false } }, config: Promise.resolve({ keep: true }), getCurrentState: () => ({ ready: true }), channels: new Map([["existing", {}], ["draft", {}]]), writeUserSettingsAndPush: write, send: vi.fn() };
     const api = new Function("zre", CLAUDE_UI_API)({ allComms: [comm] });
     await api.applyNexusEffort("ultra");
     expect(write.mock.calls).toEqual([["existing", { effortLevel: "xhigh", ultracode: true }, true], ["draft", { effortLevel: "xhigh", ultracode: true }, true]]);
     await expect(api.applyNexusEffort("full-auto")).rejects.toThrow("Invalid");
     comm.cachedClaudeSettings.applied = { effort: "medium", ultracode: false }; write.mockClear();
     await api.applyNexusEffort("medium"); expect(write).not.toHaveBeenCalled();
+    expect(comm.send).toHaveBeenLastCalledWith({ type: "request", channelId: "", requestId: "", request: { type: "update_state", state: { ready: true, nexusEffort: { effort: "medium", revision: "medium" } }, config: { keep: true, nexusEffort: { effort: "medium", revision: "medium" } } } });
+  });
+  it("does not broadcast a successful UI update after a failed Claude readback", async () => {
+    const comm = { cachedClaudeSettings: { applied: { effort: "high", ultracode: false } }, channels: new Map([["existing", {}]]), writeUserSettingsAndPush: vi.fn(), send: vi.fn() };
+    const api = new Function("zre", CLAUDE_UI_API)({ allComms: [comm] });
+    await expect(api.applyNexusEffort("medium")).rejects.toThrow("did not apply"); expect(comm.send).not.toHaveBeenCalled();
   });
   it("broadcasts only an allowlisted Codex effort message", () => {
     const send = vi.fn(); const api = new Function("$e", CODEX_UI_API)({ broadcastToAllViews: send });
-    api.applyNexusEffort("max"); expect(send).toHaveBeenCalledWith({ type: "nexus-effort-v1", effort: "max" });
+    api.applyNexusEffort("max"); expect(send).toHaveBeenCalledWith({ type: "nexus-effort-v1", effort: "max", revision: "max" });
     expect(() => api.applyNexusEffort("<script>")).toThrow("Invalid"); expect(send).toHaveBeenCalledTimes(1);
   });
   it.each(["draft", "existing"])("uses the real UI selection callback for a %s without changing its model", async () => {
@@ -50,4 +56,22 @@ describe("native UI effort adapters", () => {
     expect(result.contributes.menus["editor/title"]).toEqual([{ command: "chatgpt.newCodexPanel", group: "navigation" }]);
     expect(result.contributes.commands[1].icon).toEqual(original.contributes.commands[0].icon);
   });
+});
+
+it("does not rewrite a manual Claude backend choice during repeated UI synchronization", async () => {
+  const comm = { cachedClaudeSettings: { applied: { effort: "low", ultracode: false } }, channels: new Map([["existing", {}]]), writeUserSettingsAndPush: vi.fn(), send: vi.fn() };
+  const api = new Function("zre", CLAUDE_UI_API)({ allComms: [comm] });
+  await api.applyNexusEffort("low", "one"); comm.cachedClaudeSettings.applied.effort = "medium";
+  await api.applyNexusEffort("low", "one"); expect(comm.writeUserSettingsAndPush).not.toHaveBeenCalled();
+});
+
+
+it("adopts effort through the native configuration signal and preserves manual choices until a new revision", () => {
+  const adopt = new Function("r", CLAUDE_UI_ADOPT);
+  const model = { adoptAppliedEffort: vi.fn() };
+  adopt.call(model, { nexusEffort: { effort: "low", revision: "one" } });
+  adopt.call(model, { nexusEffort: { effort: "low", revision: "one" } });
+  expect(model.adoptAppliedEffort).toHaveBeenCalledTimes(1);
+  adopt.call(model, { nexusEffort: { effort: "ultra", revision: "two" } });
+  expect(model.adoptAppliedEffort).toHaveBeenLastCalledWith({ effort: "xhigh", ultracodeRequested: true }, { available: true });
 });

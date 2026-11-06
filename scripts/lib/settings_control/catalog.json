@@ -404,7 +404,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -509,7 +509,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -1721,7 +1721,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -1909,7 +1909,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -1952,7 +1952,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -1997,7 +1997,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],
@@ -2042,7 +2042,7 @@
       "takes_effect": "New sessions only.",
       "proven_versions": {
         "min": "2.1.283",
-        "max": "2.1.283"
+        "max": "2.1.318"
       },
       "weakens_safety": false,
       "weakening_values": [],

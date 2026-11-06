@@ -70,7 +70,7 @@ describe("shared settings view", () => {
   });
   it("shows one effort selector and five switches, without platform rows or model fields", () => {
     panel.render(fresh());
-    expect(app.querySelector("h1")?.textContent).toBe("Nexus Settings");
+    expect(app.querySelector("h1")?.textContent).toBe("Nexus Hub");
     expect(app.querySelector("select")).toBeNull();
     expect(app.querySelectorAll("[role='radiogroup']")).toHaveLength(1);
     expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);

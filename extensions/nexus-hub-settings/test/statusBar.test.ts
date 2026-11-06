@@ -60,7 +60,7 @@ describe("compact status summary", () => {
   it("shows effort once on one line and keeps named guard states", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
     expect(tooltip.length).toBeLessThan(8000);
-    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Hub Settings**");
+    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Hub**");
     expect(tooltip.split("\n")).toHaveLength(9);
     expect(tooltip).toContain("**Effort Level**");
     expect(tooltip).toContain("**Guardrails**");
@@ -71,12 +71,12 @@ describe("compact status summary", () => {
     expect(svg).not.toMatch(/onclick|script|foreignObject/);
     expect(tooltip).not.toMatch(/\| Default effort|\$\(record\)|Low \$\(/);
     expect(tooltip).toContain("My edits");
-    expect(tooltip).toContain("Nexus Hub Settings");
+    expect(tooltip).toContain("Nexus Hub");
     expect(tooltip).toContain("$(check) Git safety");
     expect(tooltip).toContain("$(circle-slash) Git bypass");
     expect(tooltip).not.toMatch(/setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
     expect(tooltip).toContain("Review application in Settings");
-    expect(tooltip).toContain(`[Open Nexus Settings](command:${OPEN})`);
+    expect(tooltip).toContain(`[Open Settings](command:${OPEN})`);
   });
   it("does not show a warning when the known configuration is applied", () => {
     const m = model([control("effort", [row("internal", "in-effect", "low"), row("codex", "in-effect", "low")]), control("git_safety", [row("internal", "in-effect", "on")])]);
@@ -124,7 +124,7 @@ describe("compact status summary", () => {
     expect(summarize(model([]), OPEN).tooltip).toContain("Reading settings");
   });
   it("uses the requested prefix only in full mode", () => {
-    expect(summarize(realistic(), OPEN, false).text).toBe("$(nexus-hub-icon) Nexus Settings: High (effort) $(warning)");
+    expect(summarize(realistic(), OPEN, false).text).toBe("$(nexus-hub-icon) Nexus Hub: High (effort) $(warning)");
   });
   it("keeps the hover read-only in every state", () => {
     const m = model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]);
@@ -144,7 +144,7 @@ describe("SettingsStatusBar", () => {
     bar.update(realistic());
     stub.user["nexusHubSettings.compactStatusBar"] = false;
     stub.fireConfig("nexusHubSettings.compactStatusBar");
-    expect(stub.statusItems[0]?.text).toContain("Nexus Settings: High (effort)");
+    expect(stub.statusItems[0]?.text).toContain("Nexus Hub: High (effort)");
     bar.dispose();
   });
   it("opens the settings panel, has an accessible name, and trusts only that command", () => {

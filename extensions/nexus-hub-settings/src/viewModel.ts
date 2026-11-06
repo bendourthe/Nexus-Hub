@@ -164,6 +164,7 @@ export interface ViewModel {
   codexAvailable?: boolean;
   liveEffort?: LiveEffortSummary;
   uiEffort?: UiEffortSummary;
+  hubVersion?: string;
 }
 
 export interface PreferencesSummary {
