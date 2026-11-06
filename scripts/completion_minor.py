@@ -1693,6 +1693,23 @@ def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record:
             "claims_sha256": _historical_claims_sha256(member), "merge_bounds": bounds}
 
 
+def _historical_plan_hash_valid(
+    ck: ModuleType, rctx: RepoContext, record: dict, member: dict, frozen: str,
+) -> bool:
+    """Retain a captured plan identity only through the native archive's original Git witness."""
+    if frozen == member.get("plan_sha256"):
+        return True
+    archived = member.get("archived")
+    if not isinstance(archived, dict) or frozen != archived.get("original_sha256"):
+        return False
+    plans = [plan for plan in scan_plans(rctx.root, *parse_minor(ck, str(record["minor"])))
+             if plan.version == member.get("version")]
+    if len(plans) != 1:
+        return False
+    original = _signed_original_plan(rctx, record, member, plans[0], ck)
+    return original is not None and ck.plan_hash_text(original.text) == frozen
+
+
 def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
                                   merge: str, entry: object, *, verify_capture: bool = False) -> bool:
     """Validate signed historical provenance without rebinding it to a later session."""
@@ -1709,7 +1726,8 @@ def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dic
             return False
         if (page["action"] != "supplement-scope" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
                 or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
-                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["member"] != member["version"]
+                or not _historical_plan_hash_valid(ck, rctx, record, member, page["plan_sha256"])
                 or page["claims_sha256"] != _historical_claims_sha256(member)
                 or approval_binding.canonical(page["merge_bounds"])
                    != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge))):
@@ -3153,7 +3171,9 @@ def migration_copy_status(
     def repaired(body: str, old_dir: str) -> str:
         body, _ = rewrite_links(body, old_dir, destination.rel.rsplit("/", 1)[0], moved)
         for old, new in moves:
-            body, _ = rewrite_mentions(body, old, new, markdown=True)
+            # Every native mention match contains one of these literal prefixes.
+            if old in body or old.replace("/", "\\") in body:
+                body, _ = rewrite_mentions(body, old, new, markdown=True)
         return body.replace("\r\n", "\n").strip("\n").rstrip()
 
     required = repaired(item.body, source.rel.rsplit("/", 1)[0])

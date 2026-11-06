@@ -18,6 +18,8 @@ The native signature authenticates its declared approval fields. The unsigned ow
 
 The separate recording-task reader accepts the exact source patch already proved by the frozen task and anchored Source phase, preserving existing labels and canonical-copy restrictions. The inherited AR-77 repair changes only paragraph order, preserving every line and proving both transfers.
 
+Native replay exposed two independent existing reader defects. Historical scope pages retain their approved original plan hash after archival changes the current plan's references. Accept that hash only through the native archived original hash and existing exact Git start/path/version/hash witness, with all captured approval and current identity checks retained. This identity-preservation rule applies to native archives generally; it does not generalize the thirteen-pair incident exception. Migration-copy normalization may skip the stock mention rewriter only when both literal native prefix forms are absent after link normalization. Every historical ledger remains checked within the existing budget; no mutable authority cache is added.
+
 ## Alternatives considered
 
 - Change the original migration bound, re-sign its record, or replace its authority: rejected because that changes what the user originally approved.
