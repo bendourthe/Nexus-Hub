@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
+import { CURSOR_WORKBENCH_HASH, CURSOR_WORKBENCH_PATH, CURSOR_WORKBENCH_VERSION, patchCursorWorkbench } from "./cursorEffort";
 
-export type UiVendor = "claude" | "codex";
+export type UiVendor = "claude" | "codex" | "cursor";
 export const uiHash = (value: string): string => createHash("sha256").update(value).digest("hex");
 const levels = '["low","medium","high","xhigh","max","ultra"]';
 const validate = `if(!${levels}.includes(e))throw Error("Invalid Nexus effort");`;
@@ -47,6 +48,7 @@ function nexusUseEffortBridge(settings,select,hostId,sessionId){
 
 interface UiRecipe { version: string; files: Record<string, string> }
 export const UI_RECIPES: Readonly<Record<UiVendor, UiRecipe>> = {
+  cursor: { version: CURSOR_WORKBENCH_VERSION, files: { [CURSOR_WORKBENCH_PATH]: CURSOR_WORKBENCH_HASH } },
   claude: { version: "2.1.318", files: { "extension.js": "62ba16d87adcd747d2112cb31e37eec753844d17455d6b410eb849e909128fa0", "webview/index.js": "82b65ed1b5537cee1d08016717e5cbd00cf8696dffa164e2cfadff77524dbfde" } },
   codex: { version: "26.1021.22027", files: { "out/extension.js": "a9cc6736cd2c2d22f6cf43fc5763d5f8a873e4f741f522b44a600b1926f4e627", "webview/assets/use-model-settings-aafcff4b111c.js": "23d2322fe24ae6d151e2fef55108942be50ca8b38aacd52e5102143bb2d1b47e" } },
 };
@@ -59,6 +61,7 @@ function replaceOnce(source: string, before: string, after: string): string {
 
 export function patchedUiSource(vendor: UiVendor, relative: string, original: string): string {
   if (uiHash(original) !== UI_RECIPES[vendor].files[relative]) { throw new Error("The native extension was changed; its current file was preserved."); }
+  if (vendor === "cursor") { return patchCursorWorkbench(original); }
   if (vendor === "claude" && relative === "extension.js") {
     return replaceOnce(original, 'if(n)nre(e,t,n)}function Xbr(e,t)', `if(n)nre(e,t,n);${CLAUDE_UI_API}}function Xbr(e,t)`);
   }

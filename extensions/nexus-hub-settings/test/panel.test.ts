@@ -201,7 +201,8 @@ describe("shared settings view", () => {
   it("keeps coverage information in the footer without a persistent warning", () => {
     panel.render(fresh());
     expect(app.querySelector("#effort-status")).toBeNull();
-    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot, Cursor and Antigravity native");
+    expect(app.querySelector(".compatibility")?.textContent).toContain("qualified Cursor Agent builds");
+    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot and Antigravity native");
     expect(app.querySelector(".notice[data-level=warn]")).toBeNull();
     expect(app.querySelector("table")).toBeNull();
   });

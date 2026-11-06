@@ -140,8 +140,8 @@
     }
     function compatibility() {
       var node = el("footer", { class: "compatibility" }, [
-        text("p", "Automatic effort: Claude Code and Codex extensions."),
-        text("p", "Manual effort: GitHub Copilot, Cursor and Antigravity native agents."),
+        text("p", "Automatic effort: Claude Code, Codex, and qualified Cursor Agent builds."),
+        text("p", "Manual effort: GitHub Copilot and Antigravity native agents. Cursor Auto and models without effort controls keep their native behavior."),
         text("p", "Older Codex clients map Max and Ultra to Extra high."),
       ]);
       return node;

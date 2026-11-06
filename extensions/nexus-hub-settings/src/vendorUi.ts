@@ -6,6 +6,7 @@ import { installRoot } from "./cliBridge";
 import { readEffortPreference } from "./liveEffortProxy";
 import { installVendorUi } from "./vendorUiInstall";
 import type { UiVendor } from "./vendorUiPatch";
+import { CURSOR_EFFORT_COMMAND } from "./cursorEffort";
 
 export interface UiEffortSummary { reloadRequired: boolean; errors: string[] }
 interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string, revision: string): unknown }
@@ -21,11 +22,17 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
     const extension = vscode.extensions?.getExtension(provider.id);
     return extension ? [{ ...provider, extension }] : [];
   });
-  if (!available.length) { return undefined; }
+  const cursor = vscode.env.appName === "Cursor";
+  if (!available.length && !cursor) { return undefined; }
   const hub = installRoot(process.env, os.homedir());
   const setupErrors: string[] = [];
   const installed = new Set<string>();
   let menuReloadRequired = false;
+  let cursorInstalled = false;
+  if (cursor) {
+    try { await installVendorUi("cursor", vscode.env.appRoot, path.join(hub, "native-ui")); cursorInstalled = true; }
+    catch (error) { setupErrors.push(`Cursor: ${error instanceof Error ? error.message : "Native effort installation failed."}`); }
+  }
   for (const item of available) {
     try {
       const result = await installVendorUi(item.vendor, item.extension.extensionPath, path.join(hub, "native-ui"));
@@ -43,6 +50,13 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
       const preference = readEffortPreference(path.join(hub, "preferences.json"));
       if (!preference) { return; }
       const next: UiEffortSummary = { reloadRequired: menuReloadRequired, errors: [...setupErrors] };
+      if (cursorInstalled) {
+        if (!(await vscode.commands.getCommands(true)).includes(CURSOR_EFFORT_COMMAND)) { next.reloadRequired = true; }
+        else {
+          try { await vscode.commands.executeCommand(CURSOR_EFFORT_COMMAND, {effort: preference.value, revision: preference.revision}); }
+          catch { next.errors.push("Cursor: The native effort update failed."); }
+        }
+      }
       for (const item of available) {
         if (!installed.has(item.id)) { continue; }
         if (!item.extension.isActive) { continue; }

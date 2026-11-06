@@ -227,6 +227,7 @@ export const window = {
 };
 
 export const commands = {
+  async getCommands(): Promise<string[]> { return [...stub.commands.keys()]; },
   registerCommand(id: string, handler: (...args: unknown[]) => unknown) {
     stub.commands.set(id, handler);
     return { dispose: () => void stub.commands.delete(id) };
@@ -238,6 +239,8 @@ export const commands = {
 };
 
 export const env = {
+  appName: "Visual Studio Code",
+  appRoot: "",
   async openExternal(uri: Uri): Promise<boolean> {
     stub.opened.push(uri.toString());
     return true;
