@@ -707,3 +707,11 @@ describe("fresh Codex agent", () => {
     expect(bridge.actions).toHaveLength(0);
   });
 });
+
+it("does not write Fast mode on an unsupported editor through the action API", async () => {
+  const write=vi.fn(async () => {});
+  const controller=make({editorCapabilities:()=>({extensionSettings:false,fastMode:false}),setFastMode:write});
+  await controller.handle({type:"setFastMode",value:true});
+  expect(write).not.toHaveBeenCalled();
+  expect(controller.current().editorCapabilities?.fastMode).toBe(false);
+});

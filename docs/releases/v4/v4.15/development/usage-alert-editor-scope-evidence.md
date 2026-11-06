@@ -33,3 +33,15 @@ Local qualification root: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualific
 ## Release Inclusion
 
 The next release must include Nexus Hub 0.8.1 or newer plus all five monitor updates from the same feature branch. The [progress tracker](../../../../todos.md) retains the pending integration and installer checks. Reload each open editor to activate this installed update.
+
+## Editor Capabilities
+
+Nexus Hub 0.8.2 adds explicit editor capabilities. Cursor and Antigravity omit the entire Extensions section, including Claude Code and Codex restart buttons and the Codex tabs preference. VS Code retains these controls. Antigravity disables Fast mode with "Not available in this editor"; VS Code also disables Fast mode when neither supported provider extension is installed. Cursor retains Fast mode. Both the disabled control and the controller prevent unsupported Fast writes, preserving the existing shared preference.
+
+- Focused verification: `npx vitest run test/panel.test.ts test/controller.test.ts test/editorCapabilities.test.ts --reporter=json --outputFile=<qualification>/capability-tests-082-final.json` passed all 96 tests.
+- Chromium exercised each editor model using the compiled capability mapper and shipped panel. Cursor and Antigravity had no Extensions section; Antigravity's Fast control was disabled with the correct note; existing alert controls and scoped writes still passed. Zero browser errors. Native editor windows were not reloaded or claimed as live-tested in this update.
+- Geometry detector passed at widths 180, 390 and 900 for all three editor models; screenshots are in `capability-browser-082/` under the same qualification root.
+- Package verification passed for all 36 required files. Version 0.8.2 registered in VS Code, Cursor and Antigravity; 36/36 payloads matched each copy.
+- Package SHA256: `6ced95cae86d8375e3e572fc56c5074ccf682fc20cad6d4148260cfbe2871458`.
+- Installation and payload receipts: `capability-install-082.json` and `capability-payloads-082.json`.
+- The next-release requirement is now 0.8.2 or newer. Integration and publication remain pending.

@@ -109,7 +109,7 @@
       return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
         el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" }), button("Apply to all", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
         group,
-        sessionToggle("fast", "Fast mode", model.sessionDefaults && model.sessionDefaults.fastMode, "setFastMode", "May increase usage or cost."),
+        sessionToggle("fast", "Fast mode", model.sessionDefaults && model.sessionDefaults.fastMode, "setFastMode", "May increase usage or cost.", !model.editorCapabilities || model.editorCapabilities.fastMode),
         effortDetails(),
       ]);
     }
@@ -119,12 +119,15 @@
       var value = effective(row);
       return { known: true, on: value === "on" || value === "true" || (row.state === "tool-default" && c.id !== "git_guardrails") };
     }
-    function sessionToggle(id, label, value, type, hint) {
-      var toggle = button("", "session:" + id, function () { if (!blocked()) { send({ type: type, value: value !== true }); } }, {role: "switch", class: "switch", "data-setting": id, "aria-checked": value === true ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "description-" + id, disabled: model.readOnly, "aria-disabled": blocked() ? "true" : null});
+    function sessionToggle(id, label, value, type, hint, available) {
+      available = available !== false;
+      if (!available) { value = false; hint = "Not available in this editor."; }
+      var toggle = button("", "session:" + id, function () { if (available && !blocked()) { send({ type: type, value: value !== true }); } }, {role: "switch", class: "switch", "data-setting": id, "aria-checked": value === true ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "description-" + id, disabled: model.readOnly || !available, "aria-disabled": blocked() || !available ? "true" : null});
       toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
       return el("div", {class: "setting-row session-row", title: value == null ? "No shared speed is set. Existing session speeds stay unchanged until chosen. Fast mode may increase usage or cost." : hint}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, text: label, class: "setting-label"}), el("p", {id: "description-" + id, text: value == null ? "Not set; may cost more." : hint, class: "hint"})]), toggle]);
     }
     function editorSection() {
+      if (model.editorCapabilities && !model.editorCapabilities.extensionSettings) { return null; }
       function providerHeading(provider, label) { return el("h3", {}, [el("span", {class: "provider-icon provider-icon--" + provider, "aria-hidden": "true"}), text("span", label)]); }
       function restart(provider, label) { return button("Restart", "restart-" + provider, function () { send({type: "restartExtension", provider: provider}); }, {class: "action-button", "aria-label": "Restart " + label, "aria-disabled": blocked() ? "true" : null}); }
       return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [

@@ -1,3 +1,4 @@
+import type { EditorCapabilities } from "./editorCapabilities";
 import type { AlertProvider, UsageAlerts } from "./usageAlerts";
 import { ActionOutcome, ActionSpec, BridgeError } from "./cliBridge";
 import {
@@ -71,6 +72,7 @@ export interface ControllerDeps {
   sessionDefaults?: () => SessionDefaults;
   usageAlerts?: () => UsageAlerts;
   usageAlertProviders?: () => AlertProvider[];
+  editorCapabilities?: () => EditorCapabilities;
   setUsageAlert?: (provider: AlertProvider | "all", enabled: boolean) => Promise<void>;
   setFastMode?: (value: boolean) => Promise<void>;
   setCodexTabs?: (value: boolean) => Promise<void>;
@@ -223,7 +225,7 @@ export class SettingsController {
         case "setFastMode":
         case "setCodexTabs":
           if (this.deps.isTrusted()) {
-            if (message.type === "setFastMode") { await this.deps.setFastMode?.(message.value); }
+            if (message.type === "setFastMode") { if (this.deps.editorCapabilities?.().fastMode !== false) { await this.deps.setFastMode?.(message.value); } }
             else { await this.deps.setCodexTabs?.(message.value); }
           }
           return this.reload(null, false);
@@ -268,6 +270,7 @@ export class SettingsController {
       this.model.sessionDefaults = this.deps.sessionDefaults?.();
       this.model.usageAlerts = this.deps.usageAlerts?.();
       this.model.usageAlertProviders = this.deps.usageAlertProviders?.();
+      this.model.editorCapabilities = this.deps.editorCapabilities?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);

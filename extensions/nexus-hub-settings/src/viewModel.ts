@@ -1,3 +1,4 @@
+import type { EditorCapabilities } from "./editorCapabilities";
 import type { AlertProvider, UsageAlerts } from "./usageAlerts";
 import type { LiveEffortSummary } from "./liveEffort";
 import type { UiEffortSummary } from "./vendorUi";
@@ -170,6 +171,7 @@ export interface ViewModel {
   sessionDefaults?: SessionDefaults;
   usageAlerts?: UsageAlerts;
   usageAlertProviders?: AlertProvider[];
+  editorCapabilities?: EditorCapabilities;
 }
 
 export interface PreferencesSummary {

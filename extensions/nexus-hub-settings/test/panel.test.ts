@@ -398,3 +398,20 @@ it.each(["cursor", "gemini"] as const)("shows only the master for %s and follows
   expect(app.querySelectorAll(".usage-alerts-section button")).toHaveLength(1);
   master.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:true});
 });
+
+it("omits the Extensions section when the editor does not use provider extensions", () => {
+  panel.render(fresh({codexAvailable:true,editorCapabilities:{extensionSettings:false,fastMode:true}}));
+  expect(app.querySelector(".editor-section")).toBeNull();
+  expect(app.querySelector("[data-setting='codexTabs']")).toBeNull();
+  expect(app.querySelector("[aria-label='Restart Claude Code']")).toBeNull();
+  expect(app.querySelector("[aria-label='Restart Codex']")).toBeNull();
+});
+it("disables unsupported Fast mode without changing the shared preference", () => {
+  panel.render(fresh({editorCapabilities:{extensionSettings:false,fastMode:false},sessionDefaults:{fastMode:true,fastRevision:"saved",codexTabs:true}}));
+  const toggle=app.querySelector<HTMLButtonElement>("[data-setting='fast']")!;
+  expect(toggle.disabled).toBe(true);
+  expect(toggle.getAttribute("aria-checked")).toBe("false");
+  expect(toggle.getAttribute("aria-disabled")).toBe("true");
+  expect(app.querySelector("#description-fast")?.textContent).toBe("Not available in this editor.");
+  toggle.click();expect(posted).toEqual([]);
+});

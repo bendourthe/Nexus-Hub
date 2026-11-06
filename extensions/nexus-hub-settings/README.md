@@ -82,3 +82,7 @@ Fresh installations start with Medium effort, Fast mode off, and Open Codex in t
 ## Usage Alerts
 
 Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch scoped to the current editor. VS Code also shows separate Claude Code, Codex, and GitHub Copilot switches. Cursor and Antigravity each show only their single master switch. The master switches only that editor's providers together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.
+
+## Editor Controls
+
+Claude Code and Codex restart controls and the Codex tabs preference appear only in VS Code. Cursor and Antigravity omit the Extensions section. Fast mode is disabled with an availability note in Antigravity and in VS Code when neither Claude Code nor Codex is installed. Cursor retains Fast mode. A disabled control preserves the saved shared preference.
