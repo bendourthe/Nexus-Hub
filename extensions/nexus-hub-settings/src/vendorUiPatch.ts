@@ -1,3 +1,4 @@
+import { CLAUDE_RECOVERY_API, CODEX_RECOVERY_API, CODEX_SESSION_TRACKER, patchCodexRecovery } from "./vendorRecovery";
 import { createHash } from "node:crypto";
 import { CLAUDE_FAST_ADOPT, CLAUDE_FAST_API, CODEX_DEFAULTS_API, CODEX_DEFAULTS_HOOK } from "./vendorFastMode";
 import { CURSOR_WORKBENCH_HASH, CURSOR_WORKBENCH_PATH, CURSOR_WORKBENCH_VERSION, patchCursorWorkbench } from "./cursorEffort";
@@ -14,8 +15,8 @@ const CODEX_EFFORT_API = `return{nexusEffortBridgeVersion:2,applyNexusEffort(e,r
 const CODEX_ORIGINAL_PANEL = 'async createNewPanel(){let e=F1("/extension/panel/new"),r=Be.window.activeTextEditor?.viewColumn??Be.ViewColumn.Active;await Be.commands.executeCommand("vscode.openWith",e,t.customEditorViewType,{viewColumn:r,preserveFocus:!1,preview:!1})}';
 export const CODEX_NEW_PANEL = CODEX_ORIGINAL_PANEL.replace('F1("/extension/panel/new")', 'F1("/extension/panel/new?nexus="+(0,w8e.randomUUID)())');
 
-export const CLAUDE_UI_API = CLAUDE_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("async applyNexusEffort(", CLAUDE_FAST_API + ",async applyNexusEffort(");
-export const CODEX_UI_API = CODEX_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("applyNexusEffort(", CODEX_DEFAULTS_API + ",applyNexusEffort(");
+export const CLAUDE_UI_API = CLAUDE_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("async applyNexusEffort(", CLAUDE_RECOVERY_API + "," + CLAUDE_FAST_API + ",async applyNexusEffort(");
+export const CODEX_UI_API = CODEX_EFFORT_API.replace("nexusEffortBridgeVersion:2", "nexusEffortBridgeVersion:3").replace("applyNexusEffort(", CODEX_RECOVERY_API + "," + CODEX_DEFAULTS_API + ",applyNexusEffort(");
 
 // This hook calls the same setter as the native effort picker. It does not synthesize server notifications.
 export const CODEX_UI_HOOK = `
@@ -75,10 +76,10 @@ export function patchedUiSource(vendor: UiVendor, relative: string, original: st
   if (relative === "out/extension.js") {
     const tail = 'ie().warning("Desktop bridge init failed",{safe:{},sensitive:{error:Se}})}})()}';
     const host = replaceOnce(original, tail, tail.slice(0, -1) + ";" + CODEX_UI_API + "}");
-    return replaceOnce(host, CODEX_ORIGINAL_PANEL, CODEX_NEW_PANEL);
+    return patchCodexRecovery(replaceOnce(host, CODEX_ORIGINAL_PANEL, CODEX_NEW_PANEL));
   }
   const hook = replaceOnce(original, "let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?", "nexusUseEffortBridge(y,S,h.hostId,r);nexusUseDefaultsBridge(y,S,h.hostId,r,C,_);let w;return n[19]!==y||n[20]!==S||n[21]!==h||n[22]!==C?");
-  return hook.replace("//# sourceMappingURL=", CODEX_UI_HOOK + CODEX_DEFAULTS_HOOK + "\n//# sourceMappingURL=");
+  return 'import{c as nexusVscode,s as nexusInitVscode}from"./message-bus-4113ba7287d7.js";' + hook.replace("//# sourceMappingURL=", CODEX_UI_HOOK + CODEX_DEFAULTS_HOOK.replace("function nexusUseDefaultsBridge(settings,select,hostId,sessionId,selectNextTurn,isDraft){", "function nexusUseDefaultsBridge(settings,select,hostId,sessionId,selectNextTurn,isDraft){" + CODEX_SESSION_TRACKER) + "\n//# sourceMappingURL=");
 }
 
 export function codexTabManifest(original: string): string {

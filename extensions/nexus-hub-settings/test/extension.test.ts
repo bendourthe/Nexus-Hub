@@ -196,14 +196,32 @@ describe("host helpers", () => {
   });
 });
 
-it("restarts the shared host only after explicit confirmation and preserves cancellation", async () => {
-  stub.vendorExtensions.set("openai.chatgpt", {} as never);
+it("restarts only the selected provider after confirmation and preserves cancellation", async () => {
+  const codex = vi.fn().mockResolvedValue({refreshed: 2});
+  const claude = vi.fn().mockResolvedValue({sessions: 1});
+  stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: true, exports: {nexusRestartProvider: codex}});
+  stub.vendorExtensions.set("anthropic.claude-code", {extensionPath: "", isActive: true, exports: {nexusRestartProvider: claude}});
   stub.warningAnswer = () => undefined;
-  await restartProvider("codex");
-  expect(stub.executed).not.toContain("workbench.action.restartExtensionHost");
+  await restartProvider("codex"); expect(codex).not.toHaveBeenCalled();
   stub.warningAnswer = (buttons) => buttons[0];
-  await restartProvider("codex");
-  expect(stub.executed).toContain("workbench.action.restartExtensionHost");
-  stub.executed = []; stub.trusted = false;
-  await restartProvider("codex"); expect(stub.executed).toEqual([]);
+  await restartProvider("codex"); expect(codex).toHaveBeenCalledTimes(1); expect(claude).not.toHaveBeenCalled();
+  await restartProvider("claude"); expect(claude).toHaveBeenCalledTimes(1);
+  expect(stub.executed).not.toContain("workbench.action.restartExtensionHost");
+  stub.trusted = false; await restartProvider("codex"); expect(codex).toHaveBeenCalledTimes(1);
+});
+
+it("registers the Codex toolbar before slow native adapter setup completes", async () => {
+  let release!: (value: undefined) => void;
+  const pending = new Promise<undefined>(resolve => { release = resolve; });
+  const live = vi.spyOn(liveEffort, "installLiveEffort").mockReturnValue(pending);
+  const native = vi.spyOn(nativeUi, "installNativeUi").mockResolvedValue(undefined);
+  const ctx = context();
+  try {
+    const loading = activate(ctx as never);
+    expect(stub.commands.has("nexusHubSettings.openCodex")).toBe(true);
+    expect(stub.commands.has("nexusHubSettings.refreshCodexTab")).toBe(true);
+    await stub.commands.get("nexusHubSettings.openCodex")?.();
+    expect(stub.executed).toContain("chatgpt.newCodexPanel");
+    release(undefined); await loading;
+  } finally { release(undefined); ctx.subscriptions.forEach(item => item.dispose()); live.mockRestore(); native.mockRestore(); }
 });

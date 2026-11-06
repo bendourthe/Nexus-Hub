@@ -2,7 +2,7 @@
   "name": "nexus-hub-settings",
   "displayName": "Nexus Hub",
   "description": "Set one shared effort preference and control the main Nexus-Hub protections from a compact settings panel",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -26,7 +26,8 @@
     "ui"
   ],
   "activationEvents": [
-    "*"
+    "*",
+    "onCommand:nexusHubSettings.openCodex"
   ],
   "main": "./out/extension.js",
   "capabilities": {
@@ -66,6 +67,12 @@
         "title": "Codex History",
         "category": "Nexus Hub",
         "icon": "$(history)"
+      },
+      {
+        "command": "nexusHubSettings.refreshCodexTab",
+        "title": "Refresh Codex Tab",
+        "category": "Nexus Hub",
+        "icon": "$(refresh)"
       }
     ],
     "icons": {
@@ -118,6 +125,11 @@
           "command": "nexusHubSettings.codexHistory",
           "when": "activeCustomEditorId == chatgpt.conversationEditor",
           "group": "navigation@1"
+        },
+        {
+          "command": "nexusHubSettings.refreshCodexTab",
+          "when": "activeCustomEditorId == chatgpt.conversationEditor",
+          "group": "navigation@2"
         }
       ]
     }

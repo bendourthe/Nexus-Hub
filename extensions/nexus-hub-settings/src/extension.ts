@@ -66,24 +66,49 @@ export function userPythonPath(): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+interface RecoveryApi { nexusRestartProvider?(): Promise<unknown>; nexusRefreshTab?(): Promise<unknown> }
+async function providerApi(provider: "claude" | "codex"): Promise<RecoveryApi> {
+  const extension = vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt");
+  if (!extension) { throw new Error("This extension is not installed in this editor."); }
+  return extension.isActive ? extension.exports as RecoveryApi : await extension.activate() as RecoveryApi;
+}
+export async function refreshCodexTab(): Promise<void> {
+  if (!vscode.workspace.isTrusted) { return; }
+  try {
+    const api = await providerApi("codex");
+    if (!api.nexusRefreshTab) { throw new Error("Reload this window once to activate the Codex tab recovery adapter."); }
+    await api.nexusRefreshTab();
+  } catch (error) { await vscode.window.showWarningMessage(String(error)); }
+}
 export async function restartProvider(provider: "claude" | "codex"): Promise<void> {
   if (!vscode.workspace.isTrusted) { return; }
   const name = provider === "claude" ? "Claude Code" : "Codex";
-  if (!vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt")) {
-    await vscode.window.showWarningMessage(`${name} is not installed in this editor.`);
-    return;
-  }
-  const choice = await vscode.window.showWarningMessage(`Restart ${name}?`, {modal: true, detail: "VS Code restarts the shared extension host. This also restarts other extensions in this window, including Claude Code and Codex. Running requests may be interrupted. Saved conversations are retained."}, "Restart extensions");
-  if (choice === "Restart extensions") { await vscode.commands.executeCommand("workbench.action.restartExtensionHost"); }
+  const detail = provider === "codex" ? "Restart only Codex's app-server, then refresh its open tabs with their saved sessions. Running Codex requests may be interrupted. Other extensions keep running." : "Restart only Claude Code session processes. Idle sessions restart now; busy sessions restart at their next idle turn boundary. Other extensions keep running.";
+  const choice = await vscode.window.showWarningMessage(`Restart ${name}?`, {modal: true, detail}, "Restart " + name);
+  if (choice !== "Restart " + name) { return; }
+  try {
+    const api = await providerApi(provider);
+    if (!api.nexusRestartProvider) { throw new Error("Reload this window once to activate provider-specific recovery. Other extensions were not restarted."); }
+    await api.nexusRestartProvider();
+  } catch (error) { await vscode.window.showWarningMessage(String(error)); }
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
   const hub = installRoot(process.env, os.homedir());
   if (vscode.workspace.isTrusted && fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
+  const sessionFile = path.join(hub, SESSION_DEFAULTS_FILE);
+  context.subscriptions.push(
+    vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
+    vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
+    vscode.commands.registerCommand("nexusHubSettings.refreshCodexTab", refreshCodexTab),
+    vscode.commands.registerCommand("nexusHubSettings.openCodex", () => {
+      if (!vscode.workspace.isTrusted) { return; }
+      return vscode.commands.executeCommand(readSessionDefaults(sessionFile).codexTabs ? "chatgpt.newCodexPanel" : "chatgpt.openSidebar");
+    }),
+  );
   let liveEffort = await installLiveEffort(context);
   let nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
-  const sessionFile = path.join(hub, SESSION_DEFAULTS_FILE);
   const controller = new SettingsController({
     restartExtension: restartProvider,
     sessionDefaults: () => readSessionDefaults(sessionFile),
@@ -155,14 +180,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
       webviewOptions: { retainContextWhenHidden: true },
     }),
     vscode.commands.registerCommand("nexusHubSettings.newCodexAgent", () => controller.handle({ type: "newCodex" })),
-    vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
-    vscode.commands.registerCommand("nexusHubSettings.openCodex", () => {
-      if (!vscode.workspace.isTrusted) { return; }
-      return vscode.commands.executeCommand(readSessionDefaults(sessionFile).codexTabs ? "chatgpt.newCodexPanel" : "chatgpt.openSidebar");
-    }),
     vscode.commands.registerCommand("nexusHubSettings.applyAll", () => controller.handle({ type: "applyAll" })),
     vscode.commands.registerCommand("nexusHubSettings.upgrade", () => controller.handle({ type: "upgrade" })),
-    vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
     vscode.commands.registerCommand(SET_EFFORT_COMMAND, async (value: unknown) => {
       if (!vscode.workspace.isTrusted || typeof value !== "string" || !Object.hasOwn(EFFORT_LABELS, value)) { return; }
       return controller.handle({ type: "set", control: "effort", value, tool: null });

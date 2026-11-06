@@ -125,10 +125,12 @@
       return el("div", {class: "setting-row session-row", title: value == null ? "No shared speed is set. Existing session speeds stay unchanged until chosen. Fast mode may increase usage or cost." : hint}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, text: label, class: "setting-label"}), el("p", {id: "description-" + id, text: value == null ? "Not set; may cost more." : hint, class: "hint"})]), toggle]);
     }
     function editorSection() {
-      if (!model.codexAvailable) { return null; }
-      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [el("h2", {id: "editor-title", text: "Extensions"}), sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with a history button. Turn off for the activity pane."), el("ul", {class: "setting-list"}, [
-        ["claude", "Claude Code"], ["codex", "Codex"]
-      ].map(function (provider) { return el("li", {class: "setting-row"}, [el("span", {class: "setting-label", text: provider[1]}), button("Restart", "restart-" + provider[0], function () { send({type: "restartExtension", provider: provider[0]}); }, {class: "action-button", "aria-label": "Restart " + provider[1], "aria-disabled": blocked() ? "true" : null})]); })), text("p", "Restarting uses the shared extension host and may interrupt running requests.", "hint")]);
+      function restart(provider, label) { return button("Restart", "restart-" + provider, function () { send({type: "restartExtension", provider: provider}); }, {class: "action-button", "aria-label": "Restart " + label, "aria-disabled": blocked() ? "true" : null}); }
+      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [
+        el("h2", {id: "editor-title", text: "Extensions"}),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [el("h3", {text: "Codex"}), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [el("h3", {text: "Claude Code"}), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
+      ]);
     }
     function guardRow(spec) {
       var installed = control(spec[0]);
