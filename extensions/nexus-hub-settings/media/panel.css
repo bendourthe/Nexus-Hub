@@ -1,6 +1,7 @@
 :root {
   color-scheme: dark;
   --field-border: color-mix(in srgb, var(--vscode-foreground) 65%, transparent);
+  --section-divider: color-mix(in srgb, var(--vscode-foreground) 34%, transparent);
   --hairline: color-mix(in srgb, var(--vscode-foreground) 16%, transparent);
   --nexus-cyan: #00ffff;
   --nexus-blue: #00a8cf;
@@ -46,7 +47,7 @@ button.effort-choice:last-child { align-items: flex-end; }
 .setting-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--hairline); }
 .setting-row:last-child { border-bottom: 0; }
 .effort-section .session-row { border-top: 1px solid var(--hairline); border-bottom: 0; margin-top: 12px; padding-bottom: 4px; }
-.editor-section { border-top: 1px solid var(--hairline); padding-top: 24px; }
+.editor-section { border-top: 2px solid var(--section-divider); padding-top: 24px; }
 .setting-copy { min-width: 0; }
 .setting-label { display: block; font-weight: 600; font-size: 13px; }
 .setting-copy .hint { margin-top: 3px; }
@@ -111,7 +112,7 @@ button.native-action { margin-top: 8px; font-size: 11px; background: transparent
 .version-number { font-weight: 400; }
 .section-heading h2 { min-width: 0; flex: 1; overflow-wrap: anywhere; }
 .section-heading .action-button, .version-row .action-button { flex: 0 0 auto; max-width: 48%; overflow-wrap: anywhere; }
-.guardrails-section, .version-section { border-top: 1px solid var(--hairline); padding-top: 20px; }
+.guardrails-section, .version-section { border-top: 2px solid var(--section-divider); padding-top: 20px; }
 .version-row .action-button { margin-inline-start: auto; }
 button.action-button { min-height: 32px; padding: 6px 12px; border: 1px solid color-mix(in srgb, var(--nexus-accent) 45%, transparent); border-radius: 6px; color: var(--vscode-foreground); background: color-mix(in srgb, var(--nexus-accent) 10%, var(--vscode-editor-background)); font-size: 12px; font-weight: 500; line-height: 1.4; }
 button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nexus-accent); background: color-mix(in srgb, var(--nexus-accent) 18%, var(--vscode-editor-background)); }
@@ -127,6 +128,14 @@ button.action-button:hover:not([aria-disabled='true']) { border-color: var(--nex
 
 .extension-group { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--hairline); }
 .extension-group:first-of-type { border-top: 0; padding-top: 0; }
-.extension-group h3 { flex: 1; min-width: 0; margin: 0; font-size: 14px; font-weight: 600; }
+.extension-group h3 { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; margin: 0; font-size: 14px; font-weight: 600; }
 .extension-group > .hint { margin-top: 8px; }
 .extension-group .session-row { border-bottom: 0; padding-bottom: 4px; }
+
+.provider-icon { display: inline-block; width: 18px; height: 18px; flex: 0 0 18px; background: currentColor; }
+.provider-icon--claude { mask: url("./claude-icon.svg") center / contain no-repeat; background: #d97757; }
+.provider-icon--codex { mask: url("./codex-icon.svg") center / contain no-repeat; }
+@media (forced-colors: active) {
+  :root { --section-divider: CanvasText; }
+  .provider-icon { background: CanvasText; }
+}

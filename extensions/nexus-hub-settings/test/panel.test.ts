@@ -364,9 +364,9 @@ it("keeps Codex navigation and restart in the Codex group, separate from Claude"
   panel.render(fresh({codexAvailable: true}));
   const groups = app.querySelectorAll(".extension-group");
   expect(groups).toHaveLength(2);
-  expect(groups[0].querySelector("h3")?.textContent).toBe("Codex");
-  expect(groups[0].querySelector("[data-setting='codexTabs']")).not.toBeNull();
-  expect(groups[0].querySelector("[aria-label='Restart Codex']")).not.toBeNull();
-  expect(groups[1].querySelector("h3")?.textContent).toBe("Claude Code");
-  expect(groups[1].querySelector("[data-setting='codexTabs']")).toBeNull();
+  expect(groups[1].querySelector("h3")?.textContent).toBe("Codex");
+  expect(groups[1].querySelector("[data-setting='codexTabs']")).not.toBeNull();
+  expect(groups[1].querySelector("[aria-label='Restart Codex']")).not.toBeNull();
+  expect(groups[0].querySelector("h3")?.textContent).toBe("Claude Code");
+  expect(groups[0].querySelector("[data-setting='codexTabs']")).toBeNull();
 });

@@ -125,11 +125,12 @@
       return el("div", {class: "setting-row session-row", title: value == null ? "No shared speed is set. Existing session speeds stay unchanged until chosen. Fast mode may increase usage or cost." : hint}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, text: label, class: "setting-label"}), el("p", {id: "description-" + id, text: value == null ? "Not set; may cost more." : hint, class: "hint"})]), toggle]);
     }
     function editorSection() {
+      function providerHeading(provider, label) { return el("h3", {}, [el("span", {class: "provider-icon provider-icon--" + provider, "aria-hidden": "true"}), text("span", label)]); }
       function restart(provider, label) { return button("Restart", "restart-" + provider, function () { send({type: "restartExtension", provider: provider}); }, {class: "action-button", "aria-label": "Restart " + label, "aria-disabled": blocked() ? "true" : null}); }
       return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [
         el("h2", {id: "editor-title", text: "Extensions"}),
-        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [el("h3", {text: "Codex"}), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
-        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [el("h3", {text: "Claude Code"}), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("claude", "Claude Code"), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
       ]);
     }
     function guardRow(spec) {

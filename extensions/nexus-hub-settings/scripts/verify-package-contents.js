@@ -17,6 +17,8 @@ const STATIC_REQUIRED = [
   "media/effort-launcher.cs",
   "media/panel.css",
   "media/logo.png",
+  "media/claude-icon.svg",
+  "media/codex-icon.svg",
   "media/icon.svg",
   "fonts/nexus-hub-icons.woff2"
 ];

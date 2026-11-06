@@ -2,11 +2,13 @@
 
 **Integration branch:** `develop`
 
+- [x] Deliver Nexus Hub 0.7.4 panel hierarchy: stronger main dividers, Claude Code first, local provider icons, and Version retained at the bottom. Native dark/light inspection passed; 48 focused checks passed; 34/34 payloads matched in each of three editors; all 22 runtime modules unchanged. [Evidence](releases/v4/v4.15/development/settings-074-panel-evidence.md).
+
 - [x] Deliver Nexus Hub 0.7.3 provider groups, Codex tab refresh, provider-specific recovery and early Codex toolbar registration. Codex restarted its app-server and resumed the same saved session; Claude restarted its idle process and resumed the same conversation. No shared extension-host restart. Tests: 407 passed, one skipped; installed payloads: 32/32 in VS Code, Cursor and Antigravity. [Evidence](releases/v4/v4.15/development/settings-073-recovery-evidence.md).
 
 - [x] Deliver Nexus Hub 0.7.2 installation defaults and Extensions restart controls. Installed in VS Code, Cursor and Antigravity with 31/31 matching payloads each; 400 tests passed, one skipped. Native shared-host restart and panel recovery verified in a disposable editor window. Next-release integration remains tracked below.
 
-- [ ] Include Nexus Hub extension 0.7.3 or newer in the next release: integrate the complete `feat/settings-redesign-20261104` branch with its settings engine, hook consumers, runtime proxies and native adapters, then verify Windows and POSIX installers build the same package for every locally detected editor. Fresh-install defaults: Medium, Fast off, Codex tabs on. Preserve existing preferences on upgrade. Do not publish an older settings package. [Release handoff](releases/v4/v4.15/development/settings-073-recovery-evidence.md).
+- [ ] Include Nexus Hub extension 0.7.4 or newer in the next release: integrate the complete `feat/settings-redesign-20261104` branch with its settings engine, hook consumers, runtime proxies and native adapters, then verify Windows and POSIX installers build the same package for every locally detected editor. Fresh-install defaults: Medium, Fast off, Codex tabs on. Preserve existing preferences on upgrade. Do not publish an older settings package. [Release handoff](releases/v4/v4.15/development/settings-073-recovery-evidence.md).
 
 - [x] Deliver Nexus Hub 0.7.1 Fast fixes: existing Claude and Codex conversations switched off/on live at Medium, the repeated Codex model-setting errors stopped, and the duplicate divider was removed. Installed payloads: 30/30 in VS Code, Cursor and Antigravity; tests: 395 passed, one skipped. Exact Fast-on preferences and Medium restored. [Evidence](releases/v4/v4.15/development/settings-071-fast-fix-evidence.md). The independent background-tab startup timeout remains tracked below.
 
