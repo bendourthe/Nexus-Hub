@@ -26,23 +26,30 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 The installer detects supported tools, copies the harness files, and verifies the installation. Reopen your IDE or start a new agent session afterward.
 
-![Terminal mockup: paste the installation command, run the installer, and review verification on Windows, macOS, and Linux](assets/readme/nexus-hub-installation.gif)
+<img src="assets/readme/nexus-hub-installation.gif" alt="Compact terminal: paste the installation command, run the installer, and review verification on Windows, macOS, and Linux" width="900" />
 
 [Static preview](assets/readme/nexus-hub-installation.png) | [Install options, updates, and verification](docs/guides/installation-and-platforms.md)
 
 ## Development Workflow
 
-`/describe` maps the project, `/review` finds issues, `/plan` defines the changes, `/implement` builds them, `/test` checks behavior, and `/update release` prepares the release.
+| Step | Command | Result |
+| --- | --- | --- |
+| 1 | `/describe` | Project map and dependencies |
+| 2 | `/review` | Prioritized findings |
+| 3 | `/plan` | Phases and acceptance checks |
+| 4 | `/implement` | Changes verified against the plan |
+| 5 | `/test` | Regression and boundary checks |
+| 6 | `/update release` | Version, release notes, and release checks |
 
-![Original interactive guide IDE showing the six-command workflow, from project mapping through release preparation](assets/readme/nexus-hub-workflow.gif)
+![Guided IDE tour with an animated cursor and spotlights through the six-command development workflow](assets/readme/nexus-hub-workflow.gif)
 
 [Static preview](assets/readme/nexus-hub-workflow.png) | [Detailed workflows](docs/guides/development-workflows.md)
 
 ## Handoffs
 
-When a usage warning appears, ask for a handoff. Copy the generated prompt into another agent and continue from the recorded next step. The prompt carries verified work, unfinished changes, constraints, and project state.
+At a usage warning, choose **Wait for reset**, **Hand off**, or **Continue on credits**. Hand off generates a complete resume prompt. Copy it into another agent, send it, and continue from the recorded next step.
 
-![Split-screen desktop: Claude offers a handoff at a usage warning, the user copies it into ChatGPT, and ChatGPT continues the unfinished test](assets/readme/nexus-hub-continuity.gif)
+![Dark desktop tour: select Hand off in Claude, copy the full Nexus prompt, paste and send it in ChatGPT, then continue the unfinished test](assets/readme/nexus-hub-continuity.gif)
 
 Provide the relevant project files to the receiving app. In installed agent integrations, `/handoff` prints in chat unless you explicitly request a file.
 
@@ -63,6 +70,14 @@ Run **`/skills list`** for the current cheatsheet, arguments, aliases, and commo
 ![Nexus Hub settings inside VS Code: change effort and Fast mode, manage guardrails and alerts, and access supported provider controls](assets/readme/nexus-hub-settings.gif)
 
 [Static preview](assets/readme/nexus-hub-settings.png) | [Extension controls](extensions/nexus-hub-settings/README.md)
+
+## Usage Monitors
+
+**Hover** a taskbar item for usage bars and reset countdowns. **Click** it to open the full dashboard. Nexus Hub can turn alerts on or off while taskbar colors remain active.
+
+![VS Code tour showing the shipped Claude, Codex, and Copilot usage hovers and clicked dashboards](assets/readme/nexus-hub-usage.gif)
+
+[Static preview](assets/readme/nexus-hub-usage.png) | [Interactive tour](guides/website/readme-vscode.html?tour=usage)
 
 ## Platforms
 

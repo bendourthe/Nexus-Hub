@@ -1,27 +1,36 @@
 # README Visuals
 
-README media is generated from the original interactive guide, the shipped Nexus Hub settings panel, and an illustrative Claude desktop to ChatGPT desktop handoff. Nexus Hub remains a backend harness; its optional settings extension appears inside the host IDE.
+Six README tours show Nexus Hub inside the tools that consume it. Installation and workflow use the original HTML guide; settings and usage monitors use their shipped renderers with isolated sample data. Claude and ChatGPT desktop windows and the VS Code session shells are illustrations based on the user's reference screenshots.
 
 ## Sources
 
-- [Installer and command cards](../../guides/website/nexus-hub-guide.html): the renderer captures the original terminal DOM and command cards, including their existing output, typography, wordmark, and scopes.
-- [Development workflow](../../guides/website/training.html): the renderer seeks the original story player across all six stages. File trees, editor tabs, code edits, tool calls, composers, model controls, usage meters, and the workflow strip come from the guide. The guide and its story files are unchanged.
-- [Settings panel](../../extensions/nexus-hub-settings/media/panel.js) and [styles](../../extensions/nexus-hub-settings/media/panel.css): the shipped webview is rendered with sample data inside the guide's IDE shell. Two illustrative sessions show global changes, a manual override, Apply to all, and Fast mode. These captures demonstrate the controls; they are not native-provider test evidence.
-- [Desktop handoff](../../guides/website/readme-platforms.js), [styles](../../guides/website/readme-platforms.css), and [original desktop wallpaper](../../guides/website/readme-desktop.svg): separate warm Claude and dark ChatGPT windows, a Windows-style taskbar, and a permanent five-step process chart. Both apps receive project context. ChatGPT drafts the unfinished test; it does not claim to run repository checks.
-- [Offline preview](../../guides/website/readme-demos.html): source-guide links, exported animations, and an opt-in desktop handoff with Previous, Next, Play/Pause, scene selection, and a text transcript.
+| Tour | Source and behavior |
+| --- | --- |
+| Installation | Original guide terminal, constrained to 900 x 385 pixels with scrolling output. Windows, macOS, and Linux use the guide's commands, wordmark, output, and verification states. |
+| Workflow | Original training story across six stages. Native guide cursor movement is sampled during selections and typing; a spotlight follows the composer, tool results, and edited code. The workflow strip stays visible. |
+| Handoff | Dark Claude and ChatGPT desktop windows on an original dark Windows 11-style desktop. Thirteen stages show the three usage choices, Hand off selection, streamed generation, Copy, paste, Send, and continuation. The exact same full prompt is checked in the ChatGPT composer and sent user message. |
+| Settings | Shipped Nexus Hub webview beside Claude Code and Codex editor tabs. The tour shows global effort changes, a manual Codex override, Apply to all, Fast mode, guardrails, alerts, and the Nexus status hover. |
+| Usage | Shipped Claude, Codex, and Copilot status-bar and dashboard renderers. Hover displays usage bars and reset labels; clicking opens the corresponding dashboard in an editor tab. |
+| Commands | Eight original guide command cards, including scopes and copy examples. |
+
+- [Offline overview](../../guides/website/readme-demos.html), [settings tour](../../guides/website/readme-vscode.html), and [usage tour](../../guides/website/readme-vscode.html?tour=usage).
+- [Guide](../../guides/website/nexus-hub-guide.html) and [training](../../guides/website/training.html), which remain unchanged.
+- Desktop illustration: [scenes](../../guides/website/readme-platforms.js), [styles](../../guides/website/readme-platforms.css), and [wallpaper](../../guides/website/readme-desktop.svg).
+- VS Code illustration: [HTML](../../guides/website/readme-vscode.html), [styles](../../guides/website/readme-vscode.css), and [controller](../../guides/website/readme-vscode.js).
+- Shared cursor and spotlight: [script](../../guides/website/readme-tour.js) and [styles](../../guides/website/readme-tour.css).
+
+The handoff follows the [session-handoff contract](../../catalog/skills/workflow/session-handoff/SKILL.md): Goal, Done and verified, In progress, Next steps, Files touched, Constraints and decisions the user stated, Open questions and blockers, and Repository state. The destination receives task context, not instructions to wait for the previous provider's usage reset.
 
 ## Regeneration
 
-From the repository root, with Pillow, Playwright, and Playwright Chromium already installed, run in PowerShell:
+From the repository root, with Node, the settings extension's development dependencies, Pillow, Playwright, and Playwright Chromium installed, run in PowerShell:
 
 ```powershell
-python scripts/render_readme_demos.py --output "$env:TEMP/nexus-hub-readme-guide-export"
+python scripts/render_readme_demos.py --output "$env:TEMP/nexus-hub-readme-guided-export"
 ```
 
-Use a new output directory. The renderer refuses to overwrite an existing one. It writes five GIFs, five posters, keyframes, and a JSON report. Use `--only installation`, `workflow`, `settings`, `commands`, or `continuity` for one export. Inspect the frames before replacing distributed media, using the project's edit guard to preserve changes.
+Use a new output directory. The renderer refuses overwrites. It writes six GIFs, six posters, scene/keyframe PNGs, a generated `usage-components.js` payload, and a JSON report. Use `--only installation`, `workflow`, `settings`, `usage`, `commands`, or `continuity` for one export. Inspect the frames before replacing distributed files through the project's edit guard.
 
-[Capture adapter](../../scripts/readme_guide_capture.py) uses the original guide DOM and story API. Frames are padded when source heights differ; they are never stretched. The website navigation is excluded from exports. Terminal output and agent actions are demonstrations: rendering never executes an installer, contacts a provider, or changes user settings. Every GIF remains below 4 MiB and has a static alternative.
+[Guide adapter](../../scripts/readme_guide_capture.py) seeks the original story API. [Provider adapter](../../scripts/readme_provider_capture.py) embeds the actual settings webview. [Monitor adapter](../../scripts/readme_usage_render.cjs) loads the original TypeScript renderers with a local VS Code API stub; it neither starts the extensions nor accesses accounts. The generated [component payload](usage-components.js) keeps the preview offline and is regenerated from these sources.
 
-## Desktop References
-
-The app windows are illustrations, not screenshots of a running desktop session. Layout references include the official [Claude desktop tutorial](https://academy.claude.com/tutorials/navigating-the-claude-desktop-app), [Claude Projects guide](https://support.claude.com/en/articles/9517075-what-are-projects), and [ChatGPT Windows release notes](https://help.openai.com/en/articles/10003026-windows-app-release-notes). The Windows release-notes screenshot is a historical layout reference; app interfaces can change.
+Rendering does not execute an installer, contact a provider, or change user settings. All account values and agent conversations are samples. These are documentation illustrations, not native-provider qualification. The original source guide, settings webview, and usage-monitor implementations remain unchanged. Every GIF has a static alternative.
