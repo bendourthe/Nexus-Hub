@@ -77,6 +77,33 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  windows-native-session:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/cursor-usage-monitor/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --prefix extensions/cursor-usage-monitor
+      - name: Repository-native Windows session profile
+        run: python scripts/ci/run.py --profile full --only cursor-usage-monitor --reports-dir reports
+      - name: Retain Windows native reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cursor-windows-native-reports
+          path: reports/
+          if-no-files-found: error
+          retention-days: 7
+
   e2e-cursor-profile:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -108,7 +135,7 @@ jobs:
           retention-days: 7
 
   cursor-required:
-    needs: [build-and-test, e2e-cursor-profile]
+    needs: [build-and-test, windows-native-session, e2e-cursor-profile]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -116,8 +143,10 @@ jobs:
       - name: Require build and selected optional-host scenario
         env:
           R_build: ${{ needs['build-and-test'].result }}
+          R_windows: ${{ needs['windows-native-session'].result }}
           R_profile: ${{ needs['e2e-cursor-profile'].result }}
         run: |
           set -euo pipefail
           test "$R_build" = success
+          test "$R_windows" = success
           test "$R_profile" = success
