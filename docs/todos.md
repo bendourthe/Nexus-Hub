@@ -2,6 +2,11 @@
 
 **Integration branch:** `develop`
 
+**v4.15 native discovery budget:** Genuine native decisions resumed the original five-member run in the current session and answered legacy blocker 0. The bounded discovery correction has 343 distinct passing cases through combined qualification, 18 passing fast-profile commands, ten passing documentation commands, and a successful real-record source dry run in 14.922 seconds under the unchanged budget. Original failures remain retained; original approvals, claims, spending and retry bounds, and history are preserved. Protected integration, exact backed-up delivery, installed handoff, and genuine additional-member approval remain open. [Evidence](releases/v4/v4.15/development/v4.15-native-discovery-budget.md).
+
+- [x] Validate the captured resume and blocker replies and diagnose the repeated discovery cost without changing installed helpers or hand-editing the run record.
+- [ ] Qualify and integrate the bounded discovery correction, deliver the exact matching helper pair, and complete the installed controller handoff before additional-member admission.
+
 **v4.15 native scope prerequisite:** The approved captured-amendment repair is implemented and independently reviewed. Combined qualification retains 1,743 unchanged successful regression cases and revalidates both corrected failures through five passing focused checks, including actual cleanup and signed idempotent `MINOR COMPLETE`. Three platform skips and one unexplained handoff refusal from an earlier focused run remain explicit in the evidence. Final repository profiles, protected integration and exact backed-up helper delivery remain open. All 47 installed/native baseline files remain unchanged. These fixtures grant no real membership amendment. [Evidence](releases/v4/v4.15/development/v4.15-native-scope-amendment.md).
 
 - [ ] Complete stable qualification, merge the bounded prerequisite on green, deliver the exact qualified helpers, and obtain genuine native continuation and additional-member approval before v4.15 execution resumes.

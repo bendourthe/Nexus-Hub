@@ -54,7 +54,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from types import MappingProxyType, ModuleType, SimpleNamespace
 
@@ -776,6 +776,11 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
             raise _minor_module().ObservationUnavailable("record.provenance")
         if tracked_rc != 1:
             return None
+    return _read_record_json(ctx, path)
+
+
+def _read_record_json(ctx: RepoContext, path: Path) -> dict | None:
+    """Parse fresh bytes after the caller verifies record provenance."""
     try:
         raw = path.read_bytes()
         record = json.loads(raw)
@@ -784,6 +789,58 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
     if not isinstance(record, dict):
         return None
     return MinorSnapshot(record, path, raw, ctx) if record.get("schema") == SCHEMA_MINOR else record
+
+
+def _record_batch_provenance(ctx: RepoContext, parent: Path, names: frozenset[str]) -> tuple:
+    """Observe one parent's Git identity and exact tracked record membership."""
+    argv = [ctx.git, "-C", str(parent)]
+    rc, out = _run([*argv, "rev-parse", "--is-inside-work-tree"], ctx.budget)
+    if rc == -1:
+        raise _minor_module().ObservationUnavailable("record.provenance")
+    if rc != 0 or out.strip() != "true":
+        return rc, out, frozenset()
+    identity = []
+    for option in ("--absolute-git-dir", "--show-toplevel"):
+        identity_rc, value = _run([*argv, "rev-parse", option], ctx.budget)
+        if identity_rc != 0 or not value.strip():
+            raise _minor_module().ObservationUnavailable("record.provenance")
+        identity.append(value)
+    tracked_rc, tracked = _run(
+        [ctx.git, "--literal-pathspecs", "-C", str(parent), "ls-files", "-z", "--"], ctx.budget
+    )
+    if tracked_rc != 0:
+        raise _minor_module().ObservationUnavailable("record.provenance")
+    return tuple(identity), frozenset(tracked.split("\0")) & names
+
+
+@contextmanager
+def record_read_batch(ctx: RepoContext, paths: list[Path]) -> Iterator[Callable[[Path], dict | None]]:
+    """Validate provenance before and after a successful discovery batch.
+
+    The caller must leave the context before returning discovered authority. Each
+    read parses fresh bytes; standalone reads and later lease batches stay fresh.
+    """
+    allowed = frozenset(str(path) for path in paths)
+    parent = paths[0].parent if paths else None
+    if any(str(path.parent) != str(parent) for path in paths):
+        raise _minor_module().ObservationUnavailable("record.provenance")
+    names = frozenset(path.name for path in paths)
+    before = _record_batch_provenance(ctx, parent, names) if parent else None
+    tracked = before[-1] if before is not None else frozenset()
+    active = True
+
+    def read(path: Path) -> dict | None:
+        if not active or str(path) not in allowed:
+            raise _minor_module().ObservationUnavailable("record.provenance")
+        return None if path.name in tracked else _read_record_json(ctx, path)
+
+    try:
+        yield read
+    finally:
+        active = False
+    # Only normal exits return authority; never mask an already verified failure.
+    if parent and _record_batch_provenance(ctx, parent, names) != before:
+        raise _minor_module().ObservationUnavailable("record.provenance")
 
 
 def load_record(ctx: Context, session: str | None) -> RecordState:
