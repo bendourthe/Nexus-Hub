@@ -235,22 +235,26 @@ def test_nested_cross_context_and_consecutive_batches_do_not_share_metadata(reco
 def test_body_exception_does_not_leave_reader_active(records):
     ctx, paths, observation = records
     with pytest.raises(ValueError, match="body"):
-        with ck.record_read_batch(ctx, paths[:1]) as read:
-            raise ValueError("body")
-    with pytest.raises(cm.ObservationUnavailable, match="record.provenance"):
-        read(paths[0])
-    assert len(observation.calls) == 1
+        try:
+            with ck.record_read_batch(ctx, paths[:1]) as read:
+                raise ValueError("body")
+        finally:
+            with pytest.raises(cm.ObservationUnavailable, match="record.provenance"):
+                read(paths[0])
+            assert len(observation.calls) == 1
 
 
 def test_known_integrity_failure_is_not_masked_by_unavailable_final_probe(records):
     ctx, paths, observation = records
     observation.unavailable_at = 2
     with pytest.raises(ck.MinorConflict, match="record-tampered"):
-        with ck.record_read_batch(ctx, paths[:1]) as read:
-            raise ck.MinorConflict("record-tampered")
-    with pytest.raises(cm.ObservationUnavailable, match="record.provenance"):
-        read(paths[0])
-    assert len(observation.calls) == 1
+        try:
+            with ck.record_read_batch(ctx, paths[:1]) as read:
+                raise ck.MinorConflict("record-tampered")
+        finally:
+            with pytest.raises(cm.ObservationUnavailable, match="record.provenance"):
+                read(paths[0])
+            assert len(observation.calls) == 1
 
 
 def test_caught_integrity_exception_still_requires_final_provenance(records):
