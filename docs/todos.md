@@ -2,6 +2,23 @@
 
 **Integration branch:** `develop`
 
+**v4.15 native discovery budget:** Genuine native decisions resumed the original five-member run in the current session and answered legacy blocker 0. The bounded discovery correction has 343 distinct passing cases through combined qualification, 18 passing fast-profile commands, ten passing documentation commands, and a successful real-record source dry run in 14.922 seconds under the unchanged budget. Original failures remain retained; original approvals, claims, spending and retry bounds, and history are preserved. Protected integration, exact backed-up delivery, installed handoff, and genuine additional-member approval remain open. [Evidence](releases/v4/v4.15/development/v4.15-native-discovery-budget.md).
+
+- [x] Validate the captured resume and blocker replies and diagnose the repeated discovery cost without changing installed helpers or hand-editing the run record.
+- [ ] Qualify and integrate the bounded discovery correction, deliver the exact matching helper pair, and complete the installed controller handoff before additional-member admission.
+
+**Cursor Usage Monitor - next installer release:** The user confirmed the installed repair works. Its uncommitted source is preserved in the primary checkout, and the scoped repair is transferred into `fix/cursor-encrypted-session-release` from current integration, with extension version 0.1.2. Fresh Windows qualification passes 393 tests with two existing skips, all four canonical monitor-profile commands, real synthetic SQLite/DPAPI checks and rebuilt VSIX verification. The Windows native regression is included in the required monitor workflow. All 43 primary pending paths remain unchanged; unrelated manifest settings, dependency changes and credit-reminder work are preserved. PR #621 merged as `636c248fb` after all 35 applicable checks passed, with one optional render skip. Its merged tree matches the qualified candidate and post-merge smoke and provenance pass. Actual released-installer verification remains open. [Carry record](releases/v4/v4.15/development/cursor-encrypted-session-next-installer.md).
+
+- [x] Transfer the working encrypted-session repair with guarded version-only metadata changes and qualify its normal source build.
+
+- [x] Merge the Cursor repair on green and verify its merged tree and post-merge checks.
+- [ ] Include it in the next authorized installer release and verify the installed repaired extension loads fresh usage after any required reload and renewed consent.
+
+**v4.15 native scope prerequisite:** [PR #620](https://github.com/bendourthe/Nexus-Hub/pull/620) merged as `3c4ead7b0` after all 31 applicable checks passed, with optional rendering skipped; post-merge smoke and provenance pass, and the merged tree matches the qualified candidate. The exact eight approved helpers are installed with verified original backups. At delivery, all 39 unrelated baseline files and the real run record were unchanged. The installed read-only audit validated all five original frozen members and retained the then-existing `approval-not-covered` blocker. Genuine native session resume and blocker 0 acknowledgment are now recorded. Controller handoff and additional-member approval remain open. Earlier qualification failures, platform limits and the host sleep interruption are preserved in external receipts. [Evidence](releases/v4/v4.15/development/v4.15-native-scope-amendment.md).
+
+- [x] Qualify and merge the original captured-amendment prerequisite and deliver its exact helpers with verified backups.
+- [x] Record genuine native session resume and blocker 0 acknowledgment without expanding membership.
+
 **v4.14 controller reconciliation:** PR #615 merged as `c53444c4d` after all 31 applicable checks passed, with one optional skip; its merged tree matches the qualified source and post-merge smoke/provenance pass. Backed-up delivery changed only the approved `completion_minor.py`, preserving 111 other scripts, VERSION, and native records. The ordinary installed native archive re-froze the original seven members at `a557655f5`, with 171 link repairs, 151 path mentions, 38 files, and zero newly broken links. Closing merge `2d32f4bc8` retains that actual archive ancestry and the exact qualified develop tree. Native completion then exposed an archived historical-scope hash mismatch and redundant full-ledger normalization cost; the two bounded reader corrections are under final qualification with approval bounds, ledger scope, and budgets unchanged. Corrective integration/delivery, fresh cleanup receipts, actual `MINOR COMPLETE v4.14`, and safe worktree retirement remain open. [Evidence](archives/v4/v4.14/development/v4.14-controller-reconciliation-evidence.md).
 
 - [x] Reproduce and qualify exact patch provenance through both existing readers without changing approval bounds or copy content.
@@ -459,6 +476,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.15.4 checker evidence and diagnostics
 
 - [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
+
+## Queued work - v4.15.5 stuck-turn notice and environment-fact replay
+
+- [x] Complete the [v4.15.5 comparison](releases/v4/v4.15/comparisons/v4.15.5-comparison-token-economizer-and-agent-scripts.md) against microsoft/TokenEconomizer and steipete/agent-scripts.
+- [ ] Implement the confirmed [v4.15.5 plan](releases/v4/v4.15/plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md): four skill text rules, a per-user hashed turn ledger with a stuck-turn advisory notice on every derived platform (default decided by measurement on real transcripts), and opt-in allowlisted environment-fact replay. Scope, placement, four phases and six grill decisions confirmed on 2026-11-05; implementation is 0/4 phases and 0/36 tasks. The unused-tool report is deferred to v4.16.4.
 
 ## Queued work - v4.15.7 CI speed without coverage loss
 

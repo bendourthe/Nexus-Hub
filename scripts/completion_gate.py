@@ -363,7 +363,7 @@ def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, 
     sys.modules[name] = module
     spec.loader.exec_module(module)
     try:
-        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
+        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()), minor_protocol=1)
     except (OSError, ValueError, module.Malformed, module._minor_module().ObservationUnavailable) as exc:
         raise ValueError('minor controller cannot be verified') from exc
     if _is_inside(checker, ctx.root):
