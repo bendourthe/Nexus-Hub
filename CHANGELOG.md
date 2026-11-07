@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Minor-run discovery avoids repeated Git checks for historical records.** Each discovery batch checks Git ownership before and after reading fresh record bytes, preserving the existing observation budget, approvals and refusal rules.
+
 - **Cursor Usage Monitor reads encrypted Windows sessions again.** Version 0.1.2 decrypts Cursor's named encrypted session in memory using its adjacent application key and Windows data protection. Expanded access requires renewed consent. Unsupported formats, platforms and native failures stop safely; plaintext sessions remain supported. The normal installer builds this repaired source, with native Windows regression coverage.
 
 - **Native minor completion preserves archived historical approvals and avoids redundant migration scans.** An accepted historical scope page can retain its original plan hash only when the native archive identity and exact original Git witness agree. Migration-copy verification skips full Markdown mention rewrites for absent native path prefixes while checking every historical ledger within the unchanged budget. Missing or changed witnesses still refuse verification; signed approvals and native writers remain unchanged.

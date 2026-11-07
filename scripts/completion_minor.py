@@ -730,6 +730,11 @@ def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Pa
 def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
                      *, include_linked: bool = False, predicate=None) -> list[Path]:
     """Authenticated common-directory ownership includes the legacy absent-binding form."""
+    batch_reader = getattr(ck, 'record_read_batch', None)
+    if not callable(batch_reader):
+        if getattr(ck, 'MINOR_AMENDMENT_PROTOCOL', None) != MINOR_AMENDMENT_PROTOCOL:
+            raise ck.MinorConflict('minor-amendment-consumer-incompatible')
+        raise ObservationUnavailable('record.provenance')
     found = []
     direct = rctx.scoped_record_path('minor:' + token) if token else None
     common = _common_dir(rctx, rctx.root)
@@ -742,29 +747,30 @@ def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None
         except FileNotFoundError:
             return []
         paths = sorted(path for path in store.iterdir() if path.name.endswith('.json'))
-        for path in paths:
-            if path.name.endswith('.gate.json'):
-                continue
-            record = ck.read_record(rctx, path)
-            if record is None:
-                # No absent-create decision may hide an unreadable possible owner.
-                if include_linked or token is None or path == direct:
-                    raise ck.MinorConflict('controller-ownership-unavailable')
-                continue
-            if record.get('schema') != ck.SCHEMA_MINOR:
-                continue
-            if token and record.get('minor') != token:
-                continue
-            if predicate is not None and not predicate(record):
-                _controller_metadata(ck, record, path)
-                continue
-            identity = controller_identity(ck, rctx, record, path, same_common=False)
-            if identity['git_common_dir'] != common:
-                continue
-            if token and not include_linked and str(rctx.root) not in {
-                    identity['origin_root'], identity['repo_root']} and path != direct:
-                continue
-            found.append(path)
+        with batch_reader(rctx, paths) as read:
+            for path in paths:
+                if path.name.endswith('.gate.json'):
+                    continue
+                record = read(path)
+                if record is None:
+                    # No absent-create decision may hide an unreadable possible owner.
+                    if include_linked or token is None or path == direct:
+                        raise ck.MinorConflict('controller-ownership-unavailable')
+                    continue
+                if record.get('schema') != ck.SCHEMA_MINOR:
+                    continue
+                if token and record.get('minor') != token:
+                    continue
+                if predicate is not None and not predicate(record):
+                    _controller_metadata(ck, record, path)
+                    continue
+                identity = controller_identity(ck, rctx, record, path, same_common=False)
+                if identity['git_common_dir'] != common:
+                    continue
+                if token and not include_linked and str(rctx.root) not in {
+                        identity['origin_root'], identity['repo_root']} and path != direct:
+                    continue
+                found.append(path)
     except OSError as exc:
         raise ck.MinorConflict('controller-ownership-unavailable') from exc
     return found
