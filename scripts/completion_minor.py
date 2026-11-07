@@ -48,7 +48,9 @@ CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
 check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
-    from check_plan_completion import RepoContext
+    import check_plan_completion
+
+    RepoContext = check_plan_completion.RepoContext
 
 MINOR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 PLAN_VERSION_RE = re.compile(
