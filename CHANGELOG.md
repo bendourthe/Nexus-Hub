@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Minor runs can accept explicitly approved additions.** A new captured approval can add named plans and limited gap-transfer permissions without replacing the original run. Existing members, claims, approvals, budgets and blockers are preserved. Added plans receive their own grants and still pass normal implementation and publication admission. Older or incomplete helper installations refuse amended runs instead of silently using only the original members.
+
 - **Per-model prompting profiles refreshed against current vendor documentation.** A full `/tune-prompting` run researched 58 models across Claude, OpenAI, Codex, Cursor, Gemini and Antigravity from each vendor's own pages, and kept only the 532 of 562 claims that survived three independent skeptics (source authority, currency, actionability). 51 profiles were refreshed with 475 of those claims; 15 hand-curated, test-guarded profiles (Claude Sonnet 5.5, GPT-6 Astra, GPT-6.1 Sol, Gemini 4 Argon, the Gemini Flash and Cursor families, and GPT-5.6) were kept unchanged. The Claude Code and OpenAI rosters were re-confirmed (the OpenAI roster adds the GPT-6 family, including the new gpt-6.1-terra and gpt-6-luna profiles), and both read in sync. No shared skill, command or template changed: every claim is model-specific or vendor-specific, so it stays in the profiles. Models left without a fresh profile are listed as WN-30.
 
 ### Fixed

@@ -156,7 +156,7 @@ def _git(rctx: ck.RepoContext, *args: str) -> tuple[int, str]:
 
 def _record(rctx: ck.RepoContext, token: str, session: str | None) -> tuple[dict | None, Path]:
     """The verified minor record (or None) and its path; a forced verdict raises Forced."""
-    state = cm.load_minor(ck, rctx, token, session)
+    state = cm.load_minor(ck, rctx, token, session, minor_protocol=1)
     if state.forced is not None:
         raise Forced(state.forced[0])
     return state.record, cm.record_file(ck, rctx, token)
@@ -633,6 +633,9 @@ def plan_migration(
         raise Refused("cannot-verify", "ledger history at the record start")
     if gate != "met":
         raise Refused(why, pid)
+    grant = next((g for g in cm.amendment_gap_grants(record) if g["id"] == pid), None)
+    if grant is not None and reason != grant["reason"]:
+        raise Refused("migration-reason-outside-amendment", pid)
     if why == "planned-follow-on" and reason != "user-deferred":
         raise Refused("planned-followon-reason-invalid", pid)
     target_token = cm.next_minor(token)
@@ -979,7 +982,7 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
         plans = cm.scan_plans(rctx.root, major, minor)
     except cm.MinorMalformed as exc:
         return [Refused("plans-malformed", str(exc))]
-    members = {str(m.get("version")) for m in (record or {}).get("members") or [] if isinstance(m, dict)}
+    members = {str(m.get("version")) for m in (cm.effective_members(ck, record) if record else []) if isinstance(m, dict)}
     repo = cm.hosting_repo(ck, rctx, (record or {}).get("repo"))
     out: list[Refused] = []
     for plan in plans:
@@ -1092,7 +1095,7 @@ def bound_plan_refusals(rctx: ck.RepoContext, repairs: list[Repair], record: dic
             if other.get("plan") in plans and ck.record_live(rctx, path)[0]:
                 bound.add(str(other.get("plan")))
         elif cm._minor_record_live(ck, other):
-            for member in other.get("members") or []:
+            for member in cm.effective_members(ck, other):
                 if isinstance(member, dict) and member.get("plan_path") in plans:
                     bound.add(str(member.get("plan_path")))
                 archived = member.get("archived") if isinstance(member, dict) else None
@@ -1397,7 +1400,7 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
     major, minor = cm.parse_minor(ck, token)
     by_version = {p.version: p for p in cm.scan_plans(rctx.root, major, minor)}
     head = rctx._git_out("rev-parse", "HEAD")
-    for member in record.get("members") or []:
+    for member in cm.effective_members(ck, record):
         plan = by_version.get(str(member.get("version")))
         if plan is not None:
             archived = member.get("archived") if isinstance(member.get("archived"), dict) else {}
@@ -1407,7 +1410,7 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
             member["archived"] = archived
             member["plan_path"] = plan.rel
             member["plan_sha256"] = ck.plan_hash_text(plan.text)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
     ck._write_record(record_path, record)
 
 
@@ -1753,7 +1756,7 @@ def _archive_branch_refusals(rctx: ck.RepoContext, record: dict, version: str) -
     branch = cm.current_branch(rctx)
     found = _ARCHIVE_BRANCH_RE.match(branch or "")
     named = found.group(1).split("-") if found else []
-    members = {str(m.get("version")) for m in record.get("members") or [] if isinstance(m, dict)}
+    members = {str(m.get("version")) for m in cm.effective_members(ck, record) if isinstance(m, dict)}
     if version not in named or not set(named) <= members:
         return [Refused("not-on-archive-branch", branch or "detached")]
     target = cm._target(record)
@@ -1838,7 +1841,7 @@ def _cross_reference_refusals(
     repairs: list[Repair], record: dict, version: str, by_version: dict[str, cm.Plan],
 ) -> list[Refused]:
     """A repair that rewrites another member's frozen plan would make the record tampered; refuse instead."""
-    others = {by_version[str(m.get("version"))].rel for m in record.get("members") or []
+    others = {by_version[str(m.get("version"))].rel for m in cm.effective_members(ck, record)
               if isinstance(m, dict) and m.get("version") != version and str(m.get("version")) in by_version}
     return [Refused("member-plan-cross-reference", rel) for rel in sorted({r.old_rel for r in repairs} & others)]
 
@@ -1878,7 +1881,7 @@ def _staged_blobs(rctx: ck.RepoContext, paths: list[str]) -> dict[str, str]:
 
 def _sign_member(rctx: ck.RepoContext, record: dict, record_path: Path) -> None:
     # `members` is signed, so the archived identity is a signed update, never an unsigned edit.
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
     ck._write_record(record_path, record)
 
 
@@ -1901,13 +1904,14 @@ def _archive_member(
     rctx: ck.RepoContext, args: argparse.Namespace, token: str, version: str, record: dict, record_path: Path,
 ) -> int:
     """Every refusal, then the move, repair, proof, signed identity, and one commit."""
-    classes = cm._classes(record)
-    if "archive-member" not in classes or "archive-minor" not in classes:
-        raise Refused("approval-not-covered", "the minor record does not carry archive-member")
     members = cm.ordered_members(record)
     member = next((m for m in members if m.get("version") == version), None)
     if member is None:
         raise Refused("not-a-member", version)
+    classes = {item.get("class") for item in cm.member_classes(record, member)}
+    if "archive-member" not in classes or "archive-minor" not in cm._classes(record):
+        approval_subject = "member" if any(member is added for added in record.get("minor_amendment_members", [])) else "minor record"
+        raise Refused("approval-not-covered", f"the {approval_subject} does not carry archive-member")
     if members[-1] is member:
         raise Refused("use-minor-close", version)
     major, minor = cm.parse_minor(ck, token)
