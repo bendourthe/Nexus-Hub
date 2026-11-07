@@ -165,6 +165,8 @@ def test_windows_native_decryption_runs_the_canonical_profile_and_is_required(
     assert job["runs-on"] == "windows-latest"
     steps = job["steps"]
     long_paths = step_named(steps, "Enable Git long paths before checkout")
+    assert long_paths["if"] == "runner.os == 'Windows'"
+    assert long_paths["shell"] == "pwsh"
     assert long_paths["run"].strip() == "git config --global core.longpaths true"
     checkout = next(index for index, step in enumerate(steps) if step.get("uses", "").startswith("actions/checkout@"))
     assert steps.index(long_paths) < checkout
