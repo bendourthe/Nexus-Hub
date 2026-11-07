@@ -1677,7 +1677,9 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Triage, 2026-11-04**: every one of the nine security alerts now has a disposition. Fixed in PR #611: #177 (the Cursor Usage Monitor decodes `&amp;` last), #136 and #137 (the CLI host test compares the parsed host name), and #211 (the script matcher accepts end tags such as `</script >`); the follow-up CodeQL finding on the first regex fix (#530) is fixed in the same pull request. Dismissed on GitHub with the maintainer's approval and a recorded reason each: #147 and #148 (won't fix: the Claude and Codex monitors send the user's own token to the vendor's fixed HTTPS usage URL), #156 (won't fix: the media-key script stores the key the user entered in their own env file, 0600 on POSIX), #157 (false positive: only the last 4 characters are printed), and #433 (used in tests: a test asserting a synthetic example's text).
 
-**Owner**: security and CI owner. **Severity**: low - the security alerts are resolved; what remains is the 205 quality notes. **Status**: open for the quality notes only. **Suggested next step**: decide, rule by rule, whether to fix or suppress the quality notes, starting with the largest groups (unused imports, empty `except` blocks, unused locals).
+**Additional observation, 2026-11-06 UTC**: PR #615's successful CodeQL run reported #544 (`py/import-and-import-from`) and #545 (`py/cyclic-import`) in `completion_minor.py`. Security and maintainability reviewed the existing dependency edges and six cold import orders with no functional or security blocker; both review conversations were resolved without dismissing or suppressing the alerts. These quality notes remain in this follow-up. The 205 count above is the dated 2026-11-04 main-branch baseline; this observation does not establish a new global total.
+
+**Owner**: security and CI owner. **Severity**: low - the security alerts are resolved; the quality notes remain. **Status**: open for the quality notes only. **Suggested next step**: decide, rule by rule, whether to fix or suppress the quality notes, starting with the largest groups (unused imports, empty `except` blocks, unused locals).
 
 #### WN-30: Some rostered models have no fresh prompting profile after the 2026-11-04 full refresh
 
@@ -3541,8 +3543,6 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Owner**: Antigravity integration owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
-**Update 2026-10-20 (v4.14.1 platform-contract pass)**: re-verified. The [migration guide](https://antigravity.google/docs/migration/workflows-to-skills) now states "Current workflows will stop working on October 19, 2026" and "After October 19, 2026, legacy workflow directories are no longer indexed or executable using slash commands." The retirement is in effect, so waiting for the vendor date no longer blocks this entry. The read-contract table no longer labels `~/.gemini/config/workflows/` or `.agents/workflows/` a slash surface, and every command still reaches Antigravity as a command-skill. Not done at release time: removing the `commands_to_slash` emission and `commands_subdir`/`ide_commands_subdir` changes delivered files together with the `contract_checks` and `install_verify` rows and their tests, which is plan work for this entry's owner.
-
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
 
 **Current residual from `v4.12.0#DF-1`**: After2026-11-01 recheck the vendor retirement date, then remove legacy commands_to_slash workflow emission/config destinations and requalify the platform contract.
@@ -3565,6 +3565,8 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Owner**: Antigravity integration maintainer. **Status**: open, dated. **Suggested next step**: after 2026-11-01, remove the `commands_to_slash` workflow emission from the Antigravity integration, drop `commands_subdir`/`ide_commands_subdir` from its config, update the read-contract row, and re-run the platform-contract verification. Re-check the date against the vendor page before acting, in case retirement slips.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-77`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `DF-1`.
+
+**Update 2026-10-20 (v4.14.1 platform-contract pass)**: re-verified. The [migration guide](https://antigravity.google/docs/migration/workflows-to-skills) now states "Current workflows will stop working on October 19, 2026" and "After October 19, 2026, legacy workflow directories are no longer indexed or executable using slash commands." The retirement is in effect, so waiting for the vendor date no longer blocks this entry. The read-contract table no longer labels `~/.gemini/config/workflows/` or `.agents/workflows/` a slash surface, and every command still reaches Antigravity as a command-skill. Not done at release time: removing the `commands_to_slash` emission and `commands_subdir`/`ide_commands_subdir` changes delivered files together with the `contract_checks` and `install_verify` rows and their tests, which is plan work for this entry's owner.
 
 - **Migrated from**: v4.13#AR-77 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: AR-77 Antigravity legacy workflow retirement applies only after the vendor's dated retirement; acting before it would remove a still-read surface.
