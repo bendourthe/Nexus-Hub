@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { decryptStoredSession } from "./encryptedSession";
 import type { ProviderResult } from "../types";
 import { providerError } from "./errors";
 
@@ -59,6 +60,7 @@ export interface SessionAdapterDependencies {
   allowlistedKey?: string;
   loadSqlite?: SqliteLoader;
   pathExists?: (path: string) => boolean;
+  decryptSession?: (value: string, statePath: string) => Promise<string>;
 }
 
 const NODE_SQLITE_SPECIFIER = "node:sqlite";
@@ -82,12 +84,14 @@ export class CursorSessionAdapter {
   private readonly allowlistedKey: string;
   private readonly loadSqlite: SqliteLoader;
   private readonly pathExists: (path: string) => boolean;
+  private readonly decryptSession: (value: string, statePath: string) => Promise<string>;
 
   public constructor(dependencies: SessionAdapterDependencies) {
     this.statePath = dependencies.statePath;
     this.allowlistedKey = dependencies.allowlistedKey ?? DEFAULT_SESSION_KEY;
     this.loadSqlite = dependencies.loadSqlite ?? loadNodeSqlite;
     this.pathExists = dependencies.pathExists ?? existsSync;
+    this.decryptSession = dependencies.decryptSession ?? decryptStoredSession;
   }
 
   /**
@@ -176,6 +180,22 @@ export class CursorSessionAdapter {
         ok: false,
         error: providerError("session-expired", "credential-api")
       };
+    }
+    if (session.startsWith("cursor-safe-storage:")) {
+      try {
+        const decrypted = extractSessionValue({
+          value: await this.decryptSession(session, this.statePath)
+        });
+        if (decrypted === null || decrypted.startsWith("cursor-safe-storage:")) {
+          throw new Error();
+        }
+        return { ok: true, value: decrypted };
+      } catch {
+        return {
+          ok: false,
+          error: providerError("session-decryption-unavailable", "credential-api")
+        };
+      }
     }
     return { ok: true, value: session };
   }
