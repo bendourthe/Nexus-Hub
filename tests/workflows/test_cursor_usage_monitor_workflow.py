@@ -164,6 +164,10 @@ def test_windows_native_decryption_runs_the_canonical_profile_and_is_required(
     job = workflow["jobs"]["windows-native-session"]
     assert job["runs-on"] == "windows-latest"
     steps = job["steps"]
+    long_paths = step_named(steps, "Enable Git long paths before checkout")
+    assert long_paths["run"].strip() == "git config --global core.longpaths true"
+    checkout = next(index for index, step in enumerate(steps) if step.get("uses", "").startswith("actions/checkout@"))
+    assert steps.index(long_paths) < checkout
     setup = next(step for step in steps if step.get("uses", "").startswith("actions/setup-node@"))
     assert setup["with"]["node-version"] == "22"
     assert setup["with"]["cache-dependency-path"] == f"{EXTENSION_DIR}/package-lock.json"
