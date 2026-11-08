@@ -496,6 +496,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Complete the [v4.15.5 comparison](releases/v4/v4.15/comparisons/v4.15.5-comparison-token-economizer-and-agent-scripts.md) against microsoft/TokenEconomizer and steipete/agent-scripts.
 - [ ] Implement the confirmed [v4.15.5 plan](releases/v4/v4.15/plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md): four skill text rules, a per-user hashed turn ledger with a stuck-turn advisory notice on every derived platform (default decided by measurement on real transcripts), and opt-in allowlisted environment-fact replay. Scope, placement, four phases and six grill decisions confirmed on 2026-11-05; implementation is 0/4 phases and 0/36 tasks. The unused-tool report is deferred to v4.16.4.
 
+## Queued work - v4.15.7 CI speed without coverage loss
+
+- [ ] Implement the confirmed [v4.15.7 plan](releases/v4/v4.15/plans/v4.15.7-adoption-ci-speed-without-coverage-loss.md), seeded by the [CI speed comparison](releases/v4/v4.15/comparisons/v4.15.7-comparison-ci-speed-and-untangle-codebase.md). Measured baseline: median 50 min per code PR across 14 runs, with one serial 47.8 min Linux `tests` job on the critical path. Five phases: latency audit in `cicd-architect`, Linux test matrix with a node-ID partition proof, Windows job split, opt-in pre-push gate with develop-seeded caches and a blobless `changes` checkout, then the final phase. Release gate: first green integration attempt at 30 min or less; the 10-PR median is a dated follow-up. No test is removed. Critiqued by six lenses and confirmed on 2026-11-06; implementation is 0/5 phases and 0/28 tasks. Phases 2 to 4 are serial with v4.15.4 (`scripts/ci/profiles.py`).
+- [ ] Hand the comparison's U1 to U5 codebase-untangling ideas to the v4.18.2 de-slop repair plan when it is next refreshed, and the distributed pre-push fast gate (C6) to the v4.17.0 push-size-guard plan.
+
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
 
 - [x] Complete the [v4.16.3 two-source comparison](releases/v4/v4.16/comparisons/v4.16.3-comparison-tool-output-containment-and-context-attribution.md) (context-mode MCP server, turn-inspector mod); adoption target v4.16.3 confirmed by the user on 2026-10-13.

@@ -209,3 +209,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: frequent component, hot path (for UI)
 
 **Relationships**: Governs the frequency-of-use rule in `hallmark-design` gate 25 (plan v4.22.6): no entrance animation and at most a short exit. Reduced-motion requirements stay with `accessibility-engineering`. Not the same as a performance hot path, which concerns compute rather than perceived time.
+
+## Critical-Path Job
+
+**Definition**: The non-aggregate CI job whose finish time sets when the required aggregate check (`ci-required`) can resolve, measured from the run's creation by `ci_latency_audit.py` (plan v4.15.7).
+
+**Avoid**: slowest job (when it is an aggregate such as `report`), bottleneck step, long pole
+
+**Relationships**: Determined by the `needs` graph, not by which job finishes last; aggregate jobs always finish last and are excluded. Shortening any other job does not shorten the run.
+
+## Partition Proof
+
+**Definition**: A test that collects pytest node IDs once unsharded and once per shard and asserts the shard sets are pairwise disjoint and their union equals the unsharded set (plan v4.15.7).
+
+**Avoid**: shard check, coverage test (for this purpose), glob match test
+
+**Relationships**: Stronger than a file-name glob check, which models `--ignore-glob` rather than running pytest. Complements `tests/workflows/test_ci_runs_every_repo_test.py`, which proves every test root is selected by some CI job.
