@@ -13,6 +13,38 @@ _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: html-responsive-guard]"
+# The embedded Python reads the tag from the environment.
+export _NEXUS_TAG
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 _json_skip_ws() {
   local char
   while [ "$_JSON_POS" -lt "$_JSON_LEN" ]; do
@@ -207,8 +239,7 @@ elif command -v python >/dev/null 2>&1; then
   _PYTHON=$(command -v python)
 else
   if [ "${#_INPUT}" -gt 1048576 ]; then
-    printf '[%s] CANNOT RUN: Python 3 is required to classify a hook payload larger than 1 MiB.\n' \
-      "$_HOOK_NAME" >&2
+    _nexus_msg "CANNOT RUN: Python 3 is required to classify a hook payload larger than 1 MiB."
     exit 3
   fi
   shopt -s nocasematch
@@ -218,13 +249,11 @@ else
   set -e
   if [ "$_JSON_STATUS" -ne 0 ] || [ "$_TOOL_INPUT_COUNT" -ne 1 ] || \
      [ "$_TOOL_PATH_COUNT" -ne 1 ] || [ "$_TOOL_PATH_AMBIGUOUS" -ne 0 ]; then
-    printf '[%s] CANNOT RUN: Python 3 is required because the hook payload is malformed or unclassifiable.\n' \
-      "$_HOOK_NAME" >&2
+    _nexus_msg "CANNOT RUN: Python 3 is required because the hook payload is malformed or unclassifiable."
     exit 3
   fi
   if [[ "$_TOOL_PATH_VALUE" =~ \.(html?|xhtml|css)$ ]]; then
-    printf '[%s] CANNOT RUN: Python 3 is required to inspect relevant HTML/CSS payload %s.\n' \
-      "$_HOOK_NAME" "$_TOOL_PATH_VALUE" >&2
+    _nexus_msg "CANNOT RUN: Python 3 is required to inspect relevant HTML/CSS payload $(_nexus_esc "$_TOOL_PATH_VALUE")."
     exit 3
   fi
   exit 0
@@ -237,7 +266,6 @@ import os
 import re
 import sys
 
-HOOK = "html-responsive-guard"
 RULE = "catalog/rules/html/responsive-layout.md"
 PATH_RE = re.compile(r"\.(?:html?|xhtml|css)$", re.IGNORECASE)
 MAX_WIDTH_RE = re.compile(r"\bmax-width\s*:\s*([^;{}]+)", re.IGNORECASE)
@@ -742,6 +770,27 @@ def find_declaration(path, content):
     return None
 
 
+
+
+def nexus_esc(value):
+    # Make CR, LF, ESC and the other C0 control characters visible, so an echoed
+    # value cannot start a forged tagged line.
+    out = []
+    for ch in value:
+        code = ord(ch)
+        if code == 9:
+            out.append("\\t")
+        elif code == 10:
+            out.append("\\n")
+        elif code == 13:
+            out.append("\\r")
+        elif code < 32 or code == 127:
+            out.append("\\x%02x" % code)
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
 try:
     payload = json.load(sys.stdin)
 except Exception:
@@ -772,8 +821,8 @@ if not content:
 
 declaration = find_declaration(path, content)
 if declaration:
-    print(f"[{HOOK}] BLOCKED: {declaration} in {path} violates {RULE}.", file=sys.stderr)
-    print("Fixed px/ch text caps must move to a responsive container.", file=sys.stderr)
+    print(os.environ["_NEXUS_TAG"] + f" BLOCKED: {nexus_esc(declaration)} in {nexus_esc(path)} violates {RULE}.", file=sys.stderr)
+    print("Fixed px/ch text caps must move to a responsive container.", file=sys.stderr)  # nexus: hook-msg-exempt continuation line of the BLOCKED message above
     sys.exit(2)
 
 if reconstruction_failed:
@@ -781,11 +830,11 @@ if reconstruction_failed:
     unsafe_custom_property = unsafe_custom_property_declaration(new_string)
     risky_declaration = unresolved or unsafe_custom_property
     if risky_declaration:
-        print(
-            f"[{HOOK}] BLOCKED: could not reconstruct {path} before evaluating {risky_declaration}; "
-            f"verify the target file and retry. Rule: {RULE}.",
-            file=sys.stderr,
+        message = (
+            f" BLOCKED: could not reconstruct {nexus_esc(path)} before evaluating {nexus_esc(risky_declaration)}; "
+            f"verify the target file and retry. Rule: {RULE}."
         )
+        print(os.environ["_NEXUS_TAG"] + message, file=sys.stderr)
         sys.exit(2)
 sys.exit(0)
 '
@@ -794,5 +843,5 @@ set -e
 
 if [ "$_STATUS" -eq 0 ]; then exit 0; fi
 if [ "$_STATUS" -eq 2 ]; then exit 2; fi
-printf '%s\n' "[html-responsive-guard] CANNOT RUN: internal parser failed with status $_STATUS; refusing to allow a potentially relevant HTML/CSS edit." >&2
+_nexus_msg "CANNOT RUN: internal parser failed with status $_STATUS; refusing to allow a potentially relevant HTML/CSS edit."
 exit 3

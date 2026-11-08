@@ -19,6 +19,19 @@
 
 set -euo pipefail
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: require-powershell-description]"
+# Print the tag and the message to stdout and stderr, as the block message
+# always was (the model reads stdout, the user sees stderr).
+_nexus_msg() {
+  printf '%s %s\n' "$_NEXUS_TAG" "$1"
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+}
+
 # --- Read JSON from stdin ---
 INPUT=$(cat)
 
@@ -82,7 +95,6 @@ prefix:
 
 Add a description, then retry."
 
-printf '%s\n' "$MSG"
-printf '%s\n' "$MSG" >&2
+_nexus_msg "$MSG"
 
 exit 2

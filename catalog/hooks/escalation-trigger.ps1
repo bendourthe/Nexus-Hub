@@ -40,6 +40,35 @@
 # Never fail loudly on internal errors.
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: escalation-trigger]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stdout (SessionStart context the agent
+# reads); every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    Write-Output "$script:NexusTag $Message"
+    foreach ($line in $More) { Write-Output $line }
+}
+
 $escalationMode = if ($env:ESCALATION_MODE) { $env:ESCALATION_MODE } else { "warn" }
 
 # --- Resolve the target path ---
@@ -218,12 +247,10 @@ foreach ($pattern in $sensitivePatterns) {
 
 if ($matchedPattern) {
     if ($escalationMode -eq 'block') {
-        Write-Output "ESCALATION BLOCKED: Modifying '$filePath' matches sensitive pattern '$matchedPattern'."
-        Write-Output "This file requires explicit approval. Set ESCALATION_MODE=warn to downgrade to advisory."
+        Write-NexusMessage "ESCALATION BLOCKED: Modifying '$(ConvertTo-NexusVisible $filePath)' matches sensitive pattern '$matchedPattern'." @("This file requires explicit approval. Set ESCALATION_MODE=warn to downgrade to advisory.")
         exit 2
     }
-    Write-Output "ESCALATION WARNING: Modifying '$filePath' matches sensitive pattern '$matchedPattern'."
-    Write-Output "This is a sensitive file. Please verify this change is intentional and authorized."
+    Write-NexusMessage "ESCALATION WARNING: Modifying '$(ConvertTo-NexusVisible $filePath)' matches sensitive pattern '$matchedPattern'." @("This is a sensitive file. Please verify this change is intentional and authorized.")
     exit 0
 }
 

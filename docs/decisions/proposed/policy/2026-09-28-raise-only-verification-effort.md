@@ -24,7 +24,7 @@ The definitions live in `catalog/skills/ai-development/model-routing/references/
 - Every existing recommendation is unchanged: without the new flags `score` returns today's output plus `verification_effort` equal to `effort`, and `plan_status.py --plan` and `--next` output is byte-identical for every existing plan.
 - The installed `plan_status.py` gains exactly one behavior, the `--check` mode; `/update release` calls only `--next`.
 - Phases that verify above their effort request the behaviors in `implement-phase/references/verification-behaviors.md`; a missing result becomes a NO-GO for them and stays advisory elsewhere.
-- The raise direction ships unmeasured. The `high` cap bounds it, and known gap `v4.14#DF-16` in [`known-gaps.md`](../../../releases/v4/v4.14/known-gaps.md) holds the measurement that would lift or keep the cap. Lowering effort stays out of scope until measured (`v4.14#DF-15`).
+- The raise direction ships unmeasured. The `high` cap bounds it, and known gap `v4.14#DF-16` in [`known-gaps.md`](../../../archives/v4/v4.14/known-gaps.md) holds the measurement that would lift or keep the cap. Lowering effort stays out of scope until measured (`v4.14#DF-15`).
 
 ## Alternatives considered
 

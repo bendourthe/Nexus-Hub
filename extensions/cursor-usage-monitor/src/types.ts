@@ -93,6 +93,7 @@ export type ProviderErrorCode =
   | "missing-credential"
   | "invalid-credential"
   | "session-expired"
+  | "session-decryption-unavailable"
   | "dashboard-visibility-restricted"
   | "unsupported-data-path"
   | "endpoint-unavailable"

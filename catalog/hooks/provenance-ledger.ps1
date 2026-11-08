@@ -42,6 +42,34 @@ $ErrorActionPreference = "Continue"
 
 # --- Runtime controls ---
 $hookName = "provenance-ledger"
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: provenance-ledger]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
@@ -56,7 +84,7 @@ if ($env:NEXUS_PROVENANCE_MAX_BYTES -match '^[0-9]+\z' -and
 }
 if ($maxBytes -lt 8192) {
     $maxBytes = [long]8192
-    [Console]::Error.WriteLine('[provenance-ledger] byte cap raised to minimum 8192 for complete records.')
+    Write-NexusMessage 'byte cap raised to minimum 8192 for complete records.'
 }
 $hashMaxBytes = if ($env:NEXUS_PROVENANCE_HASH_MAX_BYTES) { [long]$env:NEXUS_PROVENANCE_HASH_MAX_BYTES } else { 10485760 }
 
@@ -83,7 +111,7 @@ if ($payload.tool_input) {
 
 # A NUL cannot identify a filesystem path; refuse it rather than recording an alias.
 if ($filePath -and $filePath.IndexOf([char]0) -ge 0) {
-    [Console]::Error.WriteLine('[provenance-ledger] cannot record path containing NUL; skipping.')
+    Write-NexusMessage 'cannot record path containing NUL; skipping.'
     exit 0
 }
 
@@ -150,7 +178,7 @@ if ($isWrite -and $filePath) {
                 $pathHash = ([System.BitConverter]::ToString($pathBytes) -replace '-', '').ToLowerInvariant()
                 $normPath = "UNSUPPORTED-PATH-SHA256:$pathHash"
             } finally { $pathSha.Dispose() }
-            [Console]::Error.WriteLine('[provenance-ledger] recorded path digest without path correlation.')
+            Write-NexusMessage 'recorded path digest without path correlation.'
         }
 
         # BOM-less UTF-8, deliberately. Add-Content -Encoding utf8 emits a BOM on
@@ -178,7 +206,7 @@ if ($isWrite -and $filePath) {
                 Move-Item -LiteralPath $temporary -Destination $ledger -Force -ErrorAction Stop
             } catch {
                 Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
-                [Console]::Error.WriteLine('[provenance-ledger] degraded rotation; ledger retained above its cap.')
+                Write-NexusMessage 'degraded rotation; ledger retained above its cap.'
             }
         }
     } catch { }
@@ -213,15 +241,14 @@ if ($isCommand -and $command -and (Test-Path -LiteralPath $ledger -PathType Leaf
             $age = "unknown"
             $parsed = 0
             if ([int]::TryParse($ts, [ref]$parsed)) { $age = "$($now - $parsed)s" }
-            $hits.Add("  - $path (agent-written $age ago, hash $shortHash)")
+            $hits.Add("  - $(ConvertTo-NexusVisible $path) (agent-written $age ago, hash $(ConvertTo-NexusVisible $shortHash))")
         }
     }
 
     if ($hits.Count -gt 0) {
-        [Console]::Error.WriteLine("[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:")
-        foreach ($h in $hits) { [Console]::Error.WriteLine($h) }
-        [Console]::Error.WriteLine("  A write the agent made is now reaching an executor. Confirm the command is running what you intend.")
-        [Console]::Error.WriteLine("  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.")
+        Write-NexusMessage "TRUST SEAM: this command references a path the agent wrote in this session:" (@($hits) + @(
+            "  A write the agent made is now reaching an executor. Confirm the command is running what you intend.",
+            "  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes."))
     }
 }
 

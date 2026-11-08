@@ -190,7 +190,7 @@ def test_antigravity_seeds_documented_default_agent_mode(tmp_path: Path, monkeyp
     actions = pd.seed_platform_defaults("antigravity2", Ctx())
 
     target = fake_home / ".gemini" / "antigravity-cli" / "settings.json"
-    assert json.loads(target.read_text(encoding="utf-8")) == {"agentMode": "default"}
+    assert json.loads(target.read_text(encoding="utf-8")) == {"agentMode": ""}
     assert [a.action for a in actions] == ["created"]
 
 
@@ -530,3 +530,83 @@ def test_seeding_is_wired_into_the_install_dispatcher():
     assert "seed_platform_defaults" in body, (
         "IntegrationBase.install must invoke seed_platform_defaults for global scope"
     )
+
+
+# --------------------------------------------------------------------------
+# Nexus-Hub Settings ownership record (v4.14.6): a recorded user choice is never seeded
+# --------------------------------------------------------------------------
+
+
+def _record(home: Path, *entries: dict) -> Path:
+    path = home / ".nexus-hub" / "settings-control.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema_version": 1, "entries": list(entries)}), encoding="utf-8")
+    return path
+
+
+def _entry(tool: str, file: str, key_path: list[str], *, kind: str = "file", removed: bool = False) -> dict:
+    new = {"present": False} if removed else {"present": True, "value": "x"}
+    return {"kind": kind, "tool": tool, "file": file, "key_path": key_path, "previous": {"present": False}, "new": new}
+
+
+def test_a_recorded_codex_key_is_not_seeded_even_when_the_user_deleted_it(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    _record(tmp_path, _entry("codex", "~/.codex/config.toml", ["approval_policy"]))
+
+    pd.seed_platform_defaults("codex", Ctx())
+
+    seeded = (tmp_path / ".codex" / "config.toml").read_text(encoding="utf-8")
+    assert "approval_policy" not in seeded
+    assert "sandbox_mode" in seeded and "model_reasoning_effort" in seeded
+
+
+def test_a_removed_copilot_override_is_not_re_seeded(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    _record(tmp_path, _entry("copilot-cli", "~/.copilot/settings.json", ["permissions", "disableBypassPermissionsMode"], kind="override-removal", removed=True))
+    target = tmp_path / ".copilot" / "settings.json"
+    target.parent.mkdir()
+    target.write_text(json.dumps({"model": "auto"}), encoding="utf-8")
+
+    pd.seed_platform_defaults("copilot", Ctx())
+
+    data = json.loads(target.read_text(encoding="utf-8"))
+    assert "permissions" not in data and data["sandbox"] == {"enabled": True}
+
+
+def test_seeding_resumes_once_the_entry_is_gone(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    record = _record(tmp_path, _entry("codex", "~/.codex/config.toml", ["approval_policy"]))
+    pd.seed_platform_defaults("codex", Ctx())
+    assert "approval_policy" not in (tmp_path / ".codex" / "config.toml").read_text(encoding="utf-8")
+
+    record.unlink()
+    pd.seed_platform_defaults("codex", Ctx())
+
+    assert 'approval_policy = "on-request"' in (tmp_path / ".codex" / "config.toml").read_text(encoding="utf-8")
+
+
+def test_an_unreadable_record_seeds_nothing_for_a_catalog_file_but_not_for_others(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    record = _record(tmp_path)
+    record.write_text("{broken", encoding="utf-8")
+
+    assert pd.seed_platform_defaults("codex", Ctx()) == []
+    assert not (tmp_path / ".codex").exists()
+    assert "could not be read" in capsys.readouterr().err
+    assert [a.action for a in pd.seed_platform_defaults("qwen", Ctx())] == ["created"]
+
+
+def test_a_record_entry_that_matches_no_catalog_write_does_not_suppress_seeding(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    _record(tmp_path, _entry("codex", "~/.codex/config.toml", ["profiles", "x", "approval_policy"]))
+
+    pd.seed_platform_defaults("codex", Ctx())
+
+    assert 'approval_policy = "on-request"' in (tmp_path / ".codex" / "config.toml").read_text(encoding="utf-8")
+
+
+def test_without_owned_prunes_leaves_and_empty_tables():
+    declared = {"a": {"b": 1, "c": 2}, "d": 3, "e": {"f": {"g": 1}}}
+
+    assert pd._without_owned(declared, {("a", "b"), ("e", "f", "g")}) == {"a": {"c": 2}, "d": 3}
+    assert pd._without_owned(declared, set()) == declared

@@ -1,0 +1,367 @@
+"""T042 driver: re-prove every shipped control from the installed final-phase candidate.
+
+The candidate (CLI and extension of the final-phase tree) is installed into a scratch home
+by the Windows installer (see the scratch-home driver beside this file). This script then:
+
+- drives the INSTALLED CLI (`nexus_hub_cli.py settings ...`) against that scratch home,
+- observes the effect with the real tools (`claude`, `codex`) through copies of the files the
+  CLI wrote, so the scratch home itself only ever sees CLI writes and `reset` can be checked
+  byte for byte,
+- proves the human-presence refusals (agent-session marker, no terminal) leave every file
+  unchanged, and applies the catalog's full-auto values only to observation copies,
+- makes no model request: Claude observers are `/effort status`, `/model`-style local reads and
+  the init event (a credential source other than "none" aborts the run); Codex observers are
+  `codex doctor --json` and `codex debug prompt-input` (both local).
+
+Usage (Windows, pinned Python 3.11 with tomlkit):
+    set NEXUS_SCRATCH_PYTHON=<that python>
+    python phase6_reproof.py prove | reset | reapply | compare
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
+ROOT = Path(os.environ.get("NEXUS_REPROOF_ROOT", r"C:\nh6"))
+HOME = ROOT / "home"
+CLI = HOME / ".nexus-hub" / "scripts" / "nexus_hub_cli.py"
+PY = os.environ["NEXUS_SCRATCH_PYTHON"]
+OBS = ROOT / "obs"
+STATE = ROOT / "reproof"
+LOG = ROOT / "reproof-log.txt"
+NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+CURRENT_IDS = ("claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
+PAYLOAD = json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit --no-verify -m x"}})
+BENIGN = json.dumps({"tool_name": "Bash", "tool_input": {"command": "git status"}})
+FAILS: list[str] = []
+
+
+def say(text: str = "") -> None:
+    print(text)
+    with LOG.open("a", encoding="utf-8") as handle:
+        handle.write(text + "\n")
+
+
+def check(label: str, ok: bool, detail: str) -> None:
+    say(f"{'PASS' if ok else 'FAIL'}  {label}: {detail}")
+    if not ok:
+        FAILS.append(label)
+
+
+def base_env(extra: dict[str, str] | None = None) -> dict[str, str]:
+    env = {k: os.environ[k] for k in ("SYSTEMROOT", "PATH", "TEMP", "TMP", "COMSPEC", "PATHEXT", "WINDIR") if k in os.environ}
+    env.update(
+        HOME=str(HOME), USERPROFILE=str(HOME), APPDATA=str(HOME / "AppData" / "Roaming"),
+        LOCALAPPDATA=str(HOME / "AppData" / "Local"), NEXUS_HUB_HOME=str(HOME / ".nexus-hub"),
+    )
+    env.update(extra or {})
+    return env
+
+
+def run(argv: list[str], env: dict[str, str], cwd: Path, stdin: str | None = None, timeout: int = 120) -> tuple[int, str, str]:
+    try:
+        done = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout, input=stdin, stdin=None if stdin is not None else subprocess.DEVNULL, creationflags=NOWIN)
+    except subprocess.TimeoutExpired:
+        return -1, "", "timed out"
+    return done.returncode, done.stdout, done.stderr
+
+
+def cli(args: list[str], extra_env: dict[str, str] | None = None) -> tuple[int, str, str]:
+    OBS.mkdir(parents=True, exist_ok=True)
+    return run([PY, "-B", "-X", "utf8", str(CLI), "settings", *args], base_env(extra_env), OBS)
+
+
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:16] if path.is_file() else "absent"
+
+
+def files() -> dict[str, str]:
+    return {
+        "claude settings.json": sha(HOME / ".claude" / "settings.json"),
+        "codex config.toml": sha(HOME / ".codex" / "config.toml"),
+        "ownership record": sha(HOME / ".nexus-hub" / "settings-control.json"),
+        "guardrails.json": sha(HOME / ".nexus-hub" / "guardrails.json"),
+    }
+
+
+def show() -> dict:
+    rc, out, err = cli(["show", "--json"])
+    if rc != 0:
+        raise SystemExit(f"show failed rc={rc}: {err[:200]}")
+    return json.loads(out)
+
+
+def cell(doc: dict, control: str, tool: str, surface: str = "cli") -> dict:
+    return next(r for r in doc["records"] if (r["control"], r["tool"], r["surface"]) == (control, tool, surface))
+
+
+def fresh_dir(name: str) -> Path:
+    d = OBS / name
+    if d.exists():
+        shutil.rmtree(d)
+    d.mkdir(parents=True)
+    return d
+
+
+class Leak(RuntimeError):
+    pass
+
+
+def claude_events(cfg: Path, prompt: str, extra: tuple[str, ...] = ()) -> tuple[dict, dict]:
+    work = fresh_dir("claude-work")
+    argv = [shutil.which("claude") or "claude", "-p", prompt, "--output-format", "stream-json", "--verbose", "--max-turns", "1", "--tools", "", *extra]
+    rc, out, err = run(argv, base_env({"CLAUDE_CONFIG_DIR": str(cfg)}), work)
+    init: dict = {}
+    result: dict = {}
+    for line in out.splitlines():
+        if line.startswith("{"):
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            if event.get("subtype") == "init":
+                init = event
+            if event.get("type") == "result":
+                result = event
+    if init and init.get("apiKeySource") != "none":
+        raise Leak("claude reported a credential source; run stopped")
+    if result.get("total_cost_usd"):
+        raise Leak("a probe reported a cost; run stopped")
+    return init, result
+
+
+def claude_copy(mutate=None, name: str = "claude-cfg") -> Path:
+    """An observation copy of the settings file the CLI wrote, optionally edited (stand-in edits only)."""
+    cfg = fresh_dir(name)
+    data = json.loads((HOME / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    if mutate:
+        mutate(data)
+    (cfg / "settings.json").write_text(json.dumps(data), encoding="utf-8")
+    return cfg
+
+
+def claude_mode(cfg: Path) -> tuple[str, str]:
+    init, _ = claude_events(cfg, "probe")
+    return init.get("model", ""), init.get("permissionMode", "")
+
+
+def claude_effort(model_id: str, drop_env: bool = True) -> str:
+    def mutate(data: dict) -> None:
+        data["model"] = model_id
+        if drop_env:
+            data.get("env", {}).pop("CLAUDE_CODE_EFFORT_LEVEL", None)
+    _, result = claude_events(claude_copy(mutate, "claude-effort"), "/effort status")
+    match = re.search(r"effort level: ([a-z]+)", str(result.get("result")))
+    return match.group(1) if match else "unreadable"
+
+
+def codex_copy(extra_toml: str = "") -> tuple[Path, Path]:
+    home = fresh_dir("codex-home")
+    work = fresh_dir("codex-work")
+    text = (HOME / ".codex" / "config.toml").read_text(encoding="utf-8")
+    text += f"\n[projects.'{work}']\ntrust_level = \"trusted\"\n" + extra_toml
+    (home / "config.toml").write_text(text, encoding="utf-8")
+    return home, work
+
+
+def codex_view(extra_toml: str = "") -> dict[str, str]:
+    home, work = codex_copy(extra_toml)
+    env = base_env({"CODEX_HOME": str(home)})
+    exe = shutil.which("codex") or "codex"
+    view: dict[str, str] = {}
+    rc, out, _ = run([exe, "doctor", "--json"], env, work)
+    try:
+        view["model"] = str(json.loads(out)["checks"]["config.load"]["details"].get("model", ""))
+    except (ValueError, KeyError):
+        view["model"] = ""
+    rc, out, _ = run([exe, "debug", "prompt-input", "probe"], env, work)
+    sandbox = re.search(r"`sandbox_mode` is `([a-z-]+)`", out)
+    approval = re.search(r"Approval policy is currently ([A-Za-z-]+)", out) or re.search(r"`approval_policy` is `([a-z-]+)`", out)
+    view["sandbox_mode"] = sandbox.group(1) if sandbox else ""
+    view["approval"] = approval.group(1) if approval else ("on-request" if "# Escalation Requests" in out else "")
+    return view
+
+
+def codex_file() -> dict:
+    return tomllib.loads((HOME / ".codex" / "config.toml").read_text(encoding="utf-8"))
+
+
+def bash() -> str:
+    for p in (r"C:\Program Files\Git\bin\bash.exe", r"C:\Program Files\Git\usr\bin\bash.exe"):
+        if Path(p).is_file():
+            return p
+    raise SystemExit("no Git bash found")
+
+
+def hook_exit(guardrails: str | None, payload: str = PAYLOAD) -> tuple[int, str]:
+    """Run the INSTALLED git-guardrails hook with a home whose guardrails.json is a copy of `guardrails`."""
+    hook = HOME / ".claude" / "hooks" / "git-guardrails.sh"
+    hh = fresh_dir("hookhome")
+    (hh / ".nexus-hub").mkdir()
+    if guardrails is not None:
+        (hh / ".nexus-hub" / "guardrails.json").write_text(guardrails, encoding="utf-8")
+    env = base_env({"HOME": str(hh), "USERPROFILE": str(hh)})
+    env.pop("NEXUS_HUB_HOME", None)
+    rc, _, err = run([bash(), str(hook)], env, hh, stdin=payload)
+    return rc, " ".join(err.split())[:110]
+
+
+def prove() -> None:
+    say("=== prove: installed CLI, scratch home " + str(HOME).replace(os.path.expanduser("~"), "<HOME>"))
+    h0 = files()
+    STATE.mkdir(exist_ok=True)
+    (STATE / "hashes-before-set.json").write_text(json.dumps(h0), encoding="utf-8")
+    base_show = show()
+    (STATE / "show-before-set.json").write_text(json.dumps(base_show), encoding="utf-8")
+    say("baseline files: " + json.dumps(h0))
+
+    # Effort.
+    rc, out, err = cli(["set", "effort", "low"])
+    check("effort set low (both tools)", rc == 0, f"exit {rc}")
+    doc = show()
+    c = cell(doc, "effort", "claude")
+    check("show reports the legacy variable", c["state"] == "overridden-by" and "CLAUDE_CODE_EFFORT_LEVEL" in (c.get("layer") or ""), f"state={c['state']} layer={c.get('layer')}")
+    init_effort = claude_effort("claude-haiku-5-5", drop_env=False)
+    check("override wins in the real tool", init_effort == "high", f"/effort status with the env block present -> {init_effort} (modelSettings is low)")
+    before = files()
+    rc, _, err = cli(["remove-override", "effort", "--tool", "claude"])
+    check("remove-override needs a person", rc == 3 and files() == before, f"exit {rc}, no file changed, message: {' '.join(err.split())[:100]}")
+    seen = {i: claude_effort(i) for i in CURRENT_IDS}
+    check("Claude effort low per current model", set(seen.values()) == {"low"}, str(seen))
+    older = claude_effort("claude-opus-5")
+    check("Claude top-level key covers an older model", older == "low", f"claude-opus-5 -> {older}")
+    rc, _, _ = cli(["set", "effort", "high"])
+    seen = {i: claude_effort(i) for i in CURRENT_IDS}
+    check("Claude effort high per current model", rc == 0 and set(seen.values()) == {"high"}, str(seen))
+    check("Codex effort key", codex_file().get("model_reasoning_effort") == "high", f"config.toml model_reasoning_effort = {codex_file().get('model_reasoning_effort')!r}")
+
+    # Model.
+    rc, _, _ = cli(["set", "model", "claude-sonnet-5-5", "--tool", "claude"])
+    model, _ = claude_mode(claude_copy())
+    check("Claude model", rc == 0 and model == "claude-sonnet-5-5", f"init model -> {model}")
+    rc, _, _ = cli(["set", "model", "gpt-5.6-sol", "--tool", "codex"])
+    view = codex_view()
+    check("Codex model", rc == 0 and view["model"] == "gpt-5.6-sol", f"codex doctor model -> {view['model']}")
+    before = files()
+    rc, _, err = cli(["set", "model", "x-model", "--tool", "copilot-cli"])
+    check("Copilot CLI model is Not-Settable", rc == 4 and files() == before, f"exit {rc}, no file changed")
+
+    # Posture.
+    rc, _, _ = cli(["set", "posture", "ask"])
+    mode = claude_mode(claude_copy())[1]
+    view = codex_view()
+    check("posture ask", rc == 0 and mode == "default" and (view["approval"], view["sandbox_mode"]) == ("on-request", "workspace-write"), f"claude permissionMode={mode}; codex approval={view['approval']} sandbox={view['sandbox_mode']}")
+    before = files()
+    rc1, _, err1 = cli(["set", "posture", "full-auto"], {"CLAUDECODE": "1"})
+    check("full-auto refused inside an agent session", rc1 == 3 and files() == before, f"exit {rc1}, no file changed: {' '.join(err1.split())[:120]}")
+    rc2, _, err2 = cli(["set", "posture", "full-auto"])
+    check("full-auto refused without a terminal", rc2 == 3 and files() == before, f"exit {rc2}, no file changed: {' '.join(err2.split())[:120]}")
+    rc3, out3, _ = cli(["set", "posture", "full-auto", "--dry-run", "--json"])
+    say(f"      dry-run exit {rc3}; planned writes: {' '.join(out3.split())[:240]}")
+    cat = json.loads((HOME / ".nexus-hub" / "scripts" / "lib" / "settings_control" / "catalog.json").read_text(encoding="utf-8"))
+    wr = {w["id"]: w for w in cat["writes"]}
+    claude_full = wr["claude.posture"]["value_map"]["full-auto"]
+    codex_full = wr["codex.posture"]["value_map"]["full-auto"]
+    say(f"      catalog value for full-auto: claude defaultMode={claude_full!r}; codex={codex_full!r}")
+
+    def claude_full_auto(data: dict) -> None:
+        data.setdefault("permissions", {})["defaultMode"] = claude_full
+    mode = claude_mode(claude_copy(claude_full_auto, "claude-full"))[1]
+    home, work = codex_copy()
+    text = (home / "config.toml").read_text(encoding="utf-8")
+    text = re.sub(r'(?m)^(approval_policy|sandbox_mode)\s*=.*$', "", text)
+    codex_dict = codex_full if isinstance(codex_full, dict) else {}
+    approval_value = codex_dict.get("approval_policy", "never")
+    (home / "config.toml").write_text(f'approval_policy = "{approval_value}"\nsandbox_mode = "workspace-write"\n' + text, encoding="utf-8")
+    env = base_env({"CODEX_HOME": str(home)})
+    _, out, _ = run([shutil.which("codex") or "codex", "debug", "prompt-input", "probe"], env, work)
+    approval = re.search(r"Approval policy is currently ([A-Za-z-]+)", out)
+    sandbox = re.search(r"`sandbox_mode` is `([a-z-]+)`", out)
+    check("full-auto values are honored by the tools (stand-in on copies)", mode == "bypassPermissions" and approval and approval.group(1) == "never" and sandbox and sandbox.group(1) == "workspace-write", f"claude permissionMode={mode}; codex approval={approval.group(1) if approval else '?'} sandbox={sandbox.group(1) if sandbox else '?'}")
+    rc, _, _ = cli(["set", "posture", "accept-edits"])
+    mode = claude_mode(claude_copy())[1]
+    view = codex_view()
+    check("posture accept-edits", rc == 0 and mode == "acceptEdits" and (view["approval"], view["sandbox_mode"]) == ("on-request", "workspace-write"), f"claude permissionMode={mode}; codex approval={view['approval']} sandbox={view['sandbox_mode']}")
+
+    # Attribution.
+    rc, _, _ = cli(["set", "attribution", "off"])
+    attribution = json.loads((HOME / ".claude" / "settings.json").read_text(encoding="utf-8")).get("attribution")
+    check("attribution off writes both keys", rc == 0 and attribution == {"commit": "", "pr": ""}, f"settings.json attribution = {attribution}")
+    say("NOT RE-RUN: the tool-side attribution observation (W08) needs a paid model request; the Phase 1 proof stands and this pass spent nothing.")
+
+    # Git-guardrails.
+    rc, _, _ = cli(["set", "git_guardrails", "on"])
+    guard = (HOME / ".nexus-hub" / "guardrails.json").read_text(encoding="utf-8") if (HOME / ".nexus-hub" / "guardrails.json").is_file() else ""
+    code_on, msg_on = hook_exit(guard)
+    code_ok, _ = hook_exit(guard, BENIGN)
+    check("git-guardrails on blocks the bypass flag", rc == 0 and code_on == 2 and code_ok == 0, f"guardrails.json {' '.join(guard.split())}; hook exit {code_on} ({msg_on}); benign command exit {code_ok}")
+    before = files()
+    rc, _, err = cli(["set", "git_guardrails", "off"])
+    check("git-guardrails off refused without a terminal", rc == 3 and files() == before, f"exit {rc}, no file changed")
+    code_off, _ = hook_exit(json.dumps({"block_git_bypass_flags": False}))
+    check("hook allows the flag when the switch is off (stand-in on a copy)", code_off == 0, f"hook exit {code_off}")
+
+    # Final state.
+    doc = show()
+    (STATE / "show-after-set.json").write_text(json.dumps(doc), encoding="utf-8")
+    (STATE / "hashes-after-set.json").write_text(json.dumps(files()), encoding="utf-8")
+    say("states after set: " + "; ".join(f"{r['control']}/{r['tool']}={r['state']}:{r['value']}" for r in doc["records"] if r["tool"] in ("claude", "codex", "internal")))
+    say("files after set: " + json.dumps(files()))
+    finish()
+
+
+def reapply() -> None:
+    say("=== reapply the final non-weakening values")
+    for args in (["effort", "high"], ["model", "claude-sonnet-5-5", "--tool", "claude"], ["model", "gpt-5.6-sol", "--tool", "codex"], ["posture", "accept-edits"], ["attribution", "off"], ["git_guardrails", "on"]):
+        rc, _, _ = cli(["set", *args])
+        check("set " + " ".join(args), rc == 0, f"exit {rc}")
+    (STATE / "show-reapplied.json").write_text(json.dumps(show()), encoding="utf-8")
+    (STATE / "hashes-reapplied.json").write_text(json.dumps(files()), encoding="utf-8")
+    say("files reapplied: " + json.dumps(files()))
+    finish()
+
+
+def reset() -> None:
+    say("=== reset")
+    before_set = json.loads((STATE / "hashes-before-set.json").read_text(encoding="utf-8"))
+    for control in ("effort", "model", "posture", "attribution", "git_guardrails"):
+        rc, _, err = cli(["reset", control])
+        check(f"reset {control}", rc == 0, f"exit {rc} {' '.join(err.split())[:80]}")
+    now = files()
+    for name, was in before_set.items():
+        if name == "ownership record":
+            record = json.loads((HOME / ".nexus-hub" / "settings-control.json").read_text(encoding="utf-8"))
+            check("ownership record emptied", record == {"entries": []} or record.get("entries") == [], f"entries={record.get('entries')}")
+        else:
+            check(f"{name} byte-identical after reset", now[name] == was, f"before set {was}, after reset {now[name]}")
+    finish()
+
+
+def compare() -> None:
+    say("=== compare after the second installer run")
+    a = json.loads((STATE / "show-reapplied.json").read_text(encoding="utf-8"))
+    b = show()
+    check("show --json identical record for record", a["records"] == b["records"], f"{len(a['records'])} records compared")
+    h_a = json.loads((STATE / "hashes-reapplied.json").read_text(encoding="utf-8"))
+    h_b = files()
+    for name in ("codex config.toml", "ownership record", "guardrails.json"):
+        check(f"{name} unchanged by the installer", h_a[name] == h_b[name], f"{h_a[name]} -> {h_b[name]}")
+    ca = json.loads((HOME / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    check("claude settings.json still holds the values (parsed)", ca.get("attribution") == {"commit": "", "pr": ""} and ca.get("model") == "claude-sonnet-5-5" and ca.get("permissions", {}).get("defaultMode") == "acceptEdits" and all(ca.get("modelSettings", {}).get(i, {}).get("effortLevel") == "high" for i in CURRENT_IDS), f"bytes {h_a['claude settings.json']} -> {h_b['claude settings.json']}")
+    finish()
+
+
+def finish() -> None:
+    say(f"RESULT: {'PASS' if not FAILS else 'FAIL: ' + ', '.join(FAILS)}")
+    sys.exit(1 if FAILS else 0)
+
+
+if __name__ == "__main__":
+    {"prove": prove, "reset": reset, "reapply": reapply, "compare": compare}[sys.argv[1]]()

@@ -69,6 +69,18 @@ def _env(home: Path, **extra: str) -> dict[str, str]:
     return env
 
 
+def _make_detected(home: Path, key: str, fake_tools) -> None:
+    """v4.14.7: give the platform detection evidence (an empty root is none).
+
+    Hermes needs a corroborated location, so it gets a tool-created entry under
+    its root instead of a bare PATH hit.
+    """
+    if key == "hermes":
+        (home / ".hermes" / "logs").mkdir(parents=True, exist_ok=True)
+    else:
+        fake_tools(key)
+
+
 # ----- placement -----------------------------------------------------------
 
 
@@ -80,9 +92,10 @@ def _env(home: Path, **extra: str) -> dict[str, str]:
         ("opencode", ".config/opencode", ".config/opencode/plugins/nexus-completion-gate.ts"),
     ],
 )
-def test_opted_in_platform_gets_the_plugin_and_teardown_removes_it(tmp_path: Path, monkeypatch, key, detect, dest) -> None:
+def test_opted_in_platform_gets_the_plugin_and_teardown_removes_it(tmp_path: Path, monkeypatch, key, detect, dest, fake_tools) -> None:
     monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
     (tmp_path / detect).mkdir(parents=True)
+    _make_detected(tmp_path, key, fake_tools)
     ctx = _ctx(tmp_path)
     get(key).install(ctx)
     assert (tmp_path / dest).is_file()
@@ -119,9 +132,10 @@ def test_default_install_writes_no_plugin(tmp_path: Path, monkeypatch, key: str,
     ],
 )
 def test_default_install_retires_a_plugin_an_earlier_install_wrote(
-    tmp_path: Path, monkeypatch, key: str, detect: str, dest: str
+    tmp_path: Path, monkeypatch, key: str, detect: str, dest: str, fake_tools
 ) -> None:
     (tmp_path / detect).mkdir(parents=True)
+    _make_detected(tmp_path, key, fake_tools)
     monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
     ctx = _ctx(tmp_path)
     get(key).install(ctx)
@@ -137,8 +151,9 @@ def test_default_install_retires_a_plugin_an_earlier_install_wrote(
         assert not plugin.parent.exists(), "the plugin directory is dropped when emptied"
 
 
-def test_retirement_never_removes_a_plugin_the_user_placed(tmp_path: Path, monkeypatch) -> None:
+def test_retirement_never_removes_a_plugin_the_user_placed(tmp_path: Path, monkeypatch, fake_tools) -> None:
     monkeypatch.delenv("NEXUS_HUB_COMPLETION_PLUGINS", raising=False)
+    fake_tools("pi")
     (tmp_path / ".pi" / "agent" / "extensions").mkdir(parents=True)
     mine = tmp_path / ".pi" / "agent" / "extensions" / "nexus-completion-gate.ts"
     mine.write_text("// my own extension", encoding="utf-8")
@@ -147,8 +162,9 @@ def test_retirement_never_removes_a_plugin_the_user_placed(tmp_path: Path, monke
 
 
 @pytest.mark.parametrize(("key", "detect"), [("hermes", ".hermes")])
-def test_retirement_tells_the_user_to_drop_the_platform_enablement(tmp_path: Path, monkeypatch, key, detect) -> None:
+def test_retirement_tells_the_user_to_drop_the_platform_enablement(tmp_path: Path, monkeypatch, key, detect, fake_tools) -> None:
     (tmp_path / detect).mkdir(parents=True)
+    _make_detected(tmp_path, key, fake_tools)
     monkeypatch.setenv("NEXUS_HUB_COMPLETION_PLUGINS", "1")
     ctx = _ctx(tmp_path)
     get(key).install(ctx)

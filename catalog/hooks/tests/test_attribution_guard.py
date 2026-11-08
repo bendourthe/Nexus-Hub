@@ -78,7 +78,7 @@ def _err(result: subprocess.CompletedProcess) -> str:
 def test_attribution_is_blocked_on_every_inline_route(run, command):
     result = run(_bash(command))
     assert result.returncode == 2, _err(result)
-    assert "[attribution-guard] BLOCKED" in _err(result)
+    assert "[Nexus-Hub: attribution-guard] BLOCKED" in _err(result)
     assert "pattern" in _err(result)
 
 
@@ -218,7 +218,7 @@ def test_changelog_write_with_attribution_warns_but_passes(run):
                "tool_input": {"file_path": "docs/notes.md", "content": f"Notes\n\n{_AGENT_TRAILER}\n"}}
     result = run(payload)
     assert result.returncode == 0
-    assert "[attribution-guard] WARNING" in _err(result)
+    assert "[Nexus-Hub: attribution-guard] WARNING" in _err(result)
 
 
 # --- cannot verify ------------------------------------------------------------------
@@ -262,8 +262,10 @@ def test_long_matched_text_is_truncated_and_control_stripped(run):
     line = _AGENT_TRAILER + " " + "\x1b[31m" + "A" * 300
     result = run(_bash(f'gh pr create --title t --body "Summary\n\n{line}"'))
     assert result.returncode == 2
-    reported = next(ln for ln in _err(result).splitlines() if ln.startswith("Line: "))
-    assert len(reported) <= len("Line: ") + 80
+    # The matched line is a tagged follow-up (v4.14.8 adversarial correction); the snippet after it is capped at 80.
+    prefix = "[Nexus-Hub: attribution-guard] Line: "
+    reported = next(ln for ln in _err(result).splitlines() if ln.startswith(prefix))
+    assert len(reported) <= len(prefix) + 80
     assert "\x1b" not in reported
 
 

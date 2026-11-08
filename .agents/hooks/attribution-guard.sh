@@ -26,6 +26,21 @@ _HOOK_NAME="attribution-guard"
 _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: attribution-guard]"
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 if [ -t 0 ]; then exit 0; fi
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then exit 0; fi
@@ -34,7 +49,7 @@ _HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 _BUDGET="${NEXUS_ATTRIBUTION_TIMEOUT_SECONDS:-5}"
 
 _warn() {
-  echo "[$_HOOK_NAME] WARNING: cannot verify body ($1); check it for AI attribution before publishing." >&2
+  _nexus_msg "WARNING: cannot verify body ($1); check it for AI attribution before publishing."
   exit 0
 }
 

@@ -1,0 +1,119 @@
+Branch hygiene (merged and idle, integration branch develop)
+  KEEP worktree:<HOME>/.codex/worktrees/console-window-guard-nexus-hub no-merged-pr
+  KEEP worktree:<HOME>/.codex/worktrees/publish-v4228-plan/Nexus-Hub detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-codexfix ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-plan-detect open-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.14.7-installer-platform-detection no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.14.8-plain-english-replies-and-source-labels no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15-harness-cost-prerequisite ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15-instruction-pilot-variants open-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15-native-compatibility no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15.0-instruction-necessity-review no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15.1-adoption-model-adaptive-harness no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-v4.15.4-checker-evidence-and-diagnostics no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/antigravity-usage-groups ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/archive-member ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-lf-validation no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-qualified head-mismatch
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/check-minor-budget-verdict no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/codex-console-guard-current no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/console-window-guard-build-installer no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/console-window-root-repair local-ahead
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/develop-install-2ef94ca detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/develop-install-8bc588e detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/edit-guard-prune head-mismatch
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/lint-repair-trapdoors-link
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/m5-manifest-coordinator-claim ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/manifest-log-cap recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/remove-completion-gate ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/renumber-v4155 dirty
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/settings-workflow recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/t007-codex-memory-levers recently-active
+  REMOVE worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/t013-guardrails-powershell
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/task-date-placeholder ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/task-full-history ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/upgrade-feedback recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/usage-limit-native-decision head-mismatch
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/usage-native-lf-validation no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v2-followon ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-approval-flow no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-approval-publish local-ahead
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v414-handoff-budget-fix ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4141-tag protected
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-contract no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-control detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-revision detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4142-treatment detached
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4145-backmerge recently-active
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4146-settings no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v415-controller no-merged-pr
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/win-full-gate untracked
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/windows-console-guard ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/wn29-profile-input-hardening missing
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/wn31-antigravity-cli-probe ignored-not-allowlisted
+  KEEP worktree:<HOME>/Documents/Benjamin/nexus/Nexus-Hub-worktrees/writer-rollback-comment missing
+  KEEP branch:chore/platform-contract-v4.14.2 no-merged-pr
+  KEEP branch:chore/v4.15-controller no-merged-pr
+  KEEP branch:ci/nexus-hub-settings-workflow checked-out
+  KEEP branch:codex/console-window-guard no-merged-pr
+  KEEP branch:codex/windows-console-build-install-guard no-merged-pr
+  KEEP branch:develop protected
+  KEEP branch:docs/codex-memory-levers-omitted checked-out
+  REMOVE branch:docs/lint-repair-names-review-trapdoors
+  KEEP branch:docs/move-plain-english-plan-to-v4.15 checked-out
+  KEEP branch:feat/archive-member-on-release checked-out
+  KEEP branch:feat/pptx-slide-formatting-rules no-merged-pr
+  KEEP branch:feat/v4.14.3-adoption-argon-enforcement-and-replayable-gates local-ahead
+  KEEP branch:feat/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard local-ahead
+  KEEP branch:feat/v4.14.5-adoption-codex-memory-levers owned-by-run
+  KEEP branch:feat/v4.14.6-nexus-hub-settings-extension no-merged-pr
+  KEEP branch:feat/v4.14.7-installer-platform-detection no-merged-pr
+  KEEP branch:feat/v4.14.8-plain-english-replies-and-source-labels no-merged-pr
+  KEEP branch:feat/v4.15.0-instruction-necessity-review no-merged-pr
+  KEEP branch:feat/v4.15.1-adoption-model-adaptive-harness no-merged-pr
+  KEEP branch:feat/v4.15.4-checker-evidence-and-diagnostics no-merged-pr
+  KEEP branch:fix/antigravity-cli-probe checked-out
+  KEEP branch:fix/antigravity-usage-groups checked-out
+  KEEP branch:fix/check-minor-budget-lf-validation no-merged-pr
+  KEEP branch:fix/check-minor-budget-qualified head-mismatch
+  KEEP branch:fix/check-minor-budget-verdict no-merged-pr
+  KEEP branch:fix/codex-windows-sandbox checked-out
+  KEEP branch:fix/console-window-guard-build-installer no-merged-pr
+  KEEP branch:fix/console-window-root-repair local-ahead
+  KEEP branch:fix/controller-handoff-revalidation-budget checked-out
+  KEEP branch:fix/edit-guard-prune-budget head-mismatch
+  REMOVE branch:fix/git-guardrails-powershell-matcher
+  KEEP branch:fix/m5-manifest-coordinator-claim checked-out
+  KEEP branch:fix/manifest-log-cap checked-out
+  KEEP branch:fix/planned-followon-gap-recognition checked-out
+  KEEP branch:fix/profile-input-hardening checked-out
+  KEEP branch:fix/remove-completion-gate-default checked-out
+  KEEP branch:fix/task-path-date-placeholder checked-out
+  KEEP branch:fix/task-status-full-history checked-out
+  KEEP branch:fix/upgrade-visible-feedback checked-out
+  KEEP branch:fix/usage-limit-native-decision head-mismatch
+  KEEP branch:fix/usage-native-lf-validation no-merged-pr
+  KEEP branch:fix/v4.14-approval-flow no-merged-pr
+  KEEP branch:fix/v4.14-approval-flow-publish local-ahead
+  KEEP branch:fix/v4.15-harness-cost-prerequisite checked-out
+  KEEP branch:fix/v4.15-instruction-pilot-variants open-pr
+  KEEP branch:fix/v4.15-native-compatibility no-merged-pr
+  KEEP branch:fix/windows-console-window-guard checked-out
+  KEEP branch:fix/windows-full-gate-isolation checked-out
+  KEEP branch:fix/writer-rollback-comment checked-out
+  KEEP branch:main protected
+  KEEP branch:publish/v4.14.7-installer-detection-plan open-pr
+  REMOVE branch:release/v4.14.4
+  REMOVE branch:release/v4.14.4-backmerge
+  KEEP branch:release/v4.14.5 recently-active
+  KEEP branch:release/v4.14.5-backmerge checked-out
+  KEEP remote:origin/develop protected
+  KEEP remote:origin/fix/handoff-chat-prompt head-mismatch
+  KEEP remote:origin/fix/v4.15-instruction-pilot-variants open-pr
+  KEEP remote:origin/main protected
+  KEEP remote:origin/publish/v4.14.7-installer-detection-plan open-pr
+  6 item(s) would be removed by cleanup_merged.py --apply; the rest are kept
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md

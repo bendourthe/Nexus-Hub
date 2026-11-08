@@ -1,0 +1,670 @@
+{
+  "status": "pass",
+  "cases": 132,
+  "source_sha256": {
+    "scripts/nexus_git_attribution.py": "4ab7d47c268f1ecdc72bedeaf6cd389244aae30b849e4a1e313d7b5daf561d37",
+    "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py": "01302e84367f3585df4da833d3b9caef881325b98e57bf9da448a54f2570869f"
+  },
+  "rows": [
+    {
+      "boundary": "attribution_snippet",
+      "control": 0,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 0,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 0,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 0,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 1,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 1,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 1,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 1,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 2,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 2,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 2,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 2,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 3,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 3,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 3,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 3,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 4,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 4,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 4,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 4,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 5,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 5,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 5,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 5,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 6,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 6,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 6,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 6,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 7,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 7,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 7,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 7,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 8,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 8,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 8,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 8,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 9,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 9,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 9,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 9,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 10,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 10,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 10,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 10,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 11,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 11,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 11,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 11,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 12,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 12,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 12,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 12,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 13,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 13,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 13,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 13,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 14,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 14,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 14,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 14,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 15,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 15,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 15,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 15,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 16,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 16,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 16,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 16,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 17,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 17,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 17,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 17,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 18,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 18,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 18,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 18,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 19,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 19,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 19,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 19,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 20,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 20,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 20,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 20,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 21,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 21,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 21,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 21,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 22,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 22,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 22,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 22,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 23,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 23,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 23,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 23,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 24,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 24,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 24,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 24,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 25,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 25,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 25,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 25,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 26,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 26,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 26,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 26,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 27,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 27,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 27,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 27,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 28,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 28,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 28,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 28,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 29,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 29,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 29,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 29,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 30,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 30,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 30,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 30,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 31,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 31,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 31,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 31,
+      "result": "blocked; three authentic tagged lines"
+    },
+    {
+      "boundary": "attribution_snippet",
+      "control": 127,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_display",
+      "control": 127,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "edit_guidance",
+      "control": 127,
+      "result": "visible-escape"
+    },
+    {
+      "boundary": "attribution_mcp_scan",
+      "control": 127,
+      "result": "blocked; three authentic tagged lines"
+    }
+  ]
+}

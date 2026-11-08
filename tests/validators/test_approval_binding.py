@@ -335,3 +335,61 @@ def test_a_session_with_no_capture_file_refuses_without_a_terminal_fallback(tmp_
     _render(fx, session="made-up-id", prior=False)
     assert not hasattr(check_plan_completion, "_terminal_paste")
     assert _reason(_create(fx, session="made-up-id")) == "approval-not-captured"
+
+
+def test_v415_output_round_requires_own_exact_capture_and_refuses_replay(tmp_path: Path) -> None:
+    fx = _fixture(tmp_path)
+    _hook(fx, SESSION, "/implement v4.15")
+    secret = bytes(range(32))  # Public fixture key confined to this disposable store.
+    page = {"action": "permit-outputs", "scope": {"kind": "minor", "minor": "v4.15"},
+            "member": "v4.15.0", "write_paths": ["MANIFEST.sha256"]}
+    assert "permit-outputs" in approval_binding.ACTIONS
+    pending = approval_binding.render(fx.runs, "v415-output-fixture", secret, action="permit-outputs",
+                                      scope="v4.15", page=page, session=SESSION)
+
+    def consume(value: dict, session: str = SESSION):
+        return approval_binding.consume(fx.runs, "v415-output-fixture", secret, action="permit-outputs",
+                                        live_page=value, session=session, required_session=SESSION)
+
+    with pytest.raises(approval_binding.Refusal, match="approval-not-captured"):
+        consume(page)
+    altered = json.loads(json.dumps(page))
+    altered["write_paths"].append("scripts/ci/profiles.py")
+    with pytest.raises(approval_binding.Refusal, match="page-changed"):
+        consume(altered)
+    _hook(fx, "foreign-session", pending["paste_lines"][0])
+    with pytest.raises(approval_binding.Refusal, match="session-mismatch"):
+        consume(page, "foreign-session")
+    _hook(fx, SESSION, pending["paste_lines"][0])
+    accepted, owner = consume(page)
+    assert owner == SESSION and accepted["page"] == page
+    with pytest.raises(approval_binding.Refusal, match="code-used"):
+        consume(page)
+
+
+def test_v415_read_round_is_separate_from_output_permission_and_single_use(tmp_path: Path) -> None:
+    fx = _fixture(tmp_path)
+    _hook(fx, SESSION, "/implement v4.15")
+    secret = bytes(range(32))  # Public fixture key confined to this disposable store.
+    page = {"action": "correct-ci-read", "scope": {"kind": "minor", "minor": "v4.15"},
+            "member": "v4.15.4", "path": "scripts/ci/profiles.py"}
+    assert "correct-ci-read" in approval_binding.ACTIONS
+    pending = approval_binding.render(fx.runs, "v415-read-fixture", secret, action="correct-ci-read",
+                                      scope="v4.15", page=page, session=SESSION)
+    with pytest.raises(approval_binding.Refusal, match="not-rendered"):
+        approval_binding.consume(fx.runs, "v415-read-fixture", secret, action="permit-outputs",
+                                 live_page=page, session=SESSION, required_session=SESSION)
+    with pytest.raises(approval_binding.Refusal, match="approval-not-captured"):
+        approval_binding.consume(fx.runs, "v415-read-fixture", secret, action="correct-ci-read",
+                                 live_page=page, session=SESSION, required_session=SESSION)
+    _hook(fx, SESSION, pending["paste_lines"][0])
+    altered = {**page, "path": "scripts/ci/"}
+    with pytest.raises(approval_binding.Refusal, match="page-changed"):
+        approval_binding.consume(fx.runs, "v415-read-fixture", secret, action="correct-ci-read",
+                                 live_page=altered, session=SESSION, required_session=SESSION)
+    accepted, owner = approval_binding.consume(fx.runs, "v415-read-fixture", secret, action="correct-ci-read",
+                                              live_page=page, session=SESSION, required_session=SESSION)
+    assert owner == SESSION and accepted["page"] == page
+    with pytest.raises(approval_binding.Refusal, match="code-used"):
+        approval_binding.consume(fx.runs, "v415-read-fixture", secret, action="correct-ci-read",
+                                 live_page=page, session=SESSION, required_session=SESSION)

@@ -1032,7 +1032,7 @@ def _load_scope_record(args: argparse.Namespace, host: Host, budget: float) -> t
     if args.minor:
         minor = ck._minor_module()
         rctx = ck.RepoContext(host.current, ck.Budget(budget))
-        state = minor.load_minor(ck, rctx, args.minor, args.session)
+        state = minor.load_minor(ck, rctx, args.minor, args.session, minor_protocol=1)
         return minor.record_file(ck, rctx, args.minor), state, "minor:" + args.minor
     ctx = ck.Context(args.plan, ck.Budget(budget))
     return ctx.record_path(), ck.load_record(ctx, args.session), "plan:" + ctx.rel

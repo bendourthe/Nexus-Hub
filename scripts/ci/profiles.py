@@ -171,7 +171,13 @@ HYGIENE = Group(
 # fetch-depth 0 for the attribution check).
 LEGACY_FINGERPRINTS = Group(
     name="legacy-fingerprints",
-    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+    commands=(
+        _py("build_legacy_fingerprints", "--check", timeout=120),
+        # v4.14.7: every file Nexus-Hub wrote into the obsolete ~/.agent and
+        # home-root ~/.opencode layouts. Its source ranges are closed history,
+        # so it drifts only if the builder itself changes.
+        _py("build_legacy_layout_fingerprints", "--check", timeout=120),
+    ),
 )
 
 CATALOG = Group(
@@ -383,6 +389,7 @@ TESTS = Group(
         _pytest(
             "repo-tests-integrations-repository-contracts",
             "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_manifest_log_cap.py",
             "tests/integrations/test_nexus_ai_version.py",
             "tests/integrations/test_registry.py",
             "tests/integrations/test_result.py",
@@ -410,10 +417,12 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_detection.py",
             "tests/integrations/test_lifecycle.py",
             "tests/integrations/test_lifecycle_block_rendering.py",
             "tests/integrations/test_selective_install.py",
             "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_stale_surfaces.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
         ),
@@ -426,6 +435,11 @@ TESTS = Group(
             env=_local_src_env("extensions/nexus-code-search/src"),
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
+        # Added in v4.14.6 (settings engine): no profile collected this root, so on
+        # every operating system the read-side tests ran only by hand. The Windows
+        # validator --ignore-glob quarters below target tests/validators only and
+        # neither drop nor double-count this root.
+        _pytest("repo-tests-settings-control", "tests/settings_control", timeout=900),
         _pytest(
             "repo-tests-ci",
             "tests/ci",
@@ -867,6 +881,27 @@ def _monitor_group(name: str) -> Group:
 
 MONITOR_CHECKS = tuple(_monitor_group(name) for name in ("claude", "codex", "copilot", "cursor", "gemini"))
 
+# The Nexus-Hub Settings panel (v4.14.6). Same four gates as the packaged monitors. Its
+# agreement test also drives the real Python CLI, so the coverage command is handed this
+# run's interpreter (the one the workflow provisions with tomlkit) instead of letting the
+# test pick a system Python that may lack it.
+_NPM = "npm.cmd" if os.name == "nt" else "npm"
+SETTINGS_EXTENSION = Group(
+    name="nexus-hub-settings",
+    explicit_only=True,
+    commands=(
+        Command(name="settings extension compile", argv=[_NPM, "run", "compile"], cwd="extensions/nexus-hub-settings"),
+        Command(
+            name="settings extension coverage",
+            argv=[_NPM, "run", "test:coverage", "--", "--coverage.reportsDirectory", "../../reports/coverage/nexus-hub-settings"],
+            cwd="extensions/nexus-hub-settings",
+            env={"NEXUS_HUB_TEST_PYTHON": PY},
+        ),
+        Command(name="settings extension package", argv=[_NPM, "run", "package"], cwd="extensions/nexus-hub-settings"),
+        Command(name="settings extension packaged contents", argv=[_NPM, "run", "verify:package"], cwd="extensions/nexus-hub-settings"),
+    ),
+)
+
 MEMORY_TESTS = Group(
     name="memory-tests",
     explicit_only=True,
@@ -997,6 +1032,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         EXTENSION_TESTS,
         DOC_COLOCATION,
         *MONITOR_CHECKS,
+        SETTINGS_EXTENSION,
         MEMORY_TESTS,
         CODE_SEARCH_OFFLINE,
         MEMORY_OFFLINE,

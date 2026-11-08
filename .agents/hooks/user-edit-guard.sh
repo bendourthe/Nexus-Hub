@@ -30,6 +30,21 @@ _HOOK_NAME="user-edit-guard"
 _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: user-edit-guard]"
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 if [ -t 0 ]; then exit 0; fi
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then exit 0; fi
@@ -98,15 +113,14 @@ _fallback() {
   fi
   local message="Cannot verify this file against your last read or write ($1). Stop and ask the user before overwriting it (user-edit-preservation)."
   if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null || true)" = "true" ]; then
-    echo "[$_HOOK_NAME] WARNING (git worktree, not blocked): $message" >&2
+    _nexus_msg "WARNING (git worktree, not blocked): $message"
     exit 0
   fi
   if [ "$_FULL_ACCESS" = "1" ]; then
-    echo "[$_HOOK_NAME] WARNING (full access, not blocked): $message" >&2
+    _nexus_msg "WARNING (full access, not blocked): $message"
     exit 0
   fi
-  echo "[$_HOOK_NAME] BLOCKED: $message" >&2
-  echo "Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$_HOOK_NAME." >&2
+  _nexus_msg "BLOCKED: $message" "Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$_HOOK_NAME."
   exit 2
 }
 
@@ -125,7 +139,7 @@ case "$status" in
   0) exit 0 ;;
   2)
     if [ "$_FULL_ACCESS" = "1" ]; then
-      echo "[$_HOOK_NAME] WARNING (full access, not blocked): see the message above." >&2
+      _nexus_msg "WARNING (full access, not blocked): see the message above."
       exit 0
     fi
     exit 2

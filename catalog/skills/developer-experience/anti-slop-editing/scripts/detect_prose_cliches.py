@@ -16,11 +16,16 @@ Findings carry one of two classes, matching `references/cliche-patterns.md`:
   legacy footprint is too large to fail a document on. The reflective register, the
   faux reveal, emphatic negation, performative honesty, the stranded auxiliary, the
   high-frequency body-catalog patterns, the three countable rhythm rules from the
-  skill's ``Robotic rhythm`` entry, and the clause-joining spaced hyphen. The spaced
-  hyphen is advisory rather than defect on purpose: it was the sanctioned ASCII
-  replacement for an em-dash in this project's own prose for years, so a first scan
-  of any existing document finds hundreds, and a defect class that fires hundreds of
-  times on legitimate history is a class nobody gates on.
+  skill's ``Robotic rhythm`` entry, the clause-joining spaced hyphen, and the 13
+  unambiguous agent and engineering slang terms (``engineering-slang``; the list and
+  its exemptions live in ``references/slop-wordlist.md``, section "Agent and
+  engineering slang"). The spaced hyphen is advisory rather than defect on purpose:
+  it was the sanctioned ASCII replacement for an em-dash in this project's own prose
+  for years, so a first scan of any existing document finds hundreds, and a defect
+  class that fires hundreds of times on legitimate history is a class nobody gates on.
+  Slang is advisory because a backticked real name or a quoted warning is exempt by
+  the quote-skipping rule below, and that exemption is an accepted bypass only
+  because nothing gates on it.
 
 Mannered prose is deliberately not attempted: it has no reliable lexical
 signature, and a regex that guessed at metaphor would fire on legitimate voice.
@@ -237,6 +242,42 @@ LEXICAL: tuple[tuple[str, str, re.Pattern[str]], ...] = (
             r"\bnot (?:just|only|merely) \w+(?: \w+){0,6}, (?:but|it's|it is) \b",
             _FLAGS,
         ),
+    ),
+    # advisory: agent and engineering slang (v4.14.8). The list, its plain
+    # replacements, and its exemptions are owned by references/slop-wordlist.md,
+    # section "Agent and engineering slang"; this family encodes only the 13 terms
+    # whose slang reading is unambiguous. Not encoded on purpose: happy path, fan out,
+    # surface, land, ship, gate, park, plumbing, nit, punt, and first-class, because
+    # each has a literal meaning ("the ship sailed", "park the car", "the gate is
+    # locked") or is the name of a real technique (67 files use "happy path" and 50
+    # use "fan out" as names on 2026-10-30). Those stay with the editor's judgment.
+    # Backtick and straight-quote skipping applies here unchanged: `load-bearing` as
+    # a quoted name is not a finding.
+    ("engineering-slang", ADVISORY, re.compile(r"\bload[- ]bearing\b", _FLAGS)),
+    # noun only: "cutover" or "cut-over"; "cut over" as two words is a plain verb phrase
+    ("engineering-slang", ADVISORY, re.compile(r"\bcut-?over\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bblast radius\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bfootguns?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bde-?risk(?:s|ed|ing)?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bsanity[- ]checks?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bnet-new\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bbespoke\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\borthogonal\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bTL;DR\b", _FLAGS)),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:spin|spins|spinning|spun) up\b", _FLAGS),
+    ),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:wire|wires|wiring|wired) up\b", _FLAGS),
+    ),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:thread|threads|threading|threaded) through\b", _FLAGS),
     ),
 )
 

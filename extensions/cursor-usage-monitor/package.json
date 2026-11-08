@@ -2,7 +2,7 @@
   "name": "cursor-usage-monitor",
   "displayName": "Cursor Usage Monitor",
   "description": "Independent Nexus-Hub monitor for personal Cursor included usage and on-demand spend without storing credentials in settings",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -214,11 +214,14 @@
   },
   "//generate:icons": "The asset generators use sharp, svgpath, svg2ttf, and ttf2woff2 only on demand. Keep them out of package.json and package-lock.json; regenerate with `npm install --no-save --package-lock=false sharp svgpath svg2ttf ttf2woff2 && npm run generate:icons`.",
   "devDependencies": {
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "@types/vscode": "1.85.0",
-    "@vitest/coverage-v8": "4.1.11",
-    "@vscode/vsce": "3.9.2",
+    "@vitest/coverage-v8": "4.1.12",
+    "@vscode/vsce": "4.1.0",
     "typescript": "7.0.2",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }

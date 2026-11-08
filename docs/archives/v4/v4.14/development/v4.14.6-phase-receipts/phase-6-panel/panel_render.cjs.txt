@@ -1,0 +1,43 @@
+// Render the installed Nexus-Hub Settings panel as standalone local HTML (scratch helper).
+// Usage: node panel_render.cjs <extension dir with out/ and media/> <show.json> <explain dir> <output dir>
+// The panel script, stylesheet, and view model builder are the shipped files; only the VS Code host is
+// replaced: a stub acquireVsCodeApi, and the --vscode-* variables a real webview receives, set to the
+// built-in Dark Modern and Light Modern values.
+const fs = require("fs");
+const path = require("path");
+
+const [ext, showJson, explainDir, outDir] = process.argv.slice(2);
+const vm = require(path.join(ext, "out", "viewModel.js"));
+const report = JSON.parse(fs.readFileSync(showJson, "utf8"));
+const explains = {};
+for (const id of ["effort", "model", "posture", "attribution", "git_guardrails"]) {
+  explains[id] = JSON.parse(fs.readFileSync(path.join(explainDir, `explain-${id}.json`), "utf8"));
+}
+const inspect = (key) => ({ key, registered: true, defaultValue: false, globalValue: undefined, workspaceValue: undefined, workspaceFolderValue: undefined });
+const model = vm.buildModel({ report, explains, inspect, trusted: true, profile: "Default" });
+
+const themes = {
+  dark: { foreground: "#cccccc", "sideBar-background": "#181818", "editor-background": "#1f1f1f", descriptionForeground: "#9d9d9d", "button-background": "#0078d4", "button-foreground": "#ffffff", "button-hoverBackground": "#026ec1", "editorError-foreground": "#f85149", "editorWarning-foreground": "#cca700", focusBorder: "#0078d4", "input-background": "#313131", "input-border": "#3c3c3c", "input-foreground": "#cccccc", "panel-border": "#2b2b2b", "testing-iconPassed": "#73c991", "textBlockQuote-background": "#2b2b2b", "textCodeBlock-background": "#2b2b2b", "textLink-foreground": "#4daafc", "widget-border": "#313131" },
+  light: { foreground: "#3b3b3b", "sideBar-background": "#f8f8f8", "editor-background": "#ffffff", descriptionForeground: "#717171", "button-background": "#005fb8", "button-foreground": "#ffffff", "button-hoverBackground": "#0258a8", "editorError-foreground": "#e51400", "editorWarning-foreground": "#bf8803", focusBorder: "#005fb8", "input-background": "#ffffff", "input-border": "#cecece", "input-foreground": "#3b3b3b", "panel-border": "#e5e5e5", "testing-iconPassed": "#388a34", "textBlockQuote-background": "#f8f8f8", "textCodeBlock-background": "#f8f8f8", "textLink-foreground": "#005fb8", "widget-border": "#e5e5e5" },
+};
+const common = { "font-family": "'Segoe UI', system-ui, sans-serif", "font-size": "13px", "editor-font-family": "Consolas, 'Courier New', monospace" };
+
+fs.mkdirSync(path.join(outDir, "media"), { recursive: true });
+for (const name of ["panel.js", "panel.css", "logo.png"]) {
+  fs.copyFileSync(path.join(ext, "media", name), path.join(outDir, "media", name));
+}
+for (const [name, theme] of Object.entries(themes)) {
+  const vars = Object.entries({ ...theme, ...common }).map(([k, v]) => `--vscode-${k}: ${v};`).join(" ");
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Nexus-Hub Settings (${name})</title>
+<style>:root { ${vars} } html { color-scheme: ${name}; }</style>
+<link rel="stylesheet" href="media/panel.css"></head>
+<body><main id="app" data-logo="media/logo.png"><p>Loading the current settings...</p></main>
+<script>window.acquireVsCodeApi = function () { return { postMessage: function () {} }; };</script>
+<script src="media/panel.js"></script>
+<script>window.postMessage({ type: "render", model: ${JSON.stringify(model).replace(/</g, "\\u003c")} }, "*");</script>
+</body></html>
+`;
+  fs.writeFileSync(path.join(outDir, `panel-${name}.html`), html, "utf8");
+}
+console.log(JSON.stringify({ controls: model.controls.length, rows: model.controls.reduce((n, c) => n + (c.rows ? c.rows.length : 0), 0) }));

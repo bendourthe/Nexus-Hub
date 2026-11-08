@@ -47,6 +47,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -63,6 +64,28 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "Nexus-AI (Local Desktop Studio)"
     instruction_mode = "dedicated"
     config = {
+        # v4.14.7: detection evidence (decision D6). Nexus AI Studio keeps its own
+        # data in ~/.nexus (legacy ~/.gemma-code) and only the Nexus-Hub catalog
+        # under ~/.nexus-ai. Nexus-Hub's own hooks may write .nexus/context and
+        # .nexus/observations.jsonl when a session runs from the home folder, so
+        # those names are excluded. The per-user NSIS install lives under
+        # %LOCALAPPDATA% (subfolder name UNVERIFIED; both spellings probed).
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "root": ".nexus-ai",
+            "nexus_entries": ["catalog"],
+            "vendor_roots": {".nexus": ["context", "observations.jsonl"], ".gemma-code": []},
+            "app_paths": {
+                "win32": [
+                    "%LOCALAPPDATA%/Nexus AI Studio",
+                    "%LOCALAPPDATA%/Programs/Nexus AI Studio",
+                ],
+                "darwin": [
+                    "/Applications/Nexus AI Studio.app",
+                    "~/Applications/Nexus AI Studio.app",
+                ],
+            },
+        },
         # The catalog is isolated under a `catalog/` subtree so the app's own
         # data (at the `~/.nexus-ai/` root) is never in the refresh blast zone.
         "global_dir": "~/.nexus-ai/catalog",
@@ -132,7 +155,19 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         )
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
+        # v4.14.7 (decision D6): write the catalog only when Nexus AI Studio is
+        # installed. Before this, every global install wrote ~/.nexus-ai/catalog
+        # whether or not the app existed.
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            result = WriteResult()
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping the Nexus-AI catalog")
+            result.mark_not_detected(
+                f"Nexus AI Studio not detected ({detection.evidence}); ~/.nexus-ai/catalog skipped", evidence=detection.evidence
+            )
+            return result
         result = super().install_global(ctx)
+        result.detected = True
         target = (ctx.global_root / ".nexus-ai" / "catalog").resolve()
         mcp_src = ctx.repo_root / "catalog" / "mcp-configs"
         mcp_dst = target / "mcp-configs"

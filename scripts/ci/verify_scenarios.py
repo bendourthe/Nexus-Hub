@@ -93,17 +93,34 @@ def require(condition: bool, message: str) -> None:
 
 def registry(root: Path, work: Path, env: dict[str, str]) -> None:
     runner = str(root / "scripts/lib/integrations/runner.py")
-    run([sys.executable, runner, "install", "--scope", "global", "--integrations", "claude,codex,gemini,antigravity2,opencode", "--overwrite", "--quiet"], env=env, cwd=work)
-    result = run([sys.executable, runner, "verify", "--target", env["HOME"]], env=env, cwd=work, allow_failure=True)
+    # OpenCode is detection-gated (v4.14.7): with no evidence of the tool the
+    # installer writes nothing for it, so a bare CI host would fail the OpenCode
+    # expectation below. Give the smoke real evidence, a command on PATH, which is
+    # what a user's installed OpenCode provides. The stub is only resolved, never run.
+    evidence = work / "tool-evidence"
+    evidence.mkdir()
+    stub = evidence / ("opencode.cmd" if os.name == "nt" else "opencode")
+    stub.write_text("@exit /b 1\n" if os.name == "nt" else "#!/bin/sh\nexit 1\n", encoding="ascii")
+    stub.chmod(0o755)
+    detected = dict(env, PATH=str(evidence) + os.pathsep + env.get("PATH", ""))
+    run([sys.executable, runner, "install", "--scope", "global", "--integrations", "claude,codex,gemini,antigravity2,opencode", "--overwrite", "--quiet"], env=detected, cwd=work)
+    result = run([sys.executable, runner, "verify", "--target", env["HOME"]], env=detected, cwd=work, allow_failure=True)
     for expected in ("Claude -- commands:ok, skills:ok", "Codex / ChatGPT -- ~/.agents/skills:ok", "Gemini IDE -- GEMINI.md:ok", "Antigravity 2.0 IDE (global) -- skills:ok", "OpenCode -- skills:ok"):
         require(expected in result.stdout, f"read-path not populated: {expected}\n{result.stdout}")
+    # The gate itself, on every host: a home with no OpenCode evidence gets no OpenCode files.
+    if not shutil.which("opencode", path=env.get("PATH", "")):
+        bare = work / "home-without-opencode"
+        bare.mkdir()
+        bare_env = dict(env, HOME=str(bare), USERPROFILE=str(bare), NEXUS_HUB_HOME=str(bare / ".nexus-hub"))
+        run([sys.executable, runner, "install", "--scope", "global", "--target", str(bare), "--integrations", "opencode", "--overwrite", "--quiet"], env=bare_env, cwd=work)
+        require(not (bare / ".config" / "opencode").exists(), "an absent OpenCode received global files")
     if sys.platform.startswith("linux"):
         project = work / "project"
         project.mkdir()
         run(["git", "init", "-q", str(project)], env=env, cwd=work)
         run([sys.executable, runner, "init", "--target", str(project), "--quiet"], env=env, cwd=work)
         require(any((project / ".agents/workflows").iterdir()), "project init did not seed workflows")
-    print("OK: global registry read-paths and host-specific project seed")
+    print("OK: global registry read-paths (OpenCode detected through a stub command, gated off without one) and host-specific project seed")
 
 
 def workspace(root: Path, work: Path, env: dict[str, str]) -> None:

@@ -1,0 +1,200 @@
+"""Rendered-surface audit of the Nexus-Hub Settings panel in Chromium (fix cycle 1 re-check of the T042 findings).
+
+It renders the shipped panel.js and panel.css with a stub VS Code host that behaves like the real one around an
+action (a busy render, then an idle render with a notice), in four variable sets (Dark Modern, Light Modern, and the
+two high-contrast themes as modeled), and measures COMPUTED values in the page: contrast of every text node, keyboard
+focus after each action, the first-column width of the top table, horizontal overflow, the open state of the sources,
+live regions, accessible-name duplicates, and the control sizes.
+
+Usage: python panel_audit.py <extension dir> <models.json> <work dir> <result json>
+No network, no VS Code, no model; a scratch folder under the system temp folder.
+"""
+import json
+import shutil
+import sys
+from pathlib import Path
+
+from playwright.sync_api import sync_playwright
+
+ext, models_file, work, result_file = (Path(a) for a in sys.argv[1:5])
+models = json.loads(models_file.read_text(encoding="utf-8"))
+
+THEMES = {
+    "dark": {"foreground": "#cccccc", "sideBar-background": "#181818", "editor-background": "#1f1f1f", "descriptionForeground": "#9d9d9d", "button-background": "#0078d4", "button-foreground": "#ffffff", "button-hoverBackground": "#026ec1", "button-secondaryBackground": "#313131", "button-secondaryForeground": "#cccccc", "button-secondaryHoverBackground": "#3c3c3c", "editorError-foreground": "#f85149", "editorWarning-foreground": "#cca700", "focusBorder": "#0078d4", "input-background": "#313131", "input-border": "#3c3c3c", "input-foreground": "#cccccc", "panel-border": "#2b2b2b", "testing-iconPassed": "#73c991", "textBlockQuote-background": "#2b2b2b", "textCodeBlock-background": "#2b2b2b", "textLink-foreground": "#4daafc", "widget-border": "#313131"},
+    "light": {"foreground": "#3b3b3b", "sideBar-background": "#f8f8f8", "editor-background": "#ffffff", "descriptionForeground": "#717171", "button-background": "#005fb8", "button-foreground": "#ffffff", "button-hoverBackground": "#0258a8", "button-secondaryBackground": "#e5e5e5", "button-secondaryForeground": "#3b3b3b", "button-secondaryHoverBackground": "#cccccc", "editorError-foreground": "#e51400", "editorWarning-foreground": "#bf8803", "focusBorder": "#005fb8", "input-background": "#ffffff", "input-border": "#cecece", "input-foreground": "#3b3b3b", "panel-border": "#e5e5e5", "testing-iconPassed": "#388a34", "textBlockQuote-background": "#f8f8f8", "textCodeBlock-background": "#f8f8f8", "textLink-foreground": "#005fb8", "widget-border": "#e5e5e5"},
+    "hc-dark": {"foreground": "#ffffff", "sideBar-background": "#000000", "editor-background": "#000000", "descriptionForeground": "#ffffffb3", "button-background": "#000000", "button-foreground": "#ffffff", "button-border": "#6fc3df", "editorError-foreground": "#f48771", "editorWarning-foreground": "#ffff00", "focusBorder": "#f38518", "input-background": "#000000", "input-border": "#6fc3df", "input-foreground": "#ffffff", "panel-border": "#6fc3df", "testing-iconPassed": "#73c991", "textBlockQuote-background": "#000000", "textCodeBlock-background": "#000000", "textLink-foreground": "#21a6ff", "widget-border": "#6fc3df"},
+    "hc-light": {"foreground": "#292929", "sideBar-background": "#ffffff", "editor-background": "#ffffff", "descriptionForeground": "#292929b3", "button-background": "#0f4a85", "button-foreground": "#ffffff", "button-border": "#0f4a85", "editorError-foreground": "#b5200d", "editorWarning-foreground": "#b5200d", "focusBorder": "#006bb3", "input-background": "#ffffff", "input-border": "#0f4a85", "input-foreground": "#292929", "panel-border": "#0f4a85", "testing-iconPassed": "#007100", "textBlockQuote-background": "#ffffff", "textCodeBlock-background": "#ffffff", "textLink-foreground": "#0f4a85", "widget-border": "#0f4a85"},
+}
+COMMON = {"font-family": "'Segoe UI', system-ui, sans-serif", "font-size": "13px", "editor-font-family": "Consolas, 'Courier New', monospace"}
+
+SHELL = """<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Nexus-Hub Settings ({name})</title>
+<style>:root {{ {vars} }}</style>
+<link rel="stylesheet" href="media/panel.css"></head>
+<body><main id="app" data-logo="media/logo.png"><p>Loading the current settings...</p></main>
+<div id="live-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="live-alert" class="visually-hidden" role="alert" aria-live="assertive" aria-atomic="true"></div>
+<script>
+window.__posted = [];
+window.__models = {models};
+window.__scenario = null;
+window.acquireVsCodeApi = function () {{
+  return {{ postMessage: function (m) {{
+    window.__posted.push(m);
+    if (m.type === "ready") {{ window.postMessage({{ type: "render", model: window.__models.idle }}, "*"); return; }}
+    if (window.__scenario) {{ window.__scenario(m); }}
+  }} }};
+}};
+</script>
+<script src="media/panel.js"></script>
+</body></html>
+"""
+
+HELPERS = r"""
+window.__send = (name) => window.postMessage({ type: "render", model: window.__models[name] }, "*");
+window.__rgba = (css) => { const c = document.createElement("canvas"); c.width = c.height = 1; const x = c.getContext("2d"); x.clearRect(0,0,1,1); x.fillStyle = css; x.fillRect(0,0,1,1); const d = x.getImageData(0,0,1,1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+window.__over = (top, bottom) => { const a = top[3] + bottom[3] * (1 - top[3]); const m = (t, b) => a === 0 ? 0 : (t * top[3] + b * bottom[3] * (1 - top[3])) / a; return [m(top[0], bottom[0]), m(top[1], bottom[1]), m(top[2], bottom[2]), a]; };
+window.__lum = (c) => { const f = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+window.__ratio = (fg, bg) => { const b = window.__over(bg, [0,0,0,1]); const f = window.__over(fg, b); const [hi, lo] = [window.__lum(f), window.__lum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+window.__bgOf = (el) => { let stack = []; for (let n = el; n; n = n.parentElement) { stack.push(window.__rgba(getComputedStyle(n).backgroundColor)); } let acc = [0,0,0,1]; for (let i = stack.length - 1; i >= 0; i--) { acc = window.__over(stack[i], acc); } return acc; };
+window.__contrast = () => {
+  const out = [];
+  const walker = document.createTreeWalker(document.getElementById("app"), NodeFilter.SHOW_TEXT);
+  for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+    if (!t.textContent.trim()) continue;
+    const el = t.parentElement; const cs = getComputedStyle(el);
+    if (el.closest(".visually-hidden") || cs.visibility === "hidden") continue;
+    const dis = el.closest("[aria-disabled='true'], :disabled");
+    const fg = window.__rgba(cs.color); const bg = window.__bgOf(el);
+    out.push({ text: t.textContent.trim().slice(0, 34), cls: el.className || el.tagName.toLowerCase(), size: cs.fontSize, ratio: Math.round(window.__ratio(fg, bg) * 100) / 100, disabled: !!dis });
+  }
+  return out;
+};
+window.__badges = () => [...document.querySelectorAll(".badge")].map((b) => { const s = b.querySelector("span:not(.icon)"); const cs = getComputedStyle(s); return { text: s.textContent.slice(0, 30), ratio: Math.round(window.__ratio(window.__rgba(cs.color), window.__bgOf(s)) * 100) / 100 }; });
+window.__edges = () => [...document.querySelectorAll("select, input[type=text]")].map((f) => { const cs = getComputedStyle(f); const edge = window.__rgba(cs.borderTopColor); const fill = window.__over(window.__rgba(cs.backgroundColor), window.__bgOf(f.parentElement)); const page = window.__bgOf(f.parentElement); return { tag: f.tagName, vsFill: Math.round(window.__ratio(edge, fill) * 100) / 100, vsPage: Math.round(window.__ratio(edge, page) * 100) / 100, height: Math.round(f.getBoundingClientRect().height), font: cs.fontFamily.slice(0, 20), size: cs.fontSize }; });
+window.__names = () => { const name = (e) => (e.getAttribute("aria-label") || (e.labels && e.labels[0] && e.labels[0].textContent) || e.textContent || e.value || "").trim(); const els = [...document.querySelectorAll("button, summary, select, input")]; const seen = {}; els.forEach((e) => { const n = e.tagName + ":" + name(e); seen[n] = (seen[n] || 0) + 1; }); return { controls: els.length, unnamed: els.filter((e) => !name(e)).length, duplicates: Object.entries(seen).filter(([, c]) => c > 1).map(([n, c]) => n.slice(0, 60) + " x" + c) }; };
+window.__layout = () => {
+  const root = document.documentElement;
+  const th = [...document.querySelectorAll("th[scope=row]")];
+  const probe = document.createElement("canvas").getContext("2d");
+  const wide = th.map((cell) => { const cs = getComputedStyle(cell); probe.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; const longest = Math.max(...cell.textContent.split(/\s+/).map((w) => probe.measureText(w).width)); const room = cell.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); return { label: cell.textContent.slice(0, 30), width: Math.round(cell.getBoundingClientRect().width), longestWord: Math.round(longest), room: Math.round(room), splits: room + 0.5 < longest }; });
+  return { scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, overflowX: root.scrollWidth > root.clientWidth, firstColumn: wide, anySplitTool: wide.some((w) => w.splits) };
+};
+window.__active = () => { const a = document.activeElement; return a ? (a.getAttribute && a.getAttribute("data-focus")) || a.tagName : null; };
+"""
+
+
+def page_for(browser, theme, width, height=1000):
+    page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=1)
+    page.goto((work / f"panel-{theme}.html").as_uri())
+    page.wait_for_selector("section.card")
+    page.evaluate(HELPERS)
+    return page
+
+
+def scenario(page):
+    """Host behavior around one action: a busy render, then the idle render with a notice (or without the override)."""
+    page.evaluate(
+        """() => { window.__scenario = (m) => { const after = m.type === 'removeOverride' ? 'removed' : 'saved';
+          setTimeout(() => window.__send('busy'), 15); setTimeout(() => window.__send(after), 160); }; }"""
+    )
+
+
+def focus_cycle(page, selector, label):
+    """Focus a control, activate it from the keyboard, and read where focus is while busy and after the idle render."""
+    page.evaluate("window.__send('idle')")
+    scenario(page)
+    page.focus(selector)
+    before = page.evaluate("window.__active()")
+    page.keyboard.press("Enter")
+    page.wait_for_function("window.__models && document.getElementById('app').getAttribute('aria-busy') === 'true'", timeout=2000)
+    during = page.evaluate("window.__active()")
+    page.wait_for_function("document.getElementById('app').getAttribute('aria-busy') === 'false'", timeout=3000)
+    after = page.evaluate("window.__active()")
+    tag = page.evaluate("document.activeElement && document.activeElement.tagName")
+    page.evaluate("window.__send('idle')")
+    return {"control": label, "before": before, "during": during, "after": after, "afterTag": tag, "onBody": after == "BODY"}
+
+
+def main():
+    work.mkdir(parents=True, exist_ok=True)
+    (work / "media").mkdir(exist_ok=True)
+    for name in ("panel.js", "panel.css", "logo.png"):
+        shutil.copyfile(ext / "media" / name, work / "media" / name)
+    for theme, values in THEMES.items():
+        variables = " ".join(f"--vscode-{k}: {v};" for k, v in {**values, **COMMON}.items())
+        (work / f"panel-{theme}.html").write_text(SHELL.format(name=theme, vars=variables, models=json.dumps(models).replace("</", "<\\/")), encoding="utf-8")
+    result = {"themes": {}}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        for theme in THEMES:
+            page = page_for(browser, theme, 420)
+            texts = page.evaluate("window.__contrast()")
+            live = [t for t in texts if not t["disabled"]]
+            floor = min(live, key=lambda t: t["ratio"])
+            result["themes"][theme] = {
+                "textNodes": len(texts),
+                "minTextRatio": floor["ratio"], "minTextAt": f'{floor["text"]} ({floor["cls"]}, {floor["size"]})',
+                "textBelow4_5": [t for t in live if t["ratio"] < 4.5][:8],
+                "badges": page.evaluate("window.__badges()"),
+                "fieldEdges": page.evaluate("window.__edges()"),
+                "names": page.evaluate("window.__names()"),
+                "liveRegions": page.evaluate("({status: document.getElementById('live-status').getAttribute('role'), alert: document.getElementById('live-alert').getAttribute('role')})"),
+            }
+            page.close()
+
+        page = page_for(browser, "light", 420)
+        focus = [
+            focus_cycle(page, "[data-focus='refresh']", "Refresh"),
+            focus_cycle(page, "[data-focus='set:effort|*']", "Apply to every tool (effort)"),
+            focus_cycle(page, "[data-focus='set:posture|*']", "Apply to every tool (posture)"),
+            focus_cycle(page, "[data-focus='reset:effort']", "Reset Default effort"),
+            focus_cycle(page, "[data-focus='remove:effort|claude']", "Remove this override (control disappears)"),
+        ]
+        # A select: pick with the keyboard, then press the Set button that follows it.
+        result["focus"] = focus
+        # Notice announcement through the live region, in the real browser.
+        page.evaluate("window.__send('idle')")
+        page.evaluate("window.__send('saved')")
+        result["announced"] = page.evaluate("document.getElementById('live-status').textContent")
+        page.close()
+
+        page = page_for(browser, "light", 420)
+        placeholder = page.evaluate("(() => { const s = document.querySelector(\"select[data-focus='pick:effort|claude']\"); const b = document.querySelector(\"button[data-focus='set:effort|claude']\"); return { value: s.value, firstOption: s.options[0].textContent, setAriaDisabled: b.getAttribute('aria-disabled') }; })()")
+        result["overriddenRowStart"] = placeholder
+        # Open sources survive a busy/idle cycle (real toggle events).
+        page.locator('details.sources summary').nth(2).click()
+        page.evaluate("window.__send('busy'); window.__send('idle');")
+        page.wait_for_timeout(100)
+        result["sourcesStayOpen"] = page.evaluate("[...document.querySelectorAll('details.sources')].map(d => d.open)")
+        page.close()
+
+        for width in (320, 420, 900, 1440):
+            page = page_for(browser, "light", width)
+            page.evaluate("document.querySelectorAll('details.sources').forEach(d => d.open = true)")
+            result.setdefault("layout", {})[str(width)] = page.evaluate("window.__layout()")
+            page.close()
+
+        page = page_for(browser, "dark", 420)
+        page.evaluate("window.__send('readOnly')")
+        result["readOnlyRefresh"] = page.evaluate("(() => { const b = document.querySelector(\"[data-focus='refresh']\"); return { disabled: b.disabled, ariaDisabled: b.getAttribute('aria-disabled') }; })()")
+        page.evaluate("window.__send('error')")
+        result["errorRefresh"] = page.evaluate("(() => { const b = document.querySelector(\"[data-focus='refresh']\"); return { disabled: b.disabled, ariaDisabled: b.getAttribute('aria-disabled') }; })()")
+        page.close()
+
+        page = page_for(browser, "dark", 420, 1100)
+        page.screenshot(path=str(work / "panel-dark-420-top.png"), clip={"x": 0, "y": 0, "width": 420, "height": 1100})
+        page.close()
+        page = page_for(browser, "light", 420, 1100)
+        page.screenshot(path=str(work / "panel-light-420-top.png"), clip={"x": 0, "y": 0, "width": 420, "height": 1100})
+        page.close()
+        browser.close()
+    result_file.write_text(json.dumps(result, indent=1), encoding="utf-8")
+    print(json.dumps({k: v for k, v in result.items() if k in ("focus", "announced", "overriddenRowStart", "sourcesStayOpen", "readOnlyRefresh", "errorRefresh")}, indent=1))
+    for theme, data in result["themes"].items():
+        print(theme, "min text ratio", data["minTextRatio"], "at", data["minTextAt"], "| below 4.5:", len(data["textBelow4_5"]), "| badges", [b["ratio"] for b in data["badges"]][:6], "| edges", [(e["vsFill"], e["vsPage"]) for e in data["fieldEdges"]][:2], "| names", data["names"]["unnamed"], data["names"]["duplicates"][:3])
+    for width, data in result["layout"].items():
+        print("layout", width, "overflowX", data["overflowX"], "scroll", data["scrollWidth"], "client", data["clientWidth"], "anySplitTool", data["anySplitTool"], [w["width"] for w in data["firstColumn"]][:3])
+
+
+main()

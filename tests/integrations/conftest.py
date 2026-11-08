@@ -11,7 +11,7 @@ if str(REPO_ROOT) not in sys.path:
 
 import pytest
 
-from scripts.lib.integrations import legacy  # noqa: E402
+from scripts.lib.integrations import _detection, legacy  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 
@@ -20,6 +20,27 @@ from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 def isolated_nexus_state(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep workspace lock and backup writes out of the invoking home."""
     monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path / "nexus-home"))
+
+
+@pytest.fixture(autouse=True)
+def fake_tools(monkeypatch: pytest.MonkeyPatch):
+    """v4.14.7: detection never reads the developer's real PATH.
+
+    Every integration test starts with no tool on PATH. A test that needs a
+    platform detected through its executable calls ``fake_tools("kimi")``; the
+    resolved path is a stable fake under ``/fake-bin``.
+    """
+    present: set = set()
+
+    def which(name: str):
+        return f"/fake-bin/{name}" if name in present else None
+
+    monkeypatch.setattr(_detection, "safe_which", which)
+
+    def add(*names: str) -> None:
+        present.update(names)
+
+    return add
 
 
 @pytest.fixture(scope="module", autouse=True)

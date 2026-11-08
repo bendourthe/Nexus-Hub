@@ -346,13 +346,13 @@
     "antigravity2": {
       "display_name": "Antigravity 2.0 + CLI",
       "source_url": "https://www.antigravity.google/docs/cli/modes/",
-      "verified": "2026-10-10",
-      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json with values default, accept-edits, and plan. The default mode pauses for interactive diff review before modifying or creating files; accept-edits automatically approves file edits and creations; plan prepends the /plan instruction prefix to analyze and outline steps before writing code.",
+      "verified": "2026-11-04",
+      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json: \"auto\" is the default where available, and \"accept-edits\", \"plan\", or \"\" select a mode, where \"\" selects default mode. The default mode pauses for interactive diff review before modifying or creating files; accept-edits automatically approves file edits and creations; plan prepends the /plan instruction prefix to analyze and outline steps before writing code.",
       "settings": {
-        "agentMode": "default"
+        "agentMode": ""
       },
       "rationale": {
-        "agentMode": "The vendor's default mode keeps an interactive diff review before any file is modified or created and does not silently enable automatic edits."
+        "agentMode": "The empty string is the documented value for the vendor's default mode, which keeps an interactive diff review before any file is modified or created. Leaving the key absent would start in auto mode where available, so the seed keeps the review explicitly."
       },
       "install_target": {
         "mode": "write",

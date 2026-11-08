@@ -17,8 +17,41 @@
 # them, and a flag nobody listed will pass silently. This hook is
 # defense-in-depth, NOT a boundary. See the "Limits and Honest Boundaries"
 # section of catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md.
+#
+# Opt-in bypass-flag mode (v4.14.4): when ~/.nexus-hub/guardrails.json sets
+# "block_git_bypass_flags": true (or NEXUS_GUARD_GIT_BYPASS=1), the flags that skip
+# git hooks or commit signing are blocked as well: --no-verify, git commit -n, and
+# --no-gpg-sign, plus gpgsign=false set inline or persisted. It is off by default and
+# the switch file is read on every run, so it needs no restart. This mode is
+# defense-in-depth, NOT a boundary. Its limits: environment-variable skips (HUSKY=0,
+# SKIP=, LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell
+# aliases and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+# itself. The full list is on the mode's block below and in
+# docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
+#
+# This hook runs for the Bash tool and the PowerShell tool (settings.json matcher
+# "Bash|PowerShell"); both send the command as tool_input.command.
 
 set -euo pipefail
+
+# Nexus-Hub source label; echoed values cannot forge a new tagged line.
+readonly _NEXUS_TAG="[Nexus-Hub: git-guardrails]"
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+_nexus_msg() {
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+}
 
 # --- Dangerous patterns ---
 # Each line: "extended_regex:::description"
@@ -76,7 +109,7 @@ if command -v jq >/dev/null 2>&1; then
   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || true)
 else
   # Fallback: basic JSON extraction via grep/sed
-  COMMAND=$(echo "$INPUT" | LC_ALL=C grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
+  COMMAND=$(echo "$INPUT" | LC_ALL=C grep -oE '"command"[[:space:]]*:[[:space:]]*"([^"\\]|\\.)*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
   # Un-escape the JSON string escapes this path leaves behind. Without this the
   # extracted command is a SINGLE line carrying a literal backslash-n, which is
   # not what the user is about to run, so any line-oriented analysis below (the
@@ -147,13 +180,16 @@ SCAN=$(printf '%s' "$COMMAND" | strip_heredoc_bodies)
 for entry in "${DANGEROUS_PATTERNS[@]}"; do
   PATTERN="${entry%%:::*}"
   DESC="${entry##*:::}"
+  # git reads config keys case-insensitively, so the core.* entries must too.
+  GREP_FLAGS=-qE
+  case "$PATTERN" in *'core\.'*) GREP_FLAGS=-qiE ;; esac
 
-  if echo "$SCAN" | grep -qE "$PATTERN"; then
-    echo "BLOCKED: '$COMMAND' matches dangerous git pattern. $DESC. The user has prevented you from doing this." >&2
+  if echo "$SCAN" | grep "$GREP_FLAGS" "$PATTERN"; then
+    _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' matches dangerous git pattern. $(_nexus_esc "$DESC"). The user has prevented you from doing this."
     exit 2
   fi
-  if echo "$COMMAND" | grep -qE "$PATTERN"; then
-    echo "NOTE: a dangerous git pattern ($DESC) appears inside written file content, not as a command. Allowing the write." >&2
+  if echo "$COMMAND" | grep "$GREP_FLAGS" "$PATTERN"; then
+    _nexus_msg "NOTE: a dangerous git pattern ($(_nexus_esc "$DESC")) appears inside written file content, not as a command. Allowing the write."
   fi
 done
 
@@ -166,9 +202,9 @@ done
 # only inspects, so matching the key alone would false-positive on a diagnostic
 # command. Flag the write forms and let the read forms through.
 if echo "$SCAN" | grep -qE '(^|[;&|]|[[:space:]])git([[:space:]]|$).*config' \
-   && echo "$SCAN" | grep -qE 'core\.(hooksPath|fsmonitor)' \
+   && echo "$SCAN" | grep -qiE 'core\.(hooksPath|fsmonitor)' \
    && ! echo "$SCAN" | grep -qE '\-\-(get|get-all|get-regexp|get-urlmatch|list|unset|unset-all)([[:space:]]|=|$)'; then
-  echo "BLOCKED: '$COMMAND' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this." >&2
+  _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this."
   exit 2
 fi
 
@@ -188,12 +224,189 @@ if [ -n "${NEXUS_PROTECTED_BRANCHES:-}" ] \
     PROTECTED_LIST=$(echo "${NEXUS_PROTECTED_BRANCHES}" | tr ',' ' ')
     for b in $PROTECTED_LIST; do
       if [ "$b" = "$CURRENT_BRANCH" ]; then
-        echo "BLOCKED: direct commit to protected branch '${CURRENT_BRANCH}'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1." >&2
+        _nexus_msg "BLOCKED: direct commit to protected branch '$(_nexus_esc "${CURRENT_BRANCH}")'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1."
         exit 2
       fi
     done
   fi
 fi
+
+# --- Opt-in git bypass-flag guard (v4.14.4) ---
+# Blocks the flags that skip git hooks or commit signing, when a team opts in.
+# Inert by default. Specification: docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md
+#   Switch   : ~/.nexus-hub/guardrails.json  {"block_git_bypass_flags": true}
+#              Read on EVERY run, so editing it takes effect on the next command.
+#   Override : NEXUS_GUARD_GIT_BYPASS=1 (on) or =0 (off), read ONLY from this
+#              hook's own environment. It is never parsed from the command text.
+#   A missing file means off. A malformed file means off plus one stderr warning
+#   naming the file; it never crashes the hook, which would block every command.
+#
+# Blocked when on: --no-verify (and prefixes from --no-v) on commit, push, merge,
+# rebase, am; -n as a `git commit` option (the short-option scan stops at an
+# option that takes an argument, so -mn and -uno are not -n); --no-gpg-sign (and
+# prefixes from --no-g) on commit, merge, rebase, cherry-pick, revert; inline
+# -c commit.gpgsign=<false-like> and persistent `git config commit.gpgsign|
+# tag.gpgsign <false-like>`, key in any letter case; all of these after git
+# global options (git -C repo commit -n). Not blocked: git push -n, git log -n,
+# git commit --no-edit.
+#
+# Before matching, quoted -m/--message/-F/--file values and heredoc bodies that
+# only write a file are stripped; a heredoc body fed to an interpreter (bash, sh,
+# zsh, pwsh, powershell, python) is kept and scanned.
+#
+# Documented limits (this is defense-in-depth, NOT a boundary):
+#   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
+#   - git plumbing (commit-tree, update-ref, hash-object)
+#   - shell aliases, wrapper scripts, and git aliases
+#   - bypassPermissions mode (this whole hook steps aside)
+#   - an agent that edits guardrails.json or this hook itself
+#   - a flag built at run time (variables, command substitution, eval), quoted
+#     as a separate word, or handed to a program that runs git later
+#   - git config --unset commit.gpgsign
+#   - without jq and without a working python, a malformed guardrails.json is
+#     detected best effort only (the mode still stays off)
+bypass_mode_on() {
+  case "${NEXUS_GUARD_GIT_BYPASS:-}" in
+    1) return 0 ;;
+    0) return 1 ;;
+  esac
+  local home_dir="${HOME:-${USERPROFILE:-}}"
+  local cfg="$home_dir/.nexus-hub/guardrails.json"
+  if [ -z "$home_dir" ] || [ ! -f "$cfg" ]; then return 1; fi
+  local content verdict="" flat bom=$'\xEF\xBB\xBF'
+  content=$(cat "$cfg" 2>/dev/null || true)
+  content=${content#"$bom"}
+  content=${content//$'\r'/}
+  if command -v jq >/dev/null 2>&1; then
+    # jq reads a stream of JSON values, so `{...} trailing` yields a verdict for the first
+    # value before failing on the rest. Slurp the file as one document and treat any jq
+    # failure as malformed, as the python and .ps1 parsers do.
+    if verdict=$(printf '%s' "$content" | jq -rs 'if length == 1 and (.[0] | type) == "object" then (.[0].block_git_bypass_flags == true | tostring) else "invalid" end' 2>/dev/null); then
+      verdict=${verdict//$'\r'/}
+    else
+      verdict=invalid
+    fi
+  else
+    # No jq: let a real JSON parser validate the file, so a malformed one warns as the
+    # .ps1 does. A missing interpreter, or one that is not a working Python (the Windows
+    # Store python3 stub prints an install message and exits non-zero), yields no verdict
+    # word, so the grep path below decides instead; it never misreports the file.
+    local py_code='import json, sys
+try:
+    d = json.loads(sys.stdin.read())
+except ValueError:
+    print("invalid")
+else:
+    print(("true" if d.get("block_git_bypass_flags") is True else "false") if isinstance(d, dict) else "invalid")'
+    local py py_out
+    for py in python3 python; do
+      command -v "$py" >/dev/null 2>&1 || continue
+      py_out=$(printf '%s' "$content" | "$py" -c "$py_code" 2>/dev/null) || continue
+      py_out=${py_out//$'\r'/}
+      case "$py_out" in
+        true|false|invalid) verdict=$py_out; break ;;
+      esac
+    done
+    if [ -z "$verdict" ]; then
+      flat=$(printf '%s' "$content" | tr -d '[:space:]')
+      case "$flat" in
+        '{'*'}')
+          if printf '%s' "$flat" | grep -qE '"block_git_bypass_flags":true([,}]|$)'; then verdict=true; else verdict=false; fi ;;
+        *) verdict=invalid ;;
+      esac
+    fi
+  fi
+  case "$verdict" in
+    true) return 0 ;;
+    false) return 1 ;;
+  esac
+  _nexus_msg "WARNING: git-guardrails: $(_nexus_esc "$cfg") is not a valid JSON object; the git bypass-flag guard stays off."
+  return 1
+}
+
+# Like strip_heredoc_bodies, but keeps a body whose opener line names an
+# interpreter, and does not mistake a here-string (<<<) for a heredoc.
+bypass_strip_heredocs() {
+  local hd_re='(^|[^<])<<-?[[:space:]]*["'"'"']?([A-Za-z_][A-Za-z0-9_]*)["'"'"']?'
+  local interp_re='(^|[^A-Za-z0-9_.-])(bash|sh|zsh|pwsh|powershell|python[0-9.]*)(\.exe)?([^A-Za-z0-9_.-]|$)'
+  local line trimmed delim="" inbody=0 keep=0 out="" nl=$'\n'
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$inbody" -eq 1 ]; then
+      trimmed="${line#"${line%%[![:space:]]*}"}"
+      if [ "$trimmed" = "$delim" ]; then
+        inbody=0
+      elif [ "$keep" -eq 1 ]; then
+        out+="$line$nl"
+      fi
+      continue
+    fi
+    if [[ "$line" =~ $hd_re ]]; then
+      delim="${BASH_REMATCH[2]}"
+      inbody=1
+      keep=0
+      if [[ "$line" =~ $interp_re ]]; then keep=1; fi
+    fi
+    out+="$line$nl"
+  done
+  printf '%s' "$out"
+}
+
+# Replace each quoted -m/--message/-F/--file value (also attached to a short
+# cluster such as -am "text") with "", so a message that names a flag is not one.
+bypass_strip_messages() {
+  local s="$1" m out=""
+  local re='(^|[[:space:]])(-[a-zA-Z]*[mF]|--message|--file)[[:space:]]*=?[[:space:]]*("[^"]*"|'"'"'[^'"'"']*'"'"')'
+  while [[ "$s" =~ $re ]]; do
+    m="${BASH_REMATCH[0]}"
+    out+="${s%%"$m"*}${BASH_REMATCH[1]}${BASH_REMATCH[2]} \"\""
+    s="${s#*"$m"}"
+  done
+  printf '%s' "$out$s"
+}
+
+# Returns 0 and prints a short reason when $1 holds a bypass flag.
+bypass_detect() {
+  local text seg nl=$'\n'
+  text=$(printf '%s' "$1" | bypass_strip_heredocs)
+  text=$(bypass_strip_messages "$text")
+  text=${text//\\$nl/ }
+  text=${text//\`$nl/ }
+  local q=$'["\']'
+  local val=$'("[^"]*"|\'[^\']*\'|[^[:space:]]+)'
+  local gopt="(-C[[:space:]]+$val|-c[[:space:]]+$val|--(git-dir|work-tree|namespace|super-prefix|config-env)(=|[[:space:]]+)$val|--exec-path(=[^[:space:]]+)?|--(no-pager|paginate|bare|no-replace-objects|literal-pathspecs|glob-pathspecs|noglob-pathspecs|icase-pathspecs|no-optional-locks|no-lazy-fetch|html-path|man-path|info-path)|-p|-P)"
+  local pre="(^|[[:space:](\`{\"'])([^[:space:]]*[/\\\\])?git(\\.exe)?$q?([[:space:]]+$gopt)*"
+  local end="([[:space:]\"'=]|\$)"
+  local re_nv="${pre}[[:space:]]+(commit|push|merge|rebase|am)[[:space:]]+(.*[[:space:]])?$q?--no-v(e(r(i(f(y)?)?)?)?)?$end"
+  local re_n="${pre}[[:space:]]+commit[[:space:]]+(.*[[:space:]])?-[ABDEGHIJKLMNOPQRTUVWXYZabdefghijklnopqrsvwxyz]*n[^[:space:]\"']*([[:space:]\"']|\$)"
+  local re_ng="${pre}[[:space:]]+(commit|merge|rebase|cherry-pick|revert)[[:space:]]+(.*[[:space:]])?$q?--no-g(p(g(-(s(i(g(n)?)?)?)?)?)?)?$end"
+  local re_inline="${pre}[[:space:]]+-c[[:space:]]*$q?(commit|tag)\\.gpgsign[[:space:]]*=[[:space:]]*$q?(false|no|off|0)?$q?([[:space:]]|\$)"
+  local re_cfg="${pre}[[:space:]]+config(([[:space:]]+(--file|-f|--blob)[[:space:]]+$val)|([[:space:]]+-{1,2}[A-Za-z][A-Za-z-]*(=[^[:space:]]+)?))*[[:space:]]+$q?(commit|tag)\\.gpgsign$q?[[:space:]]+($q?(false|no|off|0)$q?|\"\"|'')([[:space:]]|\$)"
+  local segments
+  # shellcheck disable=SC2020
+  segments=$(printf '%s' "$text" | tr ';|&' '\n\n\n')  # three separators, each mapped to a newline
+  while IFS= read -r seg; do
+    case "$seg" in *git*) ;; *) continue ;; esac
+    if grep -qE "$re_nv" <<<"$seg"; then echo "--no-verify skips git hooks"; return 0; fi
+    if grep -qE "$re_n" <<<"$seg"; then echo "-n skips git hooks"; return 0; fi
+    if grep -qE "$re_ng" <<<"$seg"; then echo "--no-gpg-sign skips commit signing"; return 0; fi
+    if grep -qEi "$re_inline" <<<"$seg"; then echo "an inline gpgsign=false setting skips commit signing"; return 0; fi
+    if grep -qEi "$re_cfg" <<<"$seg"; then echo "persisting gpgsign=false skips commit signing"; return 0; fi
+  done <<<"$segments"
+  return 1
+}
+
+# The pre-filter keeps the switch file unread (and a malformed-file warning
+# unprinted) for commands that do not mention git at all.
+case "$COMMAND" in
+  *git*)
+    if bypass_mode_on; then
+      if BYPASS_REASON=$(bypass_detect "$COMMAND"); then
+        _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' skips git hooks or commit signing ($(_nexus_esc "$BYPASS_REASON")). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this."
+        exit 2
+      fi
+    fi
+    ;;
+esac
 
 # Command is safe
 exit 0

@@ -11,7 +11,9 @@ const MESSAGES: Record<ProviderErrorCode, string> = {
     "No extension-owned Cursor credential is stored in SecretStorage.",
   "invalid-credential":
     "The supplied Cursor credential has an invalid format.",
-  "session-expired": "The Cursor session is missing or expired.",
+  "session-expired": "The Cursor session is missing or expired. Sign in to Cursor again, then retry.",
+  "session-decryption-unavailable":
+    "Cursor's encrypted session could not be read. Decryption is supported on Windows only. On Windows, open the signed-in local Cursor profile and retry; otherwise use manual entry.",
   "dashboard-visibility-restricted":
     "Cursor usage or spending data is unavailable for this account role.",
   "unsupported-data-path":

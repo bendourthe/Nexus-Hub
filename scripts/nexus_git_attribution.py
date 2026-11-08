@@ -560,6 +560,10 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
 # warns and passes; a device or FIFO is never opened.
 
 SCAN_HOOK = "attribution-guard"
+_HOOK_VALUE_ESCAPES = {
+    code: {9: "\\t", 10: "\\n", 13: "\\r"}.get(code, f"\\x{code:02x}")
+    for code in (*range(32), 127)
+}
 VENDOR = (r"(?:claude(?:\s+code)?|codex|copilot|cursor|gemini|devin|kimi|qwen|anthropic|openai|"
           r"chatgpt|aider|windsurf|antigravity)")
 MODEL_WORDS = (r"(?:\s+(?:opus|sonnet|haiku|pro|flash|mini|nano|turbo|max|ultra|preview|code|cli|agent|"
@@ -622,7 +626,7 @@ def _agent_coauthor(value: str) -> bool:
 
 
 def _snippet(text: str) -> str:
-    return "".join(ch if ch.isprintable() and ord(ch) < 128 else "?" for ch in text)[:80]
+    return "".join(ch if ch.isprintable() and ord(ch) < 128 else "?" for ch in text.translate(_HOOK_VALUE_ESCAPES))[:80]
 
 
 def _read_body_file(path: str, cwd: Path) -> tuple[str | None, str | None]:
@@ -773,9 +777,9 @@ def _mcp_bodies(value: object) -> list[str]:
 
 
 def _scan_block(route: str, pattern: str, line: str) -> int:
-    print(f"[{SCAN_HOOK}] BLOCKED: {route} carries AI attribution (pattern {pattern}).", file=sys.stderr)
-    print(f"Line: {_snippet(line.strip())}", file=sys.stderr)
-    print("Remove the co-author trailer, generated-with footer, or badge; your own identity is the "
+    print(f"[Nexus-Hub: {SCAN_HOOK}] BLOCKED: {_snippet(route)} carries AI attribution (pattern {pattern}).", file=sys.stderr)
+    print(f"[Nexus-Hub: {SCAN_HOOK}] Line: {_snippet(line.strip())}", file=sys.stderr)
+    print(f"[Nexus-Hub: {SCAN_HOOK}] Remove the co-author trailer, generated-with footer, or badge; your own identity is the "
           "only author. Naming a tool as the subject of a sentence is fine.", file=sys.stderr)
     return 2
 
@@ -796,7 +800,7 @@ def scan(payload: dict) -> int:
             text = str(tool_input.get("content") or tool_input.get("new_string") or "")
             found = attribution_pattern(text)
             if found:
-                print(f"[{SCAN_HOOK}] WARNING: {_snippet(path)} would carry AI attribution "
+                print(f"[Nexus-Hub: {SCAN_HOOK}] WARNING: {_snippet(path)} would carry AI attribution "
                       f"(pattern {found[0]}); remove it unless the text describes the pattern.", file=sys.stderr)
         return 0
     if tool not in ("Bash", "PowerShell"):
@@ -816,7 +820,7 @@ def scan(payload: dict) -> int:
         if not heredocs:
             unverified += [f"{route}: {reason}" for reason in reasons]
     for reason in dict.fromkeys(unverified):
-        print(f"[{SCAN_HOOK}] WARNING: cannot verify body ({reason}); check it for AI attribution "
+        print(f"[Nexus-Hub: {SCAN_HOOK}] WARNING: cannot verify body ({reason}); check it for AI attribution "
               "before publishing.", file=sys.stderr)
     return 0
 
@@ -833,7 +837,7 @@ def cmd_scan() -> int:
     try:
         return scan(payload)
     except Exception as exc:  # noqa: BLE001 - the hook must degrade to a warning, never crash
-        print(f"[{SCAN_HOOK}] WARNING: cannot verify body ({type(exc).__name__}).", file=sys.stderr)
+        print(f"[Nexus-Hub: {SCAN_HOOK}] WARNING: cannot verify body ({type(exc).__name__}).", file=sys.stderr)
         return 0
 
 

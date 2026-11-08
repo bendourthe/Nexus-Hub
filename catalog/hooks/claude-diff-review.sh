@@ -19,6 +19,21 @@
 
 set -euo pipefail
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: claude-diff-review]"
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+    local line
+    printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+    shift
+    for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 # --- Bypass paths --------------------------------------------------------
 if [ "${NEXUS_DIFF_REVIEW_DISABLE:-0}" = "1" ]; then
     exit 0
@@ -39,8 +54,8 @@ fi
 
 # --- Locate claude CLI ---------------------------------------------------
 if ! command -v claude >/dev/null 2>&1; then
-    echo "[claude-diff-review] WARNING: claude CLI not found on PATH; skipping review." >&2
-    echo "[claude-diff-review] Install Claude Code (https://claude.ai/download) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." >&2
+    _nexus_msg "WARNING: claude CLI not found on PATH; skipping review."
+    _nexus_msg "Install Claude Code (https://claude.ai/download) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning."
     exit 0
 fi
 
@@ -54,8 +69,8 @@ fi
 MAX_BYTES="${NEXUS_DIFF_REVIEW_MAX_BYTES:-51200}"
 DIFF_BYTES=${#DIFF}
 if [ "$DIFF_BYTES" -gt "$MAX_BYTES" ]; then
-    echo "[claude-diff-review] WARNING: staged diff is ${DIFF_BYTES} bytes (cap=${MAX_BYTES}); skipping review." >&2
-    echo "[claude-diff-review] Raise the cap with NEXUS_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time." >&2
+    _nexus_msg "WARNING: staged diff is ${DIFF_BYTES} bytes (cap=${MAX_BYTES}); skipping review."
+    _nexus_msg "Raise the cap with NEXUS_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time."
     exit 0
 fi
 
@@ -94,7 +109,7 @@ EOF
 # --- Run claude (fail-open on any error) ---------------------------------
 RESPONSE=$(printf '%s' "$DIFF" | claude -p "$PROMPT" 2>/dev/null || true)
 if [ -z "$RESPONSE" ]; then
-    echo "[claude-diff-review] WARNING: claude CLI returned no output; allowing commit." >&2
+    _nexus_msg "WARNING: claude CLI returned no output; allowing commit."
     exit 0
 fi
 
@@ -107,21 +122,21 @@ case "$VERDICT" in
         exit 0
         ;;
     WARN)
-        echo "[claude-diff-review] WARN:" >&2
-        echo "$RESPONSE" | tail -n +2 >&2
-        echo "" >&2
-        echo "[claude-diff-review] Commit allowed; review the warnings above and consider amending." >&2
+        _nexus_msg "WARN:"
+        echo "$RESPONSE" | tail -n +2 >&2  # nexus: hook-msg-exempt relayed reviewer output
+        echo "" >&2  # nexus: hook-msg-exempt blank separator
+        _nexus_msg "Commit allowed; review the warnings above and consider amending."
         exit 0
         ;;
     BLOCK)
-        echo "[claude-diff-review] BLOCK:" >&2
-        echo "$RESPONSE" | tail -n +2 >&2
-        echo "" >&2
-        echo "[claude-diff-review] Commit refused. Fix the issue, or bypass this commit with: NEXUS_DIFF_REVIEW_DISABLE=1 git commit ..." >&2
+        _nexus_msg "BLOCK:"
+        echo "$RESPONSE" | tail -n +2 >&2  # nexus: hook-msg-exempt relayed reviewer output
+        echo "" >&2  # nexus: hook-msg-exempt blank separator
+        _nexus_msg "Commit refused. Fix the issue, or bypass this commit with: NEXUS_DIFF_REVIEW_DISABLE=1 git commit ..."
         exit 1
         ;;
     *)
-        echo "[claude-diff-review] WARNING: unparseable verdict from claude (expected PASS|WARN|BLOCK); allowing commit." >&2
+        _nexus_msg "WARNING: unparseable verdict from claude (expected PASS|WARN|BLOCK); allowing commit."
         exit 0
         ;;
 esac

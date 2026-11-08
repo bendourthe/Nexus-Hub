@@ -34,6 +34,25 @@
 
 set -euo pipefail
 
+# Nexus-Hub source label; echoed values cannot forge a new tagged line.
+readonly _NEXUS_TAG="[Nexus-Hub: git-guardrails]"
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+_nexus_msg() {
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+}
+
 # --- Dangerous patterns ---
 # Each line: "extended_regex:::description"
 DANGEROUS_PATTERNS=(
@@ -166,11 +185,11 @@ for entry in "${DANGEROUS_PATTERNS[@]}"; do
   case "$PATTERN" in *'core\.'*) GREP_FLAGS=-qiE ;; esac
 
   if echo "$SCAN" | grep "$GREP_FLAGS" "$PATTERN"; then
-    echo "BLOCKED: '$COMMAND' matches dangerous git pattern. $DESC. The user has prevented you from doing this." >&2
+    _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' matches dangerous git pattern. $(_nexus_esc "$DESC"). The user has prevented you from doing this."
     exit 2
   fi
   if echo "$COMMAND" | grep "$GREP_FLAGS" "$PATTERN"; then
-    echo "NOTE: a dangerous git pattern ($DESC) appears inside written file content, not as a command. Allowing the write." >&2
+    _nexus_msg "NOTE: a dangerous git pattern ($(_nexus_esc "$DESC")) appears inside written file content, not as a command. Allowing the write."
   fi
 done
 
@@ -185,7 +204,7 @@ done
 if echo "$SCAN" | grep -qE '(^|[;&|]|[[:space:]])git([[:space:]]|$).*config' \
    && echo "$SCAN" | grep -qiE 'core\.(hooksPath|fsmonitor)' \
    && ! echo "$SCAN" | grep -qE '\-\-(get|get-all|get-regexp|get-urlmatch|list|unset|unset-all)([[:space:]]|=|$)'; then
-  echo "BLOCKED: '$COMMAND' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this." >&2
+  _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this."
   exit 2
 fi
 
@@ -205,7 +224,7 @@ if [ -n "${NEXUS_PROTECTED_BRANCHES:-}" ] \
     PROTECTED_LIST=$(echo "${NEXUS_PROTECTED_BRANCHES}" | tr ',' ' ')
     for b in $PROTECTED_LIST; do
       if [ "$b" = "$CURRENT_BRANCH" ]; then
-        echo "BLOCKED: direct commit to protected branch '${CURRENT_BRANCH}'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1." >&2
+        _nexus_msg "BLOCKED: direct commit to protected branch '$(_nexus_esc "${CURRENT_BRANCH}")'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1."
         exit 2
       fi
     done
@@ -301,7 +320,7 @@ else:
     true) return 0 ;;
     false) return 1 ;;
   esac
-  echo "WARNING: git-guardrails: $cfg is not a valid JSON object; the git bypass-flag guard stays off." >&2
+  _nexus_msg "WARNING: git-guardrails: $(_nexus_esc "$cfg") is not a valid JSON object; the git bypass-flag guard stays off."
   return 1
 }
 
@@ -382,7 +401,7 @@ case "$COMMAND" in
   *git*)
     if bypass_mode_on; then
       if BYPASS_REASON=$(bypass_detect "$COMMAND"); then
-        echo "BLOCKED: '$COMMAND' skips git hooks or commit signing ($BYPASS_REASON). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this." >&2
+        _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' skips git hooks or commit signing ($(_nexus_esc "$BYPASS_REASON")). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this."
         exit 2
       fi
     fi

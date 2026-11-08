@@ -1,0 +1,27 @@
+// Build the view models the panel audit renders (fix cycle 1). Usage: node panel_models.cjs <extension dir> <output json>
+// The models come from the shipped view model builder and the extension's own test fixtures (engine output shapes).
+const fs = require("fs");
+const path = require("path");
+
+const [ext, outFile] = process.argv.slice(2);
+const vm = require(path.join(ext, "out", "viewModel.js"));
+const fixtures = path.join(ext, "test", "fixtures");
+const report = JSON.parse(fs.readFileSync(path.join(fixtures, "show.json"), "utf8"));
+const explains = {};
+for (const id of ["effort", "model", "posture", "attribution", "git_guardrails"]) {
+  explains[id] = JSON.parse(fs.readFileSync(path.join(fixtures, `explain-${id}.json`), "utf8"));
+}
+const inspect = (key) => ({ key, registered: true, defaultValue: false, globalValue: undefined, workspaceValue: undefined, workspaceFolderValue: undefined });
+const base = vm.buildModel({ report, explains, inspect, trusted: true, profile: "Default" });
+const noRemovable = JSON.parse(JSON.stringify(base));
+noRemovable.controls.forEach((c) => c.rows.forEach((r) => { r.removable = null; }));
+const models = {
+  idle: base,
+  busy: { ...base, busy: true },
+  saved: { ...base, notice: { level: "info", text: "Saved high for effort. New sessions only.", lines: ["Codex: model_reasoning_effort - written"] } },
+  removed: { ...noRemovable, notice: { level: "info", text: "Removed the override for effort. New sessions only." } },
+  readOnly: vm.buildModel({ report, explains, inspect, trusted: false, profile: "Default" }),
+  error: vm.errorModel("Default", "windows", { title: "Nexus-Hub is not installed", message: "the command line was not found", command: "python nexus_hub_cli.py settings show --json", fix: "Install or repair Nexus-Hub." }),
+};
+fs.writeFileSync(outFile, JSON.stringify(models), "utf8");
+console.log(JSON.stringify({ controls: base.controls.length, rows: base.controls.reduce((n, c) => n + c.rows.length, 0), outcomeRows: base.outcome.rows.length, notes: base.outcome.notes.length }));

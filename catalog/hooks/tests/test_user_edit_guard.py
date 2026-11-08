@@ -112,7 +112,7 @@ def test_write_onto_user_edited_file_is_blocked_outside_a_worktree(run, work):
     _user_edits(deck)
     result = run(_payload("PreToolUse", "Write", work, path=deck), work)
     assert result.returncode == 2
-    assert "[user-edit-guard] BLOCKED" in result.stderr and _MESSAGE in result.stderr
+    assert "[Nexus-Hub: user-edit-guard] BLOCKED" in result.stderr and _MESSAGE in result.stderr
     assert "NEXUS_DISABLED_HOOKS=user-edit-guard" in result.stderr
     assert 'Next: python "' in result.stderr and "edit_guard.py\" diff " in result.stderr, "no helper command"
     assert _USER_TEXT not in result.stderr + result.stdout, "file content was echoed"
@@ -346,7 +346,7 @@ def test_long_default_store_records_then_blocks_a_user_edit(run, tmp_path):
     _user_edits(notes)
     result = run(_payload("PreToolUse", "Write", home, path=notes), home, extra)
     assert result.returncode == 2, result.stderr
-    assert "[user-edit-guard] BLOCKED" in result.stderr
+    assert "[Nexus-Hub: user-edit-guard] BLOCKED" in result.stderr
     assert _USER_TEXT not in result.stdout + result.stderr
 
 

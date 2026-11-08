@@ -80,6 +80,51 @@ function fresh(): UsageState {
 
 afterEach(() => resetVscodeStub());
 
+describe("dashboard reset countdown", () => {
+  it.each([
+    [-60, "0 minutes"],
+    [0, "0 minutes"],
+    [0.49, "0 minutes"],
+    [0.5, "1 minute"],
+    [1, "1 minute"],
+    [59, "59 minutes"],
+    [59.5, "1 hour"],
+    [60, "1 hour"],
+    [61, "1 hour 1 minute"],
+    [120, "2 hours"],
+    [1439, "23 hours 59 minutes"],
+    [1439.5, "1 day"],
+    [1440, "1 day"],
+    [1533, "1 day 1 hour 33 minutes"],
+    [2880, "2 days"],
+    [10079, "6 days 23 hours 59 minutes"],
+    [10079.5, "1 week"],
+    [10080, "1 week"],
+    [20160, "2 weeks"],
+    [23224, "2 weeks 2 days 3 hours 4 minutes"]
+  ])("renders %s minutes as %s across all countdown labels", (minutes, expected) => {
+    const data = snapshot();
+    const resetsAt = new Date(now + minutes * 60000).toISOString();
+    data.period.resetsAt = resetsAt;
+    data.teamContext.sharedSpendLimit = null;
+
+    const html = renderDashboard({ state: "fresh", data }, now, "nonce");
+    const label = `Resets ${new Date(resetsAt).toLocaleString()} (${expected} remaining)`;
+    expect(html.split(label)).toHaveLength(4);
+  });
+
+  it.each([null, "not-a-date"])("keeps an unavailable reset time explicit: %s", (resetsAt) => {
+    const data = snapshot();
+    data.period.resetsAt = resetsAt;
+    data.teamContext.sharedSpendLimit = null;
+
+    const html = renderDashboard({ state: "fresh", data }, now, "nonce");
+    expect(html.split("Resets Not reported")).toHaveLength(4);
+    expect(html).not.toContain("minutes remaining");
+    expect(html).not.toContain("NaN");
+  });
+});
+
 describe("status bar and hover", () => {
   it("renders separate full and compact meters without inventing percentages", () => {
     // The "Cursor Usage: " label is off by default (compact mode), like the sibling monitors.

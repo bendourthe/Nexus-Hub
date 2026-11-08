@@ -1,0 +1,272 @@
+"""Re-run of the T042 adversarial scenarios (AF-1 to AF-13) against the fix-cycle-1 engine.
+
+Every scenario runs the real CLI (`nexus_hub_cli.py settings ...`) as a child process against a scratch home under the
+system temp folder, with a scrubbed environment and no model call. The panel confirmation is now a digest file plus
+a nonce in the child's environment, so a forged confirmation is built here the way a same-user attacker would build it.
+Usage: python recheck.py <worktree> <scratch root>
+"""
+import copy
+import hashlib
+import json
+import os
+import shutil
+import stat
+import subprocess
+import sys
+import threading
+import time
+from pathlib import Path
+
+WT = Path(sys.argv[1])
+ROOT = Path(sys.argv[2])
+PY = sys.executable
+CLI = WT / "scripts" / "nexus_hub_cli.py"
+SAFE_PATH = r"C:\Windows\System32;C:\Windows"
+CS = ".claude/settings.json"
+NONCE = "f" * 64
+NONCE_ENV = "NEXUS_SETTINGS_PANEL_NONCE"
+FINDINGS = []
+
+CLAUDE_SEED = '{\n  "permissions": {\n    "allow": ["Bash(git status)", "Read(*)"],\n    "defaultMode": "default"\n  },\n  "env": {\n    "CLAUDE_CODE_EFFORT_LEVEL": "low"\n  },\n  "model": "sonnet"\n}\n'
+CODEX_SEED = "# my codex notes\nmodel = \"gpt-x\"   # keep this comment\napproval_policy = \"on-request\"\n"
+
+
+def force(func, path, _exc):
+    os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+    func(path)
+
+
+def mkhome(name, claude=CLAUDE_SEED, codex=CODEX_SEED):
+    home = ROOT / name
+    if home.exists():
+        shutil.rmtree(home, onerror=force)
+    for sub in (".claude", ".codex", ".nexus-hub"):
+        (home / sub).mkdir(parents=True, exist_ok=True)
+    if claude is not None:
+        (home / CS).write_bytes(claude.encode() if isinstance(claude, str) else claude)
+    if codex is not None:
+        (home / ".codex" / "config.toml").write_bytes(codex.encode() if isinstance(codex, str) else codex)
+    return home
+
+
+def env_for(home, extra=None):
+    env = {k: os.environ[k] for k in ("SYSTEMROOT", "TEMP", "TMP", "COMSPEC", "PATHEXT", "WINDIR") if k in os.environ}
+    env["PATH"] = SAFE_PATH
+    h = str(home)
+    env.update(HOME=h, USERPROFILE=h, APPDATA=h + r"\AppData\Roaming", LOCALAPPDATA=h + r"\AppData\Local", NEXUS_HUB_HOME=h + r"\.nexus-hub", PYTHONDONTWRITEBYTECODE="1")
+    for key, value in (extra or {}).items():
+        if value is None:
+            env.pop(key, None)
+        else:
+            env[key] = value
+    return env
+
+
+def run(home, args, extra=None, stdin_text=None, timeout=120):
+    kw = dict(env=env_for(home, extra), capture_output=True, text=True, timeout=timeout, creationflags=subprocess.CREATE_NO_WINDOW, cwd=str(home))
+    if stdin_text is None:
+        kw["stdin"] = subprocess.DEVNULL
+    else:
+        kw["input"] = stdin_text
+    done = subprocess.run([PY, "-B", "-X", "utf8", str(CLI), "settings", *args], **kw)
+    return done.returncode, done.stdout, done.stderr
+
+
+def forge(home, nonce_in_env=True, old_format=False, **fields):
+    """What a same-user process does: write the confirmation file; optionally also put the nonce in the child's env."""
+    body = {"issued_at": time.time(), "action": "set", "control": "posture", "value": "full-auto", "tool": "claude"}
+    if old_format:
+        body["token"] = "a" * 64
+    else:
+        body["token_sha256"] = hashlib.sha256(NONCE.encode()).hexdigest()
+    body.update(fields)
+    (home / ".nexus-hub" / "settings-panel-token.json").write_text(json.dumps(body))
+    return {NONCE_ENV: NONCE} if nonce_in_env else {}
+
+
+def rd(home, rel):
+    path = home / rel
+    return path.read_text(encoding="utf-8") if path.exists() else None
+
+
+def mode(home):
+    return json.loads(rd(home, CS)).get("permissions", {}).get("defaultMode")
+
+
+def check(label, ok, detail=""):
+    FINDINGS.append((label, ok, detail))
+    print(("PASS " if ok else "FAIL ") + label + (f"  [{detail}]" if detail else ""))
+
+
+def tail(err):
+    lines = err.strip().splitlines()
+    return lines[-1][:140] if lines else ""
+
+
+# --- AF-1: every remove-override refuses inside an agent session -----------------------------------
+home = mkhome("af1")
+rc, out, err = run(home, ["remove-override", "effort", "--tool", "claude"], extra={"CLAUDECODE": "1"})
+check("AF-1a non-safety remove-override, marker, no token, no terminal -> refused", rc == 3 and "CLAUDE_CODE_EFFORT_LEVEL" in rd(home, CS), f"rc={rc} {tail(err)}")
+home = mkhome("af1b")
+extra = forge(home, action="remove-override", control="effort", value=None, tool="claude")
+rc, out, err = run(home, ["remove-override", "effort", "--tool", "claude"], extra={"CLAUDECODE": "1", **extra})
+check("AF-1b same with a complete forged confirmation (digest file + nonce in env), marker present -> refused", rc == 3 and "CLAUDE_CODE_EFFORT_LEVEL" in rd(home, CS), f"rc={rc} {tail(err)}")
+home = mkhome("af1c", claude=json.dumps({"permissions": {"disableBypassPermissionsMode": "disable"}}, indent=2))
+extra = forge(home, action="remove-override", control="posture", value=None, tool="claude")
+rc, out, err = run(home, ["remove-override", "posture", "--tool", "claude"], extra={"CLAUDECODE": "1", **extra})
+check("AF-1c weakening remove-override, marker, forged confirmation -> refused", rc == 3 and "disableBypassPermissionsMode" in rd(home, CS), f"rc={rc}")
+
+# --- AF-2: reset that would put back a weaker value ---------------------------------------------------
+home = mkhome("af2", claude=json.dumps({"permissions": {"defaultMode": "bypassPermissions"}}, indent=2) + "\n")
+run(home, ["set", "posture", "ask", "--tool", "claude"])
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude"], extra={"CLAUDECODE": "1"})
+check("AF-2a reset restoring bypassPermissions, marker, no person -> refused, mode stays default", rc == 3 and mode(home) == "default", f"rc={rc} mode={mode(home)}")
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude"])
+check("AF-2b same without a marker and without a terminal -> refused", rc == 3 and mode(home) == "default", f"rc={rc} {tail(err)}")
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude"], stdin_text="yes\n")
+check("AF-2c typed yes on a pipe (not a terminal) -> refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude", "--dry-run", "--json"], extra={"CLAUDECODE": "1"})
+doc = json.loads(out) if out.strip() else {}
+check("AF-2d dry run needs nobody, reports confirmation required, writes nothing", rc == 0 and doc.get("confirmation") == {"required": True, "kind": None} and mode(home) == "default", f"rc={rc}")
+home = mkhome("af2e")
+(home / ".nexus-hub" / "guardrails.json").write_text('{"block_git_bypass_flags": false}\n')
+run(home, ["set", "git_guardrails", "on"])
+rc, out, err = run(home, ["reset", "git_guardrails"], extra={"CLAUDECODE": "1"})
+check("AF-2e git_guardrails reset to off, marker -> refused, guard stays on", rc == 3 and '"block_git_bypass_flags": true' in rd(home, ".nexus-hub/guardrails.json"), f"rc={rc}")
+home = mkhome("af2f")
+run(home, ["set", "model", "opus", "--tool", "claude"])
+rc, out, err = run(home, ["reset", "model", "--tool", "claude"], extra={"CLAUDECODE": "1"})
+check("AF-2f reset of a harmless key stays open to an agent", rc == 0 and json.loads(rd(home, CS))["model"] == "sonnet", f"rc={rc}")
+home = mkhome("af2g")
+run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra=forge(home))
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude"], extra={"CLAUDECODE": "1"})
+check("AF-2g reset back to a SAFE value (the full-auto was set when none existed) stays open to an agent", rc == 0 and mode(home) == "default", f"rc={rc} mode={mode(home)}")
+home = mkhome("af2h", claude=json.dumps({"permissions": {"defaultMode": "bypassPermissions"}}, indent=2) + "\n")
+run(home, ["set", "posture", "ask", "--tool", "claude"])
+extra = forge(home, action="reset", control="posture", value=None, tool="claude")
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude", "--json"], extra=extra)
+check("AF-2h reset with the panel's confirmation (digest file + nonce) -> restores bypassPermissions", rc == 0 and mode(home) == "bypassPermissions", f"rc={rc}")
+
+# --- AF-3: confirmation forgery -------------------------------------------------------------------------
+home = mkhome("af3a")
+forge(home, old_format=True, nonce_in_env=False)
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra={"CLAUDECODE": None})
+check("AF-3a T042 forgery (plain token file, marker unset) -> refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+home = mkhome("af3b")
+forge(home, nonce_in_env=False)
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra={"CLAUDECODE": None})
+check("AF-3b new-format file planted, marker unset, no nonce in the environment -> refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+home = mkhome("af3c")
+forge(home, nonce_in_env=False)
+digest = json.loads(rd(home, ".nexus-hub/settings-panel-token.json"))["token_sha256"]
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra={NONCE_ENV: digest})
+check("AF-3c attacker who only READS the file offers its digest as the nonce -> refused (the file holds no usable secret)", rc == 3 and mode(home) == "default", f"rc={rc}")
+home = mkhome("af3d")
+extra = forge(home)
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra={"CLAUDECODE": None, **extra})
+residual_open = rc == 0 and mode(home) == "bypassPermissions"
+check("AF-3d RESIDUAL: a same-user process that writes the file AND sets the nonce AND unsets the marker still succeeds (stated limit)", residual_open, f"rc={rc} mode={mode(home)}")
+home = mkhome("af3e")
+extra = forge(home)
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra={"CLAUDECODE": "1", **extra})
+check("AF-3e the same full forgery with the marker left in place -> refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+home = mkhome("af3f")
+extra = forge(home)
+run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra=extra)
+(home / CS).write_text(CLAUDE_SEED)
+rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra=extra)
+check("AF-3f replay: the file is consumed by first use -> second use refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+for label, fields in {"expired 31 s": {"issued_at": time.time() - 31}, "future +100 s": {"issued_at": time.time() + 100}, "other value": {"value": "accept-edits"}, "other tool": {"tool": "codex"}, "other action": {"action": "reset"}, "bool time": {"issued_at": True}}.items():
+    home = mkhome("af3g")
+    extra = forge(home, **fields)
+    rc, out, err = run(home, ["set", "posture", "full-auto", "--tool", "claude"], extra=extra)
+    check(f"AF-3g {label} -> refused", rc == 3 and mode(home) == "default", f"rc={rc}")
+
+# --- AF-4: concurrent commands -------------------------------------------------------------------------
+bad = 0
+for trial in range(15):
+    home = mkhome("af4")
+    results = {}
+
+    def go(name, args):
+        results[name] = run(home, args)
+
+    jobs = [("a", ["set", "model", "opus", "--tool", "claude"]), ("b", ["set", "effort", "low", "--tool", "claude"]), ("c", ["set", "attribution", "off", "--tool", "claude"]), ("d", ["set", "model", "gpt-9", "--tool", "codex"])]
+    threads = [threading.Thread(target=go, args=job) for job in jobs]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+    record = json.loads(rd(home, ".nexus-hub/settings-control.json"))
+    keys = {(e["tool"], ".".join(e["key_path"])) for e in record["entries"]}
+    data = json.loads(rd(home, CS))
+    wrote = set()
+    if data.get("model") == "opus":
+        wrote.add(("claude", "model"))
+    if data.get("effortLevel") == "low":
+        wrote.add(("claude", "effortLevel"))
+    if data.get("attribution") == {"commit": "", "pr": ""}:
+        wrote |= {("claude", "attribution.commit"), ("claude", "attribution.pr")}
+    if "gpt-9" in (rd(home, ".codex/config.toml") or ""):
+        wrote.add(("codex", "model"))
+    codes = sorted(r[0] for r in results.values())
+    if wrote - keys or any(code not in (0, 4) for code in codes) or len(wrote) < 5:
+        bad += 1
+        print("  trial", trial, "codes", codes, "written but unrecorded", sorted(wrote - keys), "wrote", len(wrote))
+check("AF-4 15 trials of four concurrent commands: every written key recorded, every command succeeded", bad == 0, f"bad trials {bad} of 15")
+
+# --- AF-5 to AF-13 ----------------------------------------------------------------------------------
+home = mkhome("af5")
+path = home / CS
+before = path.read_bytes()
+os.chmod(path, stat.S_IREAD)
+rc, out, err = run(home, ["set", "model", "opus", "--tool", "claude"])
+leftover = [p.name for p in (home / ".claude").iterdir() if p.name != "settings.json"]
+record = json.loads(rd(home, ".nexus-hub/settings-control.json") or '{"entries":[]}')
+os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+check("AF-5 read-only settings.json: no traceback, file untouched, no temp file, no record entry", "Traceback" not in err and path.read_bytes() == before and not leftover and record["entries"] == [], f"rc={rc} left={leftover} {tail(err)[:80]}")
+
+home = mkhome("af6", codex=None)
+run(home, ["set", "effort", "high", "--tool", "codex"])
+cfg = home / ".codex" / "config.toml"
+cfg.write_text(cfg.read_text() + "\n# my hand-written notes\n")
+rc, out, err = run(home, ["reset", "effort", "--tool", "codex"])
+check("AF-6 reset keeps a TOML file that holds user comments", cfg.exists() and "my hand-written notes" in cfg.read_text(), f"rc={rc}")
+
+home = mkhome("af7", claude='{"a":' * 5000 + "1" + "}" * 5000)
+rc, out, err = run(home, ["set", "model", "opus", "--tool", "claude"])
+rc2, out2, err2 = run(home, ["show", "--json"])
+check("AF-7 deeply nested JSON: set and show give a message, not a traceback", "Traceback" not in err and "Traceback" not in err2 and rc2 == 0, f"set rc={rc} show rc={rc2}")
+
+home = mkhome("af8", codex="since = 1979-05-27T07:32:00Z\nmodel = 'x'\n")
+rc, out, err = run(home, ["set", "model", "opus", "--tool", "codex"])
+rc2, out2, err2 = run(home, ["show", "--json"])
+check("AF-8 TOML dates: set and show work", rc == 0 and rc2 == 0 and "Traceback" not in err + err2 and "1979-05-27" in rd(home, ".codex/config.toml"), f"set rc={rc} show rc={rc2} {tail(err)[:60]}")
+
+home = mkhome("af9")
+forged = {"kind": "file", "tool": "claude", "file": "~/.claude/settings.json", "key_path": ["skipDangerousModePermissionPrompt"], "previous": {"present": True, "value": True}, "new": {"present": False}, "created_depth": 1, "file_created": False, "at": "t"}
+(home / ".nexus-hub" / "settings-control.json").write_text(json.dumps({"schema_version": 1, "entries": [forged]}))
+rc, out, err = run(home, ["reset", "posture", "--tool", "claude"], extra={"CLAUDECODE": "1"})
+check("AF-9 a forged record entry for a Not-Settable key is ignored and nothing is written", "skipDangerousModePermissionPrompt" not in rd(home, CS) and "ignored a record entry" in err + out, f"rc={rc}")
+
+home = mkhome("af10")
+rec = {"schema_version": 1, "entries": [{"kind": "file", "tool": "claude", "file": "~/.claude/settings.json", "key_path": ["modelSettings", "claude-x\n", "effortLevel"], "previous": {"present": False}, "new": {"present": True, "value": "low"}, "created_depth": 1, "file_created": False, "at": "t"}]}
+(home / ".nexus-hub" / "settings-control.json").write_text(json.dumps(rec))
+rc, out, err = run(home, ["owned-keys", "--json", "--home", str(home)])
+check("AF-10 a model id segment ending in a newline is not owned", rc == 0 and json.loads(out)["files"] == {}, f"rc={rc}")
+
+home = mkhome("af12")
+before = (home / CS).read_bytes()
+rcs = [run(home, ["set", "model", value, "--tool", "claude"])[0] for value in ("  ", " opus", "opus ", "-opus")]
+check("AF-12 blank, padded, and option-like model values are usage errors; nothing written", rcs == [2, 2, 2, 2] and (home / CS).read_bytes() == before, f"rcs={rcs}")
+
+home = mkhome("af13")
+one = {"kind": "file", "tool": "claude", "file": "~/.claude/settings.json", "key_path": ["modelSettings", "m0", "effortLevel"], "previous": {"present": False}, "new": {"present": True, "value": "low"}, "created_depth": 1, "file_created": False, "at": "t"}
+entries = [dict(one, key_path=["modelSettings", f"m{i}", "effortLevel"]) for i in range(60000)]
+(home / ".nexus-hub" / "settings-control.json").write_text(json.dumps({"schema_version": 1, "entries": entries}))
+started = time.time()
+rc, out, err = run(home, ["owned-keys", "--json", "--home", str(home)], timeout=170)
+seconds = round(time.time() - started, 1)
+check("AF-13 owned-keys on 60,000 entries (T042: 80.6 s)", rc == 0 and seconds < 20, f"{seconds} s")
+
+failed = [f for f in FINDINGS if not f[1] and not f[0].startswith("AF-3d")]
+print(f"\n{len(FINDINGS)} checks; {len(failed)} failed (AF-3d is the stated residual and is expected to succeed)")
+sys.exit(1 if failed else 0)

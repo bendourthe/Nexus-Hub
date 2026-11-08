@@ -1,7 +1,7 @@
 # Prompting Profile: gpt-5.3-codex
 
 **Platform**: codex
-**Last verified**: 2026-10-15
+**Last verified**: 2026-11-04
 **Roster provenance**: `api`
 
 This file mirrors the `models["gpt-5.3-codex"]` entry in `assets/profiles-index.json`. The index is authoritative; if the two disagree, regenerate this file from the index with `scripts/write_model_prompting_profile.py`.
@@ -10,16 +10,13 @@ This file mirrors the `models["gpt-5.3-codex"]` entry in `assets/profiles-index.
 
 | Claim | Confidence | Scope | Evidence scope | Primary source |
 |---|---|---|---|---|
-| Use medium reasoning effort as the default for interactive coding with gpt-5.3-codex, and raise it to high or xhigh only for the hardest tasks. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| When reconstructing conversation history for gpt-5.3-codex, persist each assistant output item's phase value (commentary or final_answer) and send it back in later requests. Dropping it degrades performance. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Never attach the phase field to user messages. It belongs only on assistant items. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| With gpt-5.3-codex, mid-rollout preambles and progress updates can be prompted, which earlier Codex models did not allow. Prompt for a short acknowledgment and plan before any tool calls. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Prompt for a regular update cadence: about every 1 to 3 execution steps, and never more than 6 steps or 10 tool calls without an update. Keep most updates to 1 or 2 sentences. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Tell the model to carry the task through to completion within the current turn, including implementation and verification, rather than stopping at analysis or a partial fix. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Tell the model to maximize parallel tool calls, for example batching file reads, rather than calling tools one at a time. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Tell the model to use a dedicated tool when one exists for the action, instead of raw shell commands. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Tell the model to skip the planning tool for simple tasks, never to write single-step plans, and to reconcile every stated plan or TODO before finishing. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
-| Truncate tool output returned to the model to about 10k tokens (estimated as bytes divided by 4), keeping half the budget for the beginning and half for the end. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
+| Call gpt-5.3-codex through the Responses API (v1/responses). The model page lists Chat Completions, Assistants, Batch, Realtime, Fine-tuning and Embeddings as not supported. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.3-codex) |
+| gpt-5.3-codex accepts reasoning effort values low, medium, high and xhigh. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.3-codex) |
+| Use medium reasoning effort as the all-around default for interactive coding with gpt-5.3-codex. Reserve high or xhigh for the hardest tasks. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
+| When using gpt-5.3-codex, store each assistant output item with its phase value (null, commentary or final_answer) and send it back in later requests. phase is supported only on assistant items, so do not add it to user messages. The guide says correct implementation is required, and dropping it causes significant performance degradation. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
+| For preambles, prompt gpt-5.3-codex to give a 1-sentence acknowledgment and a 1-2 sentence plan before any tool calls. Keep most updates to 1-2 sentences, aim for an update every 1-3 execution steps, and never go more than 6 steps or 10 tool calls without one. Mid-rollout updates are promptable for this model, unlike earlier Codex models. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide) |
+| gpt-5.3-codex supports function calling, hosted shell, skills and web search as Responses API tools. It also supports streaming, structured outputs, image input and prompt caching, with a 400k context window, 272k max input and 128k max output. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.3-codex) |
+| Prompt caching is supported for gpt-5.3-codex, and cached input is billed at $0.175 per 1M tokens against $1.75 for uncached input. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.3-codex) |
 
 ## Does not apply to shared bodies
 

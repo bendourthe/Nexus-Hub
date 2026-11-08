@@ -46,3 +46,22 @@ No paired model run was started: zero extra provider API spend is authorized, an
 The archived v4.11.1 cache work has landed. Its distinction between observed input, cache creation, and cache reads remains binding; input size alone is not a cache-hit measurement. The current [Claude API caching reference](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) describes reuse of unchanged prefixes. Appending new context does not by itself demonstrate mutation of an existing prefix. The old comparison's assertion that per-prompt text necessarily sits before and defeats the cached prefix is unsupported by the current hook placement documentation.
 
 Actual cache preservation is **UNEVALUATED** because no paired provider responses or cache usage counters were collected. No savings, price, or latency benefit is claimed.
+
+
+## Candidate Refresh (2026-11-08)
+
+**Integration input:** `1dc21b92db664347d18ff591e02e1e73c0d8c867`. **Current source:** 70 models and 610 claims; LF SHA-256 `8e4e39de9c2cba3d2ee1baa076705af9eedafcfcf7e14edee47aaa5a9afd70c9`. The earlier sections above are the dated 2026-10-31 snapshot and remain historical evidence.
+
+The predeclared 512-estimated-token ceiling and the five fixed prompts above are unchanged. The current Fable 5.1 profile has 12 claims: 4,586 UTF-8 bytes joined with newlines plus the documented 70-byte advisory prefix is 4,656 payload bytes, or 1,164 estimated tokens. The original prefix wording is not retained; only its documented length is used, and that length independently reconstructs both old payload totals exactly. No exact prefix string or whole-payload-content hash is invented. The byte arithmetic is reproducible without executing profile instructions.
+
+The ordered 36 Sonnet 5.5 claim texts are unchanged, with joined-text SHA-256 `1a58be6f349eb6ad6ea396d07ea740f0523a04a6a66fc6afd1b7233fdf86972d`. Its 10,047-byte payload and five old rows reproduce exactly. It remains the largest current complete profile by claim count and joined-text size. Current Fable joined-text SHA-256 is `7cd4c96e361ed98bde01bd47d3da60e8b33f307b048a8fe390c26f289ebe4511`.
+
+| Prompt | Baseline | Fable after | Fable delta | Sonnet after | Sonnet delta |
+|---|---|---|---|---|---|
+| 1 | 18 | 1182 | 1164 | 2530 | 2512 |
+| 2 | 20 | 1184 | 1164 | 2532 | 2512 |
+| 3 | 20 | 1184 | 1164 | 2532 | 2512 |
+| 4 | 19 | 1184 | 1165 | 2531 | 2512 |
+| 5 | 18 | 1183 | 1165 | 2530 | 2512 |
+
+The estimate remains ceiling(UTF-8 bytes / 4), with one newline after the baseline prompt. It is not a tokenizer count, provider bill, model-quality result or installed delivery measurement. Both full-profile shapes exceed the original ceiling; this does not prove every hypothetical bounded selection does. The source defines no priority field. Historical character-threshold observations remain historical because the exact prefix wording and installed delivery were not re-exercised. Benefit and cache behavior remain UNEVALUATED, with zero provider calls and no transcript reread.

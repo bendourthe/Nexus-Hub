@@ -25,6 +25,20 @@
 
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: require-description]"
+# Print the tag and the message to stdout and stderr, as the block message
+# always was (the model reads stdout, the user sees stderr).
+function Write-NexusMessage {
+    param([string]$Message)
+    Write-Output "$script:NexusTag $Message"
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+}
+
 # --- Read JSON from stdin ---
 if (-not [Console]::IsInputRedirected) { exit 0 }
 # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
@@ -88,7 +102,6 @@ prefix:
 Add a description, then retry.
 '@
 
-Write-Output $msg
-[Console]::Error.WriteLine($msg)
+Write-NexusMessage $msg
 
 exit 2

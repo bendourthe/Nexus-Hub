@@ -682,13 +682,15 @@ function isStaleReason(value: string): value is StaleReason {
 }
 
 function decodeHtmlEntities(value: string): string {
+  // `&amp;` is decoded last, so an escaped entity such as `&amp;lt;` becomes the
+  // literal text `&lt;` instead of being decoded a second time into `<`.
   return value
     .replace(/&nbsp;/giu, " ")
-    .replace(/&amp;/giu, "&")
     .replace(/&lt;/giu, "<")
     .replace(/&gt;/giu, ">")
     .replace(/&quot;/giu, '"')
-    .replace(/&#39;/giu, "'");
+    .replace(/&#39;/giu, "'")
+    .replace(/&amp;/giu, "&");
 }
 
 function escapeRegExp(value: string): string {

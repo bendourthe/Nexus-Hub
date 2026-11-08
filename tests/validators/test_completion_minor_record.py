@@ -255,6 +255,151 @@ def minor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path)
     return Minor(tmp_path, monkeypatch, minor_git_seed)
 
 
+@pytest.fixture
+def v415_authority_case(minor: Minor):
+    """Real frozen text and disposable signatures, never a live native record."""
+    rel = "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md"
+    text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+    target = minor.work / rel
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(text, encoding="utf-8")
+    evidence = minor.work / "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"
+    evidence.parent.mkdir(parents=True, exist_ok=True)
+    evidence.write_text("# Baseline evidence, no in-run work\n", encoding="utf-8")
+    _git(minor.work, "remote", "set-url", "--push", "origin", "https://github.com/bendourthe/Nexus-Hub.git")
+    minor.commit("frozen disposable v415 source")
+    ctx = minor.rctx()
+    plan = cm.scan_plans(ctx.root, 4, 15)[0]
+    member = {"version": plan.version, "plan_path": rel, "plan_sha256": ck.plan_hash_text(text),
+              "source_branch": "feat/v4.15.2-native-fixture", "target_branch": "develop",
+              "release_version": plan.version, "tag": plan.version, "approvals": {"classes": []}}
+    record = {"schema": ck.SCHEMA_MINOR, "scope": "minor", "minor": "v4.15",
+              "repo": "bendourthe/Nexus-Hub", "repo_root": str(ctx.root), "worktree": str(ctx.root),
+              "session_id": SESSION, "nonce": "disposable-v415-authority", "members": [member],
+              "start_head": _git(minor.work, "rev-parse", "HEAD"), "approvals": {
+                  "classes": [{"class": "archive-minor"}], "target_branch": "develop"}}
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=True) or b"")
+    assert cm._verified(ck, ctx, "v4.15", record)
+    return minor, record, member, plan
+
+
+def test_v415_task_authority_requires_complete_verified_parent_and_exact_current_identity(v415_authority_case):
+    fx, record, member, plan = v415_authority_case
+    authority = cm.v415_task_authority(ck, fx.rctx(), record, member, plan)
+    assert authority is not None
+    assert authority.original_sha256 == "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835"
+    assert authority.root == fx.work.resolve() and authority.plan_rel == plan.rel
+    assert authority.plan_sha256 == ck.plan_hash_text(plan.text)
+    projected = ck.project(record, member["version"])
+    projected["v415_task_authority"] = True
+    assert cm.v415_task_authority(ck, fx.rctx(), projected, member, plan) is None
+    tampered = json.loads(json.dumps(record))
+    tampered["members"][0]["tag"] = "v4.15.99"
+    assert cm.v415_task_authority(ck, fx.rctx(), tampered, tampered["members"][0], plan) is None
+    assert cm.v415_task_authority(ck, fx.rctx(), record, {**member, "tag": "v4.15.99"}, plan) is None
+    assert cm.v415_task_authority(ck, fx.rctx(), record, member,
+                                  cm.Plan(plan.rel, plan.version, plan.order, plan.status, plan.slug,
+                                          plan.text + "\nForged caller text.\n")) is None
+    duplicate = json.loads(json.dumps(record))
+    duplicate["members"].append(dict(member))
+    duplicate["approvals_hmac"] = ck._sign(duplicate, ck._secret(create=False) or b"")
+    assert cm.v415_task_authority(ck, fx.rctx(), duplicate, member, plan) is None
+    wrong_repo = {**record, "repo": "acme/demo"}
+    wrong_repo["approvals_hmac"] = ck._sign(wrong_repo, ck._secret(create=False) or b"")
+    assert cm.v415_task_authority(ck, fx.rctx(), wrong_repo, member, plan) is None
+    (fx.work / plan.rel).write_text(plan.text + "\nChanged frozen source.\n", encoding="utf-8")
+    assert cm.v415_task_authority(ck, fx.rctx(), record, member, plan) is None
+
+
+@pytest.mark.parametrize("refreeze", [False, True], ids=["member-archive", "minor-refreeze"])
+@pytest.mark.parametrize("implemented", [False, True], ids=["archive-only", "genuine-work"])
+def test_v415_task_authority_recovers_only_verified_signed_original_archive(v415_authority_case, refreeze, implemented):
+    fx, record, member, original = v415_authority_case
+    old = original.rel
+    dest = old.replace("docs/releases/", "docs/archives/")
+    evidence = "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"
+    archived_evidence = evidence.replace("docs/releases/", "docs/archives/")
+    if implemented:
+        (fx.work / evidence).write_text("# Genuine in-run corrected task work\n", encoding="utf-8")
+        fx.commit("actual corrected task implementation before archival")
+    moved_evidence = fx.work / archived_evidence
+    moved_evidence.parent.mkdir(parents=True, exist_ok=True)
+    (fx.work / evidence).rename(moved_evidence)
+    text = original.text.replace("docs/releases/v4/v4.15/", "docs/archives/v4/v4.15/").replace("- [ ] T001", "- [x] T001")
+    target = fx.work / dest
+    target.parent.mkdir(parents=True, exist_ok=True)
+    (fx.work / old).unlink()
+    target.write_text(text, encoding="utf-8")
+    fx.commit("signed disposable archive transformation")
+    archive_hash = ck.plan_hash_text(text)
+    archive = {"from": old, "original_sha256": member["plan_sha256"], "plan_path": dest,
+               "plan_sha256": archive_hash, "moved": [
+                   [old, dest, _git(fx.work, "rev-parse", f"HEAD:{dest}")],
+                   [evidence, archived_evidence, _git(fx.work, "rev-parse", f"HEAD:{archived_evidence}")]]}
+    member["archived"] = archive
+    if refreeze:
+        member.update(plan_path=dest, plan_sha256=archive_hash)
+        archive["close_commit"] = _git(fx.work, "rev-parse", "HEAD")
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    plan = cm.scan_plans(fx.work, 4, 15)[0]
+    authority = cm.v415_task_authority(ck, fx.rctx(), record, member, plan)
+    assert authority is not None and authority.original_sha256 == archive["original_sha256"]
+    assert dict(cm.evaluate_member(ck, fx.rctx(), record, member, plan, []).lines)["task.T001"] == (
+        "met" if implemented else "unmet")
+    for key, value in (("from", old.replace("v4.15.2-", "missing-")),
+                       ("original_sha256", "0" * 64)):
+        saved = archive[key]
+        archive[key] = value
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        assert cm.v415_task_authority(ck, fx.rctx(), record, member, plan) is None
+        archive[key] = saved
+    # Identity remains authenticated, but a transformed archive cannot certify task work.
+    archive["moved"][1][2] = "0" * 40
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    assert cm.v415_task_authority(ck, fx.rctx(), record, member, plan) is not None
+    assert dict(cm.evaluate_member(ck, fx.rctx(), record, member, plan, []).lines)["task.T001"] == "cannot-verify"
+
+
+@pytest.mark.parametrize("worker", [False, True], ids=["controller", "registered-worker"])
+def test_v415_member_evaluation_passes_authority_separately_for_actual_tree(v415_authority_case, worker):
+    fx, record, member, plan = v415_authority_case
+    root = fx.work
+    corrected = "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"
+    if worker:
+        root = fx.tmp / "authority-worker"
+        _git(fx.work, "worktree", "add", "-q", "-b", member["source_branch"], str(root), record["start_head"])
+        member["implementation"] = {
+            "base_head": record["start_head"], "worktree": str(root.resolve()), "branch": member["source_branch"],
+            "depends_on": [], "read_paths": [], "write_paths": sorted([plan.rel, corrected]), "started": ck._now()}
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    target = root / corrected
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# Actual disposable Phase 1 evidence\n", encoding="utf-8")
+    (root / plan.rel).write_text(plan.text.replace("- [ ] T001", "- [x] T001"), encoding="utf-8")
+    _git(root, "add", "-A")
+    _git(root, "commit", "-q", "-m", "real exact corrected task evidence")
+    current = cm.scan_plans(fx.work, 4, 15)[0]
+    authority = cm.v415_task_authority(ck, fx.rctx(), record, member, current)
+    assert authority is not None and authority.root == root.resolve()
+    result = cm.evaluate_member(ck, fx.rctx(), record, member, current, [])
+    assert dict(result.lines)["task.T001"] == "met"
+    forged = {**record, "approvals_hmac": "0" * 64}
+    result = cm.evaluate_member(ck, fx.rctx(), forged, member, current, [])
+    assert dict(result.lines)["task.T001"] == "unmet"
+    # Exercise the public read-only boundary with fixture-only signed bytes.
+    path = fx.rctx().scoped_record_path("minor:v4.15")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(record), encoding="utf-8")
+    before = path.read_bytes()
+    public = subprocess.run([sys.executable, str(CHECKER), "check-member", "--minor", "v4.15",
+                             "--member", member["version"], "--session", SESSION,
+                             "--repo", str(fx.work), "--json"],
+                            cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=40, check=False)
+    assert public.returncode == ck.EXIT_INCOMPLETE, public.stdout + public.stderr
+    assert json.loads(public.stdout.splitlines()[-1])["predicates"]["task.T001"] == "met"
+    assert path.read_bytes() == before
+
+
 # --------------------------------------------------------------------------- argument parsing
 
 

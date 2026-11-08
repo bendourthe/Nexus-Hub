@@ -48,3 +48,12 @@ A future resolver would be authorized to extract message.model only. It would no
 The experiment used Python standard-library file metadata, bounded binary reads, JSON parsing, subprocess execution, and monotonic timing. The measured parameters, input sizes, outputs, sample count, and percentiles are recorded above. The private transcript path and its contents are deliberately not published. The scratch executable is deleted within this phase, so these results remain a historical experiment rather than a reusable shipped resolver.
 
 The 7,761-byte scratch prototype had SHA-256 `1b5293400f7360192449d3a7f18429dde93b4a960eab27b4a2b9124b3a16d3d5`. Its exact resolved path was checked before removing only that file. The terminal check printed `prototype_absent=True`; `git status --short -- catalog scripts .github` printed no paths. No executable artifact remains in the committed tree or the experiment directory.
+
+
+## Candidate Refresh (2026-11-08)
+
+**Integration input:** `1dc21b92db664347d18ff591e02e1e73c0d8c867`. **Current source:** 70 models and 610 claims; LF SHA-256 `8e4e39de9c2cba3d2ee1baa076705af9eedafcfcf7e14edee47aaa5a9afd70c9`. The earlier sections above are the dated 2026-10-31 snapshot and remain historical evidence.
+
+The first-party [hooks reference](https://code.claude.com/docs/en/hooks) was re-fetched and its common input, SessionStart, UserPromptSubmit, PreModelSwitch, PostModelSwitch and context-placement sections inspected on 2026-11-07 at 23:06:12 UTC. The optional model field remains limited to SessionStart and may be omitted; switch events use from_model and to_model. UserPromptSubmit documents prompt and optional session_title without a model field. The reference still states no CLAUDE_MODEL variable exists, and a user-set ANTHROPIC_MODEL does not follow interactive switches. Effort is conditional on supporting models and tool-context events, not unconditional standard payload data. Additional context accompanies the submitted prompt.
+
+This is a documentation refresh, not a new runtime observation. The earlier real model value and 101-call p50/p95 remain dated measurements. No transcript, live environment value, model call, installed hook, interactive switch or cache trace was read or exercised for this refresh. SessionStart seeding still needs separately designed state ownership and privacy controls; this plan implements none.

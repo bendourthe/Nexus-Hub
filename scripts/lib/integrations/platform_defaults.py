@@ -116,6 +116,45 @@ def merge_missing(target: Dict[str, Any], declared: Dict[str, Any]) -> List[str]
     return added
 
 
+def _without_owned(declared: Dict[str, Any], skip: set) -> Dict[str, Any]:
+    """Copy of ``declared`` without the leaf key paths in ``skip`` (empty tables are dropped too)."""
+
+    def prune(node: Dict[str, Any], prefix: Tuple[str, ...]) -> Dict[str, Any]:
+        out: Dict[str, Any] = {}
+        for key, value in node.items():
+            path = (*prefix, key)
+            if isinstance(value, dict):
+                child = prune(value, path)
+                if child:
+                    out[key] = child
+            elif path not in skip:
+                out[key] = value
+        return out
+
+    return prune(declared, ())
+
+
+def _owned_paths(path_str: str, root: Path | None) -> Tuple[set, bool]:
+    """Key paths the Nexus-Hub Settings record lists for ``path_str``, and whether the record was readable.
+
+    ``(set(), True)`` when nothing is recorded. ``(set(), False)`` when the record or the catalog cannot
+    be read: the caller must then seed nothing for that file, because a user's recorded choice could be
+    overwritten blind. A file the catalog does not name is never affected.
+    """
+    try:
+        from ..settings_control import apply, catalog as catalog_mod
+
+        catalog = catalog_mod.load_catalog()
+        if path_str not in catalog_mod.USER_FILE_IDS:
+            return set(), True
+        home = Path.home() if root is None else Path(root)
+        owned = apply.owned_keys(apply.Context(catalog, home=home))
+        return {tuple(path) for path in owned["files"].get(path_str, [])}, True
+    except Exception as exc:  # the record, the catalog, or the import failed: never seed blindly
+        _note(f"the Nexus-Hub Settings record for {path_str} could not be read ({exc}); nothing seeded there.")
+        return set(), False
+
+
 def _expand(path_str: str, home: Path | None = None) -> Path:
     """Expand ~ and environment variables in a declared target path.
 
@@ -290,6 +329,12 @@ def seed_platform_defaults(key: str, ctx: Any, source: Dict[str, Any] | None = N
         _note(f"{key}: install_target declares no path; nothing seeded.")
         return []
     root = Path(ctx.target_root) if getattr(ctx, "explicit_target", False) else None
+    skip, readable = _owned_paths(path_str, root)
+    if not readable:
+        return []
+    declared = _without_owned(declared, skip)
+    if not declared:
+        return []
     path = _expand(path_str, root)
     if root is not None and not path.resolve().is_relative_to(root.resolve()):
         _note(f"{key}: declared defaults path escapes explicit target; nothing seeded.")

@@ -114,6 +114,8 @@ def test_hermes_global_skips_when_not_detected(fake_home: Path) -> None:
 
 def test_hermes_global_writes_when_detected(fake_home: Path) -> None:
     (fake_home / ".hermes").mkdir()
+    # v4.14.7: an entry Hermes itself creates; an empty root is no evidence.
+    (fake_home / ".hermes" / "logs").mkdir()
     result = get("hermes").install(_ctx(fake_home, scope="global"))
     assert result.detected is True
     assert (fake_home / ".hermes" / "skills").is_dir(), "global install must mirror ~/.hermes/skills"

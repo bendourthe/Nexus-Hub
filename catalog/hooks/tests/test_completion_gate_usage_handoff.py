@@ -206,7 +206,7 @@ def test_usage_limit_handoff_ends_the_turn_without_a_blocker(turn_end, world, pl
     world.prime(platform, 99.5)
     gate, guard = turn_end(platform)
     assert "full /implement run is not complete" in (_continues(platform, _out(gate)) or "")
-    assert (_continues(platform, _out(guard)) or "").startswith("Usage limit:")
+    assert (_continues(platform, _out(guard)) or "").startswith("[Nexus-Hub: usage-guard] Usage limit:")
     refusals = world.gate_state().get("refusals")
     updated = world.gate_state().get("updated")
 

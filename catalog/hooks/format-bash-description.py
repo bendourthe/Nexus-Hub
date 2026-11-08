@@ -33,6 +33,50 @@ import json
 import pathlib
 import re
 import sys
+from typing import TextIO
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+NEXUS_TAG = "[Nexus-Hub: format-bash-description]"
+
+
+def _nexus_esc(value: str) -> str:
+    """Make CR, LF, ESC and the other C0 control characters visible.
+
+    An echoed value (a command, a file name) can then never start a forged
+    tagged line.
+    """
+    out: list[str] = []
+    for ch in value:
+        code = ord(ch)
+        if code == 9:
+            out.append("\\t")
+        elif code == 10:
+            out.append("\\n")
+        elif code == 13:
+            out.append("\\r")
+        elif code < 32 or code == 127:
+            out.append(f"\\x{code:02x}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _nexus_tagged(message: str) -> str:
+    """The tagged form of a message, for a JSON message field."""
+    return f"{NEXUS_TAG} {message}"
+
+
+def _nexus_msg(message: str, *more: str, stream: TextIO | None = None) -> None:
+    """Print the tag and the message (stderr by default); further arguments are continuation lines."""
+    out = stream or sys.stderr
+    out.write(_nexus_tagged(message) + "\n")
+    for line in more:
+        out.write(line + "\n")
+
 
 # ── Configuration ──────────────────────────────────────────────────────────
 _PREFIX_MAX_LEN = 120   # max chars in the inline `# Description:` prefix
@@ -151,7 +195,7 @@ def load_allow_patterns() -> list[str]:
                     inner = re.sub(r"^([^:*\s]+):\*$", r"\1 *", inner)
                     patterns.append(inner)
         except (json.JSONDecodeError, OSError) as exc:
-            print(f"[format-bash-description] WARNING: failed to read {path}: {exc}", file=sys.stderr)
+            _nexus_msg(f"WARNING: failed to read {_nexus_esc(str(path))}: {_nexus_esc(str(exc))}")
             continue
 
     return patterns
@@ -829,7 +873,7 @@ def main() -> None:
         allow_patterns = load_allow_patterns()
         is_allowed = command_is_allowed(cleaned_command, allow_patterns)
     except Exception as exc:
-        print(f"[format-bash-description] WARNING: pattern check failed: {exc}", file=sys.stderr)
+        _nexus_msg(f"WARNING: pattern check failed: {_nexus_esc(str(exc))}")
         is_allowed = False
 
     # ── Allowed commands: return clean command (no prefix) and tell
@@ -843,7 +887,7 @@ def main() -> None:
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "allow",
-                "permissionDecisionReason": "All subcommands match configured allow patterns",
+                "permissionDecisionReason": _nexus_tagged("All subcommands match configured allow patterns"),
                 "updatedInput": {
                     **tool_input,
                     "command": cleaned_command,

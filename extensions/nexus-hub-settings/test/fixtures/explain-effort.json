@@ -1,0 +1,292 @@
+{
+  "control": {
+    "id": "effort",
+    "label": "Default effort",
+    "values": [
+      "low",
+      "medium",
+      "high",
+      "xhigh"
+    ],
+    "per_tool": false,
+    "never_written": [
+      "max"
+    ]
+  },
+  "writes": [
+    {
+      "id": "claude.effort.model_settings",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "modelSettings",
+        "<model-id>",
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W06",
+        "O02"
+      ],
+      "notes": "Keys are canonical model ids from claude_model_ids.json plus ids already present; each of the four current ids read back its own level (W06). max is not accepted here.",
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ]
+    },
+    {
+      "id": "claude.effort.top_level",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W07",
+        "O02"
+      ],
+      "notes": "Observed 2026-10-31: a user-scope top-level effortLevel moves an older model (claude-opus-5) but not claude-opus-5-5, so modelSettings is the lever for current models and this key covers older ones only (W07). A project-file top-level effortLevel applies to every model and beat the user modelSettings (O02).",
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "CLAUDE_CODE_EFFORT_LEVEL (shell or the settings.json env block)",
+          "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it)."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (top-level effortLevel applies to every model)",
+          "fix": "Remove effortLevel from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ]
+    },
+    {
+      "id": "codex.effort",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "model_reasoning_effort"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W12"
+      ],
+      "notes": "Read from the header codex exec prints before any request. The vendor also lists max and ultra for some models; they are never written as a default.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "fix": "Remove model_reasoning_effort from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.effort",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "effortLevel"
+      ],
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "value_map": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".github/copilot/settings.json and settings.local.json in the repository",
+          "fix": "Remove effortLevel from the repository settings file."
+        },
+        {
+          "kind": "policy",
+          "locator": "MDM value",
+          "fix": "Ask your administrator."
+        }
+      ]
+    },
+    {
+      "id": "vscode-copilot.effort",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": [],
+      "value_map": {},
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No user-level key is documented: the fetched VS Code Copilot settings reference lists no reasoning-effort setting, and effort is chosen per model in the model picker.",
+      "override_layers": []
+    }
+  ],
+  "tools": {
+    "claude": {
+      "label": "Claude Code",
+      "cannot_remove": [
+        "Explicit ask rules and deny rules (deny blocks in every mode, including bypassPermissions)",
+        "Tools that require user interaction (AskUserQuestion and MCP tools marked requiresUserInteraction)",
+        "Recognized critical-path rm and rmdir removals",
+        "Connector tools your organization set to ask",
+        "Cross-session messaging safeguards",
+        "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
+        "A running session's mode"
+      ]
+    },
+    "codex": {
+      "label": "Codex",
+      "cannot_remove": [
+        "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
+        "requirements.toml and cloud-managed requirements, which can forbid never",
+        "A running session's approval policy"
+      ]
+    },
+    "copilot-cli": {
+      "label": "GitHub Copilot CLI",
+      "cannot_remove": [
+        "Deny rules and enterprise restrictions",
+        "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
+        "Non-interactive runs, which ignore defaultPermissionMode"
+      ]
+    },
+    "vscode-copilot": {
+      "label": "VS Code Copilot Chat",
+      "cannot_remove": [
+        "Organization policy ChatToolsAutoApprove",
+        "Any workspace-level value that overrides the user setting"
+      ]
+    }
+  },
+  "claude_model_ids": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ]
+}

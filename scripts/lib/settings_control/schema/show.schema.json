@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus-hub-settings-show",
+  "title": "nexus-hub settings show --json",
+  "description": "One record per control, tool, and surface. Each record has exactly one state; notes the resolver cannot verify are in caveats.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project", "platform", "tools", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project": {"type": ["string", "null"]},
+    "platform": {"enum": ["windows", "macos", "linux"]},
+    "tools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "installed", "version", "cannot_remove"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1},
+          "installed": {"type": "boolean"},
+          "version": {"type": ["string", "null"]},
+          "cannot_remove": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "records": {"type": "array", "items": {"$ref": "#/$defs/record"}}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control", "tool", "surface", "state", "value", "native", "layer", "layer_value", "fix", "detail", "caveats", "writes", "removable_override"],
+      "properties": {
+        "control": {"type": "string", "minLength": 1},
+        "tool": {"type": "string", "minLength": 1},
+        "surface": {"enum": ["cli", "vscode-host", "desktop"]},
+        "state": {
+          "enum": [
+            "in-effect", "tool-default", "overridden-by", "not-settable",
+            "not-covered", "unverified-for-version", "tool-not-installed", "cannot-detect"
+          ]
+        },
+        "value": {"type": ["string", "null"]},
+        "native": {},
+        "layer": {"type": ["string", "null"]},
+        "layer_value": {"type": ["string", "null"]},
+        "fix": {"type": ["string", "null"]},
+        "detail": {"type": ["string", "null"]},
+        "caveats": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "writes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "removable_override": {
+          "description": "Set when a catalog-listed override key is present in the user's file and `remove-override` applies to this cell.",
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "weakens_safety", "reason"],
+              "properties": {
+                "id": {"type": "string", "minLength": 1},
+                "weakens_safety": {"type": "boolean"},
+                "reason": {"type": "string", "minLength": 1}
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "overridden-by"}}},
+          "then": {"properties": {"layer": {"type": "string", "minLength": 1}, "fix": {"type": "string", "minLength": 1}}}
+        },
+        {
+          "if": {"properties": {"state": {"enum": ["not-settable", "not-covered", "unverified-for-version", "cannot-detect"]}}},
+          "then": {"properties": {"detail": {"type": "string", "minLength": 1}}}
+        },
+        {
+          "if": {"properties": {"state": {"not": {"const": "overridden-by"}}}},
+          "then": {"properties": {"layer": {"type": "null"}, "fix": {"type": "null"}}}
+        }
+      ]
+    }
+  }
+}

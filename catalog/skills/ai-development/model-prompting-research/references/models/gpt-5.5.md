@@ -1,7 +1,7 @@
 # Prompting Profile: gpt-5.5
 
 **Platform**: codex
-**Last verified**: 2026-10-15
+**Last verified**: 2026-11-04
 **Roster provenance**: `api`
 
 This file mirrors the `models["gpt-5.5"]` entry in `assets/profiles-index.json`. The index is authoritative; if the two disagree, regenerate this file from the index with `scripts/write_model_prompting_profile.py`.
@@ -10,16 +10,16 @@ This file mirrors the `models["gpt-5.5"]` entry in `assets/profiles-index.json`.
 
 | Claim | Confidence | Scope | Evidence scope | Primary source |
 |---|---|---|---|---|
-| When migrating to GPT-5.5, start from a fresh, smaller baseline prompt instead of carrying over the older prompt stack (treat it as a new model family, not a drop-in replacement for gpt-5.2/5.4). | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Write outcome-first prompts: state the expected outcome, success criteria, allowed side effects, evidence rules, and output shape rather than prescribing a step-by-step process. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Omit step-by-step process instructions unless the exact execution path genuinely matters. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Reserve absolute language (ALWAYS/NEVER) for true invariants such as safety rules, required output fields, or forbidden actions. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Do not inject the current date into GPT-5.5 prompts; the model already knows the current UTC date. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Use reasoning effort medium (the new default) as the starting point and raise it only when evals show a measurable quality gain. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Give explicit stopping rules for evidence gathering: use the minimum sufficient evidence, cite it precisely, then stop; treat retrieval budgets as stopping rules. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Instruct the model that missing evidence is not by itself grounds for a factual 'no' answer. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Because GPT-5.5 defaults to an efficient, direct style, explicitly specify personality (tone, warmth) separately from collaboration style when a different voice is needed, and use headers/bold/lists sparingly. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
-| Request a short preamble when a task may be multi-step, require tool calls, or run as a long agent workflow. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5) |
+| GPT-5.5 reasoning.effort supports none, low, medium (default), high and xhigh. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.5) |
+| Use xhigh reasoning effort only for the hardest asynchronous agentic tasks; reserve none for latency-critical work without multi-step tool use, and for latency-sensitive workflows that still need tool use or planning test low before none. Raise effort only when evals show a measurable quality gain. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| Treat GPT-5.5 as a new model family to tune for, not a drop-in replacement: start from a fresh, minimal prompt, write outcome-first prompts with success criteria and stopping conditions, and cut step-by-step process guidance unless the path matters. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| text.verbosity defaults to medium for GPT-5.5; setting it to low gives more concise output than low did on GPT-5.4. Control answer length separately from reasoning quality using word budgets, section counts, or JSON-only output. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| Use the Responses API for reasoning, tool-calling and multi-turn use with GPT-5.5; use previous_response_id for multi-turn state, or for stateless/Zero Data Retention flows pass back the returned output items each turn. When replaying assistant items manually keep each phase value unchanged (commentary for intermediate updates, final_answer for the completed answer) and never add phase to user messages. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| Avoid absolute language such as ALWAYS and NEVER for judgment calls in GPT-5.5 prompts (reserve it for true invariants); remove output schema definitions from the prompt and use Structured Outputs instead; do not add the current date since the model knows the current UTC date. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| For GPT-5.5 tool use, put most tool-specific guidance in the tool descriptions rather than the system prompt, prefer OpenAI-hosted tools where they fit, and use tool search to load only relevant definitions for large tool catalogs. | `medium` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| For multi-step or tool-heavy GPT-5.5 tasks, ask for a brief user-visible preamble of one or two sentences before tool calls that states the first step, which improves time to first visible token. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| For GPT-5.5 prompt caching, put stable content first and dynamic user-specific content last, set a stable prompt_cache_key for requests sharing a prefix (spreading busy groups across multiple keys), and track usage.prompt_tokens_details.cached_tokens to measure reuse. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5) |
+| gpt-5.5 has a 1,050,000-token context window and 128,000 max output tokens, is served on Chat Completions, Responses and Batch endpoints (not Realtime or Assistants), and prompts over 272K input tokens are billed at 2x input and 1.5x output for the full session. | `high` | `model-specific` | not recorded | [source](https://developers.openai.com/api/docs/models/gpt-5.5) |
 
 ## Does not apply to shared bodies
 
