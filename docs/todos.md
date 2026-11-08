@@ -2,6 +2,12 @@
 
 **Integration branch:** `develop`
 
+**v4.15 planning and execution boundaries:** Pre-freeze corrections preserve the v4.15.5-v4.15.7 Goals and tasks, clarify worker/coordinator ownership and required outputs, and declare exact hook recipes for later native binding. The [v4.15.8 extension-delivery plan](releases/v4/v4.15/plans/v4.15.8-extension-delivery.md) adds five phases and 25 tasks for host-scoped Usage alerts, preservation-safe installation defaults and native interactive Codex History, Refresh and editor tabs. Its [planning review](releases/v4/v4.15/development/v4.15.8-planning-review.md) records review coverage and limits. Original native members remain at 31/149 checked tasks; proposed v4.15.5-v4.15.8 plans remain at 0/115. Planning publication grants no execution or installation authority. The bounded native permission prerequisite is approved for source implementation and qualification; live member-specific capture, ordinary admission and all original limits remain required.
+
+- [ ] Qualify and integrate the bounded native permission prerequisite, then obtain genuine native membership and exact hook/CI decisions before starting the added members.
+
+- [ ] Implement and verify host-scoped Usage alerts, factory defaults and native interactive Codex controls through the v4.15.8 delivery plan after its prerequisites.
+
 **v4.15 native discovery budget:** Genuine native decisions resumed the original five-member run in the current session and answered legacy blocker 0. The bounded discovery correction has 343 distinct passing cases through combined qualification, 18 passing fast-profile commands, ten passing documentation commands, and a successful real-record source dry run in 14.922 seconds under the unchanged budget. Original failures remain retained; original approvals, claims, spending and retry bounds, and history are preserved. Protected integration, exact backed-up delivery, installed handoff, and genuine additional-member approval remain open. [Evidence](releases/v4/v4.15/development/v4.15-native-discovery-budget.md).
 
 - [x] Validate the captured resume and blocker replies and diagnose the repeated discovery cost without changing installed helpers or hand-editing the run record.
