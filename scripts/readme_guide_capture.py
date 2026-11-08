@@ -27,7 +27,13 @@ def save_frames(output, kind, frames, durations, source, scenes, poster=0):
     stride = max(1, len(frames) // 24)
     for i, frame in enumerate(frames[::stride][:24]):
         sample.paste(frame.resize((320, 240)), (320 * i, 0))
-    palette = sample.quantize(colors=256, method=Image.Quantize.MEDIANCUT)
+    palette = sample.quantize(colors=240, method=Image.Quantize.MEDIANCUT)
+    # Reserve source brand colors so small icons and bars survive GIF quantization.
+    anchors = ['D97757','C15F3C','5244BB','0E8A85','00B8CC','00D2DF','4285F4','CCA700','DB6D28','F85149','181818','202020','FFFFFF','CCCCCC','999999','111111']
+    colors = palette.getpalette()[:720]
+    for color in anchors:
+        colors.extend(bytes.fromhex(color))
+    palette.putpalette(colors)
     indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
     target = output / f"nexus-hub-{kind}.gif"
     indexed[0].save(target, save_all=True, append_images=indexed[1:], duration=durations, loop=0, optimize=True, disposal=1)
@@ -91,37 +97,13 @@ def capture_workflow(page, root, output):
             page.evaluate("([id,t])=>window.NexusTrainingPage.story().seek(id,t)", [step, time])
             page.evaluate("""([id,t,d])=>{const ide=document.querySelector('#'+id+' .ide'),menu=ide.querySelector('.ide-menu');let target=menu&&!menu.hidden&&menu.getBoundingClientRect().width?menu:t<6500?ide.querySelector('.ide-composer'):t<10500?ide.querySelector('.ide-input'):t>d-4000?ide.querySelector('.ide-log'):t<d*.65?ide.querySelector('.ide-log'):ide.querySelector('.ide-editor');ide.readmeTour.focus(target,{cursor:false});}""",[step,time,duration])
             frames.append(shot(page.locator(f"#readme-source-{step}")))
-            durations.append(2800 if i == len(times) - 1 else max(240, int((times[i + 1] - time) / 2)))
+            durations.append(4800 if i == len(times) - 1 else max(360, int(times[i + 1] - time)))
         assert page.locator(f"#{step} .ide-cursor").count() == 1
         frames[-1].save(output / f"workflow-{step}.png", optimize=True)
         if step == "describe":
             poster = len(frames) - 1
     return save_frames(output, "workflow", frames, durations, "guides/website/training.html + src/training-story.js + src/training-story.json", 6, poster=poster)
 
-
-def capture_commands(page, root, output):
-    page.goto((root / "guides/website/nexus-hub-guide.html").as_uri() + "#cheatsheets")
-    page.add_style_tag(content=".site-header{visibility:hidden!important}")
-    page.wait_for_timeout(150)
-    section = page.locator("#page-cheatsheets")
-    # Use the guide's real command cards and their original typography.
-    page.evaluate("""() => {const section=document.getElementById('page-cheatsheets'); section.hidden=false; section.style.display='block';} """)
-    groups = section.locator(".cs-cmd")
-    assert groups.count(), "Guide command cards were not found"
-    frames = []
-    for name in ("/describe", "/review", "/plan", "/implement", "/test", "/update", "/handoff", "/skills"):
-        card = groups.filter(has=page.locator(".cs-name", has_text=name)).first
-        assert card.count(), name
-        assert (root / "catalog/commands" / (name.removeprefix("/")+".md")).is_file(), name
-        frames.append(shot(card))
-    width = max(f.width for f in frames)
-    height = max(f.height for f in frames)
-    padded = []
-    for frame in frames:
-        canvas = Image.new("RGB", (width, height), "#071a20")
-        canvas.paste(frame, ((width-frame.width)//2, 0))
-        padded.append(canvas)
-    return save_frames(output, "commands", padded, [6000]*len(padded), "guides/website/nexus-hub-guide.html: #page-cheatsheets", len(padded))
 
 
 def panel_document(root):

@@ -11,13 +11,14 @@ from pathlib import Path
 from nexus_process import install_no_window_default
 from playwright.sync_api import sync_playwright
 from readme_guide_capture import (
-    capture_commands,
     capture_installation,
     capture_workflow,
     save_frames,
     shot,
 )
 from readme_provider_capture import capture_provider, component_script, components
+from readme_showcase_capture import capture_showcase
+from readme_cheatsheet import cheatsheet
 
 ROOT = Path(__file__).resolve().parents[1]
 install_no_window_default()
@@ -26,7 +27,7 @@ install_no_window_default()
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True, help="New output directory; existing files are never overwritten")
-    parser.add_argument("--only", choices=["installation", "workflow", "settings", "commands", "continuity", "usage"])
+    parser.add_argument("--only", choices=["installation", "workflow", "settings", "platforms", "continuity", "usage"])
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -38,13 +39,13 @@ def main() -> None:
         page = browser.new_page(viewport={"width": 1440, "height": 1100}, device_scale_factor=1, reduced_motion="reduce")
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
-        for kind, capture in (("installation", capture_installation), ("workflow", capture_workflow), ("commands", capture_commands)):
+        for kind, capture in (("installation", capture_installation), ("workflow", capture_workflow)):
             if not args.only or args.only == kind:
                 artifacts.append(capture(page, ROOT, output))
                 print(kind + " captured", flush=True)
-        for kind in ("settings", "usage"):
+        for kind in ("settings", "usage", "platforms"):
             if not args.only or args.only == kind:
-                artifacts.append(capture_provider(page, ROOT, output, kind, source))
+                artifacts.append((capture_provider if kind == "settings" else capture_showcase)(page, ROOT, output, kind, source))
                 print(kind + " captured", flush=True)
         if not args.only or args.only == "continuity":
             page.goto((ROOT / "guides/website/readme-demos.html").as_uri())
@@ -77,6 +78,7 @@ def main() -> None:
                 if scene.get("generate"): durations.extend([600]*5)
                 durations.append(3400 if scene["phase"] in (2,5,9,11,12) else 1900)
             artifacts.append(save_frames(output,"continuity",frames,durations,"guides/website/readme-platforms.* + readme-tour.*",count,poster=17))
+        (output / "cheatsheet.md").write_text(cheatsheet(page, ROOT), encoding="utf-8")
         assert not errors, errors
         browser.close()
     report = {"artifacts": artifacts, "browser_errors": errors, "execution": "Illustrations only; no installer, agent or user settings executed"}
