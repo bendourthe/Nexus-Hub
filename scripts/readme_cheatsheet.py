@@ -28,12 +28,14 @@ def cheatsheet(page, root):
     }""")
     assert len(groups) == 7 and sum(len(g["cards"]) for g in groups) == 24
     lines = ["<!-- readme-cheatsheet:start -->"]
-    for group in groups:
-        lines.extend(["", "<details>", f"<summary>{group['title']}</summary>", "", group["description"]])
+    for index, group in enumerate(groups):
+        if index:
+            lines.extend(["", "---"])
+        lines.extend(["", f"### {group['title']}", "", group["description"]])
         for card in group["cards"]:
             # The installed handoff contract is chat-only unless a file is requested.
             description = card["description"] if card["name"] != "/handoff" else "Print a paste-ready resume prompt in chat so another agent can continue. Write a file only when requested."
-            lines.extend(["", f"### `{card['name']}`", "", description])
+            lines.extend(["", f"#### `{card['name']}`", "", description])
             if card["scopes"]:
                 lines.extend(["", "| Scope | Behavior |", "| --- | --- |"])
                 for scope, detail in card["scopes"]:
@@ -42,7 +44,6 @@ def cheatsheet(page, root):
                 lines.extend(["", "```text", *card["examples"], "```"])
             for note in card["notes"]:
                 lines.extend(["", note])
-        lines.extend(["", "</details>"])
     lines.extend(["", "<!-- readme-cheatsheet:end -->"])
     text = "\n".join(lines)
     text = text.translate(str.maketrans({"\u2014": ": ", "\u2013": "-", "\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"', "\u2192": "->", "\u2026": "...", "\u00a0": " "}))
