@@ -33,6 +33,34 @@ $ErrorActionPreference = "Continue"
 
 # --- Runtime controls ---
 $hookName = "auto-devlog"
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: auto-devlog]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
@@ -83,7 +111,7 @@ if (-not (Test-Path -LiteralPath $devlog -PathType Leaf)) { exit 0 }
 try {
     $indexHeader = Select-String -LiteralPath $devlog -Pattern '^\s*\|\s*Date\s*\|\s*Version\s*\|' | Select-Object -First 1
     if ($indexHeader) {
-        [Console]::Error.WriteLine("[auto-devlog] docs/DEVLOG.md is a per-release index; skipping. Session narrative belongs in docs/v*/*/development/history/.")
+        Write-NexusMessage "docs/DEVLOG.md is a per-release index; skipping. Session narrative belongs in docs/v*/*/development/history/."
         exit 0
     }
 } catch { exit 0 }
@@ -175,11 +203,11 @@ Write ONLY the entry block - no preamble, no commentary. Then write the updated 
     } catch { $aiOk = $false }
 
     if ($aiOk) {
-        [Console]::Error.WriteLine("[auto-devlog] AI entry written to DEVLOG.md")
+        Write-NexusMessage "AI entry written to DEVLOG.md"
         exit 0
     }
     # Fall through to the deterministic entry on failure.
-    [Console]::Error.WriteLine("[auto-devlog] AI enrichment failed - writing shell summary instead.")
+    Write-NexusMessage "AI enrichment failed - writing shell summary instead."
 }
 
 # --- Build the deterministic entry ---
@@ -222,6 +250,6 @@ try {
 }
 
 $sinceLabel = if ($lastEntryDate) { $lastEntryDate } else { "7 days ago" }
-[Console]::Error.WriteLine("[auto-devlog] entry prepended ($commitCount commits since $sinceLabel)")
+Write-NexusMessage "entry prepended ($commitCount commits since $(ConvertTo-NexusVisible $sinceLabel))"
 
 exit 0

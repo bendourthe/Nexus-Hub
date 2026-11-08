@@ -9,7 +9,10 @@ import {
   QUOTA_SUMMARY_METHOD,
   discoverEndpoint,
   isAntigravityHost,
+  isHubProcess,
+  orderPorts,
   parseCsrfToken,
+  parseHubPort,
   parseLsofPorts,
   parsePsOutput,
   parseWindowsProcessJson,
@@ -20,6 +23,9 @@ import {
 
 const APP_ROOT = process.platform === "win32" ? "C:\\Apps\\Antigravity IDE\\resources\\app" : "/opt/antigravity/resources/app";
 const EXE = path.join(APP_ROOT, "extensions", "antigravity", "bin", "language_server_x64");
+const HOME = process.platform === "win32" ? "C:\\Users\\me" : "/home/me";
+const EXT = process.platform === "win32" ? ".exe" : "";
+const AGY = path.join(HOME, ".gemini", "bin", "agy" + EXT);
 
 function proc(pid: number, args: string, executable = EXE): ServerProcess {
   return { pid, executable, commandLine: `${executable} ${args}`, ports: [] };
@@ -48,6 +54,55 @@ describe("selectServers", () => {
     );
     expect(picked.map((p) => p.pid)).toEqual([2, 1]);
   });
+
+  it("adds agy hubs after this install's servers, and only hubs with a token", () => {
+    const picked = selectServers(
+      [
+        proc(5, "--hub --hub-port=59895 --app_data_dir=antigravity --csrf_token h", AGY),
+        proc(6, "--hub --hub-port=1", AGY),
+        proc(7, "chat --csrf_token x", AGY),
+        proc(2, "--csrf_token b"),
+      ],
+      APP_ROOT,
+      HOME,
+    );
+    expect(picked.map((p) => p.pid)).toEqual([2, 5]);
+  });
+
+  it("finds an agy hub on its own when the editor has no built-in server", () => {
+    const hub = proc(9, "--hub --hub-port 40000 --csrf_token h", AGY);
+    expect(selectServers([hub], APP_ROOT, HOME).map((p) => p.pid)).toEqual([9]);
+  });
+
+  it("never trusts an agy hub outside this user's ~/.gemini/bin", () => {
+    const spoof = proc(10, "--hub --hub-port 40001 --csrf_token h", path.join(os.tmpdir(), "agy" + EXT));
+    const otherUser = proc(11, "--hub --hub-port 40002 --csrf_token h", path.join(path.dirname(HOME), "someone", ".gemini", "bin", "agy" + EXT));
+    expect(selectServers([spoof, otherUser], APP_ROOT, HOME)).toEqual([]);
+  });
+});
+
+describe("agy hub helpers", () => {
+  it("recognizes the hub by its full path, executable name and --hub flag", () => {
+    const base = { pid: 1, ports: [] };
+    expect(isHubProcess({ ...base, executable: AGY, commandLine: `${AGY} --hub --csrf_token t` }, HOME)).toBe(true);
+    expect(isHubProcess({ ...base, executable: "", commandLine: `${AGY} --hub --csrf_token t` }, HOME)).toBe(true);
+    expect(isHubProcess({ ...base, executable: AGY, commandLine: `${AGY} chat` }, HOME)).toBe(false);
+    expect(isHubProcess({ ...base, executable: "/usr/bin/legacy-agy-tool", commandLine: "legacy-agy-tool --hub" }, HOME)).toBe(false);
+  });
+
+  it("accepts a bare agy name only where the process list is limited to this user", () => {
+    const bare = { pid: 1, ports: [], executable: "", commandLine: "agy --hub --csrf_token t" };
+    expect(isHubProcess(bare, HOME)).toBe(process.platform !== "win32");
+  });
+
+  it("reads --hub-port and tries it first", () => {
+    expect(parseHubPort("agy --hub --hub-port=59895 --csrf_token t")).toBe(59895);
+    expect(parseHubPort("agy --hub --hub-port 40000")).toBe(40000);
+    expect(parseHubPort("agy --hub")).toBeNull();
+    expect(orderPorts([59898, 59895], "agy --hub --hub-port=59895")).toEqual([59895, 59898]);
+    expect(orderPorts([59898], "agy --hub --hub-port=59895")).toEqual([59898]);
+    expect(orderPorts([1, 2], "language_server --csrf_token t")).toEqual([1, 2]);
+  });
 });
 
 describe("process and port parsers", () => {
@@ -61,8 +116,21 @@ describe("process and port parsers", () => {
   });
 
   it("parses ps output, keeping language servers only", () => {
-    const out = parsePsOutput("  12 /a/language_server_macos_arm --csrf_token t\n 13 /bin/zsh\n");
+    const out = parsePsOutput("  12  501 /a/language_server_macos_arm --csrf_token t\n 13 501 /bin/zsh\n");
     expect(out).toEqual([{ pid: 12, executable: "/a/language_server_macos_arm", commandLine: "/a/language_server_macos_arm --csrf_token t", ports: [] }]);
+  });
+
+  it("parses ps output, keeping this user's agy hubs and dropping other users' processes", () => {
+    const hub = "/Users/me/.gemini/bin/agy";
+    const stdout = [
+      ` 21 501 ${hub} --hub --hub-port=40000 --csrf_token t`,
+      ` 22 501 ${hub} chat`,
+      ` 23 502 /a/language_server_macos_arm --csrf_token other-user`,
+    ].join("\n");
+    const out = parsePsOutput(stdout, 501, "/Users/me");
+    expect(out.map((p) => p.pid)).toEqual([21]);
+    expect(parsePsOutput(stdout).map((p) => p.pid)).toContain(23);
+    expect(parsePsOutput(stdout, 501).map((p) => p.pid)).not.toContain(23);
   });
 
   it("parses lsof -Fn listen addresses", () => {
@@ -77,6 +145,16 @@ describe("host detection", () => {
     fs.mkdirSync(path.join(root, "extensions", "antigravity"), { recursive: true });
     fs.writeFileSync(path.join(root, "extensions", "antigravity", "package.json"), "{}");
     expect(isAntigravityHost(root)).toBe(true);
+  });
+
+  it("recognizes an Antigravity IDE without the built-in extension by its product.json", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-product-"));
+    fs.writeFileSync(path.join(root, "product.json"), JSON.stringify({ nameShort: "Code", applicationName: "code" }));
+    expect(isAntigravityHost(root)).toBe(false);
+    fs.writeFileSync(path.join(root, "product.json"), JSON.stringify({ nameShort: "Antigravity IDE", applicationName: "antigravity-ide" }));
+    expect(isAntigravityHost(root)).toBe(true);
+    fs.writeFileSync(path.join(root, "product.json"), "not json");
+    expect(isAntigravityHost(root)).toBe(false);
   });
 
   it("discovery stops at not-antigravity without listing processes", async () => {

@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-GRADE = ROOT / "docs/releases/v4/v4.14/development/eval/grade.py"
+GRADE = ROOT / "docs/archives/v4/v4.14/development/eval/grade.py"
 spec = importlib.util.spec_from_file_location("refactor_first_eval_grade", GRADE)
 grade = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(grade)

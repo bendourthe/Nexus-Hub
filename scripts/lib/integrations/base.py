@@ -23,13 +23,13 @@ out to shell tools; all file operations use pathlib and shutil.
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
+from ._paths import long_path
 from .manifest import InstallManifest
 from .result import FileAction, WriteResult
 
@@ -106,6 +106,13 @@ class InstallContext:
     # NEXUS_HUB_SKILL_INDEX by the runner. "pointer" renders the Skill-Index
     # Pointer only where `native_skill_enumeration` holds.
     skill_index_mode: str = "full"
+    # v4.14.7 Phase 1 -- detection inputs read by `_detection.detect_platform`.
+    # `which` resolves a command on PATH; None means the default
+    # `_detection.safe_which`, and tests inject a fake so they never read the
+    # developer's real PATH. `forced_keys` holds the platforms the user named
+    # explicitly with --platforms, which bypass detection (decision D5).
+    which: Optional[Callable[[str], Optional[str]]] = None
+    forced_keys: frozenset = frozenset()
 
     @property
     def global_root(self) -> Path:
@@ -496,30 +503,6 @@ class IntegrationBase:
             dst.write_bytes(content_bytes)
         ctx.manifest.track(integration_key, str(dst))
         return FileAction(path=str(dst), action="created")
-
-
-_EXTENDED_PREFIX = "\\\\?\\"
-
-
-def long_path(path: Path) -> Path:
-    """Return ``path`` in Windows extended-length form; unchanged elsewhere.
-
-    Windows rejects a path over 260 characters (MAX_PATH) unless the host enabled
-    the LongPathsEnabled policy, so a flattened skill's nested bundled files can
-    fail to copy into a deep repository with WinError 3 (AR-11). The ``\\\\?\\``
-    prefix lifts the limit per call. It also disables Win32 normalization, which
-    is why the path is made absolute and backslash-separated first. Only the file
-    operations use this form; manifests and reports keep the plain path.
-    """
-    if os.name != "nt":
-        return path
-    text = str(path)
-    if text.startswith(_EXTENDED_PREFIX):
-        return path
-    absolute = os.path.abspath(text)
-    if absolute.startswith("\\\\"):
-        return Path(_EXTENDED_PREFIX + "UNC\\" + absolute[2:])
-    return Path(_EXTENDED_PREFIX + absolute)
 
 
 def _tree_matches(src: Path, dst: Path) -> bool:

@@ -1,0 +1,212 @@
+{
+  "control": {
+    "id": "model",
+    "label": "Default model",
+    "values": {
+      "type": "string"
+    },
+    "per_tool": true,
+    "never_written": []
+  },
+  "writes": [
+    {
+      "id": "claude.model",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W01",
+        "O01",
+        "O03"
+      ],
+      "notes": "Value is an alias or a full model id.",
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "ANTHROPIC_MODEL",
+          "fix": "Unset ANTHROPIC_MODEL where it is set."
+        },
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json",
+          "fix": "Remove model from the project file, or set your value in .claude/settings.local.json."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        },
+        {
+          "kind": "remembered-ui",
+          "locator": "/model saved choice (writes this same user key)",
+          "fix": "Choose the model again with /model, or reset it here."
+        }
+      ]
+    },
+    {
+      "id": "codex.model",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W11",
+        "O07"
+      ],
+      "notes": "Listed under omitted keys in configs/platform-defaults.json for a seeding reason only; a value the user chooses is not a seed, so the validator carries one named exception.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "fix": "Remove model from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.model",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "model"
+      ],
+      "values": {
+        "type": "string"
+      },
+      "value_map": {},
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".github/copilot/settings.json and settings.local.json in the repository",
+          "fix": "Remove model from the repository settings file."
+        },
+        {
+          "kind": "policy",
+          "locator": "MDM value",
+          "fix": "Ask your administrator."
+        }
+      ]
+    },
+    {
+      "id": "vscode-copilot.model",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "<none documented>"
+      ],
+      "values": {},
+      "value_map": {},
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/enterprise/policies",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No user-level key is documented: the fetched settings reference lists no default-chat-model key (only inlineChat.defaultModel and chat.planAgent.defaultModel), and the policies page names ChatDefaultModel as an organization policy that controls chat.defaultModel.",
+      "override_layers": []
+    }
+  ],
+  "tools": {
+    "claude": {
+      "label": "Claude Code",
+      "cannot_remove": [
+        "Explicit ask rules and deny rules (deny blocks in every mode, including bypassPermissions)",
+        "Tools that require user interaction (AskUserQuestion and MCP tools marked requiresUserInteraction)",
+        "Recognized critical-path rm and rmdir removals",
+        "Connector tools your organization set to ask",
+        "Cross-session messaging safeguards",
+        "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
+        "A running session's mode"
+      ]
+    },
+    "codex": {
+      "label": "Codex",
+      "cannot_remove": [
+        "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
+        "requirements.toml and cloud-managed requirements, which can forbid never",
+        "A running session's approval policy"
+      ]
+    },
+    "copilot-cli": {
+      "label": "GitHub Copilot CLI",
+      "cannot_remove": [
+        "Deny rules and enterprise restrictions",
+        "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
+        "Non-interactive runs, which ignore defaultPermissionMode"
+      ]
+    },
+    "vscode-copilot": {
+      "label": "VS Code Copilot Chat",
+      "cannot_remove": [
+        "Organization policy ChatToolsAutoApprove",
+        "Any workspace-level value that overrides the user setting"
+      ]
+    }
+  },
+  "claude_model_ids": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ]
+}

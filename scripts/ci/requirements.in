@@ -12,4 +12,4 @@ pytest-cov
 python-docx
 python-pptx
 tomlkit
-uv==0.11.19
+uv==0.13.4

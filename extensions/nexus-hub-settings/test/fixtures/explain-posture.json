@@ -1,0 +1,471 @@
+{
+  "control": {
+    "id": "posture",
+    "label": "Approval posture",
+    "values": [
+      "ask",
+      "accept-edits",
+      "full-auto"
+    ],
+    "per_tool": false,
+    "never_written": []
+  },
+  "writes": [
+    {
+      "id": "claude.posture",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "permissions",
+        "defaultMode"
+      ],
+      "values": [
+        "default",
+        "acceptEdits",
+        "bypassPermissions"
+      ],
+      "value_map": {
+        "ask": "default",
+        "accept-edits": "acceptEdits",
+        "full-auto": "bypassPermissions"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "2.1.283",
+        "max": "2.1.283"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/permission-modes",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W02",
+        "W03",
+        "W04",
+        "O04",
+        "O05"
+      ],
+      "notes": "ask maps to the vendor value default (alias manual). The CLI flag --permission-mode and --dangerously-skip-permissions override for one session.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".claude/settings.json and .claude/settings.local.json (bypassPermissions and auto are ignored from these files)",
+          "fix": "Remove permissions.defaultMode from the project file."
+        },
+        {
+          "kind": "project-file",
+          "locator": "permissions.disableBypassPermissionsMode in any settings file blocks bypassPermissions",
+          "fix": "Use remove-override to clear a Nexus-Hub-seeded block, or ask the owner of the file that sets it."
+        },
+        {
+          "kind": "remembered-ui",
+          "locator": "VS Code mode indicator: the last mode picked (Manual, Edit automatically, Auto) carries over",
+          "fix": "Pick the mode in the indicator; Nexus-Hub cannot read or clear it."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "managed-settings.json (C:\\Program Files\\ClaudeCode\\ on Windows, /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux), MDM, or server-managed settings",
+          "fix": "Ask your administrator: managed settings outrank every user value."
+        }
+      ]
+    },
+    {
+      "id": "claude.skip_dangerous_prompt",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "cli",
+      "file": "~/.claude/settings.json",
+      "key_path": [
+        "skipDangerousModePermissionPrompt"
+      ],
+      "values": [
+        true
+      ],
+      "value_map": {
+        "full-auto": true
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/settings-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the confirmation dialog it skips appears only in an interactive session. Without this key the first interactive full-auto session shows the dialog once and Claude Code writes the key itself when the user accepts.",
+      "override_layers": []
+    },
+    {
+      "id": "claude-vscode.initial_permission_mode",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "claudeCode.initialPermissionMode"
+      ],
+      "values": [
+        "default",
+        "acceptEdits",
+        "bypassPermissions"
+      ],
+      "value_map": {
+        "ask": "default",
+        "accept-edits": "acceptEdits",
+        "full-auto": "bypassPermissions"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/vs-code",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "override_layers": [
+        {
+          "kind": "remembered-ui",
+          "locator": "mode last picked in the panel's mode indicator",
+          "fix": "Pick the mode in the indicator."
+        },
+        {
+          "kind": "project-file",
+          "locator": "workspace values are ignored by the extension (vendor)",
+          "fix": "No action: the extension reads only user settings."
+        }
+      ]
+    },
+    {
+      "id": "claude-vscode.allow_dangerous",
+      "kind": "vendor",
+      "tool": "claude",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "claudeCode.allowDangerouslySkipPermissions"
+      ],
+      "values": [
+        true
+      ],
+      "value_map": {
+        "full-auto": true
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.claude.com/docs/en/vs-code",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "override_layers": []
+    },
+    {
+      "id": "codex.posture",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "approval_policy"
+      ],
+      "values": [
+        "on-request",
+        "never"
+      ],
+      "value_map": {
+        "ask": "on-request",
+        "accept-edits": "on-request",
+        "full-auto": "never"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W13",
+        "W14",
+        "W15",
+        "W16"
+      ],
+      "applies_only_without": [
+        "default_permissions"
+      ],
+      "notes": "Pairs with codex.sandbox_mode, which writes sandbox_mode = workspace-write in the same plan. A file using default_permissions gets no posture write (W16: default_permissions wins over sandbox_mode). On Windows workspace-write needs [windows] sandbox in the user's file. The retired value untrusted is never written.",
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "fix": "Remove approval_policy and sandbox_mode from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ]
+    },
+    {
+      "id": "codex.sandbox_mode",
+      "kind": "vendor",
+      "tool": "codex",
+      "surface": "cli",
+      "file": "~/.codex/config.toml",
+      "key_path": [
+        "sandbox_mode"
+      ],
+      "values": [
+        "workspace-write"
+      ],
+      "value_map": {
+        "ask": "workspace-write",
+        "accept-edits": "workspace-write",
+        "full-auto": "workspace-write"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {
+        "min": "0.136.0",
+        "max": "0.136.0"
+      },
+      "weakens_safety": false,
+      "weakening_values": [],
+      "source": {
+        "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W13",
+        "W14",
+        "W15"
+      ],
+      "applies_only_without": [
+        "default_permissions"
+      ],
+      "override_layers": [
+        {
+          "kind": "project-file",
+          "locator": ".codex/config.toml in a trusted project",
+          "fix": "Remove sandbox_mode from the project .codex/config.toml."
+        },
+        {
+          "kind": "managed-file",
+          "locator": "requirements.toml or cloud-managed config.toml defaults",
+          "fix": "Ask your administrator: an enforced requirement outranks the user value."
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.default_permission_mode",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "defaultPermissionMode"
+      ],
+      "values": [
+        "manual",
+        "assisted",
+        "allow-all"
+      ],
+      "value_map": {
+        "ask": "manual",
+        "accept-edits": "assisted",
+        "full-auto": "allow-all"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "notes": "Newly found in the 2026-10-30 fetch: the plan assumed allow-all was a launch flag only. The vendor lists defaultPermissionMode for new interactive sessions, ignored in non-interactive runs, and a managed permissions.defaultMode overrides it. assisted is a model-review mode, so the accept-edits mapping is unproven even once the tool can be observed.",
+      "override_layers": []
+    },
+    {
+      "id": "copilot-cli.disable_bypass",
+      "kind": "vendor",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "file": "~/.copilot/settings.json",
+      "key_path": [
+        "permissions",
+        "disableBypassPermissionsMode"
+      ],
+      "values": [
+        "disable"
+      ],
+      "value_map": {
+        "full-auto": null
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "notes": "Remove-override target. The vendor type is the string disable; the maintainer's real file holds the boolean true, which is not the documented type.",
+      "override_layers": []
+    },
+    {
+      "id": "vscode-copilot.auto_approve",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "chat.tools.global.autoApprove"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "ask": false,
+        "full-auto": true
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "notes": "accept-edits is Not-Settable on this surface because the switch is all-or-nothing.",
+      "override_layers": [
+        {
+          "kind": "policy",
+          "locator": "organization policy ChatToolsAutoApprove",
+          "fix": "Ask your administrator; VS Code shows a lock icon on a managed setting."
+        },
+        {
+          "kind": "project-file",
+          "locator": "workspace settings value",
+          "fix": "Remove the workspace value."
+        }
+      ]
+    },
+    {
+      "id": "vscode-copilot.permissions_default",
+      "kind": "vendor",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "file": "vscode-config",
+      "key_path": [
+        "chat.permissions.default"
+      ],
+      "values": [
+        "default",
+        "autoApprove",
+        "autopilot"
+      ],
+      "value_map": {
+        "ask": "default",
+        "full-auto": "autoApprove"
+      },
+      "takes_effect": "New sessions only.",
+      "proven_versions": {},
+      "weakens_safety": true,
+      "weakening_values": [
+        "full-auto"
+      ],
+      "source": {
+        "url": "https://code.visualstudio.com/docs/copilot/reference/copilot-settings",
+        "fetched": "2026-10-30"
+      },
+      "admission": "not-settable",
+      "not_settable_reason": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "notes": "Newly found in the 2026-10-30 fetch; the plan names only chat.tools.global.autoApprove. Candidate alternative for the same posture.",
+      "override_layers": []
+    }
+  ],
+  "tools": {
+    "claude": {
+      "label": "Claude Code",
+      "cannot_remove": [
+        "Explicit ask rules and deny rules (deny blocks in every mode, including bypassPermissions)",
+        "Tools that require user interaction (AskUserQuestion and MCP tools marked requiresUserInteraction)",
+        "Recognized critical-path rm and rmdir removals",
+        "Connector tools your organization set to ask",
+        "Cross-session messaging safeguards",
+        "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
+        "A running session's mode"
+      ]
+    },
+    "codex": {
+      "label": "Codex",
+      "cannot_remove": [
+        "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
+        "requirements.toml and cloud-managed requirements, which can forbid never",
+        "A running session's approval policy"
+      ]
+    },
+    "copilot-cli": {
+      "label": "GitHub Copilot CLI",
+      "cannot_remove": [
+        "Deny rules and enterprise restrictions",
+        "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
+        "Non-interactive runs, which ignore defaultPermissionMode"
+      ]
+    },
+    "vscode-copilot": {
+      "label": "VS Code Copilot Chat",
+      "cannot_remove": [
+        "Organization policy ChatToolsAutoApprove",
+        "Any workspace-level value that overrides the user setting"
+      ]
+    }
+  },
+  "claude_model_ids": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ]
+}

@@ -129,5 +129,11 @@ Note the Open part. It is present, specific, and names where the risk is tracked
 | "The invariant block diverged." | "One template's wording drifted from the other four, which must stay identical." |
 | "Fails open." | "When it breaks, it lets everything through instead of blocking, so a failure is silent." |
 | "I hoisted the comparison out of the loop." | "It now does the comparison once instead of once per file." |
+| "This config is load-bearing, so the cutover is risky." | "Three services read this config, so switching it can break all three." |
+| "The blast radius of this delete is the whole `reports/` folder." | "Deleting this removes every file in `reports/`, 212 files, and they cannot be recovered without the backup." |
+| "Let me spin up a sanity check before we land it." | "I will run a quick check before we merge it." |
+| "I will punt on the bespoke parser; it is orthogonal and a footgun." | "I will postpone the custom parser. It is unrelated to this change, and it is easy to misuse." |
+| "TL;DR: the de-risked path is to wire up the flag first." | "Summary: the safer order is to connect the flag first." |
+| "The secret scanner tripped on your file." | "The write was stopped with this message: `[secret-scan] BLOCKED: Potential secrets detected in deploy.env`. It means the check found text that looks like a password or an access key in `deploy.env`, so nothing was written. Move the value to an environment variable, then retry." |
 
-The test is not whether the short version is less precise. It is whether the reader can decide what to do next. Where precision genuinely matters, keep the term and define it in place at first use.
+The last row shows the quote-exactly rule: the hook's own words stay intact and searchable, and the plain explanation follows them. The test is not whether the short version is less precise. It is whether the reader can decide what to do next. Where precision genuinely matters, keep the term and define it in place at first use.

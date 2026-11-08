@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DashboardPanel } from "../src/dashboardPanel";
 import { __resetLog } from "../src/log";
 import { CopilotUsageProvider } from "../src/providers/copilot";
@@ -96,9 +96,14 @@ type Mode = { personal: number; billing: number; usage: string | number; offline
 
 let dir: string;
 beforeEach(() => {
+  // The organization fixtures report October 2026, and the provider ignores a report
+  // for any month but the current one, so pin only Date to a day inside that month.
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-10-15T12:00:00Z"));
   dir = fs.mkdtempSync(path.join(os.tmpdir(), "copilot-leak-"));
 });
 afterEach(() => {
+  vi.useRealTimers();
   for (const panel of createdWebviewPanels) panel.dispose();
   __resetStubState();
   __resetLog();

@@ -128,7 +128,9 @@ def test_long_path_leaves_short_and_relative_paths_usable(tmp_path: Path):
 def _root_of_length(base: Path, length: int) -> Path:
     """Create and return a directory under ``base`` whose path is ``length`` chars."""
     path = base
-    while len(str(path)) < length - len(SEGMENT) - 1:
+    # Stop one character early so the final separator plus padding is never
+    # empty: an exit at exactly length - 1 would leave a zero-width remainder.
+    while len(str(path)) < length - len(SEGMENT) - 2:
         path = path / SEGMENT
     remainder = length - len(str(path)) - 1
     assert remainder > 0

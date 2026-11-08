@@ -22,7 +22,8 @@ two writes a minor close makes:
 source heading with ` - MIGRATED to vX.Y.0`. `archive` verifies the closure
 conditions, moves the minor's active tree to docs/archives/vM/vM.m/, repairs every
 reference to it, proves zero newly broken links with the docs-layout-refactor link
-checker, and commits once; any failure restores the tree unmoved. The rules are
+checker, and commits once. Verified failures restore the tree; uncertain writer
+or file ownership retains the current state without recovery writes. The rules are
 owned by the completion contract ("Minor gaps and archive") and the procedures by
 the known-gaps-tracker (Migrate mode) and docs-layout-refactor ("Archive a closed
 minor") skills; read those before changing this file.
@@ -35,15 +36,19 @@ version tokens, and repository-relative paths, never text read from a ledger.
 from __future__ import annotations
 
 import argparse
+import ctypes
 import datetime as dt
+import errno
 import json
 import os
 import posixpath
 import re
+import stat
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable
+import time
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
@@ -59,6 +64,8 @@ BUDGET_SECONDS = 180.0
 ROLLBACK_SECONDS = 120.0  # a rollback gets its own budget, never the spent one of the move
 LINK_CHECK_TIMEOUT = 600.0
 MAX_TEXT_BYTES = 5_000_000
+MOVE_BATCH_FILES = 32
+MOVE_ARG_UNITS = 30_000  # UTF-16 units, below CreateProcessW's complete command-line limit.
 
 CATEGORY_NAMES = {
     "NI": "Not Implemented",
@@ -106,6 +113,10 @@ class KeepCommit(Refused):
     """A refusal after a commit that may be correct: the commit and the record are kept as they are."""
 
 
+class RetainState(Refused):
+    """Writer or file ownership is uncertain: no rollback mutation is safe."""
+
+
 class Forced(Exception):
     """The minor record forces a verdict (tampered, paused, blocked)."""
 
@@ -118,12 +129,34 @@ def _context(args: argparse.Namespace) -> ck.RepoContext:
 
 
 def _git(rctx: ck.RepoContext, *args: str) -> tuple[int, str]:
-    return rctx.run([rctx.git, "-C", str(rctx.root), *args])
+    command = [rctx.git, "-C", str(rctx.root), *args]
+    if args[0] not in {"mv", "add", "commit", "reset", "checkout", "rm"}:
+        return rctx.run(command)
+    if rctx.budget.remaining() <= 0:
+        return -1, ""
+    with tempfile.TemporaryFile() as output:
+        timed_out = False
+        try:
+            with ck._v415_gate_process(command, rctx.root, ck._env(), output) as poll:
+                code = poll()
+                while code is None and rctx.budget.remaining() > 0:
+                    time.sleep(min(0.025, rctx.budget.remaining()))
+                    code = poll()
+                if code is None:
+                    timed_out = True
+        except BaseException as exc:
+            raise RetainState("rollback-failed", "archive writer termination is unverified; retain state") from exc
+        # Windows activation brokers can launch a hook outside the owned job. A forced
+        # timeout cannot certify quiescence, even after the direct process tree drains.
+        if timed_out:
+            raise RetainState("rollback-failed", "archive writer timed out; retain state without recovery")
+        output.seek(0)
+        return code, output.read().decode("utf-8", errors="replace")
 
 
 def _record(rctx: ck.RepoContext, token: str, session: str | None) -> tuple[dict | None, Path]:
     """The verified minor record (or None) and its path; a forced verdict raises Forced."""
-    state = cm.load_minor(ck, rctx, token, session)
+    state = cm.load_minor(ck, rctx, token, session, minor_protocol=1)
     if state.forced is not None:
         raise Forced(state.forced[0])
     return state.record, cm.record_file(ck, rctx, token)
@@ -600,6 +633,9 @@ def plan_migration(
         raise Refused("cannot-verify", "ledger history at the record start")
     if gate != "met":
         raise Refused(why, pid)
+    grant = next((g for g in cm.amendment_gap_grants(record) if g["id"] == pid), None)
+    if grant is not None and reason != grant["reason"]:
+        raise Refused("migration-reason-outside-amendment", pid)
     if why == "planned-follow-on" and reason != "user-deferred":
         raise Refused("planned-followon-reason-invalid", pid)
     target_token = cm.next_minor(token)
@@ -946,7 +982,7 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
         plans = cm.scan_plans(rctx.root, major, minor)
     except cm.MinorMalformed as exc:
         return [Refused("plans-malformed", str(exc))]
-    members = {str(m.get("version")) for m in (record or {}).get("members") or [] if isinstance(m, dict)}
+    members = {str(m.get("version")) for m in (cm.effective_members(ck, record) if record else []) if isinstance(m, dict)}
     repo = cm.hosting_repo(ck, rctx, (record or {}).get("repo"))
     out: list[Refused] = []
     for plan in plans:
@@ -1059,7 +1095,7 @@ def bound_plan_refusals(rctx: ck.RepoContext, repairs: list[Repair], record: dic
             if other.get("plan") in plans and ck.record_live(rctx, path)[0]:
                 bound.add(str(other.get("plan")))
         elif cm._minor_record_live(ck, other):
-            for member in other.get("members") or []:
+            for member in cm.effective_members(ck, other):
                 if isinstance(member, dict) and member.get("plan_path") in plans:
                     bound.add(str(member.get("plan_path")))
                 archived = member.get("archived") if isinstance(member, dict) else None
@@ -1097,6 +1133,109 @@ def _link_run(checker: Path, *args: str) -> tuple[int, str]:
 @dataclass
 class Moves:
     pairs: list[tuple[str, str]] = field(default_factory=list)  # (from, to) in order
+    attempted: list[tuple[str, str]] = field(default_factory=list)
+    owned: dict[str, tuple[int, int, int, int, int]] = field(default_factory=dict)
+    destinations: set[str] = field(default_factory=set)
+
+
+def _owned_path(rctx: ck.RepoContext, rel: str) -> Path:
+    path = rctx.root / rel
+    if not path.resolve().is_relative_to(rctx.root.resolve()):
+        raise RetainState("rollback-failed", "archive path ownership is uncertain; retain state")
+    return path
+
+
+def _identity(path: Path) -> tuple[int, int, int, int, int]:
+    info = path.lstat()
+    return (info.st_dev, info.st_ino, info.st_mode,
+            0 if stat.S_ISDIR(info.st_mode) else info.st_size,
+            0 if stat.S_ISDIR(info.st_mode) else info.st_mtime_ns)
+
+
+def _move_snapshot(rctx: ck.RepoContext, rel: str) -> dict[str, tuple[int, int, int, int, int]]:
+    path = _owned_path(rctx, rel)
+    nodes = [path]
+    if path.is_dir() and not path.is_symlink():
+        for directory, dirs, files in os.walk(path, followlinks=False):
+            nodes.extend(Path(directory) / name for name in [*dirs, *files])
+    return {node.relative_to(rctx.root).as_posix(): _identity(_owned_path(rctx, node.relative_to(rctx.root).as_posix()))
+            for node in nodes}
+
+
+def _move_command(rctx: ck.RepoContext, pairs: list[tuple[str, str]]) -> list[str]:
+    arguments = [pairs[0][0], pairs[0][1]] if len(pairs) == 1 else [
+        *(src for src, _dst in pairs), posixpath.dirname(pairs[0][1]) + "/"]
+    return [rctx.git, "-C", str(rctx.root), "mv", "--", *arguments]
+
+
+def _move_batches(rctx: ck.RepoContext, pairs: list[tuple[str, str]]) -> Iterator[list[tuple[str, str]]]:
+    groups: dict[tuple[str, str | None], list[tuple[str, str]]] = {}
+    for src, dst in pairs:
+        key = (posixpath.dirname(dst), None if posixpath.basename(src) == posixpath.basename(dst) else src)
+        groups.setdefault(key, []).append((src, dst))
+    for group in groups.values():
+        batch: list[tuple[str, str]] = []
+        for pair in group:
+            candidate = [*batch, pair]
+            units = len(subprocess.list2cmdline(_move_command(rctx, candidate)).encode("utf-16-le", errors="surrogatepass")) // 2 + 1
+            if batch and (len(candidate) > MOVE_BATCH_FILES or units > MOVE_ARG_UNITS):
+                yield batch
+                batch = []
+                candidate = [pair]
+            units = len(subprocess.list2cmdline(_move_command(rctx, candidate)).encode("utf-16-le", errors="surrogatepass")) // 2 + 1
+            if units > MOVE_ARG_UNITS:
+                raise Refused("cannot-verify", "archive move command length")
+            batch = candidate
+        if batch:
+            yield batch
+
+
+def _move_batch(rctx: ck.RepoContext, pairs: list[tuple[str, str]], moves: Moves) -> None:
+    snapshots = {}
+    for src, dst in pairs:
+        if os.path.lexists(_owned_path(rctx, dst)):
+            raise RetainState("rollback-failed", "archive destination ownership is uncertain; retain state")
+        snapshots[src] = _move_snapshot(rctx, src)
+        if any(rel in moves.owned and moves.owned[rel] != identity for rel, identity in snapshots[src].items()):
+            raise RetainState("rollback-failed", "archive source ownership is uncertain; retain state")
+        _owned_path(rctx, dst).parent.mkdir(parents=True, exist_ok=True)
+    moves.attempted.extend(pairs)
+
+    def observe() -> list[str]:
+        unmoved = []
+        for src, dst in pairs:
+            before, after = _owned_path(rctx, src), _owned_path(rctx, dst)
+            source, destination = os.path.lexists(before), os.path.lexists(after)
+            if source and not destination:
+                if _move_snapshot(rctx, src) != snapshots[src]:
+                    raise RetainState("rollback-failed", "archive source ownership is uncertain; retain state")
+                unmoved.append(src)
+                continue
+            if source or not destination:
+                raise RetainState("rollback-failed", "archive move ownership is uncertain; retain state")
+            expected = {dst + rel[len(src):]: identity for rel, identity in snapshots[src].items()}
+            if any(_identity(_owned_path(rctx, rel)) != identity for rel, identity in expected.items()):
+                raise RetainState("rollback-failed", "archive destination ownership is uncertain; retain state")
+            moves.pairs.append((src, dst))
+            for rel in snapshots[src]:
+                moves.owned.pop(rel, None)
+            moves.owned.update(expected)
+        return unmoved
+
+    try:
+        if len(pairs) == 1:
+            successful = _git_mv(rctx, *pairs[0])
+        else:
+            command = _move_command(rctx, pairs)
+            successful = _git(rctx, *command[3:])[0] == 0
+    except RetainState:
+        raise
+    except BaseException:
+        observe()
+        raise
+    unmoved = observe()
+    if not successful or unmoved:
+        raise Refused("locked-directory", unmoved[0] if unmoved else pairs[0][0])
 
 
 def _git_mv(rctx: ck.RepoContext, src: str, dst: str) -> bool:
@@ -1105,12 +1244,12 @@ def _git_mv(rctx: ck.RepoContext, src: str, dst: str) -> bool:
 
 
 def move_tree(rctx: ck.RepoContext, tree: str, dest: str, moves: Moves) -> None:
-    """`git mv` the tree whole, or file by file into an existing archive directory."""
+    """`git mv` the tree whole, or batch files into an existing archive directory."""
     move_prefixes(rctx, [(tree, dest)], moves)
 
 
 def move_prefixes(rctx: ck.RepoContext, prefixes: list[tuple[str, str]], moves: Moves) -> None:
-    """`git mv` each (old, new) prefix whole, or file by file into an existing destination.
+    """`git mv` each (old, new) prefix whole, or batch files into an existing destination.
 
     Every completed move is appended to `moves` as it happens, so a caller's rollback
     sees a partial move too. A failed `git mv` (a locked directory, antivirus,
@@ -1121,10 +1260,8 @@ def move_prefixes(rctx: ck.RepoContext, prefixes: list[tuple[str, str]], moves: 
             pairs = [(old, new)]
         else:
             pairs = [(rel, new + rel[len(old):]) for rel in tracked_under(rctx, old)]
-        for src, dst in pairs:
-            if not _git_mv(rctx, src, dst):
-                raise Refused("locked-directory", src)
-            moves.pairs.append((src, dst))
+        for batch in _move_batches(rctx, pairs):
+            _move_batch(rctx, batch, moves)
         # A file-by-file move leaves the emptied directories behind; drop only empty ones.
         for dirpath, _dirs, _files in sorted(os.walk(rctx.root / old), key=lambda w: -len(w[0])):
             try:
@@ -1133,11 +1270,72 @@ def move_prefixes(rctx: ck.RepoContext, prefixes: list[tuple[str, str]], moves: 
                 pass  # not empty (an ignored file stays where it was)
 
 
+def _preflight_undo(rctx: ck.RepoContext, moves: Moves, committed: bool) -> None:
+    try:
+        current_owned = {}
+        for src, _dst in moves.pairs:
+            if os.path.lexists(_owned_path(rctx, src)):
+                raise OSError("occupied original")
+        for dst in moves.destinations - moves.owned.keys():
+            if os.path.lexists(_owned_path(rctx, dst)):
+                raise OSError("occupied unattempted destination")
+        for rel, expected in moves.owned.items():
+            current = _identity(_owned_path(rctx, rel))
+            matches = current[:3] == expected[:3] if committed else current == expected
+            if not matches:
+                raise OSError("unfamiliar replacement")
+            current_owned[rel] = current
+        for _src, dst in moves.pairs:
+            path = _owned_path(rctx, dst)
+            if path.is_dir() and not path.is_symlink():
+                actual = _move_snapshot(rctx, dst)
+                expected_paths = {p for p in moves.owned if p == dst or p.startswith(dst + "/")}
+                if set(actual) != expected_paths:
+                    raise OSError("unfamiliar directory content")
+        moves.owned.update(current_owned)
+    except OSError as exc:
+        raise RetainState("rollback-failed", "archive file ownership is uncertain; retain state") from exc
+
+
+def _rename_no_replace(source: Path, destination: Path) -> None:
+    """Atomically refuse an occupied recovery target, including on POSIX hosts."""
+    if sys.platform == "win32":
+        source.rename(destination)
+        return
+    native = ctypes.CDLL(None, use_errno=True)
+    try:
+        if sys.platform.startswith("linux"):
+            rename = native.renameat2
+            rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            arguments = (-100, os.fsencode(source), -100, os.fsencode(destination), 1)  # RENAME_NOREPLACE
+        elif sys.platform == "darwin":
+            rename = native.renamex_np
+            rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+            arguments = (os.fsencode(source), os.fsencode(destination), 4)  # RENAME_EXCL
+        else:
+            raise AttributeError("exclusive rename unavailable")
+    except AttributeError as exc:
+        raise OSError(errno.ENOSYS, "exclusive recovery rename is unavailable") from exc
+    rename.restype = ctypes.c_int
+    if rename(*arguments) != 0:
+        error = ctypes.get_errno() or errno.EIO
+        raise OSError(error, os.strerror(error), str(source), None, str(destination))
+
+
 def undo_moves(rctx: ck.RepoContext, moves: Moves) -> bool:
-    ok = True
     for src, dst in reversed(moves.pairs):
-        ok = _git_mv(rctx, dst, src) and ok
-    return ok
+        try:
+            source, destination = _owned_path(rctx, src), _owned_path(rctx, dst)
+            if os.path.lexists(source):
+                return False
+            expected = {p: identity for p, identity in moves.owned.items() if p == dst or p.startswith(dst + "/")}
+            if _move_snapshot(rctx, dst) != expected:
+                return False
+            source.parent.mkdir(parents=True, exist_ok=True)
+            _rename_no_replace(destination, source)
+        except OSError:
+            return False
+    return True
 
 
 def _rename_rows(rctx: ck.RepoContext) -> str:
@@ -1147,11 +1345,16 @@ def _rename_rows(rctx: ck.RepoContext) -> str:
     return "\n".join(l for l in out.splitlines() if l.startswith("R")) + "\n"
 
 
-def _restore_exact(rctx: ck.RepoContext, pre: str, paths: list[str]) -> bool:
-    """Put each path back exactly as `pre` has it: checked out when `pre` holds it, else removed.
+def _restore_exact(rctx: ck.RepoContext, pre: str, paths: list[str], *, index_only: bool = False) -> bool:
+    """Restore the scoped index, with content recovery only after a committed mismatch.
 
     The paths travel through a NUL-separated pathspec file, so no argv limit applies.
     """
+    if index_only:
+        with tempfile.TemporaryDirectory(prefix="minor-close-undo-") as scratch:
+            spec = Path(scratch) / "index.pathspec"
+            spec.write_bytes(b"\0".join((":(literal)" + p).encode("utf-8") for p in paths))
+            return _git(rctx, "reset", "-q", pre, f"--pathspec-from-file={spec}", "--pathspec-file-nul")[0] == 0
     rc, listing = _git(rctx, "ls-tree", "-r", "--name-only", "-z", pre)
     if rc != 0:
         return False
@@ -1163,7 +1366,7 @@ def _restore_exact(rctx: ck.RepoContext, pre: str, paths: list[str]) -> bool:
             if not group:
                 continue
             spec = Path(scratch) / f"{name}.pathspec"
-            spec.write_bytes(b"\0".join(p.encode("utf-8") for p in group))
+            spec.write_bytes(b"\0".join((":(literal)" + p).encode("utf-8") for p in group))
             ok = _git(rctx, *args, f"--pathspec-from-file={spec}", "--pathspec-file-nul")[0] == 0 and ok
     return ok
 
@@ -1171,18 +1374,16 @@ def _restore_exact(rctx: ck.RepoContext, pre: str, paths: list[str]) -> bool:
 def _restore(rctx: ck.RepoContext, written: list[Repair], moves: Moves, staged: bool) -> bool:
     """Put every written file back and undo the moves; False when anything failed.
 
-    Only files actually written are restored (a repair never written needs nothing),
-    each attempt is independent, and the moves are undone even when a restore fails.
+    Only files actually written are restored. Stop at the first failed compensation
+    so later recovery cannot overwrite a state whose ownership is uncertain.
     """
-    ok = True
     for repair in reversed(written):
         try:
             _write_atomic(rctx.root / repair.new_rel, repair.original)
+            moves.owned[repair.new_rel] = _identity(rctx.root / repair.new_rel)
         except OSError:
-            ok = False
-    if staged and written:
-        ok = _git(rctx, "add", "--", *[r.new_rel for r in written])[0] == 0 and ok
-    return undo_moves(rctx, moves) and ok
+            return False
+    return undo_moves(rctx, moves)
 
 
 def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) -> None:
@@ -1199,7 +1400,7 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
     major, minor = cm.parse_minor(ck, token)
     by_version = {p.version: p for p in cm.scan_plans(rctx.root, major, minor)}
     head = rctx._git_out("rev-parse", "HEAD")
-    for member in record.get("members") or []:
+    for member in cm.effective_members(ck, record):
         plan = by_version.get(str(member.get("version")))
         if plan is not None:
             archived = member.get("archived") if isinstance(member.get("archived"), dict) else {}
@@ -1209,7 +1410,7 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
             member["archived"] = archived
             member["plan_path"] = plan.rel
             member["plan_sha256"] = ck.plan_hash_text(plan.text)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
     ck._write_record(record_path, record)
 
 
@@ -1259,18 +1460,20 @@ def _authority(record: dict | None, confirmed: bool) -> str:
 
 def _apply_archive(
     rctx: ck.RepoContext, token: str, tree: str, dest: str, files: list[str], checker: Path,
+    prepared: tuple[str, list[Repair]] | None = None,
 ) -> list[Repair]:
-    """Move, repair, prove, and commit; on any failure restore the tree and refuse."""
+    """Move, repair, prove, and commit; recover verified failures and retain uncertain state."""
     return _apply_moves(rctx, [(tree, dest)], files, checker,
-                        f"docs(archives): archive closed minor {token}", own_archive=dest)
+                        f"docs(archives): archive closed minor {token}", own_archive=dest, prepared=prepared)
 
 
 def _apply_moves(
     rctx: ck.RepoContext, prefixes: list[tuple[str, str]], files: list[str], checker: Path, message: str,
     own_archive: str | None = None, seal: Callable[[list[Repair]], Callable[[], bool]] | None = None,
     verify: Callable[[str], str] | None = None,
+    prepared: tuple[str, list[Repair]] | None = None,
 ) -> list[Repair]:
-    """Move each prefix, repair, prove, and commit once; on any failure restore and refuse.
+    """Move, repair, prove, and commit once; recover only while writer and file ownership are verified.
 
     `seal`, when given, runs after the link proof and before the commit with the
     written repairs, and returns the undo a rollback calls; a member archive signs the
@@ -1283,6 +1486,8 @@ def _apply_moves(
     commit and the identity are kept and the refusal is `cannot-verify`: that is the
     crash-after-commit state the checker already reads correctly, and undoing a commit
     that may be right is worse than reporting it.
+    `prepared` reuses the caller's checked preview at its HEAD. Fresh HEAD, status,
+    file identities, and raw repair bytes are verified before any archive mutation.
     """
 
     def moved(rel: str) -> str:
@@ -1292,25 +1497,53 @@ def _apply_moves(
     written: list[Repair] = []
     staged = committed = False
     unseal: Callable[[], bool] | None = None
-    pre = rctx._git_out("rev-parse", "HEAD")
+    pre = prepared[0] if prepared is not None else rctx._git_out("rev-parse", "HEAD")
+    if not pre:
+        raise Refused("cannot-verify", "archive preview HEAD")
     exact = sorted({rel for rel in files if moved(rel) != rel})  # every moved file, restored byte for byte
+    repairs = prepared[1] if prepared is not None else plan_moves_repairs(
+        rctx.root, [(rel, rel, moved(rel)) for rel in files], prefixes, own_archive)
+    current_head = rctx._git_out("rev-parse", "HEAD")
+    if not current_head:
+        raise Refused("cannot-verify", "archive preview HEAD")
+    if current_head != pre:
+        raise Refused("source-changed", "archive preview HEAD")
+    rc, status = _git(rctx, "status", "--porcelain")
+    if rc != 0:
+        raise Refused("cannot-verify", "clean archive worktree")
+    if status.strip():
+        raise Refused("dirty-worktree", "commit or stash first; rollback needs a clean tree")
+    try:
+        moves.owned = {rel: _identity(_owned_path(rctx, rel)) for rel in {*exact, *(r.old_rel for r in repairs)}}
+        for repair in repairs:
+            path = _owned_path(rctx, repair.old_rel)
+            if (path.read_bytes() != repair.original.encode("utf-8")
+                    or _identity(path) != moves.owned[repair.old_rel]):
+                raise Refused("source-changed", repair.old_rel)
+    except OSError as exc:
+        raise Refused("cannot-verify", "archive preview files") from exc
+    moves.destinations = {moved(rel) for rel in exact}
 
     def undo() -> bool:
         spent, rctx.budget = rctx.budget, ck.Budget(ROLLBACK_SECONDS)
         try:
+            _preflight_undo(rctx, moves, committed)
             ok = True
             bad = rctx._git_out("rev-parse", "HEAD") if committed else ""
+            if not _restore(rctx, written, moves, staged):
+                return False
             if committed:
                 ok = _git(rctx, "reset", "-q", "--soft", pre)[0] == 0
             unsealed = unseal() if unseal is not None else True
-            ok = _restore(rctx, written, moves, staged) and ok and unsealed
+            ok = ok and unsealed
             if moves.pairs or committed:
-                paths = {*exact, *(r.old_rel for r in written), *(r.new_rel for r in written)}
+                paths = {*exact, *(moved(rel) for rel in exact),
+                         *(r.old_rel for r in written), *(r.new_rel for r in written)}
                 if bad and bad != pre:
                     rc, out = _git(rctx, "diff", "--name-only", "-z", pre, bad)
                     ok = rc == 0 and ok
                     paths |= {p for p in out.split("\0") if p}
-                ok = _restore_exact(rctx, pre, sorted(paths)) and ok
+                ok = _restore_exact(rctx, pre, sorted(paths), index_only=not committed) and ok
             rc, status = _git(rctx, "status", "--porcelain")
             return ok and rc == 0 and not status.strip()
         finally:
@@ -1327,13 +1560,18 @@ def _apply_moves(
             rc, listing = _git(rctx, "ls-files", "-z")
             if rc != 0:
                 raise Refused("cannot-verify", "tracked files after the move")
-            inverse = {moved(rel): rel for rel in files}
             now = [p for p in listing.split("\0") if p]
-            repairs = plan_moves_repairs(
-                rctx.root, [(rel, inverse.get(rel, rel), rel) for rel in now], prefixes, own_archive)
+            if set(now) != {moved(rel) for rel in files}:
+                raise RetainState("rollback-failed", "archive index ownership is uncertain; retain state")
             for repair in repairs:
+                path = _owned_path(rctx, repair.new_rel)
+                identity = _identity(path)
+                if ((repair.new_rel in moves.owned and moves.owned[repair.new_rel] != identity)
+                        or path.read_bytes() != repair.original.encode("utf-8")):
+                    raise RetainState("rollback-failed", "archive repair ownership is uncertain; retain state")
                 _write_atomic(rctx.root / repair.new_rel, repair.repaired)
                 written.append(repair)
+                moves.owned[repair.new_rel] = _identity(path)
             rename_map.write_text(_rename_rows(rctx), encoding="utf-8")
             if _link_run(checker, "baseline", "--root", str(rctx.root), "--out", str(after))[0] != 0:
                 raise Refused("link-check-failed", "baseline after the move")
@@ -1347,7 +1585,7 @@ def _apply_moves(
                 raise Refused("link-check-failed", f"{broken} newly broken")
             if written:
                 staged = True
-                if _git(rctx, "add", "--", *[r.new_rel for r in written])[0] != 0:
+                if _git(rctx, "add", "--", *[":(literal)" + r.new_rel for r in written])[0] != 0:
                     raise Refused("commit-failed", "stage repairs")
             if seal is not None:
                 unseal = seal(written)
@@ -1362,7 +1600,7 @@ def _apply_moves(
                     raise KeepCommit("cannot-verify", "the archive commit was made but could not be read back; re-run")
                 if verdict != "verified":
                     raise Refused("archive-commit-unverified", "the commit does not carry exactly the signed archive")
-        except KeepCommit:
+        except (KeepCommit, RetainState):
             raise
         except Refused:
             if not undo():
@@ -1427,6 +1665,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
     def moved(rel: str) -> str:
         return dest + rel[len(tree):] if rel == tree or rel.startswith(tree + "/") else rel
 
+    preview_head = rctx._git_out("rev-parse", "HEAD")
     preview = plan_repairs(rctx.root, [(rel, rel, moved(rel)) for rel in files], tree, dest, own_archive=dest)
     refusals = [
         *register_refusals(rctx, token, record, tree),
@@ -1448,7 +1687,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
         print(f"WOULD ARCHIVE {token} {tree} -> {dest} {summary}")
         return EXIT_OK
     assert checker is not None
-    _apply_archive(rctx, token, tree, dest, files, checker)
+    _apply_archive(rctx, token, tree, dest, files, checker, prepared=(preview_head, preview))
     head = rctx._git_out("rev-parse", "--short", "HEAD")
     emptied = remove_empty_dirs(rctx.root)
     if authority == "record" and record is not None and plan_ctx is not None:
@@ -1517,7 +1756,7 @@ def _archive_branch_refusals(rctx: ck.RepoContext, record: dict, version: str) -
     branch = cm.current_branch(rctx)
     found = _ARCHIVE_BRANCH_RE.match(branch or "")
     named = found.group(1).split("-") if found else []
-    members = {str(m.get("version")) for m in record.get("members") or [] if isinstance(m, dict)}
+    members = {str(m.get("version")) for m in cm.effective_members(ck, record) if isinstance(m, dict)}
     if version not in named or not set(named) <= members:
         return [Refused("not-on-archive-branch", branch or "detached")]
     target = cm._target(record)
@@ -1602,7 +1841,7 @@ def _cross_reference_refusals(
     repairs: list[Repair], record: dict, version: str, by_version: dict[str, cm.Plan],
 ) -> list[Refused]:
     """A repair that rewrites another member's frozen plan would make the record tampered; refuse instead."""
-    others = {by_version[str(m.get("version"))].rel for m in record.get("members") or []
+    others = {by_version[str(m.get("version"))].rel for m in cm.effective_members(ck, record)
               if isinstance(m, dict) and m.get("version") != version and str(m.get("version")) in by_version}
     return [Refused("member-plan-cross-reference", rel) for rel in sorted({r.old_rel for r in repairs} & others)]
 
@@ -1642,7 +1881,7 @@ def _staged_blobs(rctx: ck.RepoContext, paths: list[str]) -> dict[str, str]:
 
 def _sign_member(rctx: ck.RepoContext, record: dict, record_path: Path) -> None:
     # `members` is signed, so the archived identity is a signed update, never an unsigned edit.
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
     ck._write_record(record_path, record)
 
 
@@ -1665,13 +1904,14 @@ def _archive_member(
     rctx: ck.RepoContext, args: argparse.Namespace, token: str, version: str, record: dict, record_path: Path,
 ) -> int:
     """Every refusal, then the move, repair, proof, signed identity, and one commit."""
-    classes = cm._classes(record)
-    if "archive-member" not in classes or "archive-minor" not in classes:
-        raise Refused("approval-not-covered", "the minor record does not carry archive-member")
     members = cm.ordered_members(record)
     member = next((m for m in members if m.get("version") == version), None)
     if member is None:
         raise Refused("not-a-member", version)
+    classes = {item.get("class") for item in cm.member_classes(record, member)}
+    if "archive-member" not in classes or "archive-minor" not in cm._classes(record):
+        approval_subject = "member" if any(member is added for added in record.get("minor_amendment_members", [])) else "minor record"
+        raise Refused("approval-not-covered", f"the {approval_subject} does not carry archive-member")
     if members[-1] is member:
         raise Refused("use-minor-close", version)
     major, minor = cm.parse_minor(ck, token)
@@ -1696,6 +1936,7 @@ def _archive_member(
     if map_moves(plan.rel, prefixes) == plan.rel:
         raise Refused("plan-not-member-owned", plan.rel)
     pairs = [(rel, map_moves(rel, prefixes)) for rel in files if map_moves(rel, prefixes) != rel]
+    preview_head = rctx._git_out("rev-parse", "HEAD")
     preview = plan_moves_repairs(rctx.root, [(rel, rel, map_moves(rel, prefixes)) for rel in files], prefixes)
     touched = sorted({old for old, _new in prefixes} | {r.old_rel for r in preview})
     refusals = [
@@ -1764,7 +2005,8 @@ def _archive_member(
         return "verified" if cm.is_archive_commit(rctx, head, 1, [entries]) else "mismatch"
 
     _apply_moves(rctx, prefixes, files, checker,
-                 f"docs(archives): archive released member {version} of {token}", seal=seal, verify=verify)
+                 f"docs(archives): archive released member {version} of {token}", seal=seal, verify=verify,
+                 prepared=(preview_head, preview))
     head = rctx._git_out("rev-parse", "--short", "HEAD")
     for rel in _remove_empty_parents(rctx, prefixes, tree):
         print(f"REMOVED empty {rel}")

@@ -245,7 +245,7 @@ def test_fallback_failed_rotation_preserves_records_and_returns(tmp_repo: Path, 
     result = subprocess.run([bash, str(_CAPTURE_HOOK)], cwd=tmp_repo, env=env, input="{}",
                             text=True, capture_output=True, timeout=5, check=False)
     assert result.returncode == 0
-    assert "learning-capture: degraded-rotation" in result.stderr
+    assert "[Nexus-Hub: learning-capture] degraded-rotation" in result.stderr
     assert rename_log.read_text(encoding="utf-8").splitlines() == ["attempt"]
     assert obs.read_text(encoding="utf-8").startswith(original)
     assert all(isinstance(json.loads(line), dict) for line in obs.read_text(encoding="utf-8").splitlines())

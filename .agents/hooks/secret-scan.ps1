@@ -31,6 +31,34 @@
 
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: secret-scan]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 # --- Read JSON from stdin ---
 if (-not [Console]::IsInputRedirected) { exit 0 }
 # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
@@ -111,9 +139,8 @@ if ($content -imatch $assignRe) {
 
 # --- Report findings ---
 if ($found.Count -gt 0) {
-    [Console]::Error.WriteLine("[secret-scan] BLOCKED: Potential secrets detected in ${fileName}:")
-    foreach ($s in $found) { [Console]::Error.WriteLine("  - $s") }
-    [Console]::Error.WriteLine("Remove secrets and use environment variables or a secrets manager instead.")
+    $more = @($found | ForEach-Object { "  - $_" }) + @("Remove secrets and use environment variables or a secrets manager instead.")
+    Write-NexusMessage "BLOCKED: Potential secrets detected in $(ConvertTo-NexusVisible $fileName):" $more
     exit 2
 }
 

@@ -5,7 +5,7 @@ module beside it, and which stay unregistered per the plan's platform table:
 
 - Claude Code: ``settings.json`` on UserPromptSubmit, PostToolUse (no matcher), Stop.
 - Codex: derived ``hooks.json`` on the same three events, 10-second timeout.
-- Cursor: native ``hooks.json`` on postToolUse and stop only.
+- Cursor: native ``hooks.json`` on beforeSubmitPrompt, postToolUse and stop.
 - Copilot: derived hooks on the three events, through copilot-hook-compat.py.
 - Gemini CLI, Qwen, Kimi: receive it from settings.json and stay silent at runtime.
 - Windsurf and Antigravity: curated lists, never receive it.
@@ -98,12 +98,13 @@ def test_codex_install_note_says_untrusted_hooks_are_skipped():
     assert "usage-guard" in note
 
 
-def test_cursor_workspace_hooks_json_uses_post_tool_use_and_stop_only(tmp_path):
+def test_cursor_workspace_hooks_json_captures_answers_and_checks_usage(tmp_path):
     get("cursor").install(_ctx(tmp_path))
     data = json.loads((tmp_path / ".cursor" / "hooks.json").read_text(encoding="utf-8"))
     found = _guard_events(data["hooks"])
-    assert set(found) == {"postToolUse", "stop"}
+    assert set(found) == {"beforeSubmitPrompt", "postToolUse", "stop"}
     for handlers in found.values():
+        assert len(handlers) == 1
         command = handlers[0]["command"]
         assert "cursor-hook-compat.py" in command
         assert command.endswith('/usage-guard.py"'), command
