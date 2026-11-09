@@ -8,7 +8,7 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 **Catalog:** 340 skills across 23 categories, 21 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
 
-[Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
+[Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
 ## What's New in v4.14.8
 

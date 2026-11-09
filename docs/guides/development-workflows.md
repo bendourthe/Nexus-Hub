@@ -26,7 +26,7 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 
 Run `/implement <slug>` once. It asks every approval the run needs in one upfront round, then runs the whole plan in its own worktree: every subtask of every phase, tests and fixes, `/update gitignore` + `/update docs`, a session-history file, and a local commit per phase, then the single publication, the release, and cleanup. It stops only when the completion checker reports a terminal verdict, on a named blocker, or when you run `/implement pause`; `/implement <slug>` resumes.
 
-To work one phase at a time instead, run `/implement <slug> phase <N>` (or `next`) in a fresh session per phase, or `/implement <slug> phase-by-phase` to review and commit after each phase.
+To work one phase at a time instead, run `/implement <slug> phase <N>` (or `next`) in a fresh session per phase, or `/implement <slug> phase-by-phase` to review and commit after each phase. `/implement <slug> full` (alias `in-full`) names the whole-plan default explicitly.
 
 **Non-final phases do not push** (v4.0.0). A remote pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches you to stop reading red checks. One branch, one commit per phase, all local.
 

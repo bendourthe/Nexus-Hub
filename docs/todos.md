@@ -2,6 +2,8 @@
 
 **Integration branch:** `develop`
 
+- [x] Make the concise README the design for both languages: replace `README_zh.md` with a full Chinese translation, link it from the English README, and retarget four tests to the reference guides that now hold their facts. 20 tests pass; both READMEs render with identical structure and resolving links. [Evidence](releases/v4/v4.15/development/readme-chinese-replacement-evidence.md).
+
 - [x] Reorder README sections: latest release note first, Command Cheatsheet after Platforms, License last, and the 4.15.0 preview sentence removed. GFM rendering, 7 groups and 24 commands, 28 local links, and unchanged table/image/link counts verified. [Evidence](releases/v4/v4.15/development/readme-section-order-evidence.md).
 
 - [x] Move the complete README cheatsheet to the end with all commands visible, rename Centralized IDE Settings, and regenerate the settings tour with exact Claude orange in every frame. Verified 90 browser/content checks and 165 image-region color checks. [Evidence](releases/v4/v4.15/development/readme-expanded-cheatsheet-evidence.md).
