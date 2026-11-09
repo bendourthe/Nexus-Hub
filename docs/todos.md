@@ -2,6 +2,8 @@
 
 **Integration branch:** `develop`
 
+- [x] Reorder README sections: latest release note first, Command Cheatsheet after Platforms, License last, and the 4.15.0 preview sentence removed. GFM rendering, 7 groups and 24 commands, 28 local links, and unchanged table/image/link counts verified. [Evidence](releases/v4/v4.15/development/readme-section-order-evidence.md).
+
 - [x] Move the complete README cheatsheet to the end with all commands visible, rename Centralized IDE Settings, and regenerate the settings tour with exact Claude orange in every frame. Verified 90 browser/content checks and 165 image-region color checks. [Evidence](releases/v4/v4.15/development/readme-expanded-cheatsheet-evidence.md).
 
 - [x] Refine README structure and platform coverage for v4.15.0: full seven-group Markdown cheatsheet from all 24 guide cards, slower workflow timing, synchronized portrait Claude/Codex/Copilot monitor views, source brand colors, and native-reference Cursor/Antigravity illustrations. Local visual and browser verification is recorded in [evidence](releases/v4/v4.15/development/readme-platform-refinement-evidence.md).

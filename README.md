@@ -10,6 +10,14 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
+## What's New in v4.14.8
+
+- Plain-English guidance and source-labeled hook messages.
+- A settings status-bar entry for saved defaults.
+- Persistent usage-limit choices and handoffs that continue on another platform without waiting for the old limit to reset.
+
+[Release details and earlier versions](CHANGELOG.md#4148---2026-11-04)
+
 ## Installation
 
 **Windows PowerShell**
@@ -45,21 +53,7 @@ The installer detects supported tools, copies the harness files, and verifies th
 
 [Static preview](assets/readme/nexus-hub-workflow.png) | [Detailed workflows](docs/guides/development-workflows.md)
 
-## Handoffs
-
-1. **Choose:** Wait for reset, Hand off, or Continue on credits.
-2. **Transfer:** copy the generated resume prompt into the receiving app.
-3. **Continue:** send it with the project files and resume the recorded next step.
-
-![Dark desktop tour: select Hand off in Claude, copy the full Nexus prompt, paste and send it in ChatGPT, then continue the unfinished test](assets/readme/nexus-hub-continuity.gif)
-
-Provide the relevant project files to the receiving app. In installed agent integrations, `/handoff` prints in chat unless you explicitly request a file.
-
-[Static preview](assets/readme/nexus-hub-continuity.png) | [Handoff command](catalog/commands/handoff.md)
-
 ## Centralized IDE Settings
-
-**4.15.0 preview:** optional Nexus Hub controls inside your IDE.
 
 | Control | Behavior |
 | --- | --- |
@@ -86,6 +80,18 @@ Manual session choices remain until the next global change or **Apply to all**.
 
 [Static preview](assets/readme/nexus-hub-usage.png) | [Interactive tour](guides/website/readme-showcase.html?tour=usage)
 
+## Handoffs
+
+1. **Choose:** Wait for reset, Hand off, or Continue on credits.
+2. **Transfer:** copy the generated resume prompt into the receiving app.
+3. **Continue:** send it with the project files and resume the recorded next step.
+
+![Dark desktop tour: select Hand off in Claude, copy the full Nexus prompt, paste and send it in ChatGPT, then continue the unfinished test](assets/readme/nexus-hub-continuity.gif)
+
+Provide the relevant project files to the receiving app. In installed agent integrations, `/handoff` prints in chat unless you explicitly request a file.
+
+[Static preview](assets/readme/nexus-hub-continuity.png) | [Handoff command](catalog/commands/handoff.md)
+
 ## Platforms
 
 | Platform | Nexus Hub integration |
@@ -103,27 +109,6 @@ Manual session choices remain until the next global change or **Apply to all**.
 [Static preview](assets/readme/nexus-hub-platforms.png) | [Interactive platform tour](guides/website/readme-showcase.html?tour=platforms)
 
 Terminal agents also use the [supported integrations](docs/guides/installation-and-platforms.md#supported-agentic-platforms). File access, permissions, and hook coverage depend on the host. Project files and explicit handoffs carry work across tools and models.
-
-## What's New in v4.14.8
-
-- Plain-English guidance and source-labeled hook messages.
-- A settings status-bar entry for saved defaults.
-- Persistent usage-limit choices and handoffs that continue on another platform without waiting for the old limit to reset.
-
-[Release details and earlier versions](CHANGELOG.md#4148---2026-11-04)
-
-## Documentation
-
-- [Installation and platform reference](docs/guides/installation-and-platforms.md)
-- [Development workflows and local checks](docs/guides/development-workflows.md)
-- [Skill catalog](data/SKILL_INDEX.md) and [command catalog](catalog/commands/)
-- [Security, privacy, and regulated-use considerations](SECURITY.md)
-- [Contributing](CONTRIBUTING.md) and [project progress](docs/todos.md)
-- [Editable animation sources](assets/readme/README.md)
-
-## License
-
-[MIT](LICENSE). Maintained by [Benjamin Dourthe](https://www.benjamindourthe.com/).
 
 ## Command Cheatsheet
 
@@ -531,3 +516,16 @@ Print a paste-ready resume prompt in chat so another agent can continue. Write a
 <!-- readme-cheatsheet:end -->
 
 [Interactive cheatsheet](https://www.benjamindourthe.com/nexus-hub/index.html#cheatsheets) | [Command catalog](catalog/commands/)
+
+## Documentation
+
+- [Installation and platform reference](docs/guides/installation-and-platforms.md)
+- [Development workflows and local checks](docs/guides/development-workflows.md)
+- [Skill catalog](data/SKILL_INDEX.md) and [command catalog](catalog/commands/)
+- [Security, privacy, and regulated-use considerations](SECURITY.md)
+- [Contributing](CONTRIBUTING.md) and [project progress](docs/todos.md)
+- [Editable animation sources](assets/readme/README.md)
+
+## License
+
+[MIT](LICENSE). Maintained by [Benjamin Dourthe](https://www.benjamindourthe.com/).
