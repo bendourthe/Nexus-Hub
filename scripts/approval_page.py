@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor", "permit-member-execution-paths")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -157,6 +157,10 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if scope != "v4.15":
             raise PageError("the reviewed read correction belongs only to minor v4.15")
         return _fits(f"Correct the one-file CI read reservation in /implement {scope} (approval {code})")
+    if action == "permit-member-execution-paths":
+        if scope != "v4.15":
+            raise PageError("typed execution permission belongs only to v4.15")
+        return _fits(f"Permit the displayed member execution paths in /implement {scope} (approval {code})")
     if action == "permit-outputs":
         if scope != "v4.15":
             raise PageError("the reviewed output permission belongs only to minor v4.15")
@@ -1020,6 +1024,46 @@ def _action_page(data: dict, paste: PasteSet) -> str:
             out += _section(title, rows or ["None."])
         out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
         return "\n".join(out).rstrip() + "\n"
+    if action == "permit-member-execution-paths":
+        import completion_minor as execution_owner
+        try:
+            page = execution_owner.validate_execution_page(data.get("page"))
+        except (execution_owner.MinorMalformed, KeyError, TypeError, ValueError) as exc:
+            raise PageError("typed execution permission requires every exact bound field") from exc
+        hook = page["capability_kind"] == "hook-registration"
+        out = _section("Member execution permission", [
+            "This decision covers " + quoted(page["member"]) + " in the displayed repository.",
+            (("The displayed post-tool events call stuck-turn-notice to provide a nonblocking advisory notice "
+              "when a turn repeats failing commands or repeatedly changes one file."
+              if page["member"] == "v4.15.5" else
+              "The displayed pre-tool event calls worktree-policy. This guard checks proposed worktree commands "
+              "against the configured location policy and can block commands that violate it.")
+             if hook else "The displayed workflows automate repository execution and use existing access tokens."),
+            *( ["The pre-commit configuration runs programs locally when you commit code."] if ".pre-commit-config.yaml" in page["write_paths"] else []),
+            ("Role: implementation means this member's own worker changes."
+             if page["role"] == "implementation" else "Role: coordinator means ordered publication changes, not worker CI authority."),
+            "Approval captures prospective exact permission only. It stays dormant until ordinary admission activates it; it edits no file and starts no publication.",
+            # State only what the gates enforce: a hook registration must equal the displayed recipe,
+            # but granted CI files are limited by path alone; their content is never machine-checked.
+            ("This registration grants no secret access or token permission. Any settings change other than the displayed "
+             "registration recipe is refused, and so is any change outside the exact files below."
+             if hook else
+             "Only the exact files below may change, but Nexus-Hub does not check what goes into them. "
+             "Review every change to these files before merge: new token permissions, secret references, new triggers "
+             "and deployment steps are not blocked automatically."),
+            "Doing nothing leaves this member's required registration or CI work blocked.",
+            "Recommendation: approve only this reviewed necessary scope so the required work can proceed under unchanged preservation and verification gates.",
+        ])
+        rows = []
+        for field in sorted(page):
+            if field not in {"write_paths", "hook_recipe"}:
+                rows.append(field + ": " + json.dumps(page[field], ensure_ascii=True, sort_keys=True).replace("`", "\\u0060").replace("~", "\\u007e"))
+        out += _section("Bound identity", rows)
+        out += _section("Exact execution files", ["- " + json.dumps(path, ensure_ascii=True) for path in page["write_paths"]])
+        if hook:
+            out += _section("Exact registration recipe", ["```json", json.dumps(page["hook_recipe"], ensure_ascii=True, indent=2), "```"])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     if action == "permit-outputs":
         page = data.get("page") or {}
         path_fields = (("Original worker reads", "original_read_paths"),
@@ -1205,6 +1249,7 @@ def question_data(data: dict) -> dict:
         'supplement-scope': 'Acknowledge only the displayed exact files in the reviewed historical merge',
         'permit-manifest': 'Register only the displayed dormant member publication manifest duty',
         'permit-outputs': 'Permit only the displayed exact additional publication output files',
+        'permit-member-execution-paths': 'Permit only the displayed exact member execution capability',
         'correct-ci-read': 'Temporarily release only the displayed one-file read reservation',
         'amend-minor': 'Add only the displayed plans and exact permissions while preserving the existing run limits',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
@@ -1227,7 +1272,7 @@ def question_data(data: dict) -> dict:
             'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
-            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor') else blocker.get('request') or {},
+            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths') else blocker.get('request') or {},
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
                         'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',
