@@ -1,7 +1,7 @@
-import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { readBoundedFile } from "./safeRead";
 
 /** Local index metadata only; conversation content is opened by Codex itself. */
 export function historyEntries(index: string): { id: string; label: string; description: string }[] {
@@ -21,8 +21,7 @@ export async function openCodexHistory(): Promise<void> {
   let entries: ReturnType<typeof historyEntries>;
   try {
     const file = path.join(home, "session_index.jsonl");
-    if ((await fs.stat(file)).size > 8_000_000) { throw new Error("History index is too large."); }
-    entries = historyEntries(await fs.readFile(file, "utf8"));
+    entries = historyEntries(await readBoundedFile(file, 8_000_000, "History index is too large."));
   } catch { await vscode.window.showInformationMessage("Codex history is unavailable. Open the Codex sidebar to browse all sessions."); return; }
   const chosen = await vscode.window.showQuickPick(entries, { title: "Codex History", placeHolder: "Select a session to open in an editor tab", matchOnDescription: true });
   if (chosen) { await vscode.commands.executeCommand("vscode.openWith", vscode.Uri.from({ scheme: "openai-codex", authority: "route", path: "/local/" + chosen.id }), "chatgpt.conversationEditor", { preview: false }); }

@@ -45,15 +45,26 @@ function main() {
   const vsix = path.resolve(vsixArg);
   const report = path.resolve(reportArg);
   if (!fs.existsSync(vsix)) { throw new Error("VSIX does not exist"); }
-  if (fs.existsSync(report)) { throw new Error("Use a new delivery-report path"); }
-  const editors = discoverEditors();
-  if (!editors.length) { throw new Error("No supported locally installed editor found"); }
-  const results = install(vsix, editors);
-  const version = require(path.join(__dirname, "..", "package.json")).version;
-  if (results.some((entry) => entry.registration.toLowerCase() !== `${ID}@${version}`)) { throw new Error("An editor reported a different Settings version"); }
+  const descriptor = reserveReport(report);
+  try {
+    const editors = discoverEditors();
+    if (!editors.length) { throw new Error("No supported locally installed editor found"); }
+    const results = install(vsix, editors);
+    const version = require(path.join(__dirname, "..", "package.json")).version;
+    if (results.some((entry) => entry.registration.toLowerCase() !== `${ID}@${version}`)) { throw new Error("An editor reported a different Settings version"); }
+    fs.writeFileSync(descriptor, JSON.stringify({ vsix, version, results }, null, 2));
+    console.log(JSON.stringify({ version, results, report }));
+  } catch (error) {
+    fs.rmSync(report, { force: true });
+    throw error;
+  } finally { fs.closeSync(descriptor); }
+}
+
+/** Creates the report exclusively before any install runs, so an existing report is never overwritten. */
+function reserveReport(report) {
   fs.mkdirSync(path.dirname(report), { recursive: true });
-  fs.writeFileSync(report, JSON.stringify({ vsix, version, results }, null, 2));
-  console.log(JSON.stringify({ version, results, report }));
+  try { return fs.openSync(report, "wx"); }
+  catch (error) { throw error.code === "EEXIST" ? new Error("Use a new delivery-report path") : error; }
 }
 
 module.exports = { discoverEditors, install };

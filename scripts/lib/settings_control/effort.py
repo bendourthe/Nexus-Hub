@@ -48,7 +48,8 @@ def codex_levels(home: Path, env: Mapping[str, str], data: dict[str, Any], *, mo
                 levels = tuple(level for level in LEVELS if any(isinstance(item, dict) and item.get("effort") == level for item in advertised))
                 return levels
     except (OSError, ValueError, TypeError, AttributeError, RecursionError):
-        pass
+        # An unreadable or malformed models cache falls back to the common scale.
+        return COMMON_CODEX_LEVELS
     return COMMON_CODEX_LEVELS
 
 

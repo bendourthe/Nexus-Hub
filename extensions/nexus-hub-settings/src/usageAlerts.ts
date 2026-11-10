@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { randomUUID } from "node:crypto";
+import { readRegularFileSync } from "./safeRead";
 
 export const ALERT_PROVIDERS = ["claude", "codex", "copilot", "cursor", "gemini"] as const;
 export type AlertProvider = typeof ALERT_PROVIDERS[number];
@@ -14,9 +15,7 @@ export const USAGE_ALERTS_FILE = "usage-alerts.json";
 
 function read(file: string): Record<string, unknown> {
   try {
-    const stat = fs.lstatSync(file);
-    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16384) { throw new Error("The usage-alert preferences are redirected or too large and were preserved."); }
-    const data: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
+    const data: unknown = JSON.parse(readRegularFileSync(file, {maxBytes: 16384, refuseSymlink: true, refusal: "The usage-alert preferences are redirected or too large and were preserved."}));
     if (!data || typeof data !== "object" || Array.isArray(data)) { throw new Error("Usage-alert preferences must be a JSON object."); }
     return data as Record<string, unknown>;
   } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") { return {}; } throw error; }

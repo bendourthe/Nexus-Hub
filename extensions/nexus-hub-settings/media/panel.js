@@ -52,7 +52,6 @@
       var chosen = shared && shared.value || (values.length === 1 ? values[0] : "");
       if (!effort || effort.choices.indexOf(chosen) < 0) { chosen = ""; }
       var conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(shared.state) >= 0) || native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && (row.matchesDefault === false || row.matchesDefault === undefined && effective(row) !== chosen)); });
-      var unsupported = native.some(function (row) { return row.state === "not-settable"; });
       return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : chosen ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions." };
     }
     function button(label, key, action, attrs) {

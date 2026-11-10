@@ -1,15 +1,14 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { randomUUID } from "node:crypto";
+import { readRegularFileSync } from "./safeRead";
 
 export interface SessionDefaults { fastMode: boolean | null; fastRevision: string; codexTabs: boolean }
 export const SESSION_DEFAULTS_FILE = "session-defaults.json";
 
 function read(file: string): Record<string, unknown> {
   try {
-    const stat = fs.lstatSync(file);
-    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16384) { throw new Error("The session defaults file is redirected or too large and was preserved."); }
-    const value: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
+    const value: unknown = JSON.parse(readRegularFileSync(file, {maxBytes: 16384, refuseSymlink: true, refusal: "The session defaults file is redirected or too large and was preserved."}));
     if (!value || typeof value !== "object" || Array.isArray(value)) { throw new Error("Session defaults must be a JSON object."); }
     return value as Record<string, unknown>;
   } catch (error) {

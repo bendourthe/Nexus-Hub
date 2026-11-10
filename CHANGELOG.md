@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Local preference readers check the file they read.** The usage monitors, the Settings extension, and its maintainer scripts now open each preference, session-default, alert, history, and model-cache file once and apply the type, size, and link checks to that open file, so the path cannot be swapped between the check and the read. Behavior is otherwise unchanged; on Windows, which has no no-follow open, a link is refused after the open as a best effort.
+
 - **PowerShell guards stay on for a malformed settings file.** On PowerShell 7 (Linux and macOS), a `~/.nexus-hub/guardrails.json` whose top level was a one-element array, such as `[{"git_safety": false}]`, switched the git, secret, edit-preservation, and large-file guards off, because PowerShell 7 unwraps the array. The guards now act on an off switch only in a top-level JSON object, as Windows PowerShell 5.1 and the Bash guards already did.
 - **Minor-run discovery avoids repeated Git checks for historical records.** Each discovery batch checks Git ownership before and after reading fresh record bytes, preserving the existing observation budget, approvals and refusal rules.
 

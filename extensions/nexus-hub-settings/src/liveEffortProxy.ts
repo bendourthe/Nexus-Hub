@@ -1,3 +1,4 @@
+import { readRegularFileSync } from "./safeRead";
 import { startNativeStream } from "./nativeStreamProcess";
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
@@ -293,8 +294,8 @@ export function runProxy(config: ProxyConfig, originalArgs: string[]): void {
       clearTimeout(statusTimer); publishStatus();
     });
     try {
-      if (config.modelsCache && fs.statSync(config.modelsCache).size <= 4_000_000) {
-        const data: unknown = JSON.parse(fs.readFileSync(config.modelsCache, "utf8")); const models = new Map<string, string[]>();
+      if (config.modelsCache) {
+        const data: unknown = JSON.parse(readRegularFileSync(config.modelsCache, { maxBytes: 4_000_000, refusal: "The model metadata is unavailable or too large." })); const models = new Map<string, string[]>();
         if (object(data) && Array.isArray(data.models)) {
           for (const model of data.models) { if (object(model) && typeof model.slug === "string" && Array.isArray(model.supported_reasoning_levels)) { models.set(model.slug, model.supported_reasoning_levels.filter(object).map((entry) => entry.effort).filter((level): level is string => typeof level === "string")); } }
         }

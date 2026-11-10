@@ -92,7 +92,8 @@ async function hostRun(code, dirs, ctx, label, trusted) {
   fs.rmSync(out, { force: true });
   const userSettings = path.join(dirs.ud, "User", "settings.json");
   fs.mkdirSync(path.dirname(userSettings), { recursive: true });
-  const settings = fs.existsSync(userSettings) ? JSON.parse(fs.readFileSync(userSettings, "utf8")) : {};
+  let settings = {};
+  try { settings = JSON.parse(fs.readFileSync(userSettings, "utf8")); } catch (error) { if (error.code !== "ENOENT") { throw error; } }
   settings["security.workspace.trust.enabled"] = true;
   fs.writeFileSync(userSettings, JSON.stringify(settings, null, 2));
   const args = [
