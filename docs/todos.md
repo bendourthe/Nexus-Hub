@@ -62,6 +62,7 @@
 - [x] Complete installed native qualification and the real archive with zero newly broken links.
 - [x] Complete closing integration, cleanup, and native minor completion; final local-only data backups and retirement checks pass.
 
+- [x] Restructure the guide's Home around the README: README order, the README animations beside the guide, a shorter installer terminal, and the repeated sections removed. Evidence: [Home restructure evidence](releases/v4/v4.15/development/guide-home-restructure-evidence.md).
 - [x] Make the concise README the design for both languages: replace `README_zh.md` with a full Chinese translation, link it from the English README, and retarget four tests to the reference guides that now hold their facts. 20 tests pass; both READMEs render with identical structure and resolving links. [Evidence](releases/v4/v4.15/development/readme-chinese-replacement-evidence.md).
 
 - [x] Reorder README sections: latest release note first, Command Cheatsheet after Platforms, License last, and the 4.15.0 preview sentence removed. GFM rendering, 7 groups and 24 commands, 28 local links, and unchanged table/image/link counts verified. [Evidence](releases/v4/v4.15/development/readme-section-order-evidence.md).

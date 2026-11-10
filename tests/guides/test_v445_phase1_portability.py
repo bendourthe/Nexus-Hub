@@ -2,8 +2,8 @@
 
 The third review round asked for four things on this one figure, and each is a measurement
 rather than a description: nothing is revealed in steps, every platform carries its own mark,
-every connector triangle sits on the center of its own box, and the mid-task strip uses the
-width the figure already had.
+and every connector triangle sits on the center of its own box. (The mid-task strip left Home in
+the 2026-11-10 restructure, where the handoff animation replaced it, and its width test retired.)
 
 The centering assertion is the one worth keeping. A flex row with percentage margins LOOKED
 centered at the width it was authored for and drifted at every other width, because its spacing
@@ -53,18 +53,13 @@ WIDTHS = (1440, 1024, 720, 480, 320)
 
 PROBE = """() => {
   const fig = document.querySelector('#nhg-commands .ph');
-  const boxes = [...fig.querySelectorAll('.ph-src, .ph-target, .ph-switch')];
+  const boxes = [...fig.querySelectorAll('.ph-src, .ph-target')];
   const lanes = [...fig.querySelectorAll('.ph-lane')];
   const live = lanes.filter(l => l.getBoundingClientRect().width > 0);
   const targets = [...fig.querySelectorAll('.ph-target')];
   const fan = fig.querySelector('.ph-fan').getBoundingClientRect();
   const anchors = live.length === targets.length
     ? targets.map(t => t.getBoundingClientRect()) : [fan];
-  const sw = fig.querySelector('.ph-switch');
-  const cs = getComputedStyle(sw);
-  const inner = sw.getBoundingClientRect().width
-    - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
-    - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
   return {
     faded: boxes.filter(b => parseFloat(getComputedStyle(b).opacity) < 0.99).length,
     marks: targets.map(t => {
@@ -77,8 +72,6 @@ PROBE = """() => {
       const lr = l.getBoundingClientRect(), a = anchors[i] || fan;
       return Math.abs((lr.left + lr.width / 2) - (a.left + a.width / 2));
     }),
-    runWidth: Math.round(fig.querySelector('.ph-run').getBoundingClientRect().width),
-    innerWidth: Math.round(inner),
     dots: fig.querySelectorAll('.ph-dot').length,
     overflow: Math.round(fig.scrollWidth - fig.clientWidth),
   };
@@ -139,20 +132,6 @@ def test_each_triangle_sits_on_the_centre_of_its_own_box(playwright_mod) -> None
                 data = _probe(browser, width)
                 worst = max(data["offsets"])
                 assert worst <= 2, f"{width}: a triangle is {worst:.1f}px off center"
-        finally:
-            browser.close()
-
-
-def test_the_mid_task_strip_uses_the_width_it_has(playwright_mod) -> None:
-    """It was a left-packed row inside a full-width box, so most of the box was empty."""
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            for width in (1440, 1024):
-                data = _probe(browser, width)
-                assert data["runWidth"] >= data["innerWidth"] - 2, (
-                    f"{width}: strip {data['runWidth']}px inside {data['innerWidth']}px"
-                )
         finally:
             browser.close()
 

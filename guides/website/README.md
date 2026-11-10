@@ -10,13 +10,14 @@ This directory holds the public-facing Nexus Hub guide (two offline pages), and 
 | `training.html` | The Training page, opened by the guide's Training tab. A second self-contained offline page that must travel with the guide. |
 | `shared/` | Pieces both pages carry (tokens, base styles, menu, footer, theme, `NexusSeq`, the page opening, the outline, motion rules), listed in `shared/fragments.json` and inlined into each page by `scripts/stamp_guide_shared.py`. Edit them here, never in a page. |
 | `src/` | Training-only sources: the Sky Sentinel game engine, the story (`training-story.json` and its schema), and the story renderer. Inlined into `training.html` by the same stamp. |
-| `assets/ml-boat.webp` | The one photo held outside the HTML. Must travel with the guide. |
+| `assets/ml-boat.webp` | The Foundations photo held outside the HTML. Must travel with the guide. |
+| `assets/nexus-hub-*.gif`, `assets/nexus-hub-*.png` | The README animations Home shows (workflow, settings, usage, continuity, platforms), each with its still poster for reduced motion. Byte-identical copies of `assets/readme/`; a guide test fails when they drift, so refresh both together after `scripts/render_readme_demos.py`. Must travel with the guide. |
 
 The guide is two offline pages: `nexus-hub-guide.html` (orientation, installation, Foundations, Cheatsheets) and `training.html` (Training), plus the `assets/` folder beside them. Neither has a runtime network dependency. Why two pages: [decision 2026-10-04](../../docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md).
 
 ## The interactive guide
 
-`nexus-hub-guide.html` has zero runtime dependencies. No server, no CDN, no remote fonts, nothing to install. Every asset is local: all but one are inline, and `assets/ml-boat.webp` sits beside the file.
+`nexus-hub-guide.html` has zero runtime dependencies. No server, no CDN, no remote fonts, nothing to install. Every asset is local: the photo `assets/ml-boat.webp` and the Home animations in `assets/` sit beside the file, and everything else is inline. The animations load lazily as Home scrolls, and a `<picture>` source shows each still poster instead under reduced motion.
 
 The living-room photo stays inline deliberately. The world-model demo uploads it into a WebGL texture, and under `file://` a sibling file counts as cross-origin, so `texImage2D` refuses it and the demo dies silently. The sailboat photo is only ever painted through an SVG `<image>`, never read back, so it can live outside the HTML and keeps the file under its byte budget.
 

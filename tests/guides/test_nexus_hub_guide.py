@@ -809,7 +809,8 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
 
 def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert "Raw Prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
+    # 2026-11-10: the before-and-after rows sit in Why Nexus Hub, beside the guardrail figure.
+    assert "Why Nexus Hub" in home, "the comparison lives in the Why Nexus Hub section"
     assert '<div class="cmp-head">' in home
     head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
@@ -822,18 +823,6 @@ def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
     assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
     assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
-
-
-def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    block = re.search(r'<details class="definition-details">([\s\S]*?)</details>', home)
-    assert block and 'class="definition-list"' in block.group(1)
-    for term in ("Command", "Skill", "Hook", "Agent", "Rule"):
-        assert re.search(rf"<dt[^>]*>{re.escape(term)}</dt>", block.group(1)), (
-            f"missing definition term: {term}"
-        )
-    assert 'data-go="foundations"' in block.group(1)
-    assert 'data-go="cheatsheets"' not in block.group(1)
 
 
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
