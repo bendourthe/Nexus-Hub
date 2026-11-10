@@ -92,6 +92,8 @@ def test_the_installer_terminal_keeps_its_newest_line_in_a_fixed_frame(playwrigh
         try:
             page = browser.new_page(viewport={"width": 1440, "height": 1000})
             page.goto(GUIDE.as_uri())
+            # The guide opens the detected system's tab, so select Windows explicitly on any host.
+            page.locator("#install-tab-win").click()
             terminal = page.locator('[data-tm="win"]')
             terminal.scroll_into_view_if_needed()
             terminal.evaluate("el => new Promise(r => { const t = setInterval(() => { if (el.querySelectorAll('.tm-l.is-on').length > 20) { clearInterval(t); r(); } }, 50); })")
