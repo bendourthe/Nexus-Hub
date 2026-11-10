@@ -22,9 +22,10 @@ it.skipIf(process.platform !== "win32")("uses real SQLite and Windows DPAPI only
       "[Security.Cryptography.DataProtectionScope]::CurrentUser); " +
       "[Console]::Out.Write([Convert]::ToBase64String($p)); [Array]::Clear($b,0,$b.Length)";
     const powershell = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+    // Fixture setup only: a cold Windows PowerShell start on a busy runner can exceed 10 seconds.
     const wrapped = Buffer.from(execFileSync(powershell,
       ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", protect],
-      { input: key.toString("base64"), encoding: "utf8", windowsHide: true, timeout: 10000, maxBuffer: 4096 }).trim(), "base64");
+      { input: key.toString("base64"), encoding: "utf8", windowsHide: true, timeout: 30000, maxBuffer: 4096 }).trim(), "base64");
     const writeKey = (value: Buffer) => writeFileSync(localState, JSON.stringify({
       os_crypt: { encrypted_key: Buffer.concat([Buffer.from("DPAPI"), value]).toString("base64") }
     }));

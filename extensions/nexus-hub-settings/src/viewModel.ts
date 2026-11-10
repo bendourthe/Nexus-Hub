@@ -1,3 +1,8 @@
+import type { EditorCapabilities } from "./editorCapabilities";
+import type { AlertProvider, UsageAlerts } from "./usageAlerts";
+import type { LiveEffortSummary } from "./liveEffort";
+import type { UiEffortSummary } from "./vendorUi";
+import type { SessionDefaults } from "./sessionDefaults";
 import { isDeepStrictEqual } from "node:util";
 import type { EditorLayers } from "./editorWrites";
 import { ExplainData, ExplainWrite, ShowRecord, ShowReport, State, Surface } from "./types";
@@ -72,6 +77,7 @@ export function badgeFor(state: State, detail?: string | null, layer?: string | 
 
 export interface RowView {
   tool: string;
+  installed?: boolean;
   toolLabel: string;
   surface: Surface;
   surfaceLabel: string;
@@ -85,6 +91,8 @@ export interface RowView {
   /** The row's tool can be written for this control (set is allowed for it). */
   canSet: boolean;
   removable: { tool: string; weakens: boolean; reason: string } | null;
+  matchesDefault?: boolean;
+  mappedEffort?: string;
 }
 
 export interface SourceView {
@@ -155,6 +163,50 @@ export interface ViewModel {
   error: ErrorCard | null;
   notice: Notice | null;
   busy: boolean;
+  preferences?: PreferencesSummary;
+  codexAvailable?: boolean;
+  liveEffort?: LiveEffortSummary;
+  uiEffort?: UiEffortSummary;
+  hubVersion?: string;
+  sessionDefaults?: SessionDefaults;
+  usageAlerts?: UsageAlerts;
+  usageAlertProviders?: AlertProvider[];
+  editorCapabilities?: EditorCapabilities;
+}
+
+export interface PreferencesSummary {
+  effort: string;
+  effortStatus: string;
+  needsAttention: boolean;
+  guardsEnabled: number;
+  guardsAvailable: number;
+}
+
+export const GUARDRAIL_IDS = ["git_safety", "secret_scan", "edit_preservation", "large_file_warning", "git_guardrails"] as const;
+
+/** A preference is distinct from a platform's effective value. Never hide an override behind a saved choice. */
+export function summarizePreferences(model: Pick<ViewModel, "controls">): PreferencesSummary {
+  const control = model.controls.find((item) => item.id === "effort");
+  const shared = control?.rows.find((row) => row.tool === "internal");
+  const native = control?.rows.filter((row) => row.tool !== "internal" && row.installed !== false && row.state !== "tool-not-installed") ?? [];
+  const effective = (row: RowView): string | null => row.state === "overridden-by" ? row.layerValue : row.value;
+  const values = [...new Set(native.filter((row) => row.canSet).map(effective).filter((value): value is string => !!value))];
+  const effort = shared?.value && control?.choices.includes(shared.value) ? shared.value : values.length === 1 && control?.choices.includes(values[0]!) ? values[0]! : "";
+  const conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].includes(shared.state)) || native.some((row) => row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state) || (effort !== "" && (row.matchesDefault === false || (row.matchesDefault === undefined && effective(row) !== effort)))));
+  const guards = model.controls.filter((item) => (GUARDRAIL_IDS as readonly string[]).includes(item.id));
+  const available = guards.filter((item) => item.canApply && item.rows.some((row) => !["cannot-detect", "unverified-for-version"].includes(row.state)));
+  const enabled = available.filter((item) => {
+    const row = item.rows.find((value) => value.tool === "internal") ?? item.rows[0];
+    const value = row ? effective(row) : null;
+    return value === "on" || value === "true" || (row?.state === "tool-default" && item.id !== "git_guardrails");
+  }).length;
+  return {
+    effort,
+    effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : effort ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions.",
+    needsAttention: conflict || available.length !== guards.length,
+    guardsEnabled: enabled,
+    guardsAvailable: available.length,
+  };
 }
 
 export const NEW_SESSIONS_NOTE = "Every default applies to new sessions only. A session that is already running keeps the value it started with.";
@@ -167,7 +219,7 @@ const POLICY_CAVEAT =
   "An organization policy can lock this VS Code setting and VS Code does not report policies to extensions. If the setting shows a lock icon in the Settings editor, your organization controls it.";
 
 export function emptyModel(profile: string, platform: string): ViewModel {
-  return {
+  const model: ViewModel = {
     status: "ready",
     readOnly: false,
     readOnlyReason: null,
@@ -178,6 +230,7 @@ export function emptyModel(profile: string, platform: string): ViewModel {
     notice: null,
     busy: false,
   };
+  return model;
 }
 
 /** The panel's error state: one card, no controls, and no cached or default values shown as current. */
@@ -299,6 +352,7 @@ function rowFor(record: ShowRecord, report: ShowReport, fields: RowFields): RowV
   const badge = badgeFor(fields.state, fields.state === "overridden-by" ? null : fields.detail, fields.layer);
   return {
     tool: record.tool,
+    installed: report.tools[record.tool]?.installed,
     toolLabel: toolLabel(report, record.tool),
     surface: record.surface,
     surfaceLabel: SURFACE_LABEL[record.surface],
@@ -313,6 +367,8 @@ function rowFor(record: ShowRecord, report: ShowReport, fields: RowFields): RowV
     removable: record.removable_override
       ? { tool: record.tool, weakens: record.removable_override.weakens_safety, reason: record.removable_override.reason }
       : null,
+    matchesDefault: record.matches_default,
+    mappedEffort: record.mapped_effort,
   };
 }
 
@@ -433,7 +489,7 @@ export function buildModel(input: BuildInput): ViewModel {
     const explain = explains[id];
     return explain ? [controlView(id, explain, report, report.records.filter((r) => r.control === id), inspect)] : [];
   });
-  return {
+  const model: ViewModel = {
     status: "ready",
     readOnly: !input.trusted,
     readOnlyReason: input.trusted ? null : "This workspace is not trusted, so the panel shows the current state and cannot change anything. Trust the workspace to change a default.",
@@ -444,4 +500,6 @@ export function buildModel(input: BuildInput): ViewModel {
     notice: input.notice ?? null,
     busy: false,
   };
+  model.preferences = summarizePreferences(model);
+  return model;
 }

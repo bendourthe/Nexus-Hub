@@ -144,6 +144,7 @@ export class CursorUsageRuntime implements vscode.Disposable {
     this.store = this.createStore();
     this.state = this.hydrate();
     this.warningView = new WarningViewProvider(context.extensionUri);
+    this.disposables.push(this.warningView.watchAlerts());
   }
 
   public start(): void {

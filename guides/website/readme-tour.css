@@ -1,0 +1,8 @@
+.tour-layer{position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden;border-radius:inherit}
+.tour-layer[hidden]{display:none}
+.tour-layer > svg.tour-shade{position:absolute;inset:0;width:100%;height:100%;stroke:none;stroke-width:0}
+.tour-shade .tour-outline{fill:none;stroke:#4adbe6;stroke-opacity:.8;stroke-width:1.2}
+.tour-cursor{position:absolute;left:0;top:0;width:23px;height:30px;filter:drop-shadow(0 2px 3px #0009)}
+.tour-cursor>svg{width:100%;height:100%}
+.tour-cursor i{display:none;position:absolute;width:30px;height:30px;border:2px solid #56e5ee;border-radius:50%;left:-12px;top:-12px;background:#56e5ee22}
+.tour-cursor.is-click i{display:block}

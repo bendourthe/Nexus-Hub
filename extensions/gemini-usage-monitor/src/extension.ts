@@ -82,6 +82,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // The warning sidebar starts hidden; it is revealed only when a threshold fires.
   void vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
   warningView = new WarningViewProvider();
+  context.subscriptions.push(warningView.watchAlerts());
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warningView, {
       webviewOptions: { retainContextWhenHidden: true },
