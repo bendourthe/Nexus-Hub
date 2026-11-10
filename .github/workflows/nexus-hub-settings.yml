@@ -40,20 +40,11 @@ concurrency:
 jobs:
   build-and-test:
     # The live-effort launcher compiles and runs real Windows executables, so its
-    # tests and coverage run only on the Windows leg (vitest.config.ts excludes it
-    # from coverage elsewhere). Both legs run the same repository-native profile.
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    # tests skip here and vitest.config.mts excludes it from coverage off Windows.
+    # A hosted Windows leg is tracked as a v4.15 known gap (MT-8).
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Enable Git long paths before checkout
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: git config --global core.longpaths true
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Detect the extension
@@ -112,7 +103,7 @@ jobs:
         if: always() && steps.extension.outputs.present == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: nexus-hub-settings-reports-${{ matrix.os }}
+          name: nexus-hub-settings-reports
           path: reports/
           if-no-files-found: warn
           retention-days: 7

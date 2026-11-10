@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-05
-**Open items**: 119
+**Last updated**: 2026-11-10
+**Open items**: 120
 
 ## v4.15.0
 
@@ -15,7 +15,7 @@
 | Deferred (DF) | 38 | 1 |
 | Bugs / regressions (BG) | 5 | 0 |
 | Warnings (WN) | 30 | 0 |
-| Missing tests / coverage gaps (MT) | 7 | 0 |
+| Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
 ### Open Items
@@ -1624,6 +1624,16 @@
 
 - **Migrated from**: v4.14.8#MT-19 on 2026-11-04 (reason: user-deferred)
 - **Migration evidence**: left open by v4.14.8, the last plan of v4.14
+
+#### MT-8: The native live-effort launcher has no hosted Windows CI run
+
+**Source phase**: v4.15 settings integration (PR #626)
+
+**Plan reference**: [settings integration handbook review](development/settings-multi-host-distribution-handbook-review.md)
+
+**Reason**: `extensions/nexus-hub-settings/test/liveEffort.test.ts` compiles and runs the real Windows launcher, so it runs only on Windows and the Linux coverage gate excludes `src/liveEffort.ts`. A `windows-latest` leg added to `nexus-hub-settings.yml` compiled the launcher, but three launcher tests failed on the hosted runner: the launcher exited non-zero before writing output ("Launcher failed", then 45-second timeouts). The same tests pass on a developer Windows machine. The test does not capture the launcher's stderr, so the cause is unknown, and the leg was removed rather than merged red.
+
+**Suggested next step**: capture the launcher's stderr and exit code in the test, re-add a `windows-latest` leg, and fix the hosted-runner difference; then make the Windows leg measure `src/liveEffort.ts` coverage.
 
 #### QG-4: The agent label target was missed by one (7 of 10, target 8)
 

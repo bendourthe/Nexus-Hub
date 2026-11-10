@@ -131,19 +131,12 @@ def test_every_action_is_pinned_to_an_immutable_sha(workflow: dict[str, Any]) ->
             )
 
 
-def _checkout_index(steps: list[dict[str, Any]]) -> int:
-    """Checkout follows only the Windows long-path setting, which must precede it."""
-    index = next(i for i, step in enumerate(steps) if step.get("uses", "").startswith("actions/checkout@"))
-    assert all(step.get("if") == "runner.os == 'Windows'" for step in steps[:index]), "only Windows setup precedes checkout"
-    return index
-
-
 def test_the_first_step_after_checkout_detects_the_extension(
     build_steps: list[dict[str, Any]],
 ) -> None:
     """The workflow lands before the extension, so a missing package must not fail it."""
-    checkout = _checkout_index(build_steps)
-    detect = build_steps[checkout + 1]
+    assert build_steps[0]["uses"].startswith("actions/checkout@")
+    detect = build_steps[1]
     assert detect["id"] == "extension"
     assert f"{EXTENSION_DIR}/package.json" in detect["run"]
     assert "present=true" in detect["run"] and "present=false" in detect["run"]
@@ -153,7 +146,7 @@ def test_the_first_step_after_checkout_detects_the_extension(
 def test_every_step_after_detection_is_conditioned_on_it(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    for step in build_steps[_checkout_index(build_steps) + 2 :]:
+    for step in build_steps[2:]:
         label = step.get("name") or step.get("uses")
         assert PRESENT in str(step.get("if", "")), (
             f"{label} must be conditioned on the detection output, or a pull request "
