@@ -75,7 +75,8 @@ def test_sequencer_advances_steps_in_document_order(playwright_mod) -> None:
             page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().running === true")
             seen = []
-            for _ in range(40):
+            # The annotation's steps last longer than the old Home strip's; allow up to 30 seconds.
+            for _ in range(250):
                 st = page.evaluate(STATE)
                 seen.append(st["step"])
                 if st["step"] >= st["total"]:
