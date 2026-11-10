@@ -39,7 +39,10 @@ function Test-NexusGuardrailDisabled {
     try {
         $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
         if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
-        $guardSettings = Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
         if ($guardSettings -isnot [pscustomobject]) { return $false }
         $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
         return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)

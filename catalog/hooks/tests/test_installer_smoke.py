@@ -747,6 +747,14 @@ DEV_ONLY_SCRIPTS = {
     # Repo-internal shared-fragment stamper (v4.13.10): inlines guides/website/shared/
     # into both guide pages; --check fails on drift. Edits this repository only.
     "stamp_guide_shared.py",
+    # Repo-internal README capture tools (v4.15): render the README animations and the
+    # generated command cheatsheet from the guide pages and shipped components. Edit this
+    # repository only and need Playwright and Node, which an end-user install does not carry.
+    "readme_cheatsheet.py",
+    "readme_guide_capture.py",
+    "readme_provider_capture.py",
+    "readme_showcase_capture.py",
+    "render_readme_demos.py",
     # Repo-internal model-map stamper (v4.13.10): copies the bundled model map into
     # guides/website/training.html so no model id there is hand-typed; --check fails on drift.
     "stamp_training_models.py",
