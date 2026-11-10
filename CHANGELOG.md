@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **PowerShell guards stay on for a malformed settings file.** On PowerShell 7 (Linux and macOS), a `~/.nexus-hub/guardrails.json` whose top level was a one-element array, such as `[{"git_safety": false}]`, switched the git, secret, edit-preservation, and large-file guards off, because PowerShell 7 unwraps the array. The guards now act on an off switch only in a top-level JSON object, as Windows PowerShell 5.1 and the Bash guards already did.
 - **Minor-run discovery avoids repeated Git checks for historical records.** Each discovery batch checks Git ownership before and after reading fresh record bytes, preserving the existing observation budget, approvals and refusal rules.
 
 - **Cursor Usage Monitor reads encrypted Windows sessions again.** Version 0.1.3 decrypts Cursor's named encrypted session in memory using its adjacent application key and Windows data protection. Expanded access requires renewed consent. Unsupported formats, platforms and native failures stop safely; plaintext sessions remain supported. The normal installer builds this repaired source, with native Windows regression coverage.
