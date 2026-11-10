@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The Gemini Usage Monitor replaces older builds that cannot find the new Antigravity IDE.** Antigravity IDE builds from late October 2026 no longer ship the built-in `extensions/antigravity` folder, so monitor builds that only looked for it reported "This monitor reads usage from the Antigravity IDE and only works inside Antigravity" inside Antigravity itself. The detection fix (the editor's `product.json` names and the user's own `agy --hub` process) was already on develop at version 0.1.0, below an unreleased 0.1.1 build that some machines carry, so an update would not have replaced that build. The monitor is now version 0.1.2. Updated: `extensions/gemini-usage-monitor/package.json`, `package-lock.json` and `README.md`.
 - **Minor-run discovery avoids repeated Git checks for historical records.** Each discovery batch checks Git ownership before and after reading fresh record bytes, preserving the existing observation budget, approvals and refusal rules.
 
 - **Cursor Usage Monitor reads encrypted Windows sessions again.** Version 0.1.2 decrypts Cursor's named encrypted session in memory using its adjacent application key and Windows data protection. Expanded access requires renewed consent. Unsupported formats, platforms and native failures stop safely; plaintext sessions remain supported. The normal installer builds this repaired source, with native Windows regression coverage.
