@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "e835e9410b4b6458639b5ed87d2a7bb51e23db10478b7f5f6e82c8b10c724603",
       "docs/handbooks/_sources/distribution/source.md": "220cdff9fc21e09848434ac6a6b5cc6697b06d5b21acf639aba24bbe08f88438",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "7d152944aabfad7e7bdfc00835c6c222d5c67fb4f15ff2b5f6aa58ec386efa9b",
-      "scripts/installer.sh": "6ab97e1eac4d3c61886d02cac0817cd388e07befb47d2ebd0b9ba0a797ca5fa9",
+      "scripts/installer.ps1": "65713bc241bf7fb279dcddc30d82294b66357dfe6a23e85f444eb67598f24618",
+      "scripts/installer.sh": "6c8fd2e071f4ebe05f72db3e5cc3cab11b59b6f0c8a62185d6bdff4a027b9697",
       "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
@@ -25,7 +25,7 @@
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "9fe46d95b27cbfc0208b07717e7bb474ac563f39e1e20a8080fced7aa76e0a32",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "63a2233c0e109088f3b1c5996b28b02864108dce68c2ba8cf8efbdf492e16207",
+      "scripts/lib/integrations/cursor.py": "3032366da9ac7f932cb0592c3c0f507c3f249c6f07fba92242ca43ab88dc5ce6",
       "scripts/lib/integrations/aider.py": "821c49d0cf5207397b837ddccc827fe2ca25146d1c7051ced63da556e5a1fc33",
       "configs/platform-defaults.json": "453a8c2cf30bba598b6e3e25592fa6f041142928df7b2a9960ba95b88f42cf86",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
@@ -35,8 +35,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.14/development/minor-close-handbook-review.md",
-      "evidence_sha256": "8c19e58b8c64768f2bbf5290281ff24379ce95c89b068428c17e9b3ea03ac17c"
+      "evidence": "docs/releases/v4/v4.15/development/settings-multi-host-distribution-handbook-review.md",
+      "evidence_sha256": "3756ad302aff6dd6e848093bdb6e2c60656b75efd482cd2de85409661cead283"
     },
     "build": {
       "status": "pass",

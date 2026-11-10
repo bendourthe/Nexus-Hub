@@ -10,7 +10,7 @@ An extension for the Google Antigravity IDE that monitors your Antigravity model
 - **Status bar**: Shows the Gemini group's 5-hour and weekly usage with the Antigravity icon.
 - **SVG tooltip**: Hover for theme-aware progress bars (in Google blue, `#4285F4`) for every window of every model group, with reset timers.
 - **Dashboard panel**: Click for a full usage dashboard with your plan (for example "Google AI Pro"), both model groups, and throttle / pacing / switch-group recommendations.
-- **Alerts**: A warning card opens in the sidebar the first time a threshold is crossed, and closes itself after one minute.
+- **Alerts**: A warning card opens in the sidebar the first time a threshold is crossed, and closes itself after 10 seconds.
 - **Fail-soft**: When the language server is not running yet or the response has no usable data, the monitor keeps cached data and explains what to do instead of erroring.
 
 ## Setup
@@ -146,3 +146,7 @@ npm run package
 npm install --no-save --package-lock=false sharp
 npm run generate:icons
 ```
+
+## Usage Alerts
+
+Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch and separate Claude Code, Codex, GitHub Copilot, Cursor, and Gemini / Antigravity switches. The master switches every provider together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.

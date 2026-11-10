@@ -48,7 +48,7 @@ export function buildHtml(parts: HtmlParts): string {
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="${attr(contentSecurityPolicy(parts.cspSource, parts.nonce))}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus-Hub Settings</title>
+<title>Nexus Hub Settings</title>
 <link rel="stylesheet" href="${attr(parts.styleUri)}">
 </head>
 <body>

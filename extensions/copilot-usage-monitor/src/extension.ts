@@ -1,3 +1,4 @@
+import { usageAlertEnabled } from "./alertPreferences";
 import * as vscode from "vscode";
 import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
@@ -62,6 +63,7 @@ export function activate(context: vscode.ExtensionContext): void {
   registerUpdateWatcher(context, "Copilot Usage Monitor");
   void vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
   warningView = new WarningViewProvider();
+  context.subscriptions.push(warningView.watchAlerts());
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warningView, {
       webviewOptions: { retainContextWhenHidden: true },
@@ -95,7 +97,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const urgency = getActiveUrgency(result.data);
       await store.saveLastUrgency(urgency);
       const fired = await evaluateAndNotify(result.data);
-      if (!fired && previousUrgency && URGENCY_ORDER[urgency] > URGENCY_ORDER[previousUrgency]) {
+      if (usageAlertEnabled("copilot") && !fired && previousUrgency && URGENCY_ORDER[urgency] > URGENCY_ORDER[previousUrgency]) {
         showAutoDismissNotification(`Copilot Usage: ${getRecommendation(result.data).message}`);
       }
     } else if (
