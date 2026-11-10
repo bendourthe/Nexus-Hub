@@ -9,16 +9,19 @@ vi.mock("../src/vendorUiInstall", () => ({ installVendorUi: vi.fn() }));
 let directory: string;
 let original: string | undefined;
 let subscriptions: { dispose(): unknown }[];
+// The native UI bridge is Windows-only; these tests exercise that path with the vendor installer mocked, on every runner.
+const platform = Object.getOwnPropertyDescriptor(process, "platform")!;
+const setPlatform = (value: NodeJS.Platform) => Object.defineProperty(process, "platform", { ...platform, value });
 const write = (value: unknown) => fs.writeFile(path.join(directory, "preferences.json"), JSON.stringify({ default_effort: value }));
 const setup = () => installNativeUi({ subscriptions } as never);
 beforeEach(async () => {
-  stub.reset(); subscriptions = [];
+  stub.reset(); subscriptions = []; setPlatform("win32");
   original = process.env.NEXUS_HUB_HOME; directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-ui-")); process.env.NEXUS_HUB_HOME = directory;
   vi.mocked(installVendorUi).mockReset().mockResolvedValue({ changed: false, receipt: "receipt" });
   await write("medium");
 });
 afterEach(async () => {
-  env.appName = "Visual Studio Code"; env.appRoot = "";
+  env.appName = "Visual Studio Code"; env.appRoot = ""; Object.defineProperty(process, "platform", platform);
   subscriptions.forEach((entry) => entry.dispose());
   await fs.rm(directory, { recursive: true, force: true });
   if (original === undefined) { delete process.env.NEXUS_HUB_HOME; } else { process.env.NEXUS_HUB_HOME = original; }
@@ -85,5 +88,10 @@ it("preserves an unsupported build and reports its adapter failure", async () =>
 it("does not install adapters in an untrusted workspace or without native vendors", async () => {
   expect(await setup()).toBeUndefined();
   stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true }); stub.trusted = false;
+  expect(await setup()).toBeUndefined(); expect(installVendorUi).not.toHaveBeenCalled();
+});
+it.each(["linux", "darwin"] as const)("does not install adapters on %s", async (name) => {
+  setPlatform(name); env.appName = "Cursor";
+  stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true });
   expect(await setup()).toBeUndefined(); expect(installVendorUi).not.toHaveBeenCalled();
 });

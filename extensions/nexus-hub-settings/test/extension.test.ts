@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPEN_COMMAND, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
+import { OPEN_COMMAND, refreshCodexTab, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
 import { Uri, stub } from "./vscode-stub";
 import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
 import { SettingsController } from "../src/controller";
@@ -224,4 +224,28 @@ it("registers the Codex toolbar before slow native adapter setup completes", asy
     expect(stub.executed).toContain("chatgpt.newCodexPanel");
     release(undefined); await loading;
   } finally { release(undefined); ctx.subscriptions.forEach(item => item.dispose()); live.mockRestore(); native.mockRestore(); }
+});
+
+it("refreshes Codex tabs through its recovery adapter and explains every unavailable state", async () => {
+  stub.trusted = false; await refreshCodexTab(); expect(stub.warnings).toEqual([]);
+  stub.trusted = true; await refreshCodexTab();
+  expect(stub.warnings.at(-1)?.message).toContain("not installed");
+  const refresh = vi.fn().mockResolvedValue(undefined); const activateCodex = vi.fn().mockResolvedValue({});
+  stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: false, activate: activateCodex} as never);
+  await refreshCodexTab(); expect(activateCodex).toHaveBeenCalledTimes(1); expect(stub.warnings.at(-1)?.message).toContain("Reload this window");
+  stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: true, exports: {nexusRefreshTab: refresh}});
+  const before = stub.warnings.length; await refreshCodexTab();
+  expect(refresh).toHaveBeenCalledTimes(1); expect(stub.warnings).toHaveLength(before);
+});
+
+it("reports a provider restart that cannot run instead of restarting other extensions", async () => {
+  stub.vendorExtensions.set("anthropic.claude-code", {extensionPath: "", isActive: true, exports: {}});
+  await restartProvider("claude");
+  expect(stub.warnings.at(-1)?.message).toContain("Other extensions were not restarted");
+});
+
+it("rejects usage-alert preferences outside the allowlist", async () => {
+  const api = await activate(context() as never);
+  expect(() => api.setUsageAlert("gemini-pro" as never, true)).toThrow("Invalid usage-alert preference");
+  expect(() => api.setUsageAlert("all", "yes" as never)).toThrow("Invalid usage-alert preference");
 });

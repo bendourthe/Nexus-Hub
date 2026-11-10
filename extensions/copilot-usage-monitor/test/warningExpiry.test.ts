@@ -82,8 +82,10 @@ describe("warning expiry", () => {
     vi.useRealTimers();
     const {provider, command, show} = setup(); const subscription = provider.watchAlerts();
     await show(); command.mockClear();
-    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({copilot: false}));
-    try { await vi.waitFor(() => expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false), {timeout: 2500}); }
+    // fs.watchFile takes its first baseline asynchronously, so a write that lands before it is not a change.
+    // Rewrite with a new value on each retry until a later poll observes one.
+    let attempt = 0;
+    try { await vi.waitFor(() => { fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({copilot: false, attempt: attempt++})); expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, false); }, {timeout: 4000, interval: 250}); }
     finally { subscription.dispose(); vi.useFakeTimers(); }
   });
 

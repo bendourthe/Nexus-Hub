@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { CLAUDE_UI_API, CLAUDE_UI_ADOPT, CODEX_UI_API, CODEX_UI_HOOK, CODEX_NEW_PANEL, codexTabManifest } from "../src/vendorUiPatch";
+import { patchCursorWorkbench } from "../src/cursorEffort";
+import { CLAUDE_UI_API, CLAUDE_UI_ADOPT, CODEX_UI_API, CODEX_UI_HOOK, CODEX_NEW_PANEL, codexTabManifest, patchedUiSource } from "../src/vendorUiPatch";
 
 describe("native UI effort adapters", () => {
   it("opens distinct Codex custom-editor documents while retaining the normal new-chat route", async () => {
@@ -75,4 +76,27 @@ it("adopts effort through the native configuration signal and preserves manual c
   expect(model.adoptAppliedEffort).toHaveBeenCalledTimes(1);
   adopt.call(model, { nexusEffort: { effort: "ultra", revision: "two" } });
   expect(model.adoptAppliedEffort).toHaveBeenLastCalledWith({ effort: "xhigh", ultracodeRequested: true }, { available: true });
+});
+
+it("preserves a vendor file whose bytes differ from the reviewed build", () => {
+  for (const [vendor, relative] of [["claude", "extension.js"], ["codex", "out/extension.js"], ["cursor", "missing.js"]] as const) {
+    expect(() => patchedUiSource(vendor, relative, "changed build")).toThrow("its current file was preserved");
+  }
+});
+
+describe("Codex editor manifest guards", () => {
+  const manifest = (when?: string) => ({ contributes: { commands: [{ command: "chatgpt.openSidebar", icon: "icon.svg" }, { command: "chatgpt.newCodexPanel" }], menus: { "editor/title": [{ command: "chatgpt.openSidebar", ...(when ? { when } : {}) }, { command: "other" }] } } });
+  it("keeps an existing toolbar condition on both entries", () => {
+    const menu = JSON.parse(codexTabManifest(JSON.stringify(manifest("view == codex")))).contributes.menus["editor/title"];
+    expect(menu).toEqual([{ command: "chatgpt.openSidebar", when: "!nexusHubSettings.enabled && (view == codex)" }, { command: "other" }, { command: "nexusHubSettings.openCodex", when: "nexusHubSettings.enabled && (view == codex)" }]);
+  });
+  it("refuses a manifest without commands or menus, or whose Codex entries changed", () => {
+    expect(() => codexTabManifest(JSON.stringify({ contributes: {} }))).toThrow("unavailable");
+    const changed = manifest(); changed.contributes.commands[0] = { command: "chatgpt.openSidebar" } as never;
+    expect(() => codexTabManifest(JSON.stringify(changed))).toThrow("changed and was preserved");
+  });
+});
+
+it("preserves an unqualified Cursor workbench", () => {
+  expect(() => patchCursorWorkbench("unqualified build")).toThrow("has not been qualified");
 });
