@@ -39,9 +39,21 @@ concurrency:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    # The live-effort launcher compiles and runs real Windows executables, so its
+    # tests and coverage run only on the Windows leg (vitest.config.ts excludes it
+    # from coverage elsewhere). Both legs run the same repository-native profile.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Detect the extension
@@ -85,6 +97,10 @@ jobs:
 
       - name: Repository-native nexus-hub-settings profile
         if: steps.extension.outputs.present == 'true'
+        # UTF-8 output: a failing Vitest report contains non-ASCII marks that the
+        # Windows runner's cp1252 console cannot encode.
+        env:
+          PYTHONIOENCODING: utf-8
         run: python scripts/ci/run.py --profile full --only nexus-hub-settings --reports-dir reports
 
       - name: Publish native profile summary
@@ -96,7 +112,7 @@ jobs:
         if: always() && steps.extension.outputs.present == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: nexus-hub-settings-reports
+          name: nexus-hub-settings-reports-${{ matrix.os }}
           path: reports/
           if-no-files-found: warn
           retention-days: 7

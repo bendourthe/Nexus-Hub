@@ -17,6 +17,9 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "json", "clover"],
       include: ["src/**/*.ts", "media/panel.js"],
+      // The live-effort launcher compiles and runs real Windows executables; its tests run only
+      // on Windows, where the workflow's Windows leg measures it. Elsewhere it is not executable.
+      exclude: process.platform === "win32" ? [] : ["src/liveEffort.ts"],
       thresholds: {
         statements: 80,
         branches: 80,

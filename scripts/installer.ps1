@@ -2639,7 +2639,7 @@ function Install-VSCodeExtensions {
     Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" -Color "White"
     Write-Item -Message "only; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
-    Write-Item -Message "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." -Color "White"
+    Write-Item -Message "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into every detected editor: VS Code, Cursor, and Antigravity." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)

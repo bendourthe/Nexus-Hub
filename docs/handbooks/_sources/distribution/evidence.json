@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "e835e9410b4b6458639b5ed87d2a7bb51e23db10478b7f5f6e82c8b10c724603",
       "docs/handbooks/_sources/distribution/source.md": "220cdff9fc21e09848434ac6a6b5cc6697b06d5b21acf639aba24bbe08f88438",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "83a6949b429db6335a8d8d4454703f4cf2793d61246f91364e495967191f2c0a",
-      "scripts/installer.sh": "5b75801a84334f7f1379d0c4705edd8a5cae3b19d9f0d1007bc85677d3e13803",
+      "scripts/installer.ps1": "65713bc241bf7fb279dcddc30d82294b66357dfe6a23e85f444eb67598f24618",
+      "scripts/installer.sh": "6c8fd2e071f4ebe05f72db3e5cc3cab11b59b6f0c8a62185d6bdff4a027b9697",
       "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
@@ -36,7 +36,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.15/development/settings-multi-host-distribution-handbook-review.md",
-      "evidence_sha256": "444e5d14eb4791af3a4bbe9d6dd161dd0cba0cc980be6ab410dd90da9ac97dff"
+      "evidence_sha256": "3756ad302aff6dd6e848093bdb6e2c60656b75efd482cd2de85409661cead283"
     },
     "build": {
       "status": "pass",

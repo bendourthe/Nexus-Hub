@@ -2512,7 +2512,7 @@ install_vscode_extensions() {
     write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
     write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
-    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." "$RESET"
+    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into every detected editor: VS Code, Cursor, and Antigravity." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)

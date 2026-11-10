@@ -5,6 +5,7 @@ This record covers the distribution handbook after the settings branch changed t
 ## Input Changes
 
 - Both installers now install the Nexus-Hub Settings extension into every detected editor (VS Code, Cursor, and Antigravity) from one built package. Previously it installed into VS Code only. The shared install helper accepts a third optional host and loops over the extra hosts; a missing optional editor is skipped silently, and one host's install failure does not stop the others.
+- The extension banner in both installers now says that Nexus-Hub Settings installs into every detected editor (VS Code, Cursor, and Antigravity), replacing the earlier "installs into VS Code only" line that no longer matched the install step.
 - The Cursor integration registers `git-guardrails.sh`, `secret-scan.sh`, `user-edit-guard.sh`, and `large-file-guard.sh` on the generic `preToolUse` event instead of registering `git-guardrails.sh` alone on `beforeShellExecution`, and adds `user-edit-guard.sh` to `postToolUse` for the edit-preservation ledger. The three new guard scripts join the curated hook copy list.
 
 ## Claim Review
