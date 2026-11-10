@@ -49,7 +49,7 @@ Settings frames are 1152 x 806; workflow frames are 1152 x 800. Each GIF is belo
 
 ## Local Evidence
 
-Qualification root: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification`.
+Qualification root: `C:/Users/you/Documents/nx-usage-alerts-qualification`.
 
 - `readme-demos-v415-final/render-report.json` and the scene PNGs
 

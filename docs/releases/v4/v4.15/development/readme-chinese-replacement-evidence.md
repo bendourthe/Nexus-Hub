@@ -14,7 +14,7 @@ This change makes the concise README the single design for both languages. `READ
 
 - Before the change, all four tests failed against the concise README already committed on this branch. After it, the 20 tests in the four files pass.
 - GitHub GFM rendering of both READMEs shows identical structure: 10 sections, 7 cheatsheet groups, 24 command headings, 21 tables, 7 images, and 26 code blocks.
-- Both cheatsheet anchors (`#command-cheatsheet`, `#命令速查表`) resolve under GitHub's heading slug rule, and all 29 local link and image targets exist in each file.
+- Both cheatsheet anchors (`#command-cheatsheet` and the Chinese heading slug) resolve under GitHub's heading slug rule, and all 29 local link and image targets exist in each file.
 - `develop` has not changed either README since this branch split, so integration carries both files without conflict. `git diff --check` passed.
 
 ## Release Inclusion

@@ -29,7 +29,7 @@ This record covers the requested README structure, complete Markdown cheatsheet,
 | Patch checks | `git diff --check` passed |
 | Runtime boundary | No changes to extension implementations, original guide, or original training sources |
 
-Local receipts are under `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification/`: `readme-platform-checks/results.json`, `readme-platform-checks/final-offline.json`, and `readme-guided-checks/results.json`. The browser exercises use isolated sample data and do not start agents or contact provider accounts. Native Cursor, Antigravity, and Claude windows were inspected as visual references; no native working-session screenshot was added to the repository.
+Local receipts are under `C:/Users/you/Documents/nx-usage-alerts-qualification/`: `readme-platform-checks/results.json`, `readme-platform-checks/final-offline.json`, and `readme-guided-checks/results.json`. The browser exercises use isolated sample data and do not start agents or contact provider accounts. Native Cursor, Antigravity, and Claude windows were inspected as visual references; no native working-session screenshot was added to the repository.
 
 ## Media
 

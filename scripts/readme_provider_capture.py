@@ -12,7 +12,7 @@ SKIN = ":root{color-scheme:dark;--vscode-font-family:Segoe UI,Arial,sans-serif;-
 def components(root):
     panel = panel_document(root)
     model = json.loads(panel.split("window.demoModel=", 1)[1].split(";window.acquire", 1)[0])
-    process = subprocess.run(["node", str(root / "scripts/readme_usage_render.cjs")], input=json.dumps({"model": model}), capture_output=True, text=True, encoding="utf-8", check=True, timeout=30)
+    process = subprocess.run(["node", str(root / "scripts/readme_usage_render.cjs")], input=json.dumps({"model": model}), capture_output=True, text=True, encoding="utf-8", check=True, timeout=30, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     usage = json.loads(process.stdout)
     for provider in ("claude", "codex", "copilot"):
         usage[provider]["dashboard"] = usage[provider]["dashboard"].replace("</head>", f"<style>{SKIN}</style></head>")

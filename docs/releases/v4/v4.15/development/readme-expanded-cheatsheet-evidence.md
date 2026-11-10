@@ -15,7 +15,7 @@ This refinement moves the complete command cheatsheet to the end of the README, 
 - Dark and light Markdown previews and the new settings poster were visually inspected. Ruff and `git diff --check` passed.
 - Distributed settings GIF/PNG hashes match the verified exports. No extension runtime, original guide, or original training sources changed.
 
-Receipts: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification/readme-expanded-checks/results.json` and `readme-settings-orange-final/orange-checks.json` under the same qualification root. The GIF is 251185 bytes and 38.8 seconds long.
+Receipts: `C:/Users/you/Documents/nx-usage-alerts-qualification/readme-expanded-checks/results.json` and `readme-settings-orange-final/orange-checks.json` under the same qualification root. The GIF is 251185 bytes and 38.8 seconds long.
 
 ## Release Inclusion
 

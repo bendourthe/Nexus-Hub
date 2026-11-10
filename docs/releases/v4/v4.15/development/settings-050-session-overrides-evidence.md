@@ -28,7 +28,7 @@ The persistent Claude compatibility warning was traced to an outdated maximum ad
 
 ## Artifacts
 
-Qualification artifacts are under C:/Users/BEDOURTHE/Documents/nx-ui050-qualification. The VSIX SHA256 is e03b71582b9ef00463c3870c4cdabed292bd80b1a3a32d0bc5fb80fea6bb2470. The official editor CLIs registered nexus-hub.nexus-hub-settings@0.5.0 in VS Code, Cursor and Antigravity. All 27 package payload files matched each installed directory, allowing only installer metadata in package.json. See install-050.json and delivery-verified.json in that artifact directory.
+Qualification artifacts are under C:/Users/you/Documents/nx-ui050-qualification. The VSIX SHA256 is e03b71582b9ef00463c3870c4cdabed292bd80b1a3a32d0bc5fb80fea6bb2470. The official editor CLIs registered nexus-hub.nexus-hub-settings@0.5.0 in VS Code, Cursor and Antigravity. All 27 package payload files matched each installed directory, allowing only installer metadata in package.json. See install-050.json and delivery-verified.json in that artifact directory.
 
 The two Claude and three Codex native adapter files matched their installation receipts and original backups under ~/.nexus-hub/native-ui. The actual pinned-vendor qualifier passed parsing, repeat installation, independent-edit preservation, exact restoration and redirected-receipt rejection for both vendors. Catalog backup and installation receipts are catalog-before-050.json and catalog-install-050.json. Existing editor processes still require a reload to load the newly installed extension and adapters.
 

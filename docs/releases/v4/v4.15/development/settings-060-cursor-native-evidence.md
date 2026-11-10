@@ -34,7 +34,7 @@ An initial version marked session IDs applied before hidden-tab recreation was a
 - Before leaving the private test run, Cursor's stored composer default was restored and the test-created Grok 4.7 preference was cleared. Existing per-model preferences matched their baseline.
 - The temporary qualifier extension was uninstalled. The Windows `cursor://` handler again points to the official installed Cursor executable.
 - The production workbench SHA256 is `e5f988de7ba83d5a5be0d5ec9885016e535ac93dad05f6928c27c4e3724e3e50`. Its product checksum matches, and all six checksum entries remain.
-- The restore receipt is `C:/Users/BEDOURTHE/.nexus-hub/native-ui/cursor-14f84a5e23b1d5092d64/receipt.json`.
+- The restore receipt is `C:/Users/you/.nexus-hub/native-ui/cursor-14f84a5e23b1d5092d64/receipt.json`.
 
 ## Checks
 
@@ -44,7 +44,7 @@ An initial version marked session IDs applied before hidden-tab recreation was a
 - The existing Claude Code and Codex source-adapter qualification passed against exact original vendor sources, including JavaScript parsing, repeat installation, preservation checks, and exact restoration. Their live UI behavior was not re-tested in the user's working VS Code windows during this run.
 - Package content verification passed: 28 required runtime files.
 - All three editor CLIs reported `nexus-hub.nexus-hub-settings@0.6.0`. Each installed payload matched all 28 packaged files, excluding only editor-added installation metadata in `package.json`.
-- VSIX: `C:/Users/BEDOURTHE/Documents/nx-cursor060-qualification/nexus-hub-settings-0.6.0.vsix`; SHA256 `fb37f85be6b5d15ed5676190dd8e41af4e40111d6bc225b9863cb50268a01285`.
+- VSIX: `C:/Users/you/Documents/nx-cursor060-qualification/nexus-hub-settings-0.6.0.vsix`; SHA256 `fb37f85be6b5d15ed5676190dd8e41af4e40111d6bc225b9863cb50268a01285`.
 - One edit-guard record was reconciled for the agent-authored `cursorProductManifest` addition in the newly created `src/cursorEffort.ts`. Its diff was reviewed and contained only that addition. This was recovery from a missed pre-write check, not a user-edit approval; no user content was replaced.
 
 ## Limits

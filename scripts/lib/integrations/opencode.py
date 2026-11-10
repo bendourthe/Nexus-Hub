@@ -46,7 +46,7 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # installer puts the binary in ~/.opencode/bin; Nexus-Hub writes neither.
         # Under ~/.config/opencode the listed names are Nexus-Hub's (rules/ is a
         # pre-v4.13.11 mirror), while opencode.json and tui.json are OpenCode's.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["opencode"],
             "root": ".config/opencode",

@@ -48,7 +48,9 @@ CHECK_MINOR_TOTAL_SECONDS = _completion_budget.CHECK_MINOR_TOTAL_SECONDS
 check_minor_seconds = _completion_budget.check_minor_seconds
 
 if TYPE_CHECKING:
-    from check_plan_completion import RepoContext
+    import check_plan_completion
+
+    RepoContext = check_plan_completion.RepoContext
 
 MINOR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 PLAN_VERSION_RE = re.compile(
@@ -275,7 +277,7 @@ def _minor_record_live(ck: ModuleType, record: dict) -> bool:
 def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None) -> bool:
     """Another live minor record, anywhere in the runs directory, lists this version."""
     def lists(record: dict) -> bool:
-        members = record.get("members") if isinstance(record.get("members"), list) else []
+        members = effective_members(ck, record) if isinstance(effective_members(ck, record), list) else []
         return record.get("schema") == ck.SCHEMA_MINOR and any(
             isinstance(m, dict) and m.get("version") == version for m in members
         )
@@ -640,7 +642,7 @@ def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, mem
     entry = blockers[index]
     if not isinstance(entry, dict) or not entry.get("open"):
         raise ck.Malformed("no open blocker at that index")
-    versions = {m.get("version") for m in record["members"]}
+    versions = {m.get("version") for m in effective_members(ck, record)}
     version = entry.get("version")
     if version is not None and (not isinstance(version, str) or version not in versions):
         raise ck.Malformed("blocker names a member outside this minor")
@@ -665,7 +667,7 @@ def _controller_metadata(ck: ModuleType, record: dict, path: Path) -> dict:
     """Authenticate immutable controller metadata before any Git ownership probe."""
     key = ck._secret(create=False)
     if (key is None or record.get('schema') != ck.SCHEMA_MINOR or record.get('scope') != 'minor'
-            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), ck._sign(record, key))):
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(ck, record, key))):
         raise ck.MinorConflict('record-tampered')
     token = record.get('minor')
     parse_minor(ck, token)
@@ -728,6 +730,11 @@ def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Pa
 def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
                      *, include_linked: bool = False, predicate=None) -> list[Path]:
     """Authenticated common-directory ownership includes the legacy absent-binding form."""
+    batch_reader = getattr(ck, 'record_read_batch', None)
+    if not callable(batch_reader):
+        if getattr(ck, 'MINOR_AMENDMENT_PROTOCOL', None) != MINOR_AMENDMENT_PROTOCOL:
+            raise ck.MinorConflict('minor-amendment-consumer-incompatible')
+        raise ObservationUnavailable('record.provenance')
     found = []
     direct = rctx.scoped_record_path('minor:' + token) if token else None
     common = _common_dir(rctx, rctx.root)
@@ -740,29 +747,30 @@ def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None
         except FileNotFoundError:
             return []
         paths = sorted(path for path in store.iterdir() if path.name.endswith('.json'))
-        for path in paths:
-            if path.name.endswith('.gate.json'):
-                continue
-            record = ck.read_record(rctx, path)
-            if record is None:
-                # No absent-create decision may hide an unreadable possible owner.
-                if include_linked or token is None or path == direct:
-                    raise ck.MinorConflict('controller-ownership-unavailable')
-                continue
-            if record.get('schema') != ck.SCHEMA_MINOR:
-                continue
-            if token and record.get('minor') != token:
-                continue
-            if predicate is not None and not predicate(record):
-                _controller_metadata(ck, record, path)
-                continue
-            identity = controller_identity(ck, rctx, record, path, same_common=False)
-            if identity['git_common_dir'] != common:
-                continue
-            if token and not include_linked and str(rctx.root) not in {
-                    identity['origin_root'], identity['repo_root']} and path != direct:
-                continue
-            found.append(path)
+        with batch_reader(rctx, paths) as read:
+            for path in paths:
+                if path.name.endswith('.gate.json'):
+                    continue
+                record = read(path)
+                if record is None:
+                    # No absent-create decision may hide an unreadable possible owner.
+                    if include_linked or token is None or path == direct:
+                        raise ck.MinorConflict('controller-ownership-unavailable')
+                    continue
+                if record.get('schema') != ck.SCHEMA_MINOR:
+                    continue
+                if token and record.get('minor') != token:
+                    continue
+                if predicate is not None and not predicate(record):
+                    _controller_metadata(ck, record, path)
+                    continue
+                identity = controller_identity(ck, rctx, record, path, same_common=False)
+                if identity['git_common_dir'] != common:
+                    continue
+                if token and not include_linked and str(rctx.root) not in {
+                        identity['origin_root'], identity['repo_root']} and path != direct:
+                    continue
+                found.append(path)
     except OSError as exc:
         raise ck.MinorConflict('controller-ownership-unavailable') from exc
     return found
@@ -827,7 +835,7 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
         raise ck.MinorConflict('target-common-directory-mismatch')
     forbidden = {str(Path(record['repo_root']).resolve())}
     branches = set()
-    for member in record['members']:
+    for member in effective_members(ck, record):
         cleanup = member.get('approvals', {}).get('cleanup') or {}
         forbidden.update(str(Path(path).resolve()) for path in cleanup.get('worktrees', []))
         branches.update(cleanup.get('branches') or [member['source_branch']])
@@ -856,7 +864,7 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
         raise ck.MinorConflict('target-not-fresh-integration-tip')
     if _ancestor(ctx, str(record['start_head']), head) != 'met':
         raise ck.MinorConflict('original-start-not-in-target')
-    for member in record['members']:
+    for member in effective_members(ck, record):
         view = ck.project(record, member['version'])
         if ck._approved_remote_status(ctx, view) != 'met':
             raise ck.MinorConflict('target-remote-outside-approval')
@@ -879,7 +887,7 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
     major, minor = parse_minor(ck, record['minor'])
     plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
     if any(member['version'] not in plans or not member_identity_ok(ck, member, plans[member['version']])
-           for member in record['members']):
+           for member in effective_members(ck, record)):
         raise ck.MinorConflict('target-frozen-plan-mismatch')
     return ctx
 
@@ -903,14 +911,14 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
         ctx = ck.RepoContext(target, ck.Budget(ck.BUDGET_SECONDS))
         record = ck.read_record(ctx, path)
         require_controller(ck, ctx, record, path)
-        if not _verified(ck, ctx, args.minor, record):
+        if not _verified(ck, ctx, args.minor, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
             raise ck.MinorConflict('minor-authority-unverified')
         print('ALREADY TRANSFERRED ' + str(path))
         return 0
     if (identity['repo_root'] != str(ctx.root) or identity['repo_root'] != str(Path(args.repo).resolve())
             or identity['generation'] != args.expected_generation):
         raise ck.MinorConflict('controller-generation-mismatch')
-    state = load_minor(ck, ctx, args.minor, args.session)
+    state = load_minor(ck, ctx, args.minor, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.record is None or state.forced or record.get('completed'):
         raise ck.MinorConflict('minor-not-transferable')
     _handoff_target(ck, ctx, record, target, args.head)
@@ -928,7 +936,7 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
         record['implementation_controller'] = {**identity, 'repo_root': str(target),
             'generation': args.expected_generation + 1, 'previous_root': str(ctx.root),
             'head': args.head, 'at': ck._now()}
-        record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
+        record['approvals_hmac'] = _sign(ck, record, ck._secret(create=False) or b'')
         ck._write_record(path, record)
     print('TRANSFERRED ' + str(path))
     return 0
@@ -948,6 +956,7 @@ def minor_record_path(ck: ModuleType, args: argparse.Namespace) -> Path:
 
 def load_minor(
     ck: ModuleType, rctx: RepoContext, token: str, session: str | None, *, accept_completed: bool = False,
+    minor_protocol: int | None = None,
 ) -> MinorState:
     """Load and verify the schema-2 record for `token`.
 
@@ -973,7 +982,9 @@ def load_minor(
     if not path.is_file():
         return state
     record = ck.read_record(rctx, path)
-    if record is None or not _verified(ck, rctx, token, record):
+    if record is not None:
+        _require_amendment_protocol(ck, record, minor_protocol)
+    if record is None or not _verified(ck, rctx, token, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
         state.forced = ck.TAMPERED
         return state
     if record.get("completed") and not accept_completed:
@@ -1000,9 +1011,184 @@ def load_minor(
     return state
 
 
-def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict) -> bool:
+MINOR_AMENDMENT_PROTOCOL = 1
+_AMENDMENT_FIELDS = ("minor_amendment_format", "minor_amendments", "minor_amendment_members")
+_AMENDMENT_DESCRIPTOR_FIELDS = {"version", "plan_path", "plan_sha256", "source_branch", "target_branch", "release_version", "tag", "approvals"}
+_AMENDMENT_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "owner_session", "record_sha256",
+                          "original_members_sha256", "controller", "push_remote_url", "integration_head",
+                          "sequence", "previous_history_sha256", "members", "gap_migration", "spend_caps"}
+
+
+def _amendment_digest(value: object) -> str:
+    return hashlib.sha256(approval_binding.canonical(value)).hexdigest()
+
+
+def _require_amendment_protocol(ck: ModuleType, record: dict, protocol: int | None) -> bool:
+    if not any(name in record for name in _AMENDMENT_FIELDS):
+        return False
+    check = getattr(ck, "require_minor_amendment_protocol", None)
+    if not callable(check) or getattr(ck, "MINOR_AMENDMENT_PROTOCOL", None) != MINOR_AMENDMENT_PROTOCOL:
+        raise ck.MinorConflict("minor-amendment-consumer-incompatible")
+    return check(record, protocol)
+
+
+def _sign(ck: ModuleType, record: dict, key: bytes) -> str:
+    """Legacy records keep their original sibling API; extensions require explicit participation."""
+    if _require_amendment_protocol(ck, record, MINOR_AMENDMENT_PROTOCOL):
+        return ck._sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    return ck._sign(record, key)
+
+
+def _amendment_accepted_valid(ck: ModuleType, page: dict, accepted: object, *, capture: bool = False) -> bool:
+    """Authenticate the immutable consumed decision, independent of later session changes."""
+    try:
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        if not isinstance(accepted, dict) or set(accepted) != fields:
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or accepted["page_sha256"] != _amendment_digest(page)
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))
+                or type(accepted["allow_short_reply"]) is not bool):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(context, dict)
+                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line("amend-minor", page["scope"]["minor"], accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, approval_page.PageError):
+        return False
+
+
+def effective_members(ck: ModuleType, record: dict) -> list[dict]:
+    """Return authenticated complete membership, retaining references for native state writers."""
+    original = record.get("members")
+    if not _require_amendment_protocol(ck, record, MINOR_AMENDMENT_PROTOCOL):
+        return original if isinstance(original, list) else []
     key = ck._secret(create=False)
-    members = record.get("members")
+    if (getattr(ck, "MINOR_AMENDMENT_PROTOCOL", None) != MINOR_AMENDMENT_PROTOCOL or key is None
+            or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
+            or not isinstance(original, list) or not original):
+        raise ck.MinorConflict("minor-amendment-unverified")
+    runtime = record["minor_amendment_members"]
+    seen = {m.get("version") for m in original if isinstance(m, dict)}
+    descriptors = []
+    prefix = []
+    for sequence, entry in enumerate(record["minor_amendments"], 1):
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            raise ck.MinorConflict("minor-amendment-history-invalid")
+        page = entry["page"]
+        if (not isinstance(page, dict) or set(page) != _AMENDMENT_PAGE_FIELDS
+                or page["action"] != "amend-minor" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or type(page["sequence"]) is not int or page["sequence"] != sequence
+                or page["previous_history_sha256"] != _amendment_digest(prefix)
+                or not _amendment_accepted_valid(ck, page, entry["accepted"])
+                or not isinstance(page["members"], list) or not page["members"]):
+            raise ck.MinorConflict("minor-amendment-history-invalid")
+        for member in page["members"]:
+            if not isinstance(member, dict) or set(member) != _AMENDMENT_DESCRIPTOR_FIELDS or member.get("version") in seen:
+                raise ck.MinorConflict("minor-amendment-duplicate-member")
+            seen.add(member["version"])
+            descriptors.append(member)
+        prefix.append(entry)
+    if len(runtime) != len(descriptors):
+        raise ck.MinorConflict("minor-amendment-runtime-invalid")
+    for frozen, member in zip(descriptors, runtime):
+        if not isinstance(member, dict):
+            raise ck.MinorConflict("minor-amendment-runtime-invalid")
+        for name in _AMENDMENT_DESCRIPTOR_FIELDS:
+            if approval_binding.canonical(member.get(name)) == approval_binding.canonical(frozen[name]):
+                continue
+            archived = member.get("archived") or {}
+            if (name in {"plan_path", "plan_sha256"} and isinstance(archived, dict)
+                    and archived.get("from") == frozen["plan_path"]
+                    and archived.get("original_sha256") == frozen["plan_sha256"]
+                    and ((member.get("plan_path") == archived.get("plan_path")
+                          and member.get("plan_sha256") == archived.get("plan_sha256"))
+                         or (isinstance(archived.get("close_commit"), str)
+                             and re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", archived["close_commit"])
+                             and isinstance(member.get("plan_path"), str)
+                             and member["plan_path"].startswith("docs/archives/")
+                             and Path(member["plan_path"]).name == Path(frozen["plan_path"]).name))):
+                continue
+            raise ck.MinorConflict("minor-amendment-descriptor-changed")
+    return [*original, *runtime]
+
+
+def member_classes(record: dict, member: dict) -> list[dict]:
+    """New members receive explicit grants; old members retain their original projection."""
+    own = (member.get("approvals") or {}).get("classes") or []
+    if any(member is item or member.get("version") == item.get("version")
+           for item in record.get("minor_amendment_members", [])):
+        return list(own)
+    return [*own, *((record.get("approvals") or {}).get("classes") or [])]
+
+
+def member_authorization(record: dict, member: dict) -> dict:
+    """The new member's authority originated in its own captured decision, with no old policy."""
+    for entry in record.get("minor_amendments", []):
+        if any(m["version"] == member.get("version") for m in entry["page"]["members"]):
+            accepted = entry["accepted"]
+            return {"authorization_context": accepted["authorization_context"],
+                    "page_sha256": accepted["page_sha256"], "autonomy_policy": None}
+    approvals = record.get("approvals") or {}
+    return {name: approvals.get(name) for name in ("authorization_context", "page_sha256", "autonomy_policy")}
+
+
+def check_minor_amendment_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native write preserves history; only a consumed leased action appends authority."""
+    had = any(name in previous for name in ck.MINOR_AMENDMENT_FIELDS)
+    has = any(name in record for name in ck.MINOR_AMENDMENT_FIELDS)
+    if not had and not has:
+        return
+    if had and not has:
+        raise ck.MinorConflict("minor-amendment-history-removed")
+    effective_members(ck, record)
+    if had:
+        effective_members(ck, previous)
+        if [m.get("version") for m in previous["members"]] != [m.get("version") for m in record["members"]]:
+            raise ck.MinorConflict("minor-amendment-original-members-changed")
+    old = previous.get("minor_amendments", [])
+    new = record["minor_amendments"]
+    if len(new) < len(old) or approval_binding.canonical(new[:len(old)]) != approval_binding.canonical(old):
+        raise ck.MinorConflict("minor-amendment-not-append-only")
+    if len(new) == len(old):
+        if len(previous.get("minor_amendment_members", [])) != len(record["minor_amendment_members"]):
+            raise ck.MinorConflict("minor-amendment-runtime-changed")
+        return
+    active = ck._MINOR_LEASE.get()
+    entry = new[-1]
+    grant = {"entry_sha256": _amendment_digest(entry), "record_sha256": entry["page"]["record_sha256"]}
+    if (len(new) != len(old) + 1 or not active or active.get("minor_amendment_append") != grant
+            or active["expected"] != grant["record_sha256"]
+            or not _amendment_accepted_valid(ck, entry["page"], entry["accepted"], capture=True)):
+        raise ck.MinorConflict("minor-amendment-append-not-captured")
+    def unchanged(value):
+        return {k: v for k, v in value.items() if k not in {*ck.MINOR_AMENDMENT_FIELDS, "approvals_hmac"}}
+    added = entry["page"]["members"]
+    if (approval_binding.canonical(unchanged(previous)) != approval_binding.canonical(unchanged(record))
+            or approval_binding.canonical(record["minor_amendment_members"])
+               != approval_binding.canonical([*previous.get("minor_amendment_members", []), *added])
+            or entry["page"]["original_members_sha256"] != _amendment_digest(previous["members"])):
+        raise ck.MinorConflict("minor-amendment-unrelated-record-change")
+
+
+def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, minor_protocol: int | None = None) -> bool:
+    key = ck._secret(create=False)
+    try:
+        _require_amendment_protocol(ck, record, minor_protocol)
+        members = effective_members(ck, record)
+    except (ck.MinorConflict, TypeError, ValueError, KeyError):
+        return False
     if (
         key is None
         or record.get("schema") != ck.SCHEMA_MINOR
@@ -1011,7 +1197,7 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict) -> bo
         or not isinstance(members, list)
         or not members
         or not all(isinstance(m, dict) for m in members)
-        or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+        or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
     ):
         return False
     try:
@@ -1060,7 +1246,7 @@ def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, mem
             or member.get("version") not in {f"v4.15.{patch}" for patch in range(5)}):
         return None
     try:
-        if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent):
+        if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
             return None
         matches = [m for m in parent["members"] if m.get("version") == member.get("version")]
         if len(matches) != 1 or approval_binding.canonical(matches[0]) != approval_binding.canonical(member):
@@ -1156,7 +1342,7 @@ def member_moves(version: str, tree: str, tracked: list[str], plan_rel: str | No
 
 def _owned_member(ck: ModuleType, rctx: RepoContext, record: dict, own: Path) -> tuple[str, str] | None:
     """(blocker category, version) for the first member another run owns or that cannot be decided."""
-    ours = {str(m.get("source_branch")) for m in record["members"]}
+    ours = {str(m.get("source_branch")) for m in effective_members(ck, record)}
     heads = _feat_heads(ck, rctx)
     integration = _integration_ref(rctx, str((record.get("approvals") or {}).get("target_branch") or "develop"))
     major, minor = parse_minor(ck, str(record.get("minor")))
@@ -1164,8 +1350,8 @@ def _owned_member(ck: ModuleType, rctx: RepoContext, record: dict, own: Path) ->
         by_version = {p.version: p for p in scan_plans(rctx.root, major, minor)}
     except MinorMalformed:
         # cannot tell: stop, never guess
-        return "platform-unavailable", str(record["members"][0].get("version"))
-    for member in record["members"]:
+        return "platform-unavailable", str(effective_members(ck, record)[0].get("version"))
+    for member in effective_members(ck, record):
         plan = by_version.get(str(member.get("version")))
         reason = None if plan is None else ownership(ck, rctx, plan, heads, integration, ours, own)
         if reason == "owned-by-another-run":
@@ -1180,7 +1366,7 @@ def _membership_or_exit(ck: ModuleType, rctx: RepoContext, token: str, spec: dic
     own = record_file(ck, rctx, token)
     if ck.lock_live(own):
         return ck._blocked(f"owned-by-another-run ({token})")
-    live = load_minor(ck, rctx, token, None)
+    live = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if live.record is not None:
         print(f"BLOCKED: approval-not-covered (minor record {token} is live; resume or complete it)")
         return ck.EXIT_BLOCKED
@@ -1217,8 +1403,8 @@ def cmd_members(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    own = load_minor(ck, rctx, token, None)
-    ours = {str(m.get("source_branch")) for m in (own.record or {}).get("members", [])}
+    own = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    ours = {str(m.get("source_branch")) for m in (effective_members(ck, own.record) if own.record else [])}
     # Only a verified record of this minor is "ours"; any other one still owns its versions.
     own_path = record_file(ck, rctx, token) if own.record is not None else None
     try:
@@ -1254,8 +1440,8 @@ def covering_minor(ck: ModuleType, rctx: RepoContext, version: str) -> str | Non
     if not match:
         return None
     token = f"v{int(match.group(1))}.{int(match.group(2))}"
-    state = load_minor(ck, rctx, token, None)
-    members = (state.record or {}).get("members") or []
+    state = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    members = effective_members(ck, state.record) if state.record else []
     return token if any(m.get("version") == version for m in members) else None
 
 
@@ -1276,6 +1462,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         raise ck.Malformed("--merge requires --action supplement-scope")
     if getattr(args, "added_class", None) is not None and args.action != "add-class":
         raise ck.Malformed("--class requires --action add-class")
+    if getattr(args, "amendment", None) is not None and args.action != "amend-minor":
+        raise ck.Malformed("--amendment requires --action amend-minor")
     if args.action == "create":
         if not args.approvals:
             raise ck.Malformed("record render --action create needs --approvals")
@@ -1294,6 +1482,12 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return record
         page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
                 if args.action == "answer" else action_page(token, args.action, str(record.get("nonce", ""))))
+        display = None
+    elif args.action == "amend-minor":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = amendment_page(ck, rctx, token, record, getattr(args, "amendment", None))
         display = None
     elif args.action == "add-class":
         record = _record_for_add_class(ck, rctx, token, args.session)
@@ -1426,7 +1620,7 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
         "pause": None,
         "completed": None,
     }
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=True) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=True) or b"")
     ck._write_record(rctx.scoped_record_path("minor:" + token), record)
     print(f"RECORDED minor {token} nonce={record['nonce']}")
     return 0
@@ -1438,7 +1632,7 @@ def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: st
     A resume may adopt a record bound to another session (the cross-session
     resume); a pause applies only in the record's own session.
     """
-    state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer")
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer", minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     record = state.record or (state.other_session if action == "resume" else None)
     if record is not None:
         return record
@@ -1503,7 +1697,7 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
         return 0
     record["pause"] = None
     record["session_id"] = session  # signed, so the record is re-signed below
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     ck._write_record(record_file(ck, rctx, token), record)
     print(f"RESUMED minor {token} session bound")
     return 0
@@ -1530,7 +1724,7 @@ def add_class_page(ck: ModuleType, token: str, record: dict, name: str | None) -
 
 def _record_for_add_class(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
     """The verified, live record a class is added to; completed, paused, blocked, or tampered refuses."""
-    state = load_minor(ck, rctx, token, None if session == "auto" else session)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.forced is not None:
         print(state.forced[0])
         return state.forced[1]
@@ -1540,6 +1734,158 @@ def _record_for_add_class(ck: ModuleType, rctx: RepoContext, token: str, session
         print("no live minor run record for this scope and session", file=sys.stderr)
         return ck.EXIT_MALFORMED
     return state.record
+
+
+def amendment_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, filename: str | None) -> dict:
+    """Validate the complete bounded amendment against the current integrated repository."""
+    try:
+        value = json.loads(Path(filename).read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        raise ck.Malformed("amend-minor needs a readable --amendment JSON file") from None
+    if not isinstance(value, dict) or set(value) - {"members", "gap_migration"} or not isinstance(value.get("members"), list) or not value["members"]:
+        raise ck.Malformed("amendment needs a non-empty members list and optional gap_migration")
+    existing = effective_members(ck, record)
+    if ck.lock_live(record.record_path):
+        raise ck.MinorConflict("runner-live")
+    known = {m["version"] for m in existing}
+    branches = {m["source_branch"] for m in existing}
+    tags = {m["tag"] for m in existing}
+    plans = scan_plans(rctx.root, *parse_minor(ck, token))
+    target = _target(record)
+    head = rctx._git_out("rev-parse", "HEAD")
+    integration = rctx._git_out("rev-parse", "refs/remotes/origin/" + target)
+    if not head or head != integration or _ls_remote_tip(rctx, target) != head:
+        raise ck.Malformed("amendment requires the verified integration head")
+    status_rc, status_out = rctx.run([rctx.git, "-C", str(rctx.root), "status", "--porcelain"])
+    if status_rc or status_out.strip():
+        raise ck.Malformed("amendment requires a clean controller worktree")
+    approved_push = (record.get("approvals") or {}).get("push_remote_url")
+    if (rctx.push_remote_url != approved_push or str(rctx.url_repo(rctx.push_remote_url)).lower() != str(record["repo"]).lower()
+            or ck.repo_host.verify_push_route(rctx.root, rctx.push_remote_url, git=rctx.git, run=rctx.run, branch=target)[0] != "met"):
+        raise ck.Malformed("amendment push route outside original approval")
+    forbidden = {"spend", "unattended-with-bypass", "gap-migration", "archive-minor", "minor-close-pr", "defer-gaps", "carry-gaps"}
+    heads = _feat_heads(ck, rctx)
+    for member in value["members"]:
+        if not isinstance(member, dict) or set(member) != _AMENDMENT_DESCRIPTOR_FIELDS:
+            raise ck.Malformed("amendment member must give its exact descriptor and approvals")
+        version = member["version"]
+        if (not isinstance(version, str) or not PLAN_TOKEN_RE.fullmatch(version)
+                or minor_of(version) != parse_minor(ck, token) or version in known
+                or version_order(version) <= max(version_order(m["version"]) for m in existing)):
+            raise ck.Malformed("amendment member is duplicate or precedes frozen release order")
+        found = [p for p in plans if p.version == version]
+        if (len(found) != 1 or found[0].rel != member["plan_path"]
+                or ck.plan_hash_text(found[0].text) != member["plan_sha256"]):
+            raise ck.Malformed("amendment plan identity changed or ambiguous")
+        if found[0].status in DONE_STATUSES or shipped(ck, rctx, str(record["repo"]), version) != "unmet":
+            raise ck.Malformed("amendment plan is already closed or its release cannot be verified")
+        rc, integrated = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{head}:{member['plan_path']}"])
+        if rc or ck.plan_hash_text(integrated) != member["plan_sha256"]:
+            raise ck.Malformed("amendment plan is not integrated")
+        if (member["target_branch"] != target or member["release_version"] != version
+                or not all(isinstance(member[k], str) and BRANCH_RE.fullmatch(member[k]) for k in ("source_branch", "target_branch", "tag"))
+                or member["source_branch"] in branches or member["tag"] in tags):
+            raise ck.Malformed("amendment branch or release identity invalid")
+        owner = ownership(ck, rctx, found[0], heads, integration,
+                          {m["source_branch"] for m in existing}, record_file(ck, rctx, token))
+        if owner:
+            raise ck.Malformed("amendment member owned by another run")
+        if ck.repo_host.verify_push_route(rctx.root, rctx.push_remote_url, git=rctx.git, run=rctx.run,
+                                         branch=member["source_branch"])[0] != "met":
+            raise ck.Malformed("amendment member push route outside original approval")
+        approval = member["approvals"]
+        if (not isinstance(approval, dict) or set(approval) != {"classes", "cleanup"}
+                or not isinstance(approval["classes"], list) or not isinstance(approval["cleanup"], dict)
+                or set(approval["cleanup"]) != {"branches", "worktrees"}):
+            raise ck.Malformed("amendment member approvals invalid")
+        seen = set()
+        for grant in approval["classes"]:
+            if (not isinstance(grant, dict) or set(grant) - {"class", "bound"}
+                    or not isinstance(grant.get("class"), str) or grant["class"] in seen
+                    or grant["class"] in forbidden or grant["class"] not in ck.APPROVAL_CLASSES):
+                raise ck.Malformed("amendment class must be an explicit supported member grant")
+            seen.add(grant["class"])
+            if grant["class"] == "release" and grant.get("bound") != version:
+                raise ck.Malformed("amendment release grant must bind the member version")
+        for name, paths in approval["cleanup"].items():
+            if not isinstance(paths, list) or not all(isinstance(p, str) and p for p in paths):
+                raise ck.Malformed("amendment cleanup must list exact paths")
+            if name == "branches" and any(p != member["source_branch"] for p in paths):
+                raise ck.Malformed("amendment cleanup branch outside member scope")
+            if name == "worktrees" and paths:
+                raise ck.Malformed("amendment cannot authorize pre-existing worktree deletion")
+            if paths and "cleanup-merged" not in seen:
+                raise ck.Malformed("amendment cleanup needs an explicit cleanup-merged grant")
+        known.add(version)
+        branches.add(member["source_branch"])
+        tags.add(member["tag"])
+    if [m["version"] for m in value["members"]] != sorted((m["version"] for m in value["members"]), key=version_order):
+        raise ck.Malformed("amendment members must follow release order")
+    gaps = value.get("gap_migration", {"items": [], "named_high_risk_ids": []})
+    if (not isinstance(gaps, dict) or set(gaps) != {"items", "named_high_risk_ids"}
+            or not isinstance(gaps["items"], list) or not isinstance(gaps["named_high_risk_ids"], list)):
+        raise ck.Malformed("amendment gap_migration invalid")
+    ids = []
+    old_ids, _old_named = migration_class(record)
+    ledgers, unreadable = load_ledgers(rctx.root)
+    if unreadable:
+        raise ck.Malformed("amendment gap ledgers unreadable")
+    for item in gaps["items"]:
+        if (not isinstance(item, dict) or set(item) != {"id", "reason"}
+                or not isinstance(item["id"], str) or normalize_gap_id(item["id"]) != item["id"]
+                or item["reason"] not in MIGRATION_REASONS or item["id"] in ids or item["id"] in old_ids
+                or item["id"].split("#")[0] != token):
+            raise ck.Malformed("amendment gap must name an exact id and allowed migration reason")
+        held = [gap for ledger in ledgers if ledger.token() == item["id"].split("#")[0]
+                for gap in ledger.items if gap.gid == item["id"].split("#")[1] and gap.state == "open"]
+        if len(held) != 1 or (held[0].sensitive() and item["id"] not in gaps["named_high_risk_ids"]):
+            raise ck.Malformed("amendment gap must be unique, open and explicitly named when high risk")
+        ids.append(item["id"])
+    if (not all(isinstance(i, str) and i in ids for i in gaps["named_high_risk_ids"])
+            or len(set(gaps["named_high_risk_ids"])) != len(gaps["named_high_risk_ids"])):
+        raise ck.Malformed("amendment named gaps must be unique explicit grant ids")
+    history = record.get("minor_amendments", [])
+    return {"action": "amend-minor", "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"], "owner_session": record["session_id"],
+            "record_sha256": record.loaded_sha256, "original_members_sha256": _amendment_digest(record["members"]),
+            "controller": controller_identity(ck, rctx, record, record.record_path),
+            "push_remote_url": approved_push, "integration_head": head, "sequence": len(history) + 1,
+            "previous_history_sha256": _amendment_digest(history), "members": value["members"],
+            "gap_migration": gaps, "spend_caps": (record.get("approvals") or {}).get("spend_caps") or {}}
+
+
+@minor_writer
+def cmd_record_amend_minor(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Append exactly the fresh captured native scope, preserving all original operational state."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = amendment_page(ck, rctx, args.minor, record, args.amendment)
+    consumed = _consume(ck, rctx, args.minor, "amend-minor", page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    if amendment_page(ck, rctx, args.minor, record, args.amendment) != page:
+        return ck._refused("page-changed")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    record["minor_amendment_format"] = MINOR_AMENDMENT_PROTOCOL
+    record.setdefault("minor_amendments", []).append(entry)
+    record.setdefault("minor_amendment_members", []).extend(json.loads(json.dumps(page["members"])))
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["minor_amendment_append"] = {"entry_sha256": _amendment_digest(entry), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        active.pop("minor_amendment_append", None)
+    print(f"AMENDED minor {args.minor} members={len(page['members'])}")
+    return 0
 
 
 @minor_writer
@@ -1580,7 +1926,7 @@ def cmd_record_add_class(ck: ModuleType, args: argparse.Namespace) -> int:
         },
     })
     # `approvals` is signed, so the added class is a signed update, never an unsigned edit.
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     ck._write_record(record_file(ck, rctx, token), record)
     print(f"ADDED {name} minor {token}")
     return 0
@@ -1693,6 +2039,23 @@ def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record:
             "claims_sha256": _historical_claims_sha256(member), "merge_bounds": bounds}
 
 
+def _historical_plan_hash_valid(
+    ck: ModuleType, rctx: RepoContext, record: dict, member: dict, frozen: str,
+) -> bool:
+    """Retain a captured plan identity only through the native archive's original Git witness."""
+    if frozen == member.get("plan_sha256"):
+        return True
+    archived = member.get("archived")
+    if not isinstance(archived, dict) or frozen != archived.get("original_sha256"):
+        return False
+    plans = [plan for plan in scan_plans(rctx.root, *parse_minor(ck, str(record["minor"])))
+             if plan.version == member.get("version")]
+    if len(plans) != 1:
+        return False
+    original = _signed_original_plan(rctx, record, member, plans[0], ck)
+    return original is not None and ck.plan_hash_text(original.text) == frozen
+
+
 def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
                                   merge: str, entry: object, *, verify_capture: bool = False) -> bool:
     """Validate signed historical provenance without rebinding it to a later session."""
@@ -1709,7 +2072,8 @@ def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dic
             return False
         if (page["action"] != "supplement-scope" or page["scope"] != {"kind": "minor", "minor": record["minor"]}
                 or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
-                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["member"] != member["version"]
+                or not _historical_plan_hash_valid(ck, rctx, record, member, page["plan_sha256"])
                 or page["claims_sha256"] != _historical_claims_sha256(member)
                 or approval_binding.canonical(page["merge_bounds"])
                    != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge))):
@@ -1771,7 +2135,7 @@ def _historical_scope_paths(ck: ModuleType | None, rctx: RepoContext, record: di
                != approval_binding.canonical(member)):
         return None
     key = ck._secret(create=False)
-    if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+    if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
             or not _historical_scope_entry_valid(ck, rctx, record, member, merge, entries[0])):
         return None
     return {row[0] for row in entries[0]["page"]["merge_bounds"]["rows"]}
@@ -1843,7 +2207,7 @@ def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int
              "authorization_context": pending.get("capture")}}
     member = next(m for m in record["members"] if m["version"] == args.member)
     member.setdefault("historical_scope_supplements", []).append(entry)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
     active["historical_scope_append"] = {"member": args.member,
                                           "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
@@ -1948,7 +2312,7 @@ def _manifest_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, 
                 or not re.fullmatch(r"[0-9a-f]{64}", controller["origin_record_key"])):
             return False
         key = ck._secret(create=False)
-        if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), ck._sign(record, key))
+        if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
                 or approval_binding.canonical(next((m for m in record.get("members", []) if m.get("version") == member.get("version")), None))
                    != approval_binding.canonical(member)
                 or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])):
@@ -2043,7 +2407,7 @@ def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
              "authorization_context": pending.get("capture")}}
     member = next(m for m in record["members"] if m["version"] == args.member)
     member.setdefault("manifest_coordinator_permissions", []).append(entry)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
     active["manifest_permission_append"] = {"member": args.member,
                                           "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
@@ -2084,7 +2448,7 @@ def _v415_output_paths(rctx: RepoContext, version: str, value: object) -> list[s
 
 def _record_for_v415_permission(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
     """Only approval-not-covered may bootstrap its own bounded permission round."""
-    state = load_minor(ck, rctx, token, None if session == "auto" else session)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     record = state.record
     if record is not None and state.forced:
         blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
@@ -2396,7 +2760,7 @@ def cmd_record_permit_outputs(ck: ModuleType, args: argparse.Namespace) -> int:
     member.setdefault(V415_OUTPUT_PERMISSION, []).append(entry)
     if member.get("start_head"):
         member["coordinator_paths"] = [*member.get("coordinator_paths", []), *page["write_paths"]]
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
     active["v415_output_append"] = {"member": args.member,
         "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
@@ -2621,7 +2985,7 @@ def cmd_record_correct_ci_read(ck: ModuleType, args: argparse.Namespace) -> int:
              "authorization_context": pending.get("capture")}}
     member = next(m for m in record["members"] if m["version"] == args.member)
     member.setdefault(V415_CI_READ_CORRECTION, []).append(entry)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
     active["v415_ci_read_append"] = {"member": args.member,
         "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
@@ -3006,11 +3370,27 @@ def migration_class(record: dict | None) -> tuple[set[str], set[str]]:
     """
     classes = ((record or {}).get("approvals") or {}).get("classes") or []
     entry = next((c for c in classes if isinstance(c, dict) and c.get("class") == "gap-migration"), None)
-    if entry is None:
-        return set(), set()
-    bound = {normalize_gap_id(str(i)) for i in entry.get("bound") or []} - {None}
-    named = {normalize_gap_id(str(i)) for i in entry.get("named") or []} - {None}
+    bound = {normalize_gap_id(str(i)) for i in (entry or {}).get("bound") or []} - {None}
+    named = {normalize_gap_id(str(i)) for i in (entry or {}).get("named") or []} - {None}
+    for grant in amendment_gap_grants(record):
+        bound.add(grant["id"])
+        if grant["named"]:
+            named.add(grant["id"])
     return bound, named & bound
+
+
+def amendment_gap_grants(record: dict | None) -> list[dict]:
+    """Only authenticated amendments supply a new exact reason and baseline for new gap IDs."""
+    if not record:
+        return []
+    if record.get("scope") == "member":
+        return record.get("amendment_gap_grants", [])
+    if not any(name in record for name in ("minor_amendment_format", "minor_amendments", "minor_amendment_members")):
+        return []
+    _all_members(record)
+    return [{**item, "baseline": entry["page"]["integration_head"],
+             "named": item["id"] in entry["page"]["gap_migration"]["named_high_risk_ids"]}
+            for entry in record["minor_amendments"] for item in entry["page"]["gap_migration"]["items"]]
 
 
 def minor_of(version: str) -> tuple[int, int]:
@@ -3153,7 +3533,9 @@ def migration_copy_status(
     def repaired(body: str, old_dir: str) -> str:
         body, _ = rewrite_links(body, old_dir, destination.rel.rsplit("/", 1)[0], moved)
         for old, new in moves:
-            body, _ = rewrite_mentions(body, old, new, markdown=True)
+            # Every native mention match contains one of these literal prefixes.
+            if old in body or old.replace("/", "\\") in body:
+                body, _ = rewrite_mentions(body, old, new, markdown=True)
         return body.replace("\r\n", "\n").strip("\n").rstrip()
 
     required = repaired(item.body, source.rel.rsplit("/", 1)[0])
@@ -3193,20 +3575,23 @@ def migration_copy_status(
     return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
-def _ledger_blob(rctx: RepoContext, commit: str, rel: str) -> tuple[str, str]:
+def _ledger_blob(rctx: RepoContext, commit: str, rel: str, *, no_replace: bool = False) -> tuple[str, str]:
     """Reuse only successful immutable blob reads within this evaluation context."""
     key = (commit.lower(), rel) if re.fullmatch(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})", commit) else None
+    if key is not None and no_replace:
+        key = (*key, "no-replace")
+    git = [rctx.git, *(["--no-replace-objects"] if no_replace else [])]
     cache = getattr(rctx, "_minor_blob_cache", None)
     if cache is None:
         cache = rctx._minor_blob_cache = {}
     if key is not None and key in cache:
         return "met", cache[key]
-    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+    rc, _ = rctx.run([*git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
     if rc == -1:
         return "cannot-verify", ""
     if rc != 0:
         return "unmet", ""
-    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+    rc, out = rctx.run([*git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
     if rc != 0:
         return "cannot-verify", ""
     if key is not None:
@@ -3388,7 +3773,7 @@ def planned_followon(rctx: RepoContext, record: dict | None, source_minor: tuple
     if source is None or section_version(item.section) != source[1]:
         return False
     if record.get('scope') == 'minor':
-        members = [m for m in record.get('members') or [] if m.get('version') == source[1]]
+        members = [m for m in _all_members(record) if m.get('version') == source[1]]
     else:
         members = [record] if record.get('version') == source[1] else []
     if len(members) != 1:
@@ -3487,11 +3872,19 @@ def _signed_original_plan(rctx: RepoContext, record: dict, member: dict, plan: P
 
 def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
     """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
-    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(item.body.replace('\r\n', '\n').strip())
-    tail = (r'\n\n- \*\*Migrated from\*\*: ' + re.escape(f'{source}#{item.gid}')
+    body = item.body.replace('\r\n', '\n').strip()
+    recorded = RECORDED_BODY_RE.fullmatch(body)
+    # The single-plan carry writer names the source patch; the minor writer
+    # names its minor. Both labels must identify this exact recording task.
+    if (recorded is None or section_version(item.section) != recorded['version']
+            or source != 'v{}.{}'.format(*minor_of(recorded['version']))):
+        return False
+    labels = '|'.join(re.escape(f'{version}#{item.gid}') for version in (source, recorded['version']))
+    suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(body)
+    tail = (r'\n\n- \*\*Migrated from\*\*: (?:' + labels + ')'
             + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
             + r'\n- \*\*Migration evidence\*\*: [^\n]+')
-    return (copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
+    return (item.kind == 'DF' and copy.state == 'open' and copy.kind == item.kind and not copy.sensitive()
             and copy.title == MIGRATED_RE.sub('', item.title).rstrip()
             and re.fullmatch(tail, suffix) is not None)
 
@@ -3517,6 +3910,9 @@ def migration_gate(
             return "met", "planned-follow-on"
         return "unmet", "migration-not-approved"
     start = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
+    grant = next((g for g in amendment_gap_grants(record) if g["id"] == pid), None)
+    if grant is not None:
+        start = grant["baseline"]
     if not start:
         return "cannot-verify", "no-start-head"
     status, baseline = items_at(rctx, start, source_minor, gid)
@@ -3528,6 +3924,141 @@ def migration_gate(
     if (open_then[0].sensitive() or (current is not None and current.sensitive())) and pid not in named:
         return "unmet", "security-not-named"
     return "met", "approved"
+
+
+# Recovery is limited to these already published dispositions and original authorities.
+# It never authorizes a new write, extends a bound, or changes a native record.
+V414_CARRY_RECONCILIATION = {
+    "minor_key": "8d590b2e3417c12ec5a7feeae6c28be68447158dae645353f30390e4e60b14ae",
+    "minor_nonce": "67bf1ecccb04e9a42741f95dc27cb5eb",
+    "minor_page": "b45332eb70acb1399b880a92f8f6d8e56e3bbe1de829bf4aa19d564c58bbb34b",
+    "start": "317dc4b8fad5e2ee3a3a7a033744d86e2e28376e",
+    "last_key": "a338088bb90e5344dcf11d0230356213886803bf969f14751aa9b142a1967770",
+    "last_nonce": "26d619e3fbb1eaa46d17046305717573",
+    "last_page": "e1ac363d4abad66fbd55bf98c8939c49c0ba744c815ef33491b2e45eed35ba0d",
+    "plan": "docs/archives/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md",
+    "plan_hash": "1f831caa2f0ad8dabf3e01623520406c4a9d6351f893c4cf8f1c8a6267008e44",
+    "branch": "feat/v4.14.8-plain-english-replies-and-source-labels",
+    "release": "befcbfabae6d9042c3437d617af3724416644696",
+}
+V414_CARRIED_IDS = {
+    "BG-30": "BG-3", "BG-29": "BG-4", "DF-45": "DF-36", "MT-17": "MT-5",
+    "DF-46": "DF-37", "DF-47": "DF-38", "WN-38": "WN-25", "MT-18": "MT-6",
+    "WN-39": "WN-26", "WN-40": "WN-27", "MT-19": "MT-7", "QG-10": "QG-4", "QG-11": "QG-5",
+}
+
+
+def reconciled_v414_carry(
+    rctx: RepoContext, record: dict | None, ledgers: list[Ledger], ledger: Ledger, item: GapItem,
+    copy: GapItem,
+) -> bool:
+    """Read only: authenticate the original runs and their exact published carry pair.
+
+    The seven frozen members remain mandatory. The later plan's signed carry
+    approval is insufficient alone: mutable copies must match immutable release
+    content, after only the native archive's path repairs and newline conversion.
+    """
+    import check_plan_completion as ck
+    from minor_close import rewrite_links, rewrite_mentions
+
+    binding = V414_CARRY_RECONCILIATION
+    if (not record or record.get("schema") != 2 or record.get("scope") != "minor"
+            or record.get("minor") != "v4.14" or record.get("repo") != "bendourthe/Nexus-Hub"
+            or record.get("nonce") != binding["minor_nonce"] or record.get("start_head") != binding["start"]
+            or (record.get("approvals") or {}).get("page_sha256") != binding["minor_page"]
+            or ledger.minor != (4, 14) or item.gid not in V414_CARRIED_IDS
+            or item.state != "migrated" or item.target != "v4.15.0"
+            or copy.gid != V414_CARRIED_IDS[item.gid] or copy.state != "open"
+            or item.sensitive() or copy.sensitive() or ledger.problems):
+        return False
+    if sorted(str(m.get("version")) for m in record.get("members", []) if isinstance(m, dict)) != [
+        f"v4.14.{patch}" for patch in range(7)
+    ]:
+        return False
+    parent_path = getattr(record, "record_path", rctx.scoped_record_path("minor:v4.14"))
+    if parent_path.stem != binding["minor_key"] or not _verified(ck, rctx, "v4.14", record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+        return False
+    path = ck._runs_dir() / (binding["last_key"] + ".json")
+    last = ck.read_record(rctx, path)
+    key = ck._secret(create=False)
+    signature = (last or {}).get("approvals_hmac")
+    if (not last or key is None or not isinstance(signature, str)
+            or re.fullmatch(r"[0-9a-f]{64}", signature) is None
+            or not hmac.compare_digest(signature, _sign(ck, last, key))):
+        return False
+    approvals = (last or {}).get("approvals") or {}
+    if not isinstance(approvals, dict) or not isinstance(approvals.get("classes"), list):
+        return False
+    blockers = last.get("blockers", [])
+    if not isinstance(blockers, list) or any(not isinstance(blocker, dict) or blocker.get("open") for blocker in blockers):
+        return False
+    if (not last or last.get("schema") != 1 or last.get("repo") != "bendourthe/Nexus-Hub"
+            or last.get("nonce") != binding["last_nonce"] or last.get("plan") != binding["plan"]
+            or last.get("plan_sha256") != binding["plan_hash"]
+            or approvals.get("page_sha256") != binding["last_page"]
+            or approvals.get("repo") != "bendourthe/Nexus-Hub" or approvals.get("source_branch") != binding["branch"]
+            or approvals.get("target_branch") != "develop" or not ck._has_class(last, "carry-gaps")):
+        return False
+    try:
+        root = Path(last.get("repo_root", ""))
+        if (ck.record_key(root, last["repo"].lower(), "plan:" + binding["plan"]) != path.stem
+                or not root.is_absolute() or str(root.resolve()) != str(root) or last.get("worktree") != str(root)):
+            return False
+    except (OSError, TypeError, ValueError):
+        return False
+    try:
+        ctx = ck.Context(str(root / binding["plan"]), rctx.budget)
+        state = ck._load_schema1(ctx, last, None, ck.RecordState())
+    except (ck.Malformed, OSError, ValueError):
+        return False
+    if (state.record is None or state.forced is not None or ctx.key_repo != last["repo"].lower()
+            or rctx.key_repo != last["repo"].lower()
+            or not (common := _common_dir(rctx, rctx.root)) or common != _common_dir(rctx, root)):
+        return False
+    rc, tag_commit = rctx.run([rctx.git, "--no-replace-objects", "-C", str(rctx.root), "rev-parse", "--verify", "refs/tags/v4.14.8^{commit}"])
+    if rc == -1:
+        raise ObservationUnavailable("migration.publication")
+    if rc != 0 or tag_commit.strip() != binding["release"]:
+        return False
+    publications = _memo(rctx, "_v414_published_carry")
+    publication_key = (last["repo"], binding["release"])
+    publication = publications.get(publication_key) or shipped(ck, rctx, last["repo"], "v4.14.8")
+    if publication == "cannot-verify":
+        raise ObservationUnavailable("migration.publication")
+    if publication != "met":
+        return False
+    publications[publication_key] = publication
+    active, archived = "docs/releases/v4/v4.14", "docs/archives/v4/v4.14"
+
+    def moved(rel: str) -> str:
+        return archived + rel[len(active):] if rel == active or rel.startswith(active + "/") else rel
+
+    def canonical(text: str, rel: str) -> list[GapItem]:
+        text, _ = rewrite_links(text.replace("\r\n", "\n"), rel.rsplit("/", 1)[0], moved(rel).rsplit("/", 1)[0], moved)
+        text, _ = rewrite_mentions(text, active, archived, markdown=True)
+        items, problems = parse_ledger_full(text)
+        return [] if problems else items
+
+    targets = [target for target in ledgers if target.minor == (4, 15)]
+    if len(targets) != 1 or targets[0].problems or len([source for source in ledgers if source.minor == (4, 14)]) != 1:
+        return False
+    for rel, current_ledger, current in ((active + "/known-gaps.md", ledger, item),
+                                         ("docs/releases/v4/v4.15/known-gaps.md", targets[0], copy)):
+        status, text = _ledger_blob(rctx, binding["release"], rel, no_replace=True)
+        if status == "cannot-verify":
+            raise ObservationUnavailable("migration.publication")
+        if status != "met":
+            return False
+        published = [old for old in canonical(text, rel) if old.gid == current.gid]
+        present = [now for now in canonical(current_ledger.text, current_ledger.rel) if now.gid == current.gid]
+        if len(published) != 1 or len(present) != 1:
+            return False
+        old, now = published[0], present[0]
+        if (old.title, old.body, section_version(old.section)) != (now.title, now.body, section_version(now.section)):
+            return False
+        if old.sensitive() or now.sensitive():
+            return False
+    return plan_migration_met(ledgers, ledger, item)
 
 
 def verify_migration(
@@ -3567,6 +4098,9 @@ def verify_migration(
         return "unmet", "migration-target-not-next-minor"
     copy = found[1]
     gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
+    if (gate == "unmet" and reason == "migration-not-approved"
+            and reconciled_v414_carry(rctx, record, ledgers, ledger, item, copy)):
+        gate, reason = "met", "published-plan-carry"
     if gate != "met":
         return gate, reason
     if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy):
@@ -3576,11 +4110,14 @@ def verify_migration(
     reasons = [r for m, i, r in copy.provenance() if m == source and i == item.gid]
     if not reasons or reasons[-1] not in MIGRATION_REASONS:
         return "unmet", "migration-reason-invalid"
+    explicit = next((g for g in amendment_gap_grants(record) if g["id"] == f"{source}#{item.gid}"), None)
+    if explicit is not None and reasons[-1] != explicit["reason"]:
+        return "unmet", "migration-reason-outside-amendment"
     return "met", "approved-migration"
 
 
 def record_branches(record: dict | None) -> set[str]:
-    return {str(m.get("source_branch")) for m in (record or {}).get("members") or [] if isinstance(m, dict)}
+    return {str(m.get("source_branch")) for m in (_all_members(record) if record else []) if isinstance(m, dict)}
 
 
 def current_branch(rctx: RepoContext) -> str:
@@ -3874,7 +4411,7 @@ def archive_member_status(ck: ModuleType, rctx: RepoContext, record: dict, membe
     `archived.plan_path` hashes to `archived.plan_sha256` and no active tree of the
     minor still lists a path this member owns.
     """
-    if "archive-member" not in _classes(record):
+    if "archive-member" not in {c.get("class") for c in member_classes(record, member)}:
         return "n/a"
     token = str(record.get("minor"))
     archived = member.get("archived")
@@ -3985,9 +4522,14 @@ def version_order(version: str) -> tuple[int, ...]:
     return tuple(int(p) for p in version.lstrip("v").split("."))
 
 
+def _all_members(record: dict) -> list[dict]:
+    import check_plan_completion as ck
+    return effective_members(ck, record)
+
+
 def ordered_members(record: dict) -> list[dict]:
     members = [
-        m for m in record.get("members") or []
+        m for m in _all_members(record)
         if isinstance(m, dict) and PLAN_TOKEN_RE.match(str(m.get("version")))
     ]
     return sorted(members, key=lambda m: version_order(str(m["version"])))
@@ -4073,7 +4615,7 @@ def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | N
 def new_members(ck: ModuleType, rctx: RepoContext, record: dict, repo: str) -> tuple[str, str | None]:
     """(`members.approved` status, the first version added to the minor after approval)."""
     major, minor = parse_minor(ck, str(record.get("minor")))
-    known = {str(m.get("version")) for m in record.get("members") or [] if isinstance(m, dict)}
+    known = {str(m.get("version")) for m in effective_members(ck, record) if isinstance(m, dict)}
     known |= {str(e.get("version")) for e in record.get("excluded") or [] if isinstance(e, dict)}
     try:
         plans = scan_plans(rctx.root, major, minor)
@@ -4124,7 +4666,7 @@ def evaluate_member(
     authority = v415_task_authority(ck, rctx, record, member, plan)
     results, _deferred = ck.evaluate(ctx, ck.project(record, version), task_authority=authority)
     results = identity + results
-    if "archive-member" in _classes(record):
+    if "archive-member" in {c.get("class") for c in member_classes(record, member)}:
         # Only a record carrying the class reports the line, so a record without it
         # prints, scores, and completes exactly as before.
         results.append(("archive.member", archive_member_status(ck, rctx, record, member)))
@@ -4297,7 +4839,7 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
 def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
     """The minor verdict (completion contract, "Minor verdict")."""
     parse_minor(ck, token)
-    state = load_minor(ck, rctx, token, session, accept_completed=True)
+    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.forced is not None:
         # Tampered, paused, and blocked verdicts print no predicate lines: nothing a
         # member reports can change them, and evaluating every member spends the budget.
@@ -4363,7 +4905,7 @@ def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | N
     if not record.get("completed"):
         # `completed` is signed: it ends the record's authority (contract, "Schema 2", Validity).
         record["completed"] = {"at": ck._now(), "head": head}
-        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
         ck._write_record(path, record)
     return verdict
 
@@ -4465,7 +5007,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     parse_minor(ck, token)
     if not PLAN_TOKEN_RE.match(version or ""):
         raise ck.Malformed("--member must be a plan version such as v0.5.2")
-    state = load_minor(ck, rctx, token, args.session)
+    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.forced is not None:
         print(state.forced[0])
         return state.forced[1]
@@ -4553,7 +5095,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     if coordinator_paths:
         member["coordinator_paths"] = coordinator_paths
     # `members` is signed, so the gate's write is a signed update, never an unsigned edit.
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
     if member.get(V415_OUTPUT_PERMISSION):
         active["v415_output_activation"] = {"member": version, "head": tip,
@@ -4743,7 +5285,8 @@ def archive_entries(archived: object) -> dict[str, str | None] | None:
 
 
 def _archive_sources(record: dict | None) -> list[dict]:
-    return [m for m in (record or {}).get("members") or (record or {}).get("member_archives") or [] if isinstance(m, dict)]
+    members = _all_members(record) if record and isinstance(record.get("members"), list) else (record or {}).get("member_archives") or []
+    return [m for m in members if isinstance(m, dict)]
 
 
 def _archive_items(record: dict | None, exclude: str | None = None) -> list[tuple[str, dict[str, str | None], str]]:
@@ -5224,7 +5767,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     rctx = repo_context(ck, args)
     token, version = args.minor, args.member
     parse_minor(ck, token)
-    state = load_minor(ck, rctx, token, args.session)
+    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.forced:
         print(state.forced[0])
         return state.forced[1]
@@ -5288,7 +5831,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     if not existing:
         record.setdefault("implementation_controller", {"repo_root": str(rctx.root), "git_common_dir": _common_dir(rctx, rctx.root)})
         member["implementation"] = proposal
-        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
         ck._write_record(record_file(ck, rctx, token), record)
     print(f"IMPLEMENTING {version} base_head={head}")
     return 0
@@ -5298,7 +5841,7 @@ def cmd_check_member(ck: ModuleType, args: argparse.Namespace) -> int:
     """Read-only parent-bound member projection; never creates or rebinds approval."""
     rctx = minor_context(ck, args.repo)
     parse_minor(ck, args.minor)
-    state = load_minor(ck, rctx, args.minor, args.session, accept_completed=True)
+    state = load_minor(ck, rctx, args.minor, args.session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     if state.forced:
         print(state.forced[0])
         return state.forced[1]
@@ -5344,7 +5887,7 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
         raise ck.Malformed(f"unknown blocker category: {args.category}")
     session = None if args.session in (None, "auto") else args.session
     # A completed record still takes a blocker: its completion is signed, so this cannot be forged.
-    state = load_minor(ck, rctx, token, session, accept_completed=True)
+    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     record = state.record
     if record is None:
         if state.forced is not None:
@@ -5354,11 +5897,11 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
         return ck.EXIT_MALFORMED
     member = None
     if args.member:
-        member = next((m for m in record["members"] if m.get("version") == args.member), None)
+        member = next((m for m in effective_members(ck, record) if m.get("version") == args.member), None)
         if member is None:
             raise ck.Malformed(f"{args.member} is not a member of {token}")
-    member_classes = ((member or {}).get("approvals") or {}).get("classes") or []
-    approved = _classes(record) | {str(c.get("class")) for c in member_classes if isinstance(c, dict)}
+    approved = ({str(c.get("class")) for c in member_classes(record, member) if isinstance(c, dict)}
+                if member else _classes(record))
     if args.approval_class and args.approval_class in approved:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED

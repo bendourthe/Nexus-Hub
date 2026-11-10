@@ -39,14 +39,14 @@ The two vendors were first tested in disposable source copies. The native host u
 
 - Extension tests and coverage: sibling artifact directory `settings-codex-followup-20261105-artifacts/coverage-042-final.log`.
 - Exact-source adapter qualification: `settings-codex-followup-20261105-artifacts/vendor-ui-31fvly/report.json`.
-- Native relay exercise: `C:/Users/BEDOURTHE/Documents/nx live effort 042 proof/native-report.json`.
+- Native relay exercise: `C:/Users/you/Documents/nx live effort 042 proof/native-report.json`.
 - Native API and tab reports: `settings-codex-followup-20261105-artifacts/native-ui-042-host/medium-api-result.json`, `extra-high-api-result.json` and `distinct-codex-tabs-result.json`.
 
 ## Delivery
 
 Settings 0.4.2 is installed and registered in VS Code, Cursor and Antigravity. Twenty-three runtime/static files in each installed extension match the packaged bytes; the packaged manifest version and renamed license also verify. Package SHA-256: `14cf13dc092fafa6c8e45c99a98e876704f923dfbd1a9cd386332b0e2f57f617`.
 
-The installed VS Code Claude and Codex adapters and all four original-file backups verify against their receipts. Receipts are `C:/Users/BEDOURTHE/.nexus-hub/native-ui/claude-a01c7b1b963f44184b33/receipt.json` and `C:/Users/BEDOURTHE/.nexus-hub/native-ui/codex-69360d8e1cf336febe27/receipt.json`. Installation and byte-verification reports are `settings-codex-followup-20261105-artifacts/install-042.json`, `native-ui-042-install.json` and `package-042-receipt.json`.
+The installed VS Code Claude and Codex adapters and all four original-file backups verify against their receipts. Receipts are `C:/Users/you/.nexus-hub/native-ui/claude-a01c7b1b963f44184b33/receipt.json` and `C:/Users/you/.nexus-hub/native-ui/codex-69360d8e1cf336febe27/receipt.json`. Installation and byte-verification reports are `settings-codex-followup-20261105-artifacts/install-042.json`, `native-ui-042-install.json` and `package-042-receipt.json`.
 
 The private test host was stopped after its checks. The user's two working editor windows were not restarted. Visible live-effort verification remains open and must not be inferred from successful native protocol calls, queued webview messages or these unit tests. The installed update requires one editor restart to load the native adapters and menu.
 

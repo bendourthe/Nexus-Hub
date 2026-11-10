@@ -40,7 +40,7 @@ The normal web reader could not open the live page; a direct read returned a Jav
 
 ## Evidence
 
-Local root: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification`.
+Local root: `C:/Users/you/Documents/nx-usage-alerts-qualification`.
 
 - `readme-desktop-pair-reviewed/render-report.json` and scene PNGs
 - `verify-desktop-pair-readme-reviewed/results.json` and geometry reports

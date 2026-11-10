@@ -26,7 +26,7 @@ This record covers the VS Code Fast synchronization regression, repeated model-s
 
 The original `session-defaults.json` was restored byte-for-byte with Fast on. Nexus effort remains exactly `medium`. Claude's native user settings still have no `fastMode` key. No billing setting, managed restriction or permission guardrail was changed. The test-only diagnostic extension only read the installed status API and was loaded through a development-host path; it was not installed or included in the VSIX. The diagnostic window was closed after verification. Working user windows were not reloaded or closed.
 
-The final VSIX SHA-256 is `4f6c0f72cbb500be79156e03a6ff3dce1cb23f9310a369c75aaf7ad97768a18c`. Reports and the package are under `C:/Users/BEDOURTHE/Documents/nx-settings071-qualification/`, including `final-delivery-2.json`, `final-payloads-2.json`, `final-tests-2.json`, and the `release-checks` reports. The primary checkout retained its 34 unrelated changed files. No edit-guard baseline acceptance was used in this run.
+The final VSIX SHA-256 is `4f6c0f72cbb500be79156e03a6ff3dce1cb23f9310a369c75aaf7ad97768a18c`. Reports and the package are under `C:/Users/you/Documents/nx-settings071-qualification/`, including `final-delivery-2.json`, `final-payloads-2.json`, `final-tests-2.json`, and the `release-checks` reports. The primary checkout retained its 34 unrelated changed files. No edit-guard baseline acceptance was used in this run.
 
 ## Open Items
 

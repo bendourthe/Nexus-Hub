@@ -28,7 +28,7 @@ The real renderer completed all five exports in a fresh directory with no browse
 - Rendered geometry audit: passed with no findings. Python lint passed for both renderer files. The rendered README loaded all ten media files at desktop and narrow widths; all 39 checked local links resolved.
 - The original guide, training HTML, story JavaScript/JSON, and shipped panel JavaScript/CSS have no changes against the starting commit. Native extension functionality was outside this documentation task.
 
-Reproduction: `python scripts/render_readme_demos.py --output <new-directory>`. Capture receipts and screenshots are local under `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification/guide-readme-release-ready/` and `guide-readme-browser-checks/`.
+Reproduction: `python scripts/render_readme_demos.py --output <new-directory>`. Capture receipts and screenshots are local under `C:/Users/you/Documents/nx-usage-alerts-qualification/guide-readme-release-ready/` and `guide-readme-browser-checks/`.
 
 ## Edit Records
 

@@ -21,7 +21,7 @@ This update preserves the working Nexus Hub 0.7.4 panel hierarchy and provider r
 - The native live-disable check showed Claude's warning, disabled all alerts through the actual installed Nexus Hub API, observed the watcher hide it, and confirmed that Codex's disabled warning did not open. The actual settings panel then changed Claude alone, showed 1 of 5 enabled with a mixed master, and enabled all five through the master switch.
 - Native measured expiry, in milliseconds: claude 10005, codex 10005, copilot 10006, cursor 10009, gemini 10006. All five warning providers used their real timer and hide methods. The panel title Claude: Usage Alert was inspected visually.
 - The original alert preference file was absent. Final preferences explicitly enable all five providers, preserving the previous enabled default. Effort and Fast preferences and the maintainer's working editor windows were unchanged. The disposable proof window was closed.
-- Qualification artifacts: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification/`, including test JSON, native event receipts, timing summary, install results and final payload verification.
+- Qualification artifacts: `C:/Users/you/Documents/nx-usage-alerts-qualification/`, including test JSON, native event receipts, timing summary, install results and final payload verification.
 
 ## Packages
 

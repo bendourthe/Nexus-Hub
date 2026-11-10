@@ -13,7 +13,7 @@ Nexus Hub 0.7.4 makes main settings sections visually distinct and places provid
 - Compilation passed. Existing panel and packaging checks passed all 48 tests. Package verification passed with 34 required payload files.
 - Native VS Code visual inspection at the normal sidebar width confirmed the stronger main dividers, subtle inner line, icons, provider order and Version placement in both dark and Light Modern themes.
 - Installed 0.7.4 in VS Code, Cursor and Antigravity. All 34 package payloads matched in every host; installer-added manifest metadata was excluded from the semantic manifest comparison.
-- Artifact: `C:/Users/BEDOURTHE/Documents/nx-settings074-qualification/nexus-hub-settings-0.7.4.vsix`.
+- Artifact: `C:/Users/you/Documents/nx-settings074-qualification/nexus-hub-settings-0.7.4.vsix`.
 - SHA-256: `f2fa6da292c93bc30f1fdf0e5876558ae061a5a9c2a46eeb01bb872e423ba25a`.
 - Working editor windows and saved effort/Fast preferences were unchanged. The visual check used a disposable profile.
 

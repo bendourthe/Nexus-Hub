@@ -393,7 +393,7 @@ def test_summary_carries_evidence_and_remedy_when_not_detected(tmp_path: Path) -
 # Real install layouts (v4.14.7 Phase 7, T044)
 #
 # One acceptance row per gated platform, built from the layout the vendor's own
-# installer produces (docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md),
+# installer produces (docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md),
 # resolved by the real `safe_which` against real PATH directories. The other
 # tests inject a fake `which`; these prove an installed tool is still FOUND.
 # ---------------------------------------------------------------------------

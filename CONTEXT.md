@@ -2,6 +2,30 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Worktree Root
+
+**Definition**: The configured local parent directory for linked worktrees across repositories, proposed for standardized use by the v4.15.6 plan.
+
+**Avoid**: main repository, clone root, vendor cache
+
+**Relationships**: Contains repository-identity namespaces and their linked worktrees; main checkouts and installed Nexus-Hub files have separate locations.
+
+## Repository Identity
+
+**Definition**: A local identity that ties a worktree namespace to one proven Git common directory and distinguishes separate clones even when they share a basename or remote.
+
+**Avoid**: repository basename, remote URL, branch name
+
+**Relationships**: Owns a worktree namespace; each linked worktree also has its own identity and working directory.
+
+## Worktree Migration Manifest
+
+**Definition**: A reviewed local list of exact worktree operations with bound source/destination identities, preservation evidence, authorization, and state preconditions.
+
+**Avoid**: approval record, cleanup verdict, branch list
+
+**Relationships**: Describes proposed operations; execution receipts prove outcomes, and the applicable native authority remains separate.
+
 ## Keyword Style
 
 **Definition**: A title or heading form that names a topic, category, or object as a noun phrase, with no finite verb, no clause, no stated conclusion, and no terminal punctuation (for example "Revenue by Region").
@@ -185,3 +209,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: frequent component, hot path (for UI)
 
 **Relationships**: Governs the frequency-of-use rule in `hallmark-design` gate 25 (plan v4.22.6): no entrance animation and at most a short exit. Reduced-motion requirements stay with `accessibility-engineering`. Not the same as a performance hot path, which concerns compute rather than perceived time.
+
+## Critical-Path Job
+
+**Definition**: The non-aggregate CI job whose finish time sets when the required aggregate check (`ci-required`) can resolve, measured from the run's creation by `ci_latency_audit.py` (plan v4.15.7).
+
+**Avoid**: slowest job (when it is an aggregate such as `report`), bottleneck step, long pole
+
+**Relationships**: Determined by the `needs` graph, not by which job finishes last; aggregate jobs always finish last and are excluded. Shortening any other job does not shorten the run.
+
+## Partition Proof
+
+**Definition**: A test that collects pytest node IDs once unsharded and once per shard and asserts the shard sets are pairwise disjoint and their union equals the unsharded set (plan v4.15.7).
+
+**Avoid**: shard check, coverage test (for this purpose), glob match test
+
+**Relationships**: Stronger than a file-name glob check, which models `--ignore-glob` rather than running pytest. Complements `tests/workflows/test_ci_runs_every_repo_test.py`, which proves every test root is selected by some CI job.

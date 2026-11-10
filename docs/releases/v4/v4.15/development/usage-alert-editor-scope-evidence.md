@@ -22,7 +22,7 @@ Nexus Hub 0.8.1 limits usage-alert controls and master writes to the current edi
 
 ## Artifacts
 
-Local qualification root: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification`.
+Local qualification root: `C:/Users/you/Documents/nx-usage-alerts-qualification`.
 
 - `scoped-tests.json`
 - `scoped-browser-081/results.json`, screenshots and detector JSON

@@ -24,8 +24,8 @@ Nexus Hub 0.7.3 groups extension controls by provider, adds current-tab Codex re
 
 ## Delivery and Release
 
-- Local artifact: `C:/Users/BEDOURTHE/Documents/nx-settings073-qualification/nexus-hub-settings-0.7.3.vsix`.
+- Local artifact: `C:/Users/you/Documents/nx-settings073-qualification/nexus-hub-settings-0.7.3.vsix`.
 - SHA-256: `5e9c2ec7ec8938942bc846d40a4c3be56ed6764bcac4e95b4fcd8607afdf8462`.
-- Logs, test reports, disposable native checks and installed payload comparisons are under `C:/Users/BEDOURTHE/Documents/nx-settings073-qualification/`.
+- Logs, test reports, disposable native checks and installed payload comparisons are under `C:/Users/you/Documents/nx-settings073-qualification/`.
 - This supersedes the 0.7.2 shared-host restart behavior. The next release must integrate the complete `feat/settings-redesign-20261104` branch and ship extension 0.7.3 or newer with its settings engine, hook consumers and runtime adapters. Windows and POSIX installers already build and install this extension for every detected host.
 - Next-release integration and publication remain pending. No remote push or release was performed for this update.

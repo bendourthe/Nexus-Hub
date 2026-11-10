@@ -24,17 +24,17 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-claims-after-skills-repair.md",
+      "evidence": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-claims-after-skills-repair.md",
       "evidence_sha256": "9696391d9f47291989e23068c1544114e119989e240b970ec63d3befc55e1451"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-build-after-skills-repair.json",
+      "evidence": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-build-after-skills-repair.json",
       "evidence_sha256": "2f280c869889eb44cc2f220c67d9b53dcc35f51e195bff5a886e9fa5810a89d7"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
+      "evidence": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
       "evidence_sha256": "713b593c69e77674ec12ca9bb5f3826f6145d9ce1a85c2e179d68b3a79ece019",
       "browser": "Chromium 153.0.8010.12",
       "output_sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f"

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "admitted_on": "2026-10-30",
-  "proof_matrix": "docs/releases/v4/v4.14/development/v4.14.6-proof-matrix.md",
+  "proof_matrix": "docs/archives/v4/v4.14/development/v4.14.6-proof-matrix.md",
   "rule": "A write is admitted only with a source and a Proof Record (a proven row in the proof matrix); every other cell is Not-Settable with its reason.",
   "omitted_keys": {
     "codex": [

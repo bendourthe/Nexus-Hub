@@ -12,6 +12,7 @@ import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 import { registerUpdateWatcher } from "./updateWatcher";
+import { openUsagePage } from "./usagePage";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -55,15 +56,10 @@ const SAVE_RAW_COMMAND = "gemini-usage.saveRawResponse";
 
 /**
  * Open Antigravity's own Settings > Models (Models & Usage) screen as a manual
- * cross-check. The screen-name argument is Antigravity's internal settings-page
- * id; when a future build renames it, fall back to the settings window itself.
+ * cross-check. The fallback order across Antigravity builds lives in usagePage.ts.
  */
 async function openAntigravityUsagePage(): Promise<void> {
-  try {
-    await vscode.commands.executeCommand("workbench.action.openAntigravitySettingsWithId", undefined, "Models");
-  } catch {
-    await vscode.commands.executeCommand("workbench.action.openAntigravitySettings");
-  }
+  await openUsagePage((command, ...args) => vscode.commands.executeCommand(command, ...args));
 }
 
 let consecutiveFailures = 0;

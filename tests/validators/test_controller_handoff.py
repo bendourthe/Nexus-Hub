@@ -45,6 +45,11 @@ def handoff(fixture, source, target, *, apply=True, generation=0):
 
 def test_real_cli_dry_run_transfer_retry_and_source_removal(controller):
     fixture, source, target, path = controller
+    for index in range(160):
+        # Historical plan records and ignored gate metadata must not multiply
+        # the identical run-store Git ownership observation.
+        name = f"historical-{index:03}" + (".gate.json" if index % 4 == 0 else ".json")
+        (path.parent / name).write_text(json.dumps({"schema": 1, "historical": index}), encoding="utf-8")
     before = path.read_bytes()
     record = json.loads(before)
     directory_before = {p.name: p.read_bytes() for p in path.parent.glob('*') if p.is_file()}

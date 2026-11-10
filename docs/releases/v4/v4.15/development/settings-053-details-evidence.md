@@ -20,4 +20,4 @@ Current source confirms installNativeUi registers only anthropic.claude-code and
 
 ## Artifacts
 
-Local artifacts are under C:/Users/BEDOURTHE/Documents/nx-ui053-qualification. install.json records registrations and delivery-verified.json records payload verification. The VSIX SHA256 is 614e94bdd4b2eb938069db888d11bdcebece10f2afd4e1f4a18a7120c97e768e. Additional native-provider support retains the [0.5.1 investigation limits](settings-051-panel-and-platform-evidence.md).
+Local artifacts are under C:/Users/you/Documents/nx-ui053-qualification. install.json records registrations and delivery-verified.json records payload verification. The VSIX SHA256 is 614e94bdd4b2eb938069db888d11bdcebece10f2afd4e1f4a18a7120c97e768e. Additional native-provider support retains the [0.5.1 investigation limits](settings-051-panel-and-platform-evidence.md).

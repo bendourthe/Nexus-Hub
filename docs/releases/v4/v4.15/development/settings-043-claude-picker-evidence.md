@@ -33,10 +33,10 @@ Native UI verification is blocked because the active VS Code updater holds the s
 
 ## Artifacts
 
-- Coverage: `C:/Users/BEDOURTHE/Documents/nx-ui043-qualification/test-coverage.log`.
-- Pinned source qualification: `C:/Users/BEDOURTHE/Documents/nx-ui043-qualification/vendor-ui-Y6brgg/report.json`.
-- Private launch diagnostic: `C:/Users/BEDOURTHE/Documents/nx-ui042-live/startup-043.log`.
+- Coverage: `C:/Users/you/Documents/nx-ui043-qualification/test-coverage.log`.
+- Pinned source qualification: `C:/Users/you/Documents/nx-ui043-qualification/vendor-ui-Y6brgg/report.json`.
+- Private launch diagnostic: `C:/Users/you/Documents/nx-ui042-live/startup-043.log`.
 
 ## Delivery
 
-The 0.4.3 source, private Claude adapter and VSIX are prepared. Packaging and the 26 required package contents pass. VSIX: `C:/Users/BEDOURTHE/Documents/nx-ui043-qualification/nexus-hub-settings-0.4.3.vsix`; SHA-256: `01bc29868831f261cb19e1ec1548405e03355e85ee45c7de2a56cdb2fa4f327f`. Installation is deferred until actual native controls can be verified. Settings 0.4.2 remains installed. Nexus effort was restored to its pre-test Extra high preference through the normal settings command after an unchanged official edit-guard check. The 0.4.3 work is uncommitted and has not been published.
+The 0.4.3 source, private Claude adapter and VSIX are prepared. Packaging and the 26 required package contents pass. VSIX: `C:/Users/you/Documents/nx-ui043-qualification/nexus-hub-settings-0.4.3.vsix`; SHA-256: `01bc29868831f261cb19e1ec1548405e03355e85ee45c7de2a56cdb2fa4f327f`. Installation is deferred until actual native controls can be verified. Settings 0.4.2 remains installed. Nexus effort was restored to its pre-test Extra high preference through the normal settings command after an unchanged official edit-guard check. The 0.4.3 work is uncommitted and has not been published.

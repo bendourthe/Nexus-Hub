@@ -34,7 +34,7 @@ All animations are 1152 pixels wide; continuity is 885 pixels high, settings 834
 
 ## Local Artifacts
 
-Qualification root: `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification`.
+Qualification root: `C:/Users/you/Documents/nx-usage-alerts-qualification`.
 
 - `readme-cross-platform-reviewed/render-report.json` and scene PNGs
 - `verify-readme-cross-platform-reviewed/results.json` and geometry reports

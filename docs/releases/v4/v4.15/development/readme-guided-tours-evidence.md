@@ -34,7 +34,7 @@ The browser exercise passed 121 checks:
 
 The source cursor was visibly positioned at 16-18 distinct locations in each of all six workflow stages. The finished README rendered its six-row workflow table and twelve images at desktop and narrow widths; all 50 checked local links resolved. Both rendered geometry audits passed with zero findings. Python lint and JavaScript syntax checks cover the capture and preview files. The original guide, training story, settings webview, and monitor implementations remain unchanged. Native Claude Code/Codex effort behavior was not retested or modified.
 
-Receipts, screenshots, the browser proving script, and the combined export report are local under `C:/Users/BEDOURTHE/Documents/nx-usage-alerts-qualification/readme-guided-checks/`. Source export folders are recorded by the combined receipt and individual render reports.
+Receipts, screenshots, the browser proving script, and the combined export report are local under `C:/Users/you/Documents/nx-usage-alerts-qualification/readme-guided-checks/`. Source export folders are recorded by the combined receipt and individual render reports.
 
 ## Limits
 
