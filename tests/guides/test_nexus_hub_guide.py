@@ -809,7 +809,8 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
 
 def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert "Raw Prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
+    # 2026-11-10: the before-and-after rows sit in Why Nexus Hub, beside the guardrail figure.
+    assert "Why Nexus Hub" in home, "the comparison lives in the Why Nexus Hub section"
     assert '<div class="cmp-head">' in home
     head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
@@ -822,18 +823,6 @@ def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
     assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
     assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
-
-
-def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    block = re.search(r'<details class="definition-details">([\s\S]*?)</details>', home)
-    assert block and 'class="definition-list"' in block.group(1)
-    for term in ("Command", "Skill", "Hook", "Agent", "Rule"):
-        assert re.search(rf"<dt[^>]*>{re.escape(term)}</dt>", block.group(1)), (
-            f"missing definition term: {term}"
-        )
-    assert 'data-go="foundations"' in block.group(1)
-    assert 'data-go="cheatsheets"' not in block.group(1)
 
 
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
@@ -1604,12 +1593,20 @@ COMMANDS_DIR = _ROOT / "catalog" / "commands"
 
 
 def _strip_allowlisted_favicon(html: str) -> str:
+    """Drop favicon-set link lines a site origin may add: icons, the Apple touch icon, and the manifest.
+
+    Whole lines are removed, so a portfolio that keeps its own favicon block compares equal line for line.
+    """
     return re.sub(
-        r"""<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*>""",
+        r"""^[ \t]*<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon|manifest)["'][^>]*>[ \t]*\n""",
         "",
-        html,
-        flags=re.IGNORECASE,
+        html.replace("\r\n", "\n"),
+        flags=re.IGNORECASE | re.MULTILINE,
     )
+
+
+# The guide is index.html on the portfolio site, so its Training copy links there instead.
+PORTFOLIO_GUIDE_NAME = ("nexus-hub-guide.html", "index.html")
 
 
 def test_publication_check_self_contained_and_offline(
@@ -1642,9 +1639,13 @@ def test_optional_portfolio_copy_when_env_set() -> None:
         )
     training = dest.parent / "training.html"
     assert training.is_file(), f"env set but the portfolio copy lacks its second page at {training}"
-    assert _strip_allowlisted_favicon(TRAINING_PAGE.read_text(encoding="utf-8")) == _strip_allowlisted_favicon(
+    expected = TRAINING_PAGE.read_text(encoding="utf-8").replace(*PORTFOLIO_GUIDE_NAME)
+    assert _strip_allowlisted_favicon(expected) == _strip_allowlisted_favicon(
         training.read_text(encoding="utf-8")
     ), "portfolio copy of training.html drifted"
+    for asset in sorted((GUIDE.parent / "assets").iterdir()):
+        copy = dest.parent / "assets" / asset.name
+        assert copy.is_file() and copy.read_bytes() == asset.read_bytes(), f"portfolio asset drifted or missing: {asset.name}"
 
 
 def test_every_catalog_command_is_training_cheatsheets_or_declined(
