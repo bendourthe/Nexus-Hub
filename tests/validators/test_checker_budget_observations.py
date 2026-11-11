@@ -292,8 +292,9 @@ def test_runner_lease_unknown_after_successful_verification(monkeypatch, tmp_pat
 
     record = {"session_id": "s"}
     monkeypatch.chdir(tmp_path)
-    def resolved_controller(*_args, minor_protocol):
+    def resolved_controller(*_args, minor_protocol, execution_protocol):
         assert minor_protocol == 1
+        assert execution_protocol == 1
         return SimpleNamespace(root=tmp_path), record
     monkeypatch.setattr(ck, "resolve_minor_controller", resolved_controller)
     path = tmp_path / "record.json"

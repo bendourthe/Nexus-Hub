@@ -304,5 +304,50 @@ def test_cursor_dangerous_git_command_still_blocks(
         timeout=30,
     )
     assert proc.returncode == 2
-    assert proc.stdout == ""
+    assert json.loads(proc.stdout)["permission"] == "deny"
     assert "BLOCKED" in proc.stderr
+
+
+@pytest.mark.parametrize("kind", ["sh", "ps1"])
+def test_cursor_native_generic_events_record_and_protect_edits(request, tmp_path, kind):
+    """A native Cursor read updates the actual ledger before a later edit check."""
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    home.mkdir()
+    work.mkdir()
+    target = work / "existing.txt"
+    target.write_text("original\n", encoding="utf-8")
+    config = home / ".nexus-hub/guardrails.json"
+    config.parent.mkdir()
+    config.write_text('{"protect_user_edits":true}', encoding="utf-8")
+    helper = _HOOKS_DIR.parents[1] / "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py"
+    env = {key: value for key, value in os.environ.items() if not key.startswith("NEXUS_")}
+    env.update(HOME=str(home), USERPROFILE=str(home), NEXUS_EDIT_GUARD_DIR=str(tmp_path / "store"), NEXUS_EDIT_GUARD_SCRIPT=str(helper), NEXUS_EDIT_GUARD_TIMEOUT_SECONDS="60")
+    shell = request.getfixturevalue("bash_bin" if kind == "sh" else "powershell_bin")
+    child = [shell, str(_HOOKS_DIR / f"user-edit-guard.{kind}")] if kind == "sh" else [shell, "-NoProfile", "-File", str(_HOOKS_DIR / "user-edit-guard.ps1")]
+    def invoke(event, tool):
+        payload = {"cursor_version": "3.24.18", "conversation_id": "native-edit-ledger", "hook_event_name": event, "tool_name": tool, "tool_input": {"path": str(target), "content": "replacement\n"}, "cwd": str(work)}
+        return subprocess.run([sys.executable, str(_COMPAT), *child], input=json.dumps(payload), text=True, capture_output=True, cwd=work, env=env, timeout=120, check=False)
+    read = invoke("postToolUse", "Read")
+    assert read.returncode == 0, read.stderr
+    assert json.loads(read.stdout) == {}
+    target.write_text("user changes\n", encoding="utf-8")
+    blocked = invoke("preToolUse", "Write")
+    assert blocked.returncode == 2, blocked.stderr
+    assert "BLOCKED" in json.loads(blocked.stdout)["user_message"]
+    assert "user changes" not in blocked.stdout + blocked.stderr
+
+
+@pytest.mark.parametrize("kind", ["sh", "ps1"])
+def test_cursor_native_generic_secret_scan_blocks_and_switch_disables(request, tmp_path, kind):
+    config = tmp_path / ".nexus-hub/guardrails.json"
+    config.parent.mkdir()
+    shell = request.getfixturevalue("bash_bin" if kind == "sh" else "powershell_bin")
+    child = [shell, str(_HOOKS_DIR / f"secret-scan.{kind}")] if kind == "sh" else [shell, "-NoProfile", "-File", str(_HOOKS_DIR / "secret-scan.ps1")]
+    payload = {"cursor_version": "3.24.18", "hook_event_name": "preToolUse", "tool_name": "Write", "tool_input": {"path": str(tmp_path / "keys.py"), "content": "key = '" + "AK" + "IA" + "1234567890ABCDEF" + "'"}, "cwd": str(tmp_path)}
+    env = {**os.environ, "HOME": str(tmp_path), "USERPROFILE": str(tmp_path)}
+    for enabled, expected in [(True, 2), (False, 0)]:
+        config.write_text(json.dumps({"scan_secrets": enabled}), encoding="utf-8")
+        proc = subprocess.run([sys.executable, str(_COMPAT), *child], input=json.dumps(payload), text=True, capture_output=True, cwd=tmp_path, env=env, timeout=120, check=False)
+        assert proc.returncode == expected, proc.stderr
+        assert json.loads(proc.stdout)["permission"] == ("deny" if enabled else "allow")

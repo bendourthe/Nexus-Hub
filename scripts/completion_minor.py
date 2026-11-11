@@ -35,11 +35,12 @@ import json
 import os
 import re
 import sys
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
 from functools import wraps
 from pathlib import Path
 from types import ModuleType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Iterator
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
@@ -275,7 +276,7 @@ def _minor_record_live(ck: ModuleType, record: dict) -> bool:
     return not record.get("completed")
 
 
-def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None) -> bool:
+def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None, *, discovery=None) -> bool:
     """Another live minor record, anywhere in the runs directory, lists this version."""
     def lists(record: dict) -> bool:
         members = effective_members(ck, record) if isinstance(effective_members(ck, record), list) else []
@@ -283,10 +284,10 @@ def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path 
             isinstance(m, dict) and m.get("version") == version for m in members
         )
 
-    for path in authority_records(ck, rctx, lists):
+    for path in (authority_records(ck, rctx, lists) if discovery is None else authority_records(ck, rctx, lists, discovery=discovery)):
         if own is not None and path.resolve() == own.resolve():
             continue
-        record = ck.read_record(rctx, path)
+        record = discovery[1](path) if discovery is not None else ck.read_record(rctx, path)
         if record is None or _minor_record_live(ck, record):
             return True
     return False
@@ -300,6 +301,7 @@ def ownership(
     integration: str | None,
     ours: set[str],
     own: Path | None = None,
+    *, discovery=None,
 ) -> str | None:
     """`owned-by-another-run`, `cannot-verify-owned`, or None when the plan is free.
 
@@ -313,7 +315,7 @@ def ownership(
             return "owned-by-another-run"
         if path.is_file() and ck.record_live(rctx, path)[0]:
             return "owned-by-another-run"
-    if other_minor_owns(ck, rctx, plan.version, own):
+    if (other_minor_owns(ck, rctx, plan.version, own) if discovery is None else other_minor_owns(ck, rctx, plan.version, own, discovery=discovery)):
         return "owned-by-another-run"
     prefix = f"feat/{plan.version}-"
     for name, sha in heads.refs.items():
@@ -744,7 +746,7 @@ def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Pa
 
 
 def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
-                     *, include_linked: bool = False, predicate=None) -> list[Path]:
+                     *, include_linked: bool = False, predicate=None, discovery=None) -> list[Path]:
     """Authenticated common-directory ownership includes the legacy absent-binding form."""
     batch_reader = getattr(ck, 'record_read_batch', None)
     if not callable(batch_reader):
@@ -753,17 +755,20 @@ def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None
         raise ObservationUnavailable('record.provenance')
     found = []
     direct = rctx.scoped_record_path('minor:' + token) if token else None
-    common = _common_dir(rctx, rctx.root)
+    common = discovery[2] if discovery is not None else _common_dir(rctx, rctx.root)
     if not common:
         raise ck.MinorConflict('controller-ownership-unavailable')
     try:
-        store = ck._runs_dir()
-        try:
-            store.stat()
-        except FileNotFoundError:
-            return []
-        paths = sorted(path for path in store.iterdir() if path.name.endswith('.json'))
-        with batch_reader(rctx, paths) as read:
+        if discovery is None:
+            store = ck._runs_dir()
+            try:
+                store.stat()
+            except FileNotFoundError:
+                return []
+            paths = sorted(path for path in store.iterdir() if path.name.endswith('.json'))
+        else:
+            paths = discovery[0]
+        with (nullcontext(discovery[1]) if discovery is not None else batch_reader(rctx, paths)) as read:
             for path in paths:
                 if path.name.endswith('.gate.json'):
                     continue
@@ -792,10 +797,10 @@ def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None
     return found
 
 
-def authority_records(ck: ModuleType, rctx: RepoContext, predicate) -> list[Path]:
+def authority_records(ck: ModuleType, rctx: RepoContext, predicate, *, discovery=None) -> list[Path]:
     paths = ck.find_records_by_content(rctx.root, predicate)
-    for path in minor_candidates(ck, rctx, predicate=predicate):
-        record = ck.read_record(rctx, path)
+    for path in (minor_candidates(ck, rctx, predicate=predicate) if discovery is None else minor_candidates(ck, rctx, predicate=predicate, discovery=discovery)):
+        record = discovery[1](path) if discovery is not None else ck.read_record(rctx, path)
         if predicate(record) and path not in paths:
             paths.append(path)
     return paths
@@ -897,11 +902,19 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
                 raise ck.MinorConflict('member-history-cannot-verify')
             merge = merge_info.get('oid', '')
             tag = str(member.get('tag') or member['version'])
-            conditional = (member.get('approvals') or {}).get('conditional_outcome') is not None
-            state, anchor = completion_anchor(ck, ctx, record, member)
-            released = 'met' if conditional and state == 'met' else ck._release_status(ctx, str(record['repo']), tag)
-            if (_ancestor(ctx, merge, head) != 'met' or state != 'met' or not anchor
-                    or _ancestor(ctx, anchor, head) != 'met' or released != 'met'):
+            if _ancestor(ctx, merge, head) != 'met':
+                raise ck.MinorConflict('member-release-history-not-in-target')
+            if (member.get('approvals') or {}).get('conditional_outcome') is not None:
+                # A captured conditional decline is anchored at its verified merge, never a tag.
+                state, anchor = completion_anchor(ck, ctx, record, member)
+                history_ok = state == 'met' and bool(anchor) and _ancestor(ctx, anchor, head) == 'met'
+            else:
+                tag_rc, _ = ctx.run([ctx.git, '-C', str(ctx.root), 'merge-base', '--is-ancestor', 'refs/tags/' + tag, head])
+                tag_status = {0: 'met', 1: 'unmet', -1: 'cannot-verify'}.get(tag_rc)
+                if tag_status is None:
+                    tag_status = _tag_in(ctx, tag, head)
+                history_ok = tag_status == 'met' and ck._release_status(ctx, str(record['repo']), tag) == 'met'
+            if not history_ok:
                 raise ck.MinorConflict('member-release-history-not-in-target')
     major, minor = parse_minor(ck, record['minor'])
     plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
@@ -930,14 +943,14 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
         ctx = ck.RepoContext(target, ck.Budget(ck.BUDGET_SECONDS))
         record = ck.read_record(ctx, path)
         require_controller(ck, ctx, record, path)
-        if not _verified(ck, ctx, args.minor, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+        if not _verified(ck, ctx, args.minor, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
             raise ck.MinorConflict('minor-authority-unverified')
         print('ALREADY TRANSFERRED ' + str(path))
         return 0
     if (identity['repo_root'] != str(ctx.root) or identity['repo_root'] != str(Path(args.repo).resolve())
             or identity['generation'] != args.expected_generation):
         raise ck.MinorConflict('controller-generation-mismatch')
-    state = load_minor(ck, ctx, args.minor, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, ctx, args.minor, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.record is None or state.forced or record.get('completed'):
         raise ck.MinorConflict('minor-not-transferable')
     _handoff_target(ck, ctx, record, target, args.head)
@@ -975,7 +988,7 @@ def minor_record_path(ck: ModuleType, args: argparse.Namespace) -> Path:
 
 def load_minor(
     ck: ModuleType, rctx: RepoContext, token: str, session: str | None, *, accept_completed: bool = False,
-    minor_protocol: int | None = None,
+    minor_protocol: int | None = None, execution_protocol: int | None = None,
 ) -> MinorState:
     """Load and verify the schema-2 record for `token`.
 
@@ -1003,7 +1016,8 @@ def load_minor(
     record = ck.read_record(rctx, path)
     if record is not None:
         _require_amendment_protocol(ck, record, minor_protocol)
-    if record is None or not _verified(ck, rctx, token, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+        _require_execution_protocol(ck, record, execution_protocol)
+    if record is None or not _verified(ck, rctx, token, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
         state.forced = ck.TAMPERED
         return state
     if record.get("completed") and not accept_completed:
@@ -1030,6 +1044,8 @@ def load_minor(
     return state
 
 
+MINOR_EXECUTION_PROTOCOL = 1
+_EXECUTION_FIELDS = ("minor_execution_format", "minor_execution_permissions")
 MINOR_AMENDMENT_PROTOCOL = 1
 _AMENDMENT_FIELDS = ("minor_amendment_format", "minor_amendments", "minor_amendment_members")
 _AMENDMENT_DESCRIPTOR_FIELDS = {"version", "plan_path", "plan_sha256", "source_branch", "target_branch", "release_version", "tag", "approvals"}
@@ -1051,8 +1067,19 @@ def _require_amendment_protocol(ck: ModuleType, record: dict, protocol: int | No
     return check(record, protocol)
 
 
+def _require_execution_protocol(ck: ModuleType, record: dict, protocol: int | None) -> bool:
+    if not any(name in record for name in _EXECUTION_FIELDS):
+        return False
+    check = getattr(ck, "require_minor_execution_protocol", None)
+    if not callable(check) or getattr(ck, "MINOR_EXECUTION_PROTOCOL", None) != MINOR_EXECUTION_PROTOCOL:
+        raise ck.MinorConflict("minor-execution-consumer-incompatible")
+    return check(record, protocol)
+
+
 def _sign(ck: ModuleType, record: dict, key: bytes) -> str:
     """Legacy records keep their original sibling API; extensions require explicit participation."""
+    if _require_execution_protocol(ck, record, MINOR_EXECUTION_PROTOCOL):
+        return ck._sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if _require_amendment_protocol(ck, record, MINOR_AMENDMENT_PROTOCOL):
         return ck._sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
     return ck._sign(record, key)
@@ -1201,11 +1228,13 @@ def check_minor_amendment_write(ck: ModuleType, rctx: RepoContext, previous: dic
         raise ck.MinorConflict("minor-amendment-unrelated-record-change")
 
 
-def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, minor_protocol: int | None = None) -> bool:
+def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, minor_protocol: int | None = None, execution_protocol: int | None = None) -> bool:
     key = ck._secret(create=False)
     try:
         _require_amendment_protocol(ck, record, minor_protocol)
+        _require_execution_protocol(ck, record, execution_protocol)
         members = effective_members(ck, record)
+        execution_permission_history(ck, record)
     except (ck.MinorConflict, TypeError, ValueError, KeyError):
         return False
     if (
@@ -1265,7 +1294,7 @@ def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, mem
             or member.get("version") not in {f"v4.15.{patch}" for patch in range(5)}):
         return None
     try:
-        if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+        if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
             return None
         matches = [m for m in parent["members"] if m.get("version") == member.get("version")]
         if len(matches) != 1 or approval_binding.canonical(matches[0]) != approval_binding.canonical(member):
@@ -1359,6 +1388,60 @@ def member_moves(version: str, tree: str, tracked: list[str], plan_rel: str | No
     return [(old, dest + old[len(tree):]) for old in sorted(owned)]
 
 
+# Pauses (seconds) before retrying a typed ownership decision whose record snapshot changed.
+_OWNERSHIP_RETRY_DELAYS = (0.2, 0.5, 1.0)
+
+
+def _sleep(seconds: float) -> None:
+    import time
+    time.sleep(seconds)
+
+
+@contextmanager
+def _execution_ownership_reader(ck: ModuleType, rctx: RepoContext) -> Iterator[tuple[list[Path], Callable[[Path], dict | None], str]]:
+    """Share provenance only within one typed ownership decision; read every record fresh."""
+    store = ck._runs_dir()
+
+    def inventory() -> tuple[bool, list[Path]]:
+        try:
+            store.stat()
+        except FileNotFoundError:
+            return False, []
+        return True, sorted(path for path in store.iterdir() if path.name.endswith('.json') and not path.name.endswith('.gate.json'))
+
+    try:
+        existed, paths = inventory()
+        common = _common_dir(rctx, rctx.root)
+        if not common:
+            raise ck.MinorConflict('controller-ownership-unavailable')
+        active = True
+        with ck.record_read_batch(rctx, paths) as fresh_read:
+            baseline = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+            def read(path: Path) -> dict | None:
+                if not active or path not in baseline:
+                    raise ObservationUnavailable('record.provenance')
+                expected = baseline[path]
+                if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                    raise ObservationUnavailable('record.provenance')
+                record = fresh_read(path)
+                if (hashlib.sha256(path.read_bytes()).hexdigest() != expected
+                        or (isinstance(record, ck.MinorSnapshot) and record.loaded_sha256 != expected)):
+                    raise ObservationUnavailable('record.provenance')
+                return record
+
+            try:
+                yield paths, read, common
+            finally:
+                active = False
+            if inventory() != (existed, paths) or any(
+                    hashlib.sha256(path.read_bytes()).hexdigest() != baseline[path] for path in paths) or inventory() != (existed, paths):
+                raise ObservationUnavailable('record.provenance')
+            if _common_dir(rctx, rctx.root) != common:
+                raise ObservationUnavailable('record.provenance')
+    except OSError as exc:
+        raise ObservationUnavailable('record.provenance') from exc
+
+
 def _owned_member(ck: ModuleType, rctx: RepoContext, record: dict, own: Path) -> tuple[str, str] | None:
     """(blocker category, version) for the first member another run owns or that cannot be decided."""
     ours = {str(m.get("source_branch")) for m in effective_members(ck, record)}
@@ -1370,14 +1453,33 @@ def _owned_member(ck: ModuleType, rctx: RepoContext, record: dict, own: Path) ->
     except MinorMalformed:
         # cannot tell: stop, never guess
         return "platform-unavailable", str(effective_members(ck, record)[0].get("version"))
-    for member in effective_members(ck, record):
-        plan = by_version.get(str(member.get("version")))
-        reason = None if plan is None else ownership(ck, rctx, plan, heads, integration, ours, own)
-        if reason == "owned-by-another-run":
-            return reason, plan.version
-        if reason == "cannot-verify-owned":
-            return "platform-unavailable", plan.version
-    return None
+    typed = any(name in record for name in _EXECUTION_FIELDS)
+
+    def decide(discovery) -> tuple[str, str] | None:
+        for member in effective_members(ck, record):
+            plan = by_version.get(str(member.get("version")))
+            reason = None if plan is None else (ownership(ck, rctx, plan, heads, integration, ours, own) if discovery is None else ownership(ck, rctx, plan, heads, integration, ours, own, discovery=discovery))
+            if reason == "owned-by-another-run":
+                return reason, plan.version
+            if reason == "cannot-verify-owned":
+                return "platform-unavailable", plan.version
+        return None
+
+    if not typed:
+        return decide(None)
+    # The typed reader fails closed when any shared run record changes during one decision.
+    # Parallel workers rewrite records routinely, so a changed snapshot is retried as a whole
+    # a bounded number of times; persistent drift still fails closed on the last attempt.
+    for delay in _OWNERSHIP_RETRY_DELAYS:
+        try:
+            with _execution_ownership_reader(ck, rctx) as discovery:
+                return decide(discovery)
+        except ObservationUnavailable as exc:
+            if exc.args != ('record.provenance',):
+                raise
+            _sleep(delay)
+    with _execution_ownership_reader(ck, rctx) as discovery:
+        return decide(discovery)
 
 
 def _membership_or_exit(ck: ModuleType, rctx: RepoContext, token: str, spec: dict) -> tuple[Membership, str] | int:
@@ -1385,7 +1487,7 @@ def _membership_or_exit(ck: ModuleType, rctx: RepoContext, token: str, spec: dic
     own = record_file(ck, rctx, token)
     if ck.lock_live(own):
         return ck._blocked(f"owned-by-another-run ({token})")
-    live = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    live = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if live.record is not None:
         print(f"BLOCKED: approval-not-covered (minor record {token} is live; resume or complete it)")
         return ck.EXIT_BLOCKED
@@ -1422,7 +1524,7 @@ def cmd_members(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    own = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    own = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     ours = {str(m.get("source_branch")) for m in (effective_members(ck, own.record) if own.record else [])}
     # Only a verified record of this minor is "ours"; any other one still owns its versions.
     own_path = record_file(ck, rctx, token) if own.record is not None else None
@@ -1459,7 +1561,7 @@ def covering_minor(ck: ModuleType, rctx: RepoContext, version: str) -> str | Non
     if not match:
         return None
     token = f"v{int(match.group(1))}.{int(match.group(2))}"
-    state = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     members = effective_members(ck, state.record) if state.record else []
     return token if any(m.get("version") == version for m in members) else None
 
@@ -1473,8 +1575,10 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read"):
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "permit-member-execution-paths"):
         raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs or correct-ci-read")
+    if getattr(args, "execution", None) is not None and args.action != "permit-member-execution-paths":
+        raise ck.Malformed("--execution requires --action permit-member-execution-paths")
     if getattr(args, "outputs", None) is not None and args.action != "permit-outputs":
         raise ck.Malformed("--outputs requires --action permit-outputs")
     if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
@@ -1525,6 +1629,16 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         if isinstance(record, int):
             return record
         page = manifest_permission_page(ck, rctx, token, record, getattr(args, "member", None))
+        display = None
+    elif args.action == "permit-member-execution-paths":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        try:
+            value = _execution_json(Path(args.execution).read_text(encoding="utf-8"))
+        except (OSError, TypeError, MinorMalformed) as exc:
+            raise ck.Malformed("minor-execution-request-unreadable") from exc
+        page = execution_permission_page(ck, rctx, token, record, getattr(args, "member", None), value)
         display = None
     elif args.action == "permit-outputs":
         record = _record_for_v415_permission(ck, rctx, token, args.session)
@@ -1652,7 +1766,7 @@ def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: st
     A resume may adopt a record bound to another session (the cross-session
     resume); a pause applies only in the record's own session.
     """
-    state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer", minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer", minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     record = state.record or (state.other_session if action == "resume" else None)
     if record is not None:
         return record
@@ -1758,7 +1872,7 @@ def add_class_page(ck: ModuleType, token: str, record: dict, name: str | None) -
 
 def _record_for_add_class(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
     """The verified, live record a class is added to; completed, paused, blocked, or tampered refuses."""
-    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced is not None:
         print(state.forced[0])
         return state.forced[1]
@@ -2482,7 +2596,7 @@ def _v415_output_paths(rctx: RepoContext, version: str, value: object) -> list[s
 
 def _record_for_v415_permission(ck: ModuleType, rctx: RepoContext, token: str, session: str) -> dict | int:
     """Only approval-not-covered may bootstrap its own bounded permission round."""
-    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     record = state.record
     if record is not None and state.forced:
         blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
@@ -4690,7 +4804,7 @@ def reconciled_v414_carry(
     ]:
         return False
     parent_path = getattr(record, "record_path", rctx.scoped_record_path("minor:v4.14"))
-    if parent_path.stem != binding["minor_key"] or not _verified(ck, rctx, "v4.14", record, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+    if parent_path.stem != binding["minor_key"] or not _verified(ck, rctx, "v4.14", record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
         return False
     path = ck._runs_dir() / (binding["last_key"] + ".json")
     last = ck.read_record(rctx, path)
@@ -5605,7 +5719,7 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
 def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
     """The minor verdict (completion contract, "Minor verdict")."""
     parse_minor(ck, token)
-    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced is not None:
         # Tampered, paused, and blocked verdicts print no predicate lines: nothing a
         # member reports can change them, and evaluating every member spends the budget.
@@ -5781,7 +5895,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     parse_minor(ck, token)
     if not PLAN_TOKEN_RE.match(version or ""):
         raise ck.Malformed("--member must be a plan version such as v0.5.2")
-    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced is not None:
         print(state.forced[0])
         return state.forced[1]
@@ -5872,6 +5986,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     # `members` is signed, so the gate's write is a signed update, never an unsigned edit.
     record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
+    active["minor_execution_activation"] = {"member": version, "role": "coordinator", "record_sha256": active["expected"]}
     if member.get(V415_OUTPUT_PERMISSION):
         active["v415_output_activation"] = {"member": version, "head": tip,
                                              "paths": coordinator_paths, "record_sha256": active["expected"]}
@@ -5882,6 +5997,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     finally:
         active.pop("v415_output_activation", None)
         active.pop("v415_ci_read_restore", None)
+        active.pop("minor_execution_activation", None)
     print(f"STARTED {version} start_head={tip}")
     return 0
 
@@ -5981,7 +6097,7 @@ def _sensitive_write(rctx: RepoContext, path: str, tracked: list[str] | None = N
     return _sensitive_name(path) or any(_overlap(path, p) for p in [*protected, *(p for p in tracked if p and _sensitive_name(p))])
 
 
-def _claims(rctx: RepoContext, token: str, root: Path, value: object) -> dict:
+def _claims(rctx: RepoContext, token: str, root: Path, value: object, *, ck: ModuleType | None = None, record: dict | None = None, member: dict | None = None, for_admission: bool = False) -> dict:
     if not isinstance(value, dict) or set(value) != {"depends_on", "read_paths", "write_paths"}:
         raise MinorMalformed("invalid-implementation-claims")
     result = {}
@@ -5995,16 +6111,26 @@ def _claims(rctx: RepoContext, token: str, root: Path, value: object) -> dict:
     if not result["write_paths"]:
         raise MinorMalformed("empty-implementation-write-scope")
     tracked = rctx._git_out("ls-files", "-z").split("\0")
-    if any(_sensitive_write(rctx, p, tracked) for p in result["write_paths"]):
+    if any(_sensitive_write(rctx, p, tracked) and not _execution_path_allowed(ck, record, member, p, role="implementation", admission=for_admission) for p in result["write_paths"]):
         raise MinorMalformed("sensitive-implementation-path")
+    if ck is not None and record is not None and member is not None:
+        for entry in effective_execution_history(ck, record):
+            page = entry["page"]
+            if (page["member"] == member["version"] and page["role"] == "implementation"
+                    and page["worker_identity"]["worktree"] != str(root)):
+                raise MinorMalformed("minor-execution-worker-identity-changed")
     protected = _coordinator_paths(rctx, token, tracked)
     if any(_coordinator_name(p) or any(_overlap(p, q) for q in protected) for p in result["write_paths"]):
         raise MinorMalformed("coordinator-owned-path")
     return result
 
 
-def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = None) -> str:
+def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = None, *, record: dict | None = None, ck: ModuleType | None = None, admission: bool = False) -> str:
     implementation = member["implementation"]
+    if (ck is not None and record is not None
+            and any(entry["page"]["member"] == member.get("version") for entry in execution_permission_history(ck, record))
+            and not v415_index_flags_visible(ctx)):
+        return "cannot-verify"
     start = base or member.get("start_head") or implementation["base_head"]
     if not base:
         integration = _integration_ref(ctx, str(member.get("target_branch") or "develop"))
@@ -6029,7 +6155,10 @@ def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = Non
     try:
         for path in paths:
             _literal_path(ctx.root, path + "/" if (ctx.root / path).is_dir() else path)
-            if _sensitive_write(ctx, path, []) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
+            permitted = _member_write_permitted(ck, record, member, path, admission=admission)
+            if (_sensitive_write(ctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
+                return "unmet"
+            if path == _EXECUTION_REGISTRY and not _execution_registration_audit(ck, ctx, record, member, start):
                 return "unmet"
             if not any(_overlap(path, claim) for claim in writes):
                 return "unmet"
@@ -6385,7 +6514,10 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
             return "cannot-verify"
         for path in (p for p in out.split("\0") if p and p not in archived):
             _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
-            if _sensitive_write(rctx, path, []) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
+            permitted = _member_write_permitted(ck, record, member, path)
+            if (_sensitive_write(rctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
+                return "unmet"
+            if path == _EXECUTION_REGISTRY and not _execution_registration_audit(ck, rctx, record, member, base, merge):
                 return "unmet"
             if path not in supplements and not any(_overlap(path, claim) for claim in writes):
                 return "unmet"
@@ -6401,7 +6533,7 @@ def _merged_on_base(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
 
 
 def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, budget: object,
-                    *, base: str | None = None, canonical_merged: bool = True) -> tuple[object | None, str, bool]:
+                    *, base: str | None = None, canonical_merged: bool = True, admission: bool = False) -> tuple[object | None, str, bool]:
     """Validate live identity before using a worker; merged evidence lives on the controller."""
     implementation = member.get("implementation")
     if not isinstance(implementation, dict) or not _controller_valid(rctx, record):
@@ -6442,7 +6574,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
         if rc or branch.strip() != member["source_branch"]:
             return None, "cannot-verify", False
         claims = {key: implementation[key] for key in ("depends_on", "read_paths", "write_paths")}
-        if _claims(rctx, str(record["minor"]), root, claims) != claims:
+        if _claims(rctx, str(record["minor"]), root, claims, ck=ck, record=record, member=member, for_admission=admission) != claims:
             return None, "cannot-verify", False
         plans = scan_plans(root, *parse_minor(ck, str(record["minor"])))
         plan = next((p for p in plans if p.version == member["version"]), None)
@@ -6451,7 +6583,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
         ctx = ck.Context(str(root / plan.rel), budget)
         if _ancestor(ctx, str(record["start_head"]), frozen_base) != "met":
             return None, "cannot-verify", False
-        status = _implementation_paths(ctx, member, base)
+        status = _implementation_paths(ctx, member, base, record=record, ck=ck, admission=admission)
         return ctx, status, False
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ck.Malformed):
         return None, "cannot-verify", False
@@ -6498,7 +6630,7 @@ def _coordinator_claims(ck: ModuleType, rctx: RepoContext, record: dict, member:
     protected = _coordinator_paths(rctx, str(record["minor"]))
     for path in paths:
         lower = path.casefold()
-        if _sensitive_write(rctx, path) or lower.startswith("catalog/hooks/"):
+        if (_sensitive_write(rctx, path) and not _execution_path_allowed(ck, record, member, path, role="coordinator", admission=True)) or lower.startswith("catalog/hooks/"):
             raise MinorMalformed("coordinator-sensitive-path")
         entries = member.get("manifest_coordinator_permissions", [])
         permitted_manifest = (path == "MANIFEST.sha256" and isinstance(entries, list) and len(entries) == 1
@@ -6542,7 +6674,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     rctx = repo_context(ck, args)
     token, version = args.minor, args.member
     parse_minor(ck, token)
-    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced:
         print(state.forced[0])
         return state.forced[1]
@@ -6560,7 +6692,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
         if not raw.is_absolute() or raw != root:
             raise MinorMalformed("invalid-implementation-worktree")
         with Path(args.claims).open(encoding="utf-8") as handle:
-            claims = _claims(rctx, token, root, json.load(handle))
+            claims = _claims(rctx, token, root, json.load(handle), ck=ck, record=record, member=member, for_admission=True)
     except (OSError, ValueError, MinorMalformed) as exc:
         return _implementation_refusal(ck, version, str(exc) if isinstance(exc, MinorMalformed) else "invalid-implementation-claims")
     head = rctx._git_out("rev-parse", "--verify", "-q", f"{args.head}^{{commit}}")
@@ -6577,7 +6709,7 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
     if problem:
         return _implementation_refusal(ck, version, problem)
     candidate = {**member, "implementation": proposal}
-    worker, status, _retired = _worker_context(ck, rctx, record, candidate, rctx.budget, canonical_merged=False)
+    worker, status, _retired = _worker_context(ck, rctx, record, candidate, rctx.budget, canonical_merged=False, admission=not bool(existing))
     if worker is None or status != "met":
         return _implementation_refusal(ck, version, "implementation-worktree-unverified")
     if not existing and (worker._git_out("rev-parse", "HEAD") != head or worker._git_out("status", "--porcelain")):
@@ -6607,7 +6739,12 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
         record.setdefault("implementation_controller", {"repo_root": str(rctx.root), "git_common_dir": _common_dir(rctx, rctx.root)})
         member["implementation"] = proposal
         record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
-        ck._write_record(record_file(ck, rctx, token), record)
+        active = ck._MINOR_LEASE.get()
+        active["minor_execution_activation"] = {"member": version, "role": "implementation", "record_sha256": active["expected"]}
+        try:
+            ck._write_record(record_file(ck, rctx, token), record)
+        finally:
+            active.pop("minor_execution_activation", None)
     print(f"IMPLEMENTING {version} base_head={head}")
     return 0
 
@@ -6616,7 +6753,7 @@ def cmd_check_member(ck: ModuleType, args: argparse.Namespace) -> int:
     """Read-only parent-bound member projection; never creates or rebinds approval."""
     rctx = minor_context(ck, args.repo)
     parse_minor(ck, args.minor)
-    state = load_minor(ck, rctx, args.minor, args.session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, args.minor, args.session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced:
         print(state.forced[0])
         return state.forced[1]
@@ -6662,7 +6799,7 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
         raise ck.Malformed(f"unknown blocker category: {args.category}")
     session = None if args.session in (None, "auto") else args.session
     # A completed record still takes a blocker: its completion is signed, so this cannot be forged.
-    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = load_minor(ck, rctx, token, session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     record = state.record
     if record is None:
         if state.forced is not None:
@@ -6840,3 +6977,550 @@ def empty_dirs_status(rctx: RepoContext) -> str:
         except OSError:
             return "cannot-verify"
     return "met"
+
+
+# One typed execution-permission history for the four reviewed added members.
+_EXECUTION_ACTION = "permit-member-execution-paths"
+_EXECUTION_REGISTRY = "catalog/hooks/settings.json"
+_EXECUTION_CI = (".github/workflows/ci.yml", ".github/workflows/post-merge.yml", ".pre-commit-config.yaml")
+_EXECUTION_COORDINATOR_CI = (*_EXECUTION_CI[:2], ".github/workflows/release.yml",
+    ".github/workflows/nexus-hub-settings.yml", ".github/workflows/claude-usage-monitor.yml",
+    ".github/workflows/codex-usage-monitor.yml", ".github/workflows/copilot-usage-monitor.yml",
+    ".github/workflows/cursor-usage-monitor.yml", ".github/workflows/gemini-usage-monitor.yml")
+_EXECUTION_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "owner_session", "record_sha256",
+    "controller", "member", "plan_path", "plan_sha256", "source_branch", "target_branch",
+    "amendment_sha256", "worker_identity", "implementation_sha256", "start_head", "integration_head",
+    "push_remote_url", "sequence", "previous_history_sha256", "capability_kind", "role", "write_paths", "hook_recipe", "git_common_dir"}
+
+
+def execution_capability(version: str) -> tuple[str, str, tuple[str, ...]]:
+    """Closed eligibility is distinct from captured permission and active admission."""
+    if version in ("v4.15.5", "v4.15.6"):
+        return "hook-registration", "implementation", (_EXECUTION_REGISTRY,)
+    if version == "v4.15.7":
+        return "ci-execution", "implementation", _EXECUTION_CI
+    if version == "v4.15.8":
+        return "ci-execution", "coordinator", _EXECUTION_COORDINATOR_CI
+    raise MinorMalformed("minor-execution-member-ineligible")
+
+
+def _execution_json(text: str) -> object:
+    def unique(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise MinorMalformed("minor-execution-duplicate-json-key")
+            value[key] = item
+        return value
+    try:
+        return json.loads(text, object_pairs_hook=unique, parse_constant=lambda value: (_ for _ in ()).throw(MinorMalformed("minor-execution-invalid-json-constant")))
+    except (ValueError, TypeError, UnicodeError) as exc:
+        raise MinorMalformed("minor-execution-invalid-json") from exc
+
+
+def _execution_recipe(version: str, text: str) -> dict | None:
+    if execution_capability(version)[0] != "hook-registration":
+        return None
+    heading = "### Native Execution Registration Recipe"
+    if text.splitlines().count(heading) != 1:
+        raise MinorMalformed("minor-execution-recipe-missing-or-ambiguous")
+    section = text.split(heading, 1)[1]
+    match = re.match(r"\s*```json\s*\n(.*?)\n```(?:\n|$)", section, re.DOTALL)
+    if not match:
+        raise MinorMalformed("minor-execution-recipe-not-json")
+    recipe = _execution_json(match[1])
+    _execution_recipe_valid(version, recipe)
+    return recipe
+
+
+def _execution_recipe_valid(version: str, recipe: object) -> None:
+    """The eligibility ceiling validates, but never synthesizes, a frozen recipe."""
+    if execution_capability(version)[0] != "hook-registration":
+        if recipe is not None:
+            raise MinorMalformed("minor-execution-ci-has-hook-recipe")
+        return
+    name = "stuck-turn-notice" if version == "v4.15.5" else "worktree-policy"
+    command = {"type": "command", "command": f"bash .claude/hooks/{name}.sh"}
+    events = ({"PostToolUse": [{"matcher": "Bash|Edit|Write|MultiEdit", "hooks": [command]}],
+               "PostToolUseFailure": [{"matcher": "Bash", "hooks": [command]}]}
+              if version == "v4.15.5" else
+              {"PreToolUse": [{"matcher": "Bash|PowerShell", "hooks": [command]}]})
+    if not isinstance(recipe, dict) or recipe != {"hooks": events}:
+        raise MinorMalformed("minor-execution-recipe-outside-eligibility")
+
+
+def validate_execution_page(page: object) -> dict:
+    """Validate the complete display contract without granting authority."""
+    if not isinstance(page, dict) or set(page) != _EXECUTION_PAGE_FIELDS:
+        raise MinorMalformed("minor-execution-page-fields-invalid")
+    kind, role, eligible = execution_capability(page.get("member"))
+    if (page["action"] != _EXECUTION_ACTION or page["scope"] != {"kind": "minor", "minor": "v4.15"}
+            or str(page["repo"]).lower() != "bendourthe/nexus-hub"
+            or page["capability_kind"] != kind or page["role"] != role
+            or not isinstance(page["write_paths"], list) or not page["write_paths"]
+            or any(not isinstance(p, str) or p not in eligible for p in page["write_paths"])
+            or page["write_paths"] != sorted(set(page["write_paths"]))
+            or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+            or type(page["sequence"]) is not int or page["sequence"] < 1
+            or page["start_head"] is not None):
+        raise MinorMalformed("minor-execution-page-scope-invalid")
+    for name in ("record_sha256", "plan_sha256", "amendment_sha256", "previous_history_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", str(page[name])):
+            raise MinorMalformed("minor-execution-page-hash-invalid")
+    for name in ("record_nonce", "owner_session", "plan_path", "source_branch", "target_branch", "push_remote_url"):
+        if not isinstance(page[name], str) or not page[name] or any(ord(c) < 32 for c in page[name]):
+            raise MinorMalformed("minor-execution-page-identity-invalid")
+    worker = page["worker_identity"]
+    if (not isinstance(worker, dict) or set(worker) != {"worktree", "branch", "base_head"}
+            or worker["branch"] != page["source_branch"]
+            or not isinstance(worker["worktree"], str) or not Path(worker["worktree"]).is_absolute()
+            or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(worker["base_head"]))
+            or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(page["integration_head"]))
+            or (role == "implementation" and page["implementation_sha256"] is not None)
+            or (role == "coordinator" and not re.fullmatch(r"[0-9a-f]{64}", str(page["implementation_sha256"])) )):
+        raise MinorMalformed("minor-execution-page-worker-invalid")
+    _execution_recipe_valid(page["member"], page["hook_recipe"])
+    return page
+
+
+def _execution_member(ck: ModuleType, record: dict, version: str) -> tuple[dict, dict, dict]:
+    execution_capability(version)
+    if (record.get("minor") != "v4.15" or str(record.get("repo")).lower() != "bendourthe/nexus-hub"
+            or [m.get("version") for m in record.get("members", [])] != [f"v4.15.{i}" for i in range(5)]):
+        raise ck.MinorConflict("minor-execution-original-scope-ineligible")
+    members = effective_members(ck, record)
+    for amendment in record.get("minor_amendments", []):
+        for descriptor in amendment["page"]["members"]:
+            if descriptor["version"] == version:
+                member = next(m for m in members if m["version"] == version)
+                return member, descriptor, amendment
+    raise ck.MinorConflict("minor-execution-member-not-added")
+
+
+def _execution_capture_valid(ck, record, page, accepted, *, capture=False):
+    # The first ordinary implementation initializes common-dir metadata on an
+    # origin controller without changing generation. It is not a handoff. Keep
+    # the immutable captured page and its code unchanged, and normalize only
+    # this independently bound metadata addition for the existing validator.
+    current = record.get("implementation_controller")
+    before = page.get("controller")
+    view = record
+    if (before == {"repo_root": record.get("repo_root")} and isinstance(current, dict)
+            and set(current) == {"repo_root", "git_common_dir"}
+            and current["repo_root"] == record.get("repo_root")
+            and current["git_common_dir"] == page.get("git_common_dir")):
+        view = {**record, "implementation_controller": before}
+    return _v415_capture_valid(ck, view, page, accepted, _EXECUTION_ACTION, verify_capture=capture)
+
+
+def execution_permission_history(ck: ModuleType, record: dict, *, capture: bool = False) -> list[dict]:
+    if not _require_execution_protocol(ck, record, MINOR_EXECUTION_PROTOCOL):
+        return []
+    key = ck._secret(create=False)
+    if key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key)):
+        raise ck.MinorConflict("minor-execution-unverified")
+    prefix, seen = [], set()
+    entries = record["minor_execution_permissions"]
+    # A member may appear more than once only when a dormant implementation permission was
+    # re-captured for a moved or rebased worker; the latest entry is the effective one.
+    latest = {e["page"].get("member"): i for i, e in enumerate(entries, 1)
+              if isinstance(e, dict) and isinstance(e.get("page"), dict)}
+    for sequence, entry in enumerate(entries, 1):
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            raise ck.MinorConflict("minor-execution-history-invalid")
+        try:
+            page = validate_execution_page(entry["page"])
+            member, frozen, amendment = _execution_member(ck, record, page["member"])
+            if page["member"] in seen:
+                before = [e["page"] for e in prefix if e["page"]["member"] == page["member"]][-1]
+                if not _execution_supersedes(before, page):
+                    raise ck.MinorConflict("minor-execution-history-invalid")
+            if (page["record_nonce"] != record["nonce"]
+                    or page["repo"] != record["repo"] or page["sequence"] != sequence
+                    or (record.get("implementation_controller", {}).get("git_common_dir") is not None
+                        and page["git_common_dir"] != record["implementation_controller"]["git_common_dir"])
+                    or page["previous_history_sha256"] != _amendment_digest(prefix)
+                    or page["amendment_sha256"] != _amendment_digest(amendment)
+                    or any(page[name] != frozen[name] for name in ("plan_path", "plan_sha256", "source_branch", "target_branch"))
+                    or not _execution_capture_valid(ck, record, page, entry["accepted"], capture=capture)):
+                raise ck.MinorConflict("minor-execution-history-invalid")
+            implementation = member.get("implementation")
+            if implementation is not None and latest.get(page["member"]) == sequence:
+                identity = {name: implementation.get(name) for name in ("worktree", "branch", "base_head")}
+                if identity != page["worker_identity"]:
+                    raise ck.MinorConflict("minor-execution-worker-identity-changed")
+                if page["role"] == "implementation" and not set(page["write_paths"]) <= set(implementation.get("write_paths", [])):
+                    raise ck.MinorConflict("minor-execution-worker-paths-changed")
+                if page["role"] == "coordinator" and _manifest_implementation_sha256(member) != page["implementation_sha256"]:
+                    raise ck.MinorConflict("minor-execution-original-claims-changed")
+        except (KeyError, TypeError, ValueError, MinorMalformed) as exc:
+            raise ck.MinorConflict("minor-execution-history-invalid") from exc
+        seen.add(page["member"])
+        prefix.append(entry)
+    return prefix
+
+
+def _execution_supersedes(before: dict, after: dict) -> bool:
+    """A re-capture may change only the worker identity of a dormant implementation permission."""
+    fixed = ("member", "role", "capability_kind", "write_paths", "hook_recipe", "implementation_sha256",
+             "plan_path", "plan_sha256", "source_branch", "target_branch", "amendment_sha256")
+    return (before["role"] == "implementation" and all(before[name] == after[name] for name in fixed)
+            and before["worker_identity"] != after["worker_identity"])
+
+
+def _execution_worker_unmoved(rctx: RepoContext, member: dict, identity: dict) -> bool:
+    """True when the member branch's only worktree is still the captured path at the captured head.
+
+    A cheap local read so an identical repeat reports success without the full page rebuild;
+    any doubt returns False and falls through to the complete checks.
+    """
+    rc, listing = rctx.run([rctx.git, "-C", str(rctx.root), "worktree", "list", "--porcelain", "-z"])
+    if rc:
+        return False
+    found = []
+    for block in listing.split("\0\0"):
+        fields = block.split("\0")
+        if f"branch refs/heads/{member['source_branch']}" in fields and fields[0].startswith("worktree "):
+            head = next((f[5:] for f in fields if f.startswith("HEAD ")), None)
+            found.append((str(Path(fields[0][9:]).resolve()), head))
+    return found == [(identity["worktree"], identity["base_head"])]
+
+
+def effective_execution_history(ck: ModuleType, record: dict) -> list[dict]:
+    """The latest entry per member, in history order; superseded dormant entries are omitted."""
+    history = execution_permission_history(ck, record)
+    last = {entry["page"]["member"]: entry for entry in history}
+    return [entry for entry in history if last[entry["page"]["member"]] is entry]
+
+
+def execution_permission_paths(ck: ModuleType, record: dict, member: dict, role: str, *, for_admission: bool = False) -> list[str]:
+    """One effective owner; a captured dormant permission is not ordinary write authority."""
+    for entry in effective_execution_history(ck, record):
+        page = entry["page"]
+        if page["member"] != member.get("version") or page["role"] != role:
+            continue
+        current, _descriptor, _amendment = _execution_member(ck, record, page["member"])
+        active = bool(current.get("implementation")) if role == "implementation" else bool(current.get("start_head"))
+        if active or for_admission:
+            return list(page["write_paths"])
+    return []
+
+
+def execution_registration_delta(ck: ModuleType, record: dict, member: dict, before_text: str, after_text: str) -> bool:
+    """Only the complete captured registration append may differ structurally."""
+    entry = next((e for e in effective_execution_history(ck, record)
+                  if e["page"]["member"] == member.get("version") and e["page"]["capability_kind"] == "hook-registration"), None)
+    if entry is None:
+        return False
+    try:
+        before, after = _execution_json(before_text), _execution_json(after_text)
+        if not isinstance(before, dict) or not isinstance(after, dict):
+            return False
+        if approval_binding.canonical({k: v for k, v in before.items() if k != "hooks"}) != approval_binding.canonical({k: v for k, v in after.items() if k != "hooks"}):
+            return False
+        left, right = before.get("hooks", {}), after.get("hooks", {})
+        if not isinstance(left, dict) or not isinstance(right, dict):
+            return False
+        if approval_binding.canonical(before) == approval_binding.canonical(after):
+            return True
+        recipe = entry["page"]["hook_recipe"]["hooks"]
+        expected = json.loads(json.dumps(left))
+        for event, groups in recipe.items():
+            old = expected.setdefault(event, [])
+            if not isinstance(old, list) or any(not isinstance(group, dict) for group in old):
+                return False
+            for group in groups:
+                if group not in old:
+                    old.append(group)
+        return approval_binding.canonical(left) != approval_binding.canonical(expected) and approval_binding.canonical(right) == approval_binding.canonical(expected)
+    except (MinorMalformed, KeyError, TypeError, ValueError):
+        return False
+
+
+def check_minor_execution_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    had, has = (any(name in value for name in _EXECUTION_FIELDS) for value in (previous, record))
+    if not had and not has:
+        return
+    if had and not has:
+        raise ck.MinorConflict("minor-execution-history-removed")
+    old = execution_permission_history(ck, previous) if had else []
+    new = execution_permission_history(ck, record)
+    if len(new) < len(old) or approval_binding.canonical(new[:len(old)]) != approval_binding.canonical(old):
+        raise ck.MinorConflict("minor-execution-not-append-only")
+    active = ck._MINOR_LEASE.get()
+    if len(new) != len(old):
+        entry = new[-1]
+        grant = {"entry_sha256": _amendment_digest(entry), "record_sha256": entry["page"]["record_sha256"]}
+        if (len(new) != len(old) + 1 or not active or active.get("minor_execution_append") != grant
+                or active["expected"] != grant["record_sha256"]
+                or not _execution_capture_valid(ck, record, entry["page"], entry["accepted"], capture=True)):
+            raise ck.MinorConflict("minor-execution-append-not-captured")
+        strip = lambda value: {k: v for k, v in value.items() if k not in {*_EXECUTION_FIELDS, "approvals_hmac"}}
+        if approval_binding.canonical(strip(previous)) != approval_binding.canonical(strip(record)):
+            raise ck.MinorConflict("minor-execution-unrelated-append-change")
+    for entry in old:
+        page = entry["page"]
+        left, _, _ = _execution_member(ck, previous, page["member"])
+        right, _, _ = _execution_member(ck, record, page["member"])
+        field = "implementation" if page["role"] == "implementation" else "start_head"
+        if not left.get(field) and right.get(field):
+            grant = {"member": page["member"], "role": page["role"], "record_sha256": active["expected"] if active else None}
+            if not active or active.get("minor_execution_activation") != grant:
+                raise ck.MinorConflict("minor-execution-activation-not-native")
+            paths = right["implementation"]["write_paths"] if page["role"] == "implementation" else right.get("coordinator_paths", [])
+            if not set(page["write_paths"]) <= set(paths):
+                raise ck.MinorConflict("minor-execution-activation-paths-missing")
+
+
+def _execution_unclaimed_sensitive(rctx: RepoContext, integration: str) -> bool:
+    if not v415_index_flags_visible(rctx):
+        return True
+    for args in (("diff", "--name-only", "--no-renames", "-z", integration, "HEAD", "--"),
+                 ("diff", "--name-only", "--no-renames", "-z", "HEAD", "--"),
+                 ("diff", "--cached", "--name-only", "--no-renames", "-z", "HEAD", "--"),
+                 ("ls-files", "--others", "--exclude-standard", "-z")):
+        rc, output = rctx.run([rctx.git, "-C", str(rctx.root), *args])
+        if rc or any(_sensitive_write(rctx, p, []) for p in output.split("\0") if p):
+            return True
+    return False
+
+
+def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, integration: str, role: str) -> dict:
+    rc, listing = rctx.run([rctx.git, "-C", str(rctx.root), "worktree", "list", "--porcelain", "-z"])
+    roots = []
+    for block in listing.split("\0\0"):
+        fields = block.split("\0")
+        if f"branch refs/heads/{member['source_branch']}" in fields and fields[0].startswith("worktree "):
+            roots.append(Path(fields[0][9:]))
+    if rc or len(roots) != 1:
+        raise ck.Malformed("minor-execution-worker-not-unique")
+    raw, root = roots[0], roots[0].resolve()
+    if (not raw.is_absolute() or raw != root or root == rctx.root
+            or any(p.is_symlink() for p in [raw, *raw.parents])
+            or _common_dir(rctx, root) != _common_dir(rctx, rctx.root)):
+        raise ck.Malformed("minor-execution-worker-invalid")
+    worker = ck.RepoContext(root, rctx.budget)
+    if not v415_index_flags_visible(worker):
+        raise ck.Malformed("minor-execution-worker-index-unverifiable")
+    worker_plans = scan_plans(root, 4, 15)
+    worker_plan = next((p for p in worker_plans if p.version == member["version"]), None)
+    if (worker_plan is None or not member_identity_ok(ck, member, worker_plan)
+            or worker._git_out("symbolic-ref", "--quiet", "--short", "HEAD") != member["source_branch"]):
+        raise ck.Malformed("minor-execution-worker-plan-or-branch-unverified")
+    if role == "implementation":
+        if member.get("implementation") is not None or worker._git_out("status", "--porcelain"):
+            raise ck.Malformed("minor-execution-worker-already-started-or-dirty")
+        head = worker._git_out("rev-parse", "HEAD")
+        if (not head or _ancestor(rctx, head, integration) != "met"
+                or _ancestor(rctx, str(record["start_head"]), head) != "met"):
+            raise ck.Malformed("minor-execution-worker-base-not-integrated")
+        return {"worktree": str(root), "branch": member["source_branch"], "base_head": head}
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict):
+        raise ck.Malformed("minor-execution-coordinator-worker-missing")
+    _ctx, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, canonical_merged=False)
+    if status != "met" or _execution_unclaimed_sensitive(worker, integration):
+        raise ck.Malformed("minor-execution-original-scope-unverified")
+    return {name: implementation[name] for name in ("worktree", "branch", "base_head")}
+
+
+def execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str, value: object,
+                              *, check_remote: bool = True) -> dict:
+    try:
+        return _execution_permission_page(ck, rctx, token, record, version, value, check_remote=check_remote)
+    except MinorMalformed as exc:
+        raise ck.Malformed(str(exc)) from exc
+
+
+def _execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str, value: object,
+                               *, check_remote: bool = True) -> dict:
+    member, frozen, amendment = _execution_member(ck, record, version)
+    kind, role, eligible = execution_capability(version)
+    if token != "v4.15" or not isinstance(record, ck.MinorSnapshot) or member.get("start_head"):
+        raise ck.Malformed("minor-execution-not-current-unstarted-snapshot")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    if not isinstance(value, dict) or set(value) != {"write_paths"} or not isinstance(value["write_paths"], list) or not value["write_paths"]:
+        raise ck.Malformed("minor-execution-invalid-request")
+    try:
+        paths = sorted(_literal_path(rctx.root, p) for p in value["write_paths"])
+        if len(set(paths)) != len(paths) or any(p not in eligible for p in paths):
+            raise MinorMalformed("minor-execution-path-outside-eligibility")
+        plan = next(p for p in scan_plans(rctx.root, 4, 15) if p.version == version)
+        if not member_identity_ok(ck, member, plan) or any(not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(p) + r"(?![A-Za-z0-9_./-])", plan.text) for p in paths):
+            raise MinorMalformed("minor-execution-path-outside-frozen-plan")
+        recipe = _execution_recipe(version, plan.text)
+    except (StopIteration, MinorMalformed) as exc:
+        raise ck.Malformed(str(exc) or "minor-execution-plan-missing") from exc
+    history = execution_permission_history(ck, record)
+    prior = [e["page"] for e in history if e["page"]["member"] == version]
+    integration = _integration_ref(rctx, member["target_branch"])
+    head = rctx._git_out("rev-parse", integration) if integration else None
+    rc, committed = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{head}:{plan.rel}"]) if head else (1, "")
+    if rc or ck.plan_hash_text(committed) != frozen["plan_sha256"] or _execution_unclaimed_sensitive(rctx, head):
+        raise ck.Malformed("minor-execution-integrated-plan-or-original-scope-unverified")
+    # Remote observations (push route, publication state) contribute no page field. They run in full
+    # before the approval round is consumed; the post-consume rebuild skips them so a transient
+    # network failure cannot spend the user's approval.
+    if check_remote:
+        route = ck.repo_host.verify_push_route(rctx.root, rctx.push_remote_url, git=rctx.git, run=rctx.run, branch=member["target_branch"])[0]
+        if route != "met":
+            raise ck.Malformed("minor-execution-push-route-unverified")
+        publication, _merge = _merge_commit(ck, rctx, record["repo"], member["source_branch"])
+        if publication != "not-merged":
+            raise ck.Malformed("minor-execution-publication-unverified-or-merged")
+    worker = _execution_worker_identity(ck, rctx, record, member, head, role)
+    if _coordinator_conflict(ck, rctx, record, member, paths, head):
+        raise ck.Malformed("minor-execution-active-conflict")
+    controller = record.get("implementation_controller") or {"repo_root": record["repo_root"]}
+    page = {"action": _EXECUTION_ACTION, "scope": {"kind": "minor", "minor": token},
+        "record_nonce": record["nonce"], "repo": record["repo"], "owner_session": record["session_id"],
+        "record_sha256": record.loaded_sha256, "controller": controller, "member": version,
+        "git_common_dir": _common_dir(rctx, rctx.root),
+        **{name: frozen[name] for name in ("plan_path", "plan_sha256", "source_branch", "target_branch")},
+        "amendment_sha256": _amendment_digest(amendment), "worker_identity": worker,
+        "implementation_sha256": _manifest_implementation_sha256(member) if role == "coordinator" else None,
+        "start_head": None, "integration_head": head, "push_remote_url": rctx.push_remote_url,
+        "sequence": len(history) + 1, "previous_history_sha256": _amendment_digest(history),
+        "capability_kind": kind, "role": role, "write_paths": paths, "hook_recipe": recipe}
+    page = validate_execution_page(page)
+    # A second capture is only a dormant implementation re-capture for a moved or rebased worker:
+    # same paths, recipe and role, a different worker identity, and (checked above by the worker
+    # identity read) an implementation that has not started.
+    if prior and not _execution_supersedes(prior[-1], page):
+        raise ck.Malformed("minor-execution-member-already-permitted")
+    return page
+
+
+@minor_writer
+def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Namespace) -> int:
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    try:
+        value = _execution_json(Path(args.execution).read_text(encoding="utf-8"))
+    except (OSError, MinorMalformed) as exc:
+        raise ck.Malformed("minor-execution-request-unreadable") from exc
+    prior = [e["page"] for e in effective_execution_history(ck, record) if e["page"]["member"] == args.member]
+    if prior:
+        if not (isinstance(value, dict) and set(value) == {"write_paths"}
+                and isinstance(value["write_paths"], list) and value["write_paths"]
+                and all(isinstance(path, str) for path in value["write_paths"])
+                and sorted(value["write_paths"]) == prior[0]["write_paths"]):
+            raise ck.Malformed("minor-execution-member-already-permitted")
+        current, _descriptor, _amendment = _execution_member(ck, record, args.member)
+        if (prior[0]["role"] != "implementation" or current.get("implementation") is not None
+                or _execution_worker_unmoved(rctx, current, prior[0]["worker_identity"])):
+            print(f"PERMITTED {args.member} execution paths already captured")
+            return 0
+        try:
+            # Same request for a dormant implementation permission: a changed worker identity is a
+            # re-capture; an unchanged one is the identical already-captured action.
+            page = execution_permission_page(ck, rctx, args.minor, record, args.member, value)
+        except ck.Malformed as exc:
+            if str(exc) != "minor-execution-member-already-permitted":
+                raise
+            print(f"PERMITTED {args.member} execution paths already captured")
+            return 0
+    else:
+        page = execution_permission_page(ck, rctx, args.minor, record, args.member, value)
+    consumed = _consume(ck, rctx, args.minor, _EXECUTION_ACTION, page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    if execution_permission_page(ck, rctx, args.minor, record, args.member, value, check_remote=False) != page:
+        return ck._refused("page-changed")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
+        "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+        "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+        "authorization_context": pending.get("capture")}}
+    record["minor_execution_format"] = MINOR_EXECUTION_PROTOCOL
+    record.setdefault("minor_execution_permissions", []).append(entry)
+    active = ck._MINOR_LEASE.get()
+    active["minor_execution_append"] = {"entry_sha256": _amendment_digest(entry), "record_sha256": page["record_sha256"]}
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        active.pop("minor_execution_append", None)
+    print(f"PERMITTED {args.member} exact execution paths; ordinary admission still required")
+    return 0
+
+
+def execution_authorization_view(ck: ModuleType, rctx: RepoContext, record: dict, view: dict, version: str, request: dict) -> dict:
+    """Derive a capture-only temporary view; never store or inherit its policy."""
+    member, _, _ = _execution_member(ck, record, version)
+    if not v415_index_flags_visible(rctx):
+        raise ValueError("execution permission controller index is unverifiable")
+    _, role, _ = execution_capability(version)
+    paths = execution_permission_paths(ck, record, member, role)
+    if (set(request) != {"paths"} or not isinstance(request["paths"], list) or not request["paths"]
+            or any(not isinstance(p, str) or p not in paths for p in request["paths"])):
+        raise ValueError("request is outside active exact execution permission")
+    _worker, status, _ = _worker_context(ck, rctx, record, member, rctx.budget, canonical_merged=False)
+    if status != "met":
+        raise ValueError("execution permission contribution is unverified")
+    entry = next(e for e in effective_execution_history(ck, record) if e["page"]["member"] == version)
+    temporary = json.loads(json.dumps(view))
+    temporary["approvals"].update({"authorization_context": entry["accepted"]["authorization_context"],
+        "page_sha256": entry["accepted"]["page_sha256"],
+        "classes": [{"class": "ci-security-change", "bound": "Only the captured exact execution capability"}],
+        "autonomy_policy": {"planned_actions": [{"class": "ci-security-change", "paths": paths}]}})
+    return temporary
+
+
+def _execution_path_allowed(ck, record, member, path, *, role=None, admission=False):
+    if ck is None or record is None or member is None:
+        return False
+    if role is None:
+        role = "coordinator" if member.get("version") == "v4.15.8" else "implementation"
+    return path in execution_permission_paths(ck, record, member, role, for_admission=admission)
+
+
+def _member_write_permitted(ck, record, member, path, *, admission=False):
+    """Merge-time check matching the member's write list: implementation paths, plus coordinator
+    paths once the member has started, exactly as `writes` adds coordinator_paths after start_head."""
+    if _execution_path_allowed(ck, record, member, path, role="implementation", admission=admission):
+        return True
+    return bool(member.get("start_head")) and _execution_path_allowed(
+        ck, record, member, path, role="coordinator", admission=admission)
+
+
+def _execution_registration_text(ctx, revision):
+    path = _EXECUTION_REGISTRY
+    if revision == "WORKTREE":
+        file = ctx.root / path
+        if not file.is_file() or file.is_symlink():
+            return None
+        return file.read_text(encoding="utf-8")
+    if revision == "INDEX":
+        rc, listing = ctx.run([ctx.git, "-C", str(ctx.root), "ls-files", "--stage", "--", path])
+        reference = ":" + path
+    else:
+        rc, listing = ctx.run([ctx.git, "-C", str(ctx.root), "ls-tree", "-z", revision, "--", path])
+        reference = revision + ":" + path
+    # rc -1 is a timed-out git call: no observation ran, so it must read as cannot-verify, never unmet.
+    if rc == -1:
+        raise ObservationUnavailable("execution.registration")
+    if rc:
+        return None
+    if not listing:
+        return "{}" if revision != "INDEX" else None
+    if listing.split()[0] not in {"100644", "100755"}:
+        return None
+    rc, output = ctx.run([ctx.git, "-C", str(ctx.root), "show", reference])
+    if rc == -1:
+        raise ObservationUnavailable("execution.registration")
+    return output if rc == 0 else None
+
+
+def _execution_registration_audit(ck, ctx, record, member, base, end=None):
+    if not _execution_path_allowed(ck, record, member, _EXECUTION_REGISTRY):
+        return False
+    revisions = [base, end] if end else [base, "HEAD", "INDEX", "WORKTREE"]
+    texts = [_execution_registration_text(ctx, revision) for revision in revisions]
+    return all(left is not None and right is not None and execution_registration_delta(ck, record, member, left, right)
+               for left, right in zip(texts, texts[1:]))

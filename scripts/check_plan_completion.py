@@ -481,6 +481,27 @@ _SIGNED_FIELDS = (
 # is signed because it decides which late plans count as approved exclusions, and
 # `completed` because it ends the record's authority (a forged one would silence it).
 _SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members", "excluded", "completed")
+MINOR_EXECUTION_PROTOCOL = 1
+MINOR_EXECUTION_FIELDS = ("minor_execution_format", "minor_execution_permissions")
+
+
+def require_minor_execution_protocol(record: dict, protocol: int | None) -> bool:
+    """Typed authority needs explicit participation by every reader and signer."""
+    present = [name in record for name in MINOR_EXECUTION_FIELDS]
+    if not any(present):
+        return False
+    if (not all(present) or type(protocol) is not int or protocol != MINOR_EXECUTION_PROTOCOL
+            or type(record.get("minor_execution_format")) is not int
+            or record["minor_execution_format"] != MINOR_EXECUTION_PROTOCOL
+            or record.get("schema") != SCHEMA_MINOR or record.get("scope") != "minor"
+            or not isinstance(record.get("minor_execution_permissions"), list)
+            or not record["minor_execution_permissions"]):
+        raise MinorConflict("minor-execution-protocol-required")
+    if getattr(_minor_module(), "MINOR_EXECUTION_PROTOCOL", None) != MINOR_EXECUTION_PROTOCOL:
+        raise MinorConflict("minor-execution-consumer-incompatible")
+    return True
+
+
 MINOR_AMENDMENT_PROTOCOL = 1
 MINOR_AMENDMENT_FIELDS = ("minor_amendment_format", "minor_amendments", "minor_amendment_members")
 
@@ -520,11 +541,15 @@ def _hmac_payload(record: dict) -> dict:
     if any(name in record for name in MINOR_AMENDMENT_FIELDS):
         payload["minor_amendment_domain"] = "nexus-native-minor-amendment-v1"
         payload.update({name: record.get(name) for name in MINOR_AMENDMENT_FIELDS})
+    if any(name in record for name in MINOR_EXECUTION_FIELDS):
+        payload["minor_execution_domain"] = "nexus-native-minor-execution-v1"
+        payload.update({name: record.get(name) for name in MINOR_EXECUTION_FIELDS})
     return payload
 
 
-def _sign(record: dict, key: bytes, *, minor_protocol: int | None = None) -> str:
+def _sign(record: dict, key: bytes, *, minor_protocol: int | None = None, execution_protocol: int | None = None) -> str:
     require_minor_amendment_protocol(record, minor_protocol)
+    require_minor_execution_protocol(record, execution_protocol)
     return hmac.new(key, _canonical(_hmac_payload(record)), hashlib.sha256).hexdigest()
 
 
@@ -656,14 +681,15 @@ def minor_operation(function):
     return wrapped
 
 
-def resolve_minor_controller(path: Path, session: str, *, budget_seconds: float = BUDGET_SECONDS, minor_protocol: int | None = None) -> tuple[RepoContext, MinorSnapshot]:
+def resolve_minor_controller(path: Path, session: str, *, budget_seconds: float = BUDGET_SECONDS, minor_protocol: int | None = None, execution_protocol: int | None = None) -> tuple[RepoContext, MinorSnapshot]:
     """Trusted siblings resolve execution identity; raw JSON is only a lookup hint."""
     raw = path.read_bytes()
     record = json.loads(raw)
     require_minor_amendment_protocol(record, minor_protocol)
+    require_minor_execution_protocol(record, execution_protocol)
     key = _secret(create=False)
     if (not isinstance(record, dict) or key is None
-            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL))
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL))
             or record.get('session_id') != session):
         raise MinorConflict('record-tampered-or-session-mismatch')
     binding = record.get('implementation_controller') or {}
@@ -672,7 +698,7 @@ def resolve_minor_controller(path: Path, session: str, *, budget_seconds: float 
     cm = _minor_module()
     snapshot = MinorSnapshot(record, path, raw, ctx)
     cm.require_controller(sys.modules[__name__], ctx, snapshot, snapshot.record_path)
-    if not cm._verified(sys.modules[__name__], ctx, snapshot.get('minor'), snapshot, minor_protocol=MINOR_AMENDMENT_PROTOCOL):
+    if not cm._verified(sys.modules[__name__], ctx, snapshot.get('minor'), snapshot, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
         raise MinorConflict('minor-authority-unverified')
     return ctx, snapshot
 
@@ -682,6 +708,21 @@ def historical_host_cwds(record: dict) -> set[str]:
     binding = record.get('implementation_controller') or {}
     origin = binding.get('origin_root')
     return {str(Path(origin).resolve())} if isinstance(origin, str) else set()
+
+
+def _replace_record(tmp: Path, path: Path) -> None:
+    """os.replace, retried briefly when Windows reports the target open in another reader.
+
+    Python opens files without FILE_SHARE_DELETE, so a parallel reader holding the record
+    makes the rename fail with PermissionError. The last attempt raises unchanged.
+    """
+    for delay in (0.05, 0.1, 0.2, 0.4):
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            time.sleep(delay)
+    os.replace(tmp, path)
 
 
 def _write_record(path: Path, record: dict) -> None:
@@ -694,6 +735,8 @@ def _write_record(path: Path, record: dict) -> None:
                 previous = None
             if isinstance(previous, dict) and any(name in previous for name in MINOR_AMENDMENT_FIELDS):
                 raise MinorConflict("minor-amendment-history-removed")
+            if isinstance(previous, dict) and any(name in previous for name in MINOR_EXECUTION_FIELDS):
+                raise MinorConflict("minor-execution-history-removed")
         path.parent.mkdir(parents=True, exist_ok=True)
         _restrict(path.parent, directory=True)
         tmp = path.with_suffix(".tmp")
@@ -701,7 +744,7 @@ def _write_record(path: Path, record: dict) -> None:
             json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
         _restrict(tmp, directory=False)
-        os.replace(tmp, path)
+        _replace_record(tmp, path)
 
         return
     active = _MINOR_LEASE.get()
@@ -720,9 +763,10 @@ def _write_record(path: Path, record: dict) -> None:
         if actual != active['expected']:
             raise MinorConflict('minor-record-changed')
         key = _secret(create=False)
-        if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL)):
+        if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)):
             raise MinorConflict('unsigned-minor-write')
         previous = json.loads(raw) if raw is not None else {}
+        _minor_module().check_minor_execution_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_minor_amendment_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
@@ -736,7 +780,7 @@ def _write_record(path: Path, record: dict) -> None:
             json.dump(record, handle, indent=2, sort_keys=True)
             handle.write('\n')
         _restrict(tmp, directory=False)
-        os.replace(tmp, path)
+        _replace_record(tmp, path)
     finally:
         tmp.unlink(missing_ok=True)
     if minor:
@@ -877,7 +921,7 @@ def _load_schema1(
         or key is None
         or not ctx.plan_hash_matches(record.get("plan_sha256"))
         or not hmac.compare_digest(
-            str(record.get("approvals_hmac", "")), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+            str(record.get("approvals_hmac", "")), _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
         )
     ):
         state.forced = tampered
@@ -2960,7 +3004,7 @@ def cmd_qualify_task(args: argparse.Namespace) -> int:
     cm, me = _minor_module(), sys.modules[__name__]
     rctx = cm.repo_context(me, args)
     rctx.budget = Budget(1800)
-    state = cm.load_minor(me, rctx, args.minor, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    state = cm.load_minor(me, rctx, args.minor, args.session, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if state.forced:
         print(state.forced[0])
         return state.forced[1]
@@ -3004,6 +3048,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         raise Malformed("--conditional-outcome requires a minor-member answer")
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
+    if args.action == "permit-member-execution-paths" or getattr(args, "execution", None) is not None:
+        raise Malformed("permit-member-execution-paths and --execution require --minor")
     if args.action == "amend-minor" or getattr(args, "amendment", None) is not None:
         raise Malformed("--action amend-minor and --amendment require --minor")
     if args.action == "correct-ci-read":
@@ -3136,7 +3182,7 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         "blockers": [],
         "pause": None,
     }
-    record["approvals_hmac"] = _sign(record, _secret(create=True) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record["approvals_hmac"] = _sign(record, _secret(create=True) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     new_path, legacy_path = ctx.record_paths()
     _write_record(new_path, record)
     if legacy_path.is_file():
@@ -3204,7 +3250,7 @@ def mark_completed(ctx: Context, record: dict, head: str) -> None:
     if key is None or record.get("completed"):
         return
     record["completed"] = {"at": _now(), "head": head}
-    record["approvals_hmac"] = _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record["approvals_hmac"] = _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     _write_record(ctx.record_path(), record)
 
 
@@ -3308,7 +3354,7 @@ def cmd_record_answer(args: argparse.Namespace) -> int:
     record["approvals"]["classes"].append(
         {"class": "answer", "blocker": args.blocker, "text": approval_binding.pasted(pending)}
     )
-    record["approvals_hmac"] = _sign(record, _secret(create=False) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record["approvals_hmac"] = _sign(record, _secret(create=False) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     _write_record(ctx.record_path(), record)
     print(f"ANSWERED blocker {args.blocker}")
     return 0
@@ -3336,7 +3382,7 @@ def cmd_record_resume(args: argparse.Namespace) -> int:
     ctx, record, _pending, session = consumed
     record["pause"] = None
     record["session_id"] = session
-    record["approvals_hmac"] = _sign(record, _secret(create=False) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record["approvals_hmac"] = _sign(record, _secret(create=False) or b"", minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     _write_record(ctx.record_path(), record)
     print("RESUMED")
     return 0
@@ -3400,7 +3446,7 @@ def _continuation_record(args: argparse.Namespace) -> tuple[RepoContext, dict, d
     if _scoped(args):
         module = _minor_module()
         ctx = module.repo_context(sys.modules[__name__], args)
-        state = module.load_minor(sys.modules[__name__], ctx, args.minor, args.session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+        state = module.load_minor(sys.modules[__name__], ctx, args.minor, args.session, accept_completed=True, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
         record = state.record
         if record is None:
             return state.forced[1] if state.forced else EXIT_MALFORMED
@@ -3481,7 +3527,7 @@ def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
     except (OSError, ValueError, approval_binding.Refusal) as exc:
         print(f'policy not adopted: {exc}', file=sys.stderr)
         return EXIT_BLOCKED
-    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     _write_record(path, record)
     print('ADOPTED approved-plan policy from genuine captured user instruction')
     return 0
@@ -3502,6 +3548,9 @@ def cmd_record_authorize(args: argparse.Namespace) -> int:
             historical_cwds=historical_host_cwds(record))
         request = _json_request(args.request)
         _validate_scoped_paths(ctx.root, request.get('paths', []))
+        if (getattr(args, "minor", None) == "v4.15" and args.approval_class == "ci-security-change"
+                and getattr(args, "member", None) in {"v4.15.5", "v4.15.6", "v4.15.7", "v4.15.8"}):
+            view = _minor_module().execution_authorization_view(sys.modules[__name__], ctx, record, view, args.member, request)
         event = approval_binding.authorization(view, args.approval_class, request, current)
     except ValueError as exc:
         print(f'authorization not covered: {exc}', file=sys.stderr)
@@ -3510,7 +3559,7 @@ def cmd_record_authorize(args: argparse.Namespace) -> int:
     events = record['approvals'].setdefault('continuations', [])
     if event not in events:
         events.append(event)
-        record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+        record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
         _write_record(path, record)
     print('AUTHORIZED ' + json.dumps(event, sort_keys=True))
     return 0
@@ -3592,7 +3641,7 @@ def cmd_record_resolve(args: argparse.Namespace) -> int:
     entry.update(open=False, answered=_now(), resolution=result)
     # Blockers are mutable, but automatic provenance is also retained inside the signed approvals.
     record['approvals'].setdefault('resolutions', []).append({'blocker': args.blocker, **result})
-    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL)
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'', minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     _write_record(path, record)
     print(f'RESOLVED blocker {args.blocker} ({result["origin"]})')
     return 0
@@ -3666,7 +3715,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="session id, or 'auto' to bind whichever session captures the paste",
     )
     render.add_argument(
-        "--action", choices=approval_binding.ACTIONS, default="create"
+        "--action", choices=approval_page.ACTIONS, default="create"
     )
     render.add_argument("--approvals", help="JSON file of approval classes (create)")
     render.add_argument(
@@ -3679,6 +3728,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--merge", help="with --minor supplement-scope: the exact reviewed merge")
     render.add_argument("--outputs", help="with --minor permit-outputs: exact write_paths JSON file")
     render.add_argument("--amendment", help="with --minor amend-minor: exact new member grants JSON file")
+    render.add_argument("--execution", help="with --minor permit-member-execution-paths: exact write_paths JSON file")
     render.add_argument("--conditional-outcome", help="JSON disposition qualifying this member's existing technical blocker")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
@@ -3752,6 +3802,14 @@ def build_parser() -> argparse.ArgumentParser:
     permit.add_argument("--member", required=True)
     permit.add_argument("--text", help="when given, must equal the captured decision")
     permit.set_defaults(func=lambda args: _minor_module().cmd_record_permit_manifest(sys.modules[__name__], args))
+    execution = record.add_parser("permit-member-execution-paths", help="capture exact added-member hook or CI execution permission")
+    execution.add_argument("--minor", required=True)
+    execution.add_argument("--repo", default=".")
+    execution.add_argument("--session", required=True)
+    execution.add_argument("--member", required=True)
+    execution.add_argument("--execution", required=True, help="JSON object containing only literal write_paths")
+    execution.add_argument("--text")
+    execution.set_defaults(func=lambda args: _minor_module().cmd_record_permit_member_execution_paths(sys.modules[__name__], args))
     outputs = record.add_parser("permit-outputs", help="capture exact v4.15 coordinator output permissions")
     outputs.add_argument("--minor", required=True)
     outputs.add_argument("--repo", default=".")

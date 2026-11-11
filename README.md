@@ -1,970 +1,531 @@
-<p align="center"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus-hub-banner.png" alt="Nexus-Hub" width="640" /></a></p>
-
-<p align="center"><em>The Skill Harness for Every AI Coding Assistant.</em></p>
-
-<p align="center"><a href="https://www.benjamindourthe.com/nexus-hub/">Interactive guide</a> | <a href="https://www.benjamindourthe.com/">Author: Benjamin Dourthe</a> | <a href="README_zh.md">Chinese README</a></p>
+<p align="center"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus-hub-banner.png" alt="Nexus Hub" width="640" /></a></p>
 
 # Nexus-Hub
 
 <!-- nexus-hub-version: 4.14.8 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
+Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
-## Interactive Guide -- start here
+**Catalog:** 340 skills across 23 categories, 21 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
 
-**New to Nexus-Hub? [Open the interactive guide online](https://www.benjamindourthe.com/nexus-hub/)**, or open [the copy in this repository](guides/website/nexus-hub-guide.html). It is two self-contained, offline HTML pages: the guide (a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, and one Cheatsheets tab for the loop plus command arguments) and its Training page, a guided live demo that fixes a buggy arcade game in one pass of the six-command Development Workflow, then hands over the fixed game. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
-
-- **Files:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) and [`guides/website/training.html`](guides/website/training.html) -- fully offline, no server or install required.
-- **Online:** [benjamindourthe.com/nexus-hub](https://www.benjamindourthe.com/nexus-hub/) serves the published guide and its Training page.
-- **To view it:** GitHub does not render HTML inline. Clone the repo and double-click `nexus-hub-guide.html`, or download both pages and the `assets/` folder beside them and open the guide in any browser.
-- **To share it:** send both pages together with the `assets/` folder beside them. If `training.html` is missing, the guide's Training links show a notice instead of a browser error. See [guides/website/README.md](guides/website/README.md) for maintainer notes.
-
-> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archives/v2/v2.0/RELEASE_NOTES.md](docs/archives/v2/v2.0/RELEASE_NOTES.md) for the full migration story.
-
----
-
-## How Nexus-Hub fits with Nexus
-
-<p align="center">
-<a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus-hub-banner.png" alt="Nexus-Hub" width="360" align="middle" /></a>
-<img src="assets/sibling_arrow.svg" alt="↔" width="80" align="middle" />
-<a href="https://github.com/bendourthe/Nexus-AI"><img src="assets/nexus-ai-banner.png" alt="Nexus" width="360" align="middle" /></a>
-</p>
-
-Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
-
-- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 37 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
-- **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
-
-The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
-
----
+[Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
 ## What's New in v4.14.8
 
-**Plain English, and you can tell what Nexus-Hub said.** Agents are asked to write in simple English that a non-native reader can follow, to quote warnings and errors exactly, and to avoid agent and engineering slang; `anti-slop-editing` lists the slang with plain replacements. Every Nexus-Hub hook and helper message now starts with `[Nexus-Hub: <hook-name>]`, so a Nexus-Hub block or warning is never mistaken for a message from the tool itself.
+- Plain-English guidance and source-labeled hook messages.
+- A settings status-bar entry for saved defaults.
+- Persistent usage-limit choices and handoffs that continue on another platform without waiting for the old limit to reset.
 
-**Settings at a glance.** The Nexus-Hub Settings extension adds a status-bar entry beside the usage monitors: the Nexus-Hub mark, the effort a new session starts with, and a warning count when a default does not apply. Hover for every tool's defaults; click for the redesigned panel. See [the status bar](guides/NEXUS_HUB_SETTINGS.md#status-bar).
+[Release details and earlier versions](CHANGELOG.md#4148---2026-11-04)
 
-**Usage-limit answers stick, and handoffs move on.** Answers to a usage-limit question are saved directly, with `nexus-hub usage status` and `nexus-hub usage decide` to recover, and a handoff no longer tells the next platform to wait for the previous one's limit to reset.
+## Installation
 
-See [the changelog](CHANGELOG.md#4148---2026-11-04) for all changes and capability usage instructions.
-
-## What's New in v4.14.7
-
-**Install only for tools you have.** Global delivery for the detection-gated tools now requires evidence independent of files Nexus-Hub created. The installer explains skipped tools, and an explicit platform choice remains available when detection misses a supported tool. See [platform detection and recovery](docs/policy/platform-detection.md).
-
-**Preview old tool files before removing them.** `nexus-hub doctor` reports stale surfaces, and `nexus-hub prune-undetected` previews unchanged Nexus-Hub output eligible for removal. Add `--yes` to apply; changed files, backups, links and unproven settings stay in place.
-
-**Readable usage countdowns and reliable resumption.** Cursor Usage Monitor now displays reset times in weeks, days, hours and minutes. A native resume approval can safely move a plan into a new session while retaining its original authority and limits. This release also updates dependencies behind reported security alerts.
-
-See [the changelog](CHANGELOG.md#4147---2026-11-02) for all changes and capability usage instructions.
-
-## What's New in v4.14.6
-
-**Nexus-Hub Settings.** One place for the defaults new Claude Code, Codex and GitHub Copilot sessions start with. `nexus-hub settings show` reports what each tool will actually use and what overrides it, `set` and `reset` change a default and put it back, and a VS Code panel does the same with a confirmation for anything that lowers a safety barrier. A setting is settable only after a real session was observed honoring it, so commit attribution ships Not-Settable for now. Start with [the settings guide](guides/NEXUS_HUB_SETTINGS.md).
-
-**Upgrades you can see.** `nexus-hub upgrade` shows a short summary per release and runs the install bootstrap in your own console, so its messages, progress bar and prompts are visible. On macOS and Linux the release archive download gets 300 seconds instead of 30, and the install manifest's log trail no longer grows with every install.
-
-See [the changelog](CHANGELOG.md#4146---2026-11-01) for the full changes and capability usage instructions.
-
-## What's New in v4.14.5
-
-**Host-generated memory stays off limits.** The memory contract now separates a store the host fills on its own, such as Codex Memories, from an index the harness keeps. Agents never open, read or edit the host's store, and `prompt-injection-defense` explains how such a store can replay untrusted content and credentials in later sessions, and which Codex setting narrows that.
-
-**Codex memory settings recorded, not imposed.** Codex's Memories settings are documented against OpenAI's reference and deliberately not seeded by the installer, and a test now fails if a platform ever declares a setting it lists as omitted.
-
-**Finished tasks stay finished after a move.** The completion checker now follows a task's file across a rename, so completed work is no longer reported open once its branch is merged.
-
-See [the changelog](CHANGELOG.md#4145---2026-10-30) for the full changes.
-
-## What's New in v4.14.4
-
-**Gates that say when they could not judge.** A quality gate that measured nothing now reports UNGATED instead of passing, with fixed reason categories, and the agent either retries or records a known gap, never a silent pass. Gate records carry enough to be recomputed from the record and git alone.
-
-**Opt-in git bypass-flag guard.** `git-guardrails` can block `--no-verify`, `-n` on commit, `--no-gpg-sign` and `gpgsign=false` when you turn the mode on in `~/.nexus-hub/guardrails.json`, and it now also runs for git commands sent through Claude Code's PowerShell tool.
-
-**Trapdoors promoted on evidence.** `review-trapdoors` turns a recurring review blocker into an automated check once a machine can detect it, shown failing on the original problem and then passing.
-
-See [the changelog](CHANGELOG.md#4144---2026-10-30) for the full changes and capability usage instructions.
-
-## What's New in v4.14.3
-
-**Gemini 4 Argon, routed with a fallback.** Argon gets its own prompting guidance at Google's frontier tier, the Gemini roster follows Google's live model list, and routing falls back to the same provider's strong tier, and says so, when a plan or host cannot reach that provider's frontier model. The model map was re-verified against all four providers on 2026-10-29.
-
-**Safer inputs and launchers.** The prompting-profile writer and validator, and the model-map tool, refuse hostile text, spoofed source hosts and path-escaping ids, and the writer now writes all-or-nothing. The installers try each Antigravity launcher and use the first one that actually starts, so a stale launcher on PATH no longer blocks the Gemini Usage Monitor.
-
-**Fewer interruptions.** The completion gate's turn-end hook is no longer registered by default (it stays available as an opt-in), the Windows console guard stops blocking commands that only read files, and a slow GitHub lookup is now reported as a retryable member check instead of an unfinished predecessor.
-
-See [the changelog](CHANGELOG.md#4143---2026-10-29) for the full changes and capability usage instructions.
-
-## What's New in v4.14.2
-
-**Refactor first, then build.** When a feature or fix lands in scattered or duplicated code, the refactoring, simplification and incremental-implementation skills now route it through a verified, behavior-preserving refactor first, backed by design invariants, a subsystem baseline review and a rule-ownership test.
-
-**Harness cost guidance.** Prompt engineering documents provider-specific prompt-cache accounting with a worked example, and agent development gains a pure tool-call decision-policy harness.
-
-**Progress you can ask for, and archives as you go.** `/implement` reports progress hourly and at transitions, `/update status` shows the same report on demand, and a minor run can archive each member right after its release with the opt-in `archive-member` approval. Handoffs are now a prompt printed in the chat, and American English is the default spelling on every platform.
-
-See [the changelog](CHANGELOG.md#4142---2026-10-28) for the full changes and capability usage instructions.
-
-## What's New in v4.14.1
-
-**Effort that buys verification.** A plan phase can now verify at a higher effort than it was built at. `model-map.py score` takes `--edge-cases` and `--unattended` and returns a raise-only `verification_effort`, capped at `high` and never below the phase's effort; tier and effort recommendations are unchanged. `plan_status.py --check` rejects an invalid or lower value.
-
-**Escalation by why a phase fails.** After two troubleshooting attempts, a repeating failure is classified as an edge-case miss (raise effort one level) or a wrong approach (change the tier, re-plan, or ask), offered as option D of the troubleshooting menu. The GO/NO-GO gate can request named verification behaviors, each routed to the skill that owns it.
-
-**Safer Windows test runs and clearer usage decisions.** A `console-window-guard` hook stops test runs that would flood the desktop with console windows, and a usage-limit warning now asks one clickable question with three choices, never preselecting paid credits.
-
-See [the changelog](CHANGELOG.md#4141---2026-10-20) for the full changes.
-
-## What's New in v4.14.0
-
-**Complete plans sooner.** Plan and implement use focused checks during implementation, then comprehensive validation on the completed plan. Compatible plans can run in isolated worktrees at the same time; publication and release stay sequential.
-
-**Claude defaults that preserve choices.** Unpinned custom agents default to Sonnet while all 23 shipped reasoning-sensitive agents keep explicit Opus pins. Ownership-aware upgrades preserve user settings, and per-model effort defaults allow saved choices to work.
-
-**Stronger native boundaries.** Installer, JSON, approval, migration and user-edit cache repairs retain strict refusal controls on Linux and Windows. The Training game also supports touch steering and full-screen play.
-
-See [the changelog](CHANGELOG.md#4140---2026-10-18) for the full changes and capability usage instructions.
-
-## What's New in v4.13.13
-
-**A Gemini usage monitor.** The Antigravity IDE gets a status-bar monitor in the same design as the Claude, Codex, Copilot and Cursor monitors, reading Antigravity's local language server over `127.0.0.1` only. Usage alerts in all the monitors now dismiss themselves after one minute.
-
-**Installs that say what went wrong.** The `install.sh` and `install.ps1` bootstraps retry a failed download up to three times and report a dropped connection as a network failure; only an HTTP 404 says a branch does not exist.
-
-**Plans stay on develop.** `/compare` and `/plan` create no branch: their output is committed on the integration branch and published the same day through a short-lived pull request. A version branch is created only when `/implement` starts the plan.
-
-**Steadier Windows CI.** The Windows test jobs are split so each runs well inside its time limit, after timeouts that came from slowness rather than failing tests.
-
-See [the changelog](CHANGELOG.md#41313---2026-10-15) for the full list.
-
-## What's New in v4.13.12
-
-**Approval modes reach the hooks.** Auto mode stops receiving forced prompts from the description and command-rewrite hooks while retaining security checks. Genuine bypass, identified by the parsed root mode string, lifts the five curated guards. Codex's reported Full access value remains unconfirmed. Antigravity's no-objection response delegates to its host policy.
-
-**A readable monitor label.** The Copilot warning ring fits Organization pool on two lines.
-
-**Verified minor finalization.** All 83 approved residual transfers are verified, with zero open source-ledger items and 83 successor obligations. Archival handles code-formatted link labels and historical release metadata while preserving its refusal checks.
-
-See [the changelog](CHANGELOG.md#41312---2026-10-13) for activation, validation, rollback and authority, and the [release qualification](docs/archives/v4/v4.13/development/v4.13.12-release-qualification.md) for the remaining runtime limits.
-
-## What's New in v4.13.10
-
-**Training is its own page, with a game to fix.** `guides/website/training.html` walks one pass of the six-command Development Workflow on Nexus Defenders, an arcade game that ships with two bugs. Each command plays in an animated IDE that shows the model tier, the effort, and the mapped model, and the fixed game is the reward: five ships, rising difficulty, a supernova passage, and the shielded Nexus boss.
-
-**A redesigned guide.** Home opens on the supported platforms connected to Nexus Hub and four benefit panels. Installation detects your system and shows an illustrated walkthrough with a terminal that replays the real installer. Every page uses one keyword heading style and paints the selected page first.
-
-**Check your installed version.** `nexus-hub version` prints the installed version and `nexus-hub upgrade` offers the latest release. Both READMEs are refreshed with current counts and links to https://www.benjamindourthe.com/.
-
-**Standard font sizes for slides and reports.** `pptx-generation` and `docx-generation` now allow only the standard PowerPoint and Word sizes, never below 12 pt on slides, with a checker for generated files.
-
-## What's New in v4.13.9
-
-**`/visualize` turns data into the smallest useful chart or diagram.** Give it a CSV, JSON, a log excerpt, or a described structure, and it answers with a sentence, a table, a Mermaid diagram, or an offline inline-SVG page, ending with a line that names which of those it chose and why.
-
-**Review one commit, and draft comments without posting them.** `/review changes <sha>` reviews a single commit, and a review can draft comments for its confirmed findings to the chat or to a file you name. Nothing is ever posted.
-
-**GPT-6.1 Sol and a refreshed model map.** A sourced prompting profile for GPT-6.1 Sol, and the offline model map now reads `claude-sonnet-5-5` and `gpt-6.1-sol` where the newer models replaced older ones.
-
-**Your own command files are safe.** Installing commands no longer overwrites a same-named command file you wrote. There is also a runbook for the reported Codex CLI disk-write problem, which is fixed in Codex CLI 0.142.0, and the guide's Cheatsheets page now covers every command.
-
-## What's New in v4.13.8
-
-**A prompting profile for Claude Sonnet 5.5.** `model-prompting-research` now carries a sourced profile for the newest Sonnet, so prompts written for it follow how it reads instructions.
-
-**Honest cost claims and a fairer optimizer score.** One rule now governs any reported cost or token saving, and the description optimizer can hold out a test split it never trained on, saying plainly when its score is optimistic.
-
-**Gap carry-over that copes with repeated ids.** Carrying a known gap into the next version now works on ledgers that reuse the same id across versions, which this repository's own ledgers do.
-
-**Copilot usage as a percentage, with a guided Connect.** The Copilot Usage Monitor now shows a whole-number `Copilot: <pct>% (month)`, or `--% (month)` until an organization owner connects the shared pool, and its hover and dashboard show "Shared organization pool usage: X / Y credits". Connect finds your organization from your Copilot seat, tries without a token first, and otherwise walks the owner through four short steps on GitHub's pre-filled token page: open it, keep No expiration, generate and copy the token, and paste it back.
-
-## What's New in v4.13.7
-
-**Hit a usage limit without losing the session.** `/handoff` writes `.nexus-hub/handoff.md` and prints one prompt that any agent can resume from. A new usage guard hook watches the running platform's own usage (Claude Code, Codex, Cursor, and GitHub Copilot) and, at 99% of a tracked window, tells the agent to finish the current step and hand off. Every instruction template also asks for a rolling checkpoint after each verified milestone.
-
-**See GitHub Copilot usage in the status bar.** The new Copilot Usage Monitor shows your monthly quota, or, with an organization connected, the shared AI-credit pool. The Codex monitor now shows when a one-time limit reset is available and opens the reset page; it never uses a reset itself.
-
-**Approvals that last.** An approval page no longer expires before you paste it, the approval and goal lines can be pasted together, and a one-plan run now records its leftover gaps and archives its minor when it is the last plan. Windows test and agent runs no longer flash console windows.
-
-## What's New in v4.13.6
-
-**One paste runs a whole minor.** `/implement v4.13` shows a short plain-language approval page that leads with the two riskiest effects and ends with one line to paste. That line is the approval: it runs each queued plan in the minor in version order, releases each patch, moves only gaps it cannot fix to the next minor, then closes and archives the minor through one final pull request. The run is done only when `check_plan_completion.py check-minor` prints `MINOR COMPLETE`.
-
-**Cleanup removes only what is verifiably merged and idle.** `cleanup_merged.py` lists every branch and worktree as REMOVE or KEEP with the check that kept it, runs as a dry run by default, and never force-deletes.
-
-**Fixes.** `nexus-hub init` works again, `secret-scan.sh` scans on hosts without `jq` and its private-key patterns now match, and the Codex Usage Monitor opens the current ChatGPT usage page.
-
-## What's New in v4.13.5
-
-**Full `/implement` runs finish in repositories that use an SSH host alias.** The completion checker now resolves the GitHub repository behind any remote form, including `git@github-work:owner/repo.git`, verifies the real host through `ssh -G`, and reports `cannot-verify` rather than guessing when it cannot confirm the host, so it never checks a same-named repository on the wrong server.
-
-## What's New in v4.13.4
-
-**The guide's Training tab walks one repair from bug to release.** Seven sections replace the slide deck: play a seeded buggy game, `/describe` and `/review` it, `/plan` the repair, run it with one `/implement`, play the fixed game, add a feature with `/compare`, and brief it with `/presentify`. Each section runs its own simulated command, and three independent arcade games now carry varied enemies, drifting asteroids, and a landscape high-resolution arena.
-
-**Completion approvals are harder to misuse.** A full run's signed record is bound to the exact push destination the user approved, expires after 72 hours, and ignores inherited Git settings; completion plugins no longer launch a Python found in the working directory.
-
-## What's New in v4.13.3
-
-**Leftover instruction blocks from old installs can be removed, only with your consent.** Every install now reports each stale span it finds outside the managed block, with its line range, token cost, a diff, and a consent token bound to that exact span and file state, after keeping a verified backup. Nothing is removed unless the next install carries `--remove-legacy-instructions=<token>` (`-RemoveLegacyInstructions` on Windows).
-
-**Smaller instruction files, opt in.** `NEXUS_HUB_SKILL_INDEX=pointer` replaces the embedded skill table, 81 to 84 percent of each rendered instruction file, with a short pointer on platforms that read an installed skills tree. `scripts/measure_rendered_context.py` measures what a model actually receives.
-
-**Session hooks state facts.** `session-start` prints the installed version and the index location read from real files, the session digest is one line, and instruction files keep their line endings.
-
----
-
-## What's New in v4.13.2
-
-**`/implement <plan>` now runs the whole plan.** It asks every approval the run needs once, up front, freezes them in a run record, then implements every phase through green CI, the merged integration, the release, and cleanup, stopping only on a named blocker or your pause. `phase <N>`, `next`, and `phase-by-phase` keep the stepwise modes.
-
-**A checker decides when a run is done, and the platforms enforce it.** `check_plan_completion.py` reads repository, hosting, and record state and prints `PLAN COMPLETE`, `INCOMPLETE`, `BLOCKED`, or `PAUSED`. A turn-end gate keeps a run going on hook platforms, typed plugins do the same on OpenCode, OpenClaw, Pi, and Hermes, and `nexus-hub run-plan` resumes a session that ended anyway.
-
-**Measured end to end.** In paid runs against a fixture plan, Claude Code finished 3 of 3 runs and Codex 1 of 1 without an unplanned stop. OpenCode cannot record approvals headlessly, and in two runs it proceeded on the prompt's approvals instead of stopping (known gaps WN-4 and WN-7).
-
-**Fixes the runs found.** A Windows install that left out Claude Code skipped every other platform, OpenCode refused to start on the installed agents, a Linux install aborted without `python3-venv`, Codex could not run any command on Linux with the shipped permissions, and the Windows completion hooks did nothing under a UTF-8 console.
-
-**Honest limit.** Approval capture checks that the approval text came from a prompt you typed, not which approval it names (known gap WN-9, high severity).
-
----
-
-## What's New in v4.13.1
-
-**An agent no longer overwrites a file you changed.** Every installed instruction file now tells the agent to check a file with `edit_guard.py` before changing it, and the new `user-edit-preservation` skill records what the agent last read or wrote. On hook platforms the `user-edit-guard` hook blocks a write onto a file you changed outside a git worktree (and warns inside one), including a generator script's own copy onto your document. In the replay of the incident that prompted it, the user's edit survived every run.
-
-**No AI attribution on any publishing route.** The `attribution-guard` hook blocks agent co-author trailers, generated-with footers, and robot badges in commit and tag messages, pull request, issue, and release bodies, and warns on the same patterns in changelogs and docs.
-
-**Honest limit.** The hooks see only writes made through the agent's own tools, and edits made between sessions can still go unreported (v4.13.1 known gaps WN-1 and WN-2).
-
-Catalog: **338 skills** (one added), **19 commands**, and **23 agents**; two hooks added.
-
----
-
-## What's New in v4.13.0
-
-**Skill selection is now measured, and the measurement disagreed with the guidance.** A frozen 96-call pilot ran four catalog skills against two model tiers and 24 classified prompts for a measured USD 20.67. The candidate wording failed its acceptance criteria on both tiers, so nothing was promoted and the result is recorded as `MEASURED_NO_CHANGE`. The control arm is the larger finding: the shipped catalog selected its own skills on 1 of 8 prompts (fast) and 3 of 8 (strong) squarely in their territory, with zero false positives across 32 look-alikes. `AGENTS.md` prescribes pushier descriptions with SKIP clauses as the remedy for under-triggering; that remedy measured **worse** on both models. It is now recorded as evidence-contradicted and left as an open gap rather than acted on.
-
-**Five capabilities ship with negative controls that fail when the guarded behavior is removed.** A judge-sensitivity harness, private agent-trace guidance, a reversible-improvement recipe connecting confirmed observations to checked regression evidence, a smallest-useful-representation ladder, and optional context-fact freshness with revalidation. Seven earlier guards were found asserting a tautology (`needle not in text.replace(needle, "")` holds whether or not the needle was ever there) and now assert presence before asserting removal.
-
-**A release lands on the integration branch before the release branch, and clears what it consumed before tagging.** `/update release` previously merged to `main` and stopped, leaving `develop` a release behind. The cleanup is fail-closed: a branch absent from `git branch --merged` is not deleted, and a worktree with a dirty status stops the release rather than being force-removed.
-
-**The website guide gains a type system, and the Foundations scenes are redrawn.** Every text element carries a `data-ty` role that is the only place its size, weight, line height and color are decided; the page went from 39 distinct computed font sizes across 95 combinations to 20 across 53. Agentic Platforms and Harnesses are redrawn as SVG scenes that argue their point by structure rather than assertion. Three regressions the migration left behind were caught by diffing rendered output before and after, not by reading the stylesheet, and two more elements overflowed only under CI's Linux font metrics, which run about 19 percent wider than the Windows metrics they were tuned against.
-
-**Per-version session history now archives one minor behind instead of two.** Only the current minor keeps its history in `docs/releases/`. This reverses an alternative the retention record had explicitly rejected, and the new record says so plainly rather than presenting the reversal as a technical finding. v4.7 through v4.12 moved: six subtrees, 51 files, 77 links repaired.
-
-**Honest limit.** Two known gaps remain open in the release gate itself, and they are the same defect surface. A step that times out prints no line naming it, and the timeout cannot fire at all for a step whose tests spawn a process tree, because the post-kill `communicate()` blocks on a pipe the surviving descendants still hold. Both are recorded with a runnable repro and are scheduled as one change rather than patched separately.
-
-Catalog counts are unchanged at **337 skills**, **19 commands**, **35 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface.
-
----
-
-## What's New in v4.12.0
-
-**Generated work uses your Git identity.** Fresh Bash and PowerShell installations activate a portable attribution guard that rejects agent identities, unexpected identity overrides and attribution trailers during normal local commits and pushes. All 17 instruction templates require user authorship. Claude disables native commit/PR attribution, Cursor loads the policy at session start, and Aider loads it with native attribution disabled.
-
-**Check protection in each repository.** Run `nexus-hub attribution check`; if a repository overrides global hooks, activate its guard with `nexus-hub attribution install --workspace`. Git and Python 3 plus your own configured name/email are required. The [attribution guide](docs/guides/user-attribution.md) covers setup, checked tags and rollback.
-
-**Scope is explicit.** Local hooks cannot prevent deliberate bypass, select hosting credentials, protect an unconfigured cloud machine or refresh GitHub's contributor cache. Existing human history remains intact. The Nexus-Hub maintainer identity is never installed on another user's machine.
-
-Presentation reveal-order and incomplete-evidence checks, structured prompt-cache audits, target-manifest traversal protection and weekly-bar regression coverage are also included. See the [release changelog](CHANGELOG.md#4120---2026-09-14).
-
----
-
-## What's New in v4.11.2
-
-**Quality is now measured on the render, not asserted from the source.** Nineteen gates fail a build rather than advising one: eleven figure defects measured entirely in screen space, four deck rules measured while each slide is current, and four attestation sections for the decisions no measurement can settle. Every gate fires on a fixture built for it and stays silent on the others, because a check that has never been observed to fail is not evidence.
-
-**Type size is a rendered property.** An SVG multiplies its authored `font-size` by (css width / viewBox width), so a `14px` label in a small viewBox can render at 70px while the source looks ordinary. The font gate enforced floors only and passed that silently; it now enforces ceilings per named role, calibrated against real output.
-
-**The render-and-look loop is mandatory.** A task producing an HTML artifact is incomplete until the agent has rendered it, captured the edited region and inspected the capture. Verification reads computed DOM values rather than re-reading the markup it just wrote, and the agent never asks for a screenshot it can render itself.
-
-**Plans now report their own progress.** `/implement` closes each phase with a table of every phase and its task counts, and `/update release` prints the next plan with its copy-paste command, one tier and effort level, and the per-platform model row.
-
-**Honest limit.** Every gate fires correctly and this repository's own handbooks pass all of them with zero findings. That is not the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted. The weaker claim is the one that ships.
-
-**On the version number.** There is no v4.11.1 release; that slot holds a planned but unimplemented plan, so only the slot is skipped. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
-
----
-
-## What's New in v4.11.0
-
-**Handbooks are now one file that both reads and presents.** `/presentify` and project handbook maintenance produce a single self-contained offline HTML file carrying a complete scrolling reading view AND a title-page presentation mode, built from the same retained sources. Nothing is fetched at view time - fonts, images, charts and the runtime are embedded - so the file works from a `file://` URI with no network. This is a changed default rather than a new flag; opt out with `--presentation no`, which wins over every other option.
-
-**Nine rendered-output gates decide quality by measuring the render, not the source.** Each reads what the browser actually computed: rendered type size against per-role floors, WCAG contrast on composited color, SVG label-versus-shape collisions, clipped text, invisible brand marks, deformed charts, print-surface contrast, a declared layout property that does not compute, and focus restoration after Escape. Every one fails a purpose-built fixture and stays silent on the others, because a gate never observed to fail is not evidence.
-
-**Contrast now owns legibility and measures what the reader sees.** It composites ink over its backdrop at effective alpha - the element's own `rgba()` alpha times every inherited `opacity` - rather than scoring the declared color, which had reported 7.46:1 where the screen showed 2.11:1. The net effect is stricter, not looser.
-
-**`check_handbooks.py` keeps living documentation honest**, wired into the `docs` CI group. It hashes sources, BUILDER and output, so editing the builder invalidates a handbook whose sources never changed - the case an input/output hash cannot see. It launches no browser and costs about a second.
-
-**An existing web page is a first-class source.** `extract_content.py` reads `.html`, `.htm` and `.xhtml` through the standard library's `html.parser`, so re-presenting a published page no longer requires recovering its original document. No new dependency.
-
-**Plan-queue continuity.** A comparison, a plan, an implementation phase, and a release each account for the other plans queued around them, so a plan authored against one codebase state is re-validated before executing against a later one. Queue order becomes a reasoned decision rather than an artifact of allocation order.
-
-**The Claude Usage Monitor gained a model-scoped weekly bar**, taking its label from the display name the usage API itself returns, so the label follows the account instead of a hardcoded string. It is omitted entirely when no scoped limit is reported.
-
-**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate ships recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/archives/v4/v4.11/known-gaps.md).
-
-**On the version number.** There is no v4.10.0 release. That work - plan-queue continuity, the usage-monitor bar, and a git-trust test fix - was completed and merged but never tagged, so it ships here under v4.11.0 rather than being retrofitted to a number its own documentation never used. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
-
----
-
-## What's New in v4.9.0
-
-**Application-security audits now follow a bounded, read-only workflow.** The `security-audit` preset inventories the target, selects relevant specialists, binds findings to qualified graph and target evidence, and checks normalized closure records before reporting completion. Target mutation remains outside the audit's authority. See the [audit guide](guides/reference/SECURITY_AUDIT.md) for activation, evidence requirements, and coverage limits.
-
-**Results can be exported locally as SARIF 2.1.0.** The exporter consumes the normalized summary through standard input and emits redacted results through standard output. The deterministic benchmark retains 16 vulnerable and 16 benign cases; native host attempts remain unavailable, so this release makes no accuracy or recall claim.
-
-**Install and verification fixes cover real platform differences.** Managed files stage with owner-only permissions, Windows organization-cache replacement tolerates transient directory locks, and audit fixtures and Unicode checks run correctly across Windows and POSIX. Copilot defaults and Antigravity workflow delivery match their current documented contracts. Prompting profiles now have a generated discovery index. Catalog counts remain 336 skills, 19 commands, 35 hooks, and 23 agents; the separate interactive-handbooks plan remains queued.
-
----
-
-## What's New in v4.8.0
-
-**A loop is admitted by evidence, not enthusiasm.** `loop-engineering` gains a seven-dimension readiness scorecard with five when-not-to-loop anti-fits, scored before a loop is assembled and recorded into its instance state. Its schema gains five optional run-contract fields (`scope`, `permissions`, `budgets`, `state_contract`, `audit_evidence`) so a loop declares what it may touch, what it may spend, what survives between runs, and what audit evidence it must leave. Ten loop failure modes now have exactly one owning skill each, quoting the section where the rule actually lives, so a multi-skill review reports each root cause once instead of three times.
-
-**Autonomy is a decision you record, before you pick a structure.** `agent-orchestration-primitives` gains a Step 0 ladder of six rungs, selected on the readiness score, the blast radius of the worst action the rung permits, and reversibility, plus a minimum-sufficient-autonomy rule: if one agent passes the evaluation, do not add three. Escalating to a graph now passes a written eight-item checklist whose first item admits a MEASURED single-loop failure and rejects a predicted one.
-
-**Every deliverable can name the verifier that grades it.** A new verifier taxonomy classifies four verifier classes with their weaknesses and gives the natural checks for seven knowledge-work deliverables. Code review now names the class behind each finding, so a reader can tell a failing test from a reviewer's impression. `/research` and the compilation skill end on five computed metrics rather than the producer's confidence, advisory in this release and explicit about why: no measured baseline exists yet to set a threshold from.
-
-**Seven new skills for the end of an autonomous shift.** `lint-repair-loop` repairs what linters flag instead of only reporting it. `visual-regression-testing` gates UI drift on a perceptual diff. `performance-regression-gate` fails CI when a benchmark regresses. `false-confidence-test-audit` finds tests that pass whether or not the code is correct. `commit-sweep` catches problems that exist only across commits. `end-of-shift-validation` composes all of it into one pass. `helper-script-authoring` stops the agent re-typing incantations. `/grill` interrogates a plan in dependency-ordered rounds, and an opt-in `lint-autofix` hook is the deterministic half of the repair loop.
-
-**The catalog can now show an auditor its agentic-risk coverage.** A seventh mapped framework, the OWASP Top 10 for Agentic Applications, is validated for closed-set membership rather than shape alone, rendered as its own coverage column, and applied to 15 agent-security skills across all ten identifiers, each explained in that skill's own standards reference.
-
-Catalog counts are **336 skills** (+7), **19 commands** (+1), **35 hooks** (+1), and **23 agents**. One new opt-in surface: the `lint-autofix` hook, inert unless `NEXUS_ENABLE_LINT_AUTOFIX=1`, disabled by `NEXUS_DISABLED_HOOKS=lint-autofix` or `NEXUS_HOOK_PROFILE=minimal`. Enabling it grants no network access, does not commit or push, makes no LLM call, never touches a file with unstaged changes, and never blocks a commit.
-
----
-
-## What's New in v4.7.0
-
-**Releases now ship a verifiable artifact, and installs can be pinned and rolled back.** Every GitHub Release carries `Nexus-Hub-<version>.tar.gz`, a `SHA256SUMS` file, and a build-provenance attestation. Both bootstrap installers verify that download fail-closed for a tagged ref: a checksum mismatch, a missing checksum file, or an unresolvable tag aborts with a distinct message and never installs unverified, while a network failure is reported as a network failure rather than tampering. Pin with `--ref v4.7.0`, move with `nexus-hub upgrade --latest`, and roll back with `nexus-hub upgrade --ref <older tag>`. No package registry and no new secret.
-
-**Every platform carries an always-loaded `## Autonomous Operation` block.** All twelve substantive instruction templates state that the agent proceeds on reversible work the request already covers and stops only for destructive actions and genuine scope changes. It also settles precedence: your instructions outrank a skill's guidelines, routine skill lookup stays silent, and a skill instruction that would block, narrow, or alter your request is disclosed by name with the line quoted. The communication contract gains its progress-narration half and a rule that formatting follows the reader.
-
-**The interactive guide teaches by showing.** The Models section is rebuilt as a visual learning lab whose language, diffusion, world, and multimodal demos run on a shared clock, pause on hover and focus, and stop under reduced motion. Home is simplified around one checked brief example, and its platform handoff is an illustrative Claude Code to Codex conversation resuming a plan interrupted by a usage limit. The token, prompt, and context lessons are rebuilt, with attachment and context previews that open as native dialogs and stay embedded and offline.
-
-**Routing data re-verified and `gpt-6-astra` mapped.** Every cell of the bundled model map was re-fetched from vendor pages, `gpt-6-astra` enters at frontier, and the prompting profile layer now holds more than one platform with its first OpenAI profile. A scheduled supply-chain watch audits the extension packages and optional extras weekly, producing no required status check by construction.
-
-Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. Two opt-in surfaces are new, the pinned install and the upgrade flags; both are documented above with their activation, validation, rollback, and the authority they do not grant.
-
----
-
-## What's New in v4.5.0
-
-**Every platform now carries an always-loaded writing rule.** A short `## Writing Discipline` block sits in all twelve substantive instruction templates: a prohibition list of the highest-frequency AI-cliche moves, the ASCII punctuation rule that was previously Claude-only, a ban on chatbot leftovers, and a self-check that binds the agent's live chat replies as well as the files it writes. The lockstep parity guard byte-compares it and a twelve-template validator asserts it, so removing it from any one template fails a test. The decision and its alternatives are recorded in `docs/decisions/implemented/policy/2026-09-04-writing-discipline-binds-chat-replies.md`.
-
-**`anti-slop-editing` learns the reflective register and ships a detector.** Nineteen named patterns across seven clusters, each with a before and after pair and a stated class, join the catalog, and `Robotic rhythm` becomes three countable rules. A stdlib-only offline detector reports each finding with line, column, span, and class, exits zero by default, and gates only on request; the skill runs it as a floor before and after editing.
-
-**Agent security closes the boundary gaps the 2026 incidents exposed.** `agent-execution-isolation` gains a host layer beneath the sandbox designed for the case where the virtual machine fails, a transitive-reachability control that treats each allowlisted destination as a node with its own reach, a correction that per-session containers isolate processes and not sessions (with a required enumeration of shared writable services and a remediation ladder), and boundary-interface minimization. `agentic-endpoint-hardening` keeps its advisory default and adds a narrow deterministic response class for violations no legitimate operation produces, guidance only. `purple-team-exercise-design` owns cross-domain attack chaining.
-
-Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface; the Writing Discipline block changes distributed instruction text for every platform, is not opt-in, grants no authority, and is overridden by a project's own instruction file.
-
----
-
-## What's New in v4.4.5
-
-**Five patch cycles of guide work ship as one tag.** v4.4.1 through v4.4.5 were authored in sequence and held back while the operator reviewed Home and Foundations between rounds. Together they take the guide from the rebuilt structure of v4.4.0 to a product that reads correctly on first look, teaches each idea in the operator's words and order, and integrates the reviewed mockups. The range is 44 commits across 63 files, all inside `guides/website/`, `tests/guides/`, and the v4.4 release docs.
-
-**Every illustration reads correctly on first look.** The guardrails figure was rebuilt so no label can escape its box, Context Engineering reads without a legend, the two harness scenes merged into one figure that cannot overlap, the work-cycle ring was replaced and the video plays itself, and section headings follow one stated size rule. The guide no longer addresses the reader in the second person.
-
-**Each segment teaches its one idea.** Models is rebuilt on the eight-stage spine and teaches how a model works instead of listing what it outputs. One prompt is followed through both harnesses with the operator's analogy: the model is a powerful brain, the platform harness is a graduate degree, the Nexus Hub harness is decades of practical experience. The vague prompt is shown beside the reasons it fails, and the cost of dumping everything into the context is named. Every harness layer now states something and shows the chain.
-
-**Training runs on a deterministic arcade shooter.** It replaces Asteroids with the requested lives bug, asteroid hazard, and vertical-movement feature, adds pointer play and dense varied spawning, and its fullscreen presentation fills the whole window at every desktop size with three panes and an overlaid Outline.
-
-Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface. The release-time platform re-verification found one documentation drift on the Claude Code effort lever and corrected the recorded statement; the seeded value is unchanged.
-
----
-
-## What's New in v4.4.0
-
-**The guide now teaches and demonstrates instead of describing.** Home opens on a centered animated mark and wordmark that never wraps, a tagline that sells an outcome rather than listing contents, six honest platform compatibility treatments, and an Installation section where the install command dominates rather than the verification step. Three of those six platforms use labeled text treatments rather than invented trademark geometry, because their vendors publish no distributable standalone product mark; that limit is recorded as a known gap rather than papered over.
-
-**Foundations teaches a non-technical reader what the words actually mean.** The model diagram was corrected to the real sequence (trained, then integrated into a platform, then a request arrives carrying context, then internal reasoning, then output), and five missing concepts were added: tokens for text and images, prompt engineering with worked examples, chatbot versus agentic platform, context engineering and the context window, and harness and loop engineering. The last section ends on an honest account of what Nexus-Hub adds above a platform's own built-in harness.
-
-**Training dropped the download for a game you actually play.** A real in-page Asteroids ships with a seeded wrap-boundary collision bug. The learner plays it, observes the defect, then drives the eight-command loop through a simulated terminal to fix the bug and add asteroid splitting, with an explorable cumulative file tree showing what each command wrote. Everything stays in one self-contained offline HTML file at 480.5 KB against a 500 KB budget, with zero runtime network calls.
-
-**This release is also the first real test of the v4.3.0 verification discipline, and the discipline earned its place.** Every phase ran under the fail-closed ladder, and the Tier 3 deep pass found seven defects that a passing test suite had not: non-integer numeric Training navigation corrupting exported state, presentation mode painting the game over later regions, focus escaping the presentation dialog, a denied-fullscreen fallback surviving route changes and leaving the destination inert, a presentation dialog with no visible close control, and harness claim chips missing from the rendered label-containment inventory. Each was reproduced, fixed, and re-proved in a real browser on Windows and Ubuntu. Browser-backed guide verification is now enforced in CI by a scoped `guide-render` job wired into the `ci-required` aggregate, closing the last gap that let visual defects ship unexercised.
-
-### Capability usage - Claude Code reasoning-effort seeding (changed default)
-
-This release raises the reasoning effort that a Claude Code install seeds, which writes into a file you own, so its operation is documented in full.
-
-| Element | Detail |
-|---|---|
-| **Activation** | No flag or opt-in. `nexus-hub upgrade` (or a fresh install) seeds `effortLevel: "high"` and `env.CLAUDE_CODE_EFFORT_LEVEL: "high"` into `~/.claude/settings.json`. Seeding is absent-only: an existing value of either key is never overwritten, and the pair is treated as one upgrade unit, so a config already carrying either key receives neither. |
-| **Validation** | `python -c "import json;d=json.load(open('$HOME/.claude/settings.json'));print(d.get('effortLevel'), d.get('env',{}).get('CLAUDE_CODE_EFFORT_LEVEL'))"` prints `high high` when both were seeded, and your own prior values when they were preserved. |
-| **Rollback** | Set both keys to `"medium"` in `~/.claude/settings.json`. Re-running the installer will not raise them again, because seeding only fills an absent key. Nothing else is written and no file is removed. |
-| **Authority** | Raising effort does NOT grant Claude Code any new permission, tool, file access, or network capability, and does NOT change what the hooks allow or block. It only changes how much reasoning the model spends per turn, which raises token cost. This change is scoped to Claude Code alone: Codex, Qwen, Kimi, and Hermes stay at `medium`. A malformed user-owned `env` is preserved and receives no nested key, so a reinstall cannot add an env pin that bypasses the VS Code effort toggle. |
-| **Docs** | [`configs/README.md`](configs/README.md) and [`guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md) |
-
-Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release has no breaking change and adds no installer flag and no opt-in host surface; the one changed default-on surface is documented above.
-
-## Previously, in v4.3.0
-
-**The harness verifies behavior, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
-
-**The instruments exist, not just the instructions.** One skill (`functional-verification`) owns the procedure, a renderer-backed detector finds visual defects in real pages, a responsive-layout rule lands in the new `catalog/rules/html/` family, and a paired `html-responsive-guard` hook enforces it at write time on both Bash and PowerShell.
-
-**The interactive guide was rebuilt, and rebuilding it is what exposed the gap above.** The guide is now a dual-theme site with a compact Home, five animated scrollytelling Foundations scenes, an interactive Training walkthrough, and per-scope Cheatsheets, verified to WCAG AA across both themes. The v4.3.0 discipline was built after that rebuild precisely so the guide's successor is not produced by the process that produced its defects.
-
-**A silent Windows failure was found and fixed on the way out.** On a host whose PATH `bash` is the WSL launcher stub, every guarded tool call was denied with no actionable diagnostic, because the stub prints to stdout and exits non-zero without touching stderr. Hook children now resolve a real interpreter, `nexus-hub doctor` reports an unusable one as NEEDS-ACTION, and a new `interpreters` gate group catches the whole class locally instead of on a CI runner.
-
-### Capability usage - `html-responsive-guard` (new default-on hook)
-
-This release adds a hook that can BLOCK a write, so its operation is documented in full rather than left to discovery.
-
-| Element | Detail |
-|---|---|
-| **Activation** | Installed and registered automatically as a `PreToolUse` hook by `nexus-hub upgrade` (or a fresh install). No flag or env var enables it; it is on once installed. |
-| **Validation** | `printf '{"tool_name":"Write","tool_input":{"file_path":"x.html","content":"<style>p{max-width:600px}</style>"}}' \| bash ~/.claude/hooks/html-responsive-guard.sh; echo $?` prints the rule violation and exits `2`. Malformed or unrelated input exits `0`. |
-| **Rollback** | `NEXUS_DISABLED_HOOKS=html-responsive-guard` disables just this hook for the session; `NEXUS_HOOK_PROFILE=minimal` disables the advisory set. Neither removes installed files; re-running the installer restores registration. |
-| **Authority** | Disabling the hook does NOT make a fixed text cap correct - it only removes write-time enforcement, and the rendered-output detector and the `catalog/rules/html/responsive-layout.md` rule still apply. The hook reads only the write payload it is handed: it makes no outbound call, does not scan your project, and never rewrites your file. It blocks or permits; it does not edit. |
-| **Docs** | [`catalog/rules/html/responsive-layout.md`](catalog/rules/html/responsive-layout.md) and [`catalog/skills/testing/functional-verification/SKILL.md`](catalog/skills/testing/functional-verification/SKILL.md) |
-
-Catalog counts are **329 skills** (+1), **18 commands**, **34 hooks** (+1), and **23 agents**. This release has no breaking change. It adds one default-on hook, documented above; it adds no installer flag and no opt-in host surface.
-
-## Previously, in v4.1.2
-
-**Agents stop at the first sufficient construction before writing code.** All 12 substantive instruction templates now carry a compact always-on ladder: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum. Include-only shims inherit it and do not duplicate the heading.
-
-**Two skills own intensity and delete-lists.** `minimal-construction` walks the seven rungs with lite/full/ultra as a skill argument (no env var or config file). `over-engineering-review` emits a tagged delete-list or `Lean already. Ship.` and does not apply fixes. Deferred ceilings use a generic `construction-debt:` marker.
-
-Catalog counts are **328 skills** (+2), **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
-
-## Previously, in v4.1.1
-
-**Local security audits now prove which scanners ran.** A full security-audit run emits a schema-v2 closure record with a receipt for every applicable optional local scanner (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`). Schema-v1 records keep their previous fields. Missing tools stay visible instead of looking complete.
-
-**Detection, fix, and verification stay separate.** The ordered `security-audit` preset re-scans with the same detector after a user-approved patch, and the fixer cannot be the only post-fix verifier. Cloud posture remains read-only.
-
-**Optional scanners stay local.** Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, and Checkov are recipes on existing skills. None is auto-installed or replaced by a hosted service. See [`guides/reference/SECURITY_AUDIT.md`](guides/reference/SECURITY_AUDIT.md).
-
-Catalog counts remain **326 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
-
-## Previously, in v4.1.0
-
-**Skill guidance now starts from evidence and ends in action.** Skill authors write executable procedural runbooks, label successful and failed observations before distillation, and pair domain language with an observable trigger.
-
-**Typed-boundary hygiene is a first-class skill.** The `typed-boundary-hygiene` runbook replaces low-evidence TypeScript assertions with named types and checked seams.
-
-**Skill evaluation can add an optional raw-memory comparison** beside the existing with-skill and without-skill benchmark. See the v4.1.0 changelog for Activation, Validation, Rollback, Authority, and Docs.
-
-## Previously, in v4.0.0
-
-**Documentation is placed by lifespan, and the migration proves itself.** Release-bound work lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, frozen snapshots live under `docs/archives/`, and living material stays at stable roots such as `docs/handbooks/` and `docs/decisions/`. Existing legacy layouts remain honored in place until an explicitly approved migration.
-
-## Previously, in v3.21.0
-
-**Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> full` (alias `in-full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
-
-This release changes no opt-in capability, installer flag, or host surface.
-
-## Previously, in v3.20.3
-
-**Skills craft, invocation policy, and a Claude Code subscribe path.** Three new skills (`design-interview`, `setup-wizard-generator`, `decision-questionnaire`) take the catalog to **324**. Authoring skills teach agent-writing discipline. Generated command-skills carry `disable-model-invocation: true` so slash dispatchers are not model-auto-invoked. Claude Code can subscribe with `/plugin marketplace add bendourthe/Nexus-Hub` (hooks stay on the installer).
-
-This release documents one opt-in host surface: `claude-plugin-marketplace`. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
-
-## Previously, in v3.20.2
-
-**Interface-craft is now a first-class cluster, not a hole in the catalog.** Six skills (net +6, polish merged into `hallmark-design` rather than a seventh skill) cover accessibility, layout, in-product copy, typography, color systems, and a coordinating `interface-review`. Overlapping rules have one owner; a missing delegate is named instead of reconstructed. Recipe-level elevation, radius, icon stroke, and motion values land in `hallmark-design` after its anti-slop gates. Catalog is **321 skills** across **23 categories**.
-
-This release changes no opt-in capability, installer flag, or host surface.
-
-## Previously, in v3.20.1
-
-**Security coverage doubled, with the gates to keep it honest.** Forty independently authored cybersecurity skills (OT, mobile, API abuse, applied crypto, intel ops, zero trust, deception, firmware, smart contracts, wireless, SSVC/SLSA, purple team) plus two categories (`ot-security`, `mobile-security`). Dual-use skills open with an authorization gate. MITRE F3 mapping, an ATT&CK Navigator export, an agentskills.io conformance guard, a committed coverage map, and an 800-line SKILL.md body cap. Catalog is **315 skills** across **23 categories**.
-
-This release changes no opt-in capability, installer flag, or host surface.
-
-## Previously, in v3.20.0
-
-**Agent execution now has an OS-level isolation skill.** `agent-execution-isolation` teaches Landlock, seccomp, network namespaces, per-session ephemeral containers, placeholder credentials, and an out-of-process egress proxy (static rules, optional LLM judge, SSRF/RFC-1918 blocks, human escalation). `/review security` engages it when the reviewed project spawns agents, holds agent credentials, or makes agent-driven egress calls.
-
-**Existing skills now point at that model instead of duplicating it.** `agentic-endpoint-hardening` documents credential brokering (placeholders in the agent, real keys at a broker). `egress-redaction` states that typed BLOCK/REDACT/HASH/PASS is skippable content policy, not a network perimeter. `ai-agent-governance` records the three-question triage (sandbox, broker, egress) under Pillar 3.
-
-Catalog counts are **275 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release adds no installer flag, opt-in host surface, or outbound call.
-
-## Previously, in v3.19.2
-
-**Agents now have a durable, cross-platform memory store.** `nexus-memory` is a local append-only log of lasting facts, decisions, and events. An agent reads it at session start within a fixed line budget, records as it works, and summarizes older ranges itself. The store never calls a model, never starts a background process, and never leaves the machine. Default root is `~/.nexus-hub/memory/`.
-
-**A read that the harness would silently truncate is no longer acceptable.** Shared output paging splits agent-consumed script output by both a byte cap and a line cap (defaults: 16,000 bytes and 256 lines, the minimum across surfaces verified on 2026-08-23). Printed next-step commands resolve to the script's own path, so they work when the script is not on PATH.
-
-**A relocated store is no longer documentation-only.** Creating or appending inside a git working tree is refused, POSIX permissions are owner-only, and the `memory-store-guard` hook blocks Write, Edit, and git staging of store artifacts unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`.
-
-**The new `agent-memory` skill is the routing home for this store.** It is distinct from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`, which stay on-demand and topic-scoped. Spawned subagents are told not to write. Catalog count is now **275 skills**, **18 commands**, **32 hooks**, and **23 agents**.
-
-`nexus-memory` is a local CLI package, not a fifth MCP server. The four internal MCP servers are unchanged. The package is stdlib-only: **zero outbound calls, zero API keys, zero model downloads**.
-
-## Previously, in v3.19.0
-
-**Code intelligence is now cheaper to expose, safer to act on, and still fully offline.** `nexus-code-search` adds `minimal`, `standard`, and `full` tool profiles so a session can expose 7, 16, or 20 tools instead of paying the full definition cost every time. Full remains the compatibility default, and profiles change visibility only - they grant no additional authority.
-
-**Repository searches can route through the local index.** A cross-platform `PreToolUse` hook recognizes Grep, Glob, and equivalent shell searches, then points the agent toward `nexus-code-search`. Its default `soft` mode is advisory; `NEXUS_CODE_SEARCH_ROUTING=block` makes matched searches fail with exit 2, while unrelated commands remain untouched.
-
-**Every MCP tool can return compact responses.** Set `response_format=auto` to use the versioned `NEXUS-CW/1` format only when it clears the measured savings threshold, or use `compact` to force it. JSON remains the default and the fail-open fallback, and `nexus-context-compressor` recognizes the marker so it does not compress the same payload twice.
-
-**Mutation planning gains evidence-backed preflights.** `code_edit_safety`, `code_delete_safety`, and `code_rename_safety` return ordered verdicts with the indexed callers, importers, and references behind them. `insufficient_data` stays distinct from safe, and each result states the graph's cross-repository visibility boundary.
-
-**The local index now understands more than code.** A provider seam ships with a Markdown provider for headings and hierarchy, plus optional hybrid retrieval through pre-placed ONNX weights. Dense retrieval is off by default, never downloads a model, and degrades to keyword search with a precise local hint when its extra, weights, or encoder are unavailable.
-
-The deterministic benchmark records retrieval quality, response bytes, estimated tokens, definition cost, and latency against unique temporary workspaces. CI runs the full extension suite in a container with `--network none`, and the server now supports both MCP SDK 1.x and 2.x schema attribute names. See the [code-search README](extensions/nexus-code-search/README.md) for activation and rollback guidance.
-
-Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. The extension preserves its published guarantee: **zero outbound calls, zero API keys, zero model downloads**.
-
-## Previously, in v3.18.3
-
-**`/presentify` can now produce a slide deck.** Pass `--nav slides` (or pick "Slide deck" in the canvas question) and the output becomes viewport-fitted slides advanced by keyboard arrows, rather than a page you scroll. Everything else about the output is unchanged: still one self-contained offline HTML file, still real interactive charts, still commercial-use-safe imagery.
-
-```bash
-/presentify report.pdf --nav slides --interactivity rich
-```
-
-Forward is ArrowRight / ArrowDown / PageDown / Space, back is ArrowLeft / ArrowUp / PageUp, Home and End jump to the first and last slide, touch swipes, and on-screen zones click. `scroll` remains the default and the non-interactive fallback, so nothing changes for anyone who does not ask for slides.
-
-**The intake stayed at four questions.** The interactive question surface caps at four per round, so navigation rides on the existing output-aspect question rather than adding a fifth. `--layout` binds the aspect half and `--nav` the navigation half: name both and the question disappears, name one and it narrows to what is still unresolved. The two compose rather than conflict, so `--layout portrait --nav slides` is portrait-ratio slides, and no pair of flags can deadlock the intake.
-
-**The interesting problem was animation, not navigation.** Slide mode has no scroll, so every scroll-triggered effect the balanced, rich, and cinematic levels ship had to be re-expressed or it would simply never fire, leaving content permanently hidden. There are now three slide-native trigger classes and a mapping table covering every pattern in the catalog: effects that run once when a slide activates, effects stepped by arrow key within a slide (PowerPoint-style builds), and permanent ambient loops for atmosphere. One rule is binary and load-bearing: **only non-data-bearing motion may loop.** A chart build or a numeric transition must be entry-triggered or stepped, because looping data motion fabricates the impression of live data.
-
-Cinematic survives too. The scroll-scrubbed camera becomes a fragment-stepped camera - one keyframe per arrow press, using the easing the scrub curve would have applied, with a subtle drift while a keyframe holds. Slide mode changes the trigger, never the asset policy: the size gate, the no-hosted-generation boundary, and the stills-only reduced-motion path all apply unchanged.
-
-**The QA loop grades slides as strictly as pages.** The visual-QA rubric gains a twelfth criterion covering per-slide fit at all four viewports, fragment integrity including deep-link state, ambient-loop discipline, and navigation chrome. The structural scorer gains seven deterministic checks that skip cleanly on a scrolling page, so every page authored before this release stays out of the failure set. One of the seven deliberately runs *outside* that skip: it fails when a page's design record says slides but the markup lost its `data-nav` attribute, which would otherwise skip all six other checks and score a confident green.
-
-Under `prefers-reduced-motion: reduce` a deck is a sequence of settled, fully-legible stages: transitions become instant cuts and ambient loops are removed entirely rather than slowed. Without JavaScript it degrades to ordinary stacked sections in source order, and it prints one slide per page.
-
-Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**: this release adds one reference file to an existing skill's bundle rather than a new skill.
-
-## Previously, in v3.18.2
-
-**The GitHub Usage Monitor has been withdrawn.** It is deleted from the catalog, and upgrading uninstalls it from both VS Code and Cursor. Unshipping alone would not have been enough: an extension already installed keeps running, and this one could report a confident **0% used against an allowance GitHub showed as fully exhausted**.
-
-**Why it could not be fixed.** The extension existed to mirror the Included usage bars on `github.com/settings/billing`. That figure is not served by any API. The endpoint that once returned it (`/{scope}/settings/billing/actions`, carrying `included_minutes` and `total_minutes_used`) was [closed down on 2025-09-26](https://github.blog/changelog/2025-09-26-product-specific-billing-apis-are-closing-down/); re-verified 2026-08-22, the Budgets API exposes only budget amounts, `/usage` and `/usage/summary` carry no allowance field, and GraphQL has no billing surface at all.
-
-So the number had to be reconstructed, and the reconstruction needs one input GitHub does not provide. The billing page discounts cover *"Actions usage in public repositories **and** included usage for Actions minutes and storage"* -- two reasons summed into one figure, with no discount-reason field and no visibility field on any line item. The only discriminator is the repository, and GitHub reports visibility **as of now** while billing items are **historical**. A repository that was private when its minutes ran and is public today has its whole month retroactively reclassified as free, which is exactly how a saturated allowance renders as 0%. That gap is a property of what is missing from the data, not something an implementation can close.
-
-The mechanism also moves underneath any reconstruction: runner prices were cut on 2026-01-01, and from 2026-03-01 self-hosted runners began consuming the quota "based on list price". The second change silently falsified two statements v3.18.1 itself shipped.
-
-**The Claude, Codex, and Cursor monitors are unaffected and stay.** They do not share the problem: each reads a *served* usage figure from its vendor's own first-party endpoint and reconstructs nothing. That is the difference, and it is why only this one was withdrawn.
-
-Settings under `githubUsageMonitor.*` are left in place rather than deleted; they are inert and harmless. Full reasoning, including the four alternatives rejected and the one thing that would reopen the decision, is at [`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`](docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md).
-
-Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. Nexus-Hub now ships **three** usage monitor extensions instead of four.
-
----
-
-## Supported Agentic Platforms
-
-| Platform | Install target | Path | Per-platform surface |
-|---|---|---|---|
-| Claude Code (Anthropic) | `~/.claude/` + project `.claude/` | legacy + registry | Full: skills, commands, hooks, agents, rules, MCP configs |
-| OpenAI Codex CLI | `~/.codex/` + project `.codex/` + `AGENTS.md` | registry | Full: skills (under `skills/`), commands (under `prompts/`), agents, rules |
-| Gemini (IDE / Antigravity 1.0) | `~/.gemini/` + project `.gemini/GEMINI.md` | registry | Full: skills, commands (under `workflows/`), agents, rules |
-| **Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18)** | `~/.gemini/commands/*.toml` + project `.gemini/commands/*.toml` | **registry (new in v2.1.0; gated behind `--enterprise` / `-Enterprise` flag in v2.2.0)** | TOML-format custom commands generated from `catalog/commands/*.md`. Non-enterprise users transition to Antigravity CLI before 2026-06-18 per the 2026-05-21 Google announcement. |
-| **Antigravity 2.0 + CLI (Google)** | `~/.gemini/antigravity-cli/` + project `.agents/` | **registry (new in v2.1.0, CLI coverage added v2.2.0; paths verified v2.3.0)** | Full: skills, commands (under `workflows/`), subagents, rules. Single integration covers both the desktop IDE and the standalone Antigravity CLI (`agy` binary), verified 2026-05-29 against Google's public Antigravity CLI docs. |
-| GitHub Copilot (VS Code) | project `.github/copilot-instructions.md` + VS Code user-profile `prompts/` | registry | Personal and repository instructions (skill index embedded as text), native agents and hooks, user-global `/<name>` prompts; opt-in `.github/skills/` wrappers via `NEXUS_HUB_COPILOT_SKILLS` |
-| Cursor | project `.cursor/` + `AGENTS.md` | registry | Flattened skills (one command-skill per catalog command), `.cursor/rules/nexus-hub.mdc`, and the `AGENTS.md` guardrails |
-| OpenCode | `~/.config/opencode/` + project `.opencode/` + `AGENTS.md` | registry | Skills, commands, rules, and agents |
-| Qwen Code | `~/.qwen/` (detection-gated) + project `.qwen/` | registry | Flattened skills, subagents, Markdown commands, and `QWEN.md` |
-| Kimi Code CLI | `~/.kimi-code/` (detection-gated) + project `.kimi-code/` | registry | Flattened skills (each surfaces as `/skill:<name>`) and `AGENTS.md` |
-| Devin Desktop / Windsurf | `~/.codeium/windsurf/` + project `.devin/` and `.windsurf/` | registry | Native skills, workflows, rules, and hooks; `.windsurfrules` kept for compatibility |
-| Hermes | `~/.hermes/skills/` (detection-gated) + project `.hermes/skills/` | registry | Native folder-per-skill `SKILL.md` discovery; no instruction file needed |
-| Pi | `~/.pi/agent/` (detection-gated) + project `.pi/` | registry | Flattened skills plus one prompt template per command (Pi's `/name` surface) |
-| OpenClaw | the configured OpenClaw workspace | registry | `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, and native skills; no tool-interception hooks |
-| Aider | project `CONVENTIONS.md` | registry | Behavioral guardrails only; a global install is a no-op |
-| **Nexus-AI (Local Studio)** | `~/.nexus-ai/catalog/` + project `.nexus-ai/catalog/` | **registry (new in v2.1.0)** | Full mirror: skills, commands, agents, rules, hooks, MCP configs, templates, plus a `nexus-hub-version.json` manifest. Isolated under `catalog/` so the app's own data at the `~/.nexus-ai/` root stays outside a catalog refresh. |
-| GitHub CLI (`gh`) | via `gh copilot` extension | indirect | Skill / command references via `AGENTS.md` open standard |
-| Nexus desktop app | upstream consumer | indirect | Reads the same catalog as its skill feed |
-| Nexus VS Code extension | upstream consumer | indirect | Reads the same catalog as its skill feed |
-
-**Coverage caveat**: every platform now installs through the **registry** path, which dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. For Claude Code, the one row marked "legacy + registry", the registry renders only the marker-merged instruction file while the installer's own copy blocks write the catalog tree. Coverage differs surface by surface, and the authoritative per-platform read paths and coverage tiers are in [`docs/policy/platform-read-contracts.md`](docs/policy/platform-read-contracts.md). The per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
-
-**Branch-based install** (v2.4.0): pass `--branch <name>` (Bash) or `-Branch <name>` (PowerShell) to install the catalog from a pushed branch instead of the current checkout. The installer shallow-clones the repo at `<name>` into a deterministic cache directory (`~/.nexus-hub/branches/<sanitized-name>/`) and runs the install from that checkout, so the user's working copy is never touched. The branch name is sanitized for filesystem safety (path-traversal sequences are neutralized). Combine with `--check` / `-Check` for a clone-free probe that prints the resolved cache path and clone source.
-
----
-
-## Quick Start (one command)
-
-Open a terminal and paste the line for your system. It downloads the catalog from this repo and runs the installer -- no clone, no unzip, no `cd`.
-
-**macOS / Linux** (paste into Terminal):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
-```
-
-No `curl` on the box? Use `wget`:
-
-```bash
-wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
-```
-
-**Windows** (paste into PowerShell):
+**Windows PowerShell**
 
 ```powershell
 irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex
 ```
 
-That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. For Kimi Code CLI, Qwen Code, Hermes, Pi, Aider, OpenCode, and Nexus AI Studio, "have" means the installer found the tool itself (its command on `PATH`, files the tool wrote, or its application), not a folder an earlier Nexus-Hub install created; the skip note says what it looked for, and `nexus-hub doctor` lists leftover Nexus-Hub files for tools you do not have, which `nexus-hub prune-undetected` removes (preview first, `--yes` to delete). See `docs/policy/platform-detection.md`. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
-
-**Done.** The installer writes to `~/.nexus-hub/` (the user-global catalog) and into each supported assistant's per-platform config locations. If a legacy `~/.devai-hub/` install is detected, you will see a single migration prompt at the top of the run -- answer `Y` (default) to migrate in place.
-
-After the installer completes:
-
-- **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
-- **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
-
-**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants, and naming one that the installer did not find (for example `--platforms qwen`) installs it anyway; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
-
-### Claude Code plugin (subscribe-style alternative)
-
-The installer above is the primary path: every platform, hooks, and `nexus-hub upgrade`. Claude Code users who only want the catalog as a plugin can subscribe instead:
-
-```
-/plugin marketplace add bendourthe/Nexus-Hub
-/plugin install nexus-hub@nexus-hub
-```
-
-This is not a replacement for the installer. It does not install hooks, other platforms, or the `nexus-hub` CLI.
-
-If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/archives/v3/v3.20/development/claude-marketplace-submission.md`](docs/archives/v3/v3.20/development/claude-marketplace-submission.md).
-
-### Installing a subset (selective installation)
-
-By default you get the whole catalog. If you want a smaller install, pick a **profile**, one or more **capability modules**, or one or more **role bundles**. Selectors combine by union.
+**macOS / Linux Terminal**
 
 ```bash
-# macOS / Linux
-bash scripts/installer.sh --profile core
-bash scripts/installer.sh --modules ai-engineering,testing
-bash scripts/installer.sh --bundles ai-engineer
-bash scripts/installer.sh --profile core --modules security-operations   # union
+curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
 ```
 
-```powershell
-# Windows
-.\scripts\installer.ps1 -Profile core
-.\scripts\installer.ps1 -Modules ai-engineering,testing
-.\scripts\installer.ps1 -Bundles ai-engineer
+The installer detects supported tools, copies the harness files, and verifies the installation. Reopen your IDE or start a new agent session afterward.
+
+<img src="assets/readme/nexus-hub-installation.gif" alt="Compact terminal: paste the installation command, run the installer, and review verification on Windows, macOS, and Linux" width="900" />
+
+[Static preview](assets/readme/nexus-hub-installation.png) | [Install options, updates, and verification](docs/guides/installation-and-platforms.md)
+
+## Development Workflow
+
+| Step | Command | Result |
+| --- | --- | --- |
+| 1 | `/describe` | Project map and dependencies |
+| 2 | `/review` | Prioritized findings |
+| 3 | `/plan` | Phases and acceptance checks |
+| 4 | `/implement` | Changes verified against the plan |
+| 5 | `/test` | Regression and boundary checks |
+| 6 | `/update release` | Version, release notes, and release checks |
+
+![Guided IDE tour with an animated cursor and spotlights through the six-command development workflow](assets/readme/nexus-hub-workflow.gif)
+
+[Static preview](assets/readme/nexus-hub-workflow.png) | [Detailed workflows](docs/guides/development-workflows.md)
+
+## Centralized IDE Settings
+
+| Control | Behavior |
+| --- | --- |
+| Global effort level | Updates supported open sessions and sets the default for new sessions |
+| Apply to all | Reapplies the default after a manual session override |
+| Fast mode | Updates supported providers; disabled where unavailable |
+| Guardrails | Enables checks for supported tool calls |
+| Usage alerts | Controls popups while status-bar colors stay active |
+| Extensions | VS Code controls for Claude Code and Codex recovery, tabs, and history |
+
+Manual session choices remain until the next global change or **Apply to all**.
+
+![Nexus Hub settings inside VS Code: change effort and Fast mode, manage guardrails and alerts, and access supported provider controls](assets/readme/nexus-hub-settings.gif)
+
+[Static preview](assets/readme/nexus-hub-settings.png) | [Extension controls](extensions/nexus-hub-settings/README.md)
+
+## Usage Monitors
+
+- **Hover:** usage bars, quotas, and reset countdowns.
+- **Click:** the provider's full dashboard in an editor tab.
+- **Alerts:** one master switch, plus individual monitors in VS Code. Status colors remain active.
+
+![Three portrait VS Code desktops: Claude Code, Codex, and Copilot hover and open their dashboards together](assets/readme/nexus-hub-usage.gif)
+
+[Static preview](assets/readme/nexus-hub-usage.png) | [Interactive tour](guides/website/readme-showcase.html?tour=usage)
+
+## Handoffs
+
+1. **Choose:** Wait for reset, Hand off, or Continue on credits.
+2. **Transfer:** copy the generated resume prompt into the receiving app.
+3. **Continue:** send it with the project files and resume the recorded next step.
+
+![Dark desktop tour: select Hand off in Claude, copy the full Nexus prompt, paste and send it in ChatGPT, then continue the unfinished test](assets/readme/nexus-hub-continuity.gif)
+
+Provide the relevant project files to the receiving app. In installed agent integrations, `/handoff` prints in chat unless you explicitly request a file.
+
+[Static preview](assets/readme/nexus-hub-continuity.png) | [Handoff command](catalog/commands/handoff.md)
+
+## Platforms
+
+| Platform | Nexus Hub integration |
+| --- | --- |
+| VS Code: Claude Code | Skills, commands, hooks, shared controls, and Claude usage monitor |
+| VS Code: Codex | Skills, commands, hooks, shared controls, tabs/history, and Codex usage monitor |
+| VS Code: GitHub Copilot | Supported instructions and commands, plus Copilot usage monitor; effort stays native |
+| Cursor | Project harness, native Agent effort/Fast controls, and Cursor usage monitor |
+| Antigravity | Project harness, supported IDE controls, and Gemini usage monitor |
+| Claude desktop | Supplied project guidance and files, reusable procedures, and chat handoffs |
+| ChatGPT desktop | Supplied project guidance and files, reusable procedures, and chat handoffs |
+
+![Cursor and Antigravity IDE mockups showing Nexus Hub beside their native Agents and platform-specific controls](assets/readme/nexus-hub-platforms.gif)
+
+[Static preview](assets/readme/nexus-hub-platforms.png) | [Interactive platform tour](guides/website/readme-showcase.html?tour=platforms)
+
+Terminal agents also use the [supported integrations](docs/guides/installation-and-platforms.md#supported-agentic-platforms). File access, permissions, and hook coverage depend on the host. Project files and explicit handoffs carry work across tools and models.
+
+## Command Cheatsheet
+
+Command scopes, flags, and examples from the HTML guide. Run **`/skills list`** for the installed catalog.
+
+<!-- readme-cheatsheet:start -->
+
+### Codebase Understanding
+
+Read-only commands. They write reports; they never edit the code.
+
+#### `/describe`
+
+Produce a structured description of any directory, software or not.
+
+| Scope | Behavior |
+| --- | --- |
+| `full` | Complete structured description. The default. |
+| `structure` | Layout, modules, and how the pieces are organized. |
+| `deps` | Dependencies, external services, and version constraints. |
+| `architecture` | Design, data flow, and key components, with diagrams. |
+| `onboarding` | Fast start: what to read first and how to run it. |
+
+```text
+/describe full
 ```
 
-Profiles are `minimal`, `core`, and `full`. Modules group skills by capability (one per catalog category, so every skill is reachable through at least one). Role bundles are curated cross-category sets like `ai-engineer` or `devops-engineer`. List what is available with `python scripts/lib/installer/selection.py --repo-root . --profile core` , which prints the resolved plan without installing anything.
+A directory path may follow the scope. [See it in Training](guides/website/training.html#describe)
 
-Three things worth knowing before you narrow an install:
+#### `/review`
 
-- **Hooks, rules, templates, and settings always install**, under every selection including `minimal`. Narrowing your skill set asks for fewer capabilities, never for fewer guardrails.
-- **Commands and agents follow their skills.** A command that is a thin pointer over one skill (for example `/implement` over `implement-phase`) installs only when that skill is selected; everything else installs regardless. So a focused install stays coherent instead of leaving commands that cannot do anything.
-- **No selector means the full catalog**, byte-for-byte identical to what you would have got before selective installation existed.
+Scope-able read-only review across every review lens.
 
-`nexus-hub upgrade` re-applies whatever you selected, so an upgrade never quietly widens a focused install back to everything. To change scope, pass a new selector; to go back to everything, pass `--profile full`.
+| Scope | Behavior |
+| --- | --- |
+| `full` | Runs every lens in order, then one synthesized verdict. |
+| `structure` | Module boundaries, layering, and the dependency map. |
+| `quality` | SOLID, complexity, maintainability, code smells. |
+| `coverage` | Test-coverage analysis and gap identification. |
+| `security` | Secrets, auth, input validation, dangerous patterns. |
+| `pentest` | Deep penetration test with proof-of-concept findings. |
+| `changes` | Multi-persona review of the pending diff, or one commit with `changes <sha>`. Can draft review comments to the chat or to a named file; it never posts them. |
+| `skill-scan` | Security-scan a skill, or the catalog, before install. |
+| `sbom` | Generate a Software Bill of Materials. |
+| `deps` | Dependency CVE, license, and supply-chain scan. |
 
-Selectors need Python to resolve. A full install does not.
-
-### Check the installed version
-
-```bash
-nexus-hub version    # prints the installed version
-nexus-hub upgrade    # checks for the latest release and updates in place
+```text
+/review changes
 ```
 
-`nexus-hub -v` and `nexus-hub --version` print the same line as `nexus-hub version`.
+Flags: `--scope <glob>` and depth flags pass through unchanged.
 
-### Keeping it current
+[See it in Training](guides/website/training.html#review)
 
-Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
+#### `/compare`
 
-### Pinning a version, verifying the download, rolling back
+Compare this project to an external source; produce a gap analysis and an adoption plan.
 
-The one-line install above follows the `main` branch, which has no publishable checksum because every commit changes the archive. To install a specific release instead, pin a tag; a pinned install downloads the tarball the project published for that release and verifies it before anything runs.
+| Scope | Behavior |
+| --- | --- |
+| `repo` | Clone a Git repo; compare structure, dependencies, patterns. |
+| `article` | Fetch a web article; compare its claims and recommendations. |
+| `local` | Compare against a path already on disk. |
 
-| Element | Detail |
-|---|---|
-| **Activation** | macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh \| bash -s -- --ref v4.7.0`. Windows: `&([scriptblock]::Create((irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1))) -Ref v4.7.0`. The `NEXUS_HUB_REF` environment variable does the same. |
-| **Validation** | The bootstrap prints `checksum OK (<sha256>)` before extracting; `nexus-hub --version` reports the installed version; `~/.nexus-hub/PINNED_REF` holds the pinned tag. `gh attestation verify Nexus-Hub-4.7.0.tar.gz -R bendourthe/Nexus-Hub` checks the build-provenance attestation of the published tarball. |
-| **Rollback** | `nexus-hub upgrade --ref v4.6.0` installs an older tag (any tag that carries the published artifact set, v4.7.0 and later); `nexus-hub upgrade --latest` moves a pinned install to the newest release; installing `main` again removes the pin. |
-| **Authority** | Verification proves the download is byte-for-byte what the release workflow published for that tag. It does not audit the catalog's content, grant any platform permission, or protect the host; a pinned install receives no updates until you move it. Tags published before v4.7.0 carry no artifact set and fail closed. |
-| **Docs** | `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`; the bootstrap headers in `install.sh` and `install.ps1`. |
-
-`nexus-hub upgrade` on a pinned install refuses to move and prints those options, so an upgrade never quietly unpins you.
-
-### Verifying your install
-
-Run `nexus-hub verify` to confirm your installed catalog matches the published release. It recomputes the SHA-256 of every file in the catalog tree and diffs the result against the `MANIFEST.sha256` that ships with each release, reporting any file that is modified, missing, or unexpected, then a single `verify: PASS` or `verify: FAIL` line. It is strictly local: it reads only local files, makes no network call, needs no credential, and adds no dependency.
-
-What this does and does not prove: `verify` detects on-disk tampering or corruption AFTER install, relative to the published catalog. It is trustworthy to the extent the manifest itself came from the release you trust (it rides inside the same signed release tag the installer pulls from). It is NOT a code signature and NOT a substitute for verifying the download channel -- an attacker who can rewrite both a file and the manifest in the same tree defeats it. Use it to catch accidental corruption and post-install drift, not to establish first-trust in the bytes.
-
-### Add organization standards
-
-Connect a validated local-directory or Git bundle with `nexus-hub org connect <path-or-url>`, inspect it with `nexus-hub org status`, and then reinstall or repair the target workspace. Nexus-Hub projects the organization's concise core and rule files into existing platform surfaces without uploading the bundle or claiming policy enforcement. See the [Organization Knowledge Layer guide](guides/ORG_KNOWLEDGE_LAYER.md) for the bundle contract, lifecycle commands, precedence model, authoring workflow, and rollback procedure.
-
----
-
-## What is Nexus-Hub?
-
-Most AI assistants are generic by default: they know a lot but specialize in nothing. Nexus-Hub is the layer that turns a generic assistant into a specialist for the work you actually do.
-
-It does three things:
-
-1. **Behavioral rules** -- per-language code-style and security rules that tell the assistant how to write code in your project (not just whether the code compiles).
-2. **Autonomous skills** -- 340 curated capability prompts grouped into 23 categories. Each skill has a 3-tier loading model (always-loaded summary, body on trigger, deeper references on demand) so context cost stays proportional to what the agent actually needs.
-3. **Workflow awareness** -- 21 slash commands (plus 3 permanent aliases) that chain skills into multi-step processes (plan generation, phase implementation, deep review, version bump, release notes, session history).
-
-The catalog itself is content; the harness around it is the per-platform installer plus a small set of local MCP servers that surface the catalog to any agent that speaks MCP.
-
----
-
-## Recommended Workflows
-
-Nexus-Hub provides two opinionated end-to-end workflows. Use these as a starting point and adapt to your project.
-
-### New Project Workflow (5 phases)
-
-Build from scratch with an AI coding agent as your primary partner.
-
-#### 1. Planning
-
-Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core features, tech stack, constraints. End the session by asking the chatbot to produce a structured Markdown implementation plan -- phases with subtasks, each subtask carrying a self-contained prompt the agent can execute.
-
-#### 2. Project setup
-
-1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
-2. Install the Nexus-Hub toolkit -- paste the one-line install command for your OS (see [Quick Start](#quick-start-one-command)).
-3. In Claude Code, run `/setup project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
-4. Save the implementation plan from step 1 to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`.
-5. Commit with `/commit`.
-
-#### 3. Development (core loop)
-
-Run `/implement <slug>` once. It asks every approval the run needs in one upfront round, then runs the whole plan in its own worktree: every subtask of every phase, tests and fixes, `/update gitignore` + `/update docs`, a session-history file, and a local commit per phase, then the single publication, the release, and cleanup. It stops only when the completion checker reports a terminal verdict, on a named blocker, or when you run `/implement pause`; `/implement <slug>` resumes.
-
-To work one phase at a time instead, run `/implement <slug> phase <N>` (or `next`) in a fresh session per phase, or `/implement <slug> phase-by-phase` to review and commit after each phase.
-
-**Non-final phases do not push** (v4.0.0). A remote pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches you to stop reading red checks. One branch, one commit per phase, all local.
-
-The final phase does the rest in order: it reconciles your pipeline against the canonical CI/CD contract via `[[cicd-architect]]`, completes the full local gate, then pushes ONCE with your explicit approval and opens the integration pull request. That pull request is the plan's first remote validation, and it tests the merge result rather than the branch tip. A red required check reopens the final phase and is reproduced locally before any re-push; release work starts only after the merge lands green.
-
-If you do want to push mid-plan (to share work in progress, say), just ask -- the rule removes the default, not your authority.
-
-Each `/implement` phase runs a best-effort model-routing pre-flight before building: it re-confirms the model and reasoning effort `/plan` recorded for the phase, re-assessing against the currently-available models so a plan built before a new release picks up the newer or cheaper option. It is platform-agnostic and never blocks (it degrades to the plan's recommendation when routing is unavailable). Run `/route` to route any task or phase on demand.
-
-#### 4. Quality assurance (pre-release)
-
-1. Run `/review full` -- a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs / git hygiene, project validators, codebase description (`/describe full`), and the `security`, `pentest`, and full codebase-review scopes.
-2. Read the synthesis report -- it produces a P0 / P1 / P2 / P3 ranked list of findings with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
-3. Address all P0 and P1 findings before release. P2 findings can be deferred to a follow-up patch release; P3 findings are advisory.
-4. Run `/review sbom` for compliance documentation.
-
-#### 5. Release
-
-1. Run `/update release` -- orchestrates version detection, layout cleanup, `.gitignore` audit, version-bump across all configuration files, CHANGELOG migration, doc sync, and the DEVLOG index line.
-2. Merge `develop` into `main`, tag the release, and push.
-
-### Inherited Project Workflow (2 phases)
-
-For projects you have inherited or need to audit.
-
-#### 1. Primary analysis and deep review
-
-1. Clone the repo, open it in VS Code, start a Claude Code session.
-2. Run `/review full` -- the same 12-phase orchestrator from Phase 4 of the New Project Workflow. The synthesis report's prioritized roadmap (P0 / P1 / P2 / P3) becomes your initial backlog.
-3. If documentation is sparse, backfill it: `/update docs` (README, if missing), `/update changelog` (from git history), `/update devlog`, `/update refactor` (only when the repo has structural issues).
-4. Establish the `develop` branch if not already present.
-5. Commit the analysis artifacts.
-
-#### 2. Making changes
-
-For each change:
-
-1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`.
-2. Run `/implement <slug>` to run the whole plan, or `/implement <slug> phase <N>` per phase -- identical to the New Project Workflow's development loop.
-3. (Optional) Use git worktrees for parallel work:
-
-    ```bash
-    git worktree add ../project-fix feature/security-fix
-    # work in a separate Claude Code session, then:
-    git worktree remove ../project-fix
-    ```
-
-4. After all changes land on `develop`, run `/review full` again to verify nothing regressed, then `/update release` and merge to `main`.
-
-The QA and release steps are identical to the New Project Workflow.
-
----
-
-## Manual setup (if you do not want to run the installer)
-
-If you prefer to copy things yourself, here is how the repo is organized.
-
-### Claude Code (Anthropic)
-
-The most powerful integration -- adds **autonomous agent capabilities**.
-
-- **CLAUDE.md**: the "brain". Copy `templates/ai-instructions/base-claude.md` to `CLAUDE.md` at your project root and customize.
-- **Skills**: the "hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
-
-    *Example*: copy `catalog/skills/research/trend-research` to enable the trend-research skill.
-
-### Gemini (Google) and Antigravity
-
-Optimized instructions for Google's Gemini models, including the Antigravity workspace layout.
-
-- **Gemini instructions**: copy `templates/ai-instructions/base-gemini.md` (or `templates/ai-instructions/generic-instructions.md` for the legacy template) to `.gemini/GEMINI.md` in your project or user profile.
-- **Skills and workflows**: the installer mirrors these to `.gemini/skills/` and `.gemini/workflows/`; Antigravity 2.0 receives its own copies under `~/.gemini/config/skills/` and `~/.gemini/config/workflows/`.
-
-### GitHub Copilot (Microsoft)
-
-Instructions for VS Code's Copilot Chat.
-
-- Copy `templates/ai-instructions/coding-instructions/{language}.md` to `.github/copilot-instructions.md`.
-
-### Codex (OpenAI)
-
-OpenAI Codex CLI integration. Codex reads `AGENTS.md` at the project root (the open standard, also honored by Cursor / Aider / Jules) plus its user-level config in `~/.codex/`.
-
-- **AGENTS.md**: copy `templates/ai-instructions/base-codex.md` content into your project's `AGENTS.md`.
-- **Skills and prompts**: the installer mirrors `catalog/skills/` to `~/.codex/skills/` and `catalog/commands/` to `~/.codex/prompts/`. For manual setup, copy each tree to those destinations.
-
-### Cursor
-
-Cursor IDE integration.
-
-- **Project rules**: copy `templates/ai-instructions/base-cursor.md` content into `.cursor/rules/nexus-hub.mdc` at your project root. Use `alwaysApply: true` in the frontmatter so Cursor applies the rule on every prompt.
-- **Open-standard `AGENTS.md`**: Cursor also reads `AGENTS.md` at the project root, so the Codex setup above covers Cursor too.
-
-### OpenCode
-
-OpenCode IDE integration. OpenCode reads `AGENTS.md` per the open standard.
-
-- Copy `templates/ai-instructions/base-opencode.md` content into your project's `AGENTS.md`.
-
----
-
-## Development setup
-
-For contributors working *on* Nexus-Hub (not consumers of the installer), the repo ships a [`.devcontainer/`](.devcontainer/) at the root. Open the repo in VS Code with the Dev Containers extension installed (or click "Reopen in Container" when prompted) and the post-create hook will install Python tooling (`pytest`, `ruff`), the GitHub CLI (`gh`), and the Claude Code CLI (`claude`). Authenticate `gh` and `claude` once the container is up, then run `make validate` to confirm the catalog is clean.
-
-The devcontainer is opt-in -- the standard Quick Start above does not require it. It exists for first-touch contributor onboarding and for reproducing the maintainer's environment across machines.
-
-Maintainers can opt into the [repository attribution hook](.githooks/README.md). The normal validation profile also checks full Git history; use a complete clone. This repository-specific policy is not distributed by the installers.
-
-### Running the checks locally
-
-Validation logic lives in the repository, not in the workflow files, so what CI runs is exactly what you can run:
-
-Before running `make test` on a fresh clone, run `make dev` to install all six extension development extras. On a Windows host without `make`, run the same install directly:
-
-```powershell
-python -m pip install --quiet -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
+```text
+/compare ../some-reference-repo
 ```
 
-```bash
-make ci-fast       # seconds: parses, hygiene, workflow security, version sync
-make ci-full       # minutes: every validator, the whole test tree, extensions
-make ci-platform   # shell lint, PowerShell AST parse, Windows PowerShell 5.1 legs
+Scope is inferred from the source, never prompted. Chains into `/plan from-comparison`.
+
+---
+
+### Planning and Specification
+
+These write plans, specs, and governing principles: the artifacts the build commands read.
+
+#### `/plan`
+
+Define goals and produce a phased plan for any multi-step effort.
+
+| Scope | Behavior |
+| --- | --- |
+| `feature` | Plan a feature or enhancement on an existing project. |
+| `goals` | Fix the problem, persona, and definition-of-done only. |
+| `new` | Greenfield v0.1.0 build, with the full discovery interview. |
+| `refactor` | Plan a refactor or cleanup campaign. |
+| `from-comparison` | Seed a plan from a /compare adoption report. |
+| `grill` | Re-run the critique-and-grill gate on an existing plan. |
+| `todos` | Bootstrap docs/todos.md as a living progress tracker. |
+| `issues` | Fan a plan's task lines out to GitHub issues. |
+
+```text
+/plan feature
 ```
 
-Each target is a one-line delegation to `python scripts/ci/run.py --profile <name>`, which needs no CI provider and no network. Add `--list` to print what a profile would run without running it, or `--base origin/develop` to scope the run to what changed. Reports land in `reports/` (gitignored): a readable `summary.md`, plus JUnit, `summary.json`, and environment metadata.
+`/plan goals <one-liner>` takes an inline goal. [See it in Training](guides/website/training.html#plan)
 
-Full guide, including how to add a check: [`docs/guides/repository-native-ci-profiles.md`](docs/guides/repository-native-ci-profiles.md).
+#### `/spec`
 
----
+Specification and governance workflow.
 
-## Featured Skills
+| Scope | Behavior |
+| --- | --- |
+| `clarify` | A five-question loop that resolves spec ambiguities. |
+| `analyze` | Cross-artifact consistency, coverage, and ambiguity audit. |
+| `converge` | Post-build code-vs-plan gap check; appends the remaining work. |
+| `constitution` | Author or amend the project's governing principles. |
 
-| Skill | What it does |
-|-------|--------------|
-| **Architecture Design** | System decomposition, ADRs, C4 diagrams, and fitness functions. |
-| **AI Agent Development** | Build agents with tool use, memory systems, and multi-agent orchestration. |
-| **RAG Implementation** | End-to-end RAG pipelines with chunking, embeddings, and evaluation. |
-| **API Design** | REST, GraphQL, and gRPC design with versioning and error handling. |
-| **Code Review** | A 6-step deep dive (security, performance, logic) before you merge. |
-| **Test Gen** | Writes comprehensive unit tests using AAA pattern and mocks. |
-| **E2E Testing** | Playwright / Cypress automation with page objects and CI integration. |
-| **Compliance** | Checks code against SOC2, GDPR, and ISO standards. |
-| **Trend Research** | Researches Reddit / X for the last 30 days to find trends and write prompts. |
-
-The full catalog is at [data/SKILL_INDEX.md](data/SKILL_INDEX.md). Per-category landing pages live under [catalog/skills/](catalog/skills/).
-
----
-
-## Usage Monitoring
-
-Three complementary ways to track your AI coding usage limits.
-
-### CLI Usage Display (Automatic)
-
-A Stop hook that shows your usage limits directly in the terminal after each Claude Code response. Color-coded and silent when usage is healthy (below 50%).
-
-```
-Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
+```text
+/spec clarify
 ```
 
-Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
+#### `/constitution`
 
-### VS Code, Cursor, and Antigravity Extensions
+Author or amend the versioned project constitution.
 
-Monitor your AI coding usage from the editor status bar with a full dashboard. Five separate, independently-installable extensions - one per tool - that install and run side by side:
+| Scope | Behavior |
+| --- | --- |
+| `(bare)` | Author, or amend if a constitution already exists. |
+| `amend` | Explicit amend mode. |
+| `check <path>` | Read-only Constitution Check against a plan or spec. |
 
-- **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
-- **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). When ChatGPT reports a one-time limit reset on the account, the dashboard shows it with an **Open reset page** button that opens the ChatGPT usage page; the monitor never uses the reset itself. See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
-- **Copilot Usage Monitor** (`nexus-hub.copilot-usage-monitor`): GitHub Copilot usage with teal `#0E8A85` progress bars. On a personal plan it shows the monthly quota as a percentage; on a Business or Enterprise seat without billing access it shows credits used and no percentage, because GitHub sets no personal limit; once an owner or billing manager connects a read-only organization token it shows the organization's shared AI-credit pool. See [extensions/copilot-usage-monitor/](extensions/copilot-usage-monitor/).
-- **Cursor Usage Monitor** (`nexus-hub.cursor-usage-monitor`): personal Cursor Models and Other Models included-usage meters with on-demand spend context (steel-blue `#4682B4` progress bars), for the Cursor IDE only. This release ships with live fetch disabled entirely - cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. See [extensions/cursor-usage-monitor/](extensions/cursor-usage-monitor/).
-- **Gemini Usage Monitor** (`nexus-hub.gemini-usage-monitor`): Google Antigravity IDE model quotas (the Gemini group and the Claude and GPT group, each with a 5-hour and a weekly limit) with Google blue `#4285F4` progress bars, threshold alerts, and switch-model-group recommendations, for the Antigravity IDE only. It reads the same figures as Antigravity's Models & Usage screen from Antigravity's own local language server on `127.0.0.1`, so it needs no sign-in and makes no internet request of its own. See [extensions/gemini-usage-monitor/](extensions/gemini-usage-monitor/).
-
-Each shows usage in the status bar with a theme-aware hover and a full dashboard, and calls only its own vendor's API, for your own account (the Copilot monitor adds two organization reads when an organization is connected). Each reads a usage figure its vendor actually serves, rather than reconstructing one: the Claude and Codex monitors read your local OAuth token and query the vendor's own usage endpoint, and the Copilot monitor uses the GitHub account the editor has signed in for it. None of them scrape a billing website or read browser cookies. An earlier monitor for GitHub Actions billing was withdrawn in v3.18.2 because GitHub serves no such figure and the reconstruction could not be made reliable; see the decision record for the full reasoning. The Copilot monitor does not repeat that problem, because GitHub serves every figure it shows. The installer routes extensions by editor host: the Claude and Codex monitors install only through the VS Code CLI, the Copilot monitor installs through the VS Code CLI and also through the Cursor CLI when Cursor is detected (Copilot runs in both editors), the Cursor monitor installs only through the Cursor CLI, and the Gemini monitor installs only through the Antigravity IDE launcher (`antigravity-ide`, never the `agy` agent CLI). Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
-
-### `/usage` Command
-
-On-demand detailed usage report with model-switching recommendations. Auto-fetches from the API (falls back to manual entry if credentials are unavailable).
+```text
+/constitution check
+```
 
 ---
 
-## Safety and Use in Regulated Industries
+### Implementation
 
-Nexus-Hub is built on a **reverse-engineering-first** principle: the catalog ships zero third-party data processors, zero outbound calls from skills / commands / hooks, and zero telemetry. The full threat-model breakdown, industry compatibility matrix, and reporting policy is in [SECURITY.md](SECURITY.md).
+The only commands here that write source. Non-final phases commit locally and never push.
 
-Short version:
+#### `/implement`
 
-- **Open-source / hobby / internal commercial software**: green. No restrictions.
-- **Regulated industries (healthcare, finance, government, life sciences, automotive, industrial)**: green WITH caveats. Nexus-Hub itself is safe; the caveat is that your chosen LLM provider is where prompts go (use a regulated-cloud option like AWS Bedrock, GCP Vertex AI, Azure OpenAI, or a self-hosted model consistent with your data-protection obligations).
-- **Defense / classified / air-gapped**: outside Nexus-Hub's threat model. Do your own assessment.
+Implement a whole plan, or every queued plan in a minor, end to end. One approval paste starts the run and sets the native goal where the platform supports it; the run stops only on a checker verdict, a named blocker, or a pause.
 
-What Nexus-Hub does NOT do: telemetry, analytics, phone-home, third-party data processors, model downloads, API-key requirements. The MCP Registry Policy in [AGENTS.md](AGENTS.md) categorically rejects search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service. The authoritative classification of every MCP server ever shipped or considered is at [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md).
+| Scope | Behavior |
+| --- | --- |
+| `<plan>` | Run the whole plan by default: every phase, then publish, release, and clean up. A slug, a plan file path, or a vX.Y.Z version. |
+| `vX.Y` | Run every queued plan in that minor, in version order, under one approval. |
+| `(bare)` | Run the whole next queued plan. |
+| `<plan> phase <N>` | Step mode: run exactly one phase (also phase-N). |
+| `<plan> next` | Step mode: run the first phase not yet complete. |
+| `<plan> phase-by-phase` | Step mode: the full loop, pausing for a choice after each phase. |
+| `<plan> full` | Accepted alias for the default (also in-full). |
+| `pause` | Pause the current run at the next safe point. |
 
-What is OUT of Nexus-Hub's control: your chosen LLM provider, any MCP server you add outside the Nexus-Hub registry, user-initiated outbound calls (`gh`, `git push`, `curl`), and your own user-authored hooks and rules. See [SECURITY.md](SECURITY.md) section 3 for the full caveats.
+```text
+/implement v0.5
+/implement my-plan
+```
 
-To report a security issue: email [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com) or open a private security advisory at [github.com/bendourthe/Nexus-Hub/security](https://github.com/bendourthe/Nexus-Hub/security).
+[See it in Training](guides/website/training.html#implement)
+
+#### `/route`
+
+Score the task and recommend the cheapest sufficient model and reasoning effort.
+
+| Scope | Behavior |
+| --- | --- |
+| `(bare)` | Assess the task currently in flight. |
+| `phase N of <plan>` | Assess one specific plan phase. |
+| `"<task text>"` | Assess a quoted task description directly. |
+
+```text
+/route
+```
+
+---
+
+### Testing and Review
+
+
+
+#### `/test`
+
+Drive coverage to a threshold across test tiers until it and a 100% pass rate are met.
+
+| Scope | Behavior |
+| --- | --- |
+| `all` | Unit, then integration, then e2e, then CI, each to threshold. |
+| `unit` | Drive unit-test coverage to threshold. |
+| `integration` | Drive integration-test coverage to threshold. |
+| `e2e` | Drive end-to-end coverage to threshold. |
+| `ci` | Verify the pipeline runs the suite and gates coverage. |
+| `tdd` | Red-green-refactor cycle for one feature or bug. |
+
+```text
+/test unit
+```
+
+Flags: `--threshold` overrides the 80% line-coverage target; `--pass-rate` overrides the 100% pass gate.
+
+[See it in Training](guides/website/training.html#test)
 
 ---
 
-## Roadmap
+### Release and Governance
 
-Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a concrete plan file under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` (the durable source) and resolves once its `[<version>]` block lands in [CHANGELOG.md](CHANGELOG.md). No star gates, no sponsor tiers, no paid features -- the catalog is reverse-engineering-first and stays that way.
 
-| Focus | Target | Status | Source |
-|-------|--------|--------|--------|
-| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | Shipped | [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](docs/archives/v2/v2.0/plans/nexus-hub-rename.md) |
-| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Shipped (CI runs Ubuntu, macOS, and Windows legs) | [docs/archives/v1/v1.1/](docs/archives/v1/v1.1/) known-gaps cluster |
-| Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | unscheduled | Not started | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
-| MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) |
 
-For a per-release navigation index linking each release to its plan, per-phase history, and known gaps, see [docs/DEVLOG.md](docs/DEVLOG.md); the pre-conversion narrative body is archived at [docs/archives/DEVLOG-v0-v3.17.md](docs/archives/DEVLOG-v0-v3.17.md). For the authoritative Keep-a-Changelog record of what changed in every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`.
+#### `/update`
+
+Check progress, sync the repo, or run the release flow.
+
+| Scope | Behavior |
+| --- | --- |
+| `release` | The full ship flow: commit, tag, push, publish the release. After the last release of a minor run, one closing pull request, then a checked cleanup that removes only merged, idle branches and worktrees. |
+| `docs` | Sync README, API docs, architecture docs, inline guides. |
+| `devlog` | Refresh the DEVLOG index line for this release. |
+| `gitignore` | Audit .gitignore, clean the index, recommend LFS. |
+| `version` | Bump the version atomically across every surface. |
+| `changelog` | Regenerate or extend CHANGELOG.md from git history. |
+| `refactor` | Reorganize docs and project artifacts to conventions. |
+| `config` | Validate and repair installed platform configs. |
+| `commit` | Generate a structured message for the staged changes. |
+| `status` | Read-only progress, workers, elapsed time, estimates and dependencies. |
+
+```text
+/update status v0.5
+```
+
+[See it in Training](guides/website/training.html#update)
+
+#### `/grill`
+
+Interrogate a plan, design, or decision until nothing is left silently assumed.
+
+```text
+/grill
+```
+
+#### `/commit`
+
+Generate a structured commit message for the staged changes.
+
+```text
+/commit
+```
+
+#### `/org`
+
+Connect, sync, inspect, or author an organization knowledge bundle.
+
+| Scope | Behavior |
+| --- | --- |
+| `status` | Inspect the current connection and per-platform posture. |
+| `connect` | Validate and connect a directory or a git URL. |
+| `sync` | Refresh the currently connected organization source. |
+| `author` | Build a valid standards bundle through a guided flow. |
+
+```text
+/org status
+```
 
 ---
 
-## Collaboration
+### Communication and Reporting
 
-Nexus-Hub is a curated open-source project. While pull requests are typically not accepted from outside contributors, suggestions, feedback, and recommendations are more than welcomed. If you have a better prompt, a smarter rule, or a pattern you would like to see in the catalog, please reach out directly:
 
-- **Email**: [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)
-- **GitHub**: [@bendourthe](https://github.com/bendourthe)
-- **Website**: [benjamindourthe.com](https://www.benjamindourthe.com/), with the published [Nexus-Hub guide](https://www.benjamindourthe.com/nexus-hub/)
 
-I am happy to discuss skill / command / hook proposals, integration ideas for new platforms, or specific use cases -- especially when the proposal aligns with the policy direction of this project (reverse-engineering-first, no third-party data leaks).
+#### `/presentify`
+
+Turn documents, code, or a whole folder into one self-contained offline interactive website.
+
+| Scope | Behavior |
+| --- | --- |
+| `deck` | One .pptx: keep the source flow as an interactive site. |
+| `report` | One .docx, .pdf, or .xlsx, with structure and charts. |
+| `compile` | Two or more files, or a folder: each source a labeled, attributed area. |
+
+```text
+/presentify ./docs --nav slides
+```
+
+Modes are auto-detected; override with `--mode`. Design: `--style`, `--theme`, `--layout`, `--nav` (scroll or slides), `--interactivity`, `--images`, `--verbosity`, `--qa-depth`, `--out`.
+
+#### `/research`
+
+Multi-source research, report compilation, and document export.
+
+| Scope | Behavior |
+| --- | --- |
+| `deep` | Fan-out web research, verified adversarially, then cited. |
+| `compile` | Merge several reports into one deduplicated document. |
+| `report` | Export Markdown to .docx or .pptx via a template. |
+
+```text
+/research deep
+```
+
+#### `/visualize`
+
+Turn data or a described structure into the smallest chart or diagram that answers the question.
+
+| Scope | Behavior |
+| --- | --- |
+| `auto` | Infer chart or diagram from the input. |
+| `chart` | Data to a chart: bar, line, scatter, distribution. |
+| `diagram` | A flow, a dependency graph, or an architecture diagram. |
+| `diff` | Explain a change set as a changed-modules diagram. |
+
+```text
+/visualize data.csv
+```
+
+Ends with a tier line naming the rung used: table, Mermaid, or an offline inline-SVG page. Never fabricates data or calls the network.
 
 ---
+
+### Harness and Session Management
+
+
+
+#### `/skills`
+
+Browse, search, create, import, and scan the skill and command catalog.
+
+| Scope | Behavior |
+| --- | --- |
+| `search` | Find skills by keyword, category, or role. |
+| `list` | The unified cheatsheet of every skill and command. |
+| `create` | Scaffold a new skill or command interactively. |
+| `import` | Import catalog skills into a project, with a hygiene gate. |
+| `scan` | Security-scan a skill, or the catalog, before install. |
+
+```text
+/skills list
+```
+
+#### `/commands`
+
+Show the command cheatsheet, derived at runtime from the command files.
+
+```text
+/commands
+```
+
+#### `/session`
+
+Manage the session boundary: resume, wrap up, or write history.
+
+| Scope | Behavior |
+| --- | --- |
+| `continue` | Resume: what was in progress, and what comes next. |
+| `wrap-up` | End-of-session sequence: history, cleanup, docs, commit. |
+| `history` | Generate a standalone session-history document. |
+
+```text
+/session continue
+```
+
+#### `/setup`
+
+Bootstrap a project, or install the opt-in pre-commit review hook.
+
+| Scope | Behavior |
+| --- | --- |
+| `project` | Bootstrap instructions, scaffolding, .gitignore, core docs. |
+| `hooks` | Install the opt-in pre-commit AI review hook. |
+
+```text
+/setup project
+```
+
+#### `/tune-prompting`
+
+Refresh how the catalog prompts each current model.
+
+| Scope | Behavior |
+| --- | --- |
+| `(bare)` | Full flow across every model needing research. |
+| `<model-id>` | Restrict the run to one model. |
+
+```text
+/tune-prompting --dry-run
+```
+
+Flags: `--dry-run` proposes without applying; `--profiles-only` skips the shared-body stage entirely.
+
+#### `/memory`
+
+Audit, prune, and reorganize the instruction and memory files.
+
+```text
+/memory
+```
+
+#### `/usage`
+
+Check usage limits and get a model-switching recommendation.
+
+```text
+/usage
+```
+
+#### `/handoff`
+
+Print a paste-ready resume prompt in chat so another agent can continue. Write a file only when requested.
+
+```text
+/handoff
+```
+
+<!-- readme-cheatsheet:end -->
+
+[Interactive cheatsheet](https://www.benjamindourthe.com/nexus-hub/index.html#cheatsheets) | [Command catalog](catalog/commands/)
+
+## Documentation
+
+- [Installation and platform reference](docs/guides/installation-and-platforms.md)
+- [Development workflows and local checks](docs/guides/development-workflows.md)
+- [Skill catalog](data/SKILL_INDEX.md) and [command catalog](catalog/commands/)
+- [Security, privacy, and regulated-use considerations](SECURITY.md)
+- [Contributing](CONTRIBUTING.md) and [project progress](docs/todos.md)
+- [Editable animation sources](assets/readme/README.md)
 
 ## License
 
-See [LICENSE](LICENSE).
+[MIT](LICENSE). Maintained by [Benjamin Dourthe](https://www.benjamindourthe.com/).

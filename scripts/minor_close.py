@@ -156,7 +156,7 @@ def _git(rctx: ck.RepoContext, *args: str) -> tuple[int, str]:
 
 def _record(rctx: ck.RepoContext, token: str, session: str | None) -> tuple[dict | None, Path]:
     """The verified minor record (or None) and its path; a forced verdict raises Forced."""
-    state = cm.load_minor(ck, rctx, token, session, minor_protocol=1)
+    state = cm.load_minor(ck, rctx, token, session, minor_protocol=1, execution_protocol=1)
     if state.forced is not None:
         raise Forced(state.forced[0])
     return state.record, cm.record_file(ck, rctx, token)
@@ -1564,7 +1564,7 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
             receipt = (member.get("approvals") or {}).get("conditional_outcome")
             if receipt is not None:
                 ck.conditional_rebind(receipt, plan.rel, plan.text)
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1, execution_protocol=1)
     ck._write_record(record_path, record)
 
 
@@ -2039,7 +2039,7 @@ def _staged_blobs(rctx: ck.RepoContext, paths: list[str]) -> dict[str, str]:
 
 def _sign_member(rctx: ck.RepoContext, record: dict, record_path: Path) -> None:
     # `members` is signed, so the archived identity is a signed update, never an unsigned edit.
-    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"", minor_protocol=1, execution_protocol=1)
     ck._write_record(record_path, record)
 
 
