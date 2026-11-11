@@ -5,6 +5,7 @@ Decision: docs/decisions/implemented/architecture/2026-11-10-guide-home-shows-re
 
 from __future__ import annotations
 
+import html
 import os
 import re
 from pathlib import Path
@@ -20,8 +21,8 @@ ANIMATIONS = ("workflow", "settings", "usage", "continuity", "platforms")
 HOME_ORDER = ["Installation", "Platform Coverage", "The Development Workflow", "Centralized IDE Settings", "Handoffs",
               "Usage Monitors", "Why Nexus Hub"]
 HOME_ANIMATION_ORDER = ("platforms", "workflow", "settings", "continuity", "usage")
-WHY_CARDS = ["Every Platform", "Expert Skills", "Repeatable Workflow", "Enforced Guardrails", "One Settings Panel",
-             "Continuity"]
+WHY_CARDS = ["Multiplatform Intelligence", "Expert Skills", "Repeatable Workflow", "Enforced Guardrails",
+             "Centralized Settings", "Monitoring & Continuity"]
 
 
 def _home() -> str:
@@ -54,7 +55,9 @@ def test_why_nexus_hub_closes_with_one_card_per_benefit_and_a_call_to_action() -
     home = _home()
     why = home[home.index('id="nhg-why"') :]
     cards = re.findall(r'<li class="why-card seq-rise" data-seq="(\d)"[^>]*>(.*?)</li>', why, re.DOTALL)
-    assert [re.search(r"<h3[^>]*>([^<]+)</h3>", body).group(1) for _, body in cards] == WHY_CARDS
+    assert [html.unescape(re.search(r"<h3[^>]*>([^<]+)</h3>", body).group(1)) for _, body in cards] == WHY_CARDS
+    for _, body in cards:
+        assert re.match(r'<div class="why-head"><span class="ico"[^>]*>.*?</svg></span><h3 ', body, re.DOTALL), "icon sits beside the title"
     assert [int(n) for n, _ in cards] == list(range(1, len(WHY_CARDS) + 1)), "cards reveal in reading order"
     for _, body in cards:
         assert 'class="why-with"' in body and '<span data-ty="eyebrow" data-tone="warn" class="why-tag">Without</span>' in body
