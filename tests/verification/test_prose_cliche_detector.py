@@ -298,3 +298,55 @@ def test_detector_imports_only_the_standard_library() -> None:
     assert imports <= {"argparse", "json", "re", "sys", "dataclasses", "pathlib"}, (
         imports
     )
+
+
+# --- document style rules 3 and 4 (catalog/rules/documents/document-style.md) -------
+
+
+def _ids(text: str) -> list[str]:
+    result = _run("-", "--json", stdin=text)
+    assert result.returncode == 0, result.stderr
+    return [f["id"] for f in _payload(result)["findings"]]  # type: ignore[index]
+
+
+@pytest.mark.parametrize(
+    ("text", "pattern_id"),
+    [
+        (
+            "The product passes through three phases: exploration (stages 0 to 2), "
+            "development (stages 3 to 5), and launch (stage 6).\n",
+            "inline-enumeration",
+        ),
+        ("Choose a format: Word, PowerPoint, or HTML.\n", "inline-enumeration"),
+        ("The device is class II. Quality system: ISO 13485 certified.\n", "trailing-label-fact"),
+        ("**Released device (PMA)**: approved in 2024.\n", "lead-in-format-boundary"),
+        ("**Released device (PMA): **approved in 2024.\n", "lead-in-format-boundary"),
+        ("<strong>Released device: </strong>approved.\n", "lead-in-format-boundary"),
+    ],
+)
+def test_document_style_pattern_flags_once_as_advisory(text: str, pattern_id: str) -> None:
+    result = _run("-", "--json", stdin=text)
+    findings = _payload(result)["findings"]  # type: ignore[index]
+    hits = [f for f in findings if f["id"] == pattern_id]
+    assert len(hits) == 1, findings
+    assert hits[0]["class"] == "advisory"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "**Released device (PMA):** approved in 2024.\n",
+        "The product passes through three phases:\n\n- Phase 1: exploration (stages 0 to 2)\n- Phase 2: development\n- Phase 3: launch\n",
+        "We support two platforms: Windows and Linux.\n",
+        "The release is ready. Here is the thing: nothing else changed.\n",
+        "Quality system: ISO 13485 certified.\n",
+    ],
+)
+def test_document_style_correct_forms_are_not_flagged(text: str) -> None:
+    ids = _ids(text)
+    assert not {"inline-enumeration", "trailing-label-fact", "lead-in-format-boundary"} & set(ids), ids
+
+
+def test_document_style_findings_pass_a_defect_gate() -> None:
+    text = "Choose a format: Word, PowerPoint, or HTML. Owner: docs team.\n"
+    assert _run("-", "--fail-on", "defect", stdin=text).returncode == 0

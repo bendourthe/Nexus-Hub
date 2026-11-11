@@ -32,11 +32,13 @@ def _text(path: Path) -> str:
 
 
 def test_training_follows_the_home_development_workflow() -> None:
-    """Revision 2: one pass; the workflow is the Home page's six commands, in the same order."""
-    guide = _text(GUIDE)
-    strip = guide[guide.index('id="nhg-loop"'):]
-    strip = strip[: strip.index("</div>")]
-    home = [cmd for cmd, _ in re.findall(r'<code data-ty="code">/([a-z]+)</code><span>([^<]+)</span>', strip)]
+    """Revision 2: one pass; the workflow is the README's six commands, in the same order.
+
+    The Home strip left on 2026-11-10; Home now shows the README workflow animation, so the README
+    table is the order Training must follow."""
+    readme = _text(GUIDE.parents[2] / "README.md")
+    home = re.findall(r'^\| \d \| `/([a-z]+)', readme, re.M)
+    assert home == ["describe", "review", "plan", "implement", "test", "update"], home
     training = _text(TRAINING)
     sections = re.findall(r'<section class="tr-stage" id="([a-z-]+)" data-stage=', training)
     assert sections == ["intro", "play-buggy", *home, "play-fixed"]

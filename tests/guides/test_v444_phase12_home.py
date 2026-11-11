@@ -2,8 +2,10 @@
 
 The review asked for exact words in two places and for a second benefit the segment never showed.
 Wording is asserted literally, because "roughly this" is how a rename drifts back. The portability
-figure is asserted structurally: one install, four named platforms, and a switch that names the
-reason a task would move mid-flight.
+figure is asserted structurally: one install and four named platforms. The 2026-11-10 restructure
+renamed the guardrails segment Why Nexus Hub, replaced the mid-task switch mockup with the handoff
+animation, and moved the generic-command table to the Cheatsheets page, where it is asserted now. A second
+2026-11-10 pass replaced the guardrail rings with a benefits summary, asserted in test_v415_home_animations.py.
 """
 
 from __future__ import annotations
@@ -54,61 +56,19 @@ def _home(browser, width: int = 1440):
     return ctx, page
 
 
-def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _home(browser)
-            page.locator("#nhg-guardrails").scroll_into_view_if_needed()
-            page.wait_for_timeout(200)
-            data = page.evaluate(
-                """() => {
-                    const sec = document.querySelector('#nhg-guardrails');
-                    const centered = el => getComputedStyle(el).textAlign === 'center';
-                    const tags = [...sec.querySelectorAll('.gf-ring-tag')];
-                    const notes = [...sec.querySelectorAll('.gf-ring-note')];
-                    const hooks = sec.querySelector('.gf-hooks');
-                    return {
-                      label: sec.querySelectorAll('.eyebrow').length,
-                      title: sec.querySelector('.section-title').textContent.trim(),
-                      tags: tags.map(t => t.textContent.trim()),
-                      notes: notes.map(n => n.textContent.trim()),
-                      allCentred: tags.every(centered) && notes.every(centered),
-                      hooksAlignment: getComputedStyle(hooks).textAlign,
-                          platforms: [...sec.querySelectorAll(".gf-platforms>span")].map(e => e.textContent.trim()),
-                    };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    # v4.13.10 R21: no eyebrow label; the keyword heading names the segment.
-    assert data["label"] == 0, data["label"]
-    assert data["title"] == "Security Guardrails", data["title"]
-    assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
-    assert data["allCentred"], "both ring headers and their subtexts must be centered"
-    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centered"
-    assert data["tags"] == ["Nexus Hub hooks", "Platform permissions"], data["tags"]
-    outer, inner = data["notes"]
-    for phrase in ("Block flagged unsafe actions", "even once approved", "explain the refusal"):
-        assert phrase in outer, (phrase, outer)
-    for phrase in ("Ask for permission first", "an unsafe action can still run"):
-        assert phrase in inner, (phrase, inner)
-
-
-def test_the_command_segment_is_renamed(playwright_mod) -> None:
+def test_the_command_segment_and_its_moved_table_keep_their_names(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _home(browser)
             data = page.evaluate(
                 """() => {
-                    const sec = document.querySelector('#nhg-commands');
+                    const sec = document.querySelector('#nhg-commands'), table = document.querySelector('#cs-catalog .tbl-migrate');
                     return {
                       label: sec.querySelectorAll('.eyebrow').length,
                       title: sec.querySelector('.section-title').textContent.trim(),
-                      headers: [...sec.querySelectorAll('.tbl-migrate th')].map(t => t.textContent.trim()),
-                      stacked: [...new Set([...sec.querySelectorAll('.tbl-migrate td[data-th]')]
+                      headers: [...table.querySelectorAll('th')].map(t => t.textContent.trim()),
+                      stacked: [...new Set([...table.querySelectorAll('td[data-th]')]
                                  .map(t => t.getAttribute('data-th')))].sort(),
                     };
                 }"""
@@ -124,7 +84,7 @@ def test_the_command_segment_is_renamed(playwright_mod) -> None:
 
 
 def test_the_segment_carries_both_benefits(playwright_mod) -> None:
-    """One install across four platforms, AND commands built on the generic ones."""
+    """One install across four platforms on Home, AND commands built on the generic ones on Cheatsheets."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -134,20 +94,11 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
             data = page.evaluate(
                 """() => {
                     const fig = document.querySelector('#nhg-commands .ph');
-                    const rows = [...document.querySelectorAll('#nhg-commands .tbl-migrate tbody tr')];
+                    const rows = [...document.querySelectorAll('#cs-catalog .tbl-migrate tbody tr')];
                     return {
                       source: fig.querySelector('.ph-src').textContent.trim(),
                       targets: [...fig.querySelectorAll('.ph-target b')].map(b => b.textContent.trim()),
                       fans: fig.querySelectorAll('.ph-lane').length,
-                      sessions: [...fig.querySelectorAll('.ph-session')].map(s => ({
-                        host: s.querySelector('.ph-head b').textContent.trim(),
-                        logo: !!s.querySelector(".ph-head .brand-copy svg"),
-                        commands: [...s.querySelectorAll('.ph-msg--user code')].map(e => e.textContent),
-                        tasks: [...s.querySelectorAll(".ph-tasks")].map(list => [...list.querySelectorAll("label")].map(label => ({text: label.textContent, done: label.querySelector("input").checked}))),
-                        phases: [...s.querySelectorAll(".ph-plan tbody tr")].map(row => row.cells.length),
-                        text: s.textContent.toLowerCase() })),
-                      cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
-                      note: fig.querySelector('.ph-note').textContent.trim().toLowerCase(),
                       sequenced: fig.hasAttribute('data-seq-root'),
                       generics: rows.map(r => r.children[0].textContent.trim()),
                     };
@@ -156,31 +107,11 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
             ctx.close()
         finally:
             browser.close()
-    # benefit one: one install, four platforms, and a mid-task switch
+    # benefit one: one install, four platforms
     assert "One install" in data["source"], data["source"]
     assert data["targets"] == list(PLATFORMS), data["targets"]
     assert data["fans"] == 4, "one connector per platform"
     assert not data["sequenced"], "the figure must not reveal itself in steps"
-    hosts = [session["host"] for session in data["sessions"]]
-    assert hosts[0] == "Claude Code" and hosts[-1] == "Codex", hosts
-    assert len(set(hosts)) == 2, "the switch must cross exactly two platforms"
-    claude, codex = data["sessions"]
-    assert claude["logo"] and codex["logo"]
-    assert "/plan" in claude["commands"] and "/implement" in claude["commands"]
-    assert "usage limit reached" in claude["text"] and "3 hours" in claude["text"]
-    assert "phase 1 in progress" in claude["text"]
-    assert claude["phases"] == [3, 3, 3]
-    saved, resumed, complete = claude["tasks"][0], *codex["tasks"]
-    assert len(saved) == 4 and saved == resumed
-    assert [task["done"] for task in saved] == [True, True, False, False]
-    assert [task["text"] for task in saved] == [task["text"] for task in complete]
-    assert all(task["done"] for task in complete)
-    assert "/implement" in codex["commands"] and "booking-feature-plan.md" in codex["text"]
-    assert "phase 1 verified and complete" in codex["text"]
-    assert "next: run /implement phase 2" in codex["text"]
-
-    assert "usage" in data["cut"], data["cut"]
-    assert "files" in data["note"] and "resumes" in data["note"], data["note"]
     # benefit two: the mapping still starts from the generic built-ins
     joined = " ".join(data["generics"]).lower()
     for generic in ("/goal", "/grill", "/loop", "/batch"):

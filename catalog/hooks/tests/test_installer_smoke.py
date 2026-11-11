@@ -481,12 +481,12 @@ def test_installers_route_the_gemini_monitor_to_antigravity_only():
 SETTINGS_EXTENSION = ("nexus-hub-settings", "nexus-hub.nexus-hub-settings", "Nexus-Hub Settings")
 
 
-def test_installers_build_and_install_the_settings_extension_into_vscode_only():
-    """Both shells build and install the Settings panel, through the VS Code CLI alone.
+def test_installers_build_and_install_the_settings_extension_into_every_detected_editor():
+    """Both shells build the Settings panel once and install it into VS Code, Cursor, and Antigravity.
 
-    Cursor and Antigravity are a follow-on (maintainer decision Q1): the panel writes
-    VS Code user settings, so installing it elsewhere would change that editor's
-    settings, not VS Code's. The status hint is empty because the panel has no
+    The panel keeps shared Nexus Hub preferences rather than one editor's user settings
+    (v4.15 settings redesign), so one package serves every detected host; a missing
+    optional editor is skipped. The status hint is empty because the panel has no
     status-bar item; a non-empty hint would tell the user to look for something that
     does not exist.
     """
@@ -501,10 +501,10 @@ def test_installers_build_and_install_the_settings_extension_into_vscode_only():
 
         idx = body.index(extension_id)
         call = body[body.rindex("\n", 0, idx) + 1 : body.index("\n", idx)]
-        cli = ("vscode_cli", "vscodeCli")
-        assert any(name in call for name in cli), f"{path.name} must pass the VS Code CLI into the {display_name} install"
-        for foreign in ("cursor_cli", "cursorCli", "antigravity_cli", "antigravityCli", "AlsoCodeCli"):
-            assert foreign not in call, f"{path.name} must not pass {foreign} into the {display_name} install"
+        hosts = (("vscode_cli", "cursor_cli", "antigravity_cli") if is_sh
+                 else ("-CodeCli $vscodeCli", "-AlsoCodeCli $cursorCli", "-ThirdCodeCli $antigravityCli"))
+        for host in hosts:
+            assert host in call, f"{path.name} must pass {host} into the {display_name} install"
         assert ('"Nexus-Hub Settings" ""' in call) or ('-StatusHint ""' in call), (
             f"{path.name} must pass an empty status hint: the panel has no status-bar item"
         )
@@ -515,9 +515,10 @@ def test_installers_build_and_install_the_settings_extension_into_vscode_only():
         assert gemini < body.index(header) < idx, (
             f"{path.name} must install the Settings panel after the Gemini monitor, under its own header"
         )
-        assert "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." in body, (
-            f"{path.name} banner must state that the Settings panel is VS Code only"
+        assert "installs into every detected editor: VS Code, Cursor, and Antigravity." in body, (
+            f"{path.name} banner must name every editor the Settings panel installs into"
         )
+        assert "Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only" not in body
 
         marker = "legacy_ids=(" if is_sh else "$legacyIds = @("
         start = body.index(marker)
@@ -747,6 +748,14 @@ DEV_ONLY_SCRIPTS = {
     # Repo-internal shared-fragment stamper (v4.13.10): inlines guides/website/shared/
     # into both guide pages; --check fails on drift. Edits this repository only.
     "stamp_guide_shared.py",
+    # Repo-internal README capture tools (v4.15): render the README animations and the
+    # generated command cheatsheet from the guide pages and shipped components. Edit this
+    # repository only and need Playwright and Node, which an end-user install does not carry.
+    "readme_cheatsheet.py",
+    "readme_guide_capture.py",
+    "readme_provider_capture.py",
+    "readme_showcase_capture.py",
+    "render_readme_demos.py",
     # Repo-internal model-map stamper (v4.13.10): copies the bundled model map into
     # guides/website/training.html so no model id there is hand-typed; --check fails on drift.
     "stamp_training_models.py",

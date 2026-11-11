@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "base": "4fabd664a",
+  "runtime_sha256": {
+    "check_plan_completion.py": "55662c103f331a5542f02339faab7adc7fd70cce984dbe03bb809f78a57c6e79",
+    "completion_minor.py": "2ed472495632b688d5a7fc7cfb76b44ab0a430827c322aaf8c8141b7fc15e1b5",
+    "minor_close.py": "890f9f020b31d09764b8f80eefa6c914f2f3a6588bf14b077d8df8f2dcf92b8e",
+    "approval_page.py": "0dec4d931840f2bd8f7b6ebfcd1b4ed2faa128749f26a44e05fb05f977c0e90f",
+    "approval_binding.py": "43a4e47e9411aa07ff8448970065d289c72cdbaaebf468d7aaf3828c8c9b7b64"
+  },
+  "reports": {
+    "compatibility.xml": "c5a15668701a2e9d24f40ea8a080f70cd453e4fc556d43a03b994ca319718ca1",
+    "focused.xml": "e5f445d1b978fbe16ac0201906cd08f6768fb00e7ea0a50ca97ddc3b93ed1b70"
+  },
+  "lint": {
+    "base": 28,
+    "current": 28,
+    "introduced": 0
+  },
+  "installation": "pending"
+}

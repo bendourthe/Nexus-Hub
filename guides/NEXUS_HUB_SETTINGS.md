@@ -2,20 +2,22 @@
 
 Summary: how to set the default effort, model, approval posture, commit attribution, and git-guardrails mode once for Claude Code, Codex, and GitHub Copilot, with the `nexus-hub settings` command or the "Nexus-Hub Settings" panel in VS Code, and how to see and undo anything that stops a default from taking effect.
 Read this when: you want every new agent session to start at the same effort or approval posture, a default you chose is not taking effect, you need to undo a change, or you want to know what the panel can never change.
-Covers: the five controls and what each means per tool, the VS Code status bar, the override states and their fixes, `remove-override`, the human-presence rule, the Cannot remove list, `reset`, uninstall, and the release capability usage gate.
+Covers: the five native controls, the shared effort mapping, guardrail switches, compact status labels and hover, the stepped effort control, override states and synchronization, `remove-override`, human presence, `reset`, uninstall and runtime delivery.
 
 Nexus-Hub Settings is the one place where you choose the defaults a new agent session starts with. Each tool keeps its defaults in a different file with a different key and a different set of values, and several other layers (an environment variable, a project file, an organization policy, a mode the tool remembers) can quietly beat the file. The command line writes the files and reports every layer that overrides your choice. The VS Code panel is a thin front end over the same command, so the two always agree.
 
-Every control is a default for new sessions only. A session that is already running keeps the value it started with.
+Native approval controls remain defaults for new sessions. Settings 0.4.0 also connects Windows Claude Code and Codex extension processes so shared effort changes apply to their next request in existing sessions. Reload the editor once to connect the bridge; a response already executing retains its current effort. Guardrail switches apply on the next hook invocation, including in full-access mode. The panel has one effort control and five switches in the logo's cyan palette, with stacked effort labels at narrow widths. Claude Max maps to `max`; Ultra enables Ultracode with `xhigh`. Connected Codex sessions use the model's advertised effort capabilities, including native Max and Ultra where supported; older CLI defaults use compatible `xhigh`. Copilot, native Cursor and native Antigravity effort remain unsupported and appear in the footer. Shared persistence and guardrail keys are documented in the [preference reference](../docs/reference/settings-preferences.md).
 
 A control exists only where its effect was observed changing a fresh session before it shipped. Everything else is shown as "Not settable" with its reason, never as a switch that silently does nothing. The admission rule and the vendor sources are in the [settings control contract](../docs/policy/settings-control-contract.md).
 
+The Settings 0.4.0 native tests did not prove immediate picker refresh in every editor. Interactive verification found that Claude can keep a stale effort label after native effort changes, and Codex drafts can retain a cached label. Connected Codex conversations update their picker on real settings notifications. Settings 0.4.1 distinguishes an unbridged process that needs an editor reload from a native effort acknowledgment; it does not claim to refresh every vendor picker. See the [editor follow-up evidence](../docs/releases/v4/v4.15/development/settings-041-editor-followup.md).
+
 ## Release Capability Usage Gate
 
-- **Activation:** install or upgrade Nexus-Hub (the installers build and install the VS Code panel when the `code` command is found), then run `nexus-hub settings show`, or open the "Nexus-Hub Settings" view in the VS Code activity bar. A default is written only when you run `nexus-hub settings set ...` or confirm a change in the panel.
+- **Activation:** install or upgrade Nexus-Hub. The installers build Settings once and install the same package into each detected VS Code, Cursor and Antigravity editor. Open "Nexus-Hub Settings" in the activity bar. A saved shared effort is reconciled on startup and supported settings changes in trusted workspaces; the CLI also accepts explicit `nexus-hub settings set ...` changes.
 - **Validation:** run `nexus-hub settings show` (add `--json` for machine-readable output). Each control and tool prints exactly one state. After a `set`, a fresh session in the tool shows the value, and `nexus-hub settings explain <control>` names the file, key, and proof for each write.
-- **Rollback:** run `nexus-hub settings reset <control>` (or "Reset" on the control in the panel). To remove the panel itself, run `code --uninstall-extension nexus-hub.nexus-hub-settings`.
-- **Authority:** the panel and command cannot change a running session, cannot override an organization policy, cannot make a tool honor a setting it does not document, and never let an agent enable a safety-weakening default. A change that lowers a safety barrier needs a person at a terminal or a confirmed panel dialog, and it is refused inside an agent session. Nothing is sent over a network, and only user-level files are written.
+- **Rollback:** run `nexus-hub settings reset <control>`. To remove the panel itself, run `code --uninstall-extension nexus-hub.nexus-hub-settings`.
+- **Authority:** the live bridge changes effort in connected native sessions, including when the shared preference is set with `nexus-hub settings set effort high --json`. It does not change a running response, native permissions, organization policy or unsupported controls. A change that lowers a safety barrier needs a person at a terminal or a confirmed panel dialog, and it is refused inside an agent session. No model request is needed to apply effort. Configuration writes retain ownership-aware restoration.
 - **Docs:** this guide is the canonical operating reference.
 
 ## Controls
@@ -24,7 +26,7 @@ The five controls, and what each one means for each tool today. Run `nexus-hub s
 
 | Control | Values | Claude Code | Codex | GitHub Copilot CLI | VS Code Copilot Chat |
 |---|---|---|---|---|---|
-| Default effort | `low`, `medium`, `high`, `xhigh` (never `max`) | One entry per current Claude model, plus a fallback for older models | Reasoning effort | Not settable: no Proof Record yet | Not settable: effort is chosen per model in the model picker |
+| Default effort | `low`, `medium`, `high`, `xhigh`, `max`, `ultra` | Authoritative environment effort plus valid persistent fallbacks | Compatible model-aware reasoning effort | Not settable: no Proof Record yet | Not settable: public API omits supported per-model values and setter |
 | Default model | A model name, chosen per tool | The `model` default | The `model` default | Not settable: no Proof Record yet | Not settable: only an organization policy sets it |
 | Approval posture | `ask`, `accept-edits`, `full-auto` | The default permission mode | Approval policy, with the workspace-write sandbox kept | Not settable: no Proof Record yet | Not settable: no Proof Record yet |
 | Commit attribution off | `off` | Not settable: the vendor documents the key and the default commit trailer was observed, but the empty case was not, so there is no Proof Record yet | Not settable: the vendor documents no key | Not settable: no Proof Record yet | Not settable: no user-level key |
@@ -39,7 +41,7 @@ Reading the table:
 
 ### What a new session starts with
 
-If you choose High effort and Full auto, the intended result per tool is below. The panel shows this table at the top, generated from the same catalog, and marks a cell "Not settable" wherever no write is admitted.
+If you choose High effort and Full auto through the CLI, the intended result per tool is below. This is CLI reference material; the compact panel does not expose this scenario table or a native approval-mode selector.
 
 | Tool | Intended result | Today |
 |---|---|---|
@@ -72,9 +74,9 @@ Writes preserve comments and unrelated keys, follow a symlink to the real file, 
 
 ## Status bar
 
-In VS Code, the Nexus-Hub mark sits in the status bar next to the usage monitors, followed by the effort a new session starts with: the value every settable tool agrees on, `mixed` when they differ, or `default` when none is set. When a default is overridden, not covered, unverified for the installed version, or cannot be detected, a warning icon and a count follow.
+In VS Code, the Nexus mark sits next to the usage monitors with a compact label such as `High (effort)`. Turn off `nexusHubSettings.compactStatusBar` to show `Nexus Settings: High (effort)`. It uses the stored shared effort preference. A warning marker means a conflicting or unverified default, or an unavailable guardrail. An unsupported platform is described in a compatibility note without a warning marker.
 
-Hover over it to see each tool's effort, model, and approval default, the tools that are not settable here, and what needs attention. Click it, or the "Open Nexus-Hub Settings" link in the hover, to open the full panel. The status bar reads the same state as `nexus-hub settings show` and writes nothing. To hide it without uninstalling the panel, right-click the status bar and clear "Nexus-Hub Settings".
+The multiline hover separates effort, guardrails and actions. Its cyan effort segments are command links that save through the panel's existing settings controller; they are inactive in an untrusted workspace or while saving. Native VS Code hovers support Markdown images and command links rather than HTML form controls. The hover also switches compact mode. Clicking the status-bar label opens Settings. The panel contains one autosaving stepped effort control and five named switches; `nexus-hub settings show` retains detailed diagnosis. To hide the entry without uninstalling the panel, right-click the status bar and clear "Nexus Settings".
 
 ## Override states
 
@@ -93,8 +95,8 @@ Hover over it to see each tool's effort, model, and approval default, the tools 
 
 The usual overrides and their fixes:
 
-- **An environment variable.** For example `CLAUDE_CODE_EFFORT_LEVEL` in your shell profile or in the `env` block of a settings file outranks `/effort` and every saved effort level. The fix is to unset it where it is set.
-- **A project file.** A project settings file can set the same key for that project. Remove the key from the project file, or keep your value in the project's local file.
+- **An effort environment variable.** Applying shared effort writes Claude's authoritative settings environment value and synchronizes existing editor launch overrides. Unrelated environment variables are preserved. Native policies and explicit session overrides can still cap a model.
+- **A project file.** Existing effort keys in the active trusted project are synchronized reversibly. Other project settings and untrusted Codex project files are preserved. In a multi-root workspace, native engine project synchronization currently covers the first local folder; editor launch overrides are reconciled in every local folder.
 - **A leftover seed.** An older Nexus-Hub install may have written a key that now blocks your choice, for example `env.CLAUDE_CODE_EFFORT_LEVEL` or a bypass block. Use [`remove-override`](#remove-override).
 - **A remembered mode.** The Claude Code VS Code panel remembers the last mode you picked. Nexus-Hub cannot read or clear it. Pick the mode in the indicator.
 - **A managed or organization policy.** Managed settings, MDM, `requirements.toml`, and VS Code organization policy outrank every user value. Ask your administrator.

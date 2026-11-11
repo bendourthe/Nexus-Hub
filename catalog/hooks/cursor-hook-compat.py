@@ -87,12 +87,20 @@ def _cursor_allow(payload: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
-def _cursor_payload_for_hook(payload: dict[str, Any]) -> str:
-    """Add Claude's tool_input.command shape for Cursor's dedicated shell event."""
+def _cursor_payload_for_hook(payload: dict[str, Any], *, standard_events: bool = False) -> str:
+    """Normalize Cursor's native events for the shared guard scripts."""
+    translated = dict(payload)
+    event = str(payload.get("hook_event_name") or "").lower()
+    standard_event = {"pretooluse": "PreToolUse", "posttooluse": "PostToolUse", "beforeshellexecution": "PreToolUse"}.get(event)
+    if standard_events and standard_event:
+        translated["hook_event_name"] = standard_event
+    if isinstance(payload.get("conversation_id"), str):
+        translated.setdefault("session_id", payload["conversation_id"])
+    if event == "beforeshellexecution":
+        translated.setdefault("tool_name", "Shell")
     command = payload.get("command")
     if not isinstance(command, str):
-        return json.dumps(payload)
-    translated = dict(payload)
+        return json.dumps(translated)
     tool_input = translated.get("tool_input")
     translated_input = dict(tool_input) if isinstance(tool_input, dict) else {}
     translated_input.setdefault("command", command)
@@ -272,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write("\n")
         return 0
 
-    hook_input = _cursor_payload_for_hook(payload) if cursor else raw
+    hook_input = _cursor_payload_for_hook(payload, standard_events=hook_name in {"user-edit-guard.sh", "user-edit-guard.ps1"}) if cursor else raw
     try:
         result = subprocess.run(
             command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
@@ -295,6 +303,9 @@ def main(argv: list[str] | None = None) -> int:
         # Cursor treats a non-zero hook exit as a block. Keep prose away from
         # stdout because its parser still expects that stream to be JSON.
         _write_stderr(result.stdout)  # nexus: hook-msg-exempt relays the child hook's output
+        if result.returncode == 2 and _cursor_allow(payload):
+            json.dump({"permission": "deny", "user_message": result.stderr.strip() or result.stdout.strip() or "Blocked by a Nexus guardrail."}, sys.stdout, separators=(",", ":"))
+            sys.stdout.write("\n")
         return result.returncode
 
     stripped = result.stdout.strip()
