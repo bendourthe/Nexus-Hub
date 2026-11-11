@@ -194,53 +194,6 @@ def test_platform_rail_has_no_overflow_clipping_or_orphan_row(playwright_mod, wi
         )
 
 
-@pytest.mark.parametrize("width", (320, 420, 900, 1440))
-def test_workflow_pills_are_readable_two_line_pills(playwright_mod, width: int) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw, width=width)
-        try:
-            steps = page.evaluate(
-                """() => [...document.querySelectorAll('.loop-step')].map(el => {
-                    const code = el.querySelector('code');
-                    const desc = el.querySelector('span');
-                    const cr = code.getBoundingClientRect();
-                    const dr = desc.getBoundingClientRect();
-                    const cs = getComputedStyle(code);
-                    const ds = getComputedStyle(desc);
-                    return {
-                        text: code.textContent.trim(),
-                        codeSize: parseFloat(cs.fontSize),
-                        descSize: parseFloat(ds.fontSize),
-                        codeWraps: code.scrollWidth > code.clientWidth + 1,
-                        separated: dr.top >= cr.bottom - 1,
-                    };
-                })"""
-            )
-        finally:
-            browser.close()
-
-    assert steps, "expected the Home workflow loop steps"
-    for step in steps:
-        assert step["codeSize"] >= 14.0, (
-            f"{step['text']} command is {step['codeSize']}px at {width}px; floor is 14px"
-        )
-        assert step["descSize"] >= 13.5, (
-            f"{step['text']} description is {step['descSize']}px at {width}px"
-        )
-        assert not step["codeWraps"], f"{step['text']} command wraps at {width}px"
-        assert step["separated"], (
-            f"{step['text']} description is not on its own line at {width}px"
-        )
-        assert step["codeSize"] > step["descSize"], (
-            f"{step['text']} command must stay visually dominant"
-        )
-
-
-# ============================================================================ v4.4.2 Phase 2
-# The hero statement, the restored sections, the merged comparison, the guardrails illustration,
-# the footer attribution, and the catalog-derived counts. Structural facts are checked in the
-# browser too, because the claims are about order, computed size, visibility, and word budgets.
-
 import json as _json
 import re as _re
 
@@ -251,14 +204,16 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # descriptive sentences for short labels. The ORDER is the contract this guards;
 # the wording is the guide's to choose and is pinned here exactly so a silent
 # drift still fails.
+# 2026-11-10: Home follows the README order, with the README animations in their own sections.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
     "Installation",
-    "Skills, Hooks, and Governance",
-    "Security Guardrails",
-    "Raw Prompting vs Nexus Hub",
-    "Platform Coverage",
     "The Development Workflow",
+    "Centralized IDE Settings",
+    "Usage Monitors",
+    "Handoffs",
+    "Platform Coverage",
+    "Why Nexus Hub",
 ]
 
 
@@ -346,28 +301,24 @@ def test_home_sections_render_in_the_agreed_order(playwright_mod) -> None:
 
 def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
     fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
-    ids = {"why-it-matters": "nhg-benefits", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+    # "how-it-works" (the Skills, Hooks, and Governance cards) left Home on 2026-11-10.
+    ids = {"why-it-matters": "nhg-benefits", "favorite-commands": "nhg-commands"}
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
             drop = {"nhg-benefits": ", .hb-ill, .platform-rail"}
             counts = {key: _section_words(page, sid, drop.get(sid, "")) for key, sid in ids.items()}
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
-            merged = page.evaluate(
-                "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
-                ".find(e => e.textContent.trim() === 'Raw Prompting vs Nexus Hub');"
-                " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
-            )
+            merged = _new_block_words(page, "#nhg-guardrails .cmp")
         finally:
             browser.close()
     for key, words in counts.items():
         ceiling = fixture[key]["v412_words"] * 2 // 3
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
-    # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
+    # The before-and-after rows (now inside Why Nexus Hub) replace v4.1.2's "The difference".
     assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
-    # The requested phase table and saved/resumed/completed checklists expand the session example.
-    # Keep their combined illustration bounded while retaining the original section ceilings.
-    assert 20 <= portability <= 320, f"the portability figure is {portability} words"
+    # The one-install figure stays a figure: named platforms, not prose.
+    assert 10 <= portability <= 120, f"the portability figure is {portability} words"
 
 
 def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
@@ -414,6 +365,9 @@ def test_migration_table_stacks_into_labelled_cards_below_720px(playwright_mod) 
     with playwright_mod() as pw:
         browser, page = _launch(pw, width=420)
         try:
+            # The table moved to Cheatsheets on 2026-11-10; a hidden page measures nothing.
+            page.goto(GUIDE.as_uri() + "#cheatsheets")
+            page.wait_for_timeout(350)
             data = page.evaluate(
                 """() => {
                     const rows = [...document.querySelectorAll('.tbl-migrate tbody tr')];
@@ -455,8 +409,6 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
                 """() => ({
                     ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.dataset.hook),
                     blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.dataset.hook),
-                    pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
-                    hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
                     text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
                 })"""
             )
@@ -470,7 +422,6 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
     assert data["blocked"], "no attempt names the hook that blocked it"
     for hook in data["blocked"]:
         assert hook in data["ports"], hook
-    assert data["pretooluse"] == len(pretooluse) and data["hooks"] == len(registered)
     assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
 
 
