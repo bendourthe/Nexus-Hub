@@ -1593,12 +1593,20 @@ COMMANDS_DIR = _ROOT / "catalog" / "commands"
 
 
 def _strip_allowlisted_favicon(html: str) -> str:
+    """Drop favicon-set link lines a site origin may add: icons, the Apple touch icon, and the manifest.
+
+    Whole lines are removed, so a portfolio that keeps its own favicon block compares equal line for line.
+    """
     return re.sub(
-        r"""<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*>""",
+        r"""^[ \t]*<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon|manifest)["'][^>]*>[ \t]*\n""",
         "",
-        html,
-        flags=re.IGNORECASE,
+        html.replace("\r\n", "\n"),
+        flags=re.IGNORECASE | re.MULTILINE,
     )
+
+
+# The guide is index.html on the portfolio site, so its Training copy links there instead.
+PORTFOLIO_GUIDE_NAME = ("nexus-hub-guide.html", "index.html")
 
 
 def test_publication_check_self_contained_and_offline(
@@ -1631,9 +1639,13 @@ def test_optional_portfolio_copy_when_env_set() -> None:
         )
     training = dest.parent / "training.html"
     assert training.is_file(), f"env set but the portfolio copy lacks its second page at {training}"
-    assert _strip_allowlisted_favicon(TRAINING_PAGE.read_text(encoding="utf-8")) == _strip_allowlisted_favicon(
+    expected = TRAINING_PAGE.read_text(encoding="utf-8").replace(*PORTFOLIO_GUIDE_NAME)
+    assert _strip_allowlisted_favicon(expected) == _strip_allowlisted_favicon(
         training.read_text(encoding="utf-8")
     ), "portfolio copy of training.html drifted"
+    for asset in sorted((GUIDE.parent / "assets").iterdir()):
+        copy = dest.parent / "assets" / asset.name
+        assert copy.is_file() and copy.read_bytes() == asset.read_bytes(), f"portfolio asset drifted or missing: {asset.name}"
 
 
 def test_every_catalog_command_is_training_cheatsheets_or_declined(

@@ -205,11 +205,13 @@ Published copy (sibling portfolio, outside this tree): `<portfolio-root>/nexus-h
 Publication is a copy:
 
 - Prefer a byte-identical copy of the canonical HTML.
-- An allowlisted head delta such as a favicon `<link>` is acceptable if the portfolio origin still requires it.
+- An allowlisted head delta is acceptable if the portfolio origin still requires it: favicon-set `<link>` lines (`icon`, `shortcut icon`, `apple-touch-icon`, `manifest`).
+- The guide is `index.html` on the portfolio, so the Training copy's links to `nexus-hub-guide.html` are renamed to `index.html`; the portfolio's deployment build rejects a link to a file it does not publish.
+- Copy `training.html` and every file in `assets/` beside the guide; the Home animations load from there.
 - Maintainers copy by hand, or a later portfolio-side script may copy. This release does not add `scripts/sync-nexus-hub-guide.mjs` to the sibling repository.
 - Never fetch the guide from the network to check it.
 
-Local publication check: `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. That module lives in this repo (not installer-copied). It asserts the file is self-contained, the inline Training JSON is valid, the install constants match, and the file stays below the strict 500,000-byte (500 KB) budget. If `NEXUS_HUB_PORTFOLIO_ROOT` is set, the suite diffs `<portfolio-root>/nexus-hub/index.html` against the canonical file and fails on unexpected drift. If the env var is unset, that leg is skipped and the rest of the suite still passes.
+Local publication check: `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. That module lives in this repo (not installer-copied). It asserts the file is self-contained, the inline Training JSON is valid, the install constants match, and the file stays below the strict 500,000-byte (500 KB) budget. If `NEXUS_HUB_PORTFOLIO_ROOT` is set, the suite diffs `<portfolio-root>/nexus-hub/index.html` and `training.html` against the canonical files (allowing only the deltas above), checks every file in `assets/` byte for byte, and fails on unexpected drift. If the env var is unset, that leg is skipped and the rest of the suite still passes.
 
 ## Browser verification
 

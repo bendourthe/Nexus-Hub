@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The optional portfolio-match test fits the published portfolio.** With `NEXUS_HUB_PORTFOLIO_ROOT` set, it now allows the portfolio's full favicon block (including the Apple touch icon and web manifest links) and Training's guide links renamed to `index.html`, and it checks every guide asset byte for byte. It still fails on any other drift.
+
 - **Local preference readers check the file they read.** The usage monitors, the Settings extension, and its maintainer scripts now open each preference, session-default, alert, history, and model-cache file once and apply the type, size, and link checks to that open file, so the path cannot be swapped between the check and the read. Behavior is otherwise unchanged; on Windows, which has no no-follow open, a link is refused after the open as a best effort.
 
 - **PowerShell guards stay on for a malformed settings file.** On PowerShell 7 (Linux and macOS), a `~/.nexus-hub/guardrails.json` whose top level was a one-element array, such as `[{"git_safety": false}]`, switched the git, secret, edit-preservation, and large-file guards off, because PowerShell 7 unwraps the array. The guards now act on an off switch only in a top-level JSON object, as Windows PowerShell 5.1 and the Bash guards already did.
