@@ -611,7 +611,7 @@ def whole_run_setting(phases: list[dict]) -> tuple[str, str, list[dict]] | None:
 
 def time_estimate(phases: list[dict], releases: int) -> dict[str, float]:
     """Rough hours per part of the run: building, testing, fixing, releasing."""
-    build = sum(MINUTES_PER_TASK[p["effort"]] * max(p["tasks"], 1) for p in phases) / 60
+    build = sum(MINUTES_PER_TASK[p["effort"]] * p["tasks"] for p in phases) / 60
     parts = {"building": build, "testing": build * TESTING_SHARE, "fixing": build * FIXING_SHARE,
              "releasing": releases * RELEASE_MINUTES / 60}
     return {k: round(v * 2) / 2 for k, v in parts.items()}
@@ -674,7 +674,7 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         fixed += f"; {len(movable)} may move to {target}"
     elif not minor and "defer-gaps" in names:
         fixed += "; some may wait for a later version"
-    rows.append(("Fixed", fixed))
+    rows.append(("Open gaps in scope", fixed))
     if minor and "archive-minor" in names and "archive-member" in names:
         rows.append(("Archived", f"The {_scope_token(page)} documents, each plan's own as soon as it is released"))
     elif minor and "archive-minor" in names:
@@ -693,9 +693,10 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         tier, effort, above = setting
         more = f"; more for {_count(len(above), 'phase')}, see Phases" if above else ""
         rows.append(("Run it on", f"{tier.capitalize()} models at {effort} effort{more}"))
-        hours = time_estimate(phases, len(releases) if "release" in names else 0)
-        rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
-            f"{_hours(v)} {k}" for k, v in hours.items())))
+        if any(p['tasks'] for p in phases):
+            hours = time_estimate(phases, len(releases) if "release" in names else 0)
+            rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
+                f"{_hours(v)} {k}" for k, v in hours.items())))
     rows.append(("In parallel", _parallel(display)))
     caps = _caps(page)
     if (page.get('autonomy') or {}).get('planned_actions'):
@@ -1161,6 +1162,13 @@ def _action_page(data: dict, paste: PasteSet) -> str:
         return "\n".join(out).rstrip() + "\n"
     verb = {"answer": "continue past the blocker", "pause": "pause", "resume": "resume", "retire": "retire the run record"}[action]
     out = _section("What this will do", [f"This will {verb} for /implement {scope}.", "Nothing else changes."])
+    conditional = data.get('page', {}).get('conditional_outcome')
+    if conditional is not None:
+        out = _section("What this will do", [
+            f"This records the reviewed full-decline outcome for /implement {scope}.",
+            "The named admission tasks stay unrun, and no release is published.",
+            "All other checks, gap duties, archival and cleanup still apply.",
+        ])
     detail = data.get('page', {}).get('blocker') or {}
     if detail:
         out += _section('Decision details', [
@@ -1169,6 +1177,8 @@ def _action_page(data: dict, paste: PasteSet) -> str:
             'Scope: ' + quoted(json.dumps(detail.get('request') or {}, sort_keys=True)),
             'Decline leaves this action unapproved; no authority or completion predicate changes.',
         ])
+    if conditional is not None:
+        out += _section('Bound decline data', ['```json', json.dumps(conditional, sort_keys=True, indent=2, ensure_ascii=True), '```'])
     out += _section("To approve, paste this line",
                     ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
     return "\n".join(out).rstrip() + "\n"
@@ -1267,12 +1277,17 @@ def question_data(data: dict) -> dict:
             'no-progress': 'Continue the reported stalled work',
             'record-tampered': 'Review the run integrity problem before continuing',
         }.get(blocker.get('category'), 'Review the displayed issue before continuing')
+    conditional = data.get('page', {}).get('conditional_outcome')
+    if conditional is not None:
+        effect = 'Confirm the displayed full-decline outcome without a release'
     question = f'{effect} for {scope}?'
     return {'header': 'Approval', 'question': question, 'challenge': data['challenge'],
             'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
-            'action_scope': data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths') else blocker.get('request') or {},
+            'action_scope': (conditional.get('request') if conditional is not None
+                             else data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths')
+                             else blocker.get('request') or {}),
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
                         'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',

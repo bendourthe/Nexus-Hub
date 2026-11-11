@@ -49,6 +49,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Settings 0.4.0 keeps effort labels readable in narrow panels, restores a compact hover with named guardrail states, and connects native Claude Code and Codex sessions to the shared effort preference for subsequent requests. Claude Ultra enables Ultracode; Codex mapping follows advertised model capabilities. Initial connection requires an editor reload. The bridge preserves native permissions, unrelated settings and custom launch configurations.
 
+- The local maintainer attribution validator recognizes the current verified owner pair alongside the historical pair, while retaining rejection of unknown identities, mixed pairs and agent attribution. Git identity settings and hooks are unchanged.
+
+- Strict publication-backed compatibility for explicitly bound legacy recording-only deferrals, preserved linked migration copies and context-local deterministic parsing reuse. Unknown historical ledgers and live approval checks retain their existing gates.
+
+- Native minor-member closeout can capture an explicit conditional full decline against frozen task conditions, immutable evidence and a verified green integration. Its named admission tasks remain unrun and no release is permitted; gaps, archive and cleanup retain their existing gates. Ordinary plans retain their release requirements. See the [decision](docs/decisions/proposed/tooling/2026-10-29-conditional-full-decline-closeout.md).
+
+- Conditional-decline verification overlaps five independent fresh remote queries on at most three workers under the unchanged shared deadline, preserving every predicate and joining workers on failure.
+
+- **The completion checker recognizes a consumer minor closed with a captured conditional decline.** The isolated October repair is ported onto current develop so a normal installer update no longer drops it; amended-minor authority, v4.15 task authority and archive repairs are retained alongside it.
+
 ## [4.14.8] - 2026-11-04
 
 ### Added
@@ -315,6 +325,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The platform read-contract records the 2026-10-20 re-verification. Antigravity retired its legacy workflow directories (`~/.gemini/config/workflows/`, `.agents/workflows/`) on 2026-10-19, so they no longer run as slash commands; every Nexus-Hub command still reaches Antigravity as a skill. The installer still writes the workflow files for now (known gap AR-35). The other findings add newly documented paths and events without changing what is installed.
 
 ### Fixed
+
+- Completion checks now retain task evidence for files deleted before a merge, accept semantic-release changelog headings, resolve relative ledger roots, and expose gap diagnostics with `--detail` while remaining blocked. A mistaken `record answer --text` note leaves its genuine approval round open; `--pasted-line` names the intended input. Explicit uncovered gap IDs can be recorded without changing migration authority. Approval summaries label open gaps as scope and omit build estimates for completed tasks. Archive output reports preserved old-path references, Unicode repair preserves evidence files, and `minor_close migrate --to vX.Y.0` can bring approved older gaps into the current minor without closing their copies. Finding-by-finding qualification: [Nexus-AI checker handoff](docs/releases/v4/v4.14/development/nexus-ai-checker-handoff.md).
 
 - A plan task that names a dated record by its template, such as `docs/decisions/proposed/policy/YYYY-MM-DD-slug.md`, can now be completed. The completion checker matches the one file with a real date in that place changed since the run started; no match, or more than one, stays unmet. Before, no file could carry the literal placeholder name, so such a task never counted as done. Decision record: [`2026-10-20-dated-task-paths.md`](docs/decisions/implemented/tooling/2026-10-20-dated-task-paths.md).
 - Codex on Windows no longer refuses to start threads with "windows unelevated restricted-token sandbox cannot enforce split filesystem read restrictions directly". Nexus-Hub's read-limited permissions profile cannot be enforced by Codex's unelevated sandbox, which is also Codex's fallback when elevated setup is unavailable, so the failure was intermittent. Windows installs now write no profile and remove a previously installed one, leaving `sandbox_mode = "workspace-write"` as the only sandbox setting; macOS and Linux keep the profile. Decision: `docs/decisions/implemented/policy/2026-10-16-codex-permissions-profile-not-on-windows.md`.

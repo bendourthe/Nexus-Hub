@@ -27,6 +27,7 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import fnmatch
 import hashlib
 import hmac
@@ -35,7 +36,7 @@ import os
 import re
 import sys
 from contextlib import contextmanager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import wraps
 from pathlib import Path
 from types import ModuleType
@@ -636,7 +637,8 @@ def action_page(token: str, action: str, record_nonce: str) -> dict:
     return {"action": action, "scope": {"kind": "minor", "minor": token}, "record_nonce": record_nonce}
 
 
-def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, member: str | None) -> dict:
+def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, member: str | None,
+                rctx: RepoContext | None = None, conditional_file: str | None = None) -> dict:
     """Bind one open blocker and its actual member to the existing answer round."""
     blockers = record.get("blockers") or []
     if not isinstance(blockers, list) or not isinstance(index, int) or isinstance(index, bool) or not 0 <= index < len(blockers):
@@ -657,6 +659,20 @@ def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, mem
     page["blocker"] = {"index": index, "category": category, "version": version,
                        "fingerprint": approval_binding.blocker_fingerprint(entry), "request": entry.get("request") or {},
                        "purpose": entry.get("purpose"), "why": entry.get("why")}
+    if entry.get("approval_class") == "conditional-outcome" or conditional_file:
+        if rctx is None or version is None:
+            raise ck.Malformed("conditional disposition requires its verified member context")
+        own = next(m for m in record["members"] if m["version"] == version)
+        if (own.get("approvals") or {}).get("conditional_outcome") is not None:
+            raise ck.Malformed("member already has a captured conditional disposition")
+        ctx = ck.Context(str(rctx.root / own["plan_path"]), rctx.budget)
+        try:
+            proposal = json.loads(Path(conditional_file).read_text(encoding="utf-8")) if conditional_file else None
+        except (OSError, ValueError) as exc:
+            raise ck.Malformed("conditional disposition file cannot be read") from exc
+        if conditional_file and not isinstance(proposal, dict):
+            raise ck.Malformed("conditional disposition must be a JSON object")
+        page["conditional_outcome"] = ck.conditional_answer_page(ctx, ck.project(record, version), entry, proposal)
     return page
 
 
@@ -888,11 +904,17 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
             tag = str(member.get('tag') or member['version'])
             if _ancestor(ctx, merge, head) != 'met':
                 raise ck.MinorConflict('member-release-history-not-in-target')
-            tag_rc, _ = ctx.run([ctx.git, '-C', str(ctx.root), 'merge-base', '--is-ancestor', 'refs/tags/' + tag, head])
-            tag_status = {0: 'met', 1: 'unmet', -1: 'cannot-verify'}.get(tag_rc)
-            if tag_status is None:
-                tag_status = _tag_in(ctx, tag, head)
-            if (tag_status != 'met' or ck._release_status(ctx, str(record['repo']), tag) != 'met'):
+            if (member.get('approvals') or {}).get('conditional_outcome') is not None:
+                # A captured conditional decline is anchored at its verified merge, never a tag.
+                state, anchor = completion_anchor(ck, ctx, record, member)
+                history_ok = state == 'met' and bool(anchor) and _ancestor(ctx, anchor, head) == 'met'
+            else:
+                tag_rc, _ = ctx.run([ctx.git, '-C', str(ctx.root), 'merge-base', '--is-ancestor', 'refs/tags/' + tag, head])
+                tag_status = {0: 'met', 1: 'unmet', -1: 'cannot-verify'}.get(tag_rc)
+                if tag_status is None:
+                    tag_status = _tag_in(ctx, tag, head)
+                history_ok = tag_status == 'met' and ck._release_status(ctx, str(record['repo']), tag) == 'met'
+            if not history_ok:
                 raise ck.MinorConflict('member-release-history-not-in-target')
     major, minor = parse_minor(ck, record['minor'])
     plans = {plan.version: plan for plan in scan_plans(target, major, minor)}
@@ -1581,7 +1603,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         record = _record_for_action(ck, rctx, token, args.action, args.session)
         if isinstance(record, int):
             return record
-        page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
+        page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None), rctx, getattr(args, "conditional_outcome", None))
                 if args.action == "answer" else action_page(token, args.action, str(record.get("nonce", ""))))
         display = None
     elif args.action == "amend-minor":
@@ -1664,7 +1686,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
 
 
 def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: dict, session: str,
-             required_session: str | None = None) -> tuple[dict, str] | int:
+             required_session: str | None = None, *, text: str | None = None) -> tuple[dict, str] | int:
     try:
         return approval_binding.consume(
             ck._runs_dir(),
@@ -1674,6 +1696,7 @@ def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: d
             live_page=page,
             session=session,
             required_session=required_session,
+            pasted_line=text,
         )
     except approval_binding.Refusal as refusal:
         return ck._refused(refusal.reason)
@@ -1763,19 +1786,37 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
     record = _record_for_action(ck, rctx, token, "answer", args.session)
     if isinstance(record, int):
         return record
-    page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
-    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""))
+    page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None), rctx, getattr(args, "conditional_outcome", None))
+    selected = record['blockers'][args.blocker]
+    if (any(binding.get('blocker') == args.blocker for binding in record.get('approvals', {}).get('condition_probe_bindings', []))
+            or any(scope['request']['repair']['blocker'] == args.blocker for scope in historical_supplements(record))):
+        return ck._blocked('bound-condition-requires-fresh-probe')
+    supplement = None
+    if selected.get('approval_class') == 'gap-migration' and (selected.get('request') or {}).get('kind') == HISTORICAL_SCOPE:
+        try:
+            supplement = historical_scope_request(ck, rctx, record, selected['request'])
+        except (OSError, ValueError, TypeError, KeyError):
+            return ck._blocked('supplemental-scope-invalid')
+    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""), text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
-    if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
-    }:
-        return ck._refused("approval-not-captured")
     record["blockers"][args.blocker].update(
         open=False, answered=ck._now(), answer_text=approval_binding.pasted(pending),
     )
-    # Blockers are unsigned; an answer never changes the frozen approval classes.
+    # Ordinary blockers stay unsigned. This narrowly captured disposition is
+    # effective only inside the existing signed member approval payload.
+    if "conditional_outcome" in pending["page"]:
+        own = next(m for m in record["members"] if m["version"] == page["blocker"]["version"])
+        own.setdefault("approvals", {})["conditional_outcome"] = ck.conditional_capture(pending)
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    if supplement is not None:
+        supplement.update(run_nonce=record['nonce'],
+            scope_id=hashlib.sha256(approval_binding.canonical(supplement['request'])).hexdigest(),
+            capture={'origin': 'native-answer', 'page_sha256': hashlib.sha256(approval_binding.canonical(pending['page'])).hexdigest(),
+                     'prompt_sha256': approval_binding.digest(approval_binding.pasted(pending))})
+        record['approvals'].setdefault('supplemental_gap_migrations', []).append(supplement)
+        record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
     ck._write_record(record_file(ck, rctx, token), record)
     print(f"ANSWERED blocker {args.blocker} minor {token}")
     return 0
@@ -1793,14 +1834,10 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
     # A pause lands in the record's own session; a resume is the one-line paste
     # that carries the record into the session where it was captured.
     required = str(record.get("session_id") or "") if action == "pause" else None
-    consumed = _consume(ck, rctx, token, action, page, args.session, required)
+    consumed = _consume(ck, rctx, token, action, page, args.session, required, text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, session = consumed
-    if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
-    }:
-        return ck._refused("approval-not-captured")
     if action == "pause":
         record["pause"] = {"at": ck._now(), "text_sha256": pending["paste_digests"][0]}
         ck._write_record(record_file(ck, rctx, token), record)
@@ -3238,7 +3275,9 @@ class GapItem:
         `**Security**` field, or a `**Severity**` of high or critical.
         """
         return bool(
-            _SEVERITY_RE.search(self.body)
+            (legacy_title(self.title) is not None and (legacy_title(self.title)['priority'] in {'0', '1'}
+             or re.search(r'\.P[01]\.', legacy_title(self.title)['raw'])))
+            or _SEVERITY_RE.search(self.body)
             or _SECURITY_FIELD_RE.search(self.body)
             or _SECURITY_WORD_RE.search(self.title)
             or _SECURITY_WORD_RE.search(self.subsection)
@@ -3275,6 +3314,43 @@ def ledger_header(text: str) -> str:
     return _header(text, lines, fence_mask(lines)[0])
 
 
+_LEGACY_RAW_ID = r"(?:T[0-9]{3,}|[1-9][0-9]*(?:\.(?:[1-9][0-9]*(?:-[1-9][0-9]*)?|x))?)\.P[0-3]\.[A-Z]{1,3}"
+_LEGACY_KIND = r"(?:NI|DF|BG|WN|MT|QG)"
+_LEGACY_ITEM_RE = re.compile(
+    r"^(?P<raw>" + _LEGACY_RAW_ID + r")\s+--\s+(?P<name>.+)\s+\("
+    r"(?P<kind>" + _LEGACY_KIND + r")(?P<extra>(?:,\s*" + _LEGACY_KIND + r")*),\s*"
+    r"P(?P<priority>[0-3])\)(?P<status>(?:\s+-{1,2}\s*(?:MIGRATED to v[0-9]+\.[0-9]+\.[0-9]+|RESOLVED|CLOSED))?)$"
+)
+_LEGACY_CLOSED_RE = re.compile(
+    r"^(?:T[0-9]{3,}|[1-9][0-9]*)(?:\.[A-Za-z0-9-]+)+\s+--\s+.+\s+"
+    r"\((?:NI -- already resolved|resolved in Phase [0-9]+)\)$"
+)
+
+
+def legacy_title(title: str) -> re.Match | None:
+    """Retain original identity and priority in native copies of legacy records."""
+    return _LEGACY_ITEM_RE.fullmatch(re.sub(r"^[\s:-]+", "", title))
+
+
+def ledger_item_match(heading: str) -> re.Match | None:
+    found = LEDGER_ITEM_RE.match(heading)
+    if found is not None:
+        return found
+    legacy = _LEGACY_ITEM_RE.fullmatch(heading)
+    if legacy is None:
+        return None
+    alias = legacy['kind'] + '-' + legacy['raw'].replace('.', '-')
+    return LEDGER_ITEM_RE.match(alias + ' - ' + heading)
+
+
+def _closed_legacy_container(heading: str) -> bool:
+    heading = re.sub(r"^[0-9]+[.)]\s*", "", heading.strip())
+    return bool(re.fullmatch(r"Resolved(?: items)?", heading, re.IGNORECASE) or re.fullmatch(
+        r"Documented-but-not-implemented items closed in v[0-9]+\.[0-9]+\.[0-9]+ \(audit trail\)",
+        heading, re.IGNORECASE,
+    ))
+
+
 def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
     """(items, problems) of a known-gaps file.
 
@@ -3309,10 +3385,12 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
         if match:
             headings.append((index, len(match.group(1)), match.group(2) or "", lead + match.end(2) if match.group(2) else lead))
     items: list[GapItem] = []
+    legacy_aliases: set[str] = set()
+    legacy_raw_ids: set[str] = set()
     item_lines: set[int] = set()
     section = subsection = ""
     for h, (index, level, heading, text_end) in enumerate(headings):
-        found = LEDGER_ITEM_RE.match(heading) if level >= 3 else None
+        found = ledger_item_match(heading) if level >= 3 else None
         if found is None:
             if _ITEM_LIKE_RE.match(heading):
                 problems.append(f"line {index + 1} heading")
@@ -3321,9 +3399,15 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
             elif level == 3:
                 subsection = heading
             continue
+        legacy = _LEGACY_ITEM_RE.fullmatch(heading)
+        if legacy is not None:
+            if legacy['raw'] in legacy_raw_ids:
+                problems.append('legacy-identity-ambiguous')
+            legacy_raw_ids.add(legacy['raw'])
+            legacy_aliases.add(found.group('id'))
         end_line = len(lines)
         for later_index, later_level, later_text, _ in headings[h + 1:]:
-            if later_level <= level or (later_level >= 3 and LEDGER_ITEM_RE.match(later_text)):
+            if later_level <= level or (later_level >= 3 and ledger_item_match(later_text)):
                 end_line = later_index
                 break
         item_lines.update(range(index, end_line))
@@ -3332,7 +3416,8 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
         end = offsets[end_line] if end_line < len(lines) else len(text)
         title = found.group("title")
         migrated = MIGRATED_RE.search(title)
-        if resolved_title(title) or (not migrated and subsection.lower().startswith("resolved")):
+        if resolved_title(title) or (not migrated and (subsection.lower().startswith("resolved")
+                or legacy is not None and _closed_legacy_container(section))):
             state = "resolved"
         elif migrated:
             state = "migrated"
@@ -3354,23 +3439,30 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
         i.gid for i in items if i.state != "resolved" and seen[(i.section, i.gid)] > 1
     ):
         problems.append(f"duplicate-id {gid}")
+    for alias in sorted(legacy_aliases):
+        if sum(item.gid == alias for item in items) > 1:
+            problems.append('legacy-alias-collision')
     next_heading = {line: (headings[h + 1][0] if h + 1 < len(headings) else len(lines))
                     for h, (line, *_rest) in enumerate(headings)}
-    subsection = ""
+    section = subsection = ""
     for index, raw in enumerate(lines):
         if mask[index] or index in item_lines:
             continue
         heading = _HEADING_RE.match(raw.rstrip("\r\n"))
         if heading:
             level, title = len(heading.group(1)), heading.group(2) or ""
-            if level <= 3:
-                subsection = title if level == 3 else ""
+            if level <= 2:
+                section = title
+                subsection = ""
+            elif level == 3:
+                subsection = title
             own = range(index + 1, next_heading.get(index, index + 1))
-            if level >= 3 and _lost_id(title, subsection, [lines[k] for k in own if not mask[k]]):
+            if level >= 3 and not _LEGACY_CLOSED_RE.fullmatch(title) and _lost_id(title, subsection, [lines[k] for k in own if not mask[k]]):
                 problems.append(f"line {index + 1} heading-without-id")
             continue
         row = _ROW_RE.match(raw.rstrip("\r\n"))
-        if row and _ITEM_LIKE_RE.match(row.group("rest")) and not subsection.lower().startswith("resolved"):
+        if (row and _ITEM_LIKE_RE.match(row.group("rest")) and not subsection.lower().startswith("resolved")
+                and not _closed_legacy_container(section)):
             problems.append(f"line {index + 1} row")
     header = _header(text, lines, mask)
     stated = _OPEN_ITEMS_LINE_RE.search(header)
@@ -3411,6 +3503,7 @@ def _layout_of(rel: str, major: int, minor: int) -> str | None:
 
 def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     """Every known-gaps ledger at a layout path, and the paths that could not be read."""
+    root = root.resolve()
     seen: dict[str, Path] = {}
     for pattern in LEDGER_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -3474,15 +3567,431 @@ def normalize_gap_id(value: str) -> str | None:
     return f"v{match.group(1)}.{match.group(2)}#{match.group(3)}" if match else None
 
 
+HISTORICAL_SCOPE = "legacy-ledger-reconciliation-v1"
+
+
+def _lf_hash(text: str) -> str:
+    return hashlib.sha256(text.replace('\r\n', '\n').encode('utf-8')).hexdigest()
+
+
+def _historical_record_matches(item: GapItem, spec: dict) -> bool:
+    title = MIGRATED_RE.sub('', item.title).removeprefix(' - ').rstrip()
+    raw = _LEGACY_ITEM_RE.fullmatch(title)
+    return bool(raw and item.gid == spec.get('alias') and raw['raw'] == spec.get('raw_id')
+                and raw['kind'] == spec.get('kind') and raw['priority'] == str(spec.get('priority'))
+                and hashlib.sha256(title.encode('utf-8')).hexdigest() == spec.get('heading_sha256')
+                and _lf_hash(item.body) == spec.get('body_sha256'))
+
+
+def validate_owner_record(ck: ModuleType, rctx: RepoContext, record: dict, spec: dict, *, archived: Path | None = None) -> Path:
+    """One exact older authority in this repository; retirement never means completion."""
+    keys = {'path', 'sha256', 'minor', 'nonce', 'members'}
+    if not isinstance(spec, dict) or set(spec) != keys:
+        raise ValueError('retirement record shape is invalid')
+    path = Path(spec['path'])
+    root = ck._runs_dir().resolve()
+    if (not path.is_absolute() or path.parent != root
+            or not re.fullmatch(r'[0-9a-f]{64}\.json', path.name)
+            or not re.fullmatch(r'[0-9a-f]{64}', str(spec['sha256']))
+            or not MINOR_RE.fullmatch(str(spec['minor'])) or minor_of(spec['minor']) >= minor_of(record['minor'])
+            or not isinstance(spec['members'], list) or not spec['members']):
+        raise ValueError('retirement target is not an exact older native authority')
+    if ck._private_reparse(path):
+        raise ValueError('retirement source is a redirected artifact')
+    body_path = archived or path
+    if ck._private_reparse(body_path):
+        raise ValueError('retirement artifact is redirected')
+    if not body_path.is_file() or body_path.stat().st_size > 1_000_000:
+        raise ValueError('retirement source is not a bounded local record')
+    raw = body_path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != spec['sha256']:
+        raise ValueError('older authority changed after review')
+    old = json.loads(raw)
+    key = ck._secret(create=False)
+    if (not isinstance(old, dict) or key is None or old.get('schema') != ck.SCHEMA_MINOR
+            or old.get('scope') != 'minor' or old.get('minor') != spec['minor']
+            or old.get('nonce') != spec['nonce'] or old.get('repo') != record.get('repo')
+            or old.get('completed') or not hmac.compare_digest(str(old.get('approvals_hmac', '')), ck._sign(old, key))
+            or sorted(member['version'] for member in old['members']) != sorted(spec['members'])):
+        raise ValueError('older authority does not match authenticated retirement scope')
+    if archived is None:
+        candidates = authority_records(ck, rctx, lambda value: isinstance(value, dict)
+            and value.get('schema') == ck.SCHEMA_MINOR and value.get('nonce') == spec['nonce'])
+        if path.resolve() not in {candidate.resolve() for candidate in candidates} or ck.lock_live(path):
+            raise ValueError('older authority is not registered here or has a live runner')
+    return path
+
+
+def validate_owner_retirements(ck: ModuleType, rctx: RepoContext, record: dict, specs: object) -> None:
+    if not isinstance(specs, list) or len(specs) > 4:
+        raise ValueError('retirement list is unbounded')
+    seen = set()
+    for spec in specs:
+        path = validate_owner_record(ck, rctx, record, spec)
+        if path.resolve() in seen:
+            raise ValueError('retirement list contains a duplicate authority')
+        seen.add(path.resolve())
+
+
+def historical_scope_request(ck: ModuleType, rctx: RepoContext, record: dict, request: dict) -> dict:
+    """Validate the exact displayed supplemental scope before consuming an answer."""
+    keys = {'kind', 'minor', 'baseline_head', 'destination', 'ids', 'named', 'manifest', 'repair', 'tooling'}
+    if (not isinstance(request, dict) or set(request) not in (keys, keys | {'owner_retirements'}) or request['kind'] != HISTORICAL_SCOPE
+            or request['minor'] != record.get('minor') or request['baseline_head'] != record.get('start_head')
+            or request['destination'] != next_minor(str(record['minor'])) + '.0'):
+        raise ValueError('historical scope differs from the frozen run')
+    validate_owner_retirements(ck, rctx, record, request.get('owner_retirements', []))
+    ids, named = request['ids'], request['named']
+    if (not isinstance(ids, list) or not ids or len(ids) > 256 or len(set(ids)) != len(ids)
+            or not all(isinstance(pid, str) and normalize_gap_id(pid) == pid for pid in ids)
+            or not isinstance(named, list) or len(named) != len(set(named)) or set(named) != set(ids)):
+        raise ValueError('historical scope needs exact unique individually named identities')
+    if any(set(ids) & set(scope['request']['ids']) for scope in historical_supplements(record)):
+        raise ValueError('historical scope overlaps existing supplemental authority')
+    original = next((c for c in record.get('approvals', {}).get('classes', [])
+                     if c.get('class') == 'gap-migration'), {})
+    if set(ids) & set(original.get('bound', [])):
+        raise ValueError('supplement may not rewrite original migration authority')
+    tooling = request['tooling']
+    runtime = {'scripts/check_plan_completion.py', 'scripts/completion_minor.py', 'scripts/minor_close.py'}
+    if (not isinstance(tooling, dict) or set(tooling) != {'base_head', 'paths', 'max_fix_cycles'}
+            or not re.fullmatch(r'[0-9a-f]{40}', str(tooling['base_head']))
+            or type(tooling['max_fix_cycles']) is not int or not 1 <= tooling['max_fix_cycles'] <= 3
+            or not isinstance(tooling['paths'], dict) or not runtime <= set(tooling['paths'])
+            or len(tooling['paths']) > 12
+            or any(not (rel in runtime or rel == 'catalog/skills/workflow/implement-phase/references/completion-contract.md'
+                           or re.fullmatch(r'tests/validators/test_[a-z_]+\.py', rel))
+                   or not re.fullmatch(r'[0-9a-f]{64}', str(digest)) for rel, digest in tooling['paths'].items())):
+        raise ValueError('historical tooling packet is unbounded or malformed')
+    for rel in runtime:
+        if hashlib.sha256((Path(ck.__file__).parent / Path(rel).name).read_bytes()).hexdigest() != tooling['paths'][rel]:
+            raise ValueError('native tooling differs from the reviewed packet')
+    reference = request['manifest']
+    if not isinstance(reference, dict) or set(reference) != {'path', 'sha256'}:
+        raise ValueError('historical manifest reference is malformed')
+    path = Path(reference['path'])
+    requests_root = (ck._runs_dir().parent / 'requests').resolve()
+    if (not path.is_absolute() or not path.is_relative_to(requests_root)
+            or any(part == '..' or part.endswith(('.', ' ')) or ':' in part
+                   for part in path.relative_to(requests_root).parts)):
+        raise ValueError('historical manifest must be an owned local request artifact')
+    component = requests_root
+    for part in path.relative_to(requests_root).parts:
+        component = component / part
+        if ck._private_reparse(component):
+            raise ValueError('historical manifest path is redirected')
+    if not path.is_file() or path.stat().st_size > 1_000_000:
+        raise ValueError('historical manifest must be a bounded local file')
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != reference['sha256']:
+        raise ValueError('historical manifest changed after review')
+    manifest = json.loads(raw)
+    if (not isinstance(manifest, dict) or set(manifest) != {'schema', 'baseline_head', 'destination', 'ledgers', 'records'}
+            or manifest['schema'] != 1 or manifest['baseline_head'] != request['baseline_head']
+            or manifest['destination'] != request['destination'] or not isinstance(manifest['records'], list)
+            or not isinstance(manifest['ledgers'], dict)):
+        raise ValueError('historical manifest has an unsupported shape')
+    ledgers, unreadable = load_ledgers(rctx.root)
+    if unreadable or any(ledger.problems for ledger in ledgers):
+        raise ValueError('historical inventory remains unreadable')
+    current = {ledger.rel: ledger for ledger in ledgers}
+    for rel, digest in manifest['ledgers'].items():
+        ledger = current.get(rel)
+        if ledger is None or ledger.layout != 'archive' or ledger.minor >= minor_of(str(record['minor'])):
+            raise ValueError('historical manifest names an unapproved source layout')
+        rc, published = rctx.run([rctx.git, '-C', str(rctx.root), 'show', request['baseline_head'] + ':' + rel])
+        if rc != 0 or _lf_hash(published) != digest or _lf_hash(ledger.text) != digest:
+            raise ValueError('historical ledger differs from the immutable reviewed baseline')
+    seen, raw_ids = set(), set()
+    for spec in manifest['records']:
+        if not isinstance(spec, dict) or set(spec) != {'source', 'raw_id', 'alias', 'kind', 'priority', 'heading_sha256', 'body_sha256'}:
+            raise ValueError('historical identity record is malformed')
+        ledger = current.get(spec['source'])
+        if ledger is None or spec['source'] not in manifest['ledgers']:
+            raise ValueError('historical identity lacks its complete source ledger')
+        pid = ledger.token() + '#' + str(spec['alias'])
+        identity = (spec['source'], spec['raw_id'])
+        matches = [item for item in ledger.items if item.gid == spec['alias']]
+        state, baseline = items_at(rctx, request['baseline_head'], ledger.minor, spec['alias'])
+        if (pid in seen or identity in raw_ids or len(matches) != 1 or matches[0].state != 'open'
+                or not _historical_record_matches(matches[0], spec) or state != 'met'
+                or len(baseline) != 1 or baseline[0].state != 'open'
+                or not _historical_record_matches(baseline[0], spec)):
+            raise ValueError('historical identity, body or baseline is ambiguous or changed')
+        seen.add(pid)
+        raw_ids.add(identity)
+    if seen != set(ids):
+        raise ValueError('historical manifest and reviewed identity list differ')
+    expected = {ledger.token() + '#' + item.gid for ledger in ledgers
+                if ledger.rel in manifest['ledgers'] for item in ledger.items
+                if item.state == 'open' and legacy_title(item.title) is not None}
+    if expected != seen:
+        raise ValueError('historical manifest omits an open legacy source record')
+    repair = request['repair']
+    if not isinstance(repair, dict) or set(repair) != {'blocker', 'fingerprint', 'ids', 'probe_command'}:
+        raise ValueError('historical repair binding is malformed')
+    index = repair['blocker']
+    if type(index) is not int or not 0 <= index < len(record.get('blockers', [])):
+        raise ValueError('historical repair names no existing blocker')
+    blocker = record['blockers'][index]
+    if (not blocker.get('open') or blocker.get('category') != 'platform-unavailable'
+            or approval_binding.blocker_fingerprint(blocker) != repair['fingerprint']
+            or (blocker.get('request') or {}).get('verification')):
+        raise ValueError('historical repair condition changed or already has a probe')
+    repair_ids = repair['ids']
+    if (not isinstance(repair_ids, list) or len(repair_ids) != len(set(repair_ids))
+            or not set(ids) <= set(repair_ids)
+            or not set(repair_ids) - set(ids) <= set(original.get('bound', []))):
+        raise ValueError('corrective migration adds unreviewed identities')
+    member = blocker.get('version')
+    expected_command = [sys.executable, str(Path(ck.__file__).resolve()), 'probe-condition', '--minor', str(record['minor']),
+                        '--member', str(member), '--repo', str(rctx.root), '--session', str(record['session_id']),
+                        '--blocker', str(index)]
+    if repair['probe_command'] != expected_command:
+        raise ValueError('repair probe is not the exact native read-only command')
+    return {'request': json.loads(json.dumps(request)), 'manifest': manifest, 'manifest_bytes_sha256': hashlib.sha256(raw).hexdigest()}
+
+
+def historical_supplements(record: dict | None) -> list[dict]:
+    result = []
+    scopes = ((record or {}).get('approvals') or {}).get('supplemental_gap_migrations', [])
+    if not isinstance(scopes, list):
+        return result
+    for scope in scopes:
+        try:
+            request, capture = scope['request'], scope['capture']
+            if (scope['run_nonce'] == (record or {}).get('nonce') and capture['origin'] == 'native-answer'
+                    and all(re.fullmatch(r'[0-9a-f]{64}', str(capture[key])) for key in ('page_sha256', 'prompt_sha256'))
+                    and request['kind'] == HISTORICAL_SCOPE and request['minor'] == (record or {}).get('minor')
+                    and request['baseline_head'] == (record or {}).get('minor_start_head', (record or {}).get('start_head'))
+                    and scope['scope_id'] == hashlib.sha256(approval_binding.canonical(request)).hexdigest()
+                    and isinstance(request['ids'], list) and set(request['ids']) == set(request['named'])
+                    and request['manifest']['sha256'] == scope['manifest_bytes_sha256']
+                    and isinstance(scope['manifest']['records'], list)):
+                result.append(scope)
+        except (KeyError, TypeError, ValueError, AttributeError):
+            continue
+    return result
+
+
+def historical_scope(record: dict | None, pid: str, scope_id: str | None = None) -> dict | None:
+    matches = [scope for scope in historical_supplements(record)
+               if pid in scope['request']['repair']['ids'] and (scope_id is None or scope['scope_id'] == scope_id)]
+    return matches[0] if len(matches) == 1 else None
+
+
+def historical_source_status(rctx: RepoContext, record: dict, pid: str, current: GapItem | None) -> str:
+    scope = historical_scope(record, pid)
+    if scope is None or pid not in scope['request']['ids']:
+        return 'unmet'
+    specs = [entry for entry in scope['manifest']['records']
+             if entry['alias'] == pid.split('#')[1]
+             and Path(entry['source']).parent.name == pid.split('#')[0]]
+    if len(specs) != 1 or current is None or not _historical_record_matches(current, specs[0]):
+        return 'unmet'
+    source_minor = minor_of(pid.split('#')[0])
+    state, originals = items_at(rctx, scope['request']['baseline_head'], source_minor, current.gid)
+    if state != 'met':
+        return state
+    return 'met' if len(originals) == 1 and originals[0].state == 'open' and _historical_record_matches(originals[0], specs[0]) else 'unmet'
+
+
+def repair_scope_record(ck: ModuleType, rctx: RepoContext, token: str, session: str, scope_id: str | None = None) -> tuple[dict, dict, dict]:
+    """Authenticate one signed corrective scope without waiving its sole technical blocker."""
+    state = load_minor(ck, rctx, token, session)
+    record = state.record
+    if (record is None or record.get('pause') or record.get('completed')
+            or not session or record.get('session_id') != session):
+        raise ValueError('corrective scope has no active authenticated owner')
+    scopes = [scope for scope in historical_supplements(record) if scope_id is None or scope['scope_id'] == scope_id]
+    if len(scopes) != 1:
+        raise ValueError('corrective scope is missing or ambiguous')
+    scope = scopes[0]
+    repair = scope['request']['repair']
+    opens = [(index, entry) for index, entry in enumerate(record.get('blockers', [])) if entry.get('open')]
+    if len(opens) != 1 or opens[0][0] != repair['blocker']:
+        raise ValueError('corrective scope requires only its named technical blocker')
+    index, entry = opens[0]
+    expected = repair['fingerprint']
+    bindings = record.get('approvals', {}).get('condition_probe_bindings', [])
+    bound = [binding for binding in bindings if binding.get('scope_id') == scope['scope_id']]
+    if bound:
+        if len(bound) != 1 or bound[0]['old_fingerprint'] != expected or bound[0]['blocker'] != index:
+            raise ValueError('corrective probe history is ambiguous')
+        expected = bound[0]['new_fingerprint']
+        if entry.get('at') != bound[0]['at']:
+            raise ValueError('corrective probe freshness anchor changed')
+        if entry.get('request', {}).get('verification', {}).get('command') != repair['probe_command']:
+            raise ValueError('corrective probe command changed')
+    if (entry.get('category') != 'platform-unavailable' or approval_binding.blocker_fingerprint(entry) != expected
+            or state.forced != (f"BLOCKED: platform-unavailable ({entry.get('version')})", ck.EXIT_BLOCKED)
+            or _owned_member(ck, rctx, record, record_file(ck, rctx, token))):
+        raise ValueError('corrective owner or technical condition changed')
+    return record, scope, entry
+
+
+def repair_command(function):
+    @wraps(function)
+    def wrapped(ck, args):
+        try:
+            return function(ck, args)
+        except (ValueError, OSError, KeyError, TypeError, StopIteration):
+            return ck._blocked('condition-probe-unverified')
+    return wrapped
+
+
+@repair_command
+
+def cmd_probe_condition(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Read-only proof of the bound technical condition, retaining ordinary member checks."""
+    rctx = minor_context(ck, args.repo)
+    record, scope, entry = repair_scope_record(ck, rctx, args.minor, args.session)
+    repair = scope['request']['repair']
+    if args.blocker != repair['blocker'] or args.member != entry.get('version'):
+        raise ValueError('probe differs from its exact bound condition')
+    member = next(member for member in record['members'] if member['version'] == args.member)
+    plan = next(plan for plan in scan_plans(rctx.root, *parse_minor(ck, args.minor)) if plan.version == args.member)
+    notices = []
+    result = evaluate_member(ck, rctx, record, member, plan, notices)
+    lines = [(name, status) for name, status in result.lines if not name.startswith('cleanup.')]
+    gaps, details = gaps_minor_status(ck, rctx, args.minor, record)
+    lines.append(('gaps.minor', gaps))
+    for name, status in lines:
+        print(f'{name} {status}')
+    for notice in notices + details:
+        print(f'notice: {notice}', file=sys.stderr)
+    return 0 if lines and all(status in _MET for _, status in lines) and rctx.budget.remaining() > 0 else 1
+
+
+@minor_writer
+@repair_command
+def cmd_record_bind_probe(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Attach one reviewed literal probe, preserving the original blocker and a failed real observation."""
+    rctx = minor_context(ck, args.repo)
+    record, scope, entry = repair_scope_record(ck, rctx, args.minor, args.session, args.repair_scope)
+    repair = scope['request']['repair']
+    if args.blocker != repair['blocker'] or args.member != entry.get('version'):
+        raise ValueError('probe binding differs from its reviewed member')
+    if entry.get('request', {}).get('verification'):
+        raise ValueError('probe is already bound')
+    rc, output = rctx.run(repair['probe_command'])
+    if rc != 1 or not output.strip():
+        raise ValueError('probe binding requires a real incomplete-condition observation')
+    old = json.loads(json.dumps(entry))
+    bound_at = dt.datetime.now(dt.timezone.utc).isoformat(timespec='microseconds')
+    entry['at'] = bound_at
+    entry['request'] = {**entry.get('request', {}), 'verification': {'command': repair['probe_command']}}
+    binding = {'scope_id': scope['scope_id'], 'blocker': args.blocker, 'original': old,
+               'old_fingerprint': repair['fingerprint'], 'new_fingerprint': approval_binding.blocker_fingerprint(entry),
+               'at': bound_at, 'command': repair['probe_command'], 'exit_code': rc,
+               'output': output, 'output_sha256': hashlib.sha256(output.encode('utf-8')).hexdigest()}
+    record['approvals'].setdefault('condition_probe_bindings', []).append(binding)
+    record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
+    ck._write_record(record_file(ck, rctx, args.minor), record)
+    print(f'BOUND probe blocker {args.blocker}; condition remains open')
+    return 0
+
+
+def _retirement_committed(ck: ModuleType, path: Path, nonce: str, intent: dict) -> bool | None:
+    """Read durable signed state, never infer the commit point from mutated memory."""
+    try:
+        current = json.loads(path.read_bytes())
+        key = ck._secret(create=False)
+        if (key is None or current.get('nonce') != nonce
+                or not hmac.compare_digest(str(current.get('approvals_hmac', '')), ck._sign(current, key))):
+            return None
+        receipts = current.get('approvals', {}).get('owner_retirement_receipts', [])
+        if not isinstance(receipts, list):
+            return None
+        return any(isinstance(proof, dict) and all(proof.get(key) == value for key, value in intent.items())
+                   for proof in receipts)
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
+@repair_command
+def cmd_record_retire_owner(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Retire only the exact separately approved older control record; preserve all bytes."""
+    rctx = minor_context(ck, args.repo)
+    record, _scope, _entry = repair_scope_record(ck, rctx, args.minor, args.session, args.repair_scope)
+    attempted = False
+    old_path = retired = receipt = intent = None
+    try:
+        with ck.minor_transaction(record):
+            record, scope, _entry = repair_scope_record(ck, rctx, args.minor, args.session, args.repair_scope)
+            specs = [spec for spec in scope['request'].get('owner_retirements', []) if spec['path'] == args.record]
+            if len(specs) != 1:
+                raise ValueError('older record is outside the exact retirement grant')
+            spec = specs[0]
+            old_path = Path(spec['path'])
+            directory = ck._runs_dir().resolve() / 'retired'
+            retired = directory / (old_path.stem + '.' + scope['scope_id'] + '.json')
+            if (ck._private_reparse(directory)
+                    or directory.resolve() != directory or ck._private_reparse(retired)):
+                raise ValueError('retirement destination is unsafe')
+            intent = {**spec, 'retired_path': str(retired), 'scope_id': scope['scope_id'],
+                      'outcome': 'retired-unfinished; original tasks and record bytes preserved'}
+            existing = [proof for proof in record['approvals'].get('owner_retirement_receipts', [])
+                        if proof.get('scope_id') == scope['scope_id'] and proof.get('path') == spec['path']]
+            with ck._minor_os_lock(old_path.with_name(old_path.stem + '.mutation.lock'), rctx.budget):
+                if existing:
+                    if len(existing) != 1 or old_path.exists() or any(existing[0].get(key) != value for key, value in intent.items()):
+                        raise ValueError('retirement replay or receipt conflict')
+                    validate_owner_record(ck, rctx, record, spec, archived=retired)
+                    print(f'ALREADY RETIRED owner {spec["minor"]}')
+                    return 0
+                if retired.exists():
+                    if old_path.exists():
+                        raise ValueError('retirement destination and original both exist')
+                    validate_owner_record(ck, rctx, record, spec, archived=retired)
+                else:
+                    validate_owner_record(ck, rctx, record, spec)
+                    attempted = True
+                    ck._retire(old_path, destination=retired)
+                    validate_owner_record(ck, rctx, record, spec, archived=retired)
+                receipt = {**intent, 'at': ck._now()}
+                record['approvals'].setdefault('owner_retirement_receipts', []).append(receipt)
+                record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
+                ck._write_record(record_file(ck, rctx, args.minor), record)
+        print(f'RETIRED owner {spec["minor"]}; unfinished work preserved')
+        return 0
+    except BaseException:
+        if attempted and retired is not None:
+            # Reacquire in the same descending order before classifying durable state.
+            # Recovery and old-slot creation use these exact native locks too.
+            current_lock = record.record_path.with_name(record.record_path.stem + '.mutation.lock')
+            old_lock = old_path.with_name(old_path.stem + '.mutation.lock')
+            with ck._minor_os_lock(current_lock, rctx.budget):
+                with ck._minor_os_lock(old_lock, rctx.budget):
+                    if retired.exists():
+                        committed = _retirement_committed(ck, record.record_path, record['nonce'], intent)
+                        if committed is False:
+                            if old_path.exists() or hashlib.sha256(retired.read_bytes()).hexdigest() != spec['sha256']:
+                                raise ck.MinorConflict('owner-retirement-rollback-conflict') from None
+                            try:
+                                os.link(retired, old_path)  # Exclusive creation never overwrites a recreated slot.
+                                retired.unlink()
+                            except OSError as exc:
+                                raise ck.MinorConflict('owner-retirement-rollback-conflict') from exc
+                        elif committed is None:
+                            raise ck.MinorConflict('owner-retirement-commit-uncertain; archive preserved') from None
+        raise
+
+
 def migration_class(record: dict | None) -> tuple[set[str], set[str]]:
-    """(frozen migratable ids, individually named ids) from the `gap-migration` class.
+    """(approved migratable ids, individually named ids), including exact signed supplements.
 
     Works on a schema-2 record and on its per-member projection alike.
     """
     classes = ((record or {}).get("approvals") or {}).get("classes") or []
     entry = next((c for c in classes if isinstance(c, dict) and c.get("class") == "gap-migration"), None)
-    bound = {normalize_gap_id(str(i)) for i in (entry or {}).get("bound") or []} - {None}
-    named = {normalize_gap_id(str(i)) for i in (entry or {}).get("named") or []} - {None}
+    if entry is None:
+        entry = {}
+    bound = {normalize_gap_id(str(i)) for i in entry.get("bound") or []} - {None}
+    named = {normalize_gap_id(str(i)) for i in entry.get("named") or []} - {None}
+    for scope in historical_supplements(record):
+        bound.update(scope['request']['ids'])
+        named.update(scope['request']['named'])
     for grant in amendment_gap_grants(record):
         bound.add(grant["id"])
         if grant["named"]:
@@ -3517,6 +4026,7 @@ def next_minor(token: str) -> str:
 def migration_copy_status(
     ledgers: list[Ledger], target: str, source: Ledger, item: GapItem, *,
     label: str | None = None, allow_carried: bool = False, require_reason: bool = False,
+    proof_cache: dict[str, tuple[str, ...]] | None = None,
 ) -> tuple[str, tuple[Ledger, GapItem] | None]:
     """Prove one destination retains the source's title and complete reconciled body.
 
@@ -3532,6 +4042,8 @@ def migration_copy_status(
     )
 
     def proof_lines(body: str) -> list[str]:
+        if proof_cache is not None and body in proof_cache:
+            return list(proof_cache[body])
         lines = body.splitlines(keepends=True)
         mask, _ = fence_mask(lines)
         clean_lines = [re.sub(r"\S", " ", line) if mask[index] else line for index, line in enumerate(lines)]
@@ -3553,6 +4065,8 @@ def migration_copy_status(
             for comment in comments:
                 in_comment = comment.group(0) == "<!--"
             visible.append("" if mask[index] or was_in_comment or in_comment or comments else clean)
+        if proof_cache is not None:
+            proof_cache[body] = tuple(visible)
         return visible
 
     def origin_label(match: re.Match) -> str | None:
@@ -3582,6 +4096,10 @@ def migration_copy_status(
                 section_visible = bool(ledger_visible[index].strip())
             item_visible.append(section_visible and bool(ledger_visible[index].strip()))
         for copy in ledger.items:
+            # Every authoritative per-line match must contain this literal id.
+            # A whole-body regex can consume a second claim across newlines.
+            if item.gid not in copy.body:
+                continue
             lines = copy.body.splitlines(keepends=True)
             visible = proof_lines(copy.body)
             origins = []
@@ -3710,38 +4228,81 @@ def _ledger_blob(rctx: RepoContext, commit: str, rel: str, *, no_replace: bool =
     return "met", out
 
 
+def committed_ledger(rctx: RepoContext, commit: str, rel: str) -> tuple[str, list[GapItem]]:
+    """Within-check snapshots of immutable history, never live refs or failed reads."""
+    if rctx.budget.remaining() <= 0:
+        return "cannot-verify", []
+    immutable = re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', commit) is not None
+    key = (str(rctx.root), commit, rel)
+    cached = rctx.committed_ledgers.get(key) if immutable else None
+    if cached is not None:
+        state, items = cached
+        return state, [replace(item) for item in items]
+    command = [rctx.git, "-C", str(rctx.root)]
+    rc, _ = rctx.run(command + ["cat-file", "-e", f"{commit}:{rel}"])
+    if rc == -1:
+        return "cannot-verify", []
+    if rc != 0:
+        # A failed lookup alone cannot distinguish absence from unreadable history.
+        rc, _ = rctx.run(command + ["cat-file", "-e", f"{commit}^{{commit}}"])
+        if rc != 0:
+            return "cannot-verify", []
+        rc, out = rctx.run(command + ["ls-tree", "--name-only", commit, "--", rel])
+        if rc != 0 or out.strip():
+            return "cannot-verify", []
+        state, items = "unmet", []
+    else:
+        rc, out = rctx.run(command + ["show", f"{commit}:{rel}"])
+        if rc != 0:
+            return "cannot-verify", []
+        items, problems = parse_ledger_full(out)
+        if problems:
+            return "cannot-verify", []
+        state = "met"
+    if immutable:
+        rctx.committed_ledgers[key] = (state, tuple(replace(item) for item in items))
+    return state, items
+
+
 def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
     """`met` when the minor's ledger at `commit` already held item `gid`, else `unmet`.
 
     Every layout path is tried, so a ledger archived since `commit` still resolves.
-    `cannot-verify` when git cannot answer.
+    `cannot-verify` when git cannot answer or the history is unreadable.
     """
-    for rel in ledger_rels(*minor):
-        status, out = _ledger_blob(rctx, commit, rel)
-        if status == "cannot-verify":
-            return status
-        if status != "met":
-            continue
-        if any(item.gid == gid for item in parse_ledger(out)):
-            return "met"
-    return "unmet"
+    return items_at(rctx, commit, minor, gid)[0]
 
 
 def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> tuple[str, list[GapItem]]:
     """("met", the items with id `gid`) in the minor's ledger as committed at `commit`.
 
-    `unmet` with no items when no ledger held the id then; `cannot-verify` when git
-    cannot answer. Every layout path is tried, so an archived ledger still resolves.
+    Ledger text is reused through `_ledger_blob` (successful full-SHA reads only), and
+    every call parses afresh, so callers never share mutable items. A ledger that does
+    not parse cleanly, a spent budget, and a missing blob at a commit that does not
+    exist are `cannot-verify`: an unknown commit never proves absence. `unmet` means
+    the commit exists and no layout held the id.
     """
+    budget = getattr(rctx, "budget", None)
+    if budget is not None and budget.remaining() <= 0:
+        return "cannot-verify", []
+    any_blob = False
     for rel in ledger_rels(*minor):
         status, out = _ledger_blob(rctx, commit, rel)
         if status == "cannot-verify":
             return status, []
         if status != "met":
             continue
-        found = [item for item in parse_ledger(out) if item.gid == gid]
+        any_blob = True
+        items, problems = parse_ledger_full(out)
+        if problems:
+            return "cannot-verify", []
+        found = [item for item in items if item.gid == gid]
         if found:
             return "met", found
+    if not any_blob:
+        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}^{{commit}}"])
+        if rc != 0:
+            return "cannot-verify", []
     return "unmet", []
 
 
@@ -3929,7 +4490,7 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
     start = member.get('member_start_head') if record.get('scope') == 'member' else member.get('start_head')
     if not isinstance(start, str) or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', start) is None:
         return None
-    from minor_close import rewrite_links, rewrite_mentions
+    from minor_close import archive_link_mapper, rewrite_links, rewrite_mentions
     matches = []
     for tree in active:
         rel = f'{tree}/plans/{name}'
@@ -3941,7 +4502,7 @@ def archived_followon_plan(rctx: RepoContext, record: dict, member: dict, plan: 
         versions = list(PLAN_VERSION_RE.finditer(text))
         if len(versions) != 1 or 'v' + '.'.join(versions[0].groups()) != plan.version:
             return None
-        moved = lambda path: archive + path[len(tree):] if path == tree or path.startswith(tree + '/') else path
+        moved = archive_link_mapper(rctx.root, tree, archive)
         repaired, _ = rewrite_links(text, rel.rsplit('/', 1)[0], plan.rel.rsplit('/', 1)[0], moved)
         repaired, _ = rewrite_mentions(repaired, tree, archive, markdown=True)
         if ck.plan_hash_text(repaired) != member.get('plan_sha256'):
@@ -3981,16 +4542,159 @@ def _signed_original_plan(rctx: RepoContext, record: dict, member: dict, plan: P
     return Plan(source, plan.version, plan.order, plan.status, plan.slug, text)
 
 
-def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
-    """One OPEN, exact canonical copy; shared write preflight and read-only proof."""
+def legacy_planned_followon(rctx: RepoContext, record: dict, source_minor: tuple[int, int], item: GapItem | None, *, _decline_evaluation: tuple | None = None) -> str:
+    """A frozen legacy recording task plus its verified, unchanged publication body.
+
+    This is only called for explicitly bound ids proven absent at the approved
+    start. It does not interpret undocumented historical obligations as closed.
+    """
+    if (item is None or item.kind != 'DF' or item.sensitive() or item.state not in {'open', 'migrated'}
+            or source_minor != minor_of(str(record.get('minor') or 'v0.0'))):
+        return 'unmet'
+    body = item.body.replace('\r\n', '\n').strip()
+    source = re.findall(r'^- \*\*Source phase\*\*: (v\d+\.\d+\.\d+) Phase (\d+), (T\d{3,}) \(planned follow-on record,[^\n]*\)\.?$', body, re.MULTILINE)
+    if len(source) != 1 or section_version(item.section) != source[0][0]:
+        return 'unmet'
+    version, phase, task_id = source[0]
+    members = [m for m in record.get('members', []) if m.get('version') == version] if record.get('scope') == 'minor' else [record] if record.get('version') == version else []
+    if len(members) != 1:
+        return 'unmet'
+    import check_plan_completion as ck
+    try:
+        plans = [p for p in scan_plans(rctx.root, *source_minor) if p.version == version]
+    except (MinorMalformed, OSError, ValueError):
+        return 'cannot-verify'
+    member = members[0]
+    if len(plans) != 1 or plans[0].rel != member.get('plan_path') or ck.plan_hash_text(plans[0].text) != member.get('plan_sha256'):
+        return 'unmet'
+    current_plan = plans[0]
+    original = archived_followon_plan(rctx, record, member, current_plan, ck)
+    plan = original or current_plan
+    if current_plan.rel.startswith('docs/archives/') and original is None:
+        return 'unmet'
+    lines = plan.text.splitlines(keepends=True)
+    mask, unclosed = fence_mask(lines)
+    if unclosed:
+        return 'unmet'
+    text = ''.join('\n' if mask[n] else line for n, line in enumerate(lines))
+    tasks = list(re.finditer(r'^- \[[ xX]\] (T\d{3,}) (.+)$', text, re.MULTILINE))
+    matches = [task for task in tasks if task[1] == task_id]
+    if len(matches) != 1:
+        return 'unmet'
+    task = matches[0]
+    scope = re.fullmatch(r'Create the (v\d+\.\d+) ledger with the .+ deferral (docs/\S+/known-gaps\.md)', task[2])
+    if scope is None or scope[1] != 'v{}.{}'.format(*source_minor) or scope[2] not in ledger_rels(*source_minor):
+        return 'unmet'
+    phases = list(re.finditer(r'^## Phase (\d+):[^\n]*\n', text, re.MULTILINE))
+    preceding = [p for p in phases if p.start() < task.start()]
+    if not preceding or preceding[-1][1] != phase:
+        return 'unmet'
+    headers = list(re.finditer(r'^#### (\d+)\.(\d+) -(?:-)?[^\n]*\n', text, re.MULTILINE))
+    preceding = [h for h in headers if h.start() < task.start()]
+    if not preceding or preceding[-1][1] != phase:
+        return 'unmet'
+    end = min([m.start() for m in tasks + headers + phases if m.start() > task.start()] or [len(text)])
+    prompts = re.findall(r'^> (.+)$', text[task.end():end], re.MULTILINE)
+    if len(prompts) != 1 or not prompts[0].startswith(f'Create `{scope[2]}` in the heading format'):
+        return 'unmet'
+    title = MIGRATED_RE.sub('', item.title).rstrip()
+    title_text = re.sub(r'^\s*(?::|-)\s*', '', title)
+    declared = re.findall(r'Add `(DF-\d+) - ([^`]+)`', prompts[0])
+    declared = [(gid, name) for gid, name in declared if name == title_text]
+    if len(declared) != 1:
+        return 'unmet'
+    provisional = declared[0][0]
+    if provisional != item.gid:
+        mapping = f"The plan's provisional {provisional} maps to {item.gid} because inherited {provisional} already exists."
+        if body.count(mapping) != 1:
+            return 'unmet'
+        state, inherited = items_at(rctx, str(record.get('minor_start_head') or record.get('start_head') or ''), source_minor, provisional)
+        if state == 'cannot-verify':
+            return state
+        if len(inherited) != 1:
+            return 'unmet'
+    state, anchor = completion_anchor(ck, rctx, record, member, _decline_evaluation=_decline_evaluation)
+    if state != 'met' or not anchor:
+        return 'cannot-verify' if state == 'cannot-verify' else 'unmet'
+    command = [rctx.git, '-C', str(rctx.root)]
+    rc, oid = rctx.run(command + ['rev-parse', '--verify', f'{anchor}^{{commit}}'])
+    oid = oid.strip()
+    if rc != 0 or re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', oid) is None:
+        return 'cannot-verify'
+    if anchor.startswith('refs/tags/'):
+        rc, local = rctx.run(command + ['rev-parse', anchor])
+        if rc != 0:
+            return 'cannot-verify'
+        rc, remote = rctx.run(command + ['ls-remote', '--tags', 'origin', anchor])
+        if rc != 0:
+            return 'cannot-verify'
+        if remote.split() != [local.strip(), anchor]:
+            return 'unmet'
+    for older, newer in [(str(member.get('member_start_head') or member.get('start_head') or record.get('start_head') or ''), oid),
+                         (oid, 'refs/remotes/origin/' + str(record.get('approvals', {}).get('target_branch') or member.get('target_branch') or ''))]:
+        state = _ancestor(rctx, older, newer)
+        if state != 'met':
+            return state
+    rc, published_plan = rctx.run(command + ['show', f'{oid}:{plan.rel}'])
+    if rc != 0:
+        return 'cannot-verify'
+    if ck.plan_hash_text(published_plan) != ck.plan_hash_text(plan.text):
+        return 'unmet'
+    state, published = committed_ledger(rctx, oid, scope[2])
+    if state != 'met':
+        return 'cannot-verify'
+    entries = [gap for gap in published if gap.gid == item.gid]
+    if (len(entries) != 1 or entries[0].state != 'open' or entries[0].sensitive()
+            or sum(gap.title == title for gap in published) != 1):
+        return 'unmet'
+    original_item = entries[0]
+    expected_body = original_item.body
+    if original is not None:
+        from minor_close import rewrite_links, rewrite_mentions
+        active = scope[2].rsplit('/', 1)[0]
+        archive = ARCHIVE_TREE.format(M=source_minor[0], m=source_minor[1])
+        current_rel = archive + '/known-gaps.md'
+        def moved(path: str) -> str:
+            return archive + path[len(active):] if path == active or path.startswith(active + '/') else path
+        expected_body, _ = rewrite_links(expected_body, active, archive, moved)
+        expected_body, _ = rewrite_mentions(expected_body, active, archive, markdown=True)
+    else:
+        current_rel = scope[2]
+    try:
+        current_items, problems = parse_ledger_full((rctx.root / current_rel).read_text(encoding='utf-8'))
+        if problems:
+            return 'cannot-verify'
+        current = [gap for gap in current_items if gap.gid == item.gid]
+    except (OSError, UnicodeError):
+        return 'cannot-verify'
+    return 'met' if (len(current) == 1 and sum(MIGRATED_RE.sub('', gap.title).rstrip() == title for gap in current_items) == 1 and current[0].body.strip() == body and original_item.title == title
+                     and expected_body.replace('\r\n', '\n').strip() == body) else 'unmet'
+
+
+def planned_followon_copy(source: str, item: GapItem, copy: GapItem, *, source_rel: str | None = None,
+                          target_rel: str | None = None) -> bool:
+    """One OPEN exact canonical copy, allowing only the native relative-link repair.
+
+    Current recording bodies (`RECORDED_BODY_RE`) accept either the source patch or its
+    minor as the migration label; legacy single-line bodies keep their exact source label.
+    """
     body = item.body.replace('\r\n', '\n').strip()
     recorded = RECORDED_BODY_RE.fullmatch(body)
-    # The single-plan carry writer names the source patch; the minor writer
-    # names its minor. Both labels must identify this exact recording task.
-    if (recorded is None or section_version(item.section) != recorded['version']
-            or source != 'v{}.{}'.format(*minor_of(recorded['version']))):
+    if recorded is not None:
+        # The single-plan carry writer names the source patch; the minor writer
+        # names its minor. Both labels must identify this exact recording task.
+        if (section_version(item.section) != recorded['version']
+                or source != 'v{}.{}'.format(*minor_of(recorded['version']))):
+            return False
+        labels = '|'.join(re.escape(f'{version}#{item.gid}') for version in (source, recorded['version']))
+    else:
+        labels = re.escape(f'{source}#{item.gid}')
+    if source_rel is not None and target_rel is not None:
+        from minor_close import rewrite_links
+        body, _ = rewrite_links(body, source_rel.rsplit('/', 1)[0], target_rel.rsplit('/', 1)[0], lambda path: path)
+        body = body.replace('\r\n', '\n').strip()
+    elif source_rel is not None or target_rel is not None:
         return False
-    labels = '|'.join(re.escape(f'{version}#{item.gid}') for version in (source, recorded['version']))
     suffix = copy.body.replace('\r\n', '\n').strip().removeprefix(body)
     tail = (r'\n\n- \*\*Migrated from\*\*: (?:' + labels + ')'
             + r' on \d{4}-\d{2}-\d{2} \(reason: user-deferred\)'
@@ -4002,7 +4706,7 @@ def planned_followon_copy(source: str, item: GapItem, copy: GapItem) -> bool:
 
 def migration_gate(
     rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], gid: str,
-    current: GapItem | None,
+    current: GapItem | None, *, _decline_evaluation: tuple | None = None,
 ) -> tuple[str, str]:
     """(status, reason) for whether gap `source#gid` may migrate under `record`.
 
@@ -4020,6 +4724,13 @@ def migration_gate(
         if planned_followon(rctx, record, source_minor, current):
             return "met", "planned-follow-on"
         return "unmet", "migration-not-approved"
+    supplemental = historical_scope(record, pid)
+    claims = [scope for scope in historical_supplements(record) if pid in scope['request']['ids']]
+    if claims and (len(claims) != 1 or supplemental is None):
+        return 'unmet', 'supplemental-scope-ambiguous'
+    if supplemental is not None and pid in supplemental['request']['ids']:
+        status = historical_source_status(rctx, record or {}, pid, current)
+        return status, 'supplemental-approved' if status == 'met' else 'supplemental-history-unverified'
     start = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
     grant = next((g for g in amendment_gap_grants(record) if g["id"] == pid), None)
     if grant is not None:
@@ -4027,6 +4738,12 @@ def migration_gate(
     if not start:
         return "cannot-verify", "no-start-head"
     status, baseline = items_at(rctx, start, source_minor, gid)
+    if status == "unmet":
+        legacy = legacy_planned_followon(rctx, record or {}, source_minor, current, _decline_evaluation=_decline_evaluation)
+        if legacy == "met":
+            return "met", "planned-follow-on"
+        if legacy == "cannot-verify":
+            return legacy, "planned-followon-history-unreadable"
     if status != "met":
         return status, "created-during-run" if status == "unmet" else "history-unreadable"
     open_then = [item for item in baseline if item.state == "open"]
@@ -4174,7 +4891,7 @@ def reconciled_v414_carry(
 
 def verify_migration(
     rctx: RepoContext, record: dict | None, run_token: str,
-    ledgers: list[Ledger], ledger: Ledger, item: GapItem,
+    ledgers: list[Ledger], ledger: Ledger, item: GapItem, *, _decline_evaluation: tuple | None = None,
 ) -> tuple[str, str]:
     """(status, reason id) for one `- MIGRATED to vX.Y.Z` item in the gap scope.
 
@@ -4195,10 +4912,26 @@ def verify_migration(
         return "unmet", "migration-not-forward"
     if not target.endswith(".0"):
         return "unmet", "migration-target-not-minor-start"
+    pid = source + '#' + item.gid
+    claims = [scope for scope in historical_supplements(record) if pid in scope['request']['ids']]
+    if claims and (len(claims) != 1 or target != claims[0]['request']['destination']):
+        return 'unmet', 'supplemental-destination-not-approved'
     copy_reason, found = migration_copy_status(
         ledgers, target, ledger, item, allow_carried=True,
         require_reason=target_minor > minor_of(run_token),
+        proof_cache=rctx.migration_proof_lines,
     )
+    if copy_reason == 'migration-target-ambiguous':
+        source_version = section_version(item.section)
+        if (source_version is not None and minor_of(source_version) == ledger.minor
+                and sum(other.gid == item.gid for other in ledger.items) > 1
+                and sum(other.gid == item.gid and section_version(other.section) == source_version
+                        for other in ledger.items) == 1):
+            precise_reason, precise_copy = migration_copy_status(
+                ledgers, target, ledger, item, label=source_version + '#' + item.gid, allow_carried=True,
+                require_reason=target_minor > minor_of(run_token), proof_cache=rctx.migration_proof_lines)
+            if precise_copy is not None:
+                copy_reason, found = precise_reason, precise_copy
     if found is None:
         return "unmet", copy_reason
     if target_minor <= minor_of(run_token):
@@ -4208,13 +4941,13 @@ def verify_migration(
     if "v{}.{}".format(*target_minor) != next_minor(run_token):
         return "unmet", "migration-target-not-next-minor"
     copy = found[1]
-    gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
+    gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item, _decline_evaluation=_decline_evaluation)
     if (gate == "unmet" and reason == "migration-not-approved"
             and reconciled_v414_carry(rctx, record, ledgers, ledger, item, copy)):
         gate, reason = "met", "published-plan-carry"
     if gate != "met":
         return gate, reason
-    if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy):
+    if reason == "planned-follow-on" and not planned_followon_copy(source, item, copy, source_rel=ledger.rel, target_rel=found[0].rel):
         return "unmet", "planned-followon-copy-altered"
     if copy_reason != "migration-copy-complete":
         return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
@@ -4696,7 +5429,37 @@ def _merge_commit(ck: ModuleType, rctx: RepoContext, repo: str, branch: str) -> 
 GATE_VIOLATED = "violated"
 
 
-def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict) -> str:
+def completion_anchor(ck: ModuleType, rctx: RepoContext, record: dict | None, member: dict, *, _decline_evaluation: tuple | None = None) -> tuple[str, str | None]:
+    """A release keeps its tag anchor; a signed decline uses its verified merge."""
+    if (member.get("approvals") or {}).get("conditional_outcome") is None:
+        tag = str(member.get("tag") or member["version"])
+        return ck._tag_status(rctx, tag), "refs/tags/" + tag
+    if record is None:
+        return "cannot-verify", None
+    try:
+        ctx = ck.Context(str(rctx.root / member["plan_path"]), rctx.budget)
+        if ctx.plan_hash() != member["plan_sha256"]:
+            return "cannot-verify", None
+        view = record if record.get("scope") == "member" and record.get("version") == member["version"] else ck.project(record, member["version"])
+        if _decline_evaluation is None:
+            state, receipt = ck.conditional_status(ctx, view)
+        else:
+            receipt = (view or {}).get('approvals', {}).get('conditional_outcome')
+            proof = _decline_evaluation
+            if (not isinstance(proof, tuple) or len(proof) != 4 or proof[0] is not rctx
+                    or rctx.budget.remaining() <= 0 or proof[0].version != member['version']
+                    or not isinstance(proof[2], str) or not proof[2] or proof[2] != record.get('nonce')
+                    or proof[3] != member['plan_sha256'] or receipt is None
+                    or proof[1] != hashlib.sha256(ck._canonical(receipt)).hexdigest()):
+                return 'cannot-verify', None
+            state = 'met'
+        return state, receipt["request"]["merge"] if receipt else None
+    except (ck.Malformed, OSError, KeyError, TypeError, ObservationUnavailable):
+        return "cannot-verify", None
+
+
+def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict,
+                record: dict | None = None) -> str:
     """`member.gate` for one member: `met`, `n/a`, `unmet`, `cannot-verify`, or `violated`.
 
     Every member after the first must have passed `record member-start`: without a
@@ -4710,7 +5473,11 @@ def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | N
     if not isinstance(start, str) or not start:
         return "n/a" if previous is None else "unmet"
     if previous is not None:
-        tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
+        if (previous.get("approvals") or {}).get("conditional_outcome") is not None:
+            state, anchor = completion_anchor(ck, rctx, record, previous)
+            tag = _ancestor(rctx, anchor, start) if state == "met" and anchor else state
+        else:
+            tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
         if tag != "met":
             return GATE_VIOLATED if tag == "unmet" else tag
     state, merge = _merge_commit(ck, rctx, repo, str(member.get("source_branch") or ""))
@@ -4886,7 +5653,9 @@ def close_pr_status(
     members = ordered_members(record)
     if integration is None or not members:
         return "cannot-verify"
-    last_tag = f"refs/tags/{members[-1].get('tag') or members[-1].get('version')}"
+    anchor_status, last_tag = completion_anchor(ck, rctx, record, members[-1])
+    if anchor_status != "met" or not last_tag:
+        return anchor_status
     checks = [_ancestor(rctx, merge, integration), _ancestor(rctx, str(record.get("start_head") or ""), merge)]
     checks.append(_ancestor(rctx, last_tag, merge))
     if "unmet" in checks:
@@ -4968,7 +5737,7 @@ def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | N
     gates: list[str] = []
     previous: dict | None = None
     for member in members:
-        gates.append(member_gate(ck, rctx, repo, previous, member))
+        gates.append(member_gate(ck, rctx, repo, previous, member, record))
         previous = member
     for member, gate in zip(members, gates):
         if gate == GATE_VIOLATED:
@@ -5024,6 +5793,14 @@ def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | N
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
+    if getattr(args, 'detail', False) and verdict.code == ck.EXIT_BLOCKED and verdict.record is not None:
+        integration = _integration_ref(rctx, _target(verdict.record))
+        loaded = load_ledgers_at(rctx, integration) if integration else None
+        if loaded is None:
+            verdict.notices.append('diagnostic gaps.minor integration branch unreadable')
+        else:
+            gaps, notices = gaps_minor_status(ck, rctx, args.minor, verdict.record, loaded)
+            verdict.notices.extend([f'diagnostic gaps.minor {gaps}', *notices])
     for notice in [*verdict.notices, *rctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(verdict.line)
@@ -5146,7 +5923,7 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         major, minor = parse_minor(ck, token)
         plan = {p.version: p for p in scan_plans(rctx.root, major, minor)}[str(previous["version"])]
         result = evaluate_member(ck, rctx, record, previous, plan, [])
-        previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous)
+        previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous, record)
         gated = [status for predicate, status in result.lines if not predicate.startswith(("cleanup.", "archive."))]
         if previous_gate not in _MET or not result.lines or any(status not in _MET for status in gated):
             # A spent budget only ever yields cannot-verify, so it never explains a verified
@@ -5160,7 +5937,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
                 )
                 return _gate_refusal(ck, version, f"previous-member-unverified ({previous['version']})")
             return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
-        if _tag_in(rctx, str(previous.get("tag") or previous["version"]), tip) != "met":
+        anchor_status, anchor = completion_anchor(ck, rctx, record, previous)
+        if anchor_status != "met" or not anchor or _ancestor(rctx, anchor, tip) != "met":
             return _gate_refusal(ck, version, "back-merge-missing")
     coordinator_paths = member.get("coordinator_paths", [])
     if getattr(args, "coordinator_claims", None):
@@ -6036,11 +6814,13 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
             raise ck.Malformed(f"{args.member} is not a member of {token}")
     approved = ({str(c.get("class")) for c in member_classes(record, member) if isinstance(c, dict)}
                 if member else _classes(record))
-    if args.approval_class and args.approval_class in approved:
+    request = ck._json_request(getattr(args, 'request', '{}'))
+    uncovered = args.approval_class == 'gap-migration' and ck.uncovered_gap_request(record, request)
+    if args.approval_class and args.approval_class in approved and not uncovered:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
     entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
-             'approval_class': args.approval_class, 'request': ck._json_request(getattr(args, 'request', '{}')),
+             'approval_class': args.approval_class, 'request': request,
              'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
     if member is not None:
         entry["version"] = args.member
