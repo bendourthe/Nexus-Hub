@@ -126,17 +126,18 @@ describe("dashboard reset countdown", () => {
 });
 
 describe("status bar and hover", () => {
-  it("renders separate full and compact meters without inventing percentages", () => {
-    // The "Cursor Usage: " label is off by default (compact mode), like the sibling monitors.
+  it("renders both meters in the sibling monitors' format without inventing percentages", () => {
+    // The "Cursor Usage: " label is off by default, like the sibling monitors.
     expect(buildStatusText(fresh(), false)).toBe(
-      "$(cursor-icon)\u2002Cursor 80% \u00b7 Other 2,500 tokens"
+      "$(cursor-icon)\u2002" + "80% (cursor) 2,500 tokens (other)"
     );
     setConfiguration("cursorUsage.showStatusBarLabel", true);
     expect(buildStatusText(fresh(), false)).toBe(
-      "$(cursor-icon)\u2002Cursor Usage: Cursor 80% \u00b7 Other 2,500 tokens"
+      "$(cursor-icon)\u2002" + "Cursor Usage: 80% (cursor) 2,500 tokens (other)"
     );
+    // Compact only drops the prefix; the figures and labels stay the same.
     expect(buildStatusText(fresh(), true)).toBe(
-      "$(cursor-icon)\u2002C 80% \u00b7 O 2,500 tokens"
+      "$(cursor-icon)\u2002" + "80% (cursor) 2,500 tokens (other)"
     );
     expect(buildStatusText({ state: "empty", error }, false)).toContain("--");
   });
