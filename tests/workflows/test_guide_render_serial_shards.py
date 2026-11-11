@@ -65,6 +65,7 @@ WORKER_JOBS = (
     ("tests-windows-installer", "Windows installer profile group", "windows-installer"),
     ("tests-windows-validators", "Windows validators profile group", "windows-validators"),
     ("tests-windows-validators-2", "Windows validators profile group", "windows-validators-2"),
+    ("tests-windows-validators-3", "Windows validators profile group", "windows-validators-3"),
 )
 
 

@@ -37,10 +37,11 @@ def test_windows_core_is_required_and_selects_current_edition():
     floor = next(group for group in PROFILES["platform"] if group.name == "windows-installer")
     validators = next(group for group in PROFILES["platform"] if group.name == "windows-validators")
     validators_2 = next(group for group in PROFILES["platform"] if group.name == "windows-validators-2")
+    validators_3 = next(group for group in PROFILES["platform"] if group.name == "windows-validators-3")
     core = next(group for group in PROFILES["platform"] if group.name == "windows-installer-core")
     assert len(floor.commands) == 1
-    assert len(validators.commands) == 2 and len(validators_2.commands) == 2
-    floor_commands = floor.commands + validators.commands + validators_2.commands
+    assert len(validators.commands) == 2 and len(validators_2.commands) == 3 and len(validators_3.commands) == 1
+    floor_commands = floor.commands + validators.commands + validators_2.commands + validators_3.commands
     assert all(command.env.get("NEXUS_TEST_POWERSHELL") == "powershell" for command in floor_commands)
     assert core.commands[0].argv[0] == "pwsh"
     assert not core.commands[0].skip_if_missing

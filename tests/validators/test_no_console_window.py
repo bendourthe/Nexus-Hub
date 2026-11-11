@@ -73,7 +73,8 @@ def test_the_checker_run_from_a_hidden_process_opens_no_window() -> None:
 
 
 CAPTURED = {
-    "check_plan_completion.py": 4,
+    # The fifth is the conditional-decline evidence blob read (`_conditional_blob`).
+    "check_plan_completion.py": 5,
     "minor_close.py": 1,
     "cleanup_merged.py": 1,
     "completion_gate.py": 1,

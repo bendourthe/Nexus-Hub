@@ -125,8 +125,9 @@ describe("the panel agrees with `nexus-hub settings show --json`", () => {
     const rows = model.controls.flatMap((control) => control.rows.map((row) => ({ control: control.id, row })));
     expect(rows).toHaveLength(cli.records.length);
     for (const entry of cli.records) {
-      const match = rows.find((r) => r.control === entry.control && r.row.tool === entry.tool && r.row.surface === entry.surface);
-      expect(match, `${entry.control}/${entry.tool}/${entry.surface}`).toBeDefined();
+      const matches = rows.filter((r) => r.control === entry.control && r.row.tool === entry.tool && r.row.surface === entry.surface);
+      expect(matches, `${entry.control}/${entry.tool}/${entry.surface}`).toHaveLength(1);
+      const match = matches[0]!;
       expect(match!.row.state).toBe(entry.state);
       expect(match!.row.badge).toEqual(badgeFor(entry.state, entry.detail, entry.layer));
       expect(match!.row.value).toBe(entry.value);
@@ -134,33 +135,45 @@ describe("the panel agrees with `nexus-hub settings show --json`", () => {
       expect(match!.row.layerValue).toBe(entry.layer_value);
       expect(match!.row.removable !== null).toBe(entry.removable_override !== null);
     }
-    expect(model.controls.map((c) => c.id)).toEqual(["effort", "model", "posture", "attribution", "git_guardrails"]);
+    expect(model.controls.map((c) => c.id)).toEqual(["effort", "model", "posture", "attribution", "git_guardrails", "git_safety", "secret_scan", "edit_preservation", "large_file_warning"]);
     expect(model.outcome.rows.length).toBeGreaterThan(0);
   }, 90_000);
 });
 
 describe("changes made through the panel reach the real files and reverse exactly", () => {
-  it("sets effort, removes the legacy override after confirmation, and resets to identical files", async () => {
+  it("synchronizes shared effort and its existing user override, then removes and resets it to identical files", async () => {
     const { controller, confirm } = build();
     const before = { claude: sha(claudeFile()), codex: sha(path.join(home, ".codex", "config.toml")) };
+    const preferencesFile = path.join(home, ".nexus-hub", "preferences.json");
+    expect(fs.existsSync(preferencesFile)).toBe(false);
     await controller.refresh(true);
     const state = () => controller.current().controls.find((c) => c.id === "effort")!.rows.find((r) => r.tool === "claude")!;
     expect(state().state).toBe("overridden-by");
     expect(state().removable).not.toBeNull();
 
-    await controller.handle({ type: "set", control: "effort", value: "medium", tool: "claude" });
-    const written = JSON.parse(fs.readFileSync(claudeFile(), "utf8")) as { effortLevel?: string; modelSettings?: Record<string, { effortLevel: string }>; permissions: { allow: string[] } };
-    expect(written.effortLevel).toBe("medium");
+    await controller.handle({ type: "set", control: "effort", value: "medium", tool: null });
+    expect(JSON.parse(fs.readFileSync(claudeFile(), "utf8")).env.CLAUDE_CODE_EFFORT_LEVEL).toBe("medium");
+    expect(state()).toMatchObject({ state: "in-effect", value: "medium" });
+    await controller.handle({ type: "set", control: "effort", value: "high", tool: null });
+    const written = JSON.parse(fs.readFileSync(claudeFile(), "utf8")) as { effortLevel?: string; modelSettings?: Record<string, { effortLevel: string }>; env: Record<string, string>; permissions: { allow: string[] } };
+    expect(written.effortLevel).toBe("high");
+    expect(written.env.CLAUDE_CODE_EFFORT_LEVEL).toBe("high");
     expect(Object.keys(written.modelSettings ?? {}).length).toBeGreaterThan(0);
+    expect(Object.values(written.modelSettings ?? {}).every((entry) => entry.effortLevel === "high")).toBe(true);
     expect(written.permissions.allow).toEqual(["Bash(git status)"]);
-    expect(state().state).toBe("overridden-by");
+    expect(JSON.parse(fs.readFileSync(preferencesFile, "utf8")).default_effort).toBe("high");
+    const effortRows = controller.current().controls.find((control) => control.id === "effort")!.rows;
+    expect(effortRows.find((row) => row.tool === "internal")).toMatchObject({ state: "in-effect", value: "high" });
+    expect(effortRows.find((row) => row.tool === "codex")).toMatchObject({ state: "in-effect", value: "high" });
+    expect(fs.readFileSync(path.join(home, ".codex", "config.toml"), "utf8")).toContain('model_reasoning_effort = "high"');
+    expect(state()).toMatchObject({ state: "in-effect", value: "high" });
     expect(confirm).not.toHaveBeenCalled();
 
     const removed = await controller.handle({ type: "removeOverride", control: "effort", tool: "claude" });
     expect(removed.notice).toMatchObject({ level: "info" });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(JSON.parse(fs.readFileSync(claudeFile(), "utf8")).env?.CLAUDE_CODE_EFFORT_LEVEL).toBeUndefined();
-    expect(state()).toMatchObject({ state: "in-effect", value: "medium" });
+    expect(state()).toMatchObject({ state: "in-effect", value: "high" });
     expect(fs.existsSync(path.join(home, ".nexus-hub", "settings-panel-token.json"))).toBe(false);
 
     await controller.handle({ type: "reset", control: "effort", tool: null });
@@ -168,6 +181,7 @@ describe("changes made through the panel reach the real files and reverse exactl
 
     expect(sha(claudeFile())).toBe(before.claude);
     expect(sha(path.join(home, ".codex", "config.toml"))).toBe(before.codex);
+    expect(fs.existsSync(preferencesFile)).toBe(false);
     expect(state().state).toBe("overridden-by");
   }, 120_000);
 

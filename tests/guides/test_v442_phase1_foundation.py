@@ -58,7 +58,10 @@ def _open(browser, route: str = "home", **ctx):
     return context, page
 
 
-STATE = "() => window.NexusSeq.state(document.getElementById('nhg-loop'))"
+# The Home workflow strip left in the 2026-11-10 restructure; the Foundations prompt annotation is the
+# remaining looping sequencer, so it is the real instance these engine tests drive.
+SEQ = "fx-ann-prompt"
+STATE = f"() => window.NexusSeq.state(document.getElementById('{SEQ}'))"
 
 
 # ------------------------------------------------------------------ sequencer
@@ -67,40 +70,43 @@ STATE = "() => window.NexusSeq.state(document.getElementById('nhg-loop'))"
 def test_sequencer_advances_steps_in_document_order(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser)
+        context, page = _open(browser, "foundations")
         try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().running === true")
             seen = []
-            for _ in range(40):
+            # The annotation's steps last longer than the old Home strip's; allow up to 30 seconds.
+            for _ in range(250):
                 st = page.evaluate(STATE)
                 seen.append(st["step"])
                 if st["step"] >= st["total"]:
                     break
                 page.wait_for_timeout(120)
             on_order = page.evaluate(
-                "() => [...document.querySelectorAll('#nhg-loop .is-on')].map(e => +e.dataset.seq)"
+                f"() => [...document.querySelectorAll('#{SEQ} .is-on')].map(e => +e.dataset.seq)"
             )
         finally:
             browser.close()
     assert seen == sorted(seen), f"steps must only ever increase: {seen}"
-    assert seen[-1] == 6, f"all six loop steps must light: {seen}"
-    assert on_order == [1, 2, 3, 4, 5, 6]
+    assert seen[-1] == 4, f"all four annotation steps must light: {seen}"
+    # Each step lights a mark and its label, so every step appears, in order, for each element it owns.
+    # Each step lights a mark and its label, so every step is lit, once per element it owns.
+    assert sorted(on_order) == [1, 1, 2, 2, 3, 3, 4, 4], on_order
 
 
 def test_sequencer_pauses_offscreen_and_resumes_from_the_same_step(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser)
+        context, page = _open(browser, "foundations")
         try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().step >= 2")
             page.evaluate("window.scrollTo(0, 0)")            # loop leaves the viewport
             page.wait_for_function(f"({STATE})().running === false")
             frozen = page.evaluate(STATE)["step"]
             page.wait_for_timeout(1500)
             still = page.evaluate(STATE)["step"]
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().running === true")
             resumed = page.evaluate(STATE)["step"]
         finally:
@@ -112,9 +118,9 @@ def test_sequencer_pauses_offscreen_and_resumes_from_the_same_step(playwright_mo
 def test_sequencer_pauses_on_a_hidden_tab(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser)
+        context, page = _open(browser, "foundations")
         try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().running === true")
             page.evaluate(
                 "() => { Object.defineProperty(document, 'hidden', {configurable: true, get: () => true});"
@@ -133,27 +139,28 @@ def test_sequencer_pauses_on_a_hidden_tab(playwright_mod) -> None:
 def test_reduced_motion_reaches_the_end_state_without_scheduling(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser, reduced_motion="reduce")
+        context, page = _open(browser, "foundations", reduced_motion="reduce")
         try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator(f"#{SEQ}").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().step === ({STATE})().total")
             st = page.evaluate(STATE)
-            lit = page.evaluate("() => document.querySelectorAll('#nhg-loop .is-on').length")
-            done = page.evaluate("() => document.getElementById('nhg-loop').classList.contains('seq-done')")
+            lit = page.evaluate(f"() => document.querySelectorAll('#{SEQ} .is-on').length")
+            done = page.evaluate(f"() => document.getElementById('{SEQ}').classList.contains('seq-done')")
             # Under reduced motion play() is synchronous: nothing is left running to tick.
             page.wait_for_timeout(700)
             again = page.evaluate(STATE)
         finally:
             browser.close()
     assert st["reduced"] is True and st["running"] is False
-    assert lit == st["total"] == 6 and done
+    assert st["total"] == 4 and lit == 8 and done, "all four steps light both their mark and their label"
+
     assert again["step"] == st["step"] and again["running"] is False
 
 
 def test_malformed_step_is_skipped_with_a_warning_and_the_rest_run(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser)
+        context, page = _open(browser, "foundations")
         warnings: list[str] = []
         page.on("console", lambda m: warnings.append(m.text) if m.type == "warning" else None)
         try:
@@ -187,7 +194,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
-            context, page = _open(browser)
+            context, page = _open(browser, "foundations")
             sizes = page.evaluate(
                 "() => [...document.querySelectorAll('.section-title')]"
                 ".map(e => Math.round(parseFloat(e.getAttribute('data-fit-base'))))"
@@ -226,7 +233,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # Platforms, so Foundations contributes two titles fewer than it did at v4.4.2.
     # The requested Home and Foundations closing Next sections were removed.
     # v4.13.10 R47 folded the Home benefits figure into the hero, without its own title.
-    assert len(sizes) == 19, f"expected 19 section titles across the guide's three pages, found {len(sizes)}"
+    assert len(sizes) == 20, f"expected 20 section titles across the guide's three pages, found {len(sizes)}"
     assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
     # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
     # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now
@@ -252,7 +259,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
 def test_visible_text_says_nexus_hub_without_the_hyphen(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        context, page = _open(browser)
+        context, page = _open(browser, "foundations")
         try:
             leaks = page.evaluate(
                 f"""() => {{

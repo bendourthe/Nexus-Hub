@@ -5,10 +5,10 @@
     "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
     "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604",
     "scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
-    "scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894"
+    "scripts/dual_view.py": "0c01305b9ee976bb4c5beb994189cac5fb9816d56e1c4d98b65afa721485b17c"
   },
   "output": "docs/handbooks/distribution.html",
-  "output_sha256": "7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c",
+  "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb",
   "schema_version": 1,
   "sources": {
     "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",

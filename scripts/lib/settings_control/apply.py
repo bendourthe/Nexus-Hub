@@ -5,8 +5,8 @@ writes, their value maps, admission, and weakening values all come from
 `catalog.json`, so a catalog edit changes behavior with no code change. A write
 whose catalog row is Not-Settable is reported as skipped with the catalog's reason.
 
-The ownership record `~/.nexus-hub/settings-control.json` is the only record of
-user choices. It holds, per tool, file, and key path (a segment array), the first
+The shared effort choice lives in `~/.nexus-hub/preferences.json`. The ownership
+record `~/.nexus-hub/settings-control.json` holds, per tool, file, and key path (a segment array), the first
 previous value and the value Nexus-Hub wrote. `reset` restores a key only while its
 current value still equals what was written; otherwise it refuses, names both
 values, and drops the entry as user-owned. Entries whose tool, file, and key path do
@@ -49,7 +49,17 @@ from pathlib import Path
 from typing import Any, Callable, Iterator, Mapping
 
 from . import readers, resolve, writers
-from .catalog import MODEL_ID_SEGMENT, USER_FILE_IDS, WEAKENING_NATIVE, joined_key, load_claude_model_ids, write_groups
+from .catalog import (
+    MODEL_ID_SEGMENT,
+    PROFILE_ID_SEGMENT,
+    PROJECT_FILES,
+    USER_FILE_IDS,
+    WEAKENING_NATIVE,
+    joined_key,
+    load_claude_model_ids,
+    write_groups,
+)
+from .effort import codex_levels, mapped
 
 SCHEMA_VERSION = 1
 RECORD_NAME = "settings-control.json"
@@ -344,7 +354,7 @@ def _path_matches(row_path: list[str], entry_path: list[str]) -> bool:
     if len(row_path) != len(entry_path):
         return False
     return all(
-        (MODEL_ID.match(got) is not None) if want == MODEL_ID_SEGMENT else want == got
+        (MODEL_ID.match(got) is not None) if want in (MODEL_ID_SEGMENT, PROFILE_ID_SEGMENT) else want == got
         for want, got in zip(row_path, entry_path)
     )
 
@@ -403,6 +413,8 @@ def _split_record(ctx: Context, record: dict[str, Any]) -> tuple[list[tuple[dict
             tool = entry.get("tool") if isinstance(entry, dict) else "?"
             ignored.append(f"ignored a record entry that matches no catalog write ({tool} {shown})")
         else:
+            if matched.file in PROJECT_FILES and (ctx.project is None or entry.get("project") != str(ctx.project.resolve())):
+                continue  # another workspace's ownership is retained, never applied here
             good.append((entry, matched))
     return good, ignored
 
@@ -421,9 +433,9 @@ def owned_keys(ctx: Context) -> dict[str, Any]:
     return {"schema_version": SCHEMA_VERSION, "files": files, "dotted": dotted, "ignored": ignored}
 
 
-def _find(entries: list[dict[str, Any]], tool: str, file: str, key_path: list[str]) -> dict[str, Any] | None:
+def _find(entries: list[dict[str, Any]], tool: str, file: str, key_path: list[str], project: str | None = None) -> dict[str, Any] | None:
     for entry in entries:
-        if isinstance(entry, dict) and (entry.get("tool"), entry.get("file"), entry.get("key_path")) == (tool, file, key_path):
+        if isinstance(entry, dict) and (entry.get("tool"), entry.get("file"), entry.get("key_path"), entry.get("project")) == (tool, file, key_path, project):
             return entry
     return None
 
@@ -435,7 +447,7 @@ def _state(present: bool, value: Any) -> dict[str, Any]:
 def _upsert(record: dict[str, Any], base: dict[str, Any], change: writers.Change, *, file_created: bool) -> None:
     """Add or update one entry, keeping the first previous value of a repeated set."""
     path = list(change.key_path)
-    existing = _find(record["entries"], base["tool"], base["file"], path)
+    existing = _find(record["entries"], base["tool"], base["file"], path, base.get("project"))
     now = _now_text()
     if existing is not None:
         existing["new"] = _state(change.new_present, change.new)
@@ -446,8 +458,11 @@ def _upsert(record: dict[str, Any], base: dict[str, Any], change: writers.Change
         "previous": _state(change.previous_present, change.previous), "new": _state(change.new_present, change.new),
         "created_depth": change.created_depth, "file_created": file_created, "at": now,
     }
-    if change.removal and not change.new_present:
-        entry["restore_hint"] = change.removal  # the exact text taken out, so reset can put it back in place
+    if base.get("project") is not None:
+        entry["project"] = base["project"]
+    hint = base.get("restore_hint") or (change.removal if not change.new_present else None)
+    if hint:
+        entry["restore_hint"] = hint  # retain the original text and position across a later override removal
     record["entries"].append(entry)
 
 
@@ -588,10 +603,16 @@ def _plan_set(ctx: Context, control: dict[str, Any], value: str, tool: str | Non
             if write["admission"] != "admitted":
                 skipped.append(_result(*where[:3], where[3], "not-settable", write["not_settable_reason"]))
                 continue
+            if write["file"] in PROJECT_FILES and (ctx.project is None or not _user_path(ctx, write["file"]).exists()):
+                continue  # a shared default never creates a project override
             if not _installed(ctx, group.tool, installed):
                 skipped.append(_result(*where[:3], where[3], "tool-not-installed", f"{ctx.catalog['tools'][group.tool]['label']} is not installed on this machine"))
                 continue
             mappable, native, reason = _native_for(write, value)
+            if mappable and group.tool == "codex" and write["key_path"][-1] == "model_reasoning_effort":
+                source = readers.file_path("codex-user", ctx.home, ctx.env, ctx.project, ctx.platform)
+                read = readers.read_file("codex-user", source, str(source), ctx.project)
+                native = mapped(write, value, codex_levels(ctx.home, ctx.env, read.data if read.status == "ok" else {}))
             if not mappable:
                 skipped.append(_result(*where[:3], where[3], "not-settable", reason))
                 continue
@@ -608,12 +629,29 @@ def _plan_set(ctx: Context, control: dict[str, Any], value: str, tool: str | Non
                     }
                 )
                 continue
-            targets.append(Target(write, group.tool, write["file"], tuple(write["key_path"]), native, weakens))
+            target_write = dict(write, requested_effort=value) if PROFILE_ID_SEGMENT in write["key_path"] else write
+            targets.append(Target(target_write, group.tool, write["file"], tuple(write["key_path"]), native, weakens))
     return targets, editor, skipped
 
 
 def _expand_target(ctx: Context, target: Target, loaded: writers.Loaded) -> list[tuple[tuple[str, ...], Any]]:
     """Concrete (key path, value) pairs for a target: model ids and dict leaves expanded."""
+    if PROFILE_ID_SEGMENT in target.key_path:
+        profiles = loaded.data.get("profiles", {})
+        if not isinstance(profiles, dict):
+            return []
+        leaves = []
+        requested = target.write.get("requested_effort", "")
+        for name, profile in profiles.items():
+            if not MODEL_ID.match(name) or not isinstance(profile, dict) or "model_reasoning_effort" not in profile:
+                continue
+            levels = codex_levels(ctx.home, ctx.env, loaded.data, model=profile.get("model", loaded.data.get("model")))
+            value = mapped(target.write, requested, levels)
+            if value is not None:
+                leaves.append((("profiles", name, "model_reasoning_effort"), value))
+        return leaves
+    if target.write.get("only_when_present") and not writers.lookup(loaded.data, target.key_path)[0]:
+        return []
     if MODEL_ID_SEGMENT in target.key_path:
         at = list(target.key_path).index(MODEL_ID_SEGMENT)
         present = writers.lookup(loaded.data, target.key_path[:at])[1]
@@ -649,6 +687,14 @@ def _apply_group(ctx: Context, file: str, group: list[Target], dry_run: bool) ->
     path = _user_path(ctx, file)
     shown = _display(ctx, path)
     tool = group[0].tool
+    if file in PROJECT_FILES:
+        read = readers.read_file(USER_FILE_IDS[file], path, shown, ctx.project)
+        if read.status not in ("ok", "absent"):
+            return [_result(t.tool, t.write["id"], shown, t.key_path, "refused", read.detail) for t in group]
+        if tool == "codex":
+            user = _user_path(ctx, "~/.codex/config.toml")
+            if not readers.codex_project_trusted(readers.read_file("codex-user", user, str(user), ctx.project), ctx.project):
+                return [_result(t.tool, t.write["id"], shown, t.key_path, "skipped", "the project is not trusted by Codex") for t in group]
     try:
         loaded = writers.load(path, _fmt(file), shown)
     except writers.WriterRefusal as exc:
@@ -663,7 +709,13 @@ def _apply_group(ctx: Context, file: str, group: list[Target], dry_run: bool) ->
             continue
         for key_path, native in _expand_target(ctx, target, loaded):
             edits.append(writers.Edit(key_path, native))
-            bases.append({"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)})
+            base = {"kind": "file", "tool": tool, "file": file, "key_path": list(key_path)}
+            if file in PROJECT_FILES:
+                base["project"] = str(ctx.project.resolve())
+            if loaded.fmt == "json" and writers.lookup(loaded.data, key_path)[0] and (target.write.get("only_when_present") or target.write["id"] == "claude.effort.existing_env"):
+                removal = writers.plan_edits(loaded, [writers.Edit(key_path, writers.ABSENT)])
+                base["restore_hint"] = removal.changes[0].removal
+            bases.append(base)
             owners[key_path] = target
     if not edits:
         return results
@@ -856,6 +908,10 @@ def _reset_file(
 ) -> list[dict[str, Any]]:
     path = _user_path(ctx, file)
     shown = _display(ctx, path)
+    if file in PROJECT_FILES:
+        read = readers.read_file(USER_FILE_IDS[file], path, shown, ctx.project)
+        if read.status not in ("ok", "absent"):
+            return [_result(m.tool, m.row["id"], shown, e["key_path"], "refused", read.detail) for e, m in items]
     out: list[dict[str, Any]] = []
     try:
         loaded = writers.load(path, _fmt(file), shown)
