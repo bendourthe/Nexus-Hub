@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Document style rules for generated documents.** A new rule, `catalog/rules/documents/document-style.md`, sets five rules for every Word, PowerPoint, HTML, and Markdown document an agent generates or edits. Table headers stay neutral (`#262626`, white bold text) when rows carry category colors. Rows alternate `#FFFFFF` and `#F2F2F2`, or a category tint and that tint 55 percent toward white. Packed enumerations become bullets, and a highlighted lead-in's formatting ends at the colon. The Word report generator and the dual-view HTML builder apply the table and lead-in rules in code, and the anti-slop detector flags the enumeration and lead-in patterns as advisory. The document skills link to the rule instead of copying it.
+
 ### Changed
 
 - **Interactive guide: Home follows the README.** Home now runs Installation, The Development Workflow, Centralized IDE Settings, Usage Monitors, Handoffs, Platform Coverage, and Why Nexus Hub, and shows the README's own workflow, settings, usage, handoff, and platform animations as each section scrolls into view (still posters under reduced motion). Repeated content left Home: the workflow command strip, the static platform-switch mockup, the Skills, Hooks, and Governance cards, and the guardrail text columns; the built-in command comparison moved to Cheatsheets. The installer terminal keeps a fixed 350-pixel frame that scrolls to the newest line, and the version step lists each command once. The animations ship in `guides/website/assets/` ([decision](docs/decisions/implemented/architecture/2026-11-10-guide-home-shows-readme-animations.md)).
