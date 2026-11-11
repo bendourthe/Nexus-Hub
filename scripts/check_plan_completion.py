@@ -894,6 +894,23 @@ def _load_schema1(
     return state
 
 
+def _semver_key(value: object) -> tuple[int, int, int] | None:
+    """`(major, minor, patch)` for an exact `vX.Y.Z`, else None (malformed members never sort)."""
+    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", value) if isinstance(value, str) else None
+    return (int(match[1]), int(match[2]), int(match[3])) if match else None
+
+
+def _successors(record: dict, version: str) -> list[dict]:
+    """Later well-formed members in version order; malformed entries are left to the member gates."""
+    own = _semver_key(version)
+    if own is None:
+        return []
+    later = [m for m in record.get("members") or [] if isinstance(m, dict)
+             and (key := _semver_key(m.get("version"))) is not None and key > own]
+    return [{key: m.get(key) for key in ("version", "source_branch", "target_branch", "start_head")}
+            for m in sorted(later, key=lambda m: _semver_key(m.get("version")))]
+
+
 def project(record: dict, version: str) -> dict | None:
     """The per-plan view of a record, so `evaluate`, the gates, and the runner keep one path.
 
@@ -953,11 +970,7 @@ def project(record: dict, version: str) -> dict | None:
         # Ordinary new gaps never migrate; exact frozen recording tasks have a separate disposition.
         "minor_start_head": record.get("start_head"),
         **({"amendment_gap_grants": cm.amendment_gap_grants(record)} if "minor_amendments" in record else {}),
-        "successors": [
-            {key: later.get(key) for key in ("version", "source_branch", "target_branch", "start_head")}
-            for later in sorted(record.get("members") or [], key=lambda m: tuple(int(p) for p in m["version"].lstrip("v").split(".")))
-            if tuple(int(p) for p in later["version"].lstrip("v").split(".")) > tuple(int(p) for p in version.lstrip("v").split("."))
-        ],
+        "successors": _successors(record, version),
         "nonce": record.get("nonce"),
         "created": record.get("created"),
         "approvals": approvals,

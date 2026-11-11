@@ -4151,19 +4151,44 @@ def committed_ledger(rctx: RepoContext, commit: str, rel: str) -> tuple[str, lis
 
 
 def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
-    """Whether a committed ledger held the id; unreadable history stays unknown."""
+    """`met` when the minor's ledger at `commit` already held item `gid`, else `unmet`.
+
+    Every layout path is tried, so a ledger archived since `commit` still resolves.
+    `cannot-verify` when git cannot answer or the history is unreadable.
+    """
     return items_at(rctx, commit, minor, gid)[0]
 
 
 def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> tuple[str, list[GapItem]]:
-    """Read the first layout holding the id, sharing immutable ledger snapshots."""
+    """("met", the items with id `gid`) in the minor's ledger as committed at `commit`.
+
+    Ledger text is reused through `_ledger_blob` (successful full-SHA reads only), and
+    every call parses afresh, so callers never share mutable items. A ledger that does
+    not parse cleanly, a spent budget, and a missing blob at a commit that does not
+    exist are `cannot-verify`: an unknown commit never proves absence. `unmet` means
+    the commit exists and no layout held the id.
+    """
+    budget = getattr(rctx, "budget", None)
+    if budget is not None and budget.remaining() <= 0:
+        return "cannot-verify", []
+    any_blob = False
     for rel in ledger_rels(*minor):
-        state, items = committed_ledger(rctx, commit, rel)
-        if state == "cannot-verify":
-            return state, []
+        status, out = _ledger_blob(rctx, commit, rel)
+        if status == "cannot-verify":
+            return status, []
+        if status != "met":
+            continue
+        any_blob = True
+        items, problems = parse_ledger_full(out)
+        if problems:
+            return "cannot-verify", []
         found = [item for item in items if item.gid == gid]
         if found:
             return "met", found
+    if not any_blob:
+        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}^{{commit}}"])
+        if rc != 0:
+            return "cannot-verify", []
     return "unmet", []
 
 

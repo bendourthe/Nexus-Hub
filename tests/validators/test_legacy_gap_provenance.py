@@ -7,7 +7,7 @@ import dataclasses
 import pytest
 
 from .test_gap_migration_and_archive import Close, GAPS05, ledger, section
-from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
+from .test_check_plan_completion import _isolated_git_config  # noqa: F401
 from .test_completion_minor_record import _no_transport_overrides  # noqa: F401
 
 import check_plan_completion as ck

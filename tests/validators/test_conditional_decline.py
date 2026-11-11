@@ -358,6 +358,7 @@ def test_native_capture_archive_and_recheck(tmp_path, monkeypatch, technical_blo
         "> On a full decline, stop after the merge: no tag, per the owner's release decision.\n"
     )
 
+    legacy_entry = ""
     if legacy:
         from .test_legacy_gap_provenance import FROZEN_PLAN, ENTRY
         plan = plan.replace("## Phase 1\n", "## Phase 1: Preflight\n")
@@ -832,7 +833,7 @@ def test_fresh_queries_real_subprocesses_stop_at_shared_deadline(decline, fresh_
         if sys.platform == "win32":
             import ctypes
 
-            from ctypes import wintypes
+            import ctypes.wintypes as wintypes
 
             assert pid > 0
             kernel = ctypes.WinDLL("kernel32", use_last_error=True)
