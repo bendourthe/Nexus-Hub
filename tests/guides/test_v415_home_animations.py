@@ -16,8 +16,12 @@ WEB = ROOT / "guides" / "website"
 GUIDE = WEB / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 ANIMATIONS = ("workflow", "settings", "usage", "continuity", "platforms")
-HOME_ORDER = ["Installation", "The Development Workflow", "Centralized IDE Settings", "Usage Monitors", "Handoffs",
-              "Platform Coverage", "Why Nexus Hub"]
+# 2026-11-10 (second pass): the maintainer's order; the hero above Installation already says what Nexus Hub is.
+HOME_ORDER = ["Installation", "Platform Coverage", "The Development Workflow", "Centralized IDE Settings", "Handoffs",
+              "Usage Monitors", "Why Nexus Hub"]
+HOME_ANIMATION_ORDER = ("platforms", "workflow", "settings", "continuity", "usage")
+WHY_CARDS = ["Every Platform", "Expert Skills", "Repeatable Workflow", "Enforced Guardrails", "One Settings Panel",
+             "Continuity"]
 
 
 def _home() -> str:
@@ -41,8 +45,23 @@ def test_each_animation_is_a_byte_identical_readme_copy_with_a_poster(name: str)
 def test_home_follows_the_readme_order_without_the_repeated_sections() -> None:
     home = _home()
     assert re.findall(r'<h2 data-ty="h2" class="section-title">([^<]+)</h2>', home) == HOME_ORDER
-    for removed in ('id="nhg-how"', 'class="ph-switch"', 'id="nhg-loop"', "Raw Prompting vs Nexus Hub", 'class="tbl-migrate"'):
+    for removed in ('id="nhg-how"', 'class="ph-switch"', 'id="nhg-loop"', "Raw Prompting vs Nexus Hub", 'class="tbl-migrate"',
+                    'id="nhg-guardrails"', 'class="guard-fig"', 'class="cmp"'):
         assert removed not in home, f"{removed} left Home in the 2026-11-10 restructure"
+
+
+def test_why_nexus_hub_closes_with_one_card_per_benefit_and_a_call_to_action() -> None:
+    home = _home()
+    why = home[home.index('id="nhg-why"') :]
+    cards = re.findall(r'<li class="why-card seq-rise" data-seq="(\d)"[^>]*>(.*?)</li>', why, re.DOTALL)
+    assert [re.search(r"<h3[^>]*>([^<]+)</h3>", body).group(1) for _, body in cards] == WHY_CARDS
+    assert [int(n) for n, _ in cards] == list(range(1, len(WHY_CARDS) + 1)), "cards reveal in reading order"
+    for _, body in cards:
+        assert 'class="why-with"' in body and '<span data-ty="eyebrow" data-tone="warn" class="why-tag">Without</span>' in body
+    assert "data-seq-root" in why and '<span data-count="skills">' in why
+    assert '<a class="btn btn--primary" href="#home/install" data-go="home/install">' in why
+    assert '<a class="btn" href="training.html" data-training-link>' in why
+    assert "makes ai safe" not in re.sub(r"<[^>]+>", " ", why).lower(), "an enforcement statement, not a safety guarantee"
 
 
 def test_the_builtin_comparison_lives_on_cheatsheets() -> None:
@@ -82,7 +101,7 @@ def test_reduced_motion_shows_the_still_posters(playwright_mod) -> None:
               return imgs.map(i => [i.currentSrc.split('/').pop(), i.naturalWidth > 0]); }""")
         finally:
             browser.close()
-    assert [name for name, _ in sources] == [f"nexus-hub-{n}.png" for n in ANIMATIONS], sources
+    assert [name for name, _ in sources] == [f"nexus-hub-{n}.png" for n in HOME_ANIMATION_ORDER], sources
     assert all(loaded for _, loaded in sources), sources
 
 
@@ -103,3 +122,27 @@ def test_the_installer_terminal_keeps_its_newest_line_in_a_fixed_frame(playwrigh
         finally:
             browser.close()
     assert frame == {"height": 350, "scrolled": True, "inView": True}, frame
+
+
+def test_why_cards_reveal_on_scroll_and_the_install_button_returns_to_installation(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            results = {}
+            for motion in ("no-preference", "reduce"):
+                page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion=motion)
+                page.goto(GUIDE.as_uri())
+                page.wait_for_function("window.NexusSeq")
+                hidden = page.evaluate("() => [...document.querySelectorAll('#nhg-why .why-card')].filter(c => getComputedStyle(c).opacity === '0').length")
+                page.locator("#nhg-why-grid").scroll_into_view_if_needed()
+                page.wait_for_function("() => { const s = NexusSeq.state(document.getElementById('nhg-why-grid')); return s && s.step === s.total; }", timeout=5000)
+                page.wait_for_timeout(600)
+                shown = page.evaluate("() => [...document.querySelectorAll('#nhg-why .why-card')].every(c => getComputedStyle(c).opacity === '1')")
+                page.click('#nhg-why a[data-go="home/install"]')
+                page.wait_for_function("() => Math.abs(document.getElementById('nhg-install').getBoundingClientRect().top) < 2", timeout=5000)
+                results[motion] = (hidden, shown, page.evaluate("location.hash"))
+                page.close()
+        finally:
+            browser.close()
+    assert results["no-preference"] == (6, True, "#home/install"), results
+    assert results["reduce"][1:] == (True, "#home/install"), results

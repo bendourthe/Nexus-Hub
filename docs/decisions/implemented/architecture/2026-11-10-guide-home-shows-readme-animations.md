@@ -1,6 +1,6 @@
 # Decision: The guide's Home shows the README animations as files beside the guide
 
-Status: implemented - Home follows the README's order and shows the README's own workflow, settings, usage, continuity, and platforms animations from `guides/website/assets/`, with still posters under reduced motion. The guide's 500,000-byte ceiling is unchanged.
+Status: implemented - Home shows the README's own workflow, settings, usage, continuity, and platforms animations from `guides/website/assets/`, with still posters under reduced motion. The guide's 500,000-byte ceiling is unchanged.
 
 ## Problem
 
@@ -10,11 +10,13 @@ A first attempt embedded the Settings and usage tour as one live widget. The mai
 
 ## Decision
 
-Home shows each README animation in its own section, in the README's order: Installation, The Development Workflow, Centralized IDE Settings, Usage Monitors, Handoffs, Platform Coverage, and a closing Why Nexus Hub.
+Home shows each README animation in its own section, in the maintainer's order: Installation, Platform Coverage, The Development Workflow, Centralized IDE Settings, Handoffs, Usage Monitors, and a closing Why Nexus Hub. The hero above Installation already states what Nexus Hub is, so the page can lead with how to get it and where it works before the workflow and the add-ons.
 
 - The animations are the README's own GIFs and still PNG posters, copied byte for byte into `guides/website/assets/` beside `ml-boat.webp`. A `<picture>` element shows the poster under `prefers-reduced-motion`; images load lazily as Home scrolls. No script drives them.
 - A guide test fails when a copy differs from `assets/readme/`, so a README re-render and the guide copies move together.
-- Redundant content leaves Home: the command strip that the workflow animation already shows, the static platform-switch mockup that the handoff animation replaces, the Skills, Hooks, and Governance cards, and the guardrail text columns. Why Nexus Hub keeps the guardrail figure and the five before-and-after rows. The built-in command comparison moves to the Cheatsheets page under Harness and Session Management.
+- Redundant content leaves Home: the command strip that the workflow animation already shows, the static platform-switch mockup that the handoff animation replaces, the Skills, Hooks, and Governance cards, and the guardrail text columns. The built-in command comparison moves to the Cheatsheets page under Harness and Session Management.
+
+- Why Nexus Hub is a closing argument, not another explainer: six benefit cards in the order of the sections above (Every Platform, Expert Skills, Repeatable Workflow, Enforced Guardrails, One Settings Panel, Continuity), each with what Nexus Hub adds and a muted "Without" line, then an Install and Training call to action. The cards fade in quickly through the shared sequencer as the section scrolls into view, and show at once under reduced motion. The guardrail ring figure and the five-row comparison left Home: the figure explained only safety, and the Foundations Harnesses section already covers hooks and guardrails.
 
 ## Alternatives considered
 
@@ -22,10 +24,14 @@ Home shows each README animation in its own section, in the README's order: Inst
 
 **Animated WebP instead of GIF.** Measured larger than the GIFs for these flat interface captures (for example 0.85 MB against 0.36 MB for the handoff), so the README's GIFs are used unchanged.
 
+**Keep the README's section order on Home.** Matches the README section for section, but the guide's hero already answers what Nexus Hub is, and the maintainer chose to show where it works before the workflow. The README keeps its own order.
+
+**Keep the guardrail ring figure as the closing section.** It explained one benefit in detail and did not read as a summary; the maintainer found its style and animation weak. Rejected for the benefits summary.
+
 **Keep every existing Home illustration and only add the animations.** Leaves the repetition the review called out and makes Home longer. Rejected.
 
 ## Consequences
 
 - Sharing the guide still means sending `nexus-hub-guide.html` and `training.html` with the `assets/` folder; that folder grows by about 3.6 MB. The portfolio copy needs the same files.
-- The HTML falls to about 487,000 bytes, so the 500,000-byte ceiling from the 2026-10-04 decision stands.
+- The HTML falls to about 480,000 bytes, so the 500,000-byte ceiling from the 2026-10-04 decision stands.
 - When the README animations are re-rendered, copy the new files into `guides/website/assets/` in the same change.

@@ -204,15 +204,15 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # descriptive sentences for short labels. The ORDER is the contract this guards;
 # the wording is the guide's to choose and is pinned here exactly so a silent
 # drift still fails.
-# 2026-11-10: Home follows the README order, with the README animations in their own sections.
+# 2026-11-10: Home keeps the README animations in their own sections, in the maintainer's order.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
     "Installation",
+    "Platform Coverage",
     "The Development Workflow",
     "Centralized IDE Settings",
-    "Usage Monitors",
     "Handoffs",
-    "Platform Coverage",
+    "Usage Monitors",
     "Why Nexus Hub",
 ]
 
@@ -309,30 +309,13 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
             drop = {"nhg-benefits": ", .hb-ill, .platform-rail"}
             counts = {key: _section_words(page, sid, drop.get(sid, "")) for key, sid in ids.items()}
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
-            merged = _new_block_words(page, "#nhg-guardrails .cmp")
         finally:
             browser.close()
     for key, words in counts.items():
         ceiling = fixture[key]["v412_words"] * 2 // 3
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
-    # The before-and-after rows (now inside Why Nexus Hub) replace v4.1.2's "The difference".
-    assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
     # The one-install figure stays a figure: named platforms, not prose.
     assert 10 <= portability <= 120, f"the portability figure is {portability} words"
-
-
-def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw)
-        try:
-            sizes = page.evaluate(
-                "() => [...document.querySelectorAll('.cmp-side')].map(e => parseFloat(getComputedStyle(e).fontSize))"
-            )
-            rows = page.evaluate("() => document.querySelectorAll('#page-home .cmp-row').length")
-        finally:
-            browser.close()
-    assert sizes and all(abs(s - 26) < 0.5 for s in sizes), sizes   # v4.4.1 rendered 13px
-    assert rows == 5
 
 
 def test_footer_attribution_is_visible_on_every_page_and_absent_from_home_flow(playwright_mod) -> None:
@@ -405,41 +388,13 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
-            data = page.evaluate(
-                """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.dataset.hook),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.dataset.hook),
-                    text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
-                })"""
-            )
+            text = page.evaluate("() => document.getElementById('nhg-why').innerText.toLowerCase()")
         finally:
             browser.close()
-    assert len(data["ports"]) == 6
-    for name in data["ports"]:
+    # The Enforced Guardrails card names two blocks: saving a password and erasing history.
+    for name in ("secret-scan", "git-guardrails"):
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
         assert name in registered, f"{name} is not registered in settings.json"
-    assert data["blocked"], "no attempt names the hook that blocked it"
-    for hook in data["blocked"]:
-        assert hook in data["ports"], hook
-    assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
-
-
-def test_guardrails_choreography_reaches_a_fully_blocked_end_state(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw, reduced_motion="reduce")
-        try:
-            page.locator("#nhg-guard-fig").scroll_into_view_if_needed()
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.getElementById('nhg-guard-fig')); return s && s.step === s.total; }"
-            )
-            data = page.evaluate(
-                """() => ({
-                    total: window.NexusSeq.state(document.getElementById('nhg-guard-fig')).total,
-                    lit: document.querySelectorAll('#nhg-guard-fig .is-on').length,
-                    blocks: document.querySelectorAll('#nhg-guard-fig .gf-out--stop').length,
-                })"""
-            )
-        finally:
-            browser.close()
-    assert data["total"] == 3 and data["lit"] == 3 and data["blocks"] == 2
+    assert "saving a password" in text and "erasing history" in text, text
+    assert "makes ai safe" not in text, "claims must be enforcement statements, not a safety guarantee"
