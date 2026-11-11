@@ -1,0 +1,25 @@
+{
+  "source": "installed-native-checker",
+  "files": [
+    {
+      "path": "scripts/check_plan_completion.py",
+      "sha256": "3b65655afa41021b48f685799c49e75cd810842627239b80263069d1e7f6eb02"
+    },
+    {
+      "path": "scripts/completion_minor.py",
+      "sha256": "618f7b8c3e2df38bb193cebf895a5e84dbebdd15b78ec9ea3456fcda0244ad74"
+    },
+    {
+      "path": "scripts/minor_close.py",
+      "sha256": "f2fa4ed42b4953c0a5213191a7a29727881383b1e3b913a3de33681afa53a0f3"
+    },
+    {
+      "path": "scripts/approval_binding.py",
+      "sha256": "190073b8e846a6427d50762b442340622d3e11aa4b299e919c574a8c5dfa00b5"
+    },
+    {
+      "path": "scripts/approval_page.py",
+      "sha256": "9b8394172613eab72aab56e4f0cbfd22b22eb4ad571f7d7be8e0be89feb7c387"
+    }
+  ]
+}
