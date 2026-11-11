@@ -23,3 +23,11 @@ Generated documents used a theme or brand color for table headers. When rows wer
 - **Put the rules in `catalog/style-guides/`.** Rejected: style guides are reference files an agent opens on demand, while `catalog/rules/` files load into agent context on the platforms that read rules, which is what "every agent applies them" needs.
 - **Make the new detector patterns defects.** Rejected: `**Field**: value` metadata appears throughout existing plans and docs, so a defect class would fire hundreds of times on legitimate history and nobody would gate on it. Advisory informs the edit pass without blocking it.
 - **Apply the HTML defaults in `assets/presentation-template.html`.** Deferred, not rejected: the `html-responsive-guard` hook blocks any edit to that template while its three existing `max-width: var(--measure)` text caps remain, and removing those caps changes the presentify layout, which is outside this change.
+
+## Consequences
+
+- Word reports from `generate_report.py` now render a dark-gray table header instead of blue, and every bold lead-in ends at its colon.
+- The overview and distribution handbooks embed the dual-view CSS, so they were rebuilt and re-reviewed; any later change to that CSS invalidates their receipts the same way.
+- The detector's advisory output now lists `lead-in-format-boundary` for existing `**Field**: value` metadata. No gate changes.
+- HTML banding alternates by row position, while the Word generator restarts the alternation at each category; both satisfy the rule.
+- `assets/presentation-template.html` and the other HTML reference templates keep their previous table styling until their text caps are fixed in a separate change.
