@@ -1,517 +1,237 @@
-// The Nexus-Hub Settings panel (webview side).
-//
-// It draws the view model the extension host sends, and posts back small request
-// messages. It never builds markup from a string: every value from the engine is set
-// with textContent or a plain attribute, so a hostile model id or file value cannot
-// become markup or script. The host validates every request again.
-//
-// Two rules keep the page usable from the keyboard and by screen reader. While the host
-// is busy a control is marked aria-disabled and ignores clicks but stays focusable and
-// keeps its place, because a control that is really disabled cannot hold focus and the
-// next render would then leave focus on the page body. And a notice is spoken through
-// two live regions that exist before any text is put in them, because text inside an
-// element that is created with its text is usually not announced.
+// The webview draws trusted engine data as text and sends only allowlisted control values.
 (function (root, factory) {
   "use strict";
   var api = factory();
-  if (typeof module === "object" && module.exports) {
-    module.exports = api;
-  } else {
-    api.boot(root);
-  }
+  if (typeof module === "object" && module.exports) { module.exports = api; }
+  else { api.boot(root); }
 })(typeof window !== "undefined" ? window : globalThis, function () {
   "use strict";
-
-  var ICONS = { check: "icon-check", dot: "icon-dot", warning: "icon-warning", lock: "icon-lock", info: "icon-info", x: "icon-x", question: "icon-question" };
-
+  var GUARDS = [
+    ["git_safety", "Git safety", "Block dangerous Git commands."],
+    ["secret_scan", "Secret scanning", "Check writes for exposed credentials."],
+    ["edit_preservation", "Protect my edits", "Check before overwriting changes."],
+    ["large_file_warning", "Large-file warnings", "Warn before unusually large writes."],
+    ["git_guardrails", "Block Git bypass flags", "Prevent skipping hooks or commit signing."],
+  ];
+  var ENGINE_UPDATE = "Update the Nexus-Hub settings engine to use all guardrail switches.";
   function createPanel(doc, post) {
     var app = doc.getElementById("app");
-    var drafts = {};
-    var starts = {};
-    var openSources = {};
-    var announced = "";
     var model = null;
-    var sequence = 0;
-
-    function el(tag, attrs, kids) {
+    var pending = false;
+    var drafts = {};
+    var announced = "";
+    var detailsOpen = false;
+    var effortDetailsOpen = false;
+    function el(tag, attrs, children) {
       var node = doc.createElement(tag);
-      var props = attrs || {};
-      Object.keys(props).forEach(function (name) {
-        var value = props[name];
-        if (value === null || value === undefined || value === false) {
-          return;
-        }
-        if (name === "text") {
-          node.textContent = value;
-        } else if (name === "class") {
-          node.setAttribute("class", value);
-        } else if (name === "on") {
-          Object.keys(value).forEach(function (type) {
-            node.addEventListener(type, value[type]);
-          });
-        } else {
-          node.setAttribute(name, value === true ? "" : String(value));
-        }
+      Object.keys(attrs || {}).forEach(function (key) {
+        var value = attrs[key];
+        if (value === undefined || value === null || value === false) { return; }
+        if (key === "text") { node.textContent = value; }
+        else { node.setAttribute(key, value === true ? "" : String(value)); }
       });
-      (kids || []).forEach(function (kid) {
-        if (kid) {
-          node.appendChild(kid);
-        }
-      });
+      (children || []).forEach(function (child) { if (child) { node.appendChild(child); } });
       return node;
     }
-
-    function text(tag, value, cls) {
-      return el(tag, { text: value, class: cls });
+    function text(tag, value, cls) { return el(tag, { text: value, class: cls }); }
+    function blocked() { return !model || model.readOnly || model.busy || pending; }
+    function send(message) {
+      if (blocked()) { return; }
+      pending = true;
+      app.querySelectorAll("select, button[data-setting]").forEach(function (control) { control.setAttribute("aria-disabled", "true"); });
+      post(message);
     }
-
-    function uid(prefix) {
-      sequence += 1;
-      return prefix + "-" + sequence;
+    function control(id) { return (model.controls || []).find(function (item) { return item.id === id; }); }
+    function effective(row) { return row.state === "overridden-by" ? row.layerValue : row.value; }
+    function preferences() {
+      if (model.preferences) { return model.preferences; }
+      var effort = control("effort");
+      var shared = effort && effort.rows.find(function (row) { return row.tool === "internal"; });
+      var native = effort ? effort.rows.filter(function (row) { return row.tool !== "internal" && row.installed !== false && row.state !== "tool-not-installed"; }) : [];
+      var values = Array.from(new Set(native.filter(function (row) { return row.canSet; }).map(effective).filter(Boolean)));
+      var chosen = shared && shared.value || (values.length === 1 ? values[0] : "");
+      if (!effort || effort.choices.indexOf(chosen) < 0) { chosen = ""; }
+      var conflict = !!(shared && ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(shared.state) >= 0) || native.some(function (row) { return row.canSet && (["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0 || chosen && (row.matchesDefault === false || row.matchesDefault === undefined && effective(row) !== chosen)); });
+      return { effort: chosen, needsAttention: !!conflict, effortStatus: conflict ? "Some defaults need synchronization. Choose an effort level to apply it again." : chosen ? "Mapped to native defaults for new sessions." : "Choose the default for new sessions." };
     }
-
-    /** Really disabled: nothing can change, so nothing needs focus. */
-    function locked() {
-      return !model || model.readOnly;
+    function button(label, key, action, attrs) {
+      var node = el("button", Object.assign({ type: "button", text: label, "data-focus": key }, attrs || {}));
+      node.addEventListener("click", action);
+      return node;
     }
-
-    /** Waiting for the host: controls keep focus and ignore clicks. */
-    function busy() {
-      return !!(model && model.busy);
+    function refreshButton() {
+      return button("Refresh", "refresh", function () { if (!model.busy && !pending) { post({ type: "refresh" }); } }, { class: "refresh", "aria-disabled": model.busy || pending ? "true" : null });
     }
-
-    function badge(b) {
-      return el("span", { class: "badge tone-" + b.tone }, [
-        el("span", { class: "icon " + (ICONS[b.icon] || "icon-dot"), "aria-hidden": "true" }),
-        el("span", { text: b.text }),
+    function header() {
+      return el("header", {}, [el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), text("h1", "Nexus Hub")])]);
+    }
+    function effortDetails() {
+      var node = el("details", { class: "settings-details", open: effortDetailsOpen || null }, [
+        el("summary", { text: "Details", "data-focus": "details" }),
+        text("p", "New sessions use the global effort level. Changing it also updates supported connected sessions. Manual session choices stay until the next global change or Apply to all."),
+        compatibility(),
+        text("p", "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks."),
+        text("p", "Refresh rereads settings and retries synchronization after external changes."),
+        refreshButton(),
+      ]);
+      node.addEventListener("toggle", function () { effortDetailsOpen = node.open; });
+      return node;
+    }
+    function effortSection(summary) {
+      var c = control("effort");
+      if (!c) { return null; }
+      var current = model.busy && drafts.effort !== undefined ? drafts.effort : summary.effort;
+      var labels = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra high", max: "Max", ultra: "Ultra" };
+      var choices = c.choices.filter(function (value) { return Object.prototype.hasOwnProperty.call(labels, value); });
+      var selected = choices.indexOf(current);
+      var group = el("div", { id: "effort", role: "radiogroup", class: "effort-choices", "aria-labelledby": "effort-title" });
+      group.style.setProperty("--effort-fill", selected < 0 ? "0%" : selected / Math.max(1, choices.length - 1) * 100 + "%");
+      choices.forEach(function (value, index) {
+        var radio = button("", "effort:" + value, function () {
+          if (blocked() || !c.canApply || value === current) { return; }
+          drafts.effort = value;
+          send({ type: "set", control: "effort", value: value, tool: null });
+        }, { role: "radio", class: "effort-choice", "data-setting": "effort", "data-value": value, "aria-label": labels[value], "aria-checked": value === current ? "true" : "false", tabindex: index === (selected < 0 ? 0 : selected) ? "0" : "-1", disabled: model.readOnly || !c.canApply, "aria-disabled": model.busy || pending ? "true" : null });
+        radio.appendChild(el("span", { class: "effort-dot", "aria-hidden": "true" }));
+        radio.appendChild(text("span", labels[value], "effort-label"));
+        radio.addEventListener("keydown", function (event) {
+          if (blocked() || !c.canApply) { return; }
+          var next = event.key === "ArrowRight" || event.key === "ArrowDown" ? (index + 1) % choices.length : event.key === "ArrowLeft" || event.key === "ArrowUp" ? (index + choices.length - 1) % choices.length : event.key === "Home" ? 0 : event.key === "End" ? choices.length - 1 : -1;
+          if (next < 0) { return; }
+          event.preventDefault();
+          var target = group.querySelectorAll("button")[next];
+          target.focus();
+          target.click();
+        });
+        group.appendChild(radio);
+      });
+      return el("section", { class: "settings-section effort-section", "aria-labelledby": "effort-title" }, [
+        el("div", { class: "section-heading" }, [el("h2", { id: "effort-title", text: "Global effort level" }), button("Apply to all", "applyAll", function () { send({ type: "applyAll" }); }, { class: "action-button", "data-setting": "applyAll", "aria-disabled": blocked() || !current ? "true" : null })]),
+        group,
+        sessionToggle("fast", "Fast mode", model.sessionDefaults && model.sessionDefaults.fastMode, "setFastMode", "May increase usage or cost.", !model.editorCapabilities || model.editorCapabilities.fastMode),
+        effortDetails(),
       ]);
     }
-
-    function blocked(extra) {
-      return busy() || !!(extra && extra.ready && !extra.ready());
+    function guardState(c) {
+      var row = c.rows.find(function (item) { return item.tool === "internal"; }) || c.rows[0];
+      if (!row || !c.canApply || ["cannot-detect", "unverified-for-version", "not-covered"].indexOf(row.state) >= 0) { return { known: false, on: false }; }
+      var value = effective(row);
+      return { known: true, on: value === "on" || value === "true" || (row.state === "tool-default" && c.id !== "git_guardrails") };
     }
-
-    // extra: cls, aria (a longer accessible name that starts with the visible text), keepEnabled (never really
-    // disabled: Refresh must work in the error and untrusted states), ready (a function: is there a value to send).
-    function button(label, focus, onClick, extra) {
-      var opts = extra || {};
-      return el("button", {
-        type: "button",
-        text: label,
-        "data-focus": focus,
-        "aria-label": opts.aria,
-        disabled: opts.keepEnabled ? false : locked(),
-        "aria-disabled": blocked(opts) ? "true" : null,
-        class: opts.cls,
-        on: {
-          click: function (event) {
-            if (blocked(opts)) {
-              event.preventDefault();
-              return;
-            }
-            onClick(event);
-          },
-        },
-      });
+    function sessionToggle(id, label, value, type, hint, available) {
+      available = available !== false;
+      if (!available) { value = false; hint = "Not available in this editor."; }
+      var toggle = button("", "session:" + id, function () { if (available && !blocked()) { send({ type: type, value: value !== true }); } }, {role: "switch", class: "switch", "data-setting": id, "aria-checked": value === true ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "description-" + id, disabled: model.readOnly || !available, "aria-disabled": blocked() || !available ? "true" : null});
+      toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
+      return el("div", {class: "setting-row session-row", title: value == null ? "No shared speed is set. Existing session speeds stay unchanged until chosen. Fast mode may increase usage or cost." : hint}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, text: label, class: "setting-label"}), el("p", {id: "description-" + id, text: value == null ? "Not set; may cost more." : hint, class: "hint"})]), toggle]);
     }
-
-    function labeled(labelText, control, id) {
-      return el("div", { class: "field" }, [el("label", { for: id, text: labelText }), control]);
-    }
-
-    function choiceLabel(control, choice) {
-      return control.weakeningChoices.indexOf(choice) >= 0 ? choice + " (lowers a safety barrier)" : choice;
-    }
-
-    function draftValue(key, fallback) {
-      return Object.prototype.hasOwnProperty.call(drafts, key) ? drafts[key] : fallback;
-    }
-
-    /** The value a choice starts at: the one the tool already has, else a placeholder (or the only choice). */
-    function startFor(control, current) {
-      if (current && control.choices.indexOf(current) >= 0) {
-        return current;
-      }
-      return control.choices.length === 1 ? control.choices[0] : "";
-    }
-
-    /** Keep a Set button's aria-disabled in step with whether its field holds a value. */
-    function syncSet(key) {
-      var node = app.querySelector('[data-focus="set:' + key + '"]');
-      if (!node) {
-        return;
-      }
-      if (busy() || String(draftValue(key, starts[key]) || "").trim() === "") {
-        node.setAttribute("aria-disabled", "true");
-      } else {
-        node.removeAttribute("aria-disabled");
-      }
-    }
-
-    function select(control, key, focus, start, labelText) {
-      var id = uid("sel");
-      starts[key] = start;
-      var current = draftValue(key, start);
-      var placeholder = control.choices.length > 1 && control.choices.indexOf(current) < 0;
-      var node = el("select", {
-        id: id,
-        "data-focus": focus,
-        disabled: locked(),
-        "aria-disabled": busy() ? "true" : null,
-        on: { change: function (event) { drafts[key] = event.target.value; syncSet(key); } },
-      });
-      if (placeholder) {
-        node.appendChild(el("option", { value: "", text: "Choose a value" }));
-      }
-      control.choices.forEach(function (choice) {
-        node.appendChild(el("option", { value: choice, text: choiceLabel(control, choice) }));
-      });
-      node.value = control.choices.indexOf(current) >= 0 ? current : placeholder ? "" : control.choices[0];
-      return labeled(labelText, node, id);
-    }
-
-    function textInput(control, row, key) {
-      var id = uid("txt");
-      var suggestions = control.suggestions[row.tool] || [];
-      var listId = suggestions.length > 0 ? uid("dl") : null;
-      starts[key] = "";
-      var input = el("input", {
-        type: "text",
-        id: id,
-        list: listId,
-        value: draftValue(key, ""),
-        spellcheck: "false",
-        autocomplete: "off",
-        maxlength: "200",
-        "data-focus": "txt:" + key,
-        disabled: locked(),
-        "aria-disabled": busy() ? "true" : null,
-        on: { input: function (event) { drafts[key] = event.target.value; syncSet(key); } },
-      });
-      var field = labeled("Default model for " + row.toolLabel + " (an alias such as opus, or a full model id)", input, id);
-      if (listId) {
-        field.appendChild(el("datalist", { id: listId }, suggestions.map(function (name) { return el("option", { value: name }); })));
-      }
-      return field;
-    }
-
-    function rowActions(control, row) {
-      var kids = [];
-      var key = control.id + "|" + row.tool;
-      if (control.kind === "text" && control.perTool && row.canSet) {
-        kids.push(textInput(control, row, key));
-        kids.push(button("Set for " + row.toolLabel, "set:" + key, function () {
-          var value = (drafts[key] || "").trim();
-          if (value) {
-            post({ type: "set", control: control.id, value: value, tool: row.tool });
-          }
-        }, {
-          cls: "primary",
-          aria: "Set for " + row.toolLabel + " (" + control.label + ")",
-          ready: function () { return (draftValue(key, "") || "").trim() !== ""; },
-        }));
-      }
-      if (control.kind === "choice" && control.perToolOverride && row.canSet) {
-        var start = startFor(control, row.value);
-        kids.push(select(control, key, "pick:" + key, start, control.label + " only for " + row.toolLabel));
-        kids.push(button("Set only for " + row.toolLabel, "set:" + key, function () {
-          post({ type: "set", control: control.id, value: draftValue(key, start), tool: row.tool });
-        }, {
-          cls: "primary",
-          aria: "Set only for " + row.toolLabel + " (" + control.label + ")",
-          ready: function () { return !!draftValue(key, start); },
-        }));
-      }
-      if (row.removable) {
-        kids.push(text("p", row.removable.reason, "hint"));
-        kids.push(button("Remove this override", "remove:" + key, function () {
-          post({ type: "removeOverride", control: control.id, tool: row.tool });
-        }, { cls: row.removable.weakens ? "danger" : "", aria: "Remove this override for " + row.toolLabel + " (" + control.label + ")" }));
-      }
-      return kids;
-    }
-
-    function rowNode(control, row) {
-      var title = row.toolLabel + (row.surface === "cli" ? "" : " (" + row.surfaceLabel + ")");
-      var body = [];
-      if (row.value) {
-        body.push(text("p", "Current value: " + row.value, "value"));
-      }
-      if (row.state === "overridden-by" && row.layerValue) {
-        body.push(text("p", "The overriding value is " + row.layerValue + ".", "value"));
-      }
-      if (row.fix) {
-        body.push(text("p", "To fix: " + row.fix, "fix"));
-      }
-      if (row.detail) {
-        body.push(text("p", row.detail, "detail"));
-      }
-      if (row.caveats.length > 0) {
-        body.push(el("ul", { class: "caveats", "aria-label": "Notes for " + title }, row.caveats.map(function (c) { return text("li", c); })));
-      }
-      return el("li", { class: "row" }, [el("div", { class: "row-head" }, [text("strong", title), badge(row.badge)])].concat(body, rowActions(control, row)));
-    }
-
-    function sourcesNode(control) {
-      var items = control.sources.map(function (s) {
-        var lines = [
-          text("p", s.keyLine, "key"),
-          text("p", s.admitted ? "Takes effect: " + s.takesEffect : "Not settable: " + s.reason, "detail"),
-          text("p", "Source: " + s.source, "detail"),
-        ];
-        if (s.weakens) {
-          lines.push(text("p", "This write lowers a safety barrier for some values.", "hint"));
-        }
-        if (s.notes) {
-          lines.push(text("p", s.notes, "detail"));
-        }
-        if (s.layers.length > 0) {
-          lines.push(el("ul", { class: "caveats", "aria-label": "What can override " + s.name }, s.layers.map(function (l) {
-            return text("li", l.kind + ": " + l.locator + ". " + l.fix);
-          })));
-        }
-        if (s.canOpen) {
-          lines.push(button("Open source for " + s.name, "src:" + s.write, function () {
-            post({ type: "openSource", control: control.id, write: s.write });
-          }, { aria: "Open source for " + s.name + " (" + control.label + (s.name === s.owner ? "" : ", " + s.owner) + ")" }));
-        }
-        return el("li", { class: "source" }, lines);
-      });
-      var summary = text("summary", "Show sources and exact keys");
-      summary.setAttribute("data-focus", "sources:" + control.id);
-      summary.setAttribute("aria-label", "Show sources and exact keys for " + control.label);
-      var details = el("details", { class: "sources", open: openSources[control.id] === true }, [summary, el("ul", {}, items)]);
-      details.addEventListener("toggle", function () {
-        if (details.open) {
-          openSources[control.id] = true;
-        } else {
-          delete openSources[control.id];
-        }
-      });
-      return details;
-    }
-
-    function applyAll(control) {
-      if (control.perTool || control.choices.length === 0 || !control.canApply) {
-        return null;
-      }
-      var first = null;
-      control.rows.forEach(function (row) {
-        if (!first && row.canSet && control.choices.indexOf(row.value) >= 0) {
-          first = row.value;
-        }
-      });
-      var key = control.id + "|*";
-      var start = startFor(control, first);
-      return el("div", { class: "apply" }, [
-        select(control, key, "pick:" + key, start, control.label),
-        button("Apply to every tool", "set:" + key, function () {
-          post({ type: "set", control: control.id, value: draftValue(key, start), tool: null });
-        }, {
-          cls: "primary",
-          aria: "Apply to every tool (" + control.label + ")",
-          ready: function () { return !!draftValue(key, start); },
-        }),
+    function editorSection() {
+      if (model.editorCapabilities && !model.editorCapabilities.extensionSettings) { return null; }
+      function providerHeading(provider, label) { return el("h3", {}, [el("span", {class: "provider-icon provider-icon--" + provider, "aria-hidden": "true"}), text("span", label)]); }
+      function restart(provider, label) { return button("Restart", "restart-" + provider, function () { send({type: "restartExtension", provider: provider}); }, {class: "action-button", "aria-label": "Restart " + label, "aria-disabled": blocked() ? "true" : null}); }
+      return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [
+        el("h2", {id: "editor-title", text: "Extensions"}),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("claude", "Claude Code"), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
       ]);
     }
-
-    function controlNode(control) {
-      var headingId = uid("h");
-      var kids = [text("h2", control.label)];
-      kids[0].setAttribute("id", headingId);
-      if (control.neverWritten.length > 0) {
-        kids.push(text("p", "Never written as a default: " + control.neverWritten.join(", ") + ".", "hint"));
+    function usageAlertsSection() {
+      var providers = [["claude", "Claude Code"], ["codex", "Codex"], ["copilot", "GitHub Copilot"], ["cursor", "Cursor"], ["gemini", "Gemini / Antigravity"]];
+      var scope = model.usageAlertProviders || ["claude", "codex", "copilot"];
+      providers = providers.filter(function (item) { return scope.indexOf(item[0]) !== -1; });
+      var values = model.usageAlerts || {};
+      var enabled = providers.filter(function (item) { return values[item[0]] !== false; }).length;
+      function row(provider, label, value, master) {
+        var id = "alert-" + provider;
+        var toggle = button("", "usage-alert:" + provider, function () { send({type: "setUsageAlert", provider: provider, enabled: value !== true}); }, {role: master ? "checkbox" : "switch", class: "switch", "data-setting": id, "aria-checked": value === "mixed" ? "mixed" : value ? "true" : "false", "aria-labelledby": "label-" + id, "aria-describedby": "usage-alerts-description", disabled: model.readOnly, "aria-disabled": blocked() ? "true" : null});
+        toggle.appendChild(el("span", {class: "switch-track", "aria-hidden": "true"}, [el("span", {class: "switch-thumb"})]));
+        return el("div", {class: "setting-row" + (master ? " alerts-master" : "")}, [el("div", {class: "setting-copy"}, [el("span", {id: "label-" + id, class: "setting-label", text: label}), master && providers.length > 1 ? text("p", enabled + " of " + providers.length + " enabled", "hint") : null]), toggle]);
       }
-      var apply = applyAll(control);
-      if (apply) {
-        kids.push(apply);
-      }
-      kids.push(el("ul", { class: "rows", "aria-label": control.label + " by tool" }, control.rows.map(function (row) { return rowNode(control, row); })));
-      kids.push(el("div", { class: "actions" }, [
-        button("Reset " + control.label + " to what was there before", "reset:" + control.id, function () {
-          post({ type: "reset", control: control.id, tool: null });
-        }),
-      ]));
-      kids.push(sourcesNode(control));
-      return el("section", { class: "card", "data-card": control.id, "aria-labelledby": headingId }, kids);
+      return el("section", {class: "settings-section usage-alerts-section", "aria-labelledby": "usage-alerts-title"}, [el("h2", {id: "usage-alerts-title", text: "Usage alerts"}), row("all", providers.length === 1 ? providers[0][1] + " alerts" : "All usage alerts", enabled === providers.length ? true : enabled === 0 ? false : "mixed", true), el("p", {id: "usage-alerts-description", text: "Warnings dismiss after 10 seconds. Taskbar colors stay active.", class: "hint alerts-description"}), providers.length > 1 ? el("div", {class: "alerts-list"}, providers.map(function (item) { return row(item[0], item[1], values[item[0]] !== false, false); })) : null]);
     }
-
-    function outcomeNode(outcome) {
-      if (outcome.rows.length === 0) {
-        return null;
-      }
-      var head = el("tr", {}, ["Tool", "Effort", "Approval"].map(function (name) { return el("th", { scope: "col", text: name }); }));
-      var rows = outcome.rows.map(function (row) {
-        return el("tr", {}, [el("th", { scope: "row", text: row.label }), text("td", row.effort), text("td", row.posture)]);
-      });
-      var kids = [
-        el("h2", { id: "outcome-h", text: outcome.title }),
-        el("div", { class: "scroll" }, [el("table", {}, [el("caption", { text: outcome.title, class: "visually-hidden" }), el("thead", {}, [head]), el("tbody", {}, rows)])]),
-      ];
-      (outcome.notes || []).forEach(function (note) {
-        kids.push(text("p", note, "hint"));
-      });
-      return el("section", { class: "card", "data-card": "outcome", "aria-labelledby": "outcome-h" }, kids);
-    }
-
-    /** The visible notice. It carries no live role: the live regions below speak it once. */
-    function noticeNode(notice) {
-      if (!notice) {
-        return null;
-      }
-      var kids = [text("p", notice.text)];
-      if (notice.lines && notice.lines.length > 0) {
-        kids.push(el("ul", {}, notice.lines.map(function (line) { return text("li", line); })));
-      }
-      return el("div", { class: "notice level-" + notice.level, "data-level": notice.level }, kids);
-    }
-
-    function errorNode(error) {
-      return el("section", { class: "card error-card", "data-card": "error", role: "alert" }, [
-        text("h2", error.title),
-        text("p", error.message),
-        text("p", "Run this command in a terminal to see the same result:"),
-        el("pre", {}, [text("code", error.command)]),
-        text("p", error.fix),
+    function guardRow(spec) {
+      var installed = control(spec[0]);
+      var c = installed || { id: spec[0], rows: [], canApply: false };
+      var state = guardState(c);
+      var label = "label-" + c.id;
+      var description = "description-" + c.id;
+      var toggle = button("", "toggle:" + c.id, function () {
+        if (state.known) { send({ type: "set", control: c.id, value: state.on ? "off" : "on", tool: null }); }
+      }, { role: "switch", class: "switch", "data-setting": c.id, "aria-checked": state.on ? "true" : "false", "aria-labelledby": label, "aria-describedby": description, "aria-disabled": model.busy || pending ? "true" : null, disabled: model.readOnly || !state.known });
+      toggle.appendChild(el("span", { class: "switch-track", "aria-hidden": "true" }, [el("span", { class: "switch-thumb" })]));
+      return el("li", { class: "setting-row" }, [
+        el("div", { class: "setting-copy" }, [el("span", { id: label, class: "setting-label", text: spec[1] }), el("p", { id: description, class: "hint", text: !installed ? "Requires an engine update." : state.known ? spec[2] : "Unavailable. Refresh to check this guardrail." })]),
+        toggle,
       ]);
     }
-
-    function headerNode(m) {
-      var logo = app.getAttribute("data-logo");
-      return el("header", {}, [
-        el("div", { class: "title" }, [logo ? el("img", { src: logo, alt: "", width: "28", height: "28" }) : null, text("h1", "Nexus-Hub Settings")]),
-        text("p", m.header.note, "hint"),
-        text("p", "VS Code profile: " + m.header.profile + ". Platform: " + m.header.platform + ".", "hint"),
-        button("Refresh", "refresh", function () { post({ type: "refresh" }); }, { keepEnabled: true }),
+    function guardSection() {
+      var rows = GUARDS.map(guardRow).filter(Boolean);
+      if (!rows.length) { return null; }
+      return el("section", { class: "settings-section guardrails-section", "aria-labelledby": "guardrails-title" }, [el("h2", { id: "guardrails-title", text: "Guardrails" }), el("ul", { class: "setting-list" }, rows)]);
+    }
+    function compatibility() {
+      var node = el("footer", { class: "compatibility" }, [
+        text("p", "Automatic effort: Claude Code, Codex, and qualified Cursor Agent builds."),
+        text("p", "Manual effort: GitHub Copilot and Antigravity native agents. Cursor Auto and models without effort controls keep their native behavior."),
+        text("p", "Older Codex clients map Max and Ultra to Extra high."),
       ]);
+      return node;
     }
-
-    function liveRegion(id, role, politeness) {
-      var found = doc.getElementById(id);
-      if (found) {
-        return found;
+    function notice() {
+      if (!model.notice) { return null; }
+      var n = model.notice;
+      if (n.level === "info") { return null; }
+      var node = el("div", { class: "notice", "data-level": n.level }, [text("p", n.text)]);
+      if (n.level !== "info" && n.lines && n.lines.length) {
+        var detail = el("details", { open: detailsOpen || null }, [text("summary", "Technical details"), el("ul", {}, n.lines.slice(0, 8).map(function (line) { return text("li", line); }))]);
+        detail.addEventListener("toggle", function () { detailsOpen = detail.open; });
+        node.appendChild(detail);
       }
-      var created = el("div", { id: id, class: "visually-hidden", role: role, "aria-live": politeness, "aria-atomic": "true" });
-      (doc.body || app.parentNode).appendChild(created);
-      return created;
+      return node;
     }
-
-    function sentence(line) {
-      return /[.!?]$/.test(line) ? line : line + ".";
+    function announce() {
+      var missing = model.controls.length && !model.error && GUARDS.some(function (spec) { return !control(spec[0]); });
+      var n = model.notice || (missing ? { level: "warn", text: ENGINE_UPDATE } : null);
+      var value = n ? n.level + ":" + n.text : "";
+      if (value === announced) { return; }
+      announced = value;
+      ["live-status", "live-alert"].forEach(function (id) { var region = doc.getElementById(id); if (region) { region.textContent = ""; } });
+      if (n) { var region = doc.getElementById(n.level === "error" ? "live-alert" : "live-status"); if (region) { region.textContent = n.text; } }
     }
-
-    /** Speak a new notice once. A render while busy repeats the old notice, so it is skipped and re-arms the next one. */
-    function announce(next) {
-      var status = liveRegion("live-status", "status", "polite");
-      var alert = liveRegion("live-alert", "alert", "assertive");
-      if (next.busy) {
-        announced = "";
-        return;
-      }
-      var notice = next.notice;
-      var message = notice ? [notice.text].concat(notice.lines || []).map(sentence).join(" ") : "";
-      var key = notice ? notice.level + "|" + message : "";
-      if (key === announced) {
-        return;
-      }
-      announced = key;
-      status.textContent = "";
-      alert.textContent = "";
-      if (notice) {
-        (notice.level === "error" ? alert : status).textContent = message;
-      }
-    }
-
-    function emptyNode(m) {
-      return text("p", m.busy ? "Loading the current settings..." : "No settings were reported. Choose Refresh to read them again.", m.busy ? "hint" : "notice level-warn");
-    }
-
-    /** What had focus: its data-focus key, its card, and the caret of a text field. */
-    function focusState() {
-      var active = doc.activeElement;
-      if (!active || !active.getAttribute || !app.contains(active)) {
-        return null;
-      }
-      var key = active.getAttribute("data-focus");
-      if (!key) {
-        return null;
-      }
-      var card = active.closest ? active.closest("[data-card]") : null;
-      var caret = typeof active.selectionStart === "number" && active.type === "text" ? [active.selectionStart, active.selectionEnd] : null;
-      return { key: key, card: card ? card.getAttribute("data-card") : null, caret: caret };
-    }
-
-    function clean(value) {
-      return String(value).replace(/["\\]/g, "");
-    }
-
-    /** Put focus back on the same control; failing that on the card's heading; failing that on Refresh. */
-    function restoreFocus(state) {
-      if (!state) {
-        return;
-      }
-      var exact = app.querySelector('[data-focus="' + clean(state.key) + '"]');
-      var target = exact;
-      if (!target && state.card) {
-        var heading = app.querySelector('[data-card="' + clean(state.card) + '"] h2');
-        if (heading) {
-          heading.setAttribute("tabindex", "-1");
-          target = heading;
-        }
-      }
-      if (!target) {
-        target = app.querySelector('[data-focus="refresh"]');
-      }
-      if (target && target.focus) {
-        target.focus();
-        if (target === exact && state.caret && target.setSelectionRange) {
-          target.setSelectionRange(state.caret[0], state.caret[1]);
-        }
-      }
-    }
-
     function render(next) {
-      var focus = focusState();
+      var focused = doc.activeElement && app.contains(doc.activeElement) ? doc.activeElement.getAttribute("data-focus") : null;
       model = next;
-      sequence = 0;
-      starts = {};
-      var kids = [headerNode(next), noticeNode(next.notice)];
-      if (next.readOnlyReason && !next.error) {
-        kids.push(text("p", next.readOnlyReason, "notice level-warn"));
-      }
-      if (next.error) {
-        kids.push(errorNode(next.error));
-      } else if (next.controls.length === 0) {
-        kids.push(emptyNode(next));
+      pending = false;
+      if (!model.busy) { delete drafts.effort; }
+      app.setAttribute("aria-busy", model.busy ? "true" : "false");
+      var children = [header()];
+      if (model.error) {
+        children.push(el("section", { class: "error-card", role: "alert" }, [text("h2", model.error.title), text("p", model.error.message), text("p", model.error.fix, "hint"), el("details", {}, [text("summary", "Technical details"), el("pre", {}, [text("code", model.error.command)])])]), refreshButton());
+      } else if (!model.controls.length) {
+        children.push(text("p", model.busy ? "Loading settings..." : "No settings were reported. Choose Refresh to try again.", "empty-state"), refreshButton());
       } else {
-        kids.push(outcomeNode(next.outcome));
-        next.controls.forEach(function (control) { kids.push(controlNode(control)); });
+        if (model.readOnly) { children.push(text("p", "Trust this workspace to change settings.", "read-only")); }
+        if (GUARDS.some(function (spec) { return !control(spec[0]); })) { children.push(el("p", { class: "notice engine-update", "data-level": "warn", text: ENGINE_UPDATE })); }
+        children.push(notice(), effortSection(preferences()), guardSection(), editorSection(), usageAlertsSection(), el("section", { class: "settings-section version-section", "aria-labelledby": "version-title" }, [el("h2", { id: "version-title", text: "Version" }), el("div", { class: "version-row" }, [el("p", { class: "installed-version" }, [text("span", "Installed version: ", "version-label"), text("span", model.hubVersion || "Unknown", "version-number")]), button("Check for upgrades", "upgrade", function () { send({ type: "upgrade" }); }, { class: "action-button", "aria-disabled": blocked() ? "true" : null })])]));
       }
-      while (app.firstChild) {
-        app.removeChild(app.firstChild);
+      app.replaceChildren.apply(app, children.filter(Boolean));
+      if (focused) {
+        var target = Array.from(app.querySelectorAll("[data-focus]")).find(function (node) { return node.getAttribute("data-focus") === focused && !node.disabled; }) || app.querySelector("[data-focus='details']") || app.querySelector("[data-focus='refresh']");
+        if (target) { target.focus(); }
       }
-      kids.forEach(function (kid) { if (kid) { app.appendChild(kid); } });
-      app.setAttribute("aria-busy", next.busy ? "true" : "false");
-      restoreFocus(focus);
-      announce(next);
+      announce();
     }
-
-    function onMessage(message) {
-      if (message && message.type === "render" && message.model) {
-        render(message.model);
-      }
-    }
-
+    function onMessage(message) { if (message && message.type === "render" && message.model && Array.isArray(message.model.controls)) { render(message.model); } }
     return { render: render, onMessage: onMessage, drafts: drafts };
   }
-
   function boot(win) {
-    var host = win.acquireVsCodeApi();
-    var panel = createPanel(win.document, function (message) { host.postMessage(message); });
+    var acquire = typeof win.acquireVsCodeApi === "function" ? win.acquireVsCodeApi : typeof acquireVsCodeApi === "function" ? acquireVsCodeApi : null;
+    if (!acquire) { return null; }
+    var vscode = acquire();
+    var panel = createPanel(win.document, function (message) { vscode.postMessage(message); });
     win.addEventListener("message", function (event) { panel.onMessage(event.data); });
-    host.postMessage({ type: "ready" });
+    vscode.postMessage({ type: "ready" });
     return panel;
   }
-
   return { createPanel: createPanel, boot: boot };
 });

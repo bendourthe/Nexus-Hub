@@ -432,8 +432,11 @@ class TestMainIntegration:
             "Non-allowlisted commands MUST set permissionDecision='ask' "
             "or Claude Code's PowerShell tool will auto-execute them"
         )
-        assert hso.get("permissionDecisionReason") == "Stops the Explorer process", (
+        assert hso.get("permissionDecisionReason") == (
+            f"{_fpd.NEXUS_TAG} Stops the Explorer process"
+        ), (
             "permissionDecisionReason MUST carry the description verbatim "
+            "after the [Nexus-Hub: format-powershell-description] source label "
             "so the PowerShell approval dialog renders it under the header "
             "(the dialog hides updatedInput.command behind a collapsed "
             "Details panel, so reason is the only reliably-visible surface)"

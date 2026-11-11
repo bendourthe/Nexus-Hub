@@ -75,7 +75,7 @@ FORMATS = (
     "plugin",
 )
 USAGE_LIMIT_NOTE = (
-    "completion-gate: the run stopped for a usage-limit handoff or the user's "
+    "[Nexus-Hub: completion-gate] the run stopped for a usage-limit handoff or the user's "
     "credits-or-handoff answer; it resumes when the user answers or pastes the "
     "handoff prompt."
 )
@@ -152,6 +152,7 @@ def resolve_format(payload: dict) -> str:
 
 def emit_continue(fmt: str, reason: str) -> int:
     """Write the platform's documented refuse-the-stop output; return the exit code."""
+    reason = f"[Nexus-Hub: completion-gate] {reason}"
     if fmt == "exit-2":
         print(reason, file=sys.stderr)
         return 2
@@ -361,9 +362,17 @@ def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, 
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
+    # Resolve the checker's exception classes before the call: an except tuple is evaluated only
+    # once an error is in flight, so a missing attribute there would escape and fail the hook open.
     try:
-        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
-    except (OSError, ValueError, module.Malformed, module._minor_module().ObservationUnavailable) as exc:
+        refusals = (module.Malformed, module._minor_module().ObservationUnavailable)
+    except Exception as exc:
+        raise ValueError('minor controller cannot be verified') from exc
+    try:
+        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()), minor_protocol=1, execution_protocol=1)
+    # TypeError/AttributeError: an older sibling checker that lacks the protocol keywords. A
+    # mixed helper bundle must keep the run unresolved, never crash the hook and fail open.
+    except (OSError, ValueError, TypeError, AttributeError, *refusals) as exc:
         raise ValueError('minor controller cannot be verified') from exc
     if _is_inside(checker, ctx.root):
         raise ValueError('checker is inside operational worktree')
@@ -387,7 +396,7 @@ def cmd_stop() -> int:
             return emit_continue(resolve_format(payload), 'Minor controller verification failed; keep the run unresolved.')
     if not checker.is_file() or _is_inside(checker, repo_root):
         print(
-            "completion-gate: checker not installed outside the working tree; allowing stop",
+            "[Nexus-Hub: completion-gate] checker not installed outside the working tree; allowing stop",
             file=sys.stderr,
         )
         return 0
@@ -413,7 +422,7 @@ def cmd_stop() -> int:
     rc, out = _run_checker(check_args, eval_end, str(repo_root))
     if rc == -1:
         print(
-            "completion-gate: checker did not finish in time; allowing stop",
+            "[Nexus-Hub: completion-gate] checker did not finish in time; allowing stop",
             file=sys.stderr,
         )
         return 0
@@ -450,7 +459,7 @@ def cmd_stop() -> int:
         state.update(met=int(score[0]), head=score[1])
     else:
         # An unreadable score is not evidence of no progress: the counter stays where it was.
-        print("completion-gate: progress score unavailable; refusal not counted", file=sys.stderr)
+        print("[Nexus-Hub: completion-gate] progress score unavailable; refusal not counted", file=sys.stderr)
     state["refusals"] = refusals
     state["updated"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     _save_gate_state(state_path, state)

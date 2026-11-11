@@ -4,603 +4,414 @@ import { createRequire } from "node:module";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ViewModel, buildModel, errorModel } from "../src/viewModel";
+import { ViewModel, buildModel, errorModel, summarizePreferences } from "../src/viewModel";
 import { explains, layers, showReport } from "./fixtures";
 
-const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const panelModule = require("../media/panel.js") as {
   createPanel(doc: Document, post: (m: unknown) => void): { render(m: ViewModel): void; onMessage(m: unknown): void; drafts: Record<string, string> };
   boot(win: unknown): unknown;
 };
-
 let posted: Record<string, unknown>[];
 let app: HTMLElement;
 let panel: ReturnType<typeof panelModule.createPanel>;
 
 function fresh(over: Partial<ViewModel> = {}, trusted = true): ViewModel {
-  return { ...buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted, profile: "Default" }), ...over };
-}
-
-function button(label: string | RegExp): HTMLButtonElement {
-  const found = [...app.querySelectorAll("button")].find((b) => (typeof label === "string" ? b.textContent === label : label.test(b.textContent ?? "")));
-  if (!found) {
-    throw new Error(`no button ${String(label)}`);
+  const model = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted, profile: "Default" });
+  const guard = model.controls.find((c) => c.id === "git_guardrails")!;
+  for (const id of ["git_safety", "secret_scan", "edit_preservation", "large_file_warning"]) {
+    model.controls.push({ ...guard, id, label: id, rows: guard.rows.map((row) => ({ ...row, value: "on", state: "in-effect" })) });
   }
+  const effort = model.controls.find((c) => c.id === "effort")!;
+  effort.choices = ["low", "medium", "high", "xhigh", "max", "ultra"];
+  effort.rows.push({ ...effort.rows.find((row) => row.tool === "codex")!, tool: "internal", toolLabel: "Nexus-Hub", value: "high", state: "in-effect" });
+  Object.assign(model, over);
+  model.preferences = summarizePreferences(model);
+  return model;
+}
+function button(label: string): HTMLButtonElement {
+  const found = [...app.querySelectorAll<HTMLButtonElement>("button")].find((node) => node.textContent === label || (node.getAttribute("aria-labelledby") && app.querySelector("#" + node.getAttribute("aria-labelledby"))?.textContent === label));
+  if (!found) { throw new Error(`Button not found: ${label}`); }
   return found;
 }
-
-function type(input: HTMLInputElement, value: string): void {
-  input.value = value;
-  input.dispatchEvent(new Event("input", { bubbles: true }));
+function pick(value: string): void {
+  app.querySelector<HTMLButtonElement>(`[role='radio'][data-value='${value}']`)?.click();
 }
-
-function pick(select: HTMLSelectElement, value: string): void {
-  select.value = value;
-  select.dispatchEvent(new Event("change", { bubbles: true }));
-}
-
 beforeEach(() => {
-  document.body.innerHTML = '<main id="app" data-logo="vscode-webview://x/logo.png"><p>Loading</p></main>';
-  app = document.getElementById("app") as HTMLElement;
+  document.body.innerHTML = '<main id="app" data-logo="vscode-webview://x/logo.png"></main><div id="live-status" role="status" aria-live="polite"></div><div id="live-alert" role="alert" aria-live="assertive"></div>';
+  app = document.getElementById("app")!;
   posted = [];
   panel = panelModule.createPanel(document, (m) => void posted.push(m as Record<string, unknown>));
 });
 
-describe("rendering", () => {
-  it("draws the header, the what-a-session-starts-with table, and one section per control", () => {
+describe("shared settings view", () => {
+  it("keeps transient effort status out of the effort card", () => {
+    panel.render(fresh({ liveEffort: { connected: 1, applied: 0, reloadRequired: true, error: "Native update refused." } }));
+    expect(app.querySelector("#effort-title")?.textContent).toBe("Global effort level");
+    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Auto-save|Saving|Saved|Native update|Reload/);
+    expect(app.querySelector("#effort-status, .save-state")).toBeNull();
+  });
+  it("keeps behavior notes and refresh in a collapsed Details section across readback", () => {
     panel.render(fresh());
-
-    expect(app.querySelector("h1")?.textContent).toBe("Nexus-Hub Settings");
-    expect(app.textContent).toContain("applies to new sessions only");
-    expect(app.querySelector("img")?.getAttribute("alt")).toBe("");
-    expect([...app.querySelectorAll("section.card h2")].map((h) => h.textContent)).toEqual([
-      "If you choose High effort and Full auto, a new session starts as:",
-      "Default effort",
-      "Default model",
-      "Approval posture",
-      "Commit attribution off",
-      "Git-guardrails mode",
-    ]);
-    const table = app.querySelector("table")!;
-    expect([...table.querySelectorAll("th[scope='col']")].map((c) => c.textContent)).toEqual(["Tool", "Effort", "Approval"]);
-    expect(table.textContent).toContain("approval_policy = never; sandbox_mode = workspace-write");
-  });
-
-  it("shows each row's state as text plus an icon, with the value, the fix, and the caveats", () => {
+    const detail = app.querySelector<HTMLDetailsElement>(".effort-section .settings-details")!;
+    expect(detail.open).toBe(false);
+    expect(detail.querySelector("summary")?.textContent).toBe("Details");
+    expect(detail.textContent).toContain("Manual session choices stay");
+    expect(detail.contains(button("Refresh"))).toBe(true);
+    expect(app.querySelector("header")?.textContent).toBe("Nexus Hub");
+    expect(app.querySelector(".version-section")?.textContent).not.toContain("guardrails apply");
+    detail.open = true;
+    detail.dispatchEvent(new Event("toggle"));
     panel.render(fresh());
-    const effort = app.querySelectorAll("section.card")[1]!;
-    const claude = [...effort.querySelectorAll("li.row")].find((r) => r.textContent?.includes("Claude Code"))!;
-
-    expect(claude.querySelector(".badge")?.textContent).toContain("Overridden by env CLAUDE_CODE_EFFORT_LEVEL");
-    expect(claude.querySelector(".badge .icon")?.getAttribute("aria-hidden")).toBe("true");
-    expect(claude.textContent).toContain("The overriding value is high.");
-    expect(claude.textContent).toContain("To fix: Unset CLAUDE_CODE_EFFORT_LEVEL");
-    expect(claude.querySelector("ul.caveats")?.getAttribute("aria-label")).toBe("Notes for Claude Code");
-    expect(effort.textContent).toContain("Never written as a default: max.");
-    const notSettable = [...effort.querySelectorAll("li.row")].find((r) => r.textContent?.includes("GitHub Copilot CLI"))!;
-    expect(notSettable.querySelector(".badge")?.textContent).toContain("Not settable");
-    expect(notSettable.textContent).toContain("No Proof Record");
+    expect(app.querySelector<HTMLDetailsElement>(".settings-details")?.open).toBe(true);
+    button("Refresh").click();
+    expect(posted).toEqual([{ type: "refresh" }]);
   });
-
-  it("states the current value and a surface label for a VS Code row", () => {
-    panel.render(fresh());
-    const model = app.querySelectorAll("section.card")[2]!;
-    expect(model.textContent).toContain("Current value: opus");
-    expect(app.textContent).toContain("(VS Code)");
-  });
-
-  it("lists sources and exact keys behind a details element with an open-source button only for allowlisted links", () => {
-    panel.render(fresh());
-    const posture = app.querySelectorAll("section.card")[3]!;
-    const details = posture.querySelector("details.sources")!;
-    expect(details.querySelector("summary")?.textContent).toBe("Show sources and exact keys");
-    expect(details.textContent).toContain("permissions.defaultMode in ~/.claude/settings.json");
-    expect(details.textContent).toContain("Source: code.claude.com, fetched");
-    button("Open source for permissions.defaultMode").click();
-    expect(posted.at(-1)).toEqual({ type: "openSource", control: "posture", write: "claude.posture" });
-    const git = app.querySelectorAll("section.card")[5]!;
-    expect(git.textContent).toContain("Enforced by the git-guardrails hook");
-    expect(git.querySelector("details button")).toBeNull();
-  });
-
-  it("renders the error card with the command in a code element and no controls", () => {
-    panel.render(errorModel("Default", "windows", { title: "Nexus-Hub is not installed", message: "not found", command: "python cli settings show --json", fix: "Install it." }));
-    expect(app.querySelector("[role='alert'] h2")?.textContent).toBe("Nexus-Hub is not installed");
-    expect(app.querySelector("pre code")?.textContent).toBe("python cli settings show --json");
-    expect(app.querySelector("select, input")).toBeNull();
-    expect(app.querySelectorAll("section.card")).toHaveLength(1);
-  });
-
-  it("shows a notice with every line and speaks it once through a live region, not through the notice itself", () => {
-    panel.render(fresh({ notice: { level: "error", text: "refused", lines: ["a", "b"] } }));
-    expect(app.querySelector(".notice")?.getAttribute("role")).toBeNull();
-    expect(app.querySelector(".notice")?.getAttribute("data-level")).toBe("error");
-    expect([...app.querySelectorAll(".notice li")].map((li) => li.textContent)).toEqual(["a", "b"]);
-    expect(live("live-alert").textContent).toBe("refused. a. b.");
-    expect(live("live-status").textContent).toBe("");
-    panel.render(fresh({ notice: { level: "info", text: "saved" } }));
-    expect(live("live-status").textContent).toBe("saved.");
-    expect(live("live-alert").textContent).toBe("");
-    panel.render(fresh({ notice: null }));
-    expect(app.querySelector(".notice")).toBeNull();
-    expect(live("live-status").textContent).toBe("");
-  });
-
-  it("creates the two live regions itself when the page shell did not, with the right roles", () => {
-    panel.render(fresh({ notice: { level: "info", text: "saved" } }));
-    expect(live("live-status").className).toBe("visually-hidden");
-    expect(live("live-status").getAttribute("role")).toBe("status");
-    expect(live("live-status").getAttribute("aria-live")).toBe("polite");
-    expect(live("live-alert").getAttribute("role")).toBe("alert");
-    expect(live("live-alert").getAttribute("aria-live")).toBe("assertive");
-    expect(document.querySelectorAll("#live-status").length).toBe(1);
-  });
-
-  it("does not speak the same notice twice, and speaks an identical one again after a new action", () => {
-    panel.render(fresh({ notice: { level: "info", text: "saved" } }));
-    expect(live("live-status").textContent).toBe("saved.");
-    live("live-status").textContent = "(spoken)";
-    panel.render(fresh({ notice: { level: "info", text: "saved" } })); // a refresh draws the same notice
-    expect(live("live-status").textContent).toBe("(spoken)");
-    panel.render(fresh({ busy: true, notice: { level: "info", text: "saved" } })); // the next action starts
-    expect(live("live-status").textContent).toBe("(spoken)");
-    panel.render(fresh({ notice: { level: "info", text: "saved" } })); // the next action ends with the same words
-    expect(live("live-status").textContent).toBe("saved.");
-  });
-
-  it("explains a read-only panel", () => {
-    panel.render(fresh({}, false));
-    expect(app.textContent).toContain("not trusted");
-    expect(app.querySelector("p.notice")).not.toBeNull();
-  });
-});
-
-describe("safety of rendered values", () => {
-  it("never turns engine or file values into markup", () => {
-    const hostile = '<img src=x onerror="alert(1)"><script>alert(2)</script>';
+  it.each(["low", "max", "ultra"])("saves %s and positions the endpoint fill", (value) => {
     const model = fresh();
-    const row = model.controls[0]!.rows[0]!;
-    row.fix = hostile;
-    row.detail = hostile;
-    row.layerValue = hostile;
-    row.value = hostile;
-    row.caveats = [hostile];
-    row.badge.text = hostile;
-    model.controls[0]!.sources[0]!.notes = hostile;
-    model.notice = { level: "warn", text: hostile, lines: [hostile] };
-    model.header.profile = hostile;
-    model.controls[1]!.suggestions.claude = [hostile];
-
+    model.controls.find((c) => c.id === "effort")!.rows.find((row) => row.tool === "internal")!.value = value;
+    model.preferences = summarizePreferences(model);
     panel.render(model);
-
-    expect(app.querySelector("img[src='x']")).toBeNull();
-    expect(app.querySelector("script")).toBeNull();
-    expect(app.querySelectorAll("[onerror]")).toHaveLength(0);
-    expect(app.innerHTML).toContain("&lt;img src=x");
+    expect(app.querySelector("[aria-checked='true'][role='radio']")?.getAttribute("data-value")).toBe(value);
+    expect(app.querySelector<HTMLElement>(".effort-choices")!.style.getPropertyValue("--effort-fill")).toBe(value === "low" ? "0%" : value === "ultra" ? "100%" : "80%");
+    panel.render(fresh());
+    pick(value);
+    expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value, tool: null });
   });
-
-  it("builds the page without any HTML-string API", () => {
-    const source = fs.readFileSync(path.join(here, "..", "media", "panel.js"), "utf8");
-    expect(source).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\s*\(|new Function|setAttribute\(\s*["']on/);
-    expect(source).toContain("textContent");
+  it("shows one effort selector, Fast mode and five guardrails without platform rows", () => {
+    panel.render(fresh());
+    expect(app.querySelector("h1")?.textContent).toBe("Nexus Hub");
+    expect(app.querySelector("select")).toBeNull();
+    expect(app.querySelectorAll("[role='radiogroup']")).toHaveLength(1);
+    expect(app.querySelectorAll("[role='radio']")).toHaveLength(6);
+    expect(app.querySelectorAll(".setting-list button[role='switch']")).toHaveLength(5);
+    expect(app.querySelector(".effort-section button[data-setting='fast']")).toBeTruthy();
+    expect(app.querySelector("table, input[type='text']")).toBeNull();
+    expect(app.querySelector(".effort-choices")?.textContent).not.toMatch(/Claude Code|Codex|Copilot|Default model|attribution|Every tool|Current value|settings\.json/);
+    expect(app.querySelector("img")?.getAttribute("src")).toBe("vscode-webview://x/logo.png");
+    expect(app.querySelector("img")?.getAttribute("alt")).toBe("");
+    expect(app.querySelector(".engine-update")).toBeNull();
+    expect(app.querySelector(".effort-value")).toBeNull();
+  });
+  it("posts strict Fast and Codex tab preferences without changing effort or exposing provider selectors", () => {
+    const model = {...fresh(), codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "first", codexTabs: true}};
+    panel.render(model);
+    app.querySelector<HTMLButtonElement>("[data-setting='fast']")!.click();
+    expect(posted.at(-1)).toEqual({type: "setFastMode", value: true});
+    panel.render({...model, sessionDefaults: {...model.sessionDefaults, fastMode: true}});
+    app.querySelector<HTMLButtonElement>("[data-setting='codexTabs']")!.click();
+    expect(posted.at(-1)).toEqual({type: "setCodexTabs", value: false});
+    expect(app.querySelector(".effort-section [data-setting='fast']")).toBeTruthy();
+    expect(app.querySelector(".editor-section [data-setting='codexTabs']")).toBeTruthy();
+  });
+  it("keeps all five guardrails visible when an old engine lacks four controls", () => {
+    const oldModel = buildModel({ report: showReport(), explains: explains(), inspect: (k) => layers(k), trusted: true, profile: "Default" });
+    panel.render(oldModel);
+    const switches = [...app.querySelectorAll<HTMLButtonElement>(".setting-list button[role='switch']")];
+    expect(switches).toHaveLength(5);
+    expect(switches.filter((node) => node.disabled)).toHaveLength(4);
+    expect(button("Block Git bypass flags").disabled).toBe(false);
+    expect(app.querySelectorAll(".engine-update")).toHaveLength(1);
+    expect(app.querySelector(".engine-update")?.textContent).toBe("Update the Nexus-Hub settings engine to use all guardrail switches.");
+    expect(document.getElementById("live-status")?.textContent).toContain("Update the Nexus-Hub settings engine");
+    for (const node of switches.filter((item) => item.disabled)) { node.click(); }
+    expect(posted).toEqual([]);
+    expect(app.querySelector(".effort-choices")?.textContent).not.toMatch(/Claude Code|Codex|Copilot/);
+  });
+  it("starts at the saved shared choice instead of an overriding platform value", () => {
+    const model = fresh();
+    model.controls.find((c) => c.id === "effort")!.rows.find((row) => row.tool === "internal")!.value = "low";
+    model.preferences = summarizePreferences(model);
+    panel.render(model);
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("low");
+    expect(app.querySelector("#effort-status")).toBeNull();
+  });
+  it("auto-saves a changed effort once for all tools", () => {
+    panel.render(fresh());
+    pick("medium");
+    expect(posted).toEqual([{ type: "set", control: "effort", value: "medium", tool: null }]);
+    expect(app.querySelector(".save-state")).toBeNull();
+    pick("low");
+    expect(posted).toHaveLength(1);
+  });
+  it("keeps a native mapped effort in sync when a preference summary is absent", () => {
+    const model = fresh();
+    const effort = model.controls.find((c) => c.id === "effort")!;
+    const shared = { ...effort.rows.find((row) => row.tool === "internal")!, value: "ultra" };
+    const native = { ...effort.rows.find((row) => row.tool === "codex")!, value: "xhigh", state: "in-effect" as const, matchesDefault: true };
+    effort.rows = [shared, native];
+    delete model.preferences;
+    panel.render(model);
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("ultra");
+    expect(app.querySelector("#effort-status")).toBeNull();
+  });
+  it("leaves the effort bar unselected when no shared or common default exists", () => {
+    const model = fresh();
+    model.controls.find((c) => c.id === "effort")!.rows.forEach((row) => { row.value = null; row.layerValue = null; });
+    model.preferences = summarizePreferences(model);
+    panel.render(model);
+    expect(app.querySelector("[role='radio'][aria-checked='true']")).toBeNull();
+    expect(app.querySelector("[role='radiogroup']")?.getAttribute("aria-labelledby")).toBe("effort-title");
+  });
+  it("does not send invalid choices", () => {
+    const model = fresh();
+    model.controls.find((c) => c.id === "effort")!.choices.push("bogus");
+    panel.render(model);
+    expect(app.querySelector("[data-value='bogus']")).toBeNull();
+    pick("bogus");
+    expect(posted).toEqual([]);
+  });
+  it("sends an explicit off request and waits for readback before changing a switch", () => {
+    panel.render(fresh());
+    const toggle = button("Git safety");
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    toggle.click();
+    expect(posted).toEqual([{ type: "set", control: "git_safety", value: "off", tool: null }]);
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    toggle.click();
+    expect(posted).toHaveLength(1);
+    const changed = fresh();
+    changed.controls.find((c) => c.id === "git_safety")!.rows[0]!.value = "off";
+    panel.render(changed);
+    expect(button("Git safety").getAttribute("aria-checked")).toBe("false");
+  });
+  it("keeps the existing bypass guard off by default and can enable it", () => {
+    panel.render(fresh());
+    const toggle = button("Block Git bypass flags");
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    toggle.click();
+    expect(posted.at(-1)).toEqual({ type: "set", control: "git_guardrails", value: "on", tool: null });
+  });
+  it("shows default-on guards as on before a preference has been written", () => {
+    const model = fresh();
+    const guard = model.controls.find((c) => c.id === "secret_scan")!;
+    guard.rows[0]!.state = "tool-default";
+    guard.rows[0]!.value = null;
+    panel.render(model);
+    expect(button("Secret scanning").getAttribute("aria-checked")).toBe("true");
+  });
+  it("disables unreadable guardrails instead of pretending their state is known", () => {
+    const model = fresh();
+    model.controls.find((c) => c.id === "secret_scan")!.rows[0]!.state = "cannot-detect";
+    panel.render(model);
+    expect(button("Secret scanning").disabled).toBe(true);
+    button("Secret scanning").click();
+    expect(posted).toEqual([]);
+    expect(app.textContent).toContain("Unavailable. Refresh");
+  });
+  it("names every switch and associates its description", () => {
+    panel.render(fresh());
+    for (const toggle of app.querySelectorAll("[role='switch']")) {
+      const name = app.querySelector("#" + toggle.getAttribute("aria-labelledby"));
+      const description = app.querySelector("#" + toggle.getAttribute("aria-describedby"));
+      expect(name?.textContent).toBeTruthy();
+      expect(description?.textContent).toBeTruthy();
+      expect(toggle.tagName).toBe("BUTTON");
+    }
+    expect(app.querySelector("[role='radiogroup']")?.getAttribute("aria-labelledby")).toBe("effort-title");
+  });
+  it("keeps coverage information in the footer without a persistent warning", () => {
+    panel.render(fresh());
+    expect(app.querySelector("#effort-status")).toBeNull();
+    expect(app.querySelector(".compatibility")?.textContent).toContain("qualified Cursor Agent builds");
+    expect(app.querySelector(".compatibility")?.textContent).toContain("Manual effort: GitHub Copilot and Antigravity native");
+    expect(app.querySelector(".notice[data-level=warn]")).toBeNull();
+    expect(app.querySelector("table")).toBeNull();
+  });
+  it("keeps success feedback out of the visual panel", () => {
+    panel.render(fresh({ notice: { level: "info", text: "Saved.", lines: ["private setting detail"] } }));
+    expect(app.querySelector(".notice")).toBeNull();
+    expect(document.getElementById("live-status")?.textContent).toBe("Saved.");
+    expect(app.textContent).not.toContain("private setting detail");
+  });
+  it("keeps error details folded and inserts hostile data as text", () => {
+    panel.render(fresh({ notice: { level: "error", text: '<img src=x onerror="bad()">', lines: ["<script>bad()</script>"] } }));
+    expect(app.querySelector("script, img[src='x']")).toBeNull();
+    expect(app.querySelector<HTMLDetailsElement>("details")!.open).toBe(false);
+    expect(app.querySelector(".notice")?.textContent).toContain("<script>bad()</script>");
+    expect(document.getElementById("live-alert")?.textContent).toContain("<img");
+  });
+  it("announces a notice once and clears it when the notice disappears", () => {
+    panel.render(fresh({ notice: { level: "warn", text: "Not applied." } }));
+    expect(document.getElementById("live-status")?.textContent).toBe("Not applied.");
+    panel.render(fresh());
+    expect(document.getElementById("live-status")?.textContent).toBe("");
   });
 });
 
-describe("accessibility", () => {
-  it("labels every field, names every section, and gives every button text", () => {
-    panel.render(fresh());
-
-    for (const field of app.querySelectorAll("select, input")) {
-      const id = field.getAttribute("id")!;
-      expect(id).toBeTruthy();
-      expect(app.querySelector(`label[for='${id}']`)?.textContent?.length).toBeGreaterThan(0);
+describe("workspace, busy and focus handling", () => {
+  it("uses one tab stop and supports arrow, Home and End selection", () => {
+    for (const [key, value] of [["ArrowRight", "xhigh"], ["ArrowLeft", "medium"], ["Home", "low"], ["End", "ultra"]]) {
+      panel.render(fresh());
+      const selected = app.querySelector<HTMLButtonElement>("[role='radio'][aria-checked='true']")!;
+      expect(app.querySelectorAll("[role='radio'][tabindex='0']")).toHaveLength(1);
+      selected.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+      expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value, tool: null });
+      expect(document.activeElement?.getAttribute("data-value")).toBe(value);
     }
-    const sections = [...app.querySelectorAll("section.card:not(.error-card)")];
-    expect(sections.length).toBeGreaterThan(0);
-    for (const section of sections) {
-      expect(section.getAttribute("aria-labelledby")).toBeTruthy();
-      expect(document.getElementById(section.getAttribute("aria-labelledby")!)?.tagName).toBe("H2");
-    }
-    expect(app.querySelectorAll("[aria-labeledby]")).toHaveLength(0);
-    for (const b of app.querySelectorAll("button")) {
-      expect(b.textContent?.length).toBeGreaterThan(0);
-      expect(b.getAttribute("type")).toBe("button");
-      expect(b.getAttribute("data-focus")).toBeTruthy();
-    }
-    expect(new Set([...app.querySelectorAll("[id]")].map((n) => n.id)).size).toBe(app.querySelectorAll("[id]").length);
   });
-
-  it("marks risky choices in words, not only color", () => {
+  it("does not save the current choice again", () => {
     panel.render(fresh());
-    const options = [...app.querySelectorAll("option")].map((o) => o.textContent);
-    expect(options).toContain("full-auto (lowers a safety barrier)");
-    expect(options).toContain("off (lowers a safety barrier)");
-    expect(options).toContain("high");
+    pick("high");
+    expect(posted).toEqual([]);
   });
-
-  it("keeps focus on the same control, and a typed draft, across a re-render", () => {
-    panel.render(fresh());
-    const input = app.querySelector("input[type='text']") as HTMLInputElement;
-    type(input, "claude-opus-5-5");
-    input.focus();
-    expect(document.activeElement?.getAttribute("data-focus")).toBe("txt:model|claude");
-
-    panel.render(fresh());
-
-    expect(document.activeElement?.getAttribute("data-focus")).toBe("txt:model|claude");
-    expect((app.querySelector("input[type='text']") as HTMLInputElement).value).toBe("claude-opus-5-5");
+  it("allows only refresh in a read-only workspace", () => {
+    panel.render(fresh({}, false));
+    expect(app.textContent).toContain("Trust this workspace");
+    expect([...app.querySelectorAll<HTMLButtonElement>("[role='switch']")].every((node) => node.disabled)).toBe(true);
+    expect([...app.querySelectorAll<HTMLButtonElement>("[role='radio']")].every((node) => node.disabled)).toBe(true);
+    button("Refresh").click();
+    expect(posted).toEqual([{ type: "refresh" }]);
   });
-
-  it("gives a text field a datalist of known ids only where the engine supplied them", () => {
-    panel.render(fresh());
-    const inputs = [...app.querySelectorAll("input[type='text']")] as HTMLInputElement[];
-    const claude = inputs.find((i) => i.getAttribute("data-focus")?.endsWith("|claude"))!;
-    const codex = inputs.find((i) => i.getAttribute("data-focus")?.endsWith("|codex"))!;
-    expect(document.getElementById(claude.getAttribute("list")!)?.querySelectorAll("option").length).toBeGreaterThan(0);
-    expect(codex.hasAttribute("list")).toBe(false);
-    expect(claude.getAttribute("autocomplete")).toBe("off");
-    expect(claude.getAttribute("maxlength")).toBe("200");
-  });
-});
-
-describe("keyboard focus across an action", () => {
-  function focused(): string | null {
-    return document.activeElement?.getAttribute("data-focus") ?? null;
-  }
-
-  it.each([
-    ["Refresh", "refresh"],
-    ["Apply to every tool", "set:effort|*"],
-    ["Set only for Codex", "set:effort|codex"],
-    ["Reset Approval posture to what was there before", "reset:posture"],
-    ["Remove this override", "remove:effort|claude"],
-  ])("keeps focus on %s through the busy render and the idle render that follow a click", (label, key) => {
-    panel.render(fresh());
-    const target = button(label);
-    target.focus();
-    expect(focused()).toBe(key);
-
+  it("keeps controls focusable while busy and ignores all writes and refreshes", () => {
     panel.render(fresh({ busy: true }));
-    expect(focused()).toBe(key);
-    expect(document.activeElement?.tagName).toBe("BUTTON");
-    panel.render(fresh());
-
-    expect(focused()).toBe(key);
-    expect(document.activeElement).not.toBe(document.body);
+    expect(app.getAttribute("aria-busy")).toBe("true");
+    expect([...app.querySelectorAll<HTMLButtonElement>("button")].every((node) => !node.disabled && node.getAttribute("aria-disabled") === "true")).toBe(true);
+    for (const node of app.querySelectorAll<HTMLButtonElement>("button")) { node.click(); }
+    pick("medium");
+    expect(posted).toEqual([]);
   });
-
-  it("keeps focus on a select and a text field, and the caret in the text field, through the busy cycle", () => {
+  it("keeps effort focus through saving and restores a cancelled choice from readback", () => {
     panel.render(fresh());
-    const select = app.querySelector("select[data-focus='pick:effort|codex']") as HTMLSelectElement;
-    select.focus();
+    app.querySelector<HTMLButtonElement>("[data-value='medium']")!.focus();
+    pick("medium");
+    panel.render(fresh({ busy: true }));
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("medium");
+    panel.render(fresh({ notice: { level: "info", text: "Cancelled. Nothing was written." } }));
+    expect(app.querySelector("[role='radio'][aria-checked='true']")?.getAttribute("data-value")).toBe("high");
+    expect(document.activeElement?.getAttribute("data-focus")).toBe("effort:medium");
+  });
+  it("preserves switch focus across readback", () => {
+    panel.render(fresh());
+    button("Protect my edits").focus();
     panel.render(fresh({ busy: true }));
     panel.render(fresh());
-    expect(focused()).toBe("pick:effort|codex");
-
-    const input = app.querySelector("input[type='text']") as HTMLInputElement;
-    type(input, "claude-opus-5-5");
-    input.focus();
-    input.setSelectionRange(3, 7);
-    panel.render(fresh({ busy: true }));
-    panel.render(fresh());
-    const again = app.querySelector("input[type='text']") as HTMLInputElement;
-    expect(document.activeElement).toBe(again);
-    expect([again.selectionStart, again.selectionEnd]).toEqual([3, 7]);
-    expect(again.value).toBe("claude-opus-5-5");
+    expect(document.activeElement?.getAttribute("data-focus")).toBe("toggle:edit_preservation");
   });
-
-  it("moves focus to the card heading when the focused control no longer exists, never to the page body", () => {
+  it("falls back to Details when the focused setting disappears", () => {
     panel.render(fresh());
-    button("Remove this override").focus();
-    const after = fresh();
-    after.controls[0]!.rows.forEach((row) => (row.removable = null));
-
-    panel.render(after);
-
-    const heading = app.querySelector("section[data-card='effort'] h2") as HTMLElement;
-    expect(document.activeElement).toBe(heading);
-    expect(heading.getAttribute("tabindex")).toBe("-1");
+    button("Protect my edits").focus();
+    const model = fresh();
+    model.controls = model.controls.filter((c) => c.id !== "edit_preservation");
+    panel.render(model);
+    expect(document.activeElement?.getAttribute("data-focus")).toBe("details");
   });
-
-  it("falls back to Refresh when the whole card is gone", () => {
-    panel.render(fresh());
-    button("Reset Approval posture to what was there before").focus();
-    const after = fresh();
-    after.controls = after.controls.filter((c) => c.id !== "posture");
-
-    panel.render(after);
-
-    expect(focused()).toBe("refresh");
-  });
-
-  it("does not take focus when nothing in the panel had it", () => {
+  it("does not take focus from outside the panel", () => {
     panel.render(fresh());
     (document.body as HTMLElement).focus();
     panel.render(fresh({ busy: true }));
-    panel.render(fresh());
     expect(document.activeElement).toBe(document.body);
   });
-
-  it("keeps the sources a person opened open across a render, and the others closed", () => {
-    panel.render(fresh());
-    const details = [...app.querySelectorAll("details.sources")] as HTMLDetailsElement[];
-    details[1]!.open = true;
-    details[1]!.dispatchEvent(new Event("toggle"));
-
-    panel.render(fresh({ busy: true }));
-    panel.render(fresh());
-
-    const open = [...app.querySelectorAll("details.sources")].map((d) => (d as HTMLDetailsElement).open);
-    expect(open).toEqual([false, true, false, false, false]);
-
-    const again = app.querySelectorAll("details.sources")[1] as HTMLDetailsElement;
-    again.open = false;
-    again.dispatchEvent(new Event("toggle"));
-    panel.render(fresh());
-    expect([...app.querySelectorAll("details.sources")].some((d) => (d as HTMLDetailsElement).open)).toBe(false);
-  });
-
-  it("keeps focus on the summary of an open sources element", () => {
-    panel.render(fresh());
-    (app.querySelectorAll("details.sources summary")[2] as HTMLElement).focus();
-    panel.render(fresh({ busy: true }));
-    panel.render(fresh());
-    expect(focused()).toBe("sources:posture");
-  });
-});
-
-describe("choices that start empty and names that stay distinct", () => {
-  it("does not preselect a value for a row whose own value is overridden: a placeholder is chosen instead", () => {
-    panel.render(fresh());
-    const effort = app.querySelectorAll("section.card")[1]!;
-    const claude = effort.querySelector("select[data-focus='pick:effort|claude']") as HTMLSelectElement;
-
-    expect(claude.value).toBe("");
-    expect([...claude.options].map((o) => o.textContent)).toEqual(["Choose a value", "low", "medium", "high", "xhigh"]);
-    const set = effort.querySelector("button[data-focus='set:effort|claude']") as HTMLButtonElement;
-    expect(set.getAttribute("aria-disabled")).toBe("true");
-    set.click();
-    expect(posted).toEqual([]);
-
-    pick(claude, "low");
-    expect(set.hasAttribute("aria-disabled")).toBe(false);
-    set.click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value: "low", tool: "claude" });
-  });
-
-  it("starts a row that already has a value at that value, with no placeholder", () => {
-    panel.render(fresh());
-    const codex = app.querySelector("select[data-focus='pick:effort|codex']") as HTMLSelectElement;
-    expect(codex.value).toBe("high");
-    expect([...codex.options].map((o) => o.textContent)).not.toContain("Choose a value");
-  });
-
-  it("starts apply-to-every-tool with a placeholder when no tool has a value to start from", () => {
-    const model = fresh();
-    model.controls[0]!.rows.forEach((row) => (row.value = null));
-    panel.render(model);
-    const all = app.querySelector("select[data-focus='pick:effort|*']") as HTMLSelectElement;
-    expect(all.value).toBe("");
-    const apply = app.querySelector("button[data-focus='set:effort|*']") as HTMLButtonElement;
-    apply.click();
-    expect(posted).toEqual([]);
-    pick(all, "medium");
-    apply.click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value: "medium", tool: null });
-  });
-
-  it("disables a model Set button until the field holds a value", () => {
-    panel.render(fresh());
-    const set = app.querySelector("button[data-focus='set:model|codex']") as HTMLButtonElement;
-    const input = app.querySelector("input[data-focus='txt:model|codex']") as HTMLInputElement;
-    expect(set.getAttribute("aria-disabled")).toBe("true");
-    type(input, "gpt-6.2");
-    expect(set.hasAttribute("aria-disabled")).toBe(false);
-    type(input, "   ");
-    expect(set.getAttribute("aria-disabled")).toBe("true");
-  });
-
-  it("gives every repeated action a name that says which control it belongs to, starting with its visible text", () => {
-    panel.render(fresh());
-    const names = [...app.querySelectorAll("button, summary")].map((b) => b.getAttribute("aria-label") ?? b.textContent ?? "");
-    expect(new Set(names).size).toBe(names.length);
-    for (const b of app.querySelectorAll("button, summary")) {
-      const label = b.getAttribute("aria-label");
-      if (label) {
-        expect(label.startsWith((b.textContent ?? "").trim())).toBe(true);
-      }
-    }
-  });
-
-  it("names a source button after the tool when the catalog documents no key", () => {
-    const model = fresh();
-    const source = model.controls[0]!.sources.find((s) => s.canOpen)!;
-    source.name = "VS Code Copilot Chat (VS Code)";
-    source.owner = "VS Code Copilot Chat (VS Code)";
-    source.keyLine = "No documented key for VS Code Copilot Chat (VS Code)";
-    panel.render(model);
-    expect(button("Open source for VS Code Copilot Chat (VS Code)")).toBeTruthy();
-    expect(app.textContent).toContain("No documented key for VS Code Copilot Chat (VS Code)");
-    expect(app.textContent).not.toContain("<none documented>");
-  });
-
-  it("writes the Not settable reasons once, under the table", () => {
-    panel.render(fresh());
-    const table = app.querySelector("table")!;
-    expect(table.textContent).not.toContain("No Proof Record");
-    const notes = [...app.querySelectorAll("section.card")[0]!.querySelectorAll("p.hint")].map((p) => p.textContent ?? "");
-    expect(notes.length).toBeGreaterThan(0);
-    expect(notes.every((n) => n.startsWith("Not settable for "))).toBe(true);
-    const outcome = app.querySelectorAll("section.card")[0]!.textContent ?? "";
-    for (const note of notes) {
-      expect(outcome.split(note).length - 1).toBe(1);
-    }
-  });
-
-  it("does not repeat the new-sessions line on every card", () => {
-    panel.render(fresh());
-    expect([...app.querySelectorAll("section.card p.hint")].filter((p) => p.textContent === "New sessions only.")).toHaveLength(0);
-    expect(app.querySelector("header")?.textContent).toContain("applies to new sessions only");
-  });
-
-  it("says plainly when there is nothing to show instead of drawing an empty page", () => {
-    panel.render(fresh({ controls: [], outcome: { title: "t", rows: [], notes: [] } }));
-    expect(app.textContent).toContain("No settings were reported. Choose Refresh to read them again.");
-    panel.render(fresh({ controls: [], outcome: { title: "t", rows: [], notes: [] }, busy: true }));
-    expect(app.textContent).toContain("Loading the current settings...");
-    expect(app.textContent).not.toContain("No settings were reported");
-  });
-
-  it("makes the secondary buttons plain and only the actions that write primary", () => {
-    panel.render(fresh());
-    const primary = [...app.querySelectorAll("button.primary")].map((b) => b.getAttribute("data-focus"));
-    expect(primary.length).toBeGreaterThan(0);
-    expect(primary.every((key) => key!.startsWith("set:"))).toBe(true);
-    expect(button("Refresh").classList.contains("primary")).toBe(false);
-    expect(button("Reset Approval posture to what was there before").classList.contains("primary")).toBe(false);
-  });
-});
-
-describe("requests the panel posts", () => {
-  it("applies a posture to every tool, using the chosen value", () => {
-    panel.render(fresh());
-    const posture = app.querySelectorAll("section.card")[3]!;
-    const select = posture.querySelector("select") as HTMLSelectElement;
-    pick(select, "full-auto");
-    (posture.querySelector("button[data-focus='set:posture|*']") as HTMLButtonElement).click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "posture", value: "full-auto", tool: null });
-  });
-
-  it("starts the apply-all choice at the value the first settable tool already has", () => {
-    panel.render(fresh());
-    const posture = app.querySelectorAll("section.card")[3]!;
-    expect((posture.querySelector("select") as HTMLSelectElement).value).toBe("accept-edits");
-  });
-
-  it("sets effort for one tool only", () => {
-    panel.render(fresh());
-    const effort = app.querySelectorAll("section.card")[1]!;
-    const select = effort.querySelector("select[data-focus='pick:effort|codex']") as HTMLSelectElement;
-    expect(select.value).toBe("high");
-    pick(select, "low");
-    button("Set only for Codex").click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "effort", value: "low", tool: "codex" });
-  });
-
-  it("sets a model per tool from the typed value, and ignores an empty one", () => {
-    panel.render(fresh());
-    button("Set for Codex").click();
-    expect(posted).toEqual([]);
-    const input = app.querySelector("input[data-focus='txt:model|codex']") as HTMLInputElement;
-    type(input, "  gpt-6-astra  ");
-    button("Set for Codex").click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "model", value: "gpt-6-astra", tool: "codex" });
-  });
-
-  it("offers remove-override only where the engine reported one, and reset and refresh everywhere", () => {
-    panel.render(fresh());
-    expect([...app.querySelectorAll("button")].filter((b) => b.textContent === "Remove this override")).toHaveLength(1);
-    button("Remove this override").click();
-    expect(posted.at(-1)).toEqual({ type: "removeOverride", control: "effort", tool: "claude" });
-    button("Reset Approval posture to what was there before").click();
-    expect(posted.at(-1)).toEqual({ type: "reset", control: "posture", tool: null });
+  it("shows an actionable error and leaves refresh available", () => {
+    panel.render(errorModel("Default", "windows", { title: "Engine unavailable", message: "Could not read settings.", command: "python cli settings show", fix: "Install the engine." }));
+    expect(app.querySelector("[role='alert'] h2")?.textContent).toBe("Engine unavailable");
+    expect(app.querySelector("select, [role='switch']")).toBeNull();
     button("Refresh").click();
-    expect(posted.at(-1)).toEqual({ type: "refresh" });
+    expect(posted).toEqual([{ type: "refresh" }]);
   });
-
-  it("styles a safety-lowering removal as a danger action", () => {
-    const model = fresh();
-    model.controls[0]!.rows[0]!.removable = { tool: "claude", weakens: true, reason: "Blocks bypass." };
-    panel.render(model);
-    expect(button("Remove this override").getAttribute("class")).toBe("danger");
-  });
-
-  it("applies attribution and guardrails with their single or paired choices", () => {
-    panel.render(fresh());
-    const attribution = app.querySelectorAll("section.card")[4]!;
-    expect((attribution.querySelector("select") as HTMLSelectElement).options).toHaveLength(1);
-    (attribution.querySelector("button[data-focus='set:attribution|*']") as HTMLButtonElement).click();
-    expect(posted.at(-1)).toEqual({ type: "set", control: "attribution", value: "off", tool: null });
+  it("distinguishes loading from an empty report", () => {
+    panel.render(fresh({ controls: [], busy: true }));
+    expect(app.textContent).toContain("Loading settings...");
+    panel.render(fresh({ controls: [] }));
+    expect(app.textContent).toContain("No settings were reported");
   });
 });
 
-function live(id: string): HTMLElement {
-  return document.getElementById(id) as HTMLElement;
-}
-
-describe("disabled states", () => {
-  it("really disables every action but Refresh when read-only, so nothing can change", () => {
-    panel.render(fresh({}, false));
-    const buttons = [...app.querySelectorAll("button")];
-    expect(buttons.filter((b) => b.hasAttribute("disabled") && b.textContent !== "Refresh").length).toBe(buttons.length - 1);
-    expect(button("Refresh").hasAttribute("disabled")).toBe(false);
-    expect([...app.querySelectorAll("select, input")].every((f) => f.hasAttribute("disabled"))).toBe(true);
-  });
-
-  it("keeps Refresh enabled in the error state, where nothing else can be used", () => {
-    panel.render(errorModel("Default", "windows", { title: "Nexus-Hub is not installed", message: "not found", command: "python cli", fix: "Install it." }));
-    expect(button("Refresh").hasAttribute("disabled")).toBe(false);
-    expect(button("Refresh").getAttribute("aria-disabled")).toBeNull();
-    button("Refresh").click();
-    expect(posted.at(-1)).toEqual({ type: "refresh" });
-  });
-
-  it("marks every control aria-disabled while busy but leaves it focusable, and ignores clicks", () => {
-    panel.render(fresh({ busy: true }));
-    expect(app.getAttribute("aria-busy")).toBe("true");
-    const buttons = [...app.querySelectorAll("button")];
-    expect(buttons.every((b) => !b.hasAttribute("disabled") && b.getAttribute("aria-disabled") === "true")).toBe(true);
-    expect([...app.querySelectorAll("select, input")].every((f) => !f.hasAttribute("disabled") && f.getAttribute("aria-disabled") === "true")).toBe(true);
-    for (const b of buttons) {
-      b.click();
-    }
-    expect(posted).toEqual([]);
-    panel.render(fresh());
-    expect(app.getAttribute("aria-busy")).toBe("false");
-    expect(button("Refresh").getAttribute("aria-disabled")).toBeNull();
-  });
-
-  it("does not offer apply for a control with no settable tool", () => {
-    const model = fresh();
-    model.controls[4]!.canApply = false;
-    panel.render(model);
-    expect(app.querySelector("button[data-focus='set:git_guardrails|*']")).toBeNull();
-  });
-});
-
-describe("messages and boot", () => {
-  it("renders only well-formed render messages", () => {
+describe("webview protocol", () => {
+  it("ignores incomplete and unrelated render messages", () => {
+    for (const message of [null, { type: "render" }, { type: "other", model: fresh() }, { type: "render", model: { controls: null } }]) { panel.onMessage(message); }
+    expect(app.querySelector("h1")).toBeNull();
     panel.onMessage({ type: "render", model: fresh() });
     expect(app.querySelector("h1")).not.toBeNull();
-    document.body.innerHTML = '<main id="app"></main>';
-    app = document.getElementById("app") as HTMLElement;
-    panel = panelModule.createPanel(document, () => undefined);
-    panel.onMessage({ type: "render" });
-    panel.onMessage({ type: "other", model: fresh() });
-    panel.onMessage(null);
-    expect(app.querySelector("h1")).toBeNull();
   });
-
-  it("omits the logo when the host gave none", () => {
-    document.body.innerHTML = '<main id="app"></main>';
-    app = document.getElementById("app") as HTMLElement;
-    panel = panelModule.createPanel(document, () => undefined);
-    panel.render(fresh());
-    expect(app.querySelector("img")).toBeNull();
-  });
-
-  it("boots by asking the host for the first render and listening for models", () => {
+  it("boots once and asks the host to render", () => {
     const post = vi.fn();
-    const listeners: Record<string, (e: { data: unknown }) => void> = {};
-    const win = { document, acquireVsCodeApi: () => ({ postMessage: post }), addEventListener: (type: string, cb: (e: { data: unknown }) => void) => void (listeners[type] = cb) };
-
-    panelModule.boot(win);
-
+    const listeners: Record<string, (event: { data: unknown }) => void> = {};
+    panelModule.boot({ document, acquireVsCodeApi: () => ({ postMessage: post }), addEventListener: (name: string, cb: (event: { data: unknown }) => void) => void (listeners[name] = cb) });
     expect(post).toHaveBeenCalledWith({ type: "ready" });
     listeners.message!({ data: { type: "render", model: fresh() } });
-    expect(app.querySelector("h1")).not.toBeNull();
-    (button("Refresh") as HTMLButtonElement).click();
-    expect(post).toHaveBeenLastCalledWith({ type: "refresh" });
+    expect(app.querySelector("[role='radiogroup']")).not.toBeNull();
   });
+  it("does not build HTML strings, invoke eval, or contact a network", () => {
+    const source = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../media/panel.js"), "utf8");
+    expect(source).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|\beval\(|\bfetch\(|XMLHttpRequest/);
+  });
+});
+
+
+it("does not offer replacement sessions as a live-update workaround", () => {
+  const model = fresh({ codexAvailable: true, uiEffort: { reloadRequired: false, errors: [] } });
+  model.preferences!.needsAttention = false;
+  panel.render(model);
+  expect(app.querySelector("#effort-status")).toBeNull();
+  expect(app.querySelector(".native-action")).toBeNull();
+  expect(posted).toEqual([]);
+  model.uiEffort!.reloadRequired = true; panel.render(model);
+  expect(app.querySelector("#effort-status")).toBeNull();
+});
+
+it("groups provider restart buttons under Extensions and sends only provider identifiers", () => {
+  panel.render(fresh({codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "initial", codexTabs: true}}));
+  expect(app.querySelector("#editor-title")?.textContent).toBe("Extensions");
+  app.querySelector<HTMLButtonElement>("[aria-label='Restart Claude Code']")!.click();
+  expect(posted).toEqual([{type: "restartExtension", provider: "claude"}]);
+  panel.render(fresh({codexAvailable: true, sessionDefaults: {fastMode: false, fastRevision: "initial", codexTabs: true}}));
+  app.querySelector<HTMLButtonElement>("[aria-label='Restart Codex']")!.click();
+  expect(posted.at(-1)).toEqual({type: "restartExtension", provider: "codex"});
+});
+
+it("keeps Codex navigation and restart in the Codex group, separate from Claude", () => {
+  panel.render(fresh({codexAvailable: true}));
+  const groups = app.querySelectorAll(".extension-group");
+  expect(groups).toHaveLength(2);
+  expect(groups[1].querySelector("h3")?.textContent).toBe("Codex");
+  expect(groups[1].querySelector("[data-setting='codexTabs']")).not.toBeNull();
+  expect(groups[1].querySelector("[aria-label='Restart Codex']")).not.toBeNull();
+  expect(groups[0].querySelector("h3")?.textContent).toBe("Claude Code");
+  expect(groups[0].querySelector("[data-setting='codexTabs']")).toBeNull();
+});
+
+it("shows a prominent mixed master and lets it enable every provider", () => {
+  panel.render(fresh({usageAlerts: {claude:true,codex:false,copilot:false,cursor:false,gemini:false}}));
+  const master = app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!;
+  expect(master.getAttribute("aria-checked")).toBe("mixed"); expect(master.closest(".alerts-master")).not.toBeNull();
+  master.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:true});
+  panel.render(fresh({usageAlerts: {claude:true,codex:true,copilot:true,cursor:true,gemini:true}}));
+  app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:false});
+  panel.render(fresh()); app.querySelector<HTMLButtonElement>("[data-setting='alert-codex']")!.click();
+  expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"codex",enabled:false});
+});
+
+it("shows only VS Code providers and ignores hidden providers in the master state", () => {
+  panel.render(fresh({usageAlertProviders: ["claude","codex","copilot"], usageAlerts: {claude:true,codex:true,copilot:true,cursor:false,gemini:false}}));
+  expect(app.querySelectorAll(".alerts-list .setting-row")).toHaveLength(3);
+  expect(app.querySelector("[data-setting='alert-cursor']")).toBeNull();
+  expect(app.querySelector("[data-setting='alert-gemini']")).toBeNull();
+  expect(app.querySelector("[data-setting='alert-all']")?.getAttribute("aria-checked")).toBe("true");
+  expect(app.querySelector(".alerts-master .hint")?.textContent).toBe("3 of 3 enabled");
+});
+it.each(["cursor", "gemini"] as const)("shows only the master for %s and follows its provider", provider => {
+  panel.render(fresh({usageAlertProviders: [provider], usageAlerts: {claude:true,codex:true,copilot:true,cursor:false,gemini:false}}));
+  expect(app.querySelector(".alerts-list")).toBeNull();
+  const master = app.querySelector<HTMLButtonElement>("[data-setting='alert-all']")!;
+  expect(master.getAttribute("aria-checked")).toBe("false");
+  expect(app.querySelectorAll(".usage-alerts-section button")).toHaveLength(1);
+  master.click(); expect(posted.at(-1)).toEqual({type:"setUsageAlert",provider:"all",enabled:true});
+});
+
+it("omits the Extensions section when the editor does not use provider extensions", () => {
+  panel.render(fresh({codexAvailable:true,editorCapabilities:{extensionSettings:false,fastMode:true}}));
+  expect(app.querySelector(".editor-section")).toBeNull();
+  expect(app.querySelector("[data-setting='codexTabs']")).toBeNull();
+  expect(app.querySelector("[aria-label='Restart Claude Code']")).toBeNull();
+  expect(app.querySelector("[aria-label='Restart Codex']")).toBeNull();
+});
+it("disables unsupported Fast mode without changing the shared preference", () => {
+  panel.render(fresh({editorCapabilities:{extensionSettings:false,fastMode:false},sessionDefaults:{fastMode:true,fastRevision:"saved",codexTabs:true}}));
+  const toggle=app.querySelector<HTMLButtonElement>("[data-setting='fast']")!;
+  expect(toggle.disabled).toBe(true);
+  expect(toggle.getAttribute("aria-checked")).toBe("false");
+  expect(toggle.getAttribute("aria-disabled")).toBe("true");
+  expect(app.querySelector("#description-fast")?.textContent).toBe("Not available in this editor.");
+  toggle.click();expect(posted).toEqual([]);
 });

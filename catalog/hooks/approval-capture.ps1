@@ -93,5 +93,5 @@ $out = $proc.StandardOutput.ReadToEnd()
 $err = $proc.StandardError.ReadToEnd()
 $proc.WaitForExit()
 if ($out) { [Console]::Out.Write($out) }
-if ($err) { [Console]::Error.Write($err) }
+if ($err) { [Console]::Error.Write($err) }  # nexus: hook-msg-exempt relays the installed completion_gate.py core's output verbatim
 exit $proc.ExitCode

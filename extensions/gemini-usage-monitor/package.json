@@ -2,7 +2,7 @@
   "name": "gemini-usage-monitor",
   "displayName": "Gemini Usage Monitor",
   "description": "Monitor your Google Antigravity IDE model quotas (Gemini and Claude/GPT, 5-hour and weekly) in the status bar with alerts and recommendations. Reads Antigravity's own local language server; nothing leaves your machine.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -72,7 +72,7 @@
       "activitybar": [
         {
           "id": "geminiUsageWarning",
-          "title": "Gemini Usage Warning",
+          "title": "Gemini",
           "icon": "icons/warning.svg"
         }
       ]
@@ -81,7 +81,7 @@
       "geminiUsageWarning": [
         {
           "id": "geminiUsageWarningView",
-          "name": "Usage Warning",
+          "name": "Usage alert",
           "type": "webview",
           "when": "geminiUsage.warningActive"
         }
@@ -201,7 +201,8 @@
     "vitest": "4.1.12"
   },
   "overrides": {
-    "minimatch": "11.0.1"
+    "minimatch": "11.0.1",
+    "glob": "14.0.2"
   },
   "keywords": [
     "antigravity",

@@ -284,7 +284,7 @@ def test_first_crossing_has_the_exact_output_shape(guard, dirs, project, platfor
     output = run(guard, dirs, platform, body)
     message = guard.decision_directive(guard.pending_decision(platform, body), guard.directive(
         platform, {"name": "weekly", "percent": 99.2, "resets_at": "2026-10-05T00:00:00Z"}))
-    assert output == expected_shape(platform, kind, message)
+    assert output == expected_shape(platform, kind, f"{guard.NEXUS_TAG} {message}")
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)
@@ -1030,7 +1030,7 @@ def test_credit_reminders_fire_once_per_tier_and_never_at_turn_end(guard, dirs, 
         output = run(guard, dirs, "claude", payload("claude", "tool", project))
         if output is not None:
             text = message_of(output)
-            assert text.startswith("Usage credits: Claude Code pay-per-use credits used so far:")
+            assert text.startswith(f"{guard.NEXUS_TAG} Usage credits: Claude Code pay-per-use credits used so far:")
             assert text.isascii()
             seen.append(percent)
     assert seen == [50, 80, 92]
@@ -1287,7 +1287,9 @@ def test_subprocess_claude_hook_emits_once_then_continues_once(tmp_path, project
     assert first.returncode == 0 and first.stderr == ""
     body = json.loads(first.stdout)
     assert body["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
-    assert body["hookSpecificOutput"]["additionalContext"].startswith("Usage limit: Claude Code weekly usage is at 100%")
+    assert body["hookSpecificOutput"]["additionalContext"].startswith(
+        "[Nexus-Hub: usage-guard] Usage limit: Claude Code weekly usage is at 100%"
+    )
     _claim_wrapper_fixture(env, project, "claude", hooks / "usage-guard.py")
     assert call("tool").stdout == ""
     assert call("stop").stdout == ""

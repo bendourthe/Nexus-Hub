@@ -898,11 +898,15 @@ def cmd_prune(args, root: Path) -> int:
 # user's. Only a truncated, control-stripped path is ever printed, never file content.
 
 HOOK_NAME = "user-edit-guard"
+_HOOK_VALUE_ESCAPES = {
+    code: {9: "\\t", 10: "\\n", 13: "\\r"}.get(code, f"\\x{code:02x}")
+    for code in (*range(32), 127)
+}
 HOOK_MESSAGE = ("This file changed since your last read or write, or was never recorded. Run the "
                 "user-edit-preservation procedure: diff, review, carry forward, and ask before overwriting.")
 HOOK_CANNOT_VERIFY = ("Cannot verify this file against your last read or write. Stop and ask the user "
                       "before overwriting it (user-edit-preservation).")
-HOOK_ESCAPE = f"Only the user may turn this check off, with NEXUS_DISABLED_HOOKS={HOOK_NAME}."
+HOOK_ESCAPE = f"[Nexus-Hub: {HOOK_NAME}] Only the user may turn this check off, with NEXUS_DISABLED_HOOKS={HOOK_NAME}."
 EDIT_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 SHELL_TOOLS = {"Bash", "PowerShell", "Shell"}
 POSIX_COPY = {"cp", "mv", "install", "rsync"}
@@ -916,7 +920,7 @@ SETTLE_SECONDS = 5
 
 
 def _display(path: str | Path) -> str:
-    clean = "".join(ch if ch.isprintable() else "?" for ch in str(path))
+    clean = "".join(ch if ch.isprintable() else "?" for ch in str(path).translate(_HOOK_VALUE_ESCAPES))
     return clean if len(clean) <= 120 else "..." + clean[-117:]
 
 
@@ -1292,8 +1296,8 @@ def _emit(event: str, lines: list[str]) -> None:
 
 def _next_step(target: Path, status: int) -> str:
     """The exact helper command to run next, so the agent compares with the tool, not by eye."""
-    helper = "".join(ch if ch.isprintable() else "?" for ch in str(Path(__file__).resolve()))
-    shown = "".join(ch if ch.isprintable() else "?" for ch in str(target))
+    helper = "".join(ch if ch.isprintable() else "?" for ch in str(Path(__file__).resolve()).translate(_HOOK_VALUE_ESCAPES))
+    shown = "".join(ch if ch.isprintable() else "?" for ch in str(target).translate(_HOOK_VALUE_ESCAPES))
     if status == EXIT_NO_RECORD:
         return (f'Next: python "{helper}" diff "{shown}" --against <your own generated copy, for example '
                 "out/deck.pptx>, then tell the user every difference it shows. Do not compare by hand.")
@@ -1364,7 +1368,7 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             # that changed since is evidence of a user edit the script is about to overwrite.
             continue
         reason = HOOK_MESSAGE if status in (EXIT_CHANGED, EXIT_NO_RECORD) else HOOK_CANNOT_VERIFY
-        entry = f"{_display(target)}\n{reason}\n{_next_step(target, status)}"
+        entry = f"{_display(target)}\n[Nexus-Hub: {HOOK_NAME}] {reason}\n[Nexus-Hub: {HOOK_NAME}] {_next_step(target, status)}"
         real = Path(os.path.abspath(target))
         if in_worktree(real):
             # History protects a tracked file; an unrecorded file (a build log, an ignored output) is
@@ -1382,11 +1386,11 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             # normal refusal, which is the safe direction: a user edit is never re-baselined.
             pass
     if blocked:
-        print("\n".join(f"[{HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
+        print("\n".join(f"[Nexus-Hub: {HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
         print(HOOK_ESCAPE, file=sys.stderr)
         return EXIT_ERROR
     if warned:
-        _emit("PreToolUse", [f"[{HOOK_NAME}] WARNING (git worktree, not blocked): {entry}" for entry in warned])
+        _emit("PreToolUse", [f"[Nexus-Hub: {HOOK_NAME}] WARNING (git worktree, not blocked): {entry}" for entry in warned])
     return EXIT_OK
 
 
@@ -1436,7 +1440,7 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
             # advisory scan; visible targets below still go through the normal record rules.
             pass
     refused: list[str] = [
-        f"[{HOOK_NAME}] WARNING: {_display(p)} changed while this command ran, but the command did not "
+        f"[Nexus-Hub: {HOOK_NAME}] WARNING: {_display(p)} changed while this command ran, but the command did not "
         "visibly write it, so it was not re-recorded. If it was your own change, run diff and accept with "
         "the user's agreement; otherwise the user changed it."
         for p in elsewhere
@@ -1455,7 +1459,7 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
         except (GuardError, OSError, ValueError, KeyError):
             continue
         if status == EXIT_CHANGED:
-            refused.append(f"[{HOOK_NAME}] WARNING: {_display(target)} changed since your last read or write. "
+            refused.append(f"[Nexus-Hub: {HOOK_NAME}] WARNING: {_display(target)} changed since your last read or write. "
                            "Run the user-edit-preservation procedure before changing it.")
     if refused:
         _emit("PostToolUse", refused)

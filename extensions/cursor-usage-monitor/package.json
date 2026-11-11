@@ -2,7 +2,7 @@
   "name": "cursor-usage-monitor",
   "displayName": "Cursor Usage Monitor",
   "description": "Independent Nexus-Hub monitor for personal Cursor included usage and on-demand spend without storing credentials in settings",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -92,7 +92,7 @@
       "activitybar": [
         {
           "id": "cursorUsageWarning",
-          "title": "Cursor Usage Warning",
+          "title": "Cursor",
           "icon": "icons/warning.svg"
         }
       ]
@@ -101,7 +101,7 @@
       "cursorUsageWarning": [
         {
           "id": "cursorUsageWarningView",
-          "name": "Usage Warning",
+          "name": "Usage alert",
           "type": "webview",
           "when": "cursorUsage.warningActive"
         }

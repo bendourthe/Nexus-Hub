@@ -21,6 +21,7 @@ from types import MappingProxyType
 from typing import Any, Callable, Mapping
 
 from .catalog import FILE_IDS, USER_FILE_IDS
+from .effort import codex_levels
 
 MAX_PROJECT_BYTES = 1_000_000
 VERSION_TIMEOUT_SECONDS = 5
@@ -37,6 +38,7 @@ FILE_INFO: dict[str, tuple[str, str]] = {
     "copilot-repo": ("project", "json"),
     "copilot-repo-local": ("project", "json"),
     "nexus-guardrails": ("user", "json"),
+    "nexus-preferences": ("user", "json"),
 }
 assert set(FILE_INFO) == FILE_IDS  # one vocabulary, no drift between catalog and readers
 
@@ -70,6 +72,7 @@ class Snapshot:
     files: Mapping[str, FileRead]
     tools: Mapping[str, ToolState]
     codex_project_trusted: bool = False
+    codex_effort_levels: tuple[str, ...] | None = None
 
 
 def platform_name() -> str:
@@ -113,6 +116,8 @@ def file_path(file_id: str, home: Path, env: Mapping[str, str], project: Path | 
         return dir_path("copilot-dir", home, env) / "settings.json"
     if file_id == "nexus-guardrails":
         return home / ".nexus-hub" / "guardrails.json"
+    if file_id == "nexus-preferences":
+        return home / ".nexus-hub" / "preferences.json"
     if project is None:
         return None
     relative = {
@@ -330,6 +335,7 @@ def take_snapshot(
         home=str(home), project=str(project) if project else None, platform=platform, env=env,
         files=MappingProxyType(files), tools=MappingProxyType(_tool_states(catalog, home, env, find, version_runner)),
         codex_project_trusted=trusted,
+        codex_effort_levels=codex_levels(home, env, files["codex-user"].data if files["codex-user"].status == "ok" else {}),
     )
 
 

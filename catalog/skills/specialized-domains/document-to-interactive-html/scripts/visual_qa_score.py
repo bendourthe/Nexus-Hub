@@ -1885,7 +1885,7 @@ _GLOBAL_SCROLL_LISTENER_RE = re.compile(
     r"""(?:(\w+)\s*\.\s*)?addEventListener\(\s*["']scroll["']""", re.IGNORECASE
 )
 _SCROLL_TIMELINE_RE = re.compile(r"animation-timeline\s*:\s*scroll\(", re.IGNORECASE)
-_SCRIPT_RE = re.compile(r"<script[^>]*>(.*?)</script>", re.DOTALL | re.IGNORECASE)
+_SCRIPT_RE = re.compile(r"<script\b[^>]*>(.*?)</script\b[^>]*>", re.DOTALL | re.IGNORECASE)
 _INFINITE_ANIM_RE = re.compile(r"\binfinite\b", re.IGNORECASE)
 
 # v4.9.2. A figure's build, its type scale, and whether it was recomposed or

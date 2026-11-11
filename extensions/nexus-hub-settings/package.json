@@ -1,8 +1,8 @@
 {
   "name": "nexus-hub-settings",
-  "displayName": "Nexus-Hub Settings",
-  "description": "Set default effort, model, approval posture, commit attribution, and git guardrails once for Claude Code, Codex, and GitHub Copilot, and see what overrides each default",
-  "version": "0.1.0",
+  "displayName": "Nexus Hub",
+  "description": "Set one shared effort preference and control the main Nexus-Hub protections from a compact settings panel",
+  "version": "0.8.2",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -26,7 +26,8 @@
     "ui"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "*",
+    "onCommand:nexusHubSettings.openCodex"
   ],
   "main": "./out/extension.js",
   "capabilities": {
@@ -42,16 +43,52 @@
   "contributes": {
     "commands": [
       {
+        "command": "nexusHubSettings.newCodexAgent",
+        "title": "New Codex Agent",
+        "category": "Nexus Hub"
+      },
+      {
         "command": "nexusHubSettings.open",
-        "title": "Nexus-Hub Settings: Open",
-        "category": "Nexus-Hub"
+        "title": "Open Settings",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.applyAll",
+        "title": "Apply Default Effort to All Sessions",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.upgrade",
+        "title": "Check for Upgrades",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.codexHistory",
+        "title": "Codex History",
+        "category": "Nexus Hub",
+        "icon": "$(history)"
+      },
+      {
+        "command": "nexusHubSettings.refreshCodexTab",
+        "title": "Refresh Codex Tab",
+        "category": "Nexus Hub",
+        "icon": "$(refresh)"
       }
     ],
+    "icons": {
+      "nexus-hub-icon": {
+        "description": "The Nexus-Hub mark",
+        "default": {
+          "fontPath": "./fonts/nexus-hub-icons.woff2",
+          "fontCharacter": "\\E201"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
           "id": "nexusHubSettings",
-          "title": "Nexus-Hub Settings",
+          "title": "Nexus Hub",
           "icon": "media/icon.svg"
         }
       ]
@@ -60,7 +97,7 @@
       "nexusHubSettings": [
         {
           "id": "nexusHubSettings.view",
-          "name": "Defaults",
+          "name": "Settings",
           "type": "webview"
         }
       ]
@@ -68,6 +105,12 @@
     "configuration": {
       "title": "Nexus-Hub Settings",
       "properties": {
+        "nexusHubSettings.compactStatusBar": {
+          "type": "boolean",
+          "scope": "application",
+          "default": true,
+          "description": "Show 'High (effort)' in the status bar. Turn off to include the 'Nexus Settings: ' prefix."
+        },
         "nexusHubSettings.pythonPath": {
           "type": "string",
           "scope": "machine",
@@ -75,6 +118,20 @@
           "markdownDescription": "Absolute path to the Python 3 interpreter that runs the Nexus-Hub command line. Leave empty to search the standard install locations. A relative path, a bare command name, and a workspace value are never used."
         }
       }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "nexusHubSettings.codexHistory",
+          "when": "activeCustomEditorId == chatgpt.conversationEditor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "nexusHubSettings.refreshCodexTab",
+          "when": "activeCustomEditorId == chatgpt.conversationEditor",
+          "group": "navigation@2"
+        }
+      ]
     }
   },
   "scripts": {
@@ -84,14 +141,18 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "package": "vsce package --no-dependencies",
+    "generate-icons": "node scripts/generate-icon-font.js",
     "verify:package": "node scripts/verify-package-contents.js"
   },
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/vscode": "1.85.0",
-    "@vscode/vsce": "4.1.0",
     "@vitest/coverage-v8": "4.1.12",
+    "@vscode/vsce": "4.1.0",
     "happy-dom": "21.0.4",
+    "svg2ttf": "6.1.0",
+    "svgpath": "2.6.0",
+    "ttf2woff2": "8.0.1",
     "typescript": "5.9.3",
     "vitest": "4.1.12"
   },

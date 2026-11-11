@@ -225,6 +225,8 @@ Smell: emoji bullets, bold on every other phrase, and a bulleted list where a se
 - Before: a five-item bulleted list, each item two words, each with a leading emoji.
 - After: one sentence, or a list only where the items are genuinely parallel and worth scanning.
 
+The opposite smell is owned by `catalog/rules/documents/document-style.md`: a list packed into one sentence after a colon, a "Label: value" fact appended after a sentence, and emphasis that does not end exactly at a lead-in's colon. The detector flags them as `inline-enumeration`, `trailing-label-fact`, and `lead-in-format-boundary` (advisory). In Edit mode, rewrite the first as an intro line plus one bullet per item, move the second to its own line, and write the third as `**Label:** value`.
+
 ### Sentence headings
 
 Smell: a heading written as a sentence or a clause, often an imperative or a promise, where a keyword label would do. Headings are keywords, never sentences: a noun or a short noun phrase, with no verb clause, no trailing period, and no question.

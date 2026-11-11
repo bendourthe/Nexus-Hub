@@ -76,6 +76,10 @@ Full walkthrough: [step-7-template-based-generation.md](references/step-7-templa
 
 Full walkthrough: [step-8-testing-and-quality-assurance.md](references/step-8-testing-and-quality-assurance.md) (load this step when you reach it).
 
+## Document Style
+
+Slide tables, lead-ins, and enumerations follow the owning rule `catalog/rules/documents/document-style.md`. The table samples in Steps 2 and 3 already use its neutral header and alternating rows; keep those defaults when a theme supplies its own colors.
+
 ## Font Sizes
 
 This skill owns the slide font-size rule. Other skills reference it and do not restate it.

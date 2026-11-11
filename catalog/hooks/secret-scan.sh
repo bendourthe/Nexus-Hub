@@ -20,31 +20,71 @@
 
 set -euo pipefail
 
+# Read Settings on every invocation. Only JSON false disables this protection.
+_nexus_guardrail_disabled() {
+  local guard_home="${HOME:-${USERPROFILE:-}}" guard_file
+  [ -n "$guard_home" ] || return 1
+  guard_file="$guard_home/.nexus-hub/guardrails.json"
+  [ -f "$guard_file" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e -s --arg key "$1" 'length == 1 and (.[0] | type) == "object" and .[0][$key] == false' "$guard_file" >/dev/null 2>&1
+    return $?
+  fi
+  local guard_py guard_verdict
+  for guard_py in python3 python; do
+    command -v "$guard_py" >/dev/null 2>&1 || continue
+    guard_verdict=$("$guard_py" -c 'import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        config = json.load(stream)
+    print("disabled" if isinstance(config, dict) and config.get(sys.argv[2]) is False else "enabled")
+except (OSError, ValueError, TypeError):
+    print("enabled")' "$guard_file" "$1" 2>/dev/null) || continue
+    guard_verdict=${guard_verdict//$'\r'/}
+    if [ "$guard_verdict" = "disabled" ]; then return 0; fi
+    if [ "$guard_verdict" = "enabled" ]; then return 1; fi
+  done
+  return 1
+}
+if _nexus_guardrail_disabled scan_secrets; then exit 0; fi
+
 # --- ANSI colors ---
 COLOR_RED='\033[0;31m'
 COLOR_RESET='\033[0m'
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: secret-scan]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is. $1 is an optional color code for the tag.
+_nexus_msg() {
+  local color=$1 message=$2 line
+  shift 2
+  printf '%b%s%b %s\n' "$color" "$_NEXUS_TAG" "${color:+$COLOR_RESET}" "$message" >&2
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 # --- Read JSON from stdin ---
 INPUT=$(cat)
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-_HOST_MODE=""
-if command -v jq >/dev/null 2>&1; then
-  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  _MODE_PYTHON=$(command -v python3 || command -v python)
-  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
-import json, sys
-try:
-    payload = json.load(sys.stdin)
-    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
-    if isinstance(mode, str):
-        print(mode)
-except (ValueError, TypeError):
-    pass' 2>/dev/null || true)
-fi
-if [ "$_HOST_MODE" = "bypassPermissions" ]; then exit 0; fi
+# Nexus Settings guard switches apply in every host permission mode.
 
 # --- Extract content ---
 # jq is preferred. A host without it must not lose the scan: this hook blocks,
@@ -93,12 +133,12 @@ if command -v jq >/dev/null 2>&1; then
   fi
 elif PY=$(_find_python); then
   if ! FILE_PATH=$(_py_field file_path path) || ! CONTENT=$(_py_field content new_string); then
-    echo "[secret-scan] BLOCKED: the payload could not be parsed, so the write was not scanned." >&2
+    _nexus_msg "" "BLOCKED: the payload could not be parsed, so the write was not scanned."
     exit 2
   fi
 else
-  echo "[secret-scan] BLOCKED: neither jq nor Python 3 is available, so the write cannot be scanned." >&2
-  echo "Install jq or Python 3 so the scan can run." >&2
+  _nexus_msg "" "BLOCKED: neither jq nor Python 3 is available, so the write cannot be scanned." \
+    "Install jq or Python 3 so the scan can run."
   exit 2
 fi
 
@@ -152,11 +192,12 @@ fi
 
 # --- Report findings ---
 if [ ${#FOUND_SECRETS[@]} -gt 0 ]; then
-  echo -e "${COLOR_RED}[secret-scan] BLOCKED${COLOR_RESET}: Potential secrets detected in $FILENAME:" >&2
+  _lines=()
   for secret in "${FOUND_SECRETS[@]}"; do
-    echo "  - $secret" >&2
+    _lines+=("  - $secret")
   done
-  echo "Remove secrets and use environment variables or a secrets manager instead." >&2
+  _nexus_msg "$COLOR_RED" "BLOCKED: Potential secrets detected in $(_nexus_esc "$FILENAME"):" \
+    "${_lines[@]}" "Remove secrets and use environment variables or a secrets manager instead."
   exit 2
 fi
 

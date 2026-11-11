@@ -28,7 +28,7 @@ class AiderIntegration(MarkdownIntegration):
         # v4.14.7: detection evidence (decision D9). Executable only: Aider keeps
         # no home folder, and ~/.aider.conf.yml is written by Nexus-Hub itself
         # without being tracked, so the file is never treated as evidence.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["aider"],
             # Phase 5: merged or seeded settings, never deleted whole (value: pruner).

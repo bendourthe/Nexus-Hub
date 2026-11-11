@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 /**
  * The panel's text and control colors, computed from `media/panel.css` itself.
  *
- * The stylesheet draws every color from `--vscode-*` variables, so its contrast depends on the theme.
+ * The stylesheet combines theme colors with the logo's cyan palette. Forced-colors system colors are not modeled here.
  * This test resolves each rule that sets a color against the variable values of four themes (VS Code's
  * Dark Modern and Light Modern as shipped, and the two high-contrast themes as modeled below) and
  * computes the WCAG ratio of every text and control pair. Text needs 4.5:1 and a control's edge or
@@ -18,7 +18,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const CSS = fs.readFileSync(path.join(here, "..", "media", "panel.css"), "utf8");
+const CSS = fs.readFileSync(path.join(here, "..", "media", "panel.css"), "utf8").replace(/@media \(forced-colors: active\)\s*\{[\s\S]*?\n\}/g, "");
 
 interface Rgba {
   r: number;
@@ -117,6 +117,10 @@ function inner(text: string, name: string): string {
 
 function resolve(expression: string, theme: Record<string, string>): Rgba {
   const text = expression.trim();
+  if (text.startsWith("light-dark(")) {
+    const choices = splitTop(inner(text, "light-dark"));
+    return resolve(choices[luminance(resolve(theme["editor-background"]!, theme)) > 0.5 ? 0 : 1]!, theme);
+  }
   if (text.startsWith("var(")) {
     const [name, ...fallback] = splitTop(inner(text, "var"));
     const key = name!.replace(/^--vscode-/, "");
@@ -189,22 +193,29 @@ describe.each(NAMES)("panel.css contrast in %s", (name) => {
   it.each([
     ["body text", () => body(), () => page()],
     ["hint text", () => colorOf(".hint", "color", theme), () => page()],
-    ["notes under a row", () => colorOf(".caveats", "color", theme), () => page()],
-    ["badge text", () => colorOf(".badge", "color", theme), () => page()],
     ["a notice", () => body(), () => over(colorOf(".notice", "background", theme), page())],
     ["a code block", () => body(), () => over(colorOf("pre", "background", theme), page())],
-    ["a text field", () => colorOf("select", "color", theme), () => over(colorOf("select", "background", theme), page())],
+    ["an effort label", () => colorOf(".effort-label", "color", theme), () => page()],
+    ["the selected effort label", () => colorOf(".effort-choice[aria-checked='true'] .effort-label", "color", theme), () => page()],
     ["a plain button", () => colorOf("button", "color", theme), () => over(colorOf("button", "background", theme), page())],
-    ["a primary button", () => colorOf("button.primary", "color", theme), () => over(colorOf("button.primary", "background", theme), page())],
   ])("gives %s at least 4.5:1", (_label, foreground, background) => {
     expect(ratio(foreground(), background())).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("gives a field's edge at least 3:1 against both its fill and the page", () => {
-    const edge = resolve(rule("select").border!.replace(/^1px solid /, ""), theme);
-    const fill = over(colorOf("select", "background", theme), page());
+  it("gives the effort track edge at least 3:1 against both its fill and the page", () => {
+    const edge = resolve(rule(".effort-choices::before").border!.replace(/^1px solid /, ""), theme);
+    const fill = over(colorOf(".effort-choices::before", "background", theme), page());
     expect(ratio(edge, fill)).toBeGreaterThanOrEqual(3);
     expect(ratio(edge, page())).toBeGreaterThanOrEqual(3);
+  });
+  it("distinguishes the selected effort and enabled switch thumbs from the cyan track", () => {
+    for (const selector of [".effort-choice[aria-checked='true'] .effort-dot::before", ".switch[aria-checked='true'] .switch-thumb"]) {
+      const border = resolve(rule(selector).border!.replace(/^\dpx solid /, ""), theme);
+      for (const stop of ["var(--nexus-blue)", "var(--nexus-cyan)"]) {
+        expect(ratio(border, resolve(stop, theme))).toBeGreaterThanOrEqual(3);
+      }
+      expect(ratio(border, colorOf(selector, "background", theme))).toBeGreaterThanOrEqual(3);
+    }
   });
 
   it("gives the focus ring at least 3:1 against the page", () => {
@@ -214,15 +225,11 @@ describe.each(NAMES)("panel.css contrast in %s", (name) => {
 });
 
 describe("panel.css structure that the ratios rely on", () => {
-  it("draws badge text in the foreground color, never in a tone color", () => {
-    for (const theme of Object.values(THEMES)) {
-      expect(colorOf(".badge", "color", theme)).toEqual(colorOf("body", "color", theme));
-    }
-    for (const tone of ["ok", "info", "warn", "muted", "error"]) {
-      expect(Object.keys(rule(`.tone-${tone}`))).toEqual(["--tone"]);
-    }
-    expect(rule(".badge").border).toContain("var(--tone");
-    expect(rule(".badge .icon").color).toBe("var(--tone, currentColor)");
+  it("keeps settings controls keyboard reachable with visible focus", () => {
+    expect(rule("button:focus-visible").outline).toContain("2px solid");
+    expect(rule("select:focus-visible").outline).toContain("2px solid");
+    expect(rule("button.switch").background).toBe("transparent");
+    expect(CSS).not.toMatch(/outline:\s*none/);
   });
 
   it("measures the ratios it reports", () => {

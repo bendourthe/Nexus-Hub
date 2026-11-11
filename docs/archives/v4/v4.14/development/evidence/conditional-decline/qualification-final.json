@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "runtime_sha256": {
+    "check_plan_completion.py": "5c2754d9cd895a10389b5d6adf78f49ee45e5726ffbcc131e73b2c51b10e9dd0",
+    "completion_minor.py": "2ed472495632b688d5a7fc7cfb76b44ab0a430827c322aaf8c8141b7fc15e1b5",
+    "minor_close.py": "890f9f020b31d09764b8f80eefa6c914f2f3a6588bf14b077d8df8f2dcf92b8e",
+    "approval_page.py": "0dec4d931840f2bd8f7b6ebfcd1b4ed2faa128749f26a44e05fb05f977c0e90f",
+    "approval_binding.py": "43a4e47e9411aa07ff8448970065d289c72cdbaaebf468d7aaf3828c8c9b7b64"
+  },
+  "final_decline_cases": 26,
+  "failures": 0,
+  "report_sha256": "cf8c5d719b77fdc95bc041b98dc4d1bc4aa0dda933020b0b8e4836e2a8a12a44",
+  "real_consumer_probe": "passed; signed run unchanged; T012/T013 and eleven protected paths",
+  "installation": "pending"
+}

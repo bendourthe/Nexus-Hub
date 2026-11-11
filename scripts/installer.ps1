@@ -153,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.14.7"
+$script:NexusHubVersion = "4.14.8"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2639,7 +2639,7 @@ function Install-VSCodeExtensions {
     Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" -Color "White"
     Write-Item -Message "only; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
-    Write-Item -Message "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." -Color "White"
+    Write-Item -Message "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into every detected editor: VS Code, Cursor, and Antigravity." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)
@@ -2800,11 +2800,10 @@ function Install-VSCodeExtensions {
     $antigravityCli = Select-WorkingLauncher -Candidates $antigravityCandidates -DisplayName $antigravityLabel
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\gemini-usage-monitor") -ExtensionId "nexus-hub.gemini-usage-monitor" -DisplayName "Gemini Usage Monitor" -StatusHint "Gemini Usage: --" -CodeCli $antigravityCli -CodeLabel $antigravityLabel
 
-    # The Settings panel (v4.14.6) is Nexus-Hub's own, not a vendor's, so it has its own
-    # header. It installs into VS Code only (never Cursor or Antigravity: it writes VS Code
-    # user settings) and has no status-bar item, so the status hint is empty.
+    # Nexus-Hub Settings shares preferences across editors. Build once and install
+    # the same package into every detected host, independently of vendor monitors.
     Write-Header -Provider "NEXUS-HUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\nexus-hub-settings") -ExtensionId "nexus-hub.nexus-hub-settings" -DisplayName "Nexus-Hub Settings" -StatusHint "" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\nexus-hub-settings") -ExtensionId "nexus-hub.nexus-hub-settings" -DisplayName "Nexus-Hub Settings" -StatusHint "" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel -ThirdCodeCli $antigravityCli -ThirdCodeLabel $antigravityLabel
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
@@ -2863,10 +2862,8 @@ function Select-WorkingLauncher {
 # Build, package, and install one VS Code usage-monitor extension. Shared by
 # Install-VSCodeExtensions so every monitor installs identically.
 function Build-And-Install-One-Extension {
-    # $AlsoCodeCli is an optional SECOND host. One VSIX, installed into two editors:
-    # Cursor is a separate application with its own extension directory, so an
-    # extension installed into VS Code is simply absent there.
-    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel, $AlsoCodeCli, $AlsoCodeLabel)
+    # Additional hosts receive the same VSIX, without rebuilding the extension.
+    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel, $AlsoCodeCli, $AlsoCodeLabel, $ThirdCodeCli, $ThirdCodeLabel)
     # Usage monitors point at their status-bar label; the Settings panel has none (empty hint).
     $activationHint = "Look for '$StatusHint' in the status bar."
     if (-not $StatusHint) { $activationHint = "Open the Nexus-Hub Settings view in the activity bar." }
@@ -2978,20 +2975,22 @@ function Build-And-Install-One-Extension {
         Write-Item -Message "Install manually via ${CodeLabel}: Extensions > ... > Install from VSIX" -Color "Gray"
     }
 
-    # The second host, when one was requested AND detected. Silent when Cursor is
-    # not installed: a missing optional editor is not a failure to report.
-    if ($AlsoCodeCli) {
-        & $AlsoCodeCli --uninstall-extension $ExtensionId 2>$null | Out-Null
+    # Missing optional editors are silent; one host's failure does not stop others.
+    foreach ($extraHost in @(@{ Cli = $AlsoCodeCli; Label = $AlsoCodeLabel }, @{ Cli = $ThirdCodeCli; Label = $ThirdCodeLabel })) {
+        if (-not $extraHost.Cli) { continue }
+        $extraCli = $extraHost.Cli
+        $extraLabel = $extraHost.Label
+        & $extraCli --uninstall-extension $ExtensionId 2>$null | Out-Null
         Restore-Title
-        & $AlsoCodeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        & $extraCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
-            Write-Item -Message "OK: $DisplayName extension installed in $AlsoCodeLabel!" -Color "DarkGreen"
-            Write-Item -Message "  Restart $AlsoCodeLabel to activate. $activationHint" -Color "White"
+            Write-Item -Message "OK: $DisplayName extension installed in $extraLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $extraLabel to activate. $activationHint" -Color "White"
         }
         else {
-            Write-Item -Message "$AlsoCodeLabel install failed. You can install manually:" -Color "Yellow"
-            Write-Item -Message "  `"$AlsoCodeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+            Write-Item -Message "$extraLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$extraCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
         }
     }
 }

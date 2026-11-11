@@ -208,6 +208,80 @@ def test_quoted_mention_of_a_pattern_is_not_a_finding() -> None:
     assert ids == ["chatbot-leftover"]
 
 
+# --- engineering-slang advisory family (v4.14.8) ------------------------------------
+# One realistic sentence per encoded term. The list and its exemptions are owned by
+# references/slop-wordlist.md, section "Agent and engineering slang".
+SLANG_SENTENCES = {
+    "load-bearing": "This change is load-bearing for the release.",
+    "load bearing": "This change is load bearing for the release.",
+    "cutover": "The cutover happens on Friday.",
+    "cut-over": "The cut-over happens on Friday.",
+    "blast radius": "The blast radius is three services.",
+    "footgun": "That default is a footgun for new users.",
+    "de-risk": "We should de-risk the migration first.",
+    "derisk": "We should derisk the migration first.",
+    "sanity check": "Run a sanity check before you merge.",
+    "net-new": "This is net-new behavior.",
+    "bespoke": "They wrote a bespoke parser for it.",
+    "orthogonal": "That concern is orthogonal to this change.",
+    "TL;DR": "TL;DR the cache was never enabled.",
+    "spin up": "Please spin up a scratch project for the test.",
+    "spun up": "I spun up a scratch project for the test.",
+    "wire up": "Please wire up the new hook in the settings file.",
+    "wired up": "The new hook is wired up in the settings file.",
+    "thread through": "Please thread through the flag to the child process.",
+    "threaded through": "The flag is threaded through to the child process.",
+}
+
+
+def _slang_findings(text: str) -> list[dict[str, object]]:
+    payload = _payload(_run("-", "--json", stdin=text))
+    return [f for f in payload["findings"] if f["id"] == "engineering-slang"]  # type: ignore[index]
+
+
+@pytest.mark.parametrize(("term", "sentence"), sorted(SLANG_SENTENCES.items()))
+def test_each_slang_term_flags_once_as_advisory(term: str, sentence: str) -> None:
+    findings = _slang_findings(sentence + "\n")
+    assert len(findings) == 1, (term, findings)
+    assert findings[0]["class"] == "advisory"
+    assert findings[0]["span"].lower() == term.lower()  # type: ignore[union-attr]
+
+
+@pytest.mark.parametrize(("term", "sentence"), sorted(SLANG_SENTENCES.items()))
+def test_slang_term_in_backticks_or_straight_quotes_is_exempt(
+    term: str, sentence: str
+) -> None:
+    """The accepted advisory bypass: a quoted or backticked term is a name or a
+    quotation, not a committed slang word, so the detector does not flag it. Because
+    the family is advisory and nothing gates on it, this bypass is documented rather
+    than closed."""
+    backticked = sentence.replace(term, f"`{term}`")
+    quoted = sentence.replace(term, f'"{term}"')
+    assert backticked != sentence and quoted != sentence
+    assert _slang_findings(backticked + "\n") == []
+    assert _slang_findings(quoted + "\n") == []
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "Test the happy path first, then the error cases.",
+        "The orchestrator will fan out one brief per worker.",
+        "We cut over to the new host last night.",  # two words: a plain verb phrase
+        "The ship sailed and we parked the car at the gate.",
+    ],
+)
+def test_judgment_only_terms_are_not_encoded(sentence: str) -> None:
+    assert _slang_findings(sentence + "\n") == []
+
+
+def test_slang_only_document_passes_a_defect_gate() -> None:
+    text = "\n".join(SLANG_SENTENCES.values()) + "\n"
+    result = _run("-", "--fail-on", "defect", stdin=text)
+    assert result.returncode == 0, result.stdout
+    assert _run("-", "--fail-on", "advisory", stdin=text).returncode == 1
+
+
 def test_missing_file_exits_two() -> None:
     result = _run(str(FIXTURES / "does-not-exist.md"))
     assert result.returncode == 2
@@ -224,3 +298,55 @@ def test_detector_imports_only_the_standard_library() -> None:
     assert imports <= {"argparse", "json", "re", "sys", "dataclasses", "pathlib"}, (
         imports
     )
+
+
+# --- document style rules 3 and 4 (catalog/rules/documents/document-style.md) -------
+
+
+def _ids(text: str) -> list[str]:
+    result = _run("-", "--json", stdin=text)
+    assert result.returncode == 0, result.stderr
+    return [f["id"] for f in _payload(result)["findings"]]  # type: ignore[index]
+
+
+@pytest.mark.parametrize(
+    ("text", "pattern_id"),
+    [
+        (
+            "The product passes through three phases: exploration (stages 0 to 2), "
+            "development (stages 3 to 5), and launch (stage 6).\n",
+            "inline-enumeration",
+        ),
+        ("Choose a format: Word, PowerPoint, or HTML.\n", "inline-enumeration"),
+        ("The device is class II. Quality system: ISO 13485 certified.\n", "trailing-label-fact"),
+        ("**Released device (PMA)**: approved in 2024.\n", "lead-in-format-boundary"),
+        ("**Released device (PMA): **approved in 2024.\n", "lead-in-format-boundary"),
+        ("<strong>Released device: </strong>approved.\n", "lead-in-format-boundary"),
+    ],
+)
+def test_document_style_pattern_flags_once_as_advisory(text: str, pattern_id: str) -> None:
+    result = _run("-", "--json", stdin=text)
+    findings = _payload(result)["findings"]  # type: ignore[index]
+    hits = [f for f in findings if f["id"] == pattern_id]
+    assert len(hits) == 1, findings
+    assert hits[0]["class"] == "advisory"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "**Released device (PMA):** approved in 2024.\n",
+        "The product passes through three phases:\n\n- Phase 1: exploration (stages 0 to 2)\n- Phase 2: development\n- Phase 3: launch\n",
+        "We support two platforms: Windows and Linux.\n",
+        "The release is ready. Here is the thing: nothing else changed.\n",
+        "Quality system: ISO 13485 certified.\n",
+    ],
+)
+def test_document_style_correct_forms_are_not_flagged(text: str) -> None:
+    ids = _ids(text)
+    assert not {"inline-enumeration", "trailing-label-fact", "lead-in-format-boundary"} & set(ids), ids
+
+
+def test_document_style_findings_pass_a_defect_gate() -> None:
+    text = "Choose a format: Word, PowerPoint, or HTML. Owner: docs team.\n"
+    assert _run("-", "--fail-on", "defect", stdin=text).returncode == 0

@@ -21,41 +21,63 @@
 # looks like a write is blocked outside a git worktree and warned inside one;
 # it is never passed silently outside a worktree.
 #
-# Essential: stays on under NEXUS_HOOK_PROFILE=minimal. The only switch is the
-# user's own NEXUS_DISABLED_HOOKS=user-edit-guard.
+# Essential: stays on under NEXUS_HOOK_PROFILE=minimal. Disable through the
+# user's NEXUS_DISABLED_HOOKS=user-edit-guard or Settings protect_user_edits=false.
 
 set -euo pipefail
+
+# Read Settings on every invocation. Only JSON false disables this protection.
+_nexus_guardrail_disabled() {
+  local guard_home="${HOME:-${USERPROFILE:-}}" guard_file
+  [ -n "$guard_home" ] || return 1
+  guard_file="$guard_home/.nexus-hub/guardrails.json"
+  [ -f "$guard_file" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e -s --arg key "$1" 'length == 1 and (.[0] | type) == "object" and .[0][$key] == false' "$guard_file" >/dev/null 2>&1
+    return $?
+  fi
+  local guard_py guard_verdict
+  for guard_py in python3 python; do
+    command -v "$guard_py" >/dev/null 2>&1 || continue
+    guard_verdict=$("$guard_py" -c 'import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        config = json.load(stream)
+    print("disabled" if isinstance(config, dict) and config.get(sys.argv[2]) is False else "enabled")
+except (OSError, ValueError, TypeError):
+    print("enabled")' "$guard_file" "$1" 2>/dev/null) || continue
+    guard_verdict=${guard_verdict//$'\r'/}
+    if [ "$guard_verdict" = "disabled" ]; then return 0; fi
+    if [ "$guard_verdict" = "enabled" ]; then return 1; fi
+  done
+  return 1
+}
+if _nexus_guardrail_disabled protect_user_edits; then exit 0; fi
 
 _HOOK_NAME="user-edit-guard"
 _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: user-edit-guard]"
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 if [ -t 0 ]; then exit 0; fi
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then exit 0; fi
 
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the user
-# chose to run without approval gates, so a block downgrades to a warning. The
-# helper still runs so its read/write records stay current for later modes.
-# Contract: docs/policy/permission-mode-contract.md
-_HOST_MODE=""
-if command -v jq >/dev/null 2>&1; then
-  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  _MODE_PYTHON=$(command -v python3 || command -v python)
-  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
-import json, sys
-try:
-    payload = json.load(sys.stdin)
-    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
-    if isinstance(mode, str):
-        print(mode)
-except (ValueError, TypeError):
-    pass' 2>/dev/null || true)
-fi
-_FULL_ACCESS=0
-if [ "$_HOST_MODE" = "bypassPermissions" ]; then _FULL_ACCESS=1; fi
-
+# Nexus Settings guard switches apply in every host permission mode.
 _HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 _BUDGET="${NEXUS_EDIT_GUARD_TIMEOUT_SECONDS:-2}"
 
@@ -98,15 +120,10 @@ _fallback() {
   fi
   local message="Cannot verify this file against your last read or write ($1). Stop and ask the user before overwriting it (user-edit-preservation)."
   if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null || true)" = "true" ]; then
-    echo "[$_HOOK_NAME] WARNING (git worktree, not blocked): $message" >&2
+    _nexus_msg "WARNING (git worktree, not blocked): $message"
     exit 0
   fi
-  if [ "$_FULL_ACCESS" = "1" ]; then
-    echo "[$_HOOK_NAME] WARNING (full access, not blocked): $message" >&2
-    exit 0
-  fi
-  echo "[$_HOOK_NAME] BLOCKED: $message" >&2
-  echo "Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$_HOOK_NAME." >&2
+  _nexus_msg "BLOCKED: $message" "Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$_HOOK_NAME."
   exit 2
 }
 
@@ -124,10 +141,6 @@ fi
 case "$status" in
   0) exit 0 ;;
   2)
-    if [ "$_FULL_ACCESS" = "1" ]; then
-      echo "[$_HOOK_NAME] WARNING (full access, not blocked): see the message above." >&2
-      exit 0
-    fi
     exit 2
     ;;
   124) _fallback "the ${_BUDGET}-second budget ran out" ;;

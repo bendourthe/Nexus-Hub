@@ -112,23 +112,21 @@ def test_write_onto_user_edited_file_is_blocked_outside_a_worktree(run, work):
     _user_edits(deck)
     result = run(_payload("PreToolUse", "Write", work, path=deck), work)
     assert result.returncode == 2
-    assert "[user-edit-guard] BLOCKED" in result.stderr and _MESSAGE in result.stderr
+    assert "[Nexus-Hub: user-edit-guard] BLOCKED" in result.stderr and _MESSAGE in result.stderr
     assert "NEXUS_DISABLED_HOOKS=user-edit-guard" in result.stderr
     assert 'Next: python "' in result.stderr and "edit_guard.py\" diff " in result.stderr, "no helper command"
     assert _USER_TEXT not in result.stderr + result.stdout, "file content was echoed"
 
 
-@pytest.mark.parametrize("mode,expected", [("bypassPermissions", 0), ("auto", 2), ("default", 2)])
-def test_full_access_downgrades_the_block_to_a_warning(run, work, mode, expected):
-    """Permission-mode contract: only full access lifts the block; it still warns."""
+@pytest.mark.parametrize("mode,expected", [("bypassPermissions", 2), ("auto", 2), ("default", 2)])
+def test_enabled_edit_guard_blocks_in_every_mode(run, work, mode, expected):
+    """The Settings protection applies even when native approvals are disabled."""
     deck = work / "deck.pptx"
     assert run(_payload("PostToolUse", "Read", work, path=deck), work).returncode == 0
     _user_edits(deck)
     payload = {**_payload("PreToolUse", "Write", work, path=deck), "permission_mode": mode}
     result = run(payload, work)
     assert result.returncode == expected, result.stderr
-    if expected == 0:
-        assert "WARNING (full access, not blocked)" in result.stderr
 
 
 def test_copy_onto_user_edited_file_is_blocked(run, work):
@@ -346,7 +344,7 @@ def test_long_default_store_records_then_blocks_a_user_edit(run, tmp_path):
     _user_edits(notes)
     result = run(_payload("PreToolUse", "Write", home, path=notes), home, extra)
     assert result.returncode == 2, result.stderr
-    assert "[user-edit-guard] BLOCKED" in result.stderr
+    assert "[Nexus-Hub: user-edit-guard] BLOCKED" in result.stderr
     assert _USER_TEXT not in result.stdout + result.stderr
 
 

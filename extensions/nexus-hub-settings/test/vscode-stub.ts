@@ -3,7 +3,8 @@
  *
  * It models only what the panel touches: layered configuration (default, user,
  * workspace, workspace folder) with `inspect` and `update`, modal warning dialogs,
- * file watchers, command and webview-view registration, and `env.openExternal`.
+ * file watchers, command and webview-view registration, status-bar items, and
+ * `env.openExternal`.
  * `stub.reset()` clears every store between tests.
  */
 import * as nodePath from "node:path";
@@ -47,6 +48,33 @@ export class Uri {
   }
 }
 
+export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
+export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
+
+export class MarkdownString {
+  supportHtml = false;
+  isTrusted: boolean | { enabledCommands: readonly string[] } = false;
+  constructor(
+    public value = "",
+    public supportThemeIcons = false,
+  ) {}
+}
+
+export interface StatusItem {
+  id: string;
+  alignment: number;
+  priority: number;
+  name?: string;
+  text: string;
+  tooltip?: MarkdownString | string;
+  command?: string;
+  accessibilityInformation?: { label: string; role?: string };
+  shown: boolean;
+  disposed: boolean;
+  show(): void;
+  dispose(): void;
+}
+
 export class RelativePattern {
   constructor(
     readonly base: Uri,
@@ -81,6 +109,8 @@ export const stub = {
   providers: [] as { id: string; provider: unknown; options: unknown }[],
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
+  statusItems: [] as StatusItem[],
+  vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean; exports?: unknown }>(),
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },
@@ -103,6 +133,8 @@ export const stub = {
     this.providers = [];
     this.commands = new Map();
     this.executed = [];
+    this.statusItems = [];
+    this.vendorExtensions.clear();
     configEvents.clear();
     trustEvents.clear();
   },
@@ -170,6 +202,24 @@ export const window = {
     stub.warnings.push({ message, options, buttons });
     return stub.warningAnswer(buttons);
   },
+  createStatusBarItem(id: string, alignment: number, priority: number): StatusItem {
+    const item: StatusItem = {
+      id,
+      alignment,
+      priority,
+      text: "",
+      shown: false,
+      disposed: false,
+      show() {
+        item.shown = true;
+      },
+      dispose() {
+        item.disposed = true;
+      },
+    };
+    stub.statusItems.push(item);
+    return item;
+  },
   registerWebviewViewProvider(id: string, provider: unknown, options: unknown) {
     stub.providers.push({ id, provider, options });
     return { dispose() {} };
@@ -177,6 +227,7 @@ export const window = {
 };
 
 export const commands = {
+  async getCommands(): Promise<string[]> { return [...stub.commands.keys()]; },
   registerCommand(id: string, handler: (...args: unknown[]) => unknown) {
     stub.commands.set(id, handler);
     return { dispose: () => void stub.commands.delete(id) };
@@ -188,8 +239,12 @@ export const commands = {
 };
 
 export const env = {
+  appName: "Visual Studio Code",
+  appRoot: "",
   async openExternal(uri: Uri): Promise<boolean> {
     stub.opened.push(uri.toString());
     return true;
   },
 };
+
+export const extensions = { getExtension: (id: string) => stub.vendorExtensions.get(id) };

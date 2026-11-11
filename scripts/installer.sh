@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.14.7"
+NEXUS_HUB_VERSION="4.14.8"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2512,7 +2512,7 @@ install_vscode_extensions() {
     write_item "Cursor, and Antigravity usage in the status bar. Claude, Codex, and Copilot install into VS Code" "$RESET"
     write_item "only; Cursor Usage Monitor into Cursor only." "$RESET"
     write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
-    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into VS Code only." "$RESET"
+    write_item "Nexus-Hub Settings (one place for Claude Code, Codex, and Copilot defaults) installs into every detected editor: VS Code, Cursor, and Antigravity." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2674,11 +2674,10 @@ install_vscode_extensions() {
     antigravity_cli="$selected_launcher"
     build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
 
-    # The Settings panel (v4.14.6) is Nexus-Hub's own, not a vendor's, so it has its own
-    # header. It installs into VS Code only (never Cursor or Antigravity: it writes VS Code
-    # user settings) and has no status-bar item, so the status hint is empty.
+    # Nexus-Hub Settings shares preferences across editors. Build once and install
+    # the same package into every detected host, independently of vendor monitors.
     write_header "NEXUS-HUB"
-    build_and_install_one_extension "$repo_root/extensions/nexus-hub-settings" "nexus-hub.nexus-hub-settings" "Nexus-Hub Settings" "" "$vscode_cli" "$vscode_label"
+    build_and_install_one_extension "$repo_root/extensions/nexus-hub-settings" "nexus-hub.nexus-hub-settings" "Nexus-Hub Settings" "" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label" "$antigravity_cli" "$antigravity_label"
 }
 
 # Run a command for at most $1 seconds, appending its output to the file $2.
@@ -2754,11 +2753,9 @@ build_and_install_one_extension() {
     local status_hint="$4"
     local code_cli="$5"
     local code_label="$6"
-    # Optional SECOND host. One VSIX, installed into two editors: Cursor is a
-    # separate application with its own extension directory, so an extension
-    # installed into VS Code is simply absent there.
-    local also_cli="${7:-}"
-    local also_label="${8:-}"
+    # Additional hosts receive the same VSIX, without rebuilding the extension.
+    local extra_clis=("${7:-}" "${9:-}")
+    local extra_labels=("${8:-}" "${10:-}")
     # Usage monitors point at their status-bar label; the Settings panel has none (empty hint).
     local activation_hint="Look for '${status_hint}' in the status bar."
     if [ -z "$status_hint" ]; then activation_hint="Open the Nexus-Hub Settings view in the activity bar."; fi
@@ -2873,9 +2870,12 @@ build_and_install_one_extension() {
         write_item "Install manually via $code_label: Extensions > ... > Install from VSIX" "$GRAY"
     fi
 
-    # The second host, when one was requested AND detected. Silent when Cursor is
-    # not installed: a missing optional editor is not a failure to report.
-    if [ -n "$also_cli" ]; then
+    # Missing optional editors are silent; one host's failure does not stop others.
+    local host_index also_cli also_label
+    for host_index in 0 1; do
+        also_cli="${extra_clis[$host_index]}"
+        also_label="${extra_labels[$host_index]}"
+        if [ -z "$also_cli" ]; then continue; fi
         "$also_cli" --uninstall-extension "$extension_id" 2>/dev/null || true
         if "$also_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] ${display_name} extension installed in $also_label!" "$GREEN"
@@ -2884,7 +2884,7 @@ build_and_install_one_extension() {
             write_item "$also_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$also_cli\" --install-extension \"$vsix_file\"" "$RESET"
         fi
-    fi
+    done
 }
 
 # --- Template & Script Installation ---
