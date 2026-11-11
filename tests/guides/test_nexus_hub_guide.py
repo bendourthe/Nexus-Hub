@@ -807,24 +807,6 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
         assert f'data-copy="{command}"' in block.group(1)
 
 
-def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    # 2026-11-10: the before-and-after rows sit in Why Nexus Hub, beside the guardrail figure.
-    assert "Why Nexus Hub" in home, "the comparison lives in the Why Nexus Hub section"
-    assert '<div class="cmp-head">' in home
-    head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
-    side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
-    assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
-    assert side_rule and "text-align: center" in side_rule.group(1)
-    # v4.13.10 R27: the sides take their type from the shared grade role, not a one-off rule.
-    assert home.count('data-ty="grade"') >= 2
-    size = re.search(r"--ty-grade:\s*([\d.]+)px", guide_text)
-    assert size and float(size.group(1)) >= 12
-    # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
-    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
-    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
-
-
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
     assert parsed.install_tab_order, "expected install tabs"
     assert parsed.install_tab_order[0] == "win", "Windows tab must be first"
@@ -927,22 +909,6 @@ def test_install_verify_is_a_numbered_step_sequence(guide_text: str, parsed: Gui
     )
     payloads = {p for p, _v in parsed.home_data_copy}
     assert "/skills list" in payloads and "/commands" in payloads
-
-
-def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
-    home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert "nhg-compare" not in guide_text, "the plain table was replaced"
-    assert 'class="cmp"' in home
-    assert home.count('class="cmp-row"') == 5, "all five concerns survive the rewrite"
-    # without-then-with ordering: the muted side precedes the accent side
-    row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
-    assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
-    # v4.13.10 R27: the side colors are the warn and go tones of the grade role.
-    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
-    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
-    # v4.13.10 R30: the rows no longer wait for a scroll trigger; every row, connector, and tip is drawn
-    # from the start, so nothing needs a reduced-motion override.
-    assert ".cmp.in" not in guide_text and ".js .cmp .cmp-row" not in guide_text
 
 
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
@@ -1137,7 +1103,7 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     )
     scene_selector = re.search(r'var scenes = document.querySelectorAll\("([^"\n]+)"\)', guide_text)
     assert scene_selector
-    assert {".fx-scene", ".hero-lockup", ".guard-fig", ".ph"} <= {
+    assert {".fx-scene", ".hero-lockup", ".ph"} <= {
         selector.strip() for selector in scene_selector.group(1).split(",")
     }
     assert "IntersectionObserver" in guide_text

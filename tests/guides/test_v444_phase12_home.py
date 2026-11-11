@@ -4,7 +4,8 @@ The review asked for exact words in two places and for a second benefit the segm
 Wording is asserted literally, because "roughly this" is how a rename drifts back. The portability
 figure is asserted structurally: one install and four named platforms. The 2026-11-10 restructure
 renamed the guardrails segment Why Nexus Hub, replaced the mid-task switch mockup with the handoff
-animation, and moved the generic-command table to the Cheatsheets page, where it is asserted now.
+animation, and moved the generic-command table to the Cheatsheets page, where it is asserted now. A second
+2026-11-10 pass replaced the guardrail rings with a benefits summary, asserted in test_v415_home_animations.py.
 """
 
 from __future__ import annotations
@@ -53,48 +54,6 @@ def _home(browser, width: int = 1440):
     page.wait_for_function("window.NexusFit && window.NexusSeq")
     page.wait_for_timeout(220)
     return ctx, page
-
-
-def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _home(browser)
-            page.locator("#nhg-guardrails").scroll_into_view_if_needed()
-            page.wait_for_timeout(200)
-            data = page.evaluate(
-                """() => {
-                    const sec = document.querySelector('#nhg-guardrails');
-                    const centered = el => getComputedStyle(el).textAlign === 'center';
-                    const tags = [...sec.querySelectorAll('.gf-ring-tag')];
-                    const notes = [...sec.querySelectorAll('.gf-ring-note')];
-                    const hooks = sec.querySelector('.gf-hooks');
-                    return {
-                      label: sec.querySelectorAll('.eyebrow').length,
-                      title: sec.querySelector('.section-title').textContent.trim(),
-                      tags: tags.map(t => t.textContent.trim()),
-                      notes: notes.map(n => n.textContent.trim()),
-                      allCentred: tags.every(centered) && notes.every(centered),
-                      hooksAlignment: getComputedStyle(hooks).textAlign,
-                          platforms: [...sec.querySelectorAll(".gf-platforms>span")].map(e => e.textContent.trim()),
-                    };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    # v4.13.10 R21: no eyebrow label; the keyword heading names the segment.
-    assert data["label"] == 0, data["label"]
-    assert data["title"] == "Why Nexus Hub", data["title"]
-    assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
-    assert data["allCentred"], "both ring headers and their subtexts must be centered"
-    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centered"
-    assert data["tags"] == ["Nexus Hub hooks", "Platform permissions"], data["tags"]
-    outer, inner = data["notes"]
-    for phrase in ("Block flagged unsafe actions", "even once approved", "explain the refusal"):
-        assert phrase in outer, (phrase, outer)
-    for phrase in ("Ask for permission first", "an unsafe action can still run"):
-        assert phrase in inner, (phrase, inner)
 
 
 def test_the_command_segment_and_its_moved_table_keep_their_names(playwright_mod) -> None:

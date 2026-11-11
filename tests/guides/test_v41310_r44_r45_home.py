@@ -120,7 +120,9 @@ def test_the_hero_has_no_button_row() -> None:
     assert 'class="btn-row"' not in hero and 'class="btn' not in hero, "the hero keeps no buttons"
     for label in ("Get trained", "Open Cheatsheets", 'href="#home/install"'):
         assert label not in hero, label
-    assert "Raw Prompting Limits" not in home and 'id="nhg-why"' not in home
+    # R44 removed the "Raw Prompting Limits" cards (then id="nhg-why") above Installation. Since
+    # 2026-11-10, id="nhg-why" names the closing benefits summary at the end of Home instead.
+    assert "Raw Prompting Limits" not in home and 'id="nhg-why"' not in hero
 
 
 def test_no_harness_benefits_heading_and_one_platform_row() -> None:
