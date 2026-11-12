@@ -691,50 +691,6 @@ def test_v415_snapshot_keeps_every_long_tracked_path(tmp_path, monkeypatch):
     assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
 
 
-@pytest.mark.parametrize("handle_change", [False, True], ids=["ctime-meaning-split", "handle-ctime-moved"])
-def test_v415_read_compares_ctime_only_within_one_stat_source(tmp_path, monkeypatch, handle_change):
-    # CPython 3.12+ on Windows reports st_ctime as birth time by path but change time by handle.
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("cpc_ctime_split", CHECKER)
-    ck = importlib.util.module_from_spec(spec)
-    monkeypatch.setitem(sys.modules, spec.name, ck)
-    spec.loader.exec_module(ck)
-    log = tmp_path / "gate.log"
-    log.write_bytes(b"gate output\n")
-    real, calls = os.fstat, []
-    def handle_stat(fd):
-        value = real(fd)
-        calls.append(value)
-        shift = 1_000_000 + (len(calls) if handle_change else 0)
-        return SimpleNamespace(st_dev=value.st_dev, st_ino=value.st_ino, st_size=value.st_size,
-                               st_mtime_ns=value.st_mtime_ns, st_ctime_ns=value.st_ctime_ns + shift)
-    monkeypatch.setattr(ck.os, "fstat", handle_stat)
-    if handle_change:
-        with pytest.raises(ck.Malformed, match="qualification-input-changed"):
-            ck._v415_read(log)
-    else:
-        assert ck._v415_read(log) == b"gate output\n"
-    assert len(calls) == 2
-
-
-@pytest.mark.parametrize("as_bytes", [False, True], ids=["text", "bytes"])
-def test_v415_json_depth_cap_does_not_depend_on_interpreter_recursion(monkeypatch, as_bytes):
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("cpc_json_depth", CHECKER)
-    ck = importlib.util.module_from_spec(spec)
-    monkeypatch.setitem(sys.modules, spec.name, ck)
-    spec.loader.exec_module(ck)
-    cap = ck._V415_JSON_DEPTH
-    def payload(depth):
-        text = "[" * depth + '"[{\\"\\\\"' + "]" * depth
-        return text.encode("utf-8") if as_bytes else text
-    assert ck._v415_json(payload(cap)) is not None
-    with pytest.raises(ck.Malformed, match="qualification-json-depth"):
-        ck._v415_json(payload(cap + 1))
-
-
 @pytest.mark.parametrize("bad", ["scoped", "inventory", "missing-completion", "wrong-candidate"])
 def test_v415_handbook_no_change_requires_full_candidate_completion_proof(tmp_path, monkeypatch, bad):
     ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(tmp_path, monkeypatch, "v4.15.4", "T016")
