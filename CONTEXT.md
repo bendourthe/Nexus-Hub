@@ -226,6 +226,22 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Relationships**: Stronger than a file-name glob check, which models `--ignore-glob` rather than running pytest. Complements `tests/workflows/test_ci_runs_every_repo_test.py`, which proves every test root is selected by some CI job.
 
+## Keep-Working Case
+
+**Definition**: A case in an instruction-file eval set that checks an existing behavior the edit must not change, run in both the baseline and the after arm (plan v4.15.11).
+
+**Avoid**: regression test (too broad), negative case, control case
+
+**Relationships**: Narrower than a regression set. Not the same as a negative case, which checks that the new rule does not fire where it should not.
+
+## Isolation Canary
+
+**Definition**: A case run before any instruction-file eval that proves the test session loads only the instruction text under test and none of the operator's installed instruction files (plan v4.15.11).
+
+**Avoid**: smoke test, sanity case, clean-room check
+
+**Relationships**: A failed canary turns every case in that run into "not run". Complements the isolation and model-pin contract in `skill-eval-loop/references/cli-adapter.md`.
+
 ## Tier Direction
 
 **Definition**: The rule that component source references semantic design tokens (named by purpose) and never primitive tokens (raw palette or scale values), so a theme or rebrand changes only the semantic layer.
