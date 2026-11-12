@@ -1,4 +1,4 @@
-﻿# Nexus-Hub Universal Installer V10 (Windows)
+# Nexus-Hub Universal Installer V10 (Windows)
 # Installs AI Skills Globally OR to a Workspace with Safe Overwrite and Modern UI
 #
 # Supported flags (v2.2.0+):
@@ -153,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.14.8"
+$script:NexusHubVersion = "4.15.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"

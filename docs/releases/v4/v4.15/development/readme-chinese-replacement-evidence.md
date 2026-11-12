@@ -6,7 +6,7 @@ This change makes the concise README the single design for both languages. `READ
 
 - Replaced the 286-line legacy `README_zh.md` with a translation of the current README: same ten sections in the same order, same animations, and the full seven-group cheatsheet with all 24 commands. Command names, scopes, flags, and examples stay in English; descriptions are translated.
 - The Chinese cheatsheet has no `readme-cheatsheet` generator markers, because `scripts/readme_cheatsheet.py` emits English only. Update the translation by hand when the English cheatsheet changes.
-- Added a `[Chinese README](README_zh.md)` link to the English navigation line; the Chinese README links back to English.
+- Added a "Chinese README" link (target `README_zh.md`) to the English navigation line; the Chinese README links back to English.
 - Retargeted four tests from `README.md` to the guides that now hold each fact: the version and upgrade commands and the organization guide link (`docs/guides/installation-and-platforms.md`), and the editable extension extras and `/implement <slug> full` alias (`docs/guides/development-workflows.md`). The version test also asserts that both READMEs link the installation guide.
 - Added the `/implement <slug> full` (alias `in-full`) sentence to `docs/guides/development-workflows.md`; it previously lived only in the old README.
 
