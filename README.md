@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.14.8 -->
+<!-- nexus-hub-version: 4.15.0 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.14.8
+## What's New in v4.15.0
 
-- Plain-English guidance and source-labeled hook messages.
-- A settings status-bar entry for saved defaults.
-- Persistent usage-limit choices and handoffs that continue on another platform without waiting for the old limit to reset.
+- Usage alert switches in Settings, per provider or all at once, and usage warnings that close after 10 seconds.
+- Nexus-Hub Settings installs into every detected VS Code, Cursor, and Antigravity editor and applies shared effort and speed defaults once, without overwriting session choices.
+- Cursor and Gemini usage monitor fixes, and leaner standing instructions after a rule-by-rule necessity review.
 
-[Release details and earlier versions](CHANGELOG.md#4148---2026-11-04)
+[Release details and earlier versions](CHANGELOG.md#4150---2026-11-12)
 
 ## Installation
 
