@@ -74,7 +74,7 @@ def browser():
     except ImportError:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")  # explicit raise: static analysis cannot see that skip() never returns
     with sync_playwright() as pw:
         try:
             b = pw.chromium.launch()

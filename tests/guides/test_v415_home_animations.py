@@ -81,7 +81,7 @@ def playwright_mod():
     except ImportError:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")  # explicit raise: static analysis cannot see that skip() never returns
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
