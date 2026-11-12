@@ -765,20 +765,39 @@ def test_paginated_json_is_concatenated() -> None:
 def test_scan_reads_a_tree_deeper_than_max_path(tmp_path: Path) -> None:
     # A worktree under a longer parent held tracked files past 260 characters, so every scan read
     # "unreadable" and the merged worktree could never be retired.
-    deep = "\\\\?\\" + str(tmp_path.resolve())
+    root = str(tmp_path.resolve())
+    deep = "\\\\?\\" + root
+    directories: list[str] = []
     for _ in range(6):
         deep += "\\" + "d" * 48
-    os.makedirs(deep)
-    with open(deep + "\\leaf.txt", "w", encoding="utf-8") as handle:
-        handle.write("x")
-    os.makedirs(deep + "\\.git")
-    (tmp_path / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
-    assert len(deep) - 4 > 260
-    scan = cm.scan_tree(str(tmp_path))
-    assert not scan.unreadable
-    assert scan.nested_git
-    os.rmdir(deep + "\\.git")
-    assert not cm.scan_tree(str(tmp_path)).nested_git
+        directories.append(deep)
+    for owned_path in [*directories, deep + "\\leaf.txt", deep + "\\.git"]:
+        if os.path.commonpath([root, owned_path[4:]]) != root or owned_path[4:] == root:
+            raise AssertionError("test-created path leaves tmp_path")
+    try:
+        os.makedirs(deep)
+        with open(deep + "\\leaf.txt", "w", encoding="utf-8") as handle:
+            handle.write("x")
+        os.makedirs(deep + "\\.git")
+        (tmp_path / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
+        assert len(deep) - 4 > 260
+        scan = cm.scan_tree(str(tmp_path))
+        assert not scan.unreadable
+        assert scan.nested_git
+        os.rmdir(deep + "\\.git")
+        assert not cm.scan_tree(str(tmp_path)).nested_git
+    finally:
+        for owned_path, remove in [
+            (deep + "\\leaf.txt", os.unlink),
+            (deep + "\\.git", os.rmdir),
+            *((directory, os.rmdir) for directory in reversed(directories)),
+        ]:
+            if os.path.commonpath([root, owned_path[4:]]) != root or owned_path[4:] == root:
+                raise AssertionError("test cleanup path leaves tmp_path")
+            try:
+                remove(owned_path)
+            except FileNotFoundError:
+                pass
 
 
 def test_receipt_seal_uses_its_own_domain() -> None:

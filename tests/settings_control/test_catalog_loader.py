@@ -22,7 +22,10 @@ def _write(tmp_path: Path, data: Any) -> Path:
 def test_the_bundled_catalog_loads() -> None:
     loaded = catalog_mod.load_catalog()
 
-    assert {c["id"] for c in loaded["controls"]} == {"effort", "model", "posture", "attribution", "git_guardrails"}
+    assert {c["id"] for c in loaded["controls"]} == {
+        "effort", "model", "posture", "attribution", "git_guardrails",
+        "git_safety", "secret_scan", "edit_preservation", "large_file_warning",
+    }
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@
   "name": "cursor-usage-monitor",
   "displayName": "Cursor Usage Monitor",
   "description": "Independent Nexus-Hub monitor for personal Cursor included usage and on-demand spend without storing credentials in settings",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -92,7 +92,7 @@
       "activitybar": [
         {
           "id": "cursorUsageWarning",
-          "title": "Cursor Usage Warning",
+          "title": "Cursor",
           "icon": "icons/warning.svg"
         }
       ]
@@ -101,7 +101,7 @@
       "cursorUsageWarning": [
         {
           "id": "cursorUsageWarningView",
-          "name": "Usage Warning",
+          "name": "Usage alert",
           "type": "webview",
           "when": "cursorUsage.warningActive"
         }
@@ -130,7 +130,7 @@
         "cursorUsage.compactStatusBar": {
           "type": "boolean",
           "default": false,
-          "description": "Use compact C/O labels in the status bar"
+          "description": "Hide the 'Cursor Usage: ' prefix in the status bar, as the Claude Code and Codex monitors do. The figures keep their (cursor) and (other) labels."
         },
         "cursorUsage.alertMetric": {
           "type": "string",
@@ -167,6 +167,24 @@
           "minimum": 1,
           "maximum": 100,
           "description": "Percentage that activates a Critical usage warning"
+        },
+        "cursorUsage.colors.moderate": {
+          "type": "string",
+          "scope": "application",
+          "default": "#cca700",
+          "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
+        },
+        "cursorUsage.colors.high": {
+          "type": "string",
+          "scope": "application",
+          "default": "#f0643c",
+          "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
+        },
+        "cursorUsage.colors.critical": {
+          "type": "string",
+          "scope": "application",
+          "default": "#e05555",
+          "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
         },
         "cursorUsage.staleAfterMinutes": {
           "type": "number",

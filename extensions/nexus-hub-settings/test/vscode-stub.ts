@@ -49,8 +49,10 @@ export class Uri {
 }
 
 export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
+export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
 
 export class MarkdownString {
+  supportHtml = false;
   isTrusted: boolean | { enabledCommands: readonly string[] } = false;
   constructor(
     public value = "",
@@ -108,6 +110,7 @@ export const stub = {
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
   statusItems: [] as StatusItem[],
+  vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean; exports?: unknown }>(),
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },
@@ -131,6 +134,7 @@ export const stub = {
     this.commands = new Map();
     this.executed = [];
     this.statusItems = [];
+    this.vendorExtensions.clear();
     configEvents.clear();
     trustEvents.clear();
   },
@@ -223,6 +227,7 @@ export const window = {
 };
 
 export const commands = {
+  async getCommands(): Promise<string[]> { return [...stub.commands.keys()]; },
   registerCommand(id: string, handler: (...args: unknown[]) => unknown) {
     stub.commands.set(id, handler);
     return { dispose: () => void stub.commands.delete(id) };
@@ -234,8 +239,12 @@ export const commands = {
 };
 
 export const env = {
+  appName: "Visual Studio Code",
+  appRoot: "",
   async openExternal(uri: Uri): Promise<boolean> {
     stub.opened.push(uri.toString());
     return true;
   },
 };
+
+export const extensions = { getExtension: (id: string) => stub.vendorExtensions.get(id) };

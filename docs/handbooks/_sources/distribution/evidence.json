@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "e835e9410b4b6458639b5ed87d2a7bb51e23db10478b7f5f6e82c8b10c724603",
       "docs/handbooks/_sources/distribution/source.md": "220cdff9fc21e09848434ac6a6b5cc6697b06d5b21acf639aba24bbe08f88438",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "7d152944aabfad7e7bdfc00835c6c222d5c67fb4f15ff2b5f6aa58ec386efa9b",
-      "scripts/installer.sh": "6ab97e1eac4d3c61886d02cac0817cd388e07befb47d2ebd0b9ba0a797ca5fa9",
+      "scripts/installer.ps1": "65713bc241bf7fb279dcddc30d82294b66357dfe6a23e85f444eb67598f24618",
+      "scripts/installer.sh": "6c8fd2e071f4ebe05f72db3e5cc3cab11b59b6f0c8a62185d6bdff4a027b9697",
       "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
@@ -14,7 +14,7 @@
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
-      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "0c01305b9ee976bb4c5beb994189cac5fb9816d56e1c4d98b65afa721485b17c",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
@@ -25,30 +25,30 @@
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "9fe46d95b27cbfc0208b07717e7bb474ac563f39e1e20a8080fced7aa76e0a32",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "63a2233c0e109088f3b1c5996b28b02864108dce68c2ba8cf8efbdf492e16207",
+      "scripts/lib/integrations/cursor.py": "3032366da9ac7f932cb0592c3c0f507c3f249c6f07fba92242ca43ab88dc5ce6",
       "scripts/lib/integrations/aider.py": "821c49d0cf5207397b837ddccc827fe2ca25146d1c7051ced63da556e5a1fc33",
       "configs/platform-defaults.json": "453a8c2cf30bba598b6e3e25592fa6f041142928df7b2a9960ba95b88f42cf86",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
     },
-    "output_sha256": "7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c"
+    "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.14/development/minor-close-handbook-review.md",
-      "evidence_sha256": "8c19e58b8c64768f2bbf5290281ff24379ce95c89b068428c17e9b3ea03ac17c"
+      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-review.md",
+      "evidence_sha256": "f3524ee534f33ebee8459b6342958d7cf0c22fe04626bb9ad252f7c42864f805"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.14/development/minor-close-handbook-build.json",
-      "evidence_sha256": "408b0953a1355dec80591ef5c9f382301c504d7256f8ba05dd1f5424a9be1d1a"
+      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-build.json",
+      "evidence_sha256": "8f36453d5b8af062d22d493a6cf5db49af0d04951d3318ef5a52c8706faaa4b8"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.14/development/usage-answer-handbook-browser.json",
-      "evidence_sha256": "a7edce8e6e726b099582e3e8a4009890336d0868b44404d8f9a0e2f52d98d680",
+      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-browser-distribution.json",
+      "evidence_sha256": "08aa556d3049f3679410f0ef1929148fce358f4866d9f95547aa95e7651033a5",
       "browser": "Chromium 156.0.8078.4",
-      "output_sha256": "7bea7bd87e5c498c8c36feb7be76cb7aa00a65b1c8834c8c566209c0bb07587c"
+      "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb"
     }
   }
 }

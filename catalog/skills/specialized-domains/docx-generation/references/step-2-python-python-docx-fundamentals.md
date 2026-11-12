@@ -174,11 +174,16 @@ def add_data_table(
     headers: list[str],
     rows: list[list[str]],
     col_widths: list[float] | None = None,
-    header_bg_color: str = "2B579A",
+    header_bg_color: str = "262626",
     header_text_color: str = "FFFFFF",
+    row_color: str = "FFFFFF",
     stripe_color: str = "F2F2F2",
 ) -> None:
     """Add a formatted data table with header styling and row striping.
+
+    Defaults follow the document style rule (neutral dark-gray header, white and
+    light-gray rows). When rows carry category colors, keep the header neutral and
+    stripe each category between its tint and the tint 55% toward white.
 
     Args:
         doc: Target document.
@@ -187,6 +192,7 @@ def add_data_table(
         col_widths: Column widths in inches (optional).
         header_bg_color: Hex color for header row background.
         header_text_color: Hex color for header row text.
+        row_color: Hex color for odd data rows.
         stripe_color: Hex color for alternating row backgrounds.
     """
     widths = None
@@ -235,9 +241,8 @@ def add_data_table(
             cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
             for run in cell.paragraphs[0].runs:
                 run.font.size = Pt(10)
-        if row_idx % 2 == 1:
-            for cell in row.cells:
-                _set_cell_shading(cell, stripe_color)
+        for cell in row.cells:
+            _set_cell_shading(cell, stripe_color if row_idx % 2 == 1 else row_color)
 
 
 def _set_cell_shading(cell, hex_color: str) -> None:

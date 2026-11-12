@@ -38,6 +38,7 @@ version: 1.0.0
 - Place punctuation outside quotation marks (logical punctuation)
 - Do not use em-dashes to break up sentences; use parentheses, commas, or separate sentences
 - Maintain a professional, helpful, and teaching tone
+- Apply the document style rules in `catalog/rules/documents/document-style.md`: break an inline enumeration into an intro line and bullets, give a trailing "Label: value" fact its own line, and end a highlighted lead-in's formatting at the colon
 
 ## Common Rationalizations
 

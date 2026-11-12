@@ -780,6 +780,7 @@ if __name__ != "__main__":
     spec.loader.exec_module(module)
     resolve_minor_controller = module.resolve_minor_controller
     Malformed = module.Malformed
+    _minor_module = module._minor_module
 else:
     import json, os, sys
     with open(os.environ["GATE_STUB_LOG"], "a", encoding="utf-8") as handle:

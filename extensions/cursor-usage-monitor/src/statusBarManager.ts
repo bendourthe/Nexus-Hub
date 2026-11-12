@@ -11,6 +11,13 @@ import {
   type UsageSnapshot,
   type UsageState
 } from "./types";
+import { statusUrgency, type UrgencyLevel } from "./recommendations";
+import { readSettings } from "./settingsPanel";
+import {
+  backgroundColorFor,
+  getColorConfig,
+  syncActiveColorToWorkbench
+} from "./statusBarColors";
 
 const CURSOR_ICON = "$(cursor-icon)";
 const ICON_GAP = "\u2002";
@@ -28,12 +35,26 @@ export class StatusBarManager {
   }
 
   public show(state: UsageState): void {
+    // Same metric and thresholds the warning notifications use, so the color and
+    // the warning can never disagree about the level.
+    const settings = readSettings();
+    const urgency = statusUrgency(state, settings.alertMetric, settings.thresholds);
     this.item.text = buildStatusText(state);
-    this.item.tooltip = buildHoverMarkdown(state);
+    // The visual contract forbids color-only warnings: the level is also named in
+    // the hover (sighted users) and the accessibility label (screen readers).
+    this.item.tooltip = buildHoverMarkdown(state, Date.now(), urgency);
+    this.item.accessibilityInformation = {
+      label: statusAccessibilityLabel(this.item.text, urgency)
+    };
+    const colors = getColorConfig();
+    this.item.backgroundColor = backgroundColorFor(urgency, colors);
+    void syncActiveColorToWorkbench(urgency, colors).catch(() => undefined);
     this.item.show();
   }
 
   public showLoading(): void {
+    // The background is left as it was: clearing it here would flash the bar gray
+    // on every refresh.
     this.item.text = "$(sync~spin) Cursor Usage";
     this.item.tooltip = "Refreshing Cursor usage.";
     this.item.show();
@@ -68,21 +89,29 @@ export function buildStatusText(
     return `${CURSOR_ICON}${ICON_GAP}${label}--`;
   }
 
-  const cursor = statusMeter(
-    state.data.cursorModels,
-    compactMode ? "C" : "Cursor"
-  );
-  const other = statusMeter(
-    state.data.otherModels,
-    compactMode ? "O" : "Other"
-  );
+  // Same shape as the Claude Code and Codex monitors: "X% (pool) Y% (pool)".
+  const cursor = statusMeter(state.data.cursorModels, "cursor");
+  const other = statusMeter(state.data.otherModels, "other");
   const stale = state.state === "stale" ? " $(warning)" : "";
-  return `${CURSOR_ICON}${ICON_GAP}${label}${cursor} \u00b7 ${other}${stale}`;
+  return `${CURSOR_ICON}${ICON_GAP}${label}${cursor} ${other}${stale}`;
+}
+
+const LEVEL_NAMES: Record<Exclude<UrgencyLevel, "low">, string> = {
+  moderate: "Moderate",
+  high: "High",
+  critical: "Critical"
+};
+
+/** The status text without codicon markup, plus the level whenever it is colored. */
+export function statusAccessibilityLabel(text: string, level: UrgencyLevel): string {
+  const plain = text.replace(/\$\([^)]*\)/gu, " ").replace(/\s+/gu, " ").trim();
+  return level === "low" ? plain : `${plain}, ${LEVEL_NAMES[level]} usage level`;
 }
 
 export function buildHoverMarkdown(
   state: UsageState,
-  now = Date.now()
+  now = Date.now(),
+  level: UrgencyLevel = "low"
 ): vscode.MarkdownString {
   const markdown = new vscode.MarkdownString("", true);
   markdown.supportThemeIcons = true;
@@ -111,6 +140,9 @@ export function buildHoverMarkdown(
 
   markdown.appendMarkdown(
     `<span style="opacity:0.6">Cursor Usage</span><br><br>` +
+      (level === "low"
+        ? ""
+        : `<strong>$(warning) ${LEVEL_NAMES[level]} usage level</strong><br><br>`) +
       (state.state === "stale"
         ? `<span style="color:#cca700">&#9888; ${escapeHtml(state.error.message)}</span><br><br>`
         : "") +
@@ -257,9 +289,9 @@ function statusMeter(meter: IncludedUsageMeter, label: string): string {
   if (meter.percentUsed !== null) {
     // Shares the dashboard's formatter so one pool cannot read 1.7% in the panel
     // and 2% in the status bar.
-    return `${label} ${formatPercent(meter.percentUsed)}`;
+    return `${formatPercent(meter.percentUsed)} (${label})`;
   }
-  return `${label} ${formatQuantity(meter.used)}`;
+  return `${formatQuantity(meter.used)} (${label})`;
 }
 
 function hoverMeter(label: string, meter: IncludedUsageMeter): string {

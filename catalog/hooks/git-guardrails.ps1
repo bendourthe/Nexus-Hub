@@ -36,7 +36,7 @@
 
     Limits of the opt-in bypass-flag mode: environment-variable skips (HUSKY=0, SKIP=,
     LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell aliases
-    and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+    and scripts, and an agent that edits guardrails.json
     itself. The full list is on the mode's block below and in
     docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
 
@@ -46,6 +46,24 @@
 
 # Never fail loudly on internal errors.
 $ErrorActionPreference = "Continue"
+
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
 
 # Nexus-Hub source label; echoed values cannot forge a new tagged line.
 $script:NexusTag = "[Nexus-Hub: git-guardrails]"
@@ -102,13 +120,7 @@ $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
 # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
 if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-try {
-    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
-} catch { }
+# Nexus Settings guard switches apply in every host permission mode.
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }
@@ -158,6 +170,7 @@ function Remove-HeredocBodies {
 
 # $scan drives every block decision below; $command is kept for reporting and for
 # the written-content warning.
+if (-not (Test-NexusGuardrailDisabled -Key "block_dangerous_git")) {
 $scan = Remove-HeredocBodies -Text $command
 
 # --- Check command against each pattern ---
@@ -213,6 +226,8 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
     }
 }
 
+}
+
 # --- Opt-in git bypass-flag guard (v4.14.4; parity with the .sh) ---
 # Blocks the flags that skip git hooks or commit signing, when a team opts in.
 # Inert by default. Specification: docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md
@@ -240,7 +255,6 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
 #   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
 #   - git plumbing (commit-tree, update-ref, hash-object)
 #   - shell aliases, wrapper scripts, and git aliases
-#   - bypassPermissions mode (this whole hook steps aside)
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later

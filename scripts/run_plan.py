@@ -510,8 +510,14 @@ def _launch(argv: list[str], backoff: float, settled: Callable[[int], bool] | No
 def _verified_runner_minor(record_path: Path, record: dict):
     import check_plan_completion as ck
     try:
-        ctx, verified = ck.resolve_minor_controller(record_path, str(record.get('session_id') or ''), minor_protocol=1)
-    except (OSError, ValueError, ck.Malformed, ck._minor_module().ObservationUnavailable) as exc:
+        refusals = (ck.Malformed, ck._minor_module().ObservationUnavailable)
+    except Exception as exc:
+        raise RunnerError('minor controller could not be verified') from exc
+    try:
+        ctx, verified = ck.resolve_minor_controller(record_path, str(record.get('session_id') or ''), minor_protocol=1, execution_protocol=1)
+    # TypeError/AttributeError: an older sibling checker in a mixed helper bundle; stop with a
+    # controlled runner error instead of a traceback.
+    except (OSError, ValueError, TypeError, AttributeError, *refusals) as exc:
         raise RunnerError('minor controller could not be verified') from exc
     if Path.cwd().resolve() != ctx.root:
         raise RunnerError('restart run-plan from the verified operational controller')

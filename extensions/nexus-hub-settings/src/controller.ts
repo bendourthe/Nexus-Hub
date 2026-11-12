@@ -1,3 +1,5 @@
+import type { EditorCapabilities } from "./editorCapabilities";
+import type { AlertProvider, UsageAlerts } from "./usageAlerts";
 import { ActionOutcome, ActionSpec, BridgeError } from "./cliBridge";
 import {
   EditorLayers,
@@ -8,8 +10,11 @@ import {
   precheckEditorWrites,
   restoreEditorWrites,
 } from "./editorWrites";
+import type { LiveEffortSummary } from "./liveEffort";
+import type { UiEffortSummary } from "./vendorUi";
+import type { SessionDefaults } from "./sessionDefaults";
 import { Incoming } from "./messages";
-import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowReport } from "./types";
+import { ActionDoc, ActionResult, EditorRestore, EditorWrite, ExplainData, ShowRecord, ShowReport } from "./types";
 import {
   ErrorCard,
   Notice,
@@ -19,6 +24,7 @@ import {
   emptyModel,
   errorModel,
   isAllowedSource,
+  summarizePreferences,
 } from "./viewModel";
 
 /**
@@ -43,6 +49,7 @@ export interface ConfirmRequest {
 }
 
 export interface UiLike {
+  openCodex?(): Promise<void>;
   confirm(request: ConfirmRequest): Promise<boolean>;
   openExternal(url: string): Promise<boolean>;
 }
@@ -55,6 +62,21 @@ export interface ControllerDeps {
   project: () => string | undefined;
   profile: () => string;
   platform: string;
+  codexAvailable?: () => boolean;
+  liveEffort?: () => Promise<LiveEffortSummary | undefined>;
+  uiEffort?: () => UiEffortSummary | undefined;
+  applyAll?: () => Promise<void>;
+  upgrade?: () => Promise<void>;
+  restartExtension?: (provider: "claude" | "codex") => Promise<void>;
+  hubVersion?: () => string;
+  sessionDefaults?: () => SessionDefaults;
+  usageAlerts?: () => UsageAlerts;
+  usageAlertProviders?: () => AlertProvider[];
+  editorCapabilities?: () => EditorCapabilities;
+  setUsageAlert?: (provider: AlertProvider | "all", enabled: boolean) => Promise<void>;
+  setFastMode?: (value: boolean) => Promise<void>;
+  setCodexTabs?: (value: boolean) => Promise<void>;
+  syncEditorEffort?: (records: ShowRecord[]) => Promise<{ changed: string[]; issues: string[] }>;
 }
 
 const MAX_LINES = 14;
@@ -104,6 +126,7 @@ export class SettingsController {
   private chain: Promise<unknown> = Promise.resolve();
   private readonly listeners: ((model: ViewModel) => void)[] = [];
   private readonly inspect: (key: string) => EditorLayers;
+  private lastReconcile = "";
 
   constructor(private readonly deps: ControllerDeps) {
     this.inspect = deps.inspect ?? inspectKey;
@@ -152,13 +175,66 @@ export class SettingsController {
     return this.enqueue(() => this.reload(null, full));
   }
 
+  /** Reapply the saved default after native-file changes, once per distinct conflict. */
+  synchronizeDefaults(): Promise<ViewModel> {
+    return this.enqueue(() => this.synchronize());
+  }
+
+  private async synchronize(force = false): Promise<ViewModel> {
+      if (force) { this.lastReconcile = ""; }
+      await this.reload(null, false);
+      if (this.model.readOnly || this.model.error || !this.report) { return this.model; }
+      const rows = this.report.records.filter((row) => row.control === "effort");
+      const desired = rows.find((row) => row.tool === "internal")?.value;
+      if (!desired) { return this.model; }
+      const signature = JSON.stringify(rows.map((row) => [row.tool, row.surface, row.value, row.layer_value, row.state, row.mapped_effort, row.matches_default]));
+      const drift = rows.some((row) => row.tool !== "internal" && row.matches_default === false && !["not-settable", "tool-not-installed", "cannot-detect", "unverified-for-version"].includes(row.state));
+      if (drift && signature !== this.lastReconcile) {
+        this.lastReconcile = signature;
+        const applied = await this.doSet("effort", desired, null);
+        if (applied.status === "error" || applied.notice?.level === "error") { this.lastReconcile = ""; }
+        return applied;
+      }
+      const result = await this.deps.syncEditorEffort?.(rows);
+      if (result?.issues.length) { this.model = { ...this.model, notice: { level: "warn", text: "Some editor defaults could not be synchronized.", lines: result.issues } }; }
+      return this.model;
+  }
+
   handle(message: Incoming): Promise<ViewModel> {
     return this.enqueue(async () => {
       switch (message.type) {
         case "ready":
           return this.model.controls.length > 0 || this.model.status === "error" ? this.model : this.reload(null, true);
         case "refresh":
-          return this.reload(null, true);
+          await this.reload(null, true);
+          return this.synchronize(true);
+        case "newCodex":
+          if (this.deps.isTrusted() && this.deps.codexAvailable?.()) {
+            await this.synchronize(true);
+            if (this.model.error || this.report?.records.some((row) => row.control === "effort" && row.tool === "codex" && row.matches_default === false)) { return this.model; }
+            try { await this.deps.ui.openCodex?.(); }
+            catch { this.model = { ...this.model, notice: { level: "error", text: "Could not open a new Codex agent. Try Codex: New Codex Agent from the command palette." } }; }
+          }
+          return this.model;
+        case "applyAll":
+          if (this.deps.isTrusted()) { await this.deps.applyAll?.(); }
+          return this.reload({ level: "info", text: "Requested the default effort for all connected sessions." }, false);
+        case "setUsageAlert":
+          if (this.deps.isTrusted()) { await this.deps.setUsageAlert?.(message.provider, message.enabled); }
+          return this.reload(null, false);
+        case "setFastMode":
+        case "setCodexTabs":
+          if (this.deps.isTrusted()) {
+            if (message.type === "setFastMode") { if (this.deps.editorCapabilities?.().fastMode !== false) { await this.deps.setFastMode?.(message.value); } }
+            else { await this.deps.setCodexTabs?.(message.value); }
+          }
+          return this.reload(null, false);
+        case "restartExtension":
+          if (this.deps.isTrusted()) { await this.deps.restartExtension?.(message.provider); }
+          return this.model;
+        case "upgrade":
+          if (this.deps.isTrusted()) { await this.deps.upgrade?.(); }
+          return this.model;
         case "set":
           return this.doSet(message.control, message.value, message.tool);
         case "reset":
@@ -187,6 +263,14 @@ export class SettingsController {
       }
       this.report = report;
       this.model = buildModel({ report, explains: this.explains, inspect: this.inspect, trusted: this.deps.isTrusted(), profile, notice });
+      this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
+      this.model.liveEffort = await this.deps.liveEffort?.();
+      this.model.uiEffort = this.deps.uiEffort?.();
+      this.model.hubVersion = this.deps.hubVersion?.();
+      this.model.sessionDefaults = this.deps.sessionDefaults?.();
+      this.model.usageAlerts = this.deps.usageAlerts?.();
+      this.model.usageAlertProviders = this.deps.usageAlertProviders?.();
+      this.model.editorCapabilities = this.deps.editorCapabilities?.();
     } catch (error) {
       this.report = null;
       this.model = errorModel(profile, this.deps.platform, bridgeCard(error, this.deps.bridge.describe()), notice);
@@ -271,8 +355,17 @@ export class SettingsController {
       return this.rollback(control, tool, error);
     }
     lines.push(...pre.skipped.map((s) => `skipped: ${s.reason}`));
-    const exitNote = out.exitCode === 0 ? "" : " Some cells were not written; see the lines below.";
-    return this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `Saved ${value} for ${control}. New sessions only.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
+    const label = this.model.controls.find((item) => item.id === control)?.label ?? control;
+    const exitNote = out.exitCode === 0 ? "" : " Some settings could not be applied.";
+    const refreshed = await this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `${label} saved.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
+    if (control === "effort" && tool === null && !refreshed.error) {
+      const editorSync = await this.deps.syncEditorEffort?.(this.report?.records.filter((row) => row.control === "effort") ?? []);
+      lines.push(...(editorSync?.changed ?? []), ...(editorSync?.issues ?? []));
+      const summary = summarizePreferences(refreshed);
+      const confirmed = summary.effort === value;
+      this.model = { ...refreshed, notice: { level: !confirmed || summary.needsAttention || out.exitCode !== 0 || editorSync?.issues.length ? "warn" : "info", text: confirmed ? `Default effort saved.${exitNote} ${summary.effortStatus}` : "The saved effort could not be confirmed. Refresh and try again.", lines: lines.slice(0, MAX_LINES) } };
+    }
+    return this.model;
   }
 
   /** A VS Code write failed after the engine wrote files: undo the control and say so. */

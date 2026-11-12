@@ -166,13 +166,15 @@ def test_migration_table_headers_carry_the_comparison_grade(playwright_mod) -> N
             ctx, page = _page(browser, 1440, "home")
             data = page.evaluate(
                 """() => {
+                    // Reference spans in the grade role's warn and go tones, the role the headers use.
+                    const probe = tone => { const s = document.createElement('span'); s.dataset.ty = 'grade'; s.dataset.tone = tone;
+                      s.textContent = tone; document.querySelector('.tbl-migrate').parentElement.appendChild(s); const r = read(s); s.remove(); return r; };
                     const read = el => { const cs = getComputedStyle(el);
                       return {t: el.textContent.trim(), px: +parseFloat(cs.fontSize).toFixed(1),
                               weight: cs.fontWeight, upper: cs.textTransform, color: cs.color}; };
                     return {
                       th: [...document.querySelectorAll('.tbl-migrate th')].map(read),
-                      without: read(document.querySelector('.cmp-side--without')),
-                      with_: read(document.querySelector('.cmp-side--with')),
+                      without: probe('warn'), with_: probe('go'),
                     };
                 }"""
             )
