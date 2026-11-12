@@ -34,7 +34,7 @@ The Nexus-Hub installer builds and installs this extension automatically when it
 
     ```powershell
     npm run package
-    antigravity-ide --install-extension gemini-usage-monitor-0.1.0.vsix --force
+    antigravity-ide --install-extension gemini-usage-monitor-0.1.2.vsix --force
     ```
 
 ## Usage
