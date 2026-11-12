@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-11-12
-**Open items**: 121
+**Open items**: 122
 
 ## v4.15.0
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
 | Bugs / regressions (BG) | 6 | 0 |
-| Warnings (WN) | 30 | 0 |
+| Warnings (WN) | 31 | 0 |
 | Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
@@ -1732,6 +1732,18 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 **Suggested next step**: Accept a start head with more than one parent by comparing against its first parent, add a fixture whose start head is a two-parent merge, and keep the existing refusal for a HEAD that carries another member's unpublished work.
 
 **Proving command**: `python -m pytest tests/validators/test_check_plan_completion.py -k permit_outputs -q` with a new case whose start head is a two-parent merge; it must render without the local merge workaround.
+
+#### WN-31: The OpenCode lever row records keys the vendor page no longer documents
+
+**Source phase**: v4.15.0 release platform verification, 2026-11-12. **Plan reference**: [release platform verification](development/v4.15.0-platform-verification.md), advisory lever table.
+
+**Reason**: The OpenCode configuration page fetched on 2026-11-12 documents `permissions` (plural, a rule list) and no longer mentions `small_model`. The row in `docs/policy/platform-defaults-levers.md` records `permission` and `small_model`. Nothing is seeded for OpenCode in `configs/platform-defaults.json`, so no delivered behavior is affected.
+
+**Owner**: catalog maintainer. **Severity**: low - advisory documentation only. **Status**: open.
+
+**Suggested next step**: Re-read the OpenCode v2 configuration reference, correct the row's keys and classification, and keep `configs/platform-defaults.json` unchanged unless a VERIFIED lever is found.
+
+**Proving command**: `python -B scripts/check_platform_contract_freshness.py` stays green, and the corrected row cites a fetched first-party OpenCode URL with its date.
 
 ### AR-34: No live macOS installer smoke has been recorded
 

@@ -8,13 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.14.8 更新内容
+## v4.15.0 更新内容
 
-- 浅显易懂的说明，以及标明来源的钩子消息。
-- 状态栏中新增设置入口，用于查看已保存的默认值。
-- 使用额度达到上限时的选择会被保留；交接可在其他平台上继续，无需等待原平台额度重置。
+- 设置中新增使用额度提醒开关，可按服务商分别开关或一次全部开关；使用额度警告会在 10 秒后自动关闭。
+- Nexus-Hub Settings 会安装到检测到的每个 VS Code、Cursor 和 Antigravity 编辑器中，并只应用一次共享的推理强度和速度默认值，不会覆盖会话中的选择。
+- 修复了 Cursor 和 Gemini 使用额度监视器的问题；逐条审查常驻指令的必要性后，常驻指令更加精简。
 
-[版本详情与早期版本](CHANGELOG.md#4148---2026-11-04)
+[版本详情与早期版本](CHANGELOG.md#4150---2026-11-12)
 
 ## 安装
 
