@@ -241,3 +241,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: smoke test, sanity case, clean-room check
 
 **Relationships**: A failed canary turns every case in that run into "not run". Complements the isolation and model-pin contract in `skill-eval-loop/references/cli-adapter.md`.
+
+## Tier Direction
+
+**Definition**: The rule that component source references semantic design tokens (named by purpose) and never primitive tokens (raw palette or scale values), so a theme or rebrand changes only the semantic layer.
+
+**Avoid**: token layering, token hierarchy rule, alias direction
+
+**Relationships**: Owned by the agent-readable design-system reference in `frontend-ui-engineering` (plan v4.22.11); enforced where possible by the lint contract in `interface-review`, which defers to that owner. Role naming and theme behavior for color stay with `color-systems`. Not the same as tier placement in the model map, which ranks models.
+
+## Hotspot Triage
+
+**Definition**: The step that lists the measured top hotspots of a profile (five, extended to cover at least 80 percent of self time, capped at ten) and matches each to exactly one case before any code changes.
+
+**Avoid**: perf review list, bottleneck sweep, optimization pass
+
+**Relationships**: Case table owned by `performance-review`; always run first by `code-optimizer`, which stops for approval on review requests (plan v4.22.11). Narrower than a performance review, which also covers caching correctness and boundary conditions. Not the same as a UI hot path, which concerns perceived time.
