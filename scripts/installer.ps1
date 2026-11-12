@@ -1,4 +1,4 @@
-# Nexus-Hub Universal Installer V10 (Windows)
+﻿# Nexus-Hub Universal Installer V10 (Windows)
 # Installs AI Skills Globally OR to a Workspace with Safe Overwrite and Modern UI
 #
 # Supported flags (v2.2.0+):
