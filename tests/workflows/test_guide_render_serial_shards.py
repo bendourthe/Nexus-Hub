@@ -66,6 +66,7 @@ WORKER_JOBS = (
     ("tests-windows-validators", "Windows validators profile group", "windows-validators"),
     ("tests-windows-validators-2", "Windows validators profile group", "windows-validators-2"),
     ("tests-windows-validators-3", "Windows validators profile group", "windows-validators-3"),
+    ("tests-windows-validators-4", "Windows validators profile group", "windows-validators-4"),
 )
 
 

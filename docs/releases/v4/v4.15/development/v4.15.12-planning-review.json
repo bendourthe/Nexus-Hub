@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "baseline_commit": "0ce5dc00cedb612ba33ee610f73974f9063e509a",
+  "verdict": "CONFIRMED for planning publication",
+  "plan_confirmation": "Confirmed by maintainer on 2026-11-13: confirm and publish",
+  "implementation": {
+    "phases": 5,
+    "tasks": 28,
+    "done_tasks": 0,
+    "done_phases": 0
+  },
+  "review_scope": "Seven independent read-only agents reviewed initial draft; security, adversarial and feasibility rechecked changed requirements. No implementation or cross-model diversity claim.",
+  "findings": [
+    {
+      "id": "PR-1",
+      "title": "Specify the proof required before retrying an allegedly idempotent mutation",
+      "severity": "P2",
+      "confidence": 75,
+      "persona": "security",
+      "task": "T004",
+      "status": "closed",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "suggested_fix": "Bind documented service idempotency to original operation key, destination/scope/payload and valid retention; expired-key and mismatched-status controls must preserve unknown state.",
+      "rechecked_by": [
+        "security",
+        "feasibility"
+      ],
+      "disposition": "applied and independently closed",
+      "file": "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md",
+      "line": 238
+    },
+    {
+      "id": "PR-2",
+      "title": "Cover malicious maintenance instructions beyond forged approval text",
+      "severity": "P2",
+      "confidence": 75,
+      "persona": "security",
+      "task": "T013",
+      "status": "closed",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "suggested_fix": "Fence untrusted task/source/proving-command/output/memory text and observe no forbidden action in a controlled malicious-input case.",
+      "rechecked_by": [
+        "security",
+        "feasibility"
+      ],
+      "disposition": "applied and independently closed",
+      "file": "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md",
+      "line": 390
+    },
+    {
+      "id": "PR-3",
+      "title": "Require fresh mutable state for each matched pilot trial",
+      "severity": "P2",
+      "confidence": 75,
+      "persona": "adversarial",
+      "task": "T015",
+      "status": "closed",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "suggested_fix": "Fresh sessions and fixture state, independently equivalent initial-state hashes, arm/trial namespaces; preserve state only within deliberate recovery; failed reset invalidates pair.",
+      "rechecked_by": [
+        "adversarial",
+        "feasibility"
+      ],
+      "disposition": "applied and independently closed",
+      "file": "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md",
+      "line": 436
+    }
+  ],
+  "lenses": [
+    {
+      "persona": "coherence",
+      "findings": 0,
+      "coverage": "Full original draft; goals, claims, paths, dependencies, pilot and lifecycle; no reportable contradictions"
+    },
+    {
+      "persona": "feasibility",
+      "findings": 0,
+      "delta_recheck": true,
+      "coverage": "All phases, five lifecycle checks, disclosed missing runner and guide; all three corrections rechecked"
+    },
+    {
+      "persona": "product",
+      "findings": 0,
+      "coverage": "A1-A5, persona, measurable success, evidence honesty and manual reporting"
+    },
+    {
+      "persona": "design",
+      "findings": 0,
+      "coverage": "Ownership, job identity versus concurrency, oracle independence, evaluator reuse and approval boundaries"
+    },
+    {
+      "persona": "scope-guardian",
+      "findings": 0,
+      "coverage": "Full original draft and comparison; exclusions, six-case bounds, limited final cleanup"
+    },
+    {
+      "persona": "security",
+      "findings": 2,
+      "delta_recheck": true,
+      "coverage": "Recovery, idempotency, permission provenance, persistence, hostile inputs, capabilities and caps"
+    },
+    {
+      "persona": "adversarial",
+      "findings": 1,
+      "delta_recheck": true,
+      "coverage": "Unknown effects, late callbacks, cancellation, races, false dedup, stale consent and matched-pilot integrity"
+    }
+  ],
+  "aggregation": {
+    "order": [
+      "fingerprint dedup",
+      "cross-lens promotion",
+      "confidence gate"
+    ],
+    "distinct_findings": 3,
+    "promotions": 0,
+    "demotions": 0,
+    "suppressed": [],
+    "open_p0_p1": 0,
+    "open_p2": 0
+  },
+  "decision_frontier": {
+    "seeded_from": [
+      "PR-1",
+      "PR-2",
+      "PR-3"
+    ],
+    "corrections_within_existing_scope": 3,
+    "pending": [],
+    "recommended": "Confirm plan only; no implementation/publication/installation/release authority",
+    "disposition": "Maintainer confirmed target and reviewed phase breakdown; planning publication authorized, execution excluded"
+  },
+  "authority": {
+    "implementation": false,
+    "publication": true,
+    "installation": false,
+    "release": false
+  },
+  "glossary_terms": [
+    "Unknown Effect",
+    "Maintenance Job",
+    "Problem Signature",
+    "Scoped Decision",
+    "Outcome Population"
+  ],
+  "plan_path": "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md",
+  "plan_sha256": "58fbad9b341d64188ba96cda26a336cc65eadc8c2e15453b3d7edf85dcf68d3b",
+  "model_map_sha256": "cffc3f24b7e0c437b582f2f0a071000ef2671f186dc5075dbe6ef549b53f37aa",
+  "artifact_validation": {
+    "strict_sequential_task_ids": 28,
+    "phase_count": 5,
+    "terminal_duties": 10,
+    "literal_claims_json": "passed",
+    "queue_plan_count": 42,
+    "queue_open_tasks": 28,
+    "queue_done_tasks": 0,
+    "unicode_fix_pass": "repaired 0 file(s)",
+    "product_behavior": "not exercised; planning artifacts only",
+    "local_link_targets": 20,
+    "docs_conventions": "passed",
+    "doc_colocation": "passed",
+    "strict_unicode": "passed for plan, review, glossary and tracker",
+    "whitespace": "passed",
+    "model_map_validate": "passed",
+    "model_map_diff": "no existing ID reclassification",
+    "model_map_render": "passed; fresh 2026-11-13",
+    "outgoing_paths": [
+      "CONTEXT.md",
+      "docs/todos.md",
+      "docs/releases/v4/v4.15/comparisons/v4.15.12-comparison-harness-safety-and-maintenance.evidence.json",
+      "docs/releases/v4/v4.15/comparisons/v4.15.12-comparison-harness-safety-and-maintenance.md",
+      "docs/releases/v4/v4.15/development/v4.15.12-model-map.json",
+      "docs/releases/v4/v4.15/development/v4.15.12-planning-review.json",
+      "docs/releases/v4/v4.15/development/v4.15.12-planning-review.md",
+      "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md"
+    ],
+    "publication_refresh": "CI-only integration merge; original analysis baseline retained; planning validation rerun before publication"
+  },
+  "publication_base_commit": "c3c483d3b47c6e2100ebdff96880ee4ae031c5bb"
+}

@@ -132,7 +132,7 @@
       return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [
         el("h2", {id: "editor-title", text: "Extensions"}),
         el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("claude", "Claude Code"), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
-        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Use editor tabs with history and refresh buttons.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Applies to the Codex button in the editor title bar. The activity bar icon always opens the side pane.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
       ]);
     }
     function usageAlertsSection() {
