@@ -7,12 +7,9 @@ from __future__ import annotations
 
 import copy
 import hashlib
-import hmac
 import io
 import json
-import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import zipfile
@@ -20,13 +17,15 @@ import zipfile
 import pytest
 
 from .test_completion_minor_record import (
-    Minor, SESSION, REPO_ROOT, SCRIPTS, CHECKER, ck, cm, _git,
+    Minor, SESSION, REPO_ROOT, CHECKER, ck, cm, _git,
     _isolated_git_config, _no_transport_overrides,
 )
-from .test_minor_amendment_consumers import _unchanged_snapshot
 from .test_completion_minor_verdict import EVIDENCE_SECTIONS, GREEN
-from .test_gap_migration_and_archive import LINK_CHECKER, ledger, section
 import approval_page as approval_display
+
+# Importing an autouse fixture is what activates it for this module: these two
+# keep every test away from the user's git config and transport overrides.
+AUTOUSE_FIXTURES = (_isolated_git_config, _no_transport_overrides)
 
 
 BASELINE = "1dc21b92db664347d18ff591e02e1e73c0d8c867"
@@ -152,7 +151,8 @@ class ExecutionMinor(Minor):
 
     def capture(self, session, *texts, at=None):
         if at is not None:
-            return super().capture(session, *texts, at=at)
+            super().capture(session, *texts, at=at)
+            return
         import completion_gate as gate
         for prompt in texts:
             payload = {"session_id": session, "prompt": prompt, "cwd": str(self.work)}

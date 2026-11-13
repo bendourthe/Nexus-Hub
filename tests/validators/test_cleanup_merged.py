@@ -797,6 +797,8 @@ def test_scan_reads_a_tree_deeper_than_max_path(tmp_path: Path) -> None:
             try:
                 remove(owned_path)
             except FileNotFoundError:
+                # The test body may already have removed this path; cleanup only
+                # needs it gone.
                 pass
 
 
