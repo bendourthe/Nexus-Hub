@@ -46,7 +46,7 @@ def browser():
         except Exception as exc:  # pragma: no cover - environment dependent
             if REQUIRE_RENDER:
                 pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-            pytest.skip(f"chromium is unavailable: {exc}")
+            raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
         yield b
         b.close()
 
