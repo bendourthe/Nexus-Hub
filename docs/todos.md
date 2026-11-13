@@ -6,6 +6,8 @@
 
 - [x] Confirm the v4.15.12 phase breakdown and planning-review dispositions and authorize publication of the reviewed planning package.
 
+The publication-blocking guide test was repaired separately in [PR #653](https://github.com/bendourthe/Nexus-Hub/pull/653), merged as `943c1f7fc`, with 35 passing CI checks, one optional skip, and passing post-merge smoke/provenance. The test now controls animation time and checks a Linux revisit; all 27 affected-module tests and all 18 local fast checks passed. [Repair evidence](releases/v4/v4.15/development/guide-install-tab-timing-repair.md). This maintenance fix completes no adoption-plan task.
+
 - [ ] Obtain separately recorded implementation authority, refresh predecessor impacts and ownership, then implement and qualify the v4.15.12 plan.
 
 **v4.15 local implementation, 2026-10-31:** The genuine minor approval is recorded for v4.15.0 through v4.15.4. Three isolated workers are admitted; the coordinator owns shared files and publication. The snapshot below counts locally checked task lines, not merged work or release completion. No v4.15 branch has been published or released.
