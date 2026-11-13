@@ -21,7 +21,7 @@ States are decided in this order for a cell:
 1. `not-settable`: no write in the cell is admitted. The catalog reason is shown, and any override layer currently present is listed in `caveats` so a known harm (for example a legacy `env.CLAUDE_CODE_EFFORT_LEVEL`) stays visible.
 2. `tool-not-installed`: neither the tool's command is on `PATH` nor its configuration directory exists.
 3. `cannot-detect`: the user file or a file a layer could live in is not valid JSON or TOML (the line is named), the tool's `--version` call failed or took over 5 seconds for a version-ranged write, or the row belongs to VS Code, which the CLI never parses.
-4. `unverified-for-version`: the installed version is outside the write's proven range. Layers found are still listed in `caveats`.
+4. `unverified-for-version`: the installed version is older than the write's proven minimum. Layers found are still listed in `caveats`. A version newer than the proven maximum keeps its normal state and gains one `caveats` note naming the last version checked, because vendors ship weekly and keep documented setting keys.
 5. `overridden-by`: a higher layer sets the key. The layer and its catalog fix line are shown, and further layers are listed as `Also set`.
 6. `not-covered`: Claude effort only, when a current model id has no `modelSettings` entry while some effort value is set.
 7. `in-effect` when the user's file sets the key, otherwise `tool-default`.
