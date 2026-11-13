@@ -132,6 +132,29 @@ describe.skipIf(process.platform !== "win32")("real Windows protocol launcher", 
     expect(loaded).toBe("");
   }, 45000);
 
+  it("names a running provider that started from an incomplete runtime before its launcher was repaired", async () => {
+    const { context, directory } = await installation();
+    const hub = path.join(directory, "live-effort");
+    async function previousLauncher(name: string, files: Record<string, string>): Promise<string> {
+      const runtime = path.join(hub, `runtime-${name}`); await fs.mkdir(runtime, { recursive: true });
+      for (const [file, content] of Object.entries(files)) { await fs.writeFile(path.join(runtime, file), content); }
+      const launch = path.join(hub, `codex-${name}`); await fs.mkdir(launch, { recursive: true });
+      await fs.writeFile(path.join(launch, "bridge.json"), JSON.stringify({ provider: "codex", script: path.join(runtime, "proxy.js") }));
+      return path.join(launch, "bridge.exe");
+    }
+    // The v4.15.0 runtime shipped a proxy that requires safeRead without copying safeRead.js.
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("incomplete", { "proxy.js": 'const a=require("./safeRead");const b=require("./nativeStreamProcess");', "nativeStreamProcess.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual(["Codex"]);
+    // An older build that never imported safeRead started normally.
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("older", { "proxy.js": 'const b=require("./nativeStreamProcess");', "nativeStreamProcess.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("complete", { "proxy.js": 'require("./safeRead.js");', "safeRead.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("idle", { "proxy.js": 'require("./safeRead");' });
+    stub.vendorExtensions.set("openai.chatgpt", { extensionPath: path.join(directory, "openai.chatgpt"), isActive: false });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+  }, 60000);
+
   it("refuses to overwrite a modified runtime file", async () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-preserve-")); directories.push(directory);
     const runtime = await prepareWindowsRuntime(extension, directory);

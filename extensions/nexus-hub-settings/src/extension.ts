@@ -102,6 +102,14 @@ export async function restartProvider(provider: "claude" | "codex"): Promise<voi
   } catch (error) { await vscode.window.showWarningMessage(String(error)); }
 }
 
+/** A provider whose process failed before its launcher was repaired stays disconnected until the window reloads. */
+export async function announceStalledStart(providers: string[]): Promise<void> {
+  if (!providers.length) { return; }
+  const names = providers.join(" and ");
+  const choice = await vscode.window.showWarningMessage(`${names} started before Nexus-Hub repaired ${providers.length > 1 ? "their launchers" : "its launcher"}, so ${providers.length > 1 ? "they cannot" : "it cannot"} connect until this window reloads.`, {}, "Reload Window");
+  if (choice === "Reload Window") { await vscode.commands.executeCommand("workbench.action.reloadWindow"); }
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
   const hub = installRoot(process.env, os.homedir());
   if (vscode.workspace.isTrusted && fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
@@ -116,6 +124,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     }),
   );
   let liveEffort = await installLiveEffort(context);
+  void announceStalledStart(liveEffort?.stalled ?? []);
   let nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const controller = new SettingsController({

@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPEN_COMMAND, refreshCodexTab, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
+import { OPEN_COMMAND, announceStalledStart, refreshCodexTab, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
 import { Uri, stub } from "./vscode-stub";
 import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
 import { SettingsController } from "../src/controller";
@@ -254,6 +254,19 @@ it("explains an unadapted vendor build that exports nothing instead of throwing 
   expect(restart).toContain("Other extensions were not restarted");
   await refreshCodexTab();
   expect(stub.warnings.at(-1)?.message ?? "").not.toContain("TypeError");
+});
+
+it("offers one window reload when a provider started before its launcher was repaired", async () => {
+  await announceStalledStart([]);
+  expect(stub.warnings).toEqual([]);
+  stub.warningAnswer = (buttons) => buttons[0];
+  await announceStalledStart(["Codex"]);
+  expect(stub.warnings.at(-1)).toMatchObject({ message: expect.stringContaining("Codex started before Nexus-Hub repaired its launcher"), buttons: ["Reload Window"] });
+  expect(stub.executed).toContain("workbench.action.reloadWindow");
+  stub.executed.length = 0; stub.warningAnswer = () => undefined;
+  await announceStalledStart(["Claude Code", "Codex"]);
+  expect(stub.warnings.at(-1)?.message).toContain("Claude Code and Codex started before Nexus-Hub repaired their launchers");
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
 });
 
 it("rejects usage-alert preferences outside the allowlist", async () => {

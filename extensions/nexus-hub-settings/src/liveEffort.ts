@@ -13,7 +13,8 @@ const digest = (value: string | Buffer): string => createHash("sha256").update(v
 const owned = (root: string, file: unknown): file is string => typeof file === "string" && path.relative(root, file) !== "" && !path.relative(root, file).startsWith("..") && !path.isAbsolute(path.relative(root, file));
 const exists = async (file: string): Promise<boolean> => { try { return (await fs.stat(file)).isFile(); } catch { return false; } };
 export interface LiveEffortSummary { connected: number; applied: number; reloadRequired: boolean; missing?: string[]; error?: string }
-export interface LiveEffortBridge { directory: string; summary(): Promise<LiveEffortSummary> }
+/** `stalled` names providers that started from an incomplete runtime before this activation repaired their launcher. */
+export interface LiveEffortBridge { directory: string; stalled: string[]; summary(): Promise<LiveEffortSummary> }
 
 async function immutable(file: string, content: Buffer | string): Promise<void> {
   try { await fs.writeFile(file, content, { flag: "wx" }); }
@@ -68,6 +69,30 @@ export async function prepareWindowsRuntime(extension: string, directory: string
   return { launcher, script: scriptPath };
 }
 
+/**
+ * A provider that started before this activation used the launcher it was configured with then. When that
+ * launcher's proxy requires a local module its runtime folder lacks, the provider's process already failed and
+ * does not restart itself, so only a window reload connects it. Each runtime is judged by its own imports, so an
+ * older build that never needed a newer module is not reported.
+ */
+export async function startedFromIncompleteRuntime(previousLauncher: unknown, directory: string): Promise<boolean> {
+  if (!owned(directory, previousLauncher)) { return false; }
+  let script: unknown;
+  try { script = (JSON.parse(await fs.readFile(path.join(path.dirname(previousLauncher), "bridge.json"), "utf8")) as { script?: unknown }).script; }
+  catch { return false; }
+  if (!owned(directory, script)) { return false; }
+  const runtime = path.dirname(script), seen = new Set<string>(), pending = [path.basename(script)];
+  while (pending.length) {
+    const name = pending.shift()!;
+    if (seen.has(name)) { continue; }
+    seen.add(name);
+    let content: string;
+    try { content = await fs.readFile(path.join(runtime, name), "utf8"); } catch { return true; }
+    for (const [, local] of content.matchAll(/require\("\.\/([\w.-]+)"\)/g)) { pending.push(local!.endsWith(".js") ? local! : local + ".js"); }
+  }
+  return false;
+}
+
 export async function installLiveEffort(context: vscode.ExtensionContext): Promise<LiveEffortBridge | undefined> {
   const providers: { provider: Provider; extension: string; setting: string; binary: string }[] = [
     { provider: "claude", extension: "anthropic.claude-code", setting: "claudeCode.claudeProcessWrapper", binary: path.join("resources", "native-binary", "claude.exe") },
@@ -80,6 +105,7 @@ export async function installLiveEffort(context: vscode.ExtensionContext): Promi
   const statuses = path.join(directory, "sessions");
   let reloadRequired = false, setupError: string | undefined;
   let inspector: string | undefined, inspectedAt = 0, unbridged: Provider[] = [];
+  const stalled: string[] = [];
   try {
     await fs.mkdir(statuses, { recursive: true });
     const runtime = await prepareWindowsRuntime(context.extensionUri.fsPath, directory);
@@ -108,12 +134,16 @@ export async function installLiveEffort(context: vscode.ExtensionContext): Promi
       const executable = path.join(launchDirectory, "bridge.exe");
       await immutable(path.join(launchDirectory, "bridge.json"), serialized);
       await immutable(executable, await fs.readFile(runtime.launcher));
-      if (previous !== executable) { await config.update(item.setting, executable, vscode.ConfigurationTarget.Global); reloadRequired ||= !!item.installed!.isActive; }
+      if (previous !== executable) {
+        if (item.installed!.isActive && await startedFromIncompleteRuntime(previous, directory)) { stalled.push(item.provider === "claude" ? "Claude Code" : "Codex"); }
+        await config.update(item.setting, executable, vscode.ConfigurationTarget.Global); reloadRequired ||= !!item.installed!.isActive;
+      }
       } catch (error) { setupError ??= error instanceof Error ? error.message : "A native live-effort connection could not be installed."; }
     }
   } catch (error) { setupError = error instanceof Error ? error.message : "The live effort bridge could not be installed."; }
   return {
     directory: statuses,
+    stalled,
     async summary(): Promise<LiveEffortSummary> {
       let connected = 0, applied = 0, error = setupError;
       const seen = new Set<Provider>();
