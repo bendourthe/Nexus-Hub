@@ -28,6 +28,16 @@ from .test_completion_minor_verdict import EVIDENCE_SECTIONS, GREEN
 from .test_gap_migration_and_archive import LINK_CHECKER, ledger, section
 import approval_page as approval_display
 
+# Importing an autouse fixture is what activates it for this module: these two
+# keep every test away from the user's git config and transport overrides.
+AUTOUSE_FIXTURES = (_isolated_git_config, _no_transport_overrides)
+
+# Names this module does not use itself but re-exports to its sibling modules
+# test_minor_execution_history.py and test_minor_execution_lifecycle.py.
+SHARED_WITH_SIBLINGS = (
+    hmac, os, shutil, SCRIPTS, _unchanged_snapshot, LINK_CHECKER, ledger, section,
+)
+
 
 BASELINE = "1dc21b92db664347d18ff591e02e1e73c0d8c867"
 TOKEN = "v4.15"
@@ -152,7 +162,8 @@ class ExecutionMinor(Minor):
 
     def capture(self, session, *texts, at=None):
         if at is not None:
-            return super().capture(session, *texts, at=at)
+            super().capture(session, *texts, at=at)
+            return
         import completion_gate as gate
         for prompt in texts:
             payload = {"session_id": session, "prompt": prompt, "cwd": str(self.work)}
