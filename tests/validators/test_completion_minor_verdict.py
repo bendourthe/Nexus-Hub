@@ -135,6 +135,24 @@ class Walk(Close):
         if back_merge:
             self.integrate()
 
+    def merge_member_untagged(self, version: str, slug: str, *, merged: bool = True, task_done: bool = True) -> str:
+        """A finished member lands on develop through its merged pull request; no tag, release or changelog."""
+        rel = f"{V05}/plans/{version}-{slug}.md"
+        if task_done:
+            self.write(rel, self.read(rel).replace("- [ ] T001", "- [x] T001"))
+        self.write(f"src/{slug}.txt", f"{slug}\n")
+        self.write(f"tests/test_{slug}.py", "def test_part():\n    assert True\n")
+        body = "".join(f"## {name}\n\nDone.\n\n" for name in EVIDENCE_SECTIONS)
+        body += f"## Full-suite testing and stabilization\n\n`pytest -q`: 3 passed, including tests/test_{slug}.py.\n"
+        self.write(f"{V05}/development/{version}-last-phase-evidence.md", "# Evidence\n\n" + body)
+        self.commit(f"merge {version}")
+        head = self.head()
+        _git(self.work, "branch", "-f", "develop", head)
+        self.publish("develop")
+        if merged:
+            self.pr(f"feat/{version}-{slug}", "MERGED", GREEN, head)
+        return head
+
     def gaps_ledger(self) -> None:
         self.write(GAPS05, ledger("v0.5", section("v0.5.2", 1, WN3), status="finalized"))
         self.commit("ledgers")
@@ -489,6 +507,33 @@ def test_member_gate_cannot_verify_when_the_previous_merge_is_unreadable(
     monkeypatch.setattr(cm, "_merge_commit", lambda c, r, repo, branch: (
         ("cannot-verify", None) if branch.endswith("alpha") else real(c, r, repo, branch)))
     assert _train_gate(walk, walk.head()) == "cannot-verify"
+
+
+def _train_refusal(walk: Walk, **kwargs: bool) -> list[str]:
+    walk.forge_minor()
+    assert _first(walk.member_start("v0.5.2")).startswith("STARTED")
+    walk.merge_member_untagged("v0.5.2", "alpha", **kwargs)
+    return walk.member_start("v0.5.10").stdout.splitlines()
+
+
+def test_member_start_admits_a_previous_member_that_is_merged_but_untagged(walk: Walk) -> None:
+    lines = _train_refusal(walk)
+    assert lines and lines[0].startswith("STARTED v0.5.10"), lines
+
+
+def test_member_start_refuses_a_previous_member_that_is_not_merged(walk: Walk) -> None:
+    assert _train_refusal(walk, merged=False) == [
+        "BLOCKED: member-gate (v0.5.10)", "reason: previous-member-incomplete (v0.5.2)"]
+
+
+def test_member_start_still_requires_a_previous_non_release_predicate(walk: Walk) -> None:
+    assert _train_refusal(walk, task_done=False) == [
+        "BLOCKED: member-gate (v0.5.10)", "reason: previous-member-incomplete (v0.5.2)"]
+
+
+def test_train_deferred_predicates_are_exactly_the_release_ones() -> None:
+    assert cm.TRAIN_DEFERRED_PREDICATES == {
+        "release.tag", "release.github", "release.main", "release.changelog", "release.version-sync"}
 
 
 # --------------------------------------------------------------------------- closing pull request
