@@ -111,6 +111,27 @@ describe.skipIf(process.platform !== "win32")("real Windows protocol launcher", 
     expect(result.code).toBe(7); expect(result.stdout).toBe("Nexus 日本語\n"); expect(JSON.parse(result.stderr)).toEqual(argumentsToPreserve);
   }, 45000);
 
+  it("copies every local module the proxy requires into the runtime folder", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-modules-")); directories.push(directory);
+    const runtime = await prepareWindowsRuntime(extension, directory);
+    const build = path.dirname(runtime.script);
+    const files = (await fs.readdir(build)).filter((file) => file.endsWith(".js"));
+    const missing: string[] = [];
+    for (const file of files) {
+      const source = await fs.readFile(path.join(build, file), "utf8");
+      for (const [, name] of source.matchAll(/require\("\.\/([^"]+)"\)/g)) {
+        if (!files.includes(name!.endsWith(".js") ? name! : name + ".js")) { missing.push(`${file} -> ${name}`); }
+      }
+    }
+    expect(missing).toEqual([]);
+    // The proxy must at least load: a missing module fails here before any argument handling.
+    const loaded = await new Promise<string>((resolve) => {
+      const child = spawn(process.execPath, ["-e", `try{require(${JSON.stringify(runtime.script)})}catch(e){if(e.code==="MODULE_NOT_FOUND"){process.stderr.write(e.message);process.exit(9)}}process.exit(0)`], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+      let stderr = ""; child.stderr.on("data", (chunk: Buffer) => stderr += chunk.toString()); child.on("close", (code) => resolve(code === 9 ? stderr : ""));
+    });
+    expect(loaded).toBe("");
+  }, 45000);
+
   it("refuses to overwrite a modified runtime file", async () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-preserve-")); directories.push(directory);
     const runtime = await prepareWindowsRuntime(extension, directory);

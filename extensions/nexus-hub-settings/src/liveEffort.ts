@@ -23,16 +23,32 @@ async function immutable(file: string, content: Buffer | string): Promise<void> 
   }
 }
 
+/**
+ * The proxy runs outside the extension folder, so it needs every local module it loads.
+ * Following `require("./x")` in the compiled output keeps the copy complete when the proxy gains an import.
+ */
+async function proxyModules(out: string): Promise<Map<string, Buffer>> {
+  const modules = new Map<string, Buffer>();
+  const pending = ["liveEffortProxy.js"];
+  while (pending.length) {
+    const name = pending.shift()!;
+    if (modules.has(name)) { continue; }
+    const content = await fs.readFile(path.join(out, name));
+    modules.set(name, content);
+    for (const [, local] of content.toString("utf8").matchAll(/require\("\.\/([\w.-]+)"\)/g)) { pending.push(local!.endsWith(".js") ? local! : local + ".js"); }
+  }
+  return modules;
+}
+
 /** Immutable runtime files survive extension updates. Existing customized files are never overwritten. */
 export async function prepareWindowsRuntime(extension: string, directory: string): Promise<{ launcher: string; script: string }> {
-  const script = await fs.readFile(path.join(extension, "out", "liveEffortProxy.js"));
+  const modules = await proxyModules(path.join(extension, "out"));
   const source = await fs.readFile(path.join(extension, "media", "effort-launcher.cs"));
-  const stream = await fs.readFile(path.join(extension, "out", "nativeStreamProcess.js"));
-  const build = path.join(directory, "runtime-" + digest(Buffer.concat([script, source, stream])).slice(0, 20));
+  const build = path.join(directory, "runtime-" + digest(Buffer.concat([source, ...[...modules].flatMap(([name, content]) => [Buffer.from(name), content])])).slice(0, 20));
   await fs.mkdir(build, { recursive: true });
   const scriptPath = path.join(build, "proxy.js"), sourcePath = path.join(build, "launcher.cs"), launcher = path.join(build, "launcher.exe"), receipt = path.join(build, "launcher.sha256");
-  await immutable(scriptPath, script); await immutable(sourcePath, source);
-  await immutable(path.join(build, "nativeStreamProcess.js"), stream);
+  await immutable(sourcePath, source);
+  for (const [name, content] of modules) { await immutable(name === "liveEffortProxy.js" ? scriptPath : path.join(build, name), content); }
   if (!(await exists(launcher))) {
     const windows = process.env.SystemRoot ?? "C:\\Windows";
     const compiler = [path.join(windows, "Microsoft.NET", "Framework64", "v4.0.30319", "csc.exe"), path.join(windows, "Microsoft.NET", "Framework", "v4.0.30319", "csc.exe")];

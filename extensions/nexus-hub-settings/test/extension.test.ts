@@ -244,6 +244,18 @@ it("reports a provider restart that cannot run instead of restarting other exten
   expect(stub.warnings.at(-1)?.message).toContain("Other extensions were not restarted");
 });
 
+it("explains an unadapted vendor build that exports nothing instead of throwing a TypeError", async () => {
+  stub.warningAnswer = (buttons) => buttons[0];
+  stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: true, exports: undefined, packageJSON: {version: "26.1111.21308"}} as never);
+  await restartProvider("codex");
+  const restart = stub.warnings.at(-1)?.message ?? "";
+  expect(restart).not.toContain("TypeError");
+  expect(restart).toContain("Codex 26.1111.21308");
+  expect(restart).toContain("Other extensions were not restarted");
+  await refreshCodexTab();
+  expect(stub.warnings.at(-1)?.message ?? "").not.toContain("TypeError");
+});
+
 it("rejects usage-alert preferences outside the allowlist", async () => {
   const api = await activate(context() as never);
   expect(() => api.setUsageAlert("gemini-pro" as never, true)).toThrow("Invalid usage-alert preference");

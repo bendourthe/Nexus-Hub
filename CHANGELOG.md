@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`nexus-hub verify` passes again on new installs.** The v4.15.0 `MANIFEST.sha256` held an outdated fingerprint for `scripts/ci/profiles.py`, which changed after the manifest was generated, so `nexus-hub verify` reported `verify: FAIL (1 modified, 0 missing, 0 extra)` on every install from `main`. The manifest is regenerated; the file is CI-only and never ran on a user machine. The release-flow gap is recorded as v4.15 BG-7.
+- **Claude Code and Codex start again on Windows with live effort enabled.** v4.15.0 copied the live-effort proxy into its runtime folder without `safeRead.js`, a module the proxy began importing, so every Claude Code and Codex start failed with `Error: Cannot find module './safeRead'`. The runtime now copies every local module the proxy loads, found from its compiled `require` chain, and a test loads the proxy from the runtime folder. The extension repoints the launch settings to the corrected runtime on the next window start.
+- **Restart Codex and Restart Claude Code explain an unsupported version instead of failing.** On a vendor build without the Nexus recovery adapter, the buttons showed `TypeError: Cannot read properties of undefined (reading 'nexusRestartProvider')`. They now name the installed version and point to Developer: Reload Window.
 
 ## [4.15.0] - 2026-11-12
 
