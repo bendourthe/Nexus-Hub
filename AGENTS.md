@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.14.8 -->
+<!-- nexus-hub-version: 4.15.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -469,7 +469,7 @@ Walk this checklist before proposing a PR:
 2. **Is your change a standalone script in `scripts/`?** If yes, add a copy line in `scripts/installer.sh` (next to the existing `generate_report.py` block, around line 1395) AND a `Safe-Copy` line in `scripts/installer.ps1` (around line 1656). Both must reference the same destination under `~/.nexus-hub/scripts/`.
 3. **Does your change introduce a new Python or Node dependency?** Prefer a lazy import with a clear `pip install <pkg>` hint on failure (e.g., `try: import X; except ImportError: print("Error: X not installed. Please run: pip install X")`, as used in `scripts/generate_report.py`). If a hard requirement is unavoidable, add a dependency check in both installers next to the existing `python-docx`/`python-pptx` check.
 4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, End-of-Task Summary, Construction Discipline, Writing Discipline, Autonomous Operation, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). Note that `Output Minimization` is deliberately NOT an invariant block, because `base-claude.md` carries a legitimate extra bullet; `End-of-Task Summary` (added v3.15.10) IS one, because the rule is platform-agnostic by intent and has no valid per-platform variation; `Writing Discipline` (added v4.5.0) IS one for the same reason, since a cliche or an em-dash is a defect on every platform and the block binds the agent's own replies rather than a platform feature. It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
-5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
+5. **Validate**: per phase, run affected checks plus `python scripts/ci/run.py --profile fast`. Run `python scripts/ci/run.py --profile full` once on the finished candidate before publication. Include affected hook-parity and throwaway installer-delivery checks. Outside plans, use the canonical pre-publication gate.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 
 ### Dependency ceiling rationale
@@ -496,7 +496,7 @@ Two further traps, both fail-open:
 
 ## Documentation Retention
 
-Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/` and `comparisons/` move on closure; `known-gaps.md` and non-versioned subtrees never move. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
+Per-version retention follows [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md): one minor behind current, archive only `development/history/` under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Move plans/comparisons after proven closure or transfer; ledgers stay active by default, with bounded approved exceptions. Non-versioned docs keep their own lifecycles. `scripts/check_docs_retention.py` reports; `[[docs-layout-refactor]]` owns reviewed moves.
 
 ## Running Validation
 
@@ -539,7 +539,7 @@ Records live at `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md` and re
 
 ## Critical Conventions
 
-- **Never edit `data/` files manually** unless registering a new skill -- they are generated. The source of truth is `catalog/skills/`.
+- **Catalog registries**: hand-maintain only `data/skills.json`, `data/SKILL_INDEX.md`, `data/marketplace.json`, and `data/bundles.json` per "Adding a New Skill" and `scripts/check_registry_entries.py`. Update generated artifacts through their owning generators.
 - **Never commit secrets.** The `secret-scan.sh` hook checks Write/Edit operations.
 - **Destructive git commands require confirmation.** The `git-guardrails.sh` hook enforces this.
 - **SKILL.md summaries must be quoted strings.** The MCP server depends on YAML-parseable frontmatter.

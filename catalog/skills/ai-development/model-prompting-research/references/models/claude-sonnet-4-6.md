@@ -1,8 +1,8 @@
 # Prompting Profile: claude-sonnet-4-6
 
-**Platform**: antigravity
-**Last verified**: 2026-10-15
-**Roster provenance**: `api`
+**Platform**: claude-code
+**Last verified**: 2026-11-04
+**Roster provenance**: `manual`
 
 This file mirrors the `models["claude-sonnet-4-6"]` entry in `assets/profiles-index.json`. The index is authoritative; if the two disagree, regenerate this file from the index with `scripts/write_model_prompting_profile.py`.
 
@@ -10,15 +10,14 @@ This file mirrors the `models["claude-sonnet-4-6"]` entry in `assets/profiles-in
 
 | Claim | Confidence | Scope | Evidence scope | Primary source |
 |---|---|---|---|---|
-| Always set the effort parameter explicitly when calling Sonnet 4.6. Its API default is high, which can add unexpected latency. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/effort) |
-| Use medium as the default effort for Sonnet 4.6 in most applications, including agentic coding, tool-heavy workflows, and code generation. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/effort) |
-| On Sonnet 4.6, use low effort for chat, non-coding, high-volume, or latency-sensitive workloads. Reserve high for complex reasoning where quality matters more than speed or cost. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/effort) |
-| Do not prefill the last assistant turn on Claude 4.6 models such as Sonnet 4.6, because those requests return a 400 error. Get the output format from Structured Outputs or by asking for the structure directly. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
-| Where a prefill was used to skip preambles, put a direct no-preamble instruction in the system prompt instead. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
-| On Sonnet 4.6, use adaptive thinking with the effort parameter instead of manual extended thinking with budget_tokens. budget_tokens still works on this model but is deprecated. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
-| To get thinking on Sonnet 4.6, request it explicitly with thinking type adaptive. Thinking is off on this model when the thinking parameter is omitted. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
-| Dial back anti-laziness wording and aggressive "use tools more" instructions carried over from older prompts, because Claude 4.6 models are more proactive and may overtrigger on them. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
-| Sonnet 4.6 tracks its remaining context window. When it runs in a harness that compacts context or saves state to files, say so in the prompt so the model does not wrap up early as it nears the limit. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
+| Use the exact model ID claude-sonnet-4-6 on the Claude API (Bedrock InvokeModel uses anthropic.claude-sonnet-4-6). Context window is 1M tokens, max synchronous output is 128K tokens (up to 300K on the Message Batches API with the output-300k-2026-03-24 beta header). The model is Legacy (released Feb 17, 2026); retirement is not sooner than Feb 17, 2027, and Anthropic recommends considering migration to claude-sonnet-5-5. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/models/sonnet-4-6/overview) |
+| Sonnet 4.6 defaults to high effort on the API. Set output_config.effort explicitly to avoid unexpected latency; medium is the documented recommended default for most applications (agentic coding, tool-heavy workflows, code generation), low for high-volume or latency-sensitive work, high for complex reasoning, and max is available on this model for the deepest reasoning. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/effort) |
+| Thinking is off on Sonnet 4.6 when the thinking field is omitted. Enable adaptive thinking explicitly with thinking: {"type": "adaptive"}, steered by the effort parameter. thinking.type values accepted are adaptive, disabled, and enabled (deprecated). | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/thinking) |
+| Manual extended thinking (thinking: {"type": "enabled", "budget_tokens": N}) is still functional on Sonnet 4.6 but deprecated. Prefer adaptive thinking with a lower effort level, or max_tokens as a hard limit, for cost control; budget_tokens returns a 400 error on Claude 4.7 and later models, so do not build new code around it. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
+| Do not prefill the last assistant turn on Sonnet 4.6: it is rejected with a 400 error ("This model does not support assistant message prefill. The conversation must end with a user message."). Use other means to control output format. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide) |
+| Default thinking display on Sonnet 4.6 is "summarized", so thinking blocks return readable summary text without setting display; its first lines of thinking output are more verbose than on newer models. | `medium` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/thinking) |
+| Sonnet 4.6 supports context awareness: the model tracks its remaining context window (token budget) through a conversation, which helps it run long tasks and manage context. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
+| Pricing for Sonnet 4.6 is $3 per MTok input and $15 per MTok output, with cache reads at $0.30 per MTok and a 50 percent Batch API discount. Reliable knowledge cutoff is Aug 2025. | `high` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/models/sonnet-4-6/overview) |
 
 ## Does not apply to shared bodies
 

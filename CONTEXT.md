@@ -2,6 +2,30 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Worktree Root
+
+**Definition**: The configured local parent directory for linked worktrees across repositories, proposed for standardized use by the v4.15.6 plan.
+
+**Avoid**: main repository, clone root, vendor cache
+
+**Relationships**: Contains repository-identity namespaces and their linked worktrees; main checkouts and installed Nexus-Hub files have separate locations.
+
+## Repository Identity
+
+**Definition**: A local identity that ties a worktree namespace to one proven Git common directory and distinguishes separate clones even when they share a basename or remote.
+
+**Avoid**: repository basename, remote URL, branch name
+
+**Relationships**: Owns a worktree namespace; each linked worktree also has its own identity and working directory.
+
+## Worktree Migration Manifest
+
+**Definition**: A reviewed local list of exact worktree operations with bound source/destination identities, preservation evidence, authorization, and state preconditions.
+
+**Avoid**: approval record, cleanup verdict, branch list
+
+**Relationships**: Describes proposed operations; execution receipts prove outcomes, and the applicable native authority remains separate.
+
 ## Keyword Style
 
 **Definition**: A title or heading form that names a topic, category, or object as a noun phrase, with no finite verb, no clause, no stated conclusion, and no terminal punctuation (for example "Revenue by Region").
@@ -185,3 +209,51 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: frequent component, hot path (for UI)
 
 **Relationships**: Governs the frequency-of-use rule in `hallmark-design` gate 25 (plan v4.22.6): no entrance animation and at most a short exit. Reduced-motion requirements stay with `accessibility-engineering`. Not the same as a performance hot path, which concerns compute rather than perceived time.
+
+## Critical-Path Job
+
+**Definition**: The non-aggregate CI job whose finish time sets when the required aggregate check (`ci-required`) can resolve, measured from the run's creation by `ci_latency_audit.py` (plan v4.15.7).
+
+**Avoid**: slowest job (when it is an aggregate such as `report`), bottleneck step, long pole
+
+**Relationships**: Determined by the `needs` graph, not by which job finishes last; aggregate jobs always finish last and are excluded. Shortening any other job does not shorten the run.
+
+## Partition Proof
+
+**Definition**: A test that collects pytest node IDs once unsharded and once per shard and asserts the shard sets are pairwise disjoint and their union equals the unsharded set (plan v4.15.7).
+
+**Avoid**: shard check, coverage test (for this purpose), glob match test
+
+**Relationships**: Stronger than a file-name glob check, which models `--ignore-glob` rather than running pytest. Complements `tests/workflows/test_ci_runs_every_repo_test.py`, which proves every test root is selected by some CI job.
+
+## Keep-Working Case
+
+**Definition**: A case in an instruction-file eval set that checks an existing behavior the edit must not change, run in both the baseline and the after arm (plan v4.15.11).
+
+**Avoid**: regression test (too broad), negative case, control case
+
+**Relationships**: Narrower than a regression set. Not the same as a negative case, which checks that the new rule does not fire where it should not.
+
+## Isolation Canary
+
+**Definition**: A case run before any instruction-file eval that proves the test session loads only the instruction text under test and none of the operator's installed instruction files (plan v4.15.11).
+
+**Avoid**: smoke test, sanity case, clean-room check
+
+**Relationships**: A failed canary turns every case in that run into "not run". Complements the isolation and model-pin contract in `skill-eval-loop/references/cli-adapter.md`.
+
+## Tier Direction
+
+**Definition**: The rule that component source references semantic design tokens (named by purpose) and never primitive tokens (raw palette or scale values), so a theme or rebrand changes only the semantic layer.
+
+**Avoid**: token layering, token hierarchy rule, alias direction
+
+**Relationships**: Owned by the agent-readable design-system reference in `frontend-ui-engineering` (plan v4.22.11); enforced where possible by the lint contract in `interface-review`, which defers to that owner. Role naming and theme behavior for color stay with `color-systems`. Not the same as tier placement in the model map, which ranks models.
+
+## Hotspot Triage
+
+**Definition**: The step that lists the measured top hotspots of a profile (five, extended to cover at least 80 percent of self time, capped at ten) and matches each to exactly one case before any code changes.
+
+**Avoid**: perf review list, bottleneck sweep, optimization pass
+
+**Relationships**: Case table owned by `performance-review`; always run first by `code-optimizer`, which stops for approval on review requests (plan v4.22.11). Narrower than a performance review, which also covers caching correctness and boundary conditions. Not the same as a UI hot path, which concerns perceived time.

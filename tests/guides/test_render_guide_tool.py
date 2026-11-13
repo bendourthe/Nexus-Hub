@@ -132,7 +132,7 @@ HOME_RUNTIME_METRICS = r"""
     verifyNumerals: Array.from(
       document.querySelectorAll(".verify-steps--secondary .vs-n"),
     ).map(contrastFor),
-    comparisonLabels: Array.from(document.querySelectorAll(".cmp-side"))
+    comparisonLabels: Array.from(document.querySelectorAll("#nhg-why .why-tag"))
       .map(contrastFor),
   };
 }
@@ -350,8 +350,8 @@ def test_home_runtime_contract_across_themes_and_widths(
                         )
 
                         comparison_labels = metrics["comparisonLabels"]
-                        assert len(comparison_labels) == 2, (
-                            f"{case}: expected two visible comparison labels, "
+                        assert len(comparison_labels) == 6, (
+                            f"{case}: expected six Why Nexus Hub 'Without' labels, "
                             f"got {len(comparison_labels)}"
                         )
                         low_comparison_contrast = [

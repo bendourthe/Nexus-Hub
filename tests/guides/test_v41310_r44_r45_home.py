@@ -79,14 +79,14 @@ def playwright_mod():
     if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
     except Exception as exc:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-        pytest.skip(f"chromium is unavailable: {exc}")
+        raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
     return sync_playwright
 
 
@@ -120,7 +120,9 @@ def test_the_hero_has_no_button_row() -> None:
     assert 'class="btn-row"' not in hero and 'class="btn' not in hero, "the hero keeps no buttons"
     for label in ("Get trained", "Open Cheatsheets", 'href="#home/install"'):
         assert label not in hero, label
-    assert "Raw Prompting Limits" not in home and 'id="nhg-why"' not in home
+    # R44 removed the "Raw Prompting Limits" cards (then id="nhg-why") above Installation. Since
+    # 2026-11-10, id="nhg-why" names the closing benefits summary at the end of Home instead.
+    assert "Raw Prompting Limits" not in home and 'id="nhg-why"' not in hero
 
 
 def test_no_harness_benefits_heading_and_one_platform_row() -> None:

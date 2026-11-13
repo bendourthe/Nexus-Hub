@@ -1,9 +1,10 @@
-"""v4.13.10 R52: the installed-version check in the guide and both READMEs.
+"""v4.13.10 R52: the installed-version check in the guide and installation reference.
 
 The guide's Home install verification list gains a third step that shows
 ``nexus-hub version`` (prints the installed version) and ``nexus-hub upgrade``
-(installs the latest release) as inline commands with copy chips, and both
-READMEs tell a reader how to check the installed version.
+(installs the latest release) as inline commands with copy chips, and the
+installation reference that both READMEs link tells a reader how to check the
+installed version.
 
 The browser test skips when Playwright or Chromium is missing and fails closed
 under NEXUS_REQUIRE_RENDER=1.
@@ -19,7 +20,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 GUIDE = ROOT / "guides" / "website" / "nexus-hub-guide.html"
-READMES = [ROOT / "README.md", ROOT / "README_zh.md"]
+INSTALL_REFERENCE = ROOT / "docs" / "guides" / "installation-and-platforms.md"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 COMMANDS = ["nexus-hub version", "nexus-hub upgrade"]
 
@@ -50,11 +51,12 @@ def test_verify_list_shows_version_and_upgrade_as_copyable_cells() -> None:
     assert steps.count('class="vs-n"') == 3
 
 
-def test_both_readmes_show_the_version_check() -> None:
-    for readme in READMES:
-        text = readme.read_text(encoding="utf-8")
-        assert "nexus-hub version" in text, readme.name
-        assert "nexus-hub upgrade" in text, readme.name
+def test_installation_reference_shows_the_version_check() -> None:
+    text = INSTALL_REFERENCE.read_text(encoding="utf-8")
+    for command in COMMANDS:
+        assert command in text, command
+    for readme in (ROOT / "README.md", ROOT / "README_zh.md"):
+        assert "docs/guides/installation-and-platforms.md" in readme.read_text(encoding="utf-8"), readme.name
 
 
 @pytest.fixture(scope="module")
@@ -66,14 +68,14 @@ def playwright_mod():
     if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
     except Exception as exc:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-        pytest.skip(f"chromium is unavailable: {exc}")
+        raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
     return sync_playwright
 
 

@@ -362,9 +362,17 @@ def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, 
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
+    # Resolve the checker's exception classes before the call: an except tuple is evaluated only
+    # once an error is in flight, so a missing attribute there would escape and fail the hook open.
     try:
-        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
-    except (OSError, ValueError, module.Malformed, module._minor_module().ObservationUnavailable) as exc:
+        refusals = (module.Malformed, module._minor_module().ObservationUnavailable)
+    except Exception as exc:
+        raise ValueError('minor controller cannot be verified') from exc
+    try:
+        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()), minor_protocol=1, execution_protocol=1)
+    # TypeError/AttributeError: an older sibling checker that lacks the protocol keywords. A
+    # mixed helper bundle must keep the run unresolved, never crash the hook and fail open.
+    except (OSError, ValueError, TypeError, AttributeError, *refusals) as exc:
         raise ValueError('minor controller cannot be verified') from exc
     if _is_inside(checker, ctx.root):
         raise ValueError('checker is inside operational worktree')

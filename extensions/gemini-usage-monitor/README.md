@@ -10,7 +10,7 @@ An extension for the Google Antigravity IDE that monitors your Antigravity model
 - **Status bar**: Shows the Gemini group's 5-hour and weekly usage with the Antigravity icon.
 - **SVG tooltip**: Hover for theme-aware progress bars (in Google blue, `#4285F4`) for every window of every model group, with reset timers.
 - **Dashboard panel**: Click for a full usage dashboard with your plan (for example "Google AI Pro"), both model groups, and throttle / pacing / switch-group recommendations.
-- **Alerts**: A warning card opens in the sidebar the first time a threshold is crossed, and closes itself after one minute.
+- **Alerts**: A warning card opens in the sidebar the first time a threshold is crossed, and closes itself after 10 seconds.
 - **Fail-soft**: When the language server is not running yet or the response has no usable data, the monitor keeps cached data and explains what to do instead of erroring.
 
 ## Setup
@@ -34,7 +34,7 @@ The Nexus-Hub installer builds and installs this extension automatically when it
 
     ```powershell
     npm run package
-    antigravity-ide --install-extension gemini-usage-monitor-0.1.0.vsix --force
+    antigravity-ide --install-extension gemini-usage-monitor-0.1.2.vsix --force
     ```
 
 ## Usage
@@ -94,7 +94,7 @@ The thresholds and colors are application-scoped: they are read from your user s
 
 Antigravity runs a local language server that backs its own Models & Usage screen. The monitor:
 
-1. Finds that server among your own running processes (one PowerShell `Get-CimInstance` call on Windows; `ps` and `lsof` on macOS and Linux), keeping only the server that belongs to this Antigravity install and preferring the one owned by the main process, which is the one the settings screen reads.
+1. Finds that server among your own running processes (one PowerShell `Get-CimInstance` call on Windows; `ps` and `lsof` on macOS and Linux), keeping only the server that belongs to this Antigravity install and preferring the one owned by the main process, which is the one the settings screen reads. Antigravity IDE builds from late October 2026 no longer ship that server inside the editor; they start an `agy --hub` process from `~/.gemini/bin` that answers the same requests, so the monitor also accepts that hub and tries its `--hub-port` first. On those builds the editor is recognized by its own `product.json` name instead of the removed `extensions/antigravity` folder.
 2. Reads the CSRF token the server was launched with from its command line, and its listening loopback ports.
 3. Sends two Connect-protocol JSON requests to `127.0.0.1`: `RetrieveUserQuotaSummary` for the model groups and `GetUserStatus` for the plan name. A port is tried over plain loopback HTTP first, then over HTTPS verified against the certificate Antigravity ships.
 
@@ -102,12 +102,13 @@ The endpoint is cached and rediscovered automatically when Antigravity restarts 
 
 The Gemini group is the headline pair (status bar, "Current Session" and "Weekly"). Every other group appears as extra rows in the tooltip and dashboard and counts toward alerts when `thresholdMetric` is `highest`.
 
-**Caveat**: the language server's RPC interface is internal to Antigravity and may change between releases. Field names were recorded from Antigravity IDE 2.5.5 (October 2026); the monitor reads them defensively and fails soft if they change.
+**Caveat**: the language server's RPC interface is internal to Antigravity and may change between releases. Field names were recorded from Antigravity IDE 2.5.5 (October 2026) and confirmed unchanged on the `agy` hub on 2026-11-04; the monitor reads them defensively and fails soft if they change.
 
 ### Privacy boundary
 
 - The monitor makes **no** internet requests of its own. Every request goes to `127.0.0.1`.
 - The CSRF token is held in memory only. It is never logged, stored, or shown.
+- Only your own processes are trusted: an `agy` hub must run from your own `~/.gemini/bin`, and on macOS and Linux processes owned by other users are ignored.
 - The monitor reads only quota and plan data. It cannot change your plan, turn on AI credit overages, or spend credits.
 
 ### Recommendations
@@ -145,3 +146,7 @@ npm run package
 npm install --no-save --package-lock=false sharp
 npm run generate:icons
 ```
+
+## Usage Alerts
+
+Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch and separate Claude Code, Codex, GitHub Copilot, Cursor, and Gemini / Antigravity switches. The master switches every provider together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.

@@ -37,10 +37,11 @@ def test_windows_core_is_required_and_selects_current_edition():
     floor = next(group for group in PROFILES["platform"] if group.name == "windows-installer")
     validators = next(group for group in PROFILES["platform"] if group.name == "windows-validators")
     validators_2 = next(group for group in PROFILES["platform"] if group.name == "windows-validators-2")
+    validators_3 = next(group for group in PROFILES["platform"] if group.name == "windows-validators-3")
     core = next(group for group in PROFILES["platform"] if group.name == "windows-installer-core")
     assert len(floor.commands) == 1
-    assert len(validators.commands) == 2 and len(validators_2.commands) == 2
-    floor_commands = floor.commands + validators.commands + validators_2.commands
+    assert len(validators.commands) == 2 and len(validators_2.commands) == 3 and len(validators_3.commands) == 1
+    floor_commands = floor.commands + validators.commands + validators_2.commands + validators_3.commands
     assert all(command.env.get("NEXUS_TEST_POWERSHELL") == "powershell" for command in floor_commands)
     assert core.commands[0].argv[0] == "pwsh"
     assert not core.commands[0].skip_if_missing
@@ -105,14 +106,25 @@ def test_offline_profiles_keep_digest_network_boundary_and_package_constraints(n
     assert "requirements-py311.txt" in dockerfile and "PIP_CONSTRAINT" in dockerfile
 
 
-@pytest.mark.parametrize("build,profile,accepted", [("success", "success", True), ("success", "skipped", False), ("failure", "skipped", False), ("cancelled", "success", False), ("success", "unknown", False)])
-def test_cursor_required_gate_rejects_every_unqualified_result(build, profile, accepted):
+@pytest.mark.parametrize("build,windows,profile,accepted", [
+    ("success", "success", "success", True),
+    ("success", "success", "skipped", False),
+    ("failure", "success", "skipped", False),
+    ("cancelled", "success", "success", False),
+    ("success", "success", "unknown", False),
+    *[("success", bad, "success", False) for bad in ("failure", "cancelled", "skipped", "unknown", "", None)],
+])
+def test_cursor_required_gate_rejects_every_unqualified_result(build, windows, profile, accepted):
     bash = shutil.which("bash")
     assert bash, "Bash is required for the workflow gate control"
     data = yaml.safe_load((ROOT / ".github/workflows/cursor-usage-monitor.yml").read_text(encoding="utf-8"))
     gate = data["jobs"]["cursor-required"]
-    assert gate["if"] == "always()" and set(gate["needs"]) == {"build-and-test", "e2e-cursor-profile"}
-    result = subprocess.run([bash, "-c", gate["steps"][0]["run"]], env={**os.environ, "R_build": build, "R_profile": profile}, capture_output=True, timeout=10, check=False)
+    assert gate["if"] == "always()" and set(gate["needs"]) == {"build-and-test", "windows-native-session", "e2e-cursor-profile"}
+    env = {**os.environ, "R_build": build, "R_profile": profile}
+    env.pop("R_windows", None)
+    if windows is not None:
+        env["R_windows"] = windows
+    result = subprocess.run([bash, "-c", gate["steps"][0]["run"]], env=env, capture_output=True, timeout=10, check=False)
     assert (result.returncode == 0) is accepted
 
 

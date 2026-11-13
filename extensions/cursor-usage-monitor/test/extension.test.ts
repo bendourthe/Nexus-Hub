@@ -124,7 +124,7 @@ describe("Cursor usage extension lifecycle", () => {
       now: () => now
     });
     runtime.start();
-    expect(statusItems[0]?.text).toContain("Cursor 25%");
+    expect(statusItems[0]?.text).toContain("25% (cursor)");
     runtime.dispose();
 
     resetVscodeStub();
@@ -139,7 +139,7 @@ describe("Cursor usage extension lifecycle", () => {
       now: () => now
     });
     manualRuntime.start();
-    expect(statusItems[0]?.text).toContain("Cursor 80%");
+    expect(statusItems[0]?.text).toContain("80% (cursor)");
     manualRuntime.dispose();
   });
 
@@ -152,7 +152,7 @@ describe("Cursor usage extension lifecycle", () => {
       source: "manual",
       cursorModels: { percentUsed: 80 }
     });
-    expect(statusItems[0]?.text).toContain("Cursor 80%");
+    expect(statusItems[0]?.text).toContain("80% (cursor)");
     expect(executedCommands).toContainEqual({
       command: "setContext",
       args: ["cursorUsage.warningActive", true]
@@ -314,7 +314,7 @@ describe("Cursor usage extension lifecycle", () => {
     setConfiguration("cursorUsage.compactStatusBar", true);
     fireConfigurationChange("cursorUsage.compactStatusBar");
     timeouts.flush();
-    expect(statusItems[0]?.text).toContain("C 80%");
+    expect(statusItems[0]?.text).toContain("80% (cursor)");
     expect(statusItems[0]?.text).not.toContain("Cursor Usage:");
 
     setConfiguration("cursorUsage.showInStatusBar", false);
@@ -469,7 +469,7 @@ describe("Cursor usage extension lifecycle", () => {
       source: "credential-api",
       cursorModels: { percentUsed: 30 }
     });
-    expect(statusItems[0]?.text).toContain("Cursor 30%");
+    expect(statusItems[0]?.text).toContain("30% (cursor)");
     expect(informationMessages.at(-1)).toContain("refreshed");
     runtime.dispose();
   });
@@ -562,7 +562,7 @@ describe("Cursor usage extension lifecycle", () => {
     expect(warningMessages.at(-1)).toBe(
       "Cursor Usage: could not save manual usage. Existing data remains displayed."
     );
-    expect(statusItems[0]?.text).toContain("Cursor 80%");
+    expect(statusItems[0]?.text).toContain("80% (cursor)");
 
     warningResponses.push("Clear");
     await expect(
@@ -571,7 +571,7 @@ describe("Cursor usage extension lifecycle", () => {
     expect(warningMessages.at(-1)).toBe(
       "Cursor Usage: could not clear stored usage. Existing data remains displayed."
     );
-    expect(statusItems[0]?.text).toContain("Cursor 80%");
+    expect(statusItems[0]?.text).toContain("80% (cursor)");
     expect(warningMessages.join(" ")).not.toContain("sensitive");
     runtime.dispose();
   });

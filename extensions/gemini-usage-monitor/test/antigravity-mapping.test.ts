@@ -79,6 +79,15 @@ describe("mapQuotaSummary", () => {
     return raw;
   }
 
+  it("lists every Gemini limit before the other groups, whatever order Antigravity uses", () => {
+    // The live 2026-11-04 order: Gemini Models, Claude and GPT models, Gemini 4 Argon.
+    const raw = layout20261028() as { response: { groups: Record<string, unknown>[] } };
+    raw.response.groups.push(raw.response.groups.shift() as Record<string, unknown>);
+    const model = mapQuotaSummary(raw, USER_STATUS, NOW)!;
+    expect(model.currentModel).toBe("Gemini Models");
+    expect(model.additionalLimits?.map((r) => r.label)).toEqual(["Gemini 4 Argon: Weekly", "Claude and GPT Models: Weekly"]);
+  });
+
   it("keeps Gemini Models as the headline even when Gemini 4 Argon is listed first", () => {
     const model = mapQuotaSummary(layout20261028(), USER_STATUS, NOW)!;
     expect(model.currentModel).toBe("Gemini Models");

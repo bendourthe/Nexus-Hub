@@ -31,9 +31,11 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pytest
 
@@ -422,15 +424,26 @@ def test_upgrade_offline_fails_clearly(tmp_path: Path) -> None:
 # --- Outbound-host invariant ------------------------------------------------
 
 
+def _is_github_host(host: str) -> bool:
+    """GitHub or its content host by the parsed host name, never a substring of the URL."""
+    host = host.lower()
+    return host == "github.com" or host.endswith(".github.com") or host.endswith(".githubusercontent.com")
+
+
 def test_cli_no_outbound_beyond_github() -> None:
     """The CLI may only ever name the project's own GitHub as an outbound host."""
-    for line in CLI_PY.read_text(encoding="utf-8").splitlines():
-        if "https://" not in line:
-            continue
-        lowered = line.lower()
-        if "github.com" in lowered or "githubusercontent.com" in lowered:
-            continue
-        pytest.fail(f"unexpected outbound URL in nexus_hub_cli.py: {line.strip()}")
+    urls = re.findall(r"https://[^\s\"'`)\]}>]+", CLI_PY.read_text(encoding="utf-8"))
+    assert urls, "expected at least one GitHub URL in nexus_hub_cli.py"
+    for url in urls:
+        host = urlsplit(url).hostname or ""
+        assert _is_github_host(host), f"unexpected outbound URL in nexus_hub_cli.py: {url}"
+
+
+def test_github_host_check_rejects_lookalikes() -> None:
+    assert _is_github_host("github.com") and _is_github_host("raw.githubusercontent.com")
+    for host in ("evil.example", "github.com.evil.example", "notgithub.com", "githubusercontent.com.evil.example"):
+        assert not _is_github_host(host), host
+    assert urlsplit("https://evil.example/?next=github.com").hostname == "evil.example"
 
 
 # --- Installer wiring (static surface) --------------------------------------

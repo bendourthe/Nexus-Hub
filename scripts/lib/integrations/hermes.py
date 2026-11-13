@@ -36,7 +36,7 @@ class HermesIntegration(SkillsIntegration):
         # counts only from the Hermes Agent install locations. The POSIX installer
         # also places its code at ~/.hermes/hermes-agent, which the root check sees.
         # config.yaml is listed because Nexus-Hub seeds it.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["hermes"],
             "corroborate": {"hermes": ["hermes-agent", "/hermes/bin", "\\hermes\\bin"]},

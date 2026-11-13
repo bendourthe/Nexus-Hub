@@ -72,7 +72,7 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
         # command; Kimi itself creates updates/, bin/, sessions/, logs/,
         # credentials/ and tui.toml under ~/.kimi-code. The listed names are what
         # Nexus-Hub writes there (config.toml is seeded), so they never count.
-        # Signals: docs/releases/v4/v4.14/development/v4.14.7-detection-signals.md
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
         "detection": {
             "executables": ["kimi"],
             "root": ".kimi-code",

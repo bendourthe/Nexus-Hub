@@ -50,14 +50,14 @@ def playwright_mod():
     if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
     except Exception as exc:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-        pytest.skip(f"chromium is unavailable: {exc}")
+        raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
     return sync_playwright
 
 
@@ -166,13 +166,15 @@ def test_migration_table_headers_carry_the_comparison_grade(playwright_mod) -> N
             ctx, page = _page(browser, 1440, "home")
             data = page.evaluate(
                 """() => {
+                    // Reference spans in the grade role's warn and go tones, the role the headers use.
+                    const probe = tone => { const s = document.createElement('span'); s.dataset.ty = 'grade'; s.dataset.tone = tone;
+                      s.textContent = tone; document.querySelector('.tbl-migrate').parentElement.appendChild(s); const r = read(s); s.remove(); return r; };
                     const read = el => { const cs = getComputedStyle(el);
                       return {t: el.textContent.trim(), px: +parseFloat(cs.fontSize).toFixed(1),
                               weight: cs.fontWeight, upper: cs.textTransform, color: cs.color}; };
                     return {
                       th: [...document.querySelectorAll('.tbl-migrate th')].map(read),
-                      without: read(document.querySelector('.cmp-side--without')),
-                      with_: read(document.querySelector('.cmp-side--with')),
+                      without: probe('warn'), with_: probe('go'),
                     };
                 }"""
             )

@@ -158,6 +158,30 @@ def test_e2e_job_degrades_when_cursor_cli_is_absent(workflow: dict[str, Any]) ->
     assert group.commands[1].argv[-1] == "cursor-profile"
 
 
+def test_windows_native_decryption_runs_the_canonical_profile_and_is_required(
+    workflow: dict[str, Any],
+) -> None:
+    job = workflow["jobs"]["windows-native-session"]
+    assert job["runs-on"] == "windows-latest"
+    steps = job["steps"]
+    long_paths = step_named(steps, "Enable Git long paths before checkout")
+    assert long_paths["if"] == "runner.os == 'Windows'"
+    assert long_paths["shell"] == "pwsh"
+    assert long_paths["run"].strip() == "git config --global core.longpaths true"
+    checkout = next(index for index, step in enumerate(steps) if step.get("uses", "").startswith("actions/checkout@"))
+    assert steps.index(long_paths) < checkout
+    setup = next(step for step in steps if step.get("uses", "").startswith("actions/setup-node@"))
+    assert setup["with"]["node-version"] == "22"
+    assert setup["with"]["cache-dependency-path"] == f"{EXTENSION_DIR}/package-lock.json"
+    assert step_named(steps, "Install dependencies")["run"].strip() == f"npm ci --ignore-scripts --prefix {EXTENSION_DIR}"
+    assert "--profile full --only cursor-usage-monitor" in step_named(steps, "Repository-native Windows session profile")["run"]
+    required = workflow["jobs"]["cursor-required"]
+    assert "windows-native-session" in required["needs"]
+    step = step_named(required["steps"], "Require build and selected optional-host scenario")
+    assert step["env"]["R_windows"] == "${{ needs['windows-native-session'].result }}"
+    assert 'test "$R_windows" = success' in step["run"]
+
+
 def test_live_smoke_checklist_exists_for_ci_degrade() -> None:
     assert LIVE_SMOKE.is_file(), (
         "CI E2E skip-with-note requires docs/archives/v3/v3.15/development/cursor-usage-live-smoke.md"

@@ -639,6 +639,28 @@ def test_both_bootstraps_declare_the_download_feedback() -> None:
         assert "Archive size: " in body and "Downloaded " in body
     assert "format_bytes" in sh and "log_download_summary" in sh
     assert "Format-ByteSize" in ps and "Write-DownloadSummary" in ps
-    # The bar appears only when a person is watching, and the PowerShell bar stays.
+    # The curl bar appears only when a person is watching. PowerShell 5.1's own bar
+    # slowed a large download until it was dropped, so the archive download streams
+    # through Invoke-ProgressDownload, which prints a short line every few seconds;
+    # the bar is never silenced globally, which would make the download look frozen.
     assert "--progress-bar" in sh and "[ -t 2 ]" in sh
     assert "$ProgressPreference" not in ps
+    assert "function Invoke-ProgressDownload" in ps
+    assert ps.count("Invoke-ProgressDownload -Url") == 2
+    assert "Invoke-WebRequest -Uri $Url -OutFile" not in ps
+
+
+@pytest.mark.skipif(not PWSH, reason="PowerShell not available")
+def test_ps_download_prints_progress_lines(served_archive, tmp_path: Path) -> None:
+    root, base = served_archive
+    tarball = _make_stub_tarball(
+        tmp_path, "installer.ps1", 'Write-Host "STUB PS INSTALLER"\n',
+    )
+    shutil.copy(tarball, root / "catalog.tar.gz")
+    env = _download_env(f"{base}/catalog.tar.gz", tmp_path)
+    env["NEXUS_HUB_PROGRESS_SECONDS"] = "0"
+    proc = _run(_ps(), cwd=str(REPO_ROOT), env=env)
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 0, out
+    assert re.search(f"  received {_SIZE}", out), out
+    assert out.index("  received") < out.index("Downloaded"), out

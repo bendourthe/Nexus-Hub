@@ -294,10 +294,24 @@ VERSION = Group(
 
 # Windows full guide owners are complementary; new files stay in the rest command.
 # Complementary quarters of tests/validators by file name: test_a* to test_c*
-# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
+# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*. The
+# Windows platform jobs further split the d-o quarter into test_d* to test_l*,
+# test_m* to test_o* except test_minor_e*, and test_minor_e* (the native
+# execution family).
 VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
 VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
 VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_DL_IGNORES = ("--ignore-glob=*/test_[!d-l]*",)
+VALIDATORS_SHARD_M_IGNORES = ("--ignore-glob=*/test_[!m-o]*", "--ignore-glob=*/test_minor_e*")
+VALIDATORS_SHARD_E_IGNORES = (
+    "--ignore-glob=*/test_[!m]*",
+    "--ignore-glob=*/test_m[!i]*",
+    "--ignore-glob=*/test_mi[!n]*",
+    "--ignore-glob=*/test_min[!o]*",
+    "--ignore-glob=*/test_mino[!r]*",
+    "--ignore-glob=*/test_minor[!_]*",
+    "--ignore-glob=*/test_minor_[!e]*",
+)
 VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
 
 
@@ -308,8 +322,12 @@ FULL_WINDOWS_GUIDE_FILES = (
     "tests/guides/test_models_learning_lab.py",
 )
 
-TESTS = Group(
-    name="tests",
+# Split from TESTS so the Linux `tests-hooks` job runs in parallel with the
+# `tests` job. Together they took 50-59 minutes against the 60-minute job cap
+# (hook-tests 1474 s of about 3437 s measured), and CI jobs are split, never
+# given a longer timeout. The scope key is shared with TESTS on purpose.
+HOOK_TESTS = Group(
+    name="hook-tests",
     scope_key="tests",
     commands=(
         # These are enforceable CI safety bounds, not local performance SLOs.
@@ -324,6 +342,13 @@ TESTS = Group(
             timeout=1800,
             platform_timeouts={"windows": 2400},
         ),
+    ),
+)
+
+TESTS = Group(
+    name="tests",
+    scope_key="tests",
+    commands=(
         # Keep the repository corpus complete but split it at stable ownership
         # boundaries. The former monolith could time out after an hour while
         # naming only a percentage; these partitions retain every collected
@@ -738,6 +763,10 @@ def _validators_shard(name: str, ignores: tuple[str, ...]) -> Command:
 # (tests/workflows/test_ci_native_profile_parity.py proves it). Four shards in
 # one job would approach the 60-minute job cap on a slow runner, so they run as
 # two groups in two parallel jobs of about 25 minutes each.
+# The native execution tests (test_minor_execution_*) then pushed d-o to about
+# 2800 s, reaching only 64% at its 1800 s bound: they launch many git and
+# helper processes per test. d-o is split at test_m*, and that family runs as
+# its own shard in a third job, so no shard or job nears its bound.
 WINDOWS_VALIDATORS = Group(
     name="windows-validators",
     commands=(
@@ -749,8 +778,16 @@ WINDOWS_VALIDATORS = Group(
 WINDOWS_VALIDATORS_2 = Group(
     name="windows-validators-2",
     commands=(
-        _validators_shard("validators d-o (Windows)", VALIDATORS_SHARD_C_IGNORES),
+        _validators_shard("validators d-l (Windows)", VALIDATORS_SHARD_DL_IGNORES),
+        _validators_shard("validators m-o (Windows)", VALIDATORS_SHARD_M_IGNORES),
         _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_D_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_3 = Group(
+    name="windows-validators-3",
+    commands=(
+        _validators_shard("validators minor-execution (Windows)", VALIDATORS_SHARD_E_IGNORES),
     ),
 )
 
@@ -1028,6 +1065,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         PLATFORM_CONTRACTS,
         DOCS,
         VERSION,
+        HOOK_TESTS,
         TESTS,
         EXTENSION_TESTS,
         DOC_COLOCATION,
@@ -1045,7 +1083,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_VALIDATORS_3, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),
