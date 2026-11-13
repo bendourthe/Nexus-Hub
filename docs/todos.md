@@ -7,7 +7,7 @@
 | Plan | Local checked task lines | Current state |
 |---|---|---|
 | v4.15.0 | 20/20 | Merged through PR #637 (`46c411454`, 29 checks green) and released as v4.15.0 on 2026-11-12. |
-| v4.15.1 | 10/32 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. The former v4.15.12 status command and progress footer plan was folded in on 2026-11-13 as Phases 2b to 2d (tasks T120 to T132, 0/13); the next run approval page presents the amendment. |
+| v4.15.1 | 10/32 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. The unpublished /status plan draft (status command and progress footer) was folded in on 2026-11-13 as Phases 2b to 2d (tasks T120 to T132, 0/13); the next run approval page presents the amendment. |
 | v4.15.2 | 0/55 | Not admitted; v4.15.0 integration is required. The separately authorized guidance prerequisite is qualified and being published. |
 | v4.15.3 | 0/32 | Not admitted; cadence execution requires the merged v4.15.2 evaluator. Four task IDs repeat in the frozen prose. |
 | v4.15.4 | 10/23 | Phases 1-3 are locally committed; archive and worktree boundary qualification continues. |
@@ -560,7 +560,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.15.1 status command and progress footer
 
-- [ ] Implement `/status` and the progress footer through Phases 2b to 2d of the [v4.15.1 plan](releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md) (tasks T120 to T132, 0/13). The maintainer folded the former [v4.15.12 plan](releases/v4/v4.15/plans/v4.15.12-status-command-and-progress-footer.md) into v4.15.1 on 2026-11-13, because releases in a minor run publish in version order and the maintainer wants the command and footer in the next release. v4.15.12 is now a pointer file. A read-only `/status` command prints the full report, `/update status` forwards to it, and every message during an `/implement` run ends with the compact footer; the formats live in one reference and a test fails on drift.
+- [ ] Implement `/status` and the progress footer through Phases 2b to 2d of the [v4.15.1 plan](releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md) (tasks T120 to T132, 0/13). The maintainer folded the unpublished /status plan draft into v4.15.1 on 2026-11-13, because releases in a minor run publish in version order and the maintainer wants the command and footer in the next release. The draft was never published as its own plan. A read-only `/status` command prints the full report, `/update status` forwards to it, and every message during an `/implement` run ends with the compact footer; the formats live in one reference and a test fails on drift.
 - [ ] Ship the two standalone pull requests approved on 2026-11-13, outside plan order: `fix/minor-train-member-gate` (the completion checker accepts a member whose start contains the previous member's integration merge instead of its tag; released with v4.15.1) and `ci/split-slow-test-jobs` (the Linux and Windows test splits taken out of v4.15.7). Decision record: [release trains and standalone infrastructure pull requests](decisions/implemented/process/2026-11-13-release-trains-and-standalone-infrastructure-prs.md).
 - [ ] Maintainer action, by hand: turn off "Require branches to be up to date before merging" on `develop` only; `main` keeps it.
 
