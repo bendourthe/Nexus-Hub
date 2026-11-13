@@ -576,7 +576,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.15.10 approval modes
 
-- [ ] Implement the [v4.15.10 plan](releases/v4/v4.15/plans/v4.15.10-approval-modes.md) after v4.15.4 and v4.15.8 merge. `/implement` runs asked for pasted code lines too often (two in twenty minutes on 2026-11-11). Six phases: the short-reply question as the default render, a mode table with a guard hook and a sealed mode store (`manual`, `auto`, `full-auto`; a missing or invalid file means `manual`), one checker authority function, the settings panel section, fresh-session proof in Claude Code and Cursor with a prompt count, then the final phase. Critiqued by seven lenses and grilled on 2026-11-11 (twelve decisions); implementation is 0/6 phases and 0/39 tasks.
+- [x] Folded on 2026-11-12: the [v4.15.10 plan](releases/v4/v4.15/plans/v4.15.10-approval-modes.md) is now a pointer. Its approval-modes work (short-reply question, sealed mode store, checker authority function, guard hook) moved into v4.15.4 Phases 4b-4d, and its settings panel section into v4.15.8 Phases 3b-3d; track it there.
 - [ ] Follow-up plans for the four deferred items: a per-project override keyed by the repository's shared git directory, spend measurement and enforcement, a seal key outside a same-user process, and a clickable approve button once a host offers a verified receipt path.
 
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
