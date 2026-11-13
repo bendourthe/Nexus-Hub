@@ -11,6 +11,7 @@ SOURCES = {
     "validate": "ci-validation-reports",
     "shellcheck": "ci-shell-reports",
     "tests": "ci-test-reports",
+    "tests-hooks": "ci-test-hooks-reports",
     "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
     "tests-windows": "ci-windows-reports",
     "tests-windows-installer": "ci-windows-installer-reports",

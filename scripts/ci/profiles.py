@@ -322,8 +322,12 @@ FULL_WINDOWS_GUIDE_FILES = (
     "tests/guides/test_models_learning_lab.py",
 )
 
-TESTS = Group(
-    name="tests",
+# Split from TESTS so the Linux `tests-hooks` job runs in parallel with the
+# `tests` job. Together they took 50-59 minutes against the 60-minute job cap
+# (hook-tests 1474 s of about 3437 s measured), and CI jobs are split, never
+# given a longer timeout. The scope key is shared with TESTS on purpose.
+HOOK_TESTS = Group(
+    name="hook-tests",
     scope_key="tests",
     commands=(
         # These are enforceable CI safety bounds, not local performance SLOs.
@@ -338,6 +342,13 @@ TESTS = Group(
             timeout=1800,
             platform_timeouts={"windows": 2400},
         ),
+    ),
+)
+
+TESTS = Group(
+    name="tests",
+    scope_key="tests",
+    commands=(
         # Keep the repository corpus complete but split it at stable ownership
         # boundaries. The former monolith could time out after an hour while
         # naming only a percentage; these partitions retain every collected
@@ -1054,6 +1065,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         PLATFORM_CONTRACTS,
         DOCS,
         VERSION,
+        HOOK_TESTS,
         TESTS,
         EXTENSION_TESTS,
         DOC_COLOCATION,
