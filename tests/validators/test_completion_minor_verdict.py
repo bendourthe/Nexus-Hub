@@ -446,6 +446,51 @@ def test_member_gate_blocks_a_member_recorded_on_a_stale_base(walk: Walk) -> Non
     assert not walk.verdict().line.startswith("BLOCKED")
 
 
+def _train_gate(walk: Walk, start: str, *, merged_at: str | None = None) -> str:
+    """`member_gate` for v0.5.10 given `start`, with v0.5.2 merged at `merged_at` (never tagged)."""
+    record = walk.forge_minor()
+    if merged_at:
+        walk.pr("feat/v0.5.2-alpha", "MERGED", GREEN, merged_at)
+    first, second = cm.ordered_members(record)
+    second = dict(second, start_head=start)
+    return cm.member_gate(ck, walk.rctx(), "acme/demo", first, second, record)
+
+
+def _untagged_merge(walk: Walk) -> tuple[str, str]:
+    """(base, merge): develop's recorded base and a later commit standing in for v0.5.2's merge."""
+    base = walk.head()
+    walk.write("src/alpha.txt", "alpha\n")
+    walk.commit("alpha merged")
+    return base, walk.head()
+
+
+def test_member_gate_accepts_a_start_that_contains_the_previous_merge_without_a_tag(walk: Walk) -> None:
+    base, merge = _untagged_merge(walk)
+    assert _train_gate(walk, merge, merged_at=merge) == "met"
+
+
+def test_member_gate_blocks_a_start_with_neither_the_previous_tag_nor_merge(walk: Walk) -> None:
+    base, merge = _untagged_merge(walk)
+    assert _train_gate(walk, base, merged_at=merge) == cm.GATE_VIOLATED
+    assert _train_gate(walk, base) == cm.GATE_VIOLATED  # previous pull request not merged
+
+
+def test_member_gate_still_accepts_a_start_that_contains_the_previous_tag(walk: Walk) -> None:
+    walk.forge_minor()
+    walk.release_member("v0.5.2", "alpha")
+    assert _train_gate(walk, walk.head()) == "met"
+
+
+def test_member_gate_cannot_verify_when_the_previous_merge_is_unreadable(
+    walk: Walk, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    base, _merge = _untagged_merge(walk)
+    real = cm._merge_commit
+    monkeypatch.setattr(cm, "_merge_commit", lambda c, r, repo, branch: (
+        ("cannot-verify", None) if branch.endswith("alpha") else real(c, r, repo, branch)))
+    assert _train_gate(walk, walk.head()) == "cannot-verify"
+
+
 # --------------------------------------------------------------------------- closing pull request
 
 
