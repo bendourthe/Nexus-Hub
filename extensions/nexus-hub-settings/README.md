@@ -6,7 +6,7 @@ A compact panel for VS Code, Cursor and Antigravity with one shared effort selec
 
 - **Default effort**: one preference for supported native defaults and connected Claude Code and Codex sessions.
 - **Fast mode**: an independent shared speed preference for supported Claude Code, Codex and Cursor sessions. Until chosen, existing speeds are preserved. Fast mode may increase usage or cost and follows each provider's model and account restrictions.
-- **Open Codex in tabs**: an Editor switch that controls the existing Codex toolbar button. On opens independent editor tabs with Nexus history access; off opens the native activity pane. The preference survives extension and Nexus installer updates.
+- **Open Codex in tabs**: an Editor switch that controls the existing Codex toolbar button. On opens independent editor tabs with Nexus history access; off opens the native activity pane. The preference survives extension and Nexus installer updates. The switch also works on Codex versions that are not yet verified for live effort updates: on those builds Nexus edits only Codex's `package.json` menu and leaves its code files untouched, and it skips the edit if the menu layout has changed. The Codex icon in the activity bar is drawn by VS Code itself and always opens the side pane.
 - **Git safety**: dangerous Git commands and protected-branch checks.
 - **Secret scanning**: credential checks before writes.
 - **Protect my edits**: checks before overwriting user changes.
