@@ -290,15 +290,22 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
         return done("in-effect", "Using the Nexus-Hub default.")
     if "default" in primary and not _control_values(primary, native.value):
         return done("cannot-detect", "The guardrail setting must be a JSON boolean.")
+    newer_than: str | None = None
     for write in admitted:
         ranged = write["proven_versions"]
         if "min" in ranged or "max" in ranged:
             if tool is not None and tool.version_error:
                 caveats += _present_notes(hits)
                 return done("cannot-detect", f"version: {tool.version_error}")
-            if tool is not None and tool.version and _outside(tool.version, ranged):
+            # Only an older tool can lack the key. Vendors ship weekly and keep documented
+            # setting keys, so a newer tool keeps its state with a note instead of a warning.
+            if tool is not None and tool.version and "min" in ranged and _outside(tool.version, {"min": ranged["min"]}):
                 caveats += _present_notes(hits)
                 return done("unverified-for-version", tool.version)
+            if tool is not None and tool.version and "max" in ranged and _outside(tool.version, {"max": ranged["max"]}):
+                newer_than = newer_than or ranged["max"]
+    if newer_than and tool is not None:
+        caveats.append(f"Version {tool.version} is newer than {newer_than}, the last version Nexus-Hub checked; the setting key is unchanged.")
     if native.found and primary["value_map"] and not _control_values(primary, native.value) and native.entries is None:
         caveats.append(f"{'.'.join(str(p) for p in primary['key_path'])} holds {_echo(native.value)}, which is not a value Nexus-Hub writes.")
     if not requested:
