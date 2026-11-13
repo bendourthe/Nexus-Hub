@@ -37,7 +37,9 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
     try {
       const result = await installVendorUi(item.vendor, item.extension.extensionPath, path.join(hub, "native-ui"));
       if (item.vendor === "codex" && result.changed) { menuReloadRequired = true; }
-      installed.add(item.id);
+      // A menu-only build has no effort bridge, so it must not be polled as an outdated adapter.
+      if (result.menuOnly) { setupErrors.push(`${item.label}: Live effort updates are not verified for this version. Open Codex in tabs still applies.`); }
+      else { installed.add(item.id); }
     }
     catch (error) { setupErrors.push(`${item.label}: ${error instanceof Error ? error.message : "Native UI installation failed."}`); }
   }

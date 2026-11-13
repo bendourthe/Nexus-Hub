@@ -17,7 +17,7 @@ const setup = () => installNativeUi({ subscriptions } as never);
 beforeEach(async () => {
   stub.reset(); subscriptions = []; setPlatform("win32");
   original = process.env.NEXUS_HUB_HOME; directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-ui-")); process.env.NEXUS_HUB_HOME = directory;
-  vi.mocked(installVendorUi).mockReset().mockResolvedValue({ changed: false, receipt: "receipt" });
+  vi.mocked(installVendorUi).mockReset().mockResolvedValue({ changed: false, receipt: "receipt", menuOnly: false });
   await write("medium");
 });
 afterEach(async () => {
@@ -84,6 +84,13 @@ it("preserves an unsupported build and reports its adapter failure", async () =>
   const apply = vi.fn(); stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true, exports: { nexusEffortBridgeVersion: 2, applyNexusEffort: apply } });
   vi.mocked(installVendorUi).mockRejectedValueOnce(Error("Build changed and preserved"));
   const bridge = (await setup())!; expect(bridge.summary().errors).toEqual(["Codex: Build changed and preserved"]); expect(apply).not.toHaveBeenCalled();
+});
+it("keeps the Codex tab menu on an unverified build without polling a missing effort bridge", async () => {
+  stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true });
+  vi.mocked(installVendorUi).mockResolvedValueOnce({ changed: true, receipt: "receipt", menuOnly: true });
+  const bridge = (await setup())!;
+  await bridge.synchronize();
+  expect(bridge.summary()).toEqual({ reloadRequired: true, errors: ["Codex: Live effort updates are not verified for this version. Open Codex in tabs still applies."] });
 });
 it("does not install adapters in an untrusted workspace or without native vendors", async () => {
   expect(await setup()).toBeUndefined();
