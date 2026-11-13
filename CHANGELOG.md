@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`nexus-hub verify` passes again on new installs.** The v4.15.0 `MANIFEST.sha256` held an outdated fingerprint for `scripts/ci/profiles.py`, which changed after the manifest was generated, so `nexus-hub verify` reported `verify: FAIL (1 modified, 0 missing, 0 extra)` on every install from `main`. The manifest is regenerated; the file is CI-only and never ran on a user machine. The release-flow gap is recorded as v4.15 BG-7.
+
 ## [4.15.0] - 2026-11-12
 
 ### Added

@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-12
-**Open items**: 122
+**Last updated**: 2026-11-13
+**Open items**: 123
 
 ## v4.15.0
 
@@ -13,7 +13,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
-| Bugs / regressions (BG) | 6 | 0 |
+| Bugs / regressions (BG) | 7 | 0 |
 | Warnings (WN) | 31 | 0 |
 | Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
@@ -1732,6 +1732,20 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 **Suggested next step**: Accept a start head with more than one parent by comparing against its first parent, add a fixture whose start head is a two-parent merge, and keep the existing refusal for a HEAD that carries another member's unpublished work.
 
 **Proving command**: `python -m pytest tests/validators/test_check_plan_completion.py -k permit_outputs -q` with a new case whose start head is a two-parent merge; it must render without the local merge workaround.
+
+#### BG-7: The v4.15.0 release shipped a manifest older than one released file
+
+**Source phase**: v4.15.0 release artifact round trip, 2026-11-13. **Plan reference**: `/update release` supply-chain manifest step; `scripts/generate_manifest.py`.
+
+**Reason**: `MANIFEST.sha256` was regenerated in the release commit `7830cc603` on 2026-11-12. The CI job split (#642, `b55b5f9ad`) then changed `scripts/ci/profiles.py` on `develop` and went out with the release, but nothing regenerated or checked the manifest before the `v4.15.0` tag. The release flow regenerates the manifest once, at the release commit, and never re-checks it against the commit that is actually tagged.
+
+**Evidence**: The downloaded `v4.15.0` source archive verified with `python -I -B scripts/verify_install.py --root <archive root>` reports `MODIFIED scripts/ci/profiles.py`, `OK 2125 file(s) match`, `verify: FAIL (1 modified, 0 missing, 0 extra)`. Regenerating on `develop` changes only that entry (`35281d55...` to `deace829...`).
+
+**Owner**: v4.15.4 (owns the release-precondition checker). **Severity**: medium - every install from `main` reported `nexus-hub verify` FAIL until the refreshed manifest reached `main`; the stale file is CI-only and never runs on a user machine. **Status**: open for the process fix. The symptom is fixed on `main` by the manifest refresh pull requests; the `v4.15.0` tag is unchanged, and its Release page notes the stale entry.
+
+**Suggested next step**: Make `check_release_preconditions.py --pre-tag` regenerate the manifest in a temporary location and fail when it differs from the committed `MANIFEST.sha256` at the tagged commit, with a test that changes a covered file after the manifest commit.
+
+**Proving command**: `python -B scripts/check_release_preconditions.py --pre-tag` exits non-zero on a fixture where a covered file changed after `MANIFEST.sha256` was generated, and exits 0 after `python -B scripts/generate_manifest.py` is committed.
 
 #### WN-31: The OpenCode lever row records keys the vendor page no longer documents
 
