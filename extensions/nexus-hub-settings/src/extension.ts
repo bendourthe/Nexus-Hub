@@ -69,17 +69,23 @@ export function userPythonPath(): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-interface RecoveryApi { nexusRestartProvider?(): Promise<unknown>; nexusRefreshTab?(): Promise<unknown> }
+interface RecoveryApi { nexusRestartProvider?(): Promise<unknown>; nexusRefreshTab?(): Promise<unknown>; version: string }
+/** A vendor build without the Nexus adapter exports nothing, so an empty API is the normal unadapted case. */
 async function providerApi(provider: "claude" | "codex"): Promise<RecoveryApi> {
   const extension = vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt");
   if (!extension) { throw new Error("This extension is not installed in this editor."); }
-  return extension.isActive ? extension.exports as RecoveryApi : await extension.activate() as RecoveryApi;
+  const exports = (extension.isActive ? extension.exports : await extension.activate()) as Partial<RecoveryApi> | undefined;
+  const version = (extension as { packageJSON?: { version?: unknown } }).packageJSON?.version;
+  return { ...(exports ?? {}), version: typeof version === "string" ? version : "" };
+}
+function unadapted(name: string, api: RecoveryApi): string {
+  return api.version ? `${name} ${api.version} does not have the Nexus recovery adapter yet. Run Developer: Reload Window to restart it.` : "Reload this window once to activate provider-specific recovery.";
 }
 export async function refreshCodexTab(): Promise<void> {
   if (!vscode.workspace.isTrusted) { return; }
   try {
     const api = await providerApi("codex");
-    if (!api.nexusRefreshTab) { throw new Error("Reload this window once to activate the Codex tab recovery adapter."); }
+    if (!api.nexusRefreshTab) { throw new Error(unadapted("Codex", api)); }
     await api.nexusRefreshTab();
   } catch (error) { await vscode.window.showWarningMessage(String(error)); }
 }
@@ -91,9 +97,17 @@ export async function restartProvider(provider: "claude" | "codex"): Promise<voi
   if (choice !== "Restart " + name) { return; }
   try {
     const api = await providerApi(provider);
-    if (!api.nexusRestartProvider) { throw new Error("Reload this window once to activate provider-specific recovery. Other extensions were not restarted."); }
+    if (!api.nexusRestartProvider) { throw new Error(`${unadapted(name, api)} Other extensions were not restarted.`); }
     await api.nexusRestartProvider();
   } catch (error) { await vscode.window.showWarningMessage(String(error)); }
+}
+
+/** A provider whose process failed before its launcher was repaired stays disconnected until the window reloads. */
+export async function announceStalledStart(providers: string[]): Promise<void> {
+  if (!providers.length) { return; }
+  const names = providers.join(" and ");
+  const choice = await vscode.window.showWarningMessage(`${names} started before Nexus-Hub repaired ${providers.length > 1 ? "their launchers" : "its launcher"}, so ${providers.length > 1 ? "they cannot" : "it cannot"} connect until this window reloads.`, {}, "Reload Window");
+  if (choice === "Reload Window") { await vscode.commands.executeCommand("workbench.action.reloadWindow"); }
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
@@ -110,6 +124,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     }),
   );
   let liveEffort = await installLiveEffort(context);
+  void announceStalledStart(liveEffort?.stalled ?? []);
   let nativeUi = await installNativeUi(context);
   const bridge = new CliBridge({ pythonPath: userPythonPath });
   const controller = new SettingsController({
