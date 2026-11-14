@@ -502,7 +502,7 @@ def test_member_gate_still_accepts_a_start_that_contains_the_previous_tag(walk: 
 def test_member_gate_cannot_verify_when_the_previous_merge_is_unreadable(
     walk: Walk, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    base, _merge = _untagged_merge(walk)
+    _untagged_merge(walk)
     real = cm._merge_commit
     monkeypatch.setattr(cm, "_merge_commit", lambda c, r, repo, branch: (
         ("cannot-verify", None) if branch.endswith("alpha") else real(c, r, repo, branch)))
