@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-13
-**Open items**: 122
+**Last updated**: 2026-11-14
+**Open items**: 120
 
 ## v4.15.0
 
@@ -13,7 +13,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
-| Bugs / regressions (BG) | 6 | 1 |
+| Bugs / regressions (BG) | 4 | 3 |
 | Warnings (WN) | 31 | 0 |
 | Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
@@ -1703,7 +1703,7 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Owner**: catalog maintainer. **Severity**: low - every other rostered model is refreshed and both refreshed rosters read IN SYNC. **Status**: open. **Suggested next step**: research the variants on their own Antigravity and Cursor documentation, and add Grok 4.7 once Cursor publishes its model id.
 
-#### BG-5: Windows Store Python 3.12 rejects stable native qualification reports
+#### BG-5: Windows Store Python 3.12 rejects stable native qualification reports - RESOLVED 2026-11-14
 
 **Source phase**: v4.14 minor-close repair qualification on 2026-11-05. **Plan reference**: [archive batching repair](../../../archives/v4/v4.14/development/v4.14-archive-batching-repair.md), local consumer qualification. This is an independently reproduced limitation in the existing v4.15 qualification path, not a migration of a v4.14 gap.
 
@@ -1711,7 +1711,7 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Evidence**: Both unchanged historical-publication cases and the strict delayed-file reader pass in a private Python 3.11.15 environment matching CI. The full replacement consumer run is recorded separately in the repair evidence. The observed Python 3.12 native minor-archive success and partial-failure rollback also remain separate evidence; they do not exercise this v4.15 report reader.
 
-**Owner**: native qualification maintainer. **Severity**: medium - false refusal blocks the v4.15 qualification path on the observed host. **Status**: open.
+**Owner**: native qualification maintainer. **Severity**: medium - false refusal blocks the v4.15 qualification path on the observed host. **Status**: resolved 2026-11-14 on `fix/checker-bg5-bg6`.
 
 **Suggested next step**: Establish a consistent trusted Windows timestamp identity across path and descriptor reads, retain replacement and active-writer detection, and qualify delayed writes plus native report production under Python 3.11 and the affected Python 3.12 build. Provision declared dependencies inside the isolated runner rather than disabling package isolation. Other Python 3.12 builds have not been qualified by this observation.
 
@@ -1719,7 +1719,11 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Addendum, 2026-11-12 (v4.15.0 Phase 3)**: The cause is not specific to the Store build. On Windows CPython 3.12 and later, `os.stat` reports `st_ctime` as birth time while `os.fstat` on a handle reports change time, and `_v415_read` compares the two. The v4.15.0 full suite reproduced it as 35 `test_v415_*` failures under the Store 3.12.10 interpreter. A second defect showed in the same group: the JSON depth guard relied on `RecursionError`, which CPython 3.12's higher C recursion limit no longer raises at depth 2,000. A fix (compare ctime only within one stat source; explicit JSON depth cap of 64; parametrized regression tests that simulate the 3.12 behavior, so CI on 3.11 also catches a regression) is committed as `23fbdd3e1` on the local branch `fix/v415-checker-py312-portability`. It was removed from v4.15.0 because `scripts/check_plan_completion.py` is v4.15.4's claimed file. **Owner**: v4.15.4. **Next step**: apply that branch on v4.15.4 after it refreshes onto `develop`, then run the proving command above under Python 3.11 and 3.12.
 
-#### BG-6: Coordinator output permission is refused when a member's start head is a merge commit
+**Resolution**: The fix from `23fbdd3e1` was re-applied on current `develop` (`scripts/check_plan_completion.py` is no longer claimed by an open member). `_v415_read` now compares `st_ctime` only between two calls of the same kind (path `stat` before and after, handle `fstat` before and after) and still compares device, inode, size and modification time across all of them, so replacement and active-writer detection are kept. The JSON depth guard is an explicit, non-recursive cap of 64 nested containers (`qualification-json-depth`) instead of a `RecursionError`. Two regression tests in `tests/validators/test_check_plan_completion.py` simulate the 3.12 behavior on any interpreter: the new ctime test and the depth test both fail against the old reader on 3.11 and 3.12 and pass with the fix.
+
+**Proving output** (private virtual environments with the declared CI test dependencies; the default Store interpreter keeps pytest in its user site, which the qualification child hides with `PYTHONNOUSERSITE`, so it reports `qualification-gate-failed` for that setup reason alone): Python 3.12.10, before the fix, `python -m pytest tests/validators/test_member_archive.py -k test_v415_no_change_historical_publication_survives_later_sibling_inputs -q` gave `2 failed, 49 deselected` (`qualification-input-changed`); after the fix, `2 passed, 49 deselected`. Python 3.11, after the fix, `2 passed, 49 deselected`. The two new regression tests: `4 passed` on both interpreters after the fix.
+
+#### BG-6: Coordinator output permission is refused when a member's start head is a merge commit - RESOLVED 2026-11-14
 
 **Source phase**: v4.15.0 Phase 3, 2026-11-12. **Plan reference**: v4.15.0 T220 publication; `record permit-outputs` in `scripts/completion_minor.py`.
 
@@ -1727,11 +1731,15 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Evidence**: A scratch wrapper logged each sub-check during a read-only render: `_worker_context` and the index flags passed, `_historical_claim_status` returned unmet. With the user's approval, v4.15.0's branch was merged into a temporary local branch on the controller (`5f991ca87`, never pushed); the same render then passed, and the permission was recorded (`PERMITTED active coordinator outputs v4.15.0`). The controller was then switched back to `chore/v4.15-controller-g2`.
 
-**Owner**: v4.15.4 (owns the minor checker). **Severity**: medium - every member whose start head is a merge commit needs the same manual workaround to get a coordinator-output permission. **Status**: open.
+**Owner**: v4.15.4 (owns the minor checker). **Severity**: medium - every member whose start head is a merge commit needs the same manual workaround to get a coordinator-output permission. **Status**: resolved 2026-11-14 on `fix/checker-bg5-bg6`.
 
 **Suggested next step**: Accept a start head with more than one parent by comparing against its first parent, add a fixture whose start head is a two-parent merge, and keep the existing refusal for a HEAD that carries another member's unpublished work.
 
 **Proving command**: `python -m pytest tests/validators/test_check_plan_completion.py -k permit_outputs -q` with a new case whose start head is a two-parent merge; it must render without the local merge workaround.
+
+**Resolution**: `_v415_original_scope` (`scripts/completion_minor.py`) no longer asks the merge audit to compare a controller that is still at the member's start head with that same head. A two-parent start head cannot be compared with itself (the audit requires the start head to be an ancestor of each parent of the commit being audited), so it returned `cannot-verify`. A controller whose `HEAD` equals the member's `start_head` carries no work after it and passes this check. Any other `HEAD` still goes through `_historical_claim_status`, so a controller that carries another member's unpublished work, or any unclaimed commit, is still refused; the existing `test_v415_controller_prewrite_cannot_be_legalized_by_captured_permission` and `test_v415_original_scope_rechecks_worker_prewrite_before_consume` cases keep passing. The new case `test_v415_started_member_whose_start_head_is_a_two_parent_merge_can_be_permitted` in `tests/validators/test_m5_manifest_permission.py` builds a start head with two parents and a worker branched from it, then renders and consumes the permission with no local merge workaround.
+
+**Proving output**: `python -m pytest tests/validators/test_m5_manifest_permission.py -k two_parent_merge -q` on Python 3.11, before the fix: `1 failed, 1 skipped` (`error: v415-outputs-original-scope-unverified`); after the fix: `1 passed, 1 skipped` (the skip is the unstarted member, which records no start head). The file `tests/validators/test_check_plan_completion.py` holds no `permit_outputs` case, so the existing permission cases in `test_m5_manifest_permission.py` are the ones run alongside it.
 
 #### BG-7: The v4.15.0 release shipped a manifest older than one released file - RESOLVED 2026-11-13
 
