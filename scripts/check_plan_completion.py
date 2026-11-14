@@ -2041,7 +2041,7 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
         if (_v415_git(ctx, "rev-parse", "HEAD") != commit
                 or _v415_git(ctx, "status", "--porcelain=v1", "--untracked-files=all")
                 or not _minor_module().v415_index_flags_visible(ctx)
-                or _v415_inputs(ctx, commit, ctx.version)["fingerprint"] != inputs["fingerprint"]
+                or _v415_inputs(ctx, commit, authority.rules)["fingerprint"] != inputs["fingerprint"]
                 or _v415_producer_sha() != body["producer_sha256"]):
             raise Malformed("qualification-candidate-changed")
         body["outcome"] = "pass"

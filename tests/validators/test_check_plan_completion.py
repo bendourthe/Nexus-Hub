@@ -601,7 +601,7 @@ def test_v415_qualification_uses_clean_environment_and_readonly_committed_source
 @pytest.mark.parametrize("deep_comparison", [False, True], ids=["valid", "deep-committed-comparison"])
 def test_v415_public_qualification_validates_full_parent_and_preserves_record_bytes(tmp_path, monkeypatch, deep_comparison):
     ck, ctx, _start, authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
-    install_member_declarations(monkeypatch)
+    declarations = install_member_declarations(monkeypatch)
     hosting = tmp_path / "qualification-gh-state.json"
     hosting.write_text(json.dumps({"pr_state": "OPEN", "checks": []}))
     monkeypatch.setenv("PATH", str(GH_STUB) + os.pathsep + os.environ["PATH"])
@@ -610,6 +610,9 @@ def test_v415_public_qualification_validates_full_parent_and_preserves_record_by
     rel = "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md"
     text = ("# Plan - fixture\n\n**Version**: v4.15.1\n**Slug**: fixture\n**Status**: queued\n\n## Phase 1: Build\n\n"
             "- [ ] T114 reconcile the pipeline against the canonical contract .github/workflows/ci.yml\n")
+    # Declare the fixture plan up front: the fingerprint normalizes only declared original plans, and the
+    # subprocess declares it when it mints its own authority.
+    declarations.get((rel, ck.plan_hash_text(text)))
     (ctx.root / rel).parent.mkdir(parents=True, exist_ok=True)
     (ctx.root / rel).write_text(text, encoding="utf-8")
     _git(ctx.root, "add", ".")
