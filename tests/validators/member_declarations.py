@@ -73,6 +73,13 @@ class VersionDeclarations(dict):
     def values(self):  # type: ignore[override]
         return [*self._served.values()]
 
+    def __eq__(self, other: object) -> bool:
+        # The table's identity is its templates and served rows, not the (always empty) dict part.
+        return (isinstance(other, VersionDeclarations) and self._templates == other._templates
+                and self._served == other._served)
+
+    __hash__ = None  # type: ignore[assignment]
+
 
 def apply_to(module) -> VersionDeclarations:
     """Point a `completion_minor` module at the version-prefix table of its own production rows."""
