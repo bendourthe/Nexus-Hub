@@ -30,6 +30,7 @@ from .test_completion_minor_record import (  # noqa: F401
     Minor,
     _no_transport_overrides,
 )
+from .member_declarations import fixture_rules
 from .test_gap_migration_and_archive import WN3, ledger, section
 from .test_run_plan import PLAN_REL as RUN_PLAN_REL
 from .test_run_plan import Env
@@ -1104,12 +1105,24 @@ def test_supplement_scope_page_rejects_malformed_rows_without_partial_output(cap
         assert output.out == "" and "not rendered" in output.err
 
 
+# The plan hashes the v4.15 page builders below carry, declared as fixture rows (never the live plans).
+OUTPUT_PLAN_SHA = "1" * 64
+READ_PLAN_SHA = "4" * 64
+
+
+@pytest.fixture(autouse=True)
+def _declared_page_members(monkeypatch):
+    import completion_minor
+    rows = [fixture_rules("v4.15.0", plan_sha256=OUTPUT_PLAN_SHA), fixture_rules("v4.15.4", plan_sha256=READ_PLAN_SHA)]
+    monkeypatch.setattr(completion_minor, "MEMBER_DECLARATIONS", {(r["plan_path"], r["plan_sha256"]): r for r in rows})
+
+
 def _v415_output_permission_data(*, started: bool = False) -> dict:
     page = {
         "action": "permit-outputs", "scope": {"kind": "minor", "minor": "v4.15"},
         "record_nonce": "n" * 32, "repo": "bendourthe/Nexus-Hub", "member": "v4.15.0",
         "controller": {"repo_root": "C:/fixture/controller"}, "owner_session": "fixture-session",
-        "record_sha256": "0" * 64, "plan_sha256": "1" * 64, "implementation_sha256": "2" * 64,
+        "record_sha256": "0" * 64, "plan_sha256": OUTPUT_PLAN_SHA, "implementation_sha256": "2" * 64,
         "source_branch": "feat/v4.15.0-review", "target_branch": "develop",
         "original_read_paths": ["catalog/style-guides/markdown.md"],
         "original_write_paths": ["templates/base-codex.md"],
@@ -1182,7 +1195,7 @@ def test_v415_output_action_is_only_a_minor_compatibility_line() -> None:
 def _v415_read_correction_data() -> dict:
     data = _v415_output_permission_data()
     page = data["page"]
-    page.update({"action": "correct-ci-read", "member": "v4.15.4",
+    page.update({"action": "correct-ci-read", "member": "v4.15.4", "plan_sha256": READ_PLAN_SHA,
                  "source_branch": "feat/v4.15.4-review", "path": "scripts/ci/profiles.py",
                  "checkpoint": "6a45a253c242a97e09bc953a764c024687042b67",
                  "original_read_paths": ["scripts/ci/profiles.py", "catalog/style-guides/markdown.md"],

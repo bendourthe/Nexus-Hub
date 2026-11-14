@@ -28,6 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
 from launcher import fixed_ssh_env, gh_stub_dir, make_stub
+from .member_declarations import DECLARED_CHECKER, fixture_rules, install as install_member_declarations
 
 # A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
 GH_STUB = gh_stub_dir()
@@ -107,7 +108,8 @@ def _v415_task_repo(tmp_path, version="v4.15.2"):
     ctx.run = lambda args: ck._run(args, budget)
     ctx._git_out = lambda *args: _git(root, *args)
     authority = ck._v415_task_authority(root=root, repo="bendourthe/Nexus-Hub", minor="v4.15", member=version,
-                                      original_sha256=V415_HASHES[version], plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+                                      original_sha256=V415_HASHES[version], plan_rel=ctx.rel, plan_sha256=ctx.plan_hash(),
+                                      rules=fixture_rules(version, plan_sha256=V415_HASHES[version]))
     assert authority is not None
     return ck, ctx, start, authority
 
@@ -167,16 +169,19 @@ def test_v415_no_prefix_or_dummy_old_target_can_replace_corrected_history(tmp_pa
     assert ck._task_status(ctx, True, old, start) == "met"  # ordinary API remains literal
     for bad in ({"repo": "other/repo"}, {"minor": "v4.17"}, {"member": "v4.15.3"}, {"original_sha256": "0" * 64}):
         args = {"root": ctx.root, "repo": "bendourthe/Nexus-Hub", "minor": "v4.15", "member": ctx.version,
-                "original_sha256": V415_HASHES[ctx.version], "plan_rel": ctx.rel, "plan_sha256": ctx.plan_hash()}
+                "original_sha256": V415_HASHES[ctx.version], "plan_rel": ctx.rel, "plan_sha256": ctx.plan_hash(),
+                "rules": authority.rules}
         args.update(bad)
         assert ck._v415_task_authority(**args) is None
 
 
 def test_v415_descriptor_has_only_the_36_reviewed_literals():
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
-    import check_plan_completion as ck
+    import completion_minor as cm
     assert len(V415_ALIASES) == 36
-    assert dict(ck._V415_TASK_TARGETS) == {(version, tid, old): new for version, tid, old, new in V415_ALIASES}
+    declared = {(Path(row["plan_path"]).name.split("-")[0], tid, old): new
+                for row in cm._DECLARED_MEMBER_ROWS for tids, old, new in row.get("task_targets", ()) for tid in tids}
+    assert declared == {(version, tid, old): new for version, tid, old, new in V415_ALIASES}
 
 
 def test_v415_proposed_criterion_history_survives_rejected_disposition(tmp_path):
@@ -269,11 +274,12 @@ def _v415_qualification_case(tmp_path, monkeypatch, member="v4.15.1", tid="T114"
                 "source_branch": f"feat/{member}-fixture", "target_branch": "develop"}
     authority = ck._v415_task_authority(root=ctx.root, repo="bendourthe/Nexus-Hub", minor="v4.15",
                                       member=ctx.version, original_sha256=V415_HASHES[ctx.version],
-                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash(), **identity)
+                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash(),
+                                      rules=fixture_rules(ctx.version, plan_sha256=V415_HASHES[ctx.version]), **identity)
     reference = {"path": "evidence/synthetic-observation.md", "sha256": ck._v415_sha(
         (ctx.root / "evidence/synthetic-observation.md").read_bytes())}
     comparison = {
-        "source_fingerprint": ck._v415_inputs(ctx, "HEAD", ctx.version)["fingerprint"],
+        "source_fingerprint": ck._v415_inputs(ctx, "HEAD", authority.rules)["fingerprint"],
         "contract": {"path": contract, "sha256": ck._v415_sha((ctx.root / contract).read_bytes())},
         "steps": [{"step": n, "observation": "Synthetic complete step observation with retained evidence",
                    "references": [reference]} for n in range(1, 7)],
@@ -548,7 +554,7 @@ except (ck.Malformed, OSError):
 def test_v415_qualification_uses_clean_environment_and_readonly_committed_sources(tmp_path, monkeypatch, executable):
     ck, ctx, _start, authority, _evidence, _comparison = _v415_qualification_case(
         tmp_path, monkeypatch, executable=executable)
-    entries = ck._v415_inputs(ctx, "HEAD", ctx.version)["entries"]
+    entries = ck._v415_inputs(ctx, "HEAD", authority.rules)["entries"]
     gate_rel = "scripts/validate_workflow_security.py"
     assert entries[gate_rel][0] == ("100755" if executable else "100644")
     chmod_requests = []
@@ -589,25 +595,27 @@ def test_v415_qualification_uses_clean_environment_and_readonly_committed_source
         return real(snapshot, argv, report, env)
     monkeypatch.setattr(ck, "_v415_run_gate", inspect)
     assert ck.qualify_v415_task(ctx, "T114", authority).is_file()
-    assert executed == ck._v415_gates(ctx.version, "T114")
+    assert executed == ck._v415_gates(authority.rules, "T114")
 
 
 @pytest.mark.parametrize("deep_comparison", [False, True], ids=["valid", "deep-committed-comparison"])
 def test_v415_public_qualification_validates_full_parent_and_preserves_record_bytes(tmp_path, monkeypatch, deep_comparison):
-    ck, ctx, _start, _authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    ck, ctx, _start, authority, evidence, comparison = _v415_qualification_case(tmp_path, monkeypatch)
+    install_member_declarations(monkeypatch)
     hosting = tmp_path / "qualification-gh-state.json"
     hosting.write_text(json.dumps({"pr_state": "OPEN", "checks": []}))
     monkeypatch.setenv("PATH", str(GH_STUB) + os.pathsep + os.environ["PATH"])
     monkeypatch.setenv("GH_STUB_STATE", str(hosting))
     monkeypatch.setenv("GH_STUB_PYTHON", sys.executable)
     rel = "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md"
-    text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+    text = ("# Plan - fixture\n\n**Version**: v4.15.1\n**Slug**: fixture\n**Status**: queued\n\n## Phase 1: Build\n\n"
+            "- [ ] T114 reconcile the pipeline against the canonical contract .github/workflows/ci.yml\n")
     (ctx.root / rel).parent.mkdir(parents=True, exist_ok=True)
     (ctx.root / rel).write_text(text, encoding="utf-8")
     _git(ctx.root, "add", ".")
     _git(ctx.root, "commit", "-qm", "real frozen plan in disposable parent")
     start = _git(ctx.root, "rev-parse", "HEAD")
-    comparison["source_fingerprint"] = ck._v415_inputs(ctx, "HEAD", ctx.version)["fingerprint"]
+    comparison["source_fingerprint"] = ck._v415_inputs(ctx, "HEAD", authority.rules)["fingerprint"]
     evidence.write_text("## CI/CD coverage\n\n```v415-ci-comparison\n" + json.dumps(comparison) + "\n```\n")
     (ctx.root / rel).write_text(text.replace("- [ ] T114", "- [x] T114"), encoding="utf-8")
     _git(ctx.root, "add", ".")
@@ -625,7 +633,7 @@ def test_v415_public_qualification_validates_full_parent_and_preserves_record_by
     path = rctx.scoped_record_path("minor:v4.15")
     path.write_text(json.dumps(record), encoding="utf-8")
     before = path.read_bytes()
-    argv = [sys.executable, str(CHECKER), "qualify-task", "--minor", "v4.15", "--member", ctx.version,
+    argv = [sys.executable, str(DECLARED_CHECKER), "qualify-task", "--minor", "v4.15", "--member", ctx.version,
             "--task", "T114", "--session", SESSION, "--repo", str(ctx.root)]
     if deep_comparison:
         evidence.write_text("## CI/CD coverage\n\n```v415-ci-comparison\n" + "[" * 2000 + "0" + "]" * 2000 + "\n```\n")

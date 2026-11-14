@@ -57,7 +57,7 @@ import tempfile
 import time
 from collections.abc import Callable, Iterator
 from pathlib import Path
-from types import MappingProxyType, ModuleType, SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
@@ -1430,36 +1430,9 @@ def conditional_rebind(receipt: dict | None, rel: str, text: str) -> None:
                                for tid in receipt["request"]["tasks"]}
 
 
-_V415_ORIGINAL_HASHES = MappingProxyType({
-    "v4.15.0": "9a60e8e3d6d608306b431ff13d5dd5355d38c463bbcab16e0bd99b7118330dc8",
-    "v4.15.1": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451",
-    "v4.15.2": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835",
-    "v4.15.3": "97a8f0a291eb844deaa2daf679dd3b8176936f476cc98af662eb1c44931d2cbe",
-    "v4.15.4": "40abcad912dc8ee9b72866832103ae3f896bc597898ae63508bcdd002a85da2c",
-})
-# These are individually reviewed literals, never a release-prefix substitution.
-_V415_TASK_TARGETS = MappingProxyType({
-    **{("v4.15.1", tid, old): new for tids, old, new in (
-        (("T101", "T105"), "docs/releases/v4/v4.16/development/detection-evidence.md", "docs/releases/v4/v4.15/development/detection-evidence.md"),
-        (("T102", "T103"), "docs/releases/v4/v4.16/development/injection-prototype.md", "docs/releases/v4/v4.15/development/injection-prototype.md"),
-        (("T104",), "docs/releases/v4/v4.16/development/profile-layer-trust-audit.md", "docs/releases/v4/v4.15/development/profile-layer-trust-audit.md"),
-        (("T106", "T109", "T110", "T112", "T113", "T115", "T116", "T117", "T118", "T119"), "docs/releases/v4/v4.16/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.1-last-phase-evidence.md"),
-        (("T111",), "docs/releases/v4/v4.16/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
-        (("T107",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/proposed/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
-        (("T108",), "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md", "docs/decisions/rejected/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"),
-    ) for tid in tids},
-    **{("v4.15.2", tid, old): new for tids, old, new in (
-        (("T001", "T006"), "docs/releases/v4/v4.17/development/phase-1-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"),
-        (("T014",), "docs/releases/v4/v4.17/development/phase-2-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase2-evidence.md"),
-        (("T024",), "docs/releases/v4/v4.17/development/phase-3-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase3-evidence.md"),
-        (("T027",), "docs/releases/v4/v4.17/development/shared-agents-inventory.md", "docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md"),
-        (("T041", "T055"), "docs/releases/v4/v4.17/development/claude-agents-evaluation.md", "docs/releases/v4/v4.15/development/v4.15.2-claude-agents-evaluation.md"),
-        (("T042",), "docs/releases/v4/v4.17/development/phase-4-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-phase4-evidence.md"),
-        (("T043", "T046", "T047", "T048", "T049", "T050", "T051", "T052"), "docs/releases/v4/v4.17/development/last-phase-evidence.md", "docs/releases/v4/v4.15/development/v4.15.2-last-phase-evidence.md"),
-        (("T044",), "docs/releases/v4/v4.17/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"),
-        (("T039",), "tests/integrations/test_org_materialization.py", "tests/installer/test_org_materialization.py"),
-    ) for tid in tids},
-})
+# The per-member facts (original hashes, evidence exclusions, task-target remaps, unchanged-task
+# literals, gates) are declared data: completion_minor.MEMBER_DECLARATIONS, keyed by each
+# member's original plan path and frozen hash. A mint without a declaration is refused.
 _V415_TASK_ISSUER = object()
 
 
@@ -1486,6 +1459,7 @@ class V415TaskAuthority:
     target_branch: str | None = None
     historical_merge: str | None = None
     historical_tree: str | None = None
+    rules: object = field(default=None, repr=False, compare=False)
 
 
 def _v415_task_authority(*, root: Path, repo: str, minor: str, member: str,
@@ -1493,34 +1467,20 @@ def _v415_task_authority(*, root: Path, repo: str, minor: str, member: str,
                          record_nonce: str | None = None, member_start_head: str | None = None,
                          implementation_sha256: str | None = None, source_branch: str | None = None,
                          target_branch: str | None = None, historical_merge: str | None = None,
-                         historical_tree: str | None = None) -> V415TaskAuthority | None:
+                         historical_tree: str | None = None, rules: dict | None = None) -> V415TaskAuthority | None:
     """Mint after completion_minor's full-parent factory verifies original identity."""
     if (repo != "bendourthe/Nexus-Hub" or minor != "v4.15"
-            or _V415_ORIGINAL_HASHES.get(member) != original_sha256
+            or not isinstance(rules, dict) or rules.get("plan_sha256") != original_sha256
+            or not isinstance(rules.get("plan_path"), str)
+            or not rules["plan_path"].rsplit("/", 1)[-1].startswith(member + "-")
             or not isinstance(plan_rel, str) or not PLAN_REL_RE.fullmatch(plan_rel)
             or not isinstance(plan_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_sha256)):
         return None
     return V415TaskAuthority(Path(root).resolve(), repo, minor, member, original_sha256,
                              plan_rel, plan_sha256, _V415_TASK_ISSUER, record_nonce, member_start_head,
-                             implementation_sha256, source_branch, target_branch, historical_merge, historical_tree)
+                             implementation_sha256, source_branch, target_branch, historical_merge, historical_tree, rules)
 
 
-_V415_NO_CHANGE = MappingProxyType({
-    ("v4.15.0", "T215"): ".github/workflows/ci.yml",
-    ("v4.15.1", "T114"): ".github/workflows/ci.yml",
-    ("v4.15.4", "T018"): "scripts/ci/profiles.py",
-    ("v4.15.4", "T016"): "docs/handbooks/handbooks.json",
-})
-_V415_EVIDENCE = MappingProxyType({
-    "v4.15.0": ("docs/releases/v4/v4.15/development/last-phase-evidence.md",
-                 "docs/releases/v4/v4.15/development/v4.15.0-last-phase-evidence.md"),
-    "v4.15.1": ("docs/releases/v4/v4.15/development/v4.15.1-last-phase-evidence.md",),
-    "v4.15.4": ("docs/releases/v4/v4.15/development/v4.15.4-last-phase-evidence.md",),
-})
-_V415_FROZEN_PLANS = frozenset("docs/releases/v4/v4.15/plans/" + name for name in (
-    "v4.15.0-instruction-necessity-review.md", "v4.15.1-adoption-model-adaptive-harness.md",
-    "v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
-    "v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md", "v4.15.4-checker-evidence-and-diagnostics.md"))
 _V415_COMPARISON_CONTRACT = "catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md"
 _V415_PROOF_DOMAIN = b"nexus-v415-unchanged-task-v1\0"
 _V415_GATE_TIMEOUT = 300
@@ -1587,8 +1547,14 @@ def _v415_git(ctx: Context, *args: str, raw_text: bool = False) -> str:
     return out if raw_text or "-z" in args else out.strip()
 
 
-def _v415_inputs(ctx: Context, ref: str, member: str, *, working: bool = False) -> dict:
+def _v415_evidence(rules: dict) -> tuple[str, ...]:
+    return tuple(rules.get("evidence", ()))
+
+
+def _v415_inputs(ctx: Context, ref: str, rules: dict, *, working: bool = False) -> dict:
     """All tracked modes/blobs; only exact final outputs and known plan marks normalize."""
+    evidence = _v415_evidence(rules)
+    frozen = _minor_module().declared_frozen_plan_paths()
     raw = _v415_git(ctx, "ls-tree", "-r", "-l", "-z", ref)
     rows, entries, total = [], {}, 0
     for entry in raw.split("\0"):
@@ -1605,10 +1571,10 @@ def _v415_inputs(ctx: Context, ref: str, member: str, *, working: bool = False) 
         if total > 512 * 1024 * 1024:
             raise Malformed("qualification-tree-cap")
         entries[path] = (mode, blob)
-        if path in _V415_EVIDENCE.get(member, ()):
+        if path in evidence:
             continue
         value = blob
-        if path in _V415_FROZEN_PLANS:
+        if path in frozen:
             text = _v415_git(ctx, "show", f"{ref}:{path}", raw_text=True)
             if "\ufffd" in text:
                 raise Malformed("qualification-invalid-plan-text")
@@ -1624,9 +1590,9 @@ def _v415_inputs(ctx: Context, ref: str, member: str, *, working: bool = False) 
             path = line[3:]
             if line[:2] not in {" M", "M ", "MM"} or path not in entries:
                 raise Malformed("qualification-dirty-candidate")
-            if path in _V415_EVIDENCE.get(member, ()):
+            if path in evidence:
                 continue
-            if (path not in _V415_FROZEN_PLANS
+            if (path not in frozen
                     or plan_hash_text(_v415_read(ctx.root / path).decode("utf-8").replace("\r\n", "\n").replace("\r", "\n"))
                     != plan_hash_text(_v415_git(ctx, "show", f"{ref}:{path}", raw_text=True))):
                 raise Malformed("qualification-dirty-candidate")
@@ -1682,9 +1648,9 @@ def _v415_blob_bytes(ctx: Context, ref: str, path: str, *, working: bool = False
     return proc.stdout
 
 
-def _v415_semantic(ctx: Context, ref: str, member: str, inputs: dict, *, working: bool = False) -> dict:
+def _v415_semantic(ctx: Context, ref: str, rules: dict, inputs: dict, *, working: bool = False) -> dict:
     sections, markers = [], 0
-    for path in _V415_EVIDENCE[member]:
+    for path in _v415_evidence(rules):
         if path not in inputs["entries"]:
             continue
         text = _v415_blob_bytes(ctx, ref, path, working=working).decode("utf-8").replace("\r\n", "\n")
@@ -1707,7 +1673,7 @@ def _v415_semantic(ctx: Context, ref: str, member: str, inputs: dict, *, working
     references = {}
     def bind(reference):
         if (not isinstance(reference, dict) or set(reference) != {"path", "sha256"}
-                or reference["path"] not in inputs["entries"] or reference["path"] in _V415_EVIDENCE[member]):
+                or reference["path"] not in inputs["entries"] or reference["path"] in _v415_evidence(rules)):
             raise Malformed("qualification-reference-shape")
         if reference["path"] in references:
             if reference != references[reference["path"]]:
@@ -1745,15 +1711,17 @@ def _v415_semantic(ctx: Context, ref: str, member: str, inputs: dict, *, working
             "review": "coordinator-authored; structure-and-binding-only"}
 
 
-def _v415_gates(member: str, tid: str) -> list[list[str]]:
-    if (member, tid) == ("v4.15.4", "T016"):
-        return [["catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py", "--root", "."]]
-    gates = [["-m", "pytest", "-q", "tests/validators/test_ci_workflow_contract.py"],
-             ["scripts/validate_workflow_security.py"], ["scripts/check_required_check_coverage.py"],
-             ["scripts/check_installer_parity.py"]]
-    if member == "v4.15.0":
-        gates.append(["scripts/check_base_template_parity.py"])
-    return gates
+def _v415_gates(rules: dict, tid: str) -> list[list[str]]:
+    entry = (rules.get("no_change") or {}).get(tid) or {}
+    if "gates" in entry:
+        return [list(gate) for gate in entry["gates"]]
+    return [["-m", "pytest", "-q", "tests/validators/test_ci_workflow_contract.py"],
+            ["scripts/validate_workflow_security.py"], ["scripts/check_required_check_coverage.py"],
+            ["scripts/check_installer_parity.py"], *[list(gate) for gate in entry.get("extra_gates", ())]]
+
+
+def _v415_semantic_required(rules: dict, tid: str) -> bool:
+    return ((rules.get("no_change") or {}).get(tid) or {}).get("semantic", True) is not False
 
 
 def _v415_case(ctx: Context, tid: str, authority: V415TaskAuthority | None) -> str:
@@ -1761,7 +1729,7 @@ def _v415_case(ctx: Context, tid: str, authority: V415TaskAuthority | None) -> s
             or str(ctx.root).startswith(("\\\\?\\", "\\\\.\\"))
             or authority.root != ctx.root.resolve() or authority.member != ctx.version
             or authority.repo != "bendourthe/Nexus-Hub" or authority.minor != "v4.15"
-            or _V415_ORIGINAL_HASHES.get(ctx.version) != authority.original_sha256
+            or not isinstance(authority.rules, dict) or authority.rules.get("plan_sha256") != authority.original_sha256
             or authority.plan_rel != ctx.rel or authority.plan_sha256 != ctx.plan_hash()
             or any(not isinstance(value, str) or not value for value in (authority.record_nonce, authority.source_branch, authority.target_branch))
             or not isinstance(authority.member_start_head, str) or not re.fullmatch(r"[0-9a-f]{40,64}", authority.member_start_head)
@@ -1771,7 +1739,8 @@ def _v415_case(ctx: Context, tid: str, authority: V415TaskAuthority | None) -> s
             value is not None and (not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{40,64}", value))
             for value in (authority.historical_merge, authority.historical_tree)):
         raise Malformed("qualification-authority-unavailable")
-    target = _V415_NO_CHANGE.get((authority.member, tid))
+    entry = (authority.rules.get("no_change") or {}).get(tid)
+    target = entry.get("target") if isinstance(entry, dict) else None
     if target is None or (tid, True, target) not in ctx.tasks:
         raise Malformed("qualification-task-unavailable")
     return target
@@ -1988,14 +1957,14 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
     commit = _v415_git(ctx, "rev-parse", "HEAD")
     if ctx.run([ctx.git, "-C", str(ctx.root), "merge-base", "--is-ancestor", authority.member_start_head, commit])[0]:
         raise Malformed("qualification-baseline-not-in-candidate")
-    inputs = _v415_inputs(ctx, commit, ctx.version)
-    baseline = _v415_inputs(ctx, authority.member_start_head, ctx.version)
+    inputs = _v415_inputs(ctx, commit, authority.rules)
+    baseline = _v415_inputs(ctx, authority.member_start_head, authority.rules)
     if target not in inputs["entries"] or baseline["entries"].get(target) != inputs["entries"][target]:
         raise Malformed("qualification-target-changed")
-    gates = _v415_gates(ctx.version, tid)
+    gates = _v415_gates(authority.rules, tid)
     if any((p not in inputs["entries"]) for gate in gates for p in gate if p.endswith(".py")):
         raise Malformed("qualification-gate-missing")
-    semantic = None if tid == "T016" else _v415_semantic(ctx, commit, ctx.version, inputs)
+    semantic = _v415_semantic(ctx, commit, authority.rules, inputs) if _v415_semantic_required(authority.rules, tid) else None
     path = _v415_proof_path(authority, tid)
     _v415_plain(path.parent)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -2006,7 +1975,7 @@ def _qualify_v415_task(ctx: Context, tid: str, authority: V415TaskAuthority) -> 
     body = {"kind": "v415-unchanged-task", "receipt_schema": 1,
             **_v415_proof_identity(authority, tid, target), "created": _now(), "candidate": commit,
             "tree": inputs["tree"], "fingerprint": inputs["fingerprint"], "tracked_count": inputs["count"],
-            "exclusions": list(_V415_EVIDENCE[ctx.version]), "target_blob": list(inputs["entries"][target]),
+            "exclusions": list(_v415_evidence(authority.rules)), "target_blob": list(inputs["entries"][target]),
             "semantic": semantic, "gate_definitions": gates, "gates": [], "outcome": "fail",
             "gate_sources": {p: inputs["entries"][p][1] for gate in gates for p in gate if p.endswith(".py")},
             "runtime": {"python": sys.version.split()[0], "implementation": sys.implementation.name},
@@ -2111,7 +2080,7 @@ def v415_no_change_status(ctx: Context, tid: str, path: str, start: str | None,
                 or not 1 <= body["tracked_count"] <= 30000
                 or any(not isinstance(body[k], str) or not re.fullmatch(r"[0-9a-f]{64}", body[k]) for k in ("fingerprint", "producer_sha256"))
                 or not isinstance(body["tree"], str) or not re.fullmatch(r"[0-9a-f]{40,64}", body["tree"])
-                or body["exclusions"] != list(_V415_EVIDENCE[ctx.version]) or body["gate_definitions"] != _v415_gates(ctx.version, tid)):
+                or body["exclusions"] != list(_v415_evidence(authority.rules)) or body["gate_definitions"] != _v415_gates(authority.rules, tid)):
             return "unmet"
         if not isinstance(body["created"], str) or dt.datetime.fromisoformat(body["created"]).tzinfo is None:
             return "unmet"
@@ -2131,12 +2100,12 @@ def v415_no_change_status(ctx: Context, tid: str, path: str, start: str | None,
                 return "unmet"
             if body["producer_sha256"] != _v415_producer_sha():
                 return "unmet"
-            current = _v415_inputs(ctx, "HEAD", ctx.version, working=True)
+            current = _v415_inputs(ctx, "HEAD", authority.rules, working=True)
             if current["fingerprint"] != body["fingerprint"]:
                 return "unmet"
-        inputs = _v415_inputs(ctx, candidate, ctx.version)
-        publication = inputs if reference == candidate else _v415_inputs(ctx, reference, ctx.version)
-        baseline = _v415_inputs(ctx, start, ctx.version)
+        inputs = _v415_inputs(ctx, candidate, authority.rules)
+        publication = inputs if reference == candidate else _v415_inputs(ctx, reference, authority.rules)
+        baseline = _v415_inputs(ctx, start, authority.rules)
         if (inputs["fingerprint"] != body["fingerprint"] or publication["fingerprint"] != body["fingerprint"]
                 or inputs["tree"] != body["tree"] or inputs["count"] != body["tracked_count"]
                 or list(inputs["entries"].get(target, ())) != body["target_blob"]
@@ -2145,11 +2114,11 @@ def v415_no_change_status(ctx: Context, tid: str, path: str, start: str | None,
                 or not isinstance(body["runtime"], dict) or set(body["runtime"]) != {"python", "implementation"}
                 or any(not isinstance(value, str) or not value for value in body["runtime"].values())):
             return "unmet"
-        if tid != "T016" and (body["semantic"] != _v415_semantic(ctx, candidate, ctx.version, inputs)
-                    or body["semantic"] != _v415_semantic(ctx, reference, ctx.version, publication)
-                    or (authority.historical_merge is None and body["semantic"] != _v415_semantic(ctx, "HEAD", ctx.version, current, working=True))):
+        if _v415_semantic_required(authority.rules, tid) and (body["semantic"] != _v415_semantic(ctx, candidate, authority.rules, inputs)
+                    or body["semantic"] != _v415_semantic(ctx, reference, authority.rules, publication)
+                    or (authority.historical_merge is None and body["semantic"] != _v415_semantic(ctx, "HEAD", authority.rules, current, working=True))):
             return "unmet"
-        gates = _v415_gates(ctx.version, tid)
+        gates = _v415_gates(authority.rules, tid)
         if not isinstance(body["gates"], list) or len(body["gates"]) != len(gates):
             return "unmet"
         for expected_argv, gate in zip(gates, body["gates"]):
@@ -2169,9 +2138,9 @@ def _v415_task_target(ctx: Context, path: str, task_id: str | None,
             or authority.repo != "bendourthe/Nexus-Hub" or authority.minor != "v4.15"
             or authority.member != ctx.version or authority.root != ctx.root.resolve()
             or authority.plan_rel != ctx.rel or authority.plan_sha256 != ctx.plan_hash()
-            or _V415_ORIGINAL_HASHES.get(authority.member) != authority.original_sha256):
+            or not isinstance(authority.rules, dict) or authority.rules.get("plan_sha256") != authority.original_sha256):
         return path
-    corrected = _V415_TASK_TARGETS.get((authority.member, task_id, path))
+    corrected = _minor_module().declared_task_target(authority.rules, task_id, path)
     if corrected is None:
         return path
     # A verified archive's existing predicate searches both the archive and its
@@ -3549,7 +3518,7 @@ def cmd_record_authorize(args: argparse.Namespace) -> int:
         request = _json_request(args.request)
         _validate_scoped_paths(ctx.root, request.get('paths', []))
         if (getattr(args, "minor", None) == "v4.15" and args.approval_class == "ci-security-change"
-                and getattr(args, "member", None) in {"v4.15.5", "v4.15.6", "v4.15.7", "v4.15.8"}):
+                and _minor_module().member_declares_execution(sys.modules[__name__], record, getattr(args, "member", None))):
             view = _minor_module().execution_authorization_view(sys.modules[__name__], ctx, record, view, args.member, request)
         event = approval_binding.authorization(view, args.approval_class, request, current)
     except ValueError as exc:
@@ -3675,7 +3644,7 @@ def build_parser() -> argparse.ArgumentParser:
     member_check.add_argument("--repo", default=".", help="the parent minor controller repository")
     member_check.add_argument("--json", action="store_true")
     member_check.set_defaults(func=cmd_check_member)
-    qualify = sub.add_parser("qualify-task", help="execute fixed native proof for an exact unchanged v4.15 task")
+    qualify = sub.add_parser("qualify-task", help="execute fixed native proof for an exact unchanged declared task")
     qualify.add_argument("--minor", required=True)
     qualify.add_argument("--member", required=True)
     qualify.add_argument("--task", required=True)
@@ -3818,11 +3787,11 @@ def build_parser() -> argparse.ArgumentParser:
     outputs.add_argument("--outputs", required=True, help="JSON object containing literal write_paths")
     outputs.add_argument("--text", help="when given, must equal the captured decision")
     outputs.set_defaults(func=lambda args: _minor_module().cmd_record_permit_outputs(sys.modules[__name__], args))
-    correction = record.add_parser("correct-ci-read", help="capture the exact v4.15.4 CI read correction")
+    correction = record.add_parser("correct-ci-read", help="capture the exact declared CI read correction")
     correction.add_argument("--minor", required=True)
     correction.add_argument("--repo", default=".")
     correction.add_argument("--session", required=True)
-    correction.add_argument("--member", required=True, help="the fixed eligible member v4.15.4")
+    correction.add_argument("--member", required=True, help="the declared eligible member")
     correction.add_argument("--text", help="when given, must equal the captured decision")
     correction.set_defaults(func=lambda args: _minor_module().cmd_record_correct_ci_read(sys.modules[__name__], args))
     block = record.add_parser("block")

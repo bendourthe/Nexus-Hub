@@ -1271,6 +1271,149 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
     return True
 
 
+# Declared member rules. Every fact that differs between members of one minor run lives in
+# this one table, keyed by the member's ORIGINAL frozen plan path AND its frozen plan hash
+# (the record's `plan_sha256`, or the signed `archived.original_sha256` after an archive).
+# Code asks `declared_rules` for a member and never branches on a version string, so a
+# renumbered plan cannot inherit another plan's rules: its path or hash no longer matches,
+# the lookup is empty, and every caller fails closed with a named reason. A new row is a
+# reviewed data change; the approved plan text is never edited to carry it.
+#
+# Row keys: `original` (a plan admitted before any amendment), `evidence` (final evidence
+# files excluded from the unchanged-task fingerprint), `no_change` (task id -> its literal
+# target, optionally `extra_gates`, replacement `gates`, or `semantic: False`),
+# `task_targets` (rows of [task ids, old literal, corrected literal]), `coordinator_outputs`
+# (`after_start`: coordinator output additions are valid after publication start),
+# `ci_read_correction` (the one reviewed read-reservation correction), and `execution`
+# (the closed typed-execution eligibility: kind, role, paths, hook recipe, display summary).
+_PLANS = "docs/releases/v4/v4.15/plans/"
+_EVIDENCE = "docs/releases/v4/v4.15/development/"
+_DECLARED_MEMBER_ROWS = (
+    {"plan_path": _PLANS + "v4.15.0-instruction-necessity-review.md",
+     "plan_sha256": "9a60e8e3d6d608306b431ff13d5dd5355d38c463bbcab16e0bd99b7118330dc8", "original": True,
+     "evidence": [_EVIDENCE + "last-phase-evidence.md", _EVIDENCE + "v4.15.0-last-phase-evidence.md"],
+     "no_change": {"T215": {"target": ".github/workflows/ci.yml",
+                            "extra_gates": [["scripts/check_base_template_parity.py"]]}},
+     "coordinator_outputs": {"after_start": True}},
+    {"plan_path": _PLANS + "v4.15.1-adoption-model-adaptive-harness.md",
+     "plan_sha256": "5a2fc4e94d87d3f7863b16224c80dee5973cade81172fcd0823a358f3532f451", "original": True,
+     "evidence": [_EVIDENCE + "v4.15.1-last-phase-evidence.md"],
+     "no_change": {"T114": {"target": ".github/workflows/ci.yml"}},
+     "task_targets": [
+         [["T101", "T105"], "docs/releases/v4/v4.16/development/detection-evidence.md", _EVIDENCE + "detection-evidence.md"],
+         [["T102", "T103"], "docs/releases/v4/v4.16/development/injection-prototype.md", _EVIDENCE + "injection-prototype.md"],
+         [["T104"], "docs/releases/v4/v4.16/development/profile-layer-trust-audit.md", _EVIDENCE + "profile-layer-trust-audit.md"],
+         [["T106", "T109", "T110", "T112", "T113", "T115", "T116", "T117", "T118", "T119"],
+          "docs/releases/v4/v4.16/development/last-phase-evidence.md", _EVIDENCE + "v4.15.1-last-phase-evidence.md"],
+         [["T111"], "docs/releases/v4/v4.16/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"],
+         [["T107"], "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md",
+          "docs/decisions/proposed/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"],
+         [["T108"], "docs/decisions/implemented/policy/2026-09-14-model-adaptive-runtime-platform-scope.md",
+          "docs/decisions/rejected/policy/2026-10-31-model-adaptive-runtime-platform-scope.md"]]},
+    {"plan_path": _PLANS + "v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+     "plan_sha256": "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835", "original": True,
+     "task_targets": [
+         [["T001", "T006"], "docs/releases/v4/v4.17/development/phase-1-evidence.md", _EVIDENCE + "v4.15.2-phase1-evidence.md"],
+         [["T014"], "docs/releases/v4/v4.17/development/phase-2-evidence.md", _EVIDENCE + "v4.15.2-phase2-evidence.md"],
+         [["T024"], "docs/releases/v4/v4.17/development/phase-3-evidence.md", _EVIDENCE + "v4.15.2-phase3-evidence.md"],
+         [["T027"], "docs/releases/v4/v4.17/development/shared-agents-inventory.md", _EVIDENCE + "v4.15.2-shared-agents-inventory.md"],
+         [["T041", "T055"], "docs/releases/v4/v4.17/development/claude-agents-evaluation.md",
+          _EVIDENCE + "v4.15.2-claude-agents-evaluation.md"],
+         [["T042"], "docs/releases/v4/v4.17/development/phase-4-evidence.md", _EVIDENCE + "v4.15.2-phase4-evidence.md"],
+         [["T043", "T046", "T047", "T048", "T049", "T050", "T051", "T052"],
+          "docs/releases/v4/v4.17/development/last-phase-evidence.md", _EVIDENCE + "v4.15.2-last-phase-evidence.md"],
+         [["T044"], "docs/releases/v4/v4.17/known-gaps.md", "docs/releases/v4/v4.15/known-gaps.md"],
+         [["T039"], "tests/integrations/test_org_materialization.py", "tests/installer/test_org_materialization.py"]]},
+    {"plan_path": _PLANS + "v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md",
+     "plan_sha256": "97a8f0a291eb844deaa2daf679dd3b8176936f476cc98af662eb1c44931d2cbe", "original": True},
+    {"plan_path": _PLANS + "v4.15.4-checker-evidence-and-diagnostics.md",
+     "plan_sha256": "40abcad912dc8ee9b72866832103ae3f896bc597898ae63508bcdd002a85da2c", "original": True,
+     "evidence": [_EVIDENCE + "v4.15.4-last-phase-evidence.md"],
+     "no_change": {"T018": {"target": "scripts/ci/profiles.py"},
+                   "T016": {"target": "docs/handbooks/handbooks.json", "semantic": False,
+                            "gates": [["catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py",
+                                       "--root", "."]]}},
+     "ci_read_correction": {"path": "scripts/ci/profiles.py", "checkpoint": "6a45a253c242a97e09bc953a764c024687042b67",
+                            "restore_after": ["v4.15.2", "v4.15.3"],
+                            "reason": "so v4.15.2 can update it under its own approved write scope"}},
+    {"plan_path": _PLANS + "v4.15.5-adoption-token-economizer-and-agent-scripts.md",
+     "plan_sha256": "85737162f8b8d6f37c3cd9b96d2fa0d95a50f13084d2a14d548a8087e2ce914d",
+     "execution": {"kind": "hook-registration", "role": "implementation", "paths": ["catalog/hooks/settings.json"],
+                   "recipe": {"hooks": {
+                       "PostToolUse": [{"matcher": "Bash|Edit|Write|MultiEdit",
+                                        "hooks": [{"type": "command", "command": "bash .claude/hooks/stuck-turn-notice.sh"}]}],
+                       "PostToolUseFailure": [{"matcher": "Bash",
+                                               "hooks": [{"type": "command", "command": "bash .claude/hooks/stuck-turn-notice.sh"}]}]}},
+                   "summary": ("The displayed post-tool events call stuck-turn-notice to provide a nonblocking advisory notice "
+                               "when a turn repeats failing commands or repeatedly changes one file.")}},
+    {"plan_path": _PLANS + "v4.15.6-centralized-worktrees-and-machine-migration.md",
+     "plan_sha256": "1101e20ca5823ca1f392324dae94174d47ffeba6c5d80eefaa137c1de382cafe",
+     "execution": {"kind": "hook-registration", "role": "implementation", "paths": ["catalog/hooks/settings.json"],
+                   "recipe": {"hooks": {
+                       "PreToolUse": [{"matcher": "Bash|PowerShell",
+                                       "hooks": [{"type": "command", "command": "bash .claude/hooks/worktree-policy.sh"}]}]}},
+                   "summary": ("The displayed pre-tool event calls worktree-policy. This guard checks proposed worktree commands "
+                               "against the configured location policy and can block commands that violate it.")}},
+    {"plan_path": _PLANS + "v4.15.7-adoption-ci-speed-without-coverage-loss.md",
+     "plan_sha256": "03103d49361bcbd284e2c59a2afdf32635505b11ab0f89e78bc9423474257c16",
+     "execution": {"kind": "ci-execution", "role": "implementation",
+                   "paths": [".github/workflows/ci.yml", ".github/workflows/post-merge.yml", ".pre-commit-config.yaml"]}},
+    {"plan_path": _PLANS + "v4.15.8-extension-delivery.md",
+     "plan_sha256": "e1eaa09f7e73faaa9ea3a47859cac6d9b2fefa332a2c27710d1634bc36df9634",
+     "execution": {"kind": "ci-execution", "role": "coordinator",
+                   "paths": [".github/workflows/ci.yml", ".github/workflows/post-merge.yml", ".github/workflows/release.yml",
+                             ".github/workflows/nexus-hub-settings.yml", ".github/workflows/claude-usage-monitor.yml",
+                             ".github/workflows/codex-usage-monitor.yml", ".github/workflows/copilot-usage-monitor.yml",
+                             ".github/workflows/cursor-usage-monitor.yml", ".github/workflows/gemini-usage-monitor.yml"]}},
+)
+MEMBER_DECLARATIONS = {(row["plan_path"], row["plan_sha256"]): row for row in _DECLARED_MEMBER_ROWS}
+
+
+def declared_rules(plan_path: object, plan_sha256: object) -> dict | None:
+    """The declared rules for exactly this original plan path and hash, or None."""
+    if not isinstance(plan_path, str) or not isinstance(plan_sha256, str):
+        return None
+    return MEMBER_DECLARATIONS.get((plan_path, plan_sha256))
+
+
+def declared_for_member(member: object) -> dict | None:
+    """Rules for a record member, keyed by its original (pre-archive) path and frozen hash."""
+    if not isinstance(member, dict):
+        return None
+    archived = member.get("archived")
+    if isinstance(archived, dict):
+        return declared_rules(archived.get("from"), archived.get("original_sha256"))
+    return declared_rules(member.get("plan_path"), member.get("plan_sha256"))
+
+
+def member_declares_execution(ck: ModuleType, record: dict, version: object) -> bool:
+    """True when the named record member's declaration grants typed-execution eligibility."""
+    try:
+        member = next((m for m in effective_members(ck, record) if m.get("version") == version), None)
+    except (ck.MinorConflict, TypeError, ValueError, KeyError):
+        return False
+    return bool((declared_for_member(member) or {}).get("execution"))
+
+
+def declared_original_by_hash(plan_sha256: object) -> dict | None:
+    """Rules of the original member whose frozen plan hash this is (display-side lookup)."""
+    rows = [r for r in MEMBER_DECLARATIONS.values() if r["plan_sha256"] == plan_sha256 and r.get("original")]
+    return rows[0] if len(rows) == 1 else None
+
+
+def declared_frozen_plan_paths() -> frozenset[str]:
+    """Active paths of every declared original plan."""
+    return frozenset(r["plan_path"] for r in MEMBER_DECLARATIONS.values() if r.get("original"))
+
+
+def declared_task_target(rules: dict | None, task_id: object, old: object) -> str | None:
+    """The reviewed corrected literal for one (task, old literal) pair, or None."""
+    for tasks, literal, corrected in (rules or {}).get("task_targets", ()):
+        if literal == old and task_id in tasks:
+            return corrected
+    return None
+
+
 # The folders under a minor's active tree whose `<version>-` entries one member owns
 # (completion contract, "Member archive"); everything else in the tree is shared.
 MEMBER_OWNED_DIRS = ("plans", "development", "development/history", "research", "analysis")
@@ -1295,8 +1438,7 @@ def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, mem
                             plan: Plan | None = None) -> tuple[Plan, Plan] | None:
     """Authenticate current membership and recover only the compiled original frozen identity."""
     if (not isinstance(parent, dict) or not isinstance(member, dict) or (plan is not None and not isinstance(plan, Plan))
-            or parent.get("repo") != "bendourthe/Nexus-Hub" or parent.get("minor") != "v4.15"
-            or member.get("version") not in {f"v4.15.{patch}" for patch in range(5)}):
+            or parent.get("repo") != "bendourthe/Nexus-Hub" or parent.get("minor") != "v4.15"):
         return None
     try:
         if rctx.key_repo != "bendourthe/nexus-hub" or not _verified(ck, rctx, "v4.15", parent, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
@@ -1322,12 +1464,28 @@ def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, mem
                 return None
         elif plan.rel != member.get("plan_path"):
             return None
-        if ck._V415_ORIGINAL_HASHES.get(member["version"]) != ck.plan_hash_text(original.text):
+        rules = declared_rules(original.rel, ck.plan_hash_text(original.text))
+        if rules is None or not rules.get("original"):
             return None
         return plan, original
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable,
             ck.Malformed, ck.MinorConflict):
         return None
+
+
+def _identity_rules(ck: ModuleType, identity: tuple[Plan, Plan] | None) -> dict | None:
+    """The declared rules of an authenticated original identity."""
+    return declared_rules(identity[1].rel, ck.plan_hash_text(identity[1].text)) if identity else None
+
+
+def _after_start_outputs(member: dict) -> bool:
+    """True when the member's declaration allows coordinator output additions after its start."""
+    return bool(((declared_for_member(member) or {}).get("coordinator_outputs") or {}).get("after_start"))
+
+
+def _ci_read_rule(member: dict) -> dict | None:
+    """The declared reviewed read-reservation correction of a record member, if any."""
+    return (declared_for_member(member) or {}).get("ci_read_correction")
 
 
 def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict, plan: Plan):
@@ -1362,7 +1520,8 @@ def v415_task_authority(ck: ModuleType, rctx: RepoContext, parent: dict, member:
                                       member_start_head=member.get("start_head"),
                                       implementation_sha256=_manifest_implementation_sha256(member),
                                       source_branch=member.get("source_branch"), target_branch=member.get("target_branch"),
-                                      historical_merge=merge, historical_tree=tree)
+                                      historical_merge=merge, historical_tree=tree,
+                                      rules=_identity_rules(ck, identity))
     except (KeyError, TypeError, ValueError, OSError, MinorMalformed, ObservationUnavailable,
             ck.Malformed, ck.MinorConflict):
         return None
@@ -2574,8 +2733,6 @@ def cmd_record_permit_manifest(ck: ModuleType, args: argparse.Namespace) -> int:
 
 V415_OUTPUT_PERMISSION = "v415_coordinator_permissions"
 V415_CI_READ_CORRECTION = "v415_ci_read_corrections"
-_V415_CI_READ_PATH = "scripts/ci/profiles.py"
-_V415_CI_READ_CHECKPOINT = "6a45a253c242a97e09bc953a764c024687042b67"
 _V415_MANIFEST_OUTPUTS = {"MANIFEST.sha256", "scripts/lib/installer/legacy_fingerprints.json"}
 _V415_HANDBOOKS = "(?:overview|distribution|completion)"
 
@@ -2645,7 +2802,7 @@ def v415_output_permission_page(ck: ModuleType, rctx: RepoContext, token: str, r
     identity = _v415_original_identity(ck, rctx, record, member) if member is not None else None
     if token != "v4.15" or identity is None or not isinstance(member.get("implementation"), dict):
         raise ck.Malformed("v415-outputs-outside-reviewed-identity")
-    if member.get("start_head") and version != "v4.15.0":
+    if member.get("start_head") and not _after_start_outputs(member):
         raise ck.Malformed("v415-outputs-started-member-not-zero")
     if not isinstance(record, ck.MinorSnapshot):
         raise ck.MinorConflict("minor-snapshot-required")
@@ -2769,7 +2926,7 @@ def _v415_output_permission_valid(ck: ModuleType, rctx: RepoContext, record: dic
                 or len(set(old)) != len(old) or set(old) & set(page["write_paths"])):
             return False
         start = page["start_head"]
-        if start is not None and (member["version"] != "v4.15.0" or start != member.get("start_head")
+        if start is not None and (not _after_start_outputs(member) or start != member.get("start_head")
                                    or re.fullmatch(r"[0-9a-f]{40,64}", str(start)) is None):
             return False
         if member.get("start_head") and not all(p in current for p in page["write_paths"]):
@@ -2851,7 +3008,7 @@ def check_v415_compatibility_write(ck: ModuleType, rctx: RepoContext, previous: 
     page = entry.get("page", {})
     if old[version].get("start_head"):
         expected_paths = [*old[version].get("coordinator_paths", []), *page.get("write_paths", [])]
-        if version != "v4.15.0" or target.get("coordinator_paths") != expected_paths:
+        if not _after_start_outputs(old[version]) or target.get("coordinator_paths") != expected_paths:
             raise ck.MinorConflict("v415-compatibility-invalid-coordinator-append")
         if "coordinator_paths" in old[version]:
             target["coordinator_paths"] = old[version]["coordinator_paths"]
@@ -2939,13 +3096,16 @@ def v415_index_flags_visible(rctx: RepoContext) -> bool:
 
 def _v415_ci_checkpoint(ck: ModuleType, rctx: RepoContext, record: dict, member: dict) -> bool:
     """Require the original registered worker's exact clean reviewed commit, not a later descendant."""
+    rule = _ci_read_rule(member)
+    if rule is None:
+        return False
     worker, status, retired = _worker_context(ck, rctx, record, member, rctx.budget, canonical_merged=False)
     if worker is None or status != "met" or retired:
         return False
     rc, dirty = worker.run([worker.git, "-C", str(worker.root), "status", "--porcelain", "--untracked-files=all"])
-    return (rc == 0 and not dirty and worker._git_out("rev-parse", "HEAD") == _V415_CI_READ_CHECKPOINT
-            and _ancestor(worker, member["implementation"]["base_head"], _V415_CI_READ_CHECKPOINT) == "met"
-            and _v415_original_scope(ck, rctx, record, member, [_V415_CI_READ_PATH]))
+    return (rc == 0 and not dirty and worker._git_out("rev-parse", "HEAD") == rule["checkpoint"]
+            and _ancestor(worker, member["implementation"]["base_head"], rule["checkpoint"]) == "met"
+            and _v415_original_scope(ck, rctx, record, member, [rule["path"]]))
 
 
 def v415_ci_read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
@@ -2954,9 +3114,10 @@ def v415_ci_read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, 
     member = next((m for m in record.get("members", []) if m.get("version") == version), None)
     identity = _v415_original_identity(ck, rctx, record, member) if member is not None else None
     implementation = member.get("implementation") if member else None
-    if (token != "v4.15" or version != "v4.15.4" or identity is None or not isinstance(implementation, dict)
+    rule = (_identity_rules(ck, identity) or {}).get("ci_read_correction")
+    if (token != "v4.15" or rule is None or identity is None or not isinstance(implementation, dict)
             or member.get("start_head") or member.get(V415_CI_READ_CORRECTION)
-            or _V415_CI_READ_PATH not in implementation["read_paths"]):
+            or rule["path"] not in implementation["read_paths"]):
         raise ck.Malformed("v415-ci-read-outside-reviewed-identity")
     if not isinstance(record, ck.MinorSnapshot):
         raise ck.MinorConflict("minor-snapshot-required")
@@ -2973,7 +3134,7 @@ def v415_ci_read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, 
             "original_read_paths": list(implementation["read_paths"]),
             "original_write_paths": list(implementation["write_paths"]),
             "source_branch": member["source_branch"], "target_branch": member["target_branch"],
-            "start_head": None, "path": _V415_CI_READ_PATH, "checkpoint": _V415_CI_READ_CHECKPOINT}
+            "start_head": None, "path": rule["path"], "checkpoint": rule["checkpoint"]}
 
 
 def _v415_ci_read_valid(ck: ModuleType, rctx: RepoContext, record: dict, member: dict,
@@ -2985,19 +3146,20 @@ def _v415_ci_read_valid(ck: ModuleType, rctx: RepoContext, record: dict, member:
         page, accepted = entry["page"], entry["accepted"]
         identity = _v415_original_identity(ck, rctx, record, member)
         implementation = member.get("implementation")
+        rule = (_identity_rules(ck, identity) or {}).get("ci_read_correction")
         if (not isinstance(page, dict) or set(page) != {"action", "scope", "record_nonce", "repo", "controller",
                 "owner_session", "record_sha256", "member", "plan_sha256", "implementation_sha256",
                 "original_read_paths", "original_write_paths", "source_branch", "target_branch", "start_head", "path", "checkpoint"}
-                or identity is None or not isinstance(implementation, dict) or member["version"] != "v4.15.4"
+                or identity is None or not isinstance(implementation, dict) or rule is None
                 or page["action"] != "correct-ci-read" or page["scope"] != {"kind": "minor", "minor": "v4.15"}
                 or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
-                or page["member"] != "v4.15.4" or page["path"] != _V415_CI_READ_PATH
-                or page["checkpoint"] != _V415_CI_READ_CHECKPOINT or page["start_head"] is not None
+                or page["member"] != member["version"] or page["path"] != rule["path"]
+                or page["checkpoint"] != rule["checkpoint"] or page["start_head"] is not None
                 or page["plan_sha256"] != ck.plan_hash_text(identity[1].text)
                 or page["implementation_sha256"] != _manifest_implementation_sha256(member)
                 or page["original_read_paths"] != implementation["read_paths"]
                 or page["original_write_paths"] != implementation["write_paths"]
-                or _V415_CI_READ_PATH not in implementation["read_paths"]
+                or rule["path"] not in implementation["read_paths"]
                 or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]):
             return False
         return _v415_capture_valid(ck, record, page, accepted, "correct-ci-read", verify_capture=verify_capture)
@@ -3011,10 +3173,12 @@ def effective_read_paths(ck: ModuleType, rctx: RepoContext, record: dict, member
     reads = member["implementation"]["read_paths"]
     entries = member.get(V415_CI_READ_CORRECTION, [])
     state = candidate_state if candidate_state is not None else member
-    if (not member.get("start_head") and not state.get("start_head") and isinstance(entries, list) and len(entries) == 1
+    rule = _ci_read_rule(member)
+    if (rule is not None and not member.get("start_head") and not state.get("start_head")
+            and isinstance(entries, list) and len(entries) == 1
             and _v415_ci_read_valid(ck, rctx, record, member, entries[0])
             and _v415_ci_checkpoint(ck, rctx, record, member)):
-        return [path for path in reads if path != _V415_CI_READ_PATH]
+        return [path for path in reads if path != rule["path"]]
     return list(reads)
 
 
@@ -3024,9 +3188,12 @@ def _v415_ci_read_restore(ck: ModuleType, rctx: RepoContext, record: dict, membe
     if (not isinstance(entries, list) or len(entries) != 1
             or not _v415_ci_read_valid(ck, rctx, record, member, entries[0])):
         return False
+    rule = _ci_read_rule(member)
+    if rule is None:
+        return False
     members = {m["version"]: m for m in ordered_members(record)}
     if any(version not in members or not _merged_on_base(ck, rctx, record, members[version], head)
-           for version in ("v4.15.2", "v4.15.3")):
+           for version in rule["restore_after"]):
         return False
     candidate = {**member, "start_head": head}
     reads = effective_read_paths(ck, rctx, record, member, candidate)
@@ -4773,6 +4940,7 @@ V414_CARRY_RECONCILIATION = {
     "plan_hash": "1f831caa2f0ad8dabf3e01623520406c4a9d6351f893c4cf8f1c8a6267008e44",
     "branch": "feat/v4.14.8-plain-english-replies-and-source-labels",
     "release": "befcbfabae6d9042c3437d617af3724416644696",
+    "target": "v4.15.0",
 }
 V414_CARRIED_IDS = {
     "BG-30": "BG-3", "BG-29": "BG-4", "DF-45": "DF-36", "MT-17": "MT-5",
@@ -4800,7 +4968,7 @@ def reconciled_v414_carry(
             or record.get("nonce") != binding["minor_nonce"] or record.get("start_head") != binding["start"]
             or (record.get("approvals") or {}).get("page_sha256") != binding["minor_page"]
             or ledger.minor != (4, 14) or item.gid not in V414_CARRIED_IDS
-            or item.state != "migrated" or item.target != "v4.15.0"
+            or item.state != "migrated" or item.target != binding["target"]
             or copy.gid != V414_CARRIED_IDS[item.gid] or copy.state != "open"
             or item.sensitive() or copy.sensitive() or ledger.problems):
         return False
@@ -7015,26 +7183,24 @@ def empty_dirs_status(rctx: RepoContext) -> str:
 # One typed execution-permission history for the four reviewed added members.
 _EXECUTION_ACTION = "permit-member-execution-paths"
 _EXECUTION_REGISTRY = "catalog/hooks/settings.json"
-_EXECUTION_CI = (".github/workflows/ci.yml", ".github/workflows/post-merge.yml", ".pre-commit-config.yaml")
-_EXECUTION_COORDINATOR_CI = (*_EXECUTION_CI[:2], ".github/workflows/release.yml",
-    ".github/workflows/nexus-hub-settings.yml", ".github/workflows/claude-usage-monitor.yml",
-    ".github/workflows/codex-usage-monitor.yml", ".github/workflows/copilot-usage-monitor.yml",
-    ".github/workflows/cursor-usage-monitor.yml", ".github/workflows/gemini-usage-monitor.yml")
 _EXECUTION_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "owner_session", "record_sha256",
     "controller", "member", "plan_path", "plan_sha256", "source_branch", "target_branch",
     "amendment_sha256", "worker_identity", "implementation_sha256", "start_head", "integration_head",
     "push_remote_url", "sequence", "previous_history_sha256", "capability_kind", "role", "write_paths", "hook_recipe", "git_common_dir"}
 
 
-def execution_capability(version: str) -> tuple[str, str, tuple[str, ...]]:
+def _execution_rule(plan_path: object, plan_sha256: object) -> dict:
+    """The declared execution eligibility of one plan identity; an undeclared plan is ineligible."""
+    rule = (declared_rules(plan_path, plan_sha256) or {}).get("execution")
+    if rule is None:
+        raise MinorMalformed("minor-execution-member-ineligible")
+    return rule
+
+
+def execution_capability(plan_path: object, plan_sha256: object) -> tuple[str, str, tuple[str, ...]]:
     """Closed eligibility is distinct from captured permission and active admission."""
-    if version in ("v4.15.5", "v4.15.6"):
-        return "hook-registration", "implementation", (_EXECUTION_REGISTRY,)
-    if version == "v4.15.7":
-        return "ci-execution", "implementation", _EXECUTION_CI
-    if version == "v4.15.8":
-        return "ci-execution", "coordinator", _EXECUTION_COORDINATOR_CI
-    raise MinorMalformed("minor-execution-member-ineligible")
+    rule = _execution_rule(plan_path, plan_sha256)
+    return rule["kind"], rule["role"], tuple(rule["paths"])
 
 
 def _execution_json(text: str) -> object:
@@ -7051,8 +7217,8 @@ def _execution_json(text: str) -> object:
         raise MinorMalformed("minor-execution-invalid-json") from exc
 
 
-def _execution_recipe(version: str, text: str) -> dict | None:
-    if execution_capability(version)[0] != "hook-registration":
+def _execution_recipe(plan_path: object, plan_sha256: object, text: str) -> dict | None:
+    if execution_capability(plan_path, plan_sha256)[0] != "hook-registration":
         return None
     heading = "### Native Execution Registration Recipe"
     if text.splitlines().count(heading) != 1:
@@ -7062,23 +7228,18 @@ def _execution_recipe(version: str, text: str) -> dict | None:
     if not match:
         raise MinorMalformed("minor-execution-recipe-not-json")
     recipe = _execution_json(match[1])
-    _execution_recipe_valid(version, recipe)
+    _execution_recipe_valid(plan_path, plan_sha256, recipe)
     return recipe
 
 
-def _execution_recipe_valid(version: str, recipe: object) -> None:
-    """The eligibility ceiling validates, but never synthesizes, a frozen recipe."""
-    if execution_capability(version)[0] != "hook-registration":
+def _execution_recipe_valid(plan_path: object, plan_sha256: object, recipe: object) -> None:
+    """The declared eligibility validates, but never synthesizes, a frozen recipe."""
+    rule = _execution_rule(plan_path, plan_sha256)
+    if rule["kind"] != "hook-registration":
         if recipe is not None:
             raise MinorMalformed("minor-execution-ci-has-hook-recipe")
         return
-    name = "stuck-turn-notice" if version == "v4.15.5" else "worktree-policy"
-    command = {"type": "command", "command": f"bash .claude/hooks/{name}.sh"}
-    events = ({"PostToolUse": [{"matcher": "Bash|Edit|Write|MultiEdit", "hooks": [command]}],
-               "PostToolUseFailure": [{"matcher": "Bash", "hooks": [command]}]}
-              if version == "v4.15.5" else
-              {"PreToolUse": [{"matcher": "Bash|PowerShell", "hooks": [command]}]})
-    if not isinstance(recipe, dict) or recipe != {"hooks": events}:
+    if not isinstance(recipe, dict) or recipe != rule.get("recipe"):
         raise MinorMalformed("minor-execution-recipe-outside-eligibility")
 
 
@@ -7086,13 +7247,14 @@ def validate_execution_page(page: object) -> dict:
     """Validate the complete display contract without granting authority."""
     if not isinstance(page, dict) or set(page) != _EXECUTION_PAGE_FIELDS:
         raise MinorMalformed("minor-execution-page-fields-invalid")
-    kind, role, eligible = execution_capability(page.get("member"))
+    kind, role, eligible = execution_capability(page.get("plan_path"), page.get("plan_sha256"))
     if (page["action"] != _EXECUTION_ACTION or page["scope"] != {"kind": "minor", "minor": "v4.15"}
             or str(page["repo"]).lower() != "bendourthe/nexus-hub"
             or page["capability_kind"] != kind or page["role"] != role
             or not isinstance(page["write_paths"], list) or not page["write_paths"]
             or any(not isinstance(p, str) or p not in eligible for p in page["write_paths"])
             or page["write_paths"] != sorted(set(page["write_paths"]))
+            or not str(page["plan_path"]).rsplit("/", 1)[-1].startswith(str(page["member"]) + "-")
             or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
             or type(page["sequence"]) is not int or page["sequence"] < 1
             or page["start_head"] is not None):
@@ -7112,19 +7274,22 @@ def validate_execution_page(page: object) -> dict:
             or (role == "implementation" and page["implementation_sha256"] is not None)
             or (role == "coordinator" and not re.fullmatch(r"[0-9a-f]{64}", str(page["implementation_sha256"])) )):
         raise MinorMalformed("minor-execution-page-worker-invalid")
-    _execution_recipe_valid(page["member"], page["hook_recipe"])
+    _execution_recipe_valid(page["plan_path"], page["plan_sha256"], page["hook_recipe"])
     return page
 
 
 def _execution_member(ck: ModuleType, record: dict, version: str) -> tuple[dict, dict, dict]:
-    execution_capability(version)
+    originals = record.get("members", [])
+    declared = [declared_for_member(m) for m in originals]
     if (record.get("minor") != "v4.15" or str(record.get("repo")).lower() != "bendourthe/nexus-hub"
-            or [m.get("version") for m in record.get("members", [])] != [f"v4.15.{i}" for i in range(5)]):
+            or not originals or any(rules is None or not rules.get("original") for rules in declared)
+            or sorted(rules["plan_path"] for rules in declared) != sorted(declared_frozen_plan_paths())):
         raise ck.MinorConflict("minor-execution-original-scope-ineligible")
     members = effective_members(ck, record)
     for amendment in record.get("minor_amendments", []):
         for descriptor in amendment["page"]["members"]:
             if descriptor["version"] == version:
+                execution_capability(descriptor["plan_path"], descriptor["plan_sha256"])
                 member = next(m for m in members if m["version"] == version)
                 return member, descriptor, amendment
     raise ck.MinorConflict("minor-execution-member-not-added")
@@ -7368,7 +7533,7 @@ def execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, rec
 def _execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str, value: object,
                                *, check_remote: bool = True) -> dict:
     member, frozen, amendment = _execution_member(ck, record, version)
-    kind, role, eligible = execution_capability(version)
+    kind, role, eligible = execution_capability(frozen["plan_path"], frozen["plan_sha256"])
     if token != "v4.15" or not isinstance(record, ck.MinorSnapshot) or member.get("start_head"):
         raise ck.Malformed("minor-execution-not-current-unstarted-snapshot")
     if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
@@ -7382,7 +7547,7 @@ def _execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, re
         plan = next(p for p in scan_plans(rctx.root, 4, 15) if p.version == version)
         if not member_identity_ok(ck, member, plan) or any(not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(p) + r"(?![A-Za-z0-9_./-])", plan.text) for p in paths):
             raise MinorMalformed("minor-execution-path-outside-frozen-plan")
-        recipe = _execution_recipe(version, plan.text)
+        recipe = _execution_recipe(frozen["plan_path"], frozen["plan_sha256"], plan.text)
     except (StopIteration, MinorMalformed) as exc:
         raise ck.Malformed(str(exc) or "minor-execution-plan-missing") from exc
     history = execution_permission_history(ck, record)
@@ -7485,10 +7650,10 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
 
 def execution_authorization_view(ck: ModuleType, rctx: RepoContext, record: dict, view: dict, version: str, request: dict) -> dict:
     """Derive a capture-only temporary view; never store or inherit its policy."""
-    member, _, _ = _execution_member(ck, record, version)
+    member, frozen, _ = _execution_member(ck, record, version)
     if not v415_index_flags_visible(rctx):
         raise ValueError("execution permission controller index is unverifiable")
-    _, role, _ = execution_capability(version)
+    _, role, _ = execution_capability(frozen["plan_path"], frozen["plan_sha256"])
     paths = execution_permission_paths(ck, record, member, role)
     if (set(request) != {"paths"} or not isinstance(request["paths"], list) or not request["paths"]
             or any(not isinstance(p, str) or p not in paths for p in request["paths"])):
@@ -7509,7 +7674,8 @@ def _execution_path_allowed(ck, record, member, path, *, role=None, admission=Fa
     if ck is None or record is None or member is None:
         return False
     if role is None:
-        role = "coordinator" if member.get("version") == "v4.15.8" else "implementation"
+        rule = (declared_for_member(member) or {}).get("execution")
+        role = rule["role"] if rule else "implementation"
     return path in execution_permission_paths(ck, record, member, role, for_admission=admission)
 
 

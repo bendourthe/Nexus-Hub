@@ -23,6 +23,7 @@ from .test_completion_minor_record import (
     Minor, SESSION, REPO_ROOT, SCRIPTS, CHECKER, ck, cm, _git,
     _isolated_git_config, _no_transport_overrides,
 )
+from .member_declarations import install as install_member_declarations
 from .test_minor_amendment_consumers import _unchanged_snapshot
 from .test_completion_minor_verdict import EVIDENCE_SECTIONS, GREEN
 from .test_gap_migration_and_archive import LINK_CHECKER, ledger, section
@@ -70,6 +71,12 @@ SETTINGS = {"model": "fixture-model", "effortLevel": "high", "env": {"FIXTURE": 
                     {"type": "command", "command": "bash .claude/hooks/existing-after-read.sh"}]},
                     {"matcher": "Edit", "hooks": [{"type": "command",
                         "command": "bash .claude/hooks/existing-after-edit.sh"}]}]}}
+
+
+@pytest.fixture(autouse=True)
+def _declared_execution_members(monkeypatch):
+    """Display-only cases build pages without a Minor fixture, so declare the fixture plans here too."""
+    install_member_declarations(monkeypatch)
 
 
 @pytest.fixture(autouse=True)
@@ -948,10 +955,13 @@ def execution_baseline_scripts(tmp_path_factory):
 
 
 EXECUTION_CONSUMER_PROBE = r'''
-import json, sys
+import json, os, sys
 from pathlib import Path
 import check_plan_completion as ck
 import completion_minor as cm
+sys.path.insert(0, os.environ["NEXUS_TEST_DECLARATIONS_DIR"])
+import member_declarations
+member_declarations.apply_to(cm)
 import run_plan as runner
 import completion_gate as gate
 import cleanup_merged as cleanup
