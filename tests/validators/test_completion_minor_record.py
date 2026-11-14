@@ -35,9 +35,13 @@ from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exp
     _isolated_git_config,
 )
 
+from .member_declarations import DECLARED_CHECKER, install as install_member_declarations
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / "scripts"
-CHECKER = SCRIPTS / "check_plan_completion.py"
+# A subprocess never sees a monkeypatch, so every checker run in these fixtures goes through the
+# test-only wrapper that applies the same fixture member declarations as the in-process table.
+CHECKER = DECLARED_CHECKER
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
 from launcher import gh_stub_dir
 
@@ -107,6 +111,7 @@ class Minor:
 
     def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch, git_seed: Path | None = None) -> None:
         self.tmp = tmp
+        install_member_declarations(monkeypatch)
         self.work = tmp / "work"
         self.remote = tmp / "remote.git"
         self.runs = tmp / "runs"
@@ -257,9 +262,10 @@ def minor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, minor_git_seed: Path)
 
 @pytest.fixture
 def v415_authority_case(minor: Minor):
-    """Real frozen text and disposable signatures, never a live native record."""
+    """Fixture plan text and disposable signatures; never the live plan files or a live native record."""
     rel = "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md"
-    text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+    text = ("# Plan - fixture\n\n**Version**: v4.15.2\n**Slug**: fixture\n**Status**: queued\n\n## Phase 1: Build\n\n"
+            "- [ ] T001 [US1] Fixture task docs/releases/v4/v4.17/development/phase-1-evidence.md\n")
     target = minor.work / rel
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(text, encoding="utf-8")
@@ -287,7 +293,7 @@ def test_v415_task_authority_requires_complete_verified_parent_and_exact_current
     fx, record, member, plan = v415_authority_case
     authority = cm.v415_task_authority(ck, fx.rctx(), record, member, plan)
     assert authority is not None
-    assert authority.original_sha256 == "bd1c0f917b1844cf47e903d7c9b40b7f4f5edf31a9c99591ef7a6215aa0ab835"
+    assert authority.original_sha256 == member["plan_sha256"] == ck.plan_hash_text(plan.text)
     assert authority.root == fx.work.resolve() and authority.plan_rel == plan.rel
     assert authority.plan_sha256 == ck.plan_hash_text(plan.text)
     projected = ck.project(record, member["version"])

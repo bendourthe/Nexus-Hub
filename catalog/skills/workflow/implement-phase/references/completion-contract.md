@@ -164,7 +164,7 @@ The amendment refuses a blocked, paused, completed or tampered parent. In a new 
 
 Added `bendourthe/Nexus-Hub` v4.15 members may request the bounded `permit-member-execution-paths` action only after genuine native membership amendment. Source-maintenance approval, planning publication, original-run continuation and membership approval do not grant this separate capability. Render with `record render --minor v4.15 --session ID --action permit-member-execution-paths --member VERSION --execution FILE --question`; consume the genuinely captured current decision with `record permit-member-execution-paths` and the same minor, session, member and input file. The input has exactly `{"write_paths":["literal/repository-relative-file"]}`. An agent cannot supply a capability kind, role or recipe override.
 
-The closed table derives the capability and role from the member. No original member, arbitrary added member, directory, glob, path alias, coordinator hook permission or wider settings permission qualifies.
+The closed table is declared data in `completion_minor.MEMBER_DECLARATIONS`, keyed by each plan's original path and frozen hash, never by a version string; the rows below show today's declarations. A plan that is renumbered, edited after its hash was declared, or absent from the table is ineligible and refuses with `minor-execution-member-ineligible`. No original member, arbitrary added member, directory, glob, path alias, coordinator hook permission or wider settings permission qualifies.
 
 | Member | Capability | Role | Eligible files |
 |---|---|---|---|
@@ -199,7 +199,7 @@ A long-running minor may move its coordinator to a permanent checkout with `reco
 
 ### Bounded v4.15 compatibility
 
-The existing `bendourthe/Nexus-Hub` v4.15 run has a compiled compatibility descriptor for its five exact original frozen plan hashes. It selects only 36 individually reviewed task-ID/literal pairs in v4.15.1 and v4.15.2. Frozen plan text is never rewritten. `completion_minor.v415_task_authority` validates the complete signed native parent, exact member equality and original/current plan identity before issuing a separate in-process authority value to the ordinary evaluator. A serialized projection, repository flag, matching basename or release-prefix substitution establishes no authority. Signed archives recover the original frozen plan from its recorded Git anchor; existing archive predicates still exclude archive-only work and preserve `cannot-verify` for uncertain history.
+The existing `bendourthe/Nexus-Hub` v4.15 run has a declared compatibility descriptor: rows in `completion_minor.MEMBER_DECLARATIONS`, keyed by each original plan's path and frozen hash. Evidence exclusions, unchanged-task literals, gates, the coordinator-output and read-correction rules, and the typed-execution eligibility all come from the member's row, so renumbering a plan moves its row and touches no checker branch. A missing, renumbered or altered row refuses with a named reason. The row selects only 36 individually reviewed task-ID/literal pairs in v4.15.1 and v4.15.2. Frozen plan text is never rewritten. `completion_minor.v415_task_authority` validates the complete signed native parent, exact member equality and original/current plan identity before issuing a separate in-process authority value to the ordinary evaluator. A serialized projection, repository flag, matching basename or release-prefix substitution establishes no authority. Signed archives recover the original frozen plan from its recorded Git anchor; existing archive predicates still exclude archive-only work and preserve `cannot-verify` for uncertain history.
 
 Four exact verification tasks may legitimately leave their literal target unchanged. After their actual work, ordered publication start and clean final candidate commit, the qualified installed checker can produce detached evidence with `qualify-task --minor v4.15 --member <member> --task <task> --session <owner-session> --repo <verified-controller-root>`. It accepts no command or report input. A successful command prints `QUALIFIED <member> <task>`; its sealed receipt and raw reports stay under `runs/v415-qualification/<case-key>/`, outside repository source and root-level record discovery. A newer failed attempt cannot be hidden by an older successful receipt. Ordinary task history still applies when the literal actually changed.
 
@@ -224,7 +224,7 @@ Each CI case requires exactly one `v415-ci-comparison` JSON fence under `## CI/C
 
 Every observation describes real inspected evidence and has at least 16 characters. Every reference is `{path, sha256}` for a tracked regular file; a case's excluded final evidence cannot reference itself. Text hashes normalize CRLF to LF; NUL-containing binary inputs retain their raw bytes. Duplicate or malformed structures, missing mandatory evidence, failed or partial gates, source drift and altered receipts refuse qualification.
 
-Prepare the fingerprint from the explicitly staged candidate tree before the one final phase commit. The existing helper below only calculates input data; it executes no gate and creates no proof. Run this Python from the candidate worktree after staging all reviewed non-excluded source and evidence references. Use that fingerprint to fill the excluded final evidence block, stage that file and make the final candidate commit. The producer then requires the committed checked task and fully clean source, including semantic evidence. Later reader normalization permits only the compiled checkbox/status and exact final-evidence bookkeeping exceptions.
+Prepare the fingerprint from the explicitly staged candidate tree before the one final phase commit. The existing helper below only calculates input data; it executes no gate and creates no proof. Run this Python from the candidate worktree after staging all reviewed non-excluded source and evidence references. Use that fingerprint to fill the excluded final evidence block, stage that file and make the final candidate commit. The producer then requires the committed checked task and fully clean source, including semantic evidence. Later reader normalization permits only the checkbox/status and declared final-evidence bookkeeping exceptions.
 
 ```python
 import json
@@ -236,12 +236,16 @@ sys.path.insert(0, str(Path.home() / ".nexus-hub" / "scripts"))
 import check_plan_completion as ck
 
 candidate = Path.cwd()
-plan = candidate / "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md"
+import completion_minor as cm
+
+rel = "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md"
+plan = candidate / rel
+rules = next(row for row in cm.MEMBER_DECLARATIONS.values() if row["plan_path"] == rel)
 ctx = ck.Context(str(plan), ck.Budget(120))
 tree = subprocess.check_output(["git", "write-tree"], cwd=candidate, text=True).strip()
 contract = "catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md"
 print(json.dumps({
-    "source_fingerprint": ck._v415_inputs(ctx, tree, "v4.15.0")["fingerprint"],
+    "source_fingerprint": ck._v415_inputs(ctx, tree, rules)["fingerprint"],
     "contract": {"path": contract, "sha256": ck._v415_sha(ck._v415_blob_bytes(ctx, tree, contract))},
 }, sort_keys=True))
 ```
@@ -254,7 +258,7 @@ Before rendering, consuming or activating this permission, native code audits th
 
 Creation freshness and historical validity are distinct. A new action requires the current native record bytes, owner, controller generation and capture. Accepted history later validates its immutable original identity and consumed provenance through legitimate continuation and archive; it does not require the record or session to remain forever identical to the creation snapshot. This exception neither clears a blocker nor authorizes release, provider spending, new members or a reset of the run. The matching maintenance evidence is [Native compatibility qualification](../../../../../docs/releases/v4/v4.15/development/v4.15-native-compatibility-qualification.md).
 
-A separately captured `correct-ci-read` action can correct only v4.15.4's literal `scripts/ci/profiles.py` reservation before that member's publication starts. Render it with `record render --minor v4.15 --session <id> --action correct-ci-read --member v4.15.4 --question`, then consume its genuine decision with `record correct-ci-read --minor v4.15 --session <id> --member v4.15.4`. There is no path or checkpoint override. The page binds the original frozen v4.15.4 hash, full unchanged implementation digest, source/target branches, raw read/write lists, current record/controller/owner and exact clean registered-worker checkpoint `6a45a253c242a97e09bc953a764c024687042b67`. Render, consume and effective use recheck the original scope and checkpoint; later unreviewed source changes refuse the exception.
+A separately captured `correct-ci-read` action can correct only v4.15.4's literal `scripts/ci/profiles.py` reservation before that member's publication starts. Render it with `record render --minor v4.15 --session <id> --action correct-ci-read --member v4.15.4 --question`, then consume its genuine decision with `record correct-ci-read --minor v4.15 --session <id> --member v4.15.4`. There is no path or checkpoint override: the member, file, checkpoint and the members whose integration restores the read all come from the member's declaration row. The page binds the original frozen v4.15.4 hash, full unchanged implementation digest, source/target branches, raw read/write lists, current record/controller/owner and exact clean registered-worker checkpoint `6a45a253c242a97e09bc953a764c024687042b67`. Render, consume and effective use recheck the original scope and checkpoint; later unreviewed source changes refuse the exception.
 
 This action appends immutable signed correction provenance beside the original implementation. It never removes or rewrites raw claims, dependencies, branch, worktree, implementation base or start. While v4.15.4 has no publication start, native conflict checks subtract only that exact read from its effective reservations, in both implementation-admission directions and coordinator conflicts. Broader directory reads and every write remain active. v4.15.2 still needs its own normal exact claims and all remaining conflict checks. An idempotent v4.15.4 resume retains the same original implementation. Its ordinary ordered publication start restores the original read, after independently verified v4.15.2/v4.15.3 integration, and validates the resulting candidate state before writing. T018 still requires the later integrated profile's actual CI comparison. The retained correction remains valid history through continuation and archive; it never substitutes for a new grant or resets authority.
 

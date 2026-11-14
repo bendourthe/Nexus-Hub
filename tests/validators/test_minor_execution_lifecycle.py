@@ -1,8 +1,9 @@
 """Full private minor lifecycle using the original isolation fixtures."""
 from __future__ import annotations
 
+from .member_declarations import DECLARED_SCRIPT
 from .test_minor_execution_permission import (
-    ExecutionMinor, LINK_CHECKER, SCRIPTS, SESSION, TOKEN, WORKFLOW_PATHS,
+    ExecutionMinor, LINK_CHECKER, SESSION, TOKEN, WORKFLOW_PATHS,
     _git, _isolated_git_config, _no_transport_overrides, _private_native_home,
     ck, cm, copy, json, ledger, section, subprocess, sys,
 )
@@ -66,7 +67,7 @@ def test_four_native_rows_survive_real_private_prefix_archive_and_handoff(tmp_pa
     history = copy.deepcopy(fx.record()["minor_execution_permissions"])
     assert len(history) == 4
     _git(fx.work, "checkout", "-q", "-b", "chore/close-v4.15", "origin/develop")
-    archived = subprocess.run([sys.executable, str(SCRIPTS / "minor_close.py"), "archive", "--minor", TOKEN,
+    archived = subprocess.run([sys.executable, str(DECLARED_SCRIPT), "minor_close.py", "archive", "--minor", TOKEN,
                               "--session", SESSION, "--apply", "--repo", str(fx.work),
                               "--link-checker", str(LINK_CHECKER)], cwd=fx.work, env=fx.env,
                               capture_output=True, text=True, check=False, timeout=210,

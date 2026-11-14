@@ -81,7 +81,7 @@ def test_v415_no_change_historical_publication_survives_later_sibling_inputs(tmp
 @pytest.mark.parametrize("worked", [False, True], ids=["archive-only", "implementation"])
 def test_v415_alias_uses_verified_archive_history(tmp_path, whole_minor, worked):
     """Real blobs and commits exercise the existing signed archive matcher, not a fake Landing."""
-    ck, ctx, _start, _authority = _v415_task_repo(tmp_path)
+    ck, ctx, _start, base_authority = _v415_task_repo(tmp_path)
     active = "docs/releases/v4/v4.15/development/v4.15.2-phase1-evidence.md"
     archived = active.replace("docs/releases/", "docs/archives/")
     old = "docs/releases/v4/v4.17/development/phase-1-evidence.md"
@@ -107,7 +107,7 @@ def test_v415_alias_uses_verified_archive_history(tmp_path, whole_minor, worked)
     _git(ctx.root, "add", "-A")
     _git(ctx.root, "commit", "-qm", "verified archive")
     archive_commit = _git(ctx.root, "rev-parse", "HEAD")
-    identity = {"from": plan_from, "original_sha256": ck._V415_ORIGINAL_HASHES[ctx.version],
+    identity = {"from": plan_from, "original_sha256": base_authority.original_sha256,
                 "plan_path": plan_to, "plan_sha256": ctx.plan_hash(), "moved": pairs}
     record = {"schema": 2, "minor_start_head": start, "archived": identity,
               "member_archives": [{"version": ctx.version, "archived": identity}]}
@@ -119,7 +119,7 @@ def test_v415_alias_uses_verified_archive_history(tmp_path, whole_minor, worked)
     ctx.rel = plan_to
     authority = ck._v415_task_authority(root=ctx.root, repo="bendourthe/Nexus-Hub", minor="v4.15",
                                       member=ctx.version, original_sha256=identity["original_sha256"],
-                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash())
+                                      plan_rel=ctx.rel, plan_sha256=ctx.plan_hash(), rules=base_authority.rules)
     landing = cm.archive_landing(ctx, record)
     assert landing is not None and ctx.version in landing.verified and archive_commit in landing.excluded
     assert ck._task_status(ctx, True, old, start, record, task_id="T001", task_authority=authority) == (

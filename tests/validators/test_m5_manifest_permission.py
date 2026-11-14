@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from types import SimpleNamespace
 
+from .member_declarations import write_wrapper
 from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
 from .test_completion_minor_record import (  # noqa: F401
     SESSION,
@@ -41,16 +42,14 @@ def v415_outputs_case(request, tmp_path, monkeypatch, minor_git_seed):
     fx = Minor(tmp_path, monkeypatch, minor_git_seed)
     _git(fx.work, "checkout", "-q", "develop")
     version = request.param
-    sources = sorted((Path(__file__).resolve().parents[2] / "docs/releases/v4/v4.15/plans").glob(version + "-*.md"))
-    assert len(sources) == 1
-    rel = "docs/releases/v4/v4.15/plans/" + sources[0].name
-    for source in sources[0].parent.glob("*.md"):
-        if not any(source.name.startswith(f"v4.15.{patch}-") for patch in range(5)):
-            continue
-        target = fx.work / "docs/releases/v4/v4.15/plans" / source.name
+    # Fixture plans for the five original members; never the live plan files, whose text may be edited.
+    rel = f"docs/releases/v4/v4.15/plans/{version}-fixture.md"
+    for patch in range(5):
+        target = fx.work / f"docs/releases/v4/v4.15/plans/v4.15.{patch}-fixture.md"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-    for path, text in ((rel, sources[0].read_text(encoding="utf-8")),
+        target.write_text(f"# Plan - fixture\n\n**Version**: v4.15.{patch}\n**Slug**: fixture\n**Status**: queued\n\n"
+                          "## Phase 1: Build\n\n- [ ] T001 Fixture task src/owned.txt\n", encoding="utf-8")
+    for path, text in ((rel, (fx.work / rel).read_text(encoding="utf-8")),
                        ("MANIFEST.sha256", "disposable baseline manifest\n"),
                        ("scripts/lib/installer/legacy_fingerprints.json", "{}\n"),
                        ("docs/README.md", "# Baseline coordinator index\n")):
@@ -158,13 +157,18 @@ def v415_ci_case(v415_outputs_case):
         if name == "completion_minor.py":
             text = text.replace(V415_READ_CHECKPOINT, base)
         (installed / name).write_text(text, encoding="utf-8")
+    # The private copy has no row for this fixture's plans; declare them beside it, test-side only.
+    declared = write_wrapper(installed)
 
     def run(*args):
-        return subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), *args],
+        return subprocess.run([sys.executable, "-B", str(declared), *args],
                               cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=90, check=False)
 
     def probe(expression):
-        setup = ("import argparse,json; import check_plan_completion as ck; import completion_minor as cm; "
+        setup = ("import argparse,json,sys; "
+                 f"sys.path.insert(0,{str(Path(__file__).resolve().parent)!r}); "
+                 "import check_plan_completion as ck; import completion_minor as cm; "
+                 "import member_declarations; member_declarations.apply_to(cm); "
                  f"rctx=cm.minor_context(ck,{str(fx.work)!r}); "
                  "record=ck.read_record(rctx,cm.record_file(ck,rctx,'v4.15')); "
                  "member=next(m for m in record['members'] if m['version']=='v4.15.4'); ")
@@ -952,9 +956,10 @@ def test_v415_permission_public_cli_from_isolated_installed_helpers(v415_outputs
     for name in ("check_plan_completion.py", "completion_minor.py", "approval_binding.py", "approval_page.py",
                  "repo_host.py", "completion_budget.py", "nexus_process.py"):
         shutil.copy2(source / name, installed / name)
+    declared = write_wrapper(installed)
     args = _v415_args(v415_outputs_case)
     def public(*operation):
-        return subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), *operation, *args],
+        return subprocess.run([sys.executable, "-B", str(declared), *operation, *args],
                               cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=45, check=False)
     before = path.read_bytes()
     fx.capture(SESSION, "fixture installed helper decision", at=0.0)
@@ -975,7 +980,7 @@ def test_v415_permission_public_cli_from_isolated_installed_helpers(v415_outputs
             assert worker.parent == fx.tmp
             _git(fx.work, "worktree", "remove", str(worker))  # Clean disposable fixture tree only.
         started = time.monotonic()
-        checked = subprocess.run([sys.executable, "-B", str(installed / "check_plan_completion.py"), "check-member",
+        checked = subprocess.run([sys.executable, "-B", str(declared), "check-member",
                                   "--minor", "v4.15", "--member", version, "--session", SESSION,
                                   "--repo", str(fx.work), "--json"],
                                  cwd=fx.work, env=fx.env, capture_output=True, text=True, timeout=45, check=False)
