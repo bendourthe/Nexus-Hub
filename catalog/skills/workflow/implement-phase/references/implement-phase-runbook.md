@@ -8,7 +8,7 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 ## Reporting checkpoints
 
-At run start or resume, load [progress-reporting.md](progress-reporting.md) and initialize the report from available observations. At task boundaries and long-tool yields, check its next due time; report at phase completion and blocker/estimate transitions as well. The coordinator consolidates member observations and performs the efficiency review within existing admission and test-selection rules. On-demand `/update status` reads that reference only and does not enter Phase 0.
+At run start or resume, load [progress-reporting.md](progress-reporting.md) and [status-formats.md](status-formats.md) and initialize the report from available observations. Every message of the run ends with the compact footer; refresh it with a one-line note at phase completion and blocker/estimate transitions. The coordinator consolidates member observations and performs the efficiency review within existing admission and test-selection rules. On-demand `/status` (alias `/update status`) reads those references only and does not enter Phase 0.
 
 ## Phase 0: Resolve plan, version, and phase
 

@@ -4,7 +4,7 @@
 
 Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规则、钩子、防护机制和最佳实践。安装程序会在你的电脑上配置受支持的平台。代理通过你现有的 IDE、终端或已配置的应用使用这套框架。
 
-**目录：** 340 个技能（23 个类别）、21 个命令（另有 3 个永久别名）、37 个已注册钩子、23 个代理。
+**目录：** 340 个技能（23 个类别）、22 个命令（另有 3 个永久别名）、37 个已注册钩子、23 个代理。
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
