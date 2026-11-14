@@ -6,7 +6,7 @@
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
-**Catalog:** 340 skills across 23 categories, 21 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
+**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
