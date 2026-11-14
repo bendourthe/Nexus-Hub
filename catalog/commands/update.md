@@ -168,6 +168,8 @@ It exits 1 and prints `BLOCKED` unless HEAD is on the expected release branch AN
 
 This exists because of a specific failure, and its placement is the whole point. In the v3.17.5 release a `git checkout main` failed on a OneDrive-locked directory, HEAD stayed on an unrelated branch, and the tag was created there and published, shipping an unreleased plan file inside the release tarball. A check placed anywhere earlier in the flow cannot catch that: a checkout that failed silently is exactly the state being guarded against, so the assertion has to read live git state at the last possible moment. Re-running it after any retry is cheap and correct.
 
+The same command also regenerates `MANIFEST.sha256` for HEAD in memory, with the same logic as `generate_manifest.py`, and compares it with the committed file. If any covered file changed after the manifest was generated, it prints `BLOCKED -- do not create the tag (stale manifest)`, names every differing path, and exits 1. Regenerate the manifest, commit it, push, and re-run before tagging. This exists because v4.15.0 shipped a manifest older than `scripts/ci/profiles.py`, so `nexus-hub verify` failed on every install.
+
 The expected branch is configurable rather than hardcoded to `main`, because a gate that blocks a legitimate release from a differently-named release branch is a gate people learn to bypass, which is how the whole v3.17.6 defect class started.
 
 ## release scope: post-release back-merge (after the merge to the release branch)
