@@ -43,7 +43,7 @@ def handoff(fixture, source, target, *, apply=True, generation=0):
         check=False, **ck.NO_WINDOW)
 
 
-@pytest.mark.parametrize('tag_case', ['lightweight', 'annotated', 'unrelated', 'remote-only', 'absent', 'blob', 'tree'])
+@pytest.mark.parametrize('tag_case', ['lightweight', 'annotated', 'unrelated', 'remote-only', 'absent', 'tag-without-release', 'blob', 'tree'])
 def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     fixture, source, target, path = controller
     initial = handoff(fixture, source, target, apply=False)
@@ -61,8 +61,11 @@ def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     tag = members[0]['version']
     if tag_case == 'annotated':
         _git(target, 'tag', '-a', tag, head, '-m', 'private annotated tag fixture')
-    elif tag_case in ('lightweight', 'remote-only'):
+    elif tag_case in ('lightweight', 'remote-only', 'tag-without-release'):
         _git(target, 'tag', tag, head)
+        if tag_case == 'tag-without-release':
+            del fixture.state['releases'][tag]
+            fixture.save_state()
         if tag_case == 'remote-only':
             _git(target, 'push', '-q', str(fixture.remote), 'refs/tags/' + tag)
             _git(target, 'tag', '-d', tag)
@@ -85,7 +88,8 @@ def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     assert _git(target, 'for-each-ref', '--format=%(refname) %(objectname)') == refs_before
     assert index.read_bytes() == index_before
     assert 'Traceback' not in result.stdout + result.stderr
-    if tag_case in ('lightweight', 'annotated'):
+    # `absent`: merged but not yet tagged is a mid-train member, accepted on its merge alone.
+    if tag_case in ('lightweight', 'annotated', 'absent'):
         assert result.returncode == 0, result.stdout + result.stderr
         assert 'WOULD TRANSFER' in result.stdout
     else:

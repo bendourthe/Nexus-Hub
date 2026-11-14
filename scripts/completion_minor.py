@@ -904,6 +904,11 @@ def _handoff_target(ck: ModuleType, source: RepoContext, record: dict, target: P
             tag = str(member.get('tag') or member['version'])
             if _ancestor(ctx, merge, head) != 'met':
                 raise ck.MinorConflict('member-release-history-not-in-target')
+            if (member.get('approvals') or {}).get('conditional_outcome') is None:
+                local_rc, _ = ctx.run([ctx.git, '-C', str(ctx.root), 'rev-parse', '--verify', '-q', 'refs/tags/' + tag])
+                if local_rc == 1 and _tag_in(ctx, tag, head) == 'unmet':
+                    # Mid-train: merged, tag exists nowhere yet; the merge in the head is the history.
+                    continue
             if (member.get('approvals') or {}).get('conditional_outcome') is not None:
                 # A captured conditional decline is anchored at its verified merge, never a tag.
                 state, anchor = completion_anchor(ck, ctx, record, member)
@@ -5428,6 +5433,12 @@ def _merge_commit(ck: ModuleType, rctx: RepoContext, repo: str, branch: str) -> 
 
 GATE_VIOLATED = "violated"
 
+# A release train defers exactly these predecessor predicates until the one release PR; every
+# other predicate (including any added later) stays required for `record member-start`.
+TRAIN_DEFERRED_PREDICATES = frozenset({
+    "release.tag", "release.github", "release.main", "release.changelog", "release.version-sync",
+})
+
 
 def completion_anchor(ck: ModuleType, rctx: RepoContext, record: dict | None, member: dict, *, _decline_evaluation: tuple | None = None) -> tuple[str, str | None]:
     """A release keeps its tag anchor; a signed decline uses its verified merge."""
@@ -5458,6 +5469,23 @@ def completion_anchor(ck: ModuleType, rctx: RepoContext, record: dict | None, me
         return "cannot-verify", None
 
 
+def _previous_merge_in(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict, start: str) -> str:
+    """`met` when `start` contains the previous member's merged pull request; else `unmet` or `cannot-verify`."""
+    state, merge = _merge_commit(ck, rctx, repo, str(previous.get("source_branch") or ""))
+    if state == "cannot-verify":
+        return "cannot-verify"
+    return _ancestor(rctx, merge, start) if merge else "unmet"
+
+
+def _previous_in(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict, start: str) -> str:
+    """`met` when `start` contains the previous release's tag or its integration merge (a release train)."""
+    tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
+    if tag == "met":
+        return "met"
+    merged = _previous_merge_in(ck, rctx, repo, previous, start)
+    return "met" if merged == "met" else "cannot-verify" if "cannot-verify" in (tag, merged) else "unmet"
+
+
 def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict,
                 record: dict | None = None) -> str:
     """`member.gate` for one member: `met`, `n/a`, `unmet`, `cannot-verify`, or `violated`.
@@ -5465,7 +5493,7 @@ def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | N
     Every member after the first must have passed `record member-start`: without a
     recorded `start_head` it is `unmet`, never `n/a`, so skipping the gate can never
     reach MINOR COMPLETE. A recorded base must contain the previous member's release
-    tag, and once the member's pull request is merged the base must be an ancestor
+    tag or its integration merge (a release train), and once the member's pull request is merged the base must be an ancestor
     of that merge; either failure is `violated` (the verdict is BLOCKED). The first
     member without a recorded start is `n/a`.
     """
@@ -5477,7 +5505,7 @@ def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | N
             state, anchor = completion_anchor(ck, rctx, record, previous)
             tag = _ancestor(rctx, anchor, start) if state == "met" and anchor else state
         else:
-            tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
+            tag = _previous_in(ck, rctx, repo, previous, start)
         if tag != "met":
             return GATE_VIOLATED if tag == "unmet" else tag
     state, merge = _merge_commit(ck, rctx, repo, str(member.get("source_branch") or ""))
@@ -5924,7 +5952,8 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
         plan = {p.version: p for p in scan_plans(rctx.root, major, minor)}[str(previous["version"])]
         result = evaluate_member(ck, rctx, record, previous, plan, [])
         previous_gate = member_gate(ck, rctx, str(record["repo"]), members[index - 2] if index > 1 else None, previous, record)
-        gated = [status for predicate, status in result.lines if not predicate.startswith(("cleanup.", "archive."))]
+        gated = [status for predicate, status in result.lines
+                 if not predicate.startswith(("cleanup.", "archive.")) and predicate not in TRAIN_DEFERRED_PREDICATES]
         if previous_gate not in _MET or not result.lines or any(status not in _MET for status in gated):
             # A spent budget only ever yields cannot-verify, so it never explains a verified
             # `unmet` or `violated`: those stay incomplete. The gate is refused either way.
@@ -5937,8 +5966,12 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
                 )
                 return _gate_refusal(ck, version, f"previous-member-unverified ({previous['version']})")
             return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
-        anchor_status, anchor = completion_anchor(ck, rctx, record, previous)
-        if anchor_status != "met" or not anchor or _ancestor(rctx, anchor, tip) != "met":
+        if (previous.get("approvals") or {}).get("conditional_outcome") is not None:
+            anchor_status, anchor = completion_anchor(ck, rctx, record, previous)
+            back_merged_ok = anchor_status == "met" and bool(anchor) and _ancestor(rctx, anchor, tip) == "met"
+        else:
+            back_merged_ok = _previous_in(ck, rctx, str(record["repo"]), previous, tip) == "met"
+        if not back_merged_ok:
             return _gate_refusal(ck, version, "back-merge-missing")
     coordinator_paths = member.get("coordinator_paths", [])
     if getattr(args, "coordinator_claims", None):

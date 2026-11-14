@@ -135,6 +135,24 @@ class Walk(Close):
         if back_merge:
             self.integrate()
 
+    def merge_member_untagged(self, version: str, slug: str, *, merged: bool = True, task_done: bool = True) -> str:
+        """A finished member lands on develop through its merged pull request; no tag, release or changelog."""
+        rel = f"{V05}/plans/{version}-{slug}.md"
+        if task_done:
+            self.write(rel, self.read(rel).replace("- [ ] T001", "- [x] T001"))
+        self.write(f"src/{slug}.txt", f"{slug}\n")
+        self.write(f"tests/test_{slug}.py", "def test_part():\n    assert True\n")
+        body = "".join(f"## {name}\n\nDone.\n\n" for name in EVIDENCE_SECTIONS)
+        body += f"## Full-suite testing and stabilization\n\n`pytest -q`: 3 passed, including tests/test_{slug}.py.\n"
+        self.write(f"{V05}/development/{version}-last-phase-evidence.md", "# Evidence\n\n" + body)
+        self.commit(f"merge {version}")
+        head = self.head()
+        _git(self.work, "branch", "-f", "develop", head)
+        self.publish("develop")
+        if merged:
+            self.pr(f"feat/{version}-{slug}", "MERGED", GREEN, head)
+        return head
+
     def gaps_ledger(self) -> None:
         self.write(GAPS05, ledger("v0.5", section("v0.5.2", 1, WN3), status="finalized"))
         self.commit("ledgers")
@@ -444,6 +462,78 @@ def test_member_gate_blocks_a_member_recorded_on_a_stale_base(walk: Walk) -> Non
     omega["start_head"] = walk.head()
     walk.write_record(record, resign=True)
     assert not walk.verdict().line.startswith("BLOCKED")
+
+
+def _train_gate(walk: Walk, start: str, *, merged_at: str | None = None) -> str:
+    """`member_gate` for v0.5.10 given `start`, with v0.5.2 merged at `merged_at` (never tagged)."""
+    record = walk.forge_minor()
+    if merged_at:
+        walk.pr("feat/v0.5.2-alpha", "MERGED", GREEN, merged_at)
+    first, second = cm.ordered_members(record)
+    second = dict(second, start_head=start)
+    return cm.member_gate(ck, walk.rctx(), "acme/demo", first, second, record)
+
+
+def _untagged_merge(walk: Walk) -> tuple[str, str]:
+    """(base, merge): develop's recorded base and a later commit standing in for v0.5.2's merge."""
+    base = walk.head()
+    walk.write("src/alpha.txt", "alpha\n")
+    walk.commit("alpha merged")
+    return base, walk.head()
+
+
+def test_member_gate_accepts_a_start_that_contains_the_previous_merge_without_a_tag(walk: Walk) -> None:
+    base, merge = _untagged_merge(walk)
+    assert _train_gate(walk, merge, merged_at=merge) == "met"
+
+
+def test_member_gate_blocks_a_start_with_neither_the_previous_tag_nor_merge(walk: Walk) -> None:
+    base, merge = _untagged_merge(walk)
+    assert _train_gate(walk, base, merged_at=merge) == cm.GATE_VIOLATED
+    assert _train_gate(walk, base) == cm.GATE_VIOLATED  # previous pull request not merged
+
+
+def test_member_gate_still_accepts_a_start_that_contains_the_previous_tag(walk: Walk) -> None:
+    walk.forge_minor()
+    walk.release_member("v0.5.2", "alpha")
+    assert _train_gate(walk, walk.head()) == "met"
+
+
+def test_member_gate_cannot_verify_when_the_previous_merge_is_unreadable(
+    walk: Walk, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _untagged_merge(walk)
+    real = cm._merge_commit
+    monkeypatch.setattr(cm, "_merge_commit", lambda c, r, repo, branch: (
+        ("cannot-verify", None) if branch.endswith("alpha") else real(c, r, repo, branch)))
+    assert _train_gate(walk, walk.head()) == "cannot-verify"
+
+
+def _train_refusal(walk: Walk, **kwargs: bool) -> list[str]:
+    walk.forge_minor()
+    assert _first(walk.member_start("v0.5.2")).startswith("STARTED")
+    walk.merge_member_untagged("v0.5.2", "alpha", **kwargs)
+    return walk.member_start("v0.5.10").stdout.splitlines()
+
+
+def test_member_start_admits_a_previous_member_that_is_merged_but_untagged(walk: Walk) -> None:
+    lines = _train_refusal(walk)
+    assert lines and lines[0].startswith("STARTED v0.5.10"), lines
+
+
+def test_member_start_refuses_a_previous_member_that_is_not_merged(walk: Walk) -> None:
+    assert _train_refusal(walk, merged=False) == [
+        "BLOCKED: member-gate (v0.5.10)", "reason: previous-member-incomplete (v0.5.2)"]
+
+
+def test_member_start_still_requires_a_previous_non_release_predicate(walk: Walk) -> None:
+    assert _train_refusal(walk, task_done=False) == [
+        "BLOCKED: member-gate (v0.5.10)", "reason: previous-member-incomplete (v0.5.2)"]
+
+
+def test_train_deferred_predicates_are_exactly_the_release_ones() -> None:
+    assert cm.TRAIN_DEFERRED_PREDICATES == {
+        "release.tag", "release.github", "release.main", "release.changelog", "release.version-sync"}
 
 
 # --------------------------------------------------------------------------- closing pull request
