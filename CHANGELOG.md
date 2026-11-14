@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **The release flow refuses to tag a stale manifest.** `check_release_preconditions.py --pre-tag` now rebuilds `MANIFEST.sha256` from the commit being tagged, using the same hashing as `generate_manifest.py` (so Windows line-ending settings do not change the result), and compares it with the committed file. If a covered file changed after the manifest was generated, it prints `BLOCKED -- do not create the tag (stale manifest)`, lists every differing path, and exits 1. The existing branch checks and their output order are unchanged. This closes v4.15 BG-7, where v4.15.0 shipped a manifest older than `scripts/ci/profiles.py` and `nexus-hub verify` failed on every install. The `/update release` command documents the step.
+
 ### Changed
 
 - **The completion checker reads each v4.15 member's rules from declared data instead of version branches.** The frozen plan identities, evidence-path remaps, unchanged-task literals and gates, the coordinator-output and CI-read-correction rules, and the typed-execution eligibility (role, files, hook recipe, display text) were hard-coded per member version in `check_plan_completion.py`, `completion_minor.py` and `approval_page.py`. They now live in one table, `completion_minor.MEMBER_DECLARATIONS`, keyed by each plan's original path and frozen hash, so editing approved plan text or renumbering a plan no longer breaks tests that are not about plan identity. A missing, renumbered or altered row refuses with a named reason (for example `minor-execution-member-ineligible`), and every current verdict for the existing v4.15 run is unchanged. No opt-in surface changes: there is no new flag, setting or installer step, and nothing about approval authority is widened.
