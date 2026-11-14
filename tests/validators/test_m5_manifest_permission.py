@@ -759,6 +759,30 @@ def test_v415_original_scope_rechecks_worker_prewrite_before_consume(v415_output
     assert path.read_bytes() == before
 
 
+def test_v415_started_member_whose_start_head_is_a_two_parent_merge_can_be_permitted(v415_outputs_case, capsys):
+    # Every real start head on develop is a pull-request merge (known gap BG-6).
+    fx, worker, _base, version, path = v415_outputs_case
+    if version != "v4.15.0":
+        pytest.skip("only a started member records a start head")
+    side = "fixture-side-pull-request"
+    _git(fx.work, "checkout", "-q", "-b", side)
+    (fx.work / "docs/side.txt").write_text("merged pull request content\n", encoding="utf-8")
+    _git(fx.work, "add", "docs/side.txt")
+    _git(fx.work, "commit", "-q", "-m", "fixture side pull request")
+    _git(fx.work, "checkout", "-q", "develop")
+    _git(fx.work, "merge", "--no-ff", "-q", side, "-m", "fixture merge pull request")
+    merge = _git(fx.work, "rev-parse", "HEAD")
+    assert len(_git(fx.work, "rev-list", "--parents", "-n", "1", merge).split()) == 3
+    record = json.loads(path.read_text(encoding="utf-8"))
+    _git(worker, "merge", "--ff-only", "-q", merge)  # The worker branches from the start head.
+    _member(record, version)["start_head"] = merge
+    _member(record, version)["implementation"]["base_head"] = merge
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    path.write_text(json.dumps(record), encoding="utf-8")  # Disposable fixture authority only.
+    granted = _v415_grant(v415_outputs_case, capsys)
+    assert len(_member(granted, version)[V415_FIELD]) == 1
+
+
 def test_v415_capture_missing_foreign_stale_and_replay_never_write(v415_outputs_case, capsys):
     fx, _worker, _base, version, path = v415_outputs_case
     before = path.read_bytes()

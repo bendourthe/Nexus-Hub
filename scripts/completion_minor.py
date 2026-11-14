@@ -2784,7 +2784,10 @@ def _v415_original_scope(ck: ModuleType, rctx: RepoContext, record: dict, member
         return False
     if member.get("start_head"):
         head = rctx._git_out("rev-parse", "HEAD")
-        if not head or _historical_claim_status(rctx, member, head, record, ck) != "met":
+        start = rctx._git_out("rev-parse", "--verify", "--quiet", str(member["start_head"]) + "^{commit}")
+        # A controller still at the start head carries no work after it. That start head is
+        # normally a two-parent pull-request merge, which the merge audit cannot compare to itself.
+        if not head or (head != start and _historical_claim_status(rctx, member, head, record, ck) != "met"):
             return False
     for args in (("diff", "--name-only", "--no-renames", "-z", "HEAD", "--"),
                  ("diff", "--cached", "--name-only", "--no-renames", "-z", "HEAD", "--"),

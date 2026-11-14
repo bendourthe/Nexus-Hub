@@ -1485,6 +1485,7 @@ _V415_COMPARISON_CONTRACT = "catalog/skills/infrastructure/cicd-architect/refere
 _V415_PROOF_DOMAIN = b"nexus-v415-unchanged-task-v1\0"
 _V415_GATE_TIMEOUT = 300
 _V415_LOG_CAP = 8 * 1024 * 1024
+_V415_JSON_DEPTH = 64
 
 
 def _v415_fs(path: Path) -> Path:
@@ -1533,9 +1534,16 @@ def _v415_read(path: Path, cap: int = _V415_LOG_CAP) -> bytes:
         data = stream.read(cap + 1)
         after = os.fstat(stream.fileno())
     _v415_plain(path)
+    final = path.stat()
+    # Windows CPython 3.12 can report st_ctime as birth time by path but change time by handle.
     def identity(value):
-        return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns
-    if len(data) > cap or any(identity(value) != identity(before) for value in (opened, after, path.stat())):
+        return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns
+    if (
+        len(data) > cap
+        or any(identity(value) != identity(before) for value in (opened, after, final))
+        or before.st_ctime_ns != final.st_ctime_ns
+        or opened.st_ctime_ns != after.st_ctime_ns
+    ):
         raise Malformed("qualification-input-changed")
     return data
 
@@ -1616,7 +1624,33 @@ def _v415_producer_sha() -> str:
     return _v415_sha(Path(__file__).read_bytes())
 
 
+def _v415_json_depth(data: str | bytes) -> int:
+    """Return the maximum container depth without recursion; UTF-8 bytes never alias ASCII syntax."""
+    text = data.decode("latin-1") if isinstance(data, bytes) else data
+    depth = deepest = 0
+    in_string = escaped = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in "[{":
+            depth += 1
+            deepest = max(deepest, depth)
+        elif char in "]}":
+            depth -= 1
+    return deepest
+
+
 def _v415_json(data: str | bytes):
+    # CPython 3.12 raised the C recursion limit, so RecursionError alone no longer bounds depth.
+    if _v415_json_depth(data) > _V415_JSON_DEPTH:
+        raise Malformed("qualification-json-depth")
     def unique(pairs):
         result = {}
         for key, value in pairs:
