@@ -2,8 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-14
-**Open items**: 120
+**Open items**: 119
 
 ## v4.15.0
 
@@ -14,7 +13,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
 | Bugs / regressions (BG) | 4 | 3 |
-| Warnings (WN) | 31 | 0 |
+| Warnings (WN) | 30 | 1 |
 | Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
@@ -1759,13 +1758,17 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Proving command**: `python -B scripts/check_release_preconditions.py --pre-tag` exits non-zero on a fixture where a covered file changed after `MANIFEST.sha256` was generated, and exits 0 after `python -B scripts/generate_manifest.py` is committed.
 
-#### WN-31: The OpenCode lever row records keys the vendor page no longer documents
+#### WN-31: The OpenCode lever row records keys the vendor page no longer documents - RESOLVED 2026-11-14
 
 **Source phase**: v4.15.0 release platform verification, 2026-11-12. **Plan reference**: [release platform verification](development/v4.15.0-platform-verification.md), advisory lever table.
 
 **Reason**: The OpenCode configuration page fetched on 2026-11-12 documents `permissions` (plural, a rule list) and no longer mentions `small_model`. The row in `docs/policy/platform-defaults-levers.md` records `permission` and `small_model`. Nothing is seeded for OpenCode in `configs/platform-defaults.json`, so no delivered behavior is affected.
 
-**Owner**: catalog maintainer. **Severity**: low - advisory documentation only. **Status**: open.
+**Owner**: catalog maintainer. **Severity**: low - advisory documentation only. **Status**: resolved 2026-11-14 on `fix/wn31-opencode-lever-row`.
+
+**Resolution**: The OpenCode page was re-fetched on 2026-11-14 from https://opencode.ai/docs/config/ (the only first-party configuration reference found; it links no separate v2 page). It documents `model`, `permissions` (an ordered array of `action`/`resource`/`effect` rules, `effect` one of `allow`, `deny`, `ask`), `default_agent`, and `subagent_depth`; it mentions neither the singular `permission` nor `small_model`, and documents no reasoning-effort or approval-policy setting. The lever row in `docs/policy/platform-defaults-levers.md` now lists `model`, `permissions`, `default_agent`, dated 2026-11-14, and its detail paragraph states that no behavioral-default lever is documented. Classification stays VERIFIED for the read surface (paths and merge semantics unchanged). `configs/platform-defaults.json` is unchanged: no flat default lever exists, so nothing is seeded for OpenCode.
+
+**Proving output**: `python -B scripts/check_platform_contract_freshness.py` printed `[contract-freshness] OK: contract verified for v4.15.0 (last_verified 2026-11-12).`; `python -m pytest -q tests/validators/test_platform_defaults_levers.py` printed `25 passed`; `python -B scripts/sync_platform_defaults.py --check` printed `platform-defaults OK -- 14 platform(s), all derived artifacts in sync`.
 
 **Suggested next step**: Re-read the OpenCode v2 configuration reference, correct the row's keys and classification, and keep `configs/platform-defaults.json` unchanged unless a VERIFIED lever is found.
 
