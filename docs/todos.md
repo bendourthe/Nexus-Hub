@@ -578,6 +578,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.15.7 CI speed without coverage loss
 
 - [ ] Implement the confirmed [v4.15.7 plan](releases/v4/v4.15/plans/v4.15.7-adoption-ci-speed-without-coverage-loss.md), seeded by the [CI speed comparison](releases/v4/v4.15/comparisons/v4.15.7-comparison-ci-speed-and-untangle-codebase.md). Measured baseline: median 50 min per code PR across 14 runs, with one serial 47.8 min Linux `tests` job on the critical path. Five phases: latency audit in `cicd-architect`, Linux test matrix with a node-ID partition proof, Windows job split, opt-in pre-push gate with develop-seeded caches and a blobless `changes` checkout, then the final phase. Release gate: first green integration attempt at 30 min or less; the 10-PR median is a dated follow-up. No test is removed. Critiqued by six lenses and confirmed on 2026-11-06; implementation is 0/5 phases and 0/28 tasks. Phases 2 to 4 are serial with v4.15.4 (`scripts/ci/profiles.py`). Update 2026-11-13: Phases 2 and 3 (the Linux matrix and the Windows split) moved to the standalone pull request `ci/split-slow-test-jobs` and ship before this plan; this plan keeps the audit, the optional Phase 4, and the final phase, and measures the result.
+    - Note 2026-11-13: Phases 2 and 3 (T005 to T013, the Linux test matrix with the partition proof and the Windows job split) were delivered early by standalone PR #650 (measured: whole CI run 28 min, longest job 28.3 min). When this plan runs, check those tasks against #650's commits. The plan text stays the approved version.
 - [ ] Hand the comparison's U1 to U5 codebase-untangling ideas to the v4.18.2 de-slop repair plan when it is next refreshed, and the distributed pre-push fast gate (C6) to the v4.17.0 push-size-guard plan.
 
 ## Queued work - v4.15.9 agent cost levers and delegation discipline
@@ -587,7 +588,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.15.10 approval modes
 
-- [x] Folded on 2026-11-12: the [v4.15.10 plan](releases/v4/v4.15/plans/v4.15.10-approval-modes.md) is now a pointer. Its approval-modes work (short-reply question, sealed mode store, checker authority function, guard hook) moved into v4.15.4 Phases 4b-4d, and its settings panel section into v4.15.8 Phases 3b-3d; track it there.
+- [ ] Implement the [v4.15.10 plan](releases/v4/v4.15/plans/v4.15.10-approval-modes.md) as its own v4.15 member. Restored to its approved text on 2026-11-13 (maintainer decision): the minor run freezes each member's approved plan text and has no native step to revise it, so the 2026-11-12 fold into v4.15.4 Phases 4b-4d and v4.15.8 Phases 3b-3d is held, not in effect.
 - [ ] Follow-up plans for the four deferred items: a per-project override keyed by the repository's shared git directory, spend measurement and enforcement, a seal key outside a same-user process, and a clickable approve button once a host offers a verified receipt path.
 
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
