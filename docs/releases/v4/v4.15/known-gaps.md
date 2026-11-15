@@ -3645,3 +3645,29 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+## v4.15.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None. The three follow-ups found in T111 (references adoption, a root STRATEGY.md, and model-switch qualification) are recorded in the v4.16 ledger as v4.16.0 DF-1 to DF-3, because they are proposals for future plans rather than gaps in this plan's deliverable.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-43 | Profile-layer automatic consumer gap | Phase 2 | Closed by documentation: the rejected decision `2026-10-31-model-adaptive-runtime-platform-scope.md` declines automatic injection. The profile layer stays authoring input (`apply_prompting_edits.py`) and on-demand Tier-3 reading |
+| DF-44 | Model-adaptive routing on non-Claude platforms | Phase 2 | Unavailable by design, not backlog: this plan ships no automatic runtime on any platform, and no adapters are owed to the other platforms |
+| BG-8 | Profile index labels non-Claude models with the claude-code platform | Phase 1 | Absent under the exact historical check on 2026-11-14: 0 of 70 profiled models outside the claude family carry that label. Platform mappings in general are not independently qualified by this result |
+| WN-32 | One skill body measured at 802 lines against the 800-line cap | Phase 3 | Obsolete: a scan of all 340 skill bodies on 2026-11-14 finds a maximum of 796 lines and none above 800 |
