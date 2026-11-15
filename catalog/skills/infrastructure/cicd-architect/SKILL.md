@@ -131,7 +131,7 @@ This is where most pipeline cost hides. Map every trigger to exactly one class.
 | Ordinary feature-branch push | nothing | any validation workflow |
 | Integration pull request into a protected branch | `fast`, `full`, `platform`, `report` | deployment, publication |
 | Merge queue entry, where supported | the same gate as the pull request | deployment |
-| Protected integration branch update (a merge) | concise smoke, docs publication, provenance | the complete validation suite |
+| Protected integration branch update (a merge) | concise smoke, docs publication, provenance, develop-only cache seeding | the complete validation suite |
 | Protected release branch update or release tag | `release` | the complete validation suite |
 | Schedule | drift detection that depends on the outside world | anything reproducible from the tree alone |
 
