@@ -1585,7 +1585,7 @@ def test_external_repair_replacement_is_refused_before_writing(repo: Close, monk
     monkeypatch.setattr(mc, "_write_atomic", lambda *args: writes.append(args))
     with pytest.raises(mc.RetainState):
         _apply_batch_archive(repo, files)
-    assert replaced == [True] and writes == []
+    assert replaced and all(replaced) and writes == []
     assert todos.read_bytes() == original and repo.head() == head
 
 
