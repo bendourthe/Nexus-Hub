@@ -2211,3 +2211,36 @@ def test_archive_member_is_a_minor_run_class_only(minor: Minor) -> None:
     record = minor.record()
     assert "archive-member" in {c["class"] for c in record["approvals"]["classes"]}
     assert all("archive-member" not in {c["class"] for c in m["approvals"]["classes"]} for m in record["members"])
+
+
+@pytest.mark.parametrize("verified", [True, False])
+def test_blocked_detail_gaps_notice_comes_from_verified_findings(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], verified: bool) -> None:
+    import check_plan_completion as ck
+    import completion_minor as cm
+
+    detail = {"verdict": "BLOCKED: no-progress", "exit": ck.EXIT_BLOCKED, "scanned": 1, "omitted": 0, "incomplete": not verified}
+    if verified:
+        detail["findings"] = [{"path": "docs/known-gaps.md", "item": "ledger", "status": "unparsed historical ledger"}]
+    monkeypatch.setattr(cm, "diagnostic_detail", lambda *args: detail)
+    args = ck.build_parser().parse_args(["check-minor", "v2.15", "--detail"])
+    assert cm.cmd_check_minor(ck, args) == ck.EXIT_BLOCKED
+    out = capsys.readouterr()
+    assert out.out.splitlines()[0] == "BLOCKED: no-progress"
+    assert ("diagnostic gaps.minor cannot-verify" in out.err) == verified
+    assert ("unparsed historical ledger" in out.out) == verified
+
+
+def test_close_status_detail_keeps_blocked_exit_with_gaps_notice(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    import check_plan_completion as ck
+    import completion_minor as cm
+    import minor_close
+
+    detail = {"verdict": "BLOCKED: no-progress", "exit": ck.EXIT_BLOCKED, "scanned": 1, "omitted": 0, "incomplete": False,
+              "findings": [{"path": "docs/known-gaps.md", "item": "v2.15#WN-1", "status": "migration-uncovered"}]}
+    monkeypatch.setattr(cm, "diagnostic_detail", lambda *args: detail)
+    args = minor_close.build_parser().parse_args(["status", "--minor", "v2.15", "--detail"])
+    assert minor_close.cmd_status(args) == minor_close.EXIT_REFUSED
+    out = capsys.readouterr()
+    assert out.out.splitlines()[0] == "BLOCKED: no-progress"
+    assert "diagnostic gaps.minor unmet" in out.err
+    assert "v2.15#WN-1" in out.out
