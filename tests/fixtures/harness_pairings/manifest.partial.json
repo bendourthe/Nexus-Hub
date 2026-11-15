@@ -1,0 +1,98 @@
+{
+  "schema": "harness-pairing-manifest/1",
+  "run_id": "fx-run-0002",
+  "workload": {
+    "id": "wl-synthetic-echo",
+    "revision": "r1",
+    "hash": "sha256:6f5eb087e2203698db8f63bd850cb9eaa069d0b6447059ee72419ec8a7e10855",
+    "evaluator_revision": "e1",
+    "evaluator_hash": "sha256:6e1a8478e575fe8fd9b2ff42dfd1b171d98f016ba889827f8d98ada3bec9590b",
+    "budget_class": "synthetic-small",
+    "policy": {
+      "min_success_rate": 0.6,
+      "max_latency_s": 30,
+      "max_cost_usd": null,
+      "tie_break": "lowest-instruction-tokens"
+    }
+  },
+  "environment": {
+    "os": "windows",
+    "arch": "amd64",
+    "repo_revision": "40f9b0b1c90ee48d2f2fc679b3bfd228ed2d4d74",
+    "harness_configuration": "defaults",
+    "model_parameters": {
+      "temperature": 0
+    },
+    "cache_policy": "cold",
+    "concurrency": 1,
+    "retry_policy": "none",
+    "pricing": {
+      "unavailable": "pricing snapshot not captured"
+    }
+  },
+  "pairings": [
+    {
+      "id": "pair-full",
+      "harness": {
+        "name": "fake-harness",
+        "version": "1.0.0",
+        "adapter": "fake-adapter-a",
+        "adapter_version": "1"
+      },
+      "model": {
+        "id": "fixture-model",
+        "identity": "fixture-model-2026-11"
+      },
+      "instruction": {
+        "variant": "full",
+        "skill_index_mode": "full",
+        "hash": "sha256:7cb934e61e81e88bbcb9507f604e5123d61751a66f0e157b9f765a24fdcdc9f4",
+        "bytes": 1533,
+        "tokens_estimated": 408
+      },
+      "tool_schema_hash": {
+        "unavailable": "harness exposes no schema probe"
+      },
+      "isolation_mode": "synthetic",
+      "budgets": {
+        "time_s": 30,
+        "turns": 10,
+        "spend_usd": null,
+        "spend_enforcement": "none"
+      }
+    },
+    {
+      "id": "pair-pointer",
+      "harness": {
+        "name": "fake-harness",
+        "version": {
+          "unavailable": "version probe timed out"
+        },
+        "adapter": "fake-adapter-b",
+        "adapter_version": "1"
+      },
+      "model": {
+        "id": "fixture-model",
+        "identity": "fixture-model-2026-11"
+      },
+      "instruction": {
+        "variant": "pointer",
+        "skill_index_mode": "pointer",
+        "hash": "sha256:317aac01bcf699f7e34c83343a804e1368777ac6af73fdd4038f6054a7f1551f",
+        "bytes": 188,
+        "tokens_estimated": 36
+      },
+      "tool_schema_hash": "sha256:05cd7971b6ae5e5edf41f417e3d90961a638444cf96970acf579139799f44c46",
+      "isolation_mode": "synthetic",
+      "budgets": {
+        "time_s": 30,
+        "turns": 10,
+        "spend_usd": null,
+        "spend_enforcement": "none"
+      }
+    }
+  ],
+  "repeats": 3,
+  "seed": 20261115,
+  "order_policy": "alternating"
+}
