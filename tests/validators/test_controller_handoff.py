@@ -761,3 +761,14 @@ def test_excluded_ledgers_mid_scan_exhaustion_is_unknown(controller, monkeypatch
     assert cm.excluded_ledgers(ck, ctx, 'v0.5', snapshot, [ledger]) is None
     assert owners == [snapshot.record_path]
     assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+def test_controller_handoff_uses_the_minor_run_budget() -> None:
+    """A handoff re-verifies every member's history and push route, so it needs the
+    minor-run budget; the 20-second per-plan budget ran out once the run had 13 members."""
+    import inspect
+
+    source = inspect.getsource(cm.cmd_record_controller_handoff)
+    assert "ck.Budget(ck.BUDGET_SECONDS)" not in source
+    assert source.count("ck.Budget(MINOR_BUDGET_SECONDS)") == 3
+    assert cm.MINOR_BUDGET_SECONDS > ck.BUDGET_SECONDS

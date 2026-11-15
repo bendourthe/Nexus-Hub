@@ -933,7 +933,7 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
     target = Path(args.to)
     # An exact completed retry can resolve at the surviving destination after source removal.
     start = Path(args.repo) if Path(args.repo).is_dir() else target
-    ctx = ck.RepoContext(start, ck.Budget(ck.BUDGET_SECONDS))
+    ctx = ck.RepoContext(start, ck.Budget(MINOR_BUDGET_SECONDS))
     path = record_file(ck, ctx, args.minor)
     record = ck.read_record(ctx, path)
     if record is None:
@@ -945,7 +945,7 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
     if record.get('session_id') != args.session:
         raise ck.MinorConflict('session-mismatch')
     if same:
-        ctx = ck.RepoContext(target, ck.Budget(ck.BUDGET_SECONDS))
+        ctx = ck.RepoContext(target, ck.Budget(MINOR_BUDGET_SECONDS))
         record = ck.read_record(ctx, path)
         require_controller(ck, ctx, record, path)
         if not _verified(ck, ctx, args.minor, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
@@ -965,7 +965,7 @@ def cmd_record_controller_handoff(ck: ModuleType, args: argparse.Namespace) -> i
         return 0
     # The pre-lease validation can spend most of the budget on a minor with many
     # members; the lease and the in-lease revalidation repeat that work on their own.
-    ctx.budget = ck.Budget(ck.BUDGET_SECONDS)
+    ctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
     with ck.minor_transaction(record):
         if ck.lock_live(path):
             raise ck.MinorConflict('runner-live')
