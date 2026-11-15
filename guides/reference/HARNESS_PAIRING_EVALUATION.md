@@ -44,7 +44,7 @@ Schema `harness-pairing-trial/1`, one immutable JSON object per trial, written o
 
 Identity and order: `run_id`, `workload_hash`, `pairing_id`, `trial_index`, `order_position`, `seed`, `isolation_mode`.
 
-Result: `outcome` (`success`, `failure`, `timeout`, `budget-exhausted`, `adapter-protocol-error`, `evaluator-error`), `evaluator_success` (true, false, or null), `harness_claim_success` (diagnostic only).
+Result: `outcome` (`success`, `failure`, `timeout`, `budget-exhausted`, `adapter-protocol-error`, `evaluator-error`, `containment-failure`), `evaluator_success` (true, false, or null), `harness_claim_success` (diagnostic only).
 
 Measurements: `latency_s`, `cost_usd`, `instruction_bytes`, `instruction_tokens_estimated`, `tool_schema_bytes`.
 
@@ -106,3 +106,58 @@ A metric is a number or an object `{"unavailable": "<reason>"}`. A gap never bec
 - Fixtures: `tests/fixtures/harness_pairings/` holds the valid, partial, and incomparable manifests, the trial and aggregate receipts, two instruction samples for the `full` against `pointer` pair, and `oracle.py`, an independent recomputation of every aggregate.
 - Contract tests: `tests/integrations/test_harness_pairing_contract.py` validates the fixtures, mutates them adversarially, and recomputes the aggregates.
 - Audit routing: `[[eval-pipeline-audit]]` recognizes missing behavioral pairing evidence and routes it here; it does not embed these mechanics.
+- Runner tests: `tests/integrations/test_harness_pairings.py` drives the runner end to end with fake adapters and compares its output with the oracle.
+
+## Runner
+
+`scripts/evaluate_harness_pairings.py` is the repository-local, serial evaluator. It is maintainer tooling: it is not installed by `scripts/installer.sh` or `scripts/installer.ps1`, and installed distribution is deferred scope until usage evidence shows a downstream need. A request to install it is recorded as deferred, not implemented implicitly.
+
+### Safe synthetic defaults
+
+Check what would run, without launching anything or creating a workspace:
+
+```bash
+python scripts/evaluate_harness_pairings.py run --manifest MANIFEST.json --workload-root WORKLOAD_DIR --adapters-dir ADAPTERS_DIR --out-dir OUT_DIR --dry-run
+```
+
+Expected output: a JSON plan with the run id, the trial count, the trial order, and the modes. Exit code 0.
+
+Run it for real (synthetic trials only):
+
+```bash
+python scripts/evaluate_harness_pairings.py run --manifest MANIFEST.json --workload-root WORKLOAD_DIR --adapters-dir ADAPTERS_DIR --out-dir OUT_DIR
+```
+
+Expected output: one JSON line with `run_dir`, `state`, and `rankable_trials`. The run directory holds one immutable `trial-NNN-PAIRING.json` per trial, `aggregate.json`, and `report.md`. Exit codes: 0 when at least one trial was rankable (or with `--probe`), 1 when none was, 2 on a preflight failure (the JSON line names the typed `code`), 130 when interrupted after writing the receipts completed so far. A run id that already has receipts is refused; runs never resume, and a new invocation needs a new run id.
+
+### Workload layout
+
+The workload root is a trusted, read-only input outside the adapter workspace: `workload.json` (id, revision, prompt, declared `inputs`), an `inputs/` folder of declared files, and an `evaluator/` folder holding `evaluate.py` and the expected results. The manifest's `workload.hash` covers everything except `evaluator/`; `workload.evaluator_hash` covers `evaluator/`. Both are checked before any trial and the whole tree is re-hashed after each adapter exits: a change is a `containment-failure` and is never scored as success. Synthetic mode detects tampering after the fact; it does not prevent it, which is why live execution needs an isolation backend.
+
+### Adapter profiles
+
+An adapter profile is a JSON file named `NAME.json` with schema `harness-adapter/1`: `name`, `kind` (`fake` for the JSON stdio protocol, `cli` for a real command line tool whose only claim is its exit status), `argv` (an argv array; `{python}` expands to the running interpreter), optional `version_argv`, `timeout_s`, and optional `env_allow` and `env_set`. A string command, a credential-named variable (names containing KEY, TOKEN, SECRET, PASSWORD, or CREDENTIAL), or an unsafe profile name fails preflight. Children receive only an explicit minimal environment.
+
+Built-in `cli` profiles for Claude Code and Codex live in `configs/harness-adapters/`. Their `argv` is marked `unverified: needs-live-validation` because no live run has confirmed it. Check them without credentials:
+
+```bash
+python scripts/evaluate_harness_pairings.py conformance
+```
+
+Expected output: a JSON list with one row per profile. `status` is `ok` with the `--version` output, `binary-absent` when the tool is not installed, or a typed failure. Exit code 0 unless a profile is invalid or a version probe failed.
+
+### Live runs
+
+Live trials are opt-in and closed by default. The runner refuses `metered-live` and `observational-live` with the typed code `isolation-backend-unavailable` until an isolation backend proves filesystem, process-tree, network, credential-injection, and cleanup containment, and a `metered-live` pairing also needs a provider- or adapter-enforced hard limit. No such backend ships, so every live claim stays `needs-live-validation`. Blocked external writes and disallowed egress can be proven only by a trial run through that backend; synthetic mode proves neither.
+
+### Cleanup
+
+A trial workspace is a unique directory under the work root with a sentinel file. The runner deletes only a directory that sits directly inside the work root, is not a link, and carries the matching sentinel; anything else is left in place and reported as manual cleanup needed.
+
+### Algorithms
+
+Both the runner and the oracle implement these independently and must agree exactly:
+
+- Wilson: `p = k/n`, `z = 1.959963984540054`, center `(p + z^2/2n) / (1 + z^2/n)`, half-width `z * sqrt(p(1-p)/n + z^2/4n^2) / (1 + z^2/n)`, clamped to 0..1.
+- Bootstrap: 2000 resamples of the mean; each resample draws `n` values with `random.Random(seed_text).randrange(n)`, where `seed_text` is `MANIFEST_SEED:PAIRING_ID:METRIC`; the interval is the sorted resample means at index `floor(0.025 * 2000)` and `ceil(0.975 * 2000) - 1`.
+- Order: `alternating` runs the pairings forward on even rounds and reversed on odd rounds; `seeded-random` shuffles each round with `random.Random("SEED:ROUND")`.

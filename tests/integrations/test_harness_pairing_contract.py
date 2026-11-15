@@ -127,7 +127,9 @@ def test_metered_live_requires_a_pre_spend_limit_not_a_post_hoc_one(manifest: di
 def _instruction_disagreements(manifest: dict) -> list[str]:
     problems = []
     for pairing in manifest["pairings"]:
-        text = (FIXTURES / "instructions" / f"{pairing['instruction']['variant']}.md").read_bytes()
+        # Fixtures are LF in the repository; a Windows checkout may convert them.
+        raw = (FIXTURES / "instructions" / f"{pairing['instruction']['variant']}.md").read_bytes()
+        text = raw.replace(b"\r\n", b"\n")
         record = pairing["instruction"]
         if record["bytes"] != len(text):
             problems.append(f"{pairing['id']}: bytes {record['bytes']} != {len(text)}")

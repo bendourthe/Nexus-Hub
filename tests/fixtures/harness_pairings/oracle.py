@@ -35,6 +35,7 @@ OUTCOMES = (
     "budget-exhausted",
     "adapter-protocol-error",
     "evaluator-error",
+    "containment-failure",
 )
 SPEND_ENFORCEMENT = ("none", "provider", "adapter")
 MIN_REPEATS_FOR_RECOMMENDATION = 3
