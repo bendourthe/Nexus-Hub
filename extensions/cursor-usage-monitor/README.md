@@ -89,3 +89,7 @@ Node.js 22 or newer is required.
 - Live transport: consent-gated, `credential-api` source, wire shape not yet confirmed against a live account
 
 The extension is not affiliated with or endorsed by Cursor. Source-artwork provenance and attribution requirements are recorded in `icons/README.md`.
+
+## Usage Alerts
+
+Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch and separate Claude Code, Codex, GitHub Copilot, Cursor, and Gemini / Antigravity switches. The master switches every provider together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.

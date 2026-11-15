@@ -30,7 +30,7 @@
 - [Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). Every approval dialog shows the `description`, so keep it precise and scannable.
+- When a shell-style tool exposes a `description` parameter, provide one plain-text sentence (<=120 characters, no newlines, formatting, or `#` characters). If that field is absent, briefly explain the command's purpose before calling it. Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is required.
 - Commit messages must be ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
 - If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting.

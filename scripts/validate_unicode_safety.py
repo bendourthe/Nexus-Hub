@@ -559,7 +559,10 @@ def main() -> int:
             io_failures += 1
             continue
 
-        if args.fix:
+        evidence = 'evidence' in Path(rel).parts[:-1]
+        if args.fix and evidence:
+            print(f"PRESERVED {rel}: preserved evidence; findings are reported without repair.")
+        if args.fix and not evidence:
             # Punctuation repair is gated on the same predicate that gates
             # punctuation detection, so the Markdown-only exemption that keeps
             # non-English content out of the strict pass also keeps it out of

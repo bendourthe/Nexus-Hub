@@ -206,3 +206,20 @@ def test_native_commit_attribution_is_refused(child, work, tmp_path):
     output, result = _run(child, "PreToolUse", payload, tmp_path, work, hook="attribution-guard")
     assert output["decision"] == "deny", (output, result.stderr)
     assert (work / "notes.txt").read_text(encoding="utf-8") == "old\n"
+
+
+@pytest.mark.parametrize("hook", ["git-guardrails", "secret-scan", "large-file-guard"])
+def test_native_guard_arguments_do_not_collide_in_powershell(child, work, tmp_path, hook):
+    """Cwd/cwd and Overwrite/overwrite pairs make PowerShell reject otherwise valid JSON."""
+    if hook == "git-guardrails":
+        payload = _payload(work, "run_command", CommandLine="git reset --hard", Cwd=str(work))
+    else:
+        content = "key = '" + "AK" + "IA" + "1234567890ABCDEF" + "'" if hook == "secret-scan" else "line\n" * 1001
+        payload = _payload(work, "write_to_file", TargetFile=str(work / "notes.txt"), CodeContent=content, Overwrite=True)
+    output, result = _run(child, "PreToolUse", payload, tmp_path, work, hook=hook)
+    if hook == "large-file-guard":
+        assert output["decision"] == "allow"
+        assert "Warning:" in result.stderr
+    else:
+        assert output["decision"] == "deny", (output, result.stderr)
+        assert "BLOCKED" in result.stderr

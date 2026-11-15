@@ -39,6 +39,9 @@ concurrency:
 
 jobs:
   build-and-test:
+    # The live-effort launcher compiles and runs real Windows executables, so its
+    # tests skip here and vitest.config.mts excludes it from coverage off Windows.
+    # A hosted Windows leg is tracked as a v4.15 known gap (MT-8).
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -85,6 +88,10 @@ jobs:
 
       - name: Repository-native nexus-hub-settings profile
         if: steps.extension.outputs.present == 'true'
+        # UTF-8 output: a failing Vitest report contains non-ASCII marks that the
+        # Windows runner's cp1252 console cannot encode.
+        env:
+          PYTHONIOENCODING: utf-8
         run: python scripts/ci/run.py --profile full --only nexus-hub-settings --reports-dir reports
 
       - name: Publish native profile summary

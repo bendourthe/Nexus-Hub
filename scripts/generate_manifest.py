@@ -431,6 +431,50 @@ def compute_manifest(root: Path) -> List[Tuple[str, str]]:
     return entries
 
 
+def compute_manifest_at_ref(root: Path, ref: str = "HEAD") -> List[Tuple[str, str]] | None:
+    """Return the manifest entries for the committed tree at ``ref``.
+
+    Same hashing as ``compute_manifest`` (git blob bytes through each path's ``eol``
+    attribute, the same exclusions), but the file list and the bytes come from the
+    commit rather than the index or the working tree, so the result does not depend
+    on ``core.autocrlf``, unstaged edits, or untracked files. Returns None when git
+    cannot read ``ref``.
+    """
+    listing = _git(root, "ls-tree", "-r", "-z", ref, "--", *COVERED_ROOTS)
+    if listing is None or listing.returncode != 0:
+        return None
+    oids: List[str] = []
+    paths: List[str] = []
+    for record in listing.stdout.split("\0"):
+        if not record or "\t" not in record:
+            continue
+        meta, _, rel = record.partition("\t")
+        fields = meta.split()
+        if len(fields) < 3 or fields[1] != "blob":  # skip gitlinks and trees
+            continue
+        if _is_excluded_file(Path(rel).name):
+            continue
+        if any(_is_excluded_dir(part) for part in Path(rel).parts[:-1]):
+            continue
+        oids.append(fields[2])
+        paths.append(rel)
+    if not oids:
+        return []
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "cat-file", "--batch"],
+            input="\n".join(oids).encode("ascii") + b"\n",
+            capture_output=True,
+            check=False,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git absent
+        return None
+    if proc.returncode != 0:
+        return None
+    hashes = _parse_cat_file_batch(proc.stdout, paths, _git_eol_attrs(root, paths))
+    return sorted(hashes.items(), key=lambda entry: entry[0])
+
+
 def format_manifest(entries: List[Tuple[str, str]]) -> str:
     """Serialize ``(path, hash)`` entries to sha256sum text format with LF lines."""
     return "".join(f"{digest}{_LINE_SEP}{path}\n" for path, digest in entries)

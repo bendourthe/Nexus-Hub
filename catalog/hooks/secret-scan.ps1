@@ -31,6 +31,25 @@
 
 $ErrorActionPreference = "Continue"
 
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+if (Test-NexusGuardrailDisabled -Key "scan_secrets") { exit 0 }
+
 # --- Nexus-Hub source label (v4.14.8) ---
 # Every message this hook prints starts with the tag, so a reader can tell a
 # Nexus-Hub message from a harness message. The hook name in the tag is the
@@ -67,13 +86,7 @@ $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
 # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
 if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-try {
-    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
-} catch { }
+# Nexus Settings guard switches apply in every host permission mode.
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }

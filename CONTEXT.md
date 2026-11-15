@@ -2,6 +2,46 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Unknown Effect
+
+**Definition**: A dispatched action whose authoritative outcome is unavailable, so a missing response cannot establish whether the action changed anything.
+
+**Avoid**: failed write, safe retry, completed action
+
+**Relationships**: Requires status reconciliation or established service idempotency before a mutating retry; separate from a confirmed pre-dispatch failure or completed effect.
+
+## Maintenance Job
+
+**Definition**: One bounded investigation of a scoped problem with a named owner, stable identity, verification evidence, and terminal disposition.
+
+**Avoid**: trigger, pull request, worker session
+
+**Relationships**: Multiple triggers can refer to one active job; a job can finish without a pull request, and a changed problem can require an explicit reopen.
+
+## Problem Signature
+
+**Definition**: A non-secret identity for a problem within its repository, environment, and work-class scope, used to compare related maintenance triggers.
+
+**Avoid**: raw error text, event ID, universal deduplication key
+
+**Relationships**: A source event identifies one trigger; a problem signature groups relevant triggers without proving concurrency ownership or permission.
+
+## Scoped Decision
+
+**Definition**: Provenance-backed owner advice whose applicability depends on its named scope, context, and supersession conditions.
+
+**Avoid**: cached consent, standing approval, permanent authorization
+
+**Relationships**: Can guide a maintenance job while applicable; native authorization still controls consequential actions and private-data access.
+
+## Outcome Population
+
+**Definition**: The explicitly defined set of jobs or pull requests included in a reported metric, with pending records and exclusions counted separately.
+
+**Avoid**: all activity, success rate without a denominator, PR count as job count
+
+**Relationships**: Job disposition and pull-request outcome use different populations; human review time and human code-edit time are separate measures.
+
 ## Worktree Root
 
 **Definition**: The configured local parent directory for linked worktrees across repositories, proposed for standardized use by the v4.15.6 plan.
@@ -225,3 +265,35 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: shard check, coverage test (for this purpose), glob match test
 
 **Relationships**: Stronger than a file-name glob check, which models `--ignore-glob` rather than running pytest. Complements `tests/workflows/test_ci_runs_every_repo_test.py`, which proves every test root is selected by some CI job.
+
+## Keep-Working Case
+
+**Definition**: A case in an instruction-file eval set that checks an existing behavior the edit must not change, run in both the baseline and the after arm (plan v4.15.11).
+
+**Avoid**: regression test (too broad), negative case, control case
+
+**Relationships**: Narrower than a regression set. Not the same as a negative case, which checks that the new rule does not fire where it should not.
+
+## Isolation Canary
+
+**Definition**: A case run before any instruction-file eval that proves the test session loads only the instruction text under test and none of the operator's installed instruction files (plan v4.15.11).
+
+**Avoid**: smoke test, sanity case, clean-room check
+
+**Relationships**: A failed canary turns every case in that run into "not run". Complements the isolation and model-pin contract in `skill-eval-loop/references/cli-adapter.md`.
+
+## Tier Direction
+
+**Definition**: The rule that component source references semantic design tokens (named by purpose) and never primitive tokens (raw palette or scale values), so a theme or rebrand changes only the semantic layer.
+
+**Avoid**: token layering, token hierarchy rule, alias direction
+
+**Relationships**: Owned by the agent-readable design-system reference in `frontend-ui-engineering` (plan v4.22.11); enforced where possible by the lint contract in `interface-review`, which defers to that owner. Role naming and theme behavior for color stay with `color-systems`. Not the same as tier placement in the model map, which ranks models.
+
+## Hotspot Triage
+
+**Definition**: The step that lists the measured top hotspots of a profile (five, extended to cover at least 80 percent of self time, capped at ten) and matches each to exactly one case before any code changes.
+
+**Avoid**: perf review list, bottleneck sweep, optimization pass
+
+**Relationships**: Case table owned by `performance-review`; always run first by `code-optimizer`, which stops for approval on review requests (plan v4.22.11). Narrower than a performance review, which also covers caching correctness and boundary conditions. Not the same as a UI hot path, which concerns perceived time.

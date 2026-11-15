@@ -698,16 +698,16 @@ def test_a_quote_never_truncates_the_command_before_a_later_block(
     assert run(command, workdir).returncode == _BLOCK, f"not blocked: {command}"
 
 
-def test_full_access_mode_steps_aside_even_with_the_mode_on(
+def test_explicit_bypass_guard_still_blocks_in_full_access(
     run, workdir: Path, home: Path
 ) -> None:
-    """Documented limit: bypassPermissions means the user chose to run without approval gates."""
+    """An explicit Nexus on choice takes precedence over the host's full-access mode."""
     _switch(home, _ON)
     assert (
         run(
             "git commit --no-verify", workdir, permission_mode="bypassPermissions"
         ).returncode
-        == _ALLOW
+        == _BLOCK
     )
 
 

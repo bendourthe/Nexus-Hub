@@ -1,158 +1,162 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { SettingsStatusBar, STATUS_PRIORITY, escapeMarkdown, statusEffort, summarize } from "../src/statusBar";
+import { SettingsStatusBar, STATUS_PRIORITY, effortIndicator, escapeMarkdown, statusEffort, summarize } from "../src/statusBar";
 import type { State } from "../src/types";
-import { badgeFor, emptyModel, type ControlView, type RowView, type ViewModel } from "../src/viewModel";
+import { badgeFor, emptyModel, summarizePreferences, type ControlView, type RowView, type ViewModel } from "../src/viewModel";
 import { MarkdownString, StatusBarAlignment, stub } from "./vscode-stub";
-
 const OPEN = "nexusHubSettings.open";
-
-function row(tool: string, state: State, value: string | null = null, layerValue: string | null = null, surface: RowView["surface"] = "cli"): RowView {
-  const labels: Record<string, string> = { claude: "Claude Code", codex: "Codex", "copilot-cli": "GitHub Copilot CLI", internal: "Nexus-Hub (all tools)" };
-  return {
-    tool,
-    toolLabel: labels[tool] ?? tool,
-    surface,
-    surfaceLabel: surface === "cli" ? "command line" : "VS Code",
-    state,
-    badge: badgeFor(state, null, state === "overridden-by" ? "env CLAUDE_CODE_EFFORT_LEVEL (shell)" : null),
-    value,
-    layerValue,
-    fix: null,
-    detail: null,
-    caveats: [],
-    canSet: state !== "not-settable" && state !== "tool-not-installed",
-    removable: null,
-  };
+function row(tool: string, state: State, value: string | null = null, layerValue: string | null = null): RowView {
+  return { tool, toolLabel: tool, surface: "cli", surfaceLabel: "command line", state, badge: badgeFor(state), value, layerValue, fix: null, detail: null, caveats: [], canSet: state !== "not-settable" && state !== "tool-not-installed", removable: null };
 }
-
-function control(id: string, label: string, rows: RowView[]): ControlView {
-  return {
-    id,
-    label,
-    kind: id === "model" ? "text" : "choice",
-    choices: [],
-    weakeningChoices: [],
-    suggestions: {},
-    perTool: id === "model",
-    perToolOverride: id === "effort",
-    neverWritten: [],
-    canApply: true,
-    takesEffect: "New sessions only.",
-    rows,
-    sources: [],
-  };
+function control(id: string, rows: RowView[]): ControlView {
+  return { id, label: id, kind: "choice", choices: id === "effort" ? ["low", "medium", "high", "xhigh"] : ["on", "off"], weakeningChoices: [], suggestions: {}, perTool: false, perToolOverride: false, neverWritten: [], canApply: true, takesEffect: "Next hook run.", rows, sources: [] };
 }
-
-function model(controls: ControlView[]): ViewModel {
-  return { ...emptyModel("Default", "windows"), controls };
-}
-
-/** The machine state that prompted the status bar: Claude's saved effort is overridden by an env var. */
+function model(controls: ControlView[]): ViewModel { return { ...emptyModel("Default", "windows"), controls }; }
 function realistic(): ViewModel {
   return model([
-    control("effort", "Default effort", [
-      row("claude", "overridden-by", "mixed (claude-opus-5-5=medium)", "high"),
-      row("codex", "in-effect", "high"),
-      row("copilot-cli", "not-settable"),
-    ]),
-    control("model", "Default model", [row("claude", "in-effect", "opus"), row("codex", "in-effect", "gpt-6.1-sol"), row("copilot-cli", "not-settable")]),
-    control("posture", "Approval posture", [row("claude", "tool-default"), row("codex", "in-effect", "ask/accept-edits"), row("copilot-cli", "not-settable")]),
-    control("git_guardrails", "Git guardrails", [row("internal", "tool-default")]),
+    control("effort", [row("internal", "in-effect", "high"), row("claude", "overridden-by", "medium", "low"), row("codex", "in-effect", "high"), row("copilot-cli", "not-settable")]),
+    control("git_safety", [row("internal", "tool-default")]),
+    control("secret_scan", [row("internal", "in-effect", "on")]),
+    control("git_guardrails", [row("internal", "tool-default")]),
   ]);
 }
 
-describe("statusEffort", () => {
-  it("uses the overriding value, because that is what a new session starts with", () => {
+describe("the configured shared effort", () => {
+  it.each([false, true])("shows live next-request behavior and native errors %s", (failed) => {
+    const m = model([control("effort", [row("internal", "in-effect", "high")])]);
+    m.liveEffort = { connected: 1, applied: failed ? 0 : 1, reloadRequired: false, ...failed ? { error: "Native update refused." } : {} };
+    const summary = summarize(m, OPEN); expect(summary.tooltip).toContain(failed ? "Review application" : "Next request"); expect(summary.text.includes("$(warning)")).toBe(failed);
+  });
+  it("shows the saved preference even when a platform overrides it", () => {
     expect(statusEffort(realistic())).toBe("high");
+    expect(summarizePreferences(realistic()).needsAttention).toBe(true);
   });
-
-  it("says mixed when the settable tools start with different values", () => {
-    const m = model([control("effort", "Default effort", [row("claude", "in-effect", "medium"), row("codex", "in-effect", "high")])]);
-    expect(statusEffort(m)).toBe("mixed");
+  it("does not invent a shared value from mixed native settings", () => {
+    expect(statusEffort(model([control("effort", [row("claude", "in-effect", "medium"), row("codex", "in-effect", "high")])]))).toBe("default");
   });
-
-  it("says mixed when one tool is set and another keeps its own default", () => {
-    const m = model([control("effort", "Default effort", [row("claude", "tool-default"), row("codex", "in-effect", "high")])]);
-    expect(statusEffort(m)).toBe("mixed");
+  it("can display a common existing value before the first shared preference is saved", () => {
+    expect(statusEffort(model([control("effort", [row("codex", "in-effect", "medium")])]))).toBe("medium");
   });
-
-  it("says default when no settable tool has a value, and ignores tools that cannot be set", () => {
-    const m = model([control("effort", "Default effort", [row("claude", "tool-default"), row("copilot-cli", "not-settable", "xhigh")])]);
+  it("never renders an arbitrary value from a configuration file in the status bar", () => {
+    const m = model([control("effort", [row("internal", "in-effect", "x | [bad](command:bad)")])]);
     expect(statusEffort(m)).toBe("default");
+    expect(summarize(m, OPEN).text).not.toContain("bad");
   });
 });
 
-describe("summarize", () => {
-  it("shows the mark, the effort, and one warning per default that is not the value that applies", () => {
+describe("compact status summary", () => {
+  it.each(["low", "medium", "high", "xhigh", "max", "ultra"])("draws one read-only selected position for %s", (value) => {
+    for (const light of [true, false]) {
+      const svg = decodeURIComponent(/data:image\/svg\+xml,([^\"]+)/.exec(effortIndicator(value, light))![1]!);
+      expect(svg.match(/font-weight="700"/g)).toHaveLength(1); expect(svg.match(/<circle/g)).toHaveLength(6);
+      expect(svg).toContain(light ? "#007580" : "#00c9dc"); expect(svg).not.toMatch(/on[a-z]+=|script|foreignObject/);
+    }
+  });
+  it("names Nexus and the configured effort, with one attention indicator", () => {
     const summary = summarize(realistic(), OPEN);
-    expect(summary.text).toBe("$(nexus-hub-icon) high $(warning) 1");
-    expect(summary.accessibilityLabel).toBe("Nexus-Hub Settings, effort high, 1 default needs attention");
+    expect(summary.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
+    expect(summary.accessibilityLabel).toContain("default effort high");
+    expect(summary.accessibilityLabel).toContain("needs attention");
   });
-
-  it("drops the warning when every default applies", () => {
-    const m = model([control("effort", "Default effort", [row("codex", "in-effect", "high")])]);
-    expect(summarize(m, OPEN).text).toBe("$(nexus-hub-icon) high");
-  });
-
-  it("lists every tool's effort, model and approval in a table, then the other controls and a link to the panel", () => {
+  it("shows effort once on one line and keeps named guard states", () => {
     const tooltip = summarize(realistic(), OPEN).tooltip;
-    expect(tooltip).toContain("| Tool | Effort | Model | Approval |");
-    expect(tooltip).toContain("| Claude Code | high $(warning) | opus | tool default |");
-    expect(tooltip).toContain("| Codex | high | gpt\\-6\\.1\\-sol | ask/accept\\-edits |");
-    expect(tooltip).not.toContain("| GitHub Copilot CLI |");
-    expect(tooltip).toContain("**Not settable here:** GitHub Copilot CLI");
-    expect(tooltip).toContain("**Git guardrails:** tool default");
-    expect(tooltip).toContain("$(warning) Default effort, Claude Code: Overridden by env CLAUDE\\_CODE\\_EFFORT\\_LEVEL \\(shell\\)");
-    expect(tooltip.endsWith(`[Open Nexus-Hub Settings](command:${OPEN})`)).toBe(true);
+    expect(tooltip.length).toBeLessThan(8000);
+    expect(tooltip.split("\n")[0]?.trimEnd()).toBe("**Nexus Hub**");
+    expect(tooltip.split("\n")).toHaveLength(9);
+    expect(tooltip).toContain("**Effort Level**");
+    expect(tooltip).toContain("**Guardrails**");
+    expect(tooltip).toContain('alt="High effort"');
+    const svg = decodeURIComponent(/data:image\/svg\+xml,([^\"]+)/.exec(tooltip)![1]!);
+    expect(svg).toContain('font-weight="700">High</text>');
+    expect(svg).toContain('width="264" height="48"');
+    expect(svg).not.toMatch(/onclick|script|foreignObject/);
+    expect(tooltip).not.toMatch(/\| Default effort|\$\(record\)|Low \$\(/);
+    expect(tooltip).toContain("My edits");
+    expect(tooltip).toContain("Nexus Hub");
+    expect(tooltip).toContain("$(check) Git safety");
+    expect(tooltip).toContain("$(circle-slash) Git bypass");
+    expect(tooltip).not.toMatch(/setEffort|Show full label|Claude|Copilot|settings\.json|model_reasoning/);
+    expect(tooltip).toContain("Review application in Settings");
+    expect(tooltip).toContain(`[Open Settings](command:${OPEN})`);
   });
-
-  it("marks a control that is not part of a tool with a dash instead of an empty cell", () => {
-    const m = model([
-      control("effort", "Default effort", [row("codex", "in-effect", "high")]),
-      control("posture", "Approval posture", [row("codex", "in-effect", "ask"), row("claude", "tool-default", null, null, "vscode-host")]),
-    ]);
-    expect(summarize(m, OPEN).tooltip).toContain("| Claude Code \\(VS Code\\) | - | tool default |");
+  it("does not show a warning when the known configuration is applied", () => {
+    const m = model([control("effort", [row("internal", "in-effect", "low"), row("codex", "in-effect", "low")]), control("git_safety", [row("internal", "in-effect", "on")])]);
+    expect(summarize(m, OPEN).text).toBe("$(nexus-hub-icon) Low (effort)");
   });
-
-  it("escapes a value read from a user file so it cannot break the table or add a link", () => {
-    const hostile = "x | y](command:workbench.action.terminal.new)<img src=a>";
-    const m = model([control("model", "Default model", [row("claude", "in-effect", hostile)])]);
-    const tooltip = summarize(m, OPEN).tooltip;
-    expect(tooltip).toContain(escapeMarkdown(hostile));
-    expect(tooltip).not.toContain("](command:workbench");
-    expect(tooltip).not.toContain("<img");
-    expect(tooltip.split("\n").find((line) => line.startsWith("| Claude Code"))?.split(/(?<!\\)\|/).length).toBe(4);
+  it("does not mark a matching project override as a conflicting value", () => {
+    const m = model([control("effort", [row("internal", "in-effect", "high"), row("claude", "overridden-by", "medium", "high")])]);
+    expect(summarizePreferences(m).needsAttention).toBe(false);
   });
-
-  it("shows an error mark and the error title when the settings cannot be read", () => {
-    const m: ViewModel = { ...model([]), status: "error", error: { title: "The Nexus-Hub command line was not found", message: "Install Nexus-Hub.", command: "nexus-hub settings show", fix: "" } };
+  it("keeps unsupported coverage visible without adding platform rows", () => {
+    const summary = summarizePreferences(model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]));
+    expect(summary.needsAttention).toBe(false);
+    expect(summary.effortStatus).not.toContain("manual");
+  });
+  it("treats unreadable guards as unavailable, not as off or enabled", () => {
+    const summary = summarizePreferences(model([control("git_safety", [row("internal", "cannot-detect")])]));
+    expect(summary.guardsAvailable).toBe(0);
+    expect(summary.guardsEnabled).toBe(0);
+    expect(summary.needsAttention).toBe(true);
+  });
+  it("does not warn about platforms that are not installed", () => {
+    const absent = { ...row("copilot", "not-settable"), installed: false };
+    const summary = summarizePreferences(model([control("effort", [row("internal", "in-effect", "high"), row("codex", "in-effect", "high"), absent])]));
+    expect(summary.needsAttention).toBe(false);
+    expect(summary.effortStatus).not.toContain("cannot accept");
+  });
+  it("flags an unreadable shared preference even when native values agree", () => {
+    const summary = summarizePreferences(model([control("effort", [row("internal", "cannot-detect"), row("codex", "in-effect", "high")])]));
+    expect(summary.needsAttention).toBe(true);
+    expect(summary.effortStatus).toContain("need synchronization");
+  });
+  it("uses the readable Extra high label", () => {
+    expect(summarize(model([control("effort", [row("internal", "in-effect", "xhigh")])]), OPEN).text).toBe("$(nexus-hub-icon) Extra high (effort)");
+  });
+  it("escapes error text and leaves only the panel command trusted", () => {
+    const m: ViewModel = { ...model([]), status: "error", error: { title: "[bad](command:terminal)<img>", message: "secret path", command: "private", fix: "" } };
     const summary = summarize(m, OPEN);
-    expect(summary.text).toBe("$(nexus-hub-icon) $(error)");
-    expect(summary.tooltip).toContain("**The Nexus\\-Hub command line was not found**");
+    expect(summary.text).toBe("$(nexus-hub-icon) Unavailable $(error)");
+    expect(summary.tooltip).toContain(escapeMarkdown(m.error!.title));
+    expect(summary.tooltip).not.toContain("](command:terminal)");
+    expect(summary.tooltip).not.toContain("secret path");
   });
-
-  it("shows only the mark while the first read is still running", () => {
-    expect(summarize(undefined, OPEN).text).toBe("$(nexus-hub-icon)");
-    expect(summarize(model([]), OPEN).tooltip).toContain("Reading the Nexus-Hub defaults");
+  it("has a named reading state", () => {
+    expect(summarize(undefined, OPEN).text).toBe("$(nexus-hub-icon) Reading...");
+    expect(summarize(model([]), OPEN).tooltip).toContain("Reading settings");
+  });
+  it("uses the requested prefix only in full mode", () => {
+    expect(summarize(realistic(), OPEN, false).text).toBe("$(nexus-hub-icon) Nexus Hub: High (effort) $(warning)");
+  });
+  it("keeps the hover read-only in every state", () => {
+    const m = model([control("effort", [row("internal", "in-effect", "high"), row("copilot", "not-settable")])]);
+    expect(summarize(m, OPEN).text).not.toContain("$(warning)");
+    expect(summarize(m, OPEN).tooltip).toContain("New sessions only");
+    expect(summarize(m, OPEN).tooltip).toContain("data:image/svg+xml");
+    for (const locked of [{ ...m, readOnly: true }, { ...m, busy: true }]) {
+      expect(summarize(locked, OPEN).tooltip).not.toContain("](command:nexusHubSettings.setEffort");
+    }
   });
 });
 
 describe("SettingsStatusBar", () => {
   beforeEach(() => stub.reset());
-
-  it("sits just left of the usage monitors, opens the panel on click, and trusts only that command", () => {
+  it("updates the label immediately when compact mode changes", () => {
+    const bar = new SettingsStatusBar(OPEN);
+    bar.update(realistic());
+    stub.user["nexusHubSettings.compactStatusBar"] = false;
+    stub.fireConfig("nexusHubSettings.compactStatusBar");
+    expect(stub.statusItems[0]?.text).toContain("Nexus Hub: High (effort)");
+    bar.dispose();
+  });
+  it("opens the settings panel, has an accessible name, and trusts only that command", () => {
     const bar = new SettingsStatusBar(OPEN);
     const [item] = stub.statusItems;
     expect(item).toMatchObject({ id: "nexusHubSettings.status", alignment: StatusBarAlignment.Right, priority: STATUS_PRIORITY, command: OPEN, shown: true });
     expect(STATUS_PRIORITY).toBeGreaterThan(105);
-
     bar.update(realistic());
-    expect(item?.text).toBe("$(nexus-hub-icon) high $(warning) 1");
-    const tooltip = item?.tooltip as MarkdownString;
-    expect(tooltip.supportThemeIcons).toBe(true);
-    expect(tooltip.isTrusted).toEqual({ enabledCommands: [OPEN] });
+    expect(item?.text).toBe("$(nexus-hub-icon) High (effort) $(warning)");
+    expect((item?.tooltip as MarkdownString).isTrusted).toEqual({ enabledCommands: [OPEN] });
+    expect((item?.tooltip as MarkdownString).supportHtml).toBe(true);
     expect(item?.accessibilityInformation?.role).toBe("button");
-
     bar.dispose();
     expect(item?.disposed).toBe(true);
   });

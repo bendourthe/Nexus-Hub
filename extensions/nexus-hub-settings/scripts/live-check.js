@@ -31,10 +31,11 @@ function run(command, args, options) {
 function findVsCode(explicit) {
   const roots = [explicit, path.join(process.env.LOCALAPPDATA || "", "Programs", "Microsoft VS Code"), path.join(process.env.ProgramFiles || "", "Microsoft VS Code")].filter(Boolean);
   for (const root of roots) {
-    const exe = path.join(root, "Code.exe");
-    if (!fs.existsSync(exe)) {
+    const exeName = ["Code.exe", "Cursor.exe", "Antigravity IDE.exe", "Antigravity.exe"].find((name) => fs.existsSync(path.join(root, name)));
+    if (!exeName) {
       continue;
     }
+    const exe = path.join(root, exeName);
     const candidates = [root, ...fs.readdirSync(root).map((name) => path.join(root, name))];
     for (const dir of candidates) {
       const cli = path.join(dir, "resources", "app", "out", "cli.js");
@@ -74,7 +75,7 @@ function prepare(work, python) {
   const env = { ...base, HOME: home, USERPROFILE: home, NEXUS_HUB_HOME: path.join(home, ".nexus-hub"), PATH: `${bin};${system}`, Path: `${bin};${system}` };
   const devExt = path.join(work, "dev-ext");
   fs.mkdirSync(devExt, { recursive: true });
-  fs.writeFileSync(path.join(devExt, "package.json"), JSON.stringify({ name: "live-host", version: "0.0.0", publisher: "nexus-hub", engines: { vscode: "^1.85.0" } }));
+  fs.writeFileSync(path.join(devExt, "package.json"), JSON.stringify({ name: "live-host", version: "0.0.0", publisher: "nexus-hub", engines: { vscode: "^1.85.0" }, contributes: { configuration: { properties: { "claudeCode.environmentVariables": { type: "array", default: [] } } } } }));
   return { home, ws, env, devExt, python };
 }
 
@@ -90,6 +91,11 @@ async function hostRun(code, dirs, ctx, label, trusted) {
   const out = path.join(dirs.work, `live-${label}.json`);
   fs.rmSync(out, { force: true });
   const userSettings = path.join(dirs.ud, "User", "settings.json");
+  fs.mkdirSync(path.dirname(userSettings), { recursive: true });
+  let settings = {};
+  try { settings = JSON.parse(fs.readFileSync(userSettings, "utf8")); } catch (error) { if (error.code !== "ENOENT") { throw error; } }
+  settings["security.workspace.trust.enabled"] = true;
+  fs.writeFileSync(userSettings, JSON.stringify(settings, null, 2));
   const args = [
     `--user-data-dir=${dirs.ud}`, `--extensions-dir=${dirs.ext}`, `--extensionDevelopmentPath=${ctx.devExt}`,
     `--extensionTestsPath=${path.join(__dirname, "live-runner.js")}`, "--disable-gpu", "--disable-updates", "--disable-telemetry",
@@ -105,7 +111,7 @@ async function main() {
   if (!vsix || !work) {
     throw new Error("usage: node scripts/live-check.js --vsix <path> --work <scratch dir> [--python <abs path>] [--vscode <dir>]");
   }
-  fs.rmSync(work, { recursive: true, force: true });
+  if (!path.isAbsolute(work) || fs.existsSync(work)) { throw new Error("--work must name a new absolute scratch directory"); }
   fs.mkdirSync(work, { recursive: true });
   const code = findVsCode(arg("vscode"));
   const ctx = prepare(work, arg("python"));
@@ -129,6 +135,23 @@ async function main() {
     report[label] = fs.existsSync(hosted.out) ? JSON.parse(fs.readFileSync(hosted.out, "utf8")) : null;
   }
   fs.writeFileSync(path.join(work, "live-report.json"), JSON.stringify(report, null, 2));
+  const assert = require("node:assert/strict");
+  const version = require(path.join(__dirname, "..", "package.json")).version;
+  assert.equal(report.steps.install.code, 0, "editor refused VSIX installation");
+  assert.ok(report.steps.install.listed.includes(`nexus-hub.nexus-hub-settings@${version}`), "installed version does not match the build");
+  for (const [label, trusted] of [["trusted", true], ["untrusted", false]]) {
+    assert.equal(report.steps[label].code, 0, `${label} editor host failed`);
+    assert.equal(report.steps[label].killed, false, `${label} editor host timed out`);
+    const hosted = report[label];
+    assert.ok(hosted, `${label} host produced no report`);
+    assert.equal(hosted.version, version);
+    assert.equal(hosted.isTrusted, trusted);
+    assert.equal(hosted.model.status, "ready");
+    assert.equal(hosted.model.readOnly, !trusted);
+    assert.equal(hosted.steps.openedView, true);
+    if (trusted) { assert.equal(hosted.steps.nativeEditorEffort?.unrelatedPreserved, true); }
+    else { assert.equal(hosted.steps.hoverEffort?.unchanged, true); }
+  }
   console.log(JSON.stringify({ work, install: report.steps.install, trusted: report.steps.trusted, untrusted: report.steps.untrusted, report: path.join(work, "live-report.json") }));
 }
 

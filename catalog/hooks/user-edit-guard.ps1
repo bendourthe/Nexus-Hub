@@ -14,8 +14,8 @@
     that looks like a write is blocked outside a git worktree and warned inside
     one; it is never passed silently outside a worktree.
 
-    Essential: stays on under NEXUS_HOOK_PROFILE=minimal. The only switch is the
-    user's own NEXUS_DISABLED_HOOKS=user-edit-guard.
+    Essential: stays on under NEXUS_HOOK_PROFILE=minimal. Disable through the
+    user's NEXUS_DISABLED_HOOKS=user-edit-guard or Settings protect_user_edits=false.
 
 .NOTES
     The payload is forwarded as raw bytes, so a non-ASCII path reaches Python
@@ -23,6 +23,25 @@
 #>
 
 $ErrorActionPreference = "Continue"
+
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+if (Test-NexusGuardrailDisabled -Key "protect_user_edits") { exit 0 }
 $hookName = "user-edit-guard"
 
 # --- Nexus-Hub source label (v4.14.8) ---
@@ -54,16 +73,7 @@ if ($inputBytes.Length -eq 0) {
 if ($inputBytes.Length -eq 0) { exit 0 }
 $inputText = (New-Object System.Text.UTF8Encoding($false)).GetString($inputBytes)
 
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the user
-# chose to run without approval gates, so a block downgrades to a warning. The
-# helper still runs so its read/write records stay current for later modes.
-# Contract: docs/policy/permission-mode-contract.md
-$fullAccess = $false
-try {
-    $hostPayload = $inputText | ConvertFrom-Json -ErrorAction Stop
-    $fullAccess = $hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions'
-} catch { }
-
+# Nexus Settings guard switches apply in every host permission mode.
 $budget = 2.0
 if ($env:NEXUS_EDIT_GUARD_TIMEOUT_SECONDS) {
     $parsed = 0.0
@@ -85,10 +95,6 @@ function Invoke-Fallback {
     }
     if ("$inside".Trim() -eq "true") {
         Write-NexusMessage "WARNING (git worktree, not blocked): $message"
-        exit 0
-    }
-    if ($fullAccess) {
-        Write-NexusMessage "WARNING (full access, not blocked): $message"
         exit 0
     }
     Write-NexusMessage "BLOCKED: $message" @("Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$hookName.")
@@ -160,9 +166,5 @@ $process.WaitForExit()
 [Console]::Error.Write($stderrTask.Result)  # nexus: hook-msg-exempt relays edit_guard.py output verbatim
 
 $status = $process.ExitCode
-if ($status -eq 2 -and $fullAccess) {
-    Write-NexusMessage "WARNING (full access, not blocked): see the message above."
-    exit 0
-}
 if ($status -eq 0 -or $status -eq 2) { exit $status }
 Invoke-Fallback "edit_guard.py failed"

@@ -217,12 +217,20 @@ def test_missing_immutable_blob_is_not_cached(monkeypatch, tmp_path):
     calls = []
     def run(argv):
         calls.append(argv)
-        return 1, ""
+        # The commit exists; only the ledger blob is missing at it.
+        return (0, "") if argv[-1].endswith("^{commit}") else (1, "")
     monkeypatch.setattr(cm, "ledger_rels", lambda *a: ["gaps.md"])
     ctx = SimpleNamespace(root=tmp_path, git="git", run=run)
     assert cm.items_at(ctx, "a" * 40, (0, 5), "WN-1") == ("unmet", [])
     assert cm.items_at(ctx, "a" * 40, (0, 5), "WN-2") == ("unmet", [])
-    assert len(calls) == 2
+    blob_reads = [argv for argv in calls if not argv[-1].endswith("^{commit}")]
+    assert len(blob_reads) == 2
+
+
+def test_missing_blob_at_unknown_commit_never_proves_absence(monkeypatch, tmp_path):
+    monkeypatch.setattr(cm, "ledger_rels", lambda *a: ["gaps.md"])
+    ctx = SimpleNamespace(root=tmp_path, git="git", run=lambda argv: (1, ""))
+    assert cm.items_at(ctx, "a" * 40, (0, 5), "WN-1") == ("cannot-verify", [])
 
 
 @pytest.mark.parametrize("known", [False, True])
@@ -284,8 +292,9 @@ def test_runner_lease_unknown_after_successful_verification(monkeypatch, tmp_pat
 
     record = {"session_id": "s"}
     monkeypatch.chdir(tmp_path)
-    def resolved_controller(*_args, minor_protocol):
+    def resolved_controller(*_args, minor_protocol, execution_protocol):
         assert minor_protocol == 1
+        assert execution_protocol == 1
         return SimpleNamespace(root=tmp_path), record
     monkeypatch.setattr(ck, "resolve_minor_controller", resolved_controller)
     path = tmp_path / "record.json"

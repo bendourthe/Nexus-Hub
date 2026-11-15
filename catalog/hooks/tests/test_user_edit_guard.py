@@ -118,17 +118,15 @@ def test_write_onto_user_edited_file_is_blocked_outside_a_worktree(run, work):
     assert _USER_TEXT not in result.stderr + result.stdout, "file content was echoed"
 
 
-@pytest.mark.parametrize("mode,expected", [("bypassPermissions", 0), ("auto", 2), ("default", 2)])
-def test_full_access_downgrades_the_block_to_a_warning(run, work, mode, expected):
-    """Permission-mode contract: only full access lifts the block; it still warns."""
+@pytest.mark.parametrize("mode,expected", [("bypassPermissions", 2), ("auto", 2), ("default", 2)])
+def test_enabled_edit_guard_blocks_in_every_mode(run, work, mode, expected):
+    """The Settings protection applies even when native approvals are disabled."""
     deck = work / "deck.pptx"
     assert run(_payload("PostToolUse", "Read", work, path=deck), work).returncode == 0
     _user_edits(deck)
     payload = {**_payload("PreToolUse", "Write", work, path=deck), "permission_mode": mode}
     result = run(payload, work)
     assert result.returncode == expected, result.stderr
-    if expected == 0:
-        assert "WARNING (full access, not blocked)" in result.stderr
 
 
 def test_copy_onto_user_edited_file_is_blocked(run, work):

@@ -340,17 +340,109 @@ def _verify_title_page_integrity(doc):
             break
 
 
-def _apply_table_header_shading(table, header_color='2E5B9E'):
-    """Apply bold white text and colored cell shading to the first row of a table."""
+# Table defaults from catalog/rules/documents/document-style.md (the owning rule).
+TABLE_HEADER_FILL = '262626'
+TABLE_ROW_FILL = 'FFFFFF'
+TABLE_ROW_ALT_FILL = 'F2F2F2'
+TABLE_TINT_LIGHTEN = 0.55
+# Neutral fallbacks, tried in order when a row tint is too close to the default.
+_NEUTRAL_HEADER_FILLS = ('262626', '595959', '0D0D0D', '7F7F7F')
+# Below this RGB distance two fills read as the same color group.
+_HEADER_MIN_DISTANCE = 80.0
+
+
+def _hex_rgb(value):
+    value = value.lstrip('#')
+    return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _lighten(value, fraction=TABLE_TINT_LIGHTEN):
+    """Move a hex color `fraction` of the way toward white."""
+    return ''.join(f'{round(c + (255 - c) * fraction):02X}' for c in _hex_rgb(value))
+
+
+def _color_distance(a, b):
+    return sum((x - y) ** 2 for x, y in zip(_hex_rgb(a), _hex_rgb(b))) ** 0.5
+
+
+def _set_cell_fill(cell, fill):
+    """Set one solid cell fill, replacing any earlier shading on the cell."""
+    tc_pr = cell._tc.get_or_add_tcPr()
+    for old in tc_pr.findall(qn('w:shd')):
+        tc_pr.remove(old)
+    shading = OxmlElement('w:shd')
+    shading.set(qn('w:fill'), fill.lstrip('#').upper())
+    shading.set(qn('w:val'), 'clear')
+    tc_pr.append(shading)
+
+
+def choose_header_fill(row_tints=None, header_fill=None):
+    """Pick a header fill that no row tint uses or comes close to.
+
+    A requested `header_fill` is honored only when it stays clear of every row tint,
+    or when every row belongs to that one color group (the rule's single exception).
+    """
+    tints = [t.lstrip('#').upper() for t in (row_tints or []) if t]
+    if header_fill:
+        header_fill = header_fill.lstrip('#').upper()
+        same_group = tints and len(tints) == len(row_tints) and len(set(tints)) == 1
+        if same_group or all(_color_distance(header_fill, t) >= _HEADER_MIN_DISTANCE for t in tints):
+            return header_fill
+    for candidate in _NEUTRAL_HEADER_FILLS:
+        if all(_color_distance(candidate, t) >= _HEADER_MIN_DISTANCE for t in tints):
+            return candidate
+    return TABLE_HEADER_FILL
+
+
+def row_fills(row_tints):
+    """Alternate plain rows white and light gray, and tinted rows tint and lightened tint.
+
+    The alternation restarts at each change of tint so every category keeps its own band.
+    """
+    fills, previous, position = [], object(), 0
+    for tint in row_tints:
+        tint = tint.lstrip('#').upper() if tint else None
+        position = position + 1 if tint == previous else 0
+        previous = tint
+        if tint is None:
+            fills.append(TABLE_ROW_FILL if position % 2 == 0 else TABLE_ROW_ALT_FILL)
+        else:
+            fills.append(tint if position % 2 == 0 else _lighten(tint))
+    return fills
+
+
+def apply_table_style(table, row_tints=None, header_fill=None):
+    """Style a table per the document style rule: neutral header, alternating rows.
+
+    `row_tints` holds one hex tint (or None) per data row, in order after the header.
+    """
+    data_rows = table.rows[1:]
+    tints = list(row_tints or [None] * len(data_rows))
+    tints += [None] * (len(data_rows) - len(tints))
+    fill = choose_header_fill(tints, header_fill)
+    r, g, b = _hex_rgb(fill)
+    text = RGBColor(0xFF, 0xFF, 0xFF) if (0.299 * r + 0.587 * g + 0.114 * b) < 160 else RGBColor(0, 0, 0)
     for cell in table.rows[0].cells:
         for paragraph in cell.paragraphs:
             for run in paragraph.runs:
                 run.bold = True
-                run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
-        shading = OxmlElement('w:shd')
-        shading.set(qn('w:fill'), header_color)
-        shading.set(qn('w:val'), 'clear')
-        cell._tc.get_or_add_tcPr().append(shading)
+                run.font.color.rgb = text
+        _set_cell_fill(cell, fill)
+    for row, row_fill in zip(data_rows, row_fills(tints)):
+        for cell in row.cells:
+            _set_cell_fill(cell, row_fill)
+    return fill
+
+
+def add_lead_in(paragraph, label, bold=True):
+    """Add a highlighted lead-in: the formatted run ends at the colon, the space is plain."""
+    label = label.rstrip()
+    if not label.endswith(':'):
+        label += ':'
+    run = paragraph.add_run(label)
+    run.bold = bold
+    paragraph.add_run(' ')
+    return run
 
 
 def _clear_template_body_after_title_page(doc):
@@ -598,6 +690,11 @@ def add_formatted_text(paragraph, text):
     if not text:
         return
 
+    # Lead-in boundary (document style rule): the bold run covers the label and its
+    # colon only. `**Label**: x` and `**Label: **x` both become `**Label:** x`.
+    text = re.sub(r'\*\*([^*\n]+?)\*\*:', r'**\1:**', text)
+    text = re.sub(r'\*\*([^*\n]*?:)(\s+)\*\*', r'**\1**\2', text)
+
     # Split by bold markers first
     parts = re.split(r'(\*\*.*?\*\*)', text)
     for part in parts:
@@ -732,17 +829,8 @@ def add_markdown_paragraph(doc, text, style=None):
                 p = cell.paragraphs[0]
                 add_formatted_text(p, cell_text)
 
-        # Apply blue header shading to first row
-        _apply_table_header_shading(tbl)
-
-        # Add alternating row shading for readability
-        for row_idx in range(1, len(parsed)):
-            if row_idx % 2 == 0:  # Every other data row
-                for cell in tbl.rows[row_idx].cells:
-                    shading = OxmlElement('w:shd')
-                    shading.set(qn('w:fill'), 'F2F6FA')
-                    shading.set(qn('w:val'), 'clear')
-                    cell._tc.get_or_add_tcPr().append(shading)
+        # Neutral header and alternating row backgrounds (document style rule)
+        apply_table_style(tbl)
 
         doc.add_paragraph()  # spacing after table
 
@@ -1046,7 +1134,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
         desc = comp.get("description", "")
         if desc:
             p = doc.add_paragraph()
-            p.add_run("Description: ").bold = True
+            add_lead_in(p, "Description:")
             p.add_run(desc)
 
         details = comp.get("details", "")
@@ -1423,7 +1511,7 @@ def generate_code_review_docx(data, author, tree_structure, output_file="Code_Re
 
     doc.add_paragraph()
     risk_p = doc.add_paragraph()
-    risk_p.add_run("Risk Level: ").bold = True
+    add_lead_in(risk_p, "Risk Level:")
     risk_p.add_run(f"{exec_summary.get('risk_level', 'N/A')} - {exec_summary.get('risk_justification', '')}")
 
     doc.add_heading("Critical Fixes", level=2)
@@ -1458,25 +1546,25 @@ def generate_code_review_docx(data, author, tree_structure, output_file="Code_Re
             doc.add_heading(f"{finding.get('id', '')}. {finding.get('title', '')}", level=4)
 
             meta = doc.add_paragraph()
-            meta.add_run("Severity: ").bold = True
+            add_lead_in(meta, "Severity:")
             meta.add_run(f"{finding.get('severity', '')}\n")
-            meta.add_run("File: ").bold = True
+            add_lead_in(meta, "File:")
             meta.add_run(f"{finding.get('file', '')}:{finding.get('line', '')}\n")
-            meta.add_run("Category: ").bold = True
+            add_lead_in(meta, "Category:")
             meta.add_run(f"{finding.get('category', '')}\n")
-            meta.add_run("Effort: ").bold = True
+            add_lead_in(meta, "Effort:")
             meta.add_run(finding.get("effort", ""))
 
             issue_p = doc.add_paragraph()
-            issue_p.add_run("Issue: ").bold = True
+            add_lead_in(issue_p, "Issue:")
             issue_p.add_run(finding.get("description", ""))
 
             impact_p = doc.add_paragraph()
-            impact_p.add_run("Impact: ").bold = True
+            add_lead_in(impact_p, "Impact:")
             impact_p.add_run(finding.get("impact", ""))
 
             fix_p = doc.add_paragraph()
-            fix_p.add_run("Fix: ").bold = True
+            add_lead_in(fix_p, "Fix:")
             fix_p.add_run(finding.get("fix", ""))
 
     # Phase 2: By Priority

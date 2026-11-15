@@ -220,6 +220,15 @@ def case_walk(start: Path, dest: str) -> str | None:
     return None
 
 
+# Links inside plan text that an active minor run has frozen byte for byte: fixing them
+# would change the approved plan hash and stop the run. Each entry is one exact
+# (reported location, link target) pair. Remove the entries when the v4.15 run closes.
+FROZEN_PLAN_LINK_EXCEPTIONS: frozenset[tuple[str, str]] = frozenset({
+    ("plans/v4.15.10-approval-modes.md", "../../implement-phase/references/completion-contract.md"),
+    ("plans/v4.15.8-extension-delivery.md", "../development/v4.15.8-last-phase-evidence.md"),
+})
+
+
 def check_links(md_file: Path, tree: Path) -> list[str]:
     findings: list[str] = []
     try:
@@ -235,7 +244,7 @@ def check_links(md_file: Path, tree: Path) -> list[str]:
             continue
         kind = case_walk(md_file.parent, dest)
         loc = rel(md_file, tree)
-        if kind == "missing":
+        if kind == "missing" and (loc, dest) not in FROZEN_PLAN_LINK_EXCEPTIONS:
             findings.append(f"{loc}: missing relative target {dest}")
         elif kind == "case":
             findings.append(f"{loc}: case-mismatch relative target {dest}")

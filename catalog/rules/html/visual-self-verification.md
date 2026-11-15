@@ -28,5 +28,6 @@ Every HTML artifact this harness produces: documentation, `/presentify` output, 
 ## Related
 
 - `responsive-layout.md` - the fluid-width rules the rendered check reads against.
+- `../documents/document-style.md` - table header, row banding, lead-in, and enumeration rules for every document format, HTML included.
 - `[[verification-before-completion]]` - the general rule this specializes. Rendering evidence is what satisfies it for a visual artifact; "I made the edit" is not evidence.
 - `[[document-to-interactive-html]]` - owns the measurement scripts that perform this loop (`measure_handbook.py`, `geometric_audit.py`).

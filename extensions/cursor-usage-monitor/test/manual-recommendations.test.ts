@@ -10,8 +10,14 @@ import {
   buildUsageSuggestion,
   classifyUrgency,
   crossedUnnotifiedThreshold,
-  pickTriggerMetric
+  pickTriggerMetric,
+  statusUrgency
 } from "../src/recommendations";
+import {
+  buildHoverMarkdown,
+  buildStatusText,
+  statusAccessibilityLabel
+} from "../src/statusBarManager";
 import type { ProviderError, UsageState } from "../src/types";
 
 const now = Date.parse("2026-08-04T18:00:00Z");
@@ -141,6 +147,37 @@ describe("manual usage snapshot", () => {
       "Enter at least one usage, on-demand, or period value."
     );
     expect(buildManualSnapshot(empty, now)).toMatchObject({ ok: false });
+  });
+});
+
+describe("status bar urgency", () => {
+  it("colors from the selected meter, including stale data", () => {
+    const state = freshState(); // 80% (cursor), 40% (other)
+    expect(statusUrgency(state, "highest")).toBe("high");
+    expect(statusUrgency(state, "otherModels")).toBe("low");
+    expect(
+      statusUrgency(state, "otherModels", { moderate: 30, high: 60, critical: 90 })
+    ).toBe("moderate");
+
+    const stale: UsageState = {
+      state: "stale",
+      data: { ...state.data, stale: true, staleReason: "fetch-failed" },
+      error: offline
+    };
+    expect(statusUrgency(stale, "highest")).toBe("high");
+    expect(statusUrgency({ state: "empty", error: offline }, "highest")).toBe("low");
+  });
+
+  it("names the level in text wherever it is colored", () => {
+    const text = buildStatusText(freshState(), false);
+    expect(statusAccessibilityLabel(text, "high")).toMatch(
+      /^80(\.0)?% \(cursor\) 40(\.0)?% \(other\), High usage level$/u
+    );
+    expect(statusAccessibilityLabel(text, "low")).not.toContain("usage level");
+    expect(buildHoverMarkdown(freshState(), now, "critical").value).toContain(
+      "$(warning) Critical usage level"
+    );
+    expect(buildHoverMarkdown(freshState(), now).value).not.toContain("usage level");
   });
 });
 

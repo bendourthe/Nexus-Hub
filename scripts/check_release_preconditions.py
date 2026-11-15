@@ -9,6 +9,10 @@ mutation; final-plan publication uses the same gate. It does not run generators,
 replace integration checks, or authorize publication. The legacy `--all` audit
 retains its original three-check selection; handbook gating is explicit.
 
+`--pre-tag` also regenerates the manifest for HEAD and fails, naming every
+differing path, when it disagrees with the committed `MANIFEST.sha256` (v4.15.0
+shipped a stale one).
+
 `--pre-tag` is the one that matters. In the v3.17.5 release a `git checkout main`
 failed on a OneDrive-locked directory, left HEAD on an unrelated branch, and the
 tag was created there and published -- shipping an unreleased plan file in the
@@ -169,6 +173,48 @@ def check_pre_tag(release_branch: str, cwd: Path | None = None) -> list[str]:
         )
 
     return problems
+
+
+def check_manifest_fresh(cwd: Path | None = None) -> list[str]:
+    """Return blocking problems when the committed MANIFEST.sha256 is stale at HEAD.
+
+    v4.15.0 shipped a manifest older than `scripts/ci/profiles.py`, so
+    `nexus-hub verify` failed on every install. The manifest is regenerated
+    in memory from the commit with the same logic as `generate_manifest.py`
+    (git blob bytes through each path's `eol` attribute, so the result does not
+    depend on `core.autocrlf`) and compared with the committed file; the working
+    tree and the committed manifest are never written. Every differing path is
+    named. A repository with no manifest and nothing under the covered roots has
+    nothing to check and passes.
+    """
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import generate_manifest
+
+    root = cwd or Path.cwd()
+    fresh = generate_manifest.compute_manifest_at_ref(root, "HEAD")
+    if fresh is None:
+        return ["could not regenerate the manifest for HEAD, so its freshness is unknown."]
+    try:
+        committed_text = git("show", "HEAD:MANIFEST.sha256", cwd=cwd)
+    except GitUnavailable:
+        if not fresh:
+            return []
+        return ["MANIFEST.sha256 is not committed at HEAD. Run scripts/generate_manifest.py, commit it, then tag."]
+
+    expected = dict(fresh)
+    committed = generate_manifest.parse_manifest(committed_text)
+    differing = [f"{path} (changed since the manifest was generated)" for path in sorted(expected.keys() & committed.keys()) if expected[path] != committed[path]]
+    differing += [f"{path} (in the tree, missing from the manifest)" for path in sorted(expected.keys() - committed.keys())]
+    differing += [f"{path} (in the manifest, not in the tree)" for path in sorted(committed.keys() - expected.keys())]
+    if not differing:
+        return []
+    return [
+        f"MANIFEST.sha256 is stale at HEAD; {len(differing)} path(s) differ. "
+        "`nexus-hub verify` would fail on every install. Run "
+        "scripts/generate_manifest.py, commit the result, then tag. Differing paths:"
+    ] + [f"  {entry}" for entry in differing]
 
 
 # ---------------------------------------------------------------------------
@@ -366,9 +412,16 @@ def report_pre_tag(release_branch: str, root: Path) -> int:
         print("  BLOCKED -- do not create the tag:", file=sys.stderr)
         for problem in problems:
             print(f"    - {problem}", file=sys.stderr)
-        return 1
-    print(f"  OK: HEAD is on {release_branch} and matches origin/{release_branch}")
-    return 0
+    else:
+        print(f"  OK: HEAD is on {release_branch} and matches origin/{release_branch}")
+    stale = check_manifest_fresh(root)
+    if stale:
+        print("  BLOCKED -- do not create the tag (stale manifest):", file=sys.stderr)
+        for line in stale:
+            print(f"    - {line}" if not line.startswith("  ") else f"      {line.strip()}", file=sys.stderr)
+    else:
+        print("  OK: MANIFEST.sha256 matches the committed tree at HEAD")
+    return 1 if problems or stale else 0
 
 
 def report_branches(integration_branch: str, root: Path) -> int:

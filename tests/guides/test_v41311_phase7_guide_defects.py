@@ -58,8 +58,8 @@ def test_model_status_reserves_its_width(path: Path) -> None:
 
 def test_card_names_are_h3_headings_in_markup() -> None:
     html = _text(GUIDE)
-    assert len(_card_names()) == 24
-    assert len(re.findall(r'<h3 data-ty="code" data-tone="accent" class="cs-name">/[a-z-]+</h3>', html)) == 24
+    assert len(_card_names()) == 25
+    assert len(re.findall(r'<h3 data-ty="code" data-tone="accent" class="cs-name">/[a-z-]+</h3>', html)) == 25
     assert '<span data-ty="code" data-tone="accent" class="cs-name">' not in html
     assert "min-width:92px" not in html, "a fixed key width let long keys push their description"
 
@@ -74,14 +74,14 @@ def browser():
     except ImportError:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")  # explicit raise: static analysis cannot see that skip() never returns
     with sync_playwright() as pw:
         try:
             b = pw.chromium.launch()
         except Exception as exc:  # pragma: no cover - environment dependent
             if REQUIRE_RENDER:
                 pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-            pytest.skip(f"chromium is unavailable: {exc}")
+            raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
         yield b
         b.close()
 
@@ -142,7 +142,7 @@ def test_card_names_are_level_3_headings_with_the_code_look(browser) -> None:
     try:
         cards = page.evaluate(CARDS_JS)
         names = [c["name"] for c in cards]
-        assert names == _card_names() and len(names) == 24
+        assert names == _card_names() and len(names) == 25
         root = page.locator("#page-cheatsheets")
         for name in names:
             assert root.get_by_role("heading", level=3, name=name, exact=True).count() == 1, name

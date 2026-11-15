@@ -220,8 +220,8 @@ def test_unknown_control_value_and_missing_tool_are_usage_errors(machine: Machin
         apply.set_control(ctx, "model", "claude-opus-5-5")
     with pytest.raises(apply.UsageError, match="unknown tool"):
         apply.set_control(ctx, "model", "x", "emacs")
-    with pytest.raises(apply.UsageError, match="never written"):
-        apply.set_control(ctx, "effort", "max")
+    with pytest.raises(apply.UsageError, match="not a value"):
+        apply.set_control(ctx, "effort", "impossible")
     with pytest.raises(apply.UsageError, match="not a usable model value"):
         apply.set_control(ctx, "model", "bad\nvalue", "claude")
 
@@ -360,7 +360,7 @@ def test_set_reports_the_resulting_state_including_a_project_override(machine: M
 # --- The admitted-in-memory catalog: effort, models, editor keys -------------
 
 
-def test_effort_writes_every_model_id_plus_the_fallback_and_never_touches_the_legacy_env(machine: Machine, admitted: dict[str, Any]) -> None:
+def test_effort_writes_every_model_id_and_fallback_with_a_matching_user_override(machine: Machine, admitted: dict[str, Any]) -> None:
     before = seed(machine)
     ctx = machine.context(admitted)
 
@@ -371,7 +371,7 @@ def test_effort_writes_every_model_id_plus_the_fallback_and_never_touches_the_le
     assert {m: v["effortLevel"] for m, v in data["modelSettings"].items()} == {m: "high" for m in CLAUDE_IDS}
     assert data["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "high" and data["permissions"]["allow"] == ["Bash(ls:*)", "Read"]
     [still] = [r for r in doc["after"] if r["tool"] == "claude"]
-    assert still["state"] == "overridden-by" and "CLAUDE_CODE_EFFORT_LEVEL" in still["layer"]
+    assert still["state"] == "in-effect" and still["layer"] is None
     apply.reset_control(ctx, "effort", "claude")
     assert files(machine) == before
 

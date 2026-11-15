@@ -17,6 +17,9 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "json", "clover"],
       include: ["src/**/*.ts", "media/panel.js"],
+      // The live-effort launcher compiles and runs real Windows executables; its tests run only on
+      // Windows (developer machines; a hosted Windows CI leg is v4.15 known gap MT-8). Elsewhere it is not executable.
+      exclude: process.platform === "win32" ? [] : ["src/liveEffort.ts"],
       thresholds: {
         statements: 80,
         branches: 80,

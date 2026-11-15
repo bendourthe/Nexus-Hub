@@ -95,7 +95,7 @@ For handbook, presentation or cross-format document work, apply `[[hallmark-desi
 
 1. Identify the artifact and consult the decision table. If it is an HTML row, proceed; if Markdown, stop and emit Markdown.
 2. Pick the closest reference template and adapt its content. Keep the layout system, accessibility affordances, and self-contained structure.
-3. Apply `catalog/rules/html/responsive-layout.md` as the canonical owner for responsive width behavior.
+3. Apply `catalog/rules/html/responsive-layout.md` as the canonical owner for responsive width behavior, and `catalog/rules/documents/document-style.md` for table headers, row banding, lead-ins, and enumerations.
 4. Run `hallmark-design` (`audit` verb) over the result so it does not read as AI-generated.
 5. If the artifact is persisted, confirm the privacy note above: no secrets embedded, no outbound calls added.
 6. Return the artifact (and, when shared as a file, note the path).

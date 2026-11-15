@@ -90,6 +90,62 @@ beforeEach(() => {
   trusted = true;
 });
 
+describe("saved default synchronization", () => {
+  it("reads live native acknowledgments into the same model exposed to the panel", async () => {
+    const live = { connected: 2, applied: 2, reloadRequired: false }; const reader = vi.fn(async () => live);
+    const controller = make({ liveEffort: reader }); const model = await controller.refresh();
+    expect(reader).toHaveBeenCalled(); expect(model.liveEffort).toEqual(live);
+  });
+  function shared(value = "ultra"): void {
+    const row = structuredClone(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!);
+    bridge.report.records.push({ ...row, tool: "internal", value, state: "in-effect", writes: [] });
+    bridge.all.effort!.control.values = ["low", "medium", "high", "xhigh", "max", "ultra"];
+  }
+
+  it("reapplies native drift once per distinct value without repeated attempts on a locked default", async () => {
+    shared();
+    const row = bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!;
+    Object.assign(row, { matches_default: false, mapped_effort: "max", value: "high", state: "in-effect" });
+    bridge.handler = (spec) => outcome({ results: [result({ status: spec.dryRun ? "would-write" : "written" })] });
+    const controller = make();
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    row.value = "medium";
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(2);
+  });
+
+  it("synchronizes editor overrides for a matching native default and refuses changes without trust", async () => {
+    shared();
+    bridge.report.records.filter((r) => r.control === "effort" && r.tool !== "internal").forEach((row) => { row.matches_default = true; });
+    const sync = vi.fn().mockResolvedValue({ changed: [], issues: [] });
+    const controller = make({ syncEditorEffort: sync });
+    await controller.synchronizeDefaults();
+    expect(sync).toHaveBeenCalledOnce();
+    expect(bridge.actions).toHaveLength(0);
+    trusted = false;
+    await controller.synchronizeDefaults();
+    expect(sync).toHaveBeenCalledOnce();
+  });
+
+  it("retries unchanged native drift after a transient failure and on explicit Refresh", async () => {
+    shared();
+    Object.assign(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!, { matches_default: false, mapped_effort: "max", value: "high", state: "in-effect" });
+    bridge.actionError = new Error("temporary write failure");
+    const controller = make();
+    await controller.synchronizeDefaults();
+    expect(controller.current().status).toBe("error");
+    bridge.actionError = undefined;
+    bridge.handler = (spec) => outcome({ results: [result({ status: spec.dryRun ? "would-write" : "written" })] });
+    await controller.synchronizeDefaults();
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(1);
+    await controller.handle({ type: "refresh" });
+    expect(bridge.actions.filter((a) => !a.dryRun)).toHaveLength(2);
+  });
+});
+
 describe("reading", () => {
   it("shows the engine's truth and reads each control's description once", async () => {
     const controller = make();
@@ -196,7 +252,7 @@ describe("set", () => {
     expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["set", true, true], ["set", false, true]]);
     expect(bridge.actions.every((a) => a.project === "C:\\work\\project")).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(model.notice).toMatchObject({ level: "info", text: "Saved high for effort. New sessions only." });
+    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Mapped to native defaults for new sessions." });
   });
 
   it("asks first for a safety-weakening change, listing keys, VS Code's warning, and the Cannot remove items", async () => {
@@ -280,7 +336,7 @@ describe("set", () => {
     const model = await controller.handle({ type: "set", control: "effort", value: "high", tool: null });
 
     expect(model.notice).toMatchObject({ level: "warn" });
-    expect(model.notice?.text).toContain("Some cells were not written");
+    expect(model.notice?.text).toContain("Some settings could not be applied");
     expect(model.notice?.lines?.join("\n")).toContain("refused: config.toml does not parse");
   });
 
@@ -611,4 +667,51 @@ describe("opening sources", () => {
     await controller.handle({ type: "openSource", control: "posture", write: "claude.posture" });
     expect(open).toHaveBeenCalledTimes(1);
   });
+});
+
+
+describe("fresh Codex agent", () => {
+  it("reads configuration again before opening the native composer", async () => {
+    const openCodex = vi.fn(async () => { expect(bridge.calls.filter((c) => c === "show")).toHaveLength(2); });
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    await controller.refresh();
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledOnce();
+  });
+  it("does not open a composer if fresh configuration cannot be read", async () => {
+    const openCodex = vi.fn(async () => {});
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    await controller.refresh();
+    bridge.showError = new Error("read failed");
+    expect((await controller.handle({ type: "newCodex" })).status).toBe("error");
+    expect(openCodex).not.toHaveBeenCalled();
+  });
+  it("reports an explicit native launch failure", async () => {
+    const controller = make({ codexAvailable: () => true, ui: { confirm: confirm as never, openExternal: open as never, openCodex: async () => { throw new Error("missing command"); } } });
+    await controller.refresh();
+    expect((await controller.handle({ type: "newCodex" })).notice).toMatchObject({ level: "error", text: expect.stringContaining("Could not open") });
+  });
+  it("uses the native action only when trusted and installed", async () => {
+    const openCodex = vi.fn(async () => {});
+    let available = true;
+    const controller = make({ codexAvailable: () => available, ui: { confirm: confirm as never, openExternal: open as never, openCodex } });
+    expect((await controller.refresh()).codexAvailable).toBe(true);
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledTimes(1);
+    available = false;
+    await controller.handle({ type: "newCodex" });
+    trusted = false;
+    available = true;
+    await controller.handle({ type: "newCodex" });
+    expect(openCodex).toHaveBeenCalledTimes(1);
+    expect(bridge.actions).toHaveLength(0);
+  });
+});
+
+it("does not write Fast mode on an unsupported editor through the action API", async () => {
+  const write=vi.fn(async () => {});
+  const controller=make({editorCapabilities:()=>({extensionSettings:false,fastMode:false}),setFastMode:write});
+  await controller.handle({type:"setFastMode",value:true});
+  expect(write).not.toHaveBeenCalled();
+  expect(controller.current().editorCapabilities?.fastMode).toBe(false);
 });

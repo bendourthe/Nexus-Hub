@@ -20,6 +20,34 @@
 
 set -euo pipefail
 
+# Read Settings on every invocation. Only JSON false disables this protection.
+_nexus_guardrail_disabled() {
+  local guard_home="${HOME:-${USERPROFILE:-}}" guard_file
+  [ -n "$guard_home" ] || return 1
+  guard_file="$guard_home/.nexus-hub/guardrails.json"
+  [ -f "$guard_file" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e -s --arg key "$1" 'length == 1 and (.[0] | type) == "object" and .[0][$key] == false' "$guard_file" >/dev/null 2>&1
+    return $?
+  fi
+  local guard_py guard_verdict
+  for guard_py in python3 python; do
+    command -v "$guard_py" >/dev/null 2>&1 || continue
+    guard_verdict=$("$guard_py" -c 'import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        config = json.load(stream)
+    print("disabled" if isinstance(config, dict) and config.get(sys.argv[2]) is False else "enabled")
+except (OSError, ValueError, TypeError):
+    print("enabled")' "$guard_file" "$1" 2>/dev/null) || continue
+    guard_verdict=${guard_verdict//$'\r'/}
+    if [ "$guard_verdict" = "disabled" ]; then return 0; fi
+    if [ "$guard_verdict" = "enabled" ]; then return 1; fi
+  done
+  return 1
+}
+if _nexus_guardrail_disabled scan_secrets; then exit 0; fi
+
 # --- ANSI colors ---
 COLOR_RED='\033[0;31m'
 COLOR_RESET='\033[0m'
@@ -56,25 +84,7 @@ _nexus_msg() {
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-_HOST_MODE=""
-if command -v jq >/dev/null 2>&1; then
-  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  _MODE_PYTHON=$(command -v python3 || command -v python)
-  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
-import json, sys
-try:
-    payload = json.load(sys.stdin)
-    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
-    if isinstance(mode, str):
-        print(mode)
-except (ValueError, TypeError):
-    pass' 2>/dev/null || true)
-fi
-if [ "$_HOST_MODE" = "bypassPermissions" ]; then exit 0; fi
+# Nexus Settings guard switches apply in every host permission mode.
 
 # --- Extract content ---
 # jq is preferred. A host without it must not lose the scan: this hook blocks,

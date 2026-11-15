@@ -69,10 +69,16 @@ def _targets_from_text(text: str) -> set[str]:
 
 
 def _profile_groups_invoked_by_ci() -> set[str]:
-    """Group names ci.yml selects via `run.py --profile <p> --only <groups>`."""
+    """Group or family names ci.yml selects via `run.py --profile <p> --only <names>`.
+
+    A matrix job passes `--only ${{ matrix.only }}`, so the names its legs select
+    are read from the `only:` values of the matrix as well.
+    """
     text = CI.read_text(encoding="utf-8")
     groups: set[str] = set()
     for match in re.finditer(r"--only\s+([\w,-]+)", text):
+        groups.update(g for g in match.group(1).split(",") if g)
+    for match in re.finditer(r"^\s+only:\s+([\w,-]+)\s*$", text, re.MULTILINE):
         groups.update(g for g in match.group(1).split(",") if g)
     return groups
 
@@ -89,7 +95,7 @@ def _targets_from_profiles() -> set[str]:
     targets: set[str] = set()
     for groups in PROFILES.values():
         for group in groups:
-            if group.name not in selected:
+            if group.name not in selected and group.family not in selected:
                 continue
             for cmd in group.commands:
                 argv = list(cmd.argv)

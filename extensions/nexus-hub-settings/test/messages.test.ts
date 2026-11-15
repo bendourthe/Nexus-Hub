@@ -92,3 +92,23 @@ describe("message validation against the catalog allowlist", () => {
     expect(validText(5)).toBe(false);
   });
 });
+
+
+describe("native Codex action", () => {
+  it("requires the installed client and a trusted writable panel", () => {
+    const m = model();
+    bad({ type: "newCodex" }, "unavailable", m);
+    m.codexAvailable = true;
+    expect(ok({ type: "newCodex" }, m)).toEqual({ type: "newCodex" });
+    bad({ type: "newCodex", command: "arbitrary.command" }, "unexpected fields", m);
+    m.readOnly = true;
+    bad({ type: "newCodex" }, "read-only", m);
+  });
+});
+
+it("accepts only known usage-alert providers and rejects read-only writes", () => {
+  expect(ok({type:"setUsageAlert",provider:"all",enabled:false})).toEqual({type:"setUsageAlert",provider:"all",enabled:false});
+  for (const provider of ["other", "__proto__", null, {}]) { bad({type:"setUsageAlert",provider,enabled:false}, "invalid usage-alert"); }
+  bad({type:"setUsageAlert",provider:"claude",enabled:"false"}, "invalid usage-alert");
+  bad({type:"setUsageAlert",provider:"codex",enabled:true}, "read-only", model(false));
+});

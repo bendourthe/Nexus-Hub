@@ -44,6 +44,8 @@ def test_windows_workflow_has_no_second_native_test_list() -> None:
         ("windows-installer", "tests-windows-installer", "tests/installer", 1),
         ("windows-validators", "tests-windows-validators", "tests/validators", 2),
         ("windows-validators-2", "tests-windows-validators-2", "tests/validators", 2),
+        ("windows-validators-3", "tests-windows-validators-3", "tests/validators", 1),
+        ("windows-validators-4", "tests-windows-validators-4", "tests/validators", 1),
     ],
 )
 def test_windows_corpora_run_in_their_own_parallel_jobs(group_name: str, job: str, corpus: str, commands: int) -> None:
@@ -53,8 +55,9 @@ def test_windows_corpora_run_in_their_own_parallel_jobs(group_name: str, job: st
     assert selected == {corpus}
     assert len(group.commands) == commands, "each validator shard keeps its own 1800 s bound"
     assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in group.commands)
-    hooks = next(group for group in groups_for("platform") if group.name == "windows-hooks")
-    assert not any(corpus in c.argv for c in hooks.commands)
+    for hook_group in ("windows-hooks", "windows-hooks-rest"):
+        hooks = next(group for group in groups_for("platform") if group.name == hook_group)
+        assert not any(corpus in c.argv for c in hooks.commands)
     workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))
     steps = workflow["jobs"][job]["steps"]
     assert any(f"--only {group_name}" in str(step.get("run", "")) for step in steps)
@@ -64,9 +67,11 @@ def test_windows_validator_shards_partition_every_test_file() -> None:
     """Each tests/validators file runs in exactly one shard, including files added later."""
     import fnmatch
 
-    groups = [g for g in groups_for("platform") if g.name in ("windows-validators", "windows-validators-2")]
+    groups = [g for g in groups_for("platform")
+              if g.name in ("windows-validators", "windows-validators-2", "windows-validators-3",
+                            "windows-validators-4")]
     shards = [c for g in groups for c in g.commands if "tests/validators" in c.argv]
-    assert len(shards) == 4
+    assert len(shards) == 6
     assert all(c.timeout == 1800 for c in shards)
     assert all(c.env["NEXUS_TEST_POWERSHELL"] == "powershell" for c in shards)
     assert all(c.runs_on("windows") and not c.runs_on("linux") and not c.runs_on("macos") for c in shards)
@@ -77,6 +82,8 @@ def test_windows_validator_shards_partition_every_test_file() -> None:
     assert files
     future_names = [f"test_{letter}_future.py" for letter in "abcdefghijklmnopqrstuvwxyz"]
     future_names += ["test_co_future.py", "test_completion_future.py", "test_1_future.py", "test__future.py"]
+    future_names += ["test_mi_future.py", "test_minor_future.py", "test_minor_e_future.py",
+                     "test_minor_execution_future.py", "test_minore_future.py", "test_minor_x_future.py"]
     for path in files + [Path("future") / name for name in future_names]:
         # pytest matches --ignore-glob with fnmatch against the full path string.
         runs_in = [not any(fnmatch.fnmatch(str(path), g) for g in globs) for globs in ignores]

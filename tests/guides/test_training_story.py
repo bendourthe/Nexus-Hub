@@ -150,14 +150,14 @@ def playwright_mod():
     if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
     except Exception as exc:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-        pytest.skip(f"chromium is unavailable: {exc}")
+        raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
     return sync_playwright
 
 
@@ -465,13 +465,9 @@ def test_a_mark_lands_on_the_same_box_from_either_direction(browser) -> None:
 WORKFLOW_LABELS = ["Mapping", "Review", "Planning", "Build", "Testing", "Release"]
 
 
-def test_workflow_labels_are_keywords_and_match_the_home_strip() -> None:
-    """Strip labels are keyword nouns, not imperative phrases, and match Home's Development Workflow."""
+def test_workflow_labels_are_keywords() -> None:
+    """Strip labels are keyword nouns, not imperative phrases. (The Home strip they once matched left on 2026-11-10.)"""
     assert [w["label"] for w in _story()["workflow"]] == WORKFLOW_LABELS
-    guide = (WEB / "nexus-hub-guide.html").read_text(encoding="utf-8")
-    strip = guide[guide.index('id="nhg-loop"'):]
-    strip = strip[: strip.index("</div>")]
-    assert re.findall(r"</code><span>([^<]+)</span>", strip) == WORKFLOW_LABELS
 
 
 def test_static_stage_titles_match_the_rendered_titles() -> None:

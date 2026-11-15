@@ -43,6 +43,8 @@
         },
         "value": {"type": ["string", "null"]},
         "native": {},
+        "matches_default": {"type": "boolean"},
+        "mapped_effort": {"type": ["string", "null"]},
         "layer": {"type": ["string", "null"]},
         "layer_value": {"type": ["string", "null"]},
         "fix": {"type": ["string", "null"]},

@@ -2,7 +2,6 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-11-05
 **Open items**: 119
 
 ## v4.15.0
@@ -13,9 +12,9 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 38 | 1 |
-| Bugs / regressions (BG) | 5 | 0 |
-| Warnings (WN) | 30 | 0 |
-| Missing tests / coverage gaps (MT) | 7 | 0 |
+| Bugs / regressions (BG) | 4 | 3 |
+| Warnings (WN) | 30 | 1 |
+| Missing tests / coverage gaps (MT) | 8 | 0 |
 | Quality-gate gaps (QG) | 5 | 0 |
 
 ### Open Items
@@ -1625,6 +1624,16 @@
 - **Migrated from**: v4.14.8#MT-19 on 2026-11-04 (reason: user-deferred)
 - **Migration evidence**: left open by v4.14.8, the last plan of v4.14
 
+#### MT-8: The native live-effort launcher has no hosted Windows CI run
+
+**Source phase**: v4.15 settings integration (PR #626)
+
+**Plan reference**: [settings integration handbook review](development/settings-multi-host-distribution-handbook-review.md)
+
+**Reason**: `extensions/nexus-hub-settings/test/liveEffort.test.ts` compiles and runs the real Windows launcher, so it runs only on Windows and the Linux coverage gate excludes `src/liveEffort.ts`. A `windows-latest` leg added to `nexus-hub-settings.yml` compiled the launcher, but three launcher tests failed on the hosted runner: the launcher exited non-zero before writing output ("Launcher failed", then 45-second timeouts). The same tests pass on a developer Windows machine. The test does not capture the launcher's stderr, so the cause is unknown, and the leg was removed rather than merged red.
+
+**Suggested next step**: capture the launcher's stderr and exit code in the test, re-add a `windows-latest` leg, and fix the hosted-runner difference; then make the Windows leg measure `src/liveEffort.ts` coverage.
+
 #### QG-4: The agent label target was missed by one (7 of 10, target 8)
 
 **Source phase**: v4.14.8 Phase 4 T031
@@ -1693,7 +1702,7 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Owner**: catalog maintainer. **Severity**: low - every other rostered model is refreshed and both refreshed rosters read IN SYNC. **Status**: open. **Suggested next step**: research the variants on their own Antigravity and Cursor documentation, and add Grok 4.7 once Cursor publishes its model id.
 
-#### BG-5: Windows Store Python 3.12 rejects stable native qualification reports
+#### BG-5: Windows Store Python 3.12 rejects stable native qualification reports - RESOLVED 2026-11-14
 
 **Source phase**: v4.14 minor-close repair qualification on 2026-11-05. **Plan reference**: [archive batching repair](../../../archives/v4/v4.14/development/v4.14-archive-batching-repair.md), local consumer qualification. This is an independently reproduced limitation in the existing v4.15 qualification path, not a migration of a v4.14 gap.
 
@@ -1701,11 +1710,69 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 **Evidence**: Both unchanged historical-publication cases and the strict delayed-file reader pass in a private Python 3.11.15 environment matching CI. The full replacement consumer run is recorded separately in the repair evidence. The observed Python 3.12 native minor-archive success and partial-failure rollback also remain separate evidence; they do not exercise this v4.15 report reader.
 
-**Owner**: native qualification maintainer. **Severity**: medium - false refusal blocks the v4.15 qualification path on the observed host. **Status**: open.
+**Owner**: native qualification maintainer. **Severity**: medium - false refusal blocks the v4.15 qualification path on the observed host. **Status**: resolved 2026-11-14 on `fix/checker-bg5-bg6`.
 
 **Suggested next step**: Establish a consistent trusted Windows timestamp identity across path and descriptor reads, retain replacement and active-writer detection, and qualify delayed writes plus native report production under Python 3.11 and the affected Python 3.12 build. Provision declared dependencies inside the isolated runner rather than disabling package isolation. Other Python 3.12 builds have not been qualified by this observation.
 
 **Proving command**: From the repository root on Windows PowerShell 5.1 with the observed Store build: `python -m pytest tests/validators/test_member_archive.py -k test_v415_no_change_historical_publication_survives_later_sibling_inputs -q`. Retain the reader error, dependency evidence, and an independent stable delayed-file probe; require both unchanged cases to pass after the runtime correction.
+
+**Addendum, 2026-11-12 (v4.15.0 Phase 3)**: The cause is not specific to the Store build. On Windows CPython 3.12 and later, `os.stat` reports `st_ctime` as birth time while `os.fstat` on a handle reports change time, and `_v415_read` compares the two. The v4.15.0 full suite reproduced it as 35 `test_v415_*` failures under the Store 3.12.10 interpreter. A second defect showed in the same group: the JSON depth guard relied on `RecursionError`, which CPython 3.12's higher C recursion limit no longer raises at depth 2,000. A fix (compare ctime only within one stat source; explicit JSON depth cap of 64; parametrized regression tests that simulate the 3.12 behavior, so CI on 3.11 also catches a regression) is committed as `23fbdd3e1` on the local branch `fix/v415-checker-py312-portability`. It was removed from v4.15.0 because `scripts/check_plan_completion.py` is v4.15.4's claimed file. **Owner**: v4.15.4. **Next step**: apply that branch on v4.15.4 after it refreshes onto `develop`, then run the proving command above under Python 3.11 and 3.12.
+
+**Resolution**: The fix from `23fbdd3e1` was re-applied on current `develop` (`scripts/check_plan_completion.py` is no longer claimed by an open member). `_v415_read` now compares `st_ctime` only between two calls of the same kind (path `stat` before and after, handle `fstat` before and after) and still compares device, inode, size and modification time across all of them, so replacement and active-writer detection are kept. The JSON depth guard is an explicit, non-recursive cap of 64 nested containers (`qualification-json-depth`) instead of a `RecursionError`. Two regression tests in `tests/validators/test_check_plan_completion.py` simulate the 3.12 behavior on any interpreter: the new ctime test and the depth test both fail against the old reader on 3.11 and 3.12 and pass with the fix.
+
+**Proving output** (private virtual environments with the declared CI test dependencies; the default Store interpreter keeps pytest in its user site, which the qualification child hides with `PYTHONNOUSERSITE`, so it reports `qualification-gate-failed` for that setup reason alone): Python 3.12.10, before the fix, `python -m pytest tests/validators/test_member_archive.py -k test_v415_no_change_historical_publication_survives_later_sibling_inputs -q` gave `2 failed, 49 deselected` (`qualification-input-changed`); after the fix, `2 passed, 49 deselected`. Python 3.11, after the fix, `2 passed, 49 deselected`. The two new regression tests: `4 passed` on both interpreters after the fix.
+
+#### BG-6: Coordinator output permission is refused when a member's start head is a merge commit - RESOLVED 2026-11-14
+
+**Source phase**: v4.15.0 Phase 3, 2026-11-12. **Plan reference**: v4.15.0 T220 publication; `record permit-outputs` in `scripts/completion_minor.py`.
+
+**Reason**: `record permit-outputs` runs `_v415_original_scope`, which requires `_historical_claim_status` to return met on the controller HEAD. That status is met only when the controller's last merge is the member's own contribution, or when HEAD equals a single-parent start head. v4.15.0's real start head `ff69aff88` is the merge of PR #568, so on the unchanged controller (`ff5441a85`) the check returned unmet and the render failed with `v415-outputs-original-scope-unverified`. The test fixtures only use a single-parent start head, which is why the suite stayed green. Every real start head on `develop` is a pull-request merge.
+
+**Evidence**: A scratch wrapper logged each sub-check during a read-only render: `_worker_context` and the index flags passed, `_historical_claim_status` returned unmet. With the user's approval, v4.15.0's branch was merged into a temporary local branch on the controller (`5f991ca87`, never pushed); the same render then passed, and the permission was recorded (`PERMITTED active coordinator outputs v4.15.0`). The controller was then switched back to `chore/v4.15-controller-g2`.
+
+**Owner**: v4.15.4 (owns the minor checker). **Severity**: medium - every member whose start head is a merge commit needs the same manual workaround to get a coordinator-output permission. **Status**: resolved 2026-11-14 on `fix/checker-bg5-bg6`.
+
+**Suggested next step**: Accept a start head with more than one parent by comparing against its first parent, add a fixture whose start head is a two-parent merge, and keep the existing refusal for a HEAD that carries another member's unpublished work.
+
+**Proving command**: `python -m pytest tests/validators/test_check_plan_completion.py -k permit_outputs -q` with a new case whose start head is a two-parent merge; it must render without the local merge workaround.
+
+**Resolution**: `_v415_original_scope` (`scripts/completion_minor.py`) no longer asks the merge audit to compare a controller that is still at the member's start head with that same head. A two-parent start head cannot be compared with itself (the audit requires the start head to be an ancestor of each parent of the commit being audited), so it returned `cannot-verify`. A controller whose `HEAD` equals the member's `start_head` carries no work after it and passes this check. Any other `HEAD` still goes through `_historical_claim_status`, so a controller that carries another member's unpublished work, or any unclaimed commit, is still refused; the existing `test_v415_controller_prewrite_cannot_be_legalized_by_captured_permission` and `test_v415_original_scope_rechecks_worker_prewrite_before_consume` cases keep passing. The new case `test_v415_started_member_whose_start_head_is_a_two_parent_merge_can_be_permitted` in `tests/validators/test_m5_manifest_permission.py` builds a start head with two parents and a worker branched from it, then renders and consumes the permission with no local merge workaround.
+
+**Proving output**: `python -m pytest tests/validators/test_m5_manifest_permission.py -k two_parent_merge -q` on Python 3.11, before the fix: `1 failed, 1 skipped` (`error: v415-outputs-original-scope-unverified`); after the fix: `1 passed, 1 skipped` (the skip is the unstarted member, which records no start head). The file `tests/validators/test_check_plan_completion.py` holds no `permit_outputs` case, so the existing permission cases in `test_m5_manifest_permission.py` are the ones run alongside it.
+
+#### BG-7: The v4.15.0 release shipped a manifest older than one released file - RESOLVED 2026-11-13
+
+**Source phase**: v4.15.0 release artifact round trip, 2026-11-13. **Plan reference**: `/update release` supply-chain manifest step; `scripts/generate_manifest.py`.
+
+**Reason**: `MANIFEST.sha256` was regenerated in the release commit `7830cc603` on 2026-11-12. The CI job split (#642, `b55b5f9ad`) then changed `scripts/ci/profiles.py` on `develop` and went out with the release, but nothing regenerated or checked the manifest before the `v4.15.0` tag. The release flow regenerates the manifest once, at the release commit, and never re-checks it against the commit that is actually tagged.
+
+**Evidence**: The downloaded `v4.15.0` source archive verified with `python -I -B scripts/verify_install.py --root <archive root>` reports `MODIFIED scripts/ci/profiles.py`, `OK 2125 file(s) match`, `verify: FAIL (1 modified, 0 missing, 0 extra)`. Regenerating on `develop` changes only that entry (`35281d55...` to `deace829...`).
+
+**Owner**: v4.15.4 (owns the release-precondition checker). **Severity**: medium - every install from `main` reported `nexus-hub verify` FAIL until the refreshed manifest reached `main`; the stale file is CI-only and never runs on a user machine. **Status**: resolved 2026-11-13 on `fix/pre-tag-manifest-check`. The symptom was fixed on `main` by the manifest refresh pull requests; the `v4.15.0` tag is unchanged, and its Release page notes the stale entry.
+
+**Resolution**: `check_release_preconditions.py --pre-tag` now regenerates the manifest for HEAD in memory (`generate_manifest.compute_manifest_at_ref`: git blob bytes through each path's `eol` attribute, so `core.autocrlf` does not matter) and compares it with the committed `MANIFEST.sha256`. It exits 1 and names every changed, missing, or extra path. The branch assertions and their output order are unchanged. Tests in `tests/validators/test_check_release_preconditions.py` cover a covered file changed after the manifest commit (fails, names the path), added and removed files, a regenerated and committed manifest (passes), and the command-line exit code. `catalog/commands/update.md` documents the step.
+
+**Proving output** (`python -B scripts/check_release_preconditions.py --pre-tag --release-branch fix/pre-tag-manifest-check` on the `origin/develop` tip `a2f0f43fd`, exit 1; the branch line is expected because the fix branch has no remote copy): `BLOCKED -- do not create the tag (stale manifest)`, `MANIFEST.sha256 is stale at HEAD; 3 path(s) differ`, naming `catalog/skills/workflow/implement-phase/references/completion-contract.md`, `scripts/completion_minor.py`, and `scripts/lib/settings_control/resolve.py`. Those three are ordinary develop drift that the release commit regenerates; the same command passes on a tree whose manifest was regenerated and committed, as `test_regenerated_and_committed_manifest_passes` proves.
+
+**Suggested next step**: Make `check_release_preconditions.py --pre-tag` regenerate the manifest in a temporary location and fail when it differs from the committed `MANIFEST.sha256` at the tagged commit, with a test that changes a covered file after the manifest commit.
+
+**Proving command**: `python -B scripts/check_release_preconditions.py --pre-tag` exits non-zero on a fixture where a covered file changed after `MANIFEST.sha256` was generated, and exits 0 after `python -B scripts/generate_manifest.py` is committed.
+
+#### WN-31: The OpenCode lever row records keys the vendor page no longer documents - RESOLVED 2026-11-14
+
+**Source phase**: v4.15.0 release platform verification, 2026-11-12. **Plan reference**: [release platform verification](development/v4.15.0-platform-verification.md), advisory lever table.
+
+**Reason**: The OpenCode configuration page fetched on 2026-11-12 documents `permissions` (plural, a rule list) and no longer mentions `small_model`. The row in `docs/policy/platform-defaults-levers.md` records `permission` and `small_model`. Nothing is seeded for OpenCode in `configs/platform-defaults.json`, so no delivered behavior is affected.
+
+**Owner**: catalog maintainer. **Severity**: low - advisory documentation only. **Status**: resolved 2026-11-14 on `fix/wn31-opencode-lever-row`.
+
+**Resolution**: The OpenCode page was re-fetched on 2026-11-14 from https://opencode.ai/docs/config/ (the only first-party configuration reference found; it links no separate v2 page). It documents `model`, `permissions` (an ordered array of `action`/`resource`/`effect` rules, `effect` one of `allow`, `deny`, `ask`), `default_agent`, and `subagent_depth`; it mentions neither the singular `permission` nor `small_model`, and documents no reasoning-effort or approval-policy setting. The lever row in `docs/policy/platform-defaults-levers.md` now lists `model`, `permissions`, `default_agent`, dated 2026-11-14, and its detail paragraph states that no behavioral-default lever is documented. Classification stays VERIFIED for the read surface (paths and merge semantics unchanged). `configs/platform-defaults.json` is unchanged: no flat default lever exists, so nothing is seeded for OpenCode.
+
+**Proving output**: `python -B scripts/check_platform_contract_freshness.py` printed `[contract-freshness] OK: contract verified for v4.15.0 (last_verified 2026-11-12).`; `python -m pytest -q tests/validators/test_platform_defaults_levers.py` printed `25 passed`; `python -B scripts/sync_platform_defaults.py --check` printed `platform-defaults OK -- 14 platform(s), all derived artifacts in sync`.
+
+**Suggested next step**: Re-read the OpenCode v2 configuration reference, correct the row's keys and classification, and keep `configs/platform-defaults.json` unchanged unless a VERIFIED lever is found.
+
+**Proving command**: `python -B scripts/check_platform_contract_freshness.py` stays green, and the corrected row cites a fetched first-party OpenCode URL with its date.
 
 ### AR-34: No live macOS installer smoke has been recorded
 

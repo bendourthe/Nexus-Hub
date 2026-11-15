@@ -273,7 +273,7 @@ def test_concurrent_commands_keep_every_record_entry_and_every_value(machine: Ma
         assert key in held, f"{key} was written but is not in the record"
     data = claude(machine)
     assert data["permissions"]["defaultMode"] == "default" and data["effortLevel"] == "high" and "attribution" not in data
-    assert data["env"] == {"KEEP": "yes"}
+    assert data["env"] == {"KEEP": "yes", "CLAUDE_CODE_EFFORT_LEVEL": "high"}
     for control in ("effort", "posture", "git_guardrails"):
         apply.reset_control(machine.context(catalog), control)
     apply.reset_control(machine.context(catalog), "model", "claude")
@@ -285,11 +285,8 @@ def test_a_refused_write_removes_only_its_own_entries_from_a_record_another_comm
     machine.put("claude-user", '{"model": "sonnet"}\n')
     machine.put("codex-user", 'model = "gpt-6.1-sol"\n')
     real_commit = writers.commit
-    state = {"calls": 0}
-
     def commit(plan: writers.Plan) -> bool:
-        state["calls"] += 1
-        if state["calls"] == 2:  # the second file group is refused after the first one was recorded
+        if plan.loaded.real == machine.path("codex-user"):
             raise writers.WriterRefusal("refused for the test")
         return real_commit(plan)
 

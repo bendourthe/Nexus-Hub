@@ -2,7 +2,7 @@
   "name": "copilot-usage-monitor",
   "displayName": "Copilot Usage Monitor",
   "description": "Monitor your GitHub Copilot usage in the status bar as a percentage: your plan's own quota, or your organization's shared AI-credit pool once an owner connects it",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -87,7 +87,7 @@
       "activitybar": [
         {
           "id": "copilotUsageWarning",
-          "title": "Copilot Usage Warning",
+          "title": "Copilot",
           "icon": "icons/warning.svg"
         }
       ]
@@ -96,7 +96,7 @@
       "copilotUsageWarning": [
         {
           "id": "copilotUsageWarningView",
-          "name": "Usage Warning",
+          "name": "Usage alert",
           "type": "webview",
           "when": "copilotUsage.warningActive"
         }

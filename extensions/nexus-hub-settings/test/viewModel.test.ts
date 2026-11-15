@@ -11,6 +11,7 @@ import {
   outcomeNotes,
   outcomeRows,
   overlayEditorRow,
+  summarizePreferences,
 } from "../src/viewModel";
 import { EDITOR_REASON, explains, layers, showReport, withEditorWriteAdmitted } from "./fixtures";
 
@@ -19,6 +20,31 @@ const STATES: State[] = ["in-effect", "tool-default", "overridden-by", "not-sett
 function model() {
   return buildModel({ report: showReport(), explains: explains(), inspect: (key) => layers(key), trusted: true, profile: "Default" });
 }
+
+describe("native effort equivalence", () => {
+  it("uses engine mapping readback instead of comparing portable and native names", () => {
+    const view = model();
+    const effort = view.controls.find((c) => c.id === "effort")!;
+    effort.choices.push("ultra");
+    const row = effort.rows.find((r) => r.tool === "claude")!;
+    effort.rows = [
+      { ...row, tool: "internal", value: "ultra", state: "in-effect" },
+      { ...row, value: "max", state: "in-effect", matchesDefault: true, mappedEffort: "max" },
+    ];
+    expect(summarizePreferences(view)).toMatchObject({ effort: "ultra", needsAttention: false });
+    effort.rows[1]!.matchesDefault = false;
+    expect(summarizePreferences(view).needsAttention).toBe(true);
+  });
+
+  it("preserves mapped readback fields in the model", () => {
+    const report = showReport();
+    const row = report.records.find((r) => r.control === "effort" && r.tool === "claude")!;
+    row.matches_default = true;
+    row.mapped_effort = "max";
+    const view = buildModel({ report, explains: explains(), inspect: (key) => layers(key), trusted: true, profile: "Default" });
+    expect(view.controls.find((c) => c.id === "effort")!.rows.find((r) => r.tool === "claude")).toMatchObject({ matchesDefault: true, mappedEffort: "max" });
+  });
+});
 
 describe("state to badge mapping", () => {
   it("gives every engine state a badge with text and an icon (no colour-only signal)", () => {

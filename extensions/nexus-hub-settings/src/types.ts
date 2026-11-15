@@ -44,6 +44,9 @@ export interface ShowRecord {
   caveats: string[];
   writes: string[];
   removable_override: RemovableOverride | null;
+  /** Native mapping/readback supplied by the engine, including model-specific ceilings. */
+  matches_default?: boolean;
+  mapped_effort?: string;
 }
 
 export interface ShowReport {

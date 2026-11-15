@@ -264,7 +264,7 @@ def test_upgrade_reuses_installers_that_reach_registry_dispatcher() -> None:
 def test_org_guide_is_linked_and_carries_the_capability_gate_contract() -> None:
     guide_path = REPO_ROOT / "guides" / "ORG_KNOWLEDGE_LAYER.md"
     guide = guide_path.read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "docs" / "guides" / "installation-and-platforms.md").read_text(encoding="utf-8")
     agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
 
     for label in ("Activation:", "Validation:", "Rollback:", "Authority:", "Docs:"):

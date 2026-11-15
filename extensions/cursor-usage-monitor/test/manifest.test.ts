@@ -54,9 +54,13 @@ describe("runtime manifest", () => {
         "cursorUsage.staleAfterMinutes"
       ])
     );
-    expect(
-      Object.keys(manifest.contributes.configuration.properties)
-    ).not.toEqual(expect.arrayContaining([expect.stringMatching(/colors?/iu)]));
+    // Colors are declared (an undeclared key cannot be written) and are never the
+    // only signal: statusBarManager also names the level in text.
+    expect(manifest.contributes.configuration.properties).toMatchObject({
+      "cursorUsage.colors.moderate": { type: "string", default: "#cca700" },
+      "cursorUsage.colors.high": { type: "string", default: "#f0643c" },
+      "cursorUsage.colors.critical": { type: "string", default: "#e05555" }
+    });
   });
 
   it("does not expose credentials, tokens, or secrets as settings", () => {

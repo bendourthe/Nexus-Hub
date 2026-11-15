@@ -1,3 +1,4 @@
+import { usageAlertEnabled, watchUsageAlerts } from "./alertPreferences";
 import * as vscode from "vscode";
 import { METER_FILL_COLOR } from "./types";
 import { escapeHtml, formatQuantity } from "./formatters";
@@ -20,6 +21,11 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private suggestion: UsageSuggestion | undefined;
   private callbacks: WarningCallbacks | undefined;
   private dismissTimer: ReturnType<typeof setTimeout> | undefined;
+
+  watchAlerts(): {dispose(): void} {
+    const watcher = watchUsageAlerts("cursor", () => { if (this.suggestion) { void this.dismiss(); } });
+    return {dispose: () => { watcher.dispose(); this.clearDismissTimer(); }};
+  }
 
   public constructor(private readonly extensionUri: vscode.Uri) {}
 
@@ -53,10 +59,11 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     suggestion: UsageSuggestion,
     callbacks: WarningCallbacks
   ): Promise<void> {
+    if (!usageAlertEnabled("cursor")) { if (this.suggestion) { await this.dismiss(); } return; }
     this.clearDismissTimer();
     this.dismissTimer = setTimeout(() => {
       void this.dismiss();
-    }, 60_000);
+    }, 10_000);
     this.suggestion = suggestion;
     this.callbacks = callbacks;
     await vscode.commands.executeCommand(
@@ -64,6 +71,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       WARNING_ACTIVE_CONTEXT,
       true
     );
+    if (!usageAlertEnabled("cursor")) { await this.dismiss(); return; }
     if (this.view !== undefined) {
       this.view.webview.html = this.render(this.view.webview);
       this.view.show(true);
