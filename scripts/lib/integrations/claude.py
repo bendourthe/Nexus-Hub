@@ -301,7 +301,8 @@ def _read_instruction_value(path: Path) -> tuple[Optional[dict], str]:
         return {}, "absent"
     try:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
+        # RecursionError: a hostile, deeply nested file must read as unknown, not crash.
         return None, f"{path.name} is unreadable or not JSON"
     if not isinstance(data, dict):
         return None, f"{path.name} root is not an object"
@@ -320,8 +321,11 @@ def _read_instruction_value(path: Path) -> tuple[Optional[dict], str]:
             return None, f"{path.name} {plugin_id} options are malformed"
         value = options.get("instructionFiles")
         if value is None and "projectInstructions" in options:
-            value = LEGACY_PROJECT_INSTRUCTIONS.get(options["projectInstructions"], "invalid")
+            legacy = options["projectInstructions"]
+            value = LEGACY_PROJECT_INSTRUCTIONS.get(legacy, "invalid") if isinstance(legacy, str) else "invalid"
         if value is not None:
+            if not isinstance(value, str):
+                return None, f"{path.name} has an unrecognized instructionFiles or projectInstructions value"
             values.add(value)
     if values - set(INSTRUCTION_FILES_VALUES):
         return None, f"{path.name} has an unrecognized instructionFiles or projectInstructions value"
@@ -534,14 +538,22 @@ class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
         finally:
             self._consume_shared_agents = False
         result.files = notes + list(result.files)
-        result.files.append(persist_decision(ctx, root, self.key, decision))
         if decision["effective_path"] == "AGENTS.md":
-            shared = self.write_shared_agents(root, ctx)
-            if shared is not None:
-                result.files.append(shared)
-            result.files.append(self._write_sidecar(root, ctx))
+            try:
+                written = [self.write_shared_agents(root, ctx), self._write_sidecar(root, ctx)]
+                result.files.extend(a for a in written if a is not None)
+            except (OSError, UnicodeError) as exc:
+                # The shared file or the sidecar cannot be written (a directory in the way, an
+                # unreadable user file). Never leave the project without instructions: fall back
+                # to the managed CLAUDE.md and record why.
+                decision = dict(decision, effective_path="CLAUDE.md", confidence="unknown",
+                                reason=f"shared AGENTS.md could not be written ({type(exc).__name__})")
+                action = self._write_instruction(root, ctx)
+                if action is not None:
+                    result.files.append(action)
         else:
             ctx.manifest.log(self.key, f"project instructions stay on CLAUDE.md: {decision['reason']}")
+        result.files.append(persist_decision(ctx, root, self.key, decision))
         return result
 
     def _migrate_project_claude_md(self, root: Path, ctx: InstallContext) -> list[FileAction]:

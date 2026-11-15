@@ -922,6 +922,47 @@ def test_nexus_hub_init_writes_no_instruction_files_setting(tmp_path):
     assert "instructionFiles" not in stub and "pluginConfigs" not in stub and "projectInstructions" not in stub
 
 
+# --- Tier 3 hardening: hostile settings and unwritable shared files (v4.15.2) ---
+
+
+@pytest.mark.parametrize("value", [["claude-md"], {"a": 1}, 7, True, 3.5])
+def test_non_string_instruction_values_are_unknown_not_a_crash(tmp_path, value):
+    _user_settings(tmp_path, _entry(value))
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+
+
+@pytest.mark.parametrize("legacy", [["both"], {"k": "v"}, 5, ""])
+def test_non_string_legacy_values_are_unknown_not_a_crash(tmp_path, legacy):
+    _user_settings(tmp_path, _entry(None, projectInstructions=legacy))
+    assert _decide(tmp_path)["effective_path"] == "CLAUDE.md"
+
+
+def test_a_deeply_nested_settings_file_is_unknown_not_a_crash(tmp_path):
+    _user_settings(tmp_path, "[" * 5000 + "]" * 5000)
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+
+
+def test_an_unwritable_shared_file_falls_back_to_claude_md_and_records_why(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "AGENTS.md").mkdir()  # a directory where the shared file must go
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    assert (project / "CLAUDE.md").is_file(), "never leave the project without instructions"
+    saved = read_decision(project.resolve())
+    assert saved["effective_path"] == "CLAUDE.md" and "could not be written" in saved["reason"]
+
+
+def test_an_unwritable_sidecar_falls_back_to_claude_md(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    (project / ".claude").mkdir(parents=True)
+    (project / ".claude" / "rules").write_text("a file where the rules folder must go", encoding="utf-8")
+    _install_claude(tmp_path, monkeypatch)
+    assert (project / "CLAUDE.md").is_file()
+    assert read_decision(project.resolve())["effective_path"] == "CLAUDE.md"
+
+
 @pytest.fixture(autouse=True)
 def _isolated_nexus_home_v4152(tmp_path, monkeypatch):
     """The merge owner keeps lock and backup state under NEXUS_HUB_HOME; never the real home."""
