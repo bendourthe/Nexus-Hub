@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 122
+**Open items**: 119
 
 ## v4.15.0
 
@@ -3645,60 +3645,3 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
-
-## v4.15.1
-
-### Summary
-
-| Category | Open | Resolved |
-|---|---|---|
-| Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 2 |
-| Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 0 | 1 |
-| Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
-
-### Open Items
-
-#### DF-40: Raising `references/` adoption beyond the measured 163 of 340 skills
-
-**Source phase**: Phase 3, T111 known-gaps reconciliation. **Plan reference**: [`v4.15.1-adoption-model-adaptive-harness.md`](plans/v4.15.1-adoption-model-adaptive-harness.md), sub-task 3.2 item 3.
-
-The plan named 156 of 337 skills as the measured count. A scan of the merged tree on 2026-11-14 finds 163 of 340 skill folders with a `references/` directory. The count is descriptive; this plan changes no skill.
-
-**Owner**: catalog maintainer. **Severity**: low (P3, high effort). **Status**: open. **Suggested next step**: decide in a future plan whether a target share of skills should carry Tier-3 references, and which skills benefit; no work is scheduled here.
-
-- **Acceptance**: a plan states a target share and a per-skill selection rule
-- **Proving command**: manual: count skill folders containing `references/` and compare with the stated target
-
-#### DF-41: No root STRATEGY.md exists to ground queued plans
-
-**Source phase**: Phase 3, T111 known-gaps reconciliation. **Plan reference**: [`v4.15.1-adoption-model-adaptive-harness.md`](plans/v4.15.1-adoption-model-adaptive-harness.md), Knowledge-base grounding and sub-task 3.2 item 5.
-
-The seven-lens review's product lens noted that several queued plans record the same absence of a root `STRATEGY.md`. A check on 2026-11-14 confirms the file is still absent. This plan creates none.
-
-**Owner**: `product-strategy` skill owner. **Severity**: low. **Status**: open. **Suggested next step**: run `[[product-strategy]]` to author the anchor in a separate change, then re-ground the queued plans against it.
-
-- **Acceptance**: a root `STRATEGY.md` exists and is cited by at least one plan's grounding section
-- **Proving command**: `python -B -c "import pathlib; print(pathlib.Path('STRATEGY.md').exists())"` prints `True`
-
-#### DF-42: Benefit, cache, and interactive model-switch behavior remain unqualified for any future runtime proposal
-
-**Source phase**: Phase 1 and Phase 3, T103 and sub-task 3.8. **Plan reference**: [`v4.15.1-adoption-model-adaptive-harness.md`](plans/v4.15.1-adoption-model-adaptive-harness.md), sub-tasks 1.2 and 3.8.
-
-The injection experiment labels model benefit and live prompt-cache behavior UNEVALUATED, the symlink-path control was unavailable on the Windows account used, and no interactive `/model` switch was observed against transcript metadata. The decision declines an automatic runtime on this evidence, so none of these blocks the verdict. They are the evidence a future runtime proposal would have to supply first.
-
-**Owner**: catalog maintainer. **Severity**: low. **Status**: open. **Suggested next step**: if a runtime is ever proposed again, qualify the three limits before the proposal, and ask a human to switch models mid-session and confirm the transcript metadata follows the switch.
-
-- **Acceptance**: a future proposal cites a measured benefit, a cache observation, and a model-switch observation
-- **Proving command**: manual: open the future proposal's evidence and confirm each of the three items is present with a quoted observation
-
-### Resolved
-
-| ID | Title | Resolved in | Notes |
-|---|---|---|---|
-| DF-43 | Profile-layer automatic consumer gap | Phase 2 | Closed by documentation: the rejected decision `2026-10-31-model-adaptive-runtime-platform-scope.md` declines automatic injection. The profile layer stays authoring input (`apply_prompting_edits.py`) and on-demand Tier-3 reading |
-| DF-44 | Model-adaptive routing on non-Claude platforms | Phase 2 | Unavailable by design, not backlog: this plan ships no automatic runtime on any platform, and no adapters are owed to the other platforms |
-| BG-8 | Profile index labels non-Claude models with the claude-code platform | Phase 1 | Absent under the exact historical check on 2026-11-14: 0 of 70 profiled models outside the claude family carry that label. Platform mappings in general are not independently qualified by this result |
-| WN-32 | One skill body measured at 802 lines against the 800-line cap | Phase 3 | Obsolete: a scan of all 340 skill bodies on 2026-11-14 finds a maximum of 796 lines and none above 800 |
