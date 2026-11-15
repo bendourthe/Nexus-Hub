@@ -67,6 +67,10 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-opencode.md",
+        # v4.15.2: workspace root AGENTS.md is the shared project block; the only
+        # OpenCode-specific line was the skills-folder pointer, and OpenCode
+        # discovers skills natively. Global scope keeps base-opencode.md.
+        "shared_agents_consumer": True,
         # OpenCode discovers skills one level deep (skills/<name>/SKILL.md) and
         # also reads the ~/.claude/skills and ~/.agents/skills aliases; flatten the
         # <category>/ layer and add command-skills (v3.12.0 Phase 4).

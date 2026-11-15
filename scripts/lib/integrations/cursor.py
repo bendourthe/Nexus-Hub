@@ -40,7 +40,6 @@ import shlex
 import sys
 from pathlib import Path
 
-from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -193,15 +192,12 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         target_root = ctx.target_root.resolve()
         if not ctx.dry_run:
             target_root.mkdir(parents=True, exist_ok=True)
-        instr_dst = target_root / self.config["instruction_file"]
-        template = ctx.repo_root / self.config["instruction_template"]
-        if not template.exists():
-            result.files.append(FileAction(path=str(template), action="not-found"))
-        else:
-            rendered = self._render(template, ctx)
-            action = merge_instruction(instr_dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
-            ctx.manifest.track_shared(self.key, str(instr_dst))
-            result.files.append(action)
+        # v4.15.2: the project-root AGENTS.md is the shared project block. The only
+        # Cursor-specific line in the old template was the skills-folder pointer;
+        # `.cursor/rules/nexus-hub.mdc` below still carries the Cursor template.
+        shared = self.write_shared_agents(target_root, ctx)
+        if shared is not None:
+            result.files.append(shared)
 
         cursor_root = (target_root / self.config["workspace_dir"]).resolve()
         self._ensure_dir(cursor_root, ctx)

@@ -2087,7 +2087,12 @@ install_workspace() {
         # where Claude Code reads it; there is no Core Settings row because a
         # workspace install does not seed core settings.
         write_item "Claude Code" "$GRAY"
-        [ -f "$target_path/CLAUDE.md" ] && write_checklist_row "Core Files" "ok" "$target_path/CLAUDE.md"
+        if [ -f "$target_path/CLAUDE.md" ]; then write_checklist_row "Core Files" "ok" "$target_path/CLAUDE.md"; fi
+        # v4.15.2: when the recorded capability decision selects the shared project AGENTS.md
+        # (decision file written by the registry runner), no project CLAUDE.md exists by design.
+        if [ ! -f "$target_path/CLAUDE.md" ] && [ -f "$target_path/AGENTS.md" ] && [ -f "$target_path/.nexus-hub/claude-instruction-decision.json" ]; then
+            write_checklist_row "Core Files" "ok" "$target_path/AGENTS.md (shared project instructions)"
+        fi
         [ -d "$claude_dir/skills" ]     && write_checklist_row "Skills" "ok" "$claude_dir/skills"
         [ -d "$claude_dir/commands" ]   && write_checklist_row "Commands" "ok" "$claude_dir/commands"
         [ -d "$claude_dir/agents" ]     && write_checklist_row "Agents" "ok" "$claude_dir/agents"

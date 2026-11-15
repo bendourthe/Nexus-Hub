@@ -23,6 +23,7 @@ out to shell tools; all file operations use pathlib and shutil.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 from dataclasses import dataclass, field
@@ -677,6 +678,54 @@ class MarkdownIntegration(IntegrationBase):
                 rendered = rendered.rstrip("\n") + "\n\n" + fragment + "\n"
         return rendered
 
+    # v4.15.2 -- one platform-neutral owner for the project-root AGENTS.md managed
+    # block. Consumers (config flag `shared_agents_consumer`) render this template at
+    # workspace scope; the persisted manifest `shared` lists are the consumer record.
+    SHARED_AGENTS_TEMPLATE = "templates/ai-instructions/base-agents.md"
+
+    def _uses_shared_agents(self, ctx: InstallContext) -> bool:
+        """True for a workspace-scope consumer whose instruction file is the project-root AGENTS.md."""
+        return (
+            bool(self.config.get("shared_agents_consumer"))
+            and ctx.scope == "workspace"
+            and self.config.get("instruction_file") == "AGENTS.md"
+            and self.config.get("instruction_workspace_dir", self.config.get("workspace_dir")) == ""
+        )
+
+    @staticmethod
+    def _norm_path(path: str) -> str:
+        return os.path.normcase(os.path.abspath(path))
+
+    def other_consumers(self, ctx: InstallContext, path: Path | str) -> List[str]:
+        """Other integrations that still track `path` as a shared instruction file."""
+        want = self._norm_path(str(path))
+        # `all_keys()` lists only integrations with tracked files; a consumer that tracks
+        # nothing but a shared instruction file appears only in the serialized shared map.
+        shared_keys = ctx.manifest.to_dict().get("shared", {})
+        return sorted(
+            key
+            for key in shared_keys
+            if key != self.key
+            and any(self._norm_path(p) == want for p in ctx.manifest.shared_for(key))
+        )
+
+    def write_shared_agents(self, root: Path, ctx: InstallContext) -> Optional[FileAction]:
+        """Render the shared template into `<root>/AGENTS.md` as this integration's consumer record."""
+        template_path = ctx.repo_root / self.SHARED_AGENTS_TEMPLATE
+        if not template_path.exists():
+            ctx.manifest.log(self.key, f"missing-template: {template_path}")
+            return FileAction(path=str(template_path), action="not-found")
+        from scripts.lib.installer.instruction_merge import merge_instruction
+
+        dst = root / "AGENTS.md"
+        if not ctx.dry_run:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+        action = merge_instruction(
+            dst, self._render(template_path, ctx), ctx=ctx, legacy_header="## Nexus-Hub"
+        )
+        ctx.manifest.track_shared(self.key, str(dst))
+        return action
+
     def _write_instruction(
         self, dst_dir: Path, ctx: InstallContext
     ) -> Optional[FileAction]:
@@ -691,6 +740,10 @@ class MarkdownIntegration(IntegrationBase):
         instruction file is configured).
         """
         template_rel = self.config.get("instruction_template")
+        if self._uses_shared_agents(ctx):
+            # v4.15.2: a workspace consumer of the shared project AGENTS.md writes the
+            # platform-neutral body, so every consumer renders identical bytes.
+            template_rel = self.SHARED_AGENTS_TEMPLATE
         instruction_file = self.config.get("instruction_file")
         if not template_rel or not instruction_file:
             ctx.manifest.log(self.key, "no instruction_template/instruction_file configured")
@@ -773,8 +826,15 @@ class MarkdownIntegration(IntegrationBase):
             from scripts.lib.installer.instruction_merge import remove_marker_section
 
             for shared_path in list(ctx.manifest.shared_for(self.key)):
-                action = remove_marker_section(Path(shared_path), dry_run=ctx.dry_run)
-                result.files.append(action)
+                remaining = self.other_consumers(ctx, shared_path)
+                if remaining:
+                    # Last-consumer protection: another integration still relies on this
+                    # block, so only this integration's record is dropped.
+                    ctx.manifest.log(self.key, f"kept-shared: {shared_path} still used by {remaining}")
+                    result.files.append(FileAction(path=shared_path, action="kept"))
+                else:
+                    action = remove_marker_section(Path(shared_path), dry_run=ctx.dry_run)
+                    result.files.append(action)
                 ctx.manifest.untrack_shared(self.key, shared_path)
         result.extend(super().teardown(ctx))
         return result

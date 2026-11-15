@@ -663,14 +663,25 @@ def remove_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
     dry_run = bool(getattr(ctx, "dry_run", False))
     actions: list[FileAction] = []
     for path_str in list(manifest.org_shared_for(integration_key)):
-        actions.append(
-            remove_marker_section(
-                Path(path_str),
-                start_marker=ORG_START_MARKER,
-                end_marker=ORG_END_MARKER,
-                dry_run=dry_run,
+        # v4.15.2: several consumers can share one instruction file (the project
+        # AGENTS.md). The organization block stays while another consumer still owns it.
+        others = [
+            key
+            for key in manifest.all_org_keys()
+            if key != integration_key and path_str in manifest.org_shared_for(key)
+        ]
+        if others:
+            manifest.log(integration_key, f"org-knowledge: kept-shared: {path_str} still used by {others}")
+            actions.append(FileAction(path=path_str, action="kept"))
+        else:
+            actions.append(
+                remove_marker_section(
+                    Path(path_str),
+                    start_marker=ORG_START_MARKER,
+                    end_marker=ORG_END_MARKER,
+                    dry_run=dry_run,
+                )
             )
-        )
         manifest.untrack_org_shared(integration_key, path_str)
     owned = sorted(
         {Path(path) for path in manifest.org_files_for(integration_key)},

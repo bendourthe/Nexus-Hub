@@ -300,6 +300,9 @@ def test_instruction_body_parity_with_legacy_render(
 
     body = _extract_marker_body(instr_path.read_text(encoding="utf-8"))
     template_path = REPO_ROOT / integ.config["instruction_template"]
+    if integ._uses_shared_agents(ctx):
+        # v4.15.2: a workspace consumer renders the one shared project template.
+        template_path = REPO_ROOT / integ.SHARED_AGENTS_TEMPLATE
     expected = _reference_render(
         template_path.read_text(encoding="utf-8"), PARITY_VARS, REPO_ROOT, PARITY_LANGUAGES
     ).strip()

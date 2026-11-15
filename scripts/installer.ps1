@@ -2234,6 +2234,11 @@ function Install-Workspace {
             # because a workspace install does not seed core settings.
             Write-Item -Message "Claude Code" -Color "Gray"
             if (Test-Path (Join-Path $targetPath "CLAUDE.md")) { Write-ChecklistRow -Label "Core Files" -State "ok" -Detail (Join-Path $targetPath "CLAUDE.md") }
+            # v4.15.2: when the recorded capability decision selects the shared project AGENTS.md
+            # (decision file written by the registry runner), no project CLAUDE.md exists by design.
+            if (-not (Test-Path (Join-Path $targetPath "CLAUDE.md")) -and (Test-Path (Join-Path $targetPath "AGENTS.md")) -and (Test-Path (Join-Path $targetPath ".nexus-hub\claude-instruction-decision.json"))) {
+                Write-ChecklistRow -Label "Core Files" -State "ok" -Detail ((Join-Path $targetPath "AGENTS.md") + " (shared project instructions)")
+            }
             if (Test-Path (Join-Path $claudeDir "skills"))    { Write-ChecklistRow -Label "Skills" -State "ok" -Detail (Join-Path $claudeDir "skills") }
             if (Test-Path (Join-Path $claudeDir "commands"))  { Write-ChecklistRow -Label "Commands" -State "ok" -Detail (Join-Path $claudeDir "commands") }
             if (Test-Path (Join-Path $claudeDir "agents"))    { Write-ChecklistRow -Label "Agents" -State "ok" -Detail (Join-Path $claudeDir "agents") }

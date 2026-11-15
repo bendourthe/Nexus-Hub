@@ -225,3 +225,85 @@ def test_removing_the_block_from_one_template_is_detectable():
 
     assert HEADING not in mutated, "the mutation did not remove the block"
     assert BODY_MARKER not in mutated, "the mutation left the block body behind"
+
+
+# --- Shared project AGENTS.md: consumer lifecycle (v4.15.2, Phase 4) ---------
+
+
+def _shared_ctx(tmp_path, manifest):
+    from scripts.lib.integrations.base import InstallContext
+
+    project = tmp_path / "shared-project"
+    project.mkdir(exist_ok=True)
+    return InstallContext(
+        repo_root=Path(__file__).resolve().parents[2], target_root=project, scope="workspace",
+        instruction_only=True, manifest=manifest,
+    )
+
+
+def test_shared_block_survives_until_the_last_consumer_is_removed(tmp_path):
+    from scripts.lib.integrations.codex import CodexIntegration
+    from scripts.lib.integrations.manifest import InstallManifest
+    from scripts.lib.integrations.opencode import OpenCodeIntegration
+
+    manifest = InstallManifest()
+    ctx = _shared_ctx(tmp_path, manifest)
+    codex, opencode = CodexIntegration(), OpenCodeIntegration()
+    codex.install_workspace(ctx)
+    opencode.install_workspace(ctx)
+    agents = ctx.target_root / "AGENTS.md"
+    assert codex.other_consumers(ctx, agents) == ["opencode"]
+    codex.teardown(ctx)
+    assert agents.exists() and "NEXUS_HUB_START" in agents.read_text(encoding="utf-8")
+    assert opencode.other_consumers(ctx, agents) == []
+    opencode.teardown(ctx)
+    assert not agents.exists(), "the block (the only content) goes with the last consumer"
+
+
+def test_a_blocked_root_writer_cannot_remove_a_block_a_consumer_still_needs(tmp_path):
+    from scripts.lib.integrations import get
+    from scripts.lib.integrations.codex import CodexIntegration
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    manifest = InstallManifest()
+    ctx = _shared_ctx(tmp_path, manifest)
+    codex, antigravity = CodexIntegration(), get("antigravity2")
+    codex.install_workspace(ctx)
+    antigravity.install_workspace(ctx)
+    agents = ctx.target_root / "AGENTS.md"
+    assert agents.exists()
+    antigravity.teardown(ctx)
+    assert agents.exists(), "a non-consumer writer must not take the shared block with it"
+    codex.teardown(ctx)
+    assert not agents.exists()
+
+
+def test_user_bytes_around_the_shared_block_survive_every_teardown_order(tmp_path):
+    from scripts.lib.integrations.codex import CodexIntegration
+    from scripts.lib.integrations.manifest import InstallManifest
+    from scripts.lib.integrations.opencode import OpenCodeIntegration
+
+    manifest = InstallManifest()
+    ctx = _shared_ctx(tmp_path, manifest)
+    agents = ctx.target_root / "AGENTS.md"
+    agents.write_bytes(b"# Mine\r\nkeep this line\r\n")
+    codex, opencode = CodexIntegration(), OpenCodeIntegration()
+    codex.install_workspace(ctx)
+    opencode.install_workspace(ctx)
+    opencode.teardown(ctx)
+    codex.teardown(ctx)
+    assert agents.read_bytes().startswith(b"# Mine\r\nkeep this line")
+    assert b"NEXUS_HUB_START" not in agents.read_bytes()
+
+
+def test_repeated_consumer_install_does_not_duplicate_the_block(tmp_path):
+    from scripts.lib.integrations.codex import CodexIntegration
+    from scripts.lib.integrations.manifest import InstallManifest
+    from scripts.lib.integrations.opencode import OpenCodeIntegration
+
+    ctx = _shared_ctx(tmp_path, InstallManifest())
+    for _ in range(2):
+        CodexIntegration().install_workspace(ctx)
+        OpenCodeIntegration().install_workspace(ctx)
+    text = (ctx.target_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert text.count("NEXUS_HUB_START") == 1 and text.count("NEXUS_HUB_END") == 1
