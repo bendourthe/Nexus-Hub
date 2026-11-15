@@ -30,7 +30,7 @@ No code changed in this phase. PR #650 ("ci: split the slow Linux and Windows te
 | Partition proof, the same file included in two shards | Fails: "heavy and rest both run [...]" | A duplicated test is caught. |
 | `pytest` of the proof, `tests/ci`, report/cache/native-parity/guide-serial-shard workflow tests, required-gate and workflow-contract validators | 400 passed, 1 skipped in 321.5 s | Policy tests agree with the sharded profiles and workflow. |
 | `python scripts/check_required_check_coverage.py` | OK, 10 declared contexts produced unconditionally | No required context was added or made conditional. |
-| \`python scripts/ci/run.py --profile fast\` | 16 passed, 2 failed in 148.7 s | Both failures are mine and understood: \`validate_no_personal_paths\` flagged the worktree path in the Phase 1 history (fixed in this commit by editing \`history/v4.15.7/phase-1.md\`; the scan now reports no finding), and \`check_registry_entries\` still waits for the coordinator's \`data/skills.json\` delta D1. |
+| `python scripts/ci/run.py --profile fast` | 16 passed, 2 failed in 148.7 s | Both failures are mine and understood: `validate_no_personal_paths` flagged the worktree path in the Phase 1 history (fixed in this commit by editing `history/v4.15.7/phase-1.md`; the scan now reports no finding), and `check_registry_entries` still waits for the coordinator's `data/skills.json` delta D1. |
 | Post-merge CI evidence | 10 full-scope runs after PR #650: every Linux leg 3.6 to 15.2 min; gate mean 29.2 min | The shard set meets the 22-minute leg rule in measured time. |
 
 The two deliberate misplacements were run by a scratch script that imports the proof's own `_collect` and `assert_partition`; nothing in the repository was modified.
