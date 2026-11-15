@@ -12,6 +12,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/**/*.test.ts"],
+    setupFiles: ["test/isolate-home.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json", "clover"],

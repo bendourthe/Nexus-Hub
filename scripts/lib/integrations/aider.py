@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._detection import detect_platform
 from .base import InstallContext, MarkdownIntegration
 from .platform_defaults import _seed_yaml, declared_for
 from .result import FileAction, WriteResult
@@ -24,6 +25,15 @@ class AiderIntegration(MarkdownIntegration):
     display_name = "Aider"
     instruction_mode = "shared"
     config = {
+        # v4.14.7: detection evidence (decision D9). Executable only: Aider keeps
+        # no home folder, and ~/.aider.conf.yml is written by Nexus-Hub itself
+        # without being tracked, so the file is never treated as evidence.
+        # Signals: docs/archives/v4/v4.14/development/v4.14.7-detection-signals.md
+        "detection": {
+            "executables": ["aider"],
+            # Phase 5: merged or seeded settings, never deleted whole (value: pruner).
+            "shared_configs": {".aider.conf.yml": ""},
+        },
         "global_dir": None,
         # CONVENTIONS.md lands at the project root (where Aider reads it), so the
         # instruction dir is the workspace root itself.
@@ -34,8 +44,20 @@ class AiderIntegration(MarkdownIntegration):
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Seed global attribution settings and the shared policy read path."""
+        """Seed global attribution settings and the shared policy read path.
+
+        v4.14.7 (decision D9): only when Aider is detected, by its executable or
+        an explicit ``--platforms aider``. ``~/.aider.conf.yml`` is never
+        evidence, because this method writes it. A not-detected result also
+        stops the base dispatcher's defaults seeding (``detected is not False``).
+        """
         result = WriteResult()
+        detection = detect_platform(ctx, self)
+        if not detection.detected:
+            ctx.manifest.log(self.key, f"not detected ({detection.evidence}); skipping ~/.aider.conf.yml")
+            result.mark_not_detected(f"Aider not detected ({detection.evidence}); ~/.aider.conf.yml skipped", evidence=detection.evidence)
+            return result
+        result.detected = True
         self._attribution_config(ctx.global_root, ctx, result)
         return result
 

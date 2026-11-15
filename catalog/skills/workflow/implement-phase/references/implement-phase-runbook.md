@@ -8,7 +8,7 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 ## Reporting checkpoints
 
-At run start or resume, load [progress-reporting.md](progress-reporting.md) and initialize the report from available observations. At task boundaries and long-tool yields, check its next due time; report at phase completion and blocker/estimate transitions as well. The coordinator consolidates member observations and performs the efficiency review within existing admission and test-selection rules. On-demand `/update status` reads that reference only and does not enter Phase 0.
+At run start or resume, load [progress-reporting.md](progress-reporting.md) and [status-formats.md](status-formats.md) and initialize the report from available observations. Every message of the run ends with the compact footer; refresh it with a one-line note at phase completion and blocker/estimate transitions. The coordinator consolidates member observations and performs the efficiency review within existing admission and test-selection rules. On-demand `/status` (alias `/update status`) reads those references only and does not enter Phase 0.
 
 ## Phase 0: Resolve plan, version, and phase
 
@@ -32,6 +32,8 @@ At run start or resume, load [progress-reporting.md](progress-reporting.md) and 
 ### Phase 0a: Upfront approval round (full mode)
 
 A full run asks once. Before the first phase:
+
+When newly approved unshipped plans exist outside an active minor's frozen membership, follow the completion contract's [Minor scope amendment](completion-contract.md#minor-scope-amendment) procedure. Do not overwrite the existing run, absorb new plans implicitly, or treat its original approval as approval of the additions. Keep phase execution behind the contract's genuine continuation and admission checks.
 
 1. **Inspect the existing run first.** Show open blockers and pause state. Apply the completion contract's "Authorization policy" before requesting any new consent. Continue automatically only when native verification covers the exact action; a real failed check, edit conflict or tampered record remains unresolved. When a manual decision is needed, use the contract's "Manual decisions" procedure, keeping the same pending question for unchanged conditions. Resume never silently clears a technical blocker.
 2. **Describe the initial scope once.** List the resolved plan or frozen minor members, repository and branches, releases, cleanup, spend caps, exclusions and the bounded corrections the run requires. Explain the concrete results in plain language. The completion contract owns which classes, bounds and explicitly named CI/security paths can be authorized; do not infer blanket permission or repeat unconditional prohibitions from older templates. Include the required carry, archive and closing-pull-request classes for the resolved run.

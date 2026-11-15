@@ -8,7 +8,7 @@ Installer maintainers use this decision when changing Claude effort defaults or 
 
 ## Problem
 
-An environment override defeats saved effort choices. User-scope top-level effort does not establish the Opus 5.5 default. Per-model settings use canonical names and retain normal settings-scope precedence. [Dated evidence](../../../releases/v4/v4.14/development/phase-6-effort-evidence.md) records the fetched references.
+An environment override defeats saved effort choices. User-scope top-level effort does not establish the Opus 5.5 default. Per-model settings use canonical names and retain normal settings-scope precedence. [Dated evidence](../../../archives/v4/v4.14/development/phase-6-effort-evidence.md) records the fetched references.
 
 ## Alternatives considered
 

@@ -239,6 +239,11 @@ describe("normalizeHtmlUsage", () => {
     expect(text).not.toContain("secret");
   });
 
+  it("decodes each HTML entity once, so escaped entities stay literal text", () => {
+    expect(extractVisibleText("<p>Use &amp;lt;b&amp;gt; for bold &amp; more</p>")).toBe("Use &lt;b&gt; for bold & more");
+    expect(extractVisibleText("<p>&lt;3 &quot;ok&quot; it&#39;s</p>")).toBe("<3 \"ok\" it's");
+  });
+
   it("rejects login pages before parsing usage", () => {
     const result = normalizeHtmlUsage(
       "<html><body>Sign in to Cursor</body></html>",

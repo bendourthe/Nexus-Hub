@@ -27,6 +27,36 @@ esac
 COLOR_RED='\033[0;31m'
 COLOR_RESET='\033[0m'
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: memory-store-guard]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is. $1 is an optional color code for the tag.
+_nexus_msg() {
+  local color=$1 message=$2 line
+  shift 2
+  printf '%b%s%b %s\n' "$color" "$_NEXUS_TAG" "${color:+$COLOR_RESET}" "$message" >&2
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 INPUT=$(cat)
 # Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
 # user chose to run without approval gates, so this Nexus-Hub guard steps aside.
@@ -141,14 +171,14 @@ _inside_git() {
 }
 
 _block() {
-  echo -e "${COLOR_RED}[memory-store-guard] BLOCKED${COLOR_RESET}: $1" >&2
-  echo "Relocate the store outside the repository, or set NEXUS_MEMORY_ALLOW_IN_REPO=1 if you accept that this log can be committed." >&2
+  _nexus_msg "$COLOR_RED" "BLOCKED: $1" \
+    "Relocate the store outside the repository, or set NEXUS_MEMORY_ALLOW_IN_REPO=1 if you accept that this log can be committed."
   exit 2
 }
 
 if [ -n "${FILE_PATH:-}" ] && _is_store_artifact "$FILE_PATH"; then
   if _inside_git "$FILE_PATH"; then
-    _block "refusing to write nexus-memory artifact '$FILE_PATH' inside a git working tree"
+    _block "refusing to write nexus-memory artifact '$(_nexus_esc "$FILE_PATH")' inside a git working tree"
   fi
 fi
 

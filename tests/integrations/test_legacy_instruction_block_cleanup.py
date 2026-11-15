@@ -565,9 +565,11 @@ def _exercise(key: str, home: Path, scope: str, full: bool = False) -> list[str]
 
 
 @pytest.mark.parametrize("scope", ["global", "workspace"])
-def test_every_marker_merged_integration_runs_cleanup(home: Path, scope: str) -> None:
+def test_every_marker_merged_integration_runs_cleanup(home: Path, scope: str, fake_tools) -> None:
     for root in DETECTION_ROOTS:
         (home / root).mkdir(exist_ok=True)
+    # v4.14.7: an empty root is no evidence; put the gated tools on PATH.
+    fake_tools("kimi", "qwen", "pi", "aider", "opencode")
     exercised = {key for key in list_keys() if _exercise(key, home, scope)}
     base_owned = {"claude", "codex", "gemini", "opencode", "qwen", "openclaw", "antigravity"}
     direct = {"antigravity2", "windsurf"} | ({"cursor", "copilot"} if scope == "workspace" else set())

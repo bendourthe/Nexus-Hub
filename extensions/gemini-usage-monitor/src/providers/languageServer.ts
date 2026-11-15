@@ -2,6 +2,7 @@ import { execFile } from "child_process";
 import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
+import * as os from "os";
 import * as path from "path";
 
 /**
@@ -56,9 +57,54 @@ export function antigravityExtensionDir(appRoot: string): string {
   return path.join(appRoot, "extensions", "antigravity");
 }
 
-/** True when the host editor ships the Antigravity language server (so this is Antigravity). */
+/**
+ * True when the host editor is Antigravity. Older builds ship the language server
+ * in a built-in `extensions/antigravity` folder; Antigravity IDE builds from late
+ * October 2026 no longer have that folder (the server moved to the `agy` hub), so
+ * the editor's own `product.json` names are accepted as well.
+ */
 export function isAntigravityHost(appRoot: string): boolean {
-  return fs.existsSync(path.join(antigravityExtensionDir(appRoot), "package.json"));
+  if (fs.existsSync(path.join(antigravityExtensionDir(appRoot), "package.json"))) {
+    return true;
+  }
+  try {
+    const product = JSON.parse(fs.readFileSync(path.join(appRoot, "product.json"), "utf8")) as Record<string, unknown>;
+    return ["nameShort", "nameLong", "applicationName"].some(
+      (key) => typeof product[key] === "string" && /antigravity/i.test(product[key] as string),
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * True for the `agy --hub` process that newer Antigravity IDE builds start to serve
+ * the same language-server RPCs (including the Models & Usage quota) the built-in
+ * server used to. It runs from `~/.gemini/bin`, outside the editor install.
+ *
+ * Trust boundary: a process merely NAMED `agy` is not enough. When the executable
+ * path is known (always on Windows, where it is the real image path), it must be
+ * this user's own `~/.gemini/bin/agy[.exe]`. A bare name is accepted only off
+ * Windows, where the process list is already restricted to this user's processes
+ * (see `listServerProcesses`).
+ */
+export function isHubProcess(p: ServerProcess, home: string = os.homedir()): boolean {
+  const exe = (p.executable || p.commandLine.split(/\s+--/)[0]).replace(/"/g, "").trim();
+  const name = exe.split(/[\\/]/).pop() ?? "";
+  if (!/^agy(?:\.exe)?$/i.test(name) || !/(?:^|\s)--hub(?:\s|$)/.test(p.commandLine)) {
+    return false;
+  }
+  if (!/[\\/]/.test(exe)) {
+    return process.platform !== "win32";
+  }
+  const expected = normalizeForCompare(path.join(home, ".gemini", "bin", name));
+  return normalizeForCompare(exe) === expected;
+}
+
+/** The `--hub-port` an `agy` hub was launched with; the port that answers plain HTTP. */
+export function parseHubPort(commandLine: string): number | null {
+  const match = /(?:^|\s)--hub-port(?:=|\s+)(\d+)/.exec(commandLine);
+  return match ? Number(match[1]) : null;
 }
 
 /**
@@ -83,15 +129,19 @@ function normalizeForCompare(p: string): string {
  * `--enable_lsp`. The main-process server is preferred because it is the one the
  * panel reads; the other is kept as a fallback. A server from a different
  * install (an older Antigravity beside Antigravity IDE) is excluded by path.
+ * Newer builds serve the same RPCs from an `agy --hub` process instead; such
+ * hubs follow this install's own servers, because a hub is shared per user
+ * rather than tied to one editor install.
  */
-export function selectServers(processes: ServerProcess[], appRoot: string): ServerProcess[] {
+export function selectServers(processes: ServerProcess[], appRoot: string, home: string = os.homedir()): ServerProcess[] {
   const extDir = normalizeForCompare(antigravityExtensionDir(appRoot));
   const ours = processes.filter((p) => {
     const where = normalizeForCompare(p.executable || p.commandLine);
     return where.includes(extDir) && parseCsrfToken(p.commandLine) != null;
   });
   const isLsp = (p: ServerProcess): number => (/(?:^|\s)--enable_lsp\b/.test(p.commandLine) ? 1 : 0);
-  return ours.sort((a, b) => isLsp(a) - isLsp(b));
+  const hubs = processes.filter((p) => isHubProcess(p, home) && parseCsrfToken(p.commandLine) != null && !ours.includes(p));
+  return [...ours.sort((a, b) => isLsp(a) - isLsp(b)), ...hubs];
 }
 
 function run(file: string, args: string[]): Promise<string> {
@@ -107,7 +157,7 @@ function run(file: string, args: string[]): Promise<string> {
 // discovery costs a single process spawn on Windows.
 const WINDOWS_DISCOVERY_SCRIPT = [
   "$ErrorActionPreference='SilentlyContinue'",
-  "$p=@(Get-CimInstance Win32_Process -Filter \"Name LIKE 'language_server%'\")",
+  "$p=@(Get-CimInstance Win32_Process -Filter \"Name LIKE 'language_server%' OR Name = 'agy.exe'\")",
   "$o=foreach($x in $p){[pscustomobject]@{pid=[int]$x.ProcessId;exe=[string]$x.ExecutablePath;cmd=[string]$x.CommandLine;" +
     "ports=@(Get-NetTCPConnection -State Listen -OwningProcess $x.ProcessId | Select-Object -ExpandProperty LocalPort -Unique)}}",
   "ConvertTo-Json -InputObject @($o) -Compress -Depth 3",
@@ -143,16 +193,22 @@ export function parseWindowsProcessJson(stdout: string): ServerProcess[] {
   return out;
 }
 
-/** Parse `ps -axww -o pid=,command=` output, keeping language servers only. */
-export function parsePsOutput(stdout: string): ServerProcess[] {
+/**
+ * Parse `ps -axww -o pid=,uid=,command=` output, keeping language servers and `agy`
+ * hubs only. With `uid`, processes owned by any other user are dropped.
+ */
+export function parsePsOutput(stdout: string, uid?: number, home: string = os.homedir()): ServerProcess[] {
   const out: ServerProcess[] = [];
   for (const line of stdout.split(/\r?\n/)) {
-    const match = /^\s*(\d+)\s+(.*)$/.exec(line);
-    if (!match || !/language_server_/.test(match[2])) {
+    const match = /^\s*(\d+)\s+(\d+)\s+(.*)$/.exec(line);
+    if (!match || (uid != null && Number(match[2]) !== uid)) {
       continue;
     }
-    const commandLine = match[2];
-    out.push({ pid: Number(match[1]), executable: commandLine.split(/\s+--/)[0], commandLine, ports: [] });
+    const commandLine = match[3];
+    const candidate: ServerProcess = { pid: Number(match[1]), executable: commandLine.split(/\s+--/)[0], commandLine, ports: [] };
+    if (/language_server_/.test(commandLine) || isHubProcess(candidate, home)) {
+      out.push(candidate);
+    }
   }
   return out;
 }
@@ -175,14 +231,23 @@ export async function listServerProcesses(): Promise<ServerProcess[]> {
     const stdout = await run("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", WINDOWS_DISCOVERY_SCRIPT]);
     return parseWindowsProcessJson(stdout);
   }
-  return parsePsOutput(await run("ps", ["-axww", "-o", "pid=,command="]));
+  // Only this user's processes: another account's command line (and its token) is
+  // never used, and a hub started by another account is never trusted.
+  const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
+  return parsePsOutput(await run("ps", ["-axww", "-o", "pid=,uid=,command="]), uid);
+}
+
+/** Put a hub's `--hub-port` first: it answers plain HTTP, so no certificate is needed. */
+export function orderPorts(ports: number[], commandLine: string): number[] {
+  const hubPort = parseHubPort(commandLine);
+  return hubPort != null && ports.includes(hubPort) ? [hubPort, ...ports.filter((p) => p !== hubPort)] : ports;
 }
 
 async function listeningPorts(proc: ServerProcess): Promise<number[]> {
   if (proc.ports.length > 0 || process.platform === "win32") {
-    return proc.ports;
+    return orderPorts(proc.ports, proc.commandLine);
   }
-  return parseLsofPorts(await run("lsof", ["-nP", "-a", "-iTCP", "-sTCP:LISTEN", "-p", String(proc.pid), "-Fn"]));
+  return orderPorts(parseLsofPorts(await run("lsof", ["-nP", "-a", "-iTCP", "-sTCP:LISTEN", "-p", String(proc.pid), "-Fn"])), proc.commandLine);
 }
 
 /** The certificate authority Antigravity's own client trusts for the HTTPS port. */

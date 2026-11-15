@@ -16,11 +16,21 @@ Findings carry one of two classes, matching `references/cliche-patterns.md`:
   legacy footprint is too large to fail a document on. The reflective register, the
   faux reveal, emphatic negation, performative honesty, the stranded auxiliary, the
   high-frequency body-catalog patterns, the three countable rhythm rules from the
-  skill's ``Robotic rhythm`` entry, and the clause-joining spaced hyphen. The spaced
-  hyphen is advisory rather than defect on purpose: it was the sanctioned ASCII
-  replacement for an em-dash in this project's own prose for years, so a first scan
-  of any existing document finds hundreds, and a defect class that fires hundreds of
-  times on legitimate history is a class nobody gates on.
+  skill's ``Robotic rhythm`` entry, the clause-joining spaced hyphen, and the 13
+  unambiguous agent and engineering slang terms (``engineering-slang``; the list and
+  its exemptions live in ``references/slop-wordlist.md``, section "Agent and
+  engineering slang"). The spaced hyphen is advisory rather than defect on purpose:
+  it was the sanctioned ASCII replacement for an em-dash in this project's own prose
+  for years, so a first scan of any existing document finds hundreds, and a defect
+  class that fires hundreds of times on legitimate history is a class nobody gates on.
+  Slang is advisory because a backticked real name or a quoted warning is exempt by
+  the quote-skipping rule below, and that exemption is an accepted bypass only
+  because nothing gates on it. The document style rules
+  (``catalog/rules/documents/document-style.md``) add three advisory findings:
+  ``inline-enumeration`` (a list packed into a sentence after a colon),
+  ``trailing-label-fact`` (a "Label: value" fact appended after a sentence), and
+  ``lead-in-format-boundary`` (emphasis that does not end exactly at a lead-in's
+  colon). They are advisory because ``**Field**: value`` metadata is common legacy.
 
 Mannered prose is deliberately not attempted: it has no reliable lexical
 signature, and a regex that guessed at metaphor would fire on legitimate voice.
@@ -238,7 +248,73 @@ LEXICAL: tuple[tuple[str, str, re.Pattern[str]], ...] = (
             _FLAGS,
         ),
     ),
+    # advisory: agent and engineering slang (v4.14.8). The list, its plain
+    # replacements, and its exemptions are owned by references/slop-wordlist.md,
+    # section "Agent and engineering slang"; this family encodes only the 13 terms
+    # whose slang reading is unambiguous. Not encoded on purpose: happy path, fan out,
+    # surface, land, ship, gate, park, plumbing, nit, punt, and first-class, because
+    # each has a literal meaning ("the ship sailed", "park the car", "the gate is
+    # locked") or is the name of a real technique (67 files use "happy path" and 50
+    # use "fan out" as names on 2026-10-30). Those stay with the editor's judgment.
+    # Backtick and straight-quote skipping applies here unchanged: `load-bearing` as
+    # a quoted name is not a finding.
+    ("engineering-slang", ADVISORY, re.compile(r"\bload[- ]bearing\b", _FLAGS)),
+    # noun only: "cutover" or "cut-over"; "cut over" as two words is a plain verb phrase
+    ("engineering-slang", ADVISORY, re.compile(r"\bcut-?over\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bblast radius\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bfootguns?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bde-?risk(?:s|ed|ing)?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bsanity[- ]checks?\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bnet-new\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bbespoke\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\borthogonal\b", _FLAGS)),
+    ("engineering-slang", ADVISORY, re.compile(r"\bTL;DR\b", _FLAGS)),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:spin|spins|spinning|spun) up\b", _FLAGS),
+    ),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:wire|wires|wiring|wired) up\b", _FLAGS),
+    ),
+    (
+        "engineering-slang",
+        ADVISORY,
+        re.compile(r"\b(?:thread|threads|threading|threaded) through\b", _FLAGS),
+    ),
+    # advisory: document style rules 3 and 4 (catalog/rules/documents/document-style.md).
+    # A "Label: value" fact appended after a finished sentence belongs on its own line.
+    # A label is a noun phrase: a lead-in that opens on a pronoun or connector, or
+    # holds a finite verb ("Here is the thing:"), is a clause and is not matched.
+    (
+        "trailing-label-fact",
+        ADVISORY,
+        re.compile(
+            r"(?<=[.!?]) +(?!(?:\*\*)?(?:Here|There|This|That|These|Those|It|What|Why|How|So|But|And|Then)\b)"
+            r"(?![^:\n]*\b(?:is|are|was|were|has|have|had|does|did|will|can)\b[^:\n]*:)"
+            r"(?:\*\*)?[A-Z][A-Za-z-]*(?: [A-Za-z()-]+){0,3}:(?:\*\*)?(?= +\S)"
+        ),
+    ),
+    # A highlighted lead-in must end its formatting exactly at the colon: flag a
+    # colon left outside the emphasis, or a space pulled inside it.
+    (
+        "lead-in-format-boundary",
+        ADVISORY,
+        re.compile(
+            r"\*\*[^*\n]+\*\*:|\*\*[^*\n]*:\s+\*\*|__[^_\n]+__:|__[^_\n]*:\s+__"
+            r"|<(b|strong|mark|em|span)\b[^>]*>[^<\n]*:\s+</\1>|<(b|strong|mark|em)>[^<\n]*</\2>:",
+            _FLAGS,
+        ),
+    ),
 )
+
+# Inline enumeration (document style rule 3): a colon followed by three or more
+# comma-separated items closed by "and" or "or" is a list packed into a sentence.
+INLINE_ENUMERATION_MIN_ITEMS = 3
+_ENUM_INTRO = re.compile(r":\s+")
+_ENUM_CLOSER = re.compile(r"^(?:and|or)\s+\S", re.IGNORECASE)
 
 # --- structural rules ---------------------------------------------------------------
 ECHO_RUN_MIN = 2  # consecutive sentences sharing a four-word skeleton
@@ -452,10 +528,58 @@ def _structural_findings(lines: list[tuple[int, str]]) -> list[Finding]:
     return findings
 
 
+def _top_level_items(tail: str) -> list[str]:
+    """Split on commas that sit outside parentheses and brackets, stopping at sentence end."""
+    items, depth, current = [], 0, []
+    for i, ch in enumerate(tail):
+        if ch in "([":
+            depth += 1
+        elif ch in ")]" and depth:
+            depth -= 1
+        elif depth == 0 and ch in ".;" and (i + 1 == len(tail) or tail[i + 1].isspace()):
+            break
+        if ch == "," and depth == 0:
+            items.append("".join(current).strip())
+            current = []
+            continue
+        current.append(ch)
+    items.append("".join(current).strip())
+    return [item for item in items if item]
+
+
+def _inline_enumeration_findings(lines: list[tuple[int, str]]) -> list[Finding]:
+    findings: list[Finding] = []
+    for lineno, line in lines:
+        if not line or _LIST_ITEM.match(line):
+            continue
+        quoted = _quoted_spans(line)
+        for m in _ENUM_INTRO.finditer(line):
+            if _inside(quoted, m.start(), m.end()):
+                continue
+            items = _top_level_items(line[m.end() :])
+            if len(items) >= INLINE_ENUMERATION_MIN_ITEMS and _ENUM_CLOSER.match(items[-1]):
+                findings.append(
+                    Finding(
+                        "inline-enumeration",
+                        ADVISORY,
+                        lineno,
+                        m.start() + 1,
+                        line[m.start() :].strip(),
+                        f"document style rule 3: {len(items)} items packed after a colon; use one bullet per item",
+                    )
+                )
+                break
+    return findings
+
+
 def detect(text: str) -> list[Finding]:
     """Return every finding in reading order (line, then column)."""
     lines = _prose_lines(text)
-    found = _lexical_findings(lines) + _structural_findings(lines)
+    found = (
+        _lexical_findings(lines)
+        + _structural_findings(lines)
+        + _inline_enumeration_findings(lines)
+    )
     return sorted(found, key=lambda f: (f.line, f.col, f.id))
 
 

@@ -1,0 +1,162 @@
+{
+  "name": "nexus-hub-settings",
+  "displayName": "Nexus Hub",
+  "description": "Set one shared effort preference and control the main Nexus-Hub protections from a compact settings panel",
+  "version": "0.8.3",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/nexus-hub-settings"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/nexus-hub-settings#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "*",
+    "onCommand:nexusHubSettings.openCodex"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In an untrusted workspace the panel shows the current state of every default but cannot change anything. Trust the workspace to change a default."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "The panel reads and writes configuration files on the local machine, which a virtual workspace does not have."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "nexusHubSettings.newCodexAgent",
+        "title": "New Codex Agent",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.open",
+        "title": "Open Settings",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.applyAll",
+        "title": "Apply Default Effort to All Sessions",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.upgrade",
+        "title": "Check for Upgrades",
+        "category": "Nexus Hub"
+      },
+      {
+        "command": "nexusHubSettings.codexHistory",
+        "title": "Codex History",
+        "category": "Nexus Hub",
+        "icon": "$(history)"
+      },
+      {
+        "command": "nexusHubSettings.refreshCodexTab",
+        "title": "Refresh Codex Tab",
+        "category": "Nexus Hub",
+        "icon": "$(refresh)"
+      }
+    ],
+    "icons": {
+      "nexus-hub-icon": {
+        "description": "The Nexus-Hub mark",
+        "default": {
+          "fontPath": "./fonts/nexus-hub-icons.woff2",
+          "fontCharacter": "\\E201"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nexusHubSettings",
+          "title": "Nexus Hub",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "nexusHubSettings": [
+        {
+          "id": "nexusHubSettings.view",
+          "name": "Settings",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Nexus-Hub Settings",
+      "properties": {
+        "nexusHubSettings.compactStatusBar": {
+          "type": "boolean",
+          "scope": "application",
+          "default": true,
+          "description": "Show 'High (effort)' in the status bar. Turn off to include the 'Nexus Settings: ' prefix."
+        },
+        "nexusHubSettings.pythonPath": {
+          "type": "string",
+          "scope": "machine",
+          "default": "",
+          "markdownDescription": "Absolute path to the Python 3 interpreter that runs the Nexus-Hub command line. Leave empty to search the standard install locations. A relative path, a bare command name, and a workspace value are never used."
+        }
+      }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "nexusHubSettings.codexHistory",
+          "when": "activeCustomEditorId == chatgpt.conversationEditor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "nexusHubSettings.refreshCodexTab",
+          "when": "activeCustomEditorId == chatgpt.conversationEditor",
+          "group": "navigation@2"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "generate-icons": "node scripts/generate-icon-font.js",
+    "verify:package": "node scripts/verify-package-contents.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/vscode": "1.85.0",
+    "@vitest/coverage-v8": "4.1.12",
+    "@vscode/vsce": "4.1.0",
+    "happy-dom": "21.0.4",
+    "svg2ttf": "6.1.0",
+    "svgpath": "2.6.0",
+    "ttf2woff2": "8.0.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
+  }
+}

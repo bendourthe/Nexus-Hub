@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "source_commit": "edef47b0cd7a3d0bb9ece15e7c2b7d785d1fcf86",
+  "signed_run_sha256_before": "5f815144bed9c6f8d28e0dca5aede33ae049cb5379f097669bc4ff88841f679d",
+  "files": [
+    {
+      "name": "check_plan_completion.py",
+      "before": "3b65655afa41021b48f685799c49e75cd810842627239b80263069d1e7f6eb02",
+      "after": "5c2754d9cd895a10389b5d6adf78f49ee45e5726ffbcc131e73b2c51b10e9dd0"
+    },
+    {
+      "name": "completion_minor.py",
+      "before": "618f7b8c3e2df38bb193cebf895a5e84dbebdd15b78ec9ea3456fcda0244ad74",
+      "after": "2ed472495632b688d5a7fc7cfb76b44ab0a430827c322aaf8c8141b7fc15e1b5"
+    },
+    {
+      "name": "minor_close.py",
+      "before": "f2fa4ed42b4953c0a5213191a7a29727881383b1e3b913a3de33681afa53a0f3",
+      "after": "890f9f020b31d09764b8f80eefa6c914f2f3a6588bf14b077d8df8f2dcf92b8e"
+    },
+    {
+      "name": "approval_binding.py",
+      "before": "190073b8e846a6427d50762b442340622d3e11aa4b299e919c574a8c5dfa00b5",
+      "after": "43a4e47e9411aa07ff8448970065d289c72cdbaaebf468d7aaf3828c8c9b7b64"
+    },
+    {
+      "name": "approval_page.py",
+      "before": "9b8394172613eab72aab56e4f0cbfd22b22eb4ad571f7d7be8e0be89feb7c387",
+      "after": "0dec4d931840f2bd8f7b6ebfcd1b4ed2faa128749f26a44e05fb05f977c0e90f"
+    }
+  ],
+  "signed_run_sha256_after": "5f815144bed9c6f8d28e0dca5aede33ae049cb5379f097669bc4ff88841f679d"
+}

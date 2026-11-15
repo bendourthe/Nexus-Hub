@@ -110,6 +110,46 @@ Single phrases from the reflective, faux-reveal, and performative-honesty regist
 
 Keep-it example: "and yet the test passed" carries a real reversal. Cut-it example: "And yet." as a one-word paragraph is a staged beat.
 
+## Agent and engineering slang
+
+Words an agent or an engineer uses among peers that a reader whose first language is not English, or who does not work in software, cannot follow at first read. This section owns the list, its exemptions, and the preference below; the always-loaded `## Writing Discipline` block names the habit with five examples and points here, and `detect_prose_cliches.py` encodes only the unambiguous terms as an advisory `engineering-slang` finding.
+
+Rules this file owns:
+
+- The list applies to replies and documents a person reads. It does not apply to messages between agents (prompts, briefs, agent-to-agent notes), where the shared vocabulary is the point.
+- A real name in backticks is never slang: `fan-out`, `happy_path`, a flag, a function, a hook name. Quote it and move on.
+- When the slang word is the precise term, explain it in place instead of replacing it: "the blast radius (every service that reads this table) is three services".
+- Warnings, error text, hook messages, commands, flags, and identifiers are quoted exactly and then explained. Never paraphrase a warning into something vaguer.
+
+The list, with the usual plain replacement:
+
+- load-bearing -> important, needed
+- cutover -> switch, move
+- surface (as a verb) -> show, raise
+- land / ship -> merge, release
+- gate / gated (an approval step) -> needs approval first
+- gate / gated (an automated check) -> check
+- park -> pause, stop
+- plumbing -> connecting code
+- wire up -> connect
+- blast radius -> what it affects (in an incident or security warning keep the precise risk and explain it)
+- footgun -> easy mistake
+- nit -> small point
+- punt -> postpone
+- de-risk -> make safer
+- sanity check -> quick check
+- spin up -> start
+- fan out -> send to several ("fan-out" as a named orchestration pattern is a real name)
+- happy path -> normal case (a standard testing term in test documents)
+- thread through -> pass along
+- first-class -> fully supported
+- orthogonal -> unrelated
+- bespoke -> custom
+- net-new -> new
+- TL;DR -> summary
+
+Keep-it example: "the `fan-out` step sends one brief per worker" names a real pattern and explains it. Cut-it example: "this is load-bearing, so de-risk the cutover before we land it" has four terms a plain sentence replaces: "this is needed, so make the switch safer before we merge it".
+
 ## Cross-reference
 
 These lists operationalize the always-loaded `## Writing Discipline` block every instruction template carries since v4.5.0 (ASCII punctuation placed outside quotation marks by logic; no em-dashes and no clause-joining spaced hyphens; professional teaching tone; never hard-wrap paragraph text). The anti-slop pass and those rules are the same discipline applied to prose. Punctuation in this file and in all edited output stays ASCII-only: straight quotes, hyphens, and "..." for ellipsis.

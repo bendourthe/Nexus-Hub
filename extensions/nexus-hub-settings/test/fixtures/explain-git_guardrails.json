@@ -1,0 +1,63 @@
+{
+  "control": {
+    "id": "git_guardrails",
+    "label": "Git-guardrails mode",
+    "values": [
+      "on",
+      "off"
+    ],
+    "per_tool": false,
+    "never_written": []
+  },
+  "writes": [
+    {
+      "id": "internal.git_guardrails",
+      "kind": "internal",
+      "tool": "internal",
+      "surface": "cli",
+      "file": "~/.nexus-hub/guardrails.json",
+      "key_path": [
+        "block_git_bypass_flags"
+      ],
+      "values": [
+        true,
+        false
+      ],
+      "value_map": {
+        "on": true,
+        "off": false
+      },
+      "takes_effect": "Next command: the hook reads the file on every run.",
+      "proven_versions": {
+        "git-guardrails": "v4.14.4"
+      },
+      "weakens_safety": true,
+      "weakening_values": [
+        "off"
+      ],
+      "source": {
+        "decision": "docs/decisions/implemented/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md"
+      },
+      "admission": "admitted",
+      "proof": [
+        "W25",
+        "W26"
+      ],
+      "notes": "Enforced by the git-guardrails hook where it is registered: Claude Code through catalog/hooks/settings.json. Enforcement on Codex and Copilot is not verified here. Inert under bypassPermissions, per the decision record's documented limits.",
+      "override_layers": [
+        {
+          "kind": "env",
+          "locator": "NEXUS_GUARD_GIT_BYPASS (read only from the hook's own environment; 1 forces on, 0 forces off)",
+          "fix": "Unset NEXUS_GUARD_GIT_BYPASS in the environment the agent's hooks inherit."
+        }
+      ]
+    }
+  ],
+  "tools": {},
+  "claude_model_ids": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ]
+}

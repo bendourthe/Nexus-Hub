@@ -36,7 +36,7 @@
 
     Limits of the opt-in bypass-flag mode: environment-variable skips (HUSKY=0, SKIP=,
     LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell aliases
-    and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+    and scripts, and an agent that edits guardrails.json
     itself. The full list is on the mode's block below and in
     docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
 
@@ -46,6 +46,44 @@
 
 # Never fail loudly on internal errors.
 $ErrorActionPreference = "Continue"
+
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+
+# Nexus-Hub source label; echoed values cannot forge a new tagged line.
+$script:NexusTag = "[Nexus-Hub: git-guardrails]"
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+function Write-NexusMessage {
+    param([string]$Message)
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+}
 
 # --- Dangerous patterns ---
 # Each entry: @{ Pattern = '<regex>'; Desc = '<human-readable>' }
@@ -82,13 +120,7 @@ $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
 # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
 if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-try {
-    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
-} catch { }
+# Nexus Settings guard switches apply in every host permission mode.
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }
@@ -138,6 +170,7 @@ function Remove-HeredocBodies {
 
 # $scan drives every block decision below; $command is kept for reporting and for
 # the written-content warning.
+if (-not (Test-NexusGuardrailDisabled -Key "block_dangerous_git")) {
 $scan = Remove-HeredocBodies -Text $command
 
 # --- Check command against each pattern ---
@@ -147,11 +180,11 @@ foreach ($entry in $dangerousPatterns) {
     $scanHit = if ($ci) { $scan -imatch $entry.Pattern } else { $scan -cmatch $entry.Pattern }
     $cmdHit = if ($ci) { $command -imatch $entry.Pattern } else { $command -cmatch $entry.Pattern }
     if ($scanHit) {
-        [Console]::Error.WriteLine("BLOCKED: '$command' matches dangerous git pattern. $($entry.Desc). The user has prevented you from doing this.")
+        Write-NexusMessage "BLOCKED: '$(ConvertTo-NexusVisible $command)' matches dangerous git pattern. $(ConvertTo-NexusVisible $entry.Desc). The user has prevented you from doing this."
         exit 2
     }
     if ($cmdHit) {
-        [Console]::Error.WriteLine("NOTE: a dangerous git pattern ($($entry.Desc)) appears inside written file content, not as a command. Allowing the write.")
+        Write-NexusMessage "NOTE: a dangerous git pattern ($(ConvertTo-NexusVisible $entry.Desc)) appears inside written file content, not as a command. Allowing the write."
     }
 }
 
@@ -166,7 +199,7 @@ foreach ($entry in $dangerousPatterns) {
 if (($scan -cmatch '(^|[;&|]|\s)git(\s|$).*config') -and
     ($scan -imatch 'core\.(hooksPath|fsmonitor)') -and
     -not ($scan -cmatch '--(get|get-all|get-regexp|get-urlmatch|list|unset|unset-all)(\s|=|$)')) {
-    [Console]::Error.WriteLine("BLOCKED: '$command' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this.")
+    Write-NexusMessage "BLOCKED: '$(ConvertTo-NexusVisible $command)' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this."
     exit 2
 }
 
@@ -186,11 +219,13 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
         $protectedList = $env:NEXUS_PROTECTED_BRANCHES -replace ',', ' '
         foreach ($b in ($protectedList -split '\s+' | Where-Object { $_ })) {
             if ($b -ceq $currentBranch) {
-                [Console]::Error.WriteLine("BLOCKED: direct commit to protected branch '$currentBranch'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1.")
+                Write-NexusMessage "BLOCKED: direct commit to protected branch '$(ConvertTo-NexusVisible $currentBranch)'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1."
                 exit 2
             }
         }
     }
+}
+
 }
 
 # --- Opt-in git bypass-flag guard (v4.14.4; parity with the .sh) ---
@@ -220,7 +255,6 @@ if ($env:NEXUS_PROTECTED_BRANCHES -and
 #   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
 #   - git plumbing (commit-tree, update-ref, hash-object)
 #   - shell aliases, wrapper scripts, and git aliases
-#   - bypassPermissions mode (this whole hook steps aside)
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later
@@ -251,7 +285,7 @@ function Test-BypassModeOn {
     } catch { $verdict = 'invalid' }
     if ($verdict -ceq 'true') { return $true }
     if ($verdict -ceq 'false') { return $false }
-    [Console]::Error.WriteLine("WARNING: git-guardrails: $cfg is not a valid JSON object; the git bypass-flag guard stays off.")
+    Write-NexusMessage "WARNING: git-guardrails: $(ConvertTo-NexusVisible $cfg) is not a valid JSON object; the git bypass-flag guard stays off."
     return $false
 }
 
@@ -325,7 +359,7 @@ if ($command -cmatch 'git') {
     if (Test-BypassModeOn) {
         $bypassReason = Find-GitBypass -Command $command
         if ($bypassReason) {
-            [Console]::Error.WriteLine("BLOCKED: '$command' skips git hooks or commit signing ($bypassReason). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this.")
+            Write-NexusMessage "BLOCKED: '$(ConvertTo-NexusVisible $command)' skips git hooks or commit signing ($(ConvertTo-NexusVisible $bypassReason)). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this."
             exit 2
         }
     }

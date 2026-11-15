@@ -178,23 +178,25 @@ function addTableSlide(
   const slide = pptx.addSlide({ masterName: "CONTENT_SLIDE" });
   slide.addText(title, { placeholder: "title" });
 
+  // Document style rule: a neutral header no row color uses, alternating rows.
   const headerRow: PptxGenJS.TableCell[] = config.headers.map((h) => ({
     text: h,
     options: {
       bold: true,
       color: "FFFFFF",
-      fill: { color: theme.primaryColor },
+      fill: { color: "262626" },
       fontSize: 14,
       align: "center" as const,
     },
   }));
 
-  const dataRows: PptxGenJS.TableCell[][] = config.rows.map((row) =>
+  const dataRows: PptxGenJS.TableCell[][] = config.rows.map((row, rowIndex) =>
     row.map((cell) => ({
       text: cell,
       options: {
         fontSize: 12,
         color: "333333",
+        fill: { color: rowIndex % 2 === 0 ? "FFFFFF" : "F2F2F2" },
         border: { type: "solid", pt: 0.5, color: "CCCCCC" },
       },
     })),

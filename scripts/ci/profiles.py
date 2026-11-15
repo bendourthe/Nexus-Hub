@@ -102,6 +102,10 @@ class Group:
     blocking: bool = False
     #: Run only when named by --only; use for provisioned tools such as Chromium.
     explicit_only: bool = False
+    #: Shard family. `--only <family>` selects every member in profile order, so
+    #: the workflow names a shard set once and the profile owns its membership.
+    #: A family name is never also a group name (`run.py` rejects that).
+    family: str | None = None
 
 
 def _py(name: str, *args: str, **kw) -> Command:
@@ -171,7 +175,13 @@ HYGIENE = Group(
 # fetch-depth 0 for the attribution check).
 LEGACY_FINGERPRINTS = Group(
     name="legacy-fingerprints",
-    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+    commands=(
+        _py("build_legacy_fingerprints", "--check", timeout=120),
+        # v4.14.7: every file Nexus-Hub wrote into the obsolete ~/.agent and
+        # home-root ~/.opencode layouts. Its source ranges are closed history,
+        # so it drifts only if the builder itself changes.
+        _py("build_legacy_layout_fingerprints", "--check", timeout=120),
+    ),
 )
 
 CATALOG = Group(
@@ -288,10 +298,24 @@ VERSION = Group(
 
 # Windows full guide owners are complementary; new files stay in the rest command.
 # Complementary quarters of tests/validators by file name: test_a* to test_c*
-# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*.
+# except test_co*; test_co*; test_d* to test_o*; test_p* to test_z*. The
+# Windows platform jobs further split the d-o quarter into test_d* to test_l*,
+# test_m* to test_o* except test_minor_e*, and test_minor_e* (the native
+# execution family).
 VALIDATORS_SHARD_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
 VALIDATORS_SHARD_B_IGNORES = ("--ignore-glob=*/test_[!c]*", "--ignore-glob=*/test_c[!o]*")
 VALIDATORS_SHARD_C_IGNORES = ("--ignore-glob=*/test_[!d-o]*",)
+VALIDATORS_SHARD_DL_IGNORES = ("--ignore-glob=*/test_[!d-l]*",)
+VALIDATORS_SHARD_M_IGNORES = ("--ignore-glob=*/test_[!m-o]*", "--ignore-glob=*/test_minor_e*")
+VALIDATORS_SHARD_E_IGNORES = (
+    "--ignore-glob=*/test_[!m]*",
+    "--ignore-glob=*/test_m[!i]*",
+    "--ignore-glob=*/test_mi[!n]*",
+    "--ignore-glob=*/test_min[!o]*",
+    "--ignore-glob=*/test_mino[!r]*",
+    "--ignore-glob=*/test_minor[!_]*",
+    "--ignore-glob=*/test_minor_[!e]*",
+)
 VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
 
 
@@ -302,22 +326,75 @@ FULL_WINDOWS_GUIDE_FILES = (
     "tests/guides/test_models_learning_lab.py",
 )
 
-TESTS = Group(
-    name="tests",
+# The hook suite runs as two shards so each Linux and Windows job stays far below
+# the 60-minute cap, and CI jobs are split, never given a longer timeout. The four
+# heavy files are the PowerShell-sibling tests: each launches a .ps1 variant per
+# case, which dominates wall time on both hosts. Estimated cost per file is the
+# local pytest time plus 0.75 s per variant skipped locally for lack of
+# PowerShell; summed over the suite that gives 1232 s against the 1236 s measured
+# in CI (run 43457589235, `tests-hooks`), and the heavy four come to about 621 s
+# of it. Everything else, including any hook test file added later, falls into
+# the catch-all shard because it ignores the heavy files instead of listing the
+# rest. tests/validators/test_ci_partition_proof.py proves the split by
+# collection. The scope key is shared with the tests family on purpose.
+HOOK_TESTS_ROOT = "catalog/hooks/tests"
+HOOK_HEAVY_FILES = (
+    f"{HOOK_TESTS_ROOT}/test_hook_sibling_parity.py",
+    f"{HOOK_TESTS_ROOT}/test_git_guardrails.py",
+    f"{HOOK_TESTS_ROOT}/test_user_edit_guard.py",
+    f"{HOOK_TESTS_ROOT}/test_settings_guardrail_switches.py",
+)
+_HOOK_REST_IGNORES = tuple(f"--ignore={path}" for path in HOOK_HEAVY_FILES)
+
+
+def _hook_shard(name: str, junit: str, *args: str, **kw) -> Command:
+    """A hook-suite shard that also writes a JUnit file, for per-shard rebalancing."""
+    return _pytest(name, *args, f"--junitxml=reports/junit/{junit}.xml", **kw)
+
+
+# These are enforceable CI safety bounds, not local performance SLOs. A contended
+# workstation may exceed them; do not tune shared limits from that observation.
+# Recalibrate only from quiet CI measurements. Exception, approved in v4.13.11:
+# a Windows-only override (hook-tests 2400 s from a 2096.9 s run, v4.13.9 WN-38),
+# kept on each shard. Linux and macOS keep the shared cap.
+HOOK_TESTS_HEAVY = Group(
+    name="hook-tests-heavy",
     scope_key="tests",
+    family="hook-tests",
     commands=(
-        # These are enforceable CI safety bounds, not local performance SLOs.
-        # A contended workstation may exceed them; do not tune shared limits
-        # from that observation. Recalibrate only from quiet CI measurements.
-        # Exception, approved in v4.13.11: two Windows-only overrides (hook-tests
-        # 2400 s from a 2096.9 s run, v4.13.9 WN-38; governance 3600 s from a
-        # 3325.7 s run, v4.13.9 WN-35). Linux and macOS keep the shared caps.
-        _pytest(
-            "hook-tests",
-            "catalog/hooks/tests",
+        _hook_shard(
+            "hook-tests-heavy",
+            "hook-tests-heavy",
+            *HOOK_HEAVY_FILES,
             timeout=1800,
             platform_timeouts={"windows": 2400},
         ),
+    ),
+)
+
+HOOK_TESTS_REST = Group(
+    name="hook-tests-rest",
+    scope_key="tests",
+    family="hook-tests",
+    commands=(
+        _hook_shard(
+            "hook-tests-rest",
+            "hook-tests-rest",
+            HOOK_TESTS_ROOT,
+            *_HOOK_REST_IGNORES,
+            timeout=1800,
+            platform_timeouts={"windows": 2400},
+        ),
+    ),
+)
+
+HOOK_TESTS_SHARDS = (HOOK_TESTS_HEAVY, HOOK_TESTS_REST)
+
+TESTS_CORE = Group(
+    name="tests-core",
+    scope_key="tests",
+    family="tests",
+    commands=(
         # Keep the repository corpus complete but split it at stable ownership
         # boundaries. The former monolith could time out after an hour while
         # naming only a percentage; these partitions retain every collected
@@ -383,6 +460,7 @@ TESTS = Group(
         _pytest(
             "repo-tests-integrations-repository-contracts",
             "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_manifest_log_cap.py",
             "tests/integrations/test_nexus_ai_version.py",
             "tests/integrations/test_registry.py",
             "tests/integrations/test_result.py",
@@ -410,10 +488,12 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_detection.py",
             "tests/integrations/test_lifecycle.py",
             "tests/integrations/test_lifecycle_block_rendering.py",
             "tests/integrations/test_selective_install.py",
             "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_stale_surfaces.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
         ),
@@ -426,6 +506,11 @@ TESTS = Group(
             env=_local_src_env("extensions/nexus-code-search/src"),
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
+        # Added in v4.14.6 (settings engine): no profile collected this root, so on
+        # every operating system the read-side tests ran only by hand. The Windows
+        # validator --ignore-glob quarters below target tests/validators only and
+        # neither drop nor double-count this root.
+        _pytest("repo-tests-settings-control", "tests/settings_control", timeout=900),
         _pytest(
             "repo-tests-ci",
             "tests/ci",
@@ -447,29 +532,27 @@ TESTS = Group(
             platforms=("windows",),
             timeout=1800,
         ),
+    ),
+)
+
+# Split from TESTS_CORE so the governance corpus (1041 s of the 1704 s `tests`
+# job, measured in run 43457589235) runs on its own runners. The two commands
+# below partition the former `repo-tests-governance` roots: tests/validators here,
+# everything else in TESTS_GOVERNANCE. tests/validators/test_ci_partition_proof.py
+# proves by collection that nothing is dropped or run twice.
+TESTS_VALIDATORS = Group(
+    name="tests-validators",
+    scope_key="tests",
+    family="tests",
+    commands=(
         _pytest(
-            "repo-tests-governance",
-            "tests/e2e",
+            "repo-tests-governance-validators",
             "tests/validators",
-            "tests/verification",
-            "tests/workflows",
-            "tests/test_git_attribution.py",
-            "tests/test_removed_autonomy_surface.py",
             timeout=2700,
             platforms=("linux", "macos"),
         ),
         # A Windows full run reached its 3600 s bound at 41%. Keep Linux/macOS
-        # intact; reuse the platform validator quarters and bound the remainder.
-        _pytest(
-            "repo-tests-governance-rest (Windows full)",
-            "tests/e2e",
-            "tests/verification",
-            "tests/workflows",
-            "tests/test_git_attribution.py",
-            "tests/test_removed_autonomy_surface.py",
-            platforms=("windows",),
-            timeout=2700,
-        ),
+        # intact; reuse the platform validator quarters.
         _pytest(
             "repo-tests-governance-validators-a-c (Windows full)",
             "tests/validators",
@@ -497,6 +580,34 @@ TESTS = Group(
             *VALIDATORS_SHARD_D_IGNORES,
             platforms=("windows",),
             timeout=1800,
+        ),
+    ),
+)
+
+TESTS_GOVERNANCE = Group(
+    name="tests-governance",
+    scope_key="tests",
+    family="tests",
+    commands=(
+        _pytest(
+            "repo-tests-governance-checks",
+            "tests/e2e",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            timeout=2700,
+            platforms=("linux", "macos"),
+        ),
+        _pytest(
+            "repo-tests-governance-rest (Windows full)",
+            "tests/e2e",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            platforms=("windows",),
+            timeout=2700,
         ),
     ),
 )
@@ -625,15 +736,20 @@ POWERSHELL_PARSE = Group(
     ),
 )
 
+# The Windows 5.1 hook suite is two shards in two jobs (`tests-windows` and
+# `tests-windows-hooks-rest`), so the 1542 s single command becomes two of about
+# 770 s. The four heavy files are the shared HOOK_HEAVY_FILES; see its comment for
+# the estimate. The other Windows-only commands are placed to even the jobs.
 WINDOWS_HOOKS = Group(
     name="windows-hooks",
     commands=(
         # NEXUS_TEST_POWERSHELL pins the EDITION. The Windows image carries both
         # 5.1 and 7, the fixture prefers 7, and the defect class this leg exists
         # for (Add-Content -Encoding utf8 emitting a BOM) reproduces only on 5.1.
-        _pytest(
-            "hook-tests (Windows PowerShell 5.1)",
-            "catalog/hooks/tests",
+        _hook_shard(
+            "hook-tests heavy (Windows PowerShell 5.1)",
+            "windows-hook-tests-heavy",
+            *HOOK_HEAVY_FILES,
             platforms=("windows",),
             timeout=2400,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
@@ -646,6 +762,34 @@ WINDOWS_HOOKS = Group(
             "tests/test_git_attribution.py",
             platforms=("windows",),
             timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "native integrations (Windows)",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "--junitxml=reports/junit/windows-native.xml",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+    ),
+)
+
+WINDOWS_HOOKS_REST = Group(
+    name="windows-hooks-rest",
+    commands=(
+        _hook_shard(
+            "hook-tests rest (Windows PowerShell 5.1)",
+            "windows-hook-tests-rest",
+            HOOK_TESTS_ROOT,
+            *_HOOK_REST_IGNORES,
+            platforms=("windows",),
+            timeout=2400,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
         # Exercise the native Windows evidence boundaries before merge (QG-1).
@@ -662,19 +806,6 @@ WINDOWS_HOOKS = Group(
             "tests/skills/test_security_audit_benchmark.py",
             "tests/skills/test_security_audit_benchmark_lifecycle.py",
             "tests/skills/test_security_audit_contract_e2e.py",
-            platforms=("windows",),
-            timeout=1200,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
-        _pytest(
-            "native integrations (Windows)",
-            "tests/integrations/test_codex_native.py",
-            "tests/integrations/test_copilot_hermes_native.py",
-            "tests/integrations/test_kimi_native.py",
-            "tests/integrations/test_settings_hooks.py",
-            "tests/integrations/test_catalog_adapters.py",
-            "tests/integrations/test_codex_invocation_policy.py",
-            "--junitxml=reports/junit/windows-native.xml",
             platforms=("windows",),
             timeout=1200,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
@@ -723,7 +854,11 @@ def _validators_shard(name: str, ignores: tuple[str, ...]) -> Command:
 # and every new test_*.py file lands in exactly one
 # (tests/workflows/test_ci_native_profile_parity.py proves it). Four shards in
 # one job would approach the 60-minute job cap on a slow runner, so they run as
-# two groups in two parallel jobs of about 25 minutes each.
+# groups in parallel jobs (see WINDOWS_VALIDATORS_2 for the measured balance).
+# The native execution tests (test_minor_execution_*) then pushed d-o to about
+# 2800 s, reaching only 64% at its 1800 s bound: they launch many git and
+# helper processes per test. d-o is split at test_m*, and that family runs as
+# its own shard in a third job, so no shard or job nears its bound.
 WINDOWS_VALIDATORS = Group(
     name="windows-validators",
     commands=(
@@ -732,11 +867,28 @@ WINDOWS_VALIDATORS = Group(
     ),
 )
 
+# d-l and p-z measured 644 s and 486 s in CI run 43457589235, so the pair fits
+# one job; m-o (1132 s) takes its own job. Before this split the three shared one
+# job at 2261 s, the longest Windows job on the critical path.
 WINDOWS_VALIDATORS_2 = Group(
     name="windows-validators-2",
     commands=(
-        _validators_shard("validators d-o (Windows)", VALIDATORS_SHARD_C_IGNORES),
+        _validators_shard("validators d-l (Windows)", VALIDATORS_SHARD_DL_IGNORES),
         _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_D_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_3 = Group(
+    name="windows-validators-3",
+    commands=(
+        _validators_shard("validators minor-execution (Windows)", VALIDATORS_SHARD_E_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_4 = Group(
+    name="windows-validators-4",
+    commands=(
+        _validators_shard("validators m-o (Windows)", VALIDATORS_SHARD_M_IGNORES),
     ),
 )
 
@@ -867,6 +1019,27 @@ def _monitor_group(name: str) -> Group:
 
 MONITOR_CHECKS = tuple(_monitor_group(name) for name in ("claude", "codex", "copilot", "cursor", "gemini"))
 
+# The Nexus-Hub Settings panel (v4.14.6). Same four gates as the packaged monitors. Its
+# agreement test also drives the real Python CLI, so the coverage command is handed this
+# run's interpreter (the one the workflow provisions with tomlkit) instead of letting the
+# test pick a system Python that may lack it.
+_NPM = "npm.cmd" if os.name == "nt" else "npm"
+SETTINGS_EXTENSION = Group(
+    name="nexus-hub-settings",
+    explicit_only=True,
+    commands=(
+        Command(name="settings extension compile", argv=[_NPM, "run", "compile"], cwd="extensions/nexus-hub-settings"),
+        Command(
+            name="settings extension coverage",
+            argv=[_NPM, "run", "test:coverage", "--", "--coverage.reportsDirectory", "../../reports/coverage/nexus-hub-settings"],
+            cwd="extensions/nexus-hub-settings",
+            env={"NEXUS_HUB_TEST_PYTHON": PY},
+        ),
+        Command(name="settings extension package", argv=[_NPM, "run", "package"], cwd="extensions/nexus-hub-settings"),
+        Command(name="settings extension packaged contents", argv=[_NPM, "run", "verify:package"], cwd="extensions/nexus-hub-settings"),
+    ),
+)
+
 MEMORY_TESTS = Group(
     name="memory-tests",
     explicit_only=True,
@@ -993,10 +1166,14 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         PLATFORM_CONTRACTS,
         DOCS,
         VERSION,
-        TESTS,
+        *HOOK_TESTS_SHARDS,
+        TESTS_CORE,
+        TESTS_VALIDATORS,
+        TESTS_GOVERNANCE,
         EXTENSION_TESTS,
         DOC_COLOCATION,
         *MONITOR_CHECKS,
+        SETTINGS_EXTENSION,
         MEMORY_TESTS,
         CODE_SEARCH_OFFLINE,
         MEMORY_OFFLINE,
@@ -1009,7 +1186,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_HOOKS_REST, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_VALIDATORS_3, WINDOWS_VALIDATORS_4, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

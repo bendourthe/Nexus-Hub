@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits in the status bar with smart model and effort recommendations",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -72,7 +72,7 @@
       "activitybar": [
         {
           "id": "claudeUsageWarning",
-          "title": "Claude Usage Warning",
+          "title": "Claude",
           "icon": "icons/warning.svg"
         }
       ]
@@ -81,7 +81,7 @@
       "claudeUsageWarning": [
         {
           "id": "claudeUsageWarningView",
-          "name": "Usage Warning",
+          "name": "Usage alert",
           "type": "webview",
           "when": "claudeUsage.warningActive"
         }
@@ -206,13 +206,17 @@
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/vscode": "1.85.0",
-    "@vscode/vsce": "3.9.2",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vscode/vsce": "4.1.0",
+    "@vitest/coverage-v8": "4.1.12",
     "fantasticon": "4.1.0",
     "svg2ttf": "6.1.0",
     "svgpath": "2.6.0",
     "ttf2woff2": "8.0.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1",
+    "glob": "14.0.2"
   }
 }

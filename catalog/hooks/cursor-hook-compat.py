@@ -13,7 +13,49 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+NEXUS_TAG = "[Nexus-Hub: cursor-hook-compat]"
+
+
+def _nexus_esc(value: str) -> str:
+    """Make CR, LF, ESC and the other C0 control characters visible.
+
+    An echoed value (a command, a file name) can then never start a forged
+    tagged line.
+    """
+    out: list[str] = []
+    for ch in value:
+        code = ord(ch)
+        if code == 9:
+            out.append("\\t")
+        elif code == 10:
+            out.append("\\n")
+        elif code == 13:
+            out.append("\\r")
+        elif code < 32 or code == 127:
+            out.append(f"\\x{code:02x}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _nexus_tagged(message: str) -> str:
+    """The tagged form of a message, for a JSON message field."""
+    return f"{NEXUS_TAG} {message}"
+
+
+def _nexus_msg(message: str, *more: str, stream: TextIO | None = None) -> None:
+    """Print the tag and the message (stderr by default); further arguments are continuation lines."""
+    out = stream or sys.stderr
+    out.write(_nexus_tagged(message) + "\n")
+    for line in more:
+        out.write(line + "\n")
 
 
 _CURSOR_DESCRIPTION_HOOKS = {
@@ -45,12 +87,20 @@ def _cursor_allow(payload: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
-def _cursor_payload_for_hook(payload: dict[str, Any]) -> str:
-    """Add Claude's tool_input.command shape for Cursor's dedicated shell event."""
+def _cursor_payload_for_hook(payload: dict[str, Any], *, standard_events: bool = False) -> str:
+    """Normalize Cursor's native events for the shared guard scripts."""
+    translated = dict(payload)
+    event = str(payload.get("hook_event_name") or "").lower()
+    standard_event = {"pretooluse": "PreToolUse", "posttooluse": "PostToolUse", "beforeshellexecution": "PreToolUse"}.get(event)
+    if standard_events and standard_event:
+        translated["hook_event_name"] = standard_event
+    if isinstance(payload.get("conversation_id"), str):
+        translated.setdefault("session_id", payload["conversation_id"])
+    if event == "beforeshellexecution":
+        translated.setdefault("tool_name", "Shell")
     command = payload.get("command")
     if not isinstance(command, str):
-        return json.dumps(payload)
-    translated = dict(payload)
+        return json.dumps(translated)
     tool_input = translated.get("tool_input")
     translated_input = dict(tool_input) if isinstance(tool_input, dict) else {}
     translated_input.setdefault("command", command)
@@ -67,9 +117,9 @@ def _valid_json_object(value: str) -> bool:
 
 def _write_stderr(value: str) -> None:
     if value:
-        sys.stderr.write(value)
+        sys.stderr.write(value)  # nexus: hook-msg-exempt relays the child hook's output
         if not value.endswith("\n"):
-            sys.stderr.write("\n")
+            sys.stderr.write("\n")  # nexus: hook-msg-exempt relays the child hook's output
 
 
 def _catalog_hook_names(catalog_hooks_dir: Path) -> set[str]:
@@ -188,7 +238,7 @@ def rewrite_settings(
             json.dumps(rewritten, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
     except (OSError, json.JSONDecodeError) as exc:
-        print(f"cursor-hook-compat: could not rewrite {settings_file}: {exc}", file=sys.stderr)
+        _nexus_msg(f"could not rewrite {_nexus_esc(str(settings_file))}: {_nexus_esc(str(exc))}")
         return 1
     return 0
 
@@ -207,16 +257,15 @@ def main(argv: list[str] | None = None) -> int:
             or command[6] != "--scope"
             or command[7] not in {"global", "workspace"}
         ):
-            print(
-                "usage: cursor-hook-compat.py --rewrite-settings <settings.json> --catalog-hooks-dir <dir> --host <windows|posix> --scope <global|workspace>",
-                file=sys.stderr,
+            _nexus_msg(
+                "usage: cursor-hook-compat.py --rewrite-settings <settings.json> --catalog-hooks-dir <dir> --host <windows|posix> --scope <global|workspace>"
             )
             return 2
         return rewrite_settings(
             Path(command[1]), Path(command[3]), command[5], command[7]
         )
     if not command:
-        print("cursor-hook-compat: missing hook command", file=sys.stderr)
+        _nexus_msg("missing hook command")
         return 2
 
     raw = sys.stdin.read()
@@ -231,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write("\n")
         return 0
 
-    hook_input = _cursor_payload_for_hook(payload) if cursor else raw
+    hook_input = _cursor_payload_for_hook(payload, standard_events=hook_name in {"user-edit-guard.sh", "user-edit-guard.ps1"}) if cursor else raw
     try:
         result = subprocess.run(
             command, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
@@ -241,19 +290,22 @@ def main(argv: list[str] | None = None) -> int:
             check=False,
         )
     except OSError as exc:
-        print(f"cursor-hook-compat: could not start {hook_name}: {exc}", file=sys.stderr)
+        _nexus_msg(f"could not start {_nexus_esc(hook_name)}: {_nexus_esc(str(exc))}")
         return 2
 
     if not cursor:
         sys.stdout.write(result.stdout)
-        sys.stderr.write(result.stderr)
+        sys.stderr.write(result.stderr)  # nexus: hook-msg-exempt relays the child hook's output
         return result.returncode
 
-    _write_stderr(result.stderr)
+    _write_stderr(result.stderr)  # nexus: hook-msg-exempt relays the child hook's output
     if result.returncode != 0:
         # Cursor treats a non-zero hook exit as a block. Keep prose away from
         # stdout because its parser still expects that stream to be JSON.
-        _write_stderr(result.stdout)
+        _write_stderr(result.stdout)  # nexus: hook-msg-exempt relays the child hook's output
+        if result.returncode == 2 and _cursor_allow(payload):
+            json.dump({"permission": "deny", "user_message": result.stderr.strip() or result.stdout.strip() or "Blocked by a Nexus guardrail."}, sys.stdout, separators=(",", ":"))
+            sys.stdout.write("\n")
         return result.returncode
 
     stripped = result.stdout.strip()
@@ -263,7 +315,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Advisory hooks historically wrote prose to stdout. Preserve it in the
     # Hooks output channel without corrupting Cursor's JSON decision stream.
-    _write_stderr(result.stdout)
+    _write_stderr(result.stdout)  # nexus: hook-msg-exempt relays the child hook's output
     json.dump(_cursor_allow(payload), sys.stdout, separators=(",", ":"))
     sys.stdout.write("\n")
     return 0

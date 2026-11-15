@@ -25,7 +25,7 @@
 # the switch file is read on every run, so it needs no restart. This mode is
 # defense-in-depth, NOT a boundary. Its limits: environment-variable skips (HUSKY=0,
 # SKIP=, LEFTHOOK=0, GIT_CONFIG_*), git plumbing (commit-tree, update-ref), shell
-# aliases and scripts, bypassPermissions mode, and an agent that edits guardrails.json
+# aliases and scripts, and an agent that edits guardrails.json
 # itself. The full list is on the mode's block below and in
 # docs/decisions/*/tooling/2026-10-14-opt-in-git-bypass-flag-guard.md.
 #
@@ -33,6 +33,52 @@
 # "Bash|PowerShell"); both send the command as tool_input.command.
 
 set -euo pipefail
+
+# Read Settings on every invocation. Only JSON false disables this protection.
+_nexus_guardrail_disabled() {
+  local guard_home="${HOME:-${USERPROFILE:-}}" guard_file
+  [ -n "$guard_home" ] || return 1
+  guard_file="$guard_home/.nexus-hub/guardrails.json"
+  [ -f "$guard_file" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e -s --arg key "$1" 'length == 1 and (.[0] | type) == "object" and .[0][$key] == false' "$guard_file" >/dev/null 2>&1
+    return $?
+  fi
+  local guard_py guard_verdict
+  for guard_py in python3 python; do
+    command -v "$guard_py" >/dev/null 2>&1 || continue
+    guard_verdict=$("$guard_py" -c 'import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        config = json.load(stream)
+    print("disabled" if isinstance(config, dict) and config.get(sys.argv[2]) is False else "enabled")
+except (OSError, ValueError, TypeError):
+    print("enabled")' "$guard_file" "$1" 2>/dev/null) || continue
+    guard_verdict=${guard_verdict//$'\r'/}
+    if [ "$guard_verdict" = "disabled" ]; then return 0; fi
+    if [ "$guard_verdict" = "enabled" ]; then return 1; fi
+  done
+  return 1
+}
+
+# Nexus-Hub source label; echoed values cannot forge a new tagged line.
+readonly _NEXUS_TAG="[Nexus-Hub: git-guardrails]"
+_nexus_esc() {
+  local s=$1 ctrl i c r
+  ctrl=$'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f'
+  for ((i = 0; i < ${#ctrl}; i++)); do
+    c=${ctrl:i:1}
+    case $c in
+      $'\t') r='\t' ;; $'\n') r='\n' ;; $'\r') r='\r' ;; $'\x1b') r='\x1b' ;; $'\x7f') r='\x7f' ;;
+      *) printf -v r '%s%02x' '\x' $((i + 1)) ;;
+    esac
+    s=${s//"$c"/"$r"}
+  done
+  printf '%s' "$s"
+}
+_nexus_msg() {
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+}
 
 # --- Dangerous patterns ---
 # Each line: "extended_regex:::description"
@@ -60,26 +106,7 @@ DANGEROUS_PATTERNS=(
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-_HOST_MODE=""
-if command -v jq >/dev/null 2>&1; then
-  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  _MODE_PYTHON=$(command -v python3 || command -v python)
-  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
-import json, sys
-try:
-    payload = json.load(sys.stdin)
-    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
-    if isinstance(mode, str):
-        print(mode)
-except (ValueError, TypeError):
-    pass' 2>/dev/null || true)
-fi
-if [ "$_HOST_MODE" = "bypassPermissions" ]; then exit 0; fi
-
+# Nexus Settings guard switches apply in every host permission mode.
 # Extract the command from tool_input.command
 # The `|| true` on both branches is load-bearing under `set -euo pipefail`: a
 # grep that matches nothing, or jq on a malformed payload, returns non-zero, and a
@@ -155,6 +182,7 @@ strip_heredoc_bodies() {
 
 # SCAN drives every block decision below; COMMAND is kept for reporting and for
 # the written-content warning.
+if ! _nexus_guardrail_disabled block_dangerous_git; then
 SCAN=$(printf '%s' "$COMMAND" | strip_heredoc_bodies)
 
 # --- Check command against each pattern ---
@@ -166,11 +194,11 @@ for entry in "${DANGEROUS_PATTERNS[@]}"; do
   case "$PATTERN" in *'core\.'*) GREP_FLAGS=-qiE ;; esac
 
   if echo "$SCAN" | grep "$GREP_FLAGS" "$PATTERN"; then
-    echo "BLOCKED: '$COMMAND' matches dangerous git pattern. $DESC. The user has prevented you from doing this." >&2
+    _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' matches dangerous git pattern. $(_nexus_esc "$DESC"). The user has prevented you from doing this."
     exit 2
   fi
   if echo "$COMMAND" | grep "$GREP_FLAGS" "$PATTERN"; then
-    echo "NOTE: a dangerous git pattern ($DESC) appears inside written file content, not as a command. Allowing the write." >&2
+    _nexus_msg "NOTE: a dangerous git pattern ($(_nexus_esc "$DESC")) appears inside written file content, not as a command. Allowing the write."
   fi
 done
 
@@ -185,7 +213,7 @@ done
 if echo "$SCAN" | grep -qE '(^|[;&|]|[[:space:]])git([[:space:]]|$).*config' \
    && echo "$SCAN" | grep -qiE 'core\.(hooksPath|fsmonitor)' \
    && ! echo "$SCAN" | grep -qE '\-\-(get|get-all|get-regexp|get-urlmatch|list|unset|unset-all)([[:space:]]|=|$)'; then
-  echo "BLOCKED: '$COMMAND' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this." >&2
+  _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' persists a git execution-indirection setting (core.hooksPath / core.fsmonitor). Git executes the named directory or command on ordinary operations, so this turns a later routine git call into arbitrary execution. The user has prevented you from doing this."
   exit 2
 fi
 
@@ -205,11 +233,13 @@ if [ -n "${NEXUS_PROTECTED_BRANCHES:-}" ] \
     PROTECTED_LIST=$(echo "${NEXUS_PROTECTED_BRANCHES}" | tr ',' ' ')
     for b in $PROTECTED_LIST; do
       if [ "$b" = "$CURRENT_BRANCH" ]; then
-        echo "BLOCKED: direct commit to protected branch '${CURRENT_BRANCH}'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1." >&2
+        _nexus_msg "BLOCKED: direct commit to protected branch '$(_nexus_esc "${CURRENT_BRANCH}")'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1."
         exit 2
       fi
     done
   fi
+fi
+
 fi
 
 # --- Opt-in git bypass-flag guard (v4.14.4) ---
@@ -239,7 +269,6 @@ fi
 #   - environment-variable skips (HUSKY=0, SKIP=, LEFTHOOK=0, GIT_CONFIG_*)
 #   - git plumbing (commit-tree, update-ref, hash-object)
 #   - shell aliases, wrapper scripts, and git aliases
-#   - bypassPermissions mode (this whole hook steps aside)
 #   - an agent that edits guardrails.json or this hook itself
 #   - a flag built at run time (variables, command substitution, eval), quoted
 #     as a separate word, or handed to a program that runs git later
@@ -301,7 +330,7 @@ else:
     true) return 0 ;;
     false) return 1 ;;
   esac
-  echo "WARNING: git-guardrails: $cfg is not a valid JSON object; the git bypass-flag guard stays off." >&2
+  _nexus_msg "WARNING: git-guardrails: $(_nexus_esc "$cfg") is not a valid JSON object; the git bypass-flag guard stays off."
   return 1
 }
 
@@ -382,7 +411,7 @@ case "$COMMAND" in
   *git*)
     if bypass_mode_on; then
       if BYPASS_REASON=$(bypass_detect "$COMMAND"); then
-        echo "BLOCKED: '$COMMAND' skips git hooks or commit signing ($BYPASS_REASON). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this." >&2
+        _nexus_msg "BLOCKED: '$(_nexus_esc "$COMMAND")' skips git hooks or commit signing ($(_nexus_esc "$BYPASS_REASON")). The opt-in bypass-flag guard is on (~/.nexus-hub/guardrails.json key block_git_bypass_flags; override NEXUS_GUARD_GIT_BYPASS=0 or 1 in the hook environment). To turn this mode off, set block_git_bypass_flags to false in that file; the next command is judged by the new value, with no restart. The user has prevented you from doing this."
         exit 2
       fi
     fi

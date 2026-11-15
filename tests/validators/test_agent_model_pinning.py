@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-RATIONALE = ROOT / "docs/releases/v4/v4.14/development/agent-pinning-rationale.md"
+RATIONALE = ROOT / "docs/archives/v4/v4.14/development/agent-pinning-rationale.md"
 if not RATIONALE.is_file():
     RATIONALE = ROOT / "docs/archives/v4/v4.14/development/agent-pinning-rationale.md"
 

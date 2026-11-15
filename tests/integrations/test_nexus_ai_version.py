@@ -61,3 +61,40 @@ def test_version_manifest_removed_on_teardown(install_ctx: InstallContext) -> No
 
     integ.teardown(install_ctx)
     assert not manifest_path.exists(), "teardown should remove the version manifest"
+
+
+
+# ---------------------------------------------------------------------------
+# v4.14.7: the global catalog is written only when Nexus AI Studio is present
+# ---------------------------------------------------------------------------
+
+
+def _global(install_ctx: InstallContext) -> InstallContext:
+    from dataclasses import replace
+
+    return replace(install_ctx, scope="global", explicit_target=True)
+
+
+def test_absent_app_writes_no_global_catalog(install_ctx: InstallContext) -> None:
+    result = get("nexus-ai").install(_global(install_ctx))
+    assert result.detected is False
+    assert not (install_ctx.target_root / ".nexus-ai").exists()
+
+
+def test_installed_never_launched_app_gets_the_catalog(install_ctx: InstallContext, monkeypatch) -> None:
+    """Only the application folder exists; the app has written no data yet."""
+    import sys
+
+    app = install_ctx.target_root / "apps" / "Nexus AI Studio"
+    app.mkdir(parents=True)
+    app_paths = get("nexus-ai").config["detection"]["app_paths"]
+    monkeypatch.setitem(app_paths, sys.platform, [str(app)])
+    result = get("nexus-ai").install(_global(install_ctx))
+    assert result.detected is True
+    assert (install_ctx.target_root / ".nexus-ai" / "catalog" / VERSION_FILE).is_file()
+
+
+def test_app_data_folder_is_evidence(install_ctx: InstallContext) -> None:
+    (install_ctx.target_root / ".nexus" / "sessions").mkdir(parents=True)
+    result = get("nexus-ai").install(_global(install_ctx))
+    assert result.detected is True

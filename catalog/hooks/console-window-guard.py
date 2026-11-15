@@ -33,7 +33,50 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Iterator, NamedTuple
+from typing import Iterator, NamedTuple, TextIO
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+NEXUS_TAG = "[Nexus-Hub: console-window-guard]"
+
+
+def _nexus_esc(value: str) -> str:
+    """Make CR, LF, ESC and the other C0 control characters visible.
+
+    An echoed value (a command, a file name) can then never start a forged
+    tagged line.
+    """
+    out: list[str] = []
+    for ch in value:
+        code = ord(ch)
+        if code == 9:
+            out.append("\\t")
+        elif code == 10:
+            out.append("\\n")
+        elif code == 13:
+            out.append("\\r")
+        elif code < 32 or code == 127:
+            out.append(f"\\x{code:02x}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _nexus_tagged(message: str) -> str:
+    """The tagged form of a message, for a JSON message field."""
+    return f"{NEXUS_TAG} {message}"
+
+
+def _nexus_msg(message: str, *more: str, stream: TextIO | None = None) -> None:
+    """Print the tag and the message (stderr by default); further arguments are continuation lines."""
+    out = stream or sys.stderr
+    out.write(_nexus_tagged(message) + "\n")
+    for line in more:
+        out.write(line + "\n")
+
 
 HOOK_NAME = "console-window-guard"
 MARKER = "nexus: console-window-ok"
@@ -557,12 +600,12 @@ def scan(root: Path, incomplete: list[bool] | None = None) -> list[Finding]:
 def report(command: str, root: Path, findings: list[Finding]) -> str:
     lines = [
         "Blocked: on Windows this command could flood the desktop with console windows.",
-        f"Project: {root}",
-        f"Command: {command[:160]}",
+        f"Project: {_nexus_esc(str(root))}",
+        f"Command: {_nexus_esc(command[:160])}",
         "Fix these before running the command (each launch must be window-safe):",
     ]
     for item in findings[:MAX_REPORTED]:
-        lines.append(f"- {item.path}:{item.line}: {item.rule}.")
+        lines.append(f"- {_nexus_esc(str(item.path))}:{item.line}: {item.rule}.")
         if item.fix:
             lines.extend("    " + part for part in item.fix.splitlines())
     if len(findings) > MAX_REPORTED:
@@ -611,11 +654,12 @@ def main() -> int:
     findings.extend(external_python_findings(command, root, cwd))
     if not findings:
         if incomplete[0]:
-            print(f"console-window-guard: scan stopped after {_budget():g}s with no unsafe launch found so far; "
-                  "the command is blocked until the scan completes.", file=sys.stderr)
+            _nexus_msg(f"scan stopped after {_budget():g}s with no unsafe launch found so far; "
+                       "the command is blocked until the scan completes.")
             return 2
         return 0
-    print(report(command, root, findings), file=sys.stderr)
+    first, *rest = report(command, root, findings).split("\n")
+    _nexus_msg(first, *rest)
     return 2
 
 

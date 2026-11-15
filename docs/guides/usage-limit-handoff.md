@@ -2,14 +2,14 @@
 
 Summary: how Nexus-Hub keeps your work resumable when an AI platform's usage limit runs out, through `/handoff` (a paste-ready prompt printed in the chat, with a file only when you ask for one) and the automatic `usage-guard` hook.
 Read this when: you want to know what happens near a usage limit on your platform, how to turn the automatic guard on or off, how to check it, or what it reads and sends.
-Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the prompt format, the optional handoff file, activation, validation, configuration, isolating a test run of the probe, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
+Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the prompt format, submitted-answer capture, bounded Stop behavior, user-run recovery, activation, validation, configuration, isolating a test run of the probe, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
 
 ## What it does
 
 A usage cap is enforced by the vendor's server. Once you hit it, the next model request is rejected and the agent gets no further turn, so nothing inside the agent can react at 100%. Nexus-Hub acts before that point, in three layers:
 
 1. **`/handoff` (every platform).** The `session-handoff` skill prints one paste-ready prompt in the chat that another agent, on any platform, can resume from. It writes no file unless you ask for one in that request. Every installed instruction file carries a short Session Handoff rule, so the agent knows handoffs belong in the chat, and you can run `/handoff` at any time.
-2. **Automatic guard (Claude Code, Codex, Cursor, GitHub Copilot).** The `usage-guard` hook reads the platform's own usage figure. When a tracked window reaches the threshold (99% by default), it tells the agent to finish the current step and ask you first: continue on pay-per-use credits, or hand off. If the agent ends its turn without asking, the guard sends one continuation asking for it. See "Continuing on pay-per-use credits" below.
+2. **Automatic guard (Claude Code, Codex, Cursor, GitHub Copilot).** The `usage-guard` hook reads the platform's own usage figure. When a tracked window reaches the threshold (99% by default), it tells the agent to finish the current step and ask you first: continue on pay-per-use credits, wait, or hand off. If the first notice arrives at turn end, the guard sends one continuation. After the instruction is offered, a pending question allows the turn to end. See "Continuing on pay-per-use credits" below.
 3. **Manual fallback (every other platform).** Where no usage figure can be read, the guard stays silent. Run `/handoff` yourself, or the agent runs it when the platform itself warns about limits.
 
 The handoff is printed in the chat, for you to copy. Nothing switches platforms for you and nothing sends the handoff anywhere.
@@ -110,9 +110,13 @@ To see the directive itself, start a session with a low threshold, for example `
 
 ## Continuing on pay-per-use credits
 
-The guard creates one pending decision in home-owned state, bound to the project, platform and usage period. Repeated hooks, additional crossing windows and later sessions reuse it. Repository files cannot approve spending. An atomic claim reserves one delivery; the genuine host question ID and submitted response ID bind the answer. Replayed, stale and duplicate answers cannot overwrite it.
+The guard creates one pending decision in home-owned state, bound to the project, platform and usage period. Repeated hooks, additional crossing windows and later sessions reuse it. Repository files cannot approve spending. The full instruction is injected once per decision. A Stop event can block once only when it is the first delivery; a pending question already offered to the agent allows the turn to end. A Stop with stop_hook_active=true never blocks or probes usage.
 
-The agent checks its actual exposed interaction tools. It calls functions.request_user_input_async when that API is present, otherwise an available native question API. Only when none exists does it ask one short text question. An uncertain API failure keeps the existing question pending and never triggers a second question or text fallback. If hook output was lost before the agent claimed it, later hooks can repeat the same offered context; the atomic claim still allows only one actual UI question.
+The agent asks once through an exposed native question tool, including functions.request_user_input_async when available, and includes [usage-decision:DECISION_ID] in the question text. Where question IDs are supported, use usage_DECISION_ID. The existing PostToolUse hook captures submitted answers from AskUserQuestion and supported Cursor/Codex question-result shapes, matching the question to the current decision. It ignores unrelated tool results, stale IDs, canceled questions, option lists and acknowledgments without a submitted answer. Hook receipt IDs are local audit keys, not invented host request or response IDs. Legacy claim commands and host IDs are no longer prerequisites. If the question tool or a legacy claim cannot succeed, a concise plain text question remains possible.
+
+An exact typed reply of credits, wait, handoff, Continue on credits, or /usage credits|wait|handoff is captured by UserPromptSubmit, or Cursor's beforeSubmitPrompt. Answer capture works before the usage probe, so an unavailable probe cannot discard the response. Mentions inside longer messages do not authorize spending. An answered record cannot be overwritten by a replayed response.
+
+Every genuine answer first publishes a complete, exclusive receipt in a private .nexus-usage-answers-HASH directory beside the installation home. This separate inbox retains answers while another probe or runtime adoption owns the activity lock, without changing the adoption-protected installation tree. A later hook commits the first receipt under the existing activity lock and removes it. Recovery and legacy answer commands honor the same first answer; a queued Wait cannot be replaced by Credits. Original schema-3 records under known provider aliases or an explicitly supplied Git subdirectory remain discoverable and move to the canonical key under the lock, preserving their original facts.
 
 The choices appear in this order: **Wait for reset (Recommended)** stops until the reported reset; **Hand off** prints the chat handoff and stops this session; **Continue on credits** resumes with the observed cost and allowance explained. Credits are never preselected, and silence does not authorize them. Unknown spending or reset figures remain explicitly unknown. Reminders report spend using the existing decision; exhausted credits stop further requests.
 
@@ -120,7 +124,16 @@ When the platform itself warns without a guard decision ID, bootstrap one with u
 
 An answered episode expires when a bound window reaches the existing hysteresis clear line or reports a materially different reset period, including when the old reset was still in the future. Pending questions remain shared. Immutable original question, delivery and submitted-answer facts are stored once at state/usage-guard/decisions/history/DECISION_ID.json before an answered ledger is replaced; equal history is reusable, while conflicting or unavailable history prevents replacement. That failure emits a non-question stop notice explaining that the prior episode expired and no new spending authority exists; it does not create another UI request or a native lifecycle verdict. Spend reminders update current observations separately from the original question facts.
 
-The executable state interface is usage-guard.py --decision-action claim|delivered|uncertain|answer --project PROJECT --platform PLATFORM --decision-id ID. Claim requires --tool; later transitions require --claim-id; delivered binds --request-id; answer also requires the matching request, genuine --response-id and --answer wait|handoff|credits. Use IDs from the real host interaction, never generated approval evidence.
+For recovery, run nexus-hub usage status from the affected project to inspect its decisions. Then run nexus-hub usage decide --answer credits, --answer wait, or --answer handoff. With multiple pending providers, add --platform and --decision-id from status; an ambiguous or stale selection fails with the stored identities. The explicit --project option accepts non-git paths with spaces. The hook and CLI use the same nearest Git root, or the original directory for a non-git project. claude-code is accepted as an alias for claude. The CLI runs the guard in-process and requires no script-path Python launch. The legacy --decision-action interface remains compatible for existing integrations, with stored identity details on lookup errors.
+
+On Windows, run these commands in Windows PowerShell from the affected project directory after installing the repaired version. The first command lists the stored ID and decision. The second records the user's explicit credits choice; use wait or handoff instead if that is the desired answer. To run elsewhere, add --project followed by the quoted absolute project path.
+
+```powershell
+nexus-hub usage status --platform claude
+nexus-hub usage decide --answer credits --platform claude
+```
+
+The expected result is JSON with decision=credits. Subsequent hooks stay silent until the configured spending reminder or usage reset. For stdin execution, set NEXUS_USAGE_GUARD_DIR to the absolute trusted directory containing usage-guard.py and _usage_probe.py; stdin itself has no script directory. Without that setting, only home-owned installation directories are searched. Repository directories are never selected as stdin sibling roots. Normal script and CLI execution resolve sibling imports from the guard's own __file__ directory. The recovery CLI skips retained older guard copies that lack its entry point.
 
 ### Runtime transaction boundary
 

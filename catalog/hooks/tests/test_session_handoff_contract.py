@@ -41,7 +41,7 @@ REQUIRED_SECTIONS = [
 # The header grammar carry-forward parses: `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`.
 HEADER_RE = re.compile(
     r"^# Handoff \| (?P<ts>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \| (?P<platform>[a-z0-9-]+) \| "
-    r"(?P<trigger>manual|usage-limit (?:five_hour|weekly|monthly) \d+(?:\.\d+)?)$"
+    r"(?P<trigger>manual|usage-limit)$"
 )
 
 
@@ -86,7 +86,9 @@ def test_the_template_header_line_matches_the_parseable_grammar() -> None:
     [
         ("# Handoff | 2026-10-01T14:03:27Z | claude | manual", True),
         ("# Handoff | 2026-10-01T14:03:27Z | codex | checkpoint", False),
-        ("# Handoff | 2026-10-01T14:03:27Z | copilot | usage-limit monthly 99", True),
+        ("# Handoff | 2026-10-01T14:03:27Z | copilot | usage-limit", True),
+        # The window and percent describe the platform being left, so a new header omits them.
+        ("# Handoff | 2026-10-01T14:03:27Z | copilot | usage-limit monthly 99", False),
         ("# Handoff | 2026-10-01T14:03:27Z | claude | usage-limit hourly 99", False),
         ("# Handoff | 2026-10-01 14:03 | claude | manual", False),
     ],
@@ -98,8 +100,31 @@ def test_the_header_grammar_accepts_only_documented_triggers(line: str, ok: bool
 def test_the_skill_documents_the_header_grammar_and_modes() -> None:
     text = _skill_text()
     assert "`# Handoff | TIMESTAMP | PLATFORM | TRIGGER`" in text
-    for trigger in ("`manual`", "`usage-limit WINDOW PERCENT`"):
+    for trigger in ("`manual`", "`usage-limit`"):
         assert trigger in text
+    # An older header is still carried forward, shortened to the neutral trigger.
+    step3 = text.split("### Step 3", 1)[1].split("### Step 4", 1)[0]
+    assert "`usage-limit WINDOW PERCENT`; copy it as `usage-limit`" in step3
+
+
+def test_the_handoff_is_platform_neutral() -> None:
+    """The handoff exists so the work continues on another platform now, so it
+    must carry nothing that tells the receiving agent to wait for the previous
+    platform's usage limit to reset, and carry-forward must not re-import it."""
+    text = _skill_text()
+    step5 = text.split("### Step 5", 1)[1].split("### Step 6", 1)[0]
+    assert "**Platform-neutral content.**" in step5
+    for leaked in ("usage window", "reset time", "credits", "decision ID", "stop or wait"):
+        assert leaked in step5, f"Step 5 must exclude {leaked!r} from the handoff"
+    step3 = text.split("### Step 3", 1)[1].split("### Step 4", 1)[0]
+    assert "Drop every carried item, constraint, or blocker that only concerns an earlier session's usage" in step3
+    step1 = text.split("### Step 1", 1)[1].split("### Step 2", 1)[0]
+    assert "it never goes into the handoff" in step1
+    prompt = text.split("### Step 7", 1)[1].split("--- handoff begins ---", 1)[0]
+    assert "never wait for another platform's limit to reset" in prompt
+    template = _format_template().lower()
+    for word in ("reset", "weekly", "five_hour", "monthly", "credit", "wait"):
+        assert word not in template, f"the template example must not mention {word!r}"
 
 
 def _modes_table() -> list[str]:

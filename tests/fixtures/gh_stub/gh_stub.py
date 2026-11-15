@@ -54,6 +54,7 @@ def main(argv: list[str]) -> int:
     branch_pr = (state.get("pr_by_branch") or {}).get(argv[2]) if head[:1] == ["pr"] and len(argv) > 2 else None
     if head == ["pr", "view"] and branch_pr is not None:
         answer = {"state": branch_pr.get("state", "OPEN")}
+        answer.update({key: branch_pr[key] for key in ("headRefName", "baseRefName", "headRefOid") if key in branch_pr})
         if "merge_commit" in branch_pr:
             answer["mergeCommit"] = {"oid": branch_pr["merge_commit"]}
         print(json.dumps(answer))
@@ -64,6 +65,7 @@ def main(argv: list[str]) -> int:
             print(missing_pr, file=sys.stderr)
             return 1
         answer = {"state": state["pr_state"]}
+        answer.update({key: state[key] for key in ("headRefName", "baseRefName", "headRefOid") if key in state})
         if "merge_commit" in state:
             answer["mergeCommit"] = {"oid": state["merge_commit"]}
         print(json.dumps(answer))

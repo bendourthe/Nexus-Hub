@@ -1,0 +1,52 @@
+# Settings Preferences
+
+This reference defines the shared preferences used by Nexus-Hub Settings and their hook consumers. Read it when adding a switch, reviewing a native effort mapping, or diagnosing a preference that is saved but overridden. It covers persistence, effective defaults, workspace trust, confirmation, native limitations, reset and runtime delivery.
+
+## Shared Effort
+
+The desired effort is stored in the user's `~/.nexus-hub/preferences.json` as `default_effort`. The existing settings engine also writes each admitted native effort setting when the user changes the shared selector. The preference remains readable even when a tool is absent, unsupported, or overridden.
+
+Claude Code uses the authoritative user `env.CLAUDE_CODE_EFFORT_LEVEL` setting, valid persistent model fallbacks and existing project effort keys. Existing editor launch overrides are synchronized through the host configuration API while preserving unrelated environment entries. Codex uses its native reasoning-effort configuration, existing profiles and existing project effort keys. Ownership records retain the previous values, bind project writes to the project identity, and support exact reset. Managed policy remains outside user control. Vendor settings are admitted only when their documented behavior has been exercised, as the settings-control contract requires.
+
+The effort preference controls new-session defaults and, with the Settings 0.4.0 Windows bridge connected, subsequent requests in existing Claude Code and Codex extension sessions. A response already executing retains its current effort. Unsupported clients retain their own behavior. The panel has no platform-specific selectors; the CLI remains available for detailed diagnosis.
+
+| Shared choice | Claude native effort | Codex common native effort |
+|---|---|---|
+| Low | `low` | `low` |
+| Medium | `medium` | `medium` |
+| High | `high` | `high` |
+| Extra high | `xhigh` | `xhigh` |
+| Max | `max` | `xhigh` |
+| Ultra | `xhigh` with Ultracode | `xhigh` |
+
+Legacy Codex configuration defaults use the common mapping above. Connected Codex sessions use the active model's advertised capabilities, including native `max` and `ultra` when supported. The current native protocol exercise accepts all six levels; a narrower model capability list lowers the mapping. Claude Ultra enables Ultracode with `xhigh` effort. Readback compares the mapped native value with the shared choice rather than comparing different names as strings.
+
+The extension reconciles supported defaults on startup and file/configuration changes in trusted workspaces, with one attempt per distinct unresolved conflict. The Windows live bridge uses `claudeCode.claudeProcessWrapper` and `chatgpt.cliExecutable`, requiring one initial editor reload. It applies native effort controls to connected sessions and enforces the latest mapping on subsequent requests, including ordinary new-chat requests carrying cached effort. Codex mapping follows advertised model capabilities; Claude Ultra enables Ultracode. Native permission and input fields are preserved. GitHub Copilot, native Cursor and native Antigravity have no verified writable effort integration and remain footer compatibility notes. Claude and Codex extensions hosted in those editors are separate supported surfaces.
+
+An editor process that started before the bridge was configured still needs a reload. Settings 0.4.1 checks direct native children of the current extension host and scopes acknowledgment records to that host. A healthy process in another window cannot hide an unbridged Codex process in this one. Native acknowledgment and visible picker state are separate. Settings 0.4.2 adds reversible, exact-hash native UI adapters for Claude Code 2.1.318 and Codex 26.1021.22027, calling their own cached-settings/state-push and composer-effort setters. Vendor originals and restore receipts live under `~/.nexus-hub/native-ui/`; customized or different builds are preserved. The Codex editor-title menu uses its existing new-panel command. [Qualification evidence](../releases/v4/v4.15/development/settings-042-native-ui-evidence.md) separates automated native checks from visible editor verification.
+
+## Guardrail Switches
+
+The user-level `~/.nexus-hub/guardrails.json` is read on each affected hook invocation. Only an exact JSON boolean `false` disables a default-on protection. Missing files or keys, malformed JSON and invalid value types retain protection.
+
+| Control | JSON key | Default | Consumer |
+|---|---|---|---|
+| `git_safety` | `block_dangerous_git` | On | Dangerous Git commands and protected-branch checks |
+| `secret_scan` | `scan_secrets` | On | Secret scanning before file writes |
+| `edit_preservation` | `protect_user_edits` | On | User-edit protection during file changes |
+| `large_file_warning` | `warn_large_files` | On | Advisory large-file warnings |
+| `git_guardrails` | `block_git_bypass_flags` | Off | Git-check and signing bypass flags |
+
+Git safety and Git bypass-flag protection are independent. Turning off dangerous-command checks does not turn off a separately enabled bypass-flag check. Enabled Settings protections remain active in full-access mode when the host invokes their hooks; switching them off disables only the named protection. Existing per-hook environment disable controls remain available. Memory-store protection and unrelated policy rules are outside this switch set.
+
+Claude, Codex, Copilot and Antigravity use their existing native hook registrations. Cursor registers the four guard scripts on `preToolUse` and the edit ledger on `postToolUse`, with native JSON permission responses and preserved user registrations. Delivery must refresh the runtime consumers in all five platform directories, including Copilot's `nexus-hub-scripts` subdirectory. Hook protocol exercises prove payload translation and blocking; an actual interactive model tool call remains a separate observation.
+
+## Change Contract
+
+Changes use the existing `nexus-hub settings` dry-run, confirmation, write, ownership and readback flow. Disabling a blocking protection requires the existing human confirmation. The panel is read-only in an untrusted workspace. Reset restores recorded prior values while retaining values changed independently afterward.
+
+Installing the extension or updating its runtime consumers does not change any preference. Both the packaged extension and affected runtime modules and hook copies must be delivered for the controls to work. Changed installed code is backed up before replacement, and installed hashes are verified afterward. User configuration and hook registrations are preserved.
+
+## Evidence
+
+Local behavior observations are recorded in the [redesign proof matrix](../releases/v4/v4.15/development/settings-extension-redesign-proof.md). The [settings-control contract](../policy/settings-control-contract.md) owns vendor admission and the [permission-mode contract](../policy/permission-mode-contract.md) owns host-mode precedence.

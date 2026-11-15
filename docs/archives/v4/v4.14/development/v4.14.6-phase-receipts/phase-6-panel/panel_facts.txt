@@ -1,0 +1,44 @@
+{
+ "dark420": {
+  "focusable": 46,
+  "unnamed": [],
+  "smallerThan24": [
+   "Default model for Claude Code (an alias  354x23",
+   "Default model for Codex (an alias such a 354x23"
+  ],
+  "headings": [
+   "H1 Nexus-Hub Settings",
+   "H2 If you choose High effort and Full auto,",
+   "H2 Default effort",
+   "H2 Default model",
+   "H2 Approval posture",
+   "H2 Commit attribution off",
+   "H2 Git-guardrails mode"
+  ],
+  "landmarks": 7,
+  "lang": "en",
+  "imgAlts": [
+   ""
+  ],
+  "scrollHeight": 4623,
+  "overflowX": false
+ },
+ "tabOrderFirst12": [
+  "Refresh",
+  "lowmediumhighxhigh",
+  "Apply to every tool",
+  "lowmediumhighxhigh",
+  "Set only for Claude Code",
+  "Remove this override",
+  "lowmediumhighxhigh",
+  "Set only for Codex",
+  "Reset Default effort to what w",
+  "Show sources and exact keys",
+  "INPUT",
+  "Set for Claude Code"
+ ],
+ "focusVisible": {
+  "outline": "solid 2px",
+  "boxShadow": "none"
+ }
+}

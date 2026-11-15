@@ -580,7 +580,7 @@ def main() -> int:
             continue
 
         if args.fix and preserve:
-            print(f"PRESERVED {rel}: evidence bytes were not repaired; findings still apply.")
+            print(f"PRESERVED {rel}: preserved evidence; findings are reported without repair.")
         elif args.fix:
             # Punctuation repair is gated on the same predicate that gates
             # punctuation detection, so the Markdown-only exemption that keeps

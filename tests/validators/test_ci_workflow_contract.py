@@ -173,7 +173,10 @@ def test_tests_job_installs_the_coverage_plugin_its_profile_uses():
     job = load(CI)["jobs"]["tests"]
     install = next(step for step in job["steps"] if step.get("name") == "Install test dependencies")
     assert "pytest-cov" in install["run"].split()
-    assert any("--cov=scripts.ci" in command.argv for command in profile_group("tests").commands)
+    # The coverage command lives in one named shard of the `tests` family; the matrix leg
+    # that selects that shard must be the one this job installs pytest-cov for.
+    assert any("--cov=scripts.ci" in command.argv for command in profile_group("tests-core").commands)
+    assert any("tests-core" in leg["only"].split(",") for leg in job["strategy"]["matrix"]["include"])
 
 
 def test_ci_does_not_re_declare_the_validator_list():
@@ -553,6 +556,8 @@ def test_windows_checkouts_enable_long_paths_before_reading_the_ledger():
     assert {
         ("ci.yml", "tests-windows"),
         ("ci.yml", "tests-windows-installer"),
+        ("ci.yml", "tests-windows-hooks-rest"),
+        ("ci.yml", "tests-windows-validators-4"),
         ("ci.yml", "bootstrap-windows"),
         ("ci.yml", "install-smoke"),
         ("ci.yml", "installer-smoke"),

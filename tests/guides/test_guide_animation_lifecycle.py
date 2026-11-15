@@ -94,35 +94,7 @@ def test_home_diagrams_keep_examples_visible_and_pause_decorative_motion(browser
     page = browser.new_page(viewport={"width": 1440, "height": 1000})
     page.goto(GUIDE.as_uri() + "#home")
     assert page.locator(".ph-dot").count() == 0
-    logo = page.locator('.gf-logo')
-    assert logo.evaluate("e => getComputedStyle(e).animationPlayState") == "paused"
-    logo.scroll_into_view_if_needed()
-    page.wait_for_function("document.querySelector('.guard-fig').classList.contains('live')")
-    assert logo.evaluate("e => getComputedStyle(e).animationPlayState") == "running"
-    assert logo.evaluate("e => getComputedStyle(e).backgroundColor") == "rgba(0, 0, 0, 0)"
-    page.emulate_media(reduced_motion="reduce")
-    assert logo.evaluate("e => getComputedStyle(e).animationName") == "none"
-    page.emulate_media(reduced_motion="no-preference")
-
-    handoff = page.locator(".ph-cut")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
-    page.evaluate("NexusSeq.reset(document.querySelector('#nhg-guard-fig'))")
-    assert page.locator(".gf-lane").evaluate_all(
-        "els => els.length === 3 && els.every(e => getComputedStyle(e).opacity === '1')"
-    )
+    # The guardrail ring figure left Home on 2026-11-10; Why Nexus Hub is a benefits summary now.
     page.locator(".ph").scroll_into_view_if_needed()
     page.wait_for_function("document.querySelector('.ph').classList.contains('live')")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').transform") == "none"
-    # Exercise the visibility-event branch without relying on headless tab occlusion.
-    page.evaluate("""Object.defineProperty(document, 'hidden', {value: true, configurable: true});
-      document.dispatchEvent(new Event('visibilitychange'));""")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
-    page.evaluate("""delete document.hidden;
-      document.dispatchEvent(new Event('visibilitychange'));""")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
-    page.emulate_media(reduced_motion="reduce")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
-    assert page.locator(".gf-cell--ask").first.evaluate(
-        "e => getComputedStyle(e, '::after').animationName"
-    ) == "none"
+    # The mid-task handoff strip (.ph-cut) left Home on 2026-11-10; its animation checks retired with it.

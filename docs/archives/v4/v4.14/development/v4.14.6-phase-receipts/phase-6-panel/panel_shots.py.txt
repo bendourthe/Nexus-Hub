@@ -1,0 +1,40 @@
+"""Screenshot regions of the standalone panel render and report keyboard and name facts (scratch helper)."""
+import json
+import sys
+from pathlib import Path
+
+from playwright.sync_api import sync_playwright
+
+out = Path(sys.argv[1])
+facts = {}
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    for theme, width, height in (("dark", 420, 1100), ("light", 420, 1100), ("dark", 1100, 900)):
+        page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=1)
+        page.goto(Path(r"C:\nh6\panelrender\panel-%s.html" % theme).as_uri())
+        page.wait_for_selector("section.card")
+        total = page.evaluate("document.documentElement.scrollHeight")
+        page.screenshot(path=str(out / f"panel-{theme}-{width}-top.png"), clip={"x": 0, "y": 0, "width": width, "height": min(height, 1400)})
+        if theme == "dark" and width == 420:
+            if total > 1150:
+                page.screenshot(path=str(out / "panel-dark-420-mid.png"), full_page=True, clip={"x": 0, "y": 1100, "width": width, "height": min(1100, total - 1100)})
+            facts["dark420"] = page.evaluate(
+                """() => {
+                  const focusables = [...document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')].filter(e => !e.disabled && e.tabIndex >= 0);
+                  const name = (e) => (e.getAttribute('aria-label') || (e.labels && e.labels[0] && e.labels[0].textContent) || e.textContent || e.value || '').trim();
+                  const unnamed = focusables.filter(e => !name(e)).map(e => e.outerHTML.slice(0, 80));
+                  const small = focusables.filter(e => { const r = e.getBoundingClientRect(); return r.width < 24 || r.height < 24; }).map(e => name(e).slice(0, 40) + ' ' + Math.round(e.getBoundingClientRect().width) + 'x' + Math.round(e.getBoundingClientRect().height));
+                  const heads = [...document.querySelectorAll('h1,h2,h3')].map(h => h.tagName + ' ' + h.textContent.trim().slice(0, 40));
+                  return { focusable: focusables.length, unnamed, smallerThan24: small, headings: heads, landmarks: [...document.querySelectorAll('main,nav,section,[role]')].length, lang: document.documentElement.lang, imgAlts: [...document.images].map(i => i.getAttribute('alt')), scrollHeight: document.documentElement.scrollHeight, overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+                }"""
+            )
+            # Tab order: tab through the page and record the focused element names in order.
+            order = []
+            for _ in range(min(40, facts["dark420"]["focusable"])):
+                page.keyboard.press("Tab")
+                order.append(page.evaluate("(() => { const e = document.activeElement; return (e.getAttribute('aria-label') || e.textContent || e.tagName).trim().slice(0, 30); })()"))
+            facts["tabOrderFirst12"] = order[:12]
+            facts["focusVisible"] = page.evaluate("(() => { const e = document.activeElement; const s = getComputedStyle(e); return { outline: s.outlineStyle + ' ' + s.outlineWidth, boxShadow: s.boxShadow.slice(0, 40) }; })()")
+        page.close()
+    browser.close()
+print(json.dumps(facts, indent=1))

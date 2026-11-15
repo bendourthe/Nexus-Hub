@@ -233,13 +233,16 @@ def add_table_slide(
             paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
             paragraph.alignment = PP_ALIGN.CENTER
         cell.fill.solid()
-        cell.fill.fore_color.rgb = RGBColor(0x2E, 0x4A, 0x7A)
+        # Document style rule: neutral dark-gray header no row color uses.
+        cell.fill.fore_color.rgb = RGBColor(0x26, 0x26, 0x26)
 
-    # Populate data rows
+    # Populate data rows, alternating white and light gray
     for row_idx, row_data in enumerate(rows):
         for col_idx, cell_value in enumerate(row_data):
             cell = table.cell(row_idx + 1, col_idx)
             cell.text = str(cell_value)
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = RGBColor.from_string("FFFFFF" if row_idx % 2 == 0 else "F2F2F2")
             for paragraph in cell.text_frame.paragraphs:
                 paragraph.font.size = Pt(12)
                 paragraph.alignment = PP_ALIGN.LEFT

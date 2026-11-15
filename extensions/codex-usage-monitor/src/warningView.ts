@@ -1,3 +1,4 @@
+import { usageAlertEnabled, watchUsageAlerts } from "./alertPreferences";
 import * as vscode from "vscode";
 import { UrgencyLevel } from "./types";
 import { formatResetLabel } from "./usageStore";
@@ -40,6 +41,11 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private callbacks: WarningCallbacks | undefined;
   private dismissTimer: ReturnType<typeof setTimeout> | undefined;
 
+  watchAlerts(): {dispose(): void} {
+    const watcher = watchUsageAlerts("codex", () => { if (this.suggestion) { void this.hide(); } });
+    return {dispose: () => { watcher.dispose(); this.clearDismissTimer(); }};
+  }
+
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
     view.webview.options = { enableScripts: true };
@@ -79,16 +85,18 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     urgency: UrgencyLevel,
     callbacks: WarningCallbacks,
   ): Promise<void> {
+    if (!usageAlertEnabled("codex")) { if (this.suggestion) { await this.hide(); } return; }
     this.clearDismissTimer();
     this.dismissTimer = setTimeout(() => {
       void this.hide();
-    }, 60_000);
+    }, 10_000);
     this.suggestion = suggestion;
     this.urgency = urgency;
     this.callbacks = callbacks;
 
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, true);
 
+    if (!usageAlertEnabled("codex")) { await this.hide(); return; }
     if (this.view) {
       this.view.webview.html = this.getHtml(this.view.webview);
       this.view.show(true);

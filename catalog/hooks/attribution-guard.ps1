@@ -24,6 +24,19 @@
 $ErrorActionPreference = "Continue"
 $hookName = "attribution-guard"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: attribution-guard]"
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 $disabled = $env:NEXUS_DISABLED_HOOKS
 if ($disabled -and ($disabled.Split(',') -contains $hookName)) { exit 0 }
 
@@ -49,7 +62,7 @@ $budgetLabel = $budget.ToString([System.Globalization.CultureInfo]::InvariantCul
 
 function Write-CannotVerify {
     param([string]$Reason)
-    [Console]::Error.WriteLine("[$hookName] WARNING: cannot verify body ($Reason); check it for AI attribution before publishing.")
+    Write-NexusMessage "WARNING: cannot verify body ($Reason); check it for AI attribution before publishing."
     exit 0
 }
 
@@ -112,7 +125,7 @@ if (-not $process.WaitForExit([int]($budget * 1000))) {
 }
 $process.WaitForExit()
 [Console]::Out.Write($stdoutTask.Result)
-[Console]::Error.Write($stderrTask.Result)
+[Console]::Error.Write($stderrTask.Result)  # nexus: hook-msg-exempt relays nexus_git_attribution.py output verbatim
 
 $status = $process.ExitCode
 if ($status -eq 0 -or $status -eq 2) { exit $status }

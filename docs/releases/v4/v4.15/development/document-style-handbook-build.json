@@ -1,0 +1,51 @@
+{
+  "candidate": {
+    "revision": "a0b6d56b179fabca8bb75d103440b936852cc47e",
+    "working_tree": "rebuilt handbook outputs and receipts not yet committed"
+  },
+  "changed_inputs": {
+    "overview": [
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py"
+    ],
+    "distribution": [
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py"
+    ]
+  },
+  "documents": [
+    {
+      "id": "overview",
+      "command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/overview/model.json",
+        "--out",
+        "docs/handbooks/overview.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: 4b5df1244a1d852faccef65bb18ceddeaaf18225e3e626ea94101e0c2fc869c9",
+      "output_sha256": "4b5df1244a1d852faccef65bb18ceddeaaf18225e3e626ea94101e0c2fc869c9"
+    },
+    {
+      "id": "distribution",
+      "command": [
+        "python",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        ".",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: 88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb",
+      "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb"
+    }
+  ],
+  "status": "pass"
+}

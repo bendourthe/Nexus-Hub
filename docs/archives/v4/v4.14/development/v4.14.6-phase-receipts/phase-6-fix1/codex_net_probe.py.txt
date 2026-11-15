@@ -1,0 +1,101 @@
+"""Measure which hosts the Codex CLI contacts for `doctor --json` and `exec`, using a local proxy sink.
+
+Every outbound attempt that honors the proxy variables lands in the sink and is logged, never forwarded.
+Scratch CODEX_HOME and HOME under the system temp folder; no credential; nothing leaves the machine.
+"""
+import json
+import os
+import re
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from pathlib import Path
+
+NOWIN = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+LOG: list[str] = []
+
+
+def sink(server: socket.socket) -> None:
+    while True:
+        try:
+            conn, _ = server.accept()
+        except OSError:
+            return
+        try:
+            conn.settimeout(1.0)
+            data = conn.recv(2048).decode("latin-1", "replace")
+            LOG.append(data.splitlines()[0] if data else "(empty connection)")
+            conn.sendall(b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+        except OSError:
+            pass
+        finally:
+            conn.close()
+
+
+def start() -> tuple[socket.socket, int]:
+    server = socket.socket()
+    server.bind(("127.0.0.1", 0))
+    server.listen(50)
+    threading.Thread(target=sink, args=(server,), daemon=True).start()
+    return server, server.getsockname()[1]
+
+
+def closed_port() -> int:
+    probe = socket.socket()
+    probe.bind(("127.0.0.1", 0))
+    port = probe.getsockname()[1]
+    probe.close()
+    return port
+
+
+def trial(label: str, config: str, argv_tail: list[str], proxy_port: int | None, use_proxy: bool) -> dict:
+    root = Path(tempfile.mkdtemp(prefix="nh6codex-"))
+    try:
+        for name in ("home", "cwd", "codexhome", "appdata", "localappdata"):
+            (root / name).mkdir()
+        (root / "codexhome" / "config.toml").write_text(config, encoding="utf-8")
+        env = {k: os.environ[k] for k in ("SYSTEMROOT", "PATH", "TEMP", "TMP", "COMSPEC", "PATHEXT", "WINDIR") if k in os.environ}
+        env.update(HOME=str(root / "home"), USERPROFILE=str(root / "home"), APPDATA=str(root / "appdata"), LOCALAPPDATA=str(root / "localappdata"), CODEX_HOME=str(root / "codexhome"))
+        if use_proxy and proxy_port:
+            url = f"http://127.0.0.1:{proxy_port}"
+            env.update(HTTP_PROXY=url, HTTPS_PROXY=url, ALL_PROXY=url, http_proxy=url, https_proxy=url, all_proxy=url, NO_PROXY="", no_proxy="")
+        before = len(LOG)
+        started = time.time()
+        done = subprocess.run([shutil.which("codex") or "codex", *argv_tail], cwd=root / "cwd", env=env, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, stdin=subprocess.DEVNULL, creationflags=NOWIN)
+        time.sleep(0.8)
+        seen = LOG[before:]
+        out = {"label": label, "rc": done.returncode, "seconds": round(time.time() - started, 1), "sink_lines": sorted(set(seen)), "effort_header": (re.search(r"reasoning effort: ([a-z]+)", done.stderr) or [None, None])[1]}
+        if argv_tail[0] == "doctor":
+            try:
+                checks = json.loads(done.stdout)["checks"]
+                out["network_checks"] = {k: v.get("status") for k, v in checks.items() if k.startswith("network.")}
+                out["details_effort"] = {k: v for k, v in checks["config.load"].get("details", {}).items() if "effort" in k.lower() or k == "model"}
+            except (ValueError, KeyError):
+                out["network_checks"] = "unparsed"
+        return out
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def main() -> None:
+    server, port = start()
+    base = 'model_reasoning_effort = "low"\n[windows]\nsandbox = "unelevated"\n'
+    dead = closed_port()
+    local = base + f'openai_base_url = "http://127.0.0.1:{dead}/v1"\n'
+    results = [
+        trial("doctor, default config, proxy sink", base, ["doctor", "--json"], port, True),
+        trial("exec, default config, proxy sink", base, ["exec", "--ephemeral", "--skip-git-repo-check", "probe"], port, True),
+        trial("doctor, local base URL + proxy sink", local, ["doctor", "--json"], port, True),
+        trial("exec, local base URL + proxy sink", local, ["exec", "--ephemeral", "--skip-git-repo-check", "probe"], port, True),
+        trial("exec, local base URL, no proxy", local, ["exec", "--ephemeral", "--skip-git-repo-check", "probe"], port, False),
+    ]
+    server.close()
+    print(json.dumps(results, indent=1))
+
+
+if __name__ == "__main__":
+    main()

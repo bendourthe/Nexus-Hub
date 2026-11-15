@@ -165,7 +165,7 @@ def test_lint_on_write_reports_multibyte_linter_output(
     proc = _run_ps1(powershell_bin, "lint-on-write", payload, work, _env(tmp_path, bin_dir))
     assert proc.returncode == 0
     lines = proc.stderr.decode("utf-8", "replace").splitlines()
-    assert f"[lint] {tool} warnings for {name}:" in lines, lines
+    assert f"[Nexus-Hub: lint-on-write] {tool} warnings for {name}:" in lines, lines
     assert f"finding {MULTIBYTE} {flags}" in lines, lines
     assert f"note {MULTIBYTE}" in lines, lines
 
@@ -285,7 +285,9 @@ def test_lint_on_write_never_hands_cmd_metacharacters_to_a_cmd_shim(
     proc = _run_ps1(powershell_bin, "lint-on-write", payload, work, _env(tmp_path, bin_dir))
     assert proc.returncode == 0
     assert not marker.exists(), "cmd.exe ran the injected command"
-    assert b"[lint]" not in proc.stderr, proc.stderr.decode("utf-8", "replace")
+    # The hook must refuse to hand a metacharacter file name to a .cmd shim, so no
+    # lint header (now the v4.14.8 source tag) may appear: this stays an ABSENCE check.
+    assert b"[Nexus-Hub: lint-on-write]" not in proc.stderr, proc.stderr.decode("utf-8", "replace")
 
 
 def test_session_summary_never_hands_cmd_metacharacters_to_a_cmd_shim(

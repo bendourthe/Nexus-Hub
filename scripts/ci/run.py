@@ -320,15 +320,19 @@ def select_groups(profile: str, only: list[str] | None) -> tuple[Group, ...]:
     groups = groups_for(profile)
     if not only:
         return tuple(group for group in groups if not group.explicit_only)
-    available = {g.name for g in groups}
-    unknown = [name for name in only if name not in available]
+    names = {g.name for g in groups}
+    families = {g.family for g in groups if g.family}
+    clash = sorted(names & families)
+    if clash:
+        raise KeyError(f"family name(s) {clash} are also group names in profile {profile!r}")
+    unknown = [name for name in only if name not in names | families]
     if unknown:
         raise KeyError(
             f"unknown group(s) {unknown} for profile {profile!r}; "
-            f"available: {sorted(available)}"
+            f"available: {sorted(names | families)}"
         )
     wanted = set(only)
-    return tuple(g for g in groups if g.name in wanted)
+    return tuple(g for g in groups if g.name in wanted or g.family in wanted)
 
 
 def run_profile(

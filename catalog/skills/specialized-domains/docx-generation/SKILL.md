@@ -76,6 +76,10 @@ Full walkthrough: [step-7-mail-merge-and-batch-generation.md](references/step-7-
 
 Full walkthrough: [step-8-testing-and-validation.md](references/step-8-testing-and-validation.md) (load this step when you reach it).
 
+## Document Style
+
+Table headers, row banding, lead-ins, and inline enumerations follow the owning rule `catalog/rules/documents/document-style.md`. `scripts/generate_report.py` applies the table and lead-in defaults in code: reuse its `apply_table_style(table, row_tints=...)` and `add_lead_in(paragraph, "Label:")` instead of hand-coding cell fills or a bold `"Label: "` run.
+
 ## Font Sizes
 
 This skill owns the report and document font-size rule, including PDF reports built through `pdf-document-generation`. Other skills reference it and do not restate it.

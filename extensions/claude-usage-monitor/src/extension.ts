@@ -1,3 +1,4 @@
+import { usageAlertEnabled } from "./alertPreferences";
 import * as vscode from "vscode";
 import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
@@ -111,6 +112,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // The warning sidebar starts hidden; it is revealed only when a threshold fires.
   void vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
   warningView = new WarningViewProvider();
+  context.subscriptions.push(warningView.watchAlerts());
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warningView, {
       webviewOptions: { retainContextWhenHidden: true },
@@ -375,7 +377,7 @@ async function autoFetchAndUpdate(
       // — both describe the same event and would produce a duplicate popup.
       const suggestionFired = await evaluateAndNotify(result.data);
 
-      if (!suggestionFired && previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
+      if (usageAlertEnabled("claude") && !suggestionFired && previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
         const recommendation = getRecommendation(result.data);
         showAutoDismissNotification(`Claude Usage: ${recommendation.message}`, "warning");
       }

@@ -22,8 +22,11 @@ from scripts.lib.integrations._owned import _is_junction
     ],
 )
 def test_install_refuses_redirected_native_root(
-    platform, root_name, scope, install_ctx, tmp_path
+    platform, root_name, scope, install_ctx, tmp_path, fake_tools
 ):
+    # v4.14.7: a redirected root is no detection evidence, so the platform
+    # must be detected through its executable to reach the redirect refusal.
+    fake_tools(platform)
     profile = tmp_path / "profile"
     profile.mkdir()
     external = tmp_path / "external"

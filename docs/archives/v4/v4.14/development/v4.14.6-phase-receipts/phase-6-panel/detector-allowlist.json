@@ -1,0 +1,16 @@
+{
+  "allow": [
+    {
+      "rule": "horizontal-overflow",
+      "selector": "caption.visually-hidden",
+      "viewport": "*",
+      "reason": "The table caption is the standard screen-reader-only pattern (a 1 px clipped box, see .visually-hidden in media/panel.css): it must exist for assistive technology and must not paint, so its clipped scroll width is intended."
+    },
+    {
+      "rule": "undersized-text-box",
+      "selector": "caption.visually-hidden",
+      "viewport": "*",
+      "reason": "The same screen-reader-only caption is deliberately 1 px by 1 px; the rule measures painted text and this text is not meant to paint."
+    }
+  ]
+}

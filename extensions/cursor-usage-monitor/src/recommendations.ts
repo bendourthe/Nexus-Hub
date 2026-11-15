@@ -122,7 +122,36 @@ export function crossedUnnotifiedThreshold(
   return previous === undefined || severityRank(suggestion.severity) > severityRank(previous);
 }
 
-function triggerCandidates(snapshot: FreshUsageSnapshot): TriggerMetric[] {
+/**
+ * Urgency for the status bar background.
+ *
+ * Unlike the warning notifications, this also colors STALE data: the status bar
+ * still shows those figures (with a warning icon), and a stale 80% is no safer
+ * than a fresh one.
+ */
+export function statusUrgency(
+  state: UsageState,
+  selected: AlertMetric,
+  thresholds = DEFAULT_THRESHOLDS
+): UrgencyLevel {
+  if (state.state === "empty") {
+    return "low";
+  }
+  const candidates = triggerCandidates(state.data);
+  const chosen =
+    selected === "highest"
+      ? candidates.map((candidate) => candidate.percent)
+      : candidates
+          .filter((candidate) => candidate.key === selected)
+          .map((candidate) => candidate.percent);
+  return chosen.length === 0
+    ? "low"
+    : classifyUrgency(Math.max(...chosen), thresholds);
+}
+
+function triggerCandidates(
+  snapshot: Pick<FreshUsageSnapshot, "cursorModels" | "otherModels">
+): TriggerMetric[] {
   return (
     [
       ["cursorModels", snapshot.cursorModels],

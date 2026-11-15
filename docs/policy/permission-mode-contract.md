@@ -4,18 +4,20 @@ Summary: how Nexus-Hub hooks behave under each host approval mode (Claude Code d
 
 ## Rule
 
-The user's chosen host mode decides how much friction a session has. Nexus-Hub adds guards on top of the prompting modes; it never adds prompts or blocks to a mode the user picked to remove them.
+The user's chosen host mode decides how much approval friction a session has. Nexus Settings separately controls deterministic Git safety, secret scanning and user-edit protection. These three default-on protections remain active in full-access mode unless their Settings switch is off. They reject an unsafe operation without adding an approval prompt. Other mode-aware hooks retain the behavior below.
 
 | Host mode (`permission_mode`) | Prompt-forcing hooks (`ask`) | Security guards (block / exit 2) |
 |---|---|---|
 | absent, `default`, `acceptEdits`, `plan` | force `ask` as before | block as before |
 | `auto` | never force `ask`; the classifier decides | block as before |
 | `dontAsk` | never force `ask`; the pre-approval list decides | block as before |
-| `bypassPermissions` (full access) | silent | step aside (user-edit-guard and escalation-trigger downgrade to a warning) |
+| `bypassPermissions` (full access) | silent | Settings-controlled protections stay active; other mode-aware guards step aside or warn |
 
 Prompt-forcing hooks: `format-powershell-description.py`, `rewrite-command.{sh,ps1}` (its `ask` branch only; a `deny` mirrors the host's own deny rules and stays).
 
 Security guards: `git-guardrails`, `secret-scan`, `memory-store-guard`, `user-edit-guard`, and `escalation-trigger` when `ESCALATION_MODE=block`.
+
+Settings-controlled guards: `git-guardrails` general safety, `secret-scan` and `user-edit-guard` are on by default and disabled only by an exact JSON `false` in `~/.nexus-hub/guardrails.json`. The independent Git bypass-flag guard is off by default and blocks in every host mode when explicitly on. Existing per-hook environment disable controls remain available. This exception does not change native permissions, managed policy or plan-approval requirements.
 
 Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
 

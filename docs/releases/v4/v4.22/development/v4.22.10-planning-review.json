@@ -1,0 +1,480 @@
+{
+  "plan": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+  "status": "planning scope confirmed; implementation not started",
+  "scope": "planning only",
+  "model_map": {
+    "schema_version": 1,
+    "verified_as_of": "2026-11-02",
+    "tiers": {
+      "frontier": {
+        "Anthropic": "claude-fable-5-1",
+        "OpenAI": "gpt-6-astra",
+        "Google": "gemini-4-argon",
+        "Cursor": "grok-4.7"
+      },
+      "strong": {
+        "Anthropic": "claude-opus-5-5",
+        "OpenAI": "gpt-6.1-sol",
+        "Google": "gemini-3.8-flash",
+        "Cursor": "grok-4.6"
+      },
+      "standard": {
+        "Anthropic": "claude-sonnet-5-5",
+        "OpenAI": "gpt-5.6-sol",
+        "Google": "gemini-3.6-flash",
+        "Cursor": "composer-2.5"
+      },
+      "fast": {
+        "Anthropic": "claude-haiku-5-5",
+        "OpenAI": "gpt-6-luna",
+        "Google": "gemini-3.5-flash-lite",
+        "Cursor": "composer-2.5"
+      }
+    },
+    "notes": [
+      "2026-09-21 (v4.13.0 release): re-verified against vendor release activity. No model newer than the mapped frontier shipped from the four mapped vendors since the previous check: OpenAI GPT-6 Astra (2026-09-14), Anthropic Fable 5.1 (2026-09-01) and Google Gemini 3.8 Flash (2026-09-02) are all already the frontier entries. Tier placements unchanged; no judgment call was required this cycle.",
+      "2026-09-22: Anthropic shipped Claude Opus 5.5 and OpenAI shipped GPT-6 Sol and Luna on the same day; every column was re-read from vendor documentation. Anthropic: claude-opus-5 is now LEGACY and claude-opus-5-5 takes strong; claude-fable-5-1 stays frontier because the models overview directs you to it 'when your evals on Claude Opus 5.5 at higher effort still fall short'. OpenAI: gpt-5.6-sol/terra/luna have left the current model list (only the gpt-5.6-cyber specialist remains), so the column moves to the GPT-6 family.",
+      "2026-09-22 CORRECTION: the previous snapshot carried cursor-grok-4.6 at frontier and cursor-grok-4.5 at strong. Cursor's models documentation lists Grok 4.7 as its newest first-party model, so those entries were stale and the column now reads grok-4.7 / grok-4.6 / composer-2.5 / composer-2.5-fast, using the vendor's own naming.",
+      "2026-09-22 JUDGMENT, standard = gpt-5.6-sol: OpenAI's GPT-6 line ships three classes where this map has four. Rather than list gpt-6-sol at two tiers or invent an id, standard keeps gpt-5.6-sol, which is still selectable on the hosts this catalog targets (it appears, and is the active selection, in the Cursor model picker) even though it has left OpenAI's current API model list alongside gpt-5.6-terra and gpt-5.6-luna. This is the cell to re-check FIRST on the next refresh: a model a picker still offers but the vendor's current list omits is the one most likely to retire next. If it retires, collapse the tier onto gpt-6-sol at medium effort.",
+      "2026-09-22 JUDGMENT, OpenAI tier order: the API docs call GPT-6 Astra (gpt-6-astra) 'our most capable model' ($10/$50), gpt-6-sol a performance/cost balance ($2/$10), and gpt-6-luna 'our most efficient model' ($0.1/$0.5). Astra shipped three weeks before the other two as the flagship and sits one class ABOVE Sol; it does NOT replace gpt-5.6-terra. The model picker lists Sol before Astra, so picker order is not capability order. The 'Astra-level reliability at much lower cost' claim concerns reliability measured against GPT-5.6 Sol, not capability parity with Astra.",
+      "2026-10-01 (v4.13.9): every column was re-read from the four mapped sources. Anthropic: the models overview lists claude-fable-5-1, claude-opus-5-5, claude-sonnet-5-5, and claude-haiku-4-5-20251001 as current, so standard moves from claude-sonnet-5 (now legacy) to claude-sonnet-5-5; fast keeps the claude-haiku-4-5 alias of the listed dated id. OpenAI: the models catalog's flagship list is GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna, and describes GPT-6.1 Sol as 'Near-Astra performance for complex work at a lower cost' at $2/$10, so strong moves from gpt-6-sol, which the catalog no longer lists, to gpt-6.1-sol. Google (3.8 Flash, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite) and Cursor (Grok 4.7, Grok 4.6, Composer 2.5, Composer 2.5 Fast) are unchanged.",
+      "2026-10-01 JUDGMENT, standard = gpt-5.6-sol, re-checked first as the 2026-09-22 note required: OpenAI's models catalog still omits it (only GPT-5.6 Cyber remains of that family), but Cursor's models and pricing page still offers GPT-5.6 Sol, Terra, and Luna, and the Models API listing still returns gpt-5.6-sol. A host picker still offers it, so the cell is kept. When it leaves every host picker, collapse the tier onto gpt-6.1-sol at medium effort.",
+      "2026-10-07: Anthropic released Claude Haiku 5.5 (claude-haiku-5-5), listed in its overview as the fastest model in the current lineup (1M context, 128K output, adaptive thinking, default effort medium), so it replaces claude-haiku-4-5 at fast. Only the Anthropic column was re-read this day; the OpenAI, Google, and Cursor columns and verified_as_of are unchanged from 2026-10-01. Strong (claude-opus-5-5), standard (claude-sonnet-5-5), and frontier (claude-fable-5-1) are unchanged.",
+      "2026-10-12 (v4.13.11 qualification): the official Gemini 3.7 Flash page marks gemini-3.7-flash deprecated and unavailable for selection in Google AI Studio. The deprecations schedule says its API endpoint is not shutting down and automatically routes requests to gemini-3.8-flash. Strong now names that canonical replacement; the compatibility endpoint is not treated as an independently selectable 3.7 model.",
+      "2026-10-12 JUDGMENT, Google strong and frontier = gemini-3.8-flash: retaining the frontier cell while replacing the deprecated strong selection deliberately collapses these two tiers onto the same canonical model. This is an operator placement judgment, not a vendor statement of distinct tier capability. The other fifteen cells are unchanged. No new effort sweep or active-host switching qualification was performed for this proposal.",
+      "2026-10-12 QUALIFICATION LIMITS: verified_as_of remains 2026-10-01 because this step rechecks only the Google deprecation, not all four provider columns. The retained Cursor Composer 2.5 source describes a Fast variant but does not independently qualify the composer-2.5-fast canonical suffix; that cell remains qualified by this limit. The six IDs from the scoped Codex account advisory describe that account-visible roster only and do not disprove vendor-global OpenAI cells. Existing profile dates and roster evidence are unchanged.",
+      "2026-10-15: Google frontier moved from gemini-3.8-flash to gemini-4-argon, GA 2026-10-13 and described by Google as its flagship reasoning model; gemini-3.8-flash stays at strong, ending its double placement. The other fifteen cells were re-confirmed on official pages. gpt-5.6-sol is absent from OpenAI's models page but not deprecated, and Cursor still offers it with promotional pricing through 2026-11-21; collapse the OpenAI standard cell onto gpt-6.1-sol once no host picker offers it.",
+      "2026-10-18 (v4.14.0 release governance): re-fetched the current official provider catalogs and model pages. Fifteen cells and their tier placements are unchanged. JUDGMENT, Cursor fast = composer-2.5: the vendor documents composer-2.5 as the canonical Model ID and Fast as a speed variant, but the fetched pages do not establish composer-2.5-fast as a separate native ID. Standard and fast therefore share the documented model; choosing a speed variant remains client/plan-specific and no automatic speed switch or distinct-model saving is asserted. model-map.py diff reports composer-2.5 standard -> fast because the model now occupies both tiers; this duplication and its reason are deliberate. GPT-5.6 Sol remains a host-conditional legacy standard choice documented by Cursor and the OpenAI client model guide, not a guarantee for every account. No effort sweep, authenticated account roster or live switch was qualified.",
+      "2026-10-18 source preservation: sources retain historical decision references alongside this release pass's current fetched URLs. Inclusion in sources does not claim that every historical URL was re-fetched; the dated release governance receipt identifies the actual current fetch scope.",
+      "2026-11-02 planning refresh: preserve all 16 tier placements. Official provider catalogs rechecked. OpenAI standard gpt-5.6-sol remains host-conditional through Cursor; Composer standard/fast share the documented ID. No live switch, speed variant or user-account entitlement is asserted."
+    ],
+    "sources": {
+      "Anthropic": [
+        "https://platform.claude.com/docs/en/models/overview"
+      ],
+      "OpenAI": [
+        "https://developers.openai.com/api/docs/models",
+        "https://cursor.com/docs/models-and-pricing"
+      ],
+      "Google": [
+        "https://ai.google.dev/gemini-api/docs/models.md"
+      ],
+      "Cursor": [
+        "https://cursor.com/docs/models-and-pricing"
+      ]
+    }
+  },
+  "tier_diff": [],
+  "phase_scores": [
+    {
+      "phase": 1,
+      "signals": [
+        "medium",
+        "low",
+        "medium",
+        "low",
+        "medium"
+      ],
+      "edge_cases": "medium",
+      "tier": "strong",
+      "effort": "high"
+    },
+    {
+      "phase": 2,
+      "signals": [
+        "medium",
+        "medium",
+        "medium",
+        "high",
+        "high"
+      ],
+      "edge_cases": "high",
+      "tier": "frontier",
+      "effort": "max"
+    },
+    {
+      "phase": 3,
+      "signals": [
+        "medium",
+        "medium",
+        "medium",
+        "low",
+        "medium"
+      ],
+      "edge_cases": "high",
+      "tier": "strong",
+      "effort": "high"
+    },
+    {
+      "phase": 4,
+      "signals": [
+        "high",
+        "medium",
+        "high",
+        "high",
+        "high"
+      ],
+      "edge_cases": "high",
+      "tier": "frontier",
+      "effort": "max"
+    }
+  ],
+  "comparison_owner_drift": [],
+  "queue_plan_count": 40,
+  "claims": {
+    "depends_on": [],
+    "read_paths": [
+      ".github/workflows/",
+      "AGENTS.md",
+      "README.md",
+      "catalog/skills/ai-development/context-engineering/SKILL.md",
+      "catalog/skills/ai-development/model-prompting-research/references/models/claude-opus-5-5.md",
+      "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+      "catalog/skills/ai-development/prompt-engineering/references/effort-level-strategy.md",
+      "catalog/skills/ai-development/prompt-engineering/references/prompt-audit.md",
+      "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+      "catalog/skills/developer-experience/design-interview/SKILL.md",
+      "catalog/skills/developer-experience/hallmark-design/references/motion-recipes.md",
+      "catalog/skills/documentation/technical-documentation/references/handbook-refresh.md",
+      "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+      "catalog/skills/security/egress-redaction/SKILL.md",
+      "catalog/skills/specialized-domains/gif-sticker-maker/SKILL.md",
+      "catalog/skills/specialized-domains/gif-sticker-maker/references/step-5-animation-techniques.md",
+      "catalog/skills/testing/functional-verification/SKILL.md",
+      "catalog/skills/testing/functional-verification/references/deep-pass.md",
+      "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+      "catalog/skills/workflow/loop-engineering/SKILL.md",
+      "catalog/skills/workflow/session-handoff/SKILL.md",
+      "catalog/skills/workflow/verification-before-completion/SKILL.md",
+      "catalog/style-guides/markdown.md",
+      "configs/platform-defaults.json",
+      "data/skills.json",
+      "docs/releases/v4/v4.14/known-gaps.md",
+      "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+      "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md",
+      "docs/releases/v4/v4.14/plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md",
+      "docs/releases/v4/v4.14/plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md",
+      "docs/releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md",
+      "docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md",
+      "docs/releases/v4/v4.14/plans/v4.14.8-plain-english-replies-and-source-labels.md",
+      "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md",
+      "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md",
+      "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+      "docs/releases/v4/v4.15/plans/v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md",
+      "docs/releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md",
+      "docs/releases/v4/v4.16/plans/v4.16.0-adoption-pinned-rules-and-prune-compaction.md",
+      "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md",
+      "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md",
+      "docs/releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md",
+      "docs/releases/v4/v4.17/known-gaps.md",
+      "docs/releases/v4/v4.17/plans/v4.17.0-push-size-guard.md",
+      "docs/releases/v4/v4.17/plans/v4.17.1-adoption-process-safety-and-review-pipeline.md",
+      "docs/releases/v4/v4.17/plans/v4.17.2-adoption-agent-working-agreement.md",
+      "docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md",
+      "docs/releases/v4/v4.18/plans/v4.18.1-adoption-local-hooks-and-single-item-install.md",
+      "docs/releases/v4/v4.18/plans/v4.18.2-adoption-de-slop-repair-discipline.md",
+      "docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md",
+      "docs/releases/v4/v4.19/plans/v4.19.1-adoption-tracer-bullet-and-leading-words.md",
+      "docs/releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md",
+      "docs/releases/v4/v4.20/plans/v4.20.1-adoption-manager-context-signal-discipline.md",
+      "docs/releases/v4/v4.20/plans/v4.20.2-adoption-aika-modes.md",
+      "docs/releases/v4/v4.21/plans/v4.21.0-adoption-self-improving-harness-loop.md",
+      "docs/releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md",
+      "docs/releases/v4/v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md",
+      "docs/releases/v4/v4.22/comparisons/v4.22.10-comparison-motion-skills-and-instruction-overhead-evidence.json",
+      "docs/releases/v4/v4.22/comparisons/v4.22.10-comparison-motion-skills-and-instruction-overhead.md",
+      "docs/releases/v4/v4.22/plans/v4.22.0-adoption-structural-slop-signatures.md",
+      "docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md",
+      "docs/releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md",
+      "docs/releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md",
+      "docs/releases/v4/v4.22/plans/v4.22.4-adoption-claude-code-mods.md",
+      "docs/releases/v4/v4.22/plans/v4.22.5-adoption-data-analysis-qa-and-product-review.md",
+      "docs/releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md",
+      "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "docs/todos.md",
+      "scripts/check_registry_entries.py",
+      "scripts/ci/"
+    ],
+    "write_paths": [
+      "catalog/skills/ai-development/prompt-engineering/references/effort-level-strategy.md",
+      "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+      "catalog/skills/orchestration/agent-orchestration-primitives/references/local-and-cloud-execution.md",
+      "catalog/skills/orchestration/agent-orchestration-primitives/evals/local-cloud-decisions.json",
+      "catalog/skills/specialized-domains/gif-sticker-maker/SKILL.md",
+      "catalog/skills/specialized-domains/gif-sticker-maker/references/step-5-animation-techniques.md",
+      "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "docs/releases/v4/v4.22/development/v4.22.10-admission.md",
+      "docs/releases/v4/v4.22/development/v4.22.10-last-phase-evidence.md",
+      "docs/releases/v4/v4.22/development/v4.22.10/",
+      "docs/releases/v4/v4.22/development/history/v4.22.10-phase-1.md",
+      "docs/releases/v4/v4.22/development/history/v4.22.10-phase-2.md",
+      "docs/releases/v4/v4.22/development/history/v4.22.10-phase-3.md",
+      "docs/releases/v4/v4.22/development/history/v4.22.10-phase-4.md"
+    ]
+  },
+  "draft_sha256": "f68dab75e12ebc92a1dddc326b25cc7b97dfa23493de2ffb7250a78f8e1e6b03",
+  "final_plan_sha256": "af3ee8c84714355a78f5b0a72c3ed8a2dbde9620a718afbe0e806bc660cecb99",
+  "raw_findings": [
+    {
+      "title": "PLAN COMPLETE is required before its release predicates can pass",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 485,
+      "confidence": 100,
+      "persona": "coherence",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "evidence": "Native completion includes release evidence; green integration alone cannot satisfy it."
+    },
+    {
+      "title": "Deferred and already-satisfied tasks cannot satisfy their named-path predicates",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 373,
+      "confidence": 100,
+      "persona": "coherence",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "evidence": "Task paths named source files even when no-op/cut prompts prohibit edits."
+    },
+    {
+      "title": "Deferring A3 after failed verification leaves its unqualified edits unspecified",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 362,
+      "confidence": 100,
+      "persona": "coherence",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "evidence": "The draft could leave failed candidate additions after declaring A3 deferred."
+    },
+    {
+      "title": "Authorization and completion links resolve to a missing directory",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 427,
+      "confidence": 100,
+      "persona": "coherence",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "safe",
+      "evidence": "Two template-relative links resolve outside the catalog."
+    },
+    {
+      "title": "Copied final-phase links resolve to a nonexistent completion contract",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 427,
+      "confidence": 100,
+      "persona": "feasibility",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "safe",
+      "evidence": "Same two broken relative links."
+    },
+    {
+      "title": "Local/cloud guidance lacks a discovery path for single-agent tasks",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 305,
+      "confidence": 75,
+      "persona": "product",
+      "requires_verification": true,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "evidence": "Owner discovery metadata excludes plainly single-agent tasks and primed cases bypass discovery."
+    },
+    {
+      "title": "Unverifiable action traces do not explicitly block a zero-action pass",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 311,
+      "confidence": 75,
+      "persona": "security",
+      "requires_verification": true,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "evidence": "Unavailable traces could be labeled a gap while asserting zero prohibited actions."
+    },
+    {
+      "title": "Unavailable action traces have no explicit blocking disposition",
+      "severity": "P2",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 311,
+      "confidence": 75,
+      "persona": "adversarial",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "assisted",
+      "evidence": "Same action-observation gap under hostile evidence conditions."
+    },
+    {
+      "title": "A3 verification failure cannot be closed through ordinary DF permission",
+      "severity": "P1",
+      "file": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "line": 362,
+      "confidence": 100,
+      "persona": "coherence",
+      "requires_verification": false,
+      "pre_existing": false,
+      "autofix_class": "manual",
+      "evidence": "New own-task gaps cannot use ordinary DF permission; the minor-only planned-follow-on exception does not cover attempted failing work."
+    }
+  ],
+  "merged_findings": [
+    {
+      "id": "R1",
+      "severity": "P1",
+      "title": "Completion checkpoint",
+      "resolution": "Separate green integration readiness from the native verdict, which follows separately authorized release evidence.",
+      "personas": [
+        "coherence"
+      ],
+      "confidence": 100,
+      "status": "corrected"
+    },
+    {
+      "id": "R2",
+      "severity": "P1",
+      "title": "Named task evidence",
+      "resolution": "Use durable evidence paths for possibly satisfied source work; still require source changes or exact no-op proof and fresh acceptance checks.",
+      "personas": [
+        "coherence"
+      ],
+      "confidence": 100,
+      "status": "corrected"
+    },
+    {
+      "id": "R3",
+      "severity": "P1",
+      "title": "GIF keep/park and failure",
+      "resolution": "Retained A3 now blocks on failed acceptance. Decide keep/park before freeze; no own-task DF escape or unsupported minor-run exception.",
+      "personas": [
+        "coherence"
+      ],
+      "confidence": 100,
+      "status": "corrected; user confirmed required GIF scope"
+    },
+    {
+      "id": "R4",
+      "severity": "P2",
+      "title": "Template links",
+      "resolution": "Rebase both completion-contract links to the canonical catalog path.",
+      "personas": [
+        "coherence",
+        "feasibility"
+      ],
+      "confidence": 100,
+      "status": "corrected"
+    },
+    {
+      "id": "R5",
+      "severity": "P2",
+      "title": "Natural discovery",
+      "resolution": "Require owner description/triggers and single-agent carve-out, narrow coordinator catalog agreement, and an unprimed case.",
+      "personas": [
+        "product"
+      ],
+      "confidence": 75,
+      "status": "corrected"
+    },
+    {
+      "id": "R6",
+      "severity": "P2",
+      "title": "Action observability",
+      "resolution": "Grade decision and action evidence separately. UNVERIFIED action visibility blocks; recorded tool-free capability inventory suffices.",
+      "personas": [
+        "security",
+        "adversarial"
+      ],
+      "confidence": 100,
+      "status": "corrected"
+    }
+  ],
+  "pipeline": {
+    "order": [
+      "fingerprint deduplication by plan/section/root issue",
+      "cross-lens promotion, once at most",
+      "late confidence gate"
+    ],
+    "input_findings": 9,
+    "merged_roots": 6,
+    "suppressed_findings": [],
+    "mode": "full scoped plan review; cap five material findings per lens"
+  },
+  "coverage": {
+    "ran": [
+      "coherence",
+      "feasibility",
+      "product",
+      "scope-guardian",
+      "security",
+      "adversarial"
+    ],
+    "skipped": {
+      "design": "No new application architecture proposed; owner boundaries and evaluation design inspected in other lenses."
+    },
+    "unexamined_sections": [],
+    "targeted_rechecks": {
+      "coherence": [],
+      "product": [],
+      "security": []
+    }
+  },
+  "interview": {
+    "engine": "design-interview",
+    "seeded_from": "R3",
+    "pending_question": null,
+    "recommended": "Keep the verified GIF-only recipe",
+    "options": [
+      {
+        "scope": "keep",
+        "phases": 4,
+        "tasks": 20
+      },
+      {
+        "scope": "park",
+        "phases": 3,
+        "tasks": 16
+      }
+    ],
+    "answer": "Keep verified GIF recipe (Recommended)",
+    "phase_confirmation": true,
+    "resolved_branch": "Keep required verified GIF recipe; no ordinary DF-on-failure closure."
+  },
+  "publication": "No commit, push, merge or release during planning.",
+  "validation": {
+    "errors": [],
+    "local_links_checked": 46,
+    "phases": 4,
+    "tasks": 20,
+    "final_duties": 10,
+    "literal_read_paths": 72,
+    "write_claims": 14,
+    "unchanged_owner_fingerprints": 16,
+    "pending_scope_questions": 0,
+    "plan_status_check_exit_code": 0,
+    "unicode_sanitize_repaired_files": 0,
+    "scoped_diff_check_exit_code": 0,
+    "edit_guard_accepts": 0,
+    "scope_confirmation_recorded": true
+  },
+  "finding_text_qualification": "Titles, positions, severities, confidence and dispositions preserve reviewer reports; evidence strings are concise summaries rather than full message transcripts.",
+  "targeted_recheck_plan_sha256": "e13c51db22e6af70d6d3d28e9a900a587ed75b61b09654a9a47f65fbbd9b5219",
+  "scope_confirmation": {
+    "date": "2026-11-02",
+    "origin": "direct user reply to request_user_input_async",
+    "question_call_id": "call_c3fc94c3f21a40a4afeb01885ecfbc6f",
+    "answer": "Keep verified GIF recipe (Recommended)",
+    "phases": 4,
+    "tasks": 20,
+    "gif_required": true,
+    "implementation_authority": false,
+    "publication_authority": false
+  }
+}

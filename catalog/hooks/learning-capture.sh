@@ -29,6 +29,21 @@ if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 if [[ "${NEXUS_LEARNING_CAPTURE:-on}" == "off" ]]; then exit 0; fi
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+readonly _NEXUS_TAG="[Nexus-Hub: learning-capture]"
+# Print the tag and the message to stderr; every further argument is a
+# continuation line printed as is.
+_nexus_msg() {
+  local line
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+  shift
+  for line in "$@"; do printf '%s\n' "$line" >&2; done
+}
+
 # --- Read payload ---
 INPUT=$(cat 2>/dev/null || true)
 if [ -z "$INPUT" ]; then exit 0; fi
@@ -155,7 +170,7 @@ while [ -n "$SIZE" ] && [ "$SIZE" -gt "$MAX_BYTES" ]; do
     if tail -n "$KEEP" "$OBS_PATH" > "$TMP" 2>/dev/null; then
       if ! mv -f "$TMP" "$OBS_PATH" 2>/dev/null; then
         rm -f "$TMP" 2>/dev/null
-        printf '%s\n' 'learning-capture: degraded-rotation; observations retained above the byte cap' >&2
+        _nexus_msg "degraded-rotation; observations retained above the byte cap"
         break
       fi
     else

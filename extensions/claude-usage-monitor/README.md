@@ -183,3 +183,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.
 
 This section will be updated when the upstream blockers have a known path forward.
+
+## Usage Alerts
+
+Usage warning panels dismiss automatically after 10 seconds. Nexus Hub Settings has a prominent All usage alerts switch and separate Claude Code, Codex, GitHub Copilot, Cursor, and Gemini / Antigravity switches. The master switches every provider together; a mixed state indicates that only some providers are enabled. Individual choices are shared across local editors in `~/.nexus-hub/usage-alerts.json` and default to enabled. Turning an alert off closes its current warning and suppresses future usage warnings, including fallback urgency notifications. Usage polling, taskbar colors, connection errors and explicit command results remain available.

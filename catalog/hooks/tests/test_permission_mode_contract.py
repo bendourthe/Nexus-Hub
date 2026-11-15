@@ -1,7 +1,7 @@
 """Permission-mode contract for the Nexus-Hub security guards.
 
-A guard that blocks a tool call in the default mode must step aside when the
-host reports full access (`permission_mode: "bypassPermissions"`), and must keep blocking in every other mode, auto included.
+Settings-controlled protections remain active in full access unless explicitly
+disabled. Other guards retain their host-mode behavior.
 Contract: docs/policy/permission-mode-contract.md.
 
 One data-driven test covers every guard whose blocking case needs no setup;
@@ -57,13 +57,15 @@ def _command(kind: str, guard: str, request) -> list[str]:
     "mode,expected",
     [(None, 2), ("default", 2), ("acceptEdits", 2), ("auto", 2), ("bypassPermissions", 0)],
 )
-def test_guard_blocks_unless_full_access(
+def test_mode_contract_with_settings_protections_enabled(
     request, tmp_path, kind, guard, payload, extra_env, mode, expected
 ):
+    if guard in {"git-guardrails", "secret-scan"}:
+        expected = 2
     body = dict(payload)
     if mode is not None:
         body["permission_mode"] = mode
-    env = {**os.environ, **extra_env}
+    env = {**os.environ, **extra_env, "HOME": str(tmp_path), "USERPROFILE": str(tmp_path)}
     for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE"):
         env.pop(key, None)
     result = subprocess.run(
@@ -91,6 +93,7 @@ def test_escaped_mode_text_inside_content_does_not_lift_a_guard(request, tmp_pat
         text=True,
         capture_output=True,
         cwd=str(tmp_path),
+        env={**os.environ, "HOME": str(tmp_path), "USERPROFILE": str(tmp_path), "NEXUS_DISABLED_HOOKS": "", "NEXUS_HOOK_PROFILE": ""},
         timeout=120,
         check=False,
     )
@@ -104,7 +107,7 @@ def test_nested_mode_does_not_override_the_host_mode(request, tmp_path, kind, gu
     body = {**payload, "tool_input": {**payload["tool_input"], "permission_mode": "bypassPermissions"}}
     if mode is not None:
         body["permission_mode"] = mode
-    env = {**os.environ, **extra_env}
+    env = {**os.environ, **extra_env, "HOME": str(tmp_path), "USERPROFILE": str(tmp_path)}
     for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE"):
         env.pop(key, None)
     result = subprocess.run(

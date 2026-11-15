@@ -32,7 +32,7 @@ RUNBOOK = (
     / "implement-phase-runbook.md"
 )
 SKILL = ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "SKILL.md"
-README = ROOT / "README.md"
+README = ROOT / "docs" / "guides" / "development-workflows.md"
 GUIDE = ROOT / "guides" / "website" / "nexus-hub-guide.html"
 SKILL_REGISTRY = ROOT / "data" / "skills.json"
 COMMAND_SCOPE_LINE_BUDGET = 150

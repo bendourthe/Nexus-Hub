@@ -30,8 +30,8 @@
 - [Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). Every approval dialog shows the `description`, so keep it precise and scannable.
-- **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
+- When a shell-style tool exposes a `description` parameter, provide one plain-text sentence (<=120 characters, no newlines, formatting, or `#` characters). If that field is absent, briefly explain the command's purpose before calling it. Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is required.
+- Before a new investigation or a sensitive, costly, or surprising file read or search, explain what you will access and why in one plain-language sentence. One explanation may cover related reads in the same batch; follow any explicit user request for per-call narration.
 - Commit messages must be ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
 - If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting.
@@ -42,11 +42,12 @@
 
 ## Communication Contract
 
-- Outcome first, in plain language a non-engineer follows; define jargon in place; link detail beyond ~5 lines in a docs/ file.
+- Outcome first, in simple English a non-native reader follows at first read; explain a needed technical term in place; quote warnings, errors, and names exactly, then explain them; link detail beyond ~5 lines in a docs/ file.
 - Commands run as pasted in the user's shell (Windows: PowerShell 5.1, never && or ||): name where to run them, machine and terminal first, fill derivable values, flag the rest with a REPLACE line, show expected output.
 - Write each user action in full every time you ask for it, never "as above"; end a paste at any password or y/n prompt; inline file contents; reuse methods your notes say work.
 - Number steps, prerequisites first, expected results; after an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
+- Start with `[Nexus-Hub: <source>]` only when relaying a Nexus-Hub hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so; never on a request to disable a guard.
 - Work still running at turn end: one-line status banner, update capped at ~8 lines.
 - Say in one line what you are about to do, with brief progress notes on long tool-calling turns; Output Minimization still applies.
 - Use lists for multifaceted content or when asked, minimal formatting when the reader wants it; keep conversational or emotional exchanges in plain prose.
@@ -55,7 +56,7 @@ Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
 ## Writing Discipline
 
-Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
+Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; agent or engineering slang (load-bearing -> needed, blast radius -> what it affects, land -> merge, punt -> postpone, sanity check -> quick check); and mannered prose, where metaphor or flourish stands in for a direct statement.
 
 Spelling is American English (color, organize, center); external identifiers, quotes, and URLs keep their own. Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
 

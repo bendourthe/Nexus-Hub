@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "project": "C:\\work\\project",
+  "platform": "linux",
+  "tools": {
+    "claude": {
+      "label": "Claude Code",
+      "installed": true,
+      "version": "2.1.283",
+      "cannot_remove": [
+        "Explicit ask rules and deny rules (deny blocks in every mode, including bypassPermissions)",
+        "Tools that require user interaction (AskUserQuestion and MCP tools marked requiresUserInteraction)",
+        "Recognized critical-path rm and rmdir removals",
+        "Connector tools your organization set to ask",
+        "Cross-session messaging safeguards",
+        "Managed settings, including permissions.disableBypassPermissionsMode set by an administrator",
+        "A running session's mode"
+      ]
+    },
+    "codex": {
+      "label": "Codex",
+      "installed": true,
+      "version": "0.136.0",
+      "cannot_remove": [
+        "The sandbox: approval never keeps workspace-write, so commands that need the sandbox lifted are not run",
+        "requirements.toml and cloud-managed requirements, which can forbid never",
+        "A running session's approval policy"
+      ]
+    },
+    "copilot-cli": {
+      "label": "GitHub Copilot CLI",
+      "installed": true,
+      "version": null,
+      "cannot_remove": [
+        "Deny rules and enterprise restrictions",
+        "An MDM permissions.disableBypassPermissionsMode value of disable, which always wins",
+        "Non-interactive runs, which ignore defaultPermissionMode"
+      ]
+    },
+    "vscode-copilot": {
+      "label": "VS Code Copilot Chat",
+      "installed": true,
+      "version": null,
+      "cannot_remove": [
+        "Organization policy ChatToolsAutoApprove",
+        "Any workspace-level value that overrides the user setting"
+      ]
+    }
+  },
+  "records": [
+    {
+      "control": "effort",
+      "tool": "claude",
+      "surface": "cli",
+      "state": "overridden-by",
+      "value": null,
+      "native": {},
+      "layer": "env CLAUDE_CODE_EFFORT_LEVEL (settings.json env block)",
+      "layer_value": "high",
+      "fix": "Unset CLAUDE_CODE_EFFORT_LEVEL where it is set (shell profile or the env block of the file that defines it).",
+      "detail": null,
+      "caveats": [
+        "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+      ],
+      "writes": [
+        "claude.effort.model_settings",
+        "claude.effort.top_level"
+      ],
+      "removable_override": {
+        "id": "claude.effort_env",
+        "weakens_safety": false,
+        "reason": "The variable outranks /effort and every saved per-model level, so a persisted effort choice never applies while it is set."
+      }
+    },
+    {
+      "control": "effort",
+      "tool": "codex",
+      "surface": "cli",
+      "state": "in-effect",
+      "value": "high",
+      "native": "high",
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+      ],
+      "writes": [
+        "codex.effort"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "effort",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "caveats": [
+        "An MDM-managed value cannot be read, so an administrator value may still apply."
+      ],
+      "writes": [
+        "copilot-cli.effort"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "effort",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No user-level key is documented: the fetched VS Code Copilot settings reference lists no reasoning-effort setting, and effort is chosen per model in the model picker.",
+      "caveats": [],
+      "writes": [
+        "vscode-copilot.effort"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "model",
+      "tool": "claude",
+      "surface": "cli",
+      "state": "in-effect",
+      "value": "opus",
+      "native": "opus",
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+      ],
+      "writes": [
+        "claude.model"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "model",
+      "tool": "codex",
+      "surface": "cli",
+      "state": "in-effect",
+      "value": "gpt-6-astra",
+      "native": "gpt-6-astra",
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+      ],
+      "writes": [
+        "codex.model"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "model",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "caveats": [
+        "An MDM-managed value cannot be read, so an administrator value may still apply."
+      ],
+      "writes": [
+        "copilot-cli.model"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "model",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No user-level key is documented: the fetched settings reference lists no default-chat-model key (only inlineChat.defaultModel and chat.planAgent.defaultModel), and the policies page names ChatDefaultModel as an organization policy that controls chat.defaultModel.",
+      "caveats": [],
+      "writes": [
+        "vscode-copilot.model"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "posture",
+      "tool": "claude",
+      "surface": "cli",
+      "state": "in-effect",
+      "value": "accept-edits",
+      "native": "acceptEdits",
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "The VS Code mode indicator remembers the last mode picked (Manual, Edit automatically, Auto) and Nexus-Hub cannot read it.",
+        "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+      ],
+      "writes": [
+        "claude.posture",
+        "claude.skip_dangerous_prompt"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "posture",
+      "tool": "claude",
+      "surface": "vscode-host",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "caveats": [],
+      "writes": [
+        "claude-vscode.initial_permission_mode",
+        "claude-vscode.allow_dangerous"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "posture",
+      "tool": "codex",
+      "surface": "cli",
+      "state": "tool-default",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "requirements.toml and cloud-managed defaults have no documented location, so an administrator value may still apply."
+      ],
+      "writes": [
+        "codex.posture",
+        "codex.sandbox_mode"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "posture",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "caveats": [],
+      "writes": [
+        "copilot-cli.default_permission_mode",
+        "copilot-cli.disable_bypass"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "posture",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: the effect is visible only in a VS Code window, and the manual observation has not been made.",
+      "caveats": [],
+      "writes": [
+        "vscode-copilot.auto_approve",
+        "vscode-copilot.permissions_default"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "attribution",
+      "tool": "claude",
+      "surface": "cli",
+      "state": "tool-default",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [
+        "Managed settings delivered by MDM or a server are not visible here, so an administrator value may still apply."
+      ],
+      "writes": [
+        "claude.attribution"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "attribution",
+      "tool": "copilot-cli",
+      "surface": "cli",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No Proof Record: GitHub Copilot CLI is not installed on the proof machine (copilot --version reports it was not found), so no fresh session could be started.",
+      "caveats": [],
+      "writes": [
+        "copilot-cli.co_authored"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "attribution",
+      "tool": "codex",
+      "surface": "cli",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No vendor key found: the fetched configuration reference (all 156888 characters read) names no commit attribution or co-author setting.",
+      "caveats": [],
+      "writes": [
+        "codex.attribution"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "attribution",
+      "tool": "vscode-copilot",
+      "surface": "vscode-host",
+      "state": "not-settable",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": "No user-level key is documented in the fetched VS Code Copilot settings reference.",
+      "caveats": [],
+      "writes": [
+        "vscode-copilot.attribution"
+      ],
+      "removable_override": null
+    },
+    {
+      "control": "git_guardrails",
+      "tool": "internal",
+      "surface": "cli",
+      "state": "tool-default",
+      "value": null,
+      "native": null,
+      "layer": null,
+      "layer_value": null,
+      "fix": null,
+      "detail": null,
+      "caveats": [],
+      "writes": [
+        "internal.git_guardrails"
+      ],
+      "removable_override": null
+    }
+  ]
+}

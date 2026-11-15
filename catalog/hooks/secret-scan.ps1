@@ -31,6 +31,53 @@
 
 $ErrorActionPreference = "Continue"
 
+# Read Settings on every invocation. Only an exact JSON false disables a guard.
+function Test-NexusGuardrailDisabled {
+    param([string]$Key)
+    $guardHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    if (-not $guardHome) { return $false }
+    try {
+        $guardFile = Join-Path $guardHome '.nexus-hub/guardrails.json'
+        if (-not (Test-Path -LiteralPath $guardFile -PathType Leaf)) { return $false }
+        # PowerShell 7 unwraps a one-element JSON array into its object, so require a top-level object first.
+        $guardText = (Get-Content -LiteralPath $guardFile -Raw -ErrorAction Stop).TrimStart([char]0xFEFF, ' ', "`t", "`r", "`n")
+        if (-not $guardText.StartsWith('{')) { return $false }
+        $guardSettings = $guardText | ConvertFrom-Json -ErrorAction Stop
+        if ($guardSettings -isnot [pscustomobject]) { return $false }
+        $guardProperty = $guardSettings.PSObject.Properties | Where-Object { $_.Name -ceq $Key } | Select-Object -First 1
+        return ($null -ne $guardProperty -and $guardProperty.Value -is [bool] -and -not $guardProperty.Value)
+    } catch { return $false }
+}
+if (Test-NexusGuardrailDisabled -Key "scan_secrets") { exit 0 }
+
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: secret-scan]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 # --- Read JSON from stdin ---
 if (-not [Console]::IsInputRedirected) { exit 0 }
 # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
@@ -39,13 +86,7 @@ $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
 # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
 if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
-# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
-# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
-# Contract: docs/policy/permission-mode-contract.md
-try {
-    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
-} catch { }
+# Nexus Settings guard switches apply in every host permission mode.
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }
@@ -111,9 +152,8 @@ if ($content -imatch $assignRe) {
 
 # --- Report findings ---
 if ($found.Count -gt 0) {
-    [Console]::Error.WriteLine("[secret-scan] BLOCKED: Potential secrets detected in ${fileName}:")
-    foreach ($s in $found) { [Console]::Error.WriteLine("  - $s") }
-    [Console]::Error.WriteLine("Remove secrets and use environment variables or a secrets manager instead.")
+    $more = @($found | ForEach-Object { "  - $_" }) + @("Remove secrets and use environment variables or a secrets manager instead.")
+    Write-NexusMessage "BLOCKED: Potential secrets detected in $(ConvertTo-NexusVisible $fileName):" $more
     exit 2
 }
 

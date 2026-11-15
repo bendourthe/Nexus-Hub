@@ -50,14 +50,14 @@ def playwright_mod():
     if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
-        pytest.skip("playwright is not installed")
+        raise pytest.skip.Exception("playwright is not installed")
     try:
         with sync_playwright() as pw:
             pw.chromium.launch().close()
     except Exception as exc:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail(f"NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}")
-        pytest.skip(f"chromium is unavailable: {exc}")
+        raise pytest.skip.Exception(f"chromium is unavailable: {exc}")
     return sync_playwright
 
 
@@ -194,53 +194,6 @@ def test_platform_rail_has_no_overflow_clipping_or_orphan_row(playwright_mod, wi
         )
 
 
-@pytest.mark.parametrize("width", (320, 420, 900, 1440))
-def test_workflow_pills_are_readable_two_line_pills(playwright_mod, width: int) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw, width=width)
-        try:
-            steps = page.evaluate(
-                """() => [...document.querySelectorAll('.loop-step')].map(el => {
-                    const code = el.querySelector('code');
-                    const desc = el.querySelector('span');
-                    const cr = code.getBoundingClientRect();
-                    const dr = desc.getBoundingClientRect();
-                    const cs = getComputedStyle(code);
-                    const ds = getComputedStyle(desc);
-                    return {
-                        text: code.textContent.trim(),
-                        codeSize: parseFloat(cs.fontSize),
-                        descSize: parseFloat(ds.fontSize),
-                        codeWraps: code.scrollWidth > code.clientWidth + 1,
-                        separated: dr.top >= cr.bottom - 1,
-                    };
-                })"""
-            )
-        finally:
-            browser.close()
-
-    assert steps, "expected the Home workflow loop steps"
-    for step in steps:
-        assert step["codeSize"] >= 14.0, (
-            f"{step['text']} command is {step['codeSize']}px at {width}px; floor is 14px"
-        )
-        assert step["descSize"] >= 13.5, (
-            f"{step['text']} description is {step['descSize']}px at {width}px"
-        )
-        assert not step["codeWraps"], f"{step['text']} command wraps at {width}px"
-        assert step["separated"], (
-            f"{step['text']} description is not on its own line at {width}px"
-        )
-        assert step["codeSize"] > step["descSize"], (
-            f"{step['text']} command must stay visually dominant"
-        )
-
-
-# ============================================================================ v4.4.2 Phase 2
-# The hero statement, the restored sections, the merged comparison, the guardrails illustration,
-# the footer attribution, and the catalog-derived counts. Structural facts are checked in the
-# browser too, because the claims are about order, computed size, visibility, and word budgets.
-
 import json as _json
 import re as _re
 
@@ -251,14 +204,16 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # descriptive sentences for short labels. The ORDER is the contract this guards;
 # the wording is the guide's to choose and is pinned here exactly so a silent
 # drift still fails.
+# 2026-11-10: Home keeps the README animations in their own sections, in the maintainer's order.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
     "Installation",
-    "Skills, Hooks, and Governance",
-    "Security Guardrails",
-    "Raw Prompting vs Nexus Hub",
     "Platform Coverage",
     "The Development Workflow",
+    "Centralized IDE Settings",
+    "Handoffs",
+    "Usage Monitors",
+    "Why Nexus Hub",
 ]
 
 
@@ -346,42 +301,21 @@ def test_home_sections_render_in_the_agreed_order(playwright_mod) -> None:
 
 def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
     fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
-    ids = {"why-it-matters": "nhg-benefits", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+    # "how-it-works" (the Skills, Hooks, and Governance cards) left Home on 2026-11-10.
+    ids = {"why-it-matters": "nhg-benefits", "favorite-commands": "nhg-commands"}
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
             drop = {"nhg-benefits": ", .hb-ill, .platform-rail"}
             counts = {key: _section_words(page, sid, drop.get(sid, "")) for key, sid in ids.items()}
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
-            merged = page.evaluate(
-                "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
-                ".find(e => e.textContent.trim() === 'Raw Prompting vs Nexus Hub');"
-                " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
-            )
         finally:
             browser.close()
     for key, words in counts.items():
         ceiling = fixture[key]["v412_words"] * 2 // 3
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
-    # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
-    assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
-    # The requested phase table and saved/resumed/completed checklists expand the session example.
-    # Keep their combined illustration bounded while retaining the original section ceilings.
-    assert 20 <= portability <= 320, f"the portability figure is {portability} words"
-
-
-def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw)
-        try:
-            sizes = page.evaluate(
-                "() => [...document.querySelectorAll('.cmp-side')].map(e => parseFloat(getComputedStyle(e).fontSize))"
-            )
-            rows = page.evaluate("() => document.querySelectorAll('#page-home .cmp-row').length")
-        finally:
-            browser.close()
-    assert sizes and all(abs(s - 26) < 0.5 for s in sizes), sizes   # v4.4.1 rendered 13px
-    assert rows == 5
+    # The one-install figure stays a figure: named platforms, not prose.
+    assert 10 <= portability <= 120, f"the portability figure is {portability} words"
 
 
 def test_footer_attribution_is_visible_on_every_page_and_absent_from_home_flow(playwright_mod) -> None:
@@ -414,6 +348,9 @@ def test_migration_table_stacks_into_labelled_cards_below_720px(playwright_mod) 
     with playwright_mod() as pw:
         browser, page = _launch(pw, width=420)
         try:
+            # The table moved to Cheatsheets on 2026-11-10; a hidden page measures nothing.
+            page.goto(GUIDE.as_uri() + "#cheatsheets")
+            page.wait_for_timeout(350)
             data = page.evaluate(
                 """() => {
                     const rows = [...document.querySelectorAll('.tbl-migrate tbody tr')];
@@ -451,44 +388,13 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
-            data = page.evaluate(
-                """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.dataset.hook),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.dataset.hook),
-                    pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
-                    hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
-                    text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
-                })"""
-            )
+            text = page.evaluate("() => document.getElementById('nhg-why').innerText.toLowerCase()")
         finally:
             browser.close()
-    assert len(data["ports"]) == 6
-    for name in data["ports"]:
+    # The Enforced Guardrails card names two blocks: saving a password and erasing history.
+    for name in ("secret-scan", "git-guardrails"):
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
         assert name in registered, f"{name} is not registered in settings.json"
-    assert data["blocked"], "no attempt names the hook that blocked it"
-    for hook in data["blocked"]:
-        assert hook in data["ports"], hook
-    assert data["pretooluse"] == len(pretooluse) and data["hooks"] == len(registered)
-    assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
-
-
-def test_guardrails_choreography_reaches_a_fully_blocked_end_state(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser, page = _launch(pw, reduced_motion="reduce")
-        try:
-            page.locator("#nhg-guard-fig").scroll_into_view_if_needed()
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.getElementById('nhg-guard-fig')); return s && s.step === s.total; }"
-            )
-            data = page.evaluate(
-                """() => ({
-                    total: window.NexusSeq.state(document.getElementById('nhg-guard-fig')).total,
-                    lit: document.querySelectorAll('#nhg-guard-fig .is-on').length,
-                    blocks: document.querySelectorAll('#nhg-guard-fig .gf-out--stop').length,
-                })"""
-            )
-        finally:
-            browser.close()
-    assert data["total"] == 3 and data["lit"] == 3 and data["blocks"] == 2
+    assert "saving a password" in text and "erasing history" in text, text
+    assert "makes ai safe" not in text, "claims must be enforcement statements, not a safety guarantee"

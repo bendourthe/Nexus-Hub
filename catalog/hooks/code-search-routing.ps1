@@ -15,10 +15,38 @@ $hookName = "code-search-routing"
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: code-search-routing]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 function Write-DebugLog {
     param([string]$Message)
     if ($env:NEXUS_CODE_SEARCH_ROUTING_DEBUG -eq "1") {
-        [Console]::Error.WriteLine("[code-search-routing debug] $Message")
+        Write-NexusMessage "debug: $(ConvertTo-NexusVisible $Message)"
     }
 }
 
@@ -96,11 +124,10 @@ if (-not $indexedTool) {
     exit 0
 }
 
-$message = "[code-search-routing] Prefer the local nexus-code-search index for this search: $hint. Native search remains available if the index is absent or the query needs raw filesystem semantics."
-[Console]::Error.WriteLine($message)
+Write-NexusMessage "Prefer the local nexus-code-search index for this search: $hint. Native search remains available if the index is absent or the query needs raw filesystem semantics."
 
 if ($env:NEXUS_CODE_SEARCH_ROUTING -eq "block") {
-    [Console]::Error.WriteLine("[code-search-routing] Blocked by NEXUS_CODE_SEARCH_ROUTING=block; unset it or use 'soft' to continue.")
+    Write-NexusMessage "Blocked by NEXUS_CODE_SEARCH_ROUTING=block; unset it or use 'soft' to continue."
     exit 2
 }
 

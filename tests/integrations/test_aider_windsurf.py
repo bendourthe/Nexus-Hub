@@ -115,8 +115,10 @@ def test_aider_workspace_writes_root_conventions(fake_home: Path, tmp_path: Path
     assert any(fa.path == str(conventions) for fa in result.files)
 
 
-def test_aider_global_seeds_attribution_and_policy(fake_home: Path, tmp_path: Path) -> None:
+def test_aider_global_seeds_attribution_and_policy(fake_home: Path, tmp_path: Path, fake_tools) -> None:
     import yaml
+
+    fake_tools("aider")  # v4.14.7: global scope needs Aider detected
 
     integ = get("aider")
     result = integ.install(_ctx(tmp_path, scope="global"))
@@ -133,8 +135,10 @@ def test_aider_global_seeds_attribution_and_policy(fake_home: Path, tmp_path: Pa
     assert config.read_bytes() == before
 
 
-def test_aider_preserves_custom_configuration_and_reports_conflict(fake_home: Path, tmp_path: Path) -> None:
+def test_aider_preserves_custom_configuration_and_reports_conflict(fake_home: Path, tmp_path: Path, fake_tools) -> None:
     import yaml
+
+    fake_tools("aider")
 
     config = fake_home / ".aider.conf.yml"
     original = "# Personal configuration\nmodel: chosen-model\nread: [my-rules.md]\nattribute-author: true\n"
@@ -145,7 +149,8 @@ def test_aider_preserves_custom_configuration_and_reports_conflict(fake_home: Pa
     assert any("NEEDS SETUP" in note for note in result.notes)
 
 
-def test_aider_invalid_yaml_reports_setup_without_replacing_it(fake_home: Path, tmp_path: Path) -> None:
+def test_aider_invalid_yaml_reports_setup_without_replacing_it(fake_home: Path, tmp_path: Path, fake_tools) -> None:
+    fake_tools("aider")
     config = fake_home / ".aider.conf.yml"
     original = "read: [unterminated\n"
     config.write_text(original, encoding="utf-8")
@@ -252,3 +257,34 @@ def test_windsurf_teardown_preserves_user_hooks_in_native_directory(
     entries = remaining["hooks"]["pre_run_command"]
     assert [entry["command"] for entry in entries] == [user_command]
     assert all("cascade-hook-compat.py" not in entry["command"] for entry in entries)
+
+
+
+# ---------------------------------------------------------------------------
+# v4.14.7: Aider detection (decision D9: executable only, plus --platforms)
+# ---------------------------------------------------------------------------
+
+
+def test_aider_global_absent_writes_nothing(fake_home: Path, tmp_path: Path) -> None:
+    result = get("aider").install(_ctx(tmp_path, scope="global"))
+    assert result.detected is False
+    assert not (fake_home / ".aider.conf.yml").exists()
+    assert any("Aider not detected" in note for note in result.notes)
+
+
+def test_aider_conf_file_alone_is_not_evidence(fake_home: Path, tmp_path: Path) -> None:
+    """A Nexus-written conf left by an earlier install must not re-detect Aider."""
+    config = fake_home / ".aider.conf.yml"
+    config.write_text("attribute-author: false\n", encoding="utf-8")
+    result = get("aider").install(_ctx(tmp_path, scope="global"))
+    assert result.detected is False
+    assert config.read_text(encoding="utf-8") == "attribute-author: false\n"
+
+
+def test_aider_forced_installs_without_the_executable(fake_home: Path, tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    ctx = replace(_ctx(tmp_path, scope="global"), forced_keys=frozenset({"aider"}))
+    result = get("aider").install(ctx)
+    assert result.detected is True
+    assert (fake_home / ".aider.conf.yml").is_file()

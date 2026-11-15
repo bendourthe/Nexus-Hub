@@ -364,8 +364,22 @@ function formatReset(value: string | null, now: number): string {
   if (Number.isNaN(parsed)) {
     return "Not reported";
   }
-  const minutes = Math.max(0, Math.round((parsed - now) / 60000));
-  return `${new Date(parsed).toLocaleString()} (${minutes} min remaining)`;
+  let minutes = Math.max(0, Math.round((parsed - now) / 60000));
+  const parts: string[] = [];
+  for (const [size, unit] of [
+    [10080, "week"],
+    [1440, "day"],
+    [60, "hour"],
+    [1, "minute"]
+  ] as const) {
+    const count = Math.floor(minutes / size);
+    if (count > 0) {
+      parts.push(`${count} ${unit}${count === 1 ? "" : "s"}`);
+    }
+    minutes %= size;
+  }
+  const remaining = parts.length === 0 ? "0 minutes" : parts.join(" ");
+  return `${new Date(parsed).toLocaleString()} (${remaining} remaining)`;
 }
 
 function isDashboardCommand(

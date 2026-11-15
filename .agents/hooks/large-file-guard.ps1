@@ -25,6 +25,34 @@
 # Never fail loudly - always exit 0.
 $ErrorActionPreference = "Continue"
 
+# --- Nexus-Hub source label (v4.14.8) ---
+# Every message this hook prints starts with the tag, so a reader can tell a
+# Nexus-Hub message from a harness message. The hook name in the tag is the
+# NEXUS_DISABLED_HOOKS value. Decision record:
+# docs/decisions/implemented/tooling/2026-10-30-hook-messages-name-nexus-hub.md
+$script:NexusTag = "[Nexus-Hub: large-file-guard]"
+# Make CR, LF, ESC and the other C0 control characters in an echoed value
+# visible, so a file name or command cannot start a forged tagged line.
+function ConvertTo-NexusVisible {
+    param([string]$Value)
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in "$Value".ToCharArray()) {
+        $code = [int]$ch
+        if ($code -eq 9) { [void]$sb.Append('\t') }
+        elseif ($code -eq 10) { [void]$sb.Append('\n') }
+        elseif ($code -eq 13) { [void]$sb.Append('\r') }
+        elseif ($code -lt 32 -or $code -eq 127) { [void]$sb.Append(('\x{0:x2}' -f $code)) }
+        else { [void]$sb.Append($ch) }
+    }
+    return $sb.ToString()
+}
+# Print the tag and the message to stderr; every further line is printed as is.
+function Write-NexusMessage {
+    param([string]$Message, [string[]]$More = @())
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+    foreach ($line in $More) { [Console]::Error.WriteLine($line) }
+}
+
 # --- Runtime controls ---
 $hookName = "large-file-guard"
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
@@ -63,7 +91,7 @@ $fileName = try { Split-Path $filePath -Leaf } catch { $filePath }
 # --- Check line count ---
 $lineCount = ($content -split "`n").Count
 if ($lineCount -gt $maxLines) {
-    [Console]::Error.WriteLine("[large-file-guard] Warning: $fileName has $lineCount lines (threshold: $maxLines). Consider splitting this file into smaller modules.")
+    Write-NexusMessage "Warning: $(ConvertTo-NexusVisible $fileName) has $lineCount lines (threshold: $maxLines). Consider splitting this file into smaller modules."
 }
 
 # --- Check byte size ---
@@ -71,7 +99,7 @@ $byteCount = [System.Text.Encoding]::UTF8.GetByteCount($content)
 if ($byteCount -gt $maxBytes) {
     $kbSize = [math]::Floor($byteCount / 1024)
     $kbThreshold = [math]::Floor($maxBytes / 1024)
-    [Console]::Error.WriteLine("[large-file-guard] Warning: $fileName is ${kbSize}KB (threshold: ${kbThreshold}KB). Consider splitting this file into smaller modules.")
+    Write-NexusMessage "Warning: $(ConvertTo-NexusVisible $fileName) is ${kbSize}KB (threshold: ${kbThreshold}KB). Consider splitting this file into smaller modules."
 }
 
 # Advisory only - never block.

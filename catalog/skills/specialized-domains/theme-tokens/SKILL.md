@@ -127,6 +127,8 @@ When a theme override layers on top of a base theme (a brand tweak over a bundle
 
 Prefer `replace` for a genuinely new look; use `prepend` / `append` / `wrap` to retune a few tokens of a bundled theme without copying all of it. Brand overrides still route through [[brand-styling]]; this vocabulary describes how that override layers onto the base.
 
+Theme palettes do not set table headers or row banding: those follow `catalog/rules/documents/document-style.md`, which keeps the header neutral whenever rows carry category colors.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

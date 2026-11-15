@@ -17,6 +17,7 @@ checker = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(checker)
 TARGET = checker.TARGET
 CURSOR = ("Cursor Agent", "cursoragent@cursor.com")
+CURRENT = ("Benjamin Dourthe", "benjamin.dourthe@gmail.com")
 
 
 def git(root: Path, *args: str, **kwargs) -> str:
@@ -119,6 +120,12 @@ def test_head_ignores_replacement_and_mailmap(repo: Path) -> None:
     "author,committer,expected",
     [
         (TARGET, TARGET, 0),
+        (CURRENT, CURRENT, 0),
+        (CURRENT, TARGET, 0),
+        (TARGET, CURRENT, 0),
+        (CURRENT, checker.GITHUB, 0),
+        ((CURRENT[0], TARGET[1]), TARGET, 1),
+        (("Wrong name", CURRENT[1]), TARGET, 1),
         (CURSOR, TARGET, 1),
         (TARGET, CURSOR, 1),
         (TARGET, checker.GITHUB, 0),
