@@ -6,7 +6,7 @@
 **Ended**: 2026-11-15T13:53:07-08:00 (work complete; the local commit follows immediately)
 **Base**: `40f9b0b1c90ee48d2f2fc679b3bfd228ed2d4d74` (origin/develop)
 **Branch**: `feat/v4.15.7-adoption-ci-speed-without-coverage-loss`
-**Worktree**: `C:\Users\BEDOURTHE\.worktrees\nexus-hub\v4.15.7`
+**Worktree**: the centralized `v4.15.7` worktree (path recorded in the native run record)
 
 ## Outcome
 
