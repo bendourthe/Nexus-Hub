@@ -32,6 +32,6 @@ Read these two references directly:
 - [progress-reporting.md](../skills/workflow/implement-phase/references/progress-reporting.md) owns scope, evidence (task counts from `plan_status.py --plan`, elapsed time from each plan branch's own commits) and remaining-time rules.
 - [status-formats.md](../skills/workflow/implement-phase/references/status-formats.md) owns the layouts.
 
-Always print the FULL report, never the compact footer. A value without a measured source prints `unknown`.
+Always print the FULL report, never the compact footer. Elapsed time without a measured source prints `unknown`; remaining time is estimated from measured history of completed plans (the estimate rule in `status-formats.md`) and prints `unknown (fewer than 3 completed plans)` only when that history is too short. The full report includes a Goals section after the plan table.
 
 During an `/implement` run the compact footer appears automatically at the end of every message; the footer rule is in `progress-reporting.md`, and the footer points here with `*Full report: /status*`. `/update status` is a forwarding alias for this command.

@@ -117,7 +117,7 @@ def test_full_headings_and_headers(full: str) -> None:
 def test_full_spacer_before_each_rule(full: str) -> None:
     lines = full.splitlines()
     rules = [i for i, ln in enumerate(lines) if ln == "---"]
-    assert len(rules) == 2
+    assert len(rules) == 3
     for i in rules:
         assert lines[i - 1] == "" and lines[i - 2] == "&nbsp;", f"rule at line {i}"
 
@@ -135,8 +135,66 @@ def test_formats_state_decision_rules_and_bar_rule(formats: str) -> None:
     assert RESTART_RULE in formats
     assert "floor(percent / 10)" in formats
     assert "*Full report: /status*" in formats
-    assert "time left: not measured yet" in formats
     assert "prints as `unknown`" in formats
+    assert "time left: not measured yet" not in formats
+
+
+def test_compact_goals_block_follows_status_line(compact: str) -> None:
+    lines = compact.splitlines()
+    first = next(i for i, ln in enumerate(lines) if ln.startswith("**Status: v"))
+    assert lines[first + 1] == "" and lines[first + 2] == "🎯 Goals:"
+    bullets = []
+    for ln in lines[first + 3 :]:
+        if not ln.startswith("- "):
+            break
+        bullets.append(ln)
+    assert 2 <= len(bullets) <= 4
+    for ln in bullets:
+        assert re.fullmatch(r"- .+ - .+ \(.+\)", ln), ln
+    assert lines.index("🙋 3 decisions waiting:") > first + 2 + len(bullets)
+
+
+def test_full_goals_section_follows_plan_table(full: str) -> None:
+    goals = "## 🎯 Goals"
+    assert goals in full
+    assert full.index("## Status Update:") < full.index(goals)
+    assert full.index(goals) < full.index("## 🙋 Waiting on you")
+    section = full.split(goals)[1].split("\n## ")[0]
+    assert "| Goal | Scope | Done when | State |" in section
+    rows = [ln for ln in section.splitlines() if ln.startswith("| ")][1:]
+    assert len(rows) >= 3
+    assert rows[0].split("|")[2].strip() == "run"
+    assert not any(row.startswith("| **v") for row in rows)
+
+
+def test_full_remaining_is_an_estimate_with_range(full: str) -> None:
+    plan_rows = [ln for ln in full.splitlines() if ln.startswith("| **")]
+    assert plan_rows
+    for row in plan_rows:
+        cell = row.rstrip("|").split("|")[-1].strip()
+        assert cell != "unknown"
+        assert re.search(r"~[\d.]+ d \([\d.]+-[\d.]+ d\)", cell), row
+    assert "Estimate basis:" in full
+
+
+def test_formats_state_the_estimate_rule(formats: str) -> None:
+    assert "## Estimate rule" in formats
+    assert "remaining tasks times days per task" in formats
+    assert "median" in formats and "middle half" in formats
+    assert "817 tasks over 49.8 days" in formats
+    assert "number of active parallel lanes" in formats
+    assert "CI floor" in formats
+    assert "unknown (fewer than 3 completed plans)" in formats
+    assert "Goal | Scope | Done when | State" in formats
+
+
+def test_status_command_aligned_with_estimate_rule() -> None:
+    text = read(STATUS_CMD)
+    assert "A value without a measured source prints `unknown`" not in text
+    assert "fewer than 3 completed plans" in text
+    reporting = read(PROGRESS)
+    assert "not measured yet" not in reporting
+    assert "fewer than 3 completed plans" in reporting
 
 
 def test_progress_reporting_links_formats_and_states_rules() -> None:
