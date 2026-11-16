@@ -27,7 +27,7 @@ Pass every resolved value (plan path, phase identifier, driver mode, remaining a
 
 ## Progress reporting
 
-From run start through completion, follow the shared [progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md): every message during a run ends with the compact status footer, and the full report (all member plans for `vX.Y`, or all phases for one plan) is printed at run start and on request. Users can request it at any time with `/status [version-or-plan]` (`/update status` still works as an alias). Host delivery limits and unknown observations are explicit.
+From run start through completion, follow the shared [progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md): use the bundled `implement-phase/scripts/status_report.py` for compact reports at meaningful checkpoints and full reports at start/resume, new decisions and on request; routine commentary carries no status report. Users can request it at any time with `/status [version-or-plan]` (`/update status` still works as an alias). Host delivery limits and unknown observations are explicit.
 
 ## Upfront round and completion (guarantee)
 

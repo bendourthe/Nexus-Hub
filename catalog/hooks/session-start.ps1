@@ -94,6 +94,7 @@ if ($inRepo) {
     $gitLine = "Git: unavailable"
 }
 Write-NexusMessage $banner @($gitLine)
+Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
 
 # --- Surface the last-session digest ---
 if ($env:NEXUS_SESSION_DIGEST -eq "off") { exit 0 }

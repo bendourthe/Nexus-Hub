@@ -2,6 +2,11 @@
 
 **Integration branch:** `develop`
 
+**Portable status parity, 2026-11-16:** Authorized implementation in `fix/portable-status-contract` aligns compact/full content, spaced headings, cadence and installed resources across supported platforms.
+
+- [x] Implement and locally qualify the shared renderer, reporting owners, platform delivery and hook reminders: 63 focused tests, 204 broader adapter tests with one expected skip, 10 selected hook-parity tests, CLI smoke and affected validators pass. [Evidence](releases/v4/v4.15/development/portable-status-contract.md).
+- [ ] Integrate and install the qualified reporting change, then observe compact/full status and cadence in live clients; temporary installer proof does not establish model adherence or exact client font sizes.
+
 **Harness safety and maintenance planning, 2026-11-13:** The maintainer confirmed target v4.15.12 and authorized publication of the [comparison](releases/v4/v4.15/comparisons/v4.15.12-comparison-harness-safety-and-maintenance.md), its [five-phase, 28-task plan](releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md), and supporting planning package. Scope covers safe recovery after uncertain effects, lifecycle checks, optional maintenance-job controls, scoped decision reuse, and local outcome reporting. Implementation remains 0/28 tasks and 0/5 phases; no release slot moved, no runtime dependency added, and no implementation, installation or release authority granted. Phase 4 requires the merged v4.15.2 evaluator and observed agent-tool evidence; synthetic oracle tests alone cannot complete it. The four-provider model map was refreshed and validated. [Seven-lens review](releases/v4/v4.15/development/v4.15.12-planning-review.md) found three P2 clarifications, all applied and rechecked, with zero open P0/P1 findings.
 
 - [x] Confirm the v4.15.12 phase breakdown and planning-review dispositions and authorize publication of the reviewed planning package.
