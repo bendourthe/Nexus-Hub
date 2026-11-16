@@ -3,11 +3,57 @@ import * as path from "node:path";
 import { randomUUID } from "node:crypto";
 import { codexTabManifest, patchedUiSource, UI_RECIPES, uiHash, type UiVendor } from "./vendorUiPatch";
 import { cursorProductManifest } from "./cursorEffort";
+import { Script } from "node:vm";
+import { patchNativeRecovery, type RecoveryProvider } from "./nativeRecovery";
+import { patchNativeEffortView, EFFORT_MARKER } from "./nativeEffort";
+import { execFile } from "node:child_process";
+
+/** Back up and register native lifecycle owners independently of the optional composer adapters. */
+export async function installProviderRecovery(vendor: RecoveryProvider, extension: string, storage: string): Promise<boolean> {
+  const root = await fs.realpath(extension);
+  const file = await target(root, vendor === "codex" ? "out/extension.js" : "extension.js");
+  const before = await fs.readFile(file, "utf8");
+  const after = patchNativeRecovery(vendor, before);
+  if (after === before) { return false; }
+  new Script(after, { filename: file });
+  const directory = path.join(storage, "recovery", vendor + "-" + uiHash(root).slice(0, 20));
+  await fs.mkdir(directory, { recursive: true });
+  await immutable(path.join(directory, uiHash(before) + ".js"), before);
+  await replaceChecked(file, before, after);
+  return true;
+}
+
+/** Current native picker contracts are discovered independently of the vendor version. */
+export async function installPortableEffort(vendor: RecoveryProvider, extension: string, storage: string): Promise<boolean> {
+  const root = await fs.realpath(extension);
+  const candidates = vendor === "claude" ? ["webview/index.js"] : (await fs.readdir(await target(root, "webview/assets"))).filter(name => /^(app-initial|use-model-settings)-.*\.js$/.test(name)).map(name => "webview/assets/" + name);
+  const plans: {file: string; before: string; after: string}[] = [];
+  for (const relative of candidates) {
+    const file = await target(root, relative);
+    const before = await fs.readFile(file, "utf8");
+    if (vendor === "codex" && !before.includes("setModelAndReasoningEffortForNextTurn:") && !before.includes(EFFORT_MARKER)) { continue; }
+    try { plans.push({file, before, after: patchNativeEffortView(vendor, before)}); }
+    catch (error) { if (vendor === "claude") { throw error; } }
+  }
+  if (plans.length !== 1) { throw new Error("The native effort picker contract is unavailable or ambiguous; provider files were preserved."); }
+  const plan = plans[0]!;
+  if (plan.before === plan.after) { return false; }
+  const directory = path.join(storage, "effort", vendor + "-" + uiHash(root).slice(0, 20));
+  await fs.mkdir(directory, {recursive: true});
+  const probe = path.join(directory, "syntax-" + randomUUID() + ".mjs");
+  try {
+    await fs.writeFile(probe, plan.after, {flag: "wx"});
+    await new Promise<void>((resolve, reject) => { execFile(process.execPath, ["--check", probe], {env: {...process.env, ELECTRON_RUN_AS_NODE: "1"}, windowsHide: true, shell: false, timeout: 15000, maxBuffer: 1024 * 1024}, error => error ? reject(new Error("Native effort syntax validation failed; provider files were preserved.")) : resolve()); });
+  } finally { await fs.unlink(probe).catch(() => undefined); }
+  await immutable(path.join(directory, uiHash(plan.before) + ".js"), plan.before);
+  await replaceChecked(plan.file, plan.before, plan.after);
+  return true;
+}
 
 interface SavedFile { relative: string; original: string; written: string }
 interface Receipt { schema: 1; vendor: UiVendor; version: string; root: string; files: SavedFile[] }
 interface PlannedFile extends SavedFile { before: string; after: string; file: string }
-/** `menuOnly` means the build is not qualified for the pinned code adapter, so only the Codex tab menu was managed. */
+/** `menuOnly` means no composer adapter was installed; Codex can still receive its menu integration. */
 export interface UiInstallResult { changed: boolean; receipt: string; menuOnly: boolean }
 
 /**
@@ -23,8 +69,7 @@ function validateManifest(vendor: UiVendor, text: string): { qualified: boolean;
   const identity = vendor === "claude" ? ["anthropic", "claude-code"] : ["openai", "chatgpt"];
   if (typeof manifest.publisher !== "string" || manifest.publisher.toLowerCase() !== identity[0] || manifest.name !== identity[1] || typeof manifest.version !== "string") { throw new Error(`The ${vendor} extension identity is not recognized.`); }
   if (manifest.version === UI_RECIPES[vendor].version) { return { qualified: true, version: manifest.version }; }
-  if (vendor === "codex") { return { qualified: false, version: manifest.version }; }
-  throw new Error(`The ${vendor} live UI adapter has not been verified for this extension version.`);
+  return { qualified: false, version: manifest.version };
 }
 async function target(root: string, relative: string): Promise<string> {
   const file = path.join(root, relative);
@@ -56,6 +101,8 @@ export async function installVendorUi(vendor: UiVendor, extension: string, stora
   const recipe = UI_RECIPES[vendor];
   const build = validateManifest(vendor, manifestText);
   const menuOnly = !build.qualified;
+  // The protocol bridge applies effort independently of this optional native composer integration.
+  if (vendor === "claude" && menuOnly) { return { changed: false, receipt: "", menuOnly: true }; }
   // Each vendor version installs into its own directory, so a menu-only receipt never shares a directory with a pinned one.
   const version = menuOnly ? build.version : recipe.version;
   const directory = path.join(storage, vendor + "-" + uiHash(root).slice(0, 20));

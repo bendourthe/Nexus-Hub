@@ -48,7 +48,10 @@ describe("shared settings view", () => {
   it("keeps transient effort status out of the effort card", () => {
     panel.render(fresh({ liveEffort: { connected: 1, applied: 0, reloadRequired: true, error: "Native update refused." } }));
     expect(app.querySelector("#effort-title")?.textContent).toBe("Global effort level");
-    expect(app.querySelector(".effort-section")?.textContent).not.toMatch(/Auto-save|Saving|Saved|Native update|Reload/);
+    expect(app.querySelector(".effort-section > .connection-errors")).toBeNull();
+    const details = app.querySelector<HTMLDetailsElement>(".settings-details")!;
+    expect(details.open).toBe(false);
+    expect(details.textContent).toContain("Native update refused.");
     expect(app.querySelector("#effort-status, .save-state")).toBeNull();
   });
   it("keeps behavior notes and refresh in a collapsed Details section across readback", () => {
