@@ -16,6 +16,7 @@ import { ViewModel } from "./viewModel";
 import { openCodexHistory } from "./codexHistory";
 import { requestEffortApply } from "./liveEffortProxy";
 import { installNativeUi } from "./vendorUi";
+import { restartNativeProvider } from "./nativeRecovery";
 import { readSessionDefaults, SESSION_DEFAULTS_FILE, writeSessionDefault } from "./sessionDefaults";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
@@ -69,37 +70,43 @@ export function userPythonPath(): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-interface RecoveryApi { nexusRestartProvider?(): Promise<unknown>; nexusRefreshTab?(): Promise<unknown>; version: string }
+/** The Claude extension includes its own CLI, even when the editor inherited no standalone CLI on PATH. */
+export function providerDirectories(): string[] {
+  const extension = vscode.extensions.getExtension("anthropic.claude-code");
+  if (!extension) { return []; }
+  const directory = path.join(extension.extensionPath, "resources", "native-binary");
+  return fs.existsSync(path.join(directory, process.platform === "win32" ? "claude.exe" : "claude")) ? [directory] : [];
+}
+
+interface RecoveryApi { nexusRestartProvider?(): Promise<unknown>; nexusRefreshTab?(): Promise<unknown> }
 /** A vendor build without the Nexus adapter exports nothing, so an empty API is the normal unadapted case. */
 async function providerApi(provider: "claude" | "codex"): Promise<RecoveryApi> {
   const extension = vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt");
   if (!extension) { throw new Error("This extension is not installed in this editor."); }
   const exports = (extension.isActive ? extension.exports : await extension.activate()) as Partial<RecoveryApi> | undefined;
-  const version = (extension as { packageJSON?: { version?: unknown } }).packageJSON?.version;
-  return { ...(exports ?? {}), version: typeof version === "string" ? version : "" };
-}
-function unadapted(name: string, api: RecoveryApi): string {
-  return api.version ? `${name} ${api.version} does not have the Nexus recovery adapter yet. Run Developer: Reload Window to restart it.` : "Reload this window once to activate provider-specific recovery.";
+  return exports ?? {};
 }
 export async function refreshCodexTab(): Promise<void> {
   if (!vscode.workspace.isTrusted) { return; }
+  if (!vscode.extensions.getExtension("openai.chatgpt")) { await vscode.window.showWarningMessage("Codex is not installed in this editor."); return; }
   try {
     const api = await providerApi("codex");
-    if (!api.nexusRefreshTab) { throw new Error(unadapted("Codex", api)); }
+    if (typeof api.nexusRefreshTab !== "function") { await restartProvider("codex"); return; }
     await api.nexusRefreshTab();
-  } catch (error) { await vscode.window.showWarningMessage(String(error)); }
+  } catch (error) { await vscode.window.showWarningMessage(error instanceof Error ? error.message : "Codex could not refresh. Other extensions were not restarted."); }
 }
 export async function restartProvider(provider: "claude" | "codex"): Promise<void> {
   if (!vscode.workspace.isTrusted) { return; }
   const name = provider === "claude" ? "Claude Code" : "Codex";
-  const detail = provider === "codex" ? "Restart only Codex's app-server, then refresh its open tabs with their saved sessions. Running Codex requests may be interrupted. Other extensions keep running." : "Restart only Claude Code session processes. Idle sessions restart now; busy sessions restart at their next idle turn boundary. Other extensions keep running.";
-  const choice = await vscode.window.showWarningMessage(`Restart ${name}?`, {modal: true, detail}, "Restart " + name);
-  if (choice !== "Restart " + name) { return; }
+  if (!vscode.extensions.getExtension(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt")) { await vscode.window.showWarningMessage(`${name} is not installed in this editor.`); return; }
   try {
     const api = await providerApi(provider);
-    if (!api.nexusRestartProvider) { throw new Error(`${unadapted(name, api)} Other extensions were not restarted.`); }
-    await api.nexusRestartProvider();
-  } catch (error) { await vscode.window.showWarningMessage(String(error)); }
+    const detail = provider === "codex" ? "Restart only Codex's app-server, then refresh its open tabs with their saved sessions. Running Codex requests may be interrupted. Other extensions keep running." : "Restart only Claude Code session processes. Idle sessions restart now; busy sessions restart at their next idle turn boundary. Other extensions keep running.";
+    const choice = await vscode.window.showWarningMessage(`Restart ${name}?`, {modal: true, detail}, "Restart " + name);
+    if (choice !== "Restart " + name) { return; }
+    if (typeof api.nexusRestartProvider === "function") { await api.nexusRestartProvider(); }
+    else { await restartNativeProvider(provider); }
+  } catch (error) { await vscode.window.showWarningMessage(error instanceof Error ? error.message : "The selected provider could not restart. Other extensions were not restarted."); }
 }
 
 /** A provider whose process failed before its launcher was repaired stays disconnected until the window reloads. */
@@ -115,7 +122,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   if (vscode.workspace.isTrusted && fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
   const sessionFile = path.join(hub, SESSION_DEFAULTS_FILE);
   context.subscriptions.push(
-    vscode.commands.registerCommand(OPEN_COMMAND, () => vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`)),
+    vscode.commands.registerCommand(OPEN_COMMAND, async () => {
+      await vscode.commands.executeCommand("workbench.view.extension.nexusHubSettings");
+      await vscode.commands.executeCommand(`${SettingsViewProvider.viewType}.focus`);
+    }),
     vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
     vscode.commands.registerCommand("nexusHubSettings.refreshCodexTab", refreshCodexTab),
     vscode.commands.registerCommand("nexusHubSettings.openCodex", () => {
@@ -123,10 +133,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
       return vscode.commands.executeCommand(readSessionDefaults(sessionFile).codexTabs ? "chatgpt.newCodexPanel" : "chatgpt.openSidebar");
     }),
   );
-  let liveEffort = await installLiveEffort(context);
-  void announceStalledStart(liveEffort?.stalled ?? []);
-  let nativeUi = await installNativeUi(context);
-  const bridge = new CliBridge({ pythonPath: userPythonPath });
+  let liveEffort: Awaited<ReturnType<typeof installLiveEffort>>;
+  let nativeUi: Awaited<ReturnType<typeof installNativeUi>>;
+  const bridge = new CliBridge({ pythonPath: userPythonPath, providerDirectories });
   const controller = new SettingsController({
     restartExtension: restartProvider,
     editorCapabilities: () => editorCapabilities(vscode.env.appName, !!vscode.extensions?.getExtension("anthropic.claude-code") || !!vscode.extensions?.getExtension("openai.chatgpt")),
@@ -181,7 +190,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     const watcher = vscode.workspace.createFileSystemWatcher(pattern);
     context.subscriptions.push(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule));
   };
-  if (liveEffort) { watch(new vscode.RelativePattern(vscode.Uri.file(liveEffort.directory), "*.json")); }
   watch(new vscode.RelativePattern(vscode.Uri.file(hub), SESSION_DEFAULTS_FILE));
   watch(new vscode.RelativePattern(vscode.Uri.file(hub), USAGE_ALERTS_FILE));
   for (const file of watchedFiles(process.env, os.homedir())) {
@@ -207,7 +215,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     vscode.commands.registerCommand("nexusHubSettings.upgrade", () => controller.handle({ type: "upgrade" })),
     vscode.commands.registerCommand(SET_EFFORT_COMMAND, async (value: unknown) => {
       if (!vscode.workspace.isTrusted || typeof value !== "string" || !Object.hasOwn(EFFORT_LABELS, value)) { return; }
-      return controller.handle({ type: "set", control: "effort", value, tool: null });
+      statusBar.previewEffort(value);
+      try {
+        const model = await controller.handle({ type: "set", control: "effort", value, tool: null });
+        await nativeUi?.synchronize();
+        if (model.error || model.applicationIssues?.length || model.notice?.level === "error" || model.preferences?.needsAttention) { await vscode.commands.executeCommand(OPEN_COMMAND); }
+        return model;
+      } finally { statusBar.previewEffort(); }
     }),
     vscode.commands.registerCommand(COMPACT_COMMAND, async () => {
       const config = vscode.workspace.getConfiguration("nexusHubSettings");
@@ -233,6 +247,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     }),
   );
 
+  liveEffort = await installLiveEffort(context);
+  if (liveEffort) { watch(new vscode.RelativePattern(vscode.Uri.file(liveEffort.directory), "*.json")); }
+  nativeUi = await installNativeUi(context);
+  if (!disposed) {
+    void announceStalledStart(liveEffort?.stalled ?? []);
+    if (!liveEffort?.stalled.length && nativeUi?.summary().reloadRequired) {
+      void vscode.window.showWarningMessage("Nexus Hub updated the editor integration. Reload this window to apply the Codex toolbar routing and native controls.", {}, "Reload Window").then(async (choice) => {
+        if (choice === "Reload Window") { await vscode.commands.executeCommand("workbench.action.reloadWindow"); }
+      });
+    }
+    schedule();
+  }
   await vscode.commands.executeCommand("setContext", "nexusHubSettings.enabled", true);
   context.subscriptions.push({dispose: () => { void Promise.resolve(vscode.commands.executeCommand("setContext", "nexusHubSettings.enabled", false)).catch(() => undefined); }});
   return {

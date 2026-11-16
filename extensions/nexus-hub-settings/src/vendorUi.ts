@@ -3,14 +3,15 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import { installRoot } from "./cliBridge";
 import { readEffortPreference } from "./liveEffortProxy";
-import { installVendorUi } from "./vendorUiInstall";
+import { installVendorUi, installProviderRecovery, installPortableEffort } from "./vendorUiInstall";
+import { applyNativeEffort } from "./nativeEffort";
 import type { UiVendor } from "./vendorUiPatch";
 import { CURSOR_EFFORT_COMMAND, CURSOR_FAST_COMMAND } from "./cursorEffort";
 import { readSessionDefaults, SESSION_DEFAULTS_FILE } from "./sessionDefaults";
 
 export interface UiEffortSummary { reloadRequired: boolean; errors: string[] }
 interface NativeApi { nexusEffortBridgeVersion: number; applyNexusEffort(value: string, revision: string): unknown; applyNexusDefaults?(settings: {effort?: string; effortRevision?: string; fastMode?: boolean; fastRevision?: string}): unknown }
-const providers: { vendor: UiVendor; id: string; label: string }[] = [
+const providers: { vendor: Exclude<UiVendor, "cursor">; id: string; label: string }[] = [
   { vendor: "claude", id: "anthropic.claude-code", label: "Claude Code" },
   { vendor: "codex", id: "openai.chatgpt", label: "Codex" },
 ];
@@ -27,6 +28,7 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
   const hub = installRoot(process.env, os.homedir());
   const setupErrors: string[] = [];
   const installed = new Set<string>();
+  const portable = new Set<string>();
   let menuReloadRequired = false;
   let cursorInstalled = false;
   if (cursor) {
@@ -38,13 +40,17 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
       const result = await installVendorUi(item.vendor, item.extension.extensionPath, path.join(hub, "native-ui"));
       if (item.vendor === "codex" && result.changed) { menuReloadRequired = true; }
       // A menu-only build has no effort bridge, so it must not be polled as an outdated adapter.
-      if (result.menuOnly) { setupErrors.push(`${item.label}: Live effort updates are not verified for this version. Open Codex in tabs still applies.`); }
-      else { installed.add(item.id); }
+      if (!result.menuOnly) { installed.add(item.id); }
+      else {
+        if (await installProviderRecovery(item.vendor, item.extension.extensionPath, path.join(hub, "native-ui"))) { menuReloadRequired = true; }
+        if (await installPortableEffort(item.vendor, item.extension.extensionPath, path.join(hub, "native-ui"))) { menuReloadRequired = true; }
+        portable.add(item.id);
+      }
     }
     catch (error) { setupErrors.push(`${item.label}: ${error instanceof Error ? error.message : "Native UI installation failed."}`); }
   }
   let running = false;
-  let current: UiEffortSummary = { reloadRequired: false, errors: setupErrors };
+  let current: UiEffortSummary = { reloadRequired: menuReloadRequired, errors: setupErrors };
   const pending = new Map<string, Promise<unknown>>();
   const updateProvider = async (id: string, work: () => Promise<unknown>): Promise<void> => {
     let update = pending.get(id);
@@ -78,6 +84,12 @@ export async function installNativeUi(context: vscode.ExtensionContext): Promise
         }
       }
       await Promise.all(available.map(async (item) => {
+        if (portable.has(item.id)) {
+          if (!item.extension.isActive || !preference) { return; }
+          try { await updateProvider(item.id, () => applyNativeEffort(item.vendor, preference.value, preference.revision)); }
+          catch (error) { next.errors.push(`${item.label}: ${error instanceof Error ? error.message : "The native effort update failed."}`); }
+          return;
+        }
         if (!installed.has(item.id)) { return; }
         if (!item.extension.isActive) { return; }
         const api = item.extension.exports as Partial<NativeApi> | undefined;
