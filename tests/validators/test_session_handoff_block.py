@@ -81,7 +81,7 @@ _CHECKED = [p for p in SUBSTANTIVE if p.name not in _EXEMPT]
 
 
 def test_roster_is_the_expected_shape():
-    assert len(SUBSTANTIVE) == 13 and len(SHIMS) == 4, (
+    assert len(SUBSTANTIVE) == 14 and len(SHIMS) == 4, (
         [p.name for p in SUBSTANTIVE],
         [p.name for p in SHIMS],
     )

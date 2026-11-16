@@ -16,8 +16,8 @@
 | T030, T031 | One checklist row in each installer (BOM kept; parse-checked, not executed). |
 | T032, T033 | Capability-aware harness audit and tests. |
 | T034, T035, T037, T038, T040 | Capability matrix, migration-state, lifecycle, contract, and parity tests. |
-| T039 | NOT done in the branch: the plan names a path that does not exist, and the real file (`tests/installer/test_org_materialization.py`) is outside the admitted claims. Verified patch handed to the coordinator; the task stays unchecked. |
-| T036 | NOT done in the branch: the checker (`scripts/check_installer_smoke.py`) is outside the admitted claims and overlaps v4.15.6. Verified patch handed to the coordinator; the task stays unchecked. |
+| T039 | Done in the follow-up commit after the permission. |
+| T036 | Done in the follow-up commit after the maintainer permitted the extra paths. |
 | T041, T055 | Synthetic before-and-after through the Phase 3 evaluator; DF-1 left open with the missing evidence named. |
 | T042 | Stabilization, observation of the runner end to end, one local commit. |
 
