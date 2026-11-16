@@ -130,6 +130,38 @@ describe("saved default synchronization", () => {
     expect(sync).toHaveBeenCalledOnce();
   });
 
+  it("decides success from a fresh read after editor synchronization", async () => {
+    shared("high");
+    bridge.report.records.filter(row => row.control === "effort").forEach(row => { row.matches_default = true; });
+    const claude = bridge.report.records.find(row => row.control === "effort" && row.tool === "claude")!;
+    Object.assign(claude, {state: "in-effect", value: "low", layer: null, layer_value: null, matches_default: false, mapped_effort: "high"});
+    bridge.handler = spec => outcome({results: [result({status: spec.dryRun ? "would-write" : "written"})]});
+    const sync = vi.fn(async () => {
+      claude.value = "high"; claude.matches_default = true;
+      return {changed: ["Claude Code editor override synchronized"], issues: []};
+    });
+    const controller = make({syncEditorEffort: sync});
+    await controller.refresh();
+    const model = await controller.handle({type: "set", control: "effort", value: "high", tool: null});
+    expect(model.preferences?.needsAttention).toBe(false);
+    expect(model.applicationIssues).toEqual([]);
+    expect(model.notice?.level).toBe("info");
+    expect(model.controls.find(control => control.id === "effort")!.rows.find(row => row.tool === "claude")!.value).toBe("high");
+  });
+
+  it("retains a provider-specific reason when a saved default is still overridden", async () => {
+    shared("high");
+    bridge.report.records.filter(row => row.control === "effort").forEach(row => { row.matches_default = true; });
+    const claude = bridge.report.records.find(row => row.control === "effort" && row.tool === "claude")!;
+    Object.assign(claude, {state: "overridden-by", layer_value: "low", matches_default: false, mapped_effort: "high", fix: "Remove the shell effort override."});
+    bridge.handler = spec => outcome({results: [result({status: spec.dryRun ? "would-write" : "written"})]});
+    const controller = make(); await controller.refresh();
+    const model = await controller.handle({type: "set", control: "effort", value: "high", tool: null});
+    expect(model.notice?.level).toBe("warn");
+    expect(model.notice?.text).toContain("Claude Code: expected high, read low");
+    expect(model.applicationIssues?.[0]).toContain("Remove the shell effort override");
+  });
+
   it("retries unchanged native drift after a transient failure and on explicit Refresh", async () => {
     shared();
     Object.assign(bridge.report.records.find((r) => r.control === "effort" && r.tool === "claude")!, { matches_default: false, mapped_effort: "max", value: "high", state: "in-effect" });
@@ -252,7 +284,7 @@ describe("set", () => {
     expect(bridge.actions.map((a) => [a.action, a.dryRun ?? false, a.token === undefined])).toEqual([["set", true, true], ["set", false, true]]);
     expect(bridge.actions.every((a) => a.project === "C:\\work\\project")).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved. Mapped to native defaults for new sessions." });
+    expect(model.notice).toMatchObject({ level: "info", text: "Default effort saved." });
   });
 
   it("asks first for a safety-weakening change, listing keys, VS Code's warning, and the Cannot remove items", async () => {
@@ -336,7 +368,8 @@ describe("set", () => {
     const model = await controller.handle({ type: "set", control: "effort", value: "high", tool: null });
 
     expect(model.notice).toMatchObject({ level: "warn" });
-    expect(model.notice?.text).toContain("Some settings could not be applied");
+    expect(model.notice?.text).toContain("Codex:");
+    expect(model.notice?.text).toContain("refused: config.toml does not parse");
     expect(model.notice?.lines?.join("\n")).toContain("refused: config.toml does not parse");
   });
 

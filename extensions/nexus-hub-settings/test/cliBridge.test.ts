@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as settingsRuntime from "../src/settingsRuntime";
 
 const launched: { command: string; args: string[]; options: Record<string, unknown> }[] = [];
 
@@ -35,6 +36,12 @@ const home = process.env.FAKE_HOME;
 const tokenFile = home ? require("path").join(home, ".nexus-hub", "settings-panel-token.json") : "";
 const report = { schema_version: 1, project: null, platform: "windows", tools: {}, records: [] };
 if (scenario === "show") { console.log(JSON.stringify({ ...report, argv: args, cwd: process.cwd(), utf8: process.env.PYTHONUTF8 })); }
+else if (scenario === "customreport") { console.log(process.env.FAKE_REPORT); }
+else if (scenario === "missing-toml") {
+  const ready = fs.existsSync(process.env.FAKE_TOML_READY);
+  console.log(JSON.stringify({schema_version: 1, action: "set", exit_code: ready ? 0 : 1, results: [{tool: "codex", status: ready ? "written" : "refused", detail: ready ? "" : "tomlkit is not installed, so this file was not written"}]}));
+  process.exit(ready ? 0 : 1);
+}
 else if (scenario === "usage") { console.error("nexus-hub settings: unknown control 'x'"); process.exit(2); }
 else if (scenario === "refused") { console.error("nexus-hub settings: refused: an agent session is running"); process.exit(3); }
 else if (scenario === "nothing") { console.log(JSON.stringify({ schema_version: 1, action: "set", results: [], exit_code: 4 })); process.exit(4); }
@@ -233,6 +240,29 @@ describe("command text for the error card", () => {
 });
 
 describe("running the command line", () => {
+  it.each([
+    [true, "version: the command is not on PATH", "in-effect"],
+    [false, "version: the command is not on PATH", "cannot-detect"],
+    [true, "settings.json is not valid JSON", "cannot-detect"],
+  ])("keeps verified file readback separate from CLI availability: %s %s", async (matches, detail, state) => {
+    const record = {control: "effort", tool: "claude", surface: "cli", state: "cannot-detect", value: "high", matches_default: matches, detail, caveats: []};
+    const report = {schema_version: 1, tools: {}, records: [record]};
+    const {bridge} = install("customreport", {env: {...process.env, FAKE_SCENARIO: "customreport", FAKE_REPORT: JSON.stringify(report)}});
+    const read = await bridge.show();
+    expect(read.records[0]?.state).toBe(state);
+    expect(read.records[0]?.matches_default).toBe(matches);
+  });
+  it("lets the real settings child find a bundled provider CLI without changing the editor environment", async () => {
+    const directory = temp("provider-bin");
+    const env = { ...process.env, PATH: "standalone-tools", FAKE_SCENARIO: "show" };
+    const {bridge} = install("show", {env, providerDirectories: () => ["relative-plant", directory, path.join(directory, "absent")]});
+    await bridge.show();
+    const childEnv = launched[0]!.options.env as NodeJS.ProcessEnv;
+    const pathKey = Object.keys(childEnv).find(key => key.toLowerCase() === "path")!;
+    expect(childEnv[pathKey]?.split(path.delimiter)[0]).toBe(directory);
+    expect(childEnv[pathKey]).not.toContain("relative-plant");
+    expect(env.PATH).toBe("standalone-tools");
+  });
   it("runs with an absolute interpreter, shell false, hidden window, and the install root as cwd", async () => {
     const { root, bridge } = install("show");
 
@@ -343,6 +373,34 @@ describe("running the command line", () => {
 });
 
 describe("actions", () => {
+  it("prepares missing TOML support and retries an explicit effort save once", async () => {
+    const marker = path.join(temp("toml-ready"), "ready");
+    const repair = vi.spyOn(settingsRuntime, "ensureSettingsRuntime").mockImplementation(async () => { fs.writeFileSync(marker, "ready"); });
+    try {
+      const {bridge} = install("missing-toml", {env: {...process.env, FAKE_SCENARIO: "missing-toml", FAKE_TOML_READY: marker}});
+      const result = await bridge.action({action: "set", control: "effort", value: "high"});
+      expect(result.exitCode).toBe(0); expect(repair).toHaveBeenCalledTimes(1); expect(launched).toHaveLength(2);
+    } finally { repair.mockRestore(); }
+  });
+
+  it("never installs runtime support during a dry run", async () => {
+    const marker = path.join(temp("toml-absent"), "ready");
+    const repair = vi.spyOn(settingsRuntime, "ensureSettingsRuntime").mockResolvedValue(undefined);
+    try {
+      const {bridge} = install("missing-toml", {env: {...process.env, FAKE_SCENARIO: "missing-toml", FAKE_TOML_READY: marker}});
+      const result = await bridge.action({action: "set", control: "effort", value: "high", dryRun: true});
+      expect(result.exitCode).toBe(1); expect(repair).not.toHaveBeenCalled(); expect(launched).toHaveLength(1);
+    } finally { repair.mockRestore(); }
+  });
+    it("reports failed TOML preparation without retrying or suggesting a window reload", async () => {
+      const marker = path.join(temp("toml-unavailable"), "ready");
+      const repair = vi.spyOn(settingsRuntime, "ensureSettingsRuntime").mockRejectedValue(new Error("TOML preparation failed"));
+      try {
+        const {bridge} = install("missing-toml", {env: {...process.env, FAKE_SCENARIO: "missing-toml", FAKE_TOML_READY: marker}});
+        await expect(bridge.action({action: "set", control: "effort", value: "high"})).rejects.toMatchObject({kind: "dependency", message: "TOML preparation failed", fix: expect.stringContaining("pip install")});
+        expect(repair).toHaveBeenCalledTimes(1); expect(launched).toHaveLength(1);
+      } finally { repair.mockRestore(); }
+    });
   it("returns the parsed document for exit codes 0, 1, and 4", async () => {
     for (const [scenario, code] of [["show", 0], ["partial", 1], ["nothing", 4]] as const) {
       const { bridge } = install(scenario === "show" ? "token" : scenario);

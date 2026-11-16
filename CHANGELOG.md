@@ -23,6 +23,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **The `/status` footer and report now show goals, and time left is always an estimate.** The compact footer lists 2 to 4 current goals right after the status line (the run goal, the next milestone, then the active lane goals), each as `goal - done when (state)`. The full report has a new `## Goals` section after the plan table with the columns Goal, Scope, Done when and State. Remaining time no longer prints `unknown` or `time left: not measured yet`: it is the remaining tasks times days per task, taken from completed plans (time between consecutive release tags divided by that plan's task count), shown as the median with the middle-half range, for example `~1.9 d (1.3-5.3 d)`. History so far (v4.13.1 to v4.15.0) is 817 tasks over 49.8 days, median 0.035 days per task. The total divides the summed estimate by the number of active parallel lanes and adds the CI floor, and one line under the plan table states the basis. With fewer than 3 completed plans (a new project) it prints `unknown (fewer than 3 completed plans)`. Layouts and rule: `catalog/skills/workflow/implement-phase/references/status-formats.md`. Check it with `python -m pytest tests/skills/test_status_command_contract.py -q`. No new flag or setting; to go back, revert this entry's files.
 
+### Fixed
+
+- **Nexus-Hub Settings is version 0.8.8 and repairs effort control on machines with newer or different Codex and Claude builds.** What changes for you:
+    1. The status bar shows the compact effort meter again, and its hover has a clickable cyan selector with all six levels and the full, aligned guardrail names.
+    2. Picking a level in the hover moves the selection at once and shows a saving indicator, then settles on the confirmed state.
+    3. An effort change reaches existing local Codex and Claude sessions on their next request. The session model and unrelated session settings are kept.
+    4. A level you choose by hand inside a session is kept until the next global change or Apply to all.
+    5. Recovery restarts only the affected provider. The window-reload fallback is gone (the one-time reload after the first integration install is separate).
+    6. If `tomlkit` is missing, Settings prepares it in a private folder and retries the write once. No manual Python setup is needed, and dry runs install nothing.
+    7. A missing standalone Claude CLI no longer raises a false warning when the saved effort was read successfully.
+    8. Real provider failures appear in Details and in the hover, and the Nexus panel opens after a failed hover change.
+    9. Recovery and live effort no longer depend on a list of provider versions. They validate the provider's own contracts and leave files untouched when a contract is missing or ambiguous.
+    - Verification: extension tests (493 passed, 3 skipped), `tests/settings_control` on Python 3.12 and 3.11, package contents, and the packaged VS Code trusted and untrusted host checks. Second-machine verification of 0.8.8 has not been done.
+    - Capability usage note: no new opt-in surface. The installers already build and install the Settings extension from source, so the next install or `nexus-hub upgrade` delivers 0.8.8. Evidence: [settings-portability-repair.md](docs/releases/v4/v4.15/development/settings-portability-repair.md).
+
 ## [4.15.1] - 2026-11-15
 
 ### Added
