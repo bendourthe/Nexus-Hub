@@ -281,6 +281,10 @@ The current platform discovery pass reuses the genuine October 16 Claude subagen
 
 Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.
 
+### 2026-11-15 - v4.15.1 advisory release review
+
+Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md): 16 of 17 are unchanged and 1 is additive (Claude `modelSettings` also takes `maxEffortLevel` and `autoCompactWindow`; the seeded `high` stays valid). The corrected OpenCode row (`model`, `permissions`, `default_agent`) matches the vendor page, closing the v4.15.0 finding. Qwen's `tools.approvalMode` page states default `auto`. No lever key, seeded default, source record or gating policy changed.
+
 ### 2026-11-12 - v4.15.0 advisory release review
 
 Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.0-platform-verification.md): 13 of 17 are unchanged, 3 are additive (Claude `effortLevel` lists low to xhigh and the seeded `high` stays valid; Codex adds `max` and `ultra` examples and marks `untrusted` unsupported and `on-failure` deprecated; Hermes `agent.reasoning_effort` accepts none to `ultra`), and 1 changed: the OpenCode configuration page documents `permissions` as a rule list and no longer mentions `small_model`, while the lever row records `permission` and `small_model`. Nothing is seeded for OpenCode, so no delivered behavior changes; the row correction is recorded as v4.15 known gap WN-31. The Antigravity `agentMode` seed `""` matches the page.
