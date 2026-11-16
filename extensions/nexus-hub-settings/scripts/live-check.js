@@ -95,6 +95,7 @@ async function hostRun(code, dirs, ctx, label, trusted) {
   let settings = {};
   try { settings = JSON.parse(fs.readFileSync(userSettings, "utf8")); } catch (error) { if (error.code !== "ENOENT") { throw error; } }
   settings["security.workspace.trust.enabled"] = true;
+  if (ctx.python) { settings["nexusHubSettings.pythonPath"] = ctx.python; }
   fs.writeFileSync(userSettings, JSON.stringify(settings, null, 2));
   const args = [
     `--user-data-dir=${dirs.ud}`, `--extensions-dir=${dirs.ext}`, `--extensionDevelopmentPath=${ctx.devExt}`,
@@ -131,7 +132,7 @@ async function main() {
 
   for (const [label, trusted] of [["trusted", true], ["untrusted", false]]) {
     const hosted = await hostRun(code, dirs, ctx, label, trusted);
-    report.steps[label] = { code: hosted.done.code, killed: hosted.done.killed, stderr: hosted.done.stderr.slice(0, 400) };
+    report.steps[label] = { code: hosted.done.code, killed: hosted.done.killed, stderr: hosted.done.stderr.slice(0, 400), failureOutput: hosted.done.code ? hosted.done.stdout.slice(-4000) + hosted.done.stderr.slice(-2000) : undefined };
     report[label] = fs.existsSync(hosted.out) ? JSON.parse(fs.readFileSync(hosted.out, "utf8")) : null;
   }
   fs.writeFileSync(path.join(work, "live-report.json"), JSON.stringify(report, null, 2));

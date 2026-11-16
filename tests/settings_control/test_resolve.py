@@ -311,6 +311,25 @@ def test_config_directory_without_the_command_still_counts_as_installed(machine:
     assert (record["state"], record["detail"]) == ("cannot-detect", "version: the command is not on PATH")
 
 
+def test_effort_file_remains_readable_without_a_standalone_cli(machine: Any, catalog: dict[str, Any]) -> None:
+    from scripts.lib.settings_control import apply
+
+    apply.set_control(machine.context(catalog), "effort", "medium")
+    del machine.commands["claude"]
+    record = machine.records(catalog)["effort", "claude", "cli"]
+    assert record["state"] == "in-effect"
+    assert record["value"] == "medium"
+    assert any("CLI version unavailable" in note for note in record["caveats"])
+
+
+def test_effort_parse_failure_is_not_hidden_by_missing_cli(machine: Any, catalog: dict[str, Any]) -> None:
+    del machine.commands["claude"]
+    machine.put("claude-user", "{broken")
+    record = machine.records(catalog)["effort", "claude", "cli"]
+    assert record["state"] == "cannot-detect"
+    assert "not valid JSON" in record["detail"]
+
+
 def test_editor_rows_are_cannot_detect_from_the_cli(machine: Any, admitted: dict[str, Any]) -> None:
     record = machine.records(admitted)["posture", "vscode-copilot", "vscode-host"]
 
