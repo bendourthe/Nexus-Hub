@@ -2,21 +2,22 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.0 -->
+<!-- nexus-hub-version: 4.15.1 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
-**Catalog:** 340 skills across 23 categories, 21 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
+**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.0
+## What's New in v4.15.1
 
-- Usage alert switches in Settings, per provider or all at once, and usage warnings that close after 10 seconds.
-- Nexus-Hub Settings installs into every detected VS Code, Cursor, and Antigravity editor and applies shared effort and speed defaults once, without overwriting session choices.
-- Cursor and Gemini usage monitor fixes, and leaner standing instructions after a rule-by-rule necessity review.
+- A read-only `/status` command, and a short progress footer on every message of an `/implement` run.
+- Nexus-Hub Settings 0.8.3: Claude Code and Codex start again on Windows with live effort enabled, and a newer CLI no longer raises the status bar warning.
+- Release safety: the release flow refuses to tag a stale manifest, and CI runs its slow test jobs in smaller shards.
+- Decision on record: no model-adaptive runtime is built, with the evidence kept.
 
-[Release details and earlier versions](CHANGELOG.md#4150---2026-11-12)
+[Release details and earlier versions](CHANGELOG.md#4151---2026-11-15)
 
 ## Installation
 
@@ -332,6 +333,14 @@ Check progress, sync the repo, or run the release flow.
 ```
 
 [See it in Training](guides/website/training.html#update)
+
+#### `/status`
+
+Show the full progress report for a run, a minor, or one plan. It only reads and reports.
+
+```text
+/status v4.15
+```
 
 #### `/grill`
 

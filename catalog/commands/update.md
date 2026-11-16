@@ -1,5 +1,5 @@
 ---
-description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update status", "show implementation progress", "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or code review (use /review); implementation status is supported here.
+description: Sync a repo to its current state and, at release scope, ship it - documentation, devlog, gitignore, version bump, changelog, refactor, config repair, commit message, and the full release flow. Use to "update status" (see `/status`), "show implementation progress", "update the docs", "bump the version", "write the changelog", "sync the devlog", "refactor the project layout", "fix my config", "prepare a release", "commit this", "ship v3.0.0". SKIP - authoring a brand-new doc from scratch (use the relevant generator) or code review (use /review); implementation status is supported here.
 ---
 
 # /update Command
@@ -25,7 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         7. refactor  - reorganize docs/ and project artifacts to conventions
         8. config    - validate and repair installed platform configs (drift repair)
         9. commit    - generate a structured commit message for the staged changes
-        10. status   - report implementation progress, workers, elapsed time, estimates and dependencies (read-only)
+        10. status   - forwarding alias for /status: report implementation progress (read-only)
 
       Reply with a number or a scope name.
 
@@ -36,7 +36,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
-      status    -> implement-phase (status-only entry: read references/progress-reporting.md directly; never enter the implementation driver)
+      status    -> /status (forwarding alias; read-only)
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
       devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
@@ -51,7 +51,7 @@ Pass any remaining arguments through unchanged. Heavy logic stays in the retaine
 
 ## Status scope
 
-`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` uses the [shared progress-reporting contract](../skills/workflow/implement-phase/references/progress-reporting.md). A bare status request reports the current run; a minor target shows every member plan, and a plan target shows every phase. Resolve ambiguity or missing runs as that contract specifies. Return the report without starting/resuming implementation, changing files or run state, spawning workers, running tests, or entering any release scope. Efficiency recommendations are advisory; the active implementation coordinator owns execution.
+`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` forwards to [`/status`](status.md) with the same argument and returns the same report, and does nothing else. No release scope is entered.
 
 ## docs scope (feature-level sync, not just counts)
 
@@ -167,6 +167,8 @@ python ~/.nexus-hub/scripts/check_release_preconditions.py --pre-tag [--release-
 It exits 1 and prints `BLOCKED` unless HEAD is on the expected release branch AND equal to `origin/<release-branch>`. **Abort the release on a non-zero exit. Do not tag.**
 
 This exists because of a specific failure, and its placement is the whole point. In the v3.17.5 release a `git checkout main` failed on a OneDrive-locked directory, HEAD stayed on an unrelated branch, and the tag was created there and published, shipping an unreleased plan file inside the release tarball. A check placed anywhere earlier in the flow cannot catch that: a checkout that failed silently is exactly the state being guarded against, so the assertion has to read live git state at the last possible moment. Re-running it after any retry is cheap and correct.
+
+The same command also regenerates `MANIFEST.sha256` for HEAD in memory, with the same logic as `generate_manifest.py`, and compares it with the committed file. If any covered file changed after the manifest was generated, it prints `BLOCKED -- do not create the tag (stale manifest)`, names every differing path, and exits 1. Regenerate the manifest, commit it, push, and re-run before tagging. This exists because v4.15.0 shipped a manifest older than `scripts/ci/profiles.py`, so `nexus-hub verify` failed on every install.
 
 The expected branch is configurable rather than hardcoded to `main`, because a gate that blocks a legitimate release from a differently-named release branch is a gate people learn to bypass, which is how the whole v3.17.6 defect class started.
 

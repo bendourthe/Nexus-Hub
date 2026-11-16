@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "verified_as_of": "2026-11-13",
+  "tiers": {
+    "frontier": {
+      "Anthropic": "claude-fable-5-2",
+      "OpenAI": "gpt-6-astra",
+      "Google": "gemini-4-carbon",
+      "Cursor": "grok-4.7"
+    },
+    "strong": {
+      "Anthropic": "claude-opus-5-5",
+      "OpenAI": "gpt-6.1-sol",
+      "Google": "gemini-3.8-flash",
+      "Cursor": "grok-4.6"
+    },
+    "standard": {
+      "Anthropic": "claude-sonnet-5-5",
+      "OpenAI": "gpt-5.6-sol",
+      "Google": "gemini-3.6-flash",
+      "Cursor": "composer-2.5"
+    },
+    "fast": {
+      "Anthropic": "claude-haiku-5-5",
+      "OpenAI": "gpt-6-luna",
+      "Google": "gemini-3.5-flash-lite",
+      "Cursor": "composer-2.5"
+    }
+  },
+  "sources": {
+    "Anthropic": [
+      "https://platform.claude.com/docs/en/models/overview"
+    ],
+    "OpenAI": [
+      "https://developers.openai.com/api/docs/models",
+      "https://cursor.com/docs/models-and-pricing"
+    ],
+    "Google": [
+      "https://aistudio.google.com/docs/models"
+    ],
+    "Cursor": [
+      "https://cursor.com/docs/models-and-pricing"
+    ]
+  },
+  "notes": [
+    "Fresh four-provider public-documentation check on 2026-11-13. No account roster, entitlement, switch, pricing sweep, or provider execution qualified.",
+    "Anthropic frontier generation update: claude-fable-5-2 replaces claude-fable-5-1 at the same tier.",
+    "Google frontier generation update: gemini-4-carbon replaces gemini-4-argon, because the refreshed official catalog describes Carbon as the strongest reasoning model. Argon is not moved to a lower tier; other inherited Google placements remain unchanged. This is a planning judgment and requires implementation-time account verification.",
+    "OpenAI standard gpt-5.6-sol remains a host-conditional legacy choice offered by Cursor; it is absent from the current OpenAI flagship list. Reconfirm at implementation; no universal availability claim.",
+    "Cursor cells retain established slug spellings from the snapshot; the fetched page confirms display names, not an authenticated CLI ID roster. Composer standard and fast share one canonical model, not an independently verified fast model ID."
+  ]
+}

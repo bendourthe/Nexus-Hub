@@ -393,6 +393,8 @@ def test_native_resume_and_controller_handoff_preserve_historical_supplement(sco
     handoff_args = ["record", "controller-handoff", "--minor", MINOR, "--session", next_session,
                     "--repo", str(fx.work), "--to", str(target), "--head", head,
                     "--expected-generation", "0", "--apply"]
+    # A tag with no published release is still refused (an untagged merge is a train member).
+    _git(fx.work, "tag", VERSION)
     before_refusal = record_path.read_bytes()
     rc, out, err = _cli(capsys, *handoff_args)
     assert rc != 0 and "member-release-history-not-in-target" in out + err
@@ -400,7 +402,9 @@ def test_native_resume_and_controller_handoff_preserve_historical_supplement(sco
 
     # The canonical disposable fixture supplies the tag and local hosted-Release
     # reply. No controller or release predicate is patched or bypassed.
-    fx.ship(VERSION)
+    fx.publish(VERSION)
+    fx.state["releases"][VERSION] = False
+    fx.save_state()
     target_ctx = ck.RepoContext(target, ck.Budget(60))
     assert cm._tag_in(target_ctx, VERSION, head) == "met"
     assert ck._release_status(target_ctx, "acme/demo", VERSION) == "met"

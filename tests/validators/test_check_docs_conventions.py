@@ -59,6 +59,20 @@ def test_missing_relative_link_fails(tmp_path: Path) -> None:
     assert "missing relative target" in proc.stderr
 
 
+def test_frozen_plan_link_exception_covers_only_its_exact_pair(tmp_path: Path) -> None:
+    plans = tmp_path / "docs" / "releases" / "v4" / "v4.15" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v4.15.8-extension-delivery.md").write_text(
+        "[evidence](../development/v4.15.8-last-phase-evidence.md)\n"
+        "[other](../development/not-excepted.md)\n",
+        encoding="utf-8",
+    )
+    proc = run(tmp_path)
+    assert proc.returncode == 1
+    assert "not-excepted.md" in proc.stderr
+    assert "v4.15.8-last-phase-evidence.md" not in proc.stderr
+
+
 def test_empty_directory_fails(tmp_path: Path) -> None:
     (tmp_path / "docs" / "empty").mkdir(parents=True)
     (tmp_path / "docs" / "ok.md").write_text("# ok\n", encoding="utf-8")

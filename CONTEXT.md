@@ -2,6 +2,46 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Unknown Effect
+
+**Definition**: A dispatched action whose authoritative outcome is unavailable, so a missing response cannot establish whether the action changed anything.
+
+**Avoid**: failed write, safe retry, completed action
+
+**Relationships**: Requires status reconciliation or established service idempotency before a mutating retry; separate from a confirmed pre-dispatch failure or completed effect.
+
+## Maintenance Job
+
+**Definition**: One bounded investigation of a scoped problem with a named owner, stable identity, verification evidence, and terminal disposition.
+
+**Avoid**: trigger, pull request, worker session
+
+**Relationships**: Multiple triggers can refer to one active job; a job can finish without a pull request, and a changed problem can require an explicit reopen.
+
+## Problem Signature
+
+**Definition**: A non-secret identity for a problem within its repository, environment, and work-class scope, used to compare related maintenance triggers.
+
+**Avoid**: raw error text, event ID, universal deduplication key
+
+**Relationships**: A source event identifies one trigger; a problem signature groups relevant triggers without proving concurrency ownership or permission.
+
+## Scoped Decision
+
+**Definition**: Provenance-backed owner advice whose applicability depends on its named scope, context, and supersession conditions.
+
+**Avoid**: cached consent, standing approval, permanent authorization
+
+**Relationships**: Can guide a maintenance job while applicable; native authorization still controls consequential actions and private-data access.
+
+## Outcome Population
+
+**Definition**: The explicitly defined set of jobs or pull requests included in a reported metric, with pending records and exclusions counted separately.
+
+**Avoid**: all activity, success rate without a denominator, PR count as job count
+
+**Relationships**: Job disposition and pull-request outcome use different populations; human review time and human code-edit time are separate measures.
+
 ## Worktree Root
 
 **Definition**: The configured local parent directory for linked worktrees across repositories, proposed for standardized use by the v4.15.6 plan.

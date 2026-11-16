@@ -981,6 +981,21 @@ def _amendment_page(data: dict, paste: PasteSet) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
+def _declared_member(plan_sha256: object, member: object) -> dict | None:
+    """The declared rules of the original member a page names, or None.
+
+    Which members a page may name is declared data (completion_minor.MEMBER_DECLARATIONS), keyed
+    by the frozen plan hash; the page's member must also be the version that plan file carries.
+    """
+    if not isinstance(member, str) or re.fullmatch(r"v\d+\.\d+\.\d+", member, re.ASCII) is None:
+        return None
+    import completion_minor as declaration_owner
+    rules = declaration_owner.declared_original_by_hash(plan_sha256)
+    if rules is None or not rules["plan_path"].rsplit("/", 1)[-1].startswith(member + "-"):
+        return None
+    return rules
+
+
 def _action_page(data: dict, paste: PasteSet) -> str:
     if data["action"] == "amend-minor":
         return _amendment_page(data, paste)
@@ -991,8 +1006,9 @@ def _action_page(data: dict, paste: PasteSet) -> str:
         path_fields = (("Original worker reads", "original_read_paths"), ("Original worker writes", "original_write_paths"))
         identities = ("repo", "owner_session", "source_branch", "target_branch")
         hashes = ("record_sha256", "plan_sha256", "implementation_sha256")
+        rule = (_declared_member(page.get("plan_sha256"), page.get("member")) or {}).get("ci_read_correction")
         if (page.get("action") != action or page.get("scope") != {"kind": "minor", "minor": "v4.15"}
-                or page.get("member") != "v4.15.4" or page.get("path") != "scripts/ci/profiles.py"
+                or rule is None or page.get("path") != rule["path"]
                 or not isinstance(page.get("checkpoint"), str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", page["checkpoint"])
                 or "start_head" not in page or page["start_head"] is not None
                 or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
@@ -1004,9 +1020,9 @@ def _action_page(data: dict, paste: PasteSet) -> str:
                 or page["path"] not in page["original_read_paths"]):
             raise PageError("read correction requires its exact unstarted member, file, checkpoint and original scope")
         out = _section("CI read reservation correction", [
-            "This temporarily stops v4.15.4 from reserving one shared CI file so v4.15.2 can update it under its own approved write scope.",
+            "This temporarily stops " + page["member"] + " from reserving one shared CI file " + rule["reason"] + ".",
             "Your original worker read and write lists stay unchanged. All other reservations remain active, including broader directory reads.",
-            "The ordinary read reservation resumes at v4.15.4's ordered publication start after the earlier plans are integrated.",
+            "The ordinary read reservation resumes at " + page["member"] + "'s ordered publication start after the earlier plans are integrated.",
             "Its final CI comparison must use that later integrated candidate.",
             "Decline keeps the existing reservation in effect.",
         ])
@@ -1032,13 +1048,10 @@ def _action_page(data: dict, paste: PasteSet) -> str:
         except (execution_owner.MinorMalformed, KeyError, TypeError, ValueError) as exc:
             raise PageError("typed execution permission requires every exact bound field") from exc
         hook = page["capability_kind"] == "hook-registration"
+        declared = execution_owner.declared_rules(page["plan_path"], page["plan_sha256"])["execution"]
         out = _section("Member execution permission", [
             "This decision covers " + quoted(page["member"]) + " in the displayed repository.",
-            (("The displayed post-tool events call stuck-turn-notice to provide a nonblocking advisory notice "
-              "when a turn repeats failing commands or repeatedly changes one file."
-              if page["member"] == "v4.15.5" else
-              "The displayed pre-tool event calls worktree-policy. This guard checks proposed worktree commands "
-              "against the configured location policy and can block commands that violate it.")
+            (declared["summary"]
              if hook else "The displayed workflows automate repository execution and use existing access tokens."),
             *( ["The pre-commit configuration runs programs locally when you commit code."] if ".pre-commit-config.yaml" in page["write_paths"] else []),
             ("Role: implementation means this member's own worker changes."
@@ -1075,7 +1088,7 @@ def _action_page(data: dict, paste: PasteSet) -> str:
         identities = ("repo", "owner_session", "source_branch", "target_branch")
         hashes = ("record_sha256", "plan_sha256", "implementation_sha256")
         if (page.get("action") != action or page.get("scope") != {"kind": "minor", "minor": "v4.15"}
-                or not isinstance(page.get("member"), str) or page["member"] not in {f"v4.15.{patch}" for patch in range(5)}
+                or _declared_member(page.get("plan_sha256"), page.get("member")) is None
                 or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
                 or any(not isinstance(page.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", page[key]) for key in hashes)
                 or not isinstance(page.get("controller"), dict) or not isinstance(page["controller"].get("repo_root"), str)

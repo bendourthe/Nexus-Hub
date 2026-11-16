@@ -89,7 +89,7 @@ The multiline hover separates effort, guardrails and actions. Its cyan effort se
 | `overridden-by <layer>` | A higher layer beats your value. The layer names the file, environment variable, or policy | Follow the one-line fix printed beside it |
 | `not-settable` | No write is proven for this cell. The reason is printed | Nothing; the reason says what would be needed |
 | `not-covered <model-id>` | A current Claude model has no effort entry | Run `set effort <value>` again to add the entry |
-| `unverified-for-version <x>` | The installed tool is outside the version range the write was proven on | Check the installed version against the catalog proof; the layers found are still listed |
+| `unverified-for-version <x>` | The installed tool is older than the first version the write was proven on (a newer tool keeps its state with a note) | Update the tool; the layers found are still listed |
 | `tool-not-installed` | Neither the tool's command nor its configuration folder exists | Install the tool, or ignore the row |
 | `cannot-detect` | A layer or file cannot be read, for example a file that does not parse, or VS Code organization policy | Fix the file the reason names; for VS Code, look for the lock icon in the Settings editor |
 

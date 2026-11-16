@@ -43,7 +43,7 @@ def handoff(fixture, source, target, *, apply=True, generation=0):
         check=False, **ck.NO_WINDOW)
 
 
-@pytest.mark.parametrize('tag_case', ['lightweight', 'annotated', 'unrelated', 'remote-only', 'absent', 'blob', 'tree'])
+@pytest.mark.parametrize('tag_case', ['lightweight', 'annotated', 'unrelated', 'remote-only', 'absent', 'tag-without-release', 'blob', 'tree'])
 def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     fixture, source, target, path = controller
     initial = handoff(fixture, source, target, apply=False)
@@ -61,8 +61,11 @@ def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     tag = members[0]['version']
     if tag_case == 'annotated':
         _git(target, 'tag', '-a', tag, head, '-m', 'private annotated tag fixture')
-    elif tag_case in ('lightweight', 'remote-only'):
+    elif tag_case in ('lightweight', 'remote-only', 'tag-without-release'):
         _git(target, 'tag', tag, head)
+        if tag_case == 'tag-without-release':
+            del fixture.state['releases'][tag]
+            fixture.save_state()
         if tag_case == 'remote-only':
             _git(target, 'push', '-q', str(fixture.remote), 'refs/tags/' + tag)
             _git(target, 'tag', '-d', tag)
@@ -85,7 +88,8 @@ def test_real_cli_merged_member_tag_history_is_required(controller, tag_case):
     assert _git(target, 'for-each-ref', '--format=%(refname) %(objectname)') == refs_before
     assert index.read_bytes() == index_before
     assert 'Traceback' not in result.stdout + result.stderr
-    if tag_case in ('lightweight', 'annotated'):
+    # `absent`: merged but not yet tagged is a mid-train member, accepted on its merge alone.
+    if tag_case in ('lightweight', 'annotated', 'absent'):
         assert result.returncode == 0, result.stdout + result.stderr
         assert 'WOULD TRANSFER' in result.stdout
     else:
@@ -757,3 +761,14 @@ def test_excluded_ledgers_mid_scan_exhaustion_is_unknown(controller, monkeypatch
     assert cm.excluded_ledgers(ck, ctx, 'v0.5', snapshot, [ledger]) is None
     assert owners == [snapshot.record_path]
     assert before == {p.name: p.read_bytes() for p in fixture.runs.glob('*.json')}
+
+
+def test_controller_handoff_uses_the_minor_run_budget() -> None:
+    """A handoff re-verifies every member's history and push route, so it needs the
+    minor-run budget; the 20-second per-plan budget ran out once the run had 13 members."""
+    import inspect
+
+    source = inspect.getsource(cm.cmd_record_controller_handoff)
+    assert "ck.Budget(ck.BUDGET_SECONDS)" not in source
+    assert source.count("ck.Budget(MINOR_BUDGET_SECONDS)") == 3
+    assert cm.MINOR_BUDGET_SECONDS > ck.BUDGET_SECONDS

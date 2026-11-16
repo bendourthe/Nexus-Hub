@@ -450,3 +450,98 @@ def test_declaration_matching_the_catalog_reports_nothing(tmp_path: Path) -> Non
 def test_this_repo_declaration_matches_its_catalog() -> None:
     """Guard the live repository: README's skills figure must match skills.json."""
     assert module().declared_vs_actual(REPO_ROOT) == []
+
+
+# ---------------------------------------------------------------------------
+# --pre-tag manifest freshness (v4.15 BG-7)
+# ---------------------------------------------------------------------------
+
+
+def commit_manifest(work: Path) -> None:
+    """Regenerate MANIFEST.sha256 for the committed tree and commit it."""
+    gm = importlib.import_module("generate_manifest")
+    entries = gm.compute_manifest_at_ref(work, "HEAD")
+    (work / "MANIFEST.sha256").write_bytes(gm.format_manifest(entries).encode("utf-8"))
+    git(work, "add", "MANIFEST.sha256")
+    git(work, "commit", "-qm", "manifest")
+
+
+@pytest.fixture
+def manifest_repo(repo: Path) -> Path:
+    """The release fixture plus covered files and a committed manifest."""
+    module()
+    (repo / "scripts").mkdir()
+    (repo / "scripts" / "tool.py").write_text("print(1)\n", encoding="utf-8")
+    (repo / "catalog").mkdir()
+    (repo / "catalog" / "note.md").write_text("note\n", encoding="utf-8")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", "covered files")
+    commit_manifest(repo)
+    return repo
+
+
+def test_fresh_manifest_passes(manifest_repo: Path) -> None:
+    assert module().check_manifest_fresh(cwd=manifest_repo) == []
+
+
+def test_covered_file_changed_after_manifest_fails_and_names_path(manifest_repo: Path) -> None:
+    """The v4.15.0 defect: a covered file changed after the manifest commit."""
+    (manifest_repo / "scripts" / "tool.py").write_text("print(2)\n", encoding="utf-8")
+    git(manifest_repo, "add", "-A")
+    git(manifest_repo, "commit", "-qm", "change after manifest")
+    problems = module().check_manifest_fresh(cwd=manifest_repo)
+    assert problems
+    assert any("scripts/tool.py" in line for line in problems)
+    assert not any("catalog/note.md" in line for line in problems)
+
+
+def test_added_and_removed_covered_files_are_named(manifest_repo: Path) -> None:
+    (manifest_repo / "catalog" / "new.md").write_text("new\n", encoding="utf-8")
+    git(manifest_repo, "rm", "-q", "catalog/note.md")
+    git(manifest_repo, "add", "-A")
+    git(manifest_repo, "commit", "-qm", "add and remove")
+    text = "\n".join(module().check_manifest_fresh(cwd=manifest_repo))
+    assert "catalog/new.md" in text and "missing from the manifest" in text
+    assert "catalog/note.md" in text and "not in the tree" in text
+
+
+def test_regenerated_and_committed_manifest_passes(manifest_repo: Path) -> None:
+    (manifest_repo / "scripts" / "tool.py").write_text("print(2)\n", encoding="utf-8")
+    git(manifest_repo, "add", "-A")
+    git(manifest_repo, "commit", "-qm", "change")
+    assert module().check_manifest_fresh(cwd=manifest_repo)
+    commit_manifest(manifest_repo)
+    assert module().check_manifest_fresh(cwd=manifest_repo) == []
+
+
+def test_unstaged_edit_does_not_hide_a_stale_manifest(manifest_repo: Path) -> None:
+    """The check reads the commit, so a working-tree edit cannot mask or fake it."""
+    (manifest_repo / "scripts" / "tool.py").write_text("print(3)\n", encoding="utf-8")
+    assert module().check_manifest_fresh(cwd=manifest_repo) == []
+
+
+def test_missing_manifest_with_covered_files_fails(manifest_repo: Path) -> None:
+    git(manifest_repo, "rm", "-q", "MANIFEST.sha256")
+    git(manifest_repo, "commit", "-qm", "drop manifest")
+    problems = module().check_manifest_fresh(cwd=manifest_repo)
+    assert problems and "not committed" in problems[0]
+
+
+def test_repo_with_no_covered_files_and_no_manifest_passes(repo: Path) -> None:
+    assert module().check_manifest_fresh(cwd=repo) == []
+
+
+def test_pre_tag_cli_reports_stale_manifest(manifest_repo: Path) -> None:
+    (manifest_repo / "scripts" / "tool.py").write_text("print(2)\n", encoding="utf-8")
+    git(manifest_repo, "add", "-A")
+    git(manifest_repo, "commit", "-qm", "change after manifest")
+    git(manifest_repo, "push", "-q", "origin", "main")
+    proc = subprocess.run(
+        [sys.executable, "-B", str(SCRIPT), "--pre-tag", "--root", str(manifest_repo)],
+        capture_output=True,
+        text=True,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    assert proc.returncode == 1
+    assert "scripts/tool.py" in proc.stderr
+    assert "OK: HEAD is on main" in proc.stdout

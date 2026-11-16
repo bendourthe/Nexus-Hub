@@ -111,6 +111,50 @@ describe.skipIf(process.platform !== "win32")("real Windows protocol launcher", 
     expect(result.code).toBe(7); expect(result.stdout).toBe("Nexus 日本語\n"); expect(JSON.parse(result.stderr)).toEqual(argumentsToPreserve);
   }, 45000);
 
+  it("copies every local module the proxy requires into the runtime folder", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-modules-")); directories.push(directory);
+    const runtime = await prepareWindowsRuntime(extension, directory);
+    const build = path.dirname(runtime.script);
+    const files = (await fs.readdir(build)).filter((file) => file.endsWith(".js"));
+    const missing: string[] = [];
+    for (const file of files) {
+      const source = await fs.readFile(path.join(build, file), "utf8");
+      for (const [, name] of source.matchAll(/require\("\.\/([^"]+)"\)/g)) {
+        if (!files.includes(name!.endsWith(".js") ? name! : name + ".js")) { missing.push(`${file} -> ${name}`); }
+      }
+    }
+    expect(missing).toEqual([]);
+    // The proxy must at least load: a missing module fails here before any argument handling.
+    const loaded = await new Promise<string>((resolve) => {
+      const child = spawn(process.execPath, ["-e", `try{require(${JSON.stringify(runtime.script)})}catch(e){if(e.code==="MODULE_NOT_FOUND"){process.stderr.write(e.message);process.exit(9)}}process.exit(0)`], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+      let stderr = ""; child.stderr.on("data", (chunk: Buffer) => stderr += chunk.toString()); child.on("close", (code) => resolve(code === 9 ? stderr : ""));
+    });
+    expect(loaded).toBe("");
+  }, 45000);
+
+  it("names a running provider that started from an incomplete runtime before its launcher was repaired", async () => {
+    const { context, directory } = await installation();
+    const hub = path.join(directory, "live-effort");
+    async function previousLauncher(name: string, files: Record<string, string>): Promise<string> {
+      const runtime = path.join(hub, `runtime-${name}`); await fs.mkdir(runtime, { recursive: true });
+      for (const [file, content] of Object.entries(files)) { await fs.writeFile(path.join(runtime, file), content); }
+      const launch = path.join(hub, `codex-${name}`); await fs.mkdir(launch, { recursive: true });
+      await fs.writeFile(path.join(launch, "bridge.json"), JSON.stringify({ provider: "codex", script: path.join(runtime, "proxy.js") }));
+      return path.join(launch, "bridge.exe");
+    }
+    // The v4.15.0 runtime shipped a proxy that requires safeRead without copying safeRead.js.
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("incomplete", { "proxy.js": 'const a=require("./safeRead");const b=require("./nativeStreamProcess");', "nativeStreamProcess.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual(["Codex"]);
+    // An older build that never imported safeRead started normally.
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("older", { "proxy.js": 'const b=require("./nativeStreamProcess");', "nativeStreamProcess.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("complete", { "proxy.js": 'require("./safeRead.js");', "safeRead.js": "" });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+    stub.user["chatgpt.cliExecutable"] = await previousLauncher("idle", { "proxy.js": 'require("./safeRead");' });
+    stub.vendorExtensions.set("openai.chatgpt", { extensionPath: path.join(directory, "openai.chatgpt"), isActive: false });
+    expect((await installLiveEffort(context))!.stalled).toEqual([]);
+  }, 60000);
+
   it("refuses to overwrite a modified runtime file", async () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-live-preserve-")); directories.push(directory);
     const runtime = await prepareWindowsRuntime(extension, directory);

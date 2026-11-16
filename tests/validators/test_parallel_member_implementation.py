@@ -526,6 +526,15 @@ def test_publication_exempts_only_cleanup_and_requires_predecessor_gate(
     record["members"][1].pop("start_head")
     parallel.write_record(record, resign=True)
     real_evaluate = cm.evaluate_member
+    # A release train defers only the predecessor's release predicates to the one
+    # release PR; every other predecessor predicate still blocks publication.
+    assert cm.TRAIN_DEFERRED_PREDICATES == {
+        "release.tag",
+        "release.changelog",
+        "release.github",
+        "release.main",
+        "release.version-sync",
+    }
     for predicate in (
         "task.T001",
         "evidence.file",
@@ -533,11 +542,6 @@ def test_publication_exempts_only_cleanup_and_requires_predecessor_gate(
         "gaps.version",
         "integration.merged",
         "integration.checks",
-        "release.tag",
-        "release.changelog",
-        "release.github",
-        "release.main",
-        "release.version-sync",
         "approval.remote",
     ):
         for bad in ("unmet", "cannot-verify"):

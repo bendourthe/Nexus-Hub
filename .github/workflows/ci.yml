@@ -234,13 +234,28 @@ jobs:
     # Each pytest invocation is scoped to its own tree so pytest does not adopt
     # a nested pyproject.toml as rootdir, which previously broke module
     # discovery. The profile preserves that scoping.
-    # Split in two for the 60-minute job cap: this job and `tests-hooks` together
-    # measured about 3437 s and ran 50-59 minutes, and the last two runs were
-    # cancelled at 60. Jobs are split, never given a longer timeout.
+    # Three shards of the `tests` family run as a matrix, because this job ran the
+    # whole repository corpus serially (1704 s of tests, 1041 s of it governance)
+    # and was on the critical path. `tests-hooks` is the hook suite's own job.
+    # Jobs are split, never given a longer timeout. The shard list is named here
+    # and its membership is owned by scripts/ci/profiles.py; the job id stays
+    # `tests` so `ci-required` and `report` read one `needs.tests.result`.
+    # tests/validators/test_ci_partition_proof.py proves by collection that the
+    # shards run every test once.
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: validators
+            only: tests-validators
+          - shard: governance
+            only: tests-governance
+          - shard: core
+            only: tests-core,extension-tests
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -278,7 +293,7 @@ jobs:
         # property so the enumeration cannot come back by accident.
         run: |
           python scripts/ci/run.py --profile full \
-            --only tests,extension-tests --reports-dir reports
+            --only ${{ matrix.only }} --reports-dir reports
 
       - name: Publish the run summary
         if: always()
@@ -288,7 +303,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ci-test-reports
+          name: ci-test-reports-${{ matrix.shard }}
           path: reports/
           if-no-files-found: warn
           retention-days: 7
@@ -297,12 +312,21 @@ jobs:
     # Each pytest invocation is scoped to its own tree so pytest does not adopt
     # a nested pyproject.toml as rootdir, which previously broke module
     # discovery. The profile preserves that scoping.
-    # Runs the hook suite (hook-tests, 1474 s measured) in parallel with `tests`
-    # so each job stays under the 60-minute cap. See the note on `tests`.
+    # Runs the hook suite (1236 s measured as one command) in parallel with
+    # `tests`, as two shards of the `hook-tests` family: the four PowerShell-sibling
+    # test files, and every other hook test file. See the note on `tests`.
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: heavy
+            only: hook-tests-heavy
+          - shard: rest
+            only: hook-tests-rest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -340,7 +364,7 @@ jobs:
         # property so the enumeration cannot come back by accident.
         run: |
           python scripts/ci/run.py --profile full \
-            --only hook-tests --reports-dir reports
+            --only ${{ matrix.only }} --reports-dir reports
 
       - name: Publish the run summary
         if: always()
@@ -350,7 +374,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ci-test-hooks-reports
+          name: ci-test-hooks-reports-${{ matrix.shard }}
           path: reports/
           if-no-files-found: warn
           retention-days: 7
@@ -431,6 +455,9 @@ jobs:
     # v4.0.0: this now runs on the PULL REQUEST rather than only on push.
     # Windows is a 2x-minute runner, and this is exactly the cost worth paying
     # before a merge rather than after it.
+    #
+    # This job runs the four heavy hook test files; `tests-windows-hooks-rest`
+    # runs the rest of the hook suite. Together they replace one 1542 s command.
     needs: changes
     runs-on: windows-latest
     timeout-minutes: 60
@@ -474,6 +501,52 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+
+  tests-windows-hooks-rest:
+    # The other half of the Windows PowerShell 5.1 hook suite, beside `tests-windows`,
+    # which kept the four heavy files. One 1542 s command became two of about 770 s.
+    needs: changes
+    runs-on: windows-latest
+    timeout-minutes: 60
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            scripts/ci/requirements-windows.in
+            scripts/ci/requirements-py311.txt
+
+      - name: Install test dependencies
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
+
+      - name: Windows hook suite remainder profile group
+        # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
+        # here, so a developer running `make ci-platform` on Windows gets the
+        # same edition under test as CI does.
+        run: python scripts/ci/run.py --profile platform --only windows-hooks-rest --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain Windows reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-windows-hooks-rest-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   tests-windows-installer:
     # The installer + validators corpus under Windows PowerShell 5.1, split
@@ -662,6 +735,52 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ci-windows-validators-3-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  tests-windows-validators-4:
+    # The m-o validator quarter (1132 s measured), which shared tests-windows-validators-2
+    # with d-l and p-z at 2261 s, the longest Windows job.
+    needs: changes
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      PYTEST_ADDOPTS: "-p xdist -n 2 --dist loadfile"
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            scripts/ci/requirements-windows.in
+            scripts/ci/requirements-py311.txt
+            .github/workflows/ci.yml
+
+      - name: Install test dependencies
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in pytest-xdist==3.8.0 execnet==2.1.2
+
+      - name: Windows validators profile group
+        run: python scripts/ci/run.py --profile platform --only windows-validators-4 --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain Windows reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-windows-validators-4-reports
           path: reports/
           if-no-files-found: warn
           retention-days: 7
@@ -948,10 +1067,12 @@ jobs:
       - tests-hooks
       - guide-render
       - tests-windows
+      - tests-windows-hooks-rest
       - tests-windows-installer
       - tests-windows-validators
       - tests-windows-validators-2
       - tests-windows-validators-3
+      - tests-windows-validators-4
       - tests-windows-installer-core
       - bootstrap
       - bootstrap-windows
@@ -984,10 +1105,12 @@ jobs:
           RESULT_TESTS_HOOKS: ${{ needs['tests-hooks'].result }}
           RESULT_GUIDE_RENDER: ${{ needs['guide-render'].result }}
           RESULT_TESTS_WINDOWS: ${{ needs['tests-windows'].result }}
+          RESULT_TESTS_WINDOWS_HOOKS_REST: ${{ needs['tests-windows-hooks-rest'].result }}
           RESULT_TESTS_WINDOWS_INSTALLER: ${{ needs['tests-windows-installer'].result }}
           RESULT_TESTS_WINDOWS_VALIDATORS: ${{ needs['tests-windows-validators'].result }}
           RESULT_TESTS_WINDOWS_VALIDATORS_2: ${{ needs['tests-windows-validators-2'].result }}
           RESULT_TESTS_WINDOWS_VALIDATORS_3: ${{ needs['tests-windows-validators-3'].result }}
+          RESULT_TESTS_WINDOWS_VALIDATORS_4: ${{ needs['tests-windows-validators-4'].result }}
           RESULT_TESTS_WINDOWS_INSTALLER_CORE: ${{ needs['tests-windows-installer-core'].result }}
           RESULT_BOOTSTRAP: ${{ needs.bootstrap.result }}
           RESULT_BOOTSTRAP_WINDOWS: ${{ needs['bootstrap-windows'].result }}
@@ -998,16 +1121,21 @@ jobs:
           python scripts/ci/run.py --profile report --reports-dir reports \
             --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
             --expect-artifact ci-shell-reports=$RESULT_SHELLCHECK \
-            --expect-artifact ci-test-reports=$RESULT_TESTS \
-            --expect-artifact ci-test-hooks-reports=$RESULT_TESTS_HOOKS \
+            --expect-artifact ci-test-reports-validators=$RESULT_TESTS \
+            --expect-artifact ci-test-reports-governance=$RESULT_TESTS \
+            --expect-artifact ci-test-reports-core=$RESULT_TESTS \
+            --expect-artifact ci-test-hooks-reports-heavy=$RESULT_TESTS_HOOKS \
+            --expect-artifact ci-test-hooks-reports-rest=$RESULT_TESTS_HOOKS \
             --expect-artifact ci-guide-render-report-engine=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS \
+            --expect-artifact ci-windows-hooks-rest-reports=$RESULT_TESTS_WINDOWS_HOOKS_REST \
             --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER \
             --expect-artifact ci-windows-validators-reports=$RESULT_TESTS_WINDOWS_VALIDATORS \
             --expect-artifact ci-windows-validators-2-reports=$RESULT_TESTS_WINDOWS_VALIDATORS_2 \
             --expect-artifact ci-windows-validators-3-reports=$RESULT_TESTS_WINDOWS_VALIDATORS_3 \
+            --expect-artifact ci-windows-validators-4-reports=$RESULT_TESTS_WINDOWS_VALIDATORS_4 \
             --expect-artifact ci-windows-installer-core-reports=$RESULT_TESTS_WINDOWS_INSTALLER_CORE \
             --expect-artifact ci-bootstrap-reports-ubuntu-latest=$RESULT_BOOTSTRAP \
             --expect-artifact ci-bootstrap-reports-macos-latest=$RESULT_BOOTSTRAP \
@@ -1072,10 +1200,12 @@ jobs:
       - tests-hooks
       - guide-render
       - tests-windows
+      - tests-windows-hooks-rest
       - tests-windows-installer
       - tests-windows-validators
       - tests-windows-validators-2
       - tests-windows-validators-3
+      - tests-windows-validators-4
       - tests-windows-installer-core
       - bootstrap
       - bootstrap-windows
@@ -1096,10 +1226,12 @@ jobs:
           R_tests_hooks: ${{ needs['tests-hooks'].result }}
           R_guide_render: ${{ needs['guide-render'].result }}
           R_tests_windows: ${{ needs['tests-windows'].result }}
+          R_tests_windows_hooks_rest: ${{ needs['tests-windows-hooks-rest'].result }}
           R_tests_windows_installer: ${{ needs['tests-windows-installer'].result }}
           R_tests_windows_validators: ${{ needs['tests-windows-validators'].result }}
           R_tests_windows_validators_2: ${{ needs['tests-windows-validators-2'].result }}
           R_tests_windows_validators_3: ${{ needs['tests-windows-validators-3'].result }}
+          R_tests_windows_validators_4: ${{ needs['tests-windows-validators-4'].result }}
           R_tests_windows_installer_core: ${{ needs['tests-windows-installer-core'].result }}
           R_bootstrap: ${{ needs.bootstrap.result }}
           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}

@@ -399,7 +399,8 @@ def test_complete_current_consumers_and_captured_resume_preserve_typed_history(e
     shutil.copytree(SCRIPTS, installed, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     probe = installed / "execution_consumer_probe.py"
     probe.write_text(EXECUTION_CONSUMER_PROBE, encoding="utf-8")
-    env = {**execution.env, "PYTHONDONTWRITEBYTECODE": "1"}
+    env = {**execution.env, "PYTHONDONTWRITEBYTECODE": "1",
+           "NEXUS_TEST_DECLARATIONS_DIR": str(Path(__file__).resolve().parent)}
     env.pop("PYTHONPATH", None)
 
     def observed_readers(session):

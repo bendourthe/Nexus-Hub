@@ -60,7 +60,7 @@ The installer configures the supported assistants it detects. The installer prec
 
 After the installer completes:
 
-- **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 340 skills, 22 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants, and naming one that the installer did not find (for example `--platforms qwen`) installs it anyway; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

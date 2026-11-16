@@ -90,10 +90,13 @@ def playwright_mod():
     return sync_playwright
 
 
-def _open(browser, width: int = 1440, height: int = 900, reduced: bool = False, hash_: str = "#home"):
+def _open(browser, width: int = 1440, height: int = 900, reduced: bool = False, hash_: str = "#home", clock: bool = False):
     context = browser.new_context(viewport={"width": width, "height": height}, user_agent=WIN_UA,
                                   reduced_motion="reduce" if reduced else "no-preference")
     page = context.new_page()
+    if clock:
+        page.clock.install(time=1000)
+        page.clock.pause_at(11000)
     page.goto(GUIDE.as_uri() + hash_)
     page.wait_for_selector(FIG)
     return context, page
@@ -627,20 +630,24 @@ def test_a_tab_switch_restarts_that_systems_mockup(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
-            _context, page = _open(browser, hash_="#home/install")
-            page.click("#install-tab-linux")
-            page.locator("#install-panel-linux [data-tm]").scroll_into_view_if_needed()
-            page.wait_for_selector('#install-panel-linux [data-tm][data-tm-step="run"]', timeout=20000)
-            # The click scrolls the tab row into view; the mockup plays once it is on screen too.
-            page.click("#install-tab-mac")
-            page.locator("#install-panel-mac [data-tm]").scroll_into_view_if_needed()
-            page.wait_for_selector('#install-panel-mac [data-tm][data-tm-step="prompt"]', timeout=5000)
-            mac = page.evaluate("""() => { const m = document.querySelector('#install-panel-mac [data-tm]');
-                return { lines: [...m.querySelectorAll('.tm-l')].filter(e => getComputedStyle(e).visibility === 'visible').length,
-                         cmd: getComputedStyle(m.querySelector('.tm-cmd')).visibility }; }""")
+            _context, page = _open(browser, hash_="#home/install", clock=True)
+            for os_key in ("linux", "mac", "linux"):
+                page.click(f"#install-tab-{os_key}")
+                tm = f"#install-panel-{os_key} [data-tm]"
+                page.locator(tm).scroll_into_view_if_needed()
+                # Freeze the prompt until the observer starts the visible mockup; a busy
+                # runner must not make the test miss a transient animation step.
+                page.wait_for_selector(f'{tm}.is-live[data-tm-step="prompt"]')
+                idle = page.locator(tm).evaluate("""m => ({
+                    lines: [...m.querySelectorAll('.tm-l')].filter(e => getComputedStyle(e).visibility === 'visible').length,
+                    cmd: getComputedStyle(m.querySelector('.tm-cmd')).visibility })""")
+                assert idle == {"lines": 0, "cmd": "hidden"}, f"{os_key} restarts from the idle prompt"
+                # The menu sequence reaches run after 6.4 seconds. Advance the real
+                # callbacks explicitly before leaving, including before the Linux revisit.
+                page.clock.run_for(7000)
+                assert page.locator(tm).get_attribute("data-tm-step") == "run"
         finally:
             browser.close()
-    assert mac == {"lines": 0, "cmd": "hidden"}, "switching tabs starts that system's mockup from the idle prompt"
 
 
 @pytest.mark.parametrize("os_key", list(COMMANDS))

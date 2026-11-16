@@ -56,6 +56,11 @@ def _fail(name: str = "bad", code: int = 3, **kw) -> Command:
     return Command(name=name, argv=[PY, "-c", f"import sys;sys.exit({code})"], timeout=60, **kw)
 
 
+def _family_commands(family: str) -> list[Command]:
+    """Every command of the shard groups in a family, in `full` profile order."""
+    return [c for g in groups_for("full") if g.family == family for c in g.commands]
+
+
 # ---------------------------------------------------------------------------
 # Profile definitions
 # ---------------------------------------------------------------------------
@@ -128,7 +133,7 @@ def _profile_selects(command, relative: str, host: str) -> bool:
 @pytest.mark.parametrize("host", ("linux", "macos", "windows"))
 def test_repository_suite_is_partitioned_without_coverage_gaps(host):
     """Every host selects each repository test file once, including exclusions."""
-    commands = next(group for group in groups_for("full") if group.name == "tests").commands
+    commands = _family_commands("tests")
     repo_commands = [command for command in commands if command.name.startswith("repo-tests-") and command.runs_on(host)]
     expected_files = [
         path.relative_to(REPO_ROOT).as_posix()
@@ -144,7 +149,7 @@ def test_repository_suite_is_partitioned_without_coverage_gaps(host):
 @pytest.mark.parametrize("host", ("linux", "macos", "windows"))
 @pytest.mark.parametrize("separator", ("/", "\\"))
 def test_full_guide_scheduling_preserves_scope_and_limits(host, separator):
-    commands = next(group for group in groups_for("full") if group.name == "tests").commands
+    commands = _family_commands("tests")
     commands = [command for command in commands if command.runs_on(host)
                 and any(arg == "tests/guides" or arg.startswith("tests/guides/") for arg in command.argv)]
     heavy = (
@@ -189,8 +194,7 @@ def test_full_adapter_scheduling_preserves_scope_and_limits(host):
         "tests/integrations/test_skill_path_provider_order.py",
         "tests/integrations/test_windows_long_paths.py",
     )
-    commands = [command for group in groups_for("full") if group.name == "tests"
-                for command in group.commands if command.runs_on(host)
+    commands = [command for command in _family_commands("tests") if command.runs_on(host)
                 and command.name.startswith("repo-tests-integrations-adapter-contracts")]
     contract = ("tests/integrations/test_contract.py",)
     remaining = tuple(path for path in original if path not in contract)
@@ -210,7 +214,7 @@ def test_full_adapter_scheduling_preserves_scope_and_limits(host):
 
 def test_existing_profile_commands_emit_coverage_and_sarif() -> None:
     groups = {group.name: group for group in groups_for("full")}
-    ci_tests = next(command for command in groups["tests"].commands if command.name == "repo-tests-ci")
+    ci_tests = next(command for command in groups["tests-core"].commands if command.name == "repo-tests-ci")
     scanner = next(command for command in groups["catalog"].commands if command.name == "scan_skill_security")
 
     assert "--cov=scripts.ci" in ci_tests.argv
@@ -894,7 +898,7 @@ def test_windows_audit_tests_are_selected_only_on_windows():
     commands = [
         command
         for group in groups_for("platform")
-        if group.name == "windows-hooks"
+        if group.name in ("windows-hooks", "windows-hooks-rest")
         for command in group.commands
         if "tests/skills/test_safe_artifact.py" in command.argv
     ]
@@ -928,7 +932,7 @@ def test_platform_timeout_override_applies_only_to_its_host_class():
 
 @pytest.mark.parametrize(
     ("step", "shared", "windows"),
-    [("hook-tests", 1800, 2400)],
+    [("hook-tests-heavy", 1800, 2400), ("hook-tests-rest", 1800, 2400)],
 )
 def test_measured_windows_overrides_keep_shared_caps(step, shared, windows):
     """v4.13.9 WN-38: only Windows is raised, from a recorded run."""
@@ -966,22 +970,28 @@ def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
                "tests/test_git_attribution.py", "tests/test_removed_autonomy_surface.py")
     commands = [command for group in groups_for("full") for command in group.commands
                 if command.name.startswith("repo-tests-governance") and command.runs_on(host)]
+    by_name = {command.name: command for command in commands}
     if host == "windows":
         assert len(commands) == 5
-        assert commands[0].name == "repo-tests-governance-rest (Windows full)"
-        assert list(commands[0].argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[2:]]
-        assert commands[0].timeout == 2700
+        rest = by_name["repo-tests-governance-rest (Windows full)"]
+        assert list(rest.argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[2:]]
+        assert rest.timeout == 2700
         masks = (profiles.VALIDATORS_SHARD_A_IGNORES, profiles.VALIDATORS_SHARD_B_IGNORES,
                  profiles.VALIDATORS_SHARD_C_IGNORES, profiles.VALIDATORS_SHARD_D_IGNORES)
-        for command, name, ignores in zip(commands[1:], ("a-c", "co", "d-o", "p-z"), masks):
-            assert command.name == f"repo-tests-governance-validators-{name} (Windows full)"
+        for name, ignores in zip(("a-c", "co", "d-o", "p-z"), masks):
+            command = by_name[f"repo-tests-governance-validators-{name} (Windows full)"]
             assert list(command.argv) == [PY, "-m", "pytest", "tests/validators", "-q", *ignores]
             assert command.timeout == (2400 if name == "co" else 1800)
         assert sum(command.timeout_on(host) for command in commands) == 10500
     else:
-        assert len(commands) == 1 and commands[0].name == "repo-tests-governance"
-        assert list(commands[0].argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[1:]]
-        assert commands[0].timeout == 2700
+        # The former single `repo-tests-governance` command is two shard commands that
+        # together keep its roots; test_ci_partition_proof proves the union by collection.
+        assert set(by_name) == {"repo-tests-governance-validators", "repo-tests-governance-checks"}
+        validators = by_name["repo-tests-governance-validators"]
+        checks = by_name["repo-tests-governance-checks"]
+        assert list(validators.argv) == [PY, "-m", "pytest", targets[1], "-q"]
+        assert list(checks.argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[2:]]
+        assert validators.timeout == checks.timeout == 2700
     for command in commands:
         assert command.timeout_on(host) <= 3600
         assert command.platform_timeouts == {}
@@ -998,3 +1008,72 @@ def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
     assert actual
     for relative in [*actual, *future]:
         assert sum(_profile_selects(command, relative.replace("/", separator), host) for command in commands) == 1, relative
+
+
+# ---------------------------------------------------------------------------
+# Shard families: `--only <family>` selects every member group.
+# ---------------------------------------------------------------------------
+
+
+def test_only_family_selects_every_member_in_profile_order():
+    selected = run_mod.select_groups("full", ["tests"])
+    assert [g.name for g in selected] == ["tests-core", "tests-validators", "tests-governance"]
+    assert [c for g in selected for c in g.commands] == _family_commands("tests")
+
+
+def test_only_family_command_list_matches_the_union_of_its_members():
+    """`--only tests --list` shows exactly the member groups' commands."""
+    proc = subprocess.run(
+        [PY, "-B", str(REPO_ROOT / "scripts/ci/run.py"), "--profile", "full", "--only", "tests", "--list"],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=120, check=True,
+    )
+    for command in _family_commands("tests"):
+        assert f"- {command.name}" in proc.stdout
+    assert "hook-tests-heavy" not in proc.stdout
+
+
+def test_hook_family_has_two_shards_and_members_can_still_be_named_alone():
+    assert [g.name for g in run_mod.select_groups("full", ["hook-tests"])] == ["hook-tests-heavy", "hook-tests-rest"]
+    assert [g.name for g in run_mod.select_groups("full", ["hook-tests-rest"])] == ["hook-tests-rest"]
+
+
+def test_unknown_only_name_still_fails_and_lists_families_and_groups():
+    with pytest.raises(KeyError, match="tests-core"):
+        run_mod.select_groups("full", ["no-such-group"])
+
+
+def test_a_group_named_like_a_family_is_rejected(monkeypatch):
+    clash = Group(name="shardfam", commands=(_ok("a"),))
+    member = Group(name="member", commands=(_ok("b"),), family="shardfam")
+    monkeypatch.setitem(PROFILES, "clash", (clash, member))
+    with pytest.raises(KeyError, match="also group names"):
+        run_mod.select_groups("clash", ["member"])
+
+
+@pytest.mark.parametrize("profile", sorted(PROFILES))
+def test_shard_command_names_are_unique_within_each_profile(profile):
+    """Shard names key reports and junit files, so no two may share one."""
+    shard_groups = [g for g in PROFILES[profile] if g.family or g.name.startswith(("windows-", "hook-tests"))]
+    names = [c.name for g in shard_groups for c in g.commands]
+    assert len(names) == len(set(names)), sorted(n for n in set(names) if names.count(n) > 1)
+
+
+def test_every_declared_family_has_members_and_no_group_shares_its_name():
+    for profile, groups in PROFILES.items():
+        families = {g.family for g in groups if g.family}
+        assert not families & {g.name for g in groups}, profile
+    assert {g.family for g in groups_for("full") if g.family} == {"tests", "hook-tests"}
+
+
+def test_pytest_exit_five_no_tests_collected_counts_as_a_failure(tmp_path):
+    """An emptied shard must fail CI rather than pass as a shard that ran nothing."""
+    (tmp_path / "test_empty.py").write_text("def helper():\n    pass\n", encoding="utf-8")
+    command = Command(
+        name="empty shard",
+        argv=[PY, "-m", "pytest", ".", "-q", "-p", "no:cacheprovider", f"--rootdir={tmp_path}"],
+        cwd=str(tmp_path),
+        timeout=120,
+    )
+    result = run_mod.run_command(command, REPO_ROOT, [], quiet=True)
+    assert result.exit_code == 5
+    assert result.status == "fail"

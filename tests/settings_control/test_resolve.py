@@ -253,20 +253,32 @@ def test_echoed_project_values_are_truncated(machine: Any, catalog: dict[str, An
     assert len(record["layer_value"]) <= resolve.ECHO_LIMIT and record["layer_value"].endswith("...")
 
 
-@pytest.mark.parametrize(("seen", "outside"), [("2.1.290", True), ("2.1.282", True), ("2.1.283", False), ("2.1.283.0", False)])
-def test_version_outside_the_proven_range_is_unverified(machine: Any, catalog: dict[str, Any], seen: str, outside: bool) -> None:
+@pytest.mark.parametrize(("seen", "older"), [("2.1.282", True), ("2.1.283", False), ("2.1.283.0", False)])
+def test_version_older_than_the_proven_range_is_unverified(machine: Any, catalog: dict[str, Any], seen: str, older: bool) -> None:
     machine.commands["claude"] = seen
     machine.put("claude-user", {"model": "opus"})
     machine.env["ANTHROPIC_MODEL"] = "haiku"
 
     record = machine.records(catalog)["model", "claude", "cli"]
 
-    if outside:
+    if older:
         assert (record["state"], record["detail"]) == ("unverified-for-version", seen)
         assert any(c.startswith("Present: env ANTHROPIC_MODEL (shell)") for c in record["caveats"])
     else:
         assert record["state"] == "overridden-by"
     assert machine.records(catalog)["model", "codex", "cli"]["state"] == "tool-default"
+
+
+def test_a_newer_version_keeps_its_state_with_a_note(machine: Any, catalog: dict[str, Any]) -> None:
+    # Vendors ship weekly; documented setting keys outlive the last version Nexus-Hub checked.
+    machine.commands["claude"] = "2.1.290"
+    machine.put("claude-user", {"model": "opus"})
+    machine.env["ANTHROPIC_MODEL"] = "haiku"
+
+    record = machine.records(catalog)["model", "claude", "cli"]
+
+    assert record["state"] == "overridden-by"
+    assert sum("2.1.290 is newer than" in c for c in record["caveats"]) == 1
 
 
 def test_a_failing_version_call_is_cannot_detect_for_version_ranged_writes_only(machine: Any, catalog: dict[str, Any]) -> None:
