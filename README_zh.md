@@ -8,13 +8,14 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.0 更新内容
+## v4.15.1 更新内容
 
-- 设置中新增使用额度提醒开关，可按服务商分别开关或一次全部开关；使用额度警告会在 10 秒后自动关闭。
-- Nexus-Hub Settings 会安装到检测到的每个 VS Code、Cursor 和 Antigravity 编辑器中，并只应用一次共享的推理强度和速度默认值，不会覆盖会话中的选择。
-- 修复了 Cursor 和 Gemini 使用额度监视器的问题；逐条审查常驻指令的必要性后，常驻指令更加精简。
+- 新增只读的 `/status` 命令，并在 `/implement` 运行期间的每条消息末尾显示简短的进度页脚。
+- Nexus-Hub Settings 0.8.3：启用实时推理强度后，Claude Code 和 Codex 在 Windows 上可以再次正常启动；较新的命令行版本不再触发状态栏警告。
+- 发布安全：发布流程拒绝为过期的清单打标签，CI 将耗时较长的测试任务拆分为更小的分片。
+- 决策已记录：不构建按模型自适应的运行时，并保留了相关证据。
 
-[版本详情与早期版本](CHANGELOG.md#4150---2026-11-12)
+[版本详情与早期版本](CHANGELOG.md#4151---2026-11-15)
 
 ## 安装
 
@@ -324,6 +325,14 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 ```
 
 [在训练中查看](guides/website/training.html#update)
+
+#### `/status`
+
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。
+
+```text
+/status v4.15
+```
 
 #### `/grill`
 

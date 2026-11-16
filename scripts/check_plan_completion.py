@@ -771,6 +771,7 @@ def _write_record(path: Path, record: dict) -> None:
         _minor_module().check_historical_scope_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_v415_compatibility_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_member_paths_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -3053,6 +3054,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     if args.action == "permit-member-execution-paths" or getattr(args, "execution", None) is not None:
         raise Malformed("permit-member-execution-paths and --execution require --minor")
+    if args.action == "permit-member-paths" or getattr(args, "paths", None) is not None:
+        raise Malformed("permit-member-paths and --paths require --minor")
     if args.action == "amend-minor" or getattr(args, "amendment", None) is not None:
         raise Malformed("--action amend-minor and --amendment require --minor")
     if args.action == "correct-ci-read":
@@ -3732,6 +3735,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--outputs", help="with --minor permit-outputs: exact write_paths JSON file")
     render.add_argument("--amendment", help="with --minor amend-minor: exact new member grants JSON file")
     render.add_argument("--execution", help="with --minor permit-member-execution-paths: exact write_paths JSON file")
+    render.add_argument("--paths", help="with --minor permit-member-paths: exact write_paths JSON file")
     render.add_argument("--conditional-outcome", help="JSON disposition qualifying this member's existing technical blocker")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
@@ -3813,6 +3817,14 @@ def build_parser() -> argparse.ArgumentParser:
     execution.add_argument("--execution", required=True, help="JSON object containing only literal write_paths")
     execution.add_argument("--text")
     execution.set_defaults(func=lambda args: _minor_module().cmd_record_permit_member_execution_paths(sys.modules[__name__], args))
+    member_paths = record.add_parser("permit-member-paths", help="append exact literal files to one admitted member's write list through a captured decision")
+    member_paths.add_argument("--minor", required=True)
+    member_paths.add_argument("--repo", default=".")
+    member_paths.add_argument("--session", required=True)
+    member_paths.add_argument("--member", required=True)
+    member_paths.add_argument("--paths", required=True, help="JSON object containing literal write_paths")
+    member_paths.add_argument("--text", help="when given, must equal the captured decision")
+    member_paths.set_defaults(func=lambda args: _minor_module().cmd_record_permit_member_paths(sys.modules[__name__], args))
     outputs = record.add_parser("permit-outputs", help="capture exact v4.15 coordinator output permissions")
     outputs.add_argument("--minor", required=True)
     outputs.add_argument("--repo", default=".")
