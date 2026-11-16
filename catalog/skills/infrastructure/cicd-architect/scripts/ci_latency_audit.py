@@ -10,6 +10,7 @@ fixtures; nothing is written and no repository helper is imported.
 from __future__ import annotations
 
 import argparse
+import bisect
 import json
 import os
 import re
@@ -31,6 +32,7 @@ TOKEN_RE = re.compile(
 CONTROL_RE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|[\x00-\x1f\x7f]")
 TIMEOUT_SECONDS = 60
 NAME_LIMIT = 80
+MAX_JOB_PAGES = 5
 
 Runner = Callable[[list[str]], "tuple[int, str, str]"]
 
@@ -114,9 +116,12 @@ def gh_json(runner: Runner, path: str, params: dict[str, str]) -> Any:
             "Remedy: run `gh auth status`, then retry or lower --runs."
         )
     try:
-        return json.loads(out)
-    except json.JSONDecodeError as exc:
-        raise AuditError(f"gh returned invalid JSON: {exc.msg}") from exc
+        data = json.loads(out)
+    except (json.JSONDecodeError, RecursionError) as exc:
+        raise AuditError(f"gh returned invalid JSON: {getattr(exc, 'msg', 'nesting too deep')}") from exc
+    if not isinstance(data, dict):
+        raise AuditError("gh returned JSON that is not an object")
+    return data
 
 
 def load_run(runner: Runner | None, repo: str, run_id: str, fixtures: Path | None) -> tuple[dict, dict]:
@@ -124,12 +129,22 @@ def load_run(runner: Runner | None, repo: str, run_id: str, fixtures: Path | Non
         try:
             run = json.loads((fixtures / f"run-{run_id}.json").read_text(encoding="utf-8"))
             jobs = json.loads((fixtures / f"jobs-{run_id}.json").read_text(encoding="utf-8"))
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, RecursionError) as exc:
             raise AuditError(f"fixture for run {run_id} unreadable: {exc}") from exc
+        if not isinstance(run, dict) or not isinstance(jobs, dict):
+            raise AuditError(f"fixture for run {run_id} is not a pair of JSON objects")
         return run, jobs
     assert runner is not None
     run = gh_json(runner, f"repos/{repo}/actions/runs/{run_id}", {})
-    jobs = gh_json(runner, f"repos/{repo}/actions/runs/{run_id}/jobs", {"filter": "latest", "per_page": "100"})
+    jobs: dict = {"jobs": []}
+    for page in range(1, MAX_JOB_PAGES + 1):
+        chunk = gh_json(runner, f"repos/{repo}/actions/runs/{run_id}/jobs",
+                        {"filter": "latest", "per_page": "100", "page": str(page)})
+        batch = chunk.get("jobs")
+        batch = batch if isinstance(batch, list) else []
+        jobs["jobs"].extend(batch)
+        if len(batch) < 100:
+            break
     return run, jobs
 
 
@@ -144,6 +159,8 @@ def split_job(job: dict) -> dict:
         return row
     steps = []
     for step in job.get("steps") or []:
+        if not isinstance(step, dict):
+            continue
         s0, s1 = parse_time(step.get("started_at")), parse_time(step.get("completed_at"))
         if s0 and s1 and step.get("conclusion") != "skipped":
             steps.append(seconds(s0, s1))
@@ -157,18 +174,22 @@ def split_job(job: dict) -> dict:
 
 
 def analyze_run(run: dict, jobs_payload: dict, gate: str | None) -> dict:
-    jobs = [split_job(j) for j in jobs_payload.get("jobs", []) if isinstance(j, dict)]
+    raw = jobs_payload.get("jobs")
+    jobs = [split_job(j) for j in (raw if isinstance(raw, list) else []) if isinstance(j, dict)]
     ok = [j for j in jobs if j["status"] == "ok"]
     start = parse_time(run.get("run_started_at")) or parse_time(run.get("created_at")) or min((j["created"] for j in ok if j["created"]), default=None)
     gate_job = next((j for j in ok if gate and j["name"] == clean_name(gate)), None)
     others = [j for j in ok if j is not gate_job]
 
+    ends = sorted(o["completed"] for o in others if o["completed"])
+
     def aggregate(job: dict) -> bool:
-        rest = [o for o in others if o is not job]
-        if len(rest) < 2:
+        if len(others) - 1 < 2:
             return False
-        running = [o for o in rest if o["completed"] and job["started"] and o["completed"] > job["started"]]
-        return len(running) <= 1
+        running = len(ends) - bisect.bisect_right(ends, job["started"])
+        if job["completed"] and job["completed"] > job["started"]:
+            running -= 1  # the job itself ends after it starts
+        return running <= 1
 
     pool = [j for j in others if not aggregate(j)] or others
     critical = max(pool, key=lambda j: j["completed"], default=None)

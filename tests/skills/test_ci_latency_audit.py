@@ -169,3 +169,35 @@ def test_json_runner_child_env_drops_debug(monkeypatch: pytest.MonkeyPatch) -> N
     assert "GH_DEBUG" not in captured["env"] and "DEBUG" not in captured["env"]
     assert captured["timeout"] == audit.TIMEOUT_SECONDS
     assert captured["creationflags"] == getattr(audit.subprocess, "CREATE_NO_WINDOW", 0)
+
+
+@pytest.mark.parametrize("payload", [{"jobs": None}, {"jobs": "text"}, {"jobs": [None, 1, "x"]}, {"jobs": [{"steps": [None]}]}])
+def test_adversarial_malformed_jobs_payload_is_tolerated(payload: dict, tmp_path: Path) -> None:
+    (tmp_path / "run-7.json").write_text(json.dumps({"id": 7, "run_attempt": 1, "conclusion": "success"}), encoding="utf-8")
+    (tmp_path / "jobs-7.json").write_text(json.dumps(payload), encoding="utf-8")
+    assert audit.main(["--from-json", str(tmp_path)]) == 0  # an empty table, never a traceback
+
+
+@pytest.mark.parametrize("stdout", ["[1, 2]", "[" * 5000 + "]" * 5000, "{" * 1000])
+def test_adversarial_gh_output_that_is_not_an_object_is_refused(stdout: str, capsys: pytest.CaptureFixture[str]) -> None:
+    assert audit.main(["--repo", "o/r", "--run-ids", "1"], runner=lambda a: (0, stdout, "")) == 2
+    assert "error:" in capsys.readouterr().err
+
+
+def test_jobs_are_read_across_pages() -> None:
+    def job(i: int) -> dict:
+        return {"name": f"j{i}", "conclusion": "success", "created_at": "2026-01-05T10:00:00Z",
+                "started_at": "2026-01-05T10:00:01Z", "completed_at": "2026-01-05T10:01:00Z",
+                "steps": [{"name": "s", "conclusion": "success", "started_at": "2026-01-05T10:00:01Z",
+                           "completed_at": "2026-01-05T10:01:00Z"}]}
+
+    pages = {"1": [job(i) for i in range(100)], "2": [job(i) for i in range(100, 130)]}
+
+    def runner(args: list[str]) -> tuple[int, str, str]:
+        if args[3].endswith("/jobs"):
+            page = next(a.split("=")[1] for a in args if a.startswith("page="))
+            return 0, json.dumps({"jobs": pages[page]}), ""
+        return 0, json.dumps({"id": 1, "run_attempt": 1, "conclusion": "success"}), ""
+
+    _, jobs = audit.load_run(runner, "o/r", "1", None)
+    assert len(jobs["jobs"]) == 130
