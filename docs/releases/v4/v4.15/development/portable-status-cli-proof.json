@@ -1,0 +1,45 @@
+{
+  "fixture": "illustrative, not live implementation evidence",
+  "events": [
+    {
+      "event": "start",
+      "observed_at": "2026-11-16T12:00:00Z",
+      "mode": "full"
+    },
+    {
+      "event": "progress",
+      "observed_at": "2026-11-16T12:00:00Z",
+      "mode": "none"
+    },
+    {
+      "event": "turn-end",
+      "observed_at": "2026-11-16T12:01:00Z",
+      "mode": "none"
+    },
+    {
+      "event": "checkpoint",
+      "observed_at": "2026-11-16T12:01:00Z",
+      "mode": "compact"
+    },
+    {
+      "event": "checkpoint",
+      "observed_at": "2026-11-16T12:01:00Z",
+      "mode": "none"
+    },
+    {
+      "event": "turn-end",
+      "observed_at": "2026-11-16T12:06:00Z",
+      "mode": "compact"
+    },
+    {
+      "event": "request",
+      "observed_at": "2026-11-16T12:06:00Z",
+      "mode": "full"
+    }
+  ],
+  "audit_exit_codes": [
+    0,
+    1,
+    0
+  ]
+}

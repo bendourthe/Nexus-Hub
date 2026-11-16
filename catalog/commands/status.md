@@ -34,4 +34,4 @@ Read these two references directly:
 
 Always print the FULL report, never the compact footer. Elapsed time without a measured source prints `unknown`; remaining time is estimated from measured history of completed plans (the estimate rule in `status-formats.md`) and prints `unknown (fewer than 3 completed plans)` only when that history is too short. The full report includes a Goals section after the plan table.
 
-During an `/implement` run the compact footer appears automatically at the end of every message; the footer rule is in `progress-reporting.md`, and the footer points here with `*Full report: /status*`. `/update status` is a forwarding alias for this command.
+Use the bundled `implement-phase/scripts/status_report.py` with event `request` and print its full output unchanged. Natural-language "full status" uses this same read-only path. During an `/implement` run the compact report appears only at reporting boundaries; the footer rule is in `progress-reporting.md`, and the footer points here with `*Full report: /status*`. `/update status` is a forwarding alias for this command.

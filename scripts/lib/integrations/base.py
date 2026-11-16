@@ -226,6 +226,9 @@ class IntegrationBase:
             # workspace-only instruction surfaces such as Cursor and Aider are
             # materialized without inventing global files.
             result.files.extend(seed_org_knowledge(self.key, ctx))
+            from .reporting import audit_reporting
+
+            result.notes.extend(audit_reporting(self.key, ctx, result))
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
