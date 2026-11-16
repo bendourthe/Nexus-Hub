@@ -7746,12 +7746,19 @@ def member_paths_page(ck: ModuleType, rctx: RepoContext, token: str, record: dic
     if not added:
         return None
     base = rctx._git_out("rev-parse", "HEAD")
+    after = False
     for other in ordered_members(record):
-        claims = other.get("implementation")
-        if other["version"] == version or not isinstance(claims, dict) or (base and _merged_on_base(ck, rctx, record, other, base)):
+        if other["version"] == version:
+            after = True
             continue
-        if any(_overlap(p, q) for p in added for q in [*claims.get("write_paths", []), *claims.get("read_paths", []),
-                                                         *other.get("coordinator_paths", [])]):
+        claims = other.get("implementation")
+        if not isinstance(claims, dict) or (base and _merged_on_base(ck, rctx, record, other, base)):
+            continue
+        # A member published later only reads the path today and refreshes onto the integration base before its own gate.
+        held = [*claims.get("write_paths", []), *other.get("coordinator_paths", [])]
+        if not after:
+            held += claims.get("read_paths", [])
+        if any(_overlap(p, q) for p in added for q in held):
             raise ck.Malformed("member-paths-active-conflict")
     return {"action": _MEMBER_PATHS_ACTION, "scope": {"kind": "minor", "minor": token},
             "record_nonce": record["nonce"], "repo": record["repo"],
