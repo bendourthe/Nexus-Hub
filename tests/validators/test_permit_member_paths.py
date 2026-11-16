@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
+from .test_check_plan_completion import _isolated_git_config  # noqa: F401
 from .test_completion_minor_record import SESSION, _no_transport_overrides  # noqa: F401
 from .test_completion_minor_verdict import Walk, ck, cm
 from .test_parallel_member_implementation import (  # noqa: F401  (parallel is a fixture)
