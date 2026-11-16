@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor", "permit-member-execution-paths")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor", "permit-member-execution-paths", "permit-member-paths")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -161,6 +161,10 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if scope != "v4.15":
             raise PageError("typed execution permission belongs only to v4.15")
         return _fits(f"Permit the displayed member execution paths in /implement {scope} (approval {code})")
+    if action == "permit-member-paths":
+        if not MINOR_RE.match(scope):
+            raise PageError("member write paths are permitted only for a minor run")
+        return _fits(f"Permit the displayed member write paths in /implement {scope} (approval {code})")
     if action == "permit-outputs":
         if scope != "v4.15":
             raise PageError("the reviewed output permission belongs only to minor v4.15")
@@ -1078,6 +1082,44 @@ def _action_page(data: dict, paste: PasteSet) -> str:
             out += _section("Exact registration recipe", ["```json", json.dumps(page["hook_recipe"], ensure_ascii=True, indent=2), "```"])
         out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
         return "\n".join(out).rstrip() + "\n"
+    if action == "permit-member-paths":
+        page = data.get("page") or {}
+        path_fields = (("Existing worker writes", "original_write_paths"), ("Additional exact files", "write_paths"))
+        identities = ("repo", "owner_session", "source_branch", "target_branch")
+        hashes = ("record_sha256", "plan_sha256", "implementation_sha256")
+        if (page.get("action") != action or not isinstance(page.get("scope"), dict) or page["scope"].get("kind") != "minor"
+                or not isinstance(page.get("member"), str) or not page["member"]
+                or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
+                or any(not isinstance(page.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", page[key]) for key in hashes)
+                or not isinstance(page.get("controller"), dict) or not isinstance(page["controller"].get("repo_root"), str)
+                or not page["controller"]["repo_root"]
+                or any(not isinstance(page.get(field), list)
+                       or any(not isinstance(path, str) or not path for path in page[field]) for _title, field in path_fields)
+                or not page["write_paths"]):
+            raise PageError("member path permission requires the exact member, its existing write list and the additional files")
+        out = _section("Member write path permission", [
+            "This decision adds only the displayed exact files to the write list of " + quoted(page["member"]) + ", a member already admitted for implementation.",
+            "Approving appends them to that member's existing worker write list now. Nothing else in the run record changes.",
+            "The member's other claims, publication order, approval classes and spending limits stay unchanged.",
+            "Files claimed by another active member, sensitive files and publication-owned files are refused before this decision can be recorded.",
+            "Decline leaves these additional files outside the member's write list.",
+        ])
+        out += _section("Bound identity", [
+            "Repository: " + quoted(page["repo"]),
+            "Member: " + quoted(page["member"]),
+            "Source branch: " + quoted(page["source_branch"]),
+            "Target branch: " + quoted(page["target_branch"]),
+            "Original frozen plan: " + quoted(page["plan_sha256"]),
+            "Current implementation: " + quoted(page["implementation_sha256"]),
+            "Owner session: " + quoted(page["owner_session"]),
+            "Controller: " + json.dumps(page["controller"], ensure_ascii=True, sort_keys=True).replace("`", "\\u0060").replace("~", "\\u007e"),
+            "Current record: " + quoted(page["record_sha256"]),
+        ])
+        for title, field in path_fields:
+            rows = ["- " + json.dumps(path, ensure_ascii=True).replace("`", "\\u0060").replace("~", "\\u007e") for path in page[field]]
+            out += _section(title, rows or ["None."])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     if action == "permit-outputs":
         page = data.get("page") or {}
         path_fields = (("Original worker reads", "original_read_paths"),
@@ -1273,6 +1315,7 @@ def question_data(data: dict) -> dict:
         'permit-manifest': 'Register only the displayed dormant member publication manifest duty',
         'permit-outputs': 'Permit only the displayed exact additional publication output files',
         'permit-member-execution-paths': 'Permit only the displayed exact member execution capability',
+        'permit-member-paths': 'Add only the displayed exact files to the displayed member write list',
         'correct-ci-read': 'Temporarily release only the displayed one-file read reservation',
         'amend-minor': 'Add only the displayed plans and exact permissions while preserving the existing run limits',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
@@ -1299,7 +1342,7 @@ def question_data(data: dict) -> dict:
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
             'action_scope': (conditional.get('request') if conditional is not None
-                             else data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths')
+                             else data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths', 'permit-member-paths')
                              else blocker.get('request') or {}),
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,
