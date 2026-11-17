@@ -68,7 +68,12 @@ describe("activation", () => {
   it("routes the Codex toolbar through the shared tab preference", async () => {
     await activate(context() as never);
     await stub.commands.get("nexusHubSettings.openCodex")?.();
-    expect(stub.executed.at(-1)).toBe("chatgpt.newCodexPanel");
+    expect(stub.executed.at(-1)).toBe("vscode.openWith");
+    const call = stub.executedCalls.at(-1)!;
+    expect(String(call.args[0])).toBe("openai-codex://route/extension/panel/new");
+    expect(call.args[1]).toBe("chatgpt.conversationEditor");
+    expect(call.args[2]).toEqual({viewColumn: -2, preserveFocus: false, preview: false});
+    expect(stub.executed).not.toContain("workbench.action.splitEditor");
     writeSessionDefault(path.join(process.env.NEXUS_HUB_HOME!, SESSION_DEFAULTS_FILE), "codexTabs", false);
     await stub.commands.get("nexusHubSettings.openCodex")?.();
     expect(stub.executed.at(-1)).toBe("chatgpt.openSidebar");
@@ -273,7 +278,7 @@ it("registers the Codex toolbar before slow native adapter setup completes", asy
     await stub.commands.get(OPEN_COMMAND)?.();
     expect(stub.executed).toContain("workbench.view.extension.nexusHubSettings");
     await stub.commands.get("nexusHubSettings.openCodex")?.();
-    expect(stub.executed).toContain("chatgpt.newCodexPanel");
+    expect(stub.executed).toContain("vscode.openWith");
     release(undefined); await loading;
   } finally { release(undefined); ctx.subscriptions.forEach(item => item.dispose()); live.mockRestore(); native.mockRestore(); }
 });

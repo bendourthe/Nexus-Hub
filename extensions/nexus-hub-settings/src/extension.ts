@@ -117,6 +117,13 @@ export async function announceStalledStart(providers: string[]): Promise<void> {
   if (choice === "Reload Window") { await vscode.commands.executeCommand("workbench.action.reloadWindow"); }
 }
 
+/** Open the provider's native new-session route beside the current editor. */
+export async function openCodexPanel(sessionFile: string): Promise<unknown> {
+  if (!vscode.workspace.isTrusted) { return; }
+  if (!readSessionDefaults(sessionFile).codexTabs) { return vscode.commands.executeCommand("chatgpt.openSidebar"); }
+  return vscode.commands.executeCommand("vscode.openWith", vscode.Uri.parse("openai-codex://route/extension/panel/new"), "chatgpt.conversationEditor", {viewColumn: vscode.ViewColumn.Beside, preserveFocus: false, preview: false});
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
   const hub = installRoot(process.env, os.homedir());
   if (vscode.workspace.isTrusted && fs.existsSync(path.join(hub, "VERSION"))) { initializeInstallationDefaults(hub); }
@@ -128,10 +135,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     }),
     vscode.commands.registerCommand("nexusHubSettings.codexHistory", openCodexHistory),
     vscode.commands.registerCommand("nexusHubSettings.refreshCodexTab", refreshCodexTab),
-    vscode.commands.registerCommand("nexusHubSettings.openCodex", () => {
-      if (!vscode.workspace.isTrusted) { return; }
-      return vscode.commands.executeCommand(readSessionDefaults(sessionFile).codexTabs ? "chatgpt.newCodexPanel" : "chatgpt.openSidebar");
-    }),
+    vscode.commands.registerCommand("nexusHubSettings.openCodex", () => openCodexPanel(sessionFile)),
   );
   let liveEffort: Awaited<ReturnType<typeof installLiveEffort>>;
   let nativeUi: Awaited<ReturnType<typeof installNativeUi>>;

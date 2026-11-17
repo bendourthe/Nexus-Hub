@@ -16,5 +16,12 @@
     {"goal": "Ship v1.3", "scope": "run", "done_when": "All 19 tasks verified", "state": "running"}
   ],
   "decisions": [],
-  "running": []
+  "running": [],
+  "next_release": {
+    "version": "v1.3.0",
+    "remaining": "unknown (no comparable release history)",
+    "condition": "none",
+    "confidence": "unknown",
+    "basis": "No observed release durations"
+  }
 }

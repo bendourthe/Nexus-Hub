@@ -1,0 +1,26 @@
+{
+  "native_split": {
+    "webviewOrigin": {
+      "originalColumn": 1,
+      "codexColumn": 2,
+      "originalVisible": true
+    },
+    "provider": "26.1111.21308",
+    "beforeGroups": 1,
+    "afterGroups": 2,
+    "originalColumn": 1,
+    "codexColumn": 2,
+    "originalRetained": true,
+    "customEditor": "chatgpt.conversationEditor"
+  },
+  "vsix_sha256": "c2ee0d4028ea7012276d1046152680da457987c525a63ada836ef14df613e350",
+  "artifact_runtime_matches_qualified_source": true,
+  "settings_tests": {
+    "passed": 493,
+    "skipped": 3
+  },
+  "report_tests": {
+    "passed": 70
+  },
+  "live_user_profile_modified": false
+}
