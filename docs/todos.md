@@ -2,6 +2,11 @@
 
 **Integration branch:** `develop`
 
+**Codex split and release ETA, 2026-11-16:** Authorized maintenance in `fix/codex-split-and-release-eta` opens the Codex editor-title action beside the current editor and separates next-release ETA from whole-scope completion in both status formats.
+
+- [x] Qualify native split behavior in an isolated real VS Code/Codex host from text and webview origins; 493 Settings tests pass with three existing skips, 70 reporting tests pass, and the built VSIX matches qualified runtime bytes. [Evidence](releases/v4/v4.15/development/codex-split-release-eta.md).
+- [ ] Carry the qualified changes into v4.15.2 and verify installed startup/reload behavior under the release agent's existing authority.
+
 **Business workflow analysis comparison, 2026-11-16:** The maintainer confirmed adoption target v4.16.4. The [comparison](releases/v4/v4.16/comparisons/v4.16.4-comparison-business-workflow-analysis.md) and [screening/queue evidence](releases/v4/v4.16/comparisons/v4.16.4-comparison-business-workflow-analysis.json) recommend three bounded improvements under existing skill owners: connected workflow records, explicit path coverage, and an optional workflow-to-risk view. Source screening concluded PROCEED-WITH-CAUTION after adjudication; no upstream code was executed. Comparison artifacts: 2/2 prepared; implementation plans: 1 confirmed for publication; adoption items implemented: 0/3. The existing unused-tool-report deferral to v4.16.4 remains separate and unresolved.
 
 - [x] Compare the pinned source with existing capabilities, record the security assessment, and confirm v4.16.4 placement.

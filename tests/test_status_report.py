@@ -171,3 +171,34 @@ def test_invalid_receipt_recovers_once_with_full_status(report, snapshot, corrup
     recovered = report.select_report(snapshot, receipt, "turn-end")
     assert recovered["mode"] == "full"
     assert report.select_report(snapshot, recovered["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapshot, mode):
+    snapshot["scope"] = "v4.15"
+    snapshot["last_released"] = "v4.15.1"
+    snapshot["remaining"] = "~2-4 d including integration, releases and minor closure"
+    snapshot["next_release"] = {"version": "v4.15.2", "remaining": "~1-2 h",
+                                "condition": "after checker PR merges and installation passes",
+                                "confidence": "low", "basis": "Remaining validation and one release pipeline"}
+    output = report.render(snapshot, mode)
+    assert "**Last released:** **v4.15.1**" in output
+    assert "**Next release:** **v4.15.2** | **Release ETA:** ~1-2 h" in output
+    assert "after checker PR merges and installation passes" in output
+    assert "Confidence: low" in output and "Remaining validation" in output
+    assert "**Whole v4.15 completion:** ~2-4 d" in output
+    assert "| time left:" not in output
+
+
+def test_legacy_snapshot_reports_missing_release_estimate_without_guessing(report, snapshot):
+    output = report.render(snapshot, "compact")
+    assert "**Next release:** **unknown** | **Release ETA:** unknown" in output
+    assert "release estimate not supplied" in output
+
+
+@pytest.mark.parametrize("value", [False, {}, {"version": "v4.15.2"},
+    {"version": "v4.15.2", "remaining": "1h", "condition": "none", "confidence": "certain", "basis": "guess"}])
+def test_incomplete_or_invalid_release_estimates_are_rejected(report, snapshot, value):
+    snapshot["next_release"] = value
+    with pytest.raises(ValueError):
+        report.render(snapshot, "full")
