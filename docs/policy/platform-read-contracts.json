@@ -1817,5 +1817,47 @@
         }
       ]
     }
+  },
+  "stuck_turn_notice_reach_v4_15_5": {
+    "_comment": "v4.15.5: per-platform reach of the stuck-turn-notice hook, from fetched vendor hook documents. Claude Code live capture not run (paid call, lane spend cap USD 0).",
+    "verified": "2026-11-16",
+    "platforms": {
+      "claude": {
+        "turn_id": "prompt_id",
+        "failure": "PostToolUseFailure error 'Exit code N'",
+        "churn": "tool_input.file_path",
+        "runs": "all"
+      },
+      "gemini-cli": {
+        "turn_id": "none",
+        "failure": "tool_response.error",
+        "churn": "tool_input.file_path (assumed)",
+        "runs": "all"
+      },
+      "qwen": {
+        "turn_id": "prompt_id",
+        "failure": "event dropped by derivation",
+        "churn": "tool_input.file_path (assumed)",
+        "runs": "churn-only"
+      },
+      "kimi": {
+        "turn_id": "none",
+        "failure": "PostToolUseFailure error",
+        "churn": "path field undocumented",
+        "runs": "repeat-and-storm"
+      },
+      "codex": {
+        "turn_id": "turn_id",
+        "failure": "none documented",
+        "churn": "undocumented",
+        "runs": "no-op"
+      },
+      "copilot": {
+        "turn_id": "none",
+        "failure": "event dropped by derivation",
+        "churn": "undocumented",
+        "runs": "no-op"
+      }
+    }
   }
 }
