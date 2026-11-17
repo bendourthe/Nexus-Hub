@@ -28,9 +28,18 @@ export function usageAlertEnabled(provider: string): boolean {
     return !data || typeof data !== "object" || Array.isArray(data) || (data as Record<string, unknown>)[provider] !== false;
   } catch { return true; }
 }
+/**
+ * Polls the preference content instead of the file's stat. fs.watchFile takes its baseline stat on the
+ * thread pool, so a change written before that first stat completes (a busy machine) became the baseline
+ * and was never reported, leaving a stale warning on screen.
+ */
 export function watchUsageAlerts(provider: string, disabled: () => void): {dispose(): void} {
-  const file = usageAlertsFile();
-  const changed = (): void => { if (!usageAlertEnabled(provider)) { disabled(); } };
-  fs.watchFile(file, {interval: 500, persistent: false}, changed);
-  return {dispose: () => fs.unwatchFile(file, changed)};
+  let wasEnabled = usageAlertEnabled(provider);
+  const timer = setInterval(() => {
+    const enabled = usageAlertEnabled(provider);
+    if (wasEnabled && !enabled) { disabled(); }
+    wasEnabled = enabled;
+  }, 500);
+  timer.unref?.();
+  return {dispose: () => clearInterval(timer)};
 }

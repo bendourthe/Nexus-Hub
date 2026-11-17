@@ -3,6 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as vscode from "vscode";
+import { watchUsageAlerts } from "../src/alertPreferences";
 import { WarningViewProvider, WARNING_ACTIVE_CONTEXT } from "../src/warningView";
 
 describe("warning expiry", () => {
@@ -77,6 +78,22 @@ describe("warning expiry", () => {
     await show(); expect(command).not.toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, true);
     fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({cursor: true}));
     await show(); expect(command).toHaveBeenCalledWith("setContext", WARNING_ACTIVE_CONTEXT, true);
+  });
+  it("reports a preference written immediately after the watch starts, whatever the machine load", async () => {
+    // Regression: fs.watchFile took its baseline stat after this write on a busy runner and never reported it.
+    const disabled = vi.fn();
+    const watcher = watchUsageAlerts("cursor", disabled);
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({cursor: false}));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(disabled).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(disabled).toHaveBeenCalledTimes(1);
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({cursor: true}));
+    await vi.advanceTimersByTimeAsync(500);
+    fs.writeFileSync(path.join(home, "usage-alerts.json"), JSON.stringify({cursor: false}));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(disabled).toHaveBeenCalledTimes(2);
+    watcher.dispose();
   });
   it("closes a visible warning when shared preferences disable it", async () => {
     vi.useRealTimers();

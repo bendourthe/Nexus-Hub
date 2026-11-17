@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Authority: it only moves one tab between editor groups. It does not close, reopen, edit or sign in to any tab, change any other setting, or act in an untrusted workspace.
     - Docs: [Settings README](extensions/nexus-hub-settings/README.md) (Restore Agent Split).
 
+### Fixed
+
+- **The Claude, Codex, Copilot, Cursor and Gemini usage monitors now always close a warning when the shared alert preference turns it off.** A warning could stay on screen after you turned it off if the preference file was created at the moment the monitor started watching it. The watcher used `fs.watchFile`, which takes its first stat on the thread pool, so on a busy machine a file written right after the watch started became the baseline and the change was never reported (seen as an intermittent Gemini `warningExpiry.test.ts` failure in CI). Each monitor now polls the preference content every 500 ms and reports the change from enabled to disabled, and each test suite has a regression test for a write immediately after the watch starts. Capability usage note: no opt-in surface; the installers rebuild and reinstall the monitors with `--force`, so no version bump is needed; to go back, revert this entry's files.
+
 ## [4.15.2] - 2026-11-17
 
 ### Added
