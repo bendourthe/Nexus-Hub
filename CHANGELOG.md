@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Gemini Usage Monitor now always closes a warning when the shared alert preference turns it off.** The preference watcher used `fs.watchFile`, which takes its first stat on the thread pool. On a busy machine a preference written right after the watcher started became the baseline and was never reported, so a disabled warning stayed on screen (seen as an intermittent `warningExpiry.test.ts` failure in CI). The watcher now polls the preference content every 500 ms and reports the change from enabled to disabled, and a new test covers a write immediately after the watch starts. The same pattern remains in the Claude, Codex, Copilot and Cursor usage monitors. Capability usage note: no opt-in surface; to go back, revert this entry's files.
+
 ## [4.15.2] - 2026-11-17
 
 ### Added
