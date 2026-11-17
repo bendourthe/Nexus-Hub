@@ -20,11 +20,28 @@ RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-
              "references/status-snapshot.json", "scripts/status_report.py")
 
 
-def text(value: object) -> str:
-    """Keep evidence on one line and escape Markdown/HTML, including table pipes."""
+FILLED, EMPTY = "\u25b0", "\u25b1"
+GAP = "&nbsp;" * 4
+DOT = GAP + "\u00b7" + GAP
+GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
+SECTION_BREAK = "&nbsp;\n\n---"
+# Entities instead of backslash escapes: some hosts (Codex) read \( \) and $ as math.
+_ENTITIES = {"\\": "&#92;", "`": "&#96;", "[": "&#91;", "]": "&#93;", "$": "&#36;", "*": "&#42;"}
+
+
+CELL_MAX = 48
+
+
+def text(value: object, limit: int | None = None) -> str:
+    """Keep evidence on one line, neutralize Markdown, HTML, math and table syntax, cap length."""
     value = " ".join(str(value).split())
     value = "".join(c for c in value if ord(c) >= 32 and ord(c) != 127)
-    return re.sub(r"([\\`*_{}\[\]()#+|>])", r"\\\1", html.escape(value, quote=False))
+    if limit is not None and len(value) > limit:
+        value = value[: limit - 3].rstrip() + "..."
+    value = html.escape(value, quote=False)
+    value = re.sub(r"[\\`\[\]$*]", lambda m: _ENTITIES[m.group()], value)
+    value = re.sub(r"(?<![A-Za-z0-9])_|_(?![A-Za-z0-9])", "&#95;", value)
+    return value.replace("|", "\\|")
 
 
 def timestamp(value: str) -> datetime:
@@ -98,14 +115,15 @@ def validate(data: dict) -> None:
         raise ValueError("decision ids must be unique")
 
 
-def progress(done: int | None, total: int | None) -> str:
+def progress_parts(done: int | None, total: int | None) -> tuple[str, str]:
+    """Return the bar-and-percent text and the done/total text."""
     if done is None:
-        return "unknown"
+        return "unknown", "unknown"
     if total == 0:
-        return "N/A (0/0 tasks)"
+        return "N/A", "0/0"
     percent = (100 * done + total // 2) // total
     filled = min(10, (10 * done) // total)
-    return f"`{'#' * filled}{'-' * (10 - filled)}` {percent}% | {done}/{total} tasks"
+    return f"{FILLED * filled}{EMPTY * (10 - filled)} {percent}%", f"{done}/{total}"
 
 
 def aggregate(data: dict) -> tuple[int | None, int | None]:
@@ -115,17 +133,50 @@ def aggregate(data: dict) -> tuple[int | None, int | None]:
     return sum(d for d, _ in values), sum(t for _, t in values)
 
 
+def cell(value: object) -> str:
+    return text(value, CELL_MAX)
+
+
 def table(headers: tuple[str, ...], rows: list[list[str]]) -> str:
-    lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"]
-    lines.extend("| " + " | ".join(row) + " |" for row in rows)
-    return "\n".join(lines)
+    """Pad every column to its widest cell so the source text lines up."""
+    widths = [max(3, *(len(r[i]) for r in [list(headers), *rows])) for i in range(len(headers))]
+    def line(cells: list[str]) -> str:
+        return "| " + " | ".join(c.ljust(w) for c, w in zip(cells, widths)) + " |"
+
+    return "\n".join([line(headers), "| " + " | ".join("-" * w for w in widths) + " |", *map(line, rows)])
 
 
 def running_label(row: dict) -> str:
-    label = text(row["name"])
+    label = cell(row["name"])
     if row.get("url"):
         return f"[{label}]({quote(row['url'], safe=':/?=&%#@')})"
     return label
+
+
+def keycap(value: str) -> str:
+    return "".join(c + "\ufe0f\u20e3" for c in value) if value.isdigit() else ""
+
+
+def remaining_with_dependency(row: dict) -> str:
+    dep = row["dependency"].strip()
+    if dep.lower() == "none":
+        return cell(row["remaining"])
+    return cell(f"{row['remaining']} ({dep if dep.lower().startswith('after ') else 'after ' + dep})")
+
+
+def header_table(data: dict, released: str, left_text: str) -> str:
+    release = data.get("next_release") or {
+        "version": "unknown", "remaining": "unknown (release estimate not supplied)",
+        "condition": "unknown", "confidence": "unknown", "basis": "release estimate not supplied",
+    }
+    rows = [["Last released", f"**{released}**"], ["Versions left", left_text.replace(" left", "")],
+            ["Next release", f"**{cell(release['version'])}**"], ["Release ETA", cell(release["remaining"])]]
+    if release["condition"] != "none":
+        rows.append(["Blocked by", cell(release["condition"])])
+    rows.extend([["Confidence", cell(release["confidence"])], ["Basis", cell(release["basis"])],
+                 [f"Whole {cell(data['scope'])}", cell(data["remaining"])],
+                 ["As of", cell(data["observed_at"])], ["Elapsed", cell(data["elapsed"])]])
+    return table(("Field", "Value"), rows)
 
 
 def render(data: dict, mode: str) -> str:
@@ -135,50 +186,61 @@ def render(data: dict, mode: str) -> str:
     done, total = aggregate(data)
     released = text(data.get("last_released") or "unknown")
     left = data.get("versions_left")
-    release = data.get("next_release") or {
-        "version": "unknown", "remaining": "unknown (release estimate not supplied)",
-        "condition": "unknown", "confidence": "unknown", "basis": "release estimate not supplied",
-    }
-    condition = "" if release["condition"] == "none" else f"; {text(release['condition'])}"
-    parts = [f"## Status: {text(data['scope'])}",
-             f"**Last released:** **{released}**",
-             f"**Next release:** **{text(release['version'])}** | **Release ETA:** {text(release['remaining'])}{condition}",
-             f"Confidence: {text(release['confidence'])} | Basis: {text(release['basis'])}",
-             f"**Whole {text(data['scope'])} completion:** {text(data['remaining'])}",
-             f"{progress(done, total)} | {left if left is not None else 'unknown'} versions left",
-             f"As of {text(data['observed_at'])} | Elapsed: {text(data['elapsed'])}"]
-    if mode == "full":
-        rows = [[text(r["name"]), text(r["goals"]), progress(*counts(r)).replace(" | ", " / "),
-                 text(r["state"]), text(r["elapsed"]), text(r["remaining"]), text(r["dependency"])] for r in data["rows"]]
-        rows.append(["Total", "", progress(done, total).replace(" | ", " / "), "", text(data["elapsed"]), text(data["remaining"]), ""])
-        parts.extend([table(("Plan / phase", "Goals", "Progress / tasks", "State", "Elapsed", "Remaining", "Dependency"), rows),
-                      f"Estimate basis: {text(data['estimate_basis'])}"])
-    parts.append("### Goals")
+    left_text = "unknown" if left is None else f"{left} {'version' if left == 1 else 'versions'}"
+    bar, tasks = progress_parts(done, total)
     if mode == "compact":
-        parts.append("\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"]))
-    else:
-        parts.append(table(("Goal", "Scope", "Done when", "State"),
-                           [[text(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]))
-    parts.append("### Decisions")
+        return _compact(data, bar, tasks, released, left_text)
+    rows = []
+    for r in data["rows"]:
+        rbar, rtasks = progress_parts(*counts(r))
+        rows.append([f"**{cell(r['name'])}**", cell(r["goals"]), rbar, rtasks, cell(r["elapsed"]), remaining_with_dependency(r)])
+    rows.append(["**Total**", "", f"**{bar}**", f"**{tasks}**", f"**{cell(data['elapsed'])}**", f"**{cell(data['remaining'])}**"])
+    parts = [f"## Status Update: {text(data['scope'])} Implementation Progress",
+             header_table(data, released, left_text),
+             table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
+             f"Estimate basis: {text(data['estimate_basis'], 160)}", SECTION_BREAK,
+             f"## {GOALS_ICON} Goals",
+             table(("Goal", "Scope", "Done when", "State"),
+                   [[cell(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]),
+             SECTION_BREAK, f"## {WAIT_ICON} Waiting on you"]
     if not data["decisions"]:
         parts.append("No decisions waiting.")
-    elif mode == "compact":
-        parts.append("\n".join(f"- #{text(d['id'])}: {text(d['title'])}" for d in data["decisions"]))
-    else:
-        for decision in data["decisions"]:
-            parts.extend([f"#### Decision {text(decision['id'])}: {text(decision['title'])}", text(decision["detail"]),
-                          table(("Option", "Effect"), [[text(o["option"]), text(o["effect"])] for o in decision["options"]])])
-    parts.append("### Running")
+    for decision in data["decisions"]:
+        icon = keycap(decision["id"])
+        parts.extend([f"### {icon + ' ' if icon else ''}Decision #{text(decision['id'])}: {text(decision['title'])}",
+                      f"- {text(decision['detail'])}",
+                      table(("Option", "What it means", "Effect"),
+                            [[cell(o["option"]), cell(o.get("meaning") or "-"), cell(o["effect"])] for o in decision["options"]])])
+    parts.extend([SECTION_BREAK, f"## {RUN_ICON} Running now"])
     if not data["running"]:
         parts.append("Nothing running.")
-    elif mode == "compact":
-        parts.append("\n".join(f"- {running_label(r)}: {progress(*counts(r))} ({text(r['state'])})" for r in data["running"]))
     else:
-        parts.append(table(("Item", "Progress / tasks", "State", "Elapsed", "Remaining"),
-                           [[running_label(r), progress(*counts(r)).replace(" | ", " / "), text(r["state"]), text(r["elapsed"]), text(r["remaining"])] for r in data["running"]]))
-    parts.append(f"Source: {text(data['source'])}")
-    if mode == "compact":
-        parts.append('*Full report: /status, or ask for "full status".*')
+        run_rows = []
+        for r in data["running"]:
+            rbar, rtasks = progress_parts(*counts(r))
+            run_rows.append([running_label(r), rbar, rtasks, cell(r["state"]), cell(r["elapsed"]), cell(r["remaining"])])
+        parts.append(table(("Item", "Progress", "Tasks", "State", "Elapsed", "Remaining"), run_rows))
+    parts.append(f"*Source: {text(data['source'], 100)}*")
+    return "\n\n".join(parts) + "\n"
+
+
+def _compact(data: dict, bar: str, tasks: str, released: str, left_text: str) -> str:
+    parts = ["---",
+             f"**Status: {text(data['scope'])}** {bar}{DOT}{tasks} tasks{DOT}last released {released}{DOT}{left_text} left",
+             header_table(data, released, left_text), f"{GOALS_ICON} Goals:",
+             "\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"])]
+    decisions, running = data["decisions"], data["running"]
+    if decisions:
+        parts.extend([f"{WAIT_ICON} {len(decisions)} {'decision' if len(decisions) == 1 else 'decisions'} waiting:",
+                      "\n".join(f"- #{text(d['id'])} {text(d['title'])}" for d in decisions)])
+    else:
+        parts.append(f"{WAIT_ICON} No decisions waiting.")
+    if running:
+        lines = [f"- {running_label(r)} {progress_parts(*counts(r))[0]} ({text(r['state'])})" for r in running]
+        parts.extend([f"{RUN_ICON} {len(running)} running:", "\n".join(lines)])
+    else:
+        parts.append(f"{RUN_ICON} Nothing running.")
+    parts.extend([f"*Source: {text(data['source'], 100)}*", '*Full report: /status, or ask for "full status".*'])
     return "\n\n".join(parts) + "\n"
 
 
@@ -268,6 +330,8 @@ def main() -> int:
     parser.add_argument("--audit-roots", nargs="+", type=Path, help="read-only audit of explicit installed skill roots")
     parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parent.parent)
     args = parser.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", newline="\n")
     try:
         if args.audit_roots:
             issues = audit(args.source, args.audit_roots)

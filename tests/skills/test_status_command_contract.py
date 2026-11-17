@@ -18,6 +18,11 @@ UPDATE_CMD = ROOT / "catalog/commands/update.md"
 IMPLEMENT_CMD = ROOT / "catalog/commands/implement.md"
 
 
+def squash(output: str) -> str:
+    """Collapse the column padding so assertions read the cell content only."""
+    return re.sub(r"-{3,}", "---", re.sub(r" {2,}", " ", re.sub(r" +\|", " |", output)))
+
+
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -36,22 +41,25 @@ def rendered():
 def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
     module, snapshot = rendered
     output = module.render(snapshot, mode)
-    assert output.startswith("## Status: v1.3\n\n")
-    positions = [output.index(f"\n\n### {h}\n\n") for h in ("Goals", "Decisions", "Running")]
-    assert positions == sorted(positions)
-    assert "3/19 tasks" in output and "16%" in output
-    assert "**Last released:** **v1.2.0**" in output
+    assert output.startswith("## Status Update: v1.3 Implementation Progress\n\n" if mode == "full" else "---\n\n**Status: v1.3**")
+    assert "3/19" in output and "16%" in output
+    assert "| Last released | **v1.2.0** |" in squash(output)
+    assert mode == "full" or "last released v1.2.0" in output
     assert "No decisions waiting." in output and "Nothing running." in output
-    bars = re.findall(r"`([#-]+)`", output)
+    bars = re.findall(r"([\u25b0\u25b1]+) \d+%", output)
     assert bars and all(len(bar) == 10 for bar in bars)
+    assert not re.search(r"[\\](?:[()\[\]])|[$]", output)
+    if mode == "full":
+        positions = [output.index(f"## {h}") for h in ("\U0001F3AF Goals", "\U0001F64B Waiting on you", "\U0001F504 Running now")]
+        assert positions == sorted(positions)
 
 
 def test_full_includes_all_rows_totals_and_evidence(rendered):
     module, snapshot = rendered
     output = module.render(snapshot, "full")
-    assert "| Plan / phase | Goals | Progress / tasks | State | Elapsed | Remaining | Dependency |" in output
-    assert "| Goal | Scope | Done when | State |" in output
-    assert "| Total |" in output
+    assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(output)
+    assert "| Goal | Scope | Done when | State |" in squash(output)
+    assert "| **Total** |" in squash(output)
     assert "Estimate basis:" in output and "Source:" in output and "As of" in output
 
 
@@ -60,8 +68,8 @@ def test_decision_details_only_in_full_report(rendered):
     snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "A is recommended because it preserves consumers", "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}]
     full = module.render(snapshot, "full")
     compact = module.render(snapshot, "compact")
-    assert "#### Decision 1: Choose packaging" in full
-    assert "| Option | Effect |" in full and "preserves consumers" in full
+    assert "### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
+    assert "| Option | What it means | Effect |" in squash(full) and "preserves consumers" in full
     assert "Choose packaging" in compact and "| Option |" not in compact
 
 
@@ -133,3 +141,21 @@ def test_command_count_matches_docs() -> None:
     assert f"{active} commands plus {aliases} permanent aliases" in read(
         ROOT / "README.md"
     )
+
+
+def documented_example(heading: str) -> str:
+    body = read(FORMATS).split(f"### {heading}\n\n````markdown\n", 1)[1]
+    return body.split("````\n", 1)[0]
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_documented_examples_equal_renderer_output(rendered, mode):
+    module, snapshot = rendered
+    assert documented_example(mode.capitalize()) == module.render(snapshot, mode)
+
+
+def test_contract_states_escaping_and_layout_rules():
+    formats = read(FORMATS)
+    for expected in ("## Header table", "## Rendering rules", "Never emit `$`", "capped at 48 characters",
+                     "never `#` bars", "short italic footer", "`&nbsp;` paragraph and a `---` rule"):
+        assert expected in formats
