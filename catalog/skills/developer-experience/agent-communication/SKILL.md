@@ -146,6 +146,8 @@ This applies wherever open items appear, not only in the closing report. A turn 
 
 ### 7. Handle a turn that ends with work still running
 
+For implementation runs, `implement-phase/references/progress-reporting.md` owns cadence and `status-formats.md` owns layout. Use their shared renderer; the rules below do not truncate implementation reports or add reports to tool narration.
+
 1. First line is the status banner: what is running, that no action is needed, and that you will report when it finishes.
 2. Cap the rest at about 8 lines: what you just finished, in plain language.
 3. Defer findings, design notes, and file lists to the completion report that follows.

@@ -299,6 +299,8 @@ This applies wherever open items are presented, not only in the closing report. 
 
 ## 7. Waiting-state and interim updates
 
+For implementation runs, `implement-phase/references/progress-reporting.md` owns reporting boundaries and `status-formats.md` owns layout; use its renderer and retain all required sections. The short waiting banner below applies outside that report and never causes a footer on routine tool narration.
+
 When a turn ends with work still running (a test suite executing, a background task pending, a long build), the reader needs one thing: to know that waiting is the correct action. Everything else can wait for the completion report.
 
 - The **first line** of the response is a status banner stating what is running, that no action is needed, and that you will report when it finishes.
