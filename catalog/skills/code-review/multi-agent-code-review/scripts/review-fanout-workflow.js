@@ -127,6 +127,7 @@ const intent = (args && args.intent) || 'unstated -- write a 1-3 sentence intent
 // gate or the refutation pass: their state and evidence belong to the evaluator
 // (references/findings-schema.md, "Security evidence extension").
 const CONTEXT_REQUIRED = ['revision', 'root_fingerprint', 'scope_fingerprint', 'input_run_fingerprint']
+const REVIEW_STATES = ['confirmed', 'pending', 'corrected', 'rejected']
 const caveats = []
 
 function toGeneric(f) {
@@ -161,8 +162,16 @@ function associateSecurity(proj, exp) {
     caveats.push('security_projection_refused: not bound to the expected review context; no completeness claim')
     return { associated: false, items: [] }
   }
+  // Fail closed: a finding the tiers cannot place would otherwise vanish.
+  const placeable = (f) =>
+    f && typeof f.id === 'string' && typeof f.fingerprint_key === 'string' &&
+    REVIEW_STATES.includes(f.review_state)
+  if (!Array.isArray(proj.findings) || !proj.findings.every(placeable)) {
+    caveats.push('security_projection_refused: malformed projected finding; no completeness claim')
+    return { associated: false, items: [] }
+  }
   const byKey = new Map()
-  for (const f of (proj.findings || []).map(toGeneric)) {
+  for (const f of proj.findings.map(toGeneric)) {
     const group = byKey.get(f.fingerprint_key)
     if (!group) {
       byKey.set(f.fingerprint_key, [f])

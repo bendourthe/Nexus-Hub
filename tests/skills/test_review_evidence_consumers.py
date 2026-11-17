@@ -261,3 +261,32 @@ def test_consumer_mutation_is_detected(anchor, replacement, tmp_path):
     broken = run_workflow(tmp_path, args, source=mutated)["result"]["findings"]
     with pytest.raises((AssertionError, KeyError)):
         assert_preserved(proj, broken)
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        {"review_state": "static-only"},
+        {"review_state": None},
+        {"fingerprint_key": None},
+        {"id": None},
+    ],
+    ids=["unknown-state", "missing-state", "missing-key", "missing-id"],
+)
+def test_adversarial_malformed_projected_finding_is_never_silently_dropped(damage, tmp_path):
+    """Adversarial finding AF-1: a projected finding the consumer cannot place must
+    refuse the projection (caveat, no completeness claim), never vanish from every tier."""
+    env = envelope()
+    proj = projected(env)
+    for key, value in damage.items():
+        if value is None:
+            proj["findings"][0].pop(key)
+        else:
+            proj["findings"][0][key] = value
+    out = run_workflow(
+        tmp_path, {"security_projection": proj, "expected_context": context_for(env)}
+    )["result"]
+    placed = sum(len(tier) for tier in out["findings"].values())
+    refused = out["securityCoverage"]["associated"] is False
+    assert refused and placed == 0 and out["securityCoverage"]["complete_review"] is False
+    assert out["caveats"] and out["caveats"][0].startswith("security_projection_refused")
