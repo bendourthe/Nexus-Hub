@@ -101,6 +101,43 @@ This is not already covered by the existing telemetry fields. `trace_log` is app
 
 This matters only for long-horizon loops. A ten-iteration loop that finishes in an hour has no staleness problem, and adding a freshness window to it is ceremony. Declare `evidence_freshness` when the loop runs long enough, or sleeps between wakes long enough, that its evidence can decay underneath it: a scheduled loop that wakes nightly, a loop gated on a slow external check, or any loop whose `check_command` reads state another actor can change.
 
+## Terminal Outcomes
+
+Every unattended or scheduled run ends in exactly one of five observable outcomes, so an operator can tell no data, stale input, partial completion, and full completion apart without reading raw logs. The vocabulary is closed: no other value is valid and no run reports two.
+
+| Outcome | Meaning |
+|---|---|
+| `no-data` | A valid query ran and returned zero records. Nothing was wrong and nothing was processed. |
+| `stale-input` | A required source is out of date, or the last bounded test run no longer covers the routine's source, connector, or input format. |
+| `partial` | Some valid work was processed and some was not: items failed or were skipped, a stale source left work unfinished, or the budget ran out after progress. |
+| `complete` | Every record was valid and every record was processed. |
+| `failed` | The input could not be trusted or no work could be completed. |
+
+### Precedence
+
+Evaluate the rules in order. The first rule that matches decides the outcome. Counts are `total` (records the query returned), `processed`, `failed`, and `skipped`; `remaining` is `total - processed - failed - skipped`.
+
+| Rule | Condition | Outcome |
+|---|---|---|
+| R1 | Input is malformed, unreadable, schema-invalid, or unverifiable, or the counts are inconsistent (any count negative, or `processed + failed + skipped` exceeds `total`). | `failed` |
+| R2 | A re-test is pending: the routine's source, connector, or input format changed after its last passing bounded test run and no new bounded test run has passed. | `stale-input` |
+| R3 | A required source is stale and no fresh record was processed. | `stale-input` |
+| R4 | The query was valid and `total` is zero. | `no-data` |
+| R5 | `total` is above zero and `processed` is zero. | `failed` |
+| R6 | A required source is stale and fresh records were processed, so work is unfinished. | `partial` |
+| R7 | `processed` is above zero and any of these holds: `failed` above zero, `skipped` above zero, `remaining` above zero, or the budget is exhausted. | `partial` |
+| R8 | None of the above: every record is valid and processed. | `complete` |
+
+Two consequences are deliberate. A pending re-test (R2) outranks `partial`: records processed after an untested source change still report `stale-input`, and `partial` applies only once the re-test has passed. Missing or malformed input is always `failed` (R1), never `no-data`: only a valid empty result is `no-data`. A stale source stays `stale-input` even when cached output exists.
+
+### Re-test rule
+
+A change in a routine's source, connector, or input format invalidates its last test run. The routine reports `stale-input` until a new bounded test run passes. Record the changed input identity and the invalidated test-run timestamp. No new outcome value is added for this state.
+
+### Required report fields
+
+Run one bounded test run before scheduling, behind a narrow trigger. Every outcome report carries the `processed`, `failed`, and `skipped` counts. Every outcome other than `complete` also carries a next action, and an outcome that follows an earlier success carries the last-success timestamp. Conflicting retries preserve the idempotency key and report partial progress instead of double-counting work. A report that names two outcomes, or whose counts do not add up, is `failed` under R1.
+
 ## Evaluation Rule
 
 The `exit_condition` is a completion claim. Treat it as evidence-bearing: run the `check_command`, read the output and exit code, and let a checker that did not produce the work evaluate whether the condition is met. Cross-link [[verification-before-completion]] for the evidence gate and [[agent-orchestration-primitives]] for the independent-evaluator rule.

@@ -388,3 +388,18 @@ def test_source_payload_requires_exact_nested_files_and_commands(
     assert ("installer smoke: PASS" in output.out) == (problem is None)
     if problem is not None:
         assert "catalog" in output.err
+
+
+def test_org_findings_read_the_shared_agents_md_when_the_recorded_decision_selects_it(tmp_path: Path) -> None:
+    """v4.15.2: a supported Claude project has no project CLAUDE.md by design."""
+    block = f"{NEXUS_START_MARKER}\nbody\n{NEXUS_END_MARKER}\n\n{ORG_START_MARKER}\norg\n{ORG_END_MARKER}\n"
+    (tmp_path / "AGENTS.md").write_text(block, encoding="utf-8")
+    decision = tmp_path / ".nexus-hub" / "claude-instruction-decision.json"
+    decision.parent.mkdir()
+    decision.write_text(json.dumps({"effective_path": "AGENTS.md"}), encoding="utf-8")
+    findings = smoke._org_findings(tmp_path)
+    assert not any("missing or unreadable" in f for f in findings), findings
+    decision.write_text(json.dumps({"effective_path": "CLAUDE.md"}), encoding="utf-8")
+    assert any("CLAUDE.md" in f and "missing or unreadable" in f for f in smoke._org_findings(tmp_path))
+    decision.write_text("{broken", encoding="utf-8")
+    assert any("CLAUDE.md" in f for f in smoke._org_findings(tmp_path)), "unknown decision stays conservative"

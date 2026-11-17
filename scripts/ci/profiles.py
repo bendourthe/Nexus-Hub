@@ -460,6 +460,8 @@ TESTS_CORE = Group(
         _pytest(
             "repo-tests-integrations-repository-contracts",
             "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_harness_pairing_contract.py",
+            "tests/integrations/test_harness_pairings.py",
             "tests/integrations/test_manifest_log_cap.py",
             "tests/integrations/test_nexus_ai_version.py",
             "tests/integrations/test_registry.py",

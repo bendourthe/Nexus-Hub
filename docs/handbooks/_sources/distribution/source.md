@@ -18,6 +18,10 @@ Owned-file writing consults the installation manifest. It can repair an artifact
 
 Claude core settings keep a separate record of defaults Nexus-Hub actually wrote. A matching recorded value can upgrade; a changed value or explicit removal stays yours. An unrecorded effort override remains in place. Per-model settings supply the saved effort default; run nexus-hub doctor to identify an overriding env.CLAUDE_CODE_EFFORT_LEVEL and its key-specific fix. A choice identical to the previous seed cannot be distinguished from that seed.
 
+## Claude Code project instructions
+
+A Claude Code project install records a capability decision in .nexus-hub/claude-instruction-decision.json. When Claude Code is v2.1.277 or newer (v2.1.281 on Bedrock, Vertex AI, Foundry, gateways or with telemetry off) and no setting or CLAUDE.md file blocks it, the project reads the shared AGENTS.md, and Claude-only guidance goes to .claude/rules/nexus-hub-claude.md instead of a managed CLAUDE.md. Any unknown or unreadable input keeps CLAUDE.md. Removing one consumer of the shared AGENTS.md keeps its managed block while another consumer remains. Set NEXUS_HUB_CLAUDE_MIGRATE=1 to opt in to removing the managed block from an existing project CLAUDE.md; a file with your own text keeps it.
+
 ## Inspect outcomes, then test behavior
 
 Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior. Usage recovery uses nexus-hub usage status and usage decide. Verify one genuine answer persists and subsequent Stop events stay quiet.

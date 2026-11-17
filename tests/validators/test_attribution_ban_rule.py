@@ -56,7 +56,7 @@ def _effective_count(path: Path) -> int:
 
 
 def test_roster_shape() -> None:
-    assert len(SUBSTANTIVE) == 13 and len(SHIMS) == 4
+    assert len(SUBSTANTIVE) == 14 and len(SHIMS) == 4
 
 
 @pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)

@@ -125,7 +125,15 @@ def _metadata_paths(value: Any, prefix: str = "$") -> list[str]:
 
 def _org_findings(workspace: Path) -> list[str]:
     findings: list[str] = []
+    # v4.15.2: a supported Claude project reads the shared project AGENTS.md; the registry
+    # runner records that choice in .nexus-hub/claude-instruction-decision.json.
     instruction_path = workspace / "CLAUDE.md"
+    decision_path = workspace / ".nexus-hub" / "claude-instruction-decision.json"
+    try:
+        if json.loads(decision_path.read_text(encoding="utf-8")).get("effective_path") == "AGENTS.md":
+            instruction_path = workspace / "AGENTS.md"
+    except (OSError, UnicodeError, ValueError, AttributeError):
+        pass  # no or unreadable decision: the conservative CLAUDE.md expectation stands
     try:
         instruction = instruction_path.read_text(encoding="utf-8")
     except (OSError, UnicodeError) as exc:
@@ -149,7 +157,7 @@ def _org_findings(workspace: Path) -> list[str]:
         org_end = instruction.index(ORG_END_MARKER)
         if not nexus_end < org_start < org_end:
             findings.append(
-                "organization block must follow the Nexus-Hub block in CLAUDE.md"
+                f"organization block must follow the Nexus-Hub block in {instruction_path.name}"
             )
 
     org_rule = workspace / ORG_RULE_PATH
