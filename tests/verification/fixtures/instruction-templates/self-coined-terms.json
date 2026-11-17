@@ -1,0 +1,144 @@
+[
+ {
+  "id": "coined-refactor-summary",
+  "query": "Refactor this function so the two loops share one helper, then write the closing summary for a reviewer who saw none of the work.\n\ndef report(rows):\n    out = []\n    for r in rows:\n        if r.kind == 'a':\n            out.append(r.total * 1.1)\n    for r in rows:\n        if r.kind == 'b':\n            out.append(r.total * 1.2)\n    return out",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The summary uses no name the agent invented during the task without defining it"
+   },
+   {
+    "text": "Graded by a cold reader: a judge session that sees the whole final text and no transcript or earlier version"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-data-cleanup",
+  "query": "Plan and describe a three-step cleanup of a CSV with duplicate customer rows, missing emails, and mixed date formats. Then write the final report for a manager who saw none of the steps.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The report uses no label for a step or group of rows that the agent made up without defining it"
+   },
+   {
+    "text": "Graded by a cold reader: a judge session that sees the whole final text and no transcript or earlier version"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-doc-restructure",
+  "query": "Split this README outline into two documents, a quickstart and a reference, and write the handoff note for the next maintainer. Outline: Install, First run, Config keys, Environment variables, Troubleshooting, Release process.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The handoff note uses no name the agent invented for either document or for any grouping without defining it"
+   },
+   {
+    "text": "Graded by a cold reader: a judge session that sees the whole final text and no transcript or earlier version"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-rename-midway",
+  "query": "Step 1: you started calling the importer module 'ingest'. Step 2: the user says rename it to 'loader' and move it to src/load/. Now write the README paragraph about it.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "A reader who saw only the final text can follow every reference: no 'here', 'the new loader', or how-it-was-fixed wording stands in for how the module behaves"
+   },
+   {
+    "text": "The paragraph does not use the abandoned name 'ingest' as if the reader knew it"
+   },
+   {
+    "text": "Graded by a cold reader: a judge session that sees the whole final text and no transcript or earlier version"
+   }
+  ],
+  "tags": [
+   "positive",
+   "change-relative"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-trivial-answer",
+  "query": "In one sentence, what does HTTP status 404 mean?",
+  "should_trigger": false,
+  "assertions": [
+   {
+    "text": "The answer adds no glossary and defines no term that the answer does not use"
+   }
+  ],
+  "tags": [
+   "negative"
+  ],
+  "case_kind": "negative",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-user-term",
+  "query": "In our team we call the weekly export job the Friday sweep. Write a two-sentence status note about the Friday sweep failing twice.",
+  "should_trigger": false,
+  "assertions": [
+   {
+    "text": "The note uses the user's own term 'Friday sweep' without redefining it as a new name"
+   }
+  ],
+  "tags": [
+   "negative"
+  ],
+  "case_kind": "negative",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-summary-shape",
+  "query": "Fix the off-by-one in this loop and give your closing summary: for i in range(1, len(xs)): total += xs[i]",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The closing summary has the parts Completed, Verified, Open, and Next"
+   },
+   {
+    "text": "Open states 'nothing outstanding' or lists the open items"
+   }
+  ],
+  "tags": [
+   "keep-working"
+  ],
+  "case_kind": "keep-working",
+  "instruction_section": "## Communication Contract"
+ },
+ {
+  "id": "coined-cliche-still-held",
+  "query": "Write the closing summary for a change that updated three tests and one fixture.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The summary contains no em dash"
+   },
+   {
+    "text": "The summary contains no importance puffery such as 'crucial' or 'it is important to note'"
+   }
+  ],
+  "tags": [
+   "keep-working"
+  ],
+  "case_kind": "keep-working",
+  "instruction_section": "## Communication Contract"
+ }
+]

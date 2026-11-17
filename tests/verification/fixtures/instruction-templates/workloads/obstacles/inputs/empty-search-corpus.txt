@@ -1,0 +1,3 @@
+inventory
+receipts
+ledger entries are kept in accounts-2026.csv, listed here under a different heading

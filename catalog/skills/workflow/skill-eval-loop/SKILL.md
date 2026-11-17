@@ -395,6 +395,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `references/description-optimizer.md` - the two-way and three-way split rules, the `reported_optimistic` label, the candidate-generation prompt template, and the selection rule for `best_description`.
 - `references/trigger-testing.md` - the three trigger-testing techniques (premature-action detection, multi-turn conversation triggering, cheap-model fragility), what each catches, how to author an eval that exercises it, and how to read the new output fields.
 - `references/headroom-estimation.md` - the perfect-information oracle procedure for estimating a proposed gate's ceiling before implementation.
+- `references/instruction-file-evals.md` - how to test a behavioral edit to an instruction file (CLAUDE.md, AGENTS.md, a rules file, a template) before it lands: case-set rules, the baseline-first stop rule, per-case classes, and the mapping onto a shared-evaluator manifest.
 
 ## Bundled sub-agent prompts
 

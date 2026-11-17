@@ -1,0 +1,67 @@
+{
+ "schema": "harness-pairing-manifest/1",
+ "run_id": "v41511-self-coined-terms",
+ "workload": {
+  "id": "wl-instruction-self-coined-terms",
+  "revision": "r1",
+  "hash": "sha256:172e09b545964c7c9e8f465e839012e64062b7b0b87e0a928b87b4bf65668793",
+  "evaluator_revision": "e1",
+  "evaluator_hash": "sha256:7fbaa8a0d52c787bdb05290020e24c468e0ccdf83be141c975335a943c3d73dd",
+  "budget_class": "instruction-file-case-set",
+  "policy": {
+   "min_success_rate": 0.8,
+   "max_latency_s": 600,
+   "max_cost_usd": 80,
+   "tie_break": "highest-success-rate"
+  }
+ },
+ "environment": {
+  "os": "windows",
+  "arch": "amd64",
+  "repo_revision": "4d6316cc0dda88ee96e2b3a237f0b9f5b864ae64",
+  "harness_configuration": "throwaway-config-dir-inherited-config-off",
+  "model_parameters": {
+   "temperature": 0
+  },
+  "cache_policy": "cold",
+  "concurrency": 1,
+  "retry_policy": "none",
+  "pricing": {
+   "unavailable": "no pricing basis is recorded until the maintainer approves live spend"
+  }
+ },
+ "pairings": [
+  {
+   "id": "baseline-current-template",
+   "harness": {
+    "name": "claude-code",
+    "version": "unverified-needs-live-validation",
+    "adapter": "claude-code",
+    "adapter_version": "1"
+   },
+   "model": {
+    "id": "claude-sonnet-5-5",
+    "identity": "claude-sonnet-5-5"
+   },
+   "instruction": {
+    "variant": "baseline",
+    "skill_index_mode": "full",
+    "path": "templates/ai-instructions/base-claude.md",
+    "hash": "sha256:54ba13c2d95d2e6c3dbff21004876c6ad05f0d3db96f35a40f6d753f3ccbc2f2",
+    "bytes": 16681,
+    "tokens_estimated": 3761
+   },
+   "tool_schema_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "isolation_mode": "metered-live",
+   "budgets": {
+    "time_s": 600,
+    "turns": 25,
+    "spend_usd": 80,
+    "spend_enforcement": "adapter"
+   }
+  }
+ ],
+ "repeats": 5,
+ "seed": 20261117,
+ "order_policy": "alternating"
+}

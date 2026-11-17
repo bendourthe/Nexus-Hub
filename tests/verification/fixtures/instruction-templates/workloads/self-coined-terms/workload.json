@@ -1,0 +1,8 @@
+{
+ "id": "wl-instruction-self-coined-terms",
+ "revision": "r1",
+ "prompt": "Read task.txt and the case it points to, then write the final answer to result.txt.",
+ "inputs": [
+  "task.txt"
+ ]
+}
