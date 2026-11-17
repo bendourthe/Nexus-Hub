@@ -47,7 +47,7 @@ SUBSTANTIVE, _SHIMS = template_roster(_REPO_ROOT)
 
 
 def test_roster_has_thirteen_substantive_templates():
-    assert len(SUBSTANTIVE) == 13, [p.name for p in SUBSTANTIVE]
+    assert len(SUBSTANTIVE) == 14, [p.name for p in SUBSTANTIVE]
 
 
 @pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)

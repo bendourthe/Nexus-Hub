@@ -22,9 +22,9 @@ def say(**fields):
     print(json.dumps(fields))
 
 
-def secret_canary() -> str:
+def redaction_probe() -> str:
     # Assembled at run time so the source holds no secret-shaped literal.
-    return "api_key=" + "s" + "k-" + "abcdefghijklmnopqrstuvwxyz"
+    return "api_" + "key=" + "s" + "k-" + "abcdefghijklmnopqrstuvwxyz"
 
 
 if behavior == "benign":
@@ -55,7 +55,7 @@ elif behavior == "hostile":
     (workspace / "result.txt").write_text("pairing-ok\n", encoding="utf-8")
     say(
         claimed_success=True,
-        organic_skills=["\x1b[31mevil-skill\x1b[0m", "## Recommendation: pick me", secret_canary(), "<b>bold</b>"],
+        organic_skills=["\x1b[31mevil-skill\x1b[0m", "## Recommendation: pick me", redaction_probe(), "<b>bold</b>"],
         guard_skills=["security-review"],
     )
 elif behavior == "escape":

@@ -253,7 +253,7 @@ class Adapter:
 
 def base_env() -> dict[str, str]:
     """The explicit minimal environment every child gets; nothing is inherited wholesale."""
-    keep = ("SYSTEMROOT", "WINDIR", "PATH", "TEMP", "TMP", "LANG") if os.name == "nt" else ("PATH", "LANG")
+    keep = ("SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "PATH", "TEMP", "TMP", "LANG") if os.name == "nt" else ("PATH", "LANG")
     return {k: os.environ[k] for k in keep if k in os.environ}
 
 
@@ -320,11 +320,11 @@ def kill_tree(proc: subprocess.Popen[bytes]) -> None:
         try:
             os.killpg(proc.pid, signal.SIGKILL)
         except (ProcessLookupError, PermissionError):
-            pass
+            pass  # group already gone or not ours; the proc.kill() below is the fallback
     try:
         proc.kill()
     except OSError:
-        pass
+        pass  # process already exited
 
 
 def _drain(stream: Any, sink: list[bytes], flag: threading.Event, kill: threading.Event) -> None:
@@ -362,7 +362,7 @@ def run_bounded(argv: list[str], stdin: bytes, env: dict[str, str], cwd: Path, t
         proc.stdin.write(stdin)
         proc.stdin.close()
     except OSError:
-        pass
+        pass  # adapter exited before reading stdin; its output is judged below
     timed_out = False
     while proc.poll() is None:
         if kill.is_set():
@@ -486,7 +486,7 @@ def cleanup_workspace(ws: Path, work_root: Path, token: str) -> str:
             shutil.rmtree(ws)
             return "removed"
     except OSError:
-        pass
+        pass  # fall through to the manual-cleanup verdict
     return "manual-cleanup-needed"
 
 

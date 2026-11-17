@@ -216,7 +216,8 @@ def test_synthetic_matrix_matches_the_independent_oracle_end_to_end(env: Env) ->
         assert oracle.validate_trial(trial, manifest) == [], oracle.validate_trial(trial, manifest)
     produced = json.loads((Path(result["run_dir"]) / "aggregate.json").read_text(encoding="utf-8"))
     assert produced.pop("run_state") == "complete"
-    assert produced == oracle.aggregate(manifest, trials)
+    expected = oracle.aggregate(manifest, trials)
+    assert produced == expected
     by_id = {p["pairing_id"]: p for p in produced["pairings"]}
     assert by_id["pair-full"]["successes"] == 3 and by_id["pair-pointer"]["successes"] == 0
     assert produced["recommendation"]["state"] == "no-recommendation"
