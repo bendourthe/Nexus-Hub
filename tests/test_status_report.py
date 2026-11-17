@@ -61,7 +61,10 @@ def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
     snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "unknown"},
                            {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min", "remaining": "unknown"}]
     text = report.render(snapshot, "compact")
-    assert "### \U0001F64B Decisions waiting\n\n- #1 Pick A. Reply A or B\n" in text
+    assert ("### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A\n\n"
+            "| Option | What it means | Effect |\n| ------ | ------------- | ------ |\n| A      | -             | e      |\n\n"
+            "Reply A or B\n") in text
+    assert "- d" not in text
     assert "- PR 1 \u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b1 90%: checks\n- Fix: second pass\n" in text
     snapshot["decisions"][0]["reply"] = " "
     with pytest.raises(ValueError):
@@ -331,3 +334,15 @@ def test_no_nbsp_or_entities_in_any_output(report, snapshot, mode):
     hostile = report.render(hostile_snapshot(snapshot), mode)
     for output in (plain, hostile):
         assert "&nbsp;" not in output and "&#" not in output and "&amp;" not in output
+
+
+def test_compact_decision_without_options_prints_title_and_notice(report, snapshot):
+    snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B"}]
+    text = report.render(snapshot, "compact")
+    assert "#### 1\ufe0f\u20e3 Decision #1: Pick A\n\nOptions not supplied\n" in text
+    assert "Reply A or B" not in text
+    snapshot["decisions"][0]["options"] = []
+    assert "Options not supplied" in report.render(snapshot, "full")
+    snapshot["decisions"][0]["options"] = [{"option": "A"}]
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")

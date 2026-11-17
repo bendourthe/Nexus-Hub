@@ -24,6 +24,7 @@ DOT2 = " \u00b7 "
 GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
 RELEASE_ICON, PROGRESS_ICON = "\U0001F680", "\U0001F4CA"
 CELL_MAX = 48
+OPTION_MAX = 72  # decision options must stay readable in full
 # A token with any of these is shown as a code span: hosts (Codex, Claude Code) read
 # backslash-paren and dollar pairs as math and read * _ [ ] as emphasis or links.
 _LITERAL = re.compile(r"[$*_\[\]\\`&<>]")
@@ -126,11 +127,11 @@ def validate(data: dict) -> None:
                 if item.get("reply") is not None and (not isinstance(item["reply"], str) or not item["reply"].strip()):
                     raise ValueError("decision reply must be a nonempty string when present")
                 options = item.get("options")
-                if not isinstance(options, list) or not options or any(
+                if options is not None and (not isinstance(options, list) or any(
                     not isinstance(o, dict) or not all(isinstance(o.get(k), str) and o[k].strip() for k in ("option", "effect"))
                     for o in options
-                ):
-                    raise ValueError("each decision requires option/effect entries")
+                )):
+                    raise ValueError("decision options require option/effect entries when present")
     ids = [d["id"] for d in data["decisions"]]
     if len(set(ids)) != len(ids):
         raise ValueError("decision ids must be unique")
@@ -211,11 +212,7 @@ def render(data: dict, mode: str) -> str:
     if not data["decisions"]:
         parts.append("No decisions waiting.")
     for decision in data["decisions"]:
-        icon = keycap(decision["id"])
-        parts.extend([f"#### {icon + ' ' if icon else ''}Decision #{text(decision['id'])}: {text(decision['title'])}",
-                      f"- {text(decision['detail'])}",
-                      table(("Option", "What it means", "Effect"),
-                            [[cell(o["option"]), cell(o.get("meaning") or "-"), cell(o["effect"])] for o in decision["options"]])])
+        parts.extend(decision_parts(decision, with_detail=True))
     parts.extend(["---", f"### {RUN_ICON} Running"])
     if not data["running"]:
         parts.append("Nothing running.")
@@ -227,6 +224,23 @@ def render(data: dict, mode: str) -> str:
         parts.append(table(("Item", "Progress", "Tasks", "State", "Elapsed", "Remaining"), run_rows))
     parts.append(f"*Source: {text(data['source'], 100)}*")
     return "\n\n".join(parts) + "\n"
+
+
+def decision_parts(decision: dict, with_detail: bool) -> list[str]:
+    """One decision as a heading, optional explanation bullet, options table and optional reply line."""
+    icon = keycap(decision["id"])
+    parts = [f"#### {icon + ' ' if icon else ''}Decision #{text(decision['id'])}: {text(decision['title'])}"]
+    if with_detail:
+        parts.append(f"- {text(decision['detail'])}")
+    options = decision.get("options") or []
+    if options:
+        parts.append(table(("Option", "What it means", "Effect"),
+                           [[cell(o["option"]), text(o.get("meaning") or "-", OPTION_MAX), text(o["effect"], OPTION_MAX)] for o in options]))
+    else:
+        parts.append("Options not supplied")
+    if not with_detail and decision.get("reply") and options:
+        parts.append(text(decision["reply"]))
+    return parts
 
 
 def release_table(data: dict, bar: str, tasks: str, released: str) -> str:
@@ -243,8 +257,7 @@ def release_table(data: dict, bar: str, tasks: str, released: str) -> str:
 
 def _compact(data: dict, bar: str, tasks: str, released: str) -> str:
     goals = "\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"]) or "None."
-    decisions = "\n".join(f"- #{text(d['id'])} {text(d['title'])}" + (f". {text(d['reply'])}" if d.get("reply") else "")
-                           for d in data["decisions"]) or "No decisions waiting."
+    decisions = "\n\n".join("\n\n".join(decision_parts(d, with_detail=False)) for d in data["decisions"]) or "No decisions waiting."
     running = "\n".join(_running_bullet(r) for r in data["running"]) or "Nothing running."
     parts = ["## Status Update", release_table(data, bar, tasks, released),
              "---", f"### {GOALS_ICON} Goals", goals,

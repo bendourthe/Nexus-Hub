@@ -68,7 +68,8 @@ def test_decision_details_only_in_full_report(rendered):
     compact = module.render(snapshot, "compact")
     assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
     assert "| Option | What it means | Effect |" in squash(full) and "preserves consumers" in full
-    assert "Choose packaging" in compact and "| Option |" not in compact
+    assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in compact
+    assert "| Option | What it means | Effect |" in squash(compact) and "preserves consumers" not in compact
 
 
 def test_reporting_ownership_and_cadence():
@@ -152,8 +153,25 @@ def test_documented_examples_equal_renderer_output(rendered, mode):
     assert documented_example(mode.capitalize()) == module.render(snapshot, mode)
 
 
+COMPACT_DECISION = {
+    "id": "1", "title": "Keep the Claude Code and Codex split across restarts", "detail": "unused in compact", "reply": "Reply A, B or C",
+    "options": [
+        {"option": "A (recommended)", "meaning": "Experiment, then build the opt-in restore",
+         "effect": "Split survives restarts, if a public API allows it (~2-3 h)"},
+        {"option": "B", "meaning": "Experiment only", "effect": "Written finding, no code"},
+        {"option": "C", "meaning": "Defer", "effect": "Recorded as a v4.15.8 follow-up"},
+    ],
+}
+
+
+def test_documented_compact_decision_example_equals_renderer_output(rendered):
+    module, snapshot = rendered
+    snapshot["decisions"] = [COMPACT_DECISION]
+    assert documented_example("Compact with a decision") == module.render(snapshot, "compact")
+
+
 def test_contract_states_escaping_and_layout_rules():
     formats = read(FORMATS)
     for expected in ("## Release table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
-                     "never `#` bars", "short italic footer", "Decisions waiting", "separated by a `---` rule", "No output contains `&nbsp;`", "Verbatim output rule"):
+                     "never `#` bars", "short italic footer", "Decisions waiting", "separated by a `---` rule", "Options not supplied", "No output contains `&nbsp;`", "Verbatim output rule"):
         assert expected in formats

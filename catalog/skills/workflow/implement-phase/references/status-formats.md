@@ -10,7 +10,7 @@ The canonical output is produced by [status_report.py](../scripts/status_report.
 2. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits the timestamp, Elapsed, Basis, Confidence, Blocked by and the Source line; the full report carries them.
 3. Always show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order, each preceded by a `---` rule and followed by bullets. Empty sections keep the heading with `None.`, `No decisions waiting.` or `Nothing running.`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
 4. Goals are bullets `goal - done when (state)`. Include the run goal, next known milestone and active lanes where applicable.
-5. Decisions are bullets `#id title`, followed by `. <reply>` when the snapshot decision carries an optional `reply` instruction such as `Reply A, B or C`. A newly requested decision uses the full report with its explanation and options.
+5. Each decision is a `#### 1️⃣ Decision #1: <title>` subheading followed directly by the Option / What it means / Effect table, then the snapshot's optional `reply` line such as `Reply A, B or C`, so the user can answer from the compact report; only the explanation bullet that the full report shows above the table is omitted. A decision with no options prints its title and `Options not supplied`, never a bare reply instruction. A newly requested decision still uses the full report with its explanation.
 6. Running items are bullets `name: state`, with a bar and percent after the name when task counts are known and an optional observed HTTP(S) link on the name. Unknown liveness is stated explicitly, never converted to zero by guesswork.
 7. End with the italic pointer `*Full report: /status, or ask for "full status".*`. Natural language works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
 
@@ -29,7 +29,7 @@ Both reports open with the same table: an empty header row (`| | |`), bold label
 These rules are the contract for every agent and platform; the renderer enforces them and the producer of the snapshot must respect them.
 
 - Never emit a bare `$` or a backslash before a parenthesis or bracket. Hosts read backslash-paren pairs and `$...$` as LaTeX math and run the words together. Any whitespace-delimited token that contains `$`, `*`, `_`, `[`, `]`, a backslash, a backtick, `&`, `<` or `>` is written as a code span such as `$38.36` or `my_var`, with edge punctuation left outside, which no client treats as math or markup. The renderer writes no HTML entities, so raw text never shows `&#..;`. Parentheses pass through unchanged and render as plain text. Only a table pipe is written `\|`.
-- Table cells are capped at 48 characters. A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
+- Table cells are capped at 48 characters (decision option text at 72, so the choices stay readable). A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
 - Tables are padded so source columns align, headers are plain labels, Version cells are bold, progress is a 10-segment `▰`/`▱` bar plus percent (never `#` bars), and the Total row is bold.
 - Every heading, table and list has a blank line before and after it, and sections are separated by a `---` rule.
 - In the full report the Source line is a short italic footer capped at 100 characters; the compact report omits it.
@@ -127,6 +127,47 @@ Nothing running.
 ### 🙋 Decisions waiting
 
 No decisions waiting.
+
+---
+
+### 🔄 Running
+
+Nothing running.
+
+*Full report: /status, or ask for "full status".*
+````
+
+### Compact with a decision
+
+````markdown
+## Status Update
+
+| | |
+|---|---|
+| **Last release** | v1.2.0 |
+| **Next release** | v1.3.0 |
+| **Next release ETA** | unknown (no comparable release history) |
+| **Full v1.3 implementation** (1 version left) | unknown (no comparable history) · 3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
+
+---
+
+### 🎯 Goals
+
+- Ship v1.3 - All 19 tasks verified (running)
+
+---
+
+### 🙋 Decisions waiting
+
+#### 1️⃣ Decision #1: Keep the Claude Code and Codex split across restarts
+
+| Option          | What it means                             | Effect                                                      |
+| --------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| A (recommended) | Experiment, then build the opt-in restore | Split survives restarts, if a public API allows it (~2-3 h) |
+| B               | Experiment only                           | Written finding, no code                                    |
+| C               | Defer                                     | Recorded as a v4.15.8 follow-up                             |
+
+Reply A, B or C
 
 ---
 
