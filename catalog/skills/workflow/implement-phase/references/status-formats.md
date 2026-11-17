@@ -1,22 +1,22 @@
 # Status Report Formats
 
-Summary: the approved layouts for the compact status footer and the full status report, plus the measured-data rule for elapsed and remaining time. `/status` prints the full report on request; an active `/implement` run uses compact reports at the boundaries owned by `progress-reporting.md`. `progress-reporting.md` owns when a report appears; this file owns how it looks.
+Summary: the approved layouts for the compact status footer and the full status report, plus the measured-data rule for elapsed and remaining time. `/progress` prints the full report on request; an active `/implement` run uses compact reports at the boundaries owned by `progress-reporting.md`. `progress-reporting.md` owns when a report appears; this file owns how it looks.
 
 ## Compact report
 
 The canonical output is produced by [status_report.py](../scripts/status_report.py) from the evidence snapshot documented in [progress-reporting.md](progress-reporting.md). Do not hand-compose a shorter substitute. Cadence belongs to that reference; this file owns presentation.
 
-1. Start with `## Status Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment `▰`/`▱` bar with percent, separated by a middle dot with single plain spaces. This keeps the next-release ETA distinct from the whole-scope estimate.
+1. Start with `## Progress Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment `▰`/`▱` bar with percent, separated by a middle dot with single plain spaces. This keeps the next-release ETA distinct from the whole-scope estimate.
 2. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits the timestamp, Elapsed, Basis, Confidence, Blocked by and the Source line; the full report carries them.
 3. Always show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order, each preceded by a `---` rule and followed by bullets. Empty sections keep the heading with `None.`, `No decisions waiting.` or `Nothing running.`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
 4. Goals are bullets `goal - done when (state)`. Include the run goal, next known milestone and active lanes where applicable.
 5. Each decision is a `#### 1️⃣ Decision #1: <title>` subheading followed directly by the Option / What it means / Effect table, then the snapshot's optional `reply` line such as `Reply A, B or C`, so the user can answer from the compact report; only the explanation bullet that the full report shows above the table is omitted. A decision with no options prints its title and `Options not supplied`, never a bare reply instruction. A newly requested decision still uses the full report with its explanation.
 6. Running items are bullets `name: state`, with a bar and percent after the name when task counts are known and an optional observed HTTP(S) link on the name. Unknown liveness is stated explicitly, never converted to zero by guesswork.
-7. End with the italic pointer `*Full report: /status, or ask for "full status".*`. Natural language works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
+7. End with the italic pointer `*Full report: /progress, or ask for "full progress".*`. Natural language ("full progress", and "full status" as a synonym) works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
 
 ## Full report
 
-Start with `## Status Update`, then `### 🚀 Release status` directly above the same four-row release table the compact report uses (see Release table), then `### 📊 Version progress` directly above the detailed per-version table. The compact report has no such subheadings. The per-version table with columns Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining and a bold Total row; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Under that table put one short line, `Confidence: <x> · Basis: <short> · As of <time>`, with no extra header rows. Every later section is preceded by a `---` rule and uses an H3 heading, the same level as the compact report: `### 🎯 Goals` (a Goal, Scope, Done when, State table), `### 🙋 Decisions waiting` and `### 🔄 Running` (an Item, Progress, Tasks, State, Elapsed, Remaining table). Each decision is a `#### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Empty sections use `No decisions waiting.` and `Nothing running.`. The report ends with the short italic Source line. Never append a compact report to a full one.
+Start with `## Progress Update`, then `### 🚀 Release status` directly above the same four-row release table the compact report uses (see Release table), then `### 📊 Version progress` directly above the detailed per-version table. The compact report has no such subheadings. The per-version table with columns Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining and a bold Total row; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Under that table put one short line, `Confidence: <x> · Basis: <short> · As of <time>`, with no extra header rows. Every later section is preceded by a `---` rule and uses an H3 heading, the same level as the compact report: `### 🎯 Goals` (a Goal, Scope, Done when, State table), `### 🙋 Decisions waiting` and `### 🔄 Running` (an Item, Progress, Tasks, State, Elapsed, Remaining table). Each decision is a `#### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Empty sections use `No decisions waiting.` and `Nothing running.`. The report ends with the short italic Source line. Never append a compact report to a full one.
 
 The shared renderer escapes evidence text before inserting it into Markdown, so a plan title cannot introduce a heading, HTML, a link or extra table cells. It writes entities (`&#36;`, `&#91;`, `&#42;`), never backslash escapes: Codex reads `\(`...`\)` and `$...$` as LaTeX math, which run words together. Only table pipes use `\|`. Parentheses pass through unchanged. Font, table border and exact spacing are controlled by each product; identical semantic Markdown is the supported presentation contract.
 
@@ -34,7 +34,7 @@ These rules are the contract for every agent and platform; the renderer enforces
 - Every heading, table and list has a blank line before and after it, and sections are separated by a `---` rule.
 - In the full report the Source line is a short italic footer capped at 100 characters; the compact report omits it.
 - No output contains `&nbsp;` or any `&#..;` entity, because some clients print them literally. Spacing comes from blank lines and `---` rules only.
-- Printing: run `scripts/status_report.py` (event `request` for full, `checkpoint` or `turn-end` with a prior receipt for compact), print its stdout verbatim with no code fence and no text before or after it (only a one-line error if the renderer fails), and never hand-write a status table. This is the Verbatim output rule that `/status` and `progress-reporting.md` repeat.
+- Printing: run `scripts/status_report.py` (event `request` for full, `checkpoint` or `turn-end` with a prior receipt for compact), print its stdout verbatim with no code fence and no text before or after it (only a one-line error if the renderer fails), and never hand-write a status table. This is the Verbatim output rule that `/progress` and `progress-reporting.md` repeat.
 
 ## Measured data rule
 
@@ -61,7 +61,7 @@ Both examples are the exact renderer output for [status-snapshot.json](status-sn
 ### Full
 
 ````markdown
-## Status Update
+## Progress Update
 
 ### 🚀 Release status
 
@@ -107,7 +107,7 @@ Nothing running.
 ### Compact
 
 ````markdown
-## Status Update
+## Progress Update
 
 | | |
 |---|---|
@@ -134,13 +134,13 @@ No decisions waiting.
 
 Nothing running.
 
-*Full report: /status, or ask for "full status".*
+*Full report: /progress, or ask for "full progress".*
 ````
 
 ### Compact with a decision
 
 ````markdown
-## Status Update
+## Progress Update
 
 | | |
 |---|---|
@@ -175,5 +175,5 @@ Reply A, B or C
 
 Nothing running.
 
-*Full report: /status, or ask for "full status".*
+*Full report: /progress, or ask for "full progress".*
 ````

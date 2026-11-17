@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 IMPL = ROOT / "catalog/skills/workflow/implement-phase/references"
 FORMATS = IMPL / "status-formats.md"
 PROGRESS = IMPL / "progress-reporting.md"
-STATUS_CMD = ROOT / "catalog/commands/status.md"
+STATUS_CMD = ROOT / "catalog/commands/progress.md"
+STATUS_SHIM = ROOT / "catalog/commands/status.md"
 UPDATE_CMD = ROOT / "catalog/commands/update.md"
 IMPLEMENT_CMD = ROOT / "catalog/commands/implement.md"
 
@@ -41,7 +42,7 @@ def rendered():
 def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
     module, snapshot = rendered
     output = module.render(snapshot, mode)
-    assert output.startswith("## Status Update\n\n" + ("### \U0001F680 Release status\n\n" if mode == "full" else "") + "| | |")
+    assert output.startswith("## Progress Update\n\n" + ("### \U0001F680 Release status\n\n" if mode == "full" else "") + "| | |")
     assert "3/19" in output and "16%" in output
     assert "| **Last release** | v1.2.0 |" in squash(output)
     assert "No decisions waiting." in output and "Nothing running." in output
@@ -97,7 +98,7 @@ def test_status_command_is_read_only_dispatcher() -> None:
     assert match, "frontmatter description missing"
     assert re.match(r"[A-Z][a-z]+ ", match.group(1)), "description starts with a verb"
     assert "SKIP" in match.group(1)
-    assert "/status [vX.Y | vX.Y.Z | plan-path | plan-slug]" in body
+    assert "/progress [vX.Y | vX.Y.Z | plan-path | plan-slug]" in body
     assert "progress-reporting.md" in body and "status-formats.md" in body
     lowered = body.lower()
     assert "starts no work" in lowered
@@ -111,14 +112,14 @@ def test_status_command_is_read_only_dispatcher() -> None:
 def test_update_status_is_a_forwarding_alias() -> None:
     text = read(UPDATE_CMD)
     assert "`status`" in text.split("Recognized scopes:")[1].split("\n")[0]
-    assert "status    -> /status" in text
+    assert "status    -> /progress" in text
     section = text.split("## Status scope")[1].split("\n## ")[0].strip().splitlines()
     assert len(section) <= 6
-    assert "status.md" in "\n".join(section)
+    assert "progress.md" in "\n".join(section)
 
 
 def test_implement_names_status_command() -> None:
-    assert "`/status" in read(IMPLEMENT_CMD)
+    assert "`/progress" in read(IMPLEMENT_CMD)
 
 
 def test_command_count_matches_docs() -> None:
@@ -126,6 +127,8 @@ def test_command_count_matches_docs() -> None:
     active = 0
     aliases = 0
     for path in commands.glob("*.md"):
+        if re.search(r"^description: DEPRECATED", read(path), re.M):
+            continue
         h1 = next(
             ln for ln in read(path).splitlines() if ln.startswith("# ")
         )
@@ -175,3 +178,10 @@ def test_contract_states_escaping_and_layout_rules():
     for expected in ("## Release table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
                      "never `#` bars", "short italic footer", "Decisions waiting", "separated by a `---` rule", "Options not supplied", "No output contains `&nbsp;`", "Verbatim output rule"):
         assert expected in formats
+
+
+def test_status_is_a_deprecation_shim_forwarding_to_progress() -> None:
+    text = read(STATUS_SHIM)
+    assert text.startswith("---\ndescription: DEPRECATED (removed in v4.15.4). Forwarding to /progress.\n---\n")
+    assert "Forwarding to /progress" in text and "progress.md" in text
+    assert "status_report.py" not in text

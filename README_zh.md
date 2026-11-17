@@ -326,12 +326,12 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 [在训练中查看](guides/website/training.html#update)
 
-#### `/status`
+#### `/progress`
 
-查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 在 v4.15.4 之前仍会转发到这里。
 
 ```text
-/status v4.15
+/progress v4.15
 ```
 
 #### `/grill`

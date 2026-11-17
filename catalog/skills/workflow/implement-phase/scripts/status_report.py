@@ -201,7 +201,7 @@ def render(data: dict, mode: str) -> str:
         rows.append([f"**{cell(r['name'])}**", cell(r["goals"]), rbar, rtasks, cell(r["elapsed"]), remaining_with_dependency(r)])
     rows.append(["**Total**", "", f"**{bar}**", f"**{tasks}**", f"**{cell(data['elapsed'])}**", f"**{cell(data['remaining'])}**"])
     release = data.get("next_release") or {"confidence": "unknown", "basis": "release estimate not supplied"}
-    parts = ["## Status Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
+    parts = ["## Progress Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
              f"### {PROGRESS_ICON} Version progress",
              table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
              f"Confidence: {cell(release['confidence'])} \u00b7 Basis: {text(release['basis'], 80)} \u00b7 As of {cell(data['observed_at'])}",
@@ -259,11 +259,11 @@ def _compact(data: dict, bar: str, tasks: str, released: str) -> str:
     goals = "\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"]) or "None."
     decisions = "\n\n".join("\n\n".join(decision_parts(d, with_detail=False)) for d in data["decisions"]) or "No decisions waiting."
     running = "\n".join(_running_bullet(r) for r in data["running"]) or "Nothing running."
-    parts = ["## Status Update", release_table(data, bar, tasks, released),
+    parts = ["## Progress Update", release_table(data, bar, tasks, released),
              "---", f"### {GOALS_ICON} Goals", goals,
              "---", f"### {WAIT_ICON} Decisions waiting", decisions,
              "---", f"### {RUN_ICON} Running", running,
-             '*Full report: /status, or ask for "full status".*']
+             '*Full report: /progress, or ask for "full progress".*']
     return "\n\n".join(parts) + "\n"
 
 

@@ -25,7 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         7. refactor  - reorganize docs/ and project artifacts to conventions
         8. config    - validate and repair installed platform configs (drift repair)
         9. commit    - generate a structured commit message for the staged changes
-        10. status   - forwarding alias for /status: report implementation progress (read-only)
+        10. status   - forwarding alias for /progress: report implementation progress (read-only)
 
       Reply with a number or a scope name.
 
@@ -36,7 +36,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
-      status    -> /status (forwarding alias; read-only)
+      status    -> /progress (forwarding alias; read-only)
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
       devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
@@ -51,7 +51,7 @@ Pass any remaining arguments through unchanged. Heavy logic stays in the retaine
 
 ## Status scope
 
-`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` forwards to [`/status`](status.md) with the same argument and returns the same report, and does nothing else. No release scope is entered.
+`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` forwards to [`/progress`](progress.md) with the same argument and returns the same report, and does nothing else. No release scope is entered.
 
 ## docs scope (feature-level sync, not just counts)
 

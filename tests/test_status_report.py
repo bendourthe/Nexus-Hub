@@ -45,14 +45,14 @@ def snapshot():
 
 def test_compact_footer_layout_and_all_sections(report, snapshot):
     text = report.render(snapshot, "compact")
-    assert text.startswith("## Status Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
+    assert text.startswith("## Progress Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
     assert "| **Full v1.3 implementation** (1 version left) | " in text
     assert " \u00b7 3/19 tasks \u25b0\u25b1" in text and "16%" in text
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
     assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
-    assert "Source:" not in text and text.endswith('*Full report: /status, or ask for "full status".*\n')
-    assert "Full report: /status" in text
+    assert "Source:" not in text and text.endswith('*Full report: /progress, or ask for "full progress".*\n')
+    assert "Full report: /progress" in text
 
 
 def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
@@ -77,7 +77,7 @@ def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapsh
     assert "**3/20**" in text and "15%" in text
     assert "**Phase 1**" in text and "**Phase 2**" in text and "| **Total** |" in squash(text)
     assert text.rstrip().endswith("*Source: example/plan.md*")
-    assert text.startswith("## Status Update\n\n### \U0001F680 Release status\n\n| | |\n|---|---|\n")
+    assert text.startswith("## Progress Update\n\n### \U0001F680 Release status\n\n| | |\n|---|---|\n")
     assert "\n\n### \U0001F4CA Version progress\n\n| Version " in text
     assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(text)
     assert "\n\nConfidence: unknown \u00b7 Basis: release estimate not supplied \u00b7 As of 2026-11-16T12:00:00Z\n\n---\n\n" in text
@@ -89,7 +89,7 @@ def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapsh
 def test_full_opens_with_the_same_release_table_as_compact(report, snapshot):
     full = report.render(snapshot, "full").split("\n\n")
     compact = report.render(snapshot, "compact").split("\n\n")
-    assert full[0] == compact[0] == "## Status Update"
+    assert full[0] == compact[0] == "## Progress Update"
     assert full[1] == "### \U0001F680 Release status" and full[2] == compact[1]
     assert full[3] == "### \U0001F4CA Version progress" and full[4].startswith("| Version ")
     assert "Release status" not in "\n".join(compact) and "Version progress" not in "\n".join(compact)
@@ -161,7 +161,7 @@ def test_cli_is_read_only_and_rejects_bad_input(tmp_path, snapshot):
     result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path), "--event", "request"],
                             capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr
-    assert result.stdout.startswith("## Status Update\n")
+    assert result.stdout.startswith("## Progress Update\n")
     assert path.read_bytes() == before and list(tmp_path.iterdir()) == [path]
     path.write_text('{"scope": "v1.3"}', encoding="utf-8")
     result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path)],
