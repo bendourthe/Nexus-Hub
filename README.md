@@ -334,12 +334,12 @@ Check progress, sync the repo, or run the release flow.
 
 [See it in Training](guides/website/training.html#update)
 
-#### `/status`
+#### `/progress`
 
-Show the full progress report for a run, a minor, or one plan. It only reads and reports.
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` still forwards here until v4.15.4.
 
 ```text
-/status v4.15
+/progress v4.15
 ```
 
 #### `/grill`

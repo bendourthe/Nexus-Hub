@@ -59,7 +59,7 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 
 ## Progress reporting
 
-Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. `/status` (and its alias `/update status`) enters those references in read-only mode and never starts this skill's implementation driver.
+Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. `/progress` (and its aliases `/update status` and the deprecated `/status`) enters those references in read-only mode and never starts this skill's implementation driver.
 
 ## Shared reporting output
 
