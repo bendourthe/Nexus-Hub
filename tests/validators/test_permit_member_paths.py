@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from .test_check_plan_completion import _isolated_git_config  # noqa: F401
+from .test_check_plan_completion import _git, _isolated_git_config  # noqa: F401
 from .test_completion_minor_record import SESSION, _no_transport_overrides  # noqa: F401
 from .test_completion_minor_verdict import Walk, ck, cm
 from .test_parallel_member_implementation import (  # noqa: F401  (parallel is a fixture)
@@ -184,10 +184,47 @@ def test_overlap_with_another_active_member_is_refused(parallel: Walk) -> None:
     next(m for m in record["members"] if m["version"] == "v0.5.10")["coordinator_paths"] = ["src/published.txt"]
     parallel.write_record(record, resign=True)
     before = parallel.record_path().read_bytes()
-    for requested in ("src/omega.txt", "Src/Omega.txt", "lib/nested/out.txt", "shared/input.txt", "src/published.txt"):
+    for requested in ("src/omega.txt", "Src/Omega.txt", "lib/nested/out.txt", "src/published.txt"):
         refused(permit(parallel, "v0.5.2", paths_file(parallel, [EXTRA, requested])), "member-paths-active-conflict")
+        refused(render(parallel, "v0.5.2", paths_file(parallel, [EXTRA, requested])), "member-paths-active-conflict")
     assert parallel.record_path().read_bytes() == before
     assert permit(parallel, "v0.5.2", paths_file(parallel, [EXTRA])).returncode == ck.EXIT_BLOCKED  # no decision yet, but no conflict
+
+
+def test_read_overlap_is_allowed_only_for_a_later_member(parallel: Walk) -> None:
+    alpha = worker(parallel, "v0.5.2")
+    early = claims(parallel, "v0.5.2", reads=("early/input.txt",))
+    assert admit(parallel, "v0.5.2", alpha, early).returncode == 0
+    omega = worker(parallel, "v0.5.10")
+    late = claims(parallel, "v0.5.10", reads=("shared/input.txt",), writes=("src/omega.txt",))
+    assert admit(parallel, "v0.5.10", omega, late).returncode == 0
+    before = parallel.record_path().read_bytes()
+    # v0.5.10 is published after v0.5.2, so it only reads shared/input.txt for now: render and record both accept the request.
+    assert render(parallel, "v0.5.2", paths_file(parallel, ["shared/input.txt"])).returncode == 0
+    assert permit(parallel, "v0.5.2", paths_file(parallel, ["shared/input.txt"])).returncode == ck.EXIT_BLOCKED
+    assert parallel.record_path().read_bytes() == before
+    # v0.5.2 is published before v0.5.10, so v0.5.10 may not take a path v0.5.2 still reads or writes.
+    for requested in ("early/input.txt", "src/alpha.txt"):
+        refused(render(parallel, "v0.5.10", paths_file(parallel, [requested])), "member-paths-active-conflict")
+        refused(permit(parallel, "v0.5.10", paths_file(parallel, [requested])), "member-paths-active-conflict")
+    assert grant(parallel, "v0.5.2", ["shared/input.txt"]).returncode == 0
+    assert "shared/input.txt" in member(parallel)["implementation"]["write_paths"]
+
+
+def test_merged_member_no_longer_holds_paths(parallel: Walk) -> None:
+    alpha = worker(parallel, "v0.5.2")
+    assert admit(parallel, "v0.5.2", alpha, claims(parallel, "v0.5.2", reads=("early/input.txt",))).returncode == 0
+    commit_worker(alpha, "src/alpha.txt", "own work\n")
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega).returncode == 0
+    refused(permit(parallel, "v0.5.10", paths_file(parallel, ["src/alpha.txt"])), "member-paths-active-conflict")
+    merge_worker(parallel, alpha, "v0.5.2")
+    _git(parallel.work, "merge", "-q", "--ff-only", "origin/develop")
+    _git(omega, "merge", "-q", "--ff-only", "origin/develop")
+    for requested in ("src/alpha.txt", "early/input.txt"):
+        assert render(parallel, "v0.5.10", paths_file(parallel, [requested])).returncode == 0
+        assert permit(parallel, "v0.5.10", paths_file(parallel, [requested])).returncode == ck.EXIT_BLOCKED
+    assert grant(parallel, "v0.5.10", ["src/alpha.txt"]).returncode == 0
 
 
 

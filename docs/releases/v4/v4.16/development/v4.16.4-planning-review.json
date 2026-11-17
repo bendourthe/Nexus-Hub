@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "plan": "docs/releases/v4/v4.16/plans/v4.16.4-adoption-business-workflow-analysis.md",
+  "corrected_plan_sha256": "e8aec0bf8d5b16b31f38f7ad21a560f761e5060af48e659cc083b4cbdf67b993",
+  "mode": "full",
+  "lenses_ran": [
+    "coherence",
+    "feasibility",
+    "product",
+    "design",
+    "scope-guardian",
+    "security",
+    "adversarial"
+  ],
+  "lenses_skipped": [],
+  "sections_not_examined": [],
+  "coverage": {
+    "coherence": "Full plan, task/acceptance mapping, ownership, reference resolution and corrected requirements visibility.",
+    "feasibility": "Sequence, actual installer selectors and smoke limits, functional-verification capture limits, fixture/oracle and all five lifecycle signals.",
+    "product": "Problem/persona, bounded outcomes, healthy controls and unused-tool branch.",
+    "design": "Single record owner, report-local IDs, citations, path-state distinctions, optional view, compatible exports and construction ceiling.",
+    "scope-guardian": "A/B/C, 22 tasks, coordinator boundaries, constrained final duties and unused-tool exclusion.",
+    "security": "Untrusted source, first-party fixtures, data boundary, retention, genuine authority and throwaway installs.",
+    "adversarial": "Malformed/missing evidence, false intent, source instructions, unknown/conflicting effects, fake receipts, healthy controls and context contamination."
+  },
+  "pipeline": [
+    "fingerprint/root-cause deduplication",
+    "single-step cross-lens promotion",
+    "late gate: confidence >=75 or P0 >=50"
+  ],
+  "findings": [
+    {
+      "id": "PR-1",
+      "title": "Completion-contract links resolve outside the catalog",
+      "severity": "P2",
+      "original_line": 353,
+      "confidence": 100,
+      "personas": [
+        "coherence"
+      ],
+      "disposition": "corrected",
+      "correction": "Both relative URLs target the catalog completion contract and its authorization-policy anchor.",
+      "follow_up": "coherence verified resolution; no introduced P0/P1"
+    },
+    {
+      "id": "PR-2",
+      "title": "Visible requirements must be separate from the private answer oracle",
+      "severity": "P2",
+      "original_line": 154,
+      "confidence_before_promotion": [
+        75,
+        75
+      ],
+      "confidence": 100,
+      "personas": [
+        "coherence",
+        "feasibility"
+      ],
+      "disposition": "corrected",
+      "correction": "T002 supplies source/REQUIREMENTS.md to investigators while oracle answers/labels stay private; source, requirements and oracle hashes are separate. T003/T011 receive visible requirements.",
+      "follow_up": "coherence verified resolution; no introduced P0/P1"
+    },
+    {
+      "id": "PR-3",
+      "title": "Oracle withholding requires a fresh investigator context",
+      "severity": "P2",
+      "original_line": 163,
+      "confidence": 75,
+      "personas": [
+        "adversarial"
+      ],
+      "disposition": "corrected",
+      "correction": "T001 preflights a supported native fresh-session/capture route. T003/T011 forbid inherited authoring/oracle/prior-output context, require context provenance and actual reads, freeze output before independent grading and invalidate contaminated receipts. Procedural withholding is not OS containment.",
+      "follow_up": "adversarial verified resolution; no introduced P0/P1"
+    }
+  ],
+  "suppressed_findings": [],
+  "considered_but_rejected": [
+    {
+      "candidate": "Missing measured productivity or cost improvement",
+      "reason": "The goal is a bounded working capability; the draft excludes statistical or saving claims."
+    },
+    {
+      "candidate": "New graph, exporter or inference runtime",
+      "reason": "The construction ceiling explicitly excludes them and uses existing skill owners."
+    },
+    {
+      "candidate": "Global stable workflow identity",
+      "reason": "IDs are report-local, and no cross-revision stability is promised."
+    },
+    {
+      "candidate": "Source injection or absent evidence silently passes",
+      "reason": "Source-instruction obedience and missing real capture are hard qualification failures."
+    },
+    {
+      "candidate": "Subset installer unsupported",
+      "reason": "Both installers support module selectors; corrected prose states the modules include extra skills and that full-payload smoke assertions are not assistant-load proof."
+    },
+    {
+      "candidate": "Arbitrary global cleanup in the final phase",
+      "reason": "Final-Phase Scope Application limits the template duties and routes additional source paths to coordinator authorization."
+    },
+    {
+      "candidate": "Unused-tool obligation silently resolved or absorbed",
+      "reason": "It was an explicit interview branch and the maintainer retained it separately open."
+    }
+  ],
+  "initial_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 3,
+    "P3": 0
+  },
+  "open_findings": 0,
+  "verdict": "READY - phase breakdown confirmed and planning publication authorized on 2026-11-16; execution not authorized",
+  "seeded_interview": {
+    "decision": "Keep A/B/C in this plan and leave the previous v4.16.4 unused-tool obligation separate and open",
+    "answer": "Keep workflow scope; retain unused-tool item open (Recommended)",
+    "origin": "actual host question response on 2026-11-16",
+    "new_deferral_or_retarget_authorized": false,
+    "implementation_authorized": false,
+    "phase_confirmation": "confirmed on 2026-11-16",
+    "publication_authorized": true
+  },
+  "interface_lookup": {
+    "functional_verification": "Defines observation record; no fresh-session launcher or transcript collector.",
+    "claude_recipe": "Existing cli-adapter reference documents stream-json; recheck current help and qualify actual installed corpus before use.",
+    "codex_recipe": "Reference documents flags but no live staged discovery proof; fail closed if actual skill loads and reads cannot be observed.",
+    "staging_limit": "optimize_skill_description.py stages one SKILL.md, not bundled references or the three-skill installed flow.",
+    "installer_selection": "PowerShell -Modules developer-experience,code-review; bash --modules developer-experience,code-review; modules include additional skills.",
+    "smoke_limit": "check_installer_smoke.py checks payload/launcher and may expect full payload; not proof of assistant selection.",
+    "no_provider_or_installer_run_during_planning": true
+  },
+  "link_repair": {
+    "before_unresolved": 586,
+    "after_unresolved": 584,
+    "fixed": 2,
+    "newly_broken": 0,
+    "unrelated_unchanged": 584
+  },
+  "glossary_terms": [
+    "Workflow Record",
+    "Path Coverage"
+  ],
+  "planning_validation": {
+    "status": "pass",
+    "sequential_task_ids": 22,
+    "phases": 4,
+    "local_links_checked": 26,
+    "missing_local_links": 0,
+    "read_claims_exist": true,
+    "no_claim_globs": true,
+    "review_hash_matches": true,
+    "unicode_sanitizer_repairs": 0,
+    "model_map_validation": "pass",
+    "model_map_tier_reclassifications": [],
+    "doc_colocation": "pass",
+    "git_diff_check": "pass",
+    "runtime_exercise": "not performed; planning artifacts only"
+  }
+}

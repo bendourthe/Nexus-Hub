@@ -486,6 +486,7 @@ TESTS_CORE = Group(
             "tests/integrations/test_usage_guard_delivery.py",
             "tests/integrations/test_notify_contract_guard.py",
             "tests/integrations/test_notify_helper_delivery.py",
+            "tests/integrations/test_status_reporting.py",
             timeout=1800,
         ),
         _pytest(
@@ -598,6 +599,7 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_status_report.py",
             timeout=2700,
             platforms=("linux", "macos"),
         ),
@@ -608,6 +610,7 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_status_report.py",
             platforms=("windows",),
             timeout=2700,
         ),
