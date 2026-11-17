@@ -8,14 +8,14 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.1 更新内容
+## v4.15.2 更新内容
 
-- 新增只读的 `/status` 命令，并在 `/implement` 运行期间的每条消息末尾显示简短的进度页脚。
-- Nexus-Hub Settings 0.8.3：启用实时推理强度后，Claude Code 和 Codex 在 Windows 上可以再次正常启动；较新的命令行版本不再触发状态栏警告。
-- 发布安全：发布流程拒绝为过期的清单打标签，CI 将耗时较长的测试任务拆分为更小的分片。
-- 决策已记录：不构建按模型自适应的运行时，并保留了相关证据。
+- 新增面向维护者的工具链配对评估器、五种明确的循环结果，以及为受支持的 Claude Code 版本提供的共享项目 `AGENTS.md`（通过 `NEXUS_HUB_CLAUDE_MIGRATE=1` 选择启用）。
+- 所有平台使用统一的状态布局，目标和剩余时间估算来自已完成的计划，并单独预测下一个发布版本。
+- Nexus-Hub Settings 0.8.8：在较新的 Codex 和 Claude 版本上恢复推理强度控制，Codex 按钮会在当前编辑器旁边打开。
+- 运行记录可以通过一次已记录的决定，为某个已准入成员的写入列表追加文件。
 
-[版本详情与早期版本](CHANGELOG.md#4151---2026-11-15)
+[版本详情与早期版本](CHANGELOG.md#4152---2026-11-17)
 
 ## 安装
 
