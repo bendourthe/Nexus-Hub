@@ -156,6 +156,6 @@ def test_documented_examples_equal_renderer_output(rendered, mode):
 
 def test_contract_states_escaping_and_layout_rules():
     formats = read(FORMATS)
-    for expected in ("## Header table", "## Rendering rules", "Never emit `$`", "capped at 48 characters",
+    for expected in ("## Header table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
                      "never `#` bars", "short italic footer", "`&nbsp;` paragraph and a `---` rule"):
         assert expected in formats

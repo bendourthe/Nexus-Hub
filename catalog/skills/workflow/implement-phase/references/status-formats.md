@@ -6,7 +6,7 @@ Summary: the approved layouts for the compact status footer and the full status 
 
 The canonical output is produced by [status_report.py](../scripts/status_report.py) from the evidence snapshot documented in [progress-reporting.md](progress-reporting.md). Do not hand-compose a shorter substitute. Cadence belongs to that reference; this file owns presentation.
 
-1. Open with a `---` rule, then one bold status line: `**Status: <scope>**`, a 10-segment `▰`/`▱` bar with the whole-task percentage, done/total tasks, `last released <version>` and versions left, separated by `&nbsp;` gaps around a middle dot. Below it show the two-column header table described under Header table, so the Next release ETA cannot be mistaken for the Whole <scope> completion estimate.
+1. Open with a `---` rule, then one bold status line: `**Status: <scope>**`, a 10-segment `▰`/`▱` bar with the whole-task percentage, done/total tasks, `last released <version>` and versions left, separated by `&nbsp;` gaps around a middle dot. Below it show the four-row compact header table described under Header table, so the Next release ETA cannot be mistaken for the Whole <scope> completion estimate.
 2. Include the observation timestamp with timezone, elapsed time and evidence source. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts.
 3. Always show the goals, decisions and running parts, in that order, each introduced by its emoji label line: `🎯 Goals:`, `🙋 N decisions waiting:` and `🔄 N running:`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
 4. Goals are short bullets with goal, measurable done-when and state. Include the run goal, next known milestone and active lanes where applicable.
@@ -22,14 +22,14 @@ The shared renderer escapes evidence text before inserting it into Markdown, so 
 
 ## Header table
 
-Both reports show the release facts as a two-column `Field | Value` table, never as run-on lines. Rows in order: Last released (bold version), Versions left, Next release (bold version), Release ETA, Blocked by (omitted when the condition is `none`), Confidence, Basis, Whole <scope>, As of, Elapsed. Keep each value short. Long explanations belong in the `Estimate basis:` line under the full table or are cut.
+Both reports show release facts as a two-column `Field | Value` table, never as run-on lines. The full report has these rows in order: Last released (bold version), Versions left, Next release (bold version), Release ETA, Blocked by (omitted when the condition is `none`), Confidence, Basis, Whole <scope>, As of, Elapsed. The compact footer has only four rows: Last released, Next release, Release ETA and Whole <scope>; it never repeats As of, Elapsed, Basis, Confidence, Blocked by or Versions left, because the status line already carries the versions and the full report owns the rest. Keep each value short. Long explanations belong in the `Estimate basis:` line under the full table or are cut.
 
 ## Rendering rules
 
 These rules are the contract for every agent and platform; the renderer enforces them and the producer of the snapshot must respect them.
 
-- Never emit `$` or a backslash before a parenthesis or bracket. Hosts read `\(`...`\)` and `$...$` as LaTeX math and run the words together (for example an Elapsed value with a parenthetical, or a spend such as 38.36 of 500 dollars). The renderer writes `&#36;` for a dollar sign, `&#91;`/`&#93;` for brackets, `&#42;` for an asterisk, `&#96;` for a backtick, `&#92;` for a backslash and `&#95;` for a word-edge underscore. Parentheses pass through unchanged and render as plain text. Only a table pipe is written `\|`.
-- Table cells are capped at 48 characters and end with `...` when cut; the producer shortens State, Elapsed and Remaining text instead of relying on the cap. No cell holds a paragraph or a line break.
+- Never emit a bare `$` or a backslash before a parenthesis or bracket. Hosts read backslash-paren pairs and `$...$` as LaTeX math and run the words together. Any whitespace-delimited token that contains `$`, `*`, `_`, `[`, `]`, a backslash, a backtick, `&`, `<` or `>` is written as a code span such as `$38.36` or `my_var`, with edge punctuation left outside, which no client treats as math or markup. The renderer writes no HTML entities, so raw text never shows `&#..;`. Parentheses pass through unchanged and render as plain text. Only a table pipe is written `\|`.
+- Table cells are capped at 48 characters. A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
 - Tables are padded so source columns align, headers are plain labels, Version cells are bold, progress is a 10-segment `▰`/`▱` bar plus percent (never `#` bars), and the Total row is bold.
 - Every heading, table and list has a blank line before and after it, and sections are separated by a `&nbsp;` paragraph and a `---` rule.
 - The Source line is a short italic footer capped at 100 characters.
@@ -119,14 +119,9 @@ Nothing running.
 | Field         | Value                                   |
 | ------------- | --------------------------------------- |
 | Last released | **v1.2.0**                              |
-| Versions left | 1 version                               |
 | Next release  | **v1.3.0**                              |
 | Release ETA   | unknown (no comparable release history) |
-| Confidence    | unknown                                 |
-| Basis         | No observed release durations           |
 | Whole v1.3    | unknown (no comparable history)         |
-| As of         | 2026-11-16T12:00:00Z                    |
-| Elapsed       | 13 min                                  |
 
 🎯 Goals:
 

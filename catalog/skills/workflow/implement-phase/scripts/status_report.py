@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
-import html
 import json
 import re
 import sys
@@ -25,23 +24,44 @@ GAP = "&nbsp;" * 4
 DOT = GAP + "\u00b7" + GAP
 GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
 SECTION_BREAK = "&nbsp;\n\n---"
-# Entities instead of backslash escapes: some hosts (Codex) read \( \) and $ as math.
-_ENTITIES = {"\\": "&#92;", "`": "&#96;", "[": "&#91;", "]": "&#93;", "$": "&#36;", "*": "&#42;"}
-
-
 CELL_MAX = 48
+# A token with any of these is shown as a code span: hosts (Codex, Claude Code) read
+# backslash-paren and dollar pairs as math and read * _ [ ] as emphasis or links.
+_LITERAL = re.compile(r"[$*_\[\]\\`&<>]")
+
+
+def shorten(value: str, limit: int) -> str:
+    """Drop trailing parentheticals first, then cut at a word boundary; never mid-parenthesis."""
+    while len(value) > limit:
+        match = re.search(r"\s*\([^()]*\)\s*$", value)
+        if not match or match.start() == 0:
+            break
+        value = value[: match.start()]
+    if len(value) <= limit:
+        return value
+    cut = value[: limit - 3]
+    if " " in cut and value[limit - 3] != " ":
+        cut = cut.rsplit(" ", 1)[0]
+    if cut.count("(") > cut.count(")"):
+        cut = cut[: cut.rindex("(")]
+    return cut.rstrip() + "..."
+
+
+def _literal(token: str) -> str:
+    """Wrap a token hosts could read as math or emphasis in a code span; edge punctuation stays outside."""
+    if not _LITERAL.search(token):
+        return token
+    head, core, tail = re.fullmatch(r"([(\"']*)(.*?)([).,;:\"']*)", token).groups()
+    return f"{head}`{core.replace(chr(96), chr(39))}`{tail}"
 
 
 def text(value: object, limit: int | None = None) -> str:
     """Keep evidence on one line, neutralize Markdown, HTML, math and table syntax, cap length."""
     value = " ".join(str(value).split())
     value = "".join(c for c in value if ord(c) >= 32 and ord(c) != 127)
-    if limit is not None and len(value) > limit:
-        value = value[: limit - 3].rstrip() + "..."
-    value = html.escape(value, quote=False)
-    value = re.sub(r"[\\`\[\]$*]", lambda m: _ENTITIES[m.group()], value)
-    value = re.sub(r"(?<![A-Za-z0-9])_|_(?![A-Za-z0-9])", "&#95;", value)
-    return value.replace("|", "\\|")
+    if limit is not None:
+        value = shorten(value, limit)
+    return " ".join(_literal(t) for t in value.split(" ")).replace("|", "\\|")
 
 
 def timestamp(value: str) -> datetime:
@@ -164,11 +184,14 @@ def remaining_with_dependency(row: dict) -> str:
     return cell(f"{row['remaining']} ({dep if dep.lower().startswith('after ') else 'after ' + dep})")
 
 
-def header_table(data: dict, released: str, left_text: str) -> str:
+def header_table(data: dict, released: str, left_text: str, compact: bool = False) -> str:
     release = data.get("next_release") or {
         "version": "unknown", "remaining": "unknown (release estimate not supplied)",
         "condition": "unknown", "confidence": "unknown", "basis": "release estimate not supplied",
     }
+    if compact:
+        return table(("Field", "Value"), [["Last released", f"**{released}**"], ["Next release", f"**{cell(release['version'])}**"],
+                                          ["Release ETA", cell(release["remaining"])], [f"Whole {cell(data['scope'])}", cell(data["remaining"])]])
     rows = [["Last released", f"**{released}**"], ["Versions left", left_text.replace(" left", "")],
             ["Next release", f"**{cell(release['version'])}**"], ["Release ETA", cell(release["remaining"])]]
     if release["condition"] != "none":
@@ -227,7 +250,7 @@ def render(data: dict, mode: str) -> str:
 def _compact(data: dict, bar: str, tasks: str, released: str, left_text: str) -> str:
     parts = ["---",
              f"**Status: {text(data['scope'])}** {bar}{DOT}{tasks} tasks{DOT}last released {released}{DOT}{left_text} left",
-             header_table(data, released, left_text), f"{GOALS_ICON} Goals:",
+             header_table(data, released, left_text, compact=True), f"{GOALS_ICON} Goals:",
              "\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"])]
     decisions, running = data["decisions"], data["running"]
     if decisions:

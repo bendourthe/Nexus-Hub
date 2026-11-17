@@ -129,8 +129,8 @@ def test_untrusted_text_cannot_add_headings_tables_or_links(report, snapshot):
     snapshot["goals"][0]["goal"] = "x\n### Forged | [click](https://evil.test) <script>"
     text = report.render(snapshot, "full")
     assert "\n### Forged" not in text
-    assert "<script>" not in text
-    assert "[click](https://evil.test)" not in text
+    assert "<script>" not in re.sub(r"`[^`]*`", "", text)
+    assert "[click](" not in re.sub(r"`[^`]*`", "", text)
 
 
 def test_cli_is_read_only_and_rejects_bad_input(tmp_path, snapshot):
@@ -202,8 +202,9 @@ def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapsh
     assert "| Last released | **v4.15.1**" in output
     assert "| Next release  | **v4.15.2**" in output
     assert "| Release ETA   | ~1-2 h" in output
-    assert "| Blocked by    | after checker PR merges and installation" in output
-    assert "| Confidence    | low" in output and "Remaining validation" in output
+    assert ("| Blocked by    | after checker PR merges and installation" in output) == (mode == "full")
+    assert ("| Confidence    | low" in output and "Remaining validation" in output) == (mode == "full")
+    assert ("| Blocked by" in output) == (mode == "full")
     assert "| Whole v4.15   | ~2-4 d" in output
     assert "| time left:" not in output
 
@@ -238,12 +239,14 @@ def hostile_snapshot(snapshot):
 @pytest.mark.parametrize("mode", ["compact", "full"])
 def test_output_has_no_math_delimiters_or_backslash_escapes(report, snapshot, mode):
     output = report.render(hostile_snapshot(snapshot), mode)
-    assert "$" not in output
+    assert "$" not in re.sub(r"`[^`]*`", "", output)
     for token in ("\\(", "\\)", "\\[", "\\]", "\\_", "\\+", "\\#", "\\*"):
         assert token not in output, token
     assert "(verified; pending)" in output
-    assert "[x](https://evil.test)" not in output
-    assert "&#36;HOME" in output and "my_var" in output and "&#95;it&#95;" in output
+    assert "`[x](https://evil.test`)" in output
+    for token in ("`$HOME`", "`$5`", "`my_var`", "`_it_`", "`*bold*`"):
+        assert token in output, token
+    assert "&#" not in output
 
 
 def test_pipes_stay_table_safe(report, snapshot):
@@ -264,13 +267,14 @@ def test_parenthetical_elapsed_and_dollar_amounts_are_plain_text(report, snapsho
     snapshot["estimate_basis"] = "Spend $38.36 of $500 (cap)"
     snapshot["source"] = "ledger ($38.36 of $500)"
     output = report.render(snapshot, mode)
-    assert "$" not in output
+    assert "$" not in re.sub(r"`[^`]*`", "", output)
     for token in ("\\(", "\\)", "\\[", "\\]"):
         assert token not in output
-    assert "(first plan commit 2026-11-16" in output
+    assert "&#" not in output
     if mode == "full":
-        assert "&#36;38.36 of &#36;500 (cap)" in output
-    assert "*Source: ledger (&#36;38.36 of &#36;500)*" in output
+        assert "| Elapsed       | 4 h 54 min " in output and "first plan commit" not in output
+        assert "`$38.36` of `$500` (cap)" in output
+    assert "*Source: ledger (`$38.36` of `$500`)*" in output
 
 
 def test_cells_are_capped_with_ellipsis_and_tables_are_aligned(report, snapshot):
@@ -284,6 +288,24 @@ def test_cells_are_capped_with_ellipsis_and_tables_are_aligned(report, snapshot)
     assert all("\n" not in l for l in table_lines)
     first_table = [l for l in table_lines[:11]]
     assert len({len(l) for l in first_table}) == 1
+
+
+def test_compact_header_has_only_four_rows(report, snapshot):
+    output = report.render(snapshot, "compact")
+    rows = [l for l in squash(output).splitlines() if l.startswith("| ") and "---" not in l]
+    assert [r.split(" | ")[0].strip("| ") for r in rows] == ["Field", "Last released", "Next release", "Release ETA", "Whole v1.3"]
+    for label in ("As of", "Elapsed", "Basis", "Confidence", "Blocked by", "Versions left"):
+        assert f"| {label}" not in output
+
+
+@pytest.mark.parametrize("value,expected", [
+    (ELAPSED, "4 h 54 min"),
+    ("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda", "alpha beta gamma delta epsilon zeta eta theta..."),
+    ("short (keep me)", "short (keep me)"),
+    ("one two three four five six seven eight nine ten (open paren that is not closed", "one two three four five six seven eight nine..."),
+])
+def test_shorten_never_cuts_mid_word_or_mid_parenthesis(report, value, expected):
+    assert report.shorten(" ".join(value.split()), 48) == expected
 
 
 def test_header_is_a_two_column_table_not_run_on_lines(report, snapshot):
