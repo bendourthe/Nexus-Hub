@@ -240,6 +240,58 @@ def test_the_four_eval_guidance_fixes_are_present():
     assert "every pull request" in loop
 
 
+_OWNERSHIP = _SKILLS / "code-cleanup" / "minimal-construction" / "references" / "codebase-ownership-mode.md"
+_OWNERSHIP_SENTENCE = "You are the owner and long-term maintainer of this codebase"
+
+
+def test_the_ownership_reference_states_the_costs_exception_and_off_switch():
+    text = _text(_OWNERSHIP)
+    assert text.splitlines()[2].startswith("Do not use this snippet")
+    assert _OWNERSHIP_SENTENCE in text
+    assert "consolidating duplicated code and fixing bugs related to the task are in scope" in text
+    assert "list every change, including small ones, in the closing summary" in text
+    assert "70 to 80 percent" in text
+    assert "under 10 percent" in text
+    assert "## Turn It Off" in text
+    assert "## What It Does Not Grant" in text
+    assert "No destructive action" in text
+
+
+def test_the_ownership_reference_is_linked_from_minimal_construction_and_the_profile():
+    skill = _text(_SKILLS / "code-cleanup" / "minimal-construction" / "SKILL.md")
+    assert "references/codebase-ownership-mode.md" in skill
+    profile = _text(
+        _SKILLS
+        / "ai-development"
+        / "model-prompting-research"
+        / "references"
+        / "models"
+        / "claude-fable-5-2.md"
+    )
+    assert "codebase-ownership-mode.md" in profile
+
+
+def test_no_instruction_template_contains_the_ownership_sentence():
+    templates = (_ROOT / "templates" / "ai-instructions").glob("*.md")
+    leaked = [p.name for p in templates if _OWNERSHIP_SENTENCE in _text(p)]
+    assert leaked == [], leaked
+
+
+def test_the_decision_record_has_its_required_sections():
+    record = (
+        _ROOT
+        / "docs"
+        / "decisions"
+        / "implemented"
+        / "policy"
+        / "2026-11-17-instruction-file-evals-isolated-first-and-ownership-opt-in.md"
+    )
+    text = _text(record)
+    for heading in ("## Problem", "## Decision", "## Alternatives considered", "## Consequences"):
+        assert heading in text, heading
+    assert "## Proposal" not in text
+
+
 @pytest.mark.xfail(
     strict=False,
     reason="the AGENTS.md link is a coordinator delta (v4.15.11 coordinator deltas, T008)",
