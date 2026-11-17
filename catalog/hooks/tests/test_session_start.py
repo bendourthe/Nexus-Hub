@@ -84,7 +84,10 @@ def test_no_counts_or_removed_commands(start) -> None:
 def test_git_is_one_line_outside_a_repository(start) -> None:
     lines, _ = start(b"9.9.9\n")
     assert lines[1] == "Git: unavailable"
-    assert len([line for line in lines if line.strip()]) == 2
+    assert lines[2].startswith("[Nexus-Hub: session-start] Implementation status:")
+    assert "no report on tool narration" in lines[2]
+    assert "Goals, Decisions and Running headings" in lines[2]
+    assert len([line for line in lines if line.strip()]) == 3
 
 
 def test_git_is_one_line_inside_a_repository(start, tmp_path: Path) -> None:

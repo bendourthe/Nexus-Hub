@@ -1,0 +1,10 @@
+{
+  "schema": "harness-adapter/1",
+  "name": "claude-code",
+  "kind": "cli",
+  "argv": ["claude", "--print"],
+  "version_argv": ["claude", "--version"],
+  "timeout_s": 600,
+  "live_argv_status": "unverified: needs-live-validation",
+  "notes": "Prompt on stdin, exit status is the only harness claim. No credential names are allowlisted; a live run injects credentials only through an isolation backend."
+}

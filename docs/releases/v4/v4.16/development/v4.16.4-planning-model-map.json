@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "verified_as_of": "2026-11-16",
+  "tiers": {
+    "frontier": {
+      "Anthropic": "claude-fable-5-2",
+      "OpenAI": "gpt-6-astra",
+      "Google": "gemini-4-carbon",
+      "Cursor": "grok-4.7"
+    },
+    "strong": {
+      "Anthropic": "claude-opus-5-5",
+      "OpenAI": "gpt-6.1-sol",
+      "Google": "gemini-3.8-flash",
+      "Cursor": "grok-4.6"
+    },
+    "standard": {
+      "Anthropic": "claude-sonnet-5-5",
+      "OpenAI": "gpt-5.6-sol",
+      "Google": "gemini-3.6-flash",
+      "Cursor": "composer-2.5"
+    },
+    "fast": {
+      "Anthropic": "claude-haiku-5-5",
+      "OpenAI": "gpt-6-luna",
+      "Google": "gemini-3.5-flash-lite",
+      "Cursor": "composer-2.5"
+    }
+  },
+  "notes": [
+    "Fresh public-documentation check on 2026-11-16. New frontier replacements: claude-fable-5-2 and gemini-4-carbon. Existing IDs retain their recorded tiers.",
+    "OpenAI standard gpt-5.6-sol remains a host-conditional legacy choice listed by Cursor, not guaranteed for every API account.",
+    "Cursor cells retain recorded vendor-name slugs; standard and fast share composer-2.5. Account entitlement, effort sweeps and active switching were not qualified.",
+    "Google frontier replacement is a project placement judgment based on the official most-capable-model description; other Google cells retain prior placements."
+  ],
+  "sources": {
+    "Anthropic": [
+      "https://platform.claude.com/docs/en/models/overview"
+    ],
+    "OpenAI": [
+      "https://developers.openai.com/api/docs/models",
+      "https://cursor.com/docs/models-and-pricing"
+    ],
+    "Google": [
+      "https://ai.google.dev/gemini-api/docs/models",
+      "https://aistudio.google.com/docs/models/gemini-4-carbon"
+    ],
+    "Cursor": [
+      "https://cursor.com/docs/models-and-pricing"
+    ]
+  }
+}

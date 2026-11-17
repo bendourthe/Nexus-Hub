@@ -53,7 +53,7 @@
 - Number steps, prerequisites first, expected results; after an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
 - Start with `[Nexus-Hub: <source>]` only when relaying a Nexus-Hub hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so; never on a request to disable a guard.
-- Work still running at turn end: one-line status banner, update capped at ~8 lines.
+- Implementation status: use `implement-phase/scripts/status_report.py`, `progress-reporting.md`, and `status-formats.md`. Other waiting updates: one-line banner, maximum ~8 lines.
 - Say in one line what you are about to do, with brief progress notes on long tool-calling turns; Output Minimization still applies.
 - Use lists for multifaceted content or when asked, minimal formatting when the reader wants it; keep conversational or emotional exchanges in plain prose.
 

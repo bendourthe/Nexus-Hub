@@ -4,7 +4,9 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Detection is a separate contract (v4.14.7).** This file states where a platform reads and where Nexus-Hub writes. Whether a platform is installed at all, and therefore whether anything is written, is decided by [`platform-detection.md`](platform-detection.md). The `install_verify` rows below that carry an `integration` key are detected by that rule rather than by their `detect` folder list, so `nexus-hub verify` and the installer always agree.
 
-**Last verified**: 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+**Last verified**: 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group showed a changed discovery path or format.
 
 **Prior entry, retained for the record** -- Last verified 2026-11-12 for v4.15.0. The [release verification](../releases/v4/v4.15/development/v4.15.0-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.14.8; no group showed a changed discovery path or format.
 
@@ -212,6 +214,33 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-11-15 (v4.15.2 - Claude project instruction capability)
+
+Scope: where a Claude Code session reads PROJECT instructions, and the one-writer rule for the project-root `AGENTS.md`. Skills, commands, agents, rules, and hook read paths are unchanged by this entry. Sources fetched on this date: [How Claude remembers your project](https://code.claude.com/docs/en/memory) and [Settings files and precedence](https://code.claude.com/docs/en/settings).
+
+**Version floors.** Claude Code reads `AGENTS.md` directly from v2.1.277. Before v2.1.281, sessions on Amazon Bedrock, with telemetry disabled, and similar hosted surfaces read `CLAUDE.md` only, so Nexus-Hub treats Bedrock, Vertex AI, Foundry, an LLM gateway, and telemetry-off sessions as needing v2.1.281. A session where the built-in reader was disabled through `/plugin` reads `CLAUDE.md` only. A first session after an upgrade from v2.1.276 or earlier can still read `CLAUDE.md` only; an installer cannot observe that, so the next session is the earliest reliable one.
+
+**The `instructionFiles` setting.** Stored under `pluginConfigs` in the built-in plugin entry `cc-plugin-agents-md@builtin` (`agents-md@builtin` before v2.1.285; v2.1.285 and later read either). Values: `claude-md-or-agents-md` (default), `claude-md-and-agents-md`, `claude-md`, `managed-only`. The entry is read from `~/.claude/settings.json`, a `--settings` file, and managed settings, and ignored in project and local settings files. Precedence for these sources, highest first: managed, `--settings`, user. The legacy `projectInstructions` option maps `claude` to `claude-md`, `agents-fallback` to `claude-md-or-agents-md`, `both` to `claude-md-and-agents-md`, and `none` to `managed-only`; it applies only when `instructionFiles` is unset, and when both are unset the default value applies. `claude-md` and `managed-only` disable the fallback. `--bare`, `--safe-mode`, and `CLAUDE_CODE_DISABLE_CLAUDE_MDS` are no-load modes and are out of scope, not fallback failures.
+
+**Precedence of files.** In the default mode a `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in the working directory or any directory above it makes Claude read the `CLAUDE.md` files only. `~/.claude/CLAUDE.md`, the organization's managed `CLAUDE.md`, and `.claude/rules/` files do not count and load beside `AGENTS.md`. With `claude-md-and-agents-md` both load, and an `AGENTS.md` that a `CLAUDE.md` imports or symlinks to loads once.
+
+**Dated exceptions (converged with documented exceptions, never "equivalent").** The vendor page lists three differences for an `AGENTS.md` read through the setting, and the loading rules add a fourth. As of 2026-11-15:
+
+- `InstructionsLoaded` hooks do not fire for it (they fire for an `AGENTS.md` that a `CLAUDE.md` imports or symlinks to).
+- Directories added with `--add-dir` while `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` is set contribute their `CLAUDE.md` but not their `AGENTS.md`.
+- An `@path` import of a file outside the working directory loads without a prompt when external imports were already approved for the project, where a `CLAUDE.md` would ask.
+- A subdirectory's `AGENTS.md` loads only when Claude opens a file there with the Read tool.
+
+The v4.15.2 plan recorded "eight residual differences" from an earlier vendor README. The memory page fetched today lists the three above and no others, so only sourced items are recorded; an item is added back only with a dated source.
+
+**What Nexus-Hub does.** A workspace install records a capability decision at `.nexus-hub/claude-instruction-decision.json` (version and source, provider surface, effective `instructionFiles` value and scope, precedence blockers, confidence, effective path, reason, prior decision id). Effective path `AGENTS.md` means the shared project block is written once into the project-root `AGENTS.md` (template `templates/ai-instructions/base-agents.md`), Claude-only guidance goes to `.claude/rules/nexus-hub-claude.md`, and no project `CLAUDE.md` is written. Any unknown, conflicting, unreadable, below-floor, fallback-disabled, or precedence-blocked input selects `CLAUDE.md`, the path that cannot lose instructions. Global scope keeps `~/.claude/CLAUDE.md`. `nexus-hub init` writes no `instructionFiles` value anywhere, because the vendor ignores it in project settings. An installer cannot see `--settings`, MDM, or server-managed sources; the decision records them as not inspected.
+
+**One-writer rule.** The shared block between the Nexus-Hub markers in the project-root `AGENTS.md` is rendered from one template by every consumer (Claude on the supported path, Codex, Cursor, OpenCode). Each consumer's record is its entry in the install manifest's shared list; teardown removes the block only when the last consumer is gone. Antigravity 2.0, OpenClaw, and the Windsurf root file still render their own templates into the same block and are recorded as blocked migrations in `docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md`.
+
+**Not verified in this pass.** The managed-settings file locations used by the probe (a `ClaudeCode` folder under `Program Files` on Windows, `/Library/Application Support/ClaudeCode` on macOS, `/etc/claude-code` on Linux, or the `NEXUS_HUB_CLAUDE_MANAGED_SETTINGS` override) were not re-fetched; the provider-surface environment variables are a best-effort reading of the process environment; the shape under which `/plugin` records a disabled built-in plugin (`enabledPlugins`) is treated as the evidence for the disabled case and not confirmed. Each uncertain input fails toward `CLAUDE.md`.
+
+**Verification commands.** `python -B -m pytest tests/installer/test_verify_read_paths.py` runs the capability matrix against fixtures. `python scripts/harness_audit.py --help` lists the structural audit, which reads the persisted decision.
 
 ### 2026-11-01 (v4.14.6 release - full re-verification)
 

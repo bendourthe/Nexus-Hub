@@ -295,6 +295,10 @@ def _resolve_group(group: Group, snap: Snapshot, claude_ids: list[str]) -> dict[
         ranged = write["proven_versions"]
         if "min" in ranged or "max" in ranged:
             if tool is not None and tool.version_error:
+                if group.control["id"] == "effort":
+                    # The file and native mapping are readable without a separately installed CLI.
+                    caveats.append(f"CLI version unavailable: {tool.version_error}; reporting the effort configuration directly.")
+                    continue
                 caveats += _present_notes(hits)
                 return done("cannot-detect", f"version: {tool.version_error}")
             # Only an older tool can lack the key. Vendors ship weekly and keep documented

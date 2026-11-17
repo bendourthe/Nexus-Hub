@@ -44,6 +44,7 @@ OTHER_SUBSTANTIVE = [
     "base-google-shared.md",
     "generic-instructions.md",
     "base-pi.md",
+    "base-agents.md",
 ]
 SUBSTANTIVE = LOCKSTEP + GUARDRAILS + OTHER_SUBSTANTIVE
 
@@ -100,7 +101,7 @@ def test_substantive_template_carries_documentation_layout(name: str) -> None:
 
 def test_all_thirteen_substantive_templates_are_covered() -> None:
     """Guard the count itself, so a roster edit cannot quietly shrink coverage."""
-    assert len(SUBSTANTIVE) == 13
+    assert len(SUBSTANTIVE) == 14
 
 
 @pytest.mark.parametrize("name", STUBS)

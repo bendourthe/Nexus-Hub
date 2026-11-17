@@ -2,9 +2,9 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPEN_COMMAND, announceStalledStart, refreshCodexTab, restartProvider, activate, deactivate, firstFolder, userPythonPath, vscodeUi, watchedFiles } from "../src/extension";
+import { OPEN_COMMAND, announceStalledStart, refreshCodexTab, restartProvider, activate, deactivate, firstFolder, userPythonPath, providerDirectories, vscodeUi, watchedFiles } from "../src/extension";
 import { Uri, stub } from "./vscode-stub";
-import { COMPACT_COMMAND, SET_EFFORT_COMMAND } from "../src/statusBar";
+import { COMPACT_COMMAND, SET_EFFORT_COMMAND, SettingsStatusBar } from "../src/statusBar";
 import { SettingsController } from "../src/controller";
 import { SESSION_DEFAULTS_FILE, writeSessionDefault } from "../src/sessionDefaults";
 import * as nativeUi from "../src/vendorUi";
@@ -38,6 +38,15 @@ afterEach(() => {
 });
 
 describe("activation", () => {
+  it("finds Claude's bundled CLI without a standalone installation and ignores missing executables", () => {
+    expect(providerDirectories()).toEqual([]);
+    const directory = path.join(scratch, "claude-extension", "resources", "native-binary");
+    fs.mkdirSync(directory, {recursive: true});
+    stub.vendorExtensions.set("anthropic.claude-code", {extensionPath: path.join(scratch, "claude-extension"), isActive: false});
+    expect(providerDirectories()).toEqual([]);
+    fs.writeFileSync(path.join(directory, process.platform === "win32" ? "claude.exe" : "claude"), "fixture");
+    expect(providerDirectories()).toEqual([directory]);
+  });
   it("starts live adapters when an initially untrusted workspace becomes trusted", async () => {
     const native = vi.spyOn(nativeUi, "installNativeUi").mockResolvedValue(undefined);
     const live = vi.spyOn(liveEffort, "installLiveEffort").mockResolvedValue(undefined);
@@ -59,7 +68,12 @@ describe("activation", () => {
   it("routes the Codex toolbar through the shared tab preference", async () => {
     await activate(context() as never);
     await stub.commands.get("nexusHubSettings.openCodex")?.();
-    expect(stub.executed.at(-1)).toBe("chatgpt.newCodexPanel");
+    expect(stub.executed.at(-1)).toBe("vscode.openWith");
+    const call = stub.executedCalls.at(-1)!;
+    expect(String(call.args[0])).toBe("openai-codex://route/extension/panel/new");
+    expect(call.args[1]).toBe("chatgpt.conversationEditor");
+    expect(call.args[2]).toEqual({viewColumn: -2, preserveFocus: false, preview: false});
+    expect(stub.executed).not.toContain("workbench.action.splitEditor");
     writeSessionDefault(path.join(process.env.NEXUS_HUB_HOME!, SESSION_DEFAULTS_FILE), "codexTabs", false);
     await stub.commands.get("nexusHubSettings.openCodex")?.();
     expect(stub.executed.at(-1)).toBe("chatgpt.openSidebar");
@@ -90,6 +104,32 @@ describe("activation", () => {
       await stub.commands.get(SET_EFFORT_COMMAND)?.("high");
       expect(handle).not.toHaveBeenCalled();
     } finally { handle.mockRestore(); }
+  });
+
+  it("previews the hover choice before the slow controller finishes", async () => {
+    const preview = vi.spyOn(SettingsStatusBar.prototype, "previewEffort");
+    let finish: (value: never) => void = () => undefined;
+    const handle = vi.spyOn(SettingsController.prototype, "handle").mockImplementation(() => new Promise(resolve => {finish = resolve;}));
+    const ctx = context();
+    try {
+      await activate(ctx as never);
+      const changing = stub.commands.get(SET_EFFORT_COMMAND)?.("low");
+      expect(preview).toHaveBeenLastCalledWith("low");
+      finish({} as never); await changing;
+      expect(preview).toHaveBeenLastCalledWith();
+      expect(handle).toHaveBeenCalledWith({type: "set", control: "effort", value: "low", tool: null});
+    } finally {preview.mockRestore(); handle.mockRestore(); ctx.subscriptions.forEach(item => item.dispose());}
+  });
+  it("opens the actual Nexus panel when a hover effort change needs attention", async () => {
+    const handle = vi.spyOn(SettingsController.prototype, "handle").mockResolvedValue({applicationIssues: ["Claude Code: expected high, read low."]} as never);
+    const ctx = context();
+    try {
+      await activate(ctx as never);
+      await stub.commands.get(SET_EFFORT_COMMAND)?.("high");
+      expect(stub.executed).toContain(OPEN_COMMAND);
+      expect(stub.executed).toContain("workbench.view.extension.nexusHubSettings");
+      expect(stub.executed).toContain("nexusHubSettings.view.focus");
+    } finally { handle.mockRestore(); ctx.subscriptions.forEach(item => item.dispose()); }
   });
   it("toggles the user compact preference from the hover", async () => {
     stub.defaults["nexusHubSettings.compactStatusBar"] = true;
@@ -210,6 +250,20 @@ it("restarts only the selected provider after confirmation and preserves cancell
   stub.trusted = false; await restartProvider("codex"); expect(codex).toHaveBeenCalledTimes(1);
 });
 
+it("routes the restart buttons to registered native lifecycles when provider exports are empty", async () => {
+  const connection = {initialized: true, internalNotificationHandlers: new Set(), startCodexProcess: vi.fn(() => ({success: true}))};
+  const comm = {channels: new Map([["session", {}]]), restartSessionsWhenIdle: vi.fn()};
+  const host = globalThis as typeof globalThis & {[key: symbol]: unknown};
+  host[Symbol.for("nexusHub.nativeRecovery.v1")] = {codex: connection, claude: new Set([new WeakRef(comm)])};
+  try {
+    for (const id of ["openai.chatgpt", "anthropic.claude-code"]) { stub.vendorExtensions.set(id, {extensionPath: "", isActive: true, exports: undefined}); }
+    await restartProvider("codex"); expect(connection.startCodexProcess).toHaveBeenCalledTimes(1); expect(comm.restartSessionsWhenIdle).not.toHaveBeenCalled();
+    await restartProvider("claude"); expect(comm.restartSessionsWhenIdle).toHaveBeenCalledTimes(1);
+    expect(stub.executed).not.toContain("workbench.action.reloadWindow");
+    expect(stub.executed).not.toContain("workbench.action.restartExtensionHost");
+  } finally { delete host[Symbol.for("nexusHub.nativeRecovery.v1")]; }
+});
+
 it("registers the Codex toolbar before slow native adapter setup completes", async () => {
   let release!: (value: undefined) => void;
   const pending = new Promise<undefined>(resolve => { release = resolve; });
@@ -220,8 +274,11 @@ it("registers the Codex toolbar before slow native adapter setup completes", asy
     const loading = activate(ctx as never);
     expect(stub.commands.has("nexusHubSettings.openCodex")).toBe(true);
     expect(stub.commands.has("nexusHubSettings.refreshCodexTab")).toBe(true);
+    expect(stub.providers.map(item => item.id)).toContain("nexusHubSettings.view");
+    await stub.commands.get(OPEN_COMMAND)?.();
+    expect(stub.executed).toContain("workbench.view.extension.nexusHubSettings");
     await stub.commands.get("nexusHubSettings.openCodex")?.();
-    expect(stub.executed).toContain("chatgpt.newCodexPanel");
+    expect(stub.executed).toContain("vscode.openWith");
     release(undefined); await loading;
   } finally { release(undefined); ctx.subscriptions.forEach(item => item.dispose()); live.mockRestore(); native.mockRestore(); }
 });
@@ -232,16 +289,19 @@ it("refreshes Codex tabs through its recovery adapter and explains every unavail
   expect(stub.warnings.at(-1)?.message).toContain("not installed");
   const refresh = vi.fn().mockResolvedValue(undefined); const activateCodex = vi.fn().mockResolvedValue({});
   stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: false, activate: activateCodex} as never);
-  await refreshCodexTab(); expect(activateCodex).toHaveBeenCalledTimes(1); expect(stub.warnings.at(-1)?.message).toContain("Reload this window");
+  await refreshCodexTab(); expect(activateCodex).toHaveBeenCalled(); expect(stub.warnings.at(-1)?.message).toContain("native recovery is not connected");
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
   stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: true, exports: {nexusRefreshTab: refresh}});
   const before = stub.warnings.length; await refreshCodexTab();
   expect(refresh).toHaveBeenCalledTimes(1); expect(stub.warnings).toHaveLength(before);
 });
 
-it("reports a provider restart that cannot run instead of restarting other extensions", async () => {
+it("leaves all extensions running when the user cancels the selected-provider restart", async () => {
   stub.vendorExtensions.set("anthropic.claude-code", {extensionPath: "", isActive: true, exports: {}});
+  stub.warningAnswer = () => undefined;
   await restartProvider("claude");
-  expect(stub.warnings.at(-1)?.message).toContain("Other extensions were not restarted");
+  expect(stub.warnings.at(-1)?.buttons).toEqual(["Restart Claude Code"]);
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
 });
 
 it("explains an unadapted vendor build that exports nothing instead of throwing a TypeError", async () => {
@@ -250,10 +310,25 @@ it("explains an unadapted vendor build that exports nothing instead of throwing 
   await restartProvider("codex");
   const restart = stub.warnings.at(-1)?.message ?? "";
   expect(restart).not.toContain("TypeError");
-  expect(restart).toContain("Codex 26.1111.21308");
-  expect(restart).toContain("Other extensions were not restarted");
+  expect(restart).toContain("native recovery is not connected");
+  expect(restart).not.toContain("26.1111.21308");
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
   await refreshCodexTab();
   expect(stub.warnings.at(-1)?.message ?? "").not.toContain("TypeError");
+});
+
+it.each(["claude", "codex"] as const)("reports %s activation failure without offering a window reload", async (provider) => {
+  stub.vendorExtensions.set(provider === "claude" ? "anthropic.claude-code" : "openai.chatgpt", {extensionPath: "", isActive: false, activate: vi.fn().mockRejectedValue(new Error("startup failed"))} as never);
+  await restartProvider(provider);
+  expect(stub.warnings.at(-1)?.message).toBe("startup failed");
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
+});
+
+it("reports a targeted recovery failure without restarting unrelated extensions", async () => {
+  stub.vendorExtensions.set("openai.chatgpt", {extensionPath: "", isActive: true, exports: {nexusRestartProvider: vi.fn().mockRejectedValue(new Error("failed"))}});
+  await restartProvider("codex");
+  expect(stub.warnings.at(-1)?.message).toBe("failed");
+  expect(stub.executed).not.toContain("workbench.action.reloadWindow");
 });
 
 it("offers one window reload when a provider started before its launcher was repaired", async () => {

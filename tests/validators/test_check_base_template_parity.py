@@ -30,7 +30,7 @@ SCRIPT = "check_base_template_parity.py"
 
 def test_shared_roster_covers_every_current_template():
     substantive, shims = template_roster(REPO_ROOT)
-    assert len(substantive) == 13
+    assert len(substantive) == 14
     assert len(shims) == 4
     assert "base-pi.md" in [path.name for path in substantive]
     assert set(LOCKSTEP_FILES).issubset(path.name for path in substantive)

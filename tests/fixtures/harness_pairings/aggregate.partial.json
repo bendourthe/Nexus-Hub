@@ -1,0 +1,94 @@
+{
+  "schema": "harness-pairing-aggregate/1",
+  "run_id": "fx-run-0001",
+  "workload_hash": "sha256:6f5eb087e2203698db8f63bd850cb9eaa069d0b6447059ee72419ec8a7e10855",
+  "comparison_groups": 1,
+  "pairings": [
+    {
+      "pairing_id": "pair-full",
+      "isolation_mode": "synthetic",
+      "trials": 3,
+      "rankable_trials": 2,
+      "non_rankable_trials": 1,
+      "successes": 1,
+      "instruction_bytes": 1533,
+      "instruction_tokens_estimated": 408,
+      "success_rate": 0.5,
+      "success_ci95": [
+        0.094531,
+        0.905469
+      ],
+      "latency_s": {
+        "mean": 21.75,
+        "ci95": [
+          12.5,
+          31.0
+        ]
+      },
+      "cost_usd": {
+        "mean": {
+          "unavailable": "a trial lacks this value"
+        },
+        "ci95": {
+          "unavailable": "a trial lacks this value"
+        }
+      },
+      "cost_per_success_usd": {
+        "unavailable": "cost unavailable for at least one trial"
+      },
+      "failure_fingerprints": [
+        "fp-assert-mismatch-01"
+      ],
+      "organic_skills": {
+        "unavailable": "needs-live-validation"
+      }
+    },
+    {
+      "pairing_id": "pair-pointer",
+      "isolation_mode": "synthetic",
+      "trials": 2,
+      "rankable_trials": 2,
+      "non_rankable_trials": 0,
+      "successes": 2,
+      "instruction_bytes": 188,
+      "instruction_tokens_estimated": 36,
+      "success_rate": 1.0,
+      "success_ci95": [
+        0.34238,
+        1.0
+      ],
+      "latency_s": {
+        "mean": 11.25,
+        "ci95": [
+          11.0,
+          11.5
+        ]
+      },
+      "cost_usd": {
+        "mean": {
+          "unavailable": "a trial lacks this value"
+        },
+        "ci95": {
+          "unavailable": "a trial lacks this value"
+        }
+      },
+      "cost_per_success_usd": {
+        "unavailable": "cost unavailable for at least one trial"
+      },
+      "failure_fingerprints": [],
+      "organic_skills": {
+        "unavailable": "needs-live-validation"
+      }
+    }
+  ],
+  "qualifying": [
+    "pair-pointer"
+  ],
+  "pareto_frontier": [
+    "pair-pointer"
+  ],
+  "recommendation": {
+    "state": "no-recommendation",
+    "reason": "evidence mode is not metered-live"
+  }
+}

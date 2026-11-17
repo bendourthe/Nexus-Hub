@@ -228,3 +228,64 @@ def test_remove_marker_section_crlf_only_block_deletes_file(doc_path: Path) -> N
     doc_path.write_bytes((START + "\r\nOwned body\r\n" + END + "\r\n").encode())
     assert remove_marker_section(doc_path).action == "removed"
     assert not doc_path.exists()
+
+
+# --- Project CLAUDE.md migration states keep user bytes (v4.15.2, Phase 4) ----
+
+
+def _claude_state_ctx(tmp_path):
+    from scripts.lib.integrations.base import InstallContext
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    project = tmp_path / "state-project"
+    project.mkdir(exist_ok=True)
+    return InstallContext(
+        repo_root=Path(__file__).resolve().parents[2], target_root=project, scope="workspace",
+        instruction_only=True, manifest=InstallManifest(),
+    )
+
+
+def test_malformed_markers_are_user_bytes_and_migration_leaves_them_alone(tmp_path, monkeypatch):
+    from scripts.lib.integrations.claude import ClaudeIntegration, classify_project_claude_md
+
+    ctx = _claude_state_ctx(tmp_path)
+    original = b"# Mine\r\n<!-- NEXUS_HUB_START -->\r\nunterminated block\r\n"
+    (ctx.target_root / "CLAUDE.md").write_bytes(original)
+    assert classify_project_claude_md(ctx.target_root) == "user-authored"
+    ClaudeIntegration()._migrate_project_claude_md(ctx.target_root, ctx)
+    assert (ctx.target_root / "CLAUDE.md").read_bytes() == original
+
+
+def test_mixed_file_migration_removes_only_the_owned_block_and_keeps_crlf_bytes(tmp_path):
+    from scripts.lib.integrations.claude import ClaudeIntegration
+
+    ctx = _claude_state_ctx(tmp_path)
+    block = "<!-- NEXUS_HUB_START -->\nbody\n<!-- NEXUS_HUB_END -->\n"
+    (ctx.target_root / "CLAUDE.md").write_bytes(b"# Mine\r\nline two\r\n\r\n" + block.encode())
+    actions = ClaudeIntegration()._migrate_project_claude_md(ctx.target_root, ctx)
+    assert [a.action for a in actions] == ["removed"]
+    left = (ctx.target_root / "CLAUDE.md").read_bytes()
+    assert left.startswith(b"# Mine\r\nline two") and b"NEXUS_HUB" not in left
+
+
+def test_managed_only_file_migration_is_reversible_by_a_later_install(tmp_path, monkeypatch):
+    from scripts.lib.integrations.claude import ClaudeIntegration
+
+    ctx = _claude_state_ctx(tmp_path)
+    for key, value in (("NEXUS_HUB_CLAUDE_VERSION", "2.1.270"),
+                       ("CLAUDE_CONFIG_DIR", str(tmp_path / "cfg")),
+                       ("NEXUS_HUB_CLAUDE_MANAGED_SETTINGS", str(tmp_path / "none.json"))):
+        monkeypatch.setenv(key, value)
+    ClaudeIntegration().install_workspace(ctx)
+    claude_md = ctx.target_root / "CLAUDE.md"
+    assert claude_md.exists()
+    ClaudeIntegration()._migrate_project_claude_md(ctx.target_root, ctx)
+    assert not claude_md.exists()
+    ClaudeIntegration().install_workspace(ctx)
+    assert "NEXUS_HUB_START" in claude_md.read_text(encoding="utf-8")
+
+
+@pytest.fixture(autouse=True)
+def _isolated_nexus_home_v4152(tmp_path, monkeypatch):
+    """The merge owner keeps lock and backup state under NEXUS_HUB_HOME; never the real home."""
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path / "nexus-home-v4152"))

@@ -460,6 +460,8 @@ TESTS_CORE = Group(
         _pytest(
             "repo-tests-integrations-repository-contracts",
             "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_harness_pairing_contract.py",
+            "tests/integrations/test_harness_pairings.py",
             "tests/integrations/test_manifest_log_cap.py",
             "tests/integrations/test_nexus_ai_version.py",
             "tests/integrations/test_registry.py",
@@ -484,6 +486,7 @@ TESTS_CORE = Group(
             "tests/integrations/test_usage_guard_delivery.py",
             "tests/integrations/test_notify_contract_guard.py",
             "tests/integrations/test_notify_helper_delivery.py",
+            "tests/integrations/test_status_reporting.py",
             timeout=1800,
         ),
         _pytest(
@@ -596,6 +599,7 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_status_report.py",
             timeout=2700,
             platforms=("linux", "macos"),
         ),
@@ -606,6 +610,7 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_status_report.py",
             platforms=("windows",),
             timeout=2700,
         ),

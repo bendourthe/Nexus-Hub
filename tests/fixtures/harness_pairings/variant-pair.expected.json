@@ -1,0 +1,15 @@
+{
+  "pair": [
+    "full",
+    "pointer"
+  ],
+  "basis": "scripts/measure_rendered_context.py estimator over the two LF fixture files",
+  "tokens": {
+    "full": 408,
+    "pointer": 36
+  },
+  "payload_reduction_percent": 91.2,
+  "organic_skills": "needs-live-validation",
+  "guard_skills": "not observed (synthetic)",
+  "v4_13_df1": "open: synthetic receipts cannot flip the default"
+}
