@@ -44,6 +44,12 @@ describe("manifest", () => {
     expect(setting.default).toBe("");
   });
 
+  it("offers the agent split restore only as an application-scoped opt-in", () => {
+    const setting = manifest.contributes.configuration.properties["nexusHubSettings.restoreAgentSplit"];
+    expect(setting).toMatchObject({ type: "boolean", scope: "application", default: false });
+    expect(setting.markdownDescription).toMatch(/never closes or reopens/);
+  });
+
   it("has the build scripts the stability gate runs and exact dependency versions", () => {
     for (const name of ["compile", "test", "test:coverage", "package", "verify:package"]) {
       expect(manifest.scripts[name]).toBeTruthy();
