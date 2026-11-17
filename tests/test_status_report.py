@@ -47,7 +47,7 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
     text = report.render(snapshot, "compact")
     assert text.startswith("## Status Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
     assert "| **Full v1.3 implementation** (1 version left) | " in text
-    assert "&nbsp;&nbsp;\u00b7&nbsp;&nbsp;3/19 tasks \u25b0\u25b1" in text and "16%" in text
+    assert " \u00b7 3/19 tasks \u25b0\u25b1" in text and "16%" in text
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
     assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
@@ -323,3 +323,11 @@ def test_compact_table_has_empty_header_and_exactly_four_rows(report, snapshot):
 ])
 def test_shorten_never_cuts_mid_word_or_mid_parenthesis(report, value, expected):
     assert report.shorten(" ".join(value.split()), 48) == expected
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_no_nbsp_or_entities_in_any_output(report, snapshot, mode):
+    plain = report.render(snapshot, mode)
+    hostile = report.render(hostile_snapshot(snapshot), mode)
+    for output in (plain, hostile):
+        assert "&nbsp;" not in output and "&#" not in output and "&amp;" not in output

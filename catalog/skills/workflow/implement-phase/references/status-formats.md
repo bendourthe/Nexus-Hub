@@ -6,7 +6,7 @@ Summary: the approved layouts for the compact status footer and the full status 
 
 The canonical output is produced by [status_report.py](../scripts/status_report.py) from the evidence snapshot documented in [progress-reporting.md](progress-reporting.md). Do not hand-compose a shorter substitute. Cadence belongs to that reference; this file owns presentation.
 
-1. Start with `## Status Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment `▰`/`▱` bar with percent, separated by `&nbsp;` around a middle dot. This keeps the next-release ETA distinct from the whole-scope estimate.
+1. Start with `## Status Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment `▰`/`▱` bar with percent, separated by a middle dot with single plain spaces. This keeps the next-release ETA distinct from the whole-scope estimate.
 2. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits the timestamp, Elapsed, Basis, Confidence, Blocked by and the Source line; the full report carries them.
 3. Always show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order, each preceded by a `---` rule and followed by bullets. Empty sections keep the heading with `None.`, `No decisions waiting.` or `Nothing running.`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
 4. Goals are bullets `goal - done when (state)`. Include the run goal, next known milestone and active lanes where applicable.
@@ -33,6 +33,8 @@ These rules are the contract for every agent and platform; the renderer enforces
 - Tables are padded so source columns align, headers are plain labels, Version cells are bold, progress is a 10-segment `▰`/`▱` bar plus percent (never `#` bars), and the Total row is bold.
 - Every heading, table and list has a blank line before and after it, and sections are separated by a `---` rule.
 - In the full report the Source line is a short italic footer capped at 100 characters; the compact report omits it.
+- No output contains `&nbsp;` or any `&#..;` entity, because some clients print them literally. Spacing comes from blank lines and `---` rules only.
+- Printing: run `scripts/status_report.py` (event `request` for full, `checkpoint` or `turn-end` with a prior receipt for compact), print its stdout verbatim with no code fence and no text before or after it (only a one-line error if the renderer fails), and never hand-write a status table. This is the Verbatim output rule that `/status` and `progress-reporting.md` repeat.
 
 ## Measured data rule
 
@@ -68,7 +70,7 @@ Both examples are the exact renderer output for [status-snapshot.json](status-sn
 | **Last release** | v1.2.0 |
 | **Next release** | v1.3.0 |
 | **Next release ETA** | unknown (no comparable release history) |
-| **Full v1.3 implementation** (1 version left) | unknown (no comparable history)&nbsp;&nbsp;·&nbsp;&nbsp;3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
+| **Full v1.3 implementation** (1 version left) | unknown (no comparable history) · 3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
 
 ### 📊 Version progress
 
@@ -112,7 +114,7 @@ Nothing running.
 | **Last release** | v1.2.0 |
 | **Next release** | v1.3.0 |
 | **Next release ETA** | unknown (no comparable release history) |
-| **Full v1.3 implementation** (1 version left) | unknown (no comparable history)&nbsp;&nbsp;·&nbsp;&nbsp;3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
+| **Full v1.3 implementation** (1 version left) | unknown (no comparable history) · 3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
 
 ---
 

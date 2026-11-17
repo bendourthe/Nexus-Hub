@@ -20,9 +20,7 @@ RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-
 
 
 FILLED, EMPTY = "\u25b0", "\u25b1"
-GAP = "&nbsp;" * 4
-DOT = GAP + "\u00b7" + GAP
-DOT2 = "&nbsp;" * 2 + "\u00b7" + "&nbsp;" * 2
+DOT2 = " \u00b7 "
 GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
 RELEASE_ICON, PROGRESS_ICON = "\U0001F680", "\U0001F4CA"
 CELL_MAX = 48
