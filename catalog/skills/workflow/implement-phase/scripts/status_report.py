@@ -56,6 +56,13 @@ def validate(data: dict) -> None:
         raise ValueError("active must be a boolean")
     if data.get("last_released") is not None and not isinstance(data["last_released"], str):
         raise ValueError("last_released must be a string or null (unknown)")
+    release = data.get("next_release")
+    if release is not None:
+        required = ("version", "remaining", "condition", "confidence", "basis")
+        if not isinstance(release, dict) or any(not isinstance(release.get(k), str) or not release[k].strip() for k in required):
+            raise ValueError("next_release requires nonempty version, remaining, condition, confidence and basis")
+        if release["confidence"] not in ("low", "medium", "high", "unknown"):
+            raise ValueError("release confidence must be low, medium, high or unknown")
     left = data.get("versions_left")
     if left is not None and (type(left) is not int or left < 0):
         raise ValueError("versions_left must be a nonnegative integer or null")
@@ -128,8 +135,17 @@ def render(data: dict, mode: str) -> str:
     done, total = aggregate(data)
     released = text(data.get("last_released") or "unknown")
     left = data.get("versions_left")
+    release = data.get("next_release") or {
+        "version": "unknown", "remaining": "unknown (release estimate not supplied)",
+        "condition": "unknown", "confidence": "unknown", "basis": "release estimate not supplied",
+    }
+    condition = "" if release["condition"] == "none" else f"; {text(release['condition'])}"
     parts = [f"## Status: {text(data['scope'])}",
-             f"{progress(done, total)} | last released {released} | {left if left is not None else 'unknown'} versions left | time left: {text(data['remaining'])}",
+             f"**Last released:** **{released}**",
+             f"**Next release:** **{text(release['version'])}** | **Release ETA:** {text(release['remaining'])}{condition}",
+             f"Confidence: {text(release['confidence'])} | Basis: {text(release['basis'])}",
+             f"**Whole {text(data['scope'])} completion:** {text(data['remaining'])}",
+             f"{progress(done, total)} | {left if left is not None else 'unknown'} versions left",
              f"As of {text(data['observed_at'])} | Elapsed: {text(data['elapsed'])}"]
     if mode == "full":
         rows = [[text(r["name"]), text(r["goals"]), progress(*counts(r)).replace(" | ", " / "),

@@ -48,6 +48,8 @@ export class Uri {
   }
 }
 
+export const ViewColumn = { Active: -1, Beside: -2 } as const;
+
 export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
 export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
 
@@ -109,6 +111,7 @@ export const stub = {
   providers: [] as { id: string; provider: unknown; options: unknown }[],
   commands: new Map<string, (...args: unknown[]) => unknown>(),
   executed: [] as string[],
+  executedCalls: [] as {id: string; args: unknown[]}[],
   statusItems: [] as StatusItem[],
   vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean; exports?: unknown }>(),
   fireConfig(...sections: string[]): void {
@@ -133,6 +136,7 @@ export const stub = {
     this.providers = [];
     this.commands = new Map();
     this.executed = [];
+    this.executedCalls = [];
     this.statusItems = [];
     this.vendorExtensions.clear();
     configEvents.clear();
@@ -234,6 +238,7 @@ export const commands = {
   },
   async executeCommand(id: string, ...args: unknown[]): Promise<unknown> {
     stub.executed.push(id);
+    stub.executedCalls.push({id, args});
     return stub.commands.get(id)?.(...args);
   },
 };

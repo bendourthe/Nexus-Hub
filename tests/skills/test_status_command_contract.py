@@ -40,7 +40,7 @@ def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
     positions = [output.index(f"\n\n### {h}\n\n") for h in ("Goals", "Decisions", "Running")]
     assert positions == sorted(positions)
     assert "3/19 tasks" in output and "16%" in output
-    assert "last released v1.2.0" in output
+    assert "**Last released:** **v1.2.0**" in output
     assert "No decisions waiting." in output and "Nothing running." in output
     bars = re.findall(r"`([#-]+)`", output)
     assert bars and all(len(bar) == 10 for bar in bars)
