@@ -17,6 +17,7 @@ import { openCodexHistory } from "./codexHistory";
 import { requestEffortApply } from "./liveEffortProxy";
 import { installNativeUi } from "./vendorUi";
 import { restartNativeProvider } from "./nativeRecovery";
+import { installAgentSplit, vscodeSplitHost } from "./agentSplit";
 import { readSessionDefaults, SESSION_DEFAULTS_FILE, writeSessionDefault } from "./sessionDefaults";
 
 /** What the live check (and other extensions) can call: the panel's current model, freshly read. */
@@ -137,6 +138,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     vscode.commands.registerCommand("nexusHubSettings.refreshCodexTab", refreshCodexTab),
     vscode.commands.registerCommand("nexusHubSettings.openCodex", () => openCodexPanel(sessionFile)),
   );
+  context.subscriptions.push(installAgentSplit(vscodeSplitHost(context.workspaceState)));
   let liveEffort: Awaited<ReturnType<typeof installLiveEffort>>;
   let nativeUi: Awaited<ReturnType<typeof installNativeUi>>;
   const bridge = new CliBridge({ pythonPath: userPythonPath, providerDirectories });
