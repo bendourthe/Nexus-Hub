@@ -40,7 +40,11 @@ None. No current role is tier-indifferent; ambiguous roles fail toward quality. 
 
 ## Fast-tier agents
 
-None yet. Add a table row with the agent name in backticks and a concrete reason only for an agent that reads and reports and never edits or runs anything; the pinning test accepts a fast-tier model only for an agent listed here.
+Add a table row with the agent name in backticks and a concrete reason only for an agent that reads and reports and never edits or runs anything; the pinning test accepts a fast-tier model only for an agent listed here.
+
+| Agent | Reason |
+|---|---|
+| `log-reader` | Reads output it is handed and reports each failure; it has no edit or shell tool and never chooses a fix. Model `haiku`. Effort: unsupported until the effort-field evidence (plan task 1.2) confirms it applies to the fast tier, so the agent declares none. |
 
 ## Effort
 

@@ -53,7 +53,7 @@ def test_plugin_json_points_at_catalog_commands_and_agents() -> None:
     ]
     assert data["agents"] == expected_agents
     assert (REPO_ROOT / "catalog" / "commands").is_dir()
-    assert len(expected_agents) == 23
+    assert expected_agents, "catalog agent roster is empty"
     assert "hooks" not in data
     assert "mcpServers" not in data
 

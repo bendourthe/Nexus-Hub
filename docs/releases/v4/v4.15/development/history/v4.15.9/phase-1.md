@@ -1,6 +1,6 @@
 # v4.15.9 Phase 1 (reduced): living agent classification
 
-Started 2026-11-17T23:51Z. Worktree `C:\Users\BEDOURTHE\.worktrees\nexus-hub\v4.15.9`, base `4d6316cc0`.
+Started 2026-11-17T23:51Z. Worktree `v4.15.9` under the centralized worktree root, base `4d6316cc0`.
 
 ## Done
 

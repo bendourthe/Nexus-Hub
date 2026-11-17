@@ -15,10 +15,12 @@ def test_every_agent_has_exactly_one_model_classification():
     rationale = RATIONALE.read_text(encoding="utf-8")
     pinned_text, unpinned_text = rationale.split("## Deliberately unpinned", 1)
     pinned_text = pinned_text.split("## Pinned agents", 1)[1]
-    unpinned_text = unpinned_text.split("## Fast-tier agents", 1)[0]
+    unpinned_text, fast_text = unpinned_text.split("## Fast-tier agents", 1)
+    fast_text = fast_text.split("## Effort", 1)[0]
     row = r"^\| `([a-z0-9-]+)` \| (.+) \|$"
     documented_pins = {name for name, _ in re.findall(row, pinned_text, re.MULTILINE)}
     unpinned = {name for name, _ in re.findall(row, unpinned_text, re.MULTILINE)}
+    fast = {name for name, _ in re.findall(row, fast_text, re.MULTILINE)}
     names = set()
     pinned = set()
     for path in sorted((ROOT / "catalog/agents").glob("*.md")):
@@ -28,15 +30,19 @@ def test_every_agent_has_exactly_one_model_classification():
         frontmatter = yaml.safe_load(content.split("---", 2)[1])
         if "model" in frontmatter:
             assert frontmatter["model"] in {"opus", "sonnet", "haiku"}, path.name
+            if path.stem in fast:
+                assert frontmatter["model"] == "haiku", path.name
+                continue
             assert frontmatter["model"] == "opus", path.name
             pinned.add(path.stem)
     assert names, "catalog roster is empty"
     assert pinned == documented_pins, "catalog pins disagree with the documented Opus partition"
-    assert not pinned & unpinned, (
-        "agent cannot be both pinned and deliberately unpinned"
+    assert not (pinned & unpinned) and not (fast & (pinned | unpinned)), (
+        "agent cannot be in more than one classification"
     )
-    assert names == pinned | unpinned, (
-        f"unclassified: {sorted(names - pinned - unpinned)}; stale: {sorted((pinned | unpinned) - names)}"
+    assert names == pinned | unpinned | fast, (
+        f"unclassified: {sorted(names - pinned - unpinned - fast)}; "
+        f"stale: {sorted((pinned | unpinned | fast) - names)}"
     )
 
 
