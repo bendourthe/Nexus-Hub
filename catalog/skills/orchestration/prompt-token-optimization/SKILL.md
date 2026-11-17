@@ -270,6 +270,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 - **Do not sacrifice quality for token savings**; if compacting too aggressively causes the model to lose critical context, back off
 - **Keep exploration scripts version-controlled** so they can be reused across sessions
 - **Hand compaction-summary review to its owner**: validating that a summary lost nothing is owned by `[[context-compression]]` (Step 4 probes)
+- **Defer settings and instruction-file rewrites**: a hook or command that rewrites a settings file or an instruction file during a session changes the cached prefix for the rest of that session, so such writes are deferred to session end or the next session start unless the change is needed now (comparison item E)
 - **Combine techniques** for compounding savings (e.g., PTC + filtering can yield 50%+ reduction)
 - **Set token budgets per task** and treat them as soft constraints to build discipline around context management
 - **Revisit your optimization strategy** monthly as model capabilities and pricing change
