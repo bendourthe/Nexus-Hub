@@ -45,21 +45,27 @@ def snapshot():
 
 def test_compact_footer_layout_and_all_sections(report, snapshot):
     text = report.render(snapshot, "compact")
-    assert text.startswith("---\n\n**Status: v1.3** \u25b0\u25b1")
-    assert "&nbsp;&nbsp;&nbsp;&nbsp;\u00b7&nbsp;&nbsp;&nbsp;&nbsp;3/19 tasks" in text
-    assert "last released v1.2.0" in text and "1 version left" in text
-    assert "16%" in text
-    for label in ("\U0001F3AF Goals:", "\U0001F64B No decisions waiting.", "\U0001F504 Nothing running."):
-        assert f"\n\n{label}" in text
+    assert text.startswith("## Status Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
+    assert "| **Full v1.3 implementation** (1 version left) | " in text
+    assert "&nbsp;&nbsp;\u00b7&nbsp;&nbsp;3/19 tasks \u25b0\u25b1" in text and "16%" in text
+    for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
+        assert f"\n\n---\n\n### {heading}\n\n" in text
+    assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
+    assert "Source:" not in text and text.endswith('*Full report: /status, or ask for "full status".*\n')
     assert "Full report: /status" in text
 
 
 def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
-    snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "options": [{"option": "A", "effect": "e"}]}]
-    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "unknown"}]
+    snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
+                              "options": [{"option": "A", "effect": "e"}]}]
+    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "unknown"},
+                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min", "remaining": "unknown"}]
     text = report.render(snapshot, "compact")
-    assert "\U0001F64B 1 decision waiting:\n\n- #1 Pick A" in text
-    assert "\U0001F504 1 running:\n\n- PR 1 \u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b1 90% (checks)" in text
+    assert "### \U0001F64B Decisions waiting\n\n- #1 Pick A. Reply A or B\n" in text
+    assert "- PR 1 \u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b1 90%: checks\n- Fix: second pass\n" in text
+    snapshot["decisions"][0]["reply"] = " "
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")
 
 
 def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapshot):
@@ -67,11 +73,23 @@ def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapsh
     text = report.render(snapshot, "full")
     assert "**3/20**" in text and "15%" in text
     assert "**Phase 1**" in text and "**Phase 2**" in text and "| **Total** |" in squash(text)
-    assert "Source: example/plan.md" in text
-    assert text.startswith("## Status Update: v1.3 Implementation Progress\n\n")
+    assert text.rstrip().endswith("*Source: example/plan.md*")
+    assert text.startswith("## Status Update\n\n### \U0001F680 Release status\n\n| | |\n|---|---|\n")
+    assert "\n\n### \U0001F4CA Version progress\n\n| Version " in text
     assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(text)
-    for heading in ("\U0001F3AF Goals", "\U0001F64B Waiting on you", "\U0001F504 Running now"):
-        assert f"\n\n&nbsp;\n\n---\n\n## {heading}\n\n" in text
+    assert "\n\nConfidence: unknown \u00b7 Basis: release estimate not supplied \u00b7 As of 2026-11-16T12:00:00Z\n\n---\n\n" in text
+    for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
+        assert f"\n\n---\n\n### {heading}\n\n" in text
+    assert "&nbsp;\n\n---" not in text
+
+
+def test_full_opens_with_the_same_release_table_as_compact(report, snapshot):
+    full = report.render(snapshot, "full").split("\n\n")
+    compact = report.render(snapshot, "compact").split("\n\n")
+    assert full[0] == compact[0] == "## Status Update"
+    assert full[1] == "### \U0001F680 Release status" and full[2] == compact[1]
+    assert full[3] == "### \U0001F4CA Version progress" and full[4].startswith("| Version ")
+    assert "Release status" not in "\n".join(compact) and "Version progress" not in "\n".join(compact)
 
 
 def test_cadence_suppresses_narration_and_deduplicates_boundaries(report, snapshot):
@@ -140,7 +158,7 @@ def test_cli_is_read_only_and_rejects_bad_input(tmp_path, snapshot):
     result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path), "--event", "request"],
                             capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr
-    assert "## Status Update: v1.3 Implementation Progress" in result.stdout
+    assert result.stdout.startswith("## Status Update\n")
     assert path.read_bytes() == before and list(tmp_path.iterdir()) == [path]
     path.write_text('{"scope": "v1.3"}', encoding="utf-8")
     result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path)],
@@ -199,20 +217,17 @@ def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapsh
                                 "condition": "after checker PR merges and installation passes",
                                 "confidence": "low", "basis": "Remaining validation and one release pipeline"}
     output = report.render(snapshot, mode)
-    assert "| Last released | **v4.15.1**" in output
-    assert "| Next release  | **v4.15.2**" in output
-    assert "| Release ETA   | ~1-2 h" in output
-    assert ("| Blocked by    | after checker PR merges and installation" in output) == (mode == "full")
-    assert ("| Confidence    | low" in output and "Remaining validation" in output) == (mode == "full")
-    assert ("| Blocked by" in output) == (mode == "full")
-    assert "| Whole v4.15   | ~2-4 d" in output
-    assert "| time left:" not in output
+    assert "| **Last release** | v4.15.1 |" in output and "| **Next release** | v4.15.2 |" in output
+    assert "| **Next release ETA** | ~1-2 h |" in output
+    assert "| **Full v4.15 implementation** (1 version left) | ~2-4 d" in output
+    assert ("Confidence: low \u00b7 Basis: Remaining validation and one release pipeline \u00b7 As of" in output) == (mode == "full")
+    assert "Blocked by" not in output and "| time left:" not in output
 
 
 def test_legacy_snapshot_reports_missing_release_estimate_without_guessing(report, snapshot):
     output = report.render(snapshot, "compact")
-    assert "| Next release  | **unknown**" in output
-    assert "| Release ETA   | unknown" in output
+    assert "| **Next release** | unknown |" in output
+    assert "| **Next release ETA** | unknown (release estimate not supplied) |" in output
     assert "release estimate not supplied" in output
 
 
@@ -264,7 +279,8 @@ ELAPSED = "4 h 54 min (first plan commit 2026-11-16 19:03 UTC to #119 merge 23:5
 @pytest.mark.parametrize("mode", ["compact", "full"])
 def test_parenthetical_elapsed_and_dollar_amounts_are_plain_text(report, snapshot, mode):
     snapshot["elapsed"] = ELAPSED
-    snapshot["estimate_basis"] = "Spend $38.36 of $500 (cap)"
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "1 h", "condition": "none", "confidence": "low",
+                                "basis": "Spend $38.36 of $500 (cap)"}
     snapshot["source"] = "ledger ($38.36 of $500)"
     output = report.render(snapshot, mode)
     assert "$" not in re.sub(r"`[^`]*`", "", output)
@@ -272,9 +288,9 @@ def test_parenthetical_elapsed_and_dollar_amounts_are_plain_text(report, snapsho
         assert token not in output
     assert "&#" not in output
     if mode == "full":
-        assert "| Elapsed       | 4 h 54 min " in output and "first plan commit" not in output
-        assert "`$38.36` of `$500` (cap)" in output
-    assert "*Source: ledger (`$38.36` of `$500`)*" in output
+        assert "| **4 h 54 min**" in output and "first plan commit" not in output
+        assert "Basis: Spend `$38.36` of `$500` (cap)" in output
+    assert ("*Source: ledger (`$38.36` of `$500`)*" in output) == (mode == "full")
 
 
 def test_cells_are_capped_with_ellipsis_and_tables_are_aligned(report, snapshot):
@@ -286,16 +302,17 @@ def test_cells_are_capped_with_ellipsis_and_tables_are_aligned(report, snapshot)
     assert "y" * 45 + "..." in output
     table_lines = [l for l in output.splitlines() if l.startswith("| ")]
     assert all("\n" not in l for l in table_lines)
-    first_table = [l for l in table_lines[:11]]
-    assert len({len(l) for l in first_table}) == 1
+    start = next(i for i, l in enumerate(table_lines) if l.startswith("| Version"))
+    version_table = table_lines[start:start + 4]
+    assert len(version_table) == 4 and len({len(l) for l in version_table}) == 1
 
 
-def test_compact_header_has_only_four_rows(report, snapshot):
+def test_compact_table_has_empty_header_and_exactly_four_rows(report, snapshot):
     output = report.render(snapshot, "compact")
-    rows = [l for l in squash(output).splitlines() if l.startswith("| ") and "---" not in l]
-    assert [r.split(" | ")[0].strip("| ") for r in rows] == ["Field", "Last released", "Next release", "Release ETA", "Whole v1.3"]
+    table = [l for l in output.splitlines() if l.startswith("|")]
+    assert table[:2] == ["| | |", "|---|---|"] and len(table) == 6
     for label in ("As of", "Elapsed", "Basis", "Confidence", "Blocked by", "Versions left"):
-        assert f"| {label}" not in output
+        assert label not in output
 
 
 @pytest.mark.parametrize("value,expected", [
@@ -306,9 +323,3 @@ def test_compact_header_has_only_four_rows(report, snapshot):
 ])
 def test_shorten_never_cuts_mid_word_or_mid_parenthesis(report, value, expected):
     assert report.shorten(" ".join(value.split()), 48) == expected
-
-
-def test_header_is_a_two_column_table_not_run_on_lines(report, snapshot):
-    output = report.render(snapshot, "full")
-    assert "| Field " in output and "| Last released | **v1.2.0**" in output
-    assert "Last released:" not in output and "Release ETA:" not in output

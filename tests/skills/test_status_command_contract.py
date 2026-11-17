@@ -41,17 +41,15 @@ def rendered():
 def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
     module, snapshot = rendered
     output = module.render(snapshot, mode)
-    assert output.startswith("## Status Update: v1.3 Implementation Progress\n\n" if mode == "full" else "---\n\n**Status: v1.3**")
+    assert output.startswith("## Status Update\n\n" + ("### \U0001F680 Release status\n\n" if mode == "full" else "") + "| | |")
     assert "3/19" in output and "16%" in output
-    assert "| Last released | **v1.2.0** |" in squash(output)
-    assert mode == "full" or "last released v1.2.0" in output
+    assert "| **Last release** | v1.2.0 |" in squash(output)
     assert "No decisions waiting." in output and "Nothing running." in output
     bars = re.findall(r"([\u25b0\u25b1]+) \d+%", output)
     assert bars and all(len(bar) == 10 for bar in bars)
     assert not re.search(r"[\\](?:[()\[\]])|[$]", output)
-    if mode == "full":
-        positions = [output.index(f"## {h}") for h in ("\U0001F3AF Goals", "\U0001F64B Waiting on you", "\U0001F504 Running now")]
-        assert positions == sorted(positions)
+    positions = [output.index(f"### {h}") for h in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running")]
+    assert positions == sorted(positions)
 
 
 def test_full_includes_all_rows_totals_and_evidence(rendered):
@@ -60,7 +58,7 @@ def test_full_includes_all_rows_totals_and_evidence(rendered):
     assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(output)
     assert "| Goal | Scope | Done when | State |" in squash(output)
     assert "| **Total** |" in squash(output)
-    assert "Estimate basis:" in output and "Source:" in output and "As of" in output
+    assert "Confidence:" in output and "Source:" in output and "As of" in output
 
 
 def test_decision_details_only_in_full_report(rendered):
@@ -68,7 +66,7 @@ def test_decision_details_only_in_full_report(rendered):
     snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "A is recommended because it preserves consumers", "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}]
     full = module.render(snapshot, "full")
     compact = module.render(snapshot, "compact")
-    assert "### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
+    assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
     assert "| Option | What it means | Effect |" in squash(full) and "preserves consumers" in full
     assert "Choose packaging" in compact and "| Option |" not in compact
 
@@ -156,6 +154,6 @@ def test_documented_examples_equal_renderer_output(rendered, mode):
 
 def test_contract_states_escaping_and_layout_rules():
     formats = read(FORMATS)
-    for expected in ("## Header table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
-                     "never `#` bars", "short italic footer", "`&nbsp;` paragraph and a `---` rule"):
+    for expected in ("## Release table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
+                     "never `#` bars", "short italic footer", "Decisions waiting", "separated by a `---` rule"):
         assert expected in formats

@@ -6,23 +6,23 @@ Summary: the approved layouts for the compact status footer and the full status 
 
 The canonical output is produced by [status_report.py](../scripts/status_report.py) from the evidence snapshot documented in [progress-reporting.md](progress-reporting.md). Do not hand-compose a shorter substitute. Cadence belongs to that reference; this file owns presentation.
 
-1. Open with a `---` rule, then one bold status line: `**Status: <scope>**`, a 10-segment `▰`/`▱` bar with the whole-task percentage, done/total tasks, `last released <version>` and versions left, separated by `&nbsp;` gaps around a middle dot. Below it show the four-row compact header table described under Header table, so the Next release ETA cannot be mistaken for the Whole <scope> completion estimate.
-2. Include the observation timestamp with timezone, elapsed time and evidence source. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts.
-3. Always show the goals, decisions and running parts, in that order, each introduced by its emoji label line: `🎯 Goals:`, `🙋 N decisions waiting:` and `🔄 N running:`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
-4. Goals are short bullets with goal, measurable done-when and state. Include the run goal, next known milestone and active lanes where applicable.
-5. Decisions are bullets with stable ids and standalone titles. When empty, print `🙋 No decisions waiting.`. A newly requested decision uses the full report with its explanation and options.
-6. Running items are bullets with name, optional observed HTTP(S) link, a bar with percent and state. When empty, print `🔄 Nothing running.`. Unknown liveness is stated explicitly, never converted to zero by guesswork.
-7. End with `*Full report: /status, or ask for "full status".*`. Natural language works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
+1. Start with `## Status Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment `▰`/`▱` bar with percent, separated by `&nbsp;` around a middle dot. This keeps the next-release ETA distinct from the whole-scope estimate.
+2. A zero-task scope reads `N/A`, never 100%; unknown counts remain unknown. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits the timestamp, Elapsed, Basis, Confidence, Blocked by and the Source line; the full report carries them.
+3. Always show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order, each preceded by a `---` rule and followed by bullets. Empty sections keep the heading with `None.`, `No decisions waiting.` or `Nothing running.`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
+4. Goals are bullets `goal - done when (state)`. Include the run goal, next known milestone and active lanes where applicable.
+5. Decisions are bullets `#id title`, followed by `. <reply>` when the snapshot decision carries an optional `reply` instruction such as `Reply A, B or C`. A newly requested decision uses the full report with its explanation and options.
+6. Running items are bullets `name: state`, with a bar and percent after the name when task counts are known and an optional observed HTTP(S) link on the name. Unknown liveness is stated explicitly, never converted to zero by guesswork.
+7. End with the italic pointer `*Full report: /status, or ask for "full status".*`. Natural language works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
 
 ## Full report
 
-Start with `## Status Update: <scope> Implementation Progress`, then the header table, then one table with every scoped plan or phase and a bold Total row. Columns are Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Follow it with the estimate basis. Every later section is preceded by a `&nbsp;` paragraph and a `---` rule and uses an H2 heading: `## 🎯 Goals` (Goal, Scope, Done when, State), `## 🙋 Waiting on you` and `## 🔄 Running now` (Item, Progress, Tasks, State, Elapsed, Remaining). Each decision is a `### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Empty sections use `No decisions waiting.` and `Nothing running.`. Never append a compact report to a full one.
+Start with `## Status Update`, then `### 🚀 Release status` directly above the same four-row release table the compact report uses (see Release table), then `### 📊 Version progress` directly above the detailed per-version table. The compact report has no such subheadings. The per-version table with columns Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining and a bold Total row; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Under that table put one short line, `Confidence: <x> · Basis: <short> · As of <time>`, with no extra header rows. Every later section is preceded by a `---` rule and uses an H3 heading, the same level as the compact report: `### 🎯 Goals` (a Goal, Scope, Done when, State table), `### 🙋 Decisions waiting` and `### 🔄 Running` (an Item, Progress, Tasks, State, Elapsed, Remaining table). Each decision is a `#### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Empty sections use `No decisions waiting.` and `Nothing running.`. The report ends with the short italic Source line. Never append a compact report to a full one.
 
 The shared renderer escapes evidence text before inserting it into Markdown, so a plan title cannot introduce a heading, HTML, a link or extra table cells. It writes entities (`&#36;`, `&#91;`, `&#42;`), never backslash escapes: Codex reads `\(`...`\)` and `$...$` as LaTeX math, which run words together. Only table pipes use `\|`. Parentheses pass through unchanged. Font, table border and exact spacing are controlled by each product; identical semantic Markdown is the supported presentation contract.
 
-## Header table
+## Release table
 
-Both reports show release facts as a two-column `Field | Value` table, never as run-on lines. The full report has these rows in order: Last released (bold version), Versions left, Next release (bold version), Release ETA, Blocked by (omitted when the condition is `none`), Confidence, Basis, Whole <scope>, As of, Elapsed. The compact footer has only four rows: Last released, Next release, Release ETA and Whole <scope>; it never repeats As of, Elapsed, Basis, Confidence, Blocked by or Versions left, because the status line already carries the versions and the full report owns the rest. Keep each value short. Long explanations belong in the `Estimate basis:` line under the full table or are cut.
+Both reports open with the same table: an empty header row (`| | |`), bold labels and plain values, in this order: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value joins the whole-scope estimate, `done/total tasks` and a 10-segment bar with percent. Confidence, Basis, As of and Elapsed are never extra rows; the full report carries them in the line under the per-version table and in the Total row.
 
 ## Rendering rules
 
@@ -31,8 +31,8 @@ These rules are the contract for every agent and platform; the renderer enforces
 - Never emit a bare `$` or a backslash before a parenthesis or bracket. Hosts read backslash-paren pairs and `$...$` as LaTeX math and run the words together. Any whitespace-delimited token that contains `$`, `*`, `_`, `[`, `]`, a backslash, a backtick, `&`, `<` or `>` is written as a code span such as `$38.36` or `my_var`, with edge punctuation left outside, which no client treats as math or markup. The renderer writes no HTML entities, so raw text never shows `&#..;`. Parentheses pass through unchanged and render as plain text. Only a table pipe is written `\|`.
 - Table cells are capped at 48 characters. A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
 - Tables are padded so source columns align, headers are plain labels, Version cells are bold, progress is a 10-segment `▰`/`▱` bar plus percent (never `#` bars), and the Total row is bold.
-- Every heading, table and list has a blank line before and after it, and sections are separated by a `&nbsp;` paragraph and a `---` rule.
-- The Source line is a short italic footer capped at 100 characters.
+- Every heading, table and list has a blank line before and after it, and sections are separated by a `---` rule.
+- In the full report the Source line is a short italic footer capped at 100 characters; the compact report omits it.
 
 ## Measured data rule
 
@@ -59,50 +59,43 @@ Both examples are the exact renderer output for [status-snapshot.json](status-sn
 ### Full
 
 ````markdown
-## Status Update: v1.3 Implementation Progress
+## Status Update
 
-| Field         | Value                                   |
-| ------------- | --------------------------------------- |
-| Last released | **v1.2.0**                              |
-| Versions left | 1 version                               |
-| Next release  | **v1.3.0**                              |
-| Release ETA   | unknown (no comparable release history) |
-| Confidence    | unknown                                 |
-| Basis         | No observed release durations           |
-| Whole v1.3    | unknown (no comparable history)         |
-| As of         | 2026-11-16T12:00:00Z                    |
-| Elapsed       | 13 min                                  |
+### 🚀 Release status
+
+| | |
+|---|---|
+| **Last release** | v1.2.0 |
+| **Next release** | v1.3.0 |
+| **Next release ETA** | unknown (no comparable release history) |
+| **Full v1.3 implementation** (1 version left) | unknown (no comparable history)&nbsp;&nbsp;·&nbsp;&nbsp;3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
+
+### 📊 Version progress
 
 | Version     | Goals            | Progress           | Tasks    | Elapsed    | Remaining                           |
 | ----------- | ---------------- | ------------------ | -------- | ---------- | ----------------------------------- |
 | **Phase 1** | Package profiles | ▰▱▱▱▱▱▱▱▱▱ 16%     | 3/19     | 13 min     | unknown                             |
 | **Total**   |                  | **▰▱▱▱▱▱▱▱▱▱ 16%** | **3/19** | **13 min** | **unknown (no comparable history)** |
 
-Estimate basis: No comparable completed plans
-
-&nbsp;
+Confidence: unknown · Basis: No observed release durations · As of 2026-11-16T12:00:00Z
 
 ---
 
-## 🎯 Goals
+### 🎯 Goals
 
 | Goal      | Scope | Done when             | State   |
 | --------- | ----- | --------------------- | ------- |
 | Ship v1.3 | run   | All 19 tasks verified | running |
 
-&nbsp;
-
 ---
 
-## 🙋 Waiting on you
+### 🙋 Decisions waiting
 
 No decisions waiting.
 
-&nbsp;
-
 ---
 
-## 🔄 Running now
+### 🔄 Running
 
 Nothing running.
 
@@ -112,26 +105,32 @@ Nothing running.
 ### Compact
 
 ````markdown
+## Status Update
+
+| | |
+|---|---|
+| **Last release** | v1.2.0 |
+| **Next release** | v1.3.0 |
+| **Next release ETA** | unknown (no comparable release history) |
+| **Full v1.3 implementation** (1 version left) | unknown (no comparable history)&nbsp;&nbsp;·&nbsp;&nbsp;3/19 tasks ▰▱▱▱▱▱▱▱▱▱ 16% |
+
 ---
 
-**Status: v1.3** ▰▱▱▱▱▱▱▱▱▱ 16%&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;3/19 tasks&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;last released v1.2.0&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;1 version left
-
-| Field         | Value                                   |
-| ------------- | --------------------------------------- |
-| Last released | **v1.2.0**                              |
-| Next release  | **v1.3.0**                              |
-| Release ETA   | unknown (no comparable release history) |
-| Whole v1.3    | unknown (no comparable history)         |
-
-🎯 Goals:
+### 🎯 Goals
 
 - Ship v1.3 - All 19 tasks verified (running)
 
-🙋 No decisions waiting.
+---
 
-🔄 Nothing running.
+### 🙋 Decisions waiting
 
-*Source: example/plan.md (illustrative fixture, not live evidence)*
+No decisions waiting.
+
+---
+
+### 🔄 Running
+
+Nothing running.
 
 *Full report: /status, or ask for "full status".*
 ````
