@@ -20,7 +20,7 @@ RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-
 
 
 FILLED, EMPTY = "\u25b0", "\u25b1"
-DOT2 = " \u00b7 "
+VALUE_SEP = "   \u00b7   "  # three literal spaces each side, as specified; no entities
 GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
 RELEASE_ICON, PROGRESS_ICON = "\U0001F680", "\U0001F4CA"
 CELL_MAX = 48
@@ -248,7 +248,8 @@ def release_table(data: dict, bar: str, tasks: str, released: str) -> str:
     release = data.get("next_release") or {"version": "unknown", "remaining": "unknown (release estimate not supplied)"}
     left = data.get("versions_left")
     left_label = "versions left unknown" if left is None else f"{left} {'version' if left == 1 else 'versions'} left"
-    whole = f"{cell(data['remaining'])}{DOT2}{tasks} tasks {bar}" if tasks != "unknown" else f"{cell(data['remaining'])}{DOT2}tasks unknown"
+    progress_text = "progress: unknown" if tasks == "unknown" else f"progress: {bar} ({tasks} tasks)"
+    whole = f"{progress_text}{VALUE_SEP}ETA: {cell(data['remaining'])}"
     rows = [("Last release", "", released), ("Next release", "", cell(release["version"])),
             ("Next release ETA", "", cell(release["remaining"])),
             (f"Full {cell(data['scope'])} implementation", f" ({left_label})", whole)]

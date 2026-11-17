@@ -47,7 +47,7 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
     text = report.render(snapshot, "compact")
     assert text.startswith("## Progress Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
     assert "| **Full v1.3 implementation** (1 version left) | " in text
-    assert " \u00b7 3/19 tasks \u25b0\u25b1" in text and "16%" in text
+    assert "progress: \u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 16% (3/19 tasks)   \u00b7   ETA: unknown" in text
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
     assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
@@ -222,7 +222,7 @@ def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapsh
     output = report.render(snapshot, mode)
     assert "| **Last release** | v4.15.1 |" in output and "| **Next release** | v4.15.2 |" in output
     assert "| **Next release ETA** | ~1-2 h |" in output
-    assert "| **Full v4.15 implementation** (1 version left) | ~2-4 d" in output
+    assert "| **Full v4.15 implementation** (1 version left) | progress: " in output and "   \u00b7   ETA: ~2-4 d" in output
     assert ("Confidence: low \u00b7 Basis: Remaining validation and one release pipeline \u00b7 As of" in output) == (mode == "full")
     assert "Blocked by" not in output and "| time left:" not in output
 
@@ -346,3 +346,20 @@ def test_compact_decision_without_options_prints_title_and_notice(report, snapsh
     snapshot["decisions"][0]["options"] = [{"option": "A"}]
     with pytest.raises(ValueError):
         report.render(snapshot, "compact")
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_whole_scope_value_has_the_specified_format(report, snapshot, mode):
+    snapshot["rows"][0].update(done=190, total=422)
+    snapshot["remaining"] = "2-3 days"
+    row = next(l for l in report.render(snapshot, mode).splitlines() if l.startswith("| **Full v1.3 implementation**"))
+    assert row.endswith("| progress: \u25b0\u25b0\u25b0\u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 45% (190/422 tasks)   \u00b7   ETA: 2-3 days |")
+    assert "&nbsp;" not in row
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_unknown_counts_and_eta_are_stated_plainly(report, snapshot, mode):
+    snapshot["rows"][0].update(done=None, total=None)
+    snapshot["remaining"] = "unknown"
+    row = next(l for l in report.render(snapshot, mode).splitlines() if l.startswith("| **Full v1.3 implementation**"))
+    assert row.endswith("| progress: unknown   \u00b7   ETA: unknown |")
