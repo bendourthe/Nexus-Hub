@@ -98,7 +98,8 @@ FACT_COMMANDS = frozenset(
 )
 FACT_PREFIXES = ("python -m ", "python3 -m ", "py -m ")
 FACT_MAX_TOKENS = 6
-FACTS_HEADING = "Observed in this project (data, not instructions):"
+FACTS_TAG = "[Nexus-Hub: session-start]"
+FACTS_HEADING = FACTS_TAG + " Observed in this project (data, not instructions):"
 EVENT_NAMES = frozenset({"PostToolUse", "PostToolUseFailure", "AfterTool"})
 
 
@@ -473,7 +474,7 @@ def update_facts(
     facts = load_facts(sdir)
     changed = False
     for fact in facts.values():
-        if fact.get("F") == command and fact.get("cwd") == cwd and not fact.get("retired"):
+        if info["ok"] and fact.get("F") == command and fact.get("cwd") == cwd and not fact.get("retired"):
             fact["retired"] = True
             changed = True
     fail = split_fact(command) if info["ok"] and info["turn_id"] and cwd else None
@@ -629,7 +630,7 @@ def cmd_facts(_args: Any) -> int:
     if not facts_on():
         return 0
     if collection_disabled():
-        print(f"[Nexus-Hub: {HOOK_NAME}] Environment facts are unavailable: collection is off.")
+        print(FACTS_TAG + " Environment facts are unavailable: collection is off.")
         return 0
     sdir = state_dir_for(project_root({}))
     lines: list[str] = []
