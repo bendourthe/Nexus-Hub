@@ -214,6 +214,10 @@ Do NOT run more than 5 iterations without a measurable pass-rate trajectory. If 
 
 **Starter set.** Seed the first eval prompts from real failures, known gaps, or bug reports rather than invented examples, and start with at least 2 to 3. A starter set says whether the skill handles the cases that prompted it; it is too small to measure a trigger rate.
 
+## Eval cadence
+
+Run deterministic checks on every pull request. Run live-model or judge evals before a release or on a schedule, because they cost money and vary between runs. A live-model result is evidence for the release decision, not a gate on each change.
+
 ## Persistence discipline (crash-safe long runs)
 
 An eval loop can run for many iterations across hours, and a long run is exactly the situation where context compaction, a crashed CLI, or a killed shell silently discards in-memory state. The defense is to treat the filesystem - not the conversation - as the source of truth for every measured result. The cost is one extra read per write; the payoff is that any interruption resumes from the last completed experiment instead of restarting the loop and re-spending tokens.

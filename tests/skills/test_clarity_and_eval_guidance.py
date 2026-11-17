@@ -184,6 +184,62 @@ def test_the_schema_documents_the_two_case_fields():
     assert "`instruction_section`" in text
 
 
+_SKILLS = _ROOT / "catalog" / "skills"
+_CLARITY = _SKILLS / "developer-experience" / "writing-editing" / "references" / "clarity-faults.md"
+
+
+def _text(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def test_the_clarity_reference_names_three_faults_and_the_independence_rule():
+    text = _text(_CLARITY)
+    for heading in (
+        "## Point-First Check",
+        "## Fault 1: Hidden Actor or Action",
+        "## Fault 2: Vague Wording",
+        "## Fault 3: Empty Statements and Misplaced Emphasis",
+        "## Overcorrection Guard",
+        "## Annotation Procedure",
+    ):
+        assert heading in text, heading
+    assert "independent" in text
+    assert "not a clarity check" in text
+    assert "must not be the session that wrote the sample" in text
+
+
+def test_the_clarity_reference_is_linked_from_both_skills():
+    writing = _text(_SKILLS / "developer-experience" / "writing-editing" / "SKILL.md")
+    detect = _text(_SKILLS / "developer-experience" / "anti-slop-editing" / "SKILL.md")
+    assert "references/clarity-faults.md" in writing
+    assert "clarity-faults.md" in detect
+    assert "Cliche signatures" in detect
+    assert "Clarity faults" in detect
+
+
+def test_writing_editing_loads_at_the_start_of_a_prose_task():
+    head = _text(_SKILLS / "developer-experience" / "writing-editing" / "SKILL.md").split("---")[1]
+    description = next(line for line in head.splitlines() if line.startswith("description:"))
+    assert "before drafting" in description
+    assert "SKIP" in description
+    assert "anti-slop-editing" in description
+    assert len(description) <= len("description: ") + 1024
+
+
+def test_the_clarity_reference_uses_ascii_punctuation_only():
+    assert _text(_CLARITY).isascii()
+
+
+def test_the_four_eval_guidance_fixes_are_present():
+    quality = _text(_SKILLS / "developer-experience" / "ai-output-evaluation" / "SKILL.md")
+    loop = _text(_EVAL_LOOP / "SKILL.md")
+    assert "tool-call path" in quality
+    assert "narrow pass or fail questions" in quality
+    assert "Cover rewritten variants" in quality
+    assert "## Eval cadence" in loop
+    assert "every pull request" in loop
+
+
 @pytest.mark.xfail(
     strict=False,
     reason="the AGENTS.md link is a coordinator delta (v4.15.11 coordinator deltas, T008)",

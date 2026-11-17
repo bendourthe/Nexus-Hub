@@ -121,6 +121,10 @@ For each dimension:
 
 **Critical rule**: Always require evidence quotes. Without evidence, LLM judges default to generous scores (verbosity bias).
 
+**Prefer narrow pass or fail questions.** A judge asked one narrow question ("does the summary name the failing test?") is easier to check against human labels than one asked for a 0.0 to 1.0 score. Keep the scales above only where ranking outputs is the goal.
+
+**Cover rewritten variants.** Rephrase existing cases in other user styles (for example a frustrated user, a terse user, or a user who pastes the error with no question) and check that the behavior holds. A case that passes in one phrasing only is a test of the phrasing.
+
 ### Step 3: Design End-State Evaluation
 
 Evaluate **final artifacts**, not intermediate steps. AI agents are non-deterministic; two agents may take completely different paths to equally good results. Evaluating the process (number of steps, tools used, approach taken) penalizes valid alternative solutions.
@@ -129,7 +133,7 @@ Evaluate **final artifacts**, not intermediate steps. AI agents are non-determin
 
 | Principle | Explanation |
 |-----------|------------|
-| **Evaluate artifacts, not steps** | A working function matters more than how it was written |
+| **Score the end state, and the tool-call path where the process matters** | A working function matters more than how it was written. For an agent, also score the tool-call path when the process matters for safety, cost, or a forbidden action; otherwise a different valid path is not a defect |
 | **Allow multiple valid solutions** | Don't penalize creative approaches that achieve the goal |
 | **Test behavior, not structure** | Run the code; check the output; verify the tests pass |
 | **Measure what matters** | "Does it solve the problem?" over "Does it look like what I expected?" |
