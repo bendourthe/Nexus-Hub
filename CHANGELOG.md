@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Nexus Hub Settings 0.8.9 can put a Claude Code and Codex split back after VS Code reopens them merged.** The new setting `nexusHubSettings.restoreAgentSplit` is off by default. When it is on, Settings remembers, per workspace, whether the Claude Code tab and the Codex tab were in different editor groups and which one was on the right. If VS Code later reopens them in one group, Settings waits until the tabs stop changing, then moves the right-hand tab into its own group, once. It uses only the public Tab Groups API and built-in editor commands, patches nothing in either extension, and never closes or reopens a tab. A clean close and reopen did not reproduce the merge in an isolated VS Code run, so the cause is not confirmed; the finding is in [settings-restore-split.md](docs/releases/v4/v4.15/development/settings-restore-split.md).
+- **Capability usage note: `nexusHubSettings.restoreAgentSplit`.**
+    - Activation: turn on "Restore Agent Split" in VS Code Settings (or set `"nexusHubSettings.restoreAgentSplit": true`) in a trusted workspace, arrange Claude Code and Codex in separate groups, then close and reopen the window.
+    - Validation: run `npx vitest run test/agentSplit.test.ts` in `extensions/nexus-hub-settings`, then `node scripts/restore-split-live.js --vsix <vsix> --work <new scratch dir>`, which runs an isolated VS Code with the real Claude Code and Codex extensions and checks the split is restored with the setting on and left alone with it off.
+    - Rollback: turn the setting off. The remembered layout is a small value in the workspace's extension storage and is ignored while the setting is off.
+    - Authority: it only moves one tab between editor groups. It does not close, reopen, edit or sign in to any tab, change any other setting, or act in an untrusted workspace.
+    - Docs: [Settings README](extensions/nexus-hub-settings/README.md) (Restore Agent Split).
+
 ### Fixed
 
 - **The Claude, Codex, Copilot, Cursor and Gemini usage monitors now always close a warning when the shared alert preference turns it off.** A warning could stay on screen after you turned it off if the preference file was created at the moment the monitor started watching it. The watcher used `fs.watchFile`, which takes its first stat on the thread pool, so on a busy machine a file written right after the watch started became the baseline and the change was never reported (seen as an intermittent Gemini `warningExpiry.test.ts` failure in CI). Each monitor now polls the preference content every 500 ms and reports the change from enabled to disabled, and each test suite has a regression test for a write immediately after the watch starts. Capability usage note: no opt-in surface; the installers rebuild and reinstall the monitors with `--force`, so no version bump is needed; to go back, revert this entry's files.
