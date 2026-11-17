@@ -16,7 +16,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 const assert = require("node:assert/strict");
 
-const SETTINGS_ID = "nexus-hub.nexus-hub-settings";
 const PROBE = String.raw`
 const vscode = require("vscode");
 const fs = require("fs");
