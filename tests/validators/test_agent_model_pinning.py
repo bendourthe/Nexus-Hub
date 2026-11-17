@@ -8,16 +8,14 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-RATIONALE = ROOT / "docs/archives/v4/v4.14/development/agent-pinning-rationale.md"
-if not RATIONALE.is_file():
-    RATIONALE = ROOT / "docs/archives/v4/v4.14/development/agent-pinning-rationale.md"
+RATIONALE = ROOT / "docs/reference/agent-classification.md"
 
 
 def test_every_agent_has_exactly_one_model_classification():
     rationale = RATIONALE.read_text(encoding="utf-8")
     pinned_text, unpinned_text = rationale.split("## Deliberately unpinned", 1)
     pinned_text = pinned_text.split("## Pinned agents", 1)[1]
-    unpinned_text = unpinned_text.split("## Platform compatibility", 1)[0]
+    unpinned_text = unpinned_text.split("## Fast-tier agents", 1)[0]
     row = r"^\| `([a-z0-9-]+)` \| (.+) \|$"
     documented_pins = {name for name, _ in re.findall(row, pinned_text, re.MULTILINE)}
     unpinned = {name for name, _ in re.findall(row, unpinned_text, re.MULTILINE)}
