@@ -487,6 +487,7 @@ TESTS_CORE = Group(
             "tests/integrations/test_notify_contract_guard.py",
             "tests/integrations/test_notify_helper_delivery.py",
             "tests/integrations/test_status_reporting.py",
+            "tests/integrations/test_progress_verbatim_rule.py",
             timeout=1800,
         ),
         _pytest(

@@ -4,7 +4,9 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Detection is a separate contract (v4.14.7).** This file states where a platform reads and where Nexus-Hub writes. Whether a platform is installed at all, and therefore whether anything is written, is decided by [`platform-detection.md`](platform-detection.md). The `install_verify` rows below that carry an `integration` key are detected by that rule rather than by their `detect` folder list, so `nexus-hub verify` and the installer always agree.
 
-**Last verified**: 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+**Last verified**: 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group showed a changed discovery path or format.
 
 **Prior entry, retained for the record** -- Last verified 2026-11-12 for v4.15.0. The [release verification](../releases/v4/v4.15/development/v4.15.0-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.14.8; no group showed a changed discovery path or format.
 

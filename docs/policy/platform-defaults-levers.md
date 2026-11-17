@@ -283,6 +283,10 @@ The current platform discovery pass reuses the genuine October 16 Claude subagen
 
 Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.
 
+### 2026-11-16 - v4.15.2 advisory release review
+
+Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md): 15 of 17 are unchanged and 2 are additive (Claude `effortLevel` is now mostly saved per model under `modelSettings`, where `maxEffortLevel` `"max"` sets no cap and the seeded `high` stays valid; Pi `defaultThinkingLevel` lists `"off"` to `"max"`). OpenCode `small_model` is documented only as a v1 migration item, and the Hermes `agent.reasoning_effort` and `approvals.mode` keys were not re-read this cycle. No lever key, seeded default, source record or gating policy changed.
+
 ### 2026-11-15 - v4.15.1 advisory release review
 
 Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md): 16 of 17 are unchanged and 1 is additive (Claude `modelSettings` also takes `maxEffortLevel` and `autoCompactWindow`; the seeded `high` stays valid). The corrected OpenCode row (`model`, `permissions`, `default_agent`) matches the vendor page, closing the v4.15.0 finding. Qwen's `tools.approvalMode` page states default `auto`. No lever key, seeded default, source record or gating policy changed.
