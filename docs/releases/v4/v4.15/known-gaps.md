@@ -3730,92 +3730,20 @@ None. Six follow-ups still open at release moved to the v4.16 ledger, section v4
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 6 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
-DF-53 to DF-58 are the consumer handoffs the plan parked in its Scope and Dispositions table. They were proposed in `development/v4.15.4-last-phase-evidence.md` and are recorded here by the coordinator.
+DF-53 to DF-58 are the consumer handoffs the plan parked in its Scope and Dispositions table, proposed in `development/v4.15.4-last-phase-evidence.md`.
 
 ### Open Items
 
-#### DF-53: Historical ledgers incompatible with fail-closed parsing
+None. Seven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0, with their ids unchanged: DF-53, DF-54, DF-55, DF-56, DF-57, DF-58 and WN-41. QG-12 is resolved below.
 
-**Source phase**: v4.15.4 plan, consumer handoff 1
+### Resolved
 
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions; [last-phase evidence](development/v4.15.4-last-phase-evidence.md)
-
-**Reason**: changing how older ledgers are parsed is a policy change. This plan allowed no cutoff date and no exemption for finalized ledgers.
-
-**Suggested next step**: design a structured historical-ledger contract before changing the parsing.
-
-#### DF-54: Test failures recorded in prose
-
-**Source phase**: v4.15.4 plan, consumer handoff 2
-
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
-
-**Reason**: accepting a prose record of known failures changes evidence policy. The `tests.evidence` predicate stays unchanged in this plan.
-
-**Suggested next step**: design a structured baseline and CI evidence record.
-
-#### DF-55: Run record recreation and renumbering
-
-**Source phase**: v4.15.4 plan, consumer handoff 4
-
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
-
-**Reason**: the plan allowed no `start_head` inheritance and no re-signing of an existing record.
-
-**Suggested next step**: write a separate design for migrating approval identity to a recreated record.
-
-#### DF-56: Recently active and detached worktree cleanup
-
-**Source phase**: v4.15.4 plan, consumer handoff 5
-
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
-
-**Reason**: the cleanup idle thresholds and the protection for detached worktrees were kept as they are.
-
-**Suggested next step**: decide whether any idle threshold should be configurable.
-
-#### DF-57: Missing prompt capture
-
-**Source phase**: v4.15.4 plan, consumer handoff 7
-
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
-
-**Reason**: not confirmed. The cited prompt line began with `Continue`, not with a slash command.
-
-**Suggested next step**: reproduce with a real capture before any redesign.
-
-#### DF-58: Record mutation from a sibling-worktree controller
-
-**Source phase**: v4.15.4 plan, consumer handoff 9
-
-**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
-
-**Reason**: only the diagnostic shipped in this plan.
-
-**Suggested next step**: design rekeying of the record by the common git directory, if wanted.
-
-#### WN-41: Repository description says 21 commands, README says 22
-
-**Source phase**: v4.15.4 Phase 5, git-tree hygiene
-
-**Plan reference**: [last-phase evidence](development/v4.15.4-last-phase-evidence.md), Git-tree hygiene
-
-**Reason**: `check_release_preconditions.py --repo-settings` reports the mismatch. The GitHub repository description is a repository setting outside the files this plan can change.
-
-**Suggested next step**: update the description to 22 commands with `gh repo edit --description` at the next release, under the maintainer's approval.
-
-#### QG-12: Four full-suite groups not completed locally
-
-**Source phase**: v4.15.4 Phase 5, full-suite testing
-
-**Plan reference**: [last-phase evidence](development/v4.15.4-last-phase-evidence.md), Full-suite testing and stabilization
-
-**Reason**: `hook-tests-heavy`, `hook-tests-rest`, `tests-core` and `tests-validators` did not finish on a host shared with other lanes' gates.
-
-**Suggested next step**: the hosted CI run on the integration pull request runs every group; record its result here and resolve this item.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-12 | Four full-suite groups not completed locally | v4.15.4 | Resolved by hosted CI run `44384963706` on integration pull request #695 (merged as `1b1b295ba`): all 31 jobs passed, including `tests-core`, `tests-validators`, `hook-tests-heavy`, `hook-tests-rest` and `ci-required`. |
