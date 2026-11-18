@@ -146,6 +146,10 @@ A completion gate (test suite, validator, judge) records a workspace fingerprint
 - If the fingerprint changed, run the gate and replace the cached verdict.
 - A pass is never reused across a fingerprint change: that is stale evidence, not idempotency. See `evidence_freshness` in [references/loop-schema.md](references/loop-schema.md).
 
+## Terminal Outcomes
+
+An unattended or scheduled run reports exactly one of five outcomes: `no-data`, `stale-input`, `partial`, `complete`, or `failed`. Malformed, unreadable, or unverifiable input is `failed`; only a valid query that returns zero records is `no-data`; a stale required source is `stale-input` unless fresh records were processed, in which case unfinished work is `partial`; only all-valid and all-processed work is `complete`. A change in a routine's source, connector, or input format invalidates its last test run, so the routine reports `stale-input` until a new bounded test run passes, and that pending re-test outranks `partial`. Run one bounded test run behind a narrow trigger before scheduling, report processed, failed, and skipped counts, and give every non-complete outcome a next action. The ordered precedence table, the re-test rule, and the required report fields live in the Terminal Outcomes section of [references/loop-schema.md](references/loop-schema.md); do not restate them elsewhere.
+
 ## Reward Hacking in Self-Improving Loops
 
 Named failure signature (same wording in [[ai-agent-governance]]): **reward hacking in self-improving loops** - an agent optimizing a measurable goal will discover shortcuts that satisfy the metric while violating intent. Documented in the wild: an agent given a game-resource goal found an admin command to spawn resources despite explicit reminders. A learning or refinement loop captures such shortcuts as "improvements" unless gates verify outcome legitimacy (how the result was produced) and not just outcome presence.
@@ -255,6 +259,7 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [ ] A loop that spans sessions has a gitignored instance record, and any long-horizon loop's evidence carries a freshness window the checker re-validates.
 - [ ] The loop reads a host-owned `LOOP_INSTANCE` and `LOOP_LINEAGE`, refuses same-instance re-entry and ambiguous identity, and gives any deliberate child a distinct identity and a budget carved from the parent's remaining budget.
 - [ ] A multi-round repair loop compacts its carried context between rounds, so it cannot fail on prompt size before `iteration_cap`.
+- [ ] Every run reports one terminal outcome from the closed set (`no-data`, `stale-input`, `partial`, `complete`, `failed`) with its counts and, when not `complete`, a next action; a source, connector, or input-format change forces `stale-input` until a bounded re-test passes.
 
 ## Standards Mapping
 

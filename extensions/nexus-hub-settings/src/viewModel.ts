@@ -172,6 +172,7 @@ export interface ViewModel {
   usageAlerts?: UsageAlerts;
   usageAlertProviders?: AlertProvider[];
   editorCapabilities?: EditorCapabilities;
+  applicationIssues?: string[];
 }
 
 export interface PreferencesSummary {
@@ -183,6 +184,29 @@ export interface PreferencesSummary {
 }
 
 export const GUARDRAIL_IDS = ["git_safety", "secret_scan", "edit_preservation", "large_file_warning", "git_guardrails"] as const;
+
+/** Explain actual readback failures with provider names, rather than a generic failed-default message. */
+export function effortApplicationIssues(model: ViewModel): string[] {
+  if (model.error) { return [model.error.message || model.error.title]; }
+  const summary = summarizePreferences(model);
+  const issues: string[] = [];
+  const effort = model.controls.find(control => control.id === "effort");
+  for (const row of effort?.rows ?? []) {
+    if (row.installed === false || !row.canSet || row.state === "tool-not-installed") { continue; }
+    if (["cannot-detect", "unverified-for-version", "not-covered"].includes(row.state)) {
+      issues.push(`${row.toolLabel}: ${row.detail || "the effort setting could not be verified"}.`);
+    } else if (summary.effort && (row.matchesDefault === false || row.matchesDefault === undefined && (row.state === "overridden-by" ? row.layerValue : row.value) !== summary.effort)) {
+      const actual = row.state === "overridden-by" ? row.layerValue : row.value;
+      issues.push(`${row.toolLabel}: expected ${row.mappedEffort || summary.effort}, read ${actual || "the tool default"}${row.state === "overridden-by" && row.fix ? ". " + row.fix : "."}`);
+    }
+  }
+  for (const control of model.controls.filter(control => (GUARDRAIL_IDS as readonly string[]).includes(control.id))) {
+    if (!control.canApply || control.rows.every(row => ["cannot-detect", "unverified-for-version"].includes(row.state))) { issues.push(`${control.label}: the guardrail setting is unavailable.`); }
+  }
+  if (model.liveEffort?.error) { issues.push(model.liveEffort.error); }
+  issues.push(...(model.uiEffort?.errors ?? []));
+  return [...new Set(issues)];
+}
 
 /** A preference is distinct from a platform's effective value. Never hide an override behind a saved choice. */
 export function summarizePreferences(model: Pick<ViewModel, "controls">): PreferencesSummary {

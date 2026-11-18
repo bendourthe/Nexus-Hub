@@ -59,27 +59,11 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 
 ## Progress reporting
 
-Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. `/status` (and its alias `/update status`) enters those references in read-only mode and never starts this skill's implementation driver.
+Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. `/progress` (and its aliases `/update status` and the deprecated `/status`) enters those references in read-only mode and never starts this skill's implementation driver.
 
-## Close every phase with the progress table
+## Shared reporting output
 
-A phase boundary ends with a table, before the closing summary, so a reader can
-see where a multi-session plan actually stands without opening the plan file:
-
-```bash
-python ~/.nexus-hub/scripts/plan_status.py --plan <plan-file>
-```
-
-It prints the plan name, the target version, and every phase with its status and
-task counts. Emit the table whenever a message closes work on a plan, not only
-at the final phase - the point is that progress is visible continuously rather
-than reconstructed at the end.
-
-For the consolidated report, use these generated counts as the source and follow the reporting reference for additional observed fields; emit one table rather than duplicate reports.
-
-The script derives everything from the plan's own headings and checkboxes, so
-the table cannot disagree with the file. Do not hand-write it: a hand-written
-table is a second source of truth that drifts on the first missed tick.
+Use the bundled [scripts/status_report.py](scripts/status_report.py) and the illustrative [references/status-snapshot.json](references/status-snapshot.json) input shape. Resolve their paths from this skill's installed folder on every platform. Obtain task counts from `plan_status.py --plan` and reuse them as snapshot rows; do not print its legacy table alongside the shared report. The reporting reference owns cadence, including phase boundaries, duplicate suppression and resume behavior. The renderer owns exact Markdown output and derives task totals. The communication contract's short waiting banner does not replace an implementation report or cap its required sections.
 
 ## Parallel implementation ownership
 

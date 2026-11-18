@@ -1739,10 +1739,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "permit-member-execution-paths"):
-        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs or correct-ci-read")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read, correct-read or permit-member-paths")
+    if getattr(args, "path", None) is not None and args.action != "correct-read":
+        raise ck.Malformed("--path requires --action correct-read")
     if getattr(args, "execution", None) is not None and args.action != "permit-member-execution-paths":
         raise ck.Malformed("--execution requires --action permit-member-execution-paths")
+    if getattr(args, "paths", None) is not None and args.action != "permit-member-paths":
+        raise ck.Malformed("--paths requires --action permit-member-paths")
     if getattr(args, "outputs", None) is not None and args.action != "permit-outputs":
         raise ck.Malformed("--outputs requires --action permit-outputs")
     if getattr(args, "merge", None) is not None and args.action != "supplement-scope":
@@ -1803,6 +1807,22 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         except (OSError, TypeError, MinorMalformed) as exc:
             raise ck.Malformed("minor-execution-request-unreadable") from exc
         page = execution_permission_page(ck, rctx, token, record, getattr(args, "member", None), value)
+        display = None
+    elif args.action == "permit-member-paths":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = member_paths_page(ck, rctx, token, record, getattr(args, "member", None), _member_paths_input(ck, getattr(args, "paths", None)))
+        if page is None:
+            raise ck.Malformed("member-paths-already-present")
+        display = None
+    elif args.action == "correct-read":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = read_correction_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "path", None))
+        if page is None:
+            raise ck.Malformed("read-correction-already-present")
         display = None
     elif args.action == "permit-outputs":
         record = _record_for_v415_permission(ck, rctx, token, args.session)
@@ -3182,6 +3202,10 @@ def effective_read_paths(ck: ModuleType, rctx: RepoContext, record: dict, member
             and _v415_ci_read_valid(ck, rctx, record, member, entries[0])
             and _v415_ci_checkpoint(ck, rctx, record, member)):
         return [path for path in reads if path != rule["path"]]
+    if not member.get("start_head") and not state.get("start_head"):
+        released = _read_correction_paths(ck, record, member)
+        if released:
+            return [path for path in reads if path not in released]
     return list(reads)
 
 
@@ -6384,6 +6408,9 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     if (member.get(V415_CI_READ_CORRECTION) and not member.get("start_head")
             and not _v415_ci_read_restore(ck, rctx, record, member, tip)):
         return _gate_refusal(ck, version, "v415-ci-read-restore-unverified")
+    if (member.get(_READ_CORRECTION_FIELD) and not member.get("start_head")
+            and not _read_correction_restore(ck, rctx, record, member, tip)):
+        return _gate_refusal(ck, version, "read-correction-restore-unverified")
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
         worker, status, _ = _worker_context(ck, rctx, record, candidate, rctx.budget, base=tip, canonical_merged=False)
@@ -6408,11 +6435,14 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
                                              "paths": coordinator_paths, "record_sha256": active["expected"]}
     if member.get(V415_CI_READ_CORRECTION):
         active["v415_ci_read_restore"] = {"member": version, "head": tip, "record_sha256": active["expected"]}
+    if member.get(_READ_CORRECTION_FIELD):
+        active["read_correction_restore"] = {"member": version, "head": tip, "record_sha256": active["expected"]}
     try:
         ck._write_record(record_file(ck, rctx, token), record)
     finally:
         active.pop("v415_output_activation", None)
         active.pop("v415_ci_read_restore", None)
+        active.pop("read_correction_restore", None)
         active.pop("minor_execution_activation", None)
     print(f"STARTED {version} start_head={tip}")
     return 0
@@ -7118,9 +7148,13 @@ def cmd_record_member_implement_start(ck: ModuleType, args: argparse.Namespace) 
                 **claims, "started": ck._now()}
     existing = member.get("implementation")
     if existing:
-        if {k: v for k, v in existing.items() if k != "started"} != {k: v for k, v in proposal.items() if k != "started"}:
+        frozen = {k: v for k, v in existing.items() if k != "started"}
+        # A resume may repeat the original claims after a captured permit-member-paths append.
+        original = {**frozen, "write_paths": [p for p in frozen.get("write_paths", []) if p not in _member_paths_added(member)]}
+        if {k: v for k, v in proposal.items() if k != "started"} not in (frozen, original):
             return _implementation_refusal(ck, version, "implementation-already-started")
         proposal = existing
+        claims = {k: existing[k] for k in ("depends_on", "read_paths", "write_paths")}
     problem = _dependencies(ck, rctx, record, version, claims, head)
     if problem:
         return _implementation_refusal(ck, version, problem)
@@ -7879,6 +7913,483 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
     finally:
         active.pop("minor_execution_append", None)
     print(f"PERMITTED {args.member} exact execution paths; ordinary admission still required")
+    return 0
+
+
+# One captured decision subtracts one exact literal read file from one unpublished member's effective reservations.
+_READ_CORRECTION_ACTION = "correct-read"
+_READ_CORRECTION_FIELD = "member_read_corrections"
+_READ_CORRECTION_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+    "member", "plan_sha256", "implementation_sha256", "source_branch", "target_branch",
+    "original_read_paths", "original_write_paths", "path"}
+
+
+def _read_correction_entries(member: dict) -> list:
+    entries = member.get(_READ_CORRECTION_FIELD, [])
+    return entries if isinstance(entries, list) else []
+
+
+def _read_correction_paths(ck: ModuleType, record: dict, member: dict) -> set[str]:
+    """Exact reads released by authenticated entries; an invalid entry releases nothing."""
+    return {entry["page"]["path"] for entry in _read_correction_entries(member)
+            if _read_correction_entry_valid(ck, record, member, entry)}
+
+
+def _read_correction_path(ck: ModuleType, implementation: dict, path: object) -> str:
+    """Only an exact literal recorded read qualifies: never a write, a directory or a file under a directory read."""
+    if (not isinstance(path, str) or not path or path != path.strip() or path.endswith("/") or "\\" in path
+            or any(c in path for c in ":*?[]") or any(not p or p in (".", "..") for p in path.split("/"))):
+        raise ck.Malformed("read-correction-not-literal")
+    lowered = path.casefold()
+    if any(lowered == w.casefold().rstrip("/") for w in implementation["write_paths"]):
+        raise ck.Malformed("read-correction-write-path")
+    reads = implementation["read_paths"]
+    if any(r.endswith("/") and lowered.startswith(r.casefold()) for r in reads):
+        raise ck.Malformed("read-correction-directory-read")
+    if path not in reads:
+        raise ck.Malformed("read-correction-not-a-read")
+    return path
+
+
+def read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                         version: str | None, path: object) -> dict | None:
+    """The exact captured page, or None when this member's file is already corrected."""
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if member is None:
+        raise ck.Malformed("read-correction-unknown-member")
+    implementation = member.get("implementation")
+    if (not isinstance(implementation, dict) or not isinstance(implementation.get("read_paths"), list)
+            or not isinstance(implementation.get("write_paths"), list)):
+        raise ck.Malformed("read-correction-member-not-admitted")
+    if member.get(V415_CI_READ_CORRECTION):
+        raise ck.Malformed("read-correction-bound-permissions")
+    if isinstance(path, str) and path in _read_correction_paths(ck, record, member):
+        return None
+    if member.get("archived"):
+        raise ck.Malformed("read-correction-member-finished")
+    if member.get("start_head"):
+        raise ck.Malformed("read-correction-member-started")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    literal = _read_correction_path(ck, implementation, path)
+    return {"action": _READ_CORRECTION_ACTION, "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "original_read_paths": list(implementation["read_paths"]),
+            "original_write_paths": list(implementation["write_paths"]), "path": literal}
+
+
+def _read_correction_entry_valid(ck: ModuleType, record: dict, member: dict, entry: object, *, verify_capture: bool = False) -> bool:
+    """Authenticate one stored decision: its page fields, genuine capture and the unchanged claims."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        implementation = member.get("implementation")
+        if (not isinstance(page, dict) or set(page) != _READ_CORRECTION_PAGE_FIELDS
+                or not isinstance(accepted, dict) or set(accepted) != fields or not isinstance(implementation, dict)):
+            return False
+        if (page["action"] != _READ_CORRECTION_ACTION or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]
+                or page["original_read_paths"] != implementation["read_paths"]
+                or not isinstance(page["original_write_paths"], list)
+                or not isinstance(page["path"], str) or page["path"] not in implementation["read_paths"]
+                or any(page["path"].casefold() == w.casefold().rstrip("/") for w in implementation["write_paths"])
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"] or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict)
+                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line(_READ_CORRECTION_ACTION, str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def _read_correction_restore(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, head: str) -> bool:
+    """The ordered publication start restores the raw reads unless another unmerged member now claims a released file."""
+    entries = _read_correction_entries(member)
+    if not entries or any(not _read_correction_entry_valid(ck, record, member, entry) for entry in entries):
+        return False
+    released = [entry["page"]["path"] for entry in entries]
+    for other in ordered_members(record):
+        if other["version"] == member["version"] or _merged_on_base(ck, rctx, record, other, head):
+            continue
+        claims = other.get("implementation")
+        if claims and any(_overlap(w, p) for w in [*claims["write_paths"], *other.get("coordinator_paths", [])] for p in released):
+            return False
+    return True
+
+
+def check_read_correction_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer keeps accepted entries; only a consumed leased decision appends one, only the start restores."""
+    old = {m.get("version"): m for m in _member_list(previous)}
+    new = {m.get("version"): m for m in _member_list(record)}
+    active = ck._MINOR_LEASE.get()
+    appending = active is not None and "read_correction_append" in active
+    if not appending and not any(_READ_CORRECTION_FIELD in m for m in [*old.values(), *new.values()]):
+        return
+    added = []
+    for version in old.keys() | new.keys():
+        left, right = old.get(version, {}).get(_READ_CORRECTION_FIELD, []), new.get(version, {}).get(_READ_CORRECTION_FIELD, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("read-correction-not-append-only")
+        if left:
+            if (version not in new or approval_binding.canonical(old[version].get("implementation"))
+                    != approval_binding.canonical(new[version].get("implementation"))
+                    or any(old[version].get(k) != new[version].get(k) for k in ("source_branch", "target_branch"))):
+                raise ck.MinorConflict("read-correction-claims-changed")
+            if old[version].get("start_head") != new[version].get("start_head"):
+                restore = {"member": version, "head": new[version].get("start_head"),
+                           "record_sha256": active["expected"] if active else None}
+                if (old[version].get("start_head") or not restore["head"] or not active
+                        or approval_binding.canonical(active.get("read_correction_restore")) != approval_binding.canonical(restore)
+                        or not _read_correction_restore(ck, rctx, previous, old[version], restore["head"])):
+                    raise ck.MinorConflict("read-correction-restore-not-native")
+                restored = json.loads(json.dumps(record))
+                target = next(m for m in _member_list(restored) if m.get("version") == version)
+                for key in ("start_head", "started", "coordinator_paths"):
+                    if key in old[version]:
+                        target[key] = old[version][key]
+                    else:
+                        target.pop(key, None)
+                original = json.loads(json.dumps(previous))
+                restored.pop("approvals_hmac", None)
+                original.pop("approvals_hmac", None)
+                if approval_binding.canonical(restored) != approval_binding.canonical(original):
+                    raise ck.MinorConflict("read-correction-unrelated-restore-change")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        if appending:
+            raise ck.MinorConflict("read-correction-captured-append-missing")
+        return
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("read-correction-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if version not in old or approval_binding.canonical(active.get("read_correction_append")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("read-correction-append-not-captured")
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in _member_list(restored) if m.get("version") == version)
+    target[_READ_CORRECTION_FIELD].pop()
+    if _READ_CORRECTION_FIELD not in old[version]:
+        target.pop(_READ_CORRECTION_FIELD)
+    restored.pop("approvals_hmac", None)
+    original = json.loads(json.dumps(previous))
+    original.pop("approvals_hmac", None)
+    if approval_binding.canonical(restored) != approval_binding.canonical(original):
+        raise ck.MinorConflict("read-correction-unrelated-record-change")
+    page = entry.get("page", {})
+    if (old[version].get("start_head") or page.get("record_sha256") != active["expected"]
+            or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or page.get("path") in {e.get("page", {}).get("path") for e in _read_correction_entries(old[version])}
+            or not _read_correction_entry_valid(ck, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("read-correction-invalid-entry")
+
+
+@minor_writer
+def cmd_record_correct_read(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine one-file decision; the member's raw claims are never rewritten."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = read_correction_page(ck, rctx, args.minor, record, args.member, args.path)
+    if page is None:
+        print(f"ALREADY corrected the read reservation of {args.member}")
+        return 0
+    consumed = _consume(ck, rctx, args.minor, _READ_CORRECTION_ACTION, page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in ordered_members(record) if m["version"] == args.member)
+    member.setdefault(_READ_CORRECTION_FIELD, []).append(entry)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["read_correction_append"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("read_correction_append", None)
+    print(f"CORRECTED {args.member} read reservation for one exact file; ordinary reservation resumes at its publication start")
+    return 0
+
+
+# One captured decision appends exact literal files to one admitted member's worker write list.
+_MEMBER_PATHS_ACTION = "permit-member-paths"
+_MEMBER_PATHS_FIELD = "member_path_permissions"
+_MEMBER_PATHS_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+    "member", "plan_sha256", "implementation_sha256", "source_branch", "target_branch", "original_write_paths", "write_paths"}
+_MEMBER_PATHS_BOUND_FIELDS = ("manifest_coordinator_permissions", V415_OUTPUT_PERMISSION, V415_CI_READ_CORRECTION,
+                              "historical_scope_supplements", _READ_CORRECTION_FIELD)
+
+
+def _member_list(record: dict) -> list[dict]:
+    """Original and amended members as stored, for write guards that see only raw records."""
+    return [m for key in ("members", "minor_amendment_members") for m in record.get(key, []) if isinstance(m, dict)]
+
+
+def _member_paths_input(ck: ModuleType, filename: str | None) -> object:
+    try:
+        return json.loads(Path(filename).read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        raise ck.Malformed("member-paths-unreadable-input") from None
+
+
+def _member_paths_literals(ck: ModuleType, rctx: RepoContext, token: str, value: object) -> list[str]:
+    """Literal, unreserved, non-sensitive files only; each failure has its own named reason."""
+    if not isinstance(value, dict) or set(value) != {"write_paths"} or not isinstance(value["write_paths"], list) or not value["write_paths"]:
+        raise ck.Malformed("member-paths-invalid-input")
+    paths = []
+    for path in value["write_paths"]:
+        try:
+            if not isinstance(path, str) or path.endswith("/"):
+                raise MinorMalformed("directory-or-non-string")
+            paths.append(_literal_path(rctx.root, path))
+        except MinorMalformed:
+            raise ck.Malformed("member-paths-not-literal") from None
+    if len({p.casefold() for p in paths}) != len(paths):
+        raise ck.Malformed("member-paths-duplicate")
+    tracked = rctx._git_out("ls-files", "-z").split("\0")
+    if any(_sensitive_write(rctx, p, tracked) for p in paths):
+        raise ck.Malformed("member-paths-sensitive")
+    protected = _coordinator_paths(rctx, token, tracked)
+    if any(_coordinator_name(p) or any(_overlap(p, q) for q in protected) for p in paths):
+        raise ck.Malformed("member-paths-coordinator-reserved")
+    return paths
+
+
+def _member_paths_added(member: dict) -> set[str]:
+    """Files a valid captured entry appended to the member's frozen write list."""
+    entries = member.get(_MEMBER_PATHS_FIELD, [])
+    if not isinstance(entries, list):
+        return set()
+    return {p for entry in entries if isinstance(entry, dict) and isinstance(entry.get("page"), dict)
+            and isinstance(entry["page"].get("write_paths"), list) for p in entry["page"]["write_paths"]}
+
+
+def member_paths_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                      version: str | None, value: object) -> dict | None:
+    """The exact captured page, or None when every requested file is already in the write list."""
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if member is None:
+        raise ck.Malformed("member-paths-unknown-member")
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict) or not isinstance(implementation.get("write_paths"), list):
+        raise ck.Malformed("member-paths-member-not-admitted")
+    if member.get("archived"):
+        raise ck.Malformed("member-paths-member-finished")
+    if any(member.get(name) for name in _MEMBER_PATHS_BOUND_FIELDS):
+        raise ck.Malformed("member-paths-bound-permissions")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    state, _merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    if state == "merged":
+        raise ck.Malformed("member-paths-member-finished")
+    if state != "not-merged":
+        raise ck.Malformed("member-paths-publication-unverified")
+    paths = _member_paths_literals(ck, rctx, token, value)
+    present = {p.casefold() for p in implementation["write_paths"]}
+    added = sorted(p for p in paths if p.casefold() not in present)
+    if not added:
+        return None
+    base = rctx._git_out("rev-parse", "HEAD")
+    after = False
+    for other in ordered_members(record):
+        if other["version"] == version:
+            after = True
+            continue
+        claims = other.get("implementation")
+        if not isinstance(claims, dict) or (base and _merged_on_base(ck, rctx, record, other, base)):
+            continue
+        # A member published later only reads the path today and refreshes onto the integration base before its own gate.
+        held = [*claims.get("write_paths", []), *other.get("coordinator_paths", [])]
+        if not after:
+            held += claims.get("read_paths", [])
+        if any(_overlap(p, q) for p in added for q in held):
+            raise ck.Malformed("member-paths-active-conflict")
+    return {"action": _MEMBER_PATHS_ACTION, "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "original_write_paths": list(implementation["write_paths"]), "write_paths": added}
+
+
+def _member_paths_entry_valid(ck: ModuleType, record: dict, member: dict, entry: object, *, verify_capture: bool = False) -> bool:
+    """Authenticate one stored decision: its page fields, genuine capture and signed record."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != _MEMBER_PATHS_PAGE_FIELDS
+                or not isinstance(accepted, dict) or set(accepted) != fields):
+            return False
+        if (page["action"] != _MEMBER_PATHS_ACTION or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]
+                or not isinstance(page["write_paths"], list) or not page["write_paths"]
+                or not isinstance(page["original_write_paths"], list)
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["implementation_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"] or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict)
+                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line(_MEMBER_PATHS_ACTION, str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def check_member_paths_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer keeps accepted entries; only a consumed leased decision appends one."""
+    old = {m.get("version"): m for m in _member_list(previous)}
+    new = {m.get("version"): m for m in _member_list(record)}
+    if not any(_MEMBER_PATHS_FIELD in m for m in [*old.values(), *new.values()]):
+        return
+    added = []
+    for version in old.keys() | new.keys():
+        left, right = old.get(version, {}).get(_MEMBER_PATHS_FIELD, []), new.get(version, {}).get(_MEMBER_PATHS_FIELD, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("member-paths-not-append-only")
+        if left and approval_binding.canonical(old[version].get("implementation")) != approval_binding.canonical(
+                new[version].get("implementation")) and len(right) == len(left):
+            raise ck.MinorConflict("member-paths-claims-changed")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        return
+    active = ck._MINOR_LEASE.get()
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("member-paths-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if version not in old or approval_binding.canonical(active.get("member_paths_append")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("member-paths-append-not-captured")
+    page, before, after = entry.get("page", {}), old[version].get("implementation"), new[version].get("implementation")
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        raise ck.MinorConflict("member-paths-invalid-entry")
+    merged = sorted({*before["write_paths"], *page.get("write_paths", [])})
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in _member_list(restored) if m.get("version") == version)
+    target[_MEMBER_PATHS_FIELD].pop()
+    if _MEMBER_PATHS_FIELD not in old[version]:
+        target.pop(_MEMBER_PATHS_FIELD)
+    target["implementation"] = before
+    restored.pop("approvals_hmac", None)
+    original = json.loads(json.dumps(previous))
+    original.pop("approvals_hmac", None)
+    if (approval_binding.canonical(restored) != approval_binding.canonical(original)
+            or approval_binding.canonical(after) != approval_binding.canonical({**before, "write_paths": merged})):
+        raise ck.MinorConflict("member-paths-unrelated-record-change")
+    if (page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or page.get("implementation_sha256") != _manifest_implementation_sha256(old[version])
+            or page.get("original_write_paths") != before["write_paths"]
+            or any(p.casefold() in {q.casefold() for q in before["write_paths"]} for p in page.get("write_paths", []))
+            or not _member_paths_entry_valid(ck, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("member-paths-invalid-entry")
+
+
+@minor_writer
+def cmd_record_permit_member_paths(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine exact-files decision; claims other than write_paths never change."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = member_paths_page(ck, rctx, args.minor, record, args.member, _member_paths_input(ck, args.paths))
+    if page is None:
+        print(f"PERMITTED {args.member} write paths already present")
+        return 0
+    consumed = _consume(ck, rctx, args.minor, _MEMBER_PATHS_ACTION, page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in ordered_members(record) if m["version"] == args.member)
+    # Sorted union: the frozen list is already sorted, so existing entries keep their relative order.
+    member["implementation"] = {**member["implementation"],
+                                "write_paths": sorted({*member["implementation"]["write_paths"], *page["write_paths"]})}
+    member.setdefault(_MEMBER_PATHS_FIELD, []).append(entry)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["member_paths_append"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("member_paths_append", None)
+    print(f"PERMITTED {args.member} {len(page['write_paths'])} exact write paths")
     return 0
 
 

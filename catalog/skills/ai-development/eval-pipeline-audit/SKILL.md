@@ -67,6 +67,15 @@ Two distinctions decide the status, and both are routinely collapsed:
 
 Where a judge gates a merge, a deploy, or the acceptance of an improvement, a measured sensitivity result is **mandatory** before that gate is trusted; a recipe alone leaves concern 4 **partial** and the gate unvalidated.
 
+#### Cross-harness behavioral evidence under concern 4
+
+When the question is which coding-agent harness or model pairing earns its cost, concern 4 has a further requirement: observed behavior from repeated local trials of the same workload, not a structural check. Two separate things answer it:
+
+- `scripts/harness_audit.py` is structural. It reports which instruction files and configuration a project has. It never runs a task and its result says nothing about behavior.
+- `scripts/evaluate_harness_pairings.py` is behavioral. It produces versioned local receipts under the contract in `guides/reference/HARNESS_PAIRING_EVALUATION.md`.
+
+Record concern 4 as **absent** for a pairing question when no behavioral receipt exists, and show the structural and behavioral results side by side rather than collapsing them into one score. If the evaluator script is not present in the checkout, report that portion as **not covered**, name the missing script, and continue; do not reconstruct its rules from memory. A synthetic receipt proves the machinery only, so treat it as partial evidence for a real pairing decision.
+
 ### Step 2: Build the gap matrix
 
 One row per concern. Severity is determined by consequence, not by how far the finding sits from best practice.
@@ -101,6 +110,7 @@ Never fix a gap inline by explaining the method. Hand it to the owner:
 | Human review is unblinded, unadjudicated, or has no schema | `[[ai-output-evaluation]]` (`references/review-interface.md`) |
 | The judge prompt itself is weak or unstable | `[[prompt-engineering]]` |
 | A Nexus-Hub skill needs a paired with-skill / baseline benchmark | `[[skill-eval-loop]]` |
+| No behavioral receipt for a model x harness pairing, or only a structural audit exists | `guides/reference/HARNESS_PAIRING_EVALUATION.md` and `scripts/evaluate_harness_pairings.py` (the audit skill routes; it does not run or explain the evaluator) |
 | Any trace, label, or example needs to leave the host | `[[egress-redaction]]` |
 
 If a gap has no owner in this table, say so plainly in the report rather than inventing a method for it.
@@ -157,6 +167,7 @@ Evaluation inputs are among the most sensitive artifacts a project holds: real u
 - [ ] The recommendation list contains at most three items, each with an observable closing condition
 - [ ] Every quoted excerpt is bounded and has identifiers replaced with typed markers
 - [ ] No trace, label, prompt, or example left the host without an explicit authorization step
+- [ ] A harness-pairing question lists the structural result (`scripts/harness_audit.py`) and the behavioral result (`scripts/evaluate_harness_pairings.py`) side by side, and a missing evaluator is reported as not covered
 - [ ] Every cost or token saving claim counts helper model and tool calls and failed attempts, and its headline was restated after any change in accounting, with earlier figures marked superseded
 
 ## Related Skills

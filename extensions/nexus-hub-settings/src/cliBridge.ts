@@ -4,6 +4,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { ActionDoc, EXIT, ExplainData, ShowReport } from "./types";
+import { ensureSettingsRuntime, runtimeEnvironment, settingsRuntimePath } from "./settingsRuntime";
 
 /**
  * The only door from the panel to the engine.
@@ -22,7 +23,7 @@ export interface Interpreter {
   args: string[];
 }
 
-export type BridgeErrorKind = "no-install" | "no-python" | "timeout" | "spawn" | "exit" | "json" | "argument";
+export type BridgeErrorKind = "no-install" | "no-python" | "timeout" | "spawn" | "exit" | "json" | "argument" | "dependency";
 
 export class BridgeError extends Error {
   constructor(
@@ -45,6 +46,8 @@ export interface BridgeOptions {
   timeoutMs?: number;
   /** The user-scope `nexusHubSettings.pythonPath` value (never a workspace value). */
   pythonPath?: () => string | undefined;
+  /** Executables supplied by installed provider extensions, never by a workspace. */
+  providerDirectories?: () => string[];
   /** Test seam: use this interpreter and skip discovery. */
   interpreter?: Interpreter;
   listDir?: (dir: string) => string[];
@@ -334,8 +337,14 @@ export class CliBridge {
   /** The environment of the child: the host's own, minus any stale nonce, plus this call's nonce when there is one. */
   private childEnv(extra?: Record<string, string>): NodeJS.ProcessEnv {
     const env: NodeJS.ProcessEnv = { ...this.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", PYTHONDONTWRITEBYTECODE: "1" };
+    const directories = this.options.providerDirectories?.().filter(directory => path.isAbsolute(directory) && fs.existsSync(directory)) ?? [];
+    if (directories.length) {
+      const key = Object.keys(env).find(key => key.toLowerCase() === "path") ?? "PATH";
+      env[key] = [...directories, env[key] ?? ""].join(path.delimiter);
+    }
     delete env[NONCE_ENV];
-    return { ...env, ...extra };
+    const runtime = settingsRuntimePath(this.root());
+    return { ...(fs.existsSync(path.join(runtime, "tomlkit", "__init__.py")) ? runtimeEnvironment(env, runtime) : env), ...extra };
   }
 
   /** Run the CLI with these arguments. Rejects with a `BridgeError` for anything but an exit code. */
@@ -411,7 +420,15 @@ export class CliBridge {
 
   show(project?: string): Promise<ShowReport> {
     const isReport = (d: unknown): boolean => isRecord(d) && d.schema_version === 1 && Array.isArray(d.records) && isRecord(d.tools);
-    return this.readOnly<ShowReport>(["settings", "show", "--json", ...projectArg(project)], isReport);
+    return this.readOnly<ShowReport>(["settings", "show", "--json", ...projectArg(project)], isReport).then(report => ({
+      ...report,
+      records: report.records.map(row => {
+        // Older installed engines return a verified file value and then override its state when
+        // a separate CLI version probe fails. Preserve genuine read failures and mismatches.
+        if (row.control !== "effort" || row.surface !== "cli" || row.state !== "cannot-detect" || row.matches_default !== true || typeof row.detail !== "string" || !row.detail.startsWith("version:") || !["low", "medium", "high", "xhigh", "max", "ultra"].includes(row.value ?? "")) { return row; }
+        return { ...row, state: "in-effect" as const, detail: null, caveats: [...row.caveats, row.detail] };
+      }),
+    }));
   }
 
   async explain(control: string, project?: string): Promise<ExplainData> {
@@ -425,7 +442,18 @@ export class CliBridge {
     const issued = spec.token && !spec.dryRun ? this.writeToken(spec.token) : undefined;
     try {
       const result = await this.run(args, issued ? { [NONCE_ENV]: issued.nonce } : undefined);
-      return this.outcome(result);
+      const outcome = this.outcome(result);
+      const missingToml = outcome.doc?.results?.some(result => result.status === "refused" && result.detail?.includes("tomlkit is not installed"));
+      if (spec.action === "set" && spec.control === "effort" && !spec.dryRun && !spec.token && missingToml) {
+        try { await ensureSettingsRuntime(this.root(), this.interpreter(), this.childEnv()); }
+        catch (error) {
+          const interpreter = this.interpreter();
+          const install = [interpreter.command, ...interpreter.args, "-m", "pip", "install", "tomlkit==0.15.1"].map(part => quoteArg(part, this.platform)).join(" ");
+          throw new BridgeError("dependency", error instanceof Error ? error.message : "Codex settings support could not be prepared.", install, `Run this command in a terminal, then retry the effort choice: ${install}`);
+        }
+        return this.outcome(await this.run(args));
+      }
+      return outcome;
     } finally {
       issued?.cleanup();
     }

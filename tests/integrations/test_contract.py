@@ -392,3 +392,77 @@ def test_contract_source_copies_bundled_resources_without_host_cleanup(tmp_path:
     INTEGRATION_REGISTRY["claude"].install(_make_ctx(target))
     installed = target / ".claude/skills/code-commit-workflow/references/commit-message-examples.md"
     assert installed.read_bytes() == reference.read_bytes()
+
+
+# --- Shared AGENTS.md consumer contract (v4.15.2, Phase 4) -------------------
+
+#: Integrations that render the project-root AGENTS.md from the shared template.
+SHARED_AGENTS_CONSUMERS = {"codex", "opencode", "cursor"}
+#: Root-AGENTS.md writers that keep their own template because their platform-specific
+#: content has no verified sidecar or global owner (see the v4.15.2 shared-agents inventory).
+BLOCKED_ROOT_WRITERS = {"antigravity2", "openclaw", "windsurf"}
+
+
+def test_every_project_root_agents_md_writer_is_classified():
+    """A new root writer fails here until it is made a consumer or recorded as blocked."""
+    from scripts.lib.integrations import INTEGRATION_REGISTRY
+
+    writers = set()
+    for key, integ in INTEGRATION_REGISTRY.items():
+        cfg = integ.config
+        if cfg.get("instruction_file") == "AGENTS.md" and cfg.get("instruction_workspace_dir") == "":
+            writers.add(key)
+    writers.add("cursor")  # writes AGENTS.md from its own install_workspace
+    writers.add("windsurf")  # writes an explicit root AGENTS.md beside .windsurfrules
+    unclassified = writers - SHARED_AGENTS_CONSUMERS - BLOCKED_ROOT_WRITERS
+    assert not unclassified, f"classify these root AGENTS.md writers: {sorted(unclassified)}"
+
+
+def test_consumer_flag_matches_the_declared_consumer_set():
+    from scripts.lib.integrations import INTEGRATION_REGISTRY
+
+    flagged = {k for k, i in INTEGRATION_REGISTRY.items() if i.config.get("shared_agents_consumer")}
+    assert flagged <= SHARED_AGENTS_CONSUMERS and {"codex", "opencode"} <= flagged
+    assert "claude" not in flagged, "Claude chooses its path from the recorded capability decision"
+
+
+def test_consumers_use_the_shared_template_only_at_workspace_scope(tmp_path):
+    from scripts.lib.integrations import get
+    from scripts.lib.integrations.base import InstallContext
+
+    for key in ("codex", "opencode"):
+        integ = get(key)
+        ws = InstallContext(repo_root=tmp_path, target_root=tmp_path, scope="workspace")
+        gl = InstallContext(repo_root=tmp_path, target_root=tmp_path, scope="global")
+        assert integ._uses_shared_agents(ws) is True
+        assert integ._uses_shared_agents(gl) is False, "global files keep the platform template"
+
+
+def test_shared_template_differs_from_codex_only_by_the_skills_pointer():
+    root = Path(__file__).resolve().parents[2] / "templates" / "ai-instructions"
+    shared = (root / "base-agents.md").read_text(encoding="utf-8").splitlines()
+    codex = (root / "base-codex.md").read_text(encoding="utf-8").splitlines()
+    assert len(shared) == len(codex)
+    changed = [(a, b) for a, b in zip(shared, codex) if a != b]
+    assert len(changed) == 1 and changed[0][1].startswith("- Skills:")
+    assert ".codex" not in "\n".join(shared) and "{{PROJECT_NAME}}" in shared[0]
+
+
+def test_the_decision_is_scope_aware_global_install_is_untouched(tmp_path):
+    from scripts.lib.integrations.base import InstallContext
+    from scripts.lib.integrations.claude import ClaudeIntegration, read_decision
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    ctx = InstallContext(repo_root=Path(__file__).resolve().parents[2], target_root=tmp_path, scope="global",
+                         explicit_target=True, instruction_only=True, manifest=InstallManifest())
+    ClaudeIntegration().install_global(ctx)
+    assert (tmp_path / ".claude" / "CLAUDE.md").exists()
+    assert read_decision(tmp_path) is None, "global scope records no project decision"
+
+
+def test_shared_body_does_not_grow_past_the_project_body_it_replaces():
+    """v4.15.2 release gate: no shared-instruction byte growth."""
+    root = Path(__file__).resolve().parents[2] / "templates" / "ai-instructions"
+    shared = (root / "base-agents.md").read_bytes().replace(b"\r\n", b"\n")
+    previous = (root / "base-codex.md").read_bytes().replace(b"\r\n", b"\n")
+    assert len(shared) <= len(previous), (len(shared), len(previous))

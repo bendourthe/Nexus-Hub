@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.0 -->
+<!-- nexus-hub-version: 4.15.3 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,14 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.0
+## What's New in v4.15.3
 
-- Usage alert switches in Settings, per provider or all at once, and usage warnings that close after 10 seconds.
-- Nexus-Hub Settings installs into every detected VS Code, Cursor, and Antigravity editor and applies shared effort and speed defaults once, without overwriting session choices.
-- Cursor and Gemini usage monitor fixes, and leaner standing instructions after a rule-by-rule necessity review.
+- Parallel minor runs get safer: stalled worker lanes are detected and resumed from heartbeats, the minor's plans are re-planned together before approval, as many lanes as the claims allow run at once (up to the smaller of half the cores and 6), and `/compare` and `/plan` run the same re-plan analysis.
+- `security-review` can project its findings into the shared review-findings format, and a new harness feedback cadence guide ships with a credential-free synthetic matrix.
+- `/status` is now `/progress`, with one readable report and no confidence line. An earlier publisher is no longer blocked by a read-only reservation.
+- Nexus Hub Settings 0.8.9 can restore a merged Claude Code and Codex split (opt-in with `nexusHubSettings.restoreAgentSplit`), and the usage monitors no longer miss an alert-setting change made as watching starts.
 
-[Release details and earlier versions](CHANGELOG.md#4150---2026-11-12)
+[Release details and earlier versions](CHANGELOG.md#4153---2026-11-17)
 
 ## Installation
 
@@ -332,6 +333,14 @@ Check progress, sync the repo, or run the release flow.
 ```
 
 [See it in Training](guides/website/training.html#update)
+
+#### `/progress`
+
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` still forwards here until v4.15.4.
+
+```text
+/progress v4.15
+```
 
 #### `/grill`
 

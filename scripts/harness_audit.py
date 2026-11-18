@@ -64,6 +64,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.lib.integrations import INTEGRATION_REGISTRY  # noqa: E402
+from scripts.lib.integrations.claude import read_decision  # noqa: E402
 from scripts.lib.integrations.lifecycle import (  # noqa: E402
     DIAGNOSTIC_DRIFTED,
     DIAGNOSTIC_MISSING,
@@ -190,6 +191,9 @@ class AuditReport:
     manifest_path: str
     integrations: List[IntegrationAudit] = field(default_factory=list)
     weights: Dict[str, float] = field(default_factory=lambda: dict(DEFAULT_WEIGHTS))
+    # v4.15.2: effective project instruction path and shared-owner state, reported
+    # beside (never folded into) the per-integration scores.
+    project_instruction: Dict[str, object] = field(default_factory=dict)
 
     def aggregate(self) -> float:
         if not self.integrations:
@@ -203,6 +207,7 @@ class AuditReport:
             "weights": self.weights,
             "aggregate_score": round(self.aggregate(), 2),
             "integrations": [i.to_dict() for i in self.integrations],
+            "project_instruction": self.project_instruction,
         }
 
 
@@ -313,6 +318,7 @@ def audit(
         target=str(target_root),
         manifest_path=str(manifest_path),
         weights=dict(weights or DEFAULT_WEIGHTS),
+        project_instruction=project_instruction_state(target_root),
     )
     if not manifest_path.exists():
         return report
@@ -633,24 +639,77 @@ def _grade_security_hooks(root: Path) -> GradeDimension:
     return GradeDimension(name, weight, sub, True, reason)
 
 
+def project_instruction_state(root: Path) -> Dict[str, object]:
+    """Effective project instruction path, taken from the persisted capability decision.
+
+    Structural only: it reports what the install recorded and which files exist. It
+    never decides capability itself. With no (or an unreadable) decision the path is
+    `unknown` and the conservative expectation applies (both files).
+    """
+    decision = read_decision(root)
+    effective = decision["effective_path"] if decision else "unknown"
+    files = {n: (root / n).is_file() for n in ("AGENTS.md", "CLAUDE.md")}
+    risks: List[str] = []
+    if effective == "AGENTS.md" and files["CLAUDE.md"]:
+        risks.append("CLAUDE.md exists beside the shared AGENTS.md: Claude reads CLAUDE.md only (precedence)")
+    if effective == "CLAUDE.md" and files["AGENTS.md"]:
+        risks.append("AGENTS.md exists but the recorded path is CLAUDE.md: the shared block is inactive for Claude")
+    consumers: List[str] = []
+    manifest_path = root / ".nexus-hub" / "install-manifest.json"
+    if manifest_path.is_file():
+        try:
+            manifest = InstallManifest.load(manifest_path)
+            want = str((root / "AGENTS.md").resolve()).lower()
+            consumers = sorted(
+                key for key in manifest.to_dict().get("shared", {})
+                if any(str(Path(p).resolve()).lower() == want for p in manifest.shared_for(key))
+            )
+        except (OSError, ValueError):
+            consumers = []
+    return {
+        "effective_path": effective,
+        "decision_id": decision.get("decision_id") if decision else None,
+        "confidence": decision.get("confidence") if decision else "unknown",
+        "files_present": files,
+        "precedence_risks": risks,
+        "shared_agents_consumers": consumers,
+    }
+
+
+def _expected_instruction_files(root: Path) -> Tuple[str, ...]:
+    """Instruction files this root must carry, by recorded capability (not both, unconditionally)."""
+    state = project_instruction_state(root)
+    if state["effective_path"] == "AGENTS.md":
+        return tuple(f for f in EXPECTED_INSTRUCTION_FILES if f != "CLAUDE.md")
+    if state["effective_path"] == "CLAUDE.md":
+        return tuple(f for f in EXPECTED_INSTRUCTION_FILES if f != "AGENTS.md")
+    return EXPECTED_INSTRUCTION_FILES
+
+
 def _grade_instruction_files(root: Path) -> GradeDimension:
     name = "instruction_files"
     weight = GRADE_WEIGHTS[name]
-    present = [f for f in EXPECTED_INSTRUCTION_FILES if (root / f).is_file()]
+    expected = _expected_instruction_files(root)
+    state = project_instruction_state(root)
+    present = [f for f in expected if (root / f).is_file()]
     if not present:
         return GradeDimension(
             name, weight, 0.0, False,
             "no agent-instruction files found; not measurable here",
         )
-    sub = len(present) / len(EXPECTED_INSTRUCTION_FILES)
-    missing = [f for f in EXPECTED_INSTRUCTION_FILES if not (root / f).is_file()]
+    sub = len(present) / len(expected)
+    missing = [f for f in expected if not (root / f).is_file()]
     if missing:
         reason = (
-            f"{len(present)}/{len(EXPECTED_INSTRUCTION_FILES)} instruction "
+            f"{len(present)}/{len(expected)} instruction "
             f"files present; missing: {', '.join(missing)}"
         )
     else:
-        reason = f"all {len(EXPECTED_INSTRUCTION_FILES)} instruction files present"
+        reason = f"all {len(expected)} instruction files present"
+    if state["effective_path"] != "unknown":
+        reason += f"; effective project path {state['effective_path']} (decision {state['decision_id']})"
+    for risk in state["precedence_risks"]:
+        reason += f"; precedence risk: {risk}"
     return GradeDimension(name, weight, sub, True, reason)
 
 
@@ -800,6 +859,14 @@ def _format_markdown(report: AuditReport) -> str:
     lines.append(f"- Target: `{report.target}`")
     lines.append(f"- Manifest: `{report.manifest_path}`")
     lines.append(f"- Aggregate score: **{report.aggregate():.1f} / 100**")
+    state = report.project_instruction
+    if state:
+        lines.append(
+            f"- Project instruction path: `{state['effective_path']}` "
+            f"(consumers of the shared AGENTS.md: {', '.join(state['shared_agents_consumers']) or 'none'})"
+        )
+        for risk in state["precedence_risks"]:
+            lines.append(f"- Precedence risk: {risk}")
     lines.append("")
     if not report.integrations:
         lines.append("_(no integrations recorded -- run installer first)_")

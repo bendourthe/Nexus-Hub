@@ -552,3 +552,418 @@ def test_no_platforms_detected(tmp_path):
     home = tmp_path / "home"
     home.mkdir()
     assert runner._verify_checks(home, tmp_path / "proj") == []
+
+
+# --- Claude project instruction capability (v4.15.2, Phase 4) ---------------
+# The decision is conservative: every unknown, unreadable, conflicting, or blocked
+# input must select CLAUDE.md. Each case below pins one vendor-documented fact or
+# one failure direction. No test needs the real `claude` binary or the real HOME.
+
+import json  # noqa: E402
+
+from scripts.lib.integrations import claude as claude_mod  # noqa: E402
+from scripts.lib.integrations.base import InstallContext  # noqa: E402
+from scripts.lib.integrations.claude import (  # noqa: E402
+    ClaudeIntegration,
+    classify_project_claude_md,
+    claude_only_sections,
+    decide_instruction_path,
+    persist_decision,
+    read_decision,
+)
+from scripts.lib.integrations.codex import CodexIntegration  # noqa: E402
+from scripts.lib.integrations.cursor import CursorIntegration  # noqa: E402
+from scripts.lib.integrations.opencode import OpenCodeIntegration  # noqa: E402
+from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PLUGIN_ID = "cc-plugin-agents-md@builtin"
+LEGACY_PLUGIN_ID = "agents-md@builtin"
+
+
+def _ctx(tmp_path: Path, **kw) -> InstallContext:
+    project = tmp_path / "project"
+    project.mkdir(exist_ok=True)
+    return InstallContext(
+        repo_root=REPO_ROOT, target_root=project, scope="workspace", instruction_only=True,
+        manifest=kw.pop("manifest", InstallManifest()), **kw,
+    )
+
+
+def _env(tmp_path: Path, version: str | None = "2.1.281", **extra: str) -> dict:
+    env = {"CLAUDE_CONFIG_DIR": str(tmp_path / "cfg"),
+           "NEXUS_HUB_CLAUDE_MANAGED_SETTINGS": str(tmp_path / "managed.json")}
+    if version is not None:
+        env["NEXUS_HUB_CLAUDE_VERSION"] = version
+    env.update(extra)
+    return env
+
+
+def _user_settings(tmp_path: Path, body) -> None:
+    cfg = tmp_path / "cfg"
+    cfg.mkdir(exist_ok=True)
+    (cfg / "settings.json").write_text(body if isinstance(body, str) else json.dumps(body), encoding="utf-8")
+
+
+def _entry(value=None, plugin_id=PLUGIN_ID, **options) -> dict:
+    opts = dict(options)
+    if value is not None:
+        opts["instructionFiles"] = value
+    return {"pluginConfigs": {plugin_id: {"options": opts}}}
+
+
+def _decide(tmp_path: Path, **env_kw):
+    return decide_instruction_path(_ctx(tmp_path), (tmp_path / "project").resolve(), _env(tmp_path, **env_kw))
+
+
+@pytest.mark.parametrize("version,extra,path", [
+    ("2.1.281", {}, "AGENTS.md"),
+    ("2.1.277", {}, "AGENTS.md"),
+    ("2.1.276", {}, "CLAUDE.md"),
+    ("2.1.280", {"CLAUDE_CODE_USE_BEDROCK": "1"}, "CLAUDE.md"),
+    ("2.1.281", {"CLAUDE_CODE_USE_BEDROCK": "1"}, "AGENTS.md"),
+    ("2.1.280", {"CLAUDE_CODE_USE_VERTEX": "true"}, "CLAUDE.md"),
+    ("2.1.280", {"CLAUDE_CODE_USE_FOUNDRY": "1"}, "CLAUDE.md"),
+    ("2.1.280", {"ANTHROPIC_BASE_URL": "https://gateway.example"}, "CLAUDE.md"),
+    ("2.1.281", {"ANTHROPIC_BASE_URL": "https://gateway.example"}, "AGENTS.md"),
+    ("2.1.280", {"DISABLE_TELEMETRY": "1"}, "CLAUDE.md"),
+    ("2.1.281", {"DISABLE_TELEMETRY": "1"}, "AGENTS.md"),
+    (None, {}, "CLAUDE.md"),
+    ("not-a-version", {}, "CLAUDE.md"),
+])
+def test_version_floor_and_provider_surface_select_the_effective_path(tmp_path, version, extra, path):
+    decision = _decide(tmp_path, version=version, **extra)
+    assert decision["effective_path"] == path, decision["reason"]
+    if version in (None, "not-a-version"):
+        assert decision["confidence"] == "unknown"
+
+
+@pytest.mark.parametrize("plugin_id", [PLUGIN_ID, LEGACY_PLUGIN_ID])
+@pytest.mark.parametrize("value,path", [
+    ("claude-md-or-agents-md", "AGENTS.md"),
+    ("claude-md-and-agents-md", "AGENTS.md"),
+    ("claude-md", "CLAUDE.md"),
+    ("managed-only", "CLAUDE.md"),
+])
+def test_each_instruction_files_value_under_either_plugin_id(tmp_path, plugin_id, value, path):
+    _user_settings(tmp_path, _entry(value, plugin_id))
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == path
+    assert decision["instruction_files"] == value and decision["instruction_files_scope"] == "user"
+
+
+@pytest.mark.parametrize("legacy,path", [
+    ("claude", "CLAUDE.md"), ("agents-fallback", "AGENTS.md"), ("both", "AGENTS.md"), ("none", "CLAUDE.md"),
+])
+def test_legacy_project_instructions_maps_only_when_instruction_files_is_unset(tmp_path, legacy, path):
+    _user_settings(tmp_path, _entry(None, projectInstructions=legacy))
+    assert _decide(tmp_path)["effective_path"] == path
+    _user_settings(tmp_path, _entry("claude-md-or-agents-md", projectInstructions=legacy))
+    assert _decide(tmp_path)["effective_path"] == "AGENTS.md", "instructionFiles wins over the legacy key"
+
+
+def test_a_built_in_reader_disabled_through_plugin_selects_claude_md(tmp_path):
+    _user_settings(tmp_path, {"enabledPlugins": {PLUGIN_ID: False}})
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and "disabled" in decision["reason"]
+
+
+@pytest.mark.parametrize("body", [
+    "{not json",
+    "[]",
+    {"pluginConfigs": []},
+    {"pluginConfigs": {PLUGIN_ID: {"options": {"instructionFiles": "agents-only"}}}},
+    {"pluginConfigs": {PLUGIN_ID: {"options": {"projectInstructions": "bogus"}}}},
+    {"pluginConfigs": {PLUGIN_ID: {"options": {"instructionFiles": "claude-md"}},
+                       LEGACY_PLUGIN_ID: {"options": {"instructionFiles": "claude-md-or-agents-md"}}}},
+])
+def test_malformed_or_conflicting_settings_are_unknown_and_conservative(tmp_path, body):
+    _user_settings(tmp_path, body)
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+    assert "unreadable" in decision["reason"]
+
+
+def test_an_unreadable_managed_file_is_unknown_never_the_vendor_default(tmp_path):
+    (tmp_path / "managed.json").write_text("{broken", encoding="utf-8")
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+
+
+def test_managed_settings_outrank_user_settings(tmp_path):
+    _user_settings(tmp_path, _entry("claude-md-or-agents-md"))
+    (tmp_path / "managed.json").write_text(json.dumps(_entry("claude-md")), encoding="utf-8")
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["instruction_files_scope"] == "managed"
+    _user_settings(tmp_path, _entry("claude-md"))
+    (tmp_path / "managed.json").write_text(json.dumps(_entry("claude-md-or-agents-md")), encoding="utf-8")
+    assert _decide(tmp_path)["effective_path"] == "AGENTS.md"
+
+
+def test_a_project_scoped_setting_is_ignored_by_the_decision(tmp_path):
+    project = tmp_path / "project"
+    (project / ".claude").mkdir(parents=True)
+    (project / ".claude" / "settings.json").write_text(json.dumps(_entry("claude-md")), encoding="utf-8")
+    (project / ".claude" / "settings.local.json").write_text(json.dumps(_entry("managed-only")), encoding="utf-8")
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "AGENTS.md" and decision["instruction_files_scope"] == "default"
+
+
+@pytest.mark.parametrize("blocker", ["CLAUDE.md", ".claude/CLAUDE.md", "CLAUDE.local.md"])
+def test_a_project_claude_file_blocks_the_default_fallback(tmp_path, blocker):
+    target = tmp_path / "project" / blocker
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# mine\n", encoding="utf-8")
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and "takes precedence" in decision["reason"]
+    assert decision["precedence_blockers"]
+    _user_settings(tmp_path, _entry("claude-md-and-agents-md"))
+    assert _decide(tmp_path)["effective_path"] == "AGENTS.md"
+
+
+def test_a_claude_md_in_a_parent_directory_also_blocks(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("# parent\n", encoding="utf-8")
+    assert _decide(tmp_path)["effective_path"] == "CLAUDE.md"
+
+
+def test_the_users_own_global_claude_md_does_not_block(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    (home / ".claude").mkdir(parents=True)
+    (home / ".claude" / "CLAUDE.md").write_text("# global\n", encoding="utf-8")
+    project = home / "work" / "proj"
+    project.mkdir(parents=True)
+    ctx = InstallContext(repo_root=REPO_ROOT, target_root=project, scope="workspace", instruction_only=True,
+                         manifest=InstallManifest())
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
+    decision = decide_instruction_path(ctx, project.resolve(), _env(tmp_path))
+    assert decision["effective_path"] == "AGENTS.md", decision["reason"]
+
+
+def test_probe_uses_the_resolved_claude_binary_version(tmp_path):
+    ctx = _ctx(tmp_path, which=lambda name: None)
+    decision = decide_instruction_path(ctx, (tmp_path / "project").resolve(), _env(tmp_path, version=None))
+    assert decision["effective_path"] == "CLAUDE.md" and decision["version"] is None
+
+
+def test_decision_records_what_was_not_inspected_and_the_no_load_modes(tmp_path):
+    decision = _decide(tmp_path)
+    assert {"--settings", "mdm", "server-managed"} <= set(decision["not_inspected"])
+    assert "CLAUDE_CODE_DISABLE_CLAUDE_MDS" in decision["no_load_modes"]
+
+
+# --- persistence and transitions --------------------------------------------
+
+
+def test_decisions_persist_chain_and_stay_stable_when_nothing_changes(tmp_path):
+    ctx = _ctx(tmp_path)
+    root = (tmp_path / "project").resolve()
+    first = decide_instruction_path(ctx, root, _env(tmp_path))
+    assert persist_decision(ctx, root, "claude", first).action == "created"
+    assert persist_decision(ctx, root, "claude", first).action == "unchanged"
+    saved = read_decision(root)
+    assert saved["effective_path"] == "AGENTS.md" and saved["prior_decision"] is None
+    downgrade = decide_instruction_path(ctx, root, _env(tmp_path, version="2.1.270"))
+    assert persist_decision(ctx, root, "claude", downgrade).action == "updated"
+    chained = read_decision(root)
+    assert chained["effective_path"] == "CLAUDE.md" and chained["prior_decision"] == saved["decision_id"]
+
+
+def test_read_decision_rejects_a_missing_or_corrupt_record(tmp_path):
+    root = tmp_path / "project"
+    root.mkdir()
+    assert read_decision(root) is None
+    (root / ".nexus-hub").mkdir()
+    (root / ".nexus-hub" / "claude-instruction-decision.json").write_text("{x", encoding="utf-8")
+    assert read_decision(root) is None
+
+
+# --- install behavior ---------------------------------------------------------
+
+
+def _install_claude(tmp_path, monkeypatch, version="2.1.281", manifest=None, migrate=False, **extra):
+    for key, value in _env(tmp_path, version=version, **extra).items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.delenv("NEXUS_HUB_CLAUDE_MIGRATE", raising=False)
+    if migrate:
+        monkeypatch.setenv("NEXUS_HUB_CLAUDE_MIGRATE", "1")
+    ctx = _ctx(tmp_path, manifest=manifest or InstallManifest())
+    result = ClaudeIntegration().install_workspace(ctx)
+    return ctx, result
+
+
+def test_fresh_supported_install_writes_one_shared_body_and_no_project_claude_md(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    project = ctx.target_root
+    assert not (project / "CLAUDE.md").exists()
+    agents = (project / "AGENTS.md").read_text(encoding="utf-8")
+    assert agents.count("<!-- NEXUS_HUB_START -->") == 1
+    sidecar = (project / ".claude" / "rules" / "nexus-hub-claude.md").read_text(encoding="utf-8")
+    for heading in ("## Agent Registry", "## Spending Controls", "## Environment Variables", "## MCP Integration"):
+        assert heading in sidecar and heading not in agents
+    # Both files carry a Context References section; only the sidecar's names Claude paths.
+    assert ".claude/skills/" in sidecar and ".claude/skills/" not in agents
+    assert read_decision(project.resolve())["effective_path"] == "AGENTS.md"
+    assert str(project / "AGENTS.md") in ctx.manifest.shared_for("claude")
+
+
+def test_sidecar_carries_the_claude_only_sections_verbatim(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    template = ClaudeIntegration()._render(REPO_ROOT / "templates/ai-instructions/base-claude.md", ctx)
+    sidecar = (ctx.target_root / ".claude" / "rules" / "nexus-hub-claude.md").read_text(encoding="utf-8")
+    assert sidecar == claude_only_sections(template)
+    for section in claude_mod.CLAUDE_ONLY_SECTIONS:
+        assert f"## {section}" in template
+
+
+def test_shared_body_is_the_template_every_consumer_renders(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    claude_agents = (ctx.target_root / "AGENTS.md").read_text(encoding="utf-8")
+    for index, integration in enumerate((CodexIntegration(), OpenCodeIntegration(), CursorIntegration())):
+        other = tmp_path / f"other{index}"
+        other.mkdir()
+        octx = InstallContext(repo_root=REPO_ROOT, target_root=other, scope="workspace",
+                              instruction_only=True, manifest=InstallManifest())
+        integration.install_workspace(octx)
+        assert (other / "AGENTS.md").read_text(encoding="utf-8") == claude_agents, integration.key
+
+
+def test_unknown_below_floor_and_blocked_installs_keep_the_managed_claude_md(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch, version=None)
+    assert (ctx.target_root / "CLAUDE.md").exists() and not (ctx.target_root / "AGENTS.md").exists()
+    assert not (ctx.target_root / ".claude" / "rules" / "nexus-hub-claude.md").exists()
+    assert read_decision(ctx.target_root.resolve())["effective_path"] == "CLAUDE.md"
+
+
+def test_existing_user_claude_md_is_preserved_and_stays_the_effective_path(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    original = "# My rules\n\nKeep this exactly.\n"
+    (project / "CLAUDE.md").write_text(original, encoding="utf-8")
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    text = (project / "CLAUDE.md").read_text(encoding="utf-8")
+    assert text.startswith(original.rstrip("\n")) and "<!-- NEXUS_HUB_START -->" in text
+    assert not (project / "AGENTS.md").exists()
+    assert read_decision(project.resolve())["effective_path"] == "CLAUDE.md"
+
+
+def test_repeat_install_is_idempotent_on_both_paths(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    before = {p: p.read_bytes() for p in ctx.target_root.rglob("*") if p.is_file()}
+    _install_claude(tmp_path, monkeypatch, manifest=ctx.manifest)
+    after = {p: p.read_bytes() for p in ctx.target_root.rglob("*") if p.is_file()}
+    assert before == after
+
+
+def test_downgrade_then_upgrade_records_new_decisions(tmp_path, monkeypatch):
+    ctx, _ = _install_claude(tmp_path, monkeypatch, version="2.1.281")
+    first = read_decision(ctx.target_root.resolve())
+    _install_claude(tmp_path, monkeypatch, version="2.1.270", manifest=ctx.manifest)
+    second = read_decision(ctx.target_root.resolve())
+    assert second["effective_path"] == "CLAUDE.md" and second["prior_decision"] == first["decision_id"]
+    assert (ctx.target_root / "CLAUDE.md").exists()
+
+
+MANAGED_ONLY_FILE = "<!-- NEXUS_HUB_START -->\nbody\n<!-- NEXUS_HUB_END -->\n"
+
+
+@pytest.mark.parametrize("content,state", [
+    (None, "none"),
+    (MANAGED_ONLY_FILE, "managed-only"),
+    ("# mine\n\n" + MANAGED_ONLY_FILE, "mixed"),
+    (MANAGED_ONLY_FILE + "\n# tail\n", "mixed"),
+    ("# only mine\n", "user-authored"),
+])
+def test_project_claude_md_states_are_classified(tmp_path, content, state):
+    if content is not None:
+        (tmp_path / "CLAUDE.md").write_text(content, encoding="utf-8")
+    assert classify_project_claude_md(tmp_path) == state
+
+
+def test_migration_of_a_managed_only_file_deletes_it_and_converges(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "CLAUDE.md").write_text(MANAGED_ONLY_FILE, encoding="utf-8")
+    ctx, _ = _install_claude(tmp_path, monkeypatch, migrate=True)
+    assert not (project / "CLAUDE.md").exists() and (project / "AGENTS.md").exists()
+    assert read_decision(project.resolve())["effective_path"] == "AGENTS.md"
+
+
+def test_migration_of_a_mixed_file_keeps_user_bytes_and_is_not_called_converged(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "CLAUDE.md").write_text("# mine\n\n" + MANAGED_ONLY_FILE, encoding="utf-8")
+    ctx, _ = _install_claude(tmp_path, monkeypatch, migrate=True)
+    remaining = (project / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "# mine" in remaining and "NEXUS_HUB_START" in remaining, "the managed block returns on the exception path"
+    assert read_decision(project.resolve())["effective_path"] == "CLAUDE.md"
+    assert not (project / "AGENTS.md").exists()
+
+
+def test_migration_never_touches_a_user_authored_file(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "CLAUDE.md").write_bytes(b"# mine only\r\nno markers\r\n")
+    _install_claude(tmp_path, monkeypatch, migrate=True)
+    assert (project / "CLAUDE.md").read_bytes().startswith(b"# mine only\r\nno markers")
+
+
+def test_no_migration_happens_without_the_explicit_request(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "CLAUDE.md").write_text(MANAGED_ONLY_FILE, encoding="utf-8")
+    _install_claude(tmp_path, monkeypatch)
+    assert (project / "CLAUDE.md").exists()
+
+
+def test_nexus_hub_init_writes_no_instruction_files_setting(tmp_path):
+    ctx = _ctx(tmp_path)
+    ClaudeIntegration().wire_project_surfaces(ctx)
+    stub = (tmp_path / "project" / ".claude" / "settings.json").read_text(encoding="utf-8")
+    assert "instructionFiles" not in stub and "pluginConfigs" not in stub and "projectInstructions" not in stub
+
+
+# --- Tier 3 hardening: hostile settings and unwritable shared files (v4.15.2) ---
+
+
+@pytest.mark.parametrize("value", [["claude-md"], {"a": 1}, 7, True, 3.5])
+def test_non_string_instruction_values_are_unknown_not_a_crash(tmp_path, value):
+    _user_settings(tmp_path, _entry(value))
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+
+
+@pytest.mark.parametrize("legacy", [["both"], {"k": "v"}, 5, ""])
+def test_non_string_legacy_values_are_unknown_not_a_crash(tmp_path, legacy):
+    _user_settings(tmp_path, _entry(None, projectInstructions=legacy))
+    assert _decide(tmp_path)["effective_path"] == "CLAUDE.md"
+
+
+def test_a_deeply_nested_settings_file_is_unknown_not_a_crash(tmp_path):
+    _user_settings(tmp_path, "[" * 5000 + "]" * 5000)
+    decision = _decide(tmp_path)
+    assert decision["effective_path"] == "CLAUDE.md" and decision["confidence"] == "unknown"
+
+
+def test_an_unwritable_shared_file_falls_back_to_claude_md_and_records_why(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "AGENTS.md").mkdir()  # a directory where the shared file must go
+    ctx, _ = _install_claude(tmp_path, monkeypatch)
+    assert (project / "CLAUDE.md").is_file(), "never leave the project without instructions"
+    saved = read_decision(project.resolve())
+    assert saved["effective_path"] == "CLAUDE.md" and "could not be written" in saved["reason"]
+
+
+def test_an_unwritable_sidecar_falls_back_to_claude_md(tmp_path, monkeypatch):
+    project = tmp_path / "project"
+    (project / ".claude").mkdir(parents=True)
+    (project / ".claude" / "rules").write_text("a file where the rules folder must go", encoding="utf-8")
+    _install_claude(tmp_path, monkeypatch)
+    assert (project / "CLAUDE.md").is_file()
+    assert read_decision(project.resolve())["effective_path"] == "CLAUDE.md"
+
+
+@pytest.fixture(autouse=True)
+def _isolated_nexus_home_v4152(tmp_path, monkeypatch):
+    """The merge owner keeps lock and backup state under NEXUS_HUB_HOME; never the real home."""
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path / "nexus-home-v4152"))

@@ -2,6 +2,22 @@
 
 Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each term carries a definition, the synonyms the project does not use for it, and its relationships. Architecture lives elsewhere; this file names the language only.
 
+## Workflow Record
+
+**Definition**: A scoped description linking a business operation's actor, trigger, state changes, implementation path and outcome to revision-bound code evidence and explicit unknowns.
+
+**Avoid**: execution trace, product requirement, complete repository map
+
+**Relationships**: Uses a report-local workflow ID shared by description, path coverage and risk views; source inspection alone does not establish runtime behavior.
+
+## Path Coverage
+
+**Definition**: The declared evidence state for each applicable normal, denied, duplicate, concurrent, uncertain, partial-failure or recovery path within a selected workflow.
+
+**Avoid**: code coverage percentage, proof of safety, test count
+
+**Relationships**: Connects source inspection, existing tests, executed checks and runtime observations without treating those states as interchangeable.
+
 ## Unknown Effect
 
 **Definition**: A dispatched action whose authoritative outcome is unavailable, so a missing response cannot establish whether the action changed anything.

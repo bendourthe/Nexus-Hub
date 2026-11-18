@@ -76,6 +76,7 @@ else
   _git_line="Git: unavailable"
 fi
 _nexus_msg "$_banner" "$_git_line"
+_nexus_msg "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
 
 # --- Surface the last-session digest (memory-persistence subset) ---
 if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then

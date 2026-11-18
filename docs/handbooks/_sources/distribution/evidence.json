@@ -1,16 +1,16 @@
 {
   "snapshot": {
-    "entry_sha256": "2b159b447d80773778d62f14d3c30e21b47c9620a3040a418f5a8a941990a584",
+    "entry_sha256": "fab81685705cfd0ae09ad46506f9d648cd790539339588a76280245cc9e9214c",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "e835e9410b4b6458639b5ed87d2a7bb51e23db10478b7f5f6e82c8b10c724603",
-      "docs/handbooks/_sources/distribution/source.md": "220cdff9fc21e09848434ac6a6b5cc6697b06d5b21acf639aba24bbe08f88438",
+      "docs/handbooks/_sources/distribution/model.json": "b22c3f8320226ac65a3051f82d9a9c957cf403843679c83e11803eac31662ef3",
+      "docs/handbooks/_sources/distribution/source.md": "d948449425359d46ca258b6a896c2af9f3f7ad984c043766c5cc8a1dd6a5b898",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "7a1252a7fece5d9361abf1f4433cd8415fef0ce6269ffef027266d26d23543cf",
-      "scripts/installer.sh": "f0275d5bf18f0ec1bfbab902258fc8b78adfbeac9e6d183fdb6b0f997c890fce",
+      "scripts/installer.ps1": "b1cc1e311bb66b35a6844b8849f16e8a2e5ea402b4d60fde30204238ac9095f9",
+      "scripts/installer.sh": "a38530ae13ed13eb1a65ec3aceeac6a0c1150514812606f72011d0afabc52562",
       "scripts/lib/integrations/runner.py": "c714aeae4c357e97a3e8456c191ce784a3e59660402969406d4dae52c5c21c8b",
       "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
-      "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
+      "scripts/lib/integrations/claude.py": "be317356bf253d11c54d731bea38687380b65ce29567b3890053200b8f1e1eb5",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
@@ -22,33 +22,34 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
+      "docs/handbooks/_sources/distribution/claude-instructions-composition.html": "b82166908877e2561843e49be79dc453e4b44a8b8361e23300032a7135770641",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "9fe46d95b27cbfc0208b07717e7bb474ac563f39e1e20a8080fced7aa76e0a32",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "3032366da9ac7f932cb0592c3c0f507c3f249c6f07fba92242ca43ab88dc5ce6",
+      "scripts/lib/integrations/cursor.py": "d89507ee3c9ceadcf3c0fc2ba3bd22b2e71917306edbe4f948218e679e00bdae",
       "scripts/lib/integrations/aider.py": "821c49d0cf5207397b837ddccc827fe2ca25146d1c7051ced63da556e5a1fc33",
       "configs/platform-defaults.json": "453a8c2cf30bba598b6e3e25592fa6f041142928df7b2a9960ba95b88f42cf86",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
     },
-    "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb"
+    "output_sha256": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-review.md",
-      "evidence_sha256": "f3524ee534f33ebee8459b6342958d7cf0c22fe04626bb9ad252f7c42864f805"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/v4.15.2-handbooks/distribution-handbook-review.md",
+      "evidence_sha256": "c15cd9ec63fdec68e53ed4333603a6eb53d65ec0b0271f4d0cad26d07d243399"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-build.json",
-      "evidence_sha256": "8f36453d5b8af062d22d493a6cf5db49af0d04951d3318ef5a52c8706faaa4b8"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/v4.15.2-handbooks/distribution-handbook-build.json",
+      "evidence_sha256": "94709966d38d841c522fb477059bc806f3d75a245c168ed0fa0924d8579f7ae7"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/document-style-handbook-browser-distribution.json",
-      "evidence_sha256": "08aa556d3049f3679410f0ef1929148fce358f4866d9f95547aa95e7651033a5",
+      "evidence": "docs/releases/v4/v4.15/development/evidence/v4.15.2-handbooks/handbook-browser-distribution.json",
+      "evidence_sha256": "d2325d9a45cc51b640b9026e87fa76654dd0fa927f38be0bc4f3bae9882c7b35",
       "browser": "Chromium 156.0.8078.4",
-      "output_sha256": "88dd1cb1e6b158ba4601bd78c0361804fa2106f316497739cfff6221dac33fcb"
+      "output_sha256": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65"
     }
   }
 }

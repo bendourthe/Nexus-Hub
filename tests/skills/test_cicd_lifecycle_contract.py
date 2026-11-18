@@ -55,6 +55,7 @@ INHERITED_TEMPLATES = (
     "base-windsurf.md",
     "generic-instructions.md",
     "base-pi.md",
+    "base-agents.md",
 )
 
 CI_WORKFLOW = _ROOT / ".github" / "workflows" / "ci.yml"
@@ -355,7 +356,7 @@ def test_template_roster_matches_the_directory():
 
 def test_all_thirteen_substantive_templates_are_covered():
     """Guard the count, so a roster edit cannot quietly shrink coverage."""
-    assert len(SUBSTANTIVE) == 13
+    assert len(SUBSTANTIVE) == 14
 
 
 @pytest.mark.parametrize("name", STUBS)

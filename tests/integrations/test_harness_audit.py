@@ -483,3 +483,86 @@ def test_main_diff_no_snapshot_is_advisory(tmp_path: Path) -> None:
         )
         == 0
     )
+
+
+# --- Capability-aware project instruction path (v4.15.2, Phase 4) -------------
+
+
+def _write_decision(root: Path, effective: str) -> None:
+    directory = root / ".nexus-hub"
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "claude-instruction-decision.json").write_text(
+        json.dumps({"effective_path": effective, "decision_id": "abc123", "confidence": "verified-inputs"}),
+        encoding="utf-8",
+    )
+
+
+def _instruction_tree(root: Path, *names: str) -> None:
+    for name in names:
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("x\n", encoding="utf-8")
+
+
+ALL_TEMPLATES = (
+    "templates/ai-instructions/base-claude.md",
+    "templates/ai-instructions/base-codex.md",
+    "templates/ai-instructions/base-cursor.md",
+    "templates/ai-instructions/base-gemini.md",
+    "templates/ai-instructions/base-opencode.md",
+)
+
+
+def test_no_decision_keeps_the_conservative_expectation_of_both_files(tmp_path):
+    _instruction_tree(tmp_path, "AGENTS.md", *ALL_TEMPLATES)
+    dim = harness_audit._grade_instruction_files(tmp_path)
+    assert dim.sub_score < 1.0 and "CLAUDE.md" in dim.reason
+    assert harness_audit.project_instruction_state(tmp_path)["effective_path"] == "unknown"
+
+
+def test_agents_path_does_not_require_claude_md(tmp_path):
+    _instruction_tree(tmp_path, "AGENTS.md", *ALL_TEMPLATES)
+    _write_decision(tmp_path, "AGENTS.md")
+    dim = harness_audit._grade_instruction_files(tmp_path)
+    assert dim.sub_score == 1.0 and "effective project path AGENTS.md" in dim.reason
+    assert "CLAUDE.md" not in dim.reason.split(";")[0]
+
+
+def test_claude_md_path_does_not_require_agents_md(tmp_path):
+    _instruction_tree(tmp_path, "CLAUDE.md", *ALL_TEMPLATES)
+    _write_decision(tmp_path, "CLAUDE.md")
+    dim = harness_audit._grade_instruction_files(tmp_path)
+    assert dim.sub_score == 1.0 and "effective project path CLAUDE.md" in dim.reason
+
+
+def test_inactive_duplicate_is_a_precedence_risk_not_a_second_requirement(tmp_path):
+    _instruction_tree(tmp_path, "AGENTS.md", "CLAUDE.md", *ALL_TEMPLATES)
+    _write_decision(tmp_path, "AGENTS.md")
+    state = harness_audit.project_instruction_state(tmp_path)
+    assert state["precedence_risks"] and "precedence" in state["precedence_risks"][0]
+    assert "precedence risk" in harness_audit._grade_instruction_files(tmp_path).reason
+    _instruction_tree(tmp_path, "AGENTS.md")
+    _write_decision(tmp_path, "CLAUDE.md")
+    assert "shared block is inactive" in harness_audit.project_instruction_state(tmp_path)["precedence_risks"][0]
+
+
+def test_a_corrupt_decision_is_unknown_not_a_false_pass(tmp_path):
+    _instruction_tree(tmp_path, "AGENTS.md", *ALL_TEMPLATES)
+    (tmp_path / ".nexus-hub").mkdir()
+    (tmp_path / ".nexus-hub" / "claude-instruction-decision.json").write_text("{x", encoding="utf-8")
+    assert harness_audit.project_instruction_state(tmp_path)["effective_path"] == "unknown"
+    assert harness_audit._grade_instruction_files(tmp_path).sub_score < 1.0
+
+
+def test_audit_report_carries_owner_and_consumer_state_separately_from_scores(tmp_path):
+    _instruction_tree(tmp_path, "AGENTS.md")
+    _write_decision(tmp_path, "AGENTS.md")
+    manifest = InstallManifest()
+    manifest.track_shared("claude", str(tmp_path / "AGENTS.md"))
+    manifest.track_shared("codex", str(tmp_path / "AGENTS.md"))
+    manifest.save(tmp_path / ".nexus-hub" / "install-manifest.json")
+    report = harness_audit.audit(tmp_path)
+    state = report.to_dict()["project_instruction"]
+    assert state["effective_path"] == "AGENTS.md"
+    assert state["shared_agents_consumers"] == ["claude", "codex"]
+    assert "Project instruction path: `AGENTS.md`" in harness_audit._format_markdown(report) or not report.integrations

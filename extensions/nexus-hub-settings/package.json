@@ -2,7 +2,7 @@
   "name": "nexus-hub-settings",
   "displayName": "Nexus Hub",
   "description": "Set one shared effort preference and control the main Nexus-Hub protections from a compact settings panel",
-  "version": "0.8.3",
+  "version": "0.8.9",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -109,7 +109,13 @@
           "type": "boolean",
           "scope": "application",
           "default": true,
-          "description": "Show 'High (effort)' in the status bar. Turn off to include the 'Nexus Settings: ' prefix."
+          "description": "Show a six-segment effort meter and level in the status bar. Turn off compact mode to include the 'Effort: ' prefix."
+        },
+        "nexusHubSettings.restoreAgentSplit": {
+          "type": "boolean",
+          "scope": "application",
+          "default": false,
+          "markdownDescription": "When Claude Code and Codex tabs were side by side in different editor groups and VS Code reopens them merged into one group, move the right-hand tab back into its own group. Only moves a tab between groups; never closes or reopens one. Needs a trusted workspace. Off by default."
         },
         "nexusHubSettings.pythonPath": {
           "type": "string",
