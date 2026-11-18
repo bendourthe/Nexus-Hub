@@ -80,7 +80,10 @@ def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapsh
     assert text.startswith("## Progress Update\n\n### \U0001F680 Release status\n\n| | |\n|---|---|\n")
     assert "\n\n### \U0001F4CA Version progress\n\n| Version " in text
     assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(text)
-    assert "\n\nConfidence: unknown \u00b7 Basis: release estimate not supplied \u00b7 As of 2026-11-16T12:00:00Z\n\n---\n\n" in text
+    assert "Confidence" not in text and "Basis" not in text and "As of" not in text
+    assert "| **Total**" in text and "\n\n---\n\n### \U0001F3AF Goals" in text
+    version_end = text.index("### \U0001F4CA Version progress")
+    assert text[version_end:].split("\n\n")[2] == "---"
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
     assert "&nbsp;\n\n---" not in text
@@ -223,7 +226,7 @@ def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapsh
     assert "| **Last release** | v4.15.1 |" in output and "| **Next release** | v4.15.2 |" in output
     assert "| **Next release ETA** | ~1-2 h |" in output
     assert "| **Full v4.15 implementation** (1 version left) | progress: " in output and "   \u00b7   ETA: ~2-4 d" in output
-    assert ("Confidence: low \u00b7 Basis: Remaining validation and one release pipeline \u00b7 As of" in output) == (mode == "full")
+    assert "Confidence" not in output and "Remaining validation and one release pipeline" not in output
     assert "Blocked by" not in output and "| time left:" not in output
 
 
@@ -292,7 +295,7 @@ def test_parenthetical_elapsed_and_dollar_amounts_are_plain_text(report, snapsho
     assert "&#" not in output
     if mode == "full":
         assert "| **4 h 54 min**" in output and "first plan commit" not in output
-        assert "Basis: Spend `$38.36` of `$500` (cap)" in output
+        assert "Basis" not in output
     assert ("*Source: ledger (`$38.36` of `$500`)*" in output) == (mode == "full")
 
 
