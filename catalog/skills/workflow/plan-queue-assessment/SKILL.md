@@ -19,6 +19,7 @@ This skill owns two rules and nothing else: **what makes a queued plan stale**, 
 - At the start of a plan, and at the start of every phase, to re-validate the plan against the tree it is about to modify.
 - After a release, to report which still-open plans that release changed.
 - Whenever the maintainer asks what to build next, whether two plans can run in parallel, or whether the queue order still makes sense.
+- Before a minor run is approved, to read every member plan together for overlap, redundancy, merge, split and renumber opportunities (see Minor re-plan analysis).
 
 ### When NOT to Use
 
@@ -38,6 +39,8 @@ This skill's territory overlaps four others. Exactly one owner states each rule.
 |---|---|
 | What makes a plan stale; how a queue is ranked; which version a new plan takes (the placement rule); the renumber procedure | **this skill** |
 | Deterministic queue inventory (versions, counts, touched paths, status) | `scripts/enumerate_plan_queue.py` |
+| Minor re-plan analysis (overlap, redundancy, dependency graph, merge/split/renumber proposals, parallel schedule) | **this skill**, through its bundled `scripts/replan_minor.py` |
+| Draft implementation-claims pre-check against admitted members | `implement-phase/scripts/claims_precheck.py` (read-only mirror of the native overlap rule); the native admission keeps the verdict |
 | Resolving and confirming a comparison's `Adoption target:` field (it applies the placement rule) | `[[cross-project-comparison]]` Step 6.5 |
 | The plan template and its required sections | `[[implementation-plan]]` |
 | Phase lifecycle, automatic worker dispatch, ordered publication, and the `## Plan delta` disposition vocabulary | `[[implement-phase]]` |
@@ -131,6 +134,50 @@ Produce, as a written artifact:
 
 Ranking produces a recommendation. Acting on it moves files and rewrites references, so it is **propose-then-apply, behind explicit confirmation, and never automatic**. See the renumber procedure below.
 
+## Minor re-plan analysis
+
+A queue assessment ranks plans one at a time. A minor re-plan analysis reads every member plan of one minor together and asks whether the set itself should change: merged, split, renumbered, or stripped of duplicated work, so that as many plans as possible can run at once. This skill owns that analysis. `/implement vX.Y` runs it before approval today; `/compare` and `/plan` call the same entry point later, so keep the interface stable.
+
+Run the bundled helper against the minor's plans folder. It is read-only, standard-library Python, and writes nothing except the optional JSON file:
+
+```bash
+python scripts/replan_minor.py docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans --json <scratch>/replan.json
+```
+
+The path above is relative to this skill's folder (from a runbook in `implement-phase/references/`, use `../../plan-queue-assessment/scripts/replan_minor.py`). Options: `--lanes N` (default `min(cores / 2, 6)`, floor 1, or `NEXUS_IMPLEMENT_LANES`), `--similarity 0.8`, `--include-all`, `--claims-deps-only`. Exit 1 means a plan was unreadable and is reported as an explicit unknown, as in Step 1. Markdown goes to the terminal; `--json -` prints JSON only.
+
+What it reports, and the evidence behind each line:
+
+- **Overlap.** Pairwise write/write and write/read conflicts using the minor checker's own overlap rule (casefold, directory prefix). Coordinator-owned paths (CHANGELOG, docs/todos.md, known-gaps ledgers, `data/` registries) never count, because workers only propose deltas to them. A pair marked narrowable conflicts only because one plan reads a whole directory another plan writes into.
+- **Redundancy.** Open tasks in different plans with near-identical normalized text, or similar text aimed at the same file. Per-phase template tasks (commit, evidence, hygiene, terminal CI) are suppressed and counted, because they repeat by design.
+- **Dependencies.** Edges from each plan's claims `depends_on`, plus prose hints (a version named after "depends on", "requires", "blocked by"). Hints print their source line: read it before treating the edge as real. The critical path is the longest dependency chain by open-task count.
+- **Merge and split candidates.** Merge: heavy shared writes or repeated tasks and a small combined size. Split: a large plan whose phases share no files.
+- **Schedule.** Plans grouped into waves under the lane cap, honoring dependencies and hard conflicts, with the best of five ordering strategies compared against the current version order; and a renumbering that makes version order match the best wave order. Pinned plans (any task checked, or in progress) never move.
+
+Wave counts are structural: how many plans can be in flight at once, not measured delivery time. This skill still never claims that re-sequencing makes delivery faster; say "fewer waves" and name the cost.
+
+### Turning the report into proposals
+
+Convert findings into a numbered list. Each proposal states the change, the report evidence, the structural effect, and the cost. Never propose from a bare number.
+
+| Finding | Proposal | Cost to name |
+|---|---|---|
+| Narrowable overlap | Replace the directory read claim with the exact files the plan reads | Plan text edit only |
+| Hard overlap on one file | Assign the file to one plan and let the other read it after that plan lands, or order the pair | One plan waits |
+| Redundant tasks | Keep the task in the plan that owns the file; drop or reference it from the other | Two plan edits |
+| Merge candidate | Merge into the lower version; free the other slot; keep both task lists | Lost parallelism between the pair, one fewer renumber |
+| Split candidate | Split along the independent phase groups into two plans | New version slot, new approval scope |
+| Prose dependency | Confirm from the cited line; if real, move it into claims `depends_on` | Plan text edit |
+| Renumber moves | Offer only when the report shows at least one wave saved, with the move count beside it | Seven reference classes per move, per the Renumber procedure |
+
+Rules for proposals:
+
+1. Show every proposal to the user for approval. Silence is not approval, and a plan the user already confirmed is not edited or renumbered without an explicit decision for that plan.
+2. Apply only approved proposals, through the Renumber procedure and `[[docs-layout-refactor]]` and `[[project-refactor]]` for moves, and plain plan edits for the rest. The helper never edits a plan.
+3. Prefer the cheapest proposal that removes a conflict: narrowing a claim beats reordering, reordering beats merging, and renumbering is last.
+4. Once a minor's plan text is frozen by approval, the analysis is advisory: only new members can join through the completion contract's amend-minor, and findings about frozen members feed the next minor's plans.
+5. Write the summary into the run's evidence even when it finds nothing to change, as Step 6 requires.
+
 ## Placement rule for a new plan
 
 This skill owns which version a NEW plan or comparison takes. `[[cross-project-comparison]]` Step 6.5 and `[[implementation-plan]]` Step 4.6 call this rule; neither restates it. The goal is that version order equals release order. Independent plans may implement concurrently; actual prerequisites and ownership decide implementation admission.
@@ -209,6 +256,8 @@ Prefer not to renumber a mid-implementation plan at all. When it is done anyway,
 - [ ] The written artifact exists and states the recommended order with a reason per position.
 - [ ] Impact-on-harness is recorded as a judgment with reasoning, not presented as a computed score.
 - [ ] No claim was made that re-sequencing improves delivery speed.
+- [ ] For a minor, `scripts/replan_minor.py` ran against its plans folder, its exit code is recorded, and every proposal derived from it was shown to the user and is marked approved, declined, or advisory (frozen).
+- [ ] No plan file changed without an approved proposal for it.
 - [ ] If a renumber was performed, the residual-reference check ran and passed, and every historical claim was repaired with a dated note rather than a restatement.
 
 ## Related Skills
