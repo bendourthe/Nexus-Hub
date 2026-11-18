@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.3] - 2026-11-17
+
 ### Added
 
 - **`security-review` can now project its findings into a generic review format, and the harness feedback cadence has a written protocol.** The new `project-review-findings.py` script and `generic-review-projection.md` reference turn security findings into the shared review-findings shape, so other review consumers can read them. The findings schema gains a security evidence extension, used by the validator template, the review fan-out workflow template and the final-report guidance. `guides/reference/HARNESS_FEEDBACK_CADENCE.md` describes how often a harness should give feedback and how to measure it, with a synthetic matrix that runs without credentials. Follow-ups are recorded as DF-50 to DF-52, MT-11, QG-6, QG-7 and WN-39 in the v4.15 known-gaps ledger.
