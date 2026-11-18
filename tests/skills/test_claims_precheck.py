@@ -152,3 +152,45 @@ def test_overlap_and_coordinator_rules_match_native_checker(cp):
     for name in ["CHANGELOG.md", "docs/known-gaps.md", "VERSION", "docs/releases/v4/v4.15/known-gaps.md"]:
         assert native._coordinator_name(name) and cp.coordinator_owned(name), name
     assert not native._coordinator_name("src/a.py") and not cp.coordinator_owned("src/a.py")
+
+
+def _train_record() -> dict:
+    def m(version, branch, reads=(), writes=(), coordinator=()):
+        return {**member(version, reads, writes, coordinator), "source_branch": branch}
+    shared = ["CHANGELOG.md", "docs/releases/v1/v1.0/known-gaps.md", "docs/todos.md"]
+    return {"minor": "v1.0", "repo": "o/r", "members": [
+        m("v1.0.0", "feat/a", writes=["src/a.py"], coordinator=shared),
+        m("v1.0.2", "feat/c", writes=["src/c.py"], coordinator=shared),
+        m("v1.0.3", "feat/d", writes=["src/d.py"]),
+        m("v1.0.5", "feat/f", reads=["docs/releases/v1/v1.0/known-gaps.md"], writes=["src/f.py"])]}
+
+
+def test_merged_members_are_skipped_like_the_native_checker(cp):
+    rec = _train_record()
+
+    def lookup(record, claim, base):
+        return claim["source_branch"] in {"feat/a", "feat/c"}
+
+    ok = draft(writes=["src/new.py"], reads=["docs/todos.md"])
+    report = cp.run(rec, ok, "v1.0.3", lookup=lookup)
+    assert report["merged_skipped"] == ["v1.0.0", "v1.0.2"] and report["conflicts"] == []
+    assert report["members_compared"] == ["v1.0.5"]
+    # offline: no lookup, so merged members stay active (stricter)
+    strict = cp.run(rec, ok, "v1.0.3", check_merged=False)
+    assert {c["member"] for c in strict["conflicts"]} == {"v1.0.0", "v1.0.2"}
+    # an explicit merged set skips without any lookup
+    explicit = cp.run(rec, ok, "v1.0.3", merged={"v1.0.0", "v1.0.2"}, check_merged=False)
+    assert explicit["conflicts"] == [] and explicit["merged_skipped"] == ["v1.0.0", "v1.0.2"]
+
+
+def test_coordinator_claim_reports_only_active_member_conflicts_and_no_owned_path_error(cp):
+    rec = _train_record()
+    paths = ["CHANGELOG.md", "docs/releases/v1/v1.0/known-gaps.md", "docs/todos.md"]
+    report = cp.run(rec, paths, "v1.0.3", merged={"v1.0.0", "v1.0.2"}, check_merged=False, coordinator=True)
+    assert [(c["member"], c["kind"], c["path"]) for c in report["conflicts"]] == [
+        ("v1.0.5", "coordinator-write/read", "docs/releases/v1/v1.0/known-gaps.md")]
+    assert not any(f["code"] == "coordinator-owned-path" for f in report["findings"])
+    # the same paths as an ordinary worker draft ARE refused as coordinator-owned
+    worker = cp.run(rec, draft(writes=paths), "v1.0.3", merged={"v1.0.0", "v1.0.2"}, check_merged=False)
+    assert any(f["code"] == "coordinator-owned-path" for f in worker["findings"])
+    assert cp.run(rec, {"write_paths": []}, None, coordinator=True, check_merged=False)["ok"] is False

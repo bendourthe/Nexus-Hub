@@ -178,6 +178,16 @@ Rules for proposals:
 4. Once a minor's plan text is frozen by approval, the analysis is advisory: only new members can join through the completion contract's amend-minor, and findings about frozen members feed the next minor's plans.
 5. Write the summary into the run's evidence even when it finds nothing to change, as Step 6 requires.
 
+### Plan-time use by `/compare` and `/plan`
+
+`/compare` and `/plan` run this same analysis right after they resolve the target version, so a new plan or adoption target is checked against the other plans of that minor before the user confirms it.
+
+1. Resolve the target version first (placement rule below). Take its minor's plans folder, `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans`.
+2. If the folder does not exist or holds no other open plan, record "No other plans in v<MAJOR>.<MINOR>; nothing to compare." and continue. Do not run the helper on a missing folder (exit 2).
+3. Otherwise run `scripts/replan_minor.py` on that folder. `/plan` runs it after the draft plan file is written into the folder, so the new plan is part of the set. `/compare` has no plan file yet, so it runs against the existing plans and reads the report against the comparison's adoption items: shared files, repeated work, and dependencies. Use `--claims-deps-only` when prose hints are noisy.
+4. Turn the findings into proposals as described above and show them next to the version confirmation (`/compare`) or the phases table (`/plan`). Record the outcome, including "no change proposed", in the report's `## Queued-plan impact` section (`/compare`) or the plan's `## Queued predecessors` section (`/plan`).
+5. Never apply a proposal without approval, and never edit the prose of an existing member plan. An approved change that touches existing plans goes through the Renumber procedure or a plan edit the user confirmed for that plan; a plan the user already confirmed or that is in progress is pinned. Declined proposals leave every file as written.
+
 ## Placement rule for a new plan
 
 This skill owns which version a NEW plan or comparison takes. `[[cross-project-comparison]]` Step 6.5 and `[[implementation-plan]]` Step 4.6 call this rule; neither restates it. The goal is that version order equals release order. Independent plans may implement concurrently; actual prerequisites and ownership decide implementation admission.
