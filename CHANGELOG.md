@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The plan checker protects captured evidence and gives clearer diagnostics (v4.15.4).**
+    - **Evidence is never rewritten:** `validate_unicode_safety.py --fix` still scans every file under an `evidence` directory but no longer changes its bytes, so captured logs stay exactly as recorded.
+    - **More consumer layouts read correctly:** the checker accepts exact-version H1 and H2 changelog headings, plain or linked, outside code fences. Relative, absolute and Windows short-name ledger roots resolve the same way, and a missing root fails with a clear message.
+    - **Blocked runs say what is missing:** approval coverage is reported per item without granting any authority. `check-minor --detail` and `minor_close.py status --detail` are one bounded, read-only local observation (10 seconds, 32 controller candidates, 2 MiB per input, 100 findings) that never writes completion.
+    - **Archive moves wait for live references:** an archive move is blocked while a supported live reference to the moved path is still unresolved. The approval summary shows no Time row for a phase with no tasks unless release-only time remains.
+    - **Deferred by design:** six related consumer requests (historical ledger relief, prose test baselines, record recreation, cleanup thresholds, prompt capture and sibling-worktree rekeying) are recorded as DF-53 to DF-58 in the v4.15 known-gaps ledger.
+    - **Decision record:** [2026-11-18-checker-evidence-and-diagnostics.md](docs/decisions/implemented/process/2026-11-18-checker-evidence-and-diagnostics.md).
+    - **Capability usage note:** no opt-in surface; no new flag or setting beyond the read-only `--detail` observation; to go back, revert this entry's files.
+
 ### Fixed
 
 - **Plan checker reads task ranges correctly**: `check_plan_completion.py` no longer reads a phase summary line such as `- [x] T001-T007 complete` as a task. It used to become a pathless duplicate of its first task, overriding the real task line, so the plan could never read complete. The same fix stops that summary line from replacing the real task's text block used for conditional evidence. Regression test: `test_a_task_range_summary_line_is_not_read_as_a_task`.
