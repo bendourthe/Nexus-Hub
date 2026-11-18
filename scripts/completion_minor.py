@@ -6181,6 +6181,7 @@ def diagnostic_detail(ck: ModuleType, repo: str, token: str, session: str | None
                     if type(observed.get(key)) is int and observed[key] >= 0:
                         value[key] = observed[key]
         except (ValueError, KeyError, IndexError, UnicodeDecodeError, AttributeError):
+            # A truncated or malformed checkpoint line is not evidence; keep the timeout-only result.
             pass
         return value
 

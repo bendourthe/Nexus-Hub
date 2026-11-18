@@ -31,8 +31,6 @@ import pytest
 
 
 def test_ledger_relative_and_absolute_roots_agree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    import completion_minor as cm
-
     ledger = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
     ledger.parent.mkdir(parents=True)
     ledger.write_text("# Known Gaps\n", encoding="utf-8")
@@ -44,8 +42,6 @@ def test_ledger_relative_and_absolute_roots_agree(tmp_path: Path, monkeypatch: p
 
 
 def test_ledger_escape_is_reported_without_traversing(tmp_path: Path) -> None:
-    import completion_minor as cm
-
     outside = tmp_path / "outside" / "known-gaps.md"
     outside.parent.mkdir()
     outside.write_text("# external\n", encoding="utf-8")
@@ -62,15 +58,11 @@ def test_ledger_escape_is_reported_without_traversing(tmp_path: Path) -> None:
 
 
 def test_ledger_unavailable_root_is_explicit(tmp_path: Path) -> None:
-    import completion_minor as cm
-
     with pytest.raises(cm.ObservationUnavailable, match="ledgers.root"):
         cm.load_ledgers(tmp_path / "absent")
 
 
 def test_ledger_unreadable_file_is_not_omitted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    import completion_minor as cm
-
     target = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
     target.parent.mkdir(parents=True)
     target.write_text("# retained\n", encoding="utf-8")
@@ -91,7 +83,6 @@ def test_ledger_windows_short_root_matches(tmp_path: Path) -> None:
     if os.name != "nt":
         pytest.skip("Windows short-name root")
     import ctypes
-    import completion_minor as cm
 
     target = tmp_path / "docs" / "releases" / "v0" / "v0.5" / "known-gaps.md"
     target.parent.mkdir(parents=True)
@@ -2215,9 +2206,6 @@ def test_archive_member_is_a_minor_run_class_only(minor: Minor) -> None:
 
 @pytest.mark.parametrize("verified", [True, False])
 def test_blocked_detail_gaps_notice_comes_from_verified_findings(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], verified: bool) -> None:
-    import check_plan_completion as ck
-    import completion_minor as cm
-
     detail = {"verdict": "BLOCKED: no-progress", "exit": ck.EXIT_BLOCKED, "scanned": 1, "omitted": 0, "incomplete": not verified}
     if verified:
         detail["findings"] = [{"path": "docs/known-gaps.md", "item": "ledger", "status": "unparsed historical ledger"}]
@@ -2231,8 +2219,6 @@ def test_blocked_detail_gaps_notice_comes_from_verified_findings(monkeypatch: py
 
 
 def test_close_status_detail_keeps_blocked_exit_with_gaps_notice(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
-    import check_plan_completion as ck
-    import completion_minor as cm
     import minor_close
 
     detail = {"verdict": "BLOCKED: no-progress", "exit": ck.EXIT_BLOCKED, "scanned": 1, "omitted": 0, "incomplete": False,
