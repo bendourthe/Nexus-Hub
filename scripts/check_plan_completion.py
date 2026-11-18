@@ -806,11 +806,11 @@ class RecordState:
 TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
 
 
-def read_record(ctx: RepoContext, path: Path) -> dict | None:
+def read_record(ctx: RepoContext, path: Path, *, max_bytes: int | None = None) -> dict | None:
     """The raw record at `path`, or None when it sits in a working tree or is unreadable.
 
     Callers treat None for an existing file as `record-tampered`. Unavailable
-    Git provenance raises ObservationUnavailable instead of asserting integrity.
+    Git provenance or an explicit read bound raises ObservationUnavailable instead of asserting integrity.
     """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
@@ -827,15 +827,23 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
             raise _minor_module().ObservationUnavailable("record.provenance")
         if tracked_rc != 1:
             return None
-    return _read_record_json(ctx, path)
+    return _read_record_json(ctx, path, max_bytes=max_bytes)
 
 
-def _read_record_json(ctx: RepoContext, path: Path) -> dict | None:
+def _read_record_json(ctx: RepoContext, path: Path, max_bytes: int | None = None) -> dict | None:
     """Parse fresh bytes after the caller verifies record provenance."""
     try:
-        raw = path.read_bytes()
+        with path.open("rb") as handle:
+            raw = handle.read() if max_bytes is None else handle.read(max_bytes + 1)
+    except OSError as exc:
+        if max_bytes is not None:
+            raise _minor_module().ObservationUnavailable("record.unreadable") from exc
+        return None
+    if max_bytes is not None and len(raw) > max_bytes:
+        raise _minor_module().ObservationUnavailable("record.text-limit")
+    try:
         record = json.loads(raw)
-    except (OSError, ValueError, UnicodeDecodeError):
+    except (ValueError, UnicodeDecodeError):
         return None
     if not isinstance(record, dict):
         return None
@@ -2641,15 +2649,24 @@ def _tag_status(ctx: Context, tag: str) -> str:
 
 def _changelog_status(ctx: Context) -> str:
     changelog = ctx.root / "CHANGELOG.md"
-    if not changelog.is_file():
+    try:
+        before = changelog.stat()
+    except FileNotFoundError:
         return "unmet"
+    except OSError:
+        return "cannot-verify"
+    try:
+        text = changelog.read_text(encoding="utf-8")
+        after = changelog.stat()
+    except (OSError, UnicodeDecodeError):
+        return "cannot-verify"
+    if any(getattr(before, key) != getattr(after, key) for key in ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")):
+        return "cannot-verify"
     bare = ctx.version.lstrip("v")
-    text = changelog.read_text(encoding="utf-8", errors="replace")
-    return (
-        "met"
-        if re.search(rf"^#{{1,2}} \[{re.escape(bare)}\]", text, re.MULTILINE)
-        else "unmet"
-    )
+    heading = re.compile(rf"^#{{1,2}}[ \t]+\[{re.escape(bare)}\](?:\([^()\r\n]+\))?(?:[ \t]+[^\r\n]*)?[ \t]*$")
+    lines = text.splitlines()
+    masked, _ = _minor_module().fence_mask(lines)
+    return "met" if any(not mask and heading.fullmatch(line) for line, mask in zip(lines, masked)) else "unmet"
 
 
 VERSION_SYNC_PATH = "scripts/check_version_sync.py"
@@ -3415,6 +3432,8 @@ def uncovered_gap_request(record: dict, request: dict) -> bool:
 
 
 def cmd_record_block(args: argparse.Namespace) -> int:
+    if getattr(args, "items", None) and not _scoped(args):
+        raise Malformed("--item requires minor-scoped approval coverage")
     if _scoped(args):
         return _minor_module().cmd_record_block(sys.modules[__name__], args)
     if args.member:
@@ -3676,8 +3695,8 @@ def build_parser() -> argparse.ArgumentParser:
     check_minor.add_argument("minor", help="a minor scope token such as v0.5")
     check_minor.add_argument("--repo", default=".", help="a path inside the repository")
     check_minor.add_argument("--json", action="store_true")
-    check_minor.add_argument("--detail", action="store_true", help="show gap diagnostics even when blocked; never changes the verdict")
     check_minor.add_argument("--session")
+    check_minor.add_argument("--detail", action="store_true", help="bounded local read-only diagnostics; never writes completion")
     check_minor.set_defaults(func=cmd_check_minor)
     member_check = sub.add_parser("check-member", help="read-only member check using parent minor approval")
     member_check.add_argument("--minor", required=True)
@@ -3862,6 +3881,7 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
+    block.add_argument("--item", dest="items", action="append", help="canonical minor#gap item requiring uncovered migration authority; repeatable")
     block.add_argument("--purpose", help="concrete action displayed for the decision")
     block.add_argument("--why", help="why that action is needed, bound into the challenge")
     block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")

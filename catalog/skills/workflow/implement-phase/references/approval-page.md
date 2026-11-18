@@ -40,7 +40,7 @@ The renderer's `SECTIONS` and `DETAIL_SECTIONS` tuples list these headings in th
 
 1. **Summary**: "What this run will do:" with the outcome bullets (or one line pointing at the plan goal under Details), then a `| | Result |` table:
     - Released: the versions when `release` is approved, otherwise "Nothing: it stops and asks before releasing".
-    - Fixed: the number of known problems, plus how many may move to `{next}` (minor) or that some may wait (a single plan with `defer-gaps`).
+    - Open gaps in scope: the number of currently open problems, plus how many may move to `{next}` (minor) or that some may wait (a single plan with `defer-gaps`). This count does not claim they have been fixed.
     - Archived: the minor's documents (minor runs with `archive-minor`).
     - Cleaned up: "Merged branches and working folders nobody is using" (`merged-and-idle`) or "Only this run's own branch and working folder, once merged" (`run-owned`).
     - Permission prompts: "Off for the whole run" (only with `unattended-with-bypass`).

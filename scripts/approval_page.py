@@ -591,6 +591,8 @@ def _phases(display: dict) -> list[dict]:
             continue
         version, tier, effort = str(entry.get("version", "")), entry.get("tier"), entry.get("effort")
         phase, tasks = entry.get("phase"), entry.get("tasks")
+        if not isinstance(tasks, int) or isinstance(tasks, bool) or not 0 <= tasks < 1000:
+            raise PageError("phase task count must be a nonnegative bounded integer")
         if (SCOPE_RE.match(version) and tier in TIERS and effort in EFFORTS
                 and isinstance(phase, int) and not isinstance(phase, bool) and 0 < phase < 100
                 and isinstance(tasks, int) and not isinstance(tasks, bool) and 0 <= tasks < 1000):
@@ -701,8 +703,11 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         tier, effort, above = setting
         more = f"; more for {_count(len(above), 'phase')}, see Phases" if above else ""
         rows.append(("Run it on", f"{tier.capitalize()} models at {effort} effort{more}"))
-        if any(p['tasks'] for p in phases):
-            hours = time_estimate(phases, len(releases) if "release" in names else 0)
+        hours = time_estimate(phases, len(releases) if "release" in names else 0)
+        if not any(p["tasks"] for p in phases):
+            if hours["releasing"]:
+                rows.append(("Time", f"Release-only: {_hours(hours['releasing'])} remaining"))
+        else:
             rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
                 f"{_hours(v)} {k}" for k, v in hours.items())))
     rows.append(("In parallel", _parallel(display)))
