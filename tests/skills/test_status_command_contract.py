@@ -59,7 +59,7 @@ def test_full_includes_all_rows_totals_and_evidence(rendered):
     assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(output)
     assert "| Goal | Scope | Done when | State |" in squash(output)
     assert "| **Total** |" in squash(output)
-    assert "Confidence:" in output and "Source:" in output and "As of" in output
+    assert "Source:" in output and "Confidence" not in output and "As of" not in output
 
 
 def test_decision_details_only_in_full_report(rendered):
