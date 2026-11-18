@@ -58,3 +58,23 @@ After the merge stage, a surviving finding additionally carries provenance the a
 | `suppressed_reason` | gate / validation | Why a finding was moved to the appendix tier (below gate, or refuted). |
 
 Suppressed findings keep all their fields and move to the verbose/appendix tier; they are never deleted.
+
+## Security evidence extension
+
+A finding projected from a normalized security envelope by [`project-review-findings.py`](../../security-review/scripts/project-review-findings.py) carries the extension below. Ownership of validation, health, coverage, receipts and dispositions stays with the security-review skill; this schema only carries them through. See the [generic review projection](../../security-review/references/generic-review-projection.md) for the field mapping. A finding without the extension follows the legacy fields above unchanged.
+
+| Field | Meaning |
+|---|---|
+| `fingerprint_key` | `security:` plus the envelope finding id. Dedup uses this key, never file and line. |
+| `locationless` | `true` when the source has no location. `file` and `line` are then `null`, never a placeholder value. |
+| `review_state` | `confirmed`, `pending`, `corrected` or `rejected`. `pending` is the source `needs-live-validation`. |
+| `source_severity`, `source_confidence`, `source_disposition`, `release_blocking` | Evaluator-owned values, unchanged. `severity` and `confidence` above are display mappings only. |
+| `security.evidence_receipt_ids` | References into the envelope, never a second ledger. |
+| `security.unavailable` | Fields the source schema cannot supply (proof class, reproducer, environment, duplicate links, expected and observed). They stay unavailable and are never inferred. |
+
+Rules:
+
+- Every association of an extension finding or its coverage with the current review checks the independently supplied expected review context. A projection that is not `bound` to it, or whose submitted bindings differ from it, is refused and the review reports no completeness claim.
+- Reviewer agreement never upgrades `source_confidence`, the projected `confidence`, or the source health.
+- Two records with the same `fingerprint_key` and identical `security` metadata merge and keep their evidence ids. Records with the same key and conflicting metadata stay separate and carry a caveat; neither wins.
+- `validation` stays unset for an extension finding. A generic refutation pass does not apply to it, and a failure to reproduce is not a security rejection.

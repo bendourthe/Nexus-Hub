@@ -56,9 +56,9 @@ The publication-blocking guide test was repaired separately in [PR #653](https:/
 | v4.15.0 | 20/20 | Merged through PR #637 (`46c411454`, 29 checks green) and released as v4.15.0 on 2026-11-12. |
 | v4.15.1 | 10/19 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. The `/status` command and progress footer ship as a standalone pull request with the v4.15.1 release instead of a plan fold (maintainer decision, 2026-11-13), because the checker still hard-codes v4.15.0-v4.15.4 plan text. |
 | v4.15.2 | 0/55 | Not admitted; v4.15.0 integration is required. The separately authorized guidance prerequisite is qualified and being published. |
-| v4.15.3 | 0/32 | Not admitted; cadence execution requires the merged v4.15.2 evaluator. Four task IDs repeat in the frozen prose. |
+| v4.15.3 | 30/32 | Phases 1-3 complete; Phase 4 complete except publication and integration (2026-11-17). Seven follow-ups are recorded as DF-50 to DF-52, MT-11, QG-6, QG-7 and WN-39. Four task IDs repeat in the frozen prose. |
 | v4.15.4 | 10/23 | Phases 1-3 are locally committed; archive and worktree boundary qualification continues. |
-| Total | 40/162 (24.7%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
+| Total | 70/162 (43.2%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
 
 - [x] Complete the approved [v4.15 instruction audit](releases/v4/v4.15/development/instruction-necessity-audit.md) candidate and remaining minor work; retain [the queue assessment](releases/v4/v4.15/development/v4.15.0-queue-assessment.md), local phase evidence, and native completion checks as the authority for their respective claims.
 - [ ] Merge only the separately authorized v4.16.2 Phase 1 guidance prerequisite, then record the satisfying commit before v4.15.2's dependent phases. The remaining v4.16.2 phases and its release remain outside this run. Complete the v4.15.2 evaluator before v4.15.3 cadence execution.
@@ -566,7 +566,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
 - [x] Complete the [v4.15.3 agent-speed comparison](releases/v4/v4.15/comparisons/v4.15.3-comparison-agent-speed-kv-handoffs-mods-and-local-search.md) (Claude Code mods delta, KV-cache handoffs, AI-built Office clones, DigUp local search).
 - [ ] Operator action A1: remove the three legacy instruction spans and the duplicate skill index from `~/.claude/CLAUDE.md` with `--remove-legacy-instructions=<token>`, then re-run `measure_rendered_context.py`.
-- [ ] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
+- [x] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
 
 ## Queued work - v4.14.5 Codex memory levers
 
