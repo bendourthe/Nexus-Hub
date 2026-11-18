@@ -70,6 +70,8 @@ If retrieval returns thin or contradictory results, that is signal, not failure.
 
 Do not discard candidate matches before reasoning over them because they "look irrelevant". Retrieval quality depends on the resolution of the interface (grep, trace, read), not on better embeddings or a larger context window. Let the agent see the raw corpus and decide.
 
+This rule covers retrieval evidence for a code question. For bulk data the agent would otherwise read in full, such as a large log or export, see `context-optimization`.
+
 ## Output contract
 
 When DCI answers a question for another agent or a later step, hand back evidence in a fixed shape, so the caller can act without re-reading the files:

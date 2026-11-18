@@ -176,7 +176,7 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.sh <p
 ```powershell
 ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.ps1 <platform-id> <model-id> [effort]
 ```
-- **One user action** (Claude Code): the main loop cannot switch its own model mid-session. Emit the exact one-key `/model` and `/effort` instruction, AND auto-route any delegated subagent work to the chosen tier via the Task / Workflow `model` parameter (the built-in `opusplan` alias is native routing of this shape).
+- **One user action** (Claude Code): the main loop cannot switch its own model mid-session. Emit the exact one-key `/model` and `/effort` instruction, AND auto-route any delegated subagent work to the chosen tier via the Task / Workflow `model` parameter (the built-in `opusplan` alias is native routing of this shape). The prompt cache belongs to the model that wrote it, so the first turn after a switch pays a cache write; compacting first reduces that cost.
 - **Manual only** (Cursor, Copilot, OpenCode): no flag, env, config, or rule field pins a model. Emit the recommendation plus a "select X in the model picker" instruction.
 
 ### Step 7: Mid-task escalation during an implement loop (upshift only)
@@ -192,6 +192,18 @@ Rules for every escalation:
 - **Best-effort and platform-aware.** Follow the same posture as Step 6 -- on Claude Code surface the `/model` + `/effort` keystroke; on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI) apply it with confirmation; on manual-only platforms print the picker instruction.
 - **Confirm, do not silently switch.** Surface that repeated failure triggered the escalation so the user can approve the stronger tier; it is a confirm-then-apply action, not an automatic one.
 - **Switch at a sub-task boundary and name the re-read cost.** A model change mid-conversation discards the cached prefix, and an effort change can invalidate part of it depending on the model and host, so the next request re-reads that context without the cache discount and may pay to write it again. Prefer applying an upshift between sub-tasks rather than mid-attempt, and say in the confirmation that the switch re-reads the context. How each provider's cache behaves is owned by [`step-8-optimize-cost-and-latency.md`](../prompt-engineering/references/step-8-optimize-cost-and-latency.md).
+
+### Repeated-failure ownership
+
+One owner per concern. Non-owners link to the owner and never restate the rule.
+
+| Concern | Owner | Status |
+|---|---|---|
+| Detecting a repeated failing command | The repeated-failing-command notice hook planned in v4.15.5 | Not shipped |
+| When to reset the session | `context-degradation` | Deferred |
+| What changes on the retry | `model-routing`: `references/effort-modifiers.md`, escalation ladder | Shipped |
+
+Order: reset first, then retry one rung up the ladder.
 
 ## Platform routing profiles
 
@@ -237,6 +249,7 @@ Whether an effort change keeps the prompt cache depends on the model and host. S
 - [ ] `/implement` preserves or upshifts the plan's generic tier when the selected provider model is unavailable.
 - [ ] A direct `/route` model appears in the live-enumerated set, or the picker sentinel leaves the recommendation tier-named and manual.
 - [ ] The switch instruction matches the detected platform's `switch_mechanism` (scriptable execute / Claude Code keystroke / picker instruction) and never scripts a switch on a manual-only platform.
+- [ ] The escalation ladder appears once, in `references/effort-modifiers.md`, and the repeated-failure ownership table names one owner per concern.
 - [ ] A mid-task escalation (Step 7) only ever upshifts the tier or effort; the router never auto-downshifts a model mid-phase while a task is failing.
 - [ ] A Step 7 escalation names the failure class with quoted evidence from iteration 2; a wrong approach is never escalated by raising effort alone.
 - [ ] No new credential or dependency was introduced; public plan research uses existing web access, and optional Anthropic enumeration runs only with an existing key.
