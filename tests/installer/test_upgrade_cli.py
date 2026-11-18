@@ -192,7 +192,9 @@ def test_compare_semver(installed: str, latest: str, expected: int) -> None:
 # --- CHANGELOG summary ------------------------------------------------------
 
 
-def _summary(installed: str | None, latest: str, changelog: str = _SAMPLE_CHANGELOG) -> str:
+def _summary(
+    installed: str | None, latest: str, changelog: str = _SAMPLE_CHANGELOG
+) -> str:
     return cli.summarize_changelog(changelog, installed, latest)
 
 
@@ -220,15 +222,24 @@ def test_summary_is_structured_by_section_with_one_line_per_top_level_bullet() -
 
 def test_summary_skips_nested_sub_bullets_and_body_text() -> None:
     out = _summary("3.7.0", "3.8.0")
-    for dropped in ("Activation", "Validation", "settings file", "long explanation", "second sentence"):
+    for dropped in (
+        "Activation",
+        "Validation",
+        "settings file",
+        "long explanation",
+        "second sentence",
+    ):
         assert dropped.lower() not in out.lower()
 
 
 def test_summary_headline_strips_markdown() -> None:
-    assert cli._bullet_headline("**`agent-memory` points at the [host store](docs/x.md).** More text.") == (
-        "agent-memory points at the host store"
+    assert cli._bullet_headline(
+        "**`agent-memory` points at the [host store](docs/x.md).** More text."
+    ) == ("agent-memory points at the host store")
+    assert (
+        cli._bullet_headline("Use *emphasis* and `code` here. Then more.")
+        == "Use emphasis and code here"
     )
-    assert cli._bullet_headline("Use *emphasis* and `code` here. Then more.") == "Use emphasis and code here"
 
 
 def test_summary_headline_truncates_at_a_word_boundary() -> None:
@@ -240,7 +251,9 @@ def test_summary_headline_truncates_at_a_word_boundary() -> None:
 
 def test_summary_caps_items_per_section() -> None:
     bullets = "\n".join(f"- **Item {n}.** body" for n in range(1, 8))
-    out = _summary("1.0.0", "2.0.0", f"## [2.0.0] - 2026-01-01\n\n### Added\n\n{bullets}\n")
+    out = _summary(
+        "1.0.0", "2.0.0", f"## [2.0.0] - 2026-01-01\n\n### Added\n\n{bullets}\n"
+    )
     cap = cli.WHATS_NEW_MAX_ITEMS_PER_SECTION
     assert f"Item {cap}" in out and f"Item {cap + 1}" not in out
     assert f"+ {7 - cap} more" in out
@@ -248,7 +261,8 @@ def test_summary_caps_items_per_section() -> None:
 
 def test_summary_caps_versions_and_counts_the_rest() -> None:
     changelog = "".join(
-        f"## [1.{n}.0] - 2026-01-{n:02d}\n\n### Added\n\n- **Release {n}.**\n\n" for n in range(9, 0, -1)
+        f"## [1.{n}.0] - 2026-01-{n:02d}\n\n### Added\n\n- **Release {n}.**\n\n"
+        for n in range(9, 0, -1)
     )
     out = _summary("1.0.0", "1.9.0", changelog)
     cap = cli.WHATS_NEW_MAX_VERSIONS
@@ -262,7 +276,9 @@ def test_summary_without_installed_version_shows_only_the_newest_release() -> No
     assert "v3.8.0" in out and "v3.7.0" not in out
 
 
-def test_summary_falls_back_to_released_sections_when_latest_is_ahead_of_the_changelog() -> None:
+def test_summary_falls_back_to_released_sections_when_latest_is_ahead_of_the_changelog() -> (
+    None
+):
     # Latest 9.9.9 has no heading: every released section after installed still shows.
     out = _summary("3.6.0", "9.9.9")
     assert "v3.8.0" in out and "v3.7.0" in out and "nothing yet" not in out
@@ -277,7 +293,16 @@ def test_summary_is_empty_when_nothing_parses(changelog: str) -> None:
 
 
 def test_summary_output_is_ascii_for_any_console() -> None:
-    smart = "Smart " + chr(0x201C) + "quotes" + chr(0x201D) + " " + chr(0x2014) + " and caf" + chr(0xE9)
+    smart = (
+        "Smart "
+        + chr(0x201C)
+        + "quotes"
+        + chr(0x201D)
+        + " "
+        + chr(0x2014)
+        + " and caf"
+        + chr(0xE9)
+    )
     changelog = f"## [2.0.0] - 2026-01-01\n\n### Added\n\n- **{smart}.**\n"
     out = _summary("1.0.0", "2.0.0", changelog)
     out.encode("ascii")
@@ -337,19 +362,28 @@ def test_upgrade_behind_shows_whats_new_and_skips(tmp_path: Path) -> None:
     out = proc.stdout
     assert "newer version is available" in out.lower()
     assert "What's new" in out
-    assert "v3.8.0 (2026-06-20)" in out and "v3.7.0 (2026-06-17)" in out, "every release since the install"
-    assert "  Added\n    - A guard with a bold lead" in out, "structured: section, then one line per bullet"
+    assert (
+        "v3.8.0 (2026-06-20)" in out and "v3.7.0 (2026-06-17)" in out
+    ), "every release since the install"
+    assert (
+        "  Added\n    - A guard with a bold lead" in out
+    ), "structured: section, then one line per bullet"
     assert "Activation" not in out, "nested sub-bullets are skipped"
     assert "releases/tag/v3.8.0" in out, "points at the full notes"
     assert "skipped" in out.lower()
 
 
-def test_upgrade_notes_failure_never_blocks_the_upgrade(tmp_path: Path, monkeypatch, capsys) -> None:
+def test_upgrade_notes_failure_never_blocks_the_upgrade(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
     home = tmp_path / "home"
     home.mkdir()
     (home / "VERSION").write_text("3.6.0\n", encoding="utf-8")
     monkeypatch.setenv("NEXUS_HUB_HOME", str(home))
-    monkeypatch.setenv("NEXUS_HUB_RAW_BASE", _write_remote_fixture(tmp_path / "remote", "3.8.0", _SAMPLE_CHANGELOG))
+    monkeypatch.setenv(
+        "NEXUS_HUB_RAW_BASE",
+        _write_remote_fixture(tmp_path / "remote", "3.8.0", _SAMPLE_CHANGELOG),
+    )
 
     def boom(*_args: object) -> str:
         raise ValueError("unparseable changelog")
@@ -427,7 +461,11 @@ def test_upgrade_offline_fails_clearly(tmp_path: Path) -> None:
 def _is_github_host(host: str) -> bool:
     """GitHub or its content host by the parsed host name, never a substring of the URL."""
     host = host.lower()
-    return host == "github.com" or host.endswith(".github.com") or host.endswith(".githubusercontent.com")
+    return (
+        host == "github.com"
+        or host.endswith(".github.com")
+        or host.endswith(".githubusercontent.com")
+    )
 
 
 def test_cli_no_outbound_beyond_github() -> None:
@@ -436,12 +474,21 @@ def test_cli_no_outbound_beyond_github() -> None:
     assert urls, "expected at least one GitHub URL in nexus_hub_cli.py"
     for url in urls:
         host = urlsplit(url).hostname or ""
-        assert _is_github_host(host), f"unexpected outbound URL in nexus_hub_cli.py: {url}"
+        assert _is_github_host(
+            host
+        ), f"unexpected outbound URL in nexus_hub_cli.py: {url}"
 
 
 def test_github_host_check_rejects_lookalikes() -> None:
-    assert _is_github_host("github.com") and _is_github_host("raw.githubusercontent.com")
-    for host in ("evil.example", "github.com.evil.example", "notgithub.com", "githubusercontent.com.evil.example"):
+    assert _is_github_host("github.com") and _is_github_host(
+        "raw.githubusercontent.com"
+    )
+    for host in (
+        "evil.example",
+        "github.com.evil.example",
+        "notgithub.com",
+        "githubusercontent.com.evil.example",
+    ):
         assert not _is_github_host(host), host
     assert urlsplit("https://evil.example/?next=github.com").hostname == "evil.example"
 
@@ -451,15 +498,194 @@ def test_github_host_check_rejects_lookalikes() -> None:
 
 def test_installer_sh_wires_cli_launcher() -> None:
     body = INSTALL_SH.read_text(encoding="utf-8")
-    assert "install_cli_launcher" in body, "installer.sh must define + call the launcher install"
-    assert 'nexus_hub_cli.py' in body, "installer.sh must copy the CLI core"
-    assert 'scripts/nexus-hub' in body, "installer.sh must copy the POSIX launcher"
-    assert 'bin' in body and "VERSION" in body, "installer.sh must create bin/ and write VERSION"
+    assert (
+        "install_cli_launcher" in body
+    ), "installer.sh must define + call the launcher install"
+    assert "nexus_hub_cli.py" in body, "installer.sh must copy the CLI core"
+    assert "scripts/nexus-hub" in body, "installer.sh must copy the POSIX launcher"
+    assert (
+        "bin" in body and "VERSION" in body
+    ), "installer.sh must create bin/ and write VERSION"
 
 
 def test_installer_ps1_wires_cli_launcher() -> None:
     body = INSTALL_PS1.read_text(encoding="utf-8")
-    assert "Install-CliLauncher" in body, "installer.ps1 must define + call the launcher install"
+    assert (
+        "Install-CliLauncher" in body
+    ), "installer.ps1 must define + call the launcher install"
     assert "nexus_hub_cli.py" in body, "installer.ps1 must copy the CLI core"
     assert "nexus-hub.cmd" in body, "installer.ps1 must copy the Windows launcher"
     assert "VERSION" in body, "installer.ps1 must write the VERSION marker"
+
+
+# --- Launcher directory on PATH (v4.15.4) ----------------------------------
+#
+# The installers add ~/.nexus-hub/bin to PATH unless --no-modify-path /
+# -NoModifyPath is given. The helpers run in isolation: bash against a scratch
+# profile file, PowerShell against a scratch HKCU key, never the real PATH.
+
+_NO_WINDOW = {
+    "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    "stdin": subprocess.DEVNULL,
+}
+
+
+def _bash() -> str | None:
+    import shutil
+
+    found = shutil.which("bash")
+    return found if found and "system32" not in found.lower() else None
+
+
+def _powershell() -> str | None:
+    import shutil
+
+    return shutil.which("powershell") or shutil.which("pwsh")
+
+
+def _run_bash_helpers(
+    script: str, env: dict[str, str]
+) -> subprocess.CompletedProcess[str]:
+    harness = (
+        'set -euo pipefail\ninstaller="$1"\n'
+        'extract() { sed -n "/^$1() {/,/^}/p" "$installer"; }\n'
+        'for fn in nexus_path_profile add_nexus_bin_to_profile; do eval "$(extract "$fn")"; done\n'
+        + script
+    )
+    return subprocess.run(
+        [_bash(), "-c", harness, "harness", INSTALL_SH.as_posix()],
+        env=env,
+        check=False,
+        **_RUN_KW,
+        **_NO_WINDOW,
+    )
+
+
+def test_installers_declare_the_path_opt_out() -> None:
+    sh = INSTALL_SH.read_text(encoding="utf-8")
+    ps = INSTALL_PS1.read_text(encoding="utf-8-sig")
+    assert "--no-modify-path)" in sh and "NO_MODIFY_PATH=1" in sh
+    assert (
+        "[switch]$NoModifyPath" in ps
+        and "Add-NexusBinToUserPath -BinDir $binDest" in ps
+    )
+
+
+def test_help_texts_contain_no_backticks() -> None:
+    # The bash usage is an unquoted heredoc (a backtick runs a command) and the
+    # PowerShell usage is a double-quoted here-string (a backtick escapes).
+    sh = INSTALL_SH.read_text(encoding="utf-8").splitlines()
+    start = next(
+        i
+        for i, line in enumerate(sh)
+        if line.strip() == "cat <<EOF" and "Usage" in "\n".join(sh[i : i + 3])
+    )
+    end = next(i for i in range(start + 1, len(sh)) if sh[i] == "EOF")
+    assert not [line for line in sh[start:end] if "`" in line]
+    ps = INSTALL_PS1.read_text(encoding="utf-8-sig").splitlines()
+    start = next(i for i, line in enumerate(ps) if line.strip() == '@"')
+    end = next(i for i in range(start + 1, len(ps)) if ps[i].startswith('"@'))
+    assert not [line for line in ps[start:end] if "`" in line]
+
+
+@pytest.mark.skipif(_bash() is None, reason="bash not available")
+def test_bash_profile_block_is_added_once(tmp_path: Path) -> None:
+    rc = tmp_path / ".zshrc"
+    rc.write_text("# existing line\n", encoding="utf-8")
+    env = {**os.environ, "HOME": tmp_path.as_posix()}
+    script = 'add_nexus_bin_to_profile "$RC"\nadd_nexus_bin_to_profile "$RC"\n'
+    result = _run_bash_helpers(script, {**env, "RC": rc.as_posix()})
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split() == ["added", "present"]
+    body = rc.read_text(encoding="utf-8")
+    assert body.startswith("# existing line\n")
+    assert body.count("# >>> nexus-hub PATH >>>") == 1
+    assert 'export PATH="$HOME/.nexus-hub/bin:$PATH"' in body
+
+
+@pytest.mark.skipif(_bash() is None, reason="bash not available")
+@pytest.mark.parametrize(
+    ("shell", "zdotdir", "expected"),
+    [
+        ("/bin/zsh", "", ".zshrc"),
+        ("/bin/zsh", "zdot", "zdot/.zshrc"),
+        ("/usr/bin/fish", "", ".profile"),
+    ],
+)
+def test_bash_profile_choice_follows_the_login_shell(
+    tmp_path: Path, shell: str, zdotdir: str, expected: str
+) -> None:
+    env = {**os.environ, "HOME": tmp_path.as_posix(), "SHELL": shell}
+    env.pop("ZDOTDIR", None)
+    if zdotdir:
+        env["ZDOTDIR"] = (tmp_path / zdotdir).as_posix()
+    result = _run_bash_helpers("nexus_path_profile\n", env)
+    assert result.returncode == 0, result.stderr
+    # Git Bash on Windows prints C:/x as /c/x, so compare the part under HOME.
+    assert result.stdout.strip().endswith(f"/{tmp_path.name}/{expected}")
+
+
+_PS_PATH_HARNESS = r"""
+$ErrorActionPreference = 'Stop'
+$installer = $args[0]; $keyName = $args[1]; $bin = $args[2]; $seed = $args[3]
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($installer, [ref]$null, [ref]$null)
+$fn = $ast.Find({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Add-NexusBinToUserPath' }, $true)
+Invoke-Expression $fn.Extent.Text
+$key = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($keyName)
+try {
+    if ($seed) { $key.SetValue('Path', $seed, [Microsoft.Win32.RegistryValueKind]::ExpandString) }
+    $first = Add-NexusBinToUserPath -BinDir $bin -RegistryKey $keyName
+    $second = Add-NexusBinToUserPath -BinDir $bin -RegistryKey $keyName
+    $raw = $key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+    [pscustomobject]@{ first = $first; second = $second; raw = $raw; kind = [string]$key.GetValueKind('Path') } | ConvertTo-Json -Compress
+}
+finally {
+    $key.Close()
+    [Microsoft.Win32.Registry]::CurrentUser.DeleteSubKeyTree($keyName, $false)
+    $parent = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\NexusHubTest')
+    if ($parent) {
+        $empty = $parent.SubKeyCount -eq 0 -and $parent.ValueCount -eq 0
+        $parent.Close()
+        if ($empty) { [Microsoft.Win32.Registry]::CurrentUser.DeleteSubKey('Software\NexusHubTest', $false) }
+    }
+}
+"""
+
+
+@pytest.mark.skipif(
+    sys.platform != "win32" or _powershell() is None, reason="needs Windows PowerShell"
+)
+@pytest.mark.parametrize("seed", ["", r"%USERPROFILE%\tools;C:\Other"])
+def test_powershell_adds_bin_to_user_path_once_and_keeps_raw_entries(
+    seed: str, tmp_path: Path
+) -> None:
+    import uuid
+
+    key = "Software\\NexusHubTest\\" + uuid.uuid4().hex
+    bin_dir = r"C:\Scratch\.nexus-hub\bin"
+    # -File (not -Command) so the trailing arguments reach $args.
+    harness = tmp_path / "path_harness.ps1"
+    harness.write_text(_PS_PATH_HARNESS, encoding="utf-8")
+    result = subprocess.run(
+        [
+            _powershell(),
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(harness),
+            str(INSTALL_PS1),
+            key,
+            bin_dir,
+            seed,
+        ],
+        check=False,
+        **_RUN_KW,
+        **_NO_WINDOW,
+    )
+    assert result.returncode == 0, result.stderr
+    data = json.loads(result.stdout.strip().splitlines()[-1])
+    assert (data["first"], data["second"]) == ("added", "present")
+    assert data["raw"] == (f"{seed};{bin_dir}" if seed else bin_dir)
+    assert data["kind"] == "ExpandString"
