@@ -43,6 +43,10 @@ The comparison report is written to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/com
 
 After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering. When it chains, the report's `Adoption target:` field is the authority for the generated plan's version directory, so the plan lands co-located with the comparison in the same version tree (see `/plan from-comparison`).
 
+## Minor re-plan analysis (guarantee)
+
+After the adoption target is confirmed, `/compare` reads the target minor's existing plans together through `[[plan-queue-assessment]]` and its bundled `replan_minor.py` (applied in `[[cross-project-comparison]]` Step 6.5b) and reads the result against the comparison's adoption items. Findings are proposals shown to the user for approval and recorded in the report's `## Queued-plan impact` section. Nothing is applied automatically and no existing plan is edited. The rule lives in that skill; this dispatcher states the guarantee.
+
 ## Notes
 
 - This command replaces `/compare-project` (removed in v3.2.0).
