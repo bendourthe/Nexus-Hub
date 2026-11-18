@@ -1246,6 +1246,18 @@ def test_task_needs_a_commit_touching_its_path(tmp_path: Path) -> None:
     assert "task.T001 met" in result.stdout
 
 
+def test_a_task_range_summary_line_is_not_read_as_a_task(tmp_path: Path) -> None:
+    # A phase-closing summary such as "- [x] T001-T002 complete" names a range, not a
+    # task. Read as a task it became a pathless duplicate of T001 that overrode the
+    # real line and could never be met.
+    summary = "- [x] T001-T002 complete with observed results\n"
+    fx = _build(tmp_path, plan=PLAN + "\n" + summary)
+    result = fx.check()
+    assert "task.T001 met" in result.stdout
+    assert "task.T002 met" in result.stdout
+    assert "task.T001 unmet" not in result.stdout
+
+
 def test_a_task_counts_work_on_a_path_its_branch_later_moved(tmp_path: Path) -> None:
     # A decision record written on a branch and then promoted (moved) leaves no file at
     # the task's path. Without --full-history, git log follows the merge's first parent,

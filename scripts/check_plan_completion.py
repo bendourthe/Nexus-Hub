@@ -133,7 +133,9 @@ REQUIRED_SECTIONS = (
 )
 
 PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md$")
-TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d{3,})\b(.*)$", re.MULTILINE)
+# A range such as "T001-T007" in a phase summary line is not a task; the lookahead stops
+# it from being read as a pathless duplicate of its first task.
+TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d{3,})\b(?!-T?\d)(.*)$", re.MULTILINE)
 CHECKBOX_RE = re.compile(r"^(\s*- )\[[ xX]\]", re.MULTILINE)
 STATUS_LINE_RE = re.compile(r"^\*\*Status\*\*:[^\n]*$", re.MULTILINE)
 STATUS_VALUE_RE = re.compile(
