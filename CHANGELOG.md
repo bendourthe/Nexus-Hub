@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The full progress report no longer prints the `Confidence`, `Basis` and `As of` line under the version table.** The line was not informative. The snapshot still accepts those fields, so existing snapshots keep working; they are simply not shown.
 - **The `/status` command is now `/progress`, and the report heading is now `## Progress Update`.** The compact and full reports both use the new heading; the `Release status` and `Version progress` subheadings in the full report are unchanged, and the compact footer now ends with `Full report: /progress`. `/status` stays for one release as a deprecation shim that prints a notice and forwards to `/progress`, and `/update status` forwards to `/progress` too. The word "full status" is still accepted in chat as a synonym for "full progress". Every installed copy (commands, command skills, prompts and workflows) now has both `progress` and `status`.
 - **Capability usage note: `/progress`.**
     - Activation: run `/progress`, or `/progress v4.15` for a minor, or ask for "full progress" in chat. Nothing runs unless you ask.
