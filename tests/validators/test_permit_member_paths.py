@@ -1,4 +1,7 @@
-"""permit-member-paths: one captured decision appends exact files to an admitted member's write list.
+"""permit-member-paths and correct-read: captured decisions that change one admitted member's reservations.
+
+permit-member-paths appends exact files to an admitted member's write list; correct-read releases one
+exact literal recorded read file of an unpublished member until its own publication start.
 
 Every record, secret and capture below is a disposable fixture under a temporary home.
 """
@@ -20,6 +23,7 @@ from .test_parallel_member_implementation import (  # noqa: F401  (parallel is a
     merge_worker,
     parallel,
     project,
+    publication,
     worker,
 )
 
@@ -301,3 +305,256 @@ def test_write_guard_rejects_unleased_edits_and_rewritten_history(parallel: Walk
     # Appending history without the consumed leased decision is never accepted.
     with pytest.raises(ck.MinorConflict, match="member-paths-append-not-captured"):
         cm.check_member_paths_write(ck, rctx, before, after)
+
+
+# --------------------------------------------------------------------------- correct-read
+
+LEDGER = "docs/releases/v0/v0.5/known-gaps.md"
+SHARED = "shared/input.txt"
+PLAN = "docs/releases/v0/v0.5/plans/v0.5.2-alpha.md"
+
+
+def read_render(repo: Walk, version: str, path: str, *extra: str):
+    return repo.render(SESSION, "--action", "correct-read", "--member", version, "--path", path, *extra)
+
+
+def read_correct(repo: Walk, version: str, path: str, *extra: str, session: str = SESSION):
+    return repo.run("record", "correct-read", "--minor", "v0.5", "--member", version, "--session", session,
+                    "--repo", str(repo.work), "--path", path, *extra)
+
+
+def release_read(repo: Walk, version: str, path: str):
+    repo.paste(SESSION, "--action", "correct-read", "--member", version, "--path", path)
+    return read_correct(repo, version, path)
+
+
+def real_case(repo: Walk) -> tuple[Path, Path]:
+    """v0.5.10 records a read of the ledger that v0.5.2's own publication must write (the v4.15.5 versus v4.15.3 shape)."""
+    alpha, omega = worker(repo, "v0.5.2"), worker(repo, "v0.5.10")
+    assert admit(repo, "v0.5.2", alpha).returncode == 0
+    assert admit(repo, "v0.5.10", omega, claims(repo, "v0.5.10", reads=(LEDGER, "docs/guide.md"))).returncode == 0
+    return alpha, omega
+
+
+def effective(repo: Walk, version: str) -> list[str]:
+    record = repo.record()
+    return cm.effective_read_paths(ck, repo.rctx(), record, next(m for m in record["members"] if m["version"] == version))
+
+
+def test_correct_read_real_case_conflict_then_admitted_then_restored(
+        parallel: Walk, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture) -> None:
+    alpha, omega = real_case(parallel)
+    assert "coordinator-scope-conflict" in publication(parallel, "v0.5.2", [LEDGER, "CHANGELOG.md"]).stdout
+    raw = member(parallel, "v0.5.10")["implementation"]
+    other = {k: v for k, v in parallel.record().items() if k not in ("members", "approvals_hmac")}
+    result = release_read(parallel, "v0.5.10", LEDGER)
+    assert result.returncode == 0 and result.stdout.startswith("CORRECTED v0.5.10"), result.stdout + result.stderr
+    after = member(parallel, "v0.5.10")
+    assert after["implementation"] == raw and LEDGER in after["implementation"]["read_paths"]
+    entry = after["member_read_corrections"][0]
+    assert entry["page"]["path"] == LEDGER and entry["page"]["original_read_paths"] == raw["read_paths"]
+    assert entry["accepted"]["authorization_context"]["origin"] == "host-hook-capture"
+    assert member(parallel, "v0.5.2") == next(m for m in parallel.record()["members"] if m["version"] == "v0.5.2")
+    assert {k: v for k, v in parallel.record().items() if k not in ("members", "approvals_hmac")} == other
+    assert parallel.load().record is not None
+    assert effective(parallel, "v0.5.10") == ["docs/guide.md"]
+    stored = parallel.record_path().read_bytes()
+    again = read_correct(parallel, "v0.5.10", LEDGER)
+    assert again.returncode == 0 and again.stdout.startswith("ALREADY"), again.stdout
+    assert parallel.record_path().read_bytes() == stored
+    refused(read_render(parallel, "v0.5.10", LEDGER), "read-correction-already-present")
+    started = publication(parallel, "v0.5.2", [LEDGER, "CHANGELOG.md"])
+    assert started.returncode == 0, started.stdout + started.stderr
+    assert member(parallel, "v0.5.2")["coordinator_paths"] == sorted([LEDGER, "CHANGELOG.md"])
+    # v0.5.10's own ordered start is refused while v0.5.2 is unmerged, then restores the raw reads once it is merged.
+    _stub_gate(monkeypatch)
+    commit_worker(alpha, LEDGER, "# ledger\n")
+    commit_worker(alpha, "CHANGELOG.md", "# changelog\n")
+    code, out = start_in_process(parallel, capsys)
+    assert code == ck.EXIT_BLOCKED and "read-correction-restore-unverified" in out, out
+    assert "start_head" not in member(parallel, "v0.5.10")
+    merge_worker(parallel, alpha, "v0.5.2")
+    _git(parallel.work, "merge", "-q", "--ff-only", "origin/develop")
+    _git(omega, "merge", "-q", "--ff-only", "origin/develop")
+    code, out = start_in_process(parallel, capsys)
+    assert code == 0, out
+    final = member(parallel, "v0.5.10")
+    assert final["start_head"] and final["implementation"] == raw and len(final["member_read_corrections"]) == 1
+    assert effective(parallel, "v0.5.10") == raw["read_paths"]
+    assert parallel.load().record is not None
+    refused(read_render(parallel, "v0.5.10", LEDGER), "read-correction-already-present")
+
+
+def start_in_process(repo: Walk, capsys: pytest.CaptureFixture) -> tuple[int, str]:
+    args = ck.build_parser().parse_args(["record", "member-start", "--minor", "v0.5", "--member", "v0.5.10", "--session", SESSION,
+                                         "--repo", str(repo.work), "--head", repo.head()])
+    code = cm.cmd_record_member_start(ck, args)
+    return code, capsys.readouterr().out
+
+
+def _stub_gate(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The previous member's release evidence is outside this test; the restore rule is what runs."""
+    real = cm.evaluate_member
+
+    def evaluate(*args, **kwargs):
+        result = real(*args, **kwargs)
+        result.lines = [(pid, "met") for pid, _status in result.lines]
+        return result
+
+    monkeypatch.setattr(cm, "evaluate_member", evaluate)
+    monkeypatch.setattr(cm, "member_gate", lambda *a, **k: "met")
+    monkeypatch.setattr(cm, "_previous_in", lambda *a, **k: "met")
+
+
+def test_correct_read_applies_in_both_admission_directions(parallel: Walk) -> None:
+    alpha = worker(parallel, "v0.5.2")
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED,))).returncode == 0
+    wants_shared = claims(parallel, "v0.5.2", writes=("src/alpha.txt", SHARED))
+    assert "implementation-scope-conflict" in admit(parallel, "v0.5.2", alpha, wants_shared).stdout
+    assert release_read(parallel, "v0.5.10", SHARED).returncode == 0
+    assert admit(parallel, "v0.5.2", alpha, wants_shared).returncode == 0
+    # The corrected member resumes with its original claims against the other member's write of the released file.
+    resumed = admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED,)), base=member(parallel, "v0.5.10")["implementation"]["base_head"])
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert member(parallel, "v0.5.10")["implementation"]["read_paths"] == [SHARED]
+
+
+def test_correct_read_refuses_anything_but_an_exact_literal_recorded_read(parallel: Walk) -> None:
+    alpha = worker(parallel, "v0.5.2")
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.2", alpha, claims(parallel, "v0.5.2", reads=(SHARED,))).returncode == 0
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=("docs/guide.md", "lib/"), writes=("src/omega.txt", "out/result.txt"))).returncode == 0
+    before = parallel.record_path().read_bytes()
+    cases = {
+        "src/omega.txt": "read-correction-write-path",
+        "out/result.txt": "read-correction-write-path",
+        "lib/": "read-correction-not-literal",
+        "lib/deep/file.txt": "read-correction-directory-read",
+        "docs/other.md": "read-correction-not-a-read",
+        "docs/*.md": "read-correction-not-literal",
+        "../x": "read-correction-not-literal",
+        "docs\\guide.md": "read-correction-not-literal",
+        "": "read-correction-not-literal",
+        " docs/guide.md": "read-correction-not-literal",
+        "DOCS/GUIDE.MD": "read-correction-not-a-read",
+        SHARED: "read-correction-not-a-read",
+    }
+    for path, reason in cases.items():
+        refused(read_render(parallel, "v0.5.10", path), reason)
+        refused(read_correct(parallel, "v0.5.10", path), reason)
+    refused(read_render(parallel, "v0.5.99", "docs/guide.md"), "read-correction-unknown-member")
+    assert parallel.record_path().read_bytes() == before
+    # A write claim of the same member and a member without implementation refuse as well.
+    record = parallel.record()
+    next(m for m in record["members"] if m["version"] == "v0.5.10").pop("implementation")
+    parallel.write_record(record, resign=True)
+    refused(read_render(parallel, "v0.5.10", "docs/guide.md"), "read-correction-member-not-admitted")
+
+
+def test_correct_read_refuses_a_member_with_a_publication_start(parallel: Walk) -> None:
+    alpha = worker(parallel, "v0.5.2")
+    assert admit(parallel, "v0.5.2", alpha, claims(parallel, "v0.5.2", reads=(SHARED,))).returncode == 0
+    assert publication(parallel, "v0.5.2").returncode == 0
+    before = parallel.record_path().read_bytes()
+    refused(read_render(parallel, "v0.5.2", SHARED), "read-correction-member-started")
+    refused(read_correct(parallel, "v0.5.2", SHARED), "read-correction-member-started")
+    assert parallel.record_path().read_bytes() == before
+
+
+def test_correct_read_refuses_paused_completed_and_tampered_records(parallel: Walk) -> None:
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED,))).returncode == 0
+    record = parallel.record()
+    next(m for m in record["members"] if m["version"] == "v0.5.10")["implementation"]["read_paths"].append("docs/extra.md")
+    parallel.write_record(record, resign=False)
+    before = parallel.record_path().read_bytes()
+    result = read_render(parallel, "v0.5.10", SHARED)
+    assert result.returncode != 0
+    result = read_correct(parallel, "v0.5.10", SHARED)
+    assert result.returncode != 0 and "member_read_corrections" not in parallel.record_path().read_text(encoding="utf-8")
+    assert parallel.record_path().read_bytes() == before
+
+
+def test_correct_read_without_a_genuine_decision_changes_nothing(parallel: Walk) -> None:
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED, "docs/guide.md"))).returncode == 0
+    before = parallel.record_path().read_bytes()
+    assert read_correct(parallel, "v0.5.10", SHARED).returncode == ck.EXIT_BLOCKED
+    parallel.paste(SESSION, "--action", "correct-read", "--member", "v0.5.10", "--path", "docs/guide.md")
+    assert read_correct(parallel, "v0.5.10", SHARED).returncode == ck.EXIT_BLOCKED
+    parallel.paste(SESSION, "--action", "correct-read", "--member", "v0.5.10", "--path", SHARED)
+    wrong = read_correct(parallel, "v0.5.10", SHARED, "--text", "Approve something else")
+    assert wrong.returncode == ck.EXIT_BLOCKED and "approval-not-captured" in wrong.stdout
+    assert parallel.record_path().read_bytes() == before
+    # A synthesized approval is not a capture: the owner session never sent the line.
+    parallel.capture("intruder", "/implement v0.5", at=0.0)
+    parallel.render("intruder", "--action", "correct-read", "--member", "v0.5.10", "--path", SHARED)
+    assert read_correct(parallel, "v0.5.10", SHARED, session="intruder").returncode != 0
+    assert parallel.record_path().read_bytes() == before
+    # The same round cannot be replayed for another file.
+    parallel.paste(SESSION, "--action", "correct-read", "--member", "v0.5.10", "--path", SHARED)
+    assert read_correct(parallel, "v0.5.10", SHARED).returncode == 0
+    assert read_correct(parallel, "v0.5.10", "docs/guide.md").returncode == ck.EXIT_BLOCKED
+    assert effective(parallel, "v0.5.10") == ["docs/guide.md"]
+
+
+def test_correct_read_renders_one_question_and_page(parallel: Walk) -> None:
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED,))).returncode == 0
+    question = read_render(parallel, "v0.5.10", SHARED, "--question")
+    assert question.returncode == 0, question.stderr
+    data = json.loads(question.stdout)
+    assert data["question"] == "Temporarily release only the displayed exact read file of the displayed member for v0.5?"
+    assert data["action_scope"]["path"] == SHARED and data["action_scope"]["member"] == "v0.5.10"
+    assert "Exact file: `" + SHARED + "`" in data["review_page"] or SHARED in data["review_page"]
+    line = read_render(parallel, "v0.5.10", SHARED).stdout.splitlines()[0]
+    assert line.startswith("Correct the displayed one-file read reservation in /implement v0.5 (approval ")
+
+
+def test_correct_read_blocks_permit_member_paths_and_keeps_history_append_only(parallel: Walk) -> None:
+    omega = worker(parallel, "v0.5.10")
+    assert admit(parallel, "v0.5.10", omega, claims(parallel, "v0.5.10", reads=(SHARED, "docs/guide.md"))).returncode == 0
+    before = parallel.record()
+    assert release_read(parallel, "v0.5.10", SHARED).returncode == 0
+    after = parallel.record()
+    refused(render(parallel, "v0.5.10", paths_file(parallel, [EXTRA])), "member-paths-bound-permissions")
+    rctx = parallel.rctx()
+    cm.check_read_correction_write(ck, rctx, after, after)
+
+    def broken(mutate):
+        record = json.loads(json.dumps(after))
+        mutate(next(m for m in record["members"] if m["version"] == "v0.5.10"))
+        return record
+
+    for mutate in (
+        lambda m: m.pop("member_read_corrections"),
+        lambda m: m["member_read_corrections"].clear(),
+        lambda m: m["member_read_corrections"][0]["page"].update(path="docs/guide.md"),
+    ):
+        with pytest.raises(ck.MinorConflict, match="read-correction-not-append-only"):
+            cm.check_read_correction_write(ck, rctx, after, broken(mutate))
+    with pytest.raises(ck.MinorConflict, match="read-correction-claims-changed"):
+        cm.check_read_correction_write(ck, rctx, after, broken(lambda m: m["implementation"]["read_paths"].append("x/y.txt")))
+    # Starting the member outside the native publication start never restores silently.
+    with pytest.raises(ck.MinorConflict, match="read-correction-restore-not-native"):
+        cm.check_read_correction_write(ck, rctx, after, broken(lambda m: m.update(start_head="a" * 40)))
+    # Appending history without the consumed leased decision is never accepted.
+    with pytest.raises(ck.MinorConflict, match="read-correction-append-not-captured"):
+        cm.check_read_correction_write(ck, rctx, before, after)
+    # An entry that no longer matches the unchanged claims releases nothing.
+    tampered = json.loads(json.dumps(after))
+    next(m for m in tampered["members"] if m["version"] == "v0.5.10")["member_read_corrections"][0]["page"]["path"] = "docs/guide.md"
+    assert cm._read_correction_paths(ck, tampered, next(m for m in tampered["members"] if m["version"] == "v0.5.10")) == set()
+
+
+def test_correct_read_never_renders_a_schema_one_approval(parallel: Walk) -> None:
+    before = parallel.record_path().read_bytes()
+    for args in (("--action", "correct-read"), ("--path", SHARED)):
+        result = parallel.run("record", "render", PLAN, "--session", SESSION, *args)
+        assert result.returncode == 2 and "require --minor" in result.stderr, result.stderr
+    absent = parallel.run("record", "correct-read", "--member", "v0.5.10", "--session", SESSION, "--path", SHARED)
+    assert absent.returncode == 2 and "--minor" in absent.stderr
+    wrong_flag = parallel.render(SESSION, "--action", "permit-member-paths", "--member", "v0.5.10", "--path", SHARED)
+    assert wrong_flag.returncode == 2 and "--path requires --action correct-read" in wrong_flag.stderr
+    assert parallel.record_path().read_bytes() == before
