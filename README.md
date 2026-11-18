@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.2 -->
+<!-- nexus-hub-version: 4.15.3 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,14 +10,14 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.2
+## What's New in v4.15.3
 
-- A harness pairing evaluator for maintainers, five explicit loop outcomes, and a shared project `AGENTS.md` for supported Claude Code versions (opt-in with `NEXUS_HUB_CLAUDE_MIGRATE=1`).
-- One status layout for every platform, with goals and time estimates taken from completed plans, and a separate forecast for the next release.
-- Nexus-Hub Settings 0.8.8: working effort control on newer Codex and Claude builds, and the Codex button opens beside your current editor.
-- Run records can add files to one admitted member's write list through a captured decision.
+- Parallel minor runs get safer: stalled worker lanes are detected and resumed from heartbeats, the minor's plans are re-planned together before approval, as many lanes as the claims allow run at once (up to the smaller of half the cores and 6), and `/compare` and `/plan` run the same re-plan analysis.
+- `security-review` can project its findings into the shared review-findings format, and a new harness feedback cadence guide ships with a credential-free synthetic matrix.
+- `/status` is now `/progress`, with one readable report and no confidence line. An earlier publisher is no longer blocked by a read-only reservation.
+- Nexus Hub Settings 0.8.9 can restore a merged Claude Code and Codex split (opt-in with `nexusHubSettings.restoreAgentSplit`), and the usage monitors no longer miss an alert-setting change made as watching starts.
 
-[Release details and earlier versions](CHANGELOG.md#4152---2026-11-17)
+[Release details and earlier versions](CHANGELOG.md#4153---2026-11-17)
 
 ## Installation
 
