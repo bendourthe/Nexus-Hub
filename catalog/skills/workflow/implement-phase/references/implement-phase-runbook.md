@@ -219,6 +219,18 @@ At M5 publication admission after M4 release and back-merge, include the manifes
 
 A blocker in any member stops the whole minor run: record it with `CK record block --minor vX.Y --member vX.Y.Z --category <category> --evidence <text>` and report it. Retain every worker's claims and local work for the approved continuation.
 
+### Lane stall checks and recovery
+
+A lost connection or a closed terminal stops a worker silently, and the maintainer cannot watch every parallel session. So the check is forced at fixed points rather than left to memory. Full contract, heartbeat format and classification rules: [progress-reporting.md](progress-reporting.md) section "Stall detection and recovery". `LH` below is `python <resolved-skill-folder>/scripts/lane_health.py` (the installed copy lives at `~/.nexus-hub/skills/workflow/implement-phase/scripts/lane_health.py`).
+
+1. **Heartbeat.** Every worker records a heartbeat with `LH beat --member vX.Y.Z --phase <phase> --state <state>` at lane start, at the start and end of every phase, and immediately before any long wait (a test run, a hosted check, a wait on the coordinator). On finishing its local phases it records state `ready`.
+2. **Session resume.** The first action of a resumed coordinator or worker session is `LH check`, before any other tool call or report.
+3. **Coordinator.** Run `LH check` at every reporting boundary and before every admission or refill. For each `stalled` lane it owns, resume the same addressable worker and registered worktree when the harness allows it, re-sending the remaining work from the last local commit (use the printed resume prompt); when it cannot, report the lane with that resume instruction and ask the maintainer to restart the session. A stalled lane keeps its claims; never create a second writer on its worktree.
+4. **Worker.** At each of its own phase boundaries run `LH check`. If another lane is `stalled`, record it in the worker report and notify the coordinator. A worker never opens, edits or resumes another lane's worktree.
+5. **Worker brief addendum.** Append this to every dispatch brief: `Run lane_health.py check at the start of your session and at each phase boundary, and record a heartbeat with lane_health.py beat at lane start, each phase start and end, and before long waits. If another lane is stalled, report it to the coordinator; do not touch its worktree.`
+
+`check` never kills, restarts, signs or edits anything, and never writes to the run record; `beat` only appends one line to the caller's own heartbeat file.
+
 ### Member archive (after each member's release, when approved)
 
 Only when the minor record carries `archive-member` (the completion contract, "Member archive", owns the rules). A running record without it gains it only by the user's own decision: show `CK record render --minor vX.Y --session <id> --action add-class --class archive-member --page`, and after the user pastes its line in the record's own session run `CK record add-class --minor vX.Y --session <id> --class archive-member`. Never add it otherwise.
