@@ -11,9 +11,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 11 | 0 |
+| Deferred (DF) | 17 | 0 |
 | Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 8 | 0 |
+| Warnings (WN) | 9 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 
@@ -367,3 +367,87 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+#### DF-53: Historical ledgers incompatible with fail-closed parsing
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 1
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions; [last-phase evidence](development/v4.15.4-last-phase-evidence.md)
+
+**Reason**: changing how older ledgers are parsed is a policy change. This plan allowed no cutoff date and no exemption for finalized ledgers.
+
+**Suggested next step**: design a structured historical-ledger contract before changing the parsing.
+
+#### DF-54: Test failures recorded in prose
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 2
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
+
+**Reason**: accepting a prose record of known failures changes evidence policy. The `tests.evidence` predicate stays unchanged in this plan.
+
+**Suggested next step**: design a structured baseline and CI evidence record.
+
+#### DF-55: Run record recreation and renumbering
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 4
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
+
+**Reason**: the plan allowed no `start_head` inheritance and no re-signing of an existing record.
+
+**Suggested next step**: write a separate design for migrating approval identity to a recreated record.
+
+#### DF-56: Recently active and detached worktree cleanup
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 5
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
+
+**Reason**: the cleanup idle thresholds and the protection for detached worktrees were kept as they are.
+
+**Suggested next step**: decide whether any idle threshold should be configurable.
+
+#### DF-57: Missing prompt capture
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 7
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
+
+**Reason**: not confirmed. The cited prompt line began with `Continue`, not with a slash command.
+
+**Suggested next step**: reproduce with a real capture before any redesign.
+
+#### DF-58: Record mutation from a sibling-worktree controller
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 plan, consumer handoff 9
+
+**Plan reference**: [v4.15.4 plan](plans/v4.15.4-checker-evidence-and-diagnostics.md), Scope and Dispositions
+
+**Reason**: only the diagnostic shipped in this plan.
+
+**Suggested next step**: design rekeying of the record by the common git directory, if wanted.
+
+#### WN-41: Repository description says 21 commands, README says 22
+
+**Carried from**: v4.15 ledger, section v4.15.4 (id preserved, text unchanged).
+
+**Source phase**: v4.15.4 Phase 5, git-tree hygiene
+
+**Plan reference**: [last-phase evidence](development/v4.15.4-last-phase-evidence.md), Git-tree hygiene
+
+**Reason**: `check_release_preconditions.py --repo-settings` reports the mismatch. The GitHub repository description is a repository setting outside the files this plan can change.
+
+**Suggested next step**: update the description to 22 commands with `gh repo edit --description` at the next release, under the maintainer's approval.
