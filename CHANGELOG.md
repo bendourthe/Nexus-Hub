@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Plan checker reads task ranges correctly**: `check_plan_completion.py` no longer reads a phase summary line such as `- [x] T001-T007 complete` as a task. It used to become a pathless duplicate of its first task, overriding the real task line, so the plan could never read complete. The same fix stops that summary line from replacing the real task's text block used for conditional evidence. Regression test: `test_a_task_range_summary_line_is_not_read_as_a_task`.
+
 ## [4.15.3] - 2026-11-17
 
 ### Added
