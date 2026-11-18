@@ -50,6 +50,12 @@ export class Uri {
 
 export const ViewColumn = { Active: -1, Beside: -2 } as const;
 
+export class TabInputWebview { constructor(readonly viewType: string) {} }
+export class TabInputCustom { constructor(readonly uri: Uri, readonly viewType: string) {} }
+export interface StubTab { input: unknown }
+export interface StubTabGroup { viewColumn: number; isActive: boolean; tabs: StubTab[]; activeTab?: StubTab }
+const tabEvents = emitter<void>();
+
 export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
 export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
 
@@ -114,6 +120,8 @@ export const stub = {
   executedCalls: [] as {id: string; args: unknown[]}[],
   statusItems: [] as StatusItem[],
   vendorExtensions: new Map<string, { extensionPath: string; isActive: boolean; exports?: unknown }>(),
+  tabGroups: [] as StubTabGroup[],
+  fireTabs(): void { tabEvents.fire(undefined); },
   fireConfig(...sections: string[]): void {
     configEvents.fire({ affectsConfiguration: (section) => sections.includes(section) });
   },
@@ -139,6 +147,8 @@ export const stub = {
     this.executedCalls = [];
     this.statusItems = [];
     this.vendorExtensions.clear();
+    this.tabGroups = [];
+    tabEvents.clear();
     configEvents.clear();
     trustEvents.clear();
   },
@@ -223,6 +233,10 @@ export const window = {
     };
     stub.statusItems.push(item);
     return item;
+  },
+  tabGroups: {
+    get all(): StubTabGroup[] { return stub.tabGroups; },
+    onDidChangeTabs: tabEvents.event,
   },
   registerWebviewViewProvider(id: string, provider: unknown, options: unknown) {
     stub.providers.push({ id, provider, options });

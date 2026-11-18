@@ -114,6 +114,10 @@ Apply [confidence-anchored-scoring](../code-quality/references/confidence-anchor
 
 In autofix / report-only / headless modes, every surviving finding with `requires_verification: true` (or `confidence < 100`) gets one independent check by a fresh reviewer that did not produce it, using [references/validator-template.md](references/validator-template.md). The validator tries to *refute* the finding; a refuted finding is moved to the suppressed tier with the refutation recorded. In interactive mode, skip this - the human is the validator.
 
+#### Security evidence findings
+
+When the diff has a security-review envelope, project it with `project-review-findings.py` and an expected review context from your own pinned revision, root and scope fingerprints and run identity, then follow the [security evidence extension](references/findings-schema.md#security-evidence-extension). The security-review skill owns the evidence; this pipeline only preserves it. Extension findings skip the confidence gate and the refutation pass, `pending` items stay visible as pending, `rejected` and `corrected` items go to the explicit appendix, and reviewer agreement cannot change their state or confidence. An unbound or mismatched projection is refused and the report makes no completeness claim.
+
 ### Stage 7 - Model tiering and emit
 
 Assign reviewer model tiers to spend budget where stakes are highest:

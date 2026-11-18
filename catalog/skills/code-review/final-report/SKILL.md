@@ -55,6 +55,15 @@ Assign one of three verdicts (mirroring GitHub PR review states):
 | **REQUEST_CHANGES** | P0 or P1 findings exist that should be resolved before proceeding. |
 | **COMMENT** | No blocking issues, but P2/P3 suggestions are worth considering. |
 
+## Security Evidence Retention
+
+When the findings include items carrying the [security evidence extension](../multi-agent-code-review/references/findings-schema.md#security-evidence-extension), the report keeps the source evidence visible and does not re-grade it:
+
+- Report source coverage limits: the source health, reason codes and graph quality, and whether the projection was bound to the current review. An unbound or refused projection means the report makes no completeness claim and says so.
+- List confirmed, pending and rejected results as three separate groups. A `pending` item (needs live validation) is never counted or worded as confirmed, and a rejected or corrected item is never presented as an open defect.
+- Show each item's source severity, source confidence, release-blocking flag and evidence receipt ids as the source gave them. Fields the source cannot supply (proof class, reproducer, environment, duplicate links) are written as unavailable, never filled in.
+- Never apply a candidate fix. Pending items carry a request for a safe live validation, not a patch.
+
 ## Inline Comment Format
 
 For file-specific findings throughout the report, use this format:
@@ -354,6 +363,7 @@ After presenting the report, always end with the Next Steps menu. Wait for the u
 - [ ] Clean review protocol followed when no issues were found
 - [ ] Next Steps menu presented with all 5 options (including export)
 - [ ] No changes implemented before explicit user confirmation
+- [ ] Security evidence items keep source coverage, proof strength and dispositions, with confirmed, pending and rejected listed separately
 
 ## Related Skills
 

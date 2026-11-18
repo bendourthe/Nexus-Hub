@@ -39,6 +39,7 @@ GOVERNANCE = (
     "tests/test_git_attribution.py",
     "tests/test_removed_autonomy_surface.py",
     "tests/test_status_report.py",
+    "tests/test_lane_health.py",
 )
 NODE_ID = re.compile(r"^\S+\.py(::\S.*)?$")
 

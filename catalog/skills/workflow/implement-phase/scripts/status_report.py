@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
-import html
 import json
 import re
 import sys
@@ -20,11 +19,49 @@ RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-
              "references/status-snapshot.json", "scripts/status_report.py")
 
 
-def text(value: object) -> str:
-    """Keep evidence on one line and escape Markdown/HTML, including table pipes."""
+FILLED, EMPTY = "\u25b0", "\u25b1"
+VALUE_SEP = "   \u00b7   "  # three literal spaces each side, as specified; no entities
+GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
+RELEASE_ICON, PROGRESS_ICON = "\U0001F680", "\U0001F4CA"
+CELL_MAX = 48
+OPTION_MAX = 72  # decision options must stay readable in full
+# A token with any of these is shown as a code span: hosts (Codex, Claude Code) read
+# backslash-paren and dollar pairs as math and read * _ [ ] as emphasis or links.
+_LITERAL = re.compile(r"[$*_\[\]\\`&<>]")
+
+
+def shorten(value: str, limit: int) -> str:
+    """Drop trailing parentheticals first, then cut at a word boundary; never mid-parenthesis."""
+    while len(value) > limit:
+        match = re.search(r"\s*\([^()]*\)\s*$", value)
+        if not match or match.start() == 0:
+            break
+        value = value[: match.start()]
+    if len(value) <= limit:
+        return value
+    cut = value[: limit - 3]
+    if " " in cut and value[limit - 3] != " ":
+        cut = cut.rsplit(" ", 1)[0]
+    if cut.count("(") > cut.count(")"):
+        cut = cut[: cut.rindex("(")]
+    return cut.rstrip() + "..."
+
+
+def _literal(token: str) -> str:
+    """Wrap a token hosts could read as math or emphasis in a code span; edge punctuation stays outside."""
+    if not _LITERAL.search(token):
+        return token
+    head, core, tail = re.fullmatch(r"([(\"']*)(.*?)([).,;:\"']*)", token).groups()
+    return f"{head}`{core.replace(chr(96), chr(39))}`{tail}"
+
+
+def text(value: object, limit: int | None = None) -> str:
+    """Keep evidence on one line, neutralize Markdown, HTML, math and table syntax, cap length."""
     value = " ".join(str(value).split())
     value = "".join(c for c in value if ord(c) >= 32 and ord(c) != 127)
-    return re.sub(r"([\\`*_{}\[\]()#+|>])", r"\\\1", html.escape(value, quote=False))
+    if limit is not None:
+        value = shorten(value, limit)
+    return " ".join(_literal(t) for t in value.split(" ")).replace("|", "\\|")
 
 
 def timestamp(value: str) -> datetime:
@@ -87,25 +124,28 @@ def validate(data: dict) -> None:
                 if parts.scheme not in ("http", "https") or not parts.hostname or parts.username or parts.password:
                     raise ValueError("running URLs require HTTP(S), a host and no credentials")
             if key == "decisions":
+                if item.get("reply") is not None and (not isinstance(item["reply"], str) or not item["reply"].strip()):
+                    raise ValueError("decision reply must be a nonempty string when present")
                 options = item.get("options")
-                if not isinstance(options, list) or not options or any(
+                if options is not None and (not isinstance(options, list) or any(
                     not isinstance(o, dict) or not all(isinstance(o.get(k), str) and o[k].strip() for k in ("option", "effect"))
                     for o in options
-                ):
-                    raise ValueError("each decision requires option/effect entries")
+                )):
+                    raise ValueError("decision options require option/effect entries when present")
     ids = [d["id"] for d in data["decisions"]]
     if len(set(ids)) != len(ids):
         raise ValueError("decision ids must be unique")
 
 
-def progress(done: int | None, total: int | None) -> str:
+def progress_parts(done: int | None, total: int | None) -> tuple[str, str]:
+    """Return the bar-and-percent text and the done/total text."""
     if done is None:
-        return "unknown"
+        return "unknown", "unknown"
     if total == 0:
-        return "N/A (0/0 tasks)"
+        return "N/A", "0/0"
     percent = (100 * done + total // 2) // total
     filled = min(10, (10 * done) // total)
-    return f"`{'#' * filled}{'-' * (10 - filled)}` {percent}% | {done}/{total} tasks"
+    return f"{FILLED * filled}{EMPTY * (10 - filled)} {percent}%", f"{done}/{total}"
 
 
 def aggregate(data: dict) -> tuple[int | None, int | None]:
@@ -115,17 +155,35 @@ def aggregate(data: dict) -> tuple[int | None, int | None]:
     return sum(d for d, _ in values), sum(t for _, t in values)
 
 
+def cell(value: object) -> str:
+    return text(value, CELL_MAX)
+
+
 def table(headers: tuple[str, ...], rows: list[list[str]]) -> str:
-    lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"]
-    lines.extend("| " + " | ".join(row) + " |" for row in rows)
-    return "\n".join(lines)
+    """Pad every column to its widest cell so the source text lines up."""
+    widths = [max(3, *(len(r[i]) for r in [list(headers), *rows])) for i in range(len(headers))]
+    def line(cells: list[str]) -> str:
+        return "| " + " | ".join(c.ljust(w) for c, w in zip(cells, widths)) + " |"
+
+    return "\n".join([line(headers), "| " + " | ".join("-" * w for w in widths) + " |", *map(line, rows)])
 
 
 def running_label(row: dict) -> str:
-    label = text(row["name"])
+    label = cell(row["name"])
     if row.get("url"):
         return f"[{label}]({quote(row['url'], safe=':/?=&%#@')})"
     return label
+
+
+def keycap(value: str) -> str:
+    return "".join(c + "\ufe0f\u20e3" for c in value) if value.isdigit() else ""
+
+
+def remaining_with_dependency(row: dict) -> str:
+    dep = row["dependency"].strip()
+    if dep.lower() == "none":
+        return cell(row["remaining"])
+    return cell(f"{row['remaining']} ({dep if dep.lower().startswith('after ') else 'after ' + dep})")
 
 
 def render(data: dict, mode: str) -> str:
@@ -134,52 +192,84 @@ def render(data: dict, mode: str) -> str:
         raise ValueError("mode must be compact or full")
     done, total = aggregate(data)
     released = text(data.get("last_released") or "unknown")
-    left = data.get("versions_left")
-    release = data.get("next_release") or {
-        "version": "unknown", "remaining": "unknown (release estimate not supplied)",
-        "condition": "unknown", "confidence": "unknown", "basis": "release estimate not supplied",
-    }
-    condition = "" if release["condition"] == "none" else f"; {text(release['condition'])}"
-    parts = [f"## Status: {text(data['scope'])}",
-             f"**Last released:** **{released}**",
-             f"**Next release:** **{text(release['version'])}** | **Release ETA:** {text(release['remaining'])}{condition}",
-             f"Confidence: {text(release['confidence'])} | Basis: {text(release['basis'])}",
-             f"**Whole {text(data['scope'])} completion:** {text(data['remaining'])}",
-             f"{progress(done, total)} | {left if left is not None else 'unknown'} versions left",
-             f"As of {text(data['observed_at'])} | Elapsed: {text(data['elapsed'])}"]
-    if mode == "full":
-        rows = [[text(r["name"]), text(r["goals"]), progress(*counts(r)).replace(" | ", " / "),
-                 text(r["state"]), text(r["elapsed"]), text(r["remaining"]), text(r["dependency"])] for r in data["rows"]]
-        rows.append(["Total", "", progress(done, total).replace(" | ", " / "), "", text(data["elapsed"]), text(data["remaining"]), ""])
-        parts.extend([table(("Plan / phase", "Goals", "Progress / tasks", "State", "Elapsed", "Remaining", "Dependency"), rows),
-                      f"Estimate basis: {text(data['estimate_basis'])}"])
-    parts.append("### Goals")
+    bar, tasks = progress_parts(done, total)
     if mode == "compact":
-        parts.append("\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"]))
-    else:
-        parts.append(table(("Goal", "Scope", "Done when", "State"),
-                           [[text(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]))
-    parts.append("### Decisions")
+        return _compact(data, bar, tasks, released)
+    rows = []
+    for r in data["rows"]:
+        rbar, rtasks = progress_parts(*counts(r))
+        rows.append([f"**{cell(r['name'])}**", cell(r["goals"]), rbar, rtasks, cell(r["elapsed"]), remaining_with_dependency(r)])
+    rows.append(["**Total**", "", f"**{bar}**", f"**{tasks}**", f"**{cell(data['elapsed'])}**", f"**{cell(data['remaining'])}**"])
+    parts = ["## Progress Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
+             f"### {PROGRESS_ICON} Version progress",
+             table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
+             "---", f"### {GOALS_ICON} Goals",
+             table(("Goal", "Scope", "Done when", "State"),
+                   [[cell(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]),
+             "---", f"### {WAIT_ICON} Decisions waiting"]
     if not data["decisions"]:
         parts.append("No decisions waiting.")
-    elif mode == "compact":
-        parts.append("\n".join(f"- #{text(d['id'])}: {text(d['title'])}" for d in data["decisions"]))
-    else:
-        for decision in data["decisions"]:
-            parts.extend([f"#### Decision {text(decision['id'])}: {text(decision['title'])}", text(decision["detail"]),
-                          table(("Option", "Effect"), [[text(o["option"]), text(o["effect"])] for o in decision["options"]])])
-    parts.append("### Running")
+    for decision in data["decisions"]:
+        parts.extend(decision_parts(decision, with_detail=True))
+    parts.extend(["---", f"### {RUN_ICON} Running"])
     if not data["running"]:
         parts.append("Nothing running.")
-    elif mode == "compact":
-        parts.append("\n".join(f"- {running_label(r)}: {progress(*counts(r))} ({text(r['state'])})" for r in data["running"]))
     else:
-        parts.append(table(("Item", "Progress / tasks", "State", "Elapsed", "Remaining"),
-                           [[running_label(r), progress(*counts(r)).replace(" | ", " / "), text(r["state"]), text(r["elapsed"]), text(r["remaining"])] for r in data["running"]]))
-    parts.append(f"Source: {text(data['source'])}")
-    if mode == "compact":
-        parts.append('*Full report: /status, or ask for "full status".*')
+        run_rows = []
+        for r in data["running"]:
+            rbar, rtasks = progress_parts(*counts(r))
+            run_rows.append([running_label(r), rbar, rtasks, cell(r["state"]), cell(r["elapsed"]), cell(r["remaining"])])
+        parts.append(table(("Item", "Progress", "Tasks", "State", "Elapsed", "Remaining"), run_rows))
+    parts.append(f"*Source: {text(data['source'], 100)}*")
     return "\n\n".join(parts) + "\n"
+
+
+def decision_parts(decision: dict, with_detail: bool) -> list[str]:
+    """One decision as a heading, optional explanation bullet, options table and optional reply line."""
+    icon = keycap(decision["id"])
+    parts = [f"#### {icon + ' ' if icon else ''}Decision #{text(decision['id'])}: {text(decision['title'])}"]
+    if with_detail:
+        parts.append(f"- {text(decision['detail'])}")
+    options = decision.get("options") or []
+    if options:
+        parts.append(table(("Option", "What it means", "Effect"),
+                           [[cell(o["option"]), text(o.get("meaning") or "-", OPTION_MAX), text(o["effect"], OPTION_MAX)] for o in options]))
+    else:
+        parts.append("Options not supplied")
+    if not with_detail and decision.get("reply") and options:
+        parts.append(text(decision["reply"]))
+    return parts
+
+
+def release_table(data: dict, bar: str, tasks: str, released: str) -> str:
+    """The four-row release table that opens both the compact and the full report."""
+    release = data.get("next_release") or {"version": "unknown", "remaining": "unknown (release estimate not supplied)"}
+    left = data.get("versions_left")
+    left_label = "versions left unknown" if left is None else f"{left} {'version' if left == 1 else 'versions'} left"
+    progress_text = "progress: unknown" if tasks == "unknown" else f"progress: {bar} ({tasks} tasks)"
+    whole = f"{progress_text}{VALUE_SEP}ETA: {cell(data['remaining'])}"
+    rows = [("Last release", "", released), ("Next release", "", cell(release["version"])),
+            ("Next release ETA", "", cell(release["remaining"])),
+            (f"Full {cell(data['scope'])} implementation", f" ({left_label})", whole)]
+    return "\n".join(["| | |", "|---|---|", *(f"| **{bold}**{suffix} | {value} |" for bold, suffix, value in rows)])
+
+
+def _compact(data: dict, bar: str, tasks: str, released: str) -> str:
+    goals = "\n".join(f"- {text(g['goal'])} - {text(g['done_when'])} ({text(g['state'])})" for g in data["goals"]) or "None."
+    decisions = "\n\n".join("\n\n".join(decision_parts(d, with_detail=False)) for d in data["decisions"]) or "No decisions waiting."
+    running = "\n".join(_running_bullet(r) for r in data["running"]) or "Nothing running."
+    parts = ["## Progress Update", release_table(data, bar, tasks, released),
+             "---", f"### {GOALS_ICON} Goals", goals,
+             "---", f"### {WAIT_ICON} Decisions waiting", decisions,
+             "---", f"### {RUN_ICON} Running", running,
+             '*Full report: /progress, or ask for "full progress".*']
+    return "\n\n".join(parts) + "\n"
+
+
+def _running_bullet(row: dict) -> str:
+    known = counts(row)[0] is not None
+    bar = f" {progress_parts(*counts(row))[0]}" if known else ""
+    return f"- {running_label(row)}{bar}: {text(row['state'])}"
 
 
 def fingerprint(data: dict) -> str:
@@ -268,6 +358,8 @@ def main() -> int:
     parser.add_argument("--audit-roots", nargs="+", type=Path, help="read-only audit of explicit installed skill roots")
     parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parent.parent)
     args = parser.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", newline="\n")
     try:
         if args.audit_roots:
             issues = audit(args.source, args.audit_roots)

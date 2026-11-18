@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.15.2 -->
+<!-- nexus-hub-version: 4.15.3 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -19,7 +19,7 @@ Nexus-Hub/
 ├── catalog/                  # Master templates (distributed to users)
 │   ├── agents/               # 23 agent YAML definitions
 │   ├── checklists/           # Standalone reference checklists (4 files)
-│   ├── commands/             # 22 active command .md files (+ 3 permanent aliases; the 40 v3.x shims were removed in v3.2.0)
+│   ├── commands/             # 22 active command .md files (+ 3 permanent aliases and the temporary /status shim, removed in v4.15.4; the 40 v3.x shims were removed in v3.2.0)
 │   ├── context/              # Context template files
 │   ├── hooks/                # Hook scripts + settings.json template
 │   │   └── tests/            # pytest suite for hook scripts

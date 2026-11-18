@@ -8,14 +8,14 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.2 更新内容
+## v4.15.3 更新内容
 
-- 新增面向维护者的工具链配对评估器、五种明确的循环结果，以及为受支持的 Claude Code 版本提供的共享项目 `AGENTS.md`（通过 `NEXUS_HUB_CLAUDE_MIGRATE=1` 选择启用）。
-- 所有平台使用统一的状态布局，目标和剩余时间估算来自已完成的计划，并单独预测下一个发布版本。
-- Nexus-Hub Settings 0.8.8：在较新的 Codex 和 Claude 版本上恢复推理强度控制，Codex 按钮会在当前编辑器旁边打开。
-- 运行记录可以通过一次已记录的决定，为某个已准入成员的写入列表追加文件。
+- 并行的小版本运行更安全：通过心跳检测并恢复停滞的工作通道，批准前统一重新规划该小版本的所有计划，按声明允许的范围同时运行尽可能多的通道（上限为核心数一半与 6 中的较小值），`/compare` 和 `/plan` 也会运行相同的重新规划分析。
+- `security-review` 可以把发现项转换为共享的评审发现格式，并新增了不需要凭据的合成矩阵版工具链反馈节奏指南。
+- `/status` 更名为 `/progress`，只输出一份易读的报告，不再显示置信度行。较早的发布者不再被只读预留阻塞。
+- Nexus Hub Settings 0.8.9 可以恢复被合并的 Claude Code 和 Codex 分栏（通过 `nexusHubSettings.restoreAgentSplit` 选择启用），使用量监视器也不再遗漏开始监视时发生的提醒设置变更。
 
-[版本详情与早期版本](CHANGELOG.md#4152---2026-11-17)
+[版本详情与早期版本](CHANGELOG.md#4153---2026-11-17)
 
 ## 安装
 
@@ -326,12 +326,12 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 [在训练中查看](guides/website/training.html#update)
 
-#### `/status`
+#### `/progress`
 
-查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 在 v4.15.4 之前仍会转发到这里。
 
 ```text
-/status v4.15
+/progress v4.15
 ```
 
 #### `/grill`

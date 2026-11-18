@@ -4,7 +4,9 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Detection is a separate contract (v4.14.7).** This file states where a platform reads and where Nexus-Hub writes. Whether a platform is installed at all, and therefore whether anything is written, is decided by [`platform-detection.md`](platform-detection.md). The `install_verify` rows below that carry an `integration` key are detected by that rule rather than by their `detect` folder list, so `nexus-hub verify` and the installer always agree.
 
-**Last verified**: 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+**Last verified**: 2026-11-17 for v4.15.3. The [release verification](../releases/v4/v4.15/development/v4.15.3-platform-verification.md) re-stamps the contract from the same-day [v4.15.2 verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md), which re-fetched every first-party source of the 17 integration groups; no group shows a changed discovery path or format. No new vendor fetch was made for 4.15.3. It does not imply authenticated platform consumption.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group showed a changed discovery path or format.
 
 **Prior entry, retained for the record** -- Last verified 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group showed a changed discovery path or format.
 

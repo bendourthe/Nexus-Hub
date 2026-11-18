@@ -1,0 +1,21 @@
+{
+  "schema": "nexus.review-evidence-cases/v1",
+  "comment": "Hand-written oracle for the v4.15.3 projection. Expected values are stated here, never derived from the code under test.",
+  "valid": [
+    {"envelope": "degraded.expected.json", "health": "degraded", "complete_review": false, "states": {"confirmed": 1, "pending": 1, "corrected": 1, "rejected": 1}, "blocking": 2},
+    {"envelope": "failed.expected.json", "health": "failed", "complete_review": false, "states": {"confirmed": 1, "pending": 1, "corrected": 1, "rejected": 1}, "blocking": 2},
+    {"envelope": "complete-local.expected.json", "health": "complete", "complete_review": true, "states": {}, "blocking": 0}
+  ],
+  "severity_map": {"critical": "P0", "high": "P1", "medium": "P2", "low": "P3", "info": "P3"},
+  "hostile": [
+    {"name": "foreign-self-consistent", "expect_exit": 2, "expect_error": "review_projection_context_mismatch"},
+    {"name": "foreign-empty-complete", "expect_exit": 2, "expect_error": "review_projection_context_mismatch"},
+    {"name": "stale-revision", "expect_exit": 2, "expect_error": "review_projection_context_mismatch"},
+    {"name": "wrong-scope", "expect_exit": 2, "expect_error": "review_projection_context_mismatch"},
+    {"name": "wrong-run-identity", "expect_exit": 2, "expect_error": "review_projection_context_mismatch"},
+    {"name": "bad-fingerprint", "expect_exit": 2, "expect_error": "review_projection_invalid"},
+    {"name": "malformed-json", "expect_exit": 2, "expect_error": "review_projection_invalid"},
+    {"name": "unknown-context-key", "expect_exit": 2, "expect_error": "review_projection_invalid"},
+    {"name": "context-from-envelope-shape", "expect_exit": 2, "expect_error": "review_projection_invalid"}
+  ]
+}
