@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The `nexus-hub` command now works in a new terminal right after install.** Both installers add `~/.nexus-hub/bin` to PATH by default instead of only printing the line to add, so `nexus-hub upgrade` no longer fails with "not recognized". On Windows the folder is appended once to your user PATH, keeping existing entries and their `%VARIABLE%` references unexpanded. On macOS and Linux one marked block is appended to your shell profile (`~/.zshrc`, `~/.bashrc`, `~/.bash_profile` for bash on macOS, or `~/.profile`). A second install changes nothing. Decision record: [2026-11-18-cli-bin-directory-on-path.md](docs/decisions/implemented/tooling/2026-11-18-cli-bin-directory-on-path.md).
+    - **If you installed v4.15.3 or earlier and `nexus-hub` is not found:** run the launcher once by its full path. Windows PowerShell: `& "$env:USERPROFILE\.nexus-hub\bin\nexus-hub.cmd" upgrade`. macOS and Linux: `~/.nexus-hub/bin/nexus-hub upgrade`. The upgrade adds the folder to PATH for next time.
+    - **Capability usage note (default-on change with an opt-out):**
+        - Activation: on by default for every install and upgrade.
+        - Validation: open a new terminal and run `nexus-hub --version`; it prints the installed version.
+        - Disable / rollback: install with `--no-modify-path` (bash) or `-NoModifyPath` (PowerShell) to skip it. To undo an existing change, remove the `.nexus-hub\bin` entry from your user Path under "Edit environment variables for your account" on Windows, or delete the lines between `# >>> nexus-hub PATH >>>` and `# <<< nexus-hub PATH <<<` in your shell profile.
+        - Authority boundary: it changes only your own user PATH or your own shell profile, never the system PATH, and grants no new permission to any tool.
+        - Docs: the decision record above.
+
 - **The plan checker protects captured evidence and gives clearer diagnostics (v4.15.4).**
     - **Evidence is never rewritten:** `validate_unicode_safety.py --fix` still scans every file under an `evidence` directory but no longer changes its bytes, so captured logs stay exactly as recorded.
     - **More consumer layouts read correctly:** the checker accepts exact-version H1 and H2 changelog headings, plain or linked, outside code fences. Relative, absolute and Windows short-name ledger roots resolve the same way, and a missing root fails with a clear message.
