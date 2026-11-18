@@ -12,13 +12,17 @@ Phase 0 today and from `/compare` and `/plan` later. It never edits a plan.
 Usage:
     python replan_minor.py <plans-folder> [--json PATH|-] [--lanes N]
         [--similarity 0.8] [--include-all] [--include-boilerplate]
+        [--record PATH | --no-record]
 
 Exit codes: 0 analysis written; 1 a plan was unreadable (still reported);
 2 usage error. Standard library only; no subprocess; nothing is written except
 the optional --json file.
 
-Structural limits (stated in the report): path sets come from the plan's fenced
-claims JSON when present, else from task lines, which is a lower bound. Wave
+Structural limits (stated in the report): path sets come from the signed minor run
+record's recorded claims for admitted members (when a schema 2 record for the minor
+exists under NEXUS_HUB_RUNS_DIR or ~/.nexus-hub/runs, or --record), else from the
+plan's fenced claims JSON, else from task lines, which is a lower bound. The record
+is only read, never written. Wave
 counts are a structural measure of how many plans can be in flight at once, never
 a measured delivery time.
 """
@@ -27,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import importlib.util
 import json
 import os
 import re
@@ -41,6 +46,7 @@ FENCE_RE = re.compile(r"```json\s*\n(.*?)\n```", re.S)
 PATHISH_RE = re.compile(r"^[\w.\-/{}*]+(?:\.[A-Za-z0-9]{1,8}|/)$")
 DEP_RE = re.compile(r"(depends on|requires?|blocked by|real prerequisites?|must follow|builds on)", re.I)
 DEP_WINDOW = 110
+MIN_SHARED_WORDS = 3
 SLUG_PREFIX = re.compile(r"^v\d+\.\d+\.\d+-")
 NOT_DEP_RE = re.compile(r"\bno\b[^.\n]{0,60}prerequisite|not an? (implementation )?(prerequisite|dependency)|release successor", re.I)
 DONE_STATUS = ("shipped", "released", "complete", "completed", "merged", "abandoned", "superseded", "archived")
@@ -154,6 +160,8 @@ def parse_task(match: re.Match, phase: int) -> dict:
         words = [w for w in words if w not in re.findall(r"[a-z0-9]+", tokens[-1].lower())]
     return {"id": match.group(2), "done": match.group(1) != " ", "phase": phase, "text": text,
             "target": target, "mentions": mentions, "words": sorted({w.rstrip("s") for w in words}),
+            "full_words": sorted({w.rstrip("s") for w in re.findall(r"[a-z0-9]+", text.lower())
+                                  if len(w) > 2 and w not in STOP}),
             "boilerplate": bool(BOILERPLATE_RE.search(text)) or bool(target and "/development/" in target)}
 
 
@@ -211,17 +219,25 @@ def redundant_tasks(members: list[dict], threshold: float, include_boilerplate: 
         for b in members[i + 1:]:
             for ta in a["tasks"]:
                 for tb in b["tasks"]:
-                    if ta["done"] or tb["done"] or not ta["words"] or not tb["words"]:
+                    if ta["done"] or tb["done"]:
                         continue
                     if not include_boilerplate and (ta["boilerplate"] or tb["boilerplate"]):
                         suppressed += 1
                         continue
-                    sa, sb = set(ta["words"]), set(tb["words"])
-                    jac = len(sa & sb) / len(sa | sb)
-                    if jac < 0.35:
+                    # Compare the FULL task text, backticked names and path tokens included. The
+                    # earlier prose-only word set collapsed to the lead verb for tasks that are
+                    # mostly names and paths ("Add the `x` control ... path"), so unrelated tasks
+                    # scored 1.0. Require several shared content words as well as high similarity.
+                    sa, sb = set(ta["full_words"]), set(tb["full_words"])
+                    shared = sa & sb
+                    if len(shared) < MIN_SHARED_WORDS or len(shared) / len(sa | sb) < 0.35:
                         continue
-                    sim = difflib.SequenceMatcher(None, " ".join(ta["words"]), " ".join(tb["words"])).ratio()
-                    same = bool(ta["target"] and tb["target"] and overlap(ta["target"], tb["target"]))
+                    sim = difflib.SequenceMatcher(None, " ".join(ta["full_words"]), " ".join(tb["full_words"])).ratio()
+                    dir_target = bool((ta["target"] or "").endswith("/") or (tb["target"] or "").endswith("/"))
+                    # A directory target prefix-overlaps every file under it, so it is not a file match.
+                    same = bool(ta["target"] and tb["target"] and not dir_target and overlap(ta["target"], tb["target"]))
+                    if ta["target"] and tb["target"] and not same and not dir_target and sim < max(threshold, 0.9):
+                        continue  # two distinct files: the text alone must be near-identical
                     if sim >= threshold or (same and sim >= 0.55):
                         pairs.append({"a": a["version"], "a_task": ta["id"], "b": b["version"], "b_task": tb["id"],
                                       "similarity": round(sim, 2), "shared_target": ta["target"] if same else None,
@@ -360,8 +376,51 @@ def split_candidates(members: list[dict], conflicts: dict[str, set[str]], thresh
     return out
 
 
+def load_record_claims(folder: Path, record: str | None) -> tuple[dict[str, dict], str]:
+    """Recorded claims per admitted member from the minor's schema 2 run record (read-only).
+
+    Reuses claims_precheck.find_members (recursive, includes amended members). Returns ({}, reason)
+    when no record applies; the caller then falls back to plan prose."""
+    helper = Path(__file__).resolve().parents[2] / "implement-phase" / "scripts" / "claims_precheck.py"
+    if not helper.is_file():
+        return {}, "claims_precheck.py not found"
+    spec = importlib.util.spec_from_file_location("claims_precheck_for_replan", helper)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    if record:
+        chosen = Path(record)
+    else:
+        minor = None
+        for part in reversed(folder.resolve().parts):
+            m = re.fullmatch(r"v(\d+)\.(\d+)", part)
+            if m:
+                minor = part
+                break
+        if not minor:
+            return {}, "minor not derivable from the folder"
+        override = os.environ.get("NEXUS_HUB_RUNS_DIR")
+        runs = Path(override) if override else Path.home() / ".nexus-hub" / "runs"
+        found = []
+        for f in sorted(runs.glob("*.json")) if runs.is_dir() else []:
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(data, dict) and data.get("schema") == 2 and data.get("minor") == minor:
+                found.append((str(data.get("created", "")), f))
+        if not found:
+            return {}, f"no schema 2 run record for {minor}"
+        chosen = sorted(found)[-1][1]
+    try:
+        data = json.loads(chosen.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return {}, f"run record unreadable ({exc})"
+    return mod.find_members(data), chosen.name
+
+
 def analyze(folder: Path, lanes: int, similarity: float, include_all: bool, include_boilerplate: bool,
-            claims_deps_only: bool = False) -> dict:
+            claims_deps_only: bool = False, record_claims: dict[str, dict] | None = None,
+            record_name: str | None = None, record_note: str = "") -> dict:
     files = sorted(p for p in folder.glob("*.md") if VERSION_RE.match(p.name))
     parsed = [parse_plan(p) for p in files]
     members, excluded, unreadable = [], [], []
@@ -370,6 +429,11 @@ def analyze(folder: Path, lanes: int, similarity: float, include_all: bool, incl
         (members if state == "member" else excluded if state == "excluded" else unreadable).append(p)
     for p in members:
         p["paths"] = path_sets(p)
+        rec = (record_claims or {}).get(p["version"])
+        if rec and rec["write"]:
+            writes, reads = set(rec["write"]), set(rec["read"])
+            p["paths"] = {"source": "run record", "write": sorted(writes), "read": sorted(reads),
+                          "coordinator": sorted(x for x in writes | reads if is_coordinator(x))}
         p["open_tasks"] = sum(1 for t in p["tasks"] if not t["done"])
         p["pinned"] = any(t["done"] for t in p["tasks"]) or p["status"] in ("in-progress", "implementing", "active")
     members.sort(key=lambda m: vkey(m["version"]))
@@ -406,7 +470,7 @@ def analyze(folder: Path, lanes: int, similarity: float, include_all: bool, incl
             if not is_coordinator(x):
                 hot.setdefault(x, set()).add(m["version"])
     return {
-        "folder": str(folder), "lanes": lanes,
+        "folder": str(folder), "lanes": lanes, "record": record_name, "record_note": record_note,
         "plans": [{"version": m["version"], "slug": SLUG_PREFIX.sub("", m["slug"]), "status": m["status"], "open_tasks": m["open_tasks"],
                    "total_tasks": len(m["tasks"]), "phases": len(m["phases"]), "pinned": m["pinned"],
                    "path_source": m["paths"]["source"], "writes": len(m["paths"]["write"]),
@@ -462,7 +526,9 @@ def render_markdown(r: dict) -> str:
     s = r["schedule"]
     lines = [f"# Minor re-plan analysis: {r['folder']}", "",
              f"Read-only report. Nothing was edited. Lane cap: {r['lanes']}. Plans analyzed: {len(r['plans'])}"
-             f" (excluded: {len(r['excluded'])}, unreadable: {len(r['unreadable'])}).", "",
+             f" (excluded: {len(r['excluded'])}, unreadable: {len(r['unreadable'])}).",
+             (f"Claims source: run record {r['record']} for admitted members, plan prose for the rest."
+              if r.get("record") else f"Claims source: plan prose only ({r.get('record_note') or 'no record'})."), "",
              "| Plan | Status | Open/Total | Writes | Reads | Path source |", "|---|---|---|---|---|---|"]
     for p in r["plans"]:
         lines.append(f"| {p['version']} {p['slug']} | {p['status']}{' (pinned)' if p['pinned'] else ''} | "
@@ -508,14 +574,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--similarity", type=float, default=0.8, help="task similarity threshold (default 0.8)")
     ap.add_argument("--include-all", action="store_true", help="also analyze shipped, abandoned or superseded plans")
     ap.add_argument("--include-boilerplate", action="store_true", help="do not suppress per-phase template tasks")
+    ap.add_argument("--record", metavar="PATH", help="minor run record to read recorded claims from (default: discover)")
+    ap.add_argument("--no-record", action="store_true", help="use plan prose only; skip the run record")
     ap.add_argument("--claims-deps-only", action="store_true", help="ignore dependency hints found in plan prose")
     args = ap.parse_args(argv)
     folder = Path(args.folder)
     if not folder.is_dir() or args.lanes < 1:
         print(f"usage error: {folder} is not a folder or --lanes < 1", file=sys.stderr)
         return 2
+    rec_claims, rec_name = ({}, "--no-record given") if args.no_record else load_record_claims(folder, args.record)
+    named = rec_name if rec_claims else None
     report = analyze(folder, args.lanes, args.similarity, args.include_all, args.include_boilerplate,
-                     args.claims_deps_only)
+                     args.claims_deps_only, rec_claims, named, "" if named else rec_name)
     if args.json == "-":
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
