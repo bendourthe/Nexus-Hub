@@ -200,11 +200,9 @@ def render(data: dict, mode: str) -> str:
         rbar, rtasks = progress_parts(*counts(r))
         rows.append([f"**{cell(r['name'])}**", cell(r["goals"]), rbar, rtasks, cell(r["elapsed"]), remaining_with_dependency(r)])
     rows.append(["**Total**", "", f"**{bar}**", f"**{tasks}**", f"**{cell(data['elapsed'])}**", f"**{cell(data['remaining'])}**"])
-    release = data.get("next_release") or {"confidence": "unknown", "basis": "release estimate not supplied"}
     parts = ["## Progress Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
              f"### {PROGRESS_ICON} Version progress",
              table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
-             f"Confidence: {cell(release['confidence'])} \u00b7 Basis: {text(release['basis'], 80)} \u00b7 As of {cell(data['observed_at'])}",
              "---", f"### {GOALS_ICON} Goals",
              table(("Goal", "Scope", "Done when", "State"),
                    [[cell(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]),
