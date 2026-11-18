@@ -3697,3 +3697,67 @@ None. The 14 follow-ups this release recorded (DF-45 to DF-49, MT-9, MT-10, BG-9
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+## v4.15.3
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
+
+v4.15.0 BG-1 and WN-2 are inherited by this plan and stay open under v4.15.0; they get no new ID. The lane's convergence findings C-1 to C-6 are recorded in `development/v4.15.3-last-phase-evidence.md` and were not appended to the frozen plan.
+
+### Open Items
+
+#### DF-50: The evaluator receipt cannot carry feedback-cadence fields
+
+**Owner**: evaluator owner. **Severity**: medium; blocks a live cadence study. **Source phase**: v4.15.3 Phase 2. **Plan reference**: cadence matrix tasks.
+
+**Reason**: The v4.15.2 evaluator receipt has no fields for feedback timing, initial versus post-repair acceptance, feedback and repair counts, or spend provenance beyond cost. v4.15.3 works around this with a sidecar history written by the fake adapter. **Suggested next step**: extend the pairing contract with these fields before any live cadence study. **Acceptance**: a receipt carries the fields and the cadence matrix reads them without the sidecar. **Proving command**: the cadence matrix tests in `tests/skills/` with the sidecar removed.
+
+#### DF-51: The security envelope has no proof class or duplicate links
+
+**Owner**: security-review. **Severity**: low. **Source phase**: v4.15.3 Phase 3. **Plan reference**: generic review projection tasks.
+
+**Reason**: The normalized security envelope has no proof class and no duplicate or root-cause links, so the projection lists them as unavailable and no static-only control exists. Duplicate handling is exercised only in the workflow consumer. **Suggested next step**: add the fields to the envelope when a consumer needs them. **Acceptance**: the projection fills both fields from the envelope and a static-only control is tested. **Proving command**: `python -B -m pytest tests/skills -q -k projection`.
+
+#### DF-52: The CI comparison predates the v4.15.7 contract rewrite
+
+**Owner**: coordinator. **Severity**: low. **Source phase**: v4.15.3 Phase 4. **Plan reference**: CI/CD comparison task.
+
+**Reason**: The six-step comparison was made against `docs/policy/ci-cd-lifecycle-contract.md` before v4.15.7 rewrites it. **Suggested next step**: repeat the six-step comparison after v4.15.7 merges. **Acceptance**: the comparison is recorded against the rewritten contract. **Proving command**: manual: the comparison steps in the v4.15.3 last-phase evidence, rerun on the post-v4.15.7 tree.
+
+#### MT-11: The review fan-out workflow template ran only under a Node stub
+
+**Owner**: coordinator. **Severity**: low. **Source phase**: v4.15.3 Phase 3. **Plan reference**: fan-out template task.
+
+**Reason**: `review-fanout-workflow.js` was exercised under a Node stub, not a native Dynamic Workflows run. **Suggested next step**: one native run when the runtime is available. **Acceptance**: a native run completes and its output matches the stub run's projection. **Proving command**: manual: one native Dynamic Workflows run of the template.
+
+#### QG-6: The full local suite was not run in the lane
+
+**Owner**: coordinator. **Severity**: medium. **Source phase**: v4.15.3 Phase 4. **Plan reference**: final validation task.
+
+**Reason**: `python scripts/ci/run.py --profile full` was not run in the lane because of the session usage cap. **Suggested next step**: hosted CI on the integration pull request runs the full gate. **Acceptance**: every required check is green on the integration pull request. **Proving command**: `python scripts/ci/run.py --profile full`.
+
+#### QG-7: The coverage threshold was not measured
+
+**Owner**: coordinator. **Severity**: low. **Source phase**: v4.15.3 Phase 4. **Plan reference**: final validation task.
+
+**Reason**: Coverage was not collected in the lane, so the threshold is ungated for this plan. **Suggested next step**: read the coverage result from hosted CI. **Acceptance**: coverage of the new modules is measured and meets the project threshold. **Proving command**: hosted CI coverage job on the integration pull request.
+
+#### WN-39: The review projection has no integrity seal
+
+**Owner**: coordinator. **Severity**: low. **Source phase**: v4.15.3 review pass (LV-1). **Plan reference**: generic review projection tasks.
+
+**Reason**: A forged projection paired with a matching expected context can inject findings, because the projection carries no seal. **Suggested next step**: optional hardening; add `run_fingerprint` to the expected context. **Acceptance**: a projection whose fingerprint does not match the run is rejected. **Proving command**: a negative test with a forged projection.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
