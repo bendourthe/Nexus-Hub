@@ -206,3 +206,53 @@ def test_overlap_matches_native_checker_semantics(rp):
     for left in paths:
         for right in paths:
             assert rp.overlap(left, right) == native._overlap(left, right), (left, right)
+
+
+def test_unrelated_tasks_made_of_names_and_paths_are_not_redundant(rp, tmp_path):
+    write_plan(tmp_path, "v1.0.1", "alpha", [(1, "Add the `approvals` control with `derives` lib/settings_control/catalog.json", False),
+                                             (2, "Move the decision record to implemented docs/decisions/implemented/policy/2026-11-11-approval-modes.md", False)])
+    write_plan(tmp_path, "v1.0.2", "beta", [(1, "Add the claude-fable-5-2 profile test tests/skills/test_prompting_profile.py", False),
+                                            (2, "Write the decision record docs/decisions/implemented/policy/", False)])
+    assert run(rp, tmp_path)["redundant_tasks"] == []
+
+
+def test_true_duplicate_with_same_file_target_is_still_flagged(rp, tmp_path):
+    text = "Register the watchdog hook on PostToolUse and PostToolUseFailure catalog/hooks/settings.json"
+    write_plan(tmp_path, "v1.0.1", "alpha", [(1, text, False)])
+    write_plan(tmp_path, "v1.0.2", "beta", [(1, text, False)])
+    pairs = run(rp, tmp_path)["redundant_tasks"]
+    assert len(pairs) == 1 and pairs[0]["shared_target"] == "catalog/hooks/settings.json"
+
+
+def test_run_record_claims_replace_prose_for_admitted_members_only(rp, tmp_path):
+    plans = tmp_path / "docs" / "v9.9" / "plans"
+    plans.mkdir(parents=True)
+    wide = {"depends_on": [], "read_paths": [], "write_paths": ["shared/a.py"]}
+    write_plan(plans, "v9.9.1", "alpha", [(1, "Do alpha work shared/a.py", False)], claims=wide)
+    write_plan(plans, "v9.9.2", "beta", [(1, "Do beta work shared/a.py", False)], claims=wide)
+    write_plan(plans, "v9.9.3", "gamma", [(1, "Do gamma work other/g.py", False)])
+    record = {"schema": 2, "minor": "v9.9", "created": "2026-01-01", "members": [
+        {"version": "v9.9.1", "implementation": {"read_paths": [], "write_paths": ["shared/a.py"]}},
+        {"version": "v9.9.2", "implementation": {"read_paths": [], "write_paths": ["narrowed/b.py"]}}],
+        "minor_amendments": [{"nested": [{"version": "v9.9.3", "implementation": {"read_paths": [], "write_paths": ["amended/c.py"]}}]}]}
+    rec_path = tmp_path / "record.json"
+    rec_path.write_text(json.dumps(record), encoding="utf-8")
+    before = rec_path.read_bytes()
+    claims, name = rp.load_record_claims(plans, str(rec_path))
+    assert name == "record.json" and set(claims) == {"v9.9.1", "v9.9.2", "v9.9.3"}
+    prose = rp.analyze(plans, 3, 0.8, False, False)
+    recorded = rp.analyze(plans, 3, 0.8, False, False, False, claims, name)
+    assert len(prose["overlaps"]) == 1 and recorded["overlaps"] == []
+    assert {p["version"]: p["path_source"] for p in recorded["plans"]} == {v: "run record" for v in claims}
+    assert "run record record.json" in rp.render_markdown(recorded)
+    assert rec_path.read_bytes() == before
+
+
+def test_record_lookup_falls_back_to_prose_without_a_record(rp, tmp_path, monkeypatch):
+    plans = tmp_path / "v9.9" / "plans"
+    plans.mkdir(parents=True)
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    monkeypatch.setenv("NEXUS_HUB_RUNS_DIR", str(runs))
+    claims, note = rp.load_record_claims(plans, None)
+    assert claims == {} and "no schema 2 run record" in note
