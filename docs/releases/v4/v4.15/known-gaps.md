@@ -3757,16 +3757,17 @@ None. Seven follow-ups still open at release moved to the v4.16 ledger, section 
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-None. Eleven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0, with their ids unchanged: DF-59, DF-60, DF-61, DF-63 and WN-42 to WN-48. DF-62 is resolved below.
+None. Eleven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0: DF-59, DF-60, DF-61, DF-63, WN-42, WN-43 and WN-45 to WN-48 with their ids unchanged, and WN-49, which records what WN-44's fix left open (Windows Qwen installs and Copilot). DF-62 and WN-44 are resolved below.
 
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | DF-62 | Hook registration delivered after integration | v4.15.5 | Pull request #704 (merged as `d0296ed75`) registers `stuck-turn-notice` on `PostToolUse` and `PostToolUseFailure` in `catalog/hooks/settings.json`; its installer test proves two installs register each entry once. Hosted run `44473547702` passed. |
+| WN-44 | Qwen and Gemini CLI drop PostToolUseFailure | v4.15.5 | T015 fix, pull request #705 (merged as `1b8d33d09`): the Qwen spec maps `PostToolUseFailure` on `^(run_shell_command)$`. Gemini CLI has no such event and reports failures inside `AfterTool`, so its skip is correct. An end-to-end install drove the installed hook with Qwen failure payloads; the third repeat printed one notice. The Windows Qwen and Copilot remainder is WN-49. |

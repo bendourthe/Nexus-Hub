@@ -524,17 +524,17 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 **Suggested next step**: map Kimi tool names in the Kimi settings derivation and add a test.
 
-#### WN-44: Qwen and Gemini CLI drop PostToolUseFailure
+#### WN-49: Stuck-turn failure signal misses Windows Qwen installs and Copilot
 
-**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+**Carried from**: v4.15 ledger, section v4.15.5 (recorded at release; the remainder of WN-44).
 
-**Source phase**: v4.15.5 Phase 2
+**Source phase**: v4.15.5 T015 (derivation fix, pull request #705)
 
 **Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
 
-**Reason**: the Qwen and Gemini CLI derivations drop `PostToolUseFailure`, so Qwen receives edit churn only.
+**Reason**: Qwen now receives `PostToolUseFailure` on a POSIX install, but the settings.json derivation registers only the installing host's shell flavor, and the catalog failure matcher is `Bash` alone, so a Windows Qwen install drops it. The Copilot derivation still drops `postToolUseFailure`.
 
-**Suggested next step**: add a failure mapping through `SettingsHookSpec.event_map` where the platform documents an equivalent event.
+**Suggested next step**: register the failure entry on `Bash|PowerShell` in `catalog/hooks/settings.json` (checking Claude Code's PowerShell tool payload first), and map Copilot's `postToolUseFailure` in `scripts/lib/integrations/copilot.py` once its payload is verified.
 
 #### WN-45: Lifespan audit flags every v4.15 member edit after the v4.15.0 tag
 
