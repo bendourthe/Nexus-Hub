@@ -11,9 +11,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 17 | 0 |
+| Deferred (DF) | 21 | 0 |
 | Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 9 | 0 |
+| Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 
@@ -451,3 +451,135 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 **Reason**: `check_release_preconditions.py --repo-settings` reports the mismatch. The GitHub repository description is a repository setting outside the files this plan can change.
 
 **Suggested next step**: update the description to 22 commands with `gh repo edit --description` at the next release, under the maintainer's approval.
+
+#### DF-59: Unused-tool report
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 plan grill (T005)
+
+**Plan reference**: [v4.15.5 plan](plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md), comparison item B
+
+**Reason**: Claude Code's MCP documentation (https://code.claude.com/docs/en/mcp, "Scale with MCP tool search") states that tool search is on by default and that "Only tool names and server instructions load at session start", so an unused-tool report saves little on current Claude Code.
+
+**Suggested next step**: revisit in v4.16.4 after v4.16.3's context attribution, for setups without tool search (`ENABLE_TOOL_SEARCH=false`, Microsoft Foundry on Azure, models earlier than Opus 4 and Sonnet 4). Scope it at server level.
+
+#### DF-60: No live Claude Code payload capture
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Phase 2 (T007)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T007
+
+**Reason**: a live `claude -p` capture is a paid call and the lane's spend cap was USD 0. The maintainer accepted the documented payload format on 2026-11-18.
+
+**Suggested next step**: capture redacted payloads once, when a run already holds spend authority, and compare them with the documented fields.
+
+#### DF-61: Default-on measurement of the stuck-turn notice
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Phase 2 (T018)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T018
+
+**Reason**: deciding a default needs consent to read at least 30 real sessions across 3 projects and a maintainer spot-check of 5 labels. The maintainer chose to ship opt-in on 2026-11-18.
+
+**Suggested next step**: with consent, run `python catalog/hooks/_turn_ledger.py replay-transcripts <dir>` over real sessions and decide the default in a later minor.
+
+#### DF-63: Ledger retention below the size cap and fact-store bounds
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Tier 3 deep pass (adversarial review, 2026-11-18)
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the 30-day filter runs only when the ledger exceeds 256 KiB, a long single session never rotates, and `env-facts.json` has no entry cap or expiry.
+
+**Suggested next step**: prune by age at session-start rotation regardless of size, and cap fact entries by `last_seen`.
+
+#### WN-42: Windows PowerShell 5.1 wrapper latency above budget
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Phase 2 (T013)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T013
+
+**Reason**: on a loaded host the `ps1` wrapper p95 was 856 ms to 1082 ms against a 500 ms budget, mostly PowerShell's own start-up. Accepted while the notice is opt-in (maintainer decision, 2026-11-18).
+
+**Suggested next step**: re-measure on a quiet host; if it still misses, prefer the `.sh` wrapper where Git Bash exists.
+
+#### WN-43: Kimi hook matcher does not match Kimi tool names
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Phase 2 (predates this plan)
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
+
+**Reason**: the derived Kimi matcher is `^(Bash|Edit|Write)$`, while Kimi's tools are named `Shell`, `WriteFile` and `StrReplaceFile`, so no Kimi tool hook fires.
+
+**Suggested next step**: map Kimi tool names in the Kimi settings derivation and add a test.
+
+#### WN-49: Stuck-turn failure signal misses Windows Qwen installs and Copilot
+
+**Carried from**: v4.15 ledger, section v4.15.5 (recorded at release; the remainder of WN-44).
+
+**Source phase**: v4.15.5 T015 (derivation fix, pull request #705)
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
+
+**Reason**: Qwen now receives `PostToolUseFailure` on a POSIX install, but the settings.json derivation registers only the installing host's shell flavor, and the catalog failure matcher is `Bash` alone, so a Windows Qwen install drops it. The Copilot derivation still drops `postToolUseFailure`.
+
+**Suggested next step**: register the failure entry on `Bash|PowerShell` in `catalog/hooks/settings.json` (checking Claude Code's PowerShell tool payload first), and map Copilot's `postToolUseFailure` in `scripts/lib/integrations/copilot.py` once its payload is verified.
+
+#### WN-45: Lifespan audit flags every v4.15 member edit after the v4.15.0 tag
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Phase 4
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Architecture refactor
+
+**Reason**: `audit-docs.py lifespan-contradictions` reports 48 findings, 5 of them on this plan's files, because it compares member edits with the first tag of the minor.
+
+**Suggested next step**: compare against each member's own release tag instead of the minor's first tag.
+
+#### WN-46: Ledger appends are not atomic across processes on Windows
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the C runtime implements append as seek-then-write, so parallel tool calls can overwrite a ledger line, and a parallel call can name the wrong command in a notice. Both stay within the documented worst case of a missed or duplicate notice.
+
+**Suggested next step**: document the limitation in the helper, or append through a Windows handle opened with append-only access; echo a command only when it matches the signal key.
+
+#### WN-47: State directory trust and key creation
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the helper does not check the owner or mode of `~/.nexus-hub/state/`, opens files by name after a symlink check, and an interrupted key creation leaves an empty `ledger.key` that silently disables the feature. Exploiting the first two needs another local principal with write access to the state directory.
+
+**Suggested next step**: on POSIX open with `O_NOFOLLOW` and refuse group- or world-writable or foreign-owned directories; write the key through a temporary file and rename.
+
+#### WN-48: Bash wrapper stdin handling
+
+**Carried from**: v4.15 ledger, section v4.15.5 (id preserved, text unchanged).
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: `stuck-turn-notice.sh` reads stdin one byte at a time (about 2 s for a 900 KB payload on Git Bash), and payloads over 1 MiB are dropped silently, so large writes never count toward edit churn.
+
+**Suggested next step**: pipe stdin straight to the first available interpreter and buffer only when a fallback is needed.
