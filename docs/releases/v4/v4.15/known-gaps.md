@@ -3755,9 +3755,9 @@ None. Seven follow-ups still open at release moved to the v4.16 ledger, section 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
+| Deferred (DF) | 5 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 4 | 0 |
+| Warnings (WN) | 7 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -3842,3 +3842,43 @@ None. Seven follow-ups still open at release moved to the v4.16 ledger, section 
 **Reason**: `audit-docs.py lifespan-contradictions` reports 48 findings, 5 of them on this plan's files, because it compares member edits with the first tag of the minor.
 
 **Suggested next step**: compare against each member's own release tag instead of the minor's first tag.
+
+#### DF-63: Ledger retention below the size cap and fact-store bounds
+
+**Source phase**: v4.15.5 Tier 3 deep pass (adversarial review, 2026-11-18)
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the 30-day filter runs only when the ledger exceeds 256 KiB, a long single session never rotates, and `env-facts.json` has no entry cap or expiry.
+
+**Suggested next step**: prune by age at session-start rotation regardless of size, and cap fact entries by `last_seen`.
+
+#### WN-46: Ledger appends are not atomic across processes on Windows
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the C runtime implements append as seek-then-write, so parallel tool calls can overwrite a ledger line, and a parallel call can name the wrong command in a notice. Both stay within the documented worst case of a missed or duplicate notice.
+
+**Suggested next step**: document the limitation in the helper, or append through a Windows handle opened with append-only access; echo a command only when it matches the signal key.
+
+#### WN-47: State directory trust and key creation
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: the helper does not check the owner or mode of `~/.nexus-hub/state/`, opens files by name after a symlink check, and an interrupted key creation leaves an empty `ledger.key` that silently disables the feature. Exploiting the first two needs another local principal with write access to the state directory.
+
+**Suggested next step**: on POSIX open with `O_NOFOLLOW` and refuse group- or world-writable or foreign-owned directories; write the key through a temporary file and rename.
+
+#### WN-48: Bash wrapper stdin handling
+
+**Source phase**: v4.15.5 Tier 3 deep pass
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
+
+**Reason**: `stuck-turn-notice.sh` reads stdin one byte at a time (about 2 s for a 900 KB payload on Git Bash), and payloads over 1 MiB are dropped silently, so large writes never count toward edit churn.
+
+**Suggested next step**: pipe stdin straight to the first available interpreter and buffer only when a fallback is needed.

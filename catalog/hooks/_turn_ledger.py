@@ -36,6 +36,7 @@ import hmac
 import json
 import os
 import re
+import tempfile
 import stat
 import sys
 from datetime import datetime, timedelta, timezone
@@ -75,6 +76,8 @@ SAFE_ID = re.compile(r"^[A-Za-z0-9._:-]{1,96}$")
 SAFE_ECHO = re.compile(r"^[A-Za-z0-9 ._/:=@+-]+$")
 SENSITIVE_WORD = re.compile(
     r"(?i)authorization|bearer|token|passw|secret|api[_-]?key|credential|://"
+    r"|[^\s:@/]+:[^\s@]+@"
+    r"|(?:^|\s)(?:-u|-p\S*|--user|--password|--index-url|--extra-index-url|-i)(?:[=\s]|$)"
 )
 EXIT_CODE = re.compile(r"^Exit code (\d+)")
 NOT_FOUND_TEXT = re.compile(
@@ -406,11 +409,11 @@ def collection_disabled() -> bool:
 
 
 def facts_on() -> bool:
-    return os.environ.get("NEXUS_ENV_FACTS", "").strip().lower() == "on"
+    return os.environ.get("NEXUS_ENV_FACTS", "") == "on"
 
 
 def notice_on() -> bool:
-    return os.environ.get("NEXUS_STUCK_NOTICE", "").strip().lower() == "on"
+    return os.environ.get("NEXUS_STUCK_NOTICE", "") == "on"
 
 
 # ----- environment facts ---------------------------------------------------
@@ -429,6 +432,8 @@ def fact_command_ok(text: str) -> bool:
     for tok in tokens:
         if ".." in tok.split("/") or tok.startswith(("/", "~")) or re.match(r"^[A-Za-z]:", tok):
             return False
+    if tokens[0] in ("pip", "pip3") and any(t in ("install", "download", "wheel") for t in tokens[1:]):
+        return False
     return not _secret_in(text)
 
 
@@ -456,15 +461,23 @@ def load_facts(sdir: Path) -> dict[str, Any]:
 
 def save_facts(sdir: Path, facts: dict[str, Any]) -> None:
     path = sdir / FACTS
-    tmp = sdir / (FACTS + ".tmp")
-    if unsafe(sdir) or unsafe(path) or unsafe(tmp):
+    if unsafe(sdir) or unsafe(path):
         return
+    tmp = None
     try:
-        with open(tmp, "w", encoding="utf-8") as handle:
+        fd, tmp = tempfile.mkstemp(prefix=FACTS + ".", suffix=".tmp", dir=str(sdir))
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump({"v": SCHEMA, "facts": facts}, handle, ensure_ascii=True)
         os.replace(tmp, path)
+        tmp = None
     except OSError:
         return
+    finally:
+        if tmp is not None:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
 
 
 def update_facts(
@@ -502,6 +515,12 @@ def update_facts(
         save_facts(sdir, facts)
 
 
+def _fact_cwd_ok(cwd: Any) -> bool:
+    """The same grammar ``relative_cwd`` applies when a fact is recorded."""
+    return (isinstance(cwd, str) and re.fullmatch(r"[A-Za-z0-9._/@+-]{1,80}", cwd) is not None
+            and ".." not in cwd.split("/"))
+
+
 def confirmed_facts(facts: dict[str, Any]) -> list[dict[str, Any]]:
     out = [
         f
@@ -512,6 +531,9 @@ def confirmed_facts(facts: dict[str, Any]) -> list[dict[str, Any]]:
         and len(set(f.get("days", []))) >= CONFIRM_DAYS
         and fact_command_ok(str(f.get("F", "")))
         and split_fact(str(f.get("S", ""))) == f.get("F")
+        and _fact_cwd_ok(f.get("cwd"))
+        and isinstance(f.get("sessions"), list) and all(isinstance(s, str) for s in f["sessions"])
+        and isinstance(f.get("days"), list) and all(isinstance(d, str) for d in f["days"])
     ]
     out.sort(key=lambda f: str(f.get("last_seen", "")), reverse=True)
     return out
@@ -554,9 +576,10 @@ def maybe_rotate(sdir: Path, session: str | None) -> None:
         for line in rotated.read_text(encoding="utf-8").splitlines():
             try:
                 stamp = datetime.fromisoformat(json.loads(line)["ts"].replace("Z", "+00:00"))
-            except (ValueError, KeyError, TypeError):
+                keep = stamp >= cutoff
+            except (ValueError, KeyError, TypeError, AttributeError):
                 continue
-            if stamp >= cutoff:
+            if keep:
                 kept.append(line)
         rotated.write_text("".join(x + "\n" for x in kept), encoding="utf-8")
     except OSError:
@@ -693,7 +716,9 @@ def _transcript_turns(path: Path) -> list[list[dict[str, Any]]]:
             item = json.loads(line)
         except ValueError:
             continue
-        msg = item.get("message") if isinstance(item, dict) else None
+        if not isinstance(item, dict):
+            continue
+        msg = item.get("message")
         content = msg.get("content") if isinstance(msg, dict) else None
         if item.get("type") == "user" and isinstance(content, str):
             turns.append([])

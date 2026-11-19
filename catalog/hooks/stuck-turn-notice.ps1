@@ -26,7 +26,7 @@ $hookName = "stuck-turn-notice"
 $disabled = ($env:NEXUS_DISABLED_HOOKS -split ",") | ForEach-Object { $_.Trim() }
 if ($disabled -contains $hookName) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
-if ($env:NEXUS_STUCK_NOTICE -ne "on" -and $env:NEXUS_ENV_FACTS -ne "on") { exit 0 }
+if ($env:NEXUS_STUCK_NOTICE -cne "on" -and $env:NEXUS_ENV_FACTS -cne "on") { exit 0 }
 
 $helper = Join-Path $PSScriptRoot "_turn_ledger.py"
 if (-not (Test-Path -LiteralPath $helper)) { exit 0 }

@@ -97,7 +97,7 @@ Write-NexusMessage $banner @($gitLine)
 Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
 
 # --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
-if ($env:NEXUS_ENV_FACTS -eq "on") {
+if ($env:NEXUS_ENV_FACTS -ceq "on") {
     $tlHelper = Join-Path $PSScriptRoot "_turn_ledger.py"
     if (Test-Path -LiteralPath $tlHelper) {
         $tlUtf8 = New-Object System.Text.UTF8Encoding($false)
