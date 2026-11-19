@@ -3747,3 +3747,98 @@ None. Seven follow-ups still open at release moved to the v4.16 ledger, section 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | QG-12 | Four full-suite groups not completed locally | v4.15.4 | Resolved by hosted CI run `44384963706` on integration pull request #695 (merged as `1b1b295ba`): all 31 jobs passed, including `tests-core`, `tests-validators`, `hook-tests-heavy`, `hook-tests-rest` and `ci-required`. |
+
+## v4.15.5
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 4 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-59: Unused-tool report
+
+**Source phase**: v4.15.5 plan grill (T005)
+
+**Plan reference**: [v4.15.5 plan](plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md), comparison item B
+
+**Reason**: Claude Code's MCP documentation (https://code.claude.com/docs/en/mcp, "Scale with MCP tool search") states that tool search is on by default and that "Only tool names and server instructions load at session start", so an unused-tool report saves little on current Claude Code.
+
+**Suggested next step**: revisit in v4.16.4 after v4.16.3's context attribution, for setups without tool search (`ENABLE_TOOL_SEARCH=false`, Microsoft Foundry on Azure, models earlier than Opus 4 and Sonnet 4). Scope it at server level.
+
+#### DF-60: No live Claude Code payload capture
+
+**Source phase**: v4.15.5 Phase 2 (T007)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T007
+
+**Reason**: a live `claude -p` capture is a paid call and the lane's spend cap was USD 0. The maintainer accepted the documented payload format on 2026-11-18.
+
+**Suggested next step**: capture redacted payloads once, when a run already holds spend authority, and compare them with the documented fields.
+
+#### DF-61: Default-on measurement of the stuck-turn notice
+
+**Source phase**: v4.15.5 Phase 2 (T018)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T018
+
+**Reason**: deciding a default needs consent to read at least 30 real sessions across 3 projects and a maintainer spot-check of 5 labels. The maintainer chose to ship opt-in on 2026-11-18.
+
+**Suggested next step**: with consent, run `python catalog/hooks/_turn_ledger.py replay-transcripts <dir>` over real sessions and decide the default in a later minor.
+
+#### DF-62: Hook registration delivered after integration
+
+**Source phase**: v4.15.5 Phase 2 (T014, T017)
+
+**Plan reference**: [v4.15.5 plan](plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md), T014 and T017
+
+**Reason**: the typed hook-registration permission can be granted only before a member's implementation admission, and v4.15.5 was admitted without it. The maintainer chose on 2026-11-18 to register the hook through a standalone pull request after v4.15.5 integrates, because the hook script must exist on develop first.
+
+**Suggested next step**: merge the registration pull request, run the install-twice check (T017), then resolve this item in the v4.15.5 records.
+
+#### WN-42: Windows PowerShell 5.1 wrapper latency above budget
+
+**Source phase**: v4.15.5 Phase 2 (T013)
+
+**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T013
+
+**Reason**: on a loaded host the `ps1` wrapper p95 was 856 ms to 1082 ms against a 500 ms budget, mostly PowerShell's own start-up. Accepted while the notice is opt-in (maintainer decision, 2026-11-18).
+
+**Suggested next step**: re-measure on a quiet host; if it still misses, prefer the `.sh` wrapper where Git Bash exists.
+
+#### WN-43: Kimi hook matcher does not match Kimi tool names
+
+**Source phase**: v4.15.5 Phase 2 (predates this plan)
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
+
+**Reason**: the derived Kimi matcher is `^(Bash|Edit|Write)$`, while Kimi's tools are named `Shell`, `WriteFile` and `StrReplaceFile`, so no Kimi tool hook fires.
+
+**Suggested next step**: map Kimi tool names in the Kimi settings derivation and add a test.
+
+#### WN-44: Qwen and Gemini CLI drop PostToolUseFailure
+
+**Source phase**: v4.15.5 Phase 2
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
+
+**Reason**: the Qwen and Gemini CLI derivations drop `PostToolUseFailure`, so Qwen receives edit churn only.
+
+**Suggested next step**: add a failure mapping through `SettingsHookSpec.event_map` where the platform documents an equivalent event.
+
+#### WN-45: Lifespan audit flags every v4.15 member edit after the v4.15.0 tag
+
+**Source phase**: v4.15.5 Phase 4
+
+**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Architecture refactor
+
+**Reason**: `audit-docs.py lifespan-contradictions` reports 48 findings, 5 of them on this plan's files, because it compares member edits with the first tag of the minor.
+
+**Suggested next step**: compare against each member's own release tag instead of the minor's first tag.

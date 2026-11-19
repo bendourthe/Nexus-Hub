@@ -57,8 +57,9 @@ The publication-blocking guide test was repaired separately in [PR #653](https:/
 | v4.15.1 | 10/19 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. The `/status` command and progress footer ship as a standalone pull request with the v4.15.1 release instead of a plan fold (maintainer decision, 2026-11-13), because the checker still hard-codes v4.15.0-v4.15.4 plan text. |
 | v4.15.2 | 0/55 | Not admitted; v4.15.0 integration is required. The separately authorized guidance prerequisite is qualified and being published. |
 | v4.15.3 | 32/32 | Released as v4.15.3 on 2026-11-18 via PRs #689 to #692. Six follow-ups moved to the v4.16 known-gaps ledger (DF-50 to DF-52, MT-11, QG-7, WN-39); QG-6 was resolved by hosted CI. Four task IDs repeat in the frozen prose. |
-| v4.15.4 | 23/23 | Merged through pull request #695; hosted CI passed every group. Release pending. |
-| Total | 85/162 (52.5%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
+| v4.15.4 | 23/23 | Released as v4.15.4 on 2026-11-18 via PRs #694 to #700. |
+| v4.15.5 | 30/36 | Publication started 2026-11-18. Hook registration (T014, T017) follows integration through a standalone pull request; the deep pass, full gate and publication remain. |
+| Total | 115/198 (58.1%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
 
 - [x] Complete the approved [v4.15 instruction audit](releases/v4/v4.15/development/instruction-necessity-audit.md) candidate and remaining minor work; retain [the queue assessment](releases/v4/v4.15/development/v4.15.0-queue-assessment.md), local phase evidence, and native completion checks as the authority for their respective claims.
 - [ ] Merge only the separately authorized v4.16.2 Phase 1 guidance prerequisite, then record the satisfying commit before v4.15.2's dependent phases. The remaining v4.16.2 phases and its release remain outside this run. Complete the v4.15.2 evaluator before v4.15.3 cadence execution.

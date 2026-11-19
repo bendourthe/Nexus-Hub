@@ -346,7 +346,9 @@ Two lessons sit behind those gates, both from real defects. `session-summary.ps1
 
 When authoring a sibling, prefer the native equivalent over emulating shell mechanics: `ConvertFrom-Json` instead of a `jq` dependency, `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)` instead of `Set-Content -Encoding utf8` (which emits a BOM on 5.1), and `[Console]::IsInputRedirected` as the equivalent of `[ ! -t 0 ]`. A sibling that works where the bash version silently no-ops (for example on a host with no `jq`) is an acceptable and documented improvement, provided it acts in the safe direction: warn or block MORE, never less.
 
-The hook registration template is `catalog/hooks/settings.json`. Supported events, as actually registered there: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Notification`, `PreCompact`, and `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+The hook registration template is `catalog/hooks/settings.json`. Supported events, as actually registered there: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `Notification`, `PreCompact`, and `Stop`. `PostToolUseFailure` fires after a tool call that started executing fails (for Bash, a non-zero exit), so a failing command arrives there and not on `PostToolUse`. Claude Code, Qwen, Kimi and Copilot document it; the Nexus-Hub derivations for Codex, Gemini CLI and Qwen drop it, as recorded under "Stuck-turn notice reach (v4.15.5)" in `docs/policy/platform-read-contracts.md`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+
+A hook or command that rewrites a settings file or an instruction file during a session changes the cached prefix for the rest of that session, so defer such writes to session end or the next session start unless the change is needed now.
 
 Two of those are easy to misuse, so pick deliberately:
 

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **An opt-in stuck-turn notice and environment-fact replay for agent sessions (v4.15.5).**
+    - **Stuck-turn notice:** with `NEXUS_STUCK_NOTICE=on`, a `PostToolUse` / `PostToolUseFailure` hook keeps a hash-only ledger of each turn's tool calls and prints one short advisory when a turn keeps repeating the same failing command or editing the same file, so you can step in early. It never blocks a tool call.
+    - **Environment-fact replay:** with `NEXUS_ENV_FACTS=on`, session start replays a small, bounded list of facts learned earlier in the project (for example which interpreter or shell works), so a new session does not rediscover them.
+    - **Reach:** Claude Code, Qwen, Kimi and Copilot document `PostToolUseFailure`; the Codex, Gemini CLI and Qwen derivations drop it, and Gemini and Kimi record no facts because their payloads carry no turn id. Details: "Stuck-turn notice reach (v4.15.5)" in `docs/policy/platform-read-contracts.md`.
+    - **Default:** off. The default-on measurement on real sessions is deferred (DF-61), and the Windows PowerShell 5.1 wrapper is above its 500 ms budget on a loaded host (WN-42).
+    - **Capability usage note (opt-in):**
+        - Activation: set `NEXUS_STUCK_NOTICE=on` or `NEXUS_ENV_FACTS=on` in your shell or in the `env` block of `settings.json`.
+        - Validation: run `python ~/.claude/hooks/_turn_ledger.py stats`, or look for the facts heading at session start.
+        - Disable / rollback: unset the variable, or set `NEXUS_DISABLED_HOOKS=stuck-turn-notice`.
+        - Authority boundary: advisory text only; no permission change, nothing sent anywhere, and state stays under `~/.nexus-hub/state/`.
+        - Docs: the "Stuck-Turn Notice and Environment Facts" section of `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`.
+
 ## [4.15.4] - 2026-11-18
 
 ### Changed
