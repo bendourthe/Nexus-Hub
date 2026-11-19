@@ -324,6 +324,8 @@ Run this in a fresh session (Step 2's independence rule), parse the output into 
 - **Log all model outputs** so you can audit which model contributed what and improve role assignments over time
 - **Start simple** with two models (planner + reviewer) before scaling to a full four-model workflow
 - **Use the same prompt format** across models for consistency; the artifact templates above help with this
+- **Name the allowed alternative in every prohibition** of a delegated work order ("do not edit `X`; propose the change in the result instead"), because a bare ban leaves the delegate to invent a workaround (comparison item F)
+- **Check a delegate is idle before resuming or stopping it**, and never stop one that is writing its result; do not terminate a process this agent did not start
 - **Invoke models and checks as argument arrays**, never interpolated shell strings: pass the program plus discrete arguments with an explicit per-call timeout. This is injection-resistant by construction and matches the project Bash security rules, which require building commands as arrays and never interpolating input into a command string
 
 ## Common Rationalizations
@@ -334,6 +336,8 @@ Run this in a fresh session (Step 2's independence rule), parse the output into 
 | "The plan is obvious, so I will let the implementer skip the review handoff." | "Obvious" plans are where unverified assumptions hide. Skipping the independent review phase is the single most common way a cross-model workflow degrades into an expensive single-model workflow. |
 | "I will reuse the same session across roles to save setup time." | Carrying the planner's context into the reviewer role contaminates the review with the planner's framing. Fresh sessions per role are what make the second opinion genuinely independent. |
 | "I will just script the review loop against the one CLI I have." | Hardcoding a single vendor's review CLI turns a model-agnostic recipe into lock-in and violates the MCP Registry Policy's generation-as-service hard-no. Drive whatever reviewer the operator configured via an env var; the loop's value is its shape, not the tool. |
+| "I will just tell the delegate what it must not do." | A bare prohibition pushes the delegate to invent its own workaround, often a worse one. Pair each ban with the allowed alternative. |
+| "The delegate looks quiet, so I will stop it and resume." | Quiet can mean it is writing its result. Confirm it is idle first, or the result is lost and the work repeats. |
 
 ## Verification
 

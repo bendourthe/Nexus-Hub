@@ -96,6 +96,41 @@ if ($inRepo) {
 Write-NexusMessage $banner @($gitLine)
 Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
 
+# --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
+if ($env:NEXUS_ENV_FACTS -ceq "on") {
+    $tlHelper = Join-Path $PSScriptRoot "_turn_ledger.py"
+    if (Test-Path -LiteralPath $tlHelper) {
+        $tlUtf8 = New-Object System.Text.UTF8Encoding($false)
+        foreach ($tlPython in @("python3", "python")) {
+            $tlDone = $false
+            foreach ($tlMode in @("rotate", "facts")) {
+                $tlPsi = New-Object System.Diagnostics.ProcessStartInfo
+                $tlPsi.FileName = $tlPython
+                $tlPsi.Arguments = '"' + $tlHelper + '" ' + $tlMode
+                $tlPsi.UseShellExecute = $false
+                $tlPsi.CreateNoWindow = $true
+                $tlPsi.RedirectStandardOutput = $true
+                $tlPsi.RedirectStandardError = $true
+                $tlPsi.StandardOutputEncoding = $tlUtf8
+                $tlPsi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+                try {
+                    $tlProc = [System.Diagnostics.Process]::Start($tlPsi)
+                    $tlOut = $tlProc.StandardOutput.ReadToEnd()
+                    $null = $tlProc.StandardError.ReadToEnd()
+                    $tlProc.WaitForExit()
+                    if ($tlProc.ExitCode -ne 0) { break }
+                    $tlDone = ($tlMode -eq "facts")
+                    if ($tlMode -eq "facts" -and $tlOut.Trim()) {
+                        [Console]::Out.Write($tlOut)  # nexus: hook-msg-exempt helper output carries the session-start tag and heading
+                    }
+                } catch { break }
+            }
+            if ($tlDone) { break }
+        }
+    }
+}
+# --- end environment-fact replay ---
+
 # --- Surface the last-session digest ---
 if ($env:NEXUS_SESSION_DIGEST -eq "off") { exit 0 }
 
