@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.1 -->
+<!-- nexus-hub-version: 4.15.4 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,14 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.1
+## What's New in v4.15.4
 
-- A read-only `/status` command, and a short progress footer on every message of an `/implement` run.
-- Nexus-Hub Settings 0.8.3: Claude Code and Codex start again on Windows with live effort enabled, and a newer CLI no longer raises the status bar warning.
-- Release safety: the release flow refuses to tag a stale manifest, and CI runs its slow test jobs in smaller shards.
-- Decision on record: no model-adaptive runtime is built, with the evidence kept.
+- `nexus-hub upgrade` now works in any new terminal: the installers put `~/.nexus-hub/bin` on PATH (opt out with `--no-modify-path` or `-NoModifyPath`). On v4.15.3 or earlier, run the launcher once by its full path, as the release notes show.
+- The plan checker never rewrites captured evidence, reads more changelog and ledger layouts, and shows which approval items are missing through a bounded, read-only `--detail` view.
+- Archive moves wait while a live reference is unresolved, and phase summary lines such as `T001-T007 complete` are no longer read as tasks.
 
-[Release details and earlier versions](CHANGELOG.md#4151---2026-11-15)
+[Release details and earlier versions](CHANGELOG.md#4154---2026-11-18)
 
 ## Installation
 
@@ -334,12 +333,12 @@ Check progress, sync the repo, or run the release flow.
 
 [See it in Training](guides/website/training.html#update)
 
-#### `/status`
+#### `/progress`
 
-Show the full progress report for a run, a minor, or one plan. It only reads and reports.
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` still forwards here until v4.15.4.
 
 ```text
-/status v4.15
+/progress v4.15
 ```
 
 #### `/grill`

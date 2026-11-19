@@ -29,6 +29,9 @@ param(
     # as it was; present ALSO merges the deny/ask overlay from
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
+    # v4.15.4 -- leave the user PATH unchanged (the installer otherwise adds
+    # ~\.nexus-hub\bin so the `nexus-hub` command works in new terminals).
+    [switch]$NoModifyPath,
     # v3.16.1 -- install-selection selectors. Contract:
     # docs/archives/v3/v3.16/development/install-selection-contract.md
     # Absent (the default) installs the full catalog, exactly as before.
@@ -56,7 +59,8 @@ if ($Help) {
 Usage:
   pwsh scripts/installer.ps1 [-Workspace PATH] [-Platforms LIST] [-Yes]
                              [-Profile ID] [-Modules LIST] [-Bundles LIST]
-                             [-Force] [-Enterprise] [-StrictPermissions] [-Help]
+                             [-Force] [-Enterprise] [-StrictPermissions]
+                             [-NoModifyPath] [-Help]
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
   pwsh scripts/installer.ps1 -Check
@@ -91,6 +95,9 @@ Options:
                 switch the install is unchanged (allow-only, no prompts). A
                 deliberate posture split: convenience by default, hardened on
                 request.
+  -NoModifyPath Do not add ~\.nexus-hub\bin to your user PATH. By default the
+                installer adds it once so 'nexus-hub upgrade' works in any new
+                terminal; with this switch it only prints the line to add.
   -Workspace <path>  Install into a single project directory instead of the
                 default global (all-projects) scope.
   -Platforms <list>  Install only the given comma-separated integration keys
@@ -153,7 +160,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.15.1"
+$script:NexusHubVersion = "4.15.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -3526,17 +3533,78 @@ function Install-CliLauncher {
         Safe-Copy -Source $launcherSource -Destination (Join-Path $binDest "nexus-hub.cmd") -Confirm:$true -CustomMessage "✓ nexus-hub launcher installed at: $binDest\nexus-hub.cmd"
     }
 
-    # PATH hint (best-effort; never auto-edits the user's PATH).
-    $pathEntries = @($env:PATH -split ';')
-    if ($pathEntries -contains $binDest) {
+    # PATH wiring (v4.15.4): add the bin directory to the user PATH unless
+    # -NoModifyPath is given. See docs/decisions/implemented/tooling/
+    # 2026-11-18-cli-bin-directory-on-path.md.
+    $pathEntries = @($env:PATH -split ';' | ForEach-Object { $_.Trim().TrimEnd('\') })
+    if ($pathEntries -contains $binDest.TrimEnd('\')) {
         Write-Item -Message "✓ $binDest is already on your PATH -- run: nexus-hub --version" -Color "DarkGreen"
     }
-    else {
-        Write-Item -Message "To use the 'nexus-hub' command, add its bin directory to your PATH." -Color "Yellow"
+    elseif ($NoModifyPath) {
+        Write-Item -Message "-NoModifyPath: your PATH was not changed. To use the 'nexus-hub' command, add its bin directory to your PATH." -Color "Yellow"
         Write-Item -Message "  Run this once in PowerShell (appends to your user PATH), then reopen your terminal:" -Color "White"
         Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
         Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
     }
+    else {
+        $status = $null
+        try { $status = Add-NexusBinToUserPath -BinDir $binDest } catch { $status = $null }
+        if ($status -eq 'added' -or $status -eq 'present') {
+            $env:PATH = "$env:PATH;$binDest"
+            if ($status -eq 'added') {
+                Write-Item -Message "✓ Added $binDest to your user PATH. Open a new terminal, then run: nexus-hub --version" -Color "DarkGreen"
+                Write-Item -Message "  To undo: remove that entry under Settings > Edit environment variables for your account > Path. Use -NoModifyPath to skip this step next time." -Color "Gray"
+            }
+            else {
+                Write-Item -Message "✓ $binDest is already in your user PATH. Open a new terminal, then run: nexus-hub --version" -Color "DarkGreen"
+            }
+        }
+        else {
+            Write-Item -Message "Could not update your user PATH. To use the 'nexus-hub' command, add $binDest to your PATH." -Color "Yellow"
+            Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
+        }
+    }
+}
+
+# Appends BinDir to the user PATH stored under HKCU\<RegistryKey> and returns
+# 'added' or 'present'. It reads the raw value (environment references such as
+# %USERPROFILE% stay unexpanded) and keeps the value's registry type, which
+# [Environment]::SetEnvironmentVariable would turn into a plain string. Tests
+# pass a scratch RegistryKey so they never touch the real user PATH.
+function Add-NexusBinToUserPath {
+    param(
+        [Parameter(Mandatory = $true)][string]$BinDir,
+        [string]$RegistryKey = 'Environment'
+    )
+    $key = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($RegistryKey)
+    try {
+        $names = @($key.GetValueNames())
+        $existing = ''
+        $kind = [Microsoft.Win32.RegistryValueKind]::ExpandString
+        if ($names -contains 'Path') {
+            $existing = [string]$key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+            $kind = $key.GetValueKind('Path')
+        }
+        $target = $BinDir.Trim().TrimEnd('\')
+        foreach ($entry in ($existing -split ';')) {
+            $clean = $entry.Trim()
+            if (-not $clean) { continue }
+            $expanded = [Environment]::ExpandEnvironmentVariables($clean).TrimEnd('\')
+            if ($expanded -ieq $target -or $clean.TrimEnd('\') -ieq $target) { return 'present' }
+        }
+        $trimmed = $existing.TrimEnd(';')
+        $value = if ($trimmed) { "$trimmed;$BinDir" } else { $BinDir }
+        $key.SetValue('Path', $value, $kind)
+    }
+    finally {
+        $key.Close()
+    }
+    if ($RegistryKey -eq 'Environment') {
+        # Clearing an unused variable through .NET broadcasts WM_SETTINGCHANGE,
+        # so terminals opened from Explorer see the new PATH without a sign-out.
+        [Environment]::SetEnvironmentVariable('NEXUS_HUB_PATH_REFRESH', $null, 'User')
+    }
+    return 'added'
 }
 
 

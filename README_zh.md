@@ -8,14 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.1 更新内容
+## v4.15.4 更新内容
 
-- 新增只读的 `/status` 命令，并在 `/implement` 运行期间的每条消息末尾显示简短的进度页脚。
-- Nexus-Hub Settings 0.8.3：启用实时推理强度后，Claude Code 和 Codex 在 Windows 上可以再次正常启动；较新的命令行版本不再触发状态栏警告。
-- 发布安全：发布流程拒绝为过期的清单打标签，CI 将耗时较长的测试任务拆分为更小的分片。
-- 决策已记录：不构建按模型自适应的运行时，并保留了相关证据。
+- `nexus-hub upgrade` 现在可以在任何新终端中使用：安装程序会把 `~/.nexus-hub/bin` 加入 PATH（可用 `--no-modify-path` 或 `-NoModifyPath` 关闭）。如果安装的是 v4.15.3 或更早的版本，请按发布说明中的方法，先用完整路径运行一次启动器。
+- 计划检查器不再改写已捕获的证据，能够读取更多变更日志和台账的布局，并通过一个有界的只读 `--detail` 视图显示缺少哪些批准项。
+- 当实时引用尚未解决时，归档移动会等待；像 `T001-T007 complete` 这样的阶段汇总行不再被当作任务读取。
 
-[版本详情与早期版本](CHANGELOG.md#4151---2026-11-15)
+[版本详情与早期版本](CHANGELOG.md#4154---2026-11-18)
 
 ## 安装
 
@@ -326,12 +325,12 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 [在训练中查看](guides/website/training.html#update)
 
-#### `/status`
+#### `/progress`
 
-查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 在 v4.15.4 之前仍会转发到这里。
 
 ```text
-/status v4.15
+/progress v4.15
 ```
 
 #### `/grill`

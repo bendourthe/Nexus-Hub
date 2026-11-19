@@ -235,6 +235,17 @@ def in_exempt_dir(path: Path) -> bool:
     return any(part in EXEMPT_DIR_PARTS for part in path.parts)
 
 
+def protected_evidence(path: Path) -> bool:
+    """The evidence convention covers both an alias and its resolved destination."""
+    return any(part.casefold() == "evidence" for value in (path, path.resolve(strict=True)) for part in value.parts)
+
+
+def file_identity(path: Path) -> tuple:
+    """Capture the directory target and file identity before reading for repair."""
+    alias, target = path.lstat(), path.stat()
+    return (path.resolve(strict=True), *((s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns) for s in (alias, target)))
+
+
 def is_text_file(path: Path) -> bool:
     if path.suffix.lower() in TEXT_EXTENSIONS:
         return True
@@ -406,7 +417,7 @@ def repair_text(text: str, fix_punctuation: bool) -> tuple[str, int, int]:
     return "".join(out), removed, replaced
 
 
-def atomic_write(path: Path, data: bytes) -> None:
+def atomic_write(path: Path, data: bytes, *, expected: tuple | None = None, original: bytes | None = None) -> None:
     """Replace `path` with `data` via a same-directory temp file and rename.
 
     A same-directory temp file keeps the rename atomic (os.replace is only
@@ -424,6 +435,8 @@ def atomic_write(path: Path, data: bytes) -> None:
         # mkstemp creates 0600; carry the original mode over so a fixed .sh
         # does not silently lose its executable bit.
         shutil.copymode(path, tmp)
+        if expected is not None and (protected_evidence(path) or file_identity(path) != expected or path.read_bytes() != original):
+            raise OSError("file changed after inspection; repair refused")
         os.replace(tmp, path)
     except BaseException:
         tmp.unlink(missing_ok=True)
@@ -553,16 +566,22 @@ def main() -> int:
     for path in files:
         rel = display_path(path, root)
         check_punctuation = is_english_markdown(path)
+        try:
+            identity = file_identity(path) if args.fix else None
+            preserve = protected_evidence(path) if args.fix else False
+        except OSError:
+            print(f"{rel}: IO: cannot verify repair target", file=sys.stderr)
+            io_failures += 1
+            continue
         bom_prefix, text, io_error = read_text_for_scan(path)
         if text is None:
             print(f"{rel}: IO: {io_error}", file=sys.stderr)
             io_failures += 1
             continue
 
-        evidence = 'evidence' in Path(rel).parts[:-1]
-        if args.fix and evidence:
+        if args.fix and preserve:
             print(f"PRESERVED {rel}: preserved evidence; findings are reported without repair.")
-        if args.fix and not evidence:
+        elif args.fix:
             # Punctuation repair is gated on the same predicate that gates
             # punctuation detection, so the Markdown-only exemption that keeps
             # non-English content out of the strict pass also keeps it out of
@@ -572,7 +591,7 @@ def main() -> int:
             )
             if fixed != text:
                 try:
-                    atomic_write(path, bom_prefix + fixed.encode("utf-8"))
+                    atomic_write(path, bom_prefix + fixed.encode("utf-8"), expected=identity, original=bom_prefix + text.encode("utf-8"))
                 except OSError as exc:
                     print(f"{rel}: IO: cannot write file: {exc}", file=sys.stderr)
                     io_failures += 1

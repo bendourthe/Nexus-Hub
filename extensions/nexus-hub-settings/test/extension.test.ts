@@ -18,6 +18,7 @@ function context() {
     subscriptions: [] as { dispose(): unknown }[],
     extensionUri: Uri.file(path.join(scratch, "ext")),
     globalStorageUri: Uri.file(path.join(scratch, "Code", "User", "globalStorage", "nexus-hub.nexus-hub-settings")),
+    workspaceState: { get: () => undefined, update: async () => undefined },
   };
 }
 
@@ -168,22 +169,25 @@ describe("activation", () => {
     vi.useFakeTimers();
     const ctx = context();
     await activate(ctx as never);
+    // The agent-split watcher keeps one startup timer of its own; the debounce adds one on top.
+    await vi.advanceTimersByTimeAsync(500);
+    const base = vi.getTimerCount();
 
     stub.watchers[0]!.change.fire(undefined);
     stub.watchers[1]!.create.fire(undefined);
     stub.watchers[2]!.remove.fire(undefined);
-    expect(vi.getTimerCount()).toBe(1);
+    expect(vi.getTimerCount()).toBe(base + 1);
     await vi.advanceTimersByTimeAsync(500);
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(base);
 
     stub.fireConfig("editor");
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(base);
     stub.fireConfig("claudeCode");
     stub.fireConfig("chat");
-    expect(vi.getTimerCount()).toBe(1);
+    expect(vi.getTimerCount()).toBe(base + 1);
     await vi.advanceTimersByTimeAsync(500);
     stub.fireTrust();
-    expect(vi.getTimerCount()).toBe(1);
+    expect(vi.getTimerCount()).toBe(base + 1);
     ctx.subscriptions.forEach((s) => s.dispose());
     expect(vi.getTimerCount()).toBe(0);
     deactivate();

@@ -118,6 +118,78 @@ const VERDICT_SCHEMA = {
 const base = (args && args.base) || 'HEAD'
 const intent = (args && args.intent) || 'unstated -- write a 1-3 sentence intent first'
 
+// ---- security evidence: associate a projection only when bound ---------------
+//
+// `args.security_projection` is the output of security-review's
+// project-review-findings.py; `args.expected_context` is the caller's own pinned
+// revision, root/scope fingerprints and run identity (never read from the
+// projection). Extension findings never enter the persona merge, the confidence
+// gate or the refutation pass: their state and evidence belong to the evaluator
+// (references/findings-schema.md, "Security evidence extension").
+const CONTEXT_REQUIRED = ['revision', 'root_fingerprint', 'scope_fingerprint', 'input_run_fingerprint']
+const REVIEW_STATES = ['confirmed', 'pending', 'corrected', 'rejected']
+const caveats = []
+
+function toGeneric(f) {
+  return {
+    id: f.id,
+    fingerprint_key: f.fingerprint_key,
+    title: f.title,
+    severity: f.severity,
+    file: f.file,
+    line: f.line,
+    locationless: f.locationless,
+    confidence: f.confidence_band,
+    persona: 'security',
+    requires_verification: f.review_state === 'pending',
+    review_state: f.review_state,
+    source_severity: f.source_severity,
+    source_confidence: f.source_confidence,
+    source_disposition: f.source_disposition,
+    release_blocking: f.release_blocking,
+    security: f.security,
+  }
+}
+
+function associateSecurity(proj, exp) {
+  if (!proj) return { associated: false, items: [] }
+  const submitted = proj.binding && proj.binding.submitted
+  const bound =
+    proj.binding && proj.binding.state === 'bound' && submitted && exp &&
+    CONTEXT_REQUIRED.every((k) => k in exp) &&
+    Object.keys(exp).every((k) => submitted[k] === exp[k])
+  if (!bound) {
+    caveats.push('security_projection_refused: not bound to the expected review context; no completeness claim')
+    return { associated: false, items: [] }
+  }
+  // Fail closed: a finding the tiers cannot place would otherwise vanish.
+  const placeable = (f) =>
+    f && typeof f.id === 'string' && typeof f.fingerprint_key === 'string' &&
+    REVIEW_STATES.includes(f.review_state)
+  if (!Array.isArray(proj.findings) || !proj.findings.every(placeable)) {
+    caveats.push('security_projection_refused: malformed projected finding; no completeness claim')
+    return { associated: false, items: [] }
+  }
+  const byKey = new Map()
+  for (const f of proj.findings.map(toGeneric)) {
+    const group = byKey.get(f.fingerprint_key)
+    if (!group) {
+      byKey.set(f.fingerprint_key, [f])
+    } else if (JSON.stringify(group[0].security) === JSON.stringify(f.security) && group[0].review_state === f.review_state) {
+      group[0].duplicate_count = (group[0].duplicate_count || 1) + 1
+    } else {
+      group.push(f)
+      caveats.push(`conflicting_security_duplicate: ${f.fingerprint_key}`)
+    }
+  }
+  return { associated: true, items: [...byKey.values()].flat() }
+}
+
+const securityInput = associateSecurity(
+  args && args.security_projection,
+  (args && args.expected_context) || null,
+)
+
 // ---- find: one reviewer per dimension, dispatched in parallel ---------------
 //
 // parallel() is a BARRIER (it awaits all personas). A barrier is the CORRECT
@@ -190,18 +262,53 @@ const headline = adjudicated.filter(
   (f) => f.confidence >= 75 || (f.severity === 'P0' && f.confidence >= 50),
 )
 const appendix = adjudicated.filter((f) => !headline.includes(f))
-log(`${headline.length} headline finding(s), ${appendix.length} in appendix tier`)
+
+// Security extension findings bypass the gate: confirmed ones headline, pending
+// ones stay visibly pending, rejected/corrected ones go to the explicit appendix.
+// Reviewer agreement and the gate never change their state or confidence.
+const securityItems = securityInput.items
+const securityHeadline = securityItems.filter((f) => f.review_state === 'confirmed')
+const securityPending = securityItems.filter((f) => f.review_state === 'pending')
+const securityAppendix = securityItems
+  .filter((f) => f.review_state === 'rejected' || f.review_state === 'corrected')
+  .map((f) => ({ ...f, suppressed_reason: `security-${f.review_state}` }))
+const allHeadline = [...headline, ...securityHeadline]
+const allAppendix = [...appendix, ...securityAppendix]
+const projectionState = args && args.security_projection
+const securityCoverage = projectionState
+  ? {
+      associated: securityInput.associated,
+      computed_health: securityInput.associated ? projectionState.source.computed_health : null,
+      complete_review: securityInput.associated && projectionState.claims.complete_review === true,
+      reason_codes: securityInput.associated ? projectionState.source.reason_codes : [],
+    }
+  : null
+log(`${allHeadline.length} headline finding(s), ${securityPending.length} pending, ${allAppendix.length} in appendix tier`)
 
 // ---- synthesize: one agent ranks the confirmed survivors into a report ------
 phase('Synthesize')
 const report = await agent(
   `Synthesize these confirmed code-review findings into one report ranked by ` +
     `severity then confidence. Note which personas agreed on each (agreed_by). ` +
-    `List the appendix (suppressed) tier separately.\n` +
-    `Headline: ${JSON.stringify(headline, null, 2)}\n` +
-    `Appendix: ${JSON.stringify(appendix, null, 2)}`,
+    `List the pending (needs live validation) security items and the appendix (suppressed) tier separately; ` +
+    `never present a pending item as confirmed or a rejected item as a fix to apply. ` +
+    `State the security coverage and caveats verbatim.\n` +
+    `Headline: ${JSON.stringify(allHeadline, null, 2)}\n` +
+    `Pending: ${JSON.stringify(securityPending, null, 2)}\n` +
+    `Appendix: ${JSON.stringify(allAppendix, null, 2)}\n` +
+    `Security coverage: ${JSON.stringify(securityCoverage)}\n` +
+    `Caveats: ${JSON.stringify(caveats)}`,
 )
 
 // The return value is handed back to the caller, not shown to the user -- relay
 // what matters from it yourself.
-return { personaCount: PERSONAS.length, headline: headline.length, report }
+return {
+  personaCount: PERSONAS.length,
+  headline: allHeadline.length,
+  pending: securityPending.length,
+  appendix: allAppendix.length,
+  findings: { headline: allHeadline, pending: securityPending, appendix: allAppendix },
+  securityCoverage,
+  caveats,
+  report,
+}

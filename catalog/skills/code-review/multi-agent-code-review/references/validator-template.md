@@ -45,6 +45,14 @@ A fresh reviewer that did NOT produce the finding (different persona, or the sam
 
 A single validator is enough for most findings. For a `P0` whose confirmation would block a merge, run two independent validators and require both to confirm (majority refute kills it) - the same adversarial-verification pattern the catalog uses elsewhere.
 
+## Security evidence findings
+
+A finding with the [security evidence extension](findings-schema.md#security-evidence-extension) is not sent to this pass. Its disposition comes from the security-review evaluator, and a generic refuter cannot confirm or reject it. In particular:
+
+- `pending` (source `needs-live-validation`) stays visibly pending with `validation` unset. It bypasses forced binary adjudication and survives the confidence gate. Request a safe live validation from the owner instead of a verdict.
+- A failure to reproduce from the code alone is not a security rejection. Only the source `rejected` disposition places a finding in the rejected appendix.
+- `confirmed`, `corrected` and `rejected` keep their source state and evidence ids unchanged.
+
 ## Why refutation, not confirmation
 
 Asking a validator to "check if this is right" invites agreement bias - it finds reasons the original reviewer was correct. Asking it to "refute this" forces it to look for the disconfirming evidence, which is exactly the evidence a false positive lacks. The asymmetry is the point.

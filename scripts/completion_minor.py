@@ -1739,8 +1739,10 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "permit-member-execution-paths", "permit-member-paths"):
-        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read or permit-member-paths")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read, correct-read or permit-member-paths")
+    if getattr(args, "path", None) is not None and args.action != "correct-read":
+        raise ck.Malformed("--path requires --action correct-read")
     if getattr(args, "execution", None) is not None and args.action != "permit-member-execution-paths":
         raise ck.Malformed("--execution requires --action permit-member-execution-paths")
     if getattr(args, "paths", None) is not None and args.action != "permit-member-paths":
@@ -1813,6 +1815,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         page = member_paths_page(ck, rctx, token, record, getattr(args, "member", None), _member_paths_input(ck, getattr(args, "paths", None)))
         if page is None:
             raise ck.Malformed("member-paths-already-present")
+        display = None
+    elif args.action == "correct-read":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = read_correction_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "path", None))
+        if page is None:
+            raise ck.Malformed("read-correction-already-present")
         display = None
     elif args.action == "permit-outputs":
         record = _record_for_v415_permission(ck, rctx, token, args.session)
@@ -3192,6 +3202,10 @@ def effective_read_paths(ck: ModuleType, rctx: RepoContext, record: dict, member
             and _v415_ci_read_valid(ck, rctx, record, member, entries[0])
             and _v415_ci_checkpoint(ck, rctx, record, member)):
         return [path for path in reads if path != rule["path"]]
+    if not member.get("start_head") and not state.get("start_head"):
+        released = _read_correction_paths(ck, record, member)
+        if released:
+            return [path for path in reads if path not in released]
     return list(reads)
 
 
@@ -3686,9 +3700,14 @@ def _layout_of(rel: str, major: int, minor: int) -> str | None:
     return None
 
 
-def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
+def load_ledgers(root: Path, *, max_bytes: int | None = None) -> tuple[list[Ledger], list[str]]:
     """Every known-gaps ledger at a layout path, and the paths that could not be read."""
-    root = root.resolve()
+    try:
+        root = root.resolve(strict=True)
+        if not root.is_dir():
+            raise OSError("not a directory")
+    except OSError as exc:
+        raise ObservationUnavailable("ledgers.root") from exc
     seen: dict[str, Path] = {}
     for pattern in LEDGER_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -3696,7 +3715,12 @@ def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     ledgers: list[Ledger] = []
     unreadable: list[str] = []
     for path in seen.values():
-        rel = path.resolve().relative_to(root).as_posix()
+        rel = path.relative_to(root).as_posix()
+        try:
+            path.resolve(strict=True).relative_to(root)
+        except (OSError, ValueError):
+            unreadable.append(rel)
+            continue
         match = _MINOR_DIR_RE.match(rel.split("/")[-2]) if "/" in rel else None
         if not match:
             continue
@@ -3705,8 +3729,16 @@ def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
         if layout is None:
             continue  # the glob is wider than the layouts
         try:
-            with path.open("r", encoding="utf-8", newline="") as handle:
-                text = handle.read()
+            if max_bytes is None:
+                with path.open("r", encoding="utf-8", newline="") as handle:
+                    text = handle.read()
+            else:
+                with path.open("rb") as handle:
+                    raw = handle.read(max_bytes + 1)
+                if len(raw) > max_bytes:
+                    unreadable.append(rel)
+                    continue
+                text = raw.decode("utf-8")
         except (OSError, UnicodeDecodeError):
             unreadable.append(rel)
             continue
@@ -5999,17 +6031,212 @@ def _check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | N
     return verdict
 
 
+DETAIL_SECONDS = 10.0
+DETAIL_RECORD_LIMIT = 32
+DETAIL_FINDING_LIMIT = 100
+DETAIL_TEXT_BYTES = 2 * 1024 * 1024
+
+
+def _detail_record_changed(path: Path, digest: str) -> bool:
+    try:
+        with path.open("rb") as handle:
+            raw = handle.read(DETAIL_TEXT_BYTES + 1)
+        return len(raw) > DETAIL_TEXT_BYTES or hashlib.sha256(raw).hexdigest() != digest
+    except OSError:
+        return True
+
+
+def _local_detail(ck: ModuleType, repo: str, token: str, session: str | None, *, checkpoint=None) -> dict:
+    """Collect local facts only; no completion evaluator or mutation path is called."""
+    parse_minor(ck, token)
+    rctx = ck.RepoContext(Path(repo).resolve(), ck.Budget(DETAIL_SECONDS - 0.5))
+    result = {"verdict": "INCOMPLETE: record.minor", "exit": ck.EXIT_INCOMPLETE,
+              "scanned": 0, "omitted": 0, "incomplete": False, "findings": []}
+    direct = rctx.scoped_record_path("minor:" + token)
+    store = ck._runs_dir()
+    paths = sorted(path for path in store.glob("*.json") if not path.name.endswith(".gate.json"))
+    if direct in paths:
+        paths.remove(direct)
+        paths.insert(0, direct)
+    result["omitted"] = max(0, len(paths) - DETAIL_RECORD_LIMIT)
+    result["incomplete"] = bool(result["omitted"])
+    verified = []
+    for path in paths[:DETAIL_RECORD_LIMIT]:
+        result["scanned"] += 1
+        if path.stat().st_size > DETAIL_TEXT_BYTES:
+            result["incomplete"] = True
+            result["omitted"] += 1
+            if path == direct:
+                result["verdict"] = "INCOMPLETE: record.provenance"
+            continue
+        try:
+            record = ck.read_record(rctx, path, max_bytes=DETAIL_TEXT_BYTES)
+        except ObservationUnavailable:
+            result["incomplete"] = True
+            result["omitted"] += 1
+            if path == direct:
+                result["verdict"] = "INCOMPLETE: record.provenance"
+            continue
+        raw = getattr(record, "loaded_sha256", None)
+        if record is None:
+            if path == direct:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            continue
+        if path != direct and (record.get("minor") != token or record.get("repo", "").lower() != rctx.key_repo):
+            continue
+        try:
+            identity = controller_identity(ck, rctx, record, path)
+            own = ck.RepoContext(Path(identity["repo_root"]), rctx.budget)
+            if own.key_repo != rctx.key_repo or not _verified(ck, own, token, record):
+                raise ck.MinorConflict("record-tampered")
+        except ck.MinorConflict as exc:
+            if str(exc) == "controller-ownership-unavailable":
+                return {**result, "verdict": "INCOMPLETE: detail.controller-unavailable", "incomplete": True}
+            if path == direct:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            continue
+        except (ck.Malformed, OSError):
+            return {**result, "verdict": "INCOMPLETE: detail.controller-unavailable", "incomplete": True}
+        verified.append((path, raw, record, identity, own))
+    if len(verified) != 1:
+        if len(verified) > 1:
+            result["verdict"], result["exit"] = "BLOCKED: multiple-minor-authorities", ck.EXIT_BLOCKED
+        return result
+    path, raw, record, identity, own = verified[0]
+    result["verdict"] = "INCOMPLETE: detail.local-only"
+    if record.get("pause"):
+        result["verdict"], result["exit"] = "PAUSED", ck.EXIT_PAUSED
+    else:
+        blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
+        if blockers:
+            first = blockers[0]
+            category = first.get("category")
+            if category not in ck.BLOCKER_CATEGORIES:
+                result["verdict"], result["exit"] = ck.TAMPERED
+                return result
+            version = first.get("version")
+            suffix = f" ({version})" if isinstance(version, str) and PLAN_TOKEN_RE.fullmatch(version) else ""
+            result["verdict"], result["exit"] = f"BLOCKED: {category}{suffix}", ck.EXIT_BLOCKED
+    if result["omitted"]:
+        if _detail_record_changed(path, raw):
+            return {**result, "verdict": "INCOMPLETE: record.changed", "exit": ck.EXIT_INCOMPLETE}
+        if result["exit"] not in (ck.EXIT_BLOCKED, ck.EXIT_PAUSED):
+            result["verdict"] = "INCOMPLETE: detail.record-limit"
+        return result
+    if checkpoint is not None and result["exit"] in (ck.EXIT_BLOCKED, ck.EXIT_PAUSED):
+        checkpoint({key: result[key] for key in ("verdict", "exit", "scanned", "omitted")})
+    findings = [{"path": identity["repo_root"], "item": "controller", "status": "current" if own.root == rctx.root else "mutation-controller-mismatch"}]
+    if session and record.get("session_id") != session:
+        findings.append({"path": "", "item": "session", "status": "bound-to-another-session"})
+    ledger_paths = {path for pattern in LEDGER_GLOBS for path in own.root.glob(pattern)}
+    if any(path.stat().st_size > DETAIL_TEXT_BYTES for path in ledger_paths):
+        result["incomplete"] = True
+        findings.append({"path": "", "item": "ledgers", "status": "text-limit-unavailable"})
+    else:
+        ledgers, unreadable = load_ledgers(own.root, max_bytes=DETAIL_TEXT_BYTES)
+        result["incomplete"] = result["incomplete"] or bool(unreadable)
+        findings.extend({"path": rel, "item": "ledger", "status": "unreadable"} for rel in unreadable)
+        bound, named = migration_class(record)
+        for ledger in ledgers:
+            findings.extend({"path": ledger.rel, "item": "ledger", "status": problem} for problem in ledger.problems)
+            for item in ledger.items:
+                if item.state == "open":
+                    pid = f"v{ledger.minor[0]}.{ledger.minor[1]}#{item.gid}"
+                    covered = pid in bound and (not item.sensitive() or pid in named)
+                    findings.append({"path": ledger.rel, "item": pid, "status": "migration-covered" if covered else "migration-uncovered"})
+    if _detail_record_changed(path, raw):
+        return {**result, "verdict": "INCOMPLETE: record.changed", "exit": ck.EXIT_INCOMPLETE,
+                "incomplete": True, "findings": []}
+    findings.sort(key=lambda item: (item["path"], item["item"], item["status"]))
+    result["total_findings"] = len(findings)
+    result["display_omitted"] = max(0, len(findings) - DETAIL_FINDING_LIMIT)
+    result["findings"] = findings[:DETAIL_FINDING_LIMIT]
+    return result
+
+
+def diagnostic_detail(ck: ModuleType, repo: str, token: str, session: str | None) -> dict:
+    """A separate process makes blocking filesystem observations interruptible."""
+    import subprocess
+
+    worker = ("import json,sys;sys.path.insert(0,sys.argv[1]);import check_plan_completion as ck;"
+              "import completion_minor as cm;print(json.dumps(cm._local_detail(ck,sys.argv[2],sys.argv[3],sys.argv[4] or None,"
+              "checkpoint=lambda value: print(json.dumps({'checkpoint':value}),flush=True)),sort_keys=True))")
+
+    def unavailable(partial=None):
+        value = {"verdict": "INCOMPLETE: detail.unavailable", "exit": ck.EXIT_INCOMPLETE, "incomplete": True,
+                 "scanned": 0, "omitted": 0, "findings": []}
+        try:
+            text = partial.decode("utf-8") if isinstance(partial, bytes) else partial or ""
+            first = text.splitlines()[0]
+            observed = json.loads(first)["checkpoint"] if len(first) < 2048 else {}
+            verdict, code = observed.get("verdict"), observed.get("exit")
+            allowed = (code == ck.EXIT_PAUSED and verdict == "PAUSED") or (
+                code == ck.EXIT_BLOCKED and isinstance(verdict, str) and re.fullmatch(
+                    r"BLOCKED: (?:" + "|".join(ck.BLOCKER_CATEGORIES) + r")(?: \(v\d+\.\d+\.\d+\))?", verdict))
+            if allowed:
+                value.update({"verdict": verdict, "exit": code, "forced_state_observed_before_timeout": True})
+                for key in ("scanned", "omitted"):
+                    if type(observed.get(key)) is int and observed[key] >= 0:
+                        value[key] = observed[key]
+        except (ValueError, KeyError, IndexError, UnicodeDecodeError, AttributeError):
+            # A truncated or malformed checkpoint line is not evidence; keep the timeout-only result.
+            pass
+        return value
+
+    output = None
+    try:
+        proc = subprocess.run([sys.executable, "-I", "-c", worker, str(Path(__file__).resolve().parent), str(repo), token, session or ""],  # nexus: console-window-ok hidden via ck.NO_WINDOW
+                              capture_output=True, text=True, encoding="utf-8", check=False, timeout=DETAIL_SECONDS, env=ck._env(), **ck.NO_WINDOW)
+        output = proc.stdout
+        if proc.returncode or len(proc.stdout.encode("utf-8")) > DETAIL_TEXT_BYTES:
+            raise ValueError("unavailable diagnostic")
+        value = json.loads(proc.stdout.splitlines()[-1])
+        if not isinstance(value, dict) or value.get("exit") not in (0, 1, 2, 3, 4):
+            raise ValueError("invalid diagnostic")
+        return value
+    except subprocess.TimeoutExpired as exc:
+        return unavailable(exc.stdout)
+    except (OSError, ValueError, IndexError):
+        return unavailable(output)
+
+
+def _detail_gaps_status(data: dict) -> str | None:
+    """The `gaps.minor` reading of a verified blocked detail, from the findings it already holds.
+
+    Only a verified blocked record with a completed inspection reports one; a capped, incomplete or
+    unverified observation reports nothing, so the notice never claims more than the bounded detail saw.
+    """
+    if not str(data.get("verdict", "")).startswith("BLOCKED") or data.get("incomplete") or "findings" not in data:
+        return None
+    findings = data["findings"]
+    if data.get("display_omitted") or any(f.get("item") in ("ledger", "ledgers") for f in findings):
+        return "cannot-verify"
+    return "unmet" if any(str(f.get("status", "")).startswith("migration-") for f in findings) else "met"
+
+
+def render_detail(ck: ModuleType, args: argparse.Namespace, *, status_mode: bool = False) -> int:
+    parse_minor(ck, args.minor)
+    data = diagnostic_detail(ck, args.repo, args.minor, getattr(args, "session", None))
+    print(data["verdict"])
+    if getattr(args, "json", False):
+        print(json.dumps({"verdict": data["verdict"], "exit": data["exit"], "detail": data}, sort_keys=True))
+    else:
+        print(f"detail scanned={data.get('scanned', 0)} omitted={data.get('omitted', 0)} incomplete={str(data.get('incomplete', True)).lower()} total_findings={data.get('total_findings', 0)} display_omitted={data.get('display_omitted', 0)}")
+        for finding in data.get("findings", []):
+            print("detail " + json.dumps(finding, sort_keys=True))
+    gaps = _detail_gaps_status(data)
+    if gaps:
+        print(f"notice: diagnostic gaps.minor {gaps}", file=sys.stderr)
+    return ck.EXIT_COMPLETE if status_mode and data["verdict"] == "INCOMPLETE: detail.local-only" else data["exit"]
+
+
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
+    if getattr(args, "detail", False):
+        return render_detail(ck, args)
     rctx = minor_context(ck, args.repo)
     verdict = check_minor(ck, rctx, args.minor, args.session)
-    if getattr(args, 'detail', False) and verdict.code == ck.EXIT_BLOCKED and verdict.record is not None:
-        integration = _integration_ref(rctx, _target(verdict.record))
-        loaded = load_ledgers_at(rctx, integration) if integration else None
-        if loaded is None:
-            verdict.notices.append('diagnostic gaps.minor integration branch unreadable')
-        else:
-            gaps, notices = gaps_minor_status(ck, rctx, args.minor, verdict.record, loaded)
-            verdict.notices.extend([f'diagnostic gaps.minor {gaps}', *notices])
     for notice in [*verdict.notices, *rctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(verdict.line)
@@ -6182,6 +6409,9 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
     if (member.get(V415_CI_READ_CORRECTION) and not member.get("start_head")
             and not _v415_ci_read_restore(ck, rctx, record, member, tip)):
         return _gate_refusal(ck, version, "v415-ci-read-restore-unverified")
+    if (member.get(_READ_CORRECTION_FIELD) and not member.get("start_head")
+            and not _read_correction_restore(ck, rctx, record, member, tip)):
+        return _gate_refusal(ck, version, "read-correction-restore-unverified")
     if member.get("implementation") is not None:
         candidate = {**member, "start_head": tip, "coordinator_paths": coordinator_paths}
         worker, status, _ = _worker_context(ck, rctx, record, candidate, rctx.budget, base=tip, canonical_merged=False)
@@ -6206,11 +6436,14 @@ def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
                                              "paths": coordinator_paths, "record_sha256": active["expected"]}
     if member.get(V415_CI_READ_CORRECTION):
         active["v415_ci_read_restore"] = {"member": version, "head": tip, "record_sha256": active["expected"]}
+    if member.get(_READ_CORRECTION_FIELD):
+        active["read_correction_restore"] = {"member": version, "head": tip, "record_sha256": active["expected"]}
     try:
         ck._write_record(record_file(ck, rctx, token), record)
     finally:
         active.pop("v415_output_activation", None)
         active.pop("v415_ci_read_restore", None)
+        active.pop("read_correction_restore", None)
         active.pop("minor_execution_activation", None)
     print(f"STARTED {version} start_head={tip}")
     return 0
@@ -7034,12 +7267,31 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
                 if member else _classes(record))
     request = ck._json_request(getattr(args, 'request', '{}'))
     uncovered = args.approval_class == 'gap-migration' and ck.uncovered_gap_request(record, request)
-    if args.approval_class and args.approval_class in approved and not uncovered:
+    items = getattr(args, "items", None) or []
+    if items:
+        if args.category != "approval-not-covered" or args.approval_class != "gap-migration":
+            raise ck.Malformed("--item requires approval-not-covered and gap-migration")
+        if len(items) > 100 or any(not re.fullmatch(r"v\d+\.\d+#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", item) for item in items):
+            raise ck.Malformed("invalid scoped approval item")
+        ledgers, unreadable = load_ledgers(rctx.root)
+        if unreadable or any(ledger.problems for ledger in ledgers):
+            raise ck.Malformed("approval items cannot be verified from ledgers")
+        known = {f"v{ledger.minor[0]}.{ledger.minor[1]}#{item.gid}": item for ledger in ledgers for item in ledger.items}
+        if any(item not in known for item in items):
+            raise ck.Malformed("unknown scoped approval item")
+        bound, named = migration_class(record)
+        if all(item in bound and (not known[item].sensitive() or item in named) for item in items):
+            raise ck.Malformed("the approvals already cover every requested item")
+    if not items and args.approval_class and args.approval_class in approved and not uncovered:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
     entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
              'approval_class': args.approval_class, 'request': request,
              'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
+    if items:
+        if "items" in entry["request"] and entry["request"]["items"] != sorted(set(items)):
+            raise ck.Malformed("conflicting scoped approval items")
+        entry["request"]["items"] = sorted(set(items))
     if member is not None:
         entry["version"] = args.member
     approval_binding.add_blocker(record, entry)
@@ -7665,13 +7917,250 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
     return 0
 
 
+# One captured decision subtracts one exact literal read file from one unpublished member's effective reservations.
+_READ_CORRECTION_ACTION = "correct-read"
+_READ_CORRECTION_FIELD = "member_read_corrections"
+_READ_CORRECTION_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+    "member", "plan_sha256", "implementation_sha256", "source_branch", "target_branch",
+    "original_read_paths", "original_write_paths", "path"}
+
+
+def _read_correction_entries(member: dict) -> list:
+    entries = member.get(_READ_CORRECTION_FIELD, [])
+    return entries if isinstance(entries, list) else []
+
+
+def _read_correction_paths(ck: ModuleType, record: dict, member: dict) -> set[str]:
+    """Exact reads released by authenticated entries; an invalid entry releases nothing."""
+    return {entry["page"]["path"] for entry in _read_correction_entries(member)
+            if _read_correction_entry_valid(ck, record, member, entry)}
+
+
+def _read_correction_path(ck: ModuleType, implementation: dict, path: object) -> str:
+    """Only an exact literal recorded read qualifies: never a write, a directory or a file under a directory read."""
+    if (not isinstance(path, str) or not path or path != path.strip() or path.endswith("/") or "\\" in path
+            or any(c in path for c in ":*?[]") or any(not p or p in (".", "..") for p in path.split("/"))):
+        raise ck.Malformed("read-correction-not-literal")
+    lowered = path.casefold()
+    if any(lowered == w.casefold().rstrip("/") for w in implementation["write_paths"]):
+        raise ck.Malformed("read-correction-write-path")
+    reads = implementation["read_paths"]
+    if any(r.endswith("/") and lowered.startswith(r.casefold()) for r in reads):
+        raise ck.Malformed("read-correction-directory-read")
+    if path not in reads:
+        raise ck.Malformed("read-correction-not-a-read")
+    return path
+
+
+def read_correction_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                         version: str | None, path: object) -> dict | None:
+    """The exact captured page, or None when this member's file is already corrected."""
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if member is None:
+        raise ck.Malformed("read-correction-unknown-member")
+    implementation = member.get("implementation")
+    if (not isinstance(implementation, dict) or not isinstance(implementation.get("read_paths"), list)
+            or not isinstance(implementation.get("write_paths"), list)):
+        raise ck.Malformed("read-correction-member-not-admitted")
+    if member.get(V415_CI_READ_CORRECTION):
+        raise ck.Malformed("read-correction-bound-permissions")
+    if isinstance(path, str) and path in _read_correction_paths(ck, record, member):
+        return None
+    if member.get("archived"):
+        raise ck.Malformed("read-correction-member-finished")
+    if member.get("start_head"):
+        raise ck.Malformed("read-correction-member-started")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    literal = _read_correction_path(ck, implementation, path)
+    return {"action": _READ_CORRECTION_ACTION, "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "implementation_sha256": _manifest_implementation_sha256(member),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "original_read_paths": list(implementation["read_paths"]),
+            "original_write_paths": list(implementation["write_paths"]), "path": literal}
+
+
+def _read_correction_entry_valid(ck: ModuleType, record: dict, member: dict, entry: object, *, verify_capture: bool = False) -> bool:
+    """Authenticate one stored decision: its page fields, genuine capture and the unchanged claims."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        implementation = member.get("implementation")
+        if (not isinstance(page, dict) or set(page) != _READ_CORRECTION_PAGE_FIELDS
+                or not isinstance(accepted, dict) or set(accepted) != fields or not isinstance(implementation, dict)):
+            return False
+        if (page["action"] != _READ_CORRECTION_ACTION or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]
+                or page["original_read_paths"] != implementation["read_paths"]
+                or not isinstance(page["original_write_paths"], list)
+                or not isinstance(page["path"], str) or page["path"] not in implementation["read_paths"]
+                or any(page["path"].casefold() == w.casefold().rstrip("/") for w in implementation["write_paths"])
+                or page["implementation_sha256"] != _manifest_implementation_sha256(member)
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"] or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict)
+                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line(_READ_CORRECTION_ACTION, str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def _read_correction_restore(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, head: str) -> bool:
+    """The ordered publication start restores the raw reads unless another unmerged member now claims a released file."""
+    entries = _read_correction_entries(member)
+    if not entries or any(not _read_correction_entry_valid(ck, record, member, entry) for entry in entries):
+        return False
+    released = [entry["page"]["path"] for entry in entries]
+    for other in ordered_members(record):
+        if other["version"] == member["version"] or _merged_on_base(ck, rctx, record, other, head):
+            continue
+        claims = other.get("implementation")
+        if claims and any(_overlap(w, p) for w in [*claims["write_paths"], *other.get("coordinator_paths", [])] for p in released):
+            return False
+    return True
+
+
+def check_read_correction_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer keeps accepted entries; only a consumed leased decision appends one, only the start restores."""
+    old = {m.get("version"): m for m in _member_list(previous)}
+    new = {m.get("version"): m for m in _member_list(record)}
+    active = ck._MINOR_LEASE.get()
+    appending = active is not None and "read_correction_append" in active
+    if not appending and not any(_READ_CORRECTION_FIELD in m for m in [*old.values(), *new.values()]):
+        return
+    added = []
+    for version in old.keys() | new.keys():
+        left, right = old.get(version, {}).get(_READ_CORRECTION_FIELD, []), new.get(version, {}).get(_READ_CORRECTION_FIELD, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("read-correction-not-append-only")
+        if left:
+            if (version not in new or approval_binding.canonical(old[version].get("implementation"))
+                    != approval_binding.canonical(new[version].get("implementation"))
+                    or any(old[version].get(k) != new[version].get(k) for k in ("source_branch", "target_branch"))):
+                raise ck.MinorConflict("read-correction-claims-changed")
+            if old[version].get("start_head") != new[version].get("start_head"):
+                restore = {"member": version, "head": new[version].get("start_head"),
+                           "record_sha256": active["expected"] if active else None}
+                if (old[version].get("start_head") or not restore["head"] or not active
+                        or approval_binding.canonical(active.get("read_correction_restore")) != approval_binding.canonical(restore)
+                        or not _read_correction_restore(ck, rctx, previous, old[version], restore["head"])):
+                    raise ck.MinorConflict("read-correction-restore-not-native")
+                restored = json.loads(json.dumps(record))
+                target = next(m for m in _member_list(restored) if m.get("version") == version)
+                for key in ("start_head", "started", "coordinator_paths"):
+                    if key in old[version]:
+                        target[key] = old[version][key]
+                    else:
+                        target.pop(key, None)
+                original = json.loads(json.dumps(previous))
+                restored.pop("approvals_hmac", None)
+                original.pop("approvals_hmac", None)
+                if approval_binding.canonical(restored) != approval_binding.canonical(original):
+                    raise ck.MinorConflict("read-correction-unrelated-restore-change")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        if appending:
+            raise ck.MinorConflict("read-correction-captured-append-missing")
+        return
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("read-correction-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if version not in old or approval_binding.canonical(active.get("read_correction_append")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("read-correction-append-not-captured")
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in _member_list(restored) if m.get("version") == version)
+    target[_READ_CORRECTION_FIELD].pop()
+    if _READ_CORRECTION_FIELD not in old[version]:
+        target.pop(_READ_CORRECTION_FIELD)
+    restored.pop("approvals_hmac", None)
+    original = json.loads(json.dumps(previous))
+    original.pop("approvals_hmac", None)
+    if approval_binding.canonical(restored) != approval_binding.canonical(original):
+        raise ck.MinorConflict("read-correction-unrelated-record-change")
+    page = entry.get("page", {})
+    if (old[version].get("start_head") or page.get("record_sha256") != active["expected"]
+            or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or page.get("path") in {e.get("page", {}).get("path") for e in _read_correction_entries(old[version])}
+            or not _read_correction_entry_valid(ck, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("read-correction-invalid-entry")
+
+
+@minor_writer
+def cmd_record_correct_read(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine one-file decision; the member's raw claims are never rewritten."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = read_correction_page(ck, rctx, args.minor, record, args.member, args.path)
+    if page is None:
+        print(f"ALREADY corrected the read reservation of {args.member}")
+        return 0
+    consumed = _consume(ck, rctx, args.minor, _READ_CORRECTION_ACTION, page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    member = next(m for m in ordered_members(record) if m["version"] == args.member)
+    member.setdefault(_READ_CORRECTION_FIELD, []).append(entry)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["read_correction_append"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("read_correction_append", None)
+    print(f"CORRECTED {args.member} read reservation for one exact file; ordinary reservation resumes at its publication start")
+    return 0
+
+
 # One captured decision appends exact literal files to one admitted member's worker write list.
 _MEMBER_PATHS_ACTION = "permit-member-paths"
 _MEMBER_PATHS_FIELD = "member_path_permissions"
 _MEMBER_PATHS_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
     "member", "plan_sha256", "implementation_sha256", "source_branch", "target_branch", "original_write_paths", "write_paths"}
 _MEMBER_PATHS_BOUND_FIELDS = ("manifest_coordinator_permissions", V415_OUTPUT_PERMISSION, V415_CI_READ_CORRECTION,
-                              "historical_scope_supplements")
+                              "historical_scope_supplements", _READ_CORRECTION_FIELD)
 
 
 def _member_list(record: dict) -> list[dict]:

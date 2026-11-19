@@ -1,18 +1,19 @@
 # Decision: One platform-neutral owner for the project-root AGENTS.md block
 
-Status: proposed - supported Claude Code project sessions consume a shared `AGENTS.md` block written once from `templates/ai-instructions/base-agents.md`, and every unknown case keeps the managed `CLAUDE.md`
+Status: implemented - supported Claude Code project sessions consume a shared `AGENTS.md` block written once from `templates/ai-instructions/base-agents.md`, and every unknown case keeps the managed `CLAUDE.md`
 
 ## Problem
 
 Claude Code v2.1.277 and later can read a repository's `AGENTS.md` in place of `CLAUDE.md`. Nexus-Hub still wrote a project `CLAUDE.md` for Claude and, separately, a project-root `AGENTS.md` for Codex, Cursor, OpenCode, Antigravity 2.0, OpenClaw, and Windsurf, each from its own template and all into the same marker block. A user of Claude and one other tool therefore carried two near-identical managed bodies, and the root block's content depended on which integration installed last.
 
-## Proposal
+## Decision
 
-- Add `templates/ai-instructions/base-agents.md`, a platform-neutral body, as the single template for the project-root `AGENTS.md` block. A section-by-section inventory (`docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md`) shows the only platform-specific line in the Codex, Cursor, and OpenCode templates was a skills-folder pointer; the shared body names each tool's skills folder generically.
-- Codex, Cursor, OpenCode, and Claude (on its supported path) are consumers. Each records itself in the install manifest's shared list; a teardown removes the block only when no other consumer remains.
+- `templates/ai-instructions/base-agents.md`, a platform-neutral body, is the single template for the project-root `AGENTS.md` block. A section-by-section inventory (`docs/releases/v4/v4.15/development/v4.15.2-shared-agents-inventory.md`) shows the only platform-specific line in the Codex, Cursor, and OpenCode templates was a skills-folder pointer; the shared body names each tool's skills folder generically.
+- Codex, Cursor, OpenCode, and Claude (on its supported path) are consumers. Each records itself in the install manifest's shared list, and a teardown removes the block only when no other consumer remains.
 - Claude decides its path from a recorded capability decision (`.nexus-hub/claude-instruction-decision.json`): version floor (2.1.277, or 2.1.281 for hosted and telemetry-off surfaces), the effective `instructionFiles` value from user and managed settings (never project settings), a disabled built-in reader, and any `CLAUDE.md` in the working directory or above. On the AGENTS.md path Claude writes no project `CLAUDE.md` and keeps its Claude-only sections in a native `.claude/rules/` sidecar. Every unknown, unreadable, conflicting, or blocked input selects `CLAUDE.md`, and an unwritable shared file falls back to `CLAUDE.md`.
 - Existing project `CLAUDE.md` files are never removed implicitly. An explicit `NEXUS_HUB_CLAUDE_MIGRATE=1` removes only the managed block: a managed-only file is deleted, a mixed file keeps every user byte and stays on `CLAUDE.md` precedence, a user-authored file is untouched.
 - Antigravity 2.0, OpenClaw, and the Windsurf root file keep their own writers. Their platform-specific content has no verified sidecar or global owner, so migrating them would drop content; this is recorded as a blocked migration.
+- Shipped in v4.15.2 (merged to `develop` as PR #672).
 
 ## Alternatives considered
 
@@ -23,7 +24,7 @@ Claude Code v2.1.277 and later can read a repository's `AGENTS.md` in place of `
 - **Migrate every root writer in one step.** Rejected: three of them carry platform-specific guidance with no reachable owner, and dropping it would be a silent regression.
 - **Do nothing.** Rejected: it leaves duplicate bodies and last-writer-wins content in the shared block.
 
-## Acceptance criteria
+## Consequences
 
 - A fresh supported Claude project install has one managed project body, no project `CLAUDE.md`, and a `.claude/rules/nexus-hub-claude.md` sidecar.
 - Every unknown, below-floor, fallback-disabled, or precedence-blocked case keeps the managed `CLAUDE.md`.
