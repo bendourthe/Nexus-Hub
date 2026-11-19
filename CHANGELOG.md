@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.4] - 2026-11-18
+
 ### Changed
 
+- **`/status` stays one more release.** It still forwards to `/progress`; its removal, announced for v4.15.4, moves to v4.15.5. Update any saved prompts or scripts to `/progress` before then.
 - **The `nexus-hub` command now works in a new terminal right after install.** Both installers add `~/.nexus-hub/bin` to PATH by default instead of only printing the line to add, so `nexus-hub upgrade` no longer fails with "not recognized". On Windows the folder is appended once to your user PATH, keeping existing entries and their `%VARIABLE%` references unexpanded. On macOS and Linux one marked block is appended to your shell profile (`~/.zshrc`, `~/.bashrc`, `~/.bash_profile` for bash on macOS, or `~/.profile`). A second install changes nothing. Decision record: [2026-11-18-cli-bin-directory-on-path.md](docs/decisions/implemented/tooling/2026-11-18-cli-bin-directory-on-path.md).
     - **If you installed v4.15.3 or earlier and `nexus-hub` is not found:** run the launcher once by its full path. Windows PowerShell: `& "$env:USERPROFILE\.nexus-hub\bin\nexus-hub.cmd" upgrade`. macOS and Linux: `~/.nexus-hub/bin/nexus-hub upgrade`. The upgrade adds the folder to PATH for next time.
     - **Capability usage note (default-on change with an opt-out):**

@@ -1,6 +1,6 @@
 # Implementation Progress Reporting
 
-Summary: the shared progress-report contract for active `/implement` runs and read-only `/progress` requests (`/update status` and the deprecated `/status`, removed in v4.15.4, forward to `/progress`). It owns when a report appears and what evidence it uses: a compact report at meaningful checkpoints, and the full report at start/resume, new decisions and on request. Layouts live in `status-formats.md`. Coordinators use it to show task progress, observed worker activity, elapsed time, dependencies, estimates and efficiency decisions without changing completion or authorization rules.
+Summary: the shared progress-report contract for active `/implement` runs and read-only `/progress` requests (`/update status` and the deprecated `/status`, removed in v4.15.5, forward to `/progress`). It owns when a report appears and what evidence it uses: a compact report at meaningful checkpoints, and the full report at start/resume, new decisions and on request. Layouts live in `status-formats.md`. Coordinators use it to show task progress, observed worker activity, elapsed time, dependencies, estimates and efficiency decisions without changing completion or authorization rules.
 
 ## Entry points and cadence
 

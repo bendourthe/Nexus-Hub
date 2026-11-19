@@ -596,6 +596,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
 
+## Queued work - v4.15.5 `/status` removal
+
+- [ ] Remove the deprecated `/status` command in v4.15.5, as the v4.15.4 release notes announce: delete `catalog/commands/status.md`, update `AGENTS.md`, the guide's command list, `progress.md`, `progress-reporting.md` and `tests/skills/test_status_command_contract.py`, and make sure an upgrade removes the installed copy. The removal was first promised for v4.15.4 and was moved by maintainer decision on 2026-11-18.
+
 ## Queued work - v4.15.4 checker evidence and diagnostics
 
 - [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
