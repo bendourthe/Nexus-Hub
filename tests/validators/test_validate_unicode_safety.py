@@ -56,6 +56,90 @@ def write_bytes(path: Path, body: bytes) -> None:
     path.write_bytes(body)
 
 
+@pytest.mark.parametrize("directory", ["evidence", "Evidence", "nested/EVIDENCE/captured"])
+@pytest.mark.parametrize("explicit", [False, True])
+@pytest.mark.parametrize("unsafe", [False, True])
+def test_fix_preserves_evidence_bytes(tmp_path: Path, runner, directory: str, explicit: bool, unsafe: bool) -> None:
+    relative = Path("docs") / directory / "capture.md"
+    path = tmp_path / relative
+    raw = (b"\xef\xbb\xbfCaptured\r\n" + (ZWSP + EM_DASH).encode()) if unsafe else b"Captured\r\nsafe"
+    write_bytes(path, raw)
+    args = ["--fix", "--strict"] + (["--path", str(relative)] if explicit else [])
+    result = runner(SCRIPT, tmp_path, args)
+    assert result.returncode == (1 if unsafe else 0), result.stderr
+    assert path.read_bytes() == raw
+    assert "PRESERVED" in result.stdout
+    assert "FIXED" not in result.stdout
+    assert ("U+200B" in result.stderr) is unsafe
+
+
+@pytest.mark.parametrize("evidence_alias", [False, True])
+def test_fix_preserves_evidence_through_symlink(tmp_path: Path, runner, evidence_alias: bool) -> None:
+    real = tmp_path / "docs" / ("plain" if evidence_alias else "evidence") / "real.md"
+    alias = tmp_path / "docs" / ("evidence" if evidence_alias else "plain") / "alias.md"
+    raw = ("capture" + ZWSP + "\r\n").encode()
+    write_bytes(real, raw)
+    alias.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        alias.symlink_to(real)
+    except OSError as exc:
+        pytest.skip(f"file symlink unavailable: {exc.__class__.__name__}")
+    result = runner(SCRIPT, tmp_path, ["--fix", "--path", str(alias)])
+    assert result.returncode == 1, result.stderr
+    assert alias.is_symlink()
+    assert real.read_bytes() == raw
+    assert alias.read_bytes() == raw
+    assert "PRESERVED" in result.stdout
+
+
+def test_fix_outside_hardlink_keeps_original_evidence(tmp_path: Path, runner) -> None:
+    original = tmp_path / "docs" / "evidence" / "capture.md"
+    alias = tmp_path / "docs" / "editable.md"
+    raw = ("capture" + ZWSP + "\r\n").encode()
+    write_bytes(original, raw)
+    try:
+        os.link(original, alias)
+    except OSError as exc:
+        pytest.skip(f"hard link unavailable: {exc.__class__.__name__}")
+    result = runner(SCRIPT, tmp_path, ["--fix", "--path", str(alias)])
+    assert result.returncode == 0, result.stderr
+    assert original.read_bytes() == raw
+    assert alias.read_bytes() == b"capture\r\n"
+
+
+def test_repair_refuses_a_changed_target(tmp_path: Path, scripts_dir: Path) -> None:
+    validator = load_validator(scripts_dir)
+    target = tmp_path / "editable.md"
+    target.write_bytes(b"initial")
+    identity = validator.file_identity(target)
+    target.write_bytes(b"user edit")
+    with pytest.raises(OSError, match="changed after inspection"):
+        validator.atomic_write(target, b"replacement", expected=identity, original=b"initial")
+    assert target.read_bytes() == b"user edit"
+    assert not list(tmp_path.glob(".*.tmp"))
+
+
+def test_fix_preserves_evidence_directory_junction(tmp_path: Path, runner) -> None:
+    if os.name != "nt":
+        pytest.skip("Windows directory junction")
+    import subprocess
+
+    original = tmp_path / "docs" / "evidence" / "capture.md"
+    raw = ("capture" + ZWSP).encode()
+    write_bytes(original, raw)
+    alias = tmp_path / "docs" / "alias"
+    made = subprocess.run(["cmd", "/c", "mklink", "/J", str(alias), str(original.parent)], capture_output=True, check=False)
+    if made.returncode:
+        pytest.skip("directory junction unavailable")
+    try:
+        result = runner(SCRIPT, tmp_path, ["--fix", "--path", str(alias / original.name)])
+        assert result.returncode == 1, result.stderr
+        assert original.read_bytes() == raw
+        assert "PRESERVED" in result.stdout
+    finally:
+        alias.rmdir()
+
+
 def test_clean_tree_passes(tmp_path: Path, runner) -> None:
     write(tmp_path / "docs" / "README.md", "Plain ASCII content.\n")
     result = runner(SCRIPT, tmp_path)

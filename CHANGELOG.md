@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.4] - 2026-11-18
+
+### Changed
+
+- **`/status` stays one more release.** It still forwards to `/progress`; its removal, announced for v4.15.4, moves to v4.15.5. Update any saved prompts or scripts to `/progress` before then.
+- **The `nexus-hub` command now works in a new terminal right after install.** Both installers add `~/.nexus-hub/bin` to PATH by default instead of only printing the line to add, so `nexus-hub upgrade` no longer fails with "not recognized". On Windows the folder is appended once to your user PATH, keeping existing entries and their `%VARIABLE%` references unexpanded. On macOS and Linux one marked block is appended to your shell profile (`~/.zshrc`, `~/.bashrc`, `~/.bash_profile` for bash on macOS, or `~/.profile`). A second install changes nothing. Decision record: [2026-11-18-cli-bin-directory-on-path.md](docs/decisions/implemented/tooling/2026-11-18-cli-bin-directory-on-path.md).
+    - **If you installed v4.15.3 or earlier and `nexus-hub` is not found:** run the launcher once by its full path. Windows PowerShell: `& "$env:USERPROFILE\.nexus-hub\bin\nexus-hub.cmd" upgrade`. macOS and Linux: `~/.nexus-hub/bin/nexus-hub upgrade`. The upgrade adds the folder to PATH for next time.
+    - **Capability usage note (default-on change with an opt-out):**
+        - Activation: on by default for every install and upgrade.
+        - Validation: open a new terminal and run `nexus-hub --version`; it prints the installed version.
+        - Disable / rollback: install with `--no-modify-path` (bash) or `-NoModifyPath` (PowerShell) to skip it. To undo an existing change, remove the `.nexus-hub\bin` entry from your user Path under "Edit environment variables for your account" on Windows, or delete the lines between `# >>> nexus-hub PATH >>>` and `# <<< nexus-hub PATH <<<` in your shell profile.
+        - Authority boundary: it changes only your own user PATH or your own shell profile, never the system PATH, and grants no new permission to any tool.
+        - Docs: the decision record above.
+
+- **The plan checker protects captured evidence and gives clearer diagnostics (v4.15.4).**
+    - **Evidence is never rewritten:** `validate_unicode_safety.py --fix` still scans every file under an `evidence` directory but no longer changes its bytes, so captured logs stay exactly as recorded.
+    - **More consumer layouts read correctly:** the checker accepts exact-version H1 and H2 changelog headings, plain or linked, outside code fences. Relative, absolute and Windows short-name ledger roots resolve the same way, and a missing root fails with a clear message.
+    - **Blocked runs say what is missing:** approval coverage is reported per item without granting any authority. `check-minor --detail` and `minor_close.py status --detail` are one bounded, read-only local observation (10 seconds, 32 controller candidates, 2 MiB per input, 100 findings) that never writes completion.
+    - **Archive moves wait for live references:** an archive move is blocked while a supported live reference to the moved path is still unresolved. The approval summary shows no Time row for a phase with no tasks unless release-only time remains.
+    - **Deferred by design:** six related consumer requests (historical ledger relief, prose test baselines, record recreation, cleanup thresholds, prompt capture and sibling-worktree rekeying) are recorded as DF-53 to DF-58 in the v4.15 known-gaps ledger.
+    - **Decision record:** [2026-11-18-checker-evidence-and-diagnostics.md](docs/decisions/implemented/process/2026-11-18-checker-evidence-and-diagnostics.md).
+    - **Capability usage note:** no opt-in surface; no new flag or setting beyond the read-only `--detail` observation; to go back, revert this entry's files.
+
+### Fixed
+
+- **Plan checker reads task ranges correctly**: `check_plan_completion.py` no longer reads a phase summary line such as `- [x] T001-T007 complete` as a task. It used to become a pathless duplicate of its first task, overriding the real task line, so the plan could never read complete. The same fix stops that summary line from replacing the real task's text block used for conditional evidence. Regression test: `test_a_task_range_summary_line_is_not_read_as_a_task`.
+
 ## [4.15.3] - 2026-11-17
 
 ### Added

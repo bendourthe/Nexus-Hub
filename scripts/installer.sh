@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.15.3"
+NEXUS_HUB_VERSION="4.15.4"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -3409,27 +3409,72 @@ install_cli_launcher() {
         chmod +x "$bin_dest/nexus-hub" 2>/dev/null || true
     fi
 
-    # PATH hint (best-effort; never auto-edits a shell rc file).
+    # PATH wiring (v4.15.4): add one marked block to the shell profile unless
+    # --no-modify-path is given. See docs/decisions/implemented/tooling/
+    # 2026-11-18-cli-bin-directory-on-path.md.
     case ":${PATH:-}:" in
         *":$bin_dest:"*)
             write_item "[OK] $bin_dest is already on your PATH -- run: nexus-hub --version" "$GREEN"
-            ;;
-        *)
-            # The tildes below are intentional display text in a user-facing
-            # hint (shown literally as "~/.zshrc"), not paths to be expanded.
-            # shellcheck disable=SC2088
-            local rc="your shell profile (e.g. ~/.bashrc or ~/.zshrc)"
-            # shellcheck disable=SC2088
-            case "$(basename "${SHELL:-}")" in
-                zsh)  rc="~/.zshrc" ;;
-                bash) rc="~/.bashrc" ;;
-            esac
-            write_item "To use the 'nexus-hub' command, add its bin directory to your PATH." "$YELLOW"
-            write_item "  Add this line to $rc, then restart your shell:" "$RESET"
-            write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
-            write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
+            return 0
             ;;
     esac
+    local rc status
+    rc="$(nexus_path_profile)"
+    if [ "${NO_MODIFY_PATH:-0}" = "1" ]; then
+        write_item "--no-modify-path: your shell profile was not changed. To use the 'nexus-hub' command, add its bin directory to your PATH." "$YELLOW"
+        write_item "  Add this line to $rc, then restart your shell:" "$RESET"
+        write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
+        write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
+        return 0
+    fi
+    if status="$(add_nexus_bin_to_profile "$rc")"; then
+        if [ "$status" = "added" ]; then
+            write_item "[OK] Added ~/.nexus-hub/bin to your PATH in $rc. Open a new shell, then run: nexus-hub --version" "$GREEN"
+            write_item "  To undo: delete the lines between '# >>> nexus-hub PATH >>>' and '# <<< nexus-hub PATH <<<' in $rc." "$GRAY"
+        else
+            write_item "[OK] $rc already adds ~/.nexus-hub/bin to your PATH. Open a new shell, then run: nexus-hub --version" "$GREEN"
+        fi
+    else
+        write_item "Could not update $rc. To use the 'nexus-hub' command, add this line to your shell profile:" "$YELLOW"
+        write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
+        write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
+    fi
+}
+
+# Prints the shell profile that should carry the PATH line: ~/.zshrc for zsh
+# (or $ZDOTDIR/.zshrc), ~/.bash_profile for bash on macOS (login shells),
+# ~/.bashrc for bash elsewhere, and ~/.profile for any other shell.
+nexus_path_profile() {
+    case "$(basename "${SHELL:-}")" in
+        zsh)  printf '%s\n' "${ZDOTDIR:-$HOME}/.zshrc" ;;
+        bash)
+            if [ "$(uname -s 2>/dev/null)" = "Darwin" ]; then
+                printf '%s\n' "$HOME/.bash_profile"
+            else
+                printf '%s\n' "$HOME/.bashrc"
+            fi
+            ;;
+        *)    printf '%s\n' "$HOME/.profile" ;;
+    esac
+}
+
+# Appends the marked PATH block to the given profile once. Prints "added" or
+# "present"; returns non-zero when the file cannot be written.
+add_nexus_bin_to_profile() {
+    local rc="$1"
+    local begin="# >>> nexus-hub PATH >>>"
+    if [ -f "$rc" ] && grep -qF "$begin" "$rc"; then
+        printf 'present\n'
+        return 0
+    fi
+    {
+        printf '\n%s\n' "$begin"
+        # Single quotes are deliberate: the profile must keep the literal $HOME.
+        # shellcheck disable=SC2016
+        printf '%s\n' 'export PATH="$HOME/.nexus-hub/bin:$PATH"'
+        printf '%s\n' "# <<< nexus-hub PATH <<<"
+    } >> "$rc" || return 1
+    printf 'added\n'
 }
 
 # --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
@@ -3895,6 +3940,8 @@ LEGACY_REPORT_DIR=""
 # exactly as it was. With --strict-permissions the installer ALSO merges the
 # deny/ask overlay from configs/permissions/claude-permissions-strict.json.
 STRICT_PERMISSIONS=0
+# v4.15.4 -- set by --no-modify-path to leave the shell profile unchanged.
+NO_MODIFY_PATH=0
 
 # Map an arbitrary git branch name to a filesystem-safe cache token: every
 # character outside [A-Za-z0-9._-] becomes '-', parent-dir tokens are
@@ -3997,6 +4044,12 @@ Options:
                  Without this flag the install is unchanged (allow-only,
                  no-prompt). This is a deliberate posture split: convenience by
                  default, hardened on request.
+  --no-modify-path
+                 Do not add ~/.nexus-hub/bin to your PATH. By default the
+                 installer appends one marked block to your shell profile
+                 (~/.zshrc, ~/.bashrc, ~/.bash_profile on macOS bash, or
+                 ~/.profile) so 'nexus-hub upgrade' works in new shells; with
+                 this flag it only prints the line to add.
   --branch <name>  Install the catalog from a pushed branch instead of the
                  current checkout. Shallow-clones the repo at <name> into a
                  deterministic cache directory (~/.nexus-hub/branches/<name>/),
@@ -4307,6 +4360,10 @@ while [ $# -gt 0 ]; do
         --enterprise)
             ENTERPRISE=1
             PASSTHRU_ARGS+=("--enterprise")
+            shift
+            ;;
+        --no-modify-path)
+            NO_MODIFY_PATH=1
             shift
             ;;
         --strict-permissions)

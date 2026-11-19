@@ -8,14 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.3 更新内容
+## v4.15.4 更新内容
 
-- 并行的小版本运行更安全：通过心跳检测并恢复停滞的工作通道，批准前统一重新规划该小版本的所有计划，按声明允许的范围同时运行尽可能多的通道（上限为核心数一半与 6 中的较小值），`/compare` 和 `/plan` 也会运行相同的重新规划分析。
-- `security-review` 可以把发现项转换为共享的评审发现格式，并新增了不需要凭据的合成矩阵版工具链反馈节奏指南。
-- `/status` 更名为 `/progress`，只输出一份易读的报告，不再显示置信度行。较早的发布者不再被只读预留阻塞。
-- Nexus Hub Settings 0.8.9 可以恢复被合并的 Claude Code 和 Codex 分栏（通过 `nexusHubSettings.restoreAgentSplit` 选择启用），使用量监视器也不再遗漏开始监视时发生的提醒设置变更。
+- `nexus-hub upgrade` 现在可以在任何新终端中使用：安装程序会把 `~/.nexus-hub/bin` 加入 PATH（可用 `--no-modify-path` 或 `-NoModifyPath` 关闭）。如果安装的是 v4.15.3 或更早的版本，请按发布说明中的方法，先用完整路径运行一次启动器。
+- 计划检查器不再改写已捕获的证据，能够读取更多变更日志和台账的布局，并通过一个有界的只读 `--detail` 视图显示缺少哪些批准项。
+- 当实时引用尚未解决时，归档移动会等待；像 `T001-T007 complete` 这样的阶段汇总行不再被当作任务读取。
 
-[版本详情与早期版本](CHANGELOG.md#4153---2026-11-17)
+[版本详情与早期版本](CHANGELOG.md#4154---2026-11-18)
 
 ## 安装
 

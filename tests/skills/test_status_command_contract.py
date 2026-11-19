@@ -182,6 +182,6 @@ def test_contract_states_escaping_and_layout_rules():
 
 def test_status_is_a_deprecation_shim_forwarding_to_progress() -> None:
     text = read(STATUS_SHIM)
-    assert text.startswith("---\ndescription: DEPRECATED (removed in v4.15.4). Forwarding to /progress.\n---\n")
+    assert text.startswith("---\ndescription: DEPRECATED (removed in v4.15.5). Forwarding to /progress.\n---\n")
     assert "Forwarding to /progress" in text and "progress.md" in text
     assert "status_report.py" not in text
