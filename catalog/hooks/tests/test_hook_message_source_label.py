@@ -59,13 +59,8 @@ _STDOUT_CONTEXT = frozenset({
 _EXPECTED_SILENT = frozenset({
     "approval-capture", "auto-format-on-write", "commit-msg", "completion-gate",
     "compress-output", "notify-attention-required", "notify-on-complete",
-    "rewrite-command", "session-summary",
+    "rewrite-command", "session-summary", "stuck-turn-notice",
 })
-
-# v4.15.5 adds the stuck-turn-notice relay adapter (its message comes from the
-# helper _turn_ledger.py). Counted only while the hook exists, so this file can
-# merge before v4.15.5; the registration change makes it unconditional.
-_EXPECTED_SILENT_PENDING = frozenset({"stuck-turn-notice"})
 
 _JSON_FIELD = re.compile(
     r"""["'](reason|permissionDecisionReason|systemMessage|additionalContext|"""
@@ -242,7 +237,7 @@ def test_silent_hooks_are_the_expected_ones() -> None:
         if _own_messages(_lines(path), _language(path), stem):
             noisy.add(stem)
     silent -= noisy
-    expected = set(_EXPECTED_SILENT) | {s for s in _EXPECTED_SILENT_PENDING if (_HOOKS_DIR / f"{s}.sh").is_file()}
+    expected = set(_EXPECTED_SILENT)
     assert silent == expected, (
         "the set of silent hooks changed; update _EXPECTED_SILENT and the inventory "
         f"(docs/releases/v4/v4.14/development/v4.14.8-hook-message-inventory.md): {sorted(silent ^ expected)}"
