@@ -1836,9 +1836,10 @@
       },
       "qwen": {
         "turn_id": "prompt_id",
-        "failure": "event dropped by derivation",
+        "failure": "PostToolUseFailure error (POSIX install; a Windows install drops the Bash-only matcher)",
         "churn": "tool_input.file_path (assumed)",
-        "runs": "churn-only"
+        "runs": "all on a POSIX install; churn-only on a Windows install",
+        "mapped": "2026-11-19"
       },
       "kimi": {
         "turn_id": "none",
