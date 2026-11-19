@@ -599,7 +599,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Queued work - v4.15.5 `/status` removal
 
-- [ ] Remove the deprecated `/status` command in v4.15.5, as the v4.15.4 release notes announce: delete `catalog/commands/status.md`, update `AGENTS.md`, the guide's command list, `progress.md`, `progress-reporting.md` and `tests/skills/test_status_command_contract.py`, and make sure an upgrade removes the installed copy. The removal was first promised for v4.15.4 and was moved by maintainer decision on 2026-11-18.
+- [x] Remove the deprecated `/status` command in v4.15.5, as the v4.15.4 release notes announce: delete `catalog/commands/status.md`, update `AGENTS.md`, the guide's command list, `progress.md`, `progress-reporting.md` and `tests/skills/test_status_command_contract.py`, and make sure an upgrade removes the installed copy. The removal was first promised for v4.15.4 and was moved by maintainer decision on 2026-11-18.
 
 ## Queued work - v4.16 plan task-target validation
 

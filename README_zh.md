@@ -327,7 +327,7 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 #### `/progress`
 
-查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 在 v4.15.4 之前仍会转发到这里。
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 已在 v4.15.5 中移除。
 
 ```text
 /progress v4.15

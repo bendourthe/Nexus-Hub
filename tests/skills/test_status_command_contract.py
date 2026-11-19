@@ -180,8 +180,6 @@ def test_contract_states_escaping_and_layout_rules():
         assert expected in formats
 
 
-def test_status_is_a_deprecation_shim_forwarding_to_progress() -> None:
-    text = read(STATUS_SHIM)
-    assert text.startswith("---\ndescription: DEPRECATED (removed in v4.15.5). Forwarding to /progress.\n---\n")
-    assert "Forwarding to /progress" in text and "progress.md" in text
-    assert "status_report.py" not in text
+def test_status_shim_is_removed() -> None:
+    """The v4.15.4 notes announced /status removal in v4.15.5; /progress replaces it."""
+    assert not STATUS_SHIM.exists()

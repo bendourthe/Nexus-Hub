@@ -335,7 +335,7 @@ Check progress, sync the repo, or run the release flow.
 
 #### `/progress`
 
-Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` still forwards here until v4.15.4.
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` was removed in v4.15.5.
 
 ```text
 /progress v4.15
