@@ -109,7 +109,7 @@ def test_fixture_notice_counts_and_privacy(wrapper, world, name):
     assert fired == _EXPECTED[name]["notices"]
     for i in fired:
         text = _notice_text(outs[i])
-        assert text.startswith("Nexus-Hub advisory") and text.count(". ") <= 3
+        assert text.startswith("[Nexus-Hub: stuck-turn-notice] ") and text.count(". ") <= 3
         if not name.startswith("kimi"):
             body = json.loads(outs[i])["hookSpecificOutput"]
             assert body["hookEventName"] in {"PostToolUse", "PostToolUseFailure", "AfterTool"}

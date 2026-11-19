@@ -394,7 +394,7 @@ def notice_text(signal: str, command: str | None, target: str | None) -> str:
             f'(the file was: "{shown}").' if shown else "(name withheld)."
         )
     return (
-        "Nexus-Hub advisory: this turn may be stuck. "
+        "[Nexus-Hub: stuck-turn-notice] This turn may be stuck. "
         + detail
         + " This is a notice only; consider a different approach before retrying."
     )
