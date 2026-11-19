@@ -3755,130 +3755,19 @@ None. Seven follow-ups still open at release moved to the v4.16 ledger, section 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 7 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### DF-59: Unused-tool report
+None. Eleven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0: DF-59, DF-60, DF-61, DF-63, WN-42, WN-43 and WN-45 to WN-48 with their ids unchanged, and WN-49, which records what WN-44's fix left open (Windows Qwen installs and Copilot). DF-62 and WN-44 are resolved below.
 
-**Source phase**: v4.15.5 plan grill (T005)
+### Resolved
 
-**Plan reference**: [v4.15.5 plan](plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md), comparison item B
-
-**Reason**: Claude Code's MCP documentation (https://code.claude.com/docs/en/mcp, "Scale with MCP tool search") states that tool search is on by default and that "Only tool names and server instructions load at session start", so an unused-tool report saves little on current Claude Code.
-
-**Suggested next step**: revisit in v4.16.4 after v4.16.3's context attribution, for setups without tool search (`ENABLE_TOOL_SEARCH=false`, Microsoft Foundry on Azure, models earlier than Opus 4 and Sonnet 4). Scope it at server level.
-
-#### DF-60: No live Claude Code payload capture
-
-**Source phase**: v4.15.5 Phase 2 (T007)
-
-**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T007
-
-**Reason**: a live `claude -p` capture is a paid call and the lane's spend cap was USD 0. The maintainer accepted the documented payload format on 2026-11-18.
-
-**Suggested next step**: capture redacted payloads once, when a run already holds spend authority, and compare them with the documented fields.
-
-#### DF-61: Default-on measurement of the stuck-turn notice
-
-**Source phase**: v4.15.5 Phase 2 (T018)
-
-**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T018
-
-**Reason**: deciding a default needs consent to read at least 30 real sessions across 3 projects and a maintainer spot-check of 5 labels. The maintainer chose to ship opt-in on 2026-11-18.
-
-**Suggested next step**: with consent, run `python catalog/hooks/_turn_ledger.py replay-transcripts <dir>` over real sessions and decide the default in a later minor.
-
-#### DF-62: Hook registration delivered after integration
-
-**Source phase**: v4.15.5 Phase 2 (T014, T017)
-
-**Plan reference**: [v4.15.5 plan](plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md), T014 and T017
-
-**Reason**: the typed hook-registration permission can be granted only before a member's implementation admission, and v4.15.5 was admitted without it. The maintainer chose on 2026-11-18 to register the hook through a standalone pull request after v4.15.5 integrates, because the hook script must exist on develop first.
-
-**Suggested next step**: merge the registration pull request, run the install-twice check (T017), then resolve this item in the v4.15.5 records.
-
-#### WN-42: Windows PowerShell 5.1 wrapper latency above budget
-
-**Source phase**: v4.15.5 Phase 2 (T013)
-
-**Plan reference**: [implementation decisions](development/v4.15.5-implementation-decisions.md), T013
-
-**Reason**: on a loaded host the `ps1` wrapper p95 was 856 ms to 1082 ms against a 500 ms budget, mostly PowerShell's own start-up. Accepted while the notice is opt-in (maintainer decision, 2026-11-18).
-
-**Suggested next step**: re-measure on a quiet host; if it still misses, prefer the `.sh` wrapper where Git Bash exists.
-
-#### WN-43: Kimi hook matcher does not match Kimi tool names
-
-**Source phase**: v4.15.5 Phase 2 (predates this plan)
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
-
-**Reason**: the derived Kimi matcher is `^(Bash|Edit|Write)$`, while Kimi's tools are named `Shell`, `WriteFile` and `StrReplaceFile`, so no Kimi tool hook fires.
-
-**Suggested next step**: map Kimi tool names in the Kimi settings derivation and add a test.
-
-#### WN-44: Qwen and Gemini CLI drop PostToolUseFailure
-
-**Source phase**: v4.15.5 Phase 2
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md)
-
-**Reason**: the Qwen and Gemini CLI derivations drop `PostToolUseFailure`, so Qwen receives edit churn only.
-
-**Suggested next step**: add a failure mapping through `SettingsHookSpec.event_map` where the platform documents an equivalent event.
-
-#### WN-45: Lifespan audit flags every v4.15 member edit after the v4.15.0 tag
-
-**Source phase**: v4.15.5 Phase 4
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Architecture refactor
-
-**Reason**: `audit-docs.py lifespan-contradictions` reports 48 findings, 5 of them on this plan's files, because it compares member edits with the first tag of the minor.
-
-**Suggested next step**: compare against each member's own release tag instead of the minor's first tag.
-
-#### DF-63: Ledger retention below the size cap and fact-store bounds
-
-**Source phase**: v4.15.5 Tier 3 deep pass (adversarial review, 2026-11-18)
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
-
-**Reason**: the 30-day filter runs only when the ledger exceeds 256 KiB, a long single session never rotates, and `env-facts.json` has no entry cap or expiry.
-
-**Suggested next step**: prune by age at session-start rotation regardless of size, and cap fact entries by `last_seen`.
-
-#### WN-46: Ledger appends are not atomic across processes on Windows
-
-**Source phase**: v4.15.5 Tier 3 deep pass
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
-
-**Reason**: the C runtime implements append as seek-then-write, so parallel tool calls can overwrite a ledger line, and a parallel call can name the wrong command in a notice. Both stay within the documented worst case of a missed or duplicate notice.
-
-**Suggested next step**: document the limitation in the helper, or append through a Windows handle opened with append-only access; echo a command only when it matches the signal key.
-
-#### WN-47: State directory trust and key creation
-
-**Source phase**: v4.15.5 Tier 3 deep pass
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
-
-**Reason**: the helper does not check the owner or mode of `~/.nexus-hub/state/`, opens files by name after a symlink check, and an interrupted key creation leaves an empty `ledger.key` that silently disables the feature. Exploiting the first two needs another local principal with write access to the state directory.
-
-**Suggested next step**: on POSIX open with `O_NOFOLLOW` and refuse group- or world-writable or foreign-owned directories; write the key through a temporary file and rename.
-
-#### WN-48: Bash wrapper stdin handling
-
-**Source phase**: v4.15.5 Tier 3 deep pass
-
-**Plan reference**: [last-phase evidence](development/v4.15.5-last-phase-evidence.md), Tier 3 deep pass
-
-**Reason**: `stuck-turn-notice.sh` reads stdin one byte at a time (about 2 s for a 900 KB payload on Git Bash), and payloads over 1 MiB are dropped silently, so large writes never count toward edit churn.
-
-**Suggested next step**: pipe stdin straight to the first available interpreter and buffer only when a fallback is needed.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-62 | Hook registration delivered after integration | v4.15.5 | Pull request #704 (merged as `d0296ed75`) registers `stuck-turn-notice` on `PostToolUse` and `PostToolUseFailure` in `catalog/hooks/settings.json`; its installer test proves two installs register each entry once. Hosted run `44473547702` passed. |
+| WN-44 | Qwen and Gemini CLI drop PostToolUseFailure | v4.15.5 | T015 fix, pull request #705 (merged as `1b8d33d09`): the Qwen spec maps `PostToolUseFailure` on `^(run_shell_command)$`. Gemini CLI has no such event and reports failures inside `AfterTool`, so its skip is correct. An end-to-end install drove the installed hook with Qwen failure payloads; the third repeat printed one notice. The Windows Qwen and Copilot remainder is WN-49. |
