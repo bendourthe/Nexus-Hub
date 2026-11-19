@@ -600,6 +600,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Remove the deprecated `/status` command in v4.15.5, as the v4.15.4 release notes announce: delete `catalog/commands/status.md`, update `AGENTS.md`, the guide's command list, `progress.md`, `progress-reporting.md` and `tests/skills/test_status_command_contract.py`, and make sure an upgrade removes the installed copy. The removal was first promised for v4.15.4 and was moved by maintainer decision on 2026-11-18.
 
+## Queued work - v4.16 plan task-target validation
+
+- [ ] Reject task lines whose target can never be proved, before a plan is frozen. Plan validation (the closing pass `/plan` already runs) must refuse a task line whose final token is an annotation rather than a repository path, such as `(gitignored)`, and a target that Git ignores. It must still allow a planned output file that does not exist yet. Authoring guidance in `implementation-plan` should tell owner and manual tasks to name the committed record of the session as their target. Source: MileStone v0.2 T005 (2026-11-18), which ended with `app/src/test/resources/fixtures-private/ (gitignored)` and can never be met; its owner accepted it as recorded and declined both the local owner-evidence candidate and a general task-target correction feature. Done when the validator fails on both cases with a clear message, accepts a not-yet-created planned path, and tests cover all three.
+
 ## Queued work - v4.15.4 checker evidence and diagnostics
 
 - [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
