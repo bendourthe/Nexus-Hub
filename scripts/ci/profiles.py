@@ -495,6 +495,7 @@ TESTS_CORE = Group(
             "tests/integrations/test_detection.py",
             "tests/integrations/test_lifecycle.py",
             "tests/integrations/test_lifecycle_block_rendering.py",
+            "tests/integrations/test_retired_items.py",
             "tests/integrations/test_selective_install.py",
             "tests/integrations/test_settings_hooks.py",
             "tests/integrations/test_stale_surfaces.py",

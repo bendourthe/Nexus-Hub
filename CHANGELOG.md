@@ -24,7 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Authority boundary: advisory text only; no permission change, nothing sent anywhere, and state stays under `~/.nexus-hub/state/`.
         - Docs: the "Stuck-Turn Notice and Environment Facts" section of `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`.
 
+### Removed
+
+- **The deprecated `/status` command.** It was renamed to `/progress` in v4.15.3, and the v4.15.4 release notes announced its removal in v4.15.5. Use `/progress` (or `/update status`). A refresh install or `nexus-hub upgrade` removes the installed copies (see Fixed).
+
 ### Fixed
+
+- **Upgrades now remove copies of commands, skills and agents that left the catalog.** Before, only folders synced wholesale (such as Claude Code's `commands/`) lost them; the command-skill `skills/<name>/`, Codex `prompts/<name>.md` and Antigravity or Windsurf `workflows/<name>.md` copies stayed, so a removed command kept working. A copy is removed only when Nexus-Hub wrote it, it is unchanged since then, and its name is no longer in the catalog; an edited copy is kept and reported. Nothing is removed on a dry run or an instruction-only install. Decision record: `docs/decisions/implemented/tooling/2026-11-19-retire-removed-catalog-items-on-upgrade.md`.
 
 - **`/progress` reports measured values and never prints `unknown`.**
     - **Cause:** the agent wrote the report's snapshot by hand, and the renderer printed whatever it was given, so Elapsed, Remaining and the Total row could all read `unknown` although git records every one of them.

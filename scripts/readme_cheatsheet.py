@@ -26,7 +26,7 @@ def cheatsheet(page, root):
           examples:[...c.querySelectorAll('.inv')].map(n=>n.textContent.trim()),
           notes:[...c.querySelectorAll('.cs-flags,.cs-teach')].map(md)}))}));
     }""")
-    assert len(groups) == 7 and sum(len(g["cards"]) for g in groups) == 24
+    assert len(groups) == 7 and sum(len(g["cards"]) for g in groups) == 25
     lines = ["<!-- readme-cheatsheet:start -->"]
     for index, group in enumerate(groups):
         if index:

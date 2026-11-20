@@ -1,4 +1,4 @@
-"""Every generated copy of the progress command prints the renderer output verbatim, and the status shim forwards to it."""
+"""Every generated copy of the progress command prints the renderer output verbatim; the /status shim is gone (v4.15.5)."""
 
 import pytest
 
@@ -24,21 +24,19 @@ def command_files(ctx, name):
 
 
 @pytest.mark.parametrize("key", sorted(INTEGRATION_REGISTRY))
-def test_installed_progress_surfaces_carry_the_verbatim_rule_and_status_forwards(install_ctx, key):
+def test_installed_progress_surfaces_carry_the_verbatim_rule_and_no_status_shim(install_ctx, key):
     ctx = install_ctx
-    ctx.selection = {"resolved": {"skills": ["implement-phase"], "commands": ["progress", "status", "implement", "update"], "agents": []}}
+    ctx.selection = {"resolved": {"skills": ["implement-phase"], "commands": ["progress", "implement", "update"], "agents": []}}
     get(key).install(ctx)
     progress, status = command_files(ctx, "progress"), command_files(ctx, "status")
     if key in NO_STATUS_SURFACE:
         assert progress == [] and status == [], f"{key} now has a progress surface: remove it from NO_STATUS_SURFACE"
         return
-    assert progress and status, f"{key}: progress and status command surfaces must both be generated"
+    assert progress, f"{key}: the progress command surface must be generated"
+    assert status == [], f"{key}: the removed /status shim is still generated"
     for path in progress:
         text = " ".join(path.read_text(encoding="utf-8").split())
         assert MARKER in text, f"{key}: {path.relative_to(ctx.target_root)} lacks the verbatim output rule"
-    for path in status:
-        text = " ".join(path.read_text(encoding="utf-8").split())
-        assert "Forwarding to /progress" in text or "run `/progress`" in text, f"{key}: {path.relative_to(ctx.target_root)} does not forward to /progress"
 
 
 def test_source_command_and_references_carry_the_rule(repo_root):
