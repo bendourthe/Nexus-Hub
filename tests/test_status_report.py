@@ -32,11 +32,11 @@ def snapshot():
         "run_id": "example-run", "scope": "v1.3", "active": True,
         "observed_at": "2026-11-16T12:00:00Z", "source": "example/plan.md",
         "last_released": "v1.2.0", "versions_left": 1,
-        "elapsed": "13 min", "remaining": "unknown (no comparable history)",
-        "estimate_basis": "No comparable completed plans",
+        "elapsed": "13 min", "remaining": "~2.2 d (1.6-4.0 d)",
+        "estimate_basis": "open tasks x days per task from recent release tags",
         "rows": [{"name": "Phase 1", "goals": "Package profiles", "done": 3,
                   "total": 19, "state": "running", "elapsed": "13 min",
-                  "remaining": "unknown", "dependency": "none"}],
+                  "remaining": "~2.2 d (1.6-4.0 d)", "dependency": "none"}],
         "goals": [{"goal": "Ship v1.3", "scope": "run",
                    "done_when": "All 19 tasks verified", "state": "running"}],
         "decisions": [], "running": [],
@@ -47,7 +47,7 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
     text = report.render(snapshot, "compact")
     assert text.startswith("## Progress Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
     assert "| **Full v1.3 implementation** (1 version left) | " in text
-    assert "progress: \u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 16% (3/19 tasks)   \u00b7   ETA: unknown" in text
+    assert "progress: \u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 16% (3/19 tasks)   \u00b7   ETA: ~2.2 d (1.6-4.0 d)" in text
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
     assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
@@ -58,8 +58,8 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
 def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
     snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
                               "options": [{"option": "A", "effect": "e"}]}]
-    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "unknown"},
-                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min", "remaining": "unknown"}]
+    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "N/A"},
+                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min", "remaining": "N/A"}]
     text = report.render(snapshot, "compact")
     assert ("### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A\n\n"
             "| Option | What it means | Effect |\n| ------ | ------------- | ------ |\n| A      | -             | e      |\n\n"
@@ -141,9 +141,10 @@ def test_rejects_invalid_counts(report, snapshot, done, total):
         report.render(snapshot, "compact")
 
 
-def test_unknown_and_zero_are_not_claimed_complete(report, snapshot):
+def test_missing_counts_are_rejected_and_zero_is_not_claimed_complete(report, snapshot):
     snapshot["rows"][0].update(done=None, total=None)
-    assert "unknown" in report.render(snapshot, "compact")
+    with pytest.raises(ValueError, match="no task counts"):
+        report.render(snapshot, "compact")
     snapshot["rows"][0].update(done=0, total=0)
     text = report.render(snapshot, "compact")
     assert "N/A" in text and "100%" not in text
@@ -189,7 +190,7 @@ def test_audit_detects_missing_stale_and_shadowed_installations(report, tmp_path
 
 def test_running_links_are_preserved_and_unsafe_schemes_rejected(report, snapshot):
     snapshot["running"] = [{"name": "PR #12", "state": "checks", "done": 2, "total": 3,
-                            "elapsed": "1 min", "remaining": "unknown", "url": "https://example.test/pull/12/checks"}]
+                            "elapsed": "1 min", "remaining": "N/A", "url": "https://example.test/pull/12/checks"}]
     for mode in ("compact", "full"):
         output = report.render(snapshot, mode)
         assert "](https://example.test/pull/12/checks)" in output
@@ -230,11 +231,11 @@ def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapsh
     assert "Blocked by" not in output and "| time left:" not in output
 
 
-def test_legacy_snapshot_reports_missing_release_estimate_without_guessing(report, snapshot):
+def test_no_next_release_means_everything_is_released(report, snapshot):
     output = report.render(snapshot, "compact")
-    assert "| **Next release** | unknown |" in output
-    assert "| **Next release ETA** | unknown (release estimate not supplied) |" in output
-    assert "release estimate not supplied" in output
+    assert "| **Next release** | none (all released) |" in output
+    assert "| **Next release ETA** | N/A |" in output
+    assert "unknown" not in output
 
 
 @pytest.mark.parametrize("value", [False, {}, {"version": "v4.15.2"},
@@ -253,7 +254,7 @@ def hostile_snapshot(snapshot):
     snapshot["goals"][0].update(goal=HOSTILE, done_when=HOSTILE)
     snapshot["decisions"] = [{"id": "1", "title": HOSTILE, "detail": HOSTILE,
                               "options": [{"option": "A (recommended)", "meaning": HOSTILE, "effect": HOSTILE}]}]
-    snapshot["running"] = [{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "unknown"}]
+    snapshot["running"] = [{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "N/A"}]
     return snapshot
 
 
@@ -360,9 +361,41 @@ def test_whole_scope_value_has_the_specified_format(report, snapshot, mode):
     assert "&nbsp;" not in row
 
 
+def _set(snapshot, where, value):
+    target = snapshot
+    for key in where[:-1]:
+        target = target[key]
+    target[where[-1]] = value
+
+
+@pytest.mark.parametrize("where", [
+    ("elapsed",), ("remaining",), ("rows", 0, "elapsed"), ("rows", 0, "remaining"),
+    ("next_release", "remaining"), ("running", 0, "elapsed"), ("running", 0, "remaining"),
+])
+@pytest.mark.parametrize("value", ["unknown", "Unknown (fewer than 3 completed plans)"])
+def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, where, value):
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~3 h", "condition": "none",
+                                "confidence": "medium", "basis": "release tags"}
+    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "N/A"}]
+    report.render(snapshot, "full")
+    _set(snapshot, where, value)
+    with pytest.raises(ValueError, match="status_snapshot.py"):
+        report.render(snapshot, "full")
+
+
 @pytest.mark.parametrize("mode", ["compact", "full"])
-def test_unknown_counts_and_eta_are_stated_plainly(report, snapshot, mode):
-    snapshot["rows"][0].update(done=None, total=None)
-    snapshot["remaining"] = "unknown"
-    row = next(l for l in report.render(snapshot, mode).splitlines() if l.startswith("| **Full v1.3 implementation**"))
-    assert row.endswith("| progress: unknown   \u00b7   ETA: unknown |")
+def test_no_report_ever_prints_unknown(report, snapshot, mode):
+    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "N/A"}]
+    output = report.render(snapshot, mode)
+    assert "unknown" not in output.lower()
+    if mode == "full":
+        assert "| CI | N/A | N/A | running | 4 min | N/A |" in squash(output)
+
+
+@pytest.mark.parametrize("field,value", [("last_released", None), ("versions_left", None)])
+def test_release_inventory_must_be_measured(report, snapshot, field, value):
+    snapshot[field] = value
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")

@@ -246,3 +246,34 @@ def test_check_passes_on_every_repository_plan() -> None:
     plans = sorted(ROOT / p for p in listed if plan_re.fullmatch(p))
     assert plans
     assert [v for p in plans for v in ps.contract_violations(ps.Plan(p))] == []
+
+
+FLAT = """# Plan - Flat
+
+**Version**: v9.2.0
+
+## Task List
+
+- [x] T001 First
+- [ ] T002 Second
+- [ ] T003 Third
+
+## Phase 1: Build
+
+Work described here; the tasks live in the list above.
+
+## Phase 2: Ship
+
+Release.
+"""
+
+
+def test_a_flat_task_list_before_the_phases_is_counted(tmp_path: Path) -> None:
+    """v4.15.10 lists its 39 tasks in one section and reported 0 of 0."""
+    path = tmp_path / "v9.2.0-flat.md"
+    path.write_text(FLAT, encoding="utf-8")
+    plan = ps.Plan(path)
+    assert (plan.total_tasks, plan.open_tasks) == (3, 2)
+    table = ps.progress_table(plan)
+    assert "| Task list (not grouped by phase) | - | 1/3 |" in table
+    assert table.endswith("**0 of 2 phases complete; 1 of 3 tasks.**")
