@@ -1,0 +1,2 @@
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"pytest -q"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUse","tool_name":"Shell","tool_input":{"command":"pytest -q"},"tool_output":"ok"}

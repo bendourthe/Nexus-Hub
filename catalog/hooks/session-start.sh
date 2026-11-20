@@ -78,6 +78,27 @@ fi
 _nexus_msg "$_banner" "$_git_line"
 _nexus_msg "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
 
+# --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
+if [[ "${NEXUS_ENV_FACTS:-off}" == "on" ]]; then
+  _tl_src="${BASH_SOURCE[0]//\\//}"
+  case "$_tl_src" in */*) _tl_dir="${_tl_src%/*}" ;; *) _tl_dir="." ;; esac
+  _tl_dir="$(cd "$_tl_dir" 2>/dev/null && { pwd -W 2>/dev/null || pwd; })"
+  _tl_helper="$_tl_dir/_turn_ledger.py"
+  if [ -n "$_tl_dir" ] && [ -f "$_tl_helper" ]; then
+    for _tl_py in python3 python; do
+      command -v "$_tl_py" >/dev/null 2>&1 || continue
+      if "$_tl_py" "$_tl_helper" rotate >/dev/null 2>&1; then
+        _tl_out="$("$_tl_py" "$_tl_helper" facts 2>/dev/null || true)"
+        if [ -n "$_tl_out" ]; then
+          printf '%s\n' "$_tl_out"  # nexus: hook-msg-exempt helper output carries the session-start tag and heading
+        fi
+        break
+      fi
+    done
+  fi
+fi
+# --- end environment-fact replay ---
+
 # --- Surface the last-session digest (memory-persistence subset) ---
 if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then
   exit 0

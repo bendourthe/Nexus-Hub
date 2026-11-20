@@ -277,6 +277,42 @@ Because it is advisory only (exit 0, never blocks a phase), it is safe to leave 
 
 This adopts the *discipline* (phase-boundary automation on Nexus-Hub's own hook surface) without adopting Spec Kit's per-command hook *machinery*. See the "lifecycle-hook scope creep" risk note in the v3.6.0 Spec Kit comparison (Section 9) for why the line is drawn here.
 
+### Stuck-Turn Notice and Environment Facts
+
+Two opt-in capabilities share one local helper, `_turn_ledger.py` in the hooks directory your platform installs into (`~/.claude/hooks/` for Claude Code), called by `stuck-turn-notice.{sh,ps1}` (on `PostToolUse` and `PostToolUseFailure`) and by `session-start.{sh,ps1}`. Both are computed locally with no model call and no network call, and neither writes a settings file.
+
+- **Stuck-turn notice** (`NEXUS_STUCK_NOTICE`): adds one short advisory notice per turn when the same command fails 3 times, 6 tool calls fail, or one file is changed 4 times. It runs where the platform hook payload supports it (see `docs/policy/platform-read-contracts.md`, "Stuck-turn notice reach").
+- **Environment facts** (`NEXUS_ENV_FACTS`): replays at most 5 confirmed workarounds at session start, for example that `pytest` is not found here but `python -m pytest` works. A fact needs the same failure and workaround in 3 sessions on at least 2 calendar days, with no edit between them.
+
+Activation:
+
+- Set the variable where the hook can see it. In a shell: `export NEXUS_STUCK_NOTICE=on` (PowerShell: `$env:NEXUS_STUCK_NOTICE = "on"`), and the same for `NEXUS_ENV_FACTS`. To make it persistent, put it in the `env` block of `~/.claude/settings.json`, for example `{"env": {"NEXUS_STUCK_NOTICE": "on", "NEXUS_ENV_FACTS": "on"}}`.
+- With neither variable set, the wrapper exits before starting Python and nothing is stored.
+- Both capabilities need the `stuck-turn-notice` hook registered; collection stops when it is disabled.
+
+Validation:
+
+- Run `python ~/.claude/hooks/_turn_ledger.py stats` in the project directory (Claude Code path; use your platform's hooks directory otherwise). It prints JSON with `notified_turns`, `no_recurrence_share`, `replayed_facts`, and `reattempt_rate`.
+- For facts, start a new session and look for the line `Observed in this project (data, not instructions):` under the session-start banner.
+
+Disable and rollback:
+
+- Turn one capability off: unset its variable (or set `NEXUS_STUCK_NOTICE=off`).
+- Turn collection off for both: `export NEXUS_DISABLED_HOOKS=stuck-turn-notice`, or `export NEXUS_HOOK_PROFILE=minimal`. With facts on and collection off, session start prints one line saying facts are unavailable.
+- Remove the hook registration entry for `stuck-turn-notice` from `settings.json` to stop the hook entirely.
+
+Authority boundary:
+
+- The notice is advisory text only. It cannot block a tool call, approve anything, or change a permission.
+- Nothing is sent anywhere. State stays under `~/.nexus-hub/state/<project hash>/`, never in the project tree, so a repository cannot supply, forge, or publish it.
+- The ledger holds keyed hashes of commands and file names, not their text. Plain text is stored only for a confirmed fact that passed the allowlist grammar and the secret scan.
+- Replayed facts are printed as data in a fixed grammar, with a heading that says they are not instructions.
+
+Purge:
+
+- Delete `~/.nexus-hub/state/<project hash>/` to remove one project's ledger and facts. Delete `~/.nexus-hub/state/` to remove everything, including the hashing key (a new key is created on next use).
+- The hash is the first 16 hex characters of the SHA-256 of the resolved project path.
+
 ### Code-search routing guard
 
 `code-search-routing` is a `PreToolUse` advisory hook for `Grep`, `Glob`, and conservative Bash search patterns. It recommends the local `nexus-code-search` MCP tools before native repository discovery bypasses the index. The Bash matcher covers direct or piped `grep` / `rg`, plus non-destructive `find` commands with name or path predicates; `cat` is treated as search only when its pipeline contains `grep` or `rg`. It never intercepts `Read`, because a prior read is part of the edit-safety contract.

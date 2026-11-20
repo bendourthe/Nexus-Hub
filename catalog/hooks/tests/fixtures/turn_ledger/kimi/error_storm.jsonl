@@ -1,0 +1,6 @@
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-0"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-1"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-2"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-3"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-4"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"step-5"},"error":"failed"}

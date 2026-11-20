@@ -59,7 +59,7 @@ _STDOUT_CONTEXT = frozenset({
 _EXPECTED_SILENT = frozenset({
     "approval-capture", "auto-format-on-write", "commit-msg", "completion-gate",
     "compress-output", "notify-attention-required", "notify-on-complete",
-    "rewrite-command", "session-summary",
+    "rewrite-command", "session-summary", "stuck-turn-notice",
 })
 
 _JSON_FIELD = re.compile(
@@ -237,9 +237,10 @@ def test_silent_hooks_are_the_expected_ones() -> None:
         if _own_messages(_lines(path), _language(path), stem):
             noisy.add(stem)
     silent -= noisy
-    assert silent == set(_EXPECTED_SILENT), (
+    expected = set(_EXPECTED_SILENT)
+    assert silent == expected, (
         "the set of silent hooks changed; update _EXPECTED_SILENT and the inventory "
-        f"(docs/releases/v4/v4.14/development/v4.14.8-hook-message-inventory.md): {sorted(silent ^ _EXPECTED_SILENT)}"
+        f"(docs/releases/v4/v4.14/development/v4.14.8-hook-message-inventory.md): {sorted(silent ^ expected)}"
     )
 
 

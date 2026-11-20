@@ -93,6 +93,38 @@ def test_qwen_keeps_the_catalog_event_names(install_ctx):
     assert "BeforeTool" not in events
 
 
+def _failure_commands(events: dict, matcher: str) -> list[str]:
+    return [
+        handler["command"]
+        for group in events.get("PostToolUseFailure", [])
+        if group.get("matcher") == matcher
+        for handler in group["hooks"]
+    ]
+
+
+def test_qwen_registers_the_failure_event_on_the_shell_tool(install_ctx):
+    """A failing shell command must reach Qwen's PostToolUseFailure (WN-44)."""
+    events, _scripts, _skipped = _build(QWEN_SPEC, install_ctx, windows=False)
+    commands = _failure_commands(events, "^(run_shell_command)$")
+    assert any("stuck-turn-notice" in command for command in commands), events.get(
+        "PostToolUseFailure"
+    )
+
+
+def test_qwen_windows_install_drops_the_bash_only_failure_matcher(install_ctx):
+    """The host-flavor rule still applies: a Bash-only matcher has no Windows form."""
+    events, _scripts, skipped = _build(QWEN_SPEC, install_ctx, windows=True)
+    assert "PostToolUseFailure" not in events
+    assert any(reason.startswith("PostToolUseFailure/Bash:") for reason in skipped)
+
+
+def test_gemini_has_no_failure_event_and_says_so(install_ctx):
+    """Gemini CLI reports failures inside AfterTool, so the event is skipped."""
+    events, _scripts, skipped = _build(GEMINI_CLI_SPEC, install_ctx, windows=False)
+    assert "PostToolUseFailure" not in events
+    assert any(reason.startswith("PostToolUseFailure:") for reason in skipped)
+
+
 @pytest.mark.parametrize("spec", [GEMINI_CLI_SPEC, QWEN_SPEC], ids=PLATFORM_IDS)
 def test_unmappable_event_is_skipped_with_a_reason(spec, install_ctx):
     """An event with no counterpart is dropped and explained, never guessed at."""

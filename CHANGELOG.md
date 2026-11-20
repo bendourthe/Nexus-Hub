@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.5] - 2026-11-19
+
+### Added
+
+- **An opt-in stuck-turn notice and environment-fact replay for agent sessions (v4.15.5).**
+    - **Stuck-turn notice:** with `NEXUS_STUCK_NOTICE=on`, a `PostToolUse` / `PostToolUseFailure` hook keeps a hash-only ledger of each turn's tool calls and prints one short advisory when a turn keeps repeating the same failing command or editing the same file, so you can step in early. It never blocks a tool call.
+    - **Environment-fact replay:** with `NEXUS_ENV_FACTS=on`, session start replays a small, bounded list of facts learned earlier in the project (for example which interpreter or shell works), so a new session does not rediscover them.
+    - **Reach:** Claude Code, Qwen, Kimi and Copilot document `PostToolUseFailure`; the Codex and Gemini CLI derivations drop it (Gemini CLI reports failures inside `AfterTool`), Qwen receives it on a POSIX install, and a Windows Qwen install drops it because its matcher is `Bash` alone, and Gemini and Kimi record no facts because their payloads carry no turn id. Details: "Stuck-turn notice reach (v4.15.5)" in `docs/policy/platform-read-contracts.md`.
+    - **Default:** off. The default-on measurement on real sessions is deferred (DF-61), and the Windows PowerShell 5.1 wrapper is above its 500 ms budget on a loaded host (WN-42).
+    - **Registration:** the hook is registered in the default `catalog/hooks/settings.json` on `PostToolUse` (`Bash|Edit|Write|MultiEdit`) and `PostToolUseFailure` (`Bash`), so setting the variable is the only step; it exits at once while the variables are unset.
+    - **Capability usage note (opt-in):**
+        - Activation: set `NEXUS_STUCK_NOTICE=on` or `NEXUS_ENV_FACTS=on` in your shell or in the `env` block of `settings.json`.
+        - Validation: run `python ~/.claude/hooks/_turn_ledger.py stats`, or look for the facts heading at session start.
+        - Disable / rollback: unset the variable, or set `NEXUS_DISABLED_HOOKS=stuck-turn-notice`.
+        - Authority boundary: advisory text only; no permission change, nothing sent anywhere, and state stays under `~/.nexus-hub/state/`.
+        - Docs: the "Stuck-Turn Notice and Environment Facts" section of `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`.
+
+### Removed
+
+- **The deprecated `/status` command.** It was renamed to `/progress` in v4.15.3, and the v4.15.4 release notes announced its removal in v4.15.5. Use `/progress` (or `/update status`). A refresh install or `nexus-hub upgrade` removes the installed copies (see Fixed).
+
+### Fixed
+
+- **Upgrades now remove copies of commands, skills and agents that left the catalog.** Before, only folders synced wholesale (such as Claude Code's `commands/`) lost them; the command-skill `skills/<name>/`, Codex `prompts/<name>.md` and Antigravity or Windsurf `workflows/<name>.md` copies stayed, so a removed command kept working. A copy is removed only when Nexus-Hub wrote it, it is unchanged since then, and its name is no longer in the catalog; an edited copy is kept and reported. Nothing is removed on a dry run or an instruction-only install. Decision record: `docs/decisions/implemented/tooling/2026-11-19-retire-removed-catalog-items-on-upgrade.md`.
+
+- **`/progress` reports measured values and never prints `unknown`.**
+    - **Cause:** the agent wrote the report's snapshot by hand, and the renderer printed whatever it was given, so Elapsed, Remaining and the Total row could all read `unknown` although git records every one of them.
+    - **Producer:** the new `implement-phase/scripts/status_snapshot.py` measures the snapshot from the repository. Task counts come from the plan on its branch (or on the integration branch once released); elapsed time from the plan branch's own commits (a deleted branch through its merge commit); remaining time from open tasks times the days-per-task rate of recent release tags. The agent supplies only words (goals, decisions, running items, states) through `--overlay`.
+    - **Guard:** `status_report.py` rejects a snapshot with `unknown` in any Elapsed, Remaining or ETA, or a version row without task counts, and names the producer in the error.
+    - **`N/A`:** now has two fixed meanings: not started (Elapsed) and released (Remaining). A running item without tasks, such as a CI job, reads `N/A` for Progress and Tasks.
+    - **Counting:** `plan_status.py` counts a plan whose tasks sit in one `## Task List` ahead of its phases; such a plan reported 0 of 0 tasks.
+
 ## [4.15.4] - 2026-11-18
 
 ### Changed

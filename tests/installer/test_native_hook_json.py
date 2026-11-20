@@ -119,3 +119,26 @@ def test_hook_writers_refuse_nonobject_documents_or_hooks(tmp_path: Path, writer
     result = _invoke(script, target, writer)
     assert settings.read_text(encoding="utf-8") == raw
     assert "Could not merge" in result.stdout
+
+
+def test_install_twice_registers_stuck_turn_notice_once(tmp_path: Path) -> None:
+    # v4.15.5 T017: the managed settings writers deliver the stuck-turn-notice
+    # registration exactly once, and a second install changes nothing.
+    target = tmp_path / "home" / ".claude"
+    target.mkdir(parents=True)
+    script = tmp_path / "hook-probe.ps1"
+    script.write_text(_HARNESS, encoding="utf-8-sig")
+    settings = target / "settings.json"
+    _invoke(script, target, "upgrade")
+    first = settings.read_text(encoding="utf-8")
+    _invoke(script, target, "upgrade")
+    second = settings.read_text(encoding="utf-8")
+    assert second == first
+    hooks = json.loads(second)["hooks"]
+
+    def count(event: str) -> int:
+        return sum(1 for group in hooks.get(event, []) for hook in group.get("hooks", [])
+                   if "stuck-turn-notice" in str(hook.get("command", "")))
+
+    assert count("PostToolUse") == 1
+    assert count("PostToolUseFailure") == 1

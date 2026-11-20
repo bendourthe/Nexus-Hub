@@ -80,6 +80,7 @@ When adding a new loop to the library, keep it local and service-free: no instal
 
 1. Write the loop goal as a falsifiable end state.
 2. Set a hard `iteration_cap` before the first run, together with a token or cost budget and a wall-clock timeout. The loop stops on whichever bound binds first; an iteration cap alone still burns the remaining wall-clock and tokens on a hung check.
+2a. Declare a quiet window or a progress signal per loop (output change, a file's modification time, or process CPU time). A run whose declared signal has not advanced within its window is reported as hung and stopped through the loop's normal stop path, independent of the wall-clock cap. Only when nothing is declared does a 5-minute output-change default apply (comparison item G).
 3. Pick one `check_command` that measures progress between iterations. Express the check, and any model invocation, as an argument array (the program plus discrete arguments) with an explicit timeout, never an interpolated shell string; this is injection-resistant by construction and matches the project Bash security rules.
 4. Define `exit_condition` as command-derived evidence, not reassurance from the maker. For a long-horizon loop, also set `evidence_freshness` so the checker re-validates evidence that has aged out of its window instead of terminating on a stale pass (see the Evidence Freshness section of [references/loop-schema.md](references/loop-schema.md)).
 5. Choose the host driver: `/goal` for a hard completion requirement, `/loop` for interval or continuous re-runs, or manual re-invocation when the host lacks those commands.
@@ -242,11 +243,13 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 | "The check is already red, so re-running it each iteration is harmless." | Re-proving the same failure against an unchanged workspace burns the `iteration_cap` and hides no-progress. Cache the verdict against a workspace fingerprint; skip until the tree changes. |
 | "The inner run has its own `iteration_cap`, so nesting the loop inside itself is still bounded." | Caps apply per level, so nesting multiplies them. Refuse same-instance re-entry from the host-owned lineage, and carve any deliberate child's budget out of the parent's. |
 | "A higher score on the loop metric means the learning was good." | That is the reward-hacking signature. Gates must verify how the result was produced (diffs, logs, provenance), and any instinct that changes how the goal is measured needs human review before it is applied. |
+| "The run has printed nothing for minutes, so it is hung." | Some runs are quiet by design (`pytest -q` on a large suite, buffered builds, installer runs). Declare the quiet window or progress signal per loop instead of killing on a blanket output timeout. |
 
 ## Verification
 
 - [ ] The selected loop definition declares every schema field from [references/loop-schema.md](references/loop-schema.md).
 - [ ] The loop has a hard `iteration_cap` before the first run, plus a token or cost budget and a wall-clock timeout, and stops on whichever binds first.
+- [ ] Each background run declares a quiet window or progress signal, and a run whose signal has not advanced within it is stopped as hung through the normal stop path.
 - [ ] Completion gates record a workspace fingerprint with the verdict and skip an unchanged fail instead of re-running.
 - [ ] Checker gates inspect process evidence (how the result was produced), not only the end-state metric.
 - [ ] The `exit_condition` is derived from `check_command` output and can be checked by someone other than the maker.

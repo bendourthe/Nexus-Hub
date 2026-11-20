@@ -154,10 +154,15 @@ QWEN_SPEC = SettingsHookSpec(
         "UserPromptSubmit": "UserPromptSubmit",
         "PreToolUse": "PreToolUse",
         "PostToolUse": "PostToolUse",
+        # Qwen documents `PostToolUseFailure` ("After tool execution fails")
+        # with a tool-id regex matcher and an `error` field (hooks page,
+        # fetched 2026-11-19). Without this entry a failing shell command
+        # never reached the stuck-turn notice on Qwen.
+        "PostToolUseFailure": "PostToolUseFailure",
         "Stop": "Stop",
         "PreCompact": "PreCompact",
     },
-    tool_events=frozenset({"PreToolUse", "PostToolUse"}),
+    tool_events=frozenset({"PreToolUse", "PostToolUse", "PostToolUseFailure"}),
     project_dir_var="QWEN_PROJECT_DIR",
     supports_shell_field=True,
     supports_status_message=True,

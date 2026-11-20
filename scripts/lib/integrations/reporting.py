@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .result import WriteResult
 
 RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-formats.md",
-             "references/status-snapshot.json", "scripts/status_report.py")
+             "references/status-snapshot.json", "scripts/status_report.py", "scripts/status_snapshot.py")
 
 
 def audit_reporting(key: str, ctx: InstallContext, result: WriteResult) -> list[str]:

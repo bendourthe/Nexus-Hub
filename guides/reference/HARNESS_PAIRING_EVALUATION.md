@@ -73,6 +73,14 @@ Schema `harness-pairing-aggregate/1`. It carries per-pairing counts (`trials`, `
 - **Organic skill selection:** the set of skills a trial loads without being named in the prompt. Guard skills such as `security-review` are recorded separately. Selection stays `needs-live-validation` until a live run observes it.
 - **Failure fingerprints:** normalized from bounded, redacted evidence. Secrets and full prompts are never stored.
 
+## Mechanisms that add calls or learn
+
+Applies when the harness under test adds its own model calls or learns state across tasks. Predeclared gates for the stuck-turn notice and environment-fact replay are in the v4.15.5 plan (evaluator gate table). Origin: comparison item D.
+
+- Cost includes every model call the harness itself adds, counted the same way as agent calls.
+- Cost is reported as cache-aware effective tokens beside raw tokens.
+- A workload that tests a learning mechanism runs its tasks in a fixed order from an empty learned state, and reports the task index at which cumulative cost crosses the baseline (break-even).
+
 ## Comparison eligibility
 
 A direct comparison needs the same workload hash and evaluator hash, environment identity (os, arch, model parameters, cache policy, retry policy, concurrency), budget class, paired seeds, trial-order policy, and pricing basis. Differing price dates or budget classes split comparison groups; they are never normalized silently.
