@@ -203,3 +203,10 @@ def test_cli_prints_a_snapshot_the_renderer_accepts(repo):
         rendered.stdout.startswith("## Progress Update")
         and "unknown" not in rendered.stdout.lower()
     )
+
+
+def test_running_work_with_tasks_gets_a_measured_estimate(snapshot_module, repo):
+    overlay = {"running": [{"name": "lane", "state": "implementing", "done": 4, "total": 10,
+                            "started_at": "2026-11-18T12:00:00Z"}]}
+    snap = snapshot_module.build(repo.root, "v1.2", overlay, "develop", NOW)
+    assert snap["running"][0]["remaining"] == rows(snap)["v1.2.3"]["remaining"] != "N/A"

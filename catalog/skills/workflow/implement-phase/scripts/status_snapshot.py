@@ -248,7 +248,7 @@ def plan_title(path: Path) -> str:
     return path.stem
 
 
-def running_items(overlay: dict, now: datetime) -> list[dict]:
+def running_items(overlay: dict, now: datetime, rate) -> list[dict]:
     items = []
     for item in overlay.get("running", []):
         entry = {k: item[k] for k in ("name", "state", "url") if k in item}
@@ -263,7 +263,13 @@ def running_items(overlay: dict, now: datetime) -> list[dict]:
             )
         else:
             entry["elapsed"] = item.get("elapsed", "N/A")
-        entry["remaining"] = item.get("remaining", "N/A")
+        if "remaining" in item:
+            entry["remaining"] = item["remaining"]
+        elif entry["done"] is not None and entry["total"] is not None:
+            # Work with tasks gets the same measured estimate as a version row.
+            entry["remaining"] = estimate(entry["total"] - entry["done"], rate)
+        else:
+            entry["remaining"] = "N/A"
         items.append(entry)
     return items
 
@@ -329,7 +335,7 @@ def build(
         "rows": rows,
         "goals": goals,
         "decisions": overlay.get("decisions", []),
-        "running": running_items(overlay, now),
+        "running": running_items(overlay, now, rate),
         "next_release": None,
     }
     if pending:
