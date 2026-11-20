@@ -426,26 +426,26 @@ def recorded_selector_flags(style: str) -> list[str]:
     return flags
 
 
-def _bootstrap_command() -> list[str]:
+def _bootstrap_command(script_path: str | None = None) -> list[str]:
     """Build the platform-appropriate bootstrap re-run command (project GitHub).
 
     Any selection recorded by the previous install is re-applied, so an upgrade
     preserves the user's scope instead of quietly restoring the full catalog.
+
+    On Windows the command runs a LOCAL copy of install.ps1 (`script_path`, which
+    run_bootstrap downloads first) with `-File`. It never starts PowerShell with
+    `irm <url> | iex` on its command line: Microsoft Defender scores a new
+    process's command line and blocks that download-and-run text as
+    Trojan:Win32/Commando.B!ml, which Python reports as WinError 5. Typing the same
+    pipe into an open PowerShell window starts no process, so the manual install
+    line is unaffected. RemoteSigned is enough for a file this process wrote
+    itself, because it carries no download mark.
     """
     base = _install_base()
     if sys.platform == "win32":
-        ps_flags = recorded_selector_flags("ps")
-        # `irm | iex` cannot take arguments, so a scriptblock is required to pass
-        # any. Only used when there is something to pass; the plain pipe stays
-        # the default so the common path is unchanged.
-        if ps_flags:
-            ps_cmd = (
-                "&([scriptblock]::Create((irm "
-                + f"{base}/install.ps1))) " + " ".join(ps_flags)
-            )
-        else:
-            ps_cmd = f"irm {base}/install.ps1 | iex"
-        return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps_cmd]
+        target = script_path or f"<downloaded {base}/install.ps1>"
+        flags = recorded_selector_flags("ps")
+        return ["powershell", "-NoProfile", "-ExecutionPolicy", "RemoteSigned", "-File", target, *flags]
     sh_flags = recorded_selector_flags("sh")
     # `bash -s --` is the standard way to hand arguments to a piped script.
     suffix = (" -s -- " + " ".join(sh_flags)) if sh_flags else ""
@@ -477,22 +477,62 @@ def run_bootstrap(ref: str | None = None) -> int:
     NEXUS_HUB_REF, the same variable a first install accepts, so a pinned upgrade
     and a first pinned install take one code path.
     """
-    command = _bootstrap_command()
     env = dict(os.environ)
     if ref:
         env["NEXUS_HUB_REF"] = ref
     if os.environ.get("NEXUS_HUB_UPGRADE_DRY_RUN") == "1":
         # Show the exact command rather than executing it (used by the tests and
         # by anyone who wants to inspect the re-run before trusting it).
-        printable = command[-1] if command and command[0] in {"bash", "powershell"} else " ".join(command)
-        print(f"[dry-run] would upgrade by running: {printable}")
+        command = _bootstrap_command()
+        if sys.platform == "win32":
+            print(f"[dry-run] would download {_install_base()}/install.ps1 and run: {subprocess.list2cmdline(command)}")
+        else:
+            print(f"[dry-run] would upgrade by running: {command[-1]}")
         print(f"[dry-run] NEXUS_HUB_REF={env.get('NEXUS_HUB_REF', 'main')}")
         return 0
     _eprint("Upgrading by re-running the install bootstrap...")
-    # Shares this console when one is visible, so the bootstrap's own messages,
-    # download progress bar and any prompt appear here instead of in a hidden
-    # console. Falls back to the windowless default for piped or agent hosts.
-    return _PROCESS_POLICY["run_in_current_console"](command, env=env).returncode
+    if sys.platform != "win32":
+        return _launch_bootstrap(_bootstrap_command(), env)
+    # A fresh folder, so install.ps1 finds no scripts\installer.ps1 beside it and
+    # takes its standalone path, exactly as `irm | iex` does.
+    workdir = Path(tempfile.mkdtemp(prefix="nexus-hub-upgrade-"))
+    try:
+        script = workdir / "install.ps1"
+        try:
+            text = fetch_text(f"{_install_base()}/install.ps1")
+        except FetchError as exc:
+            _eprint(f"nexus-hub: {exc}")
+            _eprint(f"Upgrade directly instead:\n    {_manual_upgrade_hint()}")
+            return 1
+        # A byte-order mark, because Windows PowerShell 5.1 reads a file without
+        # one in the ANSI code page.
+        script.write_text(text, encoding="utf-8-sig", newline="")
+        return _launch_bootstrap(_bootstrap_command(str(script)), env)
+    finally:
+        shutil.rmtree(workdir, ignore_errors=True)
+
+
+def _manual_upgrade_hint() -> str:
+    """The one-line bootstrap a person can paste to upgrade without this CLI."""
+    base = _install_base()
+    if sys.platform == "win32":
+        return f"irm {base}/install.ps1 | iex"
+    return f"curl -fsSL {base}/install.sh | bash"
+
+
+def _launch_bootstrap(command: list[str], env: dict[str, str]) -> int:
+    """Run the bootstrap; a refused start prints the manual command, not a traceback."""
+    try:
+        # Shares this console when one is visible, so the bootstrap's own messages,
+        # download progress bar and any prompt appear here instead of in a hidden
+        # console. Falls back to the windowless default for piped or agent hosts.
+        return _PROCESS_POLICY["run_in_current_console"](command, env=env).returncode
+    except OSError as exc:
+        # Security software that blocks a process at creation surfaces here as
+        # WinError 5 (Access is denied).
+        _eprint(f"nexus-hub: could not start the installer: {exc}")
+        _eprint(f"Upgrade directly instead:\n    {_manual_upgrade_hint()}")
+        return 1
 
 
 # --- Subcommands ------------------------------------------------------------
@@ -516,13 +556,7 @@ def _confirm_upgrade(assume_yes: bool) -> bool:
     if assume_yes:
         return True
     if not sys.stdin or not sys.stdin.isatty():
-        base = _install_base()
-        hint = (
-            f"irm {base}/install.ps1 | iex"
-            if sys.platform == "win32"
-            else f"curl -fsSL {base}/install.sh | bash"
-        )
-        _eprint(f"Run `nexus-hub upgrade --yes`, or upgrade directly with:\n    {hint}")
+        _eprint(f"Run `nexus-hub upgrade --yes`, or upgrade directly with:\n    {_manual_upgrade_hint()}")
         return False
     try:
         answer = input("Upgrade now? [y/N] ").strip().lower()

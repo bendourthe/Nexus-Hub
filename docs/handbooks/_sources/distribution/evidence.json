@@ -8,7 +8,7 @@
       "scripts/installer.ps1": "6db5a40b8f8e35cc7ff43f7e2f800507e3c87790efc95126232fb092c25a8f25",
       "scripts/installer.sh": "d44c8568aa729d4b638fbaa758a6ef8b96941d01c4c87945c36172a71452b27e",
       "scripts/lib/integrations/runner.py": "ccaace954cc159155e97a31ed44c14a6f55c31daa913d968581afd18c02b0cb8",
-      "scripts/nexus_hub_cli.py": "1d9913239632ed7c790f52c2a7307601d688946a9f166d06b9c43e78a3fd4f74",
+      "scripts/nexus_hub_cli.py": "a6c5b26b89d1b3ae0b86b3fbfe47630639396a95abf1ec8868642caec1970e68",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
       "scripts/lib/integrations/claude.py": "be317356bf253d11c54d731bea38687380b65ce29567b3890053200b8f1e1eb5",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
