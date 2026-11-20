@@ -201,4 +201,3 @@ def test_a_sidecar_for_a_users_own_skill_is_never_touched(install_ctx):
     current = WriteResult(files=[FileAction(path=str(sidecar), action="unchanged")])
     assert retire_removed_items(install_ctx, "codex", [_record(sidecar)], current).files == []
     assert sidecar.exists()
-
