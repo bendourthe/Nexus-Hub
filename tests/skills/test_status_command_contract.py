@@ -86,9 +86,9 @@ def test_reporting_ownership_and_cadence():
 
 def test_existing_estimate_policy_is_preserved():
     formats = read(FORMATS)
-    for expected in ("## Estimate rule", "remaining tasks times days per task", "median", "middle half", "CI floor", "unknown (fewer than 3 completed plans)"):
+    for expected in ("## Estimate rule", "remaining tasks times days per task", "median", "middle half", "active parallel lanes", "N/A (no history yet)"):
         assert expected in formats
-    assert "fewer than 3 completed plans" in read(STATUS_CMD)
+    assert "status_snapshot.py" in read(STATUS_CMD) and "never prints `unknown`" in read(STATUS_CMD)
 
 
 def test_status_command_is_read_only_dispatcher() -> None:

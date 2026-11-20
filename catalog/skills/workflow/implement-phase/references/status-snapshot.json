@@ -7,10 +7,10 @@
   "last_released": "v1.2.0",
   "versions_left": 1,
   "elapsed": "13 min",
-  "remaining": "unknown (no comparable history)",
-  "estimate_basis": "No comparable completed plans",
+  "remaining": "~2.2 d (1.6-4.0 d)",
+  "estimate_basis": "open tasks x days per task from recent release tags",
   "rows": [
-    {"name": "Phase 1", "goals": "Package profiles", "done": 3, "total": 19, "state": "running", "elapsed": "13 min", "remaining": "unknown", "dependency": "none"}
+    {"name": "Phase 1", "goals": "Package profiles", "done": 3, "total": 19, "state": "running", "elapsed": "13 min", "remaining": "~2.2 d (1.6-4.0 d)", "dependency": "none"}
   ],
   "goals": [
     {"goal": "Ship v1.3", "scope": "run", "done_when": "All 19 tasks verified", "state": "running"}
@@ -19,9 +19,9 @@
   "running": [],
   "next_release": {
     "version": "v1.3.0",
-    "remaining": "unknown (no comparable release history)",
+    "remaining": "~2.2 d (1.6-4.0 d)",
     "condition": "none",
-    "confidence": "unknown",
-    "basis": "No observed release durations"
+    "confidence": "medium",
+    "basis": "open tasks x days per task from recent release tags"
   }
 }
