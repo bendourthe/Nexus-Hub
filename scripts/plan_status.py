@@ -68,6 +68,7 @@ class Plan:
         self.slug = self._one(SLUG_RE, path.stem)
         self.title = self._title()
         self.phases = self._phases()
+        self.loose = self._loose()
 
     def _one(self, pattern: re.Pattern[str], default: str) -> str:
         found = pattern.search(self.text)
@@ -101,14 +102,24 @@ class Plan:
             })
         return phases
 
+    def _loose(self) -> dict:
+        """Tasks before the first phase heading, such as one flat `## Task List`.
+
+        A plan that lists every task in one section ahead of its phases reported
+        0 tasks, because only phase sections were counted.
+        """
+        first = PHASE_RE.search(self.text)
+        tasks = TASK_RE.findall(self.text[: first.start()] if first else self.text)
+        return {"done": sum(1 for mark, _ in tasks if mark.lower() == "x"), "total": len(tasks)}
+
     # -- aggregates ---------------------------------------------------------
     @property
     def open_tasks(self) -> int:
-        return sum(p["total"] - p["done"] for p in self.phases)
+        return sum(p["total"] - p["done"] for p in self.phases) + self.loose["total"] - self.loose["done"]
 
     @property
     def total_tasks(self) -> int:
-        return sum(p["total"] for p in self.phases)
+        return sum(p["total"] for p in self.phases) + self.loose["total"]
 
     @property
     def phases_complete(self) -> int:
@@ -174,6 +185,8 @@ def progress_table(plan: Plan) -> str:
             f"| {phase['number']}. {phase['title']} | {status} | "
             f"{phase['done']}/{phase['total']} |"
         )
+    if plan.loose["total"]:
+        lines.append(f"| Task list (not grouped by phase) | - | {plan.loose['done']}/{plan.loose['total']} |")
     lines.append("")
     lines.append(
         f"**{plan.phases_complete} of {len(plan.phases)} phases complete; "

@@ -24,6 +24,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Authority boundary: advisory text only; no permission change, nothing sent anywhere, and state stays under `~/.nexus-hub/state/`.
         - Docs: the "Stuck-Turn Notice and Environment Facts" section of `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`.
 
+### Fixed
+
+- **`/progress` reports measured values and never prints `unknown`.**
+    - **Cause:** the agent wrote the report's snapshot by hand, and the renderer printed whatever it was given, so Elapsed, Remaining and the Total row could all read `unknown` although git records every one of them.
+    - **Producer:** the new `implement-phase/scripts/status_snapshot.py` measures the snapshot from the repository. Task counts come from the plan on its branch (or on the integration branch once released); elapsed time from the plan branch's own commits (a deleted branch through its merge commit); remaining time from open tasks times the days-per-task rate of recent release tags. The agent supplies only words (goals, decisions, running items, states) through `--overlay`.
+    - **Guard:** `status_report.py` rejects a snapshot with `unknown` in any Elapsed, Remaining or ETA, or a version row without task counts, and names the producer in the error.
+    - **`N/A`:** now has two fixed meanings: not started (Elapsed) and released (Remaining). A running item without tasks, such as a CI job, reads `N/A` for Progress and Tasks.
+    - **Counting:** `plan_status.py` counts a plan whose tasks sit in one `## Task List` ahead of its phases; such a plan reported 0 of 0 tasks.
+
 ## [4.15.4] - 2026-11-18
 
 ### Changed
