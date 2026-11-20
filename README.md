@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.4 -->
+<!-- nexus-hub-version: 4.15.5 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.4
+## What's New in v4.15.5
 
-- `nexus-hub upgrade` now works in any new terminal: the installers put `~/.nexus-hub/bin` on PATH (opt out with `--no-modify-path` or `-NoModifyPath`). On v4.15.3 or earlier, run the launcher once by its full path, as the release notes show.
-- The plan checker never rewrites captured evidence, reads more changelog and ledger layouts, and shows which approval items are missing through a bounded, read-only `--detail` view.
-- Archive moves wait while a live reference is unresolved, and phase summary lines such as `T001-T007 complete` are no longer read as tasks.
+- An opt-in stuck-turn notice (`NEXUS_STUCK_NOTICE=on`) flags a turn that keeps repeating the same failing command or edit, and environment-fact replay (`NEXUS_ENV_FACTS=on`) brings back what earlier sessions learned about the project. Both are off by default.
+- Upgrades now remove unchanged Nexus-Hub copies of commands, skills and agents that left the catalog; an edited copy is kept and reported. The deprecated `/status` command is removed: use `/progress`.
+- `/progress` measures every number from git and the plan files, so its report never shows `unknown`.
 
-[Release details and earlier versions](CHANGELOG.md#4154---2026-11-18)
+[Release details and earlier versions](CHANGELOG.md#4155---2026-11-19)
 
 ## Installation
 
