@@ -968,7 +968,8 @@ def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
 
     targets = ("tests/e2e", "tests/validators", "tests/verification", "tests/workflows",
                "tests/test_git_attribution.py", "tests/test_removed_autonomy_surface.py",
-               "tests/test_status_report.py", "tests/test_lane_health.py")
+               "tests/test_status_report.py", "tests/test_status_snapshot.py",
+               "tests/test_lane_health.py")
     commands = [command for group in groups_for("full") for command in group.commands
                 if command.name.startswith("repo-tests-governance") and command.runs_on(host)]
     by_name = {command.name: command for command in commands}
