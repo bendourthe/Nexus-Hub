@@ -422,6 +422,7 @@ def test_run_bootstrap_runs_through_the_current_console_helper(monkeypatch) -> N
         seen.append((args, env))
         return subprocess.CompletedProcess(args, 4)
 
+    monkeypatch.setattr(cli.sys, "platform", "linux")
     monkeypatch.delenv("NEXUS_HUB_UPGRADE_DRY_RUN", raising=False)
     monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", fake_helper)
     assert cli.run_bootstrap("v9.9.9") == 4
@@ -438,6 +439,88 @@ def test_run_bootstrap_dry_run_launches_nothing(monkeypatch, capsys) -> None:
     monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", must_not_run)
     assert cli.run_bootstrap() == 0
     assert "[dry-run]" in capsys.readouterr().out
+
+
+def _as_windows_upgrade(monkeypatch, tmp_path: Path) -> Path:
+    """Run the bootstrap down its Windows path against a local install.ps1 fixture."""
+    monkeypatch.setattr(cli.sys, "platform", "win32")
+    monkeypatch.delenv("NEXUS_HUB_UPGRADE_DRY_RUN", raising=False)
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(home))
+    remote = tmp_path / "remote"
+    remote.mkdir()
+    (remote / "install.ps1").write_text("Write-Output fixture", encoding="utf-8")
+    monkeypatch.setenv("NEXUS_HUB_INSTALL_BASE", str(remote))
+    return home
+
+
+def _capture_launch(monkeypatch) -> list[tuple[list[str], bytes, Path]]:
+    seen: list[tuple[list[str], bytes, Path]] = []
+
+    def fake_helper(args, *, env=None, cwd=None):
+        script = Path(args[args.index("-File") + 1])
+        seen.append((list(args), script.read_bytes(), script.parent))
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", fake_helper)
+    return seen
+
+
+def test_windows_upgrade_runs_a_downloaded_file_not_irm_iex(monkeypatch, tmp_path) -> None:
+    """Defender blocks `powershell ... -Command irm <url> | iex` at process creation.
+
+    It scores the new process's command line, reports Trojan:Win32/Commando.B!ml,
+    and Python raises WinError 5. The upgrade therefore downloads install.ps1 itself
+    and runs the local copy with -File, so no download-and-run text is ever on a
+    command line.
+    """
+    _as_windows_upgrade(monkeypatch, tmp_path)
+    seen = _capture_launch(monkeypatch)
+    assert cli.run_bootstrap() == 0
+    ((args, data, folder),) = seen
+    assert args[:5] == ["powershell", "-NoProfile", "-ExecutionPolicy", "RemoteSigned", "-File"]
+    assert not any("iex" in arg or "irm " in arg for arg in args)
+    # The BOM keeps Windows PowerShell 5.1 from reading the file as ANSI.
+    assert data == b"\xef\xbb\xbfWrite-Output fixture"
+    # No scripts\installer.ps1 beside it, so install.ps1 takes its standalone path.
+    assert args[5] == str(folder / "install.ps1")
+    assert not folder.exists()
+
+
+def test_windows_upgrade_passes_the_recorded_selection_to_the_file(monkeypatch, tmp_path) -> None:
+    home = _as_windows_upgrade(monkeypatch, tmp_path)
+    selection = {"requested": {"profile": "core", "bundles": ["web-dev"]}}
+    (home / "install-manifest.json").write_text(json.dumps({"selection": selection}), encoding="utf-8")
+    seen = _capture_launch(monkeypatch)
+    assert cli.run_bootstrap() == 0
+    ((args, _data, _folder),) = seen
+    assert args[6:] == ["-Profile", "core", "-Bundles", "web-dev"]
+
+
+def test_windows_upgrade_blocked_start_prints_the_manual_command(monkeypatch, tmp_path, capsys) -> None:
+    _as_windows_upgrade(monkeypatch, tmp_path)
+
+    def refused(args, **_kwargs):
+        raise PermissionError(13, "Access is denied")
+
+    monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", refused)
+    assert cli.run_bootstrap() == 1
+    err = capsys.readouterr().err
+    assert "could not start the installer" in err
+    assert "install.ps1 | iex" in err
+
+
+def test_windows_upgrade_failed_download_launches_nothing(monkeypatch, tmp_path, capsys) -> None:
+    _as_windows_upgrade(monkeypatch, tmp_path)
+    monkeypatch.setenv("NEXUS_HUB_INSTALL_BASE", str(tmp_path / "missing"))
+
+    def must_not_run(*_args, **_kwargs):
+        raise AssertionError("a failed download must not launch the bootstrap")
+
+    monkeypatch.setitem(cli._PROCESS_POLICY, "run_in_current_console", must_not_run)
+    assert cli.run_bootstrap() == 1
+    assert "Upgrade directly instead" in capsys.readouterr().err
 
 
 def test_upgrade_offline_fails_clearly(tmp_path: Path) -> None:
