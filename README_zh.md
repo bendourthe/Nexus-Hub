@@ -8,13 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.4 更新内容
+## v4.15.5 更新内容
 
-- `nexus-hub upgrade` 现在可以在任何新终端中使用：安装程序会把 `~/.nexus-hub/bin` 加入 PATH（可用 `--no-modify-path` 或 `-NoModifyPath` 关闭）。如果安装的是 v4.15.3 或更早的版本，请按发布说明中的方法，先用完整路径运行一次启动器。
-- 计划检查器不再改写已捕获的证据，能够读取更多变更日志和台账的布局，并通过一个有界的只读 `--detail` 视图显示缺少哪些批准项。
-- 当实时引用尚未解决时，归档移动会等待；像 `T001-T007 complete` 这样的阶段汇总行不再被当作任务读取。
+- 可选启用的卡住回合提示（`NEXUS_STUCK_NOTICE=on`）会在某个回合反复执行同一个失败命令或反复做同一处编辑时给出提示；环境事实回放（`NEXUS_ENV_FACTS=on`）会把早先会话了解到的项目信息带回新会话。两者默认关闭。
+- 升级时会删除已离开目录的命令、技能和代理中未被修改过的 Nexus-Hub 副本；被修改过的副本会保留并报告。已弃用的 `/status` 命令已删除，请改用 `/progress`。
+- `/progress` 的每一个数字都从 git 和计划文件中测量得出，因此报告中不会再出现 `unknown`。
 
-[版本详情与早期版本](CHANGELOG.md#4154---2026-11-18)
+[版本详情与早期版本](CHANGELOG.md#4155---2026-11-19)
 
 ## 安装
 
