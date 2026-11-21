@@ -155,6 +155,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         "matcher": "run_command",
                         "hooks": [
                             {"command": wrapped_command_for("git-guardrails.sh")},
+                            {"command": wrapped_command_for("worktree-policy.sh")},
                             {"command": wrapped_command_for("user-edit-guard.sh")},
                             {"command": wrapped_command_for("attribution-guard.sh")},
                         ],
@@ -195,6 +196,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "secret-scan.sh",
         "large-file-guard.sh",
         "git-guardrails.sh",
+        "worktree-policy.sh",
         "user-edit-guard.sh",
         "attribution-guard.sh",
     )

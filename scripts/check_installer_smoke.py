@@ -17,6 +17,7 @@ EXPECTED_SCRIPTS = (
     "nexus_git_attribution.py",
     "merge_permissions.py",
     "nexus_hub_cli.py",
+    "nexus_worktrees.py",
     "run_trigger_evals.py",
     "validate_permission_baseline.py",
     "package_skill.py",
@@ -40,6 +41,8 @@ EXPECTED_WORKSPACE_ARTIFACTS = (
     Path(".claude") / "rules" / "html" / "responsive-layout.md",
 )
 HTML_HOOK_STEM = "html-responsive-guard"
+WORKTREE_HOOK_STEM = "worktree-policy"
+WORKTREE_HOOK_HELPER = "_worktree_policy.py"
 NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
@@ -106,6 +109,37 @@ def _html_hook_findings(workspace: Path) -> list[str]:
             findings.append(
                 f"hook settings require a host-correct registration for {matcher}: {hook_name}"
             )
+    return findings
+
+
+def _worktree_hook_findings(workspace: Path) -> list[str]:
+    """The worktree-policy guard, its helper, and exactly one host-correct PreToolUse registration."""
+    findings: list[str] = []
+    hook_name = f"{WORKTREE_HOOK_STEM}{_host_hook_suffix()}"
+    for name in (hook_name, WORKTREE_HOOK_HELPER):
+        if not (workspace / ".claude" / "hooks" / name).is_file():
+            findings.append(f"expected worktree-policy payload is missing: .claude/hooks/{name}")
+    try:
+        settings = json.loads((workspace / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return findings + [f"hook settings are missing or invalid for worktree-policy: {exc}"]
+    hooks = settings.get("hooks") if isinstance(settings, dict) else None
+    pre_tool_use = hooks.get("PreToolUse", []) if isinstance(hooks, dict) else None
+    if not isinstance(pre_tool_use, list):
+        return findings + ["hook settings require hooks.PreToolUse to be a list"]
+    registrations = host_registrations = 0
+    for entry in pre_tool_use:
+        if not isinstance(entry, dict) or entry.get("matcher") != "Bash|PowerShell":
+            continue
+        for hook in entry.get("hooks", []) if isinstance(entry.get("hooks"), list) else []:
+            command = hook.get("command") if isinstance(hook, dict) else None
+            if isinstance(command, str) and WORKTREE_HOOK_STEM in command:
+                registrations += 1
+                host_registrations += hook_name in command
+    if registrations != 1:
+        findings.append(f"hook settings require exactly one Bash|PowerShell registration for {WORKTREE_HOOK_STEM}; found {registrations}")
+    elif host_registrations != 1:
+        findings.append(f"hook settings require a host-correct registration: {hook_name}")
     return findings
 
 
@@ -187,6 +221,7 @@ def collect_findings(home: Path, workspace: Path, source: Path | None = None) ->
         if not (workspace / relative_path).is_file():
             findings.append(f"expected workspace artifact is missing: {relative_path}")
     findings.extend(_html_hook_findings(workspace))
+    findings.extend(_worktree_hook_findings(workspace))
 
     for name in EXPECTED_SCRIPTS:
         if not (install_root / "scripts" / name).is_file():

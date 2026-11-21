@@ -57,47 +57,43 @@ PowerShell equivalents (Windows users without Git Bash): run the same `git rev-p
 
 If Step 0 reports you are already isolated or inside a submodule, stop. Do not proceed to Step 1.
 
-## Step 1: Create the Worktree (native tool first)
+## Step 1: Create the Worktree at the Central Root
 
-### Step 1a: Prefer the harness's native worktree tool
+This skill owns where a linked worktree lives. Every Nexus-Hub creation flow uses one resolver, `nexus-hub worktree`, and one layout: `<root>/<repository-identity>/<worktree-name>`. The root is the `NEXUS_WORKTREE_ROOT` variable, then the user's own `config/worktrees.json` under the Nexus-Hub home, then `~/.worktrees`. A repository file never sets it, and nothing falls back silently to a sibling, vendor, temporary, network, or synchronized folder. Other skills and instruction files delegate here instead of restating placement.
 
-If the agent harness exposes a native worktree capability, use it instead of raw git. The native tool typically handles directory placement, cleanup of unchanged worktrees, and branch wiring for you, and it stays consistent with the rest of the harness's state tracking.
-
-- In Claude Code, this is the `EnterWorktree` tool (or the `/worktree` affordance). Use it to enter an isolated worktree for the feature; let it choose and manage the location.
-- Only if no native worktree tool is available do you fall back to Step 1b.
-
-Using the native tool is not a stylistic preference: a raw `git worktree add` run alongside a harness that also manages worktrees can produce two sources of truth for where work lives. Prefer the one the harness knows about.
-
-### Step 1b: Raw git fallback (only when no native tool exists)
-
-When you must use raw git, choose the worktree directory by this priority order, and **verify the path is safe before creating it**:
-
-1. A sibling directory outside the repository (preferred): `../<repo>-worktrees/<branch>`. This keeps worktrees entirely out of the project tree, so they can never be accidentally tracked or matched by project tooling.
-2. A dedicated, git-ignored directory inside the repo only if a sibling location is not workable.
-
-Mandatory safety check before creating an in-repo worktree: confirm the target path is git-ignored, so the worktree contents are never picked up as tracked files.
+### Step 1a: Create through the helper
 
 ```bash
-branch="feature/my-change"
-target="../$(basename "$(git rev-parse --show-toplevel)")-worktrees/$branch"
-
-# If you must place it inside the repo, the path MUST be ignored first:
-# git check-ignore exits 0 only if the path is ignored.
-# Example for an in-repo path:
-#   inrepo=".worktrees/$branch"
-#   if ! git check-ignore -q "$inrepo"; then
-#     echo "Refusing: $inrepo is not git-ignored; it would be tracked. Add it to .gitignore or use a sibling path."
-#     exit 1
-#   fi
-
-git worktree add -b "$branch" "$target"
+nexus-hub worktree path --repo <checkout> --name <name> --json     # resolve only, writes nothing
+nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>
+nexus-hub worktree list --repo <checkout> --json                   # registered paths and canonical destinations
 ```
 
-**Never place a worktree inside a vendor or tool directory**, even when that directory is git-ignored. `.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/`, `.agents/` and their siblings belong to one product's configuration. A worktree is the work itself, and the work is platform-agnostic: putting it under a vendor path implies that product owns it, breaks when the user switches tools, and buries a full checkout somewhere nobody thinks to look. `git check-ignore` passes on these paths, so the ignore gate alone does not catch this; the vendor-directory rule is a separate check.
+`create` refuses an out-of-policy root, an existing branch, an unresolved base, a destination another repository owns, a case or name collision, and a destination reached through a symlink or junction. It exits 0 on success, 2 when it refused before changing anything, and 3 when a check could not be completed. Read the JSON `status` and `code`; do not retry with another path.
 
-A real instance: a worktree at `.claude/worktrees/guide-foundations-ml` sat inside the repository, inside a vendor directory, and held 1,267 lines of uncommitted work. When the repository was later moved, every worktree pointer broke, and that work became unreachable through git until the pointers were repaired. Neither the ignore gate nor the tracked-path rule below would have prevented it.
+### Step 1b: Native worktree tools
 
-Never create a worktree inside a path that is tracked by git. A worktree placed in a tracked directory pollutes `git status` in the main checkout and risks committing the entire nested checkout. The `git check-ignore -q` gate is the verification that prevents this; do not skip it for in-repo placements.
+A native tool is used only when it can honor the resolved destination.
+
+| Surface | Can it create at the resolved destination | What to do |
+|---|---|---|
+| `nexus-hub worktree create` | Yes | Preferred everywhere. |
+| Claude Code `EnterWorktree` with `name` | No. It creates inside `.claude/worktrees/`, a vendor directory | Visible exception: do not use `name`. Create with the helper, then call `EnterWorktree` with `path` set to the created worktree. |
+| Claude Code `EnterWorktree` with `path` | Not a creator; it enters a worktree the repository already registers | Allowed after Step 1a. |
+| Raw `git worktree add` or `git worktree move` | Yes, if you pass the resolved destination | Allowed only with the destination from `path`. The `worktree-policy` guard refuses any other destination on hosts that run Nexus-Hub hooks. |
+| Hosts without Nexus-Hub hooks or with their own worktree feature (Cursor and Codex agent worktrees, Copilot, a manual shell) | Not verified | Uncovered. The guard does not run there, so use the helper and expect `nexus-hub worktree audit` to report any worktree placed elsewhere. |
+
+The guard covers recognized `git worktree add` and `git worktree move` commands in the Bash and PowerShell tools. It cannot certify a destination built from a variable or substitution, an alias, a script, or a nested shell, and it refuses those that it can recognize as worktree mutations. This is organizational enforcement on supported surfaces, not an operating-system boundary.
+
+**Never place a worktree inside a vendor or tool directory**, even when that directory is git-ignored. `.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/`, `.agents/` and their siblings belong to one product's configuration. The work is platform-agnostic, and a full checkout buried under one product's folder is lost when the repository moves. `git check-ignore` passes on these paths, so the ignore gate alone does not catch this; the vendor-directory rule is a separate check.
+
+A real instance: a worktree at `.claude/worktrees/guide-foundations-ml` sat inside a vendor directory and held 1,267 lines of uncommitted work. When the repository was later moved, every worktree pointer broke and that work became unreachable through git until the pointers were repaired.
+
+Never create a worktree inside a path that is tracked by git. The central root is outside every repository, so this cannot happen by following Step 1a.
+
+### Migration, handoff and cleanup
+
+An existing worktree outside the root moves only through `nexus-hub worktree migrate`, which executes one reviewed manifest and preserves dirty, staged, untracked and ignored content. Move active work only after its agent checkpoints and acknowledges the handoff, and finish a signed run where its record is bound before moving it. Removal of a finished worktree stays with `scripts/cleanup_merged.py`, which owns the merged-history checks; this skill never deletes one. The runbook is `docs/runbooks/worktree-organization.md`.
 
 ## Step 3: Auto-Detect and Run Project Setup
 
@@ -125,14 +121,15 @@ Run the project's test (and, if fast, build) command in the new worktree and con
 | Detect existing worktree | compare `git rev-parse --git-dir` with `git rev-parse --git-common-dir` (differ = already isolated) |
 | List worktrees | `git worktree list` |
 | Verify a path is ignored | `git check-ignore -q <path>` (exit 0 = ignored = safe for in-repo placement) |
-| Add a worktree (fallback) | `git worktree add -b <branch> <path>` |
+| Resolve the destination | `nexus-hub worktree path --repo <checkout> --name <name> --json` |
+| Create a worktree | `nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>` |
 | Remove a worktree | `git worktree remove <path>` |
 | Prune stale worktree metadata | `git worktree prune` |
 
 ## Common Mistakes
 
 - **Creating a worktree from inside a worktree.** Skipping Step 0 nests isolation and confuses every later `git worktree` command. Always run the git-dir vs git-common-dir check first.
-- **Placing the worktree in a tracked directory.** This pollutes the main checkout's `git status` and risks committing a nested checkout. Use a sibling path, or gate in-repo placement behind `git check-ignore`.
+- **Placing the worktree outside the central root.** Sibling, in-repo, vendor and temporary folders are what make worktrees impossible to find or move. Use `nexus-hub worktree create`.
 - **Reusing the main checkout's installed dependencies.** A worktree does not inherit `node_modules` or a virtualenv. Run setup (Step 3) or the first command fails for the wrong reason.
 - **Reporting "ready" without a baseline run.** If you skip Step 4 and the baseline was already red, you will misattribute pre-existing failures to your own change.
 - **Leaving stale worktrees behind.** After finishing, remove the worktree (`git worktree remove`) so the repo does not accumulate orphaned workspaces.
@@ -142,29 +139,28 @@ Run the project's test (and, if fast, build) command in the new worktree and con
 | Rationalization | Reality |
 |---|---|
 | "I'll just work on the main checkout, it's faster." | Working on main mixes your in-progress change with the releasable state, so a mid-task interruption (a hotfix, a review) forces a messy stash. A worktree keeps main clean and switchable at zero cost. |
-| "raw git worktree add is simpler than the native tool." | Simpler to type, but it creates a second source of truth the harness does not know about. Prefer the native tool so worktree state stays consistent with everything else the harness tracks. |
-| "I don't need the check-ignore step, the path looks fine." | "Looks fine" is how a worktree ends up in a tracked directory and pollutes the main checkout. The `git check-ignore -q` gate is one command and removes the guesswork. Run it. |
+| "raw git worktree add with a path I like is simpler." | Simpler to type, but it scatters worktrees across sibling and vendor folders and the guard refuses it. `nexus-hub worktree path` gives the destination in one command. |
+| "I'll use EnterWorktree with a name, it is the native tool." | It creates under `.claude/worktrees/`, a vendor directory the policy forbids. Create with the helper and enter by `path`. |
 | "Setup can wait until the first test fails." | Then your first test fails for a setup reason and you debug the wrong thing. Run Step 3 up front so the first real failure is about your code. |
 | "The baseline obviously passes, I'll skip Step 4." | A fresh worktree has fresh untracked state; "obviously" is exactly when broken setup hides. A 30-second baseline run tells you whether red means you or means the environment. |
 
 ## Red Flags (stop and reconsider)
 
-- You are about to run `git worktree add` and a **native worktree tool exists** in the harness. Use the native tool instead.
-- You are about to create a worktree **inside the repository** without having run `git check-ignore` on the target path.
+- You are about to run `git worktree add` with a destination that did not come from `nexus-hub worktree path`.
+- You are about to call `EnterWorktree` with `name`, which creates under `.claude/worktrees/`.
 - Step 0 reported you are **already in a worktree or a submodule**, but you are continuing to create another one anyway.
 - You are about to report the workspace **ready** without having run the test baseline in the new worktree.
 
 ## Verification
 
 - [ ] Step 0 ran: confirmed inside a git repo, ran the submodule guard, and compared git-dir against git-common-dir to detect existing isolation.
-- [ ] A worktree was created with the native tool, OR the raw-git fallback was used only because no native tool exists.
-- [ ] If an in-repo path was used, `git check-ignore -q` confirmed the path is ignored before creation; otherwise a sibling-of-repo path was used.
+- [ ] The worktree was created with `nexus-hub worktree create`, or with a raw command whose destination came from `nexus-hub worktree path`.
 - [ ] `git worktree list` shows the new worktree at the expected location.
 - [ ] Project setup ran in the new worktree (dependencies installed, required local files present).
 - [ ] The existing test suite was run in the new worktree and the baseline is clean before any feature work began.
 - [ ] No worktree was created from inside an existing worktree or a submodule.
 - [ ] The worktree is NOT inside a vendor or tool directory (`.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/`, `.agents/`), regardless of git-ignore status.
-- [ ] A sibling path outside the repository was used, or the in-repo fallback was justified AND passed `git check-ignore -q`.
+- [ ] The worktree path is `<root>/<repository-identity>/<worktree-name>` as `nexus-hub worktree list --repo <checkout>` reports (`in_policy` true).
 
 ## Related Skills
 

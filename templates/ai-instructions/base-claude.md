@@ -80,7 +80,7 @@ Use the `docs-layout-refactor` skill for classification, migration, and link-int
 
 ## Branching
 
-- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
+- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See `git-branching-workflow` (branches) and `using-git-worktrees` (`nexus-hub worktree create`).
 
 ## Plan Lifecycle and CI/CD
 

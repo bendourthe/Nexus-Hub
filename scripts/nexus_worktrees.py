@@ -1666,6 +1666,220 @@ def run_path(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+LOCK_WAIT_SECONDS = 15.0
+STALE_LOCK_SECONDS = 600
+CREATE_TIMEOUT_SECONDS = 180
+
+
+class RepoLock:
+    """One create or migrate operation per repository identity at a time."""
+
+    def __init__(self, identity_id: str, wait: float = LOCK_WAIT_SECONDS) -> None:
+        self.path = state_dir() / "locks" / f"{identity_id}.lock"
+        self.wait = wait
+
+    def __enter__(self) -> "RepoLock":
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.monotonic() + self.wait
+        while True:
+            try:
+                fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    try:
+                        age = time.time() - self.path.stat().st_mtime
+                    except OSError:
+                        age = 0
+                    hint = (
+                        f" The lock is {int(age)} seconds old; after confirming no create or migrate is running, remove {self.path.name} from the Nexus-Hub state directory."
+                        if age > STALE_LOCK_SECONDS
+                        else ""
+                    )
+                    raise PolicyError(
+                        "repository-locked",
+                        "another worktree operation holds this repository." + hint,
+                    ) from None
+                time.sleep(0.1)
+                continue
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(json.dumps({"pid": os.getpid(), "started": time.time()}))
+            return self
+
+    def __exit__(self, *exc: object) -> None:
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+
+
+def git_write(
+    git: GitInspector,
+    argv: list[str],
+    cwd: str,
+    timeout: float = CREATE_TIMEOUT_SECONDS,
+) -> GitResult:
+    """Authorized Git write (worktree creation). Inherited GIT_* overrides are dropped."""
+    try:
+        proc = subprocess.run(
+            [git.git, *argv],
+            cwd=cwd,
+            env=_inspection_env(),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            check=False,
+            **NO_WINDOW,
+        )
+    except subprocess.TimeoutExpired:
+        return GitResult(-1, "", "timeout", True)
+    except OSError as exc:
+        return GitResult(-1, "", exc.__class__.__name__)
+    return GitResult(proc.returncode, proc.stdout, proc.stderr)
+
+
+def _checked_argument(label: str, value: str | None) -> str:
+    if (
+        not value
+        or not value.strip()
+        or value.startswith("-")
+        or any(c in value for c in "\0\r\n")
+    ):
+        raise PolicyError(
+            f"invalid-{label}", f"the {label} is empty or starts with a dash"
+        )
+    return value
+
+
+def run_create(args: argparse.Namespace) -> int:
+    git = GitInspector()
+    branch, base = _checked_argument("branch", args.branch), _checked_argument(
+        "base", args.base
+    )
+    if branch.startswith("@") or "@{" in branch:
+        raise PolicyError(
+            "invalid-branch", "the branch name is not a plain branch name"
+        )
+    root = resolve_root()
+    first, _ = repo_context(git, args.repo, root.path, write=False)
+    with RepoLock(first.id):
+        identity, registered = repo_context(git, args.repo, root.path, write=True)
+        common, top = checkout_common_dir(git, args.repo)
+        dest = resolve_destination(identity, args.name, root, registered)
+        scope = {"cwd": str(top)}
+        if git.run(["check-ref-format", "--branch", branch], **scope).rc != 0:
+            raise PolicyError("invalid-branch", "Git does not accept this branch name")
+        if dest.state == "registered":
+            held = next(w for w in registered if key_of(w.path) == key_of(dest.path))
+            if held.branch == branch:
+                payload = dest.as_dict()
+                payload.update(status="exists", branch=branch, head=held.head)
+                _emit(payload, args.json)
+                return EXIT_OK
+            raise PolicyError(
+                "destination-registered-other-branch",
+                "the destination already holds a different branch",
+            )
+        if (
+            git.run(
+                ["show-ref", "--verify", "--quiet", f"refs/heads/{branch}"], **scope
+            ).rc
+            == 0
+        ):
+            raise PolicyError(
+                "branch-exists", "the branch already exists; create a new branch name"
+            )
+        sha = git.run(
+            ["rev-parse", "--verify", "--quiet", f"{base}^{{commit}}"], **scope
+        )
+        if sha.rc != 0 or not sha.out.strip():
+            raise PolicyError(
+                "base-unresolved", "the base does not resolve to a commit"
+            )
+        dest.path.parent.mkdir(parents=True, exist_ok=True)
+        made = git_write(
+            git,
+            [
+                "-C",
+                str(top),
+                "worktree",
+                "add",
+                "-b",
+                branch,
+                str(dest.path),
+                sha.out.strip(),
+            ],
+            str(top),
+        )
+        if made.timed_out:
+            raise PolicyError(
+                "git-timeout",
+                "git worktree add timed out; inspect the destination before retrying",
+                cannot_verify=True,
+            )
+        if made.rc != 0:
+            raise PolicyError(
+                "git-failed", f"git worktree add failed: {made.err.strip()[:200]}"
+            )
+        after = list_registered(git, cwd=str(top))
+        landed = next((w for w in after if key_of(w.path) == key_of(dest.path)), None)
+        if (
+            landed is None
+            or landed.branch != branch
+            or not _pointer_owner_ok(str(dest.path), common)
+        ):
+            raise PolicyError(
+                "postcondition-failed",
+                "git reported success but the worktree is not registered as expected",
+                cannot_verify=True,
+            )
+    payload = dest.as_dict()
+    payload.update(status="created", branch=branch, head=landed.head)
+    _emit(payload, args.json)
+    return EXIT_OK
+
+
+def run_list(args: argparse.Namespace) -> int:
+    git = GitInspector()
+    root = resolve_root()
+    identity, registered = repo_context(git, args.repo, root.path, write=False)
+    rows = []
+    for index, wt in enumerate(registered):
+        row: dict[str, Any] = {
+            "path": wt.path,
+            "main": index == 0,
+            "branch": wt.branch,
+            "detached": wt.detached,
+            "head": wt.head,
+            "locked": wt.locked,
+            "prunable": wt.prunable,
+        }
+        if index and not wt.bare:
+            canonical = root.path / identity.id / worktree_name(canonical_name_for(wt))
+            row["canonical_destination"] = str(canonical)
+            row["in_policy"] = key_of(canonical) == key_of(wt.path)
+        rows.append(row)
+    payload = {
+        "status": "ok",
+        "identity": identity.id,
+        "root": str(root.path),
+        "root_provenance": root.provenance,
+        "worktrees": rows,
+    }
+    if args.json:
+        _emit(payload, True)
+    else:
+        for row in rows:
+            flag = (
+                ""
+                if row.get("in_policy", True)
+                else f"  -> {row['canonical_destination']}"
+            )
+            sys.stdout.write(f"{row['path']}  [{row['branch'] or 'detached'}]{flag}\n")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub worktree", description="Centralized worktree policy."
@@ -1677,6 +1891,19 @@ def build_parser() -> argparse.ArgumentParser:
     path.add_argument("--repo", required=True)
     path.add_argument("--name", required=True)
     path.add_argument("--json", action="store_true")
+    create = sub.add_parser(
+        "create", help="Create a worktree at its canonical destination."
+    )
+    create.add_argument("--repo", required=True)
+    create.add_argument("--branch", required=True, help="New branch to create.")
+    create.add_argument("--base", required=True, help="Commit or ref to branch from.")
+    create.add_argument("--name", required=True)
+    create.add_argument("--json", action="store_true")
+    listing = sub.add_parser(
+        "list", help="Registered worktrees with canonical destinations."
+    )
+    listing.add_argument("--repo", required=True)
+    listing.add_argument("--json", action="store_true")
     audit = sub.add_parser(
         "audit",
         help="Read-only discovery of every linked worktree with explicit coverage.",
@@ -1718,6 +1945,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "path": run_path,
+    "create": run_create,
+    "list": run_list,
     "audit": run_audit,
 }
 

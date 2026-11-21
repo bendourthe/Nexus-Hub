@@ -82,6 +82,7 @@ Use the `docs-layout-refactor` skill for classification, migration, and link-int
 ## Branching
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
+- Put every new linked worktree at `<root>/<repository-identity>/<worktree-name>` (default root `~/.worktrees`) by creating it with `nexus-hub worktree create`; never in a sibling, vendor, or temporary folder. The `using-git-worktrees` skill owns placement, native-tool exceptions, and migration.
 
 ## Plan Lifecycle and CI/CD
 

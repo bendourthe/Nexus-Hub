@@ -59,8 +59,8 @@ From here on, every approval point in this runbook, the final-phase template and
 
 A plan runs in a dedicated **worktree**, not merely a branch in the shared checkout. A branch alone serializes work: a second plan cannot start without switching the one checkout, and a switch underneath a running session silently changes the files it is editing.
 
-1. **Detect existing isolation first** and create the worktree through `[[using-git-worktrees]]`, which owns the mechanics (native tool before raw `git worktree`, setup detection, clean-baseline check). Do not re-derive that procedure here.
-2. **Name both consistently**: branch `feat/<version>-<slug>`, worktree directory `<repo-parent>/<repo-name>-<version>-<slug>`. A predictable directory is what lets the release step find and remove it later.
+1. **Detect existing isolation first** and create the worktree through `[[using-git-worktrees]]`, which owns the placement (the central worktree root, `nexus-hub worktree create`, native-tool exceptions), setup detection, and the clean-baseline check. Do not re-derive that procedure here.
+2. **Name both consistently**: branch `feat/<version>-<slug>`, worktree name `<version>-<slug>`, which `nexus-hub worktree path` places at `<root>/<repository-identity>/<name>`. A predictable directory is what lets the release step find and remove it later. The central root keeps every such directory in one place.
 3. **Already inside a worktree for this plan** -> continue in it; never nest a second one.
 4. **Worktrees unavailable** (no `git worktree`, or the user declines) -> fall back to a branch in the current checkout, say so in one line, and note that parallel plans are unavailable this session.
 

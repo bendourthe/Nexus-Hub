@@ -167,11 +167,12 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
 
     for script in (
         "secret-scan.sh", "large-file-guard.sh", "git-guardrails.sh",
-        "user-edit-guard.sh", "attribution-guard.sh",
+        "worktree-policy.sh", "user-edit-guard.sh", "attribution-guard.sh",
     ):
         assert (agents / "hooks" / script).exists(), f"hook script {script} not installed"
         assert (agents / "hooks" / f"{Path(script).stem}.ps1").is_file()
     assert (agents / "hooks" / "antigravity-hook-compat.py").is_file()
+    assert (agents / "hooks" / "_worktree_policy.py").is_file(), "helper must ship with the guard"
     assert not (agents / "hooks" / "compress-output.sh").exists()
 
     hooks_json = agents / "hooks.json"
@@ -187,6 +188,10 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
         f"workspace hooks.json should reference the project-relative hook path; got {commands}"
     )
     assert all("antigravity-hook-compat.py" in command for command in commands)
+    run_command_entry = next(e for e in guardrails["PreToolUse"] if e["matcher"] == "run_command")
+    worktree = [h["command"] for h in run_command_entry["hooks"] if "worktree-policy" in h["command"]]
+    assert len(worktree) == 1 and f"worktree-policy{hook_suffix}" in worktree[0]
+    assert sum("worktree-policy" in command for command in commands) == 1, "registered once, on run_command only"
     matchers = {entry["matcher"] for entry in guardrails["PreToolUse"]}
     assert matchers == {
         "write_to_file|replace_file_content|multi_replace_file_content",

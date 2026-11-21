@@ -80,6 +80,10 @@ Admission test: "Will this document still change after this release closes?" If 
 
 Use the `docs-layout-refactor` skill for classification, migration, and link-integrity procedures.
 
+## Branching
+
+- Put every new linked worktree at `<root>/<repository-identity>/<worktree-name>` (default root `~/.worktrees`) by creating it with `nexus-hub worktree create`; never in a sibling, vendor, or temporary folder. The `using-git-worktrees` skill owns placement, native-tool exceptions, and migration.
+
 ## Plan Lifecycle and CI/CD
 
 - Every plan phase verifies locally and ends with ONE local commit.
