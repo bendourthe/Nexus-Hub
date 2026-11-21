@@ -523,6 +523,15 @@ class GitInspector:
             )
         base = [
             self.git,
+            *self.profile_flags(cwd, git_dir),
+            *self._scope(cwd, git_dir),
+            *argv,
+        ]
+        return self._run(base, None)
+
+    def profile_flags(self, cwd: str | None, git_dir: str | None = None) -> list[str]:
+        """The non-executing `-c` profile: no fsmonitor, hooks, filters, textconv or external diff."""
+        return [
             "--no-optional-locks",
             "-c",
             "core.fsmonitor=false",
@@ -535,10 +544,7 @@ class GitInspector:
             "-c",
             "protocol.ext.allow=never",
             *self._neutralize(cwd, git_dir),
-            *self._scope(cwd, git_dir),
-            *argv,
         ]
-        return self._run(base, None)
 
 
 @dataclass
@@ -1717,11 +1723,18 @@ def git_write(
     argv: list[str],
     cwd: str,
     timeout: float = CREATE_TIMEOUT_SECONDS,
+    neutral: bool = False,
 ) -> GitResult:
-    """Authorized Git write (worktree creation). Inherited GIT_* overrides are dropped."""
+    """Authorized Git write. Inherited GIT_* overrides are dropped.
+
+    Creation runs Git's normal checkout, so a repository's own filters and hooks
+    apply as they do for the user. A move checks nothing out, so it passes
+    `neutral=True` and runs under the same non-executing profile as inspection.
+    """
+    flags = git.profile_flags(cwd) if neutral else []
     try:
         proc = subprocess.run(
-            [git.git, *argv],
+            [git.git, *flags, *argv],
             cwd=cwd,
             env=_inspection_env(),
             capture_output=True,
@@ -1880,6 +1893,1022 @@ def run_list(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+# --------------------------------------------------------------------------- migration
+
+MANIFEST_SCHEMA = "nexus-worktree-migration/1"
+PRESERVATION_BUDGET_BYTES = 512 * 1024 * 1024
+BINDING_FILES = (
+    ".vscode/settings.json",
+    ".vscode/launch.json",
+    ".vscode/tasks.json",
+    ".claude/settings.local.json",
+    ".venv/pyvenv.cfg",
+    "venv/pyvenv.cfg",
+    ".idea/workspace.xml",
+    ".idea/misc.xml",
+)
+FAULTS: dict[str, Callable[[], None] | None] = {
+    "after_validate": None,  # between first validation and the final ancestor check
+    "before_git": None,  # after the "moving" receipt, before git runs
+    "after_git": None,  # after git returned, before postconditions are verified
+}
+
+
+def _fault(name: str) -> None:
+    hook = FAULTS.get(name)
+    if hook is not None:
+        hook()
+
+
+def _digest_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _file_sha256(path: str | os.PathLike[str]) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _git_dir_of(worktree: str) -> Path | None:
+    raw = _read_gitfile(Path(worktree) / ".git")
+    if raw is None:
+        return None
+    return (
+        Path(raw)
+        if os.path.isabs(raw)
+        else Path(os.path.normpath(Path(worktree) / raw))
+    )
+
+
+def content_inventory(
+    git: GitInspector, path: str, budget: int = PRESERVATION_BUDGET_BYTES
+) -> dict[str, Any]:
+    """Untracked and ignored files with sizes and hashes, plus the tracked-change patch hash.
+
+    Ignored files are hashed in sorted order until the byte budget is spent; later
+    ones keep a size only, and the inventory says so. The same rule runs before
+    and after a move, so equal inventories prove nothing changed.
+    """
+    rows: list[list[Any]] = []
+    spent = 0
+    for label, args in (
+        ("untracked", ["ls-files", "--others", "--exclude-standard", "-z"]),
+        ("ignored", ["ls-files", "--others", "--ignored", "--exclude-standard", "-z"]),
+    ):
+        listing = git.run(args, cwd=path)
+        if listing.rc != 0:
+            raise PolicyError(
+                "inventory-unreadable", f"cannot list {label} files", cannot_verify=True
+            )
+        for rel in sorted(p for p in listing.out.split("\0") if p):
+            full = os.path.join(path, rel)
+            try:
+                st = os.lstat(full)
+            except OSError:
+                rows.append([label, rel, -1, "missing"])
+                continue
+            if stat.S_ISREG(st.st_mode) and (
+                label == "untracked" or spent + st.st_size <= budget
+            ):
+                spent += st.st_size if label == "ignored" else 0
+                rows.append([label, rel, st.st_size, _file_sha256(full)])
+            else:
+                rows.append([label, rel, st.st_size, "size-only"])
+    patch = git.run(
+        ["diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"], cwd=path
+    )
+    if patch.rc not in (0, 1):
+        raise PolicyError(
+            "inventory-unreadable",
+            "cannot compute the tracked-change patch",
+            cannot_verify=True,
+        )
+    git_dir = _git_dir_of(path)
+    index_hash = (
+        _file_sha256(git_dir / "index")
+        if git_dir and (git_dir / "index").is_file()
+        else ""
+    )
+    return {
+        "files": rows,
+        "files_digest": _digest_text(json.dumps(rows)),
+        "patch_digest": _digest_text(patch.out),
+        "index_file_sha256": index_hash,
+        "size_only": sum(1 for r in rows if r[3] == "size-only"),
+    }
+
+
+def full_fingerprint(git: GitInspector, path: str) -> dict[str, Any]:
+    state = worktree_state(git, path)
+    inventory = content_inventory(git, path)
+    state.update(
+        files_digest=inventory["files_digest"],
+        patch_digest=inventory["patch_digest"],
+        index_file_sha256=inventory["index_file_sha256"],
+        size_only=inventory["size_only"],
+    )
+    return state
+
+
+def native_bound_paths() -> tuple[set[str], bool]:
+    """Worktree paths named by live signed run records; the bool is False when any record is unreadable."""
+    override = os.environ.get("NEXUS_HUB_RUNS_DIR")
+    runs = Path(override) if override else Path.home() / ".nexus-hub" / "runs"
+    bound: set[str] = set()
+    readable = True
+    if not runs.is_dir():
+        return bound, True
+
+    def collect(value: object, key: str) -> None:
+        if isinstance(value, dict):
+            for k, v in value.items():
+                collect(v, k)
+        elif isinstance(value, list):
+            for v in value:
+                collect(v, key)
+        elif (
+            isinstance(value, str)
+            and value
+            and key in ("worktree", "worktrees", "repo_root")
+        ):
+            bound.add(key_of(value))
+
+    for record_path in sorted(runs.glob("*.json")):
+        if record_path.name.endswith((".gate.json", ".receipt.json")):
+            continue
+        try:
+            record = json.loads(record_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, UnicodeDecodeError):
+            record = None
+        if not isinstance(record, dict):
+            readable = False
+            continue
+        if not record.get("completed"):
+            collect(record, "")
+    return bound, readable
+
+
+def path_bindings(path: str) -> list[dict[str, Any]]:
+    """Known files that embed this worktree's absolute path and break or mislead after a move."""
+    needles = {path.lower(), path.replace("\\", "/").lower()}
+    found: list[dict[str, Any]] = []
+    for rel in BINDING_FILES:
+        full = os.path.join(path, rel)
+        try:
+            if os.path.getsize(full) > 1 << 20:
+                continue
+            text = open(full, "rb").read().decode("utf-8", errors="replace").lower()
+        except OSError:
+            continue
+        hits = sum(text.count(n) for n in needles)
+        if hits:
+            found.append({"file": rel.replace("\\", "/"), "occurrences": hits})
+    for rel in (".venv/Scripts", ".venv/bin", "venv/Scripts", "venv/bin"):
+        if os.path.isdir(os.path.join(path, rel)):
+            found.append(
+                {
+                    "file": rel,
+                    "occurrences": 0,
+                    "note": "virtual environment scripts hold absolute paths; recreate it after the move",
+                }
+            )
+            break
+    return found
+
+
+def _same_volume(source: str, destination: Path) -> bool:
+    if IS_NT:
+        return (
+            os.path.splitdrive(canon(source))[0].lower()
+            == os.path.splitdrive(os.path.abspath(destination))[0].lower()
+        )
+    probe = destination
+    while not probe.exists() and probe != probe.parent:
+        probe = probe.parent
+    return os.stat(source).st_dev == os.stat(probe).st_dev
+
+
+def _item_id(identity_id: str, path: str) -> str:
+    return _digest_text(identity_id + "\0" + key_of(path))[:12]
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(value, indent=2, sort_keys=True) + "\n"
+
+
+def _load_audit(path: str) -> dict[str, Any]:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise PolicyError(
+            "inventory-unreadable", "the inventory report cannot be read"
+        ) from exc
+    if (
+        not isinstance(data, dict)
+        or data.get("schema") != AUDIT_SCHEMA
+        or not isinstance(data.get("repositories"), list)
+    ):
+        raise PolicyError(
+            "inventory-schema", f"the inventory is not a {AUDIT_SCHEMA} report"
+        )
+    return data
+
+
+def _parse_pairs(values: list[str] | None, label: str) -> dict[str, str]:
+    pairs: dict[str, str] = {}
+    for value in values or []:
+        path, sep, rest = value.partition("=")
+        if not sep or not path or not rest:
+            raise PolicyError("invalid-argument", f"--{label} needs PATH=VALUE")
+        pairs[key_of(path)] = rest
+    return pairs
+
+
+def build_manifest(
+    args: argparse.Namespace, git: GitInspector
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Propose one exact disposition per discovered linked worktree. Writes nothing."""
+    audit = _load_audit(args.inventory)
+    root = resolve_root()
+    exceptions = _parse_pairs(args.exception, "exception")
+    removals = _parse_pairs(args.remove_candidate, "remove-candidate")
+    smokes = _parse_pairs(args.smoke, "smoke")
+    bound, records_ok = native_bound_paths()
+    used: set[str] = set()
+    items: list[dict[str, Any]] = []
+    tokens: dict[str, str] = {}
+    for repo in audit["repositories"]:
+        if repo.get("registry_error") or "identity" not in repo:
+            continue
+        common = Path(repo["common_dir"])
+        scope = (
+            {"git_dir": str(common)}
+            if repo.get("kind") == "bare"
+            else {"cwd": repo["main_path"]}
+        )
+        registered = list_registered(git, **scope)
+        identity = resolve_identity(
+            common,
+            registered[0].path if registered else repo["main_path"],
+            registered,
+            root.path,
+            write=False,
+        )
+        for row in repo["worktrees"]:
+            if row["main"] or row["bare"]:
+                continue
+            path = row["path"]
+            item: dict[str, Any] = {
+                "id": _item_id(identity.id, path),
+                "repository": {
+                    "identity": identity.id,
+                    "common_dir": repo["common_dir"],
+                    "main_path": repo["main_path"],
+                },
+                "worktree": {
+                    "path": path,
+                    "branch": row["branch"],
+                    "head": row["head"],
+                    "detached": row["detached"],
+                    "locked": row["locked"],
+                },
+                "disposition": "pending",
+                "reason": None,
+                "owner": "maintainer",
+                "destination": None,
+                "expected": None,
+                "path_bindings": [],
+                "ack": {"required": True, "token_sha256": None},
+                "authorization": {"required": True},
+                "smoke": None,
+            }
+            items.append(item)
+            _decide(
+                item,
+                row,
+                identity,
+                root,
+                registered,
+                git,
+                bound,
+                records_ok,
+                used,
+                exceptions,
+                removals,
+                smokes,
+                tokens,
+            )
+    manifest = {
+        "schema": MANIFEST_SCHEMA,
+        "root": root.as_dict(),
+        "inventory": {
+            "status": audit.get("status"),
+            "full_machine_claim_allowed": audit.get("full_machine_claim_allowed"),
+            "sha256": _file_sha256(args.inventory),
+        },
+        "items": items,
+        "summary": {
+            d: sum(1 for i in items if i["disposition"] == d)
+            for d in sorted({i["disposition"] for i in items})
+        },
+    }
+    return manifest, tokens
+
+
+def _decide(
+    item: dict[str, Any],
+    row: dict[str, Any],
+    identity: RepoIdentity,
+    root: RootInfo,
+    registered: list[RegisteredWorktree],
+    git: GitInspector,
+    bound: set[str],
+    records_ok: bool,
+    used: set[str],
+    exceptions: dict[str, str],
+    removals: dict[str, str],
+    smokes: dict[str, str],
+    tokens: dict[str, str],
+) -> None:
+    path = row["path"]
+    pkey = key_of(path)
+
+    def pend(
+        reason: str, owner: str = "maintainer", disposition: str = "pending"
+    ) -> None:
+        item.update(disposition=disposition, reason=reason, owner=owner)
+
+    if not row["exists"] or row["prunable"]:
+        return pend("registration-missing-or-prunable")
+    if pkey in removals:
+        item["ack"]["required"] = False
+        return pend(
+            f"removal candidate; cleanup authority stays with scripts/cleanup_merged.py ({removals[pkey]})",
+            "cleanup_merged",
+            "remove-candidate",
+        )
+    if pkey in exceptions:
+        return pend(exceptions[pkey], "maintainer", "exception-pending")
+    if row.get("in_policy"):
+        item.update(
+            disposition="retain",
+            reason="already at its canonical destination",
+            owner=None,
+        )
+        item["ack"]["required"] = item["authorization"]["required"] = False
+        return
+    if not records_ok:
+        return pend("native-records-unreadable", "native-run-owner")
+    if pkey in bound:
+        return pend(
+            "bound to a live signed run; finish the run in place, then move or retire it",
+            "native-run-owner",
+        )
+    if row["locked"]:
+        return pend("locked; never unlocked automatically", "worktree-owner")
+    if row.get("has_gitmodules"):
+        return pend(
+            "submodules: git cannot move this worktree; needs a reviewed procedure",
+            "maintainer",
+        )
+    try:
+        dest = resolve_destination(identity, row["canonical_name"], root, registered)
+    except PolicyError as exc:
+        return pend(f"destination refused: {exc.code}")
+    name = dest.name
+    if key_of(dest.path) in used:
+        name = f"{dest.name}-{_digest_text(pkey)[:6]}"
+        dest = resolve_destination(identity, name, root, registered)
+    if dest.state != "new":
+        return pend("destination already registered")
+    if not _same_volume(path, dest.path):
+        return pend(
+            "cross-volume move is unsupported by git worktree move; needs a reviewed procedure",
+            "maintainer",
+        )
+    try:
+        item["expected"] = full_fingerprint(git, path)
+    except PolicyError as exc:
+        return pend(f"state unreadable: {exc.code}", "maintainer")
+    if item["expected"]["submodules"]:
+        return pend(
+            "submodules: git cannot move this worktree; needs a reviewed procedure",
+            "maintainer",
+        )
+    used.add(key_of(dest.path))
+    token = uuid.uuid4().hex
+    tokens[item["id"]] = token
+    item["ack"]["token_sha256"] = _digest_text(token)
+    item["destination"] = str(dest.path)
+    item["path_bindings"] = path_bindings(path)
+    item.update(
+        disposition="move",
+        reason="outside its canonical destination",
+        owner="worktree-owner",
+    )
+    if pkey in smokes:
+        try:
+            argv = json.loads(smokes[pkey])
+        except ValueError as exc:
+            raise PolicyError(
+                "invalid-argument", "--smoke needs PATH=<JSON argv list>"
+            ) from exc
+        if (
+            not isinstance(argv, list)
+            or not argv
+            or not all(isinstance(a, str) for a in argv)
+        ):
+            raise PolicyError("invalid-argument", "--smoke needs PATH=<JSON argv list>")
+        item["smoke"] = {"argv": argv, "source": "operator"}
+
+
+def handoff_notice(manifest_name: str, item: dict[str, Any], token: str) -> str:
+    bindings = "; ".join(b["file"] for b in item["path_bindings"]) or "none found"
+    return "\n".join(
+        [
+            f"Worktree move notice for {item['worktree']['path']}",
+            f"New location: {item['destination']}",
+            f"Branch: {item['worktree']['branch'] or 'detached at ' + item['worktree']['head'][:12]}",
+            "Before the move: commit or stash nothing; save your work, stop commands running in that folder, and close editors on it.",
+            f"Acknowledge: nexus-hub worktree migrate --ack --manifest {manifest_name} --item {item['id']} --token {token} --checkpoint-note \"<what you saved>\"",
+            f"Files that name the old path: {bindings}.",
+            "After the move: reopen your editor and shell at the new location, recreate a virtual environment if one lived in the folder, and do not recreate the old path.",
+            "",
+        ]
+    )
+
+
+def run_migrate_dry(args: argparse.Namespace) -> int:
+    manifest_path = Path(args.manifest)
+    if manifest_path.exists():
+        raise PolicyError(
+            "output-exists", "the manifest file already exists; choose a new file name"
+        )
+    git = GitInspector()
+    manifest, tokens = build_manifest(args, git)
+    for item in manifest["items"]:
+        if is_within(state_dir(), item["worktree"]["path"]) or (
+            item["destination"] and is_within(state_dir(), item["destination"])
+        ):
+            raise PolicyError(
+                "state-inside-target",
+                "the Nexus-Hub state directory sits inside a worktree this manifest touches",
+            )
+    text = _canonical_json(manifest)
+    atomic_write(manifest_path, text, exclusive=True)
+    digest = _digest_text(text)
+    notices = "\n".join(
+        handoff_notice(manifest_path.name, i, tokens[i["id"]])
+        for i in manifest["items"]
+        if i["id"] in tokens
+    )
+    if notices:
+        atomic_write(
+            state_dir() / "notices" / f"{manifest_path.stem}.txt",
+            notices,
+            exclusive=False,
+        )
+    payload = {
+        "status": "proposed",
+        "manifest": str(manifest_path),
+        "sha256": digest,
+        "summary": manifest["summary"],
+        "inventory_status": manifest["inventory"]["status"],
+        "notices": (
+            str(state_dir() / "notices" / f"{manifest_path.stem}.txt")
+            if notices
+            else None
+        ),
+    }
+    _emit(payload, True)
+    return EXIT_OK
+
+
+def load_manifest(path: str, expect: str) -> tuple[dict[str, Any], str]:
+    try:
+        raw = Path(path).read_bytes()
+    except OSError as exc:
+        raise PolicyError("manifest-unreadable", "the manifest cannot be read") from exc
+    digest = hashlib.sha256(raw).hexdigest()
+    if not expect or digest != expect.lower():
+        raise PolicyError(
+            "manifest-digest-mismatch",
+            "the manifest does not match the reviewed digest; propose a fresh manifest",
+        )
+    try:
+        manifest = json.loads(raw.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise PolicyError(
+            "manifest-malformed", "the manifest is not valid JSON"
+        ) from exc
+    if (
+        not isinstance(manifest, dict)
+        or manifest.get("schema") != MANIFEST_SCHEMA
+        or not isinstance(manifest.get("items"), list)
+    ):
+        raise PolicyError(
+            "manifest-schema", f"the manifest is not a {MANIFEST_SCHEMA} document"
+        )
+    current = resolve_root()
+    if manifest.get("root", {}).get("root") != str(current.path):
+        raise PolicyError(
+            "manifest-stale",
+            "the worktree root changed since this manifest was proposed",
+        )
+    return manifest, digest
+
+
+def _approvals_path(digest: str) -> Path:
+    return state_dir() / "approvals" / f"{digest}.json"
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def run_migrate_approve(args: argparse.Namespace) -> int:
+    manifest, digest = load_manifest(args.manifest, args.expect_sha256)
+    ids = {i["id"]: i for i in manifest["items"]}
+    record = _read_json(_approvals_path(digest))
+    record.setdefault("manifest_sha256", digest)
+    approved = record.setdefault("items", {})
+    for item_id in args.item or []:
+        if item_id not in ids:
+            raise PolicyError("unknown-item", f"no item {item_id} in this manifest")
+        if ids[item_id]["disposition"] not in ("move", "exception-pending"):
+            raise PolicyError(
+                "not-approvable",
+                f"item {item_id} is {ids[item_id]['disposition']}; only move items take approval here",
+            )
+        approved[item_id] = {
+            "decision": ids[item_id]["disposition"],
+            "approver": args.approver,
+            "note": args.note or "",
+            "at": time.time(),
+        }
+    atomic_write(_approvals_path(digest), _canonical_json(record))
+    _emit({"status": "approved", "sha256": digest, "items": sorted(approved)}, True)
+    return EXIT_OK
+
+
+def run_migrate_ack(args: argparse.Namespace) -> int:
+    manifest, digest = load_manifest(args.manifest, args.expect_sha256)
+    item = next((i for i in manifest["items"] if i["id"] == args.item), None)
+    if item is None or not item["ack"]["token_sha256"]:
+        raise PolicyError(
+            "unknown-item", "no acknowledgeable item with that id in this manifest"
+        )
+    if _digest_text(args.token) != item["ack"]["token_sha256"]:
+        raise PolicyError(
+            "ack-token-invalid", "the acknowledgment token does not match this item"
+        )
+    if not args.checkpoint_note or not args.checkpoint_note.strip():
+        raise PolicyError(
+            "ack-note-required",
+            "state in the checkpoint note what was saved before the move",
+        )
+    atomic_write(
+        state_dir() / "acks" / digest / f"{item['id']}.json",
+        _canonical_json(
+            {"item": item["id"], "note": args.checkpoint_note, "at": time.time()}
+        ),
+    )
+    _emit({"status": "acknowledged", "item": item["id"]}, True)
+    return EXIT_OK
+
+
+def _receipt_path(digest: str, item_id: str) -> Path:
+    return state_dir() / "receipts" / digest / f"{item_id}.json"
+
+
+def _write_receipt(digest: str, item: dict[str, Any], step: str, **extra: Any) -> None:
+    path = _receipt_path(digest, item["id"])
+    record = _read_json(path) or {
+        "item": item["id"],
+        "source": item["worktree"]["path"],
+        "destination": item["destination"],
+        "steps": [],
+    }
+    record["steps"].append({"step": step, "at": time.time(), **extra})
+    record["state"] = step
+    atomic_write(path, _canonical_json(record))
+
+
+def _ancestors_identity(root: Path, repo_id: str) -> dict[str, list[int]]:
+    ids: dict[str, list[int]] = {}
+    for part in (root, root / repo_id):
+        if is_reparse(part):
+            raise PolicyError(
+                "destination-reparse",
+                "a symlink or junction sits in the destination path",
+            )
+        st = os.stat(part)
+        ids[str(part)] = [st.st_dev, st.st_ino]
+    return ids
+
+
+def build_preservation_package(
+    git: GitInspector, digest: str, item: dict[str, Any]
+) -> dict[str, Any]:
+    """Copy the index, tracked-change patch and untracked files outside every removal target, then verify them."""
+    src = item["worktree"]["path"]
+    package = state_dir() / "preservation" / digest / item["id"]
+    if is_within(package, src) or is_within(package, item["destination"]):
+        raise PolicyError(
+            "package-inside-target",
+            "the preservation package would sit inside a worktree this item touches",
+        )
+    package.mkdir(parents=True, exist_ok=True)
+    git_dir = _git_dir_of(src)
+    if git_dir and (git_dir / "index").is_file():
+        shutil.copy2(git_dir / "index", package / "index")
+    patch = git.run(
+        ["diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"], cwd=src
+    )
+    (package / "tracked.patch").write_text(patch.out, encoding="utf-8", newline="")
+    inventory = content_inventory(git, src)
+    copied = 0
+    for label, rel, size, sha in inventory["files"]:
+        if label != "untracked" or sha in ("missing", "size-only"):
+            continue
+        target = package / "untracked" / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(os.path.join(src, rel), target)
+        if _file_sha256(target) != sha:
+            raise PolicyError(
+                "package-verification-failed",
+                "a preserved file does not match its source hash",
+            )
+        copied += 1
+    receipt = {
+        "package": str(package),
+        "untracked_copied": copied,
+        "files_digest": inventory["files_digest"],
+        "patch_digest": inventory["patch_digest"],
+        "index_file_sha256": inventory["index_file_sha256"],
+        "ignored_inventory_only": inventory["size_only"],
+    }
+    if (package / "index").is_file() and _file_sha256(package / "index") != inventory[
+        "index_file_sha256"
+    ]:
+        raise PolicyError(
+            "package-verification-failed",
+            "the preserved index does not match the source index",
+        )
+    atomic_write(package / "receipt.json", _canonical_json(receipt))
+    return receipt
+
+
+def _verify_postconditions(
+    git: GitInspector, item: dict[str, Any], common: Path
+) -> list[str]:
+    """Empty when the moved worktree matches the manifest's expected state exactly."""
+    problems: list[str] = []
+    src, dst = item["worktree"]["path"], item["destination"]
+    registered = list_registered(git, cwd=item["repository"]["main_path"])
+    keys = {key_of(w.path) for w in registered}
+    if key_of(dst) not in keys:
+        problems.append("destination is not registered")
+    if key_of(src) in keys:
+        problems.append("source is still registered")
+    if os.path.exists(src):
+        problems.append("source path still exists")
+    if not _pointer_owner_ok(dst, common):
+        problems.append("destination pointer does not resolve to the repository")
+    git_dir = _git_dir_of(dst)
+    back = (git_dir / "gitdir") if git_dir else None
+    if (
+        back is None
+        or not back.is_file()
+        or key_of(
+            back.read_text(encoding="utf-8").strip().removesuffix(".git").rstrip("/\\")
+        )
+        != key_of(dst)
+    ):
+        problems.append("repository back-pointer does not name the destination")
+    after = full_fingerprint(git, dst)
+    for field_name, expected in item["expected"].items():
+        if after.get(field_name) != expected:
+            problems.append(f"{field_name} changed")
+    return problems
+
+
+def _revalidate(
+    git: GitInspector, item: dict[str, Any], root: RootInfo
+) -> tuple[RepoIdentity, list[RegisteredWorktree], Path]:
+    src, dest = item["worktree"]["path"], item["destination"]
+    repo = item["repository"]
+    common = Path(repo["common_dir"])
+    registered = list_registered(git, cwd=repo["main_path"])
+    identity = resolve_identity(
+        common, registered[0].path, registered, root.path, write=False
+    )
+    if identity.id != repo["identity"]:
+        raise PolicyError(
+            "identity-changed", "the repository identity differs from the manifest"
+        )
+    held = next((w for w in registered if key_of(w.path) == key_of(src)), None)
+    if held is None:
+        raise PolicyError(
+            "source-unregistered",
+            "the repository no longer registers the source worktree",
+        )
+    if held.locked or held.prunable:
+        raise PolicyError(
+            "source-locked",
+            "the source worktree is locked or prunable; it is never unlocked automatically",
+        )
+    if (
+        held.head != item["worktree"]["head"]
+        or held.branch != item["worktree"]["branch"]
+    ):
+        raise PolicyError("source-changed", "HEAD or branch differs from the manifest")
+    target = resolve_destination(identity, Path(dest).name, root, registered)
+    if key_of(target.path) != key_of(dest) or target.state != "new":
+        raise PolicyError(
+            "destination-changed",
+            "the destination differs from the manifest or is no longer free",
+        )
+    if not _same_volume(src, target.path):
+        raise PolicyError(
+            "cross-volume", "source and destination are on different volumes"
+        )
+    return identity, registered, common
+
+
+def move_item(
+    git: GitInspector, digest: str, item: dict[str, Any], root: RootInfo
+) -> dict[str, Any]:
+    """Execute one approved, acknowledged move. Raises PolicyError to refuse; never forces."""
+    src, dest = item["worktree"]["path"], item["destination"]
+    repo = item["repository"]
+    with RepoLock(repo["identity"]):
+        _write_receipt(digest, item, "started")
+        identity, registered, common = _revalidate(git, item, root)
+        current = full_fingerprint(git, src)
+        for field_name, expected in item["expected"].items():
+            if current.get(field_name) != expected:
+                raise PolicyError(
+                    "source-changed",
+                    f"{field_name} differs from the manifest; propose a fresh manifest",
+                )
+        Path(dest).parent.mkdir(parents=True, exist_ok=True)
+        ancestors = _ancestors_identity(root.path, identity.id)
+        receipt = build_preservation_package(git, digest, item)
+        _write_receipt(digest, item, "preserved", package=receipt["package"])
+        _fault("after_validate")
+        # Final check, immediately before mutation: ancestors keep their file identities and stay plain
+        # directories, and the working state did not change while the package was built. A writer that
+        # replaces an ancestor after this point cannot be stopped; see the cooperative-writer boundary.
+        if _ancestors_identity(root.path, identity.id) != ancestors:
+            raise PolicyError(
+                "ancestor-replaced",
+                "a destination ancestor was replaced between validation and move",
+            )
+        after = worktree_state(git, src)
+        if (
+            after["status_digest"] != item["expected"]["status_digest"]
+            or after["head"] != item["expected"]["head"]
+        ):
+            raise PolicyError(
+                "competing-writer", "the worktree changed while the move was prepared"
+            )
+        _write_receipt(
+            digest,
+            item,
+            "moving",
+            actual_source=canon(src),
+            actual_destination=str(Path(canon(Path(dest).parent)) / Path(dest).name),
+        )
+        _fault("before_git")
+        made = git_write(
+            git,
+            ["-C", repo["main_path"], "worktree", "move", src, dest],
+            repo["main_path"],
+            neutral=True,
+        )
+        _fault("after_git")
+        if made.timed_out:
+            _write_receipt(digest, item, "pending-unknown", reason="git timed out")
+            raise PolicyError(
+                "git-timeout",
+                "git worktree move timed out; the item stays pending until recovered",
+                cannot_verify=True,
+            )
+        if made.rc != 0:
+            _write_receipt(digest, item, "failed", stderr=made.err.strip()[:300])
+            raise PolicyError(
+                "git-failed", f"git worktree move failed: {made.err.strip()[:200]}"
+            )
+        problems = _verify_postconditions(git, item, common)
+        if problems:
+            _write_receipt(digest, item, "verification-failed", problems=problems)
+            raise PolicyError(
+                "postcondition-failed", "; ".join(problems), cannot_verify=True
+            )
+        _write_receipt(digest, item, "verified")
+    result: dict[str, Any] = {
+        "item": item["id"],
+        "outcome": "moved",
+        "destination": dest,
+        "reopen_required": bool(item["path_bindings"]),
+    }
+    if item.get("smoke"):
+        result["smoke"] = run_smoke(item)
+    return result
+
+
+def run_smoke(item: dict[str, Any]) -> dict[str, Any]:
+    """Run the manifest-bound smoke command at the destination. Argv only, no shell."""
+    spec = item["smoke"]
+    try:
+        proc = subprocess.run(
+            spec["argv"],
+            cwd=item["destination"],
+            env=_inspection_env(),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=300,
+            check=False,
+            **NO_WINDOW,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"status": "failed", "reason": exc.__class__.__name__}
+    return {
+        "status": "passed" if proc.returncode == 0 else "failed",
+        "returncode": proc.returncode,
+    }
+
+
+def recover_item(
+    git: GitInspector, digest: str, item: dict[str, Any], root: RootInfo
+) -> dict[str, Any] | None:
+    """Classify an item whose receipt shows an interrupted move. None means nothing to recover."""
+    record = _read_json(_receipt_path(digest, item["id"]))
+    state = record.get("state")
+    if state == "verified":
+        return {
+            "item": item["id"],
+            "outcome": "moved",
+            "already_verified": True,
+            "destination": item["destination"],
+        }
+    if state in (None, "failed"):
+        return None
+    src, dst = item["worktree"]["path"], item["destination"]
+    src_there, dst_there = os.path.exists(src), os.path.exists(dst)
+    repo = item["repository"]
+    registered = {key_of(w.path) for w in list_registered(git, cwd=repo["main_path"])}
+    if (
+        dst_there
+        and not src_there
+        and key_of(dst) in registered
+        and key_of(src) not in registered
+    ):
+        problems = _verify_postconditions(git, item, Path(repo["common_dir"]))
+        if problems:
+            _write_receipt(digest, item, "recovery-refused", problems=problems)
+            return {
+                "item": item["id"],
+                "outcome": "pending",
+                "code": "recovery-unverified",
+                "problems": problems,
+            }
+        _write_receipt(digest, item, "verified", recovered=True)
+        return {"item": item["id"], "outcome": "recovered", "destination": dst}
+    if (
+        src_there
+        and not dst_there
+        and key_of(src) in registered
+        and key_of(dst) not in registered
+    ):
+        return None  # nothing moved; the normal path revalidates everything again
+    _write_receipt(
+        digest,
+        item,
+        "recovery-refused",
+        source_exists=src_there,
+        destination_exists=dst_there,
+    )
+    return {"item": item["id"], "outcome": "pending", "code": "recovery-ambiguous"}
+
+
+def run_migrate_apply(args: argparse.Namespace) -> int:
+    manifest, digest = load_manifest(args.manifest, args.expect_sha256)
+    approvals = _read_json(_approvals_path(digest))
+    if approvals.get("manifest_sha256") != digest:
+        raise PolicyError(
+            "approval-missing", "no local approval receipt matches this manifest digest"
+        )
+    git = GitInspector()
+    root = resolve_root()
+    results: list[dict[str, Any]] = []
+    for item in manifest["items"]:
+        if item["disposition"] != "move":
+            results.append(
+                {
+                    "item": item["id"],
+                    "outcome": (
+                        "retained" if item["disposition"] == "retain" else "pending"
+                    ),
+                    "disposition": item["disposition"],
+                    "reason": item["reason"],
+                    "owner": item["owner"],
+                }
+            )
+            continue
+        entry = approvals.get("items", {}).get(item["id"])
+        if not entry or entry.get("decision") != "move":
+            results.append(
+                {
+                    "item": item["id"],
+                    "outcome": "pending",
+                    "code": "authorization-missing",
+                    "owner": item["owner"],
+                }
+            )
+            continue
+        if not (state_dir() / "acks" / digest / f"{item['id']}.json").is_file():
+            results.append(
+                {
+                    "item": item["id"],
+                    "outcome": "pending",
+                    "code": "acknowledgment-missing",
+                    "owner": item["owner"],
+                }
+            )
+            continue
+        try:
+            recovered = recover_item(git, digest, item, root)
+            results.append(
+                recovered if recovered else move_item(git, digest, item, root)
+            )
+        except PolicyError as exc:
+            results.append(
+                {
+                    "item": item["id"],
+                    "outcome": "pending" if exc.cannot_verify else "refused",
+                    "code": exc.code,
+                    "message": exc.message,
+                }
+            )
+    failed = [
+        r for r in results if r["outcome"] not in ("moved", "recovered", "retained")
+    ]
+    _emit(
+        {
+            "status": "complete" if not failed else "partial",
+            "sha256": digest,
+            "results": results,
+            "moved": sum(1 for r in results if r["outcome"] in ("moved", "recovered")),
+            "unresolved": len(failed),
+        },
+        True,
+    )
+    return EXIT_OK if not failed else EXIT_PARTIAL
+
+
+def run_migrate(args: argparse.Namespace) -> int:
+    if args.dry_run:
+        if not (args.inventory and args.manifest):
+            raise PolicyError(
+                "invalid-argument", "--dry-run needs --inventory and --manifest"
+            )
+        return run_migrate_dry(args)
+    if not args.manifest:
+        raise PolicyError("invalid-argument", "--manifest is required")
+    if args.apply or args.approve or args.ack:
+        if not args.expect_sha256:
+            raise PolicyError(
+                "invalid-argument", "--expect-sha256 is required with the manifest"
+            )
+        if args.apply:
+            return run_migrate_apply(args)
+        if args.approve:
+            if not args.approver:
+                raise PolicyError("invalid-argument", "--approve needs --approver")
+            return run_migrate_approve(args)
+        if not (args.item and len(args.item) == 1 and args.token):
+            raise PolicyError(
+                "invalid-argument",
+                "--ack needs one --item and the --token from the notice",
+            )
+        args.item = args.item[0]
+        return run_migrate_ack(args)
+    raise PolicyError(
+        "invalid-argument", "choose --dry-run, --apply, --approve or --ack"
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub worktree", description="Centralized worktree policy."
@@ -1904,6 +2933,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     listing.add_argument("--repo", required=True)
     listing.add_argument("--json", action="store_true")
+    migrate = sub.add_parser(
+        "migrate", help="Propose, approve, acknowledge and apply a reviewed manifest."
+    )
+    migrate.add_argument("--dry-run", action="store_true")
+    migrate.add_argument("--apply", action="store_true")
+    migrate.add_argument("--approve", action="store_true")
+    migrate.add_argument("--ack", action="store_true")
+    migrate.add_argument("--inventory", help="Audit report to propose from.")
+    migrate.add_argument("--manifest", help="New manifest file (dry run) or reviewed manifest.")
+    migrate.add_argument("--expect-sha256", help="Digest of the reviewed manifest file.")
+    migrate.add_argument("--exception", action="append", help="PATH=reason: keep this worktree where it is, pending approval.")
+    migrate.add_argument("--remove-candidate", action="append", help="PATH=reason: hand this worktree to cleanup_merged.py; never removed here.")
+    migrate.add_argument("--smoke", action="append", help="PATH=<JSON argv list>: command to run at the destination after the move.")
+    migrate.add_argument("--item", action="append")
+    migrate.add_argument("--approver")
+    migrate.add_argument("--note")
+    migrate.add_argument("--token")
+    migrate.add_argument("--checkpoint-note")
     audit = sub.add_parser(
         "audit",
         help="Read-only discovery of every linked worktree with explicit coverage.",
@@ -1947,6 +2994,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "path": run_path,
     "create": run_create,
     "list": run_list,
+    "migrate": run_migrate,
     "audit": run_audit,
 }
 

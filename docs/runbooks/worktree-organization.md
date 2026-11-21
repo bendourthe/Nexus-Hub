@@ -38,4 +38,33 @@ This is organizational enforcement inside supported Nexus-Hub surfaces, not an o
 
 ## Migration
 
-`nexus-hub worktree migrate` is delivered in the next phase of this release; until then no worktree is moved by this tooling.
+`nexus-hub worktree migrate` moves existing worktrees to their canonical destinations. The only mutation input is one reviewed manifest file. Main repositories, removal and branch deletion are never touched here: removal stays with `scripts/cleanup_merged.py`.
+
+### Steps
+
+1. Run the audit and keep its report: `nexus-hub worktree audit --machine --json --output <new-report>`.
+2. Propose: `nexus-hub worktree migrate --dry-run --inventory <report> --manifest <new-manifest>`. This writes the manifest, a notice file per item under the Nexus-Hub state directory, and nothing else. It prints the manifest's SHA-256.
+3. Review the manifest. Every item names a disposition (`move`, `retain`, `pending`, `exception-pending`, `remove-candidate`), a reason and an owner. Edit nothing: any change alters the digest and apply refuses.
+4. Approve each item you accept, as the person who owns the decision: `nexus-hub worktree migrate --approve --manifest <manifest> --expect-sha256 <digest> --item <id> --approver <name>`. This writes a local approval receipt bound to the digest. Planning approval, a green test run and an agent's own judgment are not approval.
+5. Hand the notice for each moved worktree to the agent or person working in it. The owner checkpoints their work and acknowledges: `nexus-hub worktree migrate --ack --manifest <manifest> --expect-sha256 <digest> --item <id> --token <token> --checkpoint-note "<what was saved>"`. The absence of a detected process is not consent.
+6. Apply: `nexus-hub worktree migrate --apply --manifest <manifest> --expect-sha256 <digest>`. Exit 0 means every item moved and verified or is retained; exit 3 means at least one item is pending or refused, listed with a code and an owner.
+
+### What a move preserves and checks
+
+Immediately before an item moves, the executor revalidates the repository identity, HEAD, branch, working and index state, the untracked and ignored inventory, the destination's ownership, the approval and the acknowledgment. It locks the repository, builds a preservation package (the index, the tracked-change patch, copies of untracked files, and a hashed inventory of ignored files) outside every worktree, and moves with `git worktree move`. Afterward it compares the registry, the repository's back-pointer, HEAD, branch, status, index bytes, patch and every inventory entry against the manifest. Any difference leaves the item pending with a receipt.
+
+It refuses, and never forces: a locked worktree (it is never unlocked), a worktree with submodules, a move across volumes, a path bound to a live signed run, a destination that exists or changed, a changed source, a competing writer, a repository lock held by another operation, and an ancestor that became a symlink or junction.
+
+Cooperative-writer boundary: the final ancestor check runs just before Git starts. A writer that replaces a destination ancestor after that point cannot be stopped from inside this process. Close editors and stop agents on the repository first, which is why the owner acknowledgment is required.
+
+### Interruption and recovery
+
+Each item writes a receipt (`started`, `preserved`, `moving`, `verified`) and re-running the same apply continues. A receipt in `moving` with the source still present is revalidated from the start. A receipt in `moving` with the destination registered and the source gone is verified against the manifest and then marked recovered. Anything else, or any difference from the manifest, stays `pending` as `recovery-ambiguous` or `recovery-unverified`. Nothing is reset, stashed, unlocked, pruned or removed automatically.
+
+### Path-bound state to reopen
+
+The proposal lists files that embed the old absolute path: editor settings (`.vscode`, `.idea`), `.claude/settings.local.json`, virtual environment configuration, task scripts, native controllers and live agent working directories. A virtual environment created inside the folder holds absolute paths; recreate it after the move. Reopen the editor and the shell at the new location, and do not recreate the old path. An optional smoke command per item (`--smoke <path>=<JSON argv list>`) is bound into the manifest and runs at the destination after the move; its result is part of the item result.
+
+### Signed runs
+
+A worktree named by a live signed run record finishes in place. When the run reaches its valid terminal result, propose again and move or retire it. No record or signature is edited. A new owner-specific relocation adapter is out of scope.
