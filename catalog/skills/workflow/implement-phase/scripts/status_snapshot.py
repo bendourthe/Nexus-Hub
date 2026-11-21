@@ -248,28 +248,36 @@ def plan_title(path: Path) -> str:
     return path.stem
 
 
+NOT_ESTIMATED = "not estimated (no task list)"
+
+
 def running_items(overlay: dict, now: datetime, rate) -> list[dict]:
     items = []
     for item in overlay.get("running", []):
+        for key in ("elapsed", "remaining"):
+            if key in item:
+                raise ValueError(
+                    f"overlay cannot set a running item's {key}; it is measured"
+                )
         entry = {k: item[k] for k in ("name", "state", "url") if k in item}
         entry["done"], entry["total"] = item.get("done"), item.get("total")
         started = item.get("started_at")
-        if started:
-            entry["elapsed"] = duration(
-                (
-                    now - datetime.fromisoformat(started.replace("Z", "+00:00"))
-                ).total_seconds()
-                / 86400
+        if not started:
+            # A running item has started, so its elapsed time is always measurable.
+            raise ValueError(
+                f"running item {item.get('name')!r} needs started_at; its elapsed time is measured"
             )
-        else:
-            entry["elapsed"] = item.get("elapsed", "N/A")
-        if "remaining" in item:
-            entry["remaining"] = item["remaining"]
-        elif entry["done"] is not None and entry["total"] is not None:
+        entry["elapsed"] = duration(
+            (
+                now - datetime.fromisoformat(started.replace("Z", "+00:00"))
+            ).total_seconds()
+            / 86400
+        )
+        if entry["done"] is not None and entry["total"] is not None:
             # Work with tasks gets the same measured estimate as a version row.
             entry["remaining"] = estimate(entry["total"] - entry["done"], rate)
         else:
-            entry["remaining"] = "N/A"
+            entry["remaining"] = NOT_ESTIMATED
         items.append(entry)
     return items
 
