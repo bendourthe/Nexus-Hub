@@ -115,7 +115,10 @@ def call(*argv: str) -> tuple[int, dict]:
 
 
 def propose(
-    world: dict[str, Path], *extra: str, name: str = "m.json"
+    world: dict[str, Path],
+    *extra: str,
+    name: str = "m.json",
+    include_dirty: bool = True,
 ) -> tuple[Path, str, dict]:
     rc, _ = call(
         "audit",
@@ -133,6 +136,7 @@ def propose(
         str(world["tmp"] / f"audit-{name}"),
         "--manifest",
         str(manifest),
+        *((["--include-dirty"] if include_dirty else [])),
         *extra,
     )
     assert rc == 0, out
@@ -766,15 +770,10 @@ def test_apply_never_removes_a_worktree_or_runs_cleanup(world: dict[str, Path]) 
     )
     assert rc == 2  # a removal candidate takes no approval here
     nothing = world["tmp"] / "none.json"
-    rc, out = call(
-        "migrate",
-        "--approve",
-        "--manifest",
-        str(path),
-        "--expect-sha256",
-        digest,
-        "--approver",
-        "m",
+    # An approval receipt for the digest with no approved items (the CLI now refuses an empty --approve).
+    nw.atomic_write(
+        nw._approvals_path(digest),
+        nw._canonical_json({"manifest_sha256": digest, "items": {}}),
     )
     rc, out = apply(path, digest)
     assert (
@@ -910,3 +909,208 @@ def test_invalid_budget_values_refuse(world: dict[str, Path]) -> None:
         with pytest.raises(nw.PolicyError) as caught:
             nw.manifest_budget({"hash_budget_bytes": bad})
         assert caught.value.code == "manifest-malformed"
+# --------------------------------------------------------------------------- hardening after review
+
+
+def two_movable(
+    world: dict[str, Path]
+) -> tuple[Path, Path, Path, str, dict, dict, dict]:
+    first = dirty_worktree(world, "one", "one-wt")
+    second = dirty_worktree(world, "two", "two-wt")
+    path, digest, manifest = propose(world)
+    items = item_for(manifest, first), item_for(manifest, second)
+    for item in items:
+        authorize(world, path, digest, manifest, item)
+    return first, second, path, digest, manifest, items[0], items[1]
+
+
+def test_an_os_error_on_one_item_leaves_it_pending_and_the_rest_processed(
+    world: dict[str, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first, second, path, digest, _, item_one, item_two = two_movable(world)
+    real = nw.build_preservation_package
+
+    def flaky(git, digest_, item, budget=None):  # noqa: ANN001
+        if item["id"] == item_one["id"]:
+            raise PermissionError("denied by the host")
+        return real(git, digest_, item, budget)
+
+    monkeypatch.setattr(nw, "build_preservation_package", flaky)
+    rc, out = apply(path, digest)
+    by = {r["item"]: r for r in out["results"]}
+    assert rc == 3 and out["status"] == "partial", out
+    assert (
+        by[item_one["id"]]["outcome"] == "pending"
+        and by[item_one["id"]]["code"] == "os-error"
+    )
+    assert "PermissionError" in by[item_one["id"]]["message"] and first.is_dir()
+    assert by[item_two["id"]]["outcome"] == "moved" and not second.exists()
+
+
+def test_main_always_prints_a_terminal_status(
+    world: dict[str, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setitem(
+        nw.HANDLERS, "path", lambda _args: (_ for _ in ()).throw(RuntimeError("boom"))
+    )
+    rc, out = call("path", "--repo", str(world["repo"]), "--name", "x")
+    assert (
+        rc == nw.EXIT_PARTIAL
+        and out["status"] == "cannot-verify"
+        and out["code"] == "unexpected-error"
+    )
+    assert "RuntimeError" in out["message"] and "boom" not in out["message"]
+
+
+def test_native_binding_is_rechecked_at_apply(world: dict[str, Path]) -> None:
+    wt, path, digest, manifest, item = full_setup(world)
+    runs = world["tmp"] / "runs"
+    runs.mkdir()
+    record = runs / "late.json"
+    record.write_text(
+        json.dumps({"worktree": str(wt), "completed": None}), encoding="utf-8"
+    )
+    rc, out = apply(path, digest)
+    assert rc == 3 and out["results"][0]["code"] == "native-bound" and wt.is_dir()
+    record.write_text("{not json", encoding="utf-8")
+    rc, out = apply(path, digest)
+    assert (
+        rc == 3
+        and out["results"][0]["code"] == "native-records-unreadable"
+        and wt.is_dir()
+    )
+    record.write_text(
+        json.dumps({"worktree": str(wt), "completed": "done"}), encoding="utf-8"
+    )
+    rc, out = apply(path, digest)
+    assert rc == 0 and out["results"][0]["outcome"] == "moved"
+
+
+def test_tracked_patch_is_captured_and_hashed_as_bytes(world: dict[str, Path]) -> None:
+    wt = dirty_worktree(world)
+    (wt / "a.txt").write_bytes(
+        b"one" + b"\r\n" + b"latin " + bytes([0xE9]) + b" byte" + b"\r\n"
+    )
+    expected = subprocess.run(
+        ["git", "diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"],
+        cwd=wt,
+        capture_output=True,
+        check=True,
+    ).stdout
+    assert bytes([0xE9]) in expected and b"\r\n" in expected
+    path, digest, manifest = propose(world)
+    item = item_for(manifest, wt)
+    authorize(world, path, digest, manifest, item)
+    rc, out = apply(path, digest)
+    assert rc == 0, out
+    saved = (
+        world["state"] / "preservation" / digest / item["id"] / "tracked.patch"
+    ).read_bytes()
+    assert saved == expected and "�".encode("utf-8") not in saved
+    assert item["expected"]["patch_digest"] == hashlib.sha256(expected).hexdigest()
+
+
+def test_a_size_only_file_with_the_same_size_but_a_new_mtime_is_detected(
+    world: dict[str, Path]
+) -> None:
+    wt = budgeted_worktree(world)
+    path, digest, manifest = propose(world, "--hash-budget-mib", "1")
+    item = item_for(manifest, wt)
+    authorize(world, path, digest, manifest, item)
+    stat = (wt / "c3.log").stat()
+    os.utime(wt / "c3.log", ns=(stat.st_atime_ns, stat.st_mtime_ns + 5_000_000_000))
+    rc, out = apply(path, digest)
+    assert rc == 3 and out["results"][0]["code"] == "source-changed" and wt.is_dir()
+    rows = [
+        r
+        for r in nw.content_inventory(nw.GitInspector(), str(wt), ONE_MIB)["files"]
+        if r[3] == "size-only"
+    ]
+    assert rows and all(len(r) == 5 and isinstance(r[4], int) for r in rows)
+
+
+def test_a_failed_smoke_command_makes_the_run_partial(world: dict[str, Path]) -> None:
+    wt = dirty_worktree(world)
+    argv = [os.sys.executable, "-c", "import sys; sys.exit(7)"]
+    path, digest, manifest = propose(world, "--smoke", f"{wt}={json.dumps(argv)}")
+    item = item_for(manifest, wt)
+    authorize(world, path, digest, manifest, item)
+    rc, out = apply(path, digest)
+    assert rc == 3 and out["status"] == "partial" and out["unresolved"] == 1, out
+    assert (
+        out["results"][0]["outcome"] == "moved"
+        and out["results"][0]["smoke"]["status"] == "failed"
+    )
+
+
+def test_a_worktree_with_uncommitted_changes_is_proposed_as_an_exception_unless_included(
+    world: dict[str, Path]
+) -> None:
+    dirty = dirty_worktree(world, "dirty-b", "dirty-wt")
+    clean = world["ws"] / "clean-wt"
+    git("worktree", "add", "-q", "-b", "clean-b", str(clean), cwd=world["repo"])
+    _, _, manifest = propose(world, name="default.json", include_dirty=False)
+    held = item_for(manifest, dirty)
+    assert (
+        held["disposition"] == "exception-pending"
+        and held["reason"] == "uncommitted-changes"
+        and held["expected"] is None
+    )
+    assert item_for(manifest, clean)["disposition"] == "move"
+    _, _, manifest = propose(world, name="included.json")
+    assert item_for(manifest, dirty)["disposition"] == "move"
+
+
+def test_one_approval_command_takes_several_items_bound_to_the_digest(
+    world: dict[str, Path]
+) -> None:
+    first = dirty_worktree(world, "one", "one-wt")
+    second = dirty_worktree(world, "two", "two-wt")
+    path, digest, manifest = propose(world)
+    ids = [item_for(manifest, first)["id"], item_for(manifest, second)["id"]]
+    rc, out = call(
+        "migrate",
+        "--approve",
+        "--manifest",
+        str(path),
+        "--expect-sha256",
+        digest,
+        "--item",
+        ids[0],
+        "--item",
+        ids[1],
+        "--approver",
+        "Maintainer Name",
+    )
+    assert rc == 0 and out["items"] == sorted(ids)
+    record = json.loads(
+        (world["state"] / "approvals" / f"{digest}.json").read_text(encoding="utf-8")
+    )
+    assert record["manifest_sha256"] == digest
+    assert {entry["approver"] for entry in record["items"].values()} == {
+        "Maintainer Name"
+    } and set(record["items"]) == set(ids)
+    rc, out = call(
+        "migrate",
+        "--approve",
+        "--manifest",
+        str(path),
+        "--expect-sha256",
+        "0" * 64,
+        "--item",
+        ids[0],
+        "--approver",
+        "x",
+    )
+    assert rc == 2 and out["code"] == "manifest-digest-mismatch"
+    rc, out = call(
+        "migrate",
+        "--approve",
+        "--manifest",
+        str(path),
+        "--expect-sha256",
+        digest,
+        "--approver",
+        "x",
+    )
+    assert rc == 2 and out["code"] == "invalid-argument"

@@ -445,3 +445,103 @@ def test_helper_and_cli_agree_on_root_validation(
         except helper.Denied:
             hook_ok = False
         assert cli_ok == hook_ok, value
+# --------------------------------------------------------------------------- hardening after review
+
+APPROVE_BODY = "migrate --approve --manifest m.json --expect-sha256 abc --item a --item b --approver me"
+
+
+def hardening_cases(central: Path) -> list[tuple[str, int]]:
+    good = central / "app-0123abcd" / "feat"
+    return [
+        # quoted text and heredoc bodies are text, not commands
+        ('git commit -m "docs: explain git worktree move behavior"', 0),
+        (
+            "git commit -m 'uses `git worktree add ../x` and $(git worktree move a b) in text'",
+            0,
+        ),
+        (
+            "git commit -F - <<'EOF'\nfix: notes mention `git worktree move a b` and $(git worktree add ../y)\ngit worktree add ../z\nEOF",
+            0,
+        ),
+        ("bash <<'EOF'\ngit worktree add ../x\nEOF", 2),
+        ("echo $(git worktree add ../x)", 2),
+        # a relative destination after a directory change cannot be certified
+        (f"cd repo && git worktree add {good}", 0),
+        ("cd repo && git worktree add wt", 2),
+        ("pushd repo; git worktree add wt", 2),
+        ("Set-Location repo; git worktree add wt", 2),
+        ("sl repo; git worktree add wt", 2),
+        ("chdir repo && git worktree add wt", 2),
+        ("(cd repo; git worktree add wt)", 2),
+        # approval is a human step
+        (f"nexus-hub worktree {APPROVE_BODY}", 2),
+        (f"nexus-hub.cmd worktree {APPROVE_BODY}", 2),
+        (f"python -B scripts/nexus_worktrees.py {APPROVE_BODY}", 2),
+        (f'bash -c "nexus-hub worktree {APPROVE_BODY}"', 2),
+        (
+            "nexus-hub worktree migrate --dry-run --inventory a.json --manifest b.json",
+            0,
+        ),
+        ("nexus-hub worktree migrate --apply --manifest m.json --expect-sha256 abc", 0),
+        (
+            'git commit -m "docs: nexus-hub worktree migrate --approve is a human step"',
+            0,
+        ),
+    ]
+
+
+def test_hardening_cases_through_both_wrappers(
+    bash_bin: str, powershell_bin: str, env: dict[str, str], tmp_path: Path
+) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
+    for command, expected in hardening_cases(tmp_path / "central"):
+        sh_rc, ps_rc, sh_err, ps_err = run_pair(
+            bash_bin, powershell_bin, payload(command, work), env, work
+        )
+        assert (sh_rc, ps_rc) == (expected, expected), (command, sh_err, ps_err)
+        if expected == 2 and "--approve" in command:
+            assert "human step" in sh_err and "human step" in ps_err
+
+
+def test_relative_destination_without_a_directory_change_still_resolves(
+    bash_bin: str, powershell_bin: str, env: dict[str, str], tmp_path: Path
+) -> None:
+    inside = tmp_path / "central" / "app-0123abcd"
+    inside.mkdir(parents=True)
+    assert run_pair(
+        bash_bin,
+        powershell_bin,
+        payload("git worktree add newwt -b n", inside),
+        env,
+        inside,
+    )[:2] == (0, 0)
+    for change in ("cd .", "pushd .", "Set-Location .", "sl .", "chdir ."):
+        sh_rc, ps_rc, _, _ = run_pair(
+            bash_bin,
+            powershell_bin,
+            payload(f"{change}; git worktree add newwt", inside),
+            env,
+            inside,
+        )
+        assert (sh_rc, ps_rc) == (2, 2), change
+
+
+def test_powershell_tool_payloads_use_powershell_quoting_rules(
+    bash_bin: str, powershell_bin: str, env: dict[str, str], tmp_path: Path
+) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
+    here_string = "git commit -m @'\nnotes: git worktree move a b with a `backtick` and git worktree add ../x\n'@"
+    backtick_text = 'git commit -m "mentions `git worktree move` in markdown"'
+    for command, expected in (
+        (here_string, 0),
+        (backtick_text, 0),
+        ("Set-Location repo; git worktree add wt", 2),
+        (f"nexus-hub worktree {APPROVE_BODY}", 2),
+    ):
+        body = payload(command, work, tool_name="PowerShell")
+        sh_rc, ps_rc, sh_err, ps_err = run_pair(
+            bash_bin, powershell_bin, body, env, work
+        )
+        assert (sh_rc, ps_rc) == (expected, expected), (command, sh_err, ps_err)

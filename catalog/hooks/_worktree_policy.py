@@ -80,6 +80,17 @@ OPTION_WITH_ARGUMENT = {
 }
 ADD_OPTIONS_WITH_ARGUMENT = {"-b", "-B", "--reason"}
 MUTATION_TEXT = re.compile(r"\bworktree\s+(add|move)\b", re.IGNORECASE)
+CD_COMMANDS = frozenset({"cd", "pushd", "popd", "set-location", "sl", "chdir"})
+APPROVE_TARGETS = frozenset(
+    {"nexus-hub", "nexus-hub.cmd", "nexus_worktrees.py", "nexus_hub_cli.py"}
+)
+APPROVE_TEXT = re.compile(r"migrate\b[^\n]*--approve", re.IGNORECASE)
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+HERE_STRING = re.compile(r"@(['\"])\r?\n.*?\r?\n\1@", re.DOTALL)
+APPROVE_HINT = (
+    "Approval is a human step: the person who owns the decision runs "
+    "`nexus-hub worktree migrate --approve ...` in their own terminal, never an agent tool call."
+)
 UNRESOLVABLE = re.compile(r"[$%*?`]|\$\(")
 HINT = (
     "Create it with: nexus-hub worktree create --repo <checkout> --branch <branch> "
@@ -285,11 +296,25 @@ def effective_cwd(base: str, chain: list[str]) -> str:
     return cwd
 
 
-def check_destination(raw: str, cwd: str, root: Path, verb: str) -> None:
+def is_absolute(raw: str) -> bool:
+    expanded = os.path.expanduser(raw)
+    return os.path.isabs(expanded) and (
+        os.name != "nt" or bool(os.path.splitdrive(expanded)[0])
+    )
+
+
+def check_destination(
+    raw: str, cwd: str, root: Path, verb: str, after_cd: bool = False
+) -> None:
     if UNRESOLVABLE.search(raw) or not raw.strip():
         raise Denied(
             f"the destination of `git worktree {verb}` cannot be determined "
             f"({visible(raw)}) so it cannot be checked against the worktree root."
+        )
+    if after_cd and not is_absolute(raw):
+        raise Denied(
+            f"`git worktree {verb}` uses a relative destination ({visible(raw)}) after a "
+            "directory change in the same command, so its location cannot be certified."
         )
     destination = os.path.abspath(os.path.join(cwd, os.path.expanduser(raw)))
     if any(part.lower() in VENDOR_DIRS for part in Path(destination).parts):
@@ -306,12 +331,80 @@ def check_destination(raw: str, cwd: str, root: Path, verb: str) -> None:
         )
 
 
-def evaluate(command: str, cwd: str) -> int:
+def command_word(segment: list[str]) -> str:
+    """First command word of a segment, past environment assignments and common prefixes."""
+    index = 0
+    while index < len(segment) and (
+        re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", segment[index])
+        or program_name(segment[index].lstrip("({")) in {"sudo", "command", "env", "call"}
+        or segment[index] == "&"
+    ):
+        index += 1
+    return segment[index].lstrip("({") if index < len(segment) else ""
+
+
+def strip_heredoc_bodies(command: str) -> str:
+    """Drop heredoc and PowerShell here-string bodies, which are text (a commit message), not commands.
+
+    A body fed to a shell wrapper (`bash <<EOF`) is kept so what it runs is still checked.
+    An unquoted bash heredoc can run substitutions; that case is not certified.
+    """
+
+    def feeds_wrapper(line: str) -> bool:
+        tokens = segments(tokenize(line.split("<<", 1)[0]))
+        return any(program_name(command_word(t)) in WRAPPERS for t in tokens if t)
+
+    out: list[str] = []
+    skipping = ""
+    for line in command.split("\n"):
+        if skipping:
+            if line.strip() == skipping:
+                skipping = ""
+            continue
+        match = HEREDOC.search(line)
+        if match and not feeds_wrapper(line):
+            skipping = match.group(2)
+        out.append(line)
+    text = "\n".join(out)
+    return HERE_STRING.sub(
+        lambda m: "''" if not feeds_wrapper(text[: m.start()].rsplit("\n", 1)[-1]) else m.group(0),
+        text,
+    )
+
+
+def without_single_quotes(command: str) -> str:
+    return re.sub(r"'[^']*'", "''", command)
+
+
+def substitution_runs_mutation(command: str, shell: str) -> bool:
+    """True when a command substitution outside single quotes contains a worktree add or move."""
+    text = without_single_quotes(command)
+    starts = [m.start() for m in re.finditer(r"\$\(", text)]
+    if shell != "powershell":
+        starts += [m.start() for m in re.finditer("`", text)]
+    return any(MUTATION_TEXT.search(text[start:]) for start in starts)
+
+
+def approval_attempt(segment: list[str]) -> bool:
+    names = {program_name(t.lstrip("({")) for t in segment}
+    flags = any(t == "--approve" or t.startswith("--approve=") for t in segment)
+    return bool(names & APPROVE_TARGETS) and "migrate" in segment and flags
+
+
+def evaluate(command: str, cwd: str, shell: str = "bash") -> int:
+    command = strip_heredoc_bodies(command)
     segs = segments(tokenize(command))
     recognized = False
+    changed_dir = False
     root: Path | None = None
     try:
         for segment in segs:
+            word = program_name(command_word(segment))
+            if word in CD_COMMANDS:
+                changed_dir = True
+                continue
+            if approval_attempt(segment):
+                return deny_approval("an agent tool call cannot approve a migration manifest.")
             hit = git_worktree_action(segment)
             if hit is None or hit[2] not in ("add", "move"):
                 continue
@@ -323,23 +416,34 @@ def evaluate(command: str, cwd: str) -> int:
                 found = positionals(arguments, ADD_OPTIONS_WITH_ARGUMENT)
                 if not found:
                     raise Denied("`git worktree add` has no destination path")
-                check_destination(found[0], where, root, "add")
+                check_destination(found[0], where, root, "add", changed_dir)
             else:
                 found = positionals(arguments, set())
                 if len(found) < 2:
                     raise Denied("`git worktree move` needs a source and a destination")
-                check_destination(found[1], where, root, "move")
+                check_destination(found[1], where, root, "move", changed_dir)
     except Denied as exc:
         return deny(str(exc))
+    wrapped = any(program_name(command_word(s)) in WRAPPERS for s in segs if s)
+    if wrapped and APPROVE_TEXT.search(command) and re.search(
+        r"nexus-hub|nexus_worktrees|nexus_hub_cli", command, re.IGNORECASE
+    ):
+        return deny_approval("an approval inside a nested shell cannot be certified.")
     if recognized:
         return 0
-    wrapped = any(program_name(t) in WRAPPERS for s in segs for t in s)
-    if MUTATION_TEXT.search(command) and (wrapped or "`" in command or "$(" in command):
+    if MUTATION_TEXT.search(command) and (
+        wrapped or substitution_runs_mutation(command, shell)
+    ):
         return deny(
             "a worktree add or move sits inside a wrapper, substitution or nested "
             "shell that cannot be certified."
         )
     return 0
+
+
+def deny_approval(message: str) -> int:
+    sys.stderr.write(f"{TAG} BLOCKED: {message} {APPROVE_HINT}\n")
+    return 2
 
 
 def main() -> int:
@@ -361,7 +465,8 @@ def main() -> int:
     if not isinstance(command, str) or not command:
         return 0
     cwd = payload.get("cwd") if isinstance(payload.get("cwd"), str) else os.getcwd()
-    return evaluate(command, cwd or os.getcwd())
+    shell = "powershell" if str(payload.get("tool_name", "")).lower() == "powershell" else "bash"
+    return evaluate(command, cwd or os.getcwd(), shell)
 
 
 if __name__ == "__main__":

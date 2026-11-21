@@ -29,7 +29,7 @@ A manifest proposed from the derived copy records the derived copy's hash (`inve
 
 The shipped budget (512 MiB of ignored files hashed per worktree) was impractical on this host: each file open costs about 14 ms under real-time antivirus scanning, so one Android build tree took about two minutes. The first manifest (`v4156-manifest.json`, SHA-256 `550013b75ce6fa7eedcc6f130c3e8a47b43793c27919f20c0326ccd9131bba12`) was produced through a wrapper that lowered the budget to 16 MiB. It was proposal-only: apply would have refused it, because apply recomputed fingerprints with the default budget and the ignored-file digest differs.
 
-The follow-up change records `hash_budget_bytes` in the manifest and makes apply reuse it. A manifest without the field uses the default. The proposal takes `--hash-budget-mib`. Limit that remains by design: beyond the budget, a changed ignored file is detected only if its size changes.
+The follow-up change records `hash_budget_bytes` in the manifest and makes apply reuse it. A manifest without the field uses the default. The proposal takes `--hash-budget-mib`. Limit that remains by design: beyond the budget, a changed ignored file is detected only if its size or modification time changes.
 
 ## Not done
 

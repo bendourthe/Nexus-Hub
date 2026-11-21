@@ -850,3 +850,66 @@ def test_user_wide_filters_are_neutralized_but_not_reported_as_repository_findin
     assert inspector.local_config_keys(cwd=str(sandbox / "ws" / "clean-repo")) == []
     _, report = audit([sandbox / "ws"], tmp=tmp_path)
     assert not [f for f in report["findings"] if f["kind"] == "executable-config"]
+# --------------------------------------------------------------------------- hardening after review
+
+
+def test_a_git_planted_in_the_current_directory_is_never_the_one_that_runs(
+    sandbox: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    marker = sandbox / "PLANTED-RAN"
+    planted = sandbox / ("git.bat" if IS_NT else "git")
+    planted.write_text(
+        (
+            f'@echo off\necho ran> "{marker}"\n'
+            if IS_NT
+            else f"#!/bin/sh\necho ran > '{marker}'\n"
+        ),
+        encoding="utf-8",
+    )
+    planted.chmod(0o755)
+    monkeypatch.chdir(sandbox)
+    found = nw.trusted_git()
+    assert os.path.isabs(found) and Path(found).resolve().parent != sandbox.resolve()
+    nw.GitInspector().run(["rev-parse", "--is-bare-repository"], cwd=str(sandbox))
+    assert not marker.exists()
+    monkeypatch.setenv("PATH", ".")
+    with pytest.raises(nw.PolicyError) as caught:
+        nw.trusted_git()
+    assert caught.value.code in {"git-untrusted", "git-missing"}
+
+
+def test_an_unreadable_git_configuration_cannot_be_verified() -> None:
+    class Result:
+        returncode, stdout, stderr = 128, "", "fatal: bad config"
+
+    inspector = nw.GitInspector(git="git", runner=lambda *_a, **_k: Result())
+    with pytest.raises(nw.PolicyError) as caught:
+        inspector.config_keys(cwd=".")
+    assert caught.value.code == "config-unreadable" and caught.value.cannot_verify
+
+
+def test_every_child_process_gets_a_closed_stdin_and_status_ignores_submodules(
+    sandbox: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    seen: list[dict] = []
+
+    class Result:
+        returncode, stdout, stderr = 0, "", ""
+
+    def fake(argv, **kwargs):  # noqa: ANN001
+        seen.append({"argv": argv, **kwargs})
+        return Result()
+
+    inspector = nw.GitInspector(git="git", runner=fake)
+    inspector.run(["rev-parse", "HEAD"], cwd=".")
+    inspector.run_bytes(["diff", "HEAD"], cwd=".")
+    monkeypatch.setattr(nw.subprocess, "run", fake)
+    nw.git_write(inspector, ["status"], ".")
+    nw.run_smoke({"smoke": {"argv": ["x"]}, "destination": "."})
+    assert len(seen) >= 4 and all(call["stdin"] is subprocess.DEVNULL for call in seen)
+    seen.clear()
+    nw.worktree_state(nw.GitInspector(git="git", runner=fake), ".")
+    status = next(call["argv"] for call in seen if "status" in call["argv"])
+    assert "--ignore-submodules=all" in status
+    with pytest.raises(nw.PolicyError):
+        inspector.run_bytes(["log"], cwd=".")

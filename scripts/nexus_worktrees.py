@@ -357,10 +357,18 @@ EXECUTABLE_CONFIG = (
 
 def trusted_git(inside: str | os.PathLike[str] | None = None) -> str:
     """One absolute Git executable, never one that resolves inside the inspected tree."""
+    # Windows searches the current directory first unless told not to; a planted git.bat
+    # or git.exe in the working directory must never be what runs.
+    os.environ["NoDefaultCurrentDirectoryInExePath"] = "1"
     found = shutil.which("git")
     if not found:
         raise PolicyError(
             "git-missing", "git was not found on PATH", cannot_verify=True
+        )
+    if not os.path.isabs(found) or is_within(found, os.getcwd()):
+        raise PolicyError(
+            "git-untrusted",
+            "the git executable is relative or sits in the current directory; refusing",
         )
     resolved = canon(found)
     if inside is not None and is_within(resolved, inside):
@@ -434,6 +442,7 @@ class GitInspector:
                 cwd=cwd,
                 env=_inspection_env(),
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
                 text=True,
                 encoding="utf-8",
                 errors="replace",
@@ -446,6 +455,33 @@ class GitInspector:
         except OSError as exc:
             return GitResult(-1, "", exc.__class__.__name__)
         return GitResult(proc.returncode, proc.stdout, proc.stderr)
+
+    def run_bytes(
+        self, argv: list[str], *, cwd: str | None = None
+    ) -> tuple[int, bytes, bool]:
+        """(returncode, raw stdout bytes, timed out) for an allowed diff. No decoding, so CRLF and
+        non-UTF-8 bytes in a tracked change are hashed and preserved exactly."""
+        if argv[:1] != ["diff"]:
+            raise PolicyError(
+                "git-command-not-allowed", "only diff output is read as raw bytes"
+            )
+        command = [self.git, *self.profile_flags(cwd), *self._scope(cwd, None), *argv]
+        try:
+            proc = self._runner(
+                command,
+                cwd=None,
+                env=_inspection_env(),
+                capture_output=True,
+                stdin=subprocess.DEVNULL,
+                timeout=self.timeout,
+                check=False,
+                **NO_WINDOW,
+            )
+        except subprocess.TimeoutExpired:
+            return -1, b"", True
+        except OSError:
+            return -1, b"", False
+        return proc.returncode, proc.stdout, False
 
     def _scope(self, cwd: str | None, git_dir: str | None) -> list[str]:
         return ["--git-dir", git_dir] if git_dir else (["-C", cwd] if cwd else [])
@@ -467,9 +503,13 @@ class GitInspector:
                 ],
                 None,
             )
-            entries = (
-                executable_config_entries(result.out) if result.rc == 0 else []
-            )
+            if result.rc != 0:
+                raise PolicyError(
+                    "config-unreadable",
+                    "git config could not be read, so executable settings cannot be neutralized",
+                    cannot_verify=True,
+                )
+            entries = executable_config_entries(result.out)
             everywhere = list(dict.fromkeys(name for name, _ in entries))
             local = list(
                 dict.fromkeys(name for name, kind in entries if kind in LOCAL_SCOPES)
@@ -618,7 +658,14 @@ def worktree_state(git: GitInspector, path: str) -> dict[str, Any]:
     head = git.run(["rev-parse", "HEAD"], cwd=path)
     branch = git.run(["symbolic-ref", "-q", "--short", "HEAD"], cwd=path)
     status = git.run(
-        ["status", "--porcelain=v1", "-z", "--untracked-files=all"], cwd=path
+        [
+            "status",
+            "--porcelain=v1",
+            "-z",
+            "--untracked-files=all",
+            "--ignore-submodules=all",
+        ],
+        cwd=path,
     )
     staged = git.run(["ls-files", "--stage", "-z"], cwd=path)
     ignored = git.run(
@@ -1385,11 +1432,11 @@ def _inspect_registries(
         common_key, markers = item
         common = next(m.common for m in markers if m.common)
         scope = _git_scope_for(common, markers)
-        keys = git.local_config_keys(scope.get("cwd"), scope.get("git_dir"))
         try:
+            keys = git.local_config_keys(scope.get("cwd"), scope.get("git_dir"))
             return common_key, keys, list_registered(git, **scope)
         except PolicyError as exc:
-            return common_key, keys, exc
+            return common_key, [], exc
 
     items = sorted(by_common.items())
     inspected: dict[str, tuple[list[str], Any]] = {}
@@ -1738,6 +1785,7 @@ def git_write(
             cwd=cwd,
             env=_inspection_env(),
             capture_output=True,
+            stdin=subprocess.DEVNULL,
             text=True,
             encoding="utf-8",
             errors="replace",
@@ -1977,11 +2025,11 @@ def content_inventory(
                 spent += st.st_size if label == "ignored" else 0
                 rows.append([label, rel, st.st_size, _file_sha256(full)])
             else:
-                rows.append([label, rel, st.st_size, "size-only"])
-    patch = git.run(
+                rows.append([label, rel, st.st_size, "size-only", st.st_mtime_ns])
+    patch_rc, patch_bytes, _ = git.run_bytes(
         ["diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"], cwd=path
     )
-    if patch.rc not in (0, 1):
+    if patch_rc not in (0, 1):
         raise PolicyError(
             "inventory-unreadable",
             "cannot compute the tracked-change patch",
@@ -1996,7 +2044,7 @@ def content_inventory(
     return {
         "files": rows,
         "files_digest": _digest_text(json.dumps(rows)),
-        "patch_digest": _digest_text(patch.out),
+        "patch_digest": hashlib.sha256(patch_bytes).hexdigest(),
         "index_file_sha256": index_hash,
         "size_only": sum(1 for r in rows if r[3] == "size-only"),
     }
@@ -2222,6 +2270,7 @@ def build_manifest(
                 smokes,
                 tokens,
                 budget,
+                getattr(args, "include_dirty", False),
             )
     manifest = {
         "schema": MANIFEST_SCHEMA,
@@ -2256,6 +2305,7 @@ def _decide(
     smokes: dict[str, str],
     tokens: dict[str, str],
     budget: int,
+    include_dirty: bool = False,
 ) -> None:
     path = row["path"]
     pkey = key_of(path)
@@ -2314,6 +2364,10 @@ def _decide(
             "maintainer",
         )
     try:
+        if not include_dirty and worktree_state(git, path)["dirty"]:
+            return pend(
+                "uncommitted-changes", "worktree-owner", "exception-pending"
+            )
         item["expected"] = full_fingerprint(git, path, budget)
     except PolicyError as exc:
         return pend(f"state unreadable: {exc.code}", "maintainer")
@@ -2463,7 +2517,11 @@ def run_migrate_approve(args: argparse.Namespace) -> int:
     record = _read_json(_approvals_path(digest))
     record.setdefault("manifest_sha256", digest)
     approved = record.setdefault("items", {})
-    for item_id in args.item or []:
+    if not args.item:
+        raise PolicyError(
+            "invalid-argument", "--approve needs at least one --item (repeat it for each)"
+        )
+    for item_id in args.item:
         if item_id not in ids:
             raise PolicyError("unknown-item", f"no item {item_id} in this manifest")
         if ids[item_id]["disposition"] not in ("move", "exception-pending"):
@@ -2553,13 +2611,14 @@ def build_preservation_package(
     git_dir = _git_dir_of(src)
     if git_dir and (git_dir / "index").is_file():
         shutil.copy2(git_dir / "index", package / "index")
-    patch = git.run(
+    _, patch_bytes, _ = git.run_bytes(
         ["diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"], cwd=src
     )
-    (package / "tracked.patch").write_text(patch.out, encoding="utf-8", newline="")
+    (package / "tracked.patch").write_bytes(patch_bytes)
     inventory = content_inventory(git, src, budget)
     copied = 0
-    for label, rel, size, sha in inventory["files"]:
+    for row in inventory["files"]:
+        label, rel, size, sha = row[:4]
         if label != "untracked" or sha in ("missing", "size-only"):
             continue
         target = package / "untracked" / rel
@@ -2646,6 +2705,18 @@ def _revalidate(
         raise PolicyError(
             "source-unregistered",
             "the repository no longer registers the source worktree",
+        )
+    bound, records_ok = native_bound_paths()
+    if not records_ok:
+        raise PolicyError(
+            "native-records-unreadable",
+            "a run record is unreadable, so native ownership of this worktree cannot be ruled out",
+            cannot_verify=True,
+        )
+    if key_of(src) in bound:
+        raise PolicyError(
+            "native-bound",
+            "a live signed run now names this worktree; finish the run in place first",
         )
     if held.locked or held.prunable:
         raise PolicyError(
@@ -2765,6 +2836,7 @@ def run_smoke(item: dict[str, Any]) -> dict[str, Any]:
             cwd=item["destination"],
             env=_inspection_env(),
             capture_output=True,
+            stdin=subprocess.DEVNULL,
             text=True,
             encoding="utf-8",
             errors="replace",
@@ -2901,8 +2973,20 @@ def run_migrate_apply(args: argparse.Namespace) -> int:
                     "message": exc.message,
                 }
             )
+        except OSError as exc:
+            results.append(
+                {
+                    "item": item["id"],
+                    "outcome": "pending",
+                    "code": "os-error",
+                    "message": f"{exc.__class__.__name__} while moving this item; its receipt shows how far it got",
+                }
+            )
     failed = [
-        r for r in results if r["outcome"] not in ("moved", "recovered", "retained")
+        r
+        for r in results
+        if r["outcome"] not in ("moved", "recovered", "retained")
+        or r.get("smoke", {}).get("status") == "failed"
     ]
     _emit(
         {
@@ -2990,6 +3074,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         help="Dry run only: hash ignored files up to this many MiB per worktree (default 512). The manifest records it and apply reuses it.",
     )
+    migrate.add_argument(
+        "--include-dirty",
+        action="store_true",
+        help="Dry run only: propose a worktree with uncommitted changes as a move instead of an exception.",
+    )
     migrate.add_argument("--smoke", action="append", help="PATH=<JSON argv list>: command to run at the destination after the move.")
     migrate.add_argument("--item", action="append")
     migrate.add_argument("--approver")
@@ -3051,6 +3140,19 @@ def main(argv: list[str] | None = None) -> int:
     except PolicyError as exc:
         sys.stdout.write(json.dumps(exc.as_dict(), indent=2) + "\n")
         return EXIT_PARTIAL if exc.cannot_verify else EXIT_REFUSED
+    except Exception as exc:  # noqa: BLE001 - the contract is a terminal JSON status
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "status": "cannot-verify",
+                    "code": "unexpected-error",
+                    "message": f"{exc.__class__.__name__}; nothing further was attempted",
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+        return EXIT_PARTIAL
 
 
 if __name__ == "__main__":

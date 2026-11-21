@@ -83,3 +83,17 @@ The Phase 4 dry runs propose from a derived copy of the live audit report, not f
 - The derived copy's `derived_from.rule` sentence is looser than the filter that ran; the filter above is authoritative.
 
 Hashing budget (for the CHANGELOG): the migration manifest now records `hash_budget_bytes`, apply reuses it, and `migrate --dry-run` takes `--hash-budget-mib`. A manifest without the field keeps the 512 MiB default.
+
+## Review hardening (after the independent review of e6f53fa04..6286f2e61)
+
+Fixed in code and tests: an OS error on one item leaves it pending and the rest processed, and `main` always prints a terminal JSON status; apply re-checks native binding and unreadable run records under the repository lock; the Git executable is never resolved from the current directory; the tracked patch is captured and hashed as bytes; size-only fingerprint rows record the modification time; a failed smoke command makes the run partial; every child process gets a closed stdin; an unreadable Git configuration is cannot-verify; inspection status ignores submodules; the dry run proposes a dirty worktree as an exception (`uncommitted-changes`) unless `--include-dirty` is given; `--approve` needs at least one `--item` and accepts several in one command; the guard denies relative destinations after a directory change, denies `--approve` from agent tool calls, and no longer fires on quoted text, single-quoted spans or heredoc and here-string bodies.
+
+Proposed known gaps for Phase 5 (not fixed here):
+
+- `recover_item` classifies an interrupted item outside the repository lock, so a concurrent operation could change the state it reads. Take the lock around recovery.
+- Notice files are keyed by the manifest file name and rewritten on a dry run; reusing a manifest name after deleting the manifest overwrites the tokens of the old notices. Key notices by digest.
+- `worktree.useRelativePaths` (Git 2.48 and later) writes relative gitdir pointers; the back-pointer and ownership checks assume absolute pointers. Read and normalize relative pointers.
+- Destination length is checked for the worktree folder only, not for the deepest path inside it. Add a deepest-path check against the platform limit before a move.
+- The placement guard checks that a destination sits two levels under the root, not that the identity folder belongs to this repository. Verify the identity folder against the identity mapping when the guard can read it.
+- An unquoted bash heredoc can run command substitutions; the guard treats every heredoc body that does not feed a shell as text.
+- The ignore-submodules status option means submodule state is not part of the fingerprint; submodule worktrees are still refused by a separate check.
