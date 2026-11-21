@@ -5,6 +5,7 @@ existing local gh fixture; no test contacts a provider or installed native home.
 """
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import hmac
@@ -1113,3 +1114,71 @@ def test_stop_gate_refuses_an_older_checker_sibling_instead_of_failing_open(tmp_
     monkeypatch.setattr(gate, "_checker", lambda: old)
     with pytest.raises(ValueError, match="cannot be verified"):
         gate._verified_minor_root(tmp_path / "record.json", {"repo_root": str(tmp_path / "work")}, SESSION)
+
+
+# --- verify before spending (the approval code is single-use) ---------------------------------
+
+
+class _BudgetedContext:
+    """Stands in for RepoContext: the commands only read and replace its budget here."""
+
+    def __init__(self):
+        self.budget = ck.Budget(60)
+
+
+def _spend_harness(monkeypatch, tmp_path, builder_name, pages):
+    """Drive one consume command in process with a scripted page builder and a recording consume."""
+    seen_budgets = []
+    spent = []
+    remaining = iter(pages)
+
+    def build(_ck, rctx, *_args, **_kwargs):
+        seen_budgets.append(rctx.budget)
+        return next(remaining)
+
+    def consume(_ck, rctx, *_args, **_kwargs):
+        spent.append(rctx.budget)
+        return 9
+
+    monkeypatch.setattr(cm, "repo_context", lambda _ck, _args: _BudgetedContext())
+    monkeypatch.setattr(cm, "_record_for_add_class", lambda *_args: {"session_id": SESSION})
+    monkeypatch.setattr(cm, "effective_execution_history", lambda *_args: [])
+    monkeypatch.setattr(cm, builder_name, build)
+    monkeypatch.setattr(cm, "_consume", consume)
+    request = tmp_path / "request.json"
+    request.write_text(json.dumps({"write_paths": ["catalog/hooks/settings.json"]}), encoding="utf-8")
+    args = argparse.Namespace(repo=str(tmp_path), minor=TOKEN, session=SESSION, member="v4.15.6",
+                              execution=str(request), amendment=str(request), text=None)
+    return args, seen_budgets, spent
+
+
+def _unwrapped(command):
+    """The command body without its lease decorator, which needs a real record store."""
+    function = getattr(cm, command)
+    while hasattr(function, "__wrapped__"):
+        function = function.__wrapped__
+    return function
+
+
+_SPEND_COMMANDS = [
+    ("execution_permission_page", "cmd_record_permit_member_execution_paths"),
+    ("amendment_page", "cmd_record_amend_minor"),
+]
+
+
+@pytest.mark.parametrize("builder_name, command", _SPEND_COMMANDS)
+def test_changed_page_refuses_before_the_approval_is_spent(monkeypatch, tmp_path, capsys, builder_name, command):
+    """A recheck after the spend burned real approvals when it ran out of budget; it now runs first."""
+    args, seen, spent = _spend_harness(monkeypatch, tmp_path, builder_name, [{"page": 1}, {"page": 2}])
+    assert _unwrapped(command)(ck, args) != 0
+    assert spent == []
+    assert "page-changed" in capsys.readouterr().out
+    assert len(seen) == 2 and seen[0] is not seen[1]
+
+
+@pytest.mark.parametrize("builder_name, command", _SPEND_COMMANDS)
+def test_each_stage_gets_its_own_budget(monkeypatch, tmp_path, builder_name, command):
+    args, seen, spent = _spend_harness(monkeypatch, tmp_path, builder_name, [{"page": 1}, {"page": 1}])
+    assert _unwrapped(command)(ck, args) == 9
+    assert len(spent) == 1
+    assert seen[0] is not seen[1] and spent[0] is not seen[1]

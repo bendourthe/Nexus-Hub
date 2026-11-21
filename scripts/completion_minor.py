@@ -2194,12 +2194,20 @@ def cmd_record_amend_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     if isinstance(record, int):
         return record
     page = amendment_page(ck, rctx, args.minor, record, args.amendment)
+    # Verify before spending. The approval code is single-use, and this recheck used to run only
+    # after it was spent, so a recheck that ran out of budget burned the approval and wrote
+    # nothing. Each expensive stage gets its own budget, as the controller handoff does.
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
+    if amendment_page(ck, rctx, args.minor, record, args.amendment) != page:
+        return ck._refused("page-changed")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
     consumed = _consume(ck, rctx, args.minor, "amend-minor", page, args.session, record["session_id"])
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
     if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
         return ck._refused("approval-not-captured")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
     if amendment_page(ck, rctx, args.minor, record, args.amendment) != page:
         return ck._refused("page-changed")
     entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
@@ -7892,12 +7900,20 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
             return 0
     else:
         page = execution_permission_page(ck, rctx, args.minor, record, args.member, value)
+    # Verify before spending. The approval code is single-use, and this recheck used to run only
+    # after it was spent, so a recheck that ran out of budget burned the approval and wrote
+    # nothing. Each expensive stage gets its own budget, as the controller handoff does.
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
+    if execution_permission_page(ck, rctx, args.minor, record, args.member, value, check_remote=False) != page:
+        return ck._refused("page-changed")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
     consumed = _consume(ck, rctx, args.minor, _EXECUTION_ACTION, page, args.session, record["session_id"])
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
     if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
         return ck._refused("approval-not-captured")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
     if execution_permission_page(ck, rctx, args.minor, record, args.member, value, check_remote=False) != page:
         return ck._refused("page-changed")
     entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
