@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A slow approval command no longer spends your approval without recording it.** `record permit-member-execution-paths` and `record amend-minor` rechecked their page only after spending the single-use approval code, and the whole command shared one 60-second budget. On a busy machine the recheck ran out of time, so the approval was used up and nothing was written; the next attempt reported `code-used`. Both commands now run the recheck before spending the code, keep the final recheck, and give each expensive stage its own budget.
+
 - **`nexus-hub upgrade` works on Windows machines where Microsoft Defender blocked it.** The upgrade started PowerShell with `irm <url> | iex` on its command line, which Defender flags as `Trojan:Win32/Commando.B!ml` and refuses at process creation, so the upgrade failed with `PermissionError: [WinError 5] Access is denied`. It now downloads `install.ps1` itself and runs the local copy with `powershell -File`, keeping any recorded `-Profile`, `-Modules` or `-Bundles` selection. If the installer cannot be downloaded or started, the command prints the one-line manual install command instead of a traceback. On v4.15.5 or earlier, upgrade an affected machine by pasting `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` into a PowerShell window. Decision record: `docs/decisions/implemented/tooling/2026-11-20-windows-upgrade-runs-a-downloaded-installer-file.md`.
 
 ## [4.15.5] - 2026-11-19
