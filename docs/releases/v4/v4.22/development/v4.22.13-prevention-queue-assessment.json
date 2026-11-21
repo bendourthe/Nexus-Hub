@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "kind": "planning-assessment",
+  "date": "2026-11-20",
+  "inspection_base": "e6f53fa04",
+  "inventory_exit_code": 0,
+  "integration_plans": 44,
+  "additional_primary_only_plans": 1,
+  "proposed_target": "v4.22.13",
+  "placement_status": "confirmed by maintainer on 2026-11-20",
+  "predecessors": [
+    {
+      "version": "v4.15.0",
+      "slug": "instruction-necessity-review",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; instruction-necessity Goal owns standing-rule pruning. No standing rule deletion here."
+    },
+    {
+      "version": "v4.15.1",
+      "slug": "adoption-model-adaptive-harness",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; model-adaptive runtime is separate but membership unresolved."
+    },
+    {
+      "version": "v4.15.2",
+      "slug": "adoption-harness-economics-and-portable-engineering-system",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "eval-pipeline-audit/SKILL.md and scripts/evaluate_harness_pairings.py may change evaluation reuse."
+    },
+    {
+      "version": "v4.15.3",
+      "slug": "adoption-behavioral-harness-and-security-review-evidence",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.3-adoption-behavioral-harness-and-security-review-evidence.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "multi-agent-code-review/references/findings-schema.md changes evidence and uncertainty projection."
+    },
+    {
+      "version": "v4.15.4",
+      "slug": "checker-evidence-and-diagnostics",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md",
+      "status": "Queued - confirmed; implementation not started",
+      "verdict": "No impact",
+      "evidence": "Completion checker and approval compatibility are separate; preserve their policy."
+    },
+    {
+      "version": "v4.15.5",
+      "slug": "adoption-token-economizer-and-agent-scripts",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.5-adoption-token-economizer-and-agent-scripts.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "_turn_ledger.py and stuck-turn hooks handle within-turn mistakes; do not duplicate capture."
+    },
+    {
+      "version": "v4.15.6",
+      "slug": "centralized-worktrees-and-machine-migration",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.6-centralized-worktrees-and-machine-migration.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "scripts/nexus_worktrees.py and migration policy are disjoint."
+    },
+    {
+      "version": "v4.15.7",
+      "slug": "adoption-ci-speed-without-coverage-loss",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.7-adoption-ci-speed-without-coverage-loss.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "CI profiles and cicd-architect latency-audit work may change final check selection."
+    },
+    {
+      "version": "v4.15.8",
+      "slug": "extension-delivery",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.8-extension-delivery.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Settings extension delivery is disjoint."
+    },
+    {
+      "version": "v4.15.9",
+      "slug": "adoption-agent-cost-and-delegation",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.9-adoption-agent-cost-and-delegation.md",
+      "status": "Critiqued and grilled 2026-11-10; awaiting approval",
+      "verdict": "Content impact",
+      "evidence": "catalog/agents/log-reader.md and filter-first guidance may change evidence reading; no mandatory new agent."
+    },
+    {
+      "version": "v4.15.10",
+      "slug": "approval-modes",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.10-approval-modes.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "completion-contract.md and approval modes own authorization; do not restate policy."
+    },
+    {
+      "version": "v4.15.11",
+      "slug": "adoption-clarity-fable-and-eval-first",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.11-adoption-clarity-fable-and-eval-first.md",
+      "status": "Queued - six-phase, 38-task plan confirmed by the maintainer on 2026-11-11 after critique by five lenses and a grill that settled seven decisions; implementation not started, 0/38 tasks and 0/6 phases complete. Amended 2026-11-12 from the declauding delta comparison: eight items folded into T010, T011, T014, T015, T020, and T023; task count unchanged. Consolidated 2026-11-12: every live case run goes through the v4.15.2 shared evaluator instead of a runner built here; task count unchanged.",
+      "verdict": "Content impact",
+      "evidence": "skill-eval-loop/references/instruction-file-evals.md owns teaching evaluation."
+    },
+    {
+      "version": "v4.15.12",
+      "slug": "adoption-harness-safety-and-maintenance",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.12-adoption-harness-safety-and-maintenance.md",
+      "status": "Confirmed planning document - target v4.15.12, five phases and 28 tasks confirmed for publication by the maintainer on 2026-11-13. Implementation not started, 0/28 tasks and 0/5 phases complete. Seven independent lenses completed; three P2 clarifications are applied and rechecked, with zero open P0/P1 findings. This confirmation authorizes the reviewed planning package's publication, not execution, installation or release.",
+      "verdict": "No impact",
+      "evidence": "Maintenance jobs, scoped decisions and lifecycle references do not require this audit."
+    },
+    {
+      "version": "v4.15.13",
+      "slug": "gap-reconciliation-and-carry",
+      "path": "docs/releases/v4/v4.15/plans/v4.15.13-gap-reconciliation-and-carry.md",
+      "status": "queued, 0 of 15 tasks complete, 0 of 3 phases complete. Implementation not started; it runs at the v4.15 minor close.",
+      "verdict": "Content impact",
+      "evidence": "Gap carry changes ledger locations; preserve original WN-8 source identity."
+    },
+    {
+      "version": "v4.16.0",
+      "slug": "adoption-pinned-rules-and-prune-compaction",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.0-adoption-pinned-rules-and-prune-compaction.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "prompt-injection-defense and pinned-rule handling can change evidence/retirement boundaries."
+    },
+    {
+      "version": "v4.16.1",
+      "slug": "adoption-proactive-memory-intervention",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Context reactivation and agent-memory are separate; no automatic memory writes here."
+    },
+    {
+      "version": "v4.16.2",
+      "slug": "adoption-agent-experience-and-harness-economics",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md",
+      "status": "queued",
+      "verdict": "Ordering impact",
+      "evidence": "Writes continuous-learning/SKILL.md persistent-knowledge contract; refresh before editing."
+    },
+    {
+      "version": "v4.16.3",
+      "slug": "adoption-tool-output-containment-and-context-attribution",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Context reports/compressor are disjoint; no token measurement claim here."
+    },
+    {
+      "version": "v4.16.4",
+      "slug": "adoption-business-workflow-analysis",
+      "path": "docs/releases/v4/v4.16/plans/v4.16.4-adoption-business-workflow-analysis.md",
+      "status": "Queued - four phases and 22 tasks confirmed for planning publication by the maintainer on 2026-11-16 after seven-lens critique and seeded scope resolution. Three P2 findings are corrected and rechecked. Implementation not started, 0/22 tasks and 0/4 phases complete. No implementation, installed-user adoption or release authority granted.",
+      "verdict": "No impact",
+      "evidence": "Workflow-record/path-coverage references are disjoint."
+    },
+    {
+      "version": "v4.17.0",
+      "slug": "push-size-guard",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.0-push-size-guard.md",
+      "status": "Authored 2026-09-11; implementation not started, 0/23 tasks and 0/5 phases complete.",
+      "verdict": "No impact",
+      "evidence": "Pre-push guard and installers are disjoint."
+    },
+    {
+      "version": "v4.17.1",
+      "slug": "adoption-process-safety-and-review-pipeline",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.1-adoption-process-safety-and-review-pipeline.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; review pipeline could change checker output."
+    },
+    {
+      "version": "v4.17.2",
+      "slug": "adoption-agent-working-agreement",
+      "path": "docs/releases/v4/v4.17/plans/v4.17.2-adoption-agent-working-agreement.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; working-agreement and standing-rule admission own blanket instructions."
+    },
+    {
+      "version": "v4.18.0",
+      "slug": "adoption-testing-discipline-headings-and-opus-5-5",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "TDD, unit-test, edge-case and injection guidance may change reproduction examples."
+    },
+    {
+      "version": "v4.18.1",
+      "slug": "adoption-local-hooks-and-single-item-install",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.1-adoption-local-hooks-and-single-item-install.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "Single-item installer manifest changes may alter staged-copy proving command."
+    },
+    {
+      "version": "v4.18.2",
+      "slug": "adoption-de-slop-repair-discipline",
+      "path": "docs/releases/v4/v4.18/plans/v4.18.2-adoption-de-slop-repair-discipline.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "lint-repair-loop and ruleset-adoption own enabling and repairing selected checks."
+    },
+    {
+      "version": "v4.19.0",
+      "slug": "adoption-frontier-agent-practice",
+      "path": "docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; motivation-archaeology guidance may provide historical provenance."
+    },
+    {
+      "version": "v4.19.1",
+      "slug": "adoption-tracer-bullet-and-leading-words",
+      "path": "docs/releases/v4/v4.19/plans/v4.19.1-adoption-tracer-bullet-and-leading-words.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Planning-shape and prompt-pattern work does not overlap target teaching files."
+    },
+    {
+      "version": "v4.20.0",
+      "slug": "adoption-alignment-readability-mods-routing",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "design-interview default handling changes planning readback; silence is not approval."
+    },
+    {
+      "version": "v4.20.1",
+      "slug": "adoption-manager-context-signal-discipline",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.1-adoption-manager-context-signal-discipline.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status and writes continuous-learning/SKILL.md; resolve same-file ownership."
+    },
+    {
+      "version": "v4.20.2",
+      "slug": "adoption-aika-modes",
+      "path": "docs/releases/v4/v4.20/plans/v4.20.2-adoption-aika-modes.md",
+      "status": "unknown (no parseable Status line)",
+      "verdict": "Unknown",
+      "evidence": "Undeclared Status; context/access changes confer no audit authority."
+    },
+    {
+      "version": "v4.21.0",
+      "slug": "adoption-self-improving-harness-loop",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.0-adoption-self-improving-harness-loop.md",
+      "status": "queued",
+      "verdict": "Ordering impact",
+      "evidence": "Writes continuous-learning/SKILL.md and verified-improvement-loop.md candidate/history contract."
+    },
+    {
+      "version": "v4.21.1",
+      "slug": "adoption-html-plans-agent-verification-and-authorization-proofs",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "Before/after checks and proof-carrying TypeScript may change prevention examples."
+    },
+    {
+      "version": "v4.21.2",
+      "slug": "adoption-evals-test-trust-and-visual-agent-communication",
+      "path": "docs/releases/v4/v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "false-confidence-test-audit and evaluation schemas change acceptable check proof."
+    },
+    {
+      "version": "v4.22.0",
+      "slug": "adoption-structural-slop-signatures",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.0-adoption-structural-slop-signatures.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Anti-slop shape detector and fixtures are disjoint."
+    },
+    {
+      "version": "v4.22.1",
+      "slug": "adoption-code-rendered-animation-and-illustration-quality",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md",
+      "status": "queued",
+      "verdict": "No impact",
+      "evidence": "Illustration and contact-sheet artifacts are disjoint."
+    },
+    {
+      "version": "v4.22.2",
+      "slug": "adoption-dashboards-motion-evidence-ledger-and-reliable-automations",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "Comparison evidence-ledger and citation verifier may change report conventions; reuse."
+    },
+    {
+      "version": "v4.22.3",
+      "slug": "adoption-verified-agent-output",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.3-adoption-verified-agent-output.md",
+      "status": "queued",
+      "verdict": "Content impact",
+      "evidence": "Test integrity and PR evidence contract affect validation; preserve acceptance gates."
+    },
+    {
+      "version": "v4.22.4",
+      "slug": "adoption-claude-code-mods",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.4-adoption-claude-code-mods.md",
+      "status": "queued",
+      "verdict": "Unknown",
+      "evidence": "T008 broad catalog/skills/ claim selects audit owner later; literal write scope unresolved."
+    },
+    {
+      "version": "v4.22.5",
+      "slug": "adoption-data-analysis-qa-and-product-review",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.5-adoption-data-analysis-qa-and-product-review.md",
+      "status": "Queued - four-phase plan approved on 2026-10-21; implementation not started, 0 of 22 tasks complete.",
+      "verdict": "No impact",
+      "evidence": "Numerical analysis and product preset references are disjoint."
+    },
+    {
+      "version": "v4.22.6",
+      "slug": "adoption-open-model-recipes-and-restraint",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.6-adoption-open-model-recipes-and-restraint.md",
+      "status": "Queued - five-phase plan approved on 2026-10-22; implementation not started, 0 of 25 tasks complete.",
+      "verdict": "No impact",
+      "evidence": "UI restraint and model recipes are disjoint."
+    },
+    {
+      "version": "v4.22.8",
+      "slug": "adoption-verification-review-memory-and-design",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.8-adoption-verification-review-memory-and-design.md",
+      "status": "Approved planning document - six phases and 26 tasks confirmed on 2026-10-27; implementation not started, 0 of 26 tasks complete.",
+      "verdict": "Content impact",
+      "evidence": "verification-instrument/references/maintenance.md affects ongoing check health."
+    },
+    {
+      "version": "v4.22.9",
+      "slug": "adoption-communication-mobile-ui-and-evidence",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.9-adoption-communication-mobile-ui-and-evidence.md",
+      "status": "Approved for planning publication at the user's direction after seven-lens critique; implementation not started, 0 of 26 tasks complete (T007 moved to v4.21.2 T029). No execution or release authority granted.",
+      "verdict": "Content impact",
+      "evidence": "product-pulse/references/daily-log-triage.md is adjacent local evidence guidance; distinguish it."
+    },
+    {
+      "version": "v4.22.10",
+      "slug": "adoption-motion-skills-and-instruction-overhead",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.10-adoption-motion-skills-and-instruction-overhead.md",
+      "status": "Queued - four-phase, 20-task planning scope confirmed by the user on 2026-11-02; implementation not started, 0/20 tasks and 0/4 phases complete.",
+      "verdict": "Content impact",
+      "evidence": "Instruction/effort audit intersects root guidance assumptions and pruning ownership."
+    },
+    {
+      "version": "v4.22.11",
+      "slug": "adoption-agent-design-systems-and-performance-review",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.11-adoption-agent-design-systems-and-performance-review.md",
+      "status": "Queued - five-phase, 37-task plan confirmed by the maintainer on 2026-11-03 after critique and grill; implementation not started, 0/37 tasks and 0/5 phases complete.",
+      "verdict": "No impact",
+      "evidence": "Performance and design-system files are disjoint."
+    },
+    {
+      "version": "v4.22.12",
+      "slug": "adoption-prompt-library-and-agentic-lifecycle",
+      "path": "docs/releases/v4/v4.22/plans/v4.22.12-adoption-prompt-library-and-agentic-lifecycle.md",
+      "status": "Confirmed primary-only planning artifact; not in integration",
+      "verdict": "No impact",
+      "evidence": "agent-presets lifecycle starters are disjoint; preserve its reserved slot without copying its untracked bytes."
+    }
+  ],
+  "ordering": {
+    "proposal": "Follow existing learning, verification and rule-necessity work; no existing-plan rewrite or renumber.",
+    "implementation": "Same-file overlap and unknown ownership require serial admission until refreshed literal claims prove compatibility.",
+    "release": "Semantic version release order remains separate from implementation prerequisites."
+  },
+  "grounding": {
+    "strategy": "absent",
+    "solutions": "absent",
+    "constitution": "absent",
+    "glossary": "CONTEXT.md exists; no new glossary term needed for this proposal"
+  },
+  "open_gaps": [
+    "v4.15 WN-8 / original v4.13.2#WN-7 remains open; teaching does not replace native enforcement.",
+    "v4.16 DF-54 evidence policy remains unchanged."
+  ]
+}
