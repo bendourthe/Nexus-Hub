@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A captured decision can release one member's implementation claims so a publication-order deadlock can be broken.** `record withdraw-implementation --minor vX.Y --repo R --session S --member vX.Y.Z` (render it first with `record render ... --action withdraw-implementation --member vX.Y.Z --question`) removes the recorded implementation admission of one admitted, unstarted member and keeps the removed claims as signed history. Its branch, worktree and commits are not changed; admitting it again is the ordinary `record member-implement-start` at a clean commit already merged into the target branch. It refuses a member that was never admitted, holds a publication start, is finished, or carries a path, read or execution permission entry, and it never edits the record by hand. See [`completion-contract.md`](catalog/skills/workflow/implement-phase/references/completion-contract.md) and [`2026-11-21-withdraw-member-implementation.md`](docs/decisions/implemented/tooling/2026-11-21-withdraw-member-implementation.md).
+
 ### Fixed
 
 - **A slow approval command no longer spends your approval without recording it.** `record permit-member-execution-paths` and `record amend-minor` rechecked their page only after spending the single-use approval code, and the whole command shared one 60-second budget. On a busy machine the recheck ran out of time, so the approval was used up and nothing was written; the next attempt reported `code-used`. Both commands now run the recheck before spending the code, keep the final recheck, and give each expensive stage its own budget.

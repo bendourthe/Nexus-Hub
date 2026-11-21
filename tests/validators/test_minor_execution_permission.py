@@ -1182,3 +1182,103 @@ def test_each_stage_gets_its_own_budget(monkeypatch, tmp_path, builder_name, com
     assert _unwrapped(command)(ck, args) == 9
     assert len(spent) == 1
     assert seen[0] is not seen[1] and spent[0] is not seen[1]
+
+
+# --------------------------------------------------------------------------- withdraw-implementation on amendment members
+
+
+def wd_claims(fx, version, *, reads=(), writes=()):
+    member = fx.member(version)
+    slug = "execution-" + version.rsplit(".", 1)[-1]
+    return {"depends_on": [], "read_paths": list(reads), "write_paths": [
+        member["plan_path"], f"src/{slug}.txt", f"tests/test_{slug.replace('-', '_')}.py",
+        f"docs/releases/v4/v4.15/development/{version}-last-phase-evidence.md", *writes]}
+
+
+def wd_admit(fx, version, worker, value):
+    path = fx.tmp / f"wd-claims-{version}-{len(list(fx.tmp.glob('wd-claims-*.json')))}.json"
+    path.write_text(json.dumps(value), encoding="utf-8")
+    return fx.run("record", "member-implement-start", "--minor", TOKEN, "--session", SESSION,
+                  "--member", version, "--repo", str(fx.work), "--worktree", str(worker),
+                  "--head", _git(worker, "rev-parse", "HEAD"), "--claims", str(path))
+
+
+def wd_withdraw(fx, version):
+    fx.paste(SESSION, "--action", "withdraw-implementation", "--member", version)
+    return fx.run("record", "withdraw-implementation", "--minor", TOKEN, "--session", SESSION,
+                  "--member", version)
+
+
+def wd_loaded(fx):
+    state = cm.load_minor(ck, fx.rctx(), TOKEN, SESSION, minor_protocol=cm.MINOR_AMENDMENT_PROTOCOL,
+                          execution_protocol=cm.MINOR_EXECUTION_PROTOCOL)
+    assert state.record is not None and not state.forced, state.forced
+    assert cm._verified(ck, fx.rctx(), TOKEN, state.record, minor_protocol=cm.MINOR_AMENDMENT_PROTOCOL,
+                        execution_protocol=cm.MINOR_EXECUTION_PROTOCOL)
+    return state.record
+
+
+def test_withdraw_amendment_members_unblocks_a_third_and_readmits(execution):
+    shared = "shared/input.txt"
+    first, second, third = "v4.15.5", "v4.15.6", "v4.15.7"
+    workers = {v: execution.worker(v) for v in (first, second, third)}
+    assert wd_admit(execution, first, workers[first], wd_claims(execution, first, reads=(shared,))).returncode == 0
+    assert wd_admit(execution, second, workers[second], wd_claims(execution, second, reads=(shared,))).returncode == 0
+    wants = wd_claims(execution, third, writes=(shared,))
+    assert "implementation-scope-conflict" in wd_admit(execution, third, workers[third], wants).stdout
+    amendments = execution.record()["minor_amendments"]
+    heads = {v: _git(execution.work, "rev-parse", execution.member(v)["source_branch"]) for v in (first, second)}
+    # Both members are in minor_amendment_members, so this exercises the amendment transition checks.
+    assert {m["version"] for m in execution.record()["minor_amendment_members"]} >= {first, second, third}
+    result = wd_withdraw(execution, first)
+    assert result.returncode == 0 and result.stdout.startswith("WITHDREW " + first), result.stdout + result.stderr
+    record = wd_loaded(execution)
+    assert "implementation" not in execution.member(first) and len(execution.member(first)["implementation_withdrawals"]) == 1
+    assert record["minor_amendments"] == amendments
+    # One withdrawn member still leaves the other claim in place.
+    assert "implementation-scope-conflict" in wd_admit(execution, third, workers[third], wants).stdout
+    assert wd_withdraw(execution, second).returncode == 0
+    wd_loaded(execution)
+    admitted = wd_admit(execution, third, workers[third], wants)
+    assert admitted.returncode == 0, admitted.stdout + admitted.stderr
+    wd_loaded(execution)
+    # Branches are untouched, and the withdrawn member returns at its clean integrated worker head.
+    assert heads == {v: _git(execution.work, "rev-parse", execution.member(v)["source_branch"]) for v in (first, second)}
+    again = wd_admit(execution, first, workers[first], wd_claims(execution, first, reads=("docs/other.txt",)))
+    assert again.returncode == 0, again.stdout + again.stderr
+    readmitted = execution.member(first)
+    assert readmitted["implementation"]["read_paths"] == ["docs/other.txt"]
+    assert len(readmitted["implementation_withdrawals"]) == 1
+    wd_loaded(execution)
+
+
+def test_withdraw_amendment_member_without_a_capture_burns_nothing(execution):
+    worker = execution.worker("v4.15.5")
+    assert wd_admit(execution, "v4.15.5", worker, wd_claims(execution, "v4.15.5")).returncode == 0
+    before = execution.record_path().read_bytes()
+    refused = execution.run("record", "withdraw-implementation", "--minor", TOKEN, "--session", SESSION,
+                            "--member", "v4.15.5")
+    assert refused.returncode != 0 and execution.record_path().read_bytes() == before
+    # An original member of the run is not an amendment member and is never admitted here.
+    unknown = execution.run("record", "render", "--minor", TOKEN, "--session", SESSION, "--action",
+                            "withdraw-implementation", "--member", "v4.15.1")
+    assert unknown.returncode != 0 and "withdraw-not-admitted" in unknown.stdout + unknown.stderr
+
+
+def test_record_without_a_withdrawal_signs_exactly_as_before(execution):
+    key = ck._secret(create=False)
+    record = execution.record()
+    payload = ck._hmac_payload(record)
+    assert not any("withdraw" in name for name in payload)
+    assert all("implementation_withdrawals" not in m for m in cm._member_list(record))
+    expected = hmac.new(key, ck._canonical(payload), hashlib.sha256).hexdigest()
+    assert record["approvals_hmac"] == expected == cm._sign(ck, record, key)
+    # The field is signed once present: dropping it from a record that has it changes the signature.
+    worker = execution.worker("v4.15.5")
+    assert wd_admit(execution, "v4.15.5", worker, wd_claims(execution, "v4.15.5")).returncode == 0
+    assert wd_withdraw(execution, "v4.15.5").returncode == 0
+    withdrawn = execution.record()
+    stripped = copy.deepcopy(withdrawn)
+    for m in cm._member_list(stripped):
+        m.pop("implementation_withdrawals", None)
+    assert cm._sign(ck, stripped, key) != withdrawn["approvals_hmac"] == cm._sign(ck, withdrawn, key)

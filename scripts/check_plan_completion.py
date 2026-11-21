@@ -775,6 +775,7 @@ def _write_record(path: Path, record: dict) -> None:
         _minor_module().check_v415_compatibility_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_member_paths_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_read_correction_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_implementation_withdrawal_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -3082,6 +3083,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         raise Malformed("--action correct-ci-read requires --minor")
     if args.action == "correct-read" or getattr(args, "path", None) is not None:
         raise Malformed("--action correct-read and --path require --minor")
+    if args.action == "withdraw-implementation":
+        raise Malformed("--action withdraw-implementation requires --minor")
     if getattr(args, "member", None) is not None:
         raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
     if (args.action in ("add-class", "supplement-scope", "permit-manifest", "permit-outputs")
@@ -3873,6 +3876,13 @@ def build_parser() -> argparse.ArgumentParser:
     read_fix.add_argument("--path", required=True, help="the literal recorded read file")
     read_fix.add_argument("--text", help="when given, must equal the captured decision")
     read_fix.set_defaults(func=lambda args: _minor_module().cmd_record_correct_read(sys.modules[__name__], args))
+    withdraw = record.add_parser("withdraw-implementation", help="release one admitted, unstarted member's implementation claims through a captured decision")
+    withdraw.add_argument("--minor", required=True)
+    withdraw.add_argument("--repo", default=".")
+    withdraw.add_argument("--session", required=True)
+    withdraw.add_argument("--member", required=True)
+    withdraw.add_argument("--text", help="when given, must equal the captured decision")
+    withdraw.set_defaults(func=lambda args: _minor_module().cmd_record_withdraw_implementation(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
