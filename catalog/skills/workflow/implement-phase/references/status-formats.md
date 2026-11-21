@@ -42,7 +42,8 @@ Every number in a report is measured, so no cell ever reads `unknown`. Build the
 
 - Tasks: every `T<n>` checkbox in the plan, read from the plan branch, or from the integration branch once released.
 - Elapsed: the plan branch's own commits, first commit to now, or to the last commit once released. A deleted branch is found through its merge commit. A plan with no commits of its own has not started and reads `N/A`.
-- Remaining: a released plan reads `N/A`. So `N/A` has exactly two meanings: not started (Elapsed) and done (Remaining). A running item without tasks, such as a CI job, reads `N/A` for Progress and Tasks.
+- Remaining: a released plan reads `N/A`. So `N/A` has exactly two meanings: not started (Elapsed) and done (Remaining), and it never appears in the Running table.
+- Running items: every item needs `started_at`, so its Elapsed is always measured; the producer refuses an item without it, and the overlay cannot set an item's elapsed or remaining. An item without tasks, such as a CI job, reads `no task list` for Progress and Tasks and `not estimated (no task list)` for Remaining.
 
 Blocked time is reported separately from active time.
 
