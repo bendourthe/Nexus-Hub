@@ -39,7 +39,7 @@ MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
 CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
-ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor", "permit-member-execution-paths", "permit-member-paths", "correct-read")
+ACTIONS = ("create", "answer", "pause", "resume", "retire", "add-class", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "amend-minor", "permit-member-execution-paths", "permit-member-paths", "correct-read", "withdraw-implementation")
 MAX_PASTE = 300
 # The goal names every step of the run, so it needs more room than an approval line.
 # Claude Code documents a 4,000-character /goal condition; no other platform in
@@ -161,6 +161,10 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
         if not MINOR_RE.match(scope):
             raise PageError("a read reservation is corrected only for a minor run")
         return _fits(f"Correct the displayed one-file read reservation in /implement {scope} (approval {code})")
+    if action == "withdraw-implementation":
+        if not MINOR_RE.match(scope):
+            raise PageError("implementation claims are withdrawn only for a minor run")
+        return _fits(f"Withdraw the displayed member implementation claims in /implement {scope} (approval {code})")
     if action == "permit-member-execution-paths":
         if scope != "v4.15":
             raise PageError("typed execution permission belongs only to v4.15")
@@ -1128,6 +1132,45 @@ def _action_page(data: dict, paste: PasteSet) -> str:
             out += _section(title, rows or ["None."])
         out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
         return "\n".join(out).rstrip() + "\n"
+    if action == "withdraw-implementation":
+        page = data.get("page") or {}
+        removed = page.get("implementation")
+        identities = ("repo", "owner_session", "source_branch", "target_branch")
+        if (page.get("action") != action or not isinstance(page.get("scope"), dict) or page["scope"].get("kind") != "minor"
+                or not isinstance(page.get("member"), str) or not page["member"]
+                or any(not isinstance(page.get(key), str) or not page[key] for key in identities)
+                or any(not isinstance(page.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", page[key]) for key in ("record_sha256", "plan_sha256"))
+                or not isinstance(page.get("controller"), dict) or not isinstance(page["controller"].get("repo_root"), str)
+                or not page["controller"]["repo_root"]
+                or not (page.get("worker_head") is None or isinstance(page.get("worker_head"), str))
+                or not isinstance(removed, dict) or not isinstance(removed.get("worktree"), str) or not isinstance(removed.get("base_head"), str)
+                or any(not isinstance(removed.get(field), list) or any(not isinstance(path, str) or not path for path in removed[field])
+                       for field in ("depends_on", "read_paths", "write_paths"))):
+            raise PageError("implementation withdrawal requires the exact admitted member and its recorded claims")
+        out = _section("Implementation withdrawal", [
+            "This decision releases the recorded implementation claims of " + quoted(page["member"]) + " so another member can be admitted while it waits.",
+            "The member's branch, worktree and commits are not changed. Nothing is deleted, reset or merged.",
+            "Admitting the member again later is the ordinary implementation start. It needs the worker at a clean commit that is already merged into the target branch, so keep or reapply any commit that exists only on the member branch.",
+            "Doing nothing keeps the claims, and any member that conflicts with them stays refused.",
+        ])
+        out += _section("Bound identity", [
+            "Repository: " + quoted(page["repo"]), "Member: " + quoted(page["member"]),
+            "Original frozen plan: " + quoted(page["plan_sha256"]),
+            "Source branch: " + quoted(page["source_branch"]), "Target branch: " + quoted(page["target_branch"]),
+            "Branch head now: " + quoted(page["worker_head"] or "none"),
+            "Owner session: " + quoted(page["owner_session"]),
+            "Controller: " + json.dumps(page["controller"], ensure_ascii=True, sort_keys=True).replace("`", "\\u0060").replace("~", "\\u007e"),
+            "Current record: " + quoted(page["record_sha256"]),
+        ])
+        out += _section("Claims being released", [
+            "Worktree: " + quoted(removed["worktree"]), "Admitted at: " + quoted(removed["base_head"]),
+            *["Depends on: " + quoted(v) for v in removed["depends_on"]],
+        ])
+        for title, field in (("Released reads", "read_paths"), ("Released writes", "write_paths")):
+            rows = ["- " + json.dumps(path, ensure_ascii=True).replace("`", "\\u0060").replace("~", "\\u007e") for path in removed[field]]
+            out += _section(title, rows or ["None."])
+        out += _section("Approval reply", ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
+        return "\n".join(out).rstrip() + "\n"
     if action == "permit-member-paths":
         page = data.get("page") or {}
         path_fields = (("Existing worker writes", "original_write_paths"), ("Additional exact files", "write_paths"))
@@ -1364,6 +1407,7 @@ def question_data(data: dict) -> dict:
         'permit-member-paths': 'Add only the displayed exact files to the displayed member write list',
         'correct-ci-read': 'Temporarily release only the displayed one-file read reservation',
         'correct-read': 'Temporarily release only the displayed exact read file of the displayed member',
+        'withdraw-implementation': 'Release only the displayed implementation claims of the displayed member without changing its branch or worktree',
         'amend-minor': 'Add only the displayed plans and exact permissions while preserving the existing run limits',
         'add-class': ("Archive each plan's own documents as soon as that plan is released, "
                       "instead of all at once when the minor closes"),
@@ -1389,7 +1433,7 @@ def question_data(data: dict) -> dict:
                         {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
             'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
             'action_scope': (conditional.get('request') if conditional is not None
-                             else data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths', 'permit-member-paths', 'correct-read')
+                             else data.get('page', {}) if action in ('supplement-scope', 'permit-manifest', 'permit-outputs', 'correct-ci-read', 'amend-minor', 'permit-member-execution-paths', 'permit-member-paths', 'correct-read', 'withdraw-implementation')
                              else blocker.get('request') or {}),
             'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
             'capture': {'direct_question_callback_supported': False,

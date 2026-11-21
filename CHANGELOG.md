@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A captured decision can release one member's implementation claims so a publication-order deadlock can be broken.** `record withdraw-implementation --minor vX.Y --repo R --session S --member vX.Y.Z` (render it first with `record render ... --action withdraw-implementation --member vX.Y.Z --question`) removes the recorded implementation admission of one admitted, unstarted member and keeps the removed claims as signed history. Its branch, worktree and commits are not changed; admitting it again is the ordinary `record member-implement-start` at a clean commit already merged into the target branch. It refuses a member that was never admitted, holds a publication start, is finished, or carries a path, read or execution permission entry, and it never edits the record by hand. See [`completion-contract.md`](catalog/skills/workflow/implement-phase/references/completion-contract.md) and [`2026-11-21-withdraw-member-implementation.md`](docs/decisions/implemented/tooling/2026-11-21-withdraw-member-implementation.md).
+
 ### Fixed
 
 - **`/progress` no longer shows `N/A` in the Running table.** A running item without a start time printed `N/A` for Elapsed, although anything running has started. `status_snapshot.py` now refuses a running item without `started_at` and an overlay that writes an item's elapsed or remaining value, and `status_report.py` refuses `N/A` in a running item's Elapsed or Remaining. An item without tasks, such as a CI job, now reads `no task list` for Progress and Tasks and `not estimated (no task list)` for Remaining. `N/A` keeps its two meanings in the version table: not started (Elapsed) and released (Remaining).
