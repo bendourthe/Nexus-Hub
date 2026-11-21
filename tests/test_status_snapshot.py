@@ -163,7 +163,7 @@ def test_running_items_compute_elapsed_from_start(snapshot_module, repo):
     snap = snapshot_module.build(repo.root, "v1.2", overlay, "develop", NOW)
     assert (
         snap["running"][0]["elapsed"] == "30 min"
-        and snap["running"][0]["remaining"] == "N/A"
+        and snap["running"][0]["remaining"] == "not estimated (no task list)"
     )
     assert rows(snap)["v1.2.3"]["state"] == "fix PR in CI"
 
@@ -210,3 +210,14 @@ def test_running_work_with_tasks_gets_a_measured_estimate(snapshot_module, repo)
                             "started_at": "2026-11-18T12:00:00Z"}]}
     snap = snapshot_module.build(repo.root, "v1.2", overlay, "develop", NOW)
     assert snap["running"][0]["remaining"] == rows(snap)["v1.2.3"]["remaining"] != "N/A"
+
+
+@pytest.mark.parametrize("item", [
+    {"name": "CI", "state": "running"},
+    {"name": "CI", "state": "running", "elapsed": "N/A", "started_at": "2026-11-20T11:30:00Z"},
+    {"name": "CI", "state": "running", "remaining": "N/A", "started_at": "2026-11-20T11:30:00Z"},
+])
+def test_running_item_elapsed_is_measured_never_written(snapshot_module, repo, item):
+    """A running item without a start time used to print N/A in Elapsed."""
+    with pytest.raises(ValueError, match="started_at|measured"):
+        snapshot_module.build(repo.root, "v1.2", {"running": [item]}, "develop", NOW)
