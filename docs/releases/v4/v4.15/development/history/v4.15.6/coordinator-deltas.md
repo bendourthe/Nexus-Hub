@@ -72,3 +72,14 @@ Tick T001 to T012 (12 of 26 tasks, 3 of 5 phases) and update the dashboard count
 ## Hook registration authority
 
 The single exact append to `catalog/hooks/settings.json` was made as instructed. The worker cannot confirm that the separately qualified typed permission and genuine capture exist for it; the coordinator should confirm that before the registration is treated as authorized.
+
+## Phase 4 inventory evidence (derived report)
+
+The Phase 4 dry runs propose from a derived copy of the live audit report, not from the original. Full filter and reasoning: `history/v4.15.6/phase-4-prep.md`.
+
+- Original report SHA-256: `adb682f464a9d34fae6e705eff68971d6af311825e4627f72ff2fe5c1eb8b60a` (9,828 repositories, 1,119 linked worktrees, status partial).
+- Derived copy SHA-256: `283aa9f86168a1d282d09f98f7a1a8f3b400274bfb005094ba7db6a7495febdc` (5 repositories, 117 linked worktrees).
+- Filter: drop a repository whose main checkout or common Git directory path contains `/.venvs/`, `/appdata/local/temp/`, `/appdata/roaming/`, `c:/tmp/` or `/pytest-of-`; then keep only repositories with at least one linked worktree. 9,778 fixture repositories and 45 repositories without linked worktrees were dropped.
+- The derived copy's `derived_from.rule` sentence is looser than the filter that ran; the filter above is authoritative.
+
+Hashing budget (for the CHANGELOG): the migration manifest now records `hash_budget_bytes`, apply reuses it, and `migrate --dry-run` takes `--hash-budget-mib`. A manifest without the field keeps the 512 MiB default.

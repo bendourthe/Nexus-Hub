@@ -1944,7 +1944,7 @@ def _git_dir_of(worktree: str) -> Path | None:
 
 
 def content_inventory(
-    git: GitInspector, path: str, budget: int = PRESERVATION_BUDGET_BYTES
+    git: GitInspector, path: str, budget: int | None = None
 ) -> dict[str, Any]:
     """Untracked and ignored files with sizes and hashes, plus the tracked-change patch hash.
 
@@ -1952,6 +1952,7 @@ def content_inventory(
     ones keep a size only, and the inventory says so. The same rule runs before
     and after a move, so equal inventories prove nothing changed.
     """
+    budget = PRESERVATION_BUDGET_BYTES if budget is None else budget
     rows: list[list[Any]] = []
     spent = 0
     for label, args in (
@@ -2001,9 +2002,11 @@ def content_inventory(
     }
 
 
-def full_fingerprint(git: GitInspector, path: str) -> dict[str, Any]:
+def full_fingerprint(
+    git: GitInspector, path: str, budget: int | None = None
+) -> dict[str, Any]:
     state = worktree_state(git, path)
-    inventory = content_inventory(git, path)
+    inventory = content_inventory(git, path, budget)
     state.update(
         files_digest=inventory["files_digest"],
         patch_digest=inventory["patch_digest"],
@@ -2127,12 +2130,30 @@ def _parse_pairs(values: list[str] | None, label: str) -> dict[str, str]:
     return pairs
 
 
+def manifest_budget(manifest: dict[str, Any]) -> int | None:
+    """The ignored-file hashing budget the proposal used; None (the shipped default) when absent."""
+    if "hash_budget_bytes" not in manifest:
+        return None
+    value = manifest["hash_budget_bytes"]
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise PolicyError(
+            "manifest-malformed", "hash_budget_bytes must be a positive whole number"
+        )
+    return value
+
+
 def build_manifest(
     args: argparse.Namespace, git: GitInspector
 ) -> tuple[dict[str, Any], dict[str, str]]:
     """Propose one exact disposition per discovered linked worktree. Writes nothing."""
     audit = _load_audit(args.inventory)
     root = resolve_root()
+    mib = getattr(args, "hash_budget_mib", None)
+    if mib is not None and mib < 1:
+        raise PolicyError(
+            "invalid-argument", "--hash-budget-mib must be a whole number of at least 1"
+        )
+    budget = PRESERVATION_BUDGET_BYTES if mib is None else mib * 1024 * 1024
     exceptions = _parse_pairs(args.exception, "exception")
     removals = _parse_pairs(args.remove_candidate, "remove-candidate")
     smokes = _parse_pairs(args.smoke, "smoke")
@@ -2200,10 +2221,12 @@ def build_manifest(
                 removals,
                 smokes,
                 tokens,
+                budget,
             )
     manifest = {
         "schema": MANIFEST_SCHEMA,
         "root": root.as_dict(),
+        "hash_budget_bytes": budget,
         "inventory": {
             "status": audit.get("status"),
             "full_machine_claim_allowed": audit.get("full_machine_claim_allowed"),
@@ -2232,6 +2255,7 @@ def _decide(
     removals: dict[str, str],
     smokes: dict[str, str],
     tokens: dict[str, str],
+    budget: int,
 ) -> None:
     path = row["path"]
     pkey = key_of(path)
@@ -2290,7 +2314,7 @@ def _decide(
             "maintainer",
         )
     try:
-        item["expected"] = full_fingerprint(git, path)
+        item["expected"] = full_fingerprint(git, path, budget)
     except PolicyError as exc:
         return pend(f"state unreadable: {exc.code}", "maintainer")
     if item["expected"]["submodules"]:
@@ -2515,7 +2539,7 @@ def _ancestors_identity(root: Path, repo_id: str) -> dict[str, list[int]]:
 
 
 def build_preservation_package(
-    git: GitInspector, digest: str, item: dict[str, Any]
+    git: GitInspector, digest: str, item: dict[str, Any], budget: int | None = None
 ) -> dict[str, Any]:
     """Copy the index, tracked-change patch and untracked files outside every removal target, then verify them."""
     src = item["worktree"]["path"]
@@ -2533,7 +2557,7 @@ def build_preservation_package(
         ["diff", "--binary", "--no-ext-diff", "--no-textconv", "HEAD"], cwd=src
     )
     (package / "tracked.patch").write_text(patch.out, encoding="utf-8", newline="")
-    inventory = content_inventory(git, src)
+    inventory = content_inventory(git, src, budget)
     copied = 0
     for label, rel, size, sha in inventory["files"]:
         if label != "untracked" or sha in ("missing", "size-only"):
@@ -2567,7 +2591,10 @@ def build_preservation_package(
 
 
 def _verify_postconditions(
-    git: GitInspector, item: dict[str, Any], common: Path
+    git: GitInspector,
+    item: dict[str, Any],
+    common: Path,
+    budget: int | None = None,
 ) -> list[str]:
     """Empty when the moved worktree matches the manifest's expected state exactly."""
     problems: list[str] = []
@@ -2593,7 +2620,7 @@ def _verify_postconditions(
         != key_of(dst)
     ):
         problems.append("repository back-pointer does not name the destination")
-    after = full_fingerprint(git, dst)
+    after = full_fingerprint(git, dst, budget)
     for field_name, expected in item["expected"].items():
         if after.get(field_name) != expected:
             problems.append(f"{field_name} changed")
@@ -2644,7 +2671,11 @@ def _revalidate(
 
 
 def move_item(
-    git: GitInspector, digest: str, item: dict[str, Any], root: RootInfo
+    git: GitInspector,
+    digest: str,
+    item: dict[str, Any],
+    root: RootInfo,
+    budget: int | None = None,
 ) -> dict[str, Any]:
     """Execute one approved, acknowledged move. Raises PolicyError to refuse; never forces."""
     src, dest = item["worktree"]["path"], item["destination"]
@@ -2652,7 +2683,7 @@ def move_item(
     with RepoLock(repo["identity"]):
         _write_receipt(digest, item, "started")
         identity, registered, common = _revalidate(git, item, root)
-        current = full_fingerprint(git, src)
+        current = full_fingerprint(git, src, budget)
         for field_name, expected in item["expected"].items():
             if current.get(field_name) != expected:
                 raise PolicyError(
@@ -2661,7 +2692,7 @@ def move_item(
                 )
         Path(dest).parent.mkdir(parents=True, exist_ok=True)
         ancestors = _ancestors_identity(root.path, identity.id)
-        receipt = build_preservation_package(git, digest, item)
+        receipt = build_preservation_package(git, digest, item, budget)
         _write_receipt(digest, item, "preserved", package=receipt["package"])
         _fault("after_validate")
         # Final check, immediately before mutation: ancestors keep their file identities and stay plain
@@ -2707,7 +2738,7 @@ def move_item(
             raise PolicyError(
                 "git-failed", f"git worktree move failed: {made.err.strip()[:200]}"
             )
-        problems = _verify_postconditions(git, item, common)
+        problems = _verify_postconditions(git, item, common, budget)
         if problems:
             _write_receipt(digest, item, "verification-failed", problems=problems)
             raise PolicyError(
@@ -2750,7 +2781,11 @@ def run_smoke(item: dict[str, Any]) -> dict[str, Any]:
 
 
 def recover_item(
-    git: GitInspector, digest: str, item: dict[str, Any], root: RootInfo
+    git: GitInspector,
+    digest: str,
+    item: dict[str, Any],
+    root: RootInfo,
+    budget: int | None = None,
 ) -> dict[str, Any] | None:
     """Classify an item whose receipt shows an interrupted move. None means nothing to recover."""
     record = _read_json(_receipt_path(digest, item["id"]))
@@ -2774,7 +2809,9 @@ def recover_item(
         and key_of(dst) in registered
         and key_of(src) not in registered
     ):
-        problems = _verify_postconditions(git, item, Path(repo["common_dir"]))
+        problems = _verify_postconditions(
+            git, item, Path(repo["common_dir"]), budget
+        )
         if problems:
             _write_receipt(digest, item, "recovery-refused", problems=problems)
             return {
@@ -2811,6 +2848,7 @@ def run_migrate_apply(args: argparse.Namespace) -> int:
         )
     git = GitInspector()
     root = resolve_root()
+    budget = manifest_budget(manifest)
     results: list[dict[str, Any]] = []
     for item in manifest["items"]:
         if item["disposition"] != "move":
@@ -2848,9 +2886,11 @@ def run_migrate_apply(args: argparse.Namespace) -> int:
             )
             continue
         try:
-            recovered = recover_item(git, digest, item, root)
+            recovered = recover_item(git, digest, item, root, budget)
             results.append(
-                recovered if recovered else move_item(git, digest, item, root)
+                recovered
+                if recovered
+                else move_item(git, digest, item, root, budget)
             )
         except PolicyError as exc:
             results.append(
@@ -2945,6 +2985,11 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--expect-sha256", help="Digest of the reviewed manifest file.")
     migrate.add_argument("--exception", action="append", help="PATH=reason: keep this worktree where it is, pending approval.")
     migrate.add_argument("--remove-candidate", action="append", help="PATH=reason: hand this worktree to cleanup_merged.py; never removed here.")
+    migrate.add_argument(
+        "--hash-budget-mib",
+        type=int,
+        help="Dry run only: hash ignored files up to this many MiB per worktree (default 512). The manifest records it and apply reuses it.",
+    )
     migrate.add_argument("--smoke", action="append", help="PATH=<JSON argv list>: command to run at the destination after the move.")
     migrate.add_argument("--item", action="append")
     migrate.add_argument("--approver")

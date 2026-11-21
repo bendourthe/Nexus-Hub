@@ -829,3 +829,84 @@ def test_native_binding_ends_only_when_the_run_is_stamped_complete_and_unreadabl
     unreadable = item_for(manifest, wt)
     assert unreadable["disposition"] == "pending" and unreadable["reason"] == "native-records-unreadable"
     assert record.read_text(encoding="utf-8") == "{not json", "records are never edited"
+
+
+# --------------------------------------------------------------------------- recorded hashing budget
+
+ONE_MIB = 1024 * 1024
+
+
+def budgeted_worktree(world: dict[str, Path]) -> Path:
+    """Ignored files sized so a 1 MiB budget hashes a1 and b2, and keeps only the size of c3."""
+    wt = dirty_worktree(world)
+    for name, size in (("a1.log", 100_000), ("b2.log", 700_000), ("c3.log", 700_000)):
+        (wt / name).write_bytes(bytes([65]) * size)
+    return wt
+
+
+def test_proposal_records_its_hash_budget_and_apply_reuses_it(world: dict[str, Path]) -> None:
+    wt = budgeted_worktree(world)
+    path, digest, manifest = propose(world, "--hash-budget-mib", "1")
+    item = item_for(manifest, wt)
+    assert manifest["hash_budget_bytes"] == ONE_MIB and item["disposition"] == "move"
+    assert item["expected"]["size_only"] == 1
+    # Control: the shipped default hashes c3 too, so a recompute without the recorded budget would differ.
+    assert nw.full_fingerprint(nw.GitInspector(), str(wt))["files_digest"] != item["expected"]["files_digest"]
+    authorize(world, path, digest, manifest, item)
+    before = content_map(wt)
+    rc, out = apply(path, digest)
+    assert rc == 0 and out["results"][0]["outcome"] == "moved", out
+    assert content_map(Path(item["destination"])) == before
+
+
+def test_a_changed_ignored_file_inside_the_budget_still_refuses(world: dict[str, Path]) -> None:
+    wt = budgeted_worktree(world)
+    path, digest, manifest = propose(world, "--hash-budget-mib", "1")
+    item = item_for(manifest, wt)
+    authorize(world, path, digest, manifest, item)
+    (wt / "a1.log").write_bytes(bytes([66]) * 100_000)  # same size, different bytes, inside the budget
+    rc, out = apply(path, digest)
+    assert rc == 3 and out["results"][0]["code"] == "source-changed", out
+    assert wt.is_dir() and not Path(item["destination"]).exists()
+
+
+def test_a_size_change_beyond_the_budget_is_still_detected(world: dict[str, Path]) -> None:
+    wt = budgeted_worktree(world)
+    path, digest, manifest = propose(world, "--hash-budget-mib", "1")
+    item = item_for(manifest, wt)
+    authorize(world, path, digest, manifest, item)
+    (wt / "c3.log").write_bytes(bytes([65]) * 700_001)  # kept by size only, so the size must differ
+    rc, out = apply(path, digest)
+    assert rc == 3 and out["results"][0]["code"] == "source-changed", out
+    assert wt.is_dir()
+
+
+def test_manifest_without_the_field_keeps_the_shipped_default(world: dict[str, Path]) -> None:
+    assert nw.manifest_budget({}) is None
+    wt = budgeted_worktree(world)
+    path, digest, manifest = propose(world)
+    assert manifest["hash_budget_bytes"] == nw.PRESERVATION_BUDGET_BYTES
+    item = item_for(manifest, wt)
+    legacy = {k: v for k, v in manifest.items() if k != "hash_budget_bytes"}
+    legacy_path = world["tmp"] / "legacy.json"
+    legacy_path.write_text(nw._canonical_json(legacy), encoding="utf-8")
+    legacy_digest = hashlib.sha256(legacy_path.read_bytes()).hexdigest()
+    rc, out = call("migrate", "--approve", "--manifest", str(legacy_path), "--expect-sha256", legacy_digest, "--item", item["id"], "--approver", "maintainer")
+    assert rc == 0, out
+    rc, out = call("migrate", "--ack", "--manifest", str(legacy_path), "--expect-sha256", legacy_digest, "--item", item["id"],
+                   "--token", token_for(world, path, item["id"]), "--checkpoint-note", "saved")
+    assert rc == 0, out
+    rc, out = apply(legacy_path, legacy_digest)
+    assert rc == 0 and out["results"][0]["outcome"] == "moved", out
+
+
+def test_invalid_budget_values_refuse(world: dict[str, Path]) -> None:
+    dirty_worktree(world)
+    rc, _ = call("audit", "--root", str(world["ws"]), "--output", str(world["tmp"] / "a.json"))
+    assert rc == 0
+    rc, out = call("migrate", "--dry-run", "--inventory", str(world["tmp"] / "a.json"), "--manifest", str(world["tmp"] / "zero.json"), "--hash-budget-mib", "0")
+    assert rc == 2 and out["code"] == "invalid-argument" and not (world["tmp"] / "zero.json").exists()
+    for bad in ("big", 0, -5, True, 1.5):
+        with pytest.raises(nw.PolicyError) as caught:
+            nw.manifest_budget({"hash_budget_bytes": bad})
+        assert caught.value.code == "manifest-malformed"
