@@ -19,7 +19,11 @@ Nexus-Hub changes the instruction templates that every installed agent reads, an
 - Paired-run inference and receipts for this procedure are out of scope here (item A8b) and owned by the v4.21.2 plan.
 - The ownership sentence ships only as an opt-in snippet, `catalog/skills/code-cleanup/minimal-construction/references/codebase-ownership-mode.md`, with a scope exception, the vendor-measured costs, an off switch, and a statement of what it does not grant. No template contains it.
 
-Status of the work behind this record: the procedure, the case sets with their manifests, the clarity reference, and the opt-in snippet are in the repository. The live canary and the baseline and after runs, and therefore the three template edits, are waiting on a maintainer decision about live spend and on evaluator capabilities the merged v4.15.2 evaluator does not yet have (a live isolation backend, a per-trial throwaway configuration directory, a canary workload, and retained final text and tool path).
+Status of the work behind this record:
+
+- In the repository: the procedure, the case sets with their manifests, the clarity reference, and the opt-in snippet.
+- Deferred to known gaps (maintainer decision, 2026-11-22): the live canary, the baseline and after runs, and therefore the three template edits. Spend stays at USD 0, and v4.15.11 makes no evaluator change.
+- Still needed before the runs: evaluator capabilities the merged v4.15.2 evaluator lacks. These are a live isolation backend, a per-trial throwaway configuration directory, a canary workload, and retained final text and tool path.
 
 ## Alternatives considered
 
