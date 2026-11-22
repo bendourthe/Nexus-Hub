@@ -400,7 +400,7 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 **Proving command**: `python -B -m pytest tests/validators/test_gap_migration_and_archive.py -q`
 
-**Resolution**: `plan_migration_met` in `scripts/completion_minor.py` falls back to the minor form when the patch form is missing and the id occurs once in the source ledger; a repeated id still needs the patch form. Test: `test_plan_check_accepts_minor_close_label_only_for_a_unique_id`.
+**Resolution**: `plan_migration_met` in `scripts/completion_minor.py` falls back to the minor form when the patch form is missing and exactly one migrated item in the source ledger carries the id; two migrated items with one id still need the patch form. Test: `test_plan_check_accepts_minor_close_label_only_for_one_migrated_id`. Checked against the Nexus-AI v2.16 ledger: 248 of 248 migrated items met, `gaps.carried met`.
 
 #### DF-53: Historical ledgers incompatible with fail-closed parsing
 

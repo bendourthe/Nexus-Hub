@@ -710,7 +710,7 @@ def test_consolidated_owner_requires_an_explicit_complete_original_source_block(
     )
 
 
-def test_plan_check_accepts_minor_close_label_only_for_a_unique_id(repo: Close) -> None:
+def test_plan_check_accepts_minor_close_label_only_for_one_migrated_id(repo: Close) -> None:
     repo.standard(RETAINED_WARNING)
     repo.forge()
     assert repo.migrate().returncode == 0
@@ -720,7 +720,7 @@ def test_plan_check_accepts_minor_close_label_only_for_a_unique_id(repo: Close) 
     assert not source.problems
     assert cm.plan_migration_met(ledgers, source, source.items[0])
 
-    # A repeated id makes `v0.5#WN-3` name two items, so only the patch form proves it.
+    # An open item reusing the id is not a migration, so `v0.5#WN-3` still names one item.
     older = "#### WN-3: An older warning\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
     migrated_text = repo.read(GAPS05)
     assert "**Open items**: 0\n" in migrated_text
@@ -731,7 +731,16 @@ def test_plan_check_accepts_minor_close_label_only_for_a_unique_id(repo: Close) 
     assert not source.problems
     migrated = next(item for item in source.items if item.state == "migrated")
     assert sum(item.gid == "WN-3" for item in source.items) == 2
-    assert not cm.plan_migration_met(ledgers, source, migrated)
+    assert cm.plan_migration_met(ledgers, source, migrated)
+
+    # A second migrated item with the id makes `v0.5#WN-3` name two items: only the patch form proves it.
+    twice = "#### WN-3: An older warning - MIGRATED to v0.6.0\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
+    repo.write(GAPS05, migrated_text + "\n" + section("v0.5.1", 0, twice))
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    assert sum(item.gid == "WN-3" and item.state == "migrated" for item in source.items) == 2
+    assert not any(cm.plan_migration_met(ledgers, source, item) for item in source.items)
 
 
 def test_verification_follows_explicit_patch_carry_but_reuse_stays_at_minor_start(repo: Close) -> None:

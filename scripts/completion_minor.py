@@ -7382,15 +7382,16 @@ def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> 
 def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
     """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
     version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches.
-    A minor close writes the minor form (`vX.Y#ID`); it is accepted only when the id
-    occurs once in the source ledger, so it still names exactly one item."""
+    A minor close writes the minor form (`vX.Y#ID`); it is accepted only when one
+    migrated item in the source ledger carries the id, so it still names exactly one item."""
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
     label = f"{section_version(item.section)}#{item.gid}"
     reason, _copy = migration_copy_status(
         ledgers, str(item.target), ledger, item, label=label, allow_carried=True,
     )
-    if reason == "migration-target-missing" and sum(other.gid == item.gid for other in ledger.items) == 1:
+    migrated_with_id = sum(other.gid == item.gid and other.state == "migrated" for other in ledger.items)
+    if reason == "migration-target-missing" and migrated_with_id == 1:
         reason, _copy = migration_copy_status(ledgers, str(item.target), ledger, item, allow_carried=True)
     return reason == "migration-copy-complete"
 
