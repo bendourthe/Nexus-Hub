@@ -488,9 +488,29 @@ def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str
                 after = os.fstat(handle.fileno())
             if len(raw) > REFERENCE_MAX_BYTES or (after.st_size, after.st_mtime_ns) != (initial.st_size, initial.st_mtime_ns):
                 raise OSError("size limit or changed input")
-            text = raw.decode("utf-8-sig")
+            try:
+                text = raw.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                # A binary file such as a test fixture cannot be a JSON or attribute input, and
+                # it holds no reference when no mention survives a byte-preserving decode. A
+                # possible mention, or an undecodable JSON or attribute file, still fails closed.
+                if path.suffix.lower() == ".json" or path.name == ".gitattributes" or matches(raw.decode("latin-1")):
+                    raise
+                continue
             if path.suffix.lower() == ".json":
-                inspect_json(json.loads(text), rel, text)
+                try:
+                    value = json.loads(text)
+                except ValueError:
+                    # A sealed historical capture is never an operational input, and some
+                    # captures prefix a console line before the payload. Scan it as text so
+                    # it cannot block an archive; unparseable live JSON still fails closed.
+                    if not historical_reference(rel):
+                        raise
+                    for line, body in enumerate(text.splitlines(), 1):
+                        if matches(body):
+                            add(rel, line, "historical", remedy="Unparseable historical capture; reviewed as text, never rewritten.")
+                else:
+                    inspect_json(value, rel, text)
             elif path.name == ".gitattributes":
                 for line, body in enumerate(text.splitlines(), 1):
                     if not body.strip() or body.lstrip().startswith("#"):

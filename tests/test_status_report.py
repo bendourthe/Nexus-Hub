@@ -58,8 +58,9 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
 def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
     snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
                               "options": [{"option": "A", "effect": "e"}]}]
-    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "N/A"},
-                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min", "remaining": "N/A"}]
+    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "~5 min"},
+                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min",
+                            "remaining": "not estimated (no task list)"}]
     text = report.render(snapshot, "compact")
     assert ("### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A\n\n"
             "| Option | What it means | Effect |\n| ------ | ------------- | ------ |\n| A      | -             | e      |\n\n"
@@ -190,7 +191,7 @@ def test_audit_detects_missing_stale_and_shadowed_installations(report, tmp_path
 
 def test_running_links_are_preserved_and_unsafe_schemes_rejected(report, snapshot):
     snapshot["running"] = [{"name": "PR #12", "state": "checks", "done": 2, "total": 3,
-                            "elapsed": "1 min", "remaining": "N/A", "url": "https://example.test/pull/12/checks"}]
+                            "elapsed": "1 min", "remaining": "~1 min", "url": "https://example.test/pull/12/checks"}]
     for mode in ("compact", "full"):
         output = report.render(snapshot, mode)
         assert "](https://example.test/pull/12/checks)" in output
@@ -254,7 +255,7 @@ def hostile_snapshot(snapshot):
     snapshot["goals"][0].update(goal=HOSTILE, done_when=HOSTILE)
     snapshot["decisions"] = [{"id": "1", "title": HOSTILE, "detail": HOSTILE,
                               "options": [{"option": "A (recommended)", "meaning": HOSTILE, "effect": HOSTILE}]}]
-    snapshot["running"] = [{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "N/A"}]
+    snapshot["running"] = [{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "~1 min"}]
     return snapshot
 
 
@@ -377,7 +378,7 @@ def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, w
     snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~3 h", "condition": "none",
                                 "confidence": "medium", "basis": "release tags"}
     snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
-                            "elapsed": "4 min", "remaining": "N/A"}]
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
     report.render(snapshot, "full")
     _set(snapshot, where, value)
     with pytest.raises(ValueError, match="status_snapshot.py"):
@@ -387,11 +388,11 @@ def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, w
 @pytest.mark.parametrize("mode", ["compact", "full"])
 def test_no_report_ever_prints_unknown(report, snapshot, mode):
     snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
-                            "elapsed": "4 min", "remaining": "N/A"}]
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
     output = report.render(snapshot, mode)
     assert "unknown" not in output.lower()
     if mode == "full":
-        assert "| CI | N/A | N/A | running | 4 min | N/A |" in squash(output)
+        assert "| CI | no task list | no task list | running | 4 min | not estimated (no task list) |" in squash(output)
 
 
 @pytest.mark.parametrize("field,value", [("last_released", None), ("versions_left", None)])
@@ -399,3 +400,15 @@ def test_release_inventory_must_be_measured(report, snapshot, field, value):
     snapshot[field] = value
     with pytest.raises(ValueError):
         report.render(snapshot, "compact")
+
+
+@pytest.mark.parametrize("field", ["elapsed", "remaining"])
+def test_running_item_never_prints_na(report, snapshot, field):
+    """N/A means not started or released; a running item is neither, so it is refused."""
+    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
+    text = report.render(snapshot, "full")
+    assert "no task list" in text and "| N/A" not in text.split("Running")[-1]
+    snapshot["running"][0][field] = "N/A"
+    with pytest.raises(ValueError, match="N/A"):
+        report.render(snapshot, "full")

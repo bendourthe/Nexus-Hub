@@ -74,6 +74,7 @@ def timestamp(value: str) -> datetime:
 
 
 _UNKNOWN = re.compile(r"\bunknown\b", re.IGNORECASE)
+NO_TASKS = "no task list"
 _MEASURE = "measure it with scripts/status_snapshot.py; N/A means not started or already released"
 
 
@@ -135,6 +136,11 @@ def validate(data: dict) -> None:
                 counts(item, required=key == "rows")
                 measured(item["elapsed"], f"{item['name']} elapsed")
                 measured(item["remaining"], f"{item['name']} remaining")
+            if key == "running":
+                # N/A means not started or released; a running item is neither.
+                for field in ("elapsed", "remaining"):
+                    if item[field].strip().upper() == "N/A":
+                        raise ValueError(f"running item {item['name']} {field} is N/A; {_MEASURE}")
             if key == "running" and item.get("url") is not None:
                 url = item["url"]
                 if not isinstance(url, str) or any(c.isspace() or ord(c) < 32 for c in url):
@@ -167,7 +173,7 @@ def validate(data: dict) -> None:
 def progress_parts(done: int | None, total: int | None) -> tuple[str, str]:
     """Return the bar-and-percent text and the done/total text."""
     if done is None:  # only a running item without tasks, such as a CI job
-        return "N/A", "N/A"
+        return NO_TASKS, NO_TASKS
     if total == 0:
         return "N/A", "0/0"
     percent = (100 * done + total // 2) // total

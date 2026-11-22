@@ -1739,8 +1739,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths"):
-        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read, correct-read or permit-member-paths")
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths", "withdraw-implementation"):
+        raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read, correct-read, permit-member-paths or withdraw-implementation")
     if getattr(args, "path", None) is not None and args.action != "correct-read":
         raise ck.Malformed("--path requires --action correct-read")
     if getattr(args, "execution", None) is not None and args.action != "permit-member-execution-paths":
@@ -1823,6 +1823,12 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         page = read_correction_page(ck, rctx, token, record, getattr(args, "member", None), getattr(args, "path", None))
         if page is None:
             raise ck.Malformed("read-correction-already-present")
+        display = None
+    elif args.action == "withdraw-implementation":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = withdrawal_page(ck, rctx, token, record, getattr(args, "member", None))
         display = None
     elif args.action == "permit-outputs":
         record = _record_for_v415_permission(ck, rctx, token, args.session)
@@ -7433,15 +7439,36 @@ def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> 
     return []
 
 
+def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree: str) -> str:
+    """`text` read at `rel` with every relative link replaced by its repository target and
+    the archive tree mapped back to its active tree, so the move's link repairs vanish."""
+    import posixpath
+    from minor_close import rewrite_links, rewrite_mentions
+
+    def mapper(path: str) -> str:
+        if path == archive_tree or path.startswith(archive_tree + "/"):
+            return origin_tree + path[len(archive_tree):]
+        return path
+
+    text, _links = rewrite_links(text, posixpath.dirname(rel), "", mapper)
+    text, _mentions = rewrite_mentions(text, archive_tree, origin_tree, markdown=True)
+    return text
+
+
 def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
     """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
-    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches."""
+    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches.
+    A minor close writes the minor form (`vX.Y#ID`); it is accepted only when one
+    migrated item in the source ledger carries the id, so it still names exactly one item."""
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
     label = f"{section_version(item.section)}#{item.gid}"
     reason, _copy = migration_copy_status(
         ledgers, str(item.target), ledger, item, label=label, allow_carried=True,
     )
+    migrated_with_id = sum(other.gid == item.gid and other.state == "migrated" for other in ledger.items)
+    if reason == "migration-target-missing" and migrated_with_id == 1:
+        reason, _copy = migration_copy_status(ledgers, str(item.target), ledger, item, allow_carried=True)
     return reason == "migration-copy-complete"
 
 
@@ -8518,6 +8545,199 @@ def cmd_record_permit_member_paths(ck: ModuleType, args: argparse.Namespace) -> 
     finally:
         active.pop("member_paths_append", None)
     print(f"PERMITTED {args.member} {len(page['write_paths'])} exact write paths")
+    return 0
+
+
+# One captured decision releases the claims of one admitted, unstarted member so other members can be admitted.
+# Branches, worktrees and commits are never touched; re-admission is the ordinary member-implement-start.
+_WITHDRAW_ACTION = "withdraw-implementation"
+_WITHDRAW_FIELD = "implementation_withdrawals"
+_WITHDRAW_PAGE_FIELDS = {"action", "scope", "record_nonce", "repo", "controller", "owner_session", "record_sha256",
+    "member", "plan_sha256", "implementation", "source_branch", "target_branch", "worker_head"}
+_WITHDRAW_IMPLEMENTATION_FIELDS = {"base_head", "worktree", "branch", "depends_on", "read_paths", "write_paths", "started"}
+_WITHDRAW_BOUND_FIELDS = (*_MEMBER_PATHS_BOUND_FIELDS, _MEMBER_PATHS_FIELD, "coordinator_paths")
+
+
+def _withdraw_entries(member: dict) -> list:
+    entries = member.get(_WITHDRAW_FIELD, [])
+    return entries if isinstance(entries, list) else []
+
+
+def withdrawal_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str | None,
+                    *, check_remote: bool = True) -> dict:
+    """The exact captured page; every refusal has its own named reason and nothing is changed."""
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if member is None:
+        raise ck.Malformed("withdraw-unknown-member")
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict):
+        raise ck.Malformed("withdraw-not-admitted")
+    if member.get("archived"):
+        raise ck.Malformed("withdraw-member-finished")
+    if member.get("start_head"):
+        raise ck.Malformed("withdraw-member-started")
+    permissions = record.get("minor_execution_permissions")
+    if any(member.get(name) for name in _WITHDRAW_BOUND_FIELDS) or (isinstance(permissions, list) and any(
+            isinstance(e, dict) and isinstance(e.get("page"), dict) and e["page"].get("member") == version for e in permissions)):
+        raise ck.Malformed("withdraw-bound-entries")
+    if not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("minor-snapshot-required")
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    if check_remote:
+        state, _merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+        if state == "merged":
+            raise ck.Malformed("withdraw-member-finished")
+        if state != "not-merged":
+            raise ck.Malformed("withdraw-publication-unverified")
+    return {"action": _WITHDRAW_ACTION, "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "repo": record["repo"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "owner_session": record["session_id"], "record_sha256": record.loaded_sha256,
+            "member": member["version"], "plan_sha256": member["plan_sha256"],
+            "implementation": json.loads(json.dumps(implementation)),
+            "source_branch": member["source_branch"], "target_branch": member["target_branch"],
+            "worker_head": rctx._git_out("rev-parse", "--verify", "-q", f"refs/heads/{member['source_branch']}^{{commit}}") or None}
+
+
+def _withdraw_entry_valid(ck: ModuleType, record: dict, member: dict, entry: object, *, verify_capture: bool = False) -> bool:
+    """Authenticate one stored decision: its page fields, the removed claims and the genuine capture."""
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"implementation", "page", "accepted"}:
+            return False
+        removed, page, accepted = entry["implementation"], entry["page"], entry["accepted"]
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        if (not isinstance(page, dict) or set(page) != _WITHDRAW_PAGE_FIELDS
+                or not isinstance(accepted, dict) or set(accepted) != fields
+                or not isinstance(removed, dict) or set(removed) != _WITHDRAW_IMPLEMENTATION_FIELDS):
+            return False
+        if (page["action"] != _WITHDRAW_ACTION or page["scope"] != {"kind": "minor", "minor": record["minor"]}
+                or page["record_nonce"] != record["nonce"] or page["repo"] != record["repo"]
+                or page["member"] != member["version"] or page["plan_sha256"] != member["plan_sha256"]
+                or page["source_branch"] != member["source_branch"] or page["target_branch"] != member["target_branch"]
+                or approval_binding.canonical(page["implementation"]) != approval_binding.canonical(removed)
+                or removed["branch"] != member["source_branch"]
+                or not (page["worker_head"] is None or isinstance(page["worker_head"], str))
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(accepted["at"], str) or not accepted["at"] or type(accepted["allow_short_reply"]) is not bool
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or accepted["page_sha256"] != hashlib.sha256(approval_binding.canonical(page)).hexdigest()):
+            return False
+        context = accepted["authorization_context"]
+        if (not isinstance(accepted["text"], str) or not accepted["text"]
+                or not isinstance(context, dict)
+                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
+                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
+                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+                or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
+            return False
+        allowed = {approval_page.plain_line(_WITHDRAW_ACTION, str(record["minor"]), accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and (not verify_capture or approval_binding.consumed_capture_valid(
+            ck._runs_dir(), context, accepted["rendered_at"]))
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def check_implementation_withdrawal_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    """Every native writer keeps the history; only a consumed leased decision removes claims and appends one entry."""
+    old = {m.get("version"): m for m in _member_list(previous)}
+    new = {m.get("version"): m for m in _member_list(record)}
+    active = ck._MINOR_LEASE.get()
+    withdrawing = active is not None and "implementation_withdraw" in active
+    removed = [v for v, m in old.items() if m.get("implementation") and not (new.get(v) or {}).get("implementation")]
+    if not withdrawing and not removed and not any(_WITHDRAW_FIELD in m for m in [*old.values(), *new.values()]):
+        return
+    added = []
+    for version in old.keys() | new.keys():
+        left, right = old.get(version, {}).get(_WITHDRAW_FIELD, []), new.get(version, {}).get(_WITHDRAW_FIELD, [])
+        if (not isinstance(left, list) or not isinstance(right, list) or len(right) < len(left)
+                or approval_binding.canonical(right[:len(left)]) != approval_binding.canonical(left)):
+            raise ck.MinorConflict("withdrawal-not-append-only")
+        added.extend((version, entry) for entry in right[len(left):])
+    if not added:
+        if withdrawing:
+            raise ck.MinorConflict("withdrawal-captured-append-missing")
+        if removed:
+            raise ck.MinorConflict("withdrawal-implementation-removed-not-native")
+        return
+    if len(added) != 1 or not active:
+        raise ck.MinorConflict("withdrawal-append-not-captured")
+    version, entry = added[0]
+    grant = {"member": version, "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(),
+             "record_sha256": active["expected"]}
+    if version not in old or approval_binding.canonical(active.get("implementation_withdraw")) != approval_binding.canonical(grant):
+        raise ck.MinorConflict("withdrawal-append-not-captured")
+    if removed != [version] or version not in new or new[version].get("implementation"):
+        raise ck.MinorConflict("withdrawal-implementation-removed-not-native")
+    restored = json.loads(json.dumps(record))
+    target = next(m for m in _member_list(restored) if m.get("version") == version)
+    target[_WITHDRAW_FIELD].pop()
+    if _WITHDRAW_FIELD not in old[version]:
+        target.pop(_WITHDRAW_FIELD)
+    target["implementation"] = old[version]["implementation"]
+    restored.pop("approvals_hmac", None)
+    original = json.loads(json.dumps(previous))
+    original.pop("approvals_hmac", None)
+    if approval_binding.canonical(restored) != approval_binding.canonical(original):
+        raise ck.MinorConflict("withdrawal-unrelated-record-change")
+    page = entry.get("page", {})
+    if (old[version].get("start_head") or old[version].get("archived")
+            or any(old[version].get(name) for name in _WITHDRAW_BOUND_FIELDS)
+            or approval_binding.canonical(entry.get("implementation")) != approval_binding.canonical(old[version]["implementation"])
+            or page.get("record_sha256") != active["expected"] or page.get("owner_session") != previous.get("session_id")
+            or approval_binding.canonical(page.get("controller")) != approval_binding.canonical(
+                previous.get("implementation_controller") or {"repo_root": previous.get("repo_root")})
+            or not _withdraw_entry_valid(ck, record, new[version], entry, verify_capture=True)):
+        raise ck.MinorConflict("withdrawal-invalid-entry")
+
+
+@minor_writer
+def cmd_record_withdraw_implementation(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Consume one genuine decision; the member's branch, worktree and commits are never touched."""
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    page = withdrawal_page(ck, rctx, args.minor, record, args.member)
+    # Verify before spending: the approval code is single-use, so the page is rebuilt before it is consumed.
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
+    if withdrawal_page(ck, rctx, args.minor, record, args.member, check_remote=False) != page:
+        return ck._refused("page-changed")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
+    consumed = _consume(ck, rctx, args.minor, _WITHDRAW_ACTION, page, args.session, record["session_id"])
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) != approval_binding.normalize(approval_binding.pasted(pending)):
+        return ck._refused("approval-not-captured")
+    rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
+    if withdrawal_page(ck, rctx, args.minor, record, args.member, check_remote=False) != page:
+        return ck._refused("page-changed")
+    entry = {"implementation": json.loads(json.dumps(page["implementation"])), "page": page,
+             "accepted": {"at": ck._now(), "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+                          "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+                          "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+                          "authorization_context": pending.get("capture")}}
+    member = next(m for m in ordered_members(record) if m["version"] == args.member)
+    member.setdefault(_WITHDRAW_FIELD, []).append(entry)
+    del member["implementation"]
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["implementation_withdraw"] = {"member": args.member,
+        "entry_sha256": hashlib.sha256(approval_binding.canonical(entry)).hexdigest(), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record_file(ck, rctx, args.minor), record)
+    finally:
+        active.pop("implementation_withdraw", None)
+    print(f"WITHDREW {args.member} implementation claims; branch, worktree and commits are unchanged")
     return 0
 
 

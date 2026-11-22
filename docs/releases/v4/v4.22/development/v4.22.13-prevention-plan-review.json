@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "plan": "docs/releases/v4/v4.22/plans/v4.22.13-adoption-incident-prevention.md",
+  "lenses": [
+    "coherence",
+    "feasibility",
+    "product",
+    "design",
+    "scope-guardian",
+    "security",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "P2",
+      "lens": "coherence",
+      "confidence": 100,
+      "status": "corrected, independent recheck clear"
+    },
+    {
+      "id": "R2",
+      "severity": "P2",
+      "lens": "feasibility",
+      "confidence": 100,
+      "status": "corrected, independent recheck clear"
+    },
+    {
+      "id": "R3",
+      "severity": "P2",
+      "lens": "adversarial",
+      "confidence": 75,
+      "status": "corrected, independent recheck clear"
+    }
+  ],
+  "deduplication": "distinct section/title fingerprints; no duplicates",
+  "cross_lens_promotion": "none",
+  "late_confidence_gate": "all findings retained at 75 or 100",
+  "suppressed": [],
+  "verdict": "READY; maintainer confirmed target and scope on 2026-11-20",
+  "pending_decisions": [],
+  "implementation_authorized": false,
+  "publication_authorized": true,
+  "planning_confirmed": true,
+  "publication_scope": "Reviewed documentation package only",
+  "release_authorized": false
+}

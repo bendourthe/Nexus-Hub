@@ -165,6 +165,29 @@ def test_reference_inventory_invalid_supported_input_is_incomplete(tmp_path: Pat
     assert (tmp_path / "live.json").read_bytes() == raw
 
 
+def test_reference_inventory_unparseable_historical_capture_is_scanned_as_text(tmp_path: Path) -> None:
+    rel = "docs/archives/v0/v0.4/development/evidence/capture.json"
+    raw = b'PASS detector run\n{"source": "docs/releases/v0/v0.5/plan.md"}\n'
+    (tmp_path / rel).parent.mkdir(parents=True)
+    (tmp_path / rel).write_bytes(raw)
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    result = mc.reference_inventory(tmp_path, [rel], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["blocking"] == 0
+    assert [(f["line"], f["category"]) for f in result["findings"]] == [(2, "historical")]
+    assert (tmp_path / rel).read_bytes() == raw
+    (tmp_path / rel).write_bytes(b"\xff")
+    assert mc.reference_inventory(tmp_path, [rel], moves)["incomplete"]
+
+
+def test_reference_inventory_binary_file_without_a_mention_is_clear(tmp_path: Path) -> None:
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    (tmp_path / "fixture.txt").write_bytes(b"\xb4YU\x00\xff\xfe")
+    result = mc.reference_inventory(tmp_path, ["fixture.txt"], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["findings"] == []
+    (tmp_path / "fixture.txt").write_bytes(b"\xff docs/releases/v0/v0.5/plan.md")
+    assert mc.reference_inventory(tmp_path, ["fixture.txt"], moves)["incomplete"]
+
+
 def test_reference_inventory_unreadable_input_cannot_authorize_move(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     target = tmp_path / "live.json"
     target.write_text("{}", encoding="utf-8")
@@ -685,6 +708,39 @@ def test_consolidated_owner_requires_an_explicit_complete_original_source_block(
     assert cm.verify_migration(repo.rctx(), record, "v0.6", ledgers, earlier, earlier.items[0]) == (
         "met", "in-scope-copy"
     )
+
+
+def test_plan_check_accepts_minor_close_label_only_for_one_migrated_id(repo: Close) -> None:
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    assert repo.migrate().returncode == 0
+    assert "**Migrated from**: v0.5#WN-3" in repo.read(GAPS06)
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    assert cm.plan_migration_met(ledgers, source, source.items[0])
+
+    # An open item reusing the id is not a migration, so `v0.5#WN-3` still names one item.
+    older = "#### WN-3: An older warning\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
+    migrated_text = repo.read(GAPS05)
+    assert "**Open items**: 0\n" in migrated_text
+    duplicated = migrated_text.replace("**Open items**: 0\n", "**Open items**: 1\n")
+    repo.write(GAPS05, duplicated + "\n" + section("v0.5.1", 1, older))
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    migrated = next(item for item in source.items if item.state == "migrated")
+    assert sum(item.gid == "WN-3" for item in source.items) == 2
+    assert cm.plan_migration_met(ledgers, source, migrated)
+
+    # A second migrated item with the id makes `v0.5#WN-3` name two items: only the patch form proves it.
+    twice = "#### WN-3: An older warning - MIGRATED to v0.6.0\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
+    repo.write(GAPS05, migrated_text + "\n" + section("v0.5.1", 0, twice))
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    assert sum(item.gid == "WN-3" and item.state == "migrated" for item in source.items) == 2
+    assert not any(cm.plan_migration_met(ledgers, source, item) for item in source.items)
 
 
 def test_verification_follows_explicit_patch_carry_but_reuse_stays_at_minor_start(repo: Close) -> None:
