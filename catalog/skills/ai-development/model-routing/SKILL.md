@@ -199,8 +199,8 @@ One owner per concern. Non-owners link to the owner and never restate the rule.
 
 | Concern | Owner | Status |
 |---|---|---|
-| Detecting a repeated failing command | The repeated-failing-command notice hook planned in v4.15.5 | Not shipped |
-| When to reset the session | `context-degradation` | Deferred |
+| Detecting a repeated failing command | `catalog/hooks/stuck-turn-notice.sh` (v4.15.5, opt-in with `NEXUS_STUCK_NOTICE=on`) | Shipped |
+| When to reset the session | `context-degradation`: two failed corrections reset | Shipped |
 | What changes on the retry | `model-routing`: `references/effort-modifiers.md`, escalation ladder | Shipped |
 
 Order: reset first, then retry one rung up the ladder.
