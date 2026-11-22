@@ -355,12 +355,36 @@ EXECUTABLE_CONFIG = (
 )
 
 
+def _git_on_path() -> str | None:
+    """First git on PATH from an absolute entry outside the current directory.
+
+    shutil.which cannot be used: on Windows before Python 3.12 it always searches the
+    current directory first, even with NoDefaultCurrentDirectoryInExePath set, so a
+    planted git.bat would win. Relative entries (such as ".") are skipped for the same
+    reason.
+    """
+    cwd = os.getcwd()
+    names = ["git"]
+    if os.name == "nt":
+        exts = (os.environ.get("PATHEXT") or ".COM;.EXE;.BAT;.CMD").split(os.pathsep)
+        names = ["git" + ext.lower() for ext in exts if ext]
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
+        entry = entry.strip().strip('"')
+        if not entry or not os.path.isabs(entry) or is_within(entry, cwd):
+            continue
+        for name in names:
+            candidate = os.path.join(entry, name)
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+                return candidate
+    return None
+
+
 def trusted_git(inside: str | os.PathLike[str] | None = None) -> str:
     """One absolute Git executable, never one that resolves inside the inspected tree."""
     # Windows searches the current directory first unless told not to; a planted git.bat
     # or git.exe in the working directory must never be what runs.
     os.environ["NoDefaultCurrentDirectoryInExePath"] = "1"
-    found = shutil.which("git")
+    found = _git_on_path()
     if not found:
         raise PolicyError(
             "git-missing", "git was not found on PATH", cannot_verify=True
@@ -1762,6 +1786,8 @@ class RepoLock:
         try:
             self.path.unlink()
         except OSError:
+            # Best-effort release: the lock file may already be gone, and a
+            # failed unlink must not mask the exception leaving the block.
             pass
 
 
@@ -2111,7 +2137,8 @@ def path_bindings(path: str) -> list[dict[str, Any]]:
         try:
             if os.path.getsize(full) > 1 << 20:
                 continue
-            text = open(full, "rb").read().decode("utf-8", errors="replace").lower()
+            with open(full, "rb") as handle:
+                text = handle.read().decode("utf-8", errors="replace").lower()
         except OSError:
             continue
         hits = sum(text.count(n) for n in needles)
@@ -2333,7 +2360,7 @@ def _decide(
             owner=None,
         )
         item["ack"]["required"] = item["authorization"]["required"] = False
-        return
+        return None
     if not records_ok:
         return pend("native-records-unreadable", "native-run-owner")
     if pkey in bound:
@@ -2352,7 +2379,6 @@ def _decide(
         dest = resolve_destination(identity, row["canonical_name"], root, registered)
     except PolicyError as exc:
         return pend(f"destination refused: {exc.code}")
-    name = dest.name
     if key_of(dest.path) in used:
         name = f"{dest.name}-{_digest_text(pkey)[:6]}"
         dest = resolve_destination(identity, name, root, registered)
@@ -2401,6 +2427,7 @@ def _decide(
         ):
             raise PolicyError("invalid-argument", "--smoke needs PATH=<JSON argv list>")
         item["smoke"] = {"argv": argv, "source": "operator"}
+    return None
 
 
 def handoff_notice(manifest_name: str, item: dict[str, Any], token: str) -> str:

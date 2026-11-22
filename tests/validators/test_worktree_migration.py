@@ -227,7 +227,6 @@ def test_dry_run_writes_only_its_own_state_and_classifies_every_case(
     )
     excepted = dirty_worktree(world, "exc-b", "exc-wt")
     removable = dirty_worktree(world, "rm-b", "rm-wt")
-    in_policy = world["central"] / "x"  # placed after the identity is known below
     repo_identity, _ = nw.repo_context(
         nw.GitInspector(), str(world["repo"]), nw.resolve_root().path, write=True
     )
@@ -664,6 +663,7 @@ def test_ancestor_replaced_by_a_junction_between_validation_and_mutation_is_refu
         rc, out = apply(path, digest)
     except (OSError, subprocess.CalledProcessError):
         pytest.skip("cannot create a link on this host")
+        return
     assert rc == 3 and out["results"][0]["code"] in {
         "destination-reparse",
         "ancestor-replaced",
