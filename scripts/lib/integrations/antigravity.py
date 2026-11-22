@@ -345,11 +345,14 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
             subdir = self.config.get(cfg_key)
             if subdir:
                 if cfg_key == "agents_subdir":
-                    from ._catalog_adapters import agents_dropping_keys
+                    from ._catalog_adapters import (
+                        CLAUDE_ONLY_AGENT_KEYS,
+                        agents_dropping_keys,
+                    )
 
                     actions.extend(
                         agents_dropping_keys(
-                            ctx, self.key, ctx.repo_root / src_rel, root / subdir, ("model",)
+                            ctx, self.key, ctx.repo_root / src_rel, root / subdir, CLAUDE_ONLY_AGENT_KEYS
                         )
                     )
                 else:

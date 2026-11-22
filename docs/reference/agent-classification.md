@@ -44,11 +44,11 @@ Add a table row with the agent name in backticks and a concrete reason only for 
 
 | Agent | Reason |
 |---|---|
-| `log-reader` | Reads output it is handed and reports each failure; it has no edit or shell tool and never chooses a fix. Model `haiku`. Effort: unsupported until the effort-field evidence (plan task 1.2) confirms it applies to the fast tier, so the agent declares none. |
+| `log-reader` | Reads output it is handed and reports each failure; it has no edit or shell tool and never chooses a fix. Model `haiku`. Effort: none. Haiku 5.5 accepts effort, but a subagent on a model other than the main conversation's never inherits the session level ([model configuration](https://code.claude.com/docs/en/model-config), fetched 2026-11-21), so no session cost can spread to it and it runs at its model default. |
 
 ## Effort
 
-Decision D1 of `docs/releases/v4/v4.15/plans/v4.15.9-adoption-agent-cost-and-delegation.md`: every opus-pinned agent will declare `effort: high`. A subagent on the main conversation's model otherwise runs at the session's effort, so a session raised to `xhigh` or `max` would spread that cost to every helper. `high` is the level Nexus-Hub already seeds, so a user at the default sees no change. Status: the declaration is not yet applied; it lands together with the single Claude-only key list that keeps `effort` off platforms that do not read it. Until then no agent carries an `effort` line.
+Decision D1 of `docs/releases/v4/v4.15/plans/v4.15.9-adoption-agent-cost-and-delegation.md`: every opus-pinned agent declares `effort: high`. A subagent on the main conversation's model otherwise runs at the session's effort, so a session raised to `xhigh` or `max` would spread that cost to every helper. `high` is the level Nexus-Hub already seeds, so a user at the default sees no change. Status: applied 2026-11-21. Every opus-pinned agent declares `effort: high` directly after `model: opus`. A per-invocation effort outranks the field and `CLAUDE_CODE_EFFORT_LEVEL` outranks both ([sub-agents](https://code.claude.com/docs/en/sub-agents#choose-an-effort-level), fetched 2026-11-21), so a user who wants a helper at `max` asks for it per call. `CLAUDE_ONLY_AGENT_KEYS` in `scripts/lib/integrations/_catalog_adapters.py` (`model`, `effort`) is the one list every non-Claude delivery path strips. `tests/validators/test_agent_effort_ceiling.py` enforces the declaration.
 
 ## Platform compatibility
 
@@ -58,5 +58,6 @@ Reviewed `docs/policy/platform-read-contracts.json` and the actual delivery adap
 - [OpenCode model configuration](https://opencode.ai/docs/agents/#model): requires a provider-qualified identifier.
 - [Cursor model configuration](https://cursor.com/docs/subagents#model-configuration): supports inheritance or a specific platform model ID.
 - [Antigravity custom agents](https://antigravity.google/docs/subagents): documents native model tiers.
+- [Kimi custom agents](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html) (fetched 2026-11-21): documents `name`, `description`, `whenToUse`, `override`, `tools`, `disallowedTools`, and `subagents`; states that Claude Code's `model` is ignored and that unknown fields are ignored. Decision: Kimi strips `effort` (`KIMI_DROPPED_AGENT_KEYS` in `scripts/lib/integrations/_kimi_native.py`) because the page does not document it, and keeps the verbatim `model` line because the page documents ignoring it.
 
 Only discovery/delivery and metadata compatibility are qualified here; no authenticated model call or quality evaluation was run. Phase 3's installer smoke and the terminal parity gate remain required.

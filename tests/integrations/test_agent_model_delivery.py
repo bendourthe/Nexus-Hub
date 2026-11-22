@@ -1,4 +1,4 @@
-"""Claude alias pins must not become invalid model IDs on other hosts."""
+"""Claude-only agent keys (model alias, effort ceiling) must reach Claude alone."""
 
 from __future__ import annotations
 
@@ -10,34 +10,43 @@ import pytest
 import tomllib
 import yaml
 
-from scripts.lib.integrations import get
+from scripts.lib.integrations import get, list_keys
+from scripts.lib.integrations._catalog_adapters import CLAUDE_ONLY_AGENT_KEYS
+from scripts.lib.integrations._kimi_native import KIMI_DROPPED_AGENT_KEYS
 from scripts.lib.integrations.base import InstallContext
 
 
-@pytest.mark.parametrize(
-    "key",
-    [
-        "claude",
-        "codex",
-        "cursor",
-        "opencode",
-        "gemini",
-        "gemini-cli",
-        "qwen",
-        "copilot",
-        "antigravity2",
-    ],
-)
+def _agent_receiving_keys() -> list[str]:
+    """Every registered integration that delivers catalog agents.
+
+    Declared ``agents_subdir`` covers the base mirror; an ``_install_agents``
+    method covers adapters that write agents themselves (Kimi, Copilot).
+    """
+    return sorted(
+        key
+        for key in list_keys()
+        if get(key).config.get("agents_subdir")
+        or callable(getattr(get(key), "_install_agents", None))
+    )
+
+
+AGENT_RECEIVING_KEYS = _agent_receiving_keys()
+
+
+@pytest.mark.parametrize("key", AGENT_RECEIVING_KEYS)
 @pytest.mark.parametrize("scope", ["workspace", "global"])
-def test_catalog_model_alias_is_claude_only(
+def test_claude_only_agent_keys_reach_claude_alone(
     install_ctx: InstallContext, monkeypatch: pytest.MonkeyPatch, key: str, scope: str, fake_tools
 ):
     repo = install_ctx.target_root / "source"
     agents = repo / "catalog/agents"
     agents.mkdir(parents=True)
-    body = "A reasoning-sensitive probe.\n\nmodel: body text must remain\n"
+    body = (
+        "A reasoning-sensitive probe.\n\nmodel: body text must remain\n"
+        "effort: body text must remain\n"
+    )
     (agents / "pinning-probe.md").write_text(
-        "---\nname: pinning-probe\ndescription: Model compatibility probe\nmodel: opus\ntools: Read, Glob\n---\n\n"
+        "---\nname: pinning-probe\ndescription: Model compatibility probe\nmodel: opus\neffort: high\ntools: Read, Glob\n---\n\n"
         + body,
         encoding="utf-8",
     )
@@ -45,6 +54,8 @@ def test_catalog_model_alias_is_claude_only(
     target.mkdir()
     if scope == "global" and key in {"qwen", "copilot"}:
         (target / f".{key}").mkdir()
+    if scope == "global" and key == "nexus-ai":
+        (target / ".nexus" / "sessions").mkdir(parents=True)  # vendor-root evidence
     if scope == "global":
         fake_tools(key)  # v4.14.7: gated platforms need detection evidence
     monkeypatch.setenv("NEXUS_HUB_HOME", str(install_ctx.target_root / "nexus-state"))
@@ -78,8 +89,21 @@ def test_catalog_model_alias_is_claude_only(
         assert meta["description"] == "Model compatibility probe"
     if key == "claude":
         assert meta["model"] == "opus"
-    else:
-        assert "model" not in meta, (key, meta)
+        assert meta["effort"] == "high"
+        return
+    for claude_key in CLAUDE_ONLY_AGENT_KEYS:
+        if key == "kimi" and claude_key not in KIMI_DROPPED_AGENT_KEYS:
+            # Recorded decision: Kimi documents ignoring Claude Code's model.
+            continue
+        assert claude_key not in meta, (key, claude_key, meta)
+
+
+def test_roster_covers_every_agent_receiving_integration():
+    assert {"claude", "kimi", "nexus-ai", "copilot"} <= set(AGENT_RECEIVING_KEYS)
+
+
+def test_kimi_strips_every_claude_only_key_it_does_not_document():
+    assert set(KIMI_DROPPED_AGENT_KEYS) == set(CLAUDE_ONLY_AGENT_KEYS) - {"model"}
 
 
 def test_session_default_is_still_opus():
