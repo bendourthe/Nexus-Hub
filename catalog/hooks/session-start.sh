@@ -11,6 +11,7 @@
 #   NEXUS_SESSION_DIGEST_PATH=<path>           override digest path (project-relative)
 #   NEXUS_SESSION_START_MAX_CHARS=<int>        cap digest output (default 8000)
 #   NEXUS_WORKTREE_NOTICE=off                  skip the worktree placement notice
+#   NEXUS_LANE_NOTICE=off                      skip the idle minor-run lane notice
 set -euo pipefail
 
 _HOOK_NAME="session-start"
@@ -108,6 +109,36 @@ if n or m:
   done
 fi
 # --- end worktree placement notice ---
+
+# --- Idle minor-run lane notice (v4.15.6) ---
+# Local and read-only: when a live minor run record belongs to this repository,
+# prints one line naming members with no worker, blocked lanes whose
+# prerequisite shipped, and lanes waiting on the user. SessionStart also fires
+# after compaction, which is when a coordinator most often forgets to refill
+# lanes. Silent when lane_health.py is not installed, on any error, and when no
+# member is idle. NEXUS_LANE_NOTICE=off skips it.
+if [[ "${NEXUS_LANE_NOTICE:-on}" != "off" ]] && command -v git >/dev/null 2>&1 \
+   && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  _ln_script=""
+  for _ln_try in "${NEXUS_LANE_HEALTH:-}" \
+      "$HOME_DIR/src/catalog/skills/workflow/implement-phase/scripts/lane_health.py" \
+      "$HOME/.claude/skills/implement-phase/scripts/lane_health.py"; do
+    if [ -n "$_ln_try" ] && [ -f "$_ln_try" ]; then _ln_script=$_ln_try; break; fi
+  done
+  if [ -n "$_ln_script" ]; then
+    _ln_top=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    for _ln_py in python3 python; do
+      command -v "$_ln_py" >/dev/null 2>&1 || continue
+      _ln_cmd=("$_ln_py" -B "$_ln_script" notice --repo "$_ln_top" --runs-dir "$HOME_DIR/runs")
+      if command -v timeout >/dev/null 2>&1; then _ln_cmd=(timeout 10 "${_ln_cmd[@]}"); fi
+      _ln_line=$("${_ln_cmd[@]}" 2>/dev/null) || _ln_line=""
+      _ln_line=${_ln_line%$'\r'}
+      if [ -n "$_ln_line" ]; then _nexus_msg "$(_nexus_esc "$_ln_line")"; fi
+      break
+    done
+  fi
+fi
+# --- end idle minor-run lane notice ---
 
 # --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
 if [[ "${NEXUS_ENV_FACTS:-off}" == "on" ]]; then

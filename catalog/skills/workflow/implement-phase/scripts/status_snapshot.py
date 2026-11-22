@@ -22,6 +22,11 @@ running items (with a ``started_at`` time, from which elapsed is computed), a
 state or dependency per version, and the next-release condition. It cannot set
 a task count, an elapsed or a remaining value for a version row.
 
+``--record`` (a minor run record path or key) adds ``idle_lanes``: members the run
+signed or amended in that have no worker, blocked lanes whose prerequisite has
+been released, and lanes blocked on a user action for over an hour. They are
+measured by ``lane_health.py`` from the record and its heartbeats, never typed in.
+
 Read-only: runs ``git`` read commands only and writes nothing but stdout.
 """
 
@@ -274,8 +279,31 @@ def running_items(overlay: dict, now: datetime, rate) -> list[dict]:
     return items
 
 
+def idle_lanes(record: str, runs_dir: Path | None, repo: Path, now: datetime) -> list[dict]:
+    """Idle members of one minor run record, from the sibling lane_health.py."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "lane_health", Path(__file__).with_name("lane_health.py")
+    )
+    lane_health = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(lane_health)
+    path = lane_health.resolve_record(record, runs_dir or lane_health.default_runs_dir())
+    data = json.loads(path.read_text(encoding="utf-8"))
+    tags = lane_health.release_tags(repo)
+    lanes = lane_health.light_lanes(data, path, now, tags)
+    return lane_health.classify_idle(
+        lanes, lane_health.record_versions(data), tags.__contains__, now
+    )
+
+
 def build(
-    root: Path, scope: str, overlay: dict, integration: str, now: datetime
+    root: Path,
+    scope: str,
+    overlay: dict,
+    integration: str,
+    now: datetime,
+    idle: list[dict] | None = None,
 ) -> dict:
     for key in ROW_KEYS:
         if any(key in row for row in overlay.get("rows", [])):
@@ -338,6 +366,8 @@ def build(
         "running": running_items(overlay, now, rate),
         "next_release": None,
     }
+    if idle is not None:
+        snapshot["idle_lanes"] = idle
     if pending:
         nxt = pending[0]
         snapshot["next_release"] = {
@@ -362,6 +392,10 @@ def main() -> int:
         help="JSON with goals, decisions, running, states, dependencies",
     )
     parser.add_argument("--integration-branch", default="develop")
+    parser.add_argument(
+        "--record", help="minor run record path or key; adds measured idle lanes"
+    )
+    parser.add_argument("--runs-dir", type=Path, help="default ~/.nexus-hub/runs")
     args = parser.parse_args()
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", newline="\n")
@@ -371,14 +405,21 @@ def main() -> int:
             if args.overlay
             else {}
         )
+        now = datetime.now(timezone.utc)
+        idle = (
+            idle_lanes(args.record, args.runs_dir, args.repo.resolve(), now)
+            if args.record
+            else None
+        )
         snapshot = build(
             args.repo.resolve(),
             args.scope,
             overlay,
             args.integration_branch,
-            datetime.now(timezone.utc),
+            now,
+            idle,
         )
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, SystemExit) as exc:
         print(f"status snapshot unavailable: {exc}", file=sys.stderr)
         return 2
     print(json.dumps(snapshot, indent=1, ensure_ascii=False))

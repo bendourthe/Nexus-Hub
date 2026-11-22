@@ -23,6 +23,8 @@ FILLED, EMPTY = "\u25b0", "\u25b1"
 VALUE_SEP = "   \u00b7   "  # three literal spaces each side, as specified; no entities
 GOALS_ICON, WAIT_ICON, RUN_ICON = "\U0001F3AF", "\U0001F64B", "\U0001F504"
 RELEASE_ICON, PROGRESS_ICON = "\U0001F680", "\U0001F4CA"
+IDLE_ICON = "\u26a0\ufe0f"
+IDLE_KINDS = ("unadmitted", "resumable", "needs-user")
 CELL_MAX = 48
 OPTION_MAX = 72  # decision options must stay readable in full
 # A token with any of these is shown as a code span: hosts (Codex, Claude Code) read
@@ -152,6 +154,14 @@ def validate(data: dict) -> None:
     ids = [d["id"] for d in data["decisions"]]
     if len(set(ids)) != len(ids):
         raise ValueError("decision ids must be unique")
+    idle = data.get("idle_lanes")
+    if idle is not None:
+        if not isinstance(idle, list) or any(
+            not isinstance(i, dict) or i.get("kind") not in IDLE_KINDS
+            or not all(isinstance(i.get(k), str) and i[k].strip() for k in ("member", "detail"))
+            for i in idle
+        ):
+            raise ValueError("idle_lanes items require member, detail and a known kind")
 
 
 def progress_parts(done: int | None, total: int | None) -> tuple[str, str]:
@@ -220,6 +230,7 @@ def render(data: dict, mode: str) -> str:
     parts = ["## Progress Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
              f"### {PROGRESS_ICON} Version progress",
              table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
+             *idle_parts(data, full=True),
              "---", f"### {GOALS_ICON} Goals",
              table(("Goal", "Scope", "Done when", "State"),
                    [[cell(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]),
@@ -239,6 +250,20 @@ def render(data: dict, mode: str) -> str:
         parts.append(table(("Item", "Progress", "Tasks", "State", "Elapsed", "Remaining"), run_rows))
     parts.append(f"*Source: {text(data['source'], 100)}*")
     return "\n\n".join(parts) + "\n"
+
+
+def idle_parts(data: dict, full: bool) -> list[str]:
+    """Idle lanes warning: members with no worker, or blocked lanes that can move; empty when none."""
+    idle = data.get("idle_lanes") or []
+    if not idle:
+        return []
+    head = ["---", f"### {IDLE_ICON} Idle lanes",
+            f"{len(idle)} {'member is' if len(idle) == 1 else 'members are'} idle: dispatch eligible "
+            "members (implement-phase runbook, Refill available slots)."]
+    if full:
+        return [*head, table(("Member", "Kind", "Detail"),
+                             [[cell(i["member"]), cell(i["kind"]), cell(i["detail"])] for i in idle])]
+    return [*head, "\n".join(f"- {text(i['member'])} ({text(i['kind'])}): {text(i['detail'])}" for i in idle)]
 
 
 def decision_parts(decision: dict, with_detail: bool) -> list[str]:
@@ -276,6 +301,7 @@ def _compact(data: dict, bar: str, tasks: str, released: str) -> str:
     decisions = "\n\n".join("\n\n".join(decision_parts(d, with_detail=False)) for d in data["decisions"]) or "No decisions waiting."
     running = "\n".join(_running_bullet(r) for r in data["running"]) or "Nothing running."
     parts = ["## Progress Update", release_table(data, bar, tasks, released),
+             *idle_parts(data, full=False),
              "---", f"### {GOALS_ICON} Goals", goals,
              "---", f"### {WAIT_ICON} Decisions waiting", decisions,
              "---", f"### {RUN_ICON} Running", running,

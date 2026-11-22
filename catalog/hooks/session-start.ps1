@@ -15,6 +15,7 @@
       $env:NEXUS_SESSION_DIGEST_PATH = '<path>'       override digest path (project-relative)
       $env:NEXUS_SESSION_START_MAX_CHARS = '<int>'    cap digest output (default 8000)
       $env:NEXUS_WORKTREE_NOTICE = 'off'              skip the worktree placement notice
+      $env:NEXUS_LANE_NOTICE = 'off'                  skip the idle minor-run lane notice
 #>
 
 $ErrorActionPreference = "Continue"
@@ -144,6 +145,51 @@ if ($inRepo -and ($env:NEXUS_WORKTREE_NOTICE -ne "off") -and (Test-Path -Literal
     }
 }
 # --- end worktree placement notice ---
+
+# --- Idle minor-run lane notice (v4.15.6) ---
+# Local and read-only: when a live minor run record belongs to this repository,
+# prints one line naming members with no worker, blocked lanes whose
+# prerequisite shipped, and lanes waiting on the user. SessionStart also fires
+# after compaction. Silent when lane_health.py is not installed, on any error,
+# and when no member is idle. $env:NEXUS_LANE_NOTICE = 'off' skips it.
+if ($inRepo -and ($env:NEXUS_LANE_NOTICE -ne "off")) {
+    $lnScript = $null
+    foreach ($lnTry in @($env:NEXUS_LANE_HEALTH,
+            (Join-Path $homeDir "src/catalog/skills/workflow/implement-phase/scripts/lane_health.py"),
+            (Join-Path $userHome ".claude/skills/implement-phase/scripts/lane_health.py"))) {
+        if ($lnTry -and (Test-Path -LiteralPath $lnTry -PathType Leaf)) { $lnScript = $lnTry; break }
+    }
+    $lnTop = (git rev-parse --show-toplevel 2>$null)
+    if ($lnScript -and $lnTop) {
+        foreach ($lnPython in @("python3", "python")) {
+            $lnOut = ""
+            try {
+                $lnPsi = New-Object System.Diagnostics.ProcessStartInfo
+                $lnPsi.FileName = $lnPython
+                $lnPsi.Arguments = '-B "' + $lnScript + '" notice --repo "' + $lnTop + '" --runs-dir "' + (Join-Path $homeDir "runs") + '"'
+                $lnPsi.UseShellExecute = $false
+                $lnPsi.CreateNoWindow = $true
+                $lnPsi.RedirectStandardOutput = $true
+                $lnPsi.RedirectStandardError = $true
+                $lnPsi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+                $lnPsi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+                $lnProc = [System.Diagnostics.Process]::Start($lnPsi)
+                $lnOutTask = $lnProc.StandardOutput.ReadToEndAsync()
+                $null = $lnProc.StandardError.ReadToEndAsync()
+                if ($lnProc.WaitForExit(10000)) {
+                    if ($lnProc.ExitCode -ne 0) { continue }
+                    $lnOut = $lnOutTask.Result
+                } else {
+                    try { $lnProc.Kill() } catch { }
+                }
+            } catch { continue }
+            $lnLine = ([string]$lnOut).Trim()
+            if ($lnLine) { Write-NexusMessage (ConvertTo-NexusVisible $lnLine) }
+            break
+        }
+    }
+}
+# --- end idle minor-run lane notice ---
 
 # --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
 if ($env:NEXUS_ENV_FACTS -ceq "on") {
