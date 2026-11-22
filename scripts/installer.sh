@@ -3127,6 +3127,15 @@ install_templates() {
         safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
     fi
 
+    # Copy the centralized worktree helper (v4.15.6). `nexus-hub worktree` loads it
+    # from beside the CLI core to resolve, create, list, audit, and migrate linked
+    # worktrees under one configured root. Stdlib-only single .py, so no .ps1 sibling.
+    # Lockstep with the same block in scripts/installer.ps1.
+    local worktrees_source="$repo_root/scripts/nexus_worktrees.py"
+    if [ -f "$worktrees_source" ]; then
+        safe_copy "$worktrees_source" "$scripts_dest/nexus_worktrees.py" true "[OK] Worktree policy helper installed at: $scripts_dest/nexus_worktrees.py"
+    fi
+
     # Copy the supply-chain manifest tooling (v3.10.0). generate_manifest.py
     # writes a SHA-256 MANIFEST.sha256 over the distributed catalog tree at
     # release time; verify_install.py powers `nexus-hub verify`, which recomputes

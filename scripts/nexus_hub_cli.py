@@ -33,6 +33,10 @@ Subcommands:
     nexus-hub org              Connect, synchronize, inspect, or disconnect an
                                organization knowledge bundle from a local directory
                                or user-selected Git remote.
+    nexus-hub worktree         Resolve, create, list, audit, and migrate linked Git
+                               worktrees under one configured root (path, create,
+                               list, audit, migrate). Logic lives in
+                               scripts/nexus_worktrees.py; no outbound call.
     nexus-hub --help           Usage.
 
 The `upgrade` command calls only the project's own GitHub. The opt-in `org
@@ -692,6 +696,29 @@ def cmd_run_plan(argv: list[str]) -> int:
         _eprint("run_plan.py missing. Re-run the Nexus-Hub installer.")
         return 2
     return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
+
+
+def cmd_worktree(argv: list[str]) -> int:
+    """Run `nexus-hub worktree` in-process from the installed nexus_worktrees sibling.
+
+    The helper is loaded by path and registered in sys.modules before it executes, as
+    its dataclasses require. Exit codes pass through: 0 complete, 2 refused before any
+    mutation, 3 partial or cannot verify.
+    """
+    import importlib.util
+
+    helper = Path(__file__).resolve().parent / "nexus_worktrees.py"
+    if not helper.is_file():
+        _eprint("nexus_worktrees.py missing. Re-run the Nexus-Hub installer.")
+        return 2
+    spec = importlib.util.spec_from_file_location("nexus_worktrees", helper)
+    if spec is None or spec.loader is None:
+        _eprint("nexus_worktrees.py could not be loaded. Re-run the Nexus-Hub installer.")
+        return 2
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["nexus_worktrees"] = module
+    spec.loader.exec_module(module)
+    return int(module.main(argv))
 
 
 def cmd_usage(argv: list[str]) -> int:
@@ -1591,6 +1618,9 @@ def build_parser() -> argparse.ArgumentParser:
     # `settings` owns a nested parser, so main() intercepts it before this one.
     sub.add_parser("settings", add_help=False, help="Show the default settings Nexus-Hub manages for each tool and what overrides them.")
     sub.add_parser("usage", add_help=False, help="Inspect usage decisions or record a user-run recovery answer.")
+    # `worktree` owns a nested parser in scripts/nexus_worktrees.py, so main() forwards it
+    # before this parser runs; registered here only so `nexus-hub --help` lists it.
+    sub.add_parser("worktree", add_help=False, help="Resolve, create, list, audit, and migrate linked worktrees under one configured root.")
     return parser
 
 
@@ -1627,6 +1657,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if raw and raw[0] == "run-plan":
         return cmd_run_plan(raw[1:])
+
+    if raw and raw[0] == "worktree":
+        return cmd_worktree(raw[1:])
 
     if raw and raw[0] == "init":
         return cmd_init(raw[1:])

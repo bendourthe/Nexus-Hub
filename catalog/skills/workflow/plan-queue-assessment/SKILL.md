@@ -136,7 +136,7 @@ Ranking produces a recommendation. Acting on it moves files and rewrites referen
 
 ## Minor re-plan analysis
 
-A queue assessment ranks plans one at a time. A minor re-plan analysis reads every member plan of one minor together and asks whether the set itself should change: merged, split, renumbered, or stripped of duplicated work, so that as many plans as possible can run at once. This skill owns that analysis. `/implement vX.Y` runs it before approval today; `/compare` and `/plan` call the same entry point later, so keep the interface stable.
+A queue assessment ranks plans one at a time. A minor re-plan analysis reads every member plan of one minor together and asks whether the set itself should change: merged, split, renumbered, or stripped of duplicated work, so that as many plans as possible can run at once. This skill owns that analysis. `/implement vX.Y` runs it before approval today, and again at every minor-run start and resume as the minor-entry re-plan in `implement-phase-runbook.md` Phase 0c; `/compare` and `/plan` call the same entry point later, so keep the interface stable.
 
 Run the bundled helper against the minor's plans folder. It is read-only, standard-library Python, and writes nothing except the optional JSON file:
 

@@ -183,6 +183,15 @@
             "command": "bash .claude/hooks/attribution-guard.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/worktree-policy.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [

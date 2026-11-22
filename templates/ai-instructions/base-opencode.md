@@ -81,7 +81,8 @@ Use the `docs-layout-refactor` skill for classification, migration, and link-int
 
 ## Branching
 
-- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
+- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See `git-branching-workflow` (branches) and `using-git-worktrees` (`nexus-hub worktree create`).
+- Worktree hygiene: at session start and at each plan's start and end, run `nexus-hub worktree list --repo .`; propose moving misplaced worktrees (user approval and owner acknowledgment, never synthesized), retire merged ones through `cleanup_merged.py`, and report what remains (`using-git-worktrees`).
 
 ## Plan Lifecycle and CI/CD
 
@@ -124,6 +125,7 @@ The user's instructions take precedence over guidelines in a skill. Routine skil
 - Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+- During an implementation run, the closing message is the verbatim `implement-phase/scripts/status_report.py` report (full when you ask a decision); it replaces this summary and any insight boxes. Build it from an up-to-date checkout.
 
 ## Session Handoff
 

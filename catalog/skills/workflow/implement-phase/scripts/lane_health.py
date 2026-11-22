@@ -14,6 +14,19 @@ legacy `<temp>/lanes/<member>-heartbeat.log` (lines `<UTC ISO time> <phase> <sta
 `blocked`, never `stalled`, and the text after the colon is shown as `detail`; a later non-blocked heartbeat clears it.
 A lane is `ready` when its
 heartbeat state is `ready` or only publication/gate tasks remain open; file mtimes of a dirty worktree count as activity.
+
+Two structured blocked states are machine-read: `blocked:waits-merge:<vX.Y.Z>` (resumable
+once that version is tagged or finished) and `blocked:needs-user:<reason>` (needs the user
+now, no threshold). `beat` refuses a malformed structured state. Older free text is still
+accepted: a version it names is treated like waits-merge, and anything else counts as
+needs-user after the threshold.
+
+`check` also lists idle members, which the stalled list cannot see: `unadmitted` (a signed or
+amended member with no worker lane and no release tag), `resumable` (a blocked lane whose
+named prerequisite version is tagged or finished) and `needs-user` (blocked longer than
+`--needs-user-minutes`, default 60, on anything other than an unreleased member).
+`notice --repo <path>` prints one line for the newest live minor record of that repository
+when it has idle members, and nothing otherwise; the session-start hooks call it.
 """
 
 from __future__ import annotations
@@ -28,6 +41,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 DEFAULT_STALE_MINUTES = 30
+DEFAULT_NEEDS_USER_MINUTES = 60
+VERSION_TOKEN_RE = re.compile(r"v\d+\.\d+\.\d+")
+IDLE_KINDS = ("unadmitted", "resumable", "needs-user")
+WAITS_MERGE, NEEDS_USER = "waits-merge:", "needs-user:"
 READY_STATES = {"ready", "implementation-ready"}
 FINISHED_STATES = {"done", "finished"}
 # Open tasks that wait on publication or the whole-plan gate do not make a lane unfinished.
@@ -234,6 +251,111 @@ def inspect_lane(version: str, member: dict, lane_dir: Path, now: datetime,
     return lane
 
 
+def record_versions(data: dict) -> list[str]:
+    """Every member version the record signs or amends in, in record order."""
+    seen: list[str] = []
+    for key in ("members", "minor_amendment_members"):
+        for entry in data.get(key) or []:
+            version = entry.get("version") if isinstance(entry, dict) else entry
+            if isinstance(version, str) and VERSION_TOKEN_RE.fullmatch(version) and version not in seen:
+                seen.append(version)
+    return seen
+
+
+def tag_exists(repo_root: Path | None, version: str) -> bool:
+    return (repo_root is not None and repo_root.is_dir()
+            and _run_git(repo_root, "rev-parse", "-q", "--verify", f"refs/tags/{version}") is not None)
+
+
+def _vkey(version: str) -> tuple[int, ...]:
+    return tuple(int(x) for x in version[1:].split("."))
+
+
+def classify_idle(lanes: list[dict], versions: list[str], shipped, now: datetime,
+                  needs_user_minutes: float = DEFAULT_NEEDS_USER_MINUTES) -> list[dict]:
+    """Idle members; `shipped(version)` says whether that version has a release tag."""
+    by_member = {lane["member"]: lane for lane in lanes}
+
+    def done(version: str) -> bool:
+        return shipped(version) or by_member.get(version, {}).get("state") == "finished"
+
+    idle: list[dict] = []
+    for version in versions:
+        if version not in by_member and not shipped(version):
+            idle.append({"member": version, "kind": "unadmitted",
+                         "detail": "in the minor record with no worker lane"})
+    for lane in lanes:
+        if lane["state"] != "blocked":
+            continue
+        blocker = lane.get("detail") or lane.get("heartbeat_state") or "unnamed blocker"
+        since = parse_time(lane["last_heartbeat"]) if lane.get("last_heartbeat") else None
+        minutes = int((now - since).total_seconds() // 60) if since else lane.get("idle_minutes")
+        if blocker.startswith(NEEDS_USER):
+            waited = f" for {minutes} min" if minutes is not None else ""
+            idle.append({"member": lane["member"], "kind": "needs-user",
+                         "detail": f"{blocker[len(NEEDS_USER):]}{waited}"})
+            continue
+        if blocker.startswith(WAITS_MERGE):
+            named = [blocker[len(WAITS_MERGE):]]
+        else:
+            named = [v for v in VERSION_TOKEN_RE.findall(blocker) if v != lane["member"]]
+        if named and all(done(v) for v in named):
+            idle.append({"member": lane["member"], "kind": "resumable",
+                         "detail": f"{', '.join(named)} released; blocker {blocker} is stale"})
+            continue
+        if named:
+            continue  # waits on an unreleased member, which is not a user action
+        if minutes is not None and minutes >= needs_user_minutes:
+            idle.append({"member": lane["member"], "kind": "needs-user",
+                         "detail": f"blocked {minutes} min on {blocker}"})
+    return sorted(idle, key=lambda item: (_vkey(item["member"]), IDLE_KINDS.index(item["kind"])))
+
+
+def record_repo_root(data: dict) -> Path | None:
+    """The record's repository root, falling back to the implementation controller's root."""
+    controller = data.get("implementation_controller") or {}
+    for value in (data.get("repo_root"), controller.get("repo_root")):
+        if isinstance(value, str) and value and Path(value).is_dir():
+            return Path(value)
+    root = data.get("repo_root")
+    return Path(root) if isinstance(root, str) and root else None
+
+
+def release_tags(repo_root: Path) -> set[str]:
+    return set((_run_git(repo_root, "tag", "-l", "v*") or "").split())
+
+
+def light_lanes(data: dict, record: Path, now: datetime, tags: set[str]) -> list[dict]:
+    """Heartbeat-only lanes for the session-start notice: no worktree git calls, so it stays fast."""
+    lane_dir = record.parent / f"{record.stem}.lanes"
+    lanes = []
+    for version in sorted(find_members(data), key=_vkey):
+        beat = last_heartbeat(lane_dir / f"{version}.heartbeat", version)
+        state_text = beat[2] if beat else ""
+        blocked = state_text.lower().startswith("blocked")
+        state = "finished" if version in tags else "blocked" if blocked else "other"
+        lanes.append({"member": version, "state": state,
+                      "detail": (state_text.partition(":")[2] or None) if blocked else None,
+                      "heartbeat_state": state_text or None,
+                      "last_heartbeat": beat[0].isoformat() if beat else None,
+                      "idle_minutes": int((now - beat[0]).total_seconds() // 60) if beat else None})
+    return lanes
+
+
+def inspect_record(data: dict, record: Path, now: datetime, stale_minutes: float,
+                   needs_user_minutes: float, repo_root: Path | None = None,
+                   legacy_dir: Path | None = None) -> tuple[list[dict], list[dict]]:
+    """Lanes and idle members of one record."""
+    lane_dir = record.parent / f"{record.stem}.lanes"
+    root = repo_root or record_repo_root(data)
+    threshold = timedelta(minutes=stale_minutes)
+    lanes = [inspect_lane(v, m, lane_dir, now, threshold, root, legacy_dir)
+             for v, m in sorted(find_members(data).items())]
+    idle = classify_idle(lanes, record_versions(data), lambda v: tag_exists(root, v), now,
+                         needs_user_minutes)
+    return lanes, idle
+
+
 def resume_instruction(lane: dict) -> str:
     done = lane["last_completed_phase"]
     after = f"after Phase {done} ({lane['last_completed_phase_title']})" if done else "from the first open phase"
@@ -254,16 +376,14 @@ def check(args: argparse.Namespace) -> int:
     except (OSError, ValueError) as exc:
         raise SystemExit(f"lane_health: cannot read {record}: {exc}")
     now = parse_time(args.now) if args.now else datetime.now(timezone.utc)
-    threshold = timedelta(minutes=args.stale_minutes)
-    lane_dir = record.parent / f"{record.stem}.lanes"
-    root = data.get("repo_root")
-    repo_root = Path(root) if isinstance(root, str) and root else None
     legacy_dir = Path(args.legacy_dir) if args.legacy_dir else None
-    lanes = [inspect_lane(v, m, lane_dir, now, threshold, repo_root, legacy_dir)
-             for v, m in sorted(find_members(data).items())]
+    repo_root = Path(args.repo) if args.repo else None
+    lanes, idle_members = inspect_record(data, record, now, args.stale_minutes,
+                                         args.needs_user_minutes, repo_root, legacy_dir)
     report = {"record": record.stem, "checked": now.isoformat(),
               "stale_minutes": args.stale_minutes, "lanes": lanes,
-              "stalled": [lane["member"] for lane in lanes if lane["state"] == "stalled"]}
+              "stalled": [lane["member"] for lane in lanes if lane["state"] == "stalled"],
+              "idle": idle_members}
     if args.json_only:
         print(json.dumps(report, indent=2))
         return 0
@@ -278,7 +398,65 @@ def check(args: argparse.Namespace) -> int:
     for lane in lanes:
         if lane["state"] == "stalled":
             print(f"\nSTALLED {lane['member']}: {lane['resume']}")
+    for item in idle_members:
+        print(f"IDLE {item['member']} {item['kind']}: {item['detail']}")
     print("\n" + json.dumps(report))
+    return 0
+
+
+def _common_dir(path: Path) -> str | None:
+    found = _run_git(path, "rev-parse", "--path-format=absolute", "--git-common-dir")
+    return str(Path(found).resolve()).casefold() if found else None
+
+
+def notice_line(data: dict, idle: list[dict]) -> str:
+    minor = data.get("minor") or data.get("scope") or "run"
+    listed = ", ".join(f"{item['member']} {item['kind']}" for item in idle)
+    noun = "member" if len(idle) == 1 else "members"
+    return (f"Minor {minor}: {len(idle)} idle {noun} ({listed}). Dispatch eligible members "
+            f"(implement-phase runbook, Refill available slots).")
+
+
+def _records(args: argparse.Namespace, runs_dir: Path) -> list[Path]:
+    if args.record:
+        return [resolve_record(args.record, runs_dir)]
+    return sorted((p for p in runs_dir.glob("*.json") if "cleanup" not in p.name),
+                  key=lambda p: p.stat().st_mtime, reverse=True)
+
+
+def _owns(data: dict, want: str) -> bool:
+    controller = (data.get("implementation_controller") or {}).get("git_common_dir")
+    if isinstance(controller, str) and controller and str(Path(controller).resolve()).casefold() == want:
+        return True
+    root = record_repo_root(data)
+    return root is not None and root.is_dir() and _common_dir(root) == want
+
+
+def notice(args: argparse.Namespace) -> int:
+    """One line for the newest live minor record of --repo with idle members; silent otherwise."""
+    try:
+        repo = Path(args.repo)
+        want = _common_dir(repo)
+        if want is None:
+            return 0
+        runs_dir = Path(args.runs_dir) if args.runs_dir else default_runs_dir()
+        now = parse_time(args.now) if args.now else datetime.now(timezone.utc)
+        for path in _records(args, runs_dir):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if (not isinstance(data, dict) or "minor" not in data or data.get("completed")
+                    or data.get("pause") or not _owns(data, want)):
+                continue
+            tags = release_tags(repo)
+            idle = classify_idle(light_lanes(data, path, now, tags), record_versions(data),
+                                 tags.__contains__, now, args.needs_user_minutes)
+            if idle:
+                print(notice_line(data, idle))
+            return 0
+    except (OSError, ValueError, SystemExit):
+        return 0
     return 0
 
 
@@ -288,9 +466,16 @@ def beat(args: argparse.Namespace) -> int:
     lane_dir = record.parent / f"{record.stem}.lanes"
     lane_dir.mkdir(parents=True, exist_ok=True)
     clean = lambda text: re.sub(r"\s+", "-", text.strip()) or "-"  # noqa: E731
+    state = clean(args.state)
+    lowered = state.lower()
+    if lowered.startswith("blocked:" + WAITS_MERGE) and not VERSION_TOKEN_RE.fullmatch(
+            state[len("blocked:" + WAITS_MERGE):]):
+        raise SystemExit("lane_health: blocked:waits-merge needs one version, e.g. blocked:waits-merge:v4.15.5")
+    if lowered.startswith("blocked:" + NEEDS_USER) and len(state) <= len("blocked:" + NEEDS_USER):
+        raise SystemExit("lane_health: blocked:needs-user needs a short reason, e.g. blocked:needs-user:workflow-grant")
     stamp = (parse_time(args.now) if args.now else datetime.now(timezone.utc))
     line = f"{stamp.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} " \
-           f"{clean(args.member)} {clean(args.phase)} {clean(args.state)}\n"
+           f"{clean(args.member)} {clean(args.phase)} {state}\n"
     with open(lane_dir / f"{clean(args.member)}.heartbeat", "a", encoding="utf-8", newline="\n") as fh:
         fh.write(line)
     return 0
@@ -299,23 +484,31 @@ def beat(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd")
-    for name in ("check", "beat"):
+    for name in ("check", "beat", "notice"):
         p = sub.add_parser(name)
         p.add_argument("--record", help="run record path or key (default: newest minor record)")
         p.add_argument("--runs-dir", help="default ~/.nexus-hub/runs")
         p.add_argument("--now", help="override the clock (ISO time), for tests")
+        if name in ("check", "notice"):
+            p.add_argument("--needs-user-minutes", type=float, default=DEFAULT_NEEDS_USER_MINUTES)
         if name == "check":
             p.add_argument("--legacy-dir", help="legacy heartbeat folder, default <temp>/lanes")
             p.add_argument("--stale-minutes", type=float, default=DEFAULT_STALE_MINUTES)
             p.add_argument("--json", dest="json_only", action="store_true", help="JSON only")
+            p.add_argument("--repo", help="repository for tag lookups (default: the record's root)")
+        elif name == "notice":
+            p.add_argument("--repo", required=True, help="repository whose live minor record to read")
         else:
             p.add_argument("--member", required=True)
             p.add_argument("--phase", required=True, help="e.g. start, phase-2, wait")
-            p.add_argument("--state", required=True, help="e.g. started, ended, waiting, ready")
+            p.add_argument("--state", required=True,
+                           help="e.g. started, ended, ready, blocked:waits-merge:v4.15.5, blocked:needs-user:<reason>")
     raw = list(sys.argv[1:] if argv is None else argv)
-    if not raw or raw[0] not in ("check", "beat", "-h", "--help"):
+    if not raw or raw[0] not in ("check", "beat", "notice", "-h", "--help"):
         raw.insert(0, "check")
     args = parser.parse_args(raw)
+    if args.cmd == "notice":
+        return notice(args)
     return beat(args) if args.cmd == "beat" else check(args)
 
 
