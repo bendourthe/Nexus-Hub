@@ -6240,6 +6240,59 @@ def render_detail(ck: ModuleType, args: argparse.Namespace, *, status_mode: bool
     return ck.EXIT_COMPLETE if status_mode and data["verdict"] == "INCOMPLETE: detail.local-only" else data["exit"]
 
 
+def _lane_health() -> ModuleType | None:
+    """The idle classifier in implement-phase's lane_health.py, or None when it is not installed.
+
+    Reused, never copied: the checker runs from the repository (`scripts/`) or from the
+    installed `~/.nexus-hub/scripts/`, and the skill script sits beside either tree.
+    """
+    import importlib.util
+
+    here = Path(__file__).resolve()
+    relative = Path("catalog/skills/workflow/implement-phase/scripts/lane_health.py")
+    for candidate in (os.environ.get("NEXUS_LANE_HEALTH"), here.parents[1] / relative,
+                      here.parents[1] / "src" / relative,
+                      Path.home() / ".claude/skills/implement-phase/scripts/lane_health.py"):
+        if not candidate or not Path(candidate).is_file():
+            continue
+        spec = importlib.util.spec_from_file_location("nexus_lane_health", candidate)
+        if spec is None or spec.loader is None:
+            continue
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+        except (OSError, SyntaxError, ImportError):
+            continue
+        if all(hasattr(module, name) for name in ("classify_idle", "light_lanes", "record_versions", "release_tags")):
+            return module
+    return None
+
+
+def action_lines(idle: list[dict]) -> list[str]:
+    """`ACTION:` lines for idle members: one dispatch line, one decision line per needs-user lane."""
+    dispatch = [item["member"] for item in idle if item["kind"] in ("resumable", "unadmitted")]
+    lines = [f"ACTION: dispatch-required ({', '.join(dispatch)})"] if dispatch else []
+    lines += [f"ACTION: decision-required ({item['member']}: {item['detail']})"
+              for item in idle if item["kind"] == "needs-user"]
+    return lines
+
+
+def idle_actions(ck: ModuleType, rctx: RepoContext, token: str, record: dict | None) -> list[str]:
+    """Action lines from the shared idle classifier; empty when it is unavailable or nothing is idle."""
+    lane_health = _lane_health()
+    if lane_health is None or record is None:
+        return []
+    try:
+        path = getattr(record, "record_path", None) or record_file(ck, rctx, token)
+        now = dt.datetime.now(dt.timezone.utc)
+        tags = lane_health.release_tags(rctx.root)
+        idle = lane_health.classify_idle(lane_health.light_lanes(record, Path(path), now, tags),
+                                         lane_health.record_versions(record), tags.__contains__, now)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, ck.MinorConflict):
+        return []
+    return action_lines(idle)
+
+
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     if getattr(args, "detail", False):
         return render_detail(ck, args)
@@ -6247,6 +6300,8 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     verdict = check_minor(ck, rctx, args.minor, args.session)
     for notice in [*verdict.notices, *rctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
+    # Additive: the verdict line, exit code and predicate lines are unchanged; actions come last.
+    actions = idle_actions(ck, rctx, args.minor, verdict.record) if verdict.line.startswith("INCOMPLETE") else []
     print(verdict.line)
     if args.json:
         head = rctx._git_out("rev-parse", "HEAD") or None
@@ -6260,6 +6315,7 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
                 m.version: {"status": m.status, "gate": m.gate, "predicates": dict(m.lines)} for m in verdict.members
             },
             "minor": dict(verdict.minor),
+            "actions": actions,
         }
         print(json.dumps(body, sort_keys=True))
         return verdict.code
@@ -6270,6 +6326,8 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
             print(f"{member.version}:{pid} {status}")
     for pid, status in verdict.minor:
         print(f"{pid} {status}")
+    for line in actions:
+        print(line)
     return verdict.code
 
 
