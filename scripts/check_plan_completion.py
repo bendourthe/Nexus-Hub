@@ -329,6 +329,38 @@ class RepoContext:
         return _runs_dir() / f"{record_key(self.root, self.key_repo, scope)}.json"
 
 
+_ARCHIVED_PLAN_RE = re.compile(r"docs/archives/v(\d+)/v\1\.(\d+)/(plans/[^/]+\.md)\Z")
+
+
+def archived_plan_origins(rel: str) -> list[str]:
+    """Every active-tree path an archived plan at `rel` can have been moved from."""
+    found = _ARCHIVED_PLAN_RE.match(rel)
+    if not found:
+        return []
+    major, minor, rest = found.groups()
+    return [tree.format(M=major, m=minor) + "/" + rest for tree in _minor_module().ACTIVE_TREES]
+
+
+# How many commits of an archived plan's former path are searched for its approved text.
+ARCHIVED_PLAN_HISTORY_LIMIT = 200
+
+
+def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree: str) -> str:
+    """`text` read at `rel` with every relative link replaced by its repository target and
+    the archive tree mapped back to its active tree, so the move's link repairs vanish."""
+    import posixpath
+    from minor_close import rewrite_links, rewrite_mentions
+
+    def mapper(path: str) -> str:
+        if path == archive_tree or path.startswith(archive_tree + "/"):
+            return origin_tree + path[len(archive_tree):]
+        return path
+
+    text, _links = rewrite_links(text, posixpath.dirname(rel), "", mapper)
+    text, _mentions = rewrite_mentions(text, archive_tree, origin_tree, markdown=True)
+    return text
+
+
 class Context(RepoContext):
     def __init__(self, plan_arg: str, budget: Budget) -> None:
         plan = Path(plan_arg).expanduser()
@@ -364,8 +396,38 @@ class Context(RepoContext):
         return plan_hash_text(self.text)
 
     def plan_hash_matches(self, frozen: object) -> bool:
-        """True when a frozen hash equals the current plan under either hash rule."""
-        return frozen in (plan_hash_text(self.text), legacy_plan_hash_text(self.text))
+        """True when a frozen hash equals the current plan under either hash rule.
+
+        An archived plan also matches when its approved text, found by that hash in the
+        history of its former active-tree path, differs from it only in relative links and
+        tree mentions that resolve to the same targets once the archive tree is mapped back;
+        any other edit still fails.
+        """
+        if frozen in (plan_hash_text(self.text), legacy_plan_hash_text(self.text)):
+            return True
+        for origin in archived_plan_origins(self.rel):
+            approved = self._approved_text_at(origin, frozen)
+            if approved is None:
+                continue
+            rest = self.rel.split("/", 4)[4]
+            archive_tree, origin_tree = self.rel[: -len(rest) - 1], origin[: -len(rest) - 1]
+            current = archive_normalized_plan(self.text, self.rel, archive_tree, origin_tree)
+            before = archive_normalized_plan(approved, origin, archive_tree, origin_tree)
+            if plan_hash_text(current) == plan_hash_text(before):
+                return True
+        return False
+
+    def _approved_text_at(self, origin: str, frozen: object) -> str | None:
+        """The committed text at `origin` whose plan hash is `frozen`, newest first, or None."""
+        rc, out = self.run([self.git, "-C", str(self.root), "log", "--format=%H",
+                            f"-n{ARCHIVED_PLAN_HISTORY_LIMIT}", "--", origin])
+        if rc != 0:
+            return None
+        for commit in out.split():
+            rc, text = self.run([self.git, "-C", str(self.root), "show", f"{commit}:{origin}"])
+            if rc == 0 and frozen in (plan_hash_text(text), legacy_plan_hash_text(text)):
+                return text
+        return None
 
     def record_paths(self) -> list[Path]:
         """[the `plan:<path>` key, the pre-v4.13.6 key], in lookup order."""
@@ -3972,12 +4034,90 @@ def build_parser() -> argparse.ArgumentParser:
     )
     retire.add_argument("--text", help="when given, must equal the pasted line")
     retire.set_defaults(func=cmd_record_retire)
+    rekey = record.add_parser(
+        "rekey", help="move an archived plan's record off its removed worktree onto the current key"
+    )
+    rekey.add_argument("plan", help="the archived plan under docs/archives/")
+    rekey.add_argument("--session", required=True, help="the session id the record is bound to")
+    rekey.add_argument("--apply", action="store_true", help="move the record; without it, only report")
+    rekey.set_defaults(func=cmd_record_rekey)
     return parser
 
 
 def _add_minor_scope(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--minor", help="a minor scope token such as v0.5 (schema-2 record)")
     parser.add_argument("--repo", default=".", help="with --minor: a path inside the repository")
+
+
+def cmd_record_rekey(args: argparse.Namespace) -> int:
+    """Move one archived plan's record off a removed worktree onto the plan's current key.
+
+    Only the unsigned `repo_root` and `plan` change, so the signature and every approval
+    stay as approved. Refused unless exactly one record of this repository and session
+    names a former active-tree path of the archived plan, its root no longer exists, and
+    it verifies (signature, and the archive-aware plan hash). Dry run unless `--apply`.
+    """
+    ctx = Context(args.plan, Budget(BUDGET_SECONDS))
+    origins = archived_plan_origins(ctx.rel)
+    if not origins:
+        print("REFUSED: plan-not-archived")
+        return EXIT_BLOCKED
+    target = ctx.record_paths()[0]
+    if any(path.is_file() for path in ctx.record_paths()):
+        print("REFUSED: record-present")
+        return EXIT_BLOCKED
+    runs = _runs_dir()
+    candidates: list[tuple[Path, dict]] = []
+    for path in sorted(runs.glob("*.json")) if runs.is_dir() else []:
+        if path.name.endswith(".gate.json"):
+            continue
+        record = _read_record_json(ctx, path)
+        if (
+            isinstance(record, dict)
+            and record.get("schema") == SCHEMA
+            and record.get("session_id") == args.session
+            and str(record.get("repo") or "").lower() == ctx.key_repo.lower()
+            and record.get("plan") in origins
+        ):
+            candidates.append((path, record))
+    if len(candidates) != 1:
+        print("REFUSED: " + ("record-missing" if not candidates else "record-ambiguous"))
+        return EXIT_BLOCKED
+    source, record = candidates[0]
+    old_root = str(record.get("repo_root") or "")
+    if not old_root or old_root == str(ctx.root) or Path(old_root).exists():
+        print("REFUSED: record-root-present")
+        return EXIT_BLOCKED
+    key = _secret(create=False)
+    signed = key is not None and hmac.compare_digest(
+        str(record.get("approvals_hmac", "")),
+        _sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL),
+    )
+    if not signed or not ctx.plan_hash_matches(record.get("plan_sha256")):
+        print(TAMPERED[0])
+        return TAMPERED[1]
+    print(f"REKEY {source.name} -> {target.name}")
+    print(f"repo_root {old_root} -> {ctx.root}")
+    print(f"plan {record.get('plan')} -> {ctx.rel}")
+    if not args.apply:
+        print("DRY RUN: rerun with --apply to move the record")
+        return 0
+    moved = dict(record)
+    moved["repo_root"] = str(ctx.root)
+    moved["plan"] = ctx.rel
+    moved.setdefault("rekeys", []).append(
+        {"at": _now(), "from_repo_root": old_root, "from_plan": record.get("plan"), "from_key": source.stem}
+    )
+    _write_record(target, moved)
+    if not hmac.compare_digest(str(moved.get("approvals_hmac", "")), _sign(
+        moved, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL,
+    )):
+        target.unlink()
+        print(TAMPERED[0])
+        return TAMPERED[1]
+    source.unlink()
+    print("REKEYED")
+    return 0
 
 
 def cmd_record_path(args: argparse.Namespace) -> int:
