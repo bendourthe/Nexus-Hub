@@ -165,6 +165,29 @@ def test_reference_inventory_invalid_supported_input_is_incomplete(tmp_path: Pat
     assert (tmp_path / "live.json").read_bytes() == raw
 
 
+def test_reference_inventory_unparseable_historical_capture_is_scanned_as_text(tmp_path: Path) -> None:
+    rel = "docs/archives/v0/v0.4/development/evidence/capture.json"
+    raw = b'PASS detector run\n{"source": "docs/releases/v0/v0.5/plan.md"}\n'
+    (tmp_path / rel).parent.mkdir(parents=True)
+    (tmp_path / rel).write_bytes(raw)
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    result = mc.reference_inventory(tmp_path, [rel], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["blocking"] == 0
+    assert [(f["line"], f["category"]) for f in result["findings"]] == [(2, "historical")]
+    assert (tmp_path / rel).read_bytes() == raw
+    (tmp_path / rel).write_bytes(b"\xff")
+    assert mc.reference_inventory(tmp_path, [rel], moves)["incomplete"]
+
+
+def test_reference_inventory_binary_file_without_a_mention_is_clear(tmp_path: Path) -> None:
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    (tmp_path / "fixture.txt").write_bytes(b"\xb4YU\x00\xff\xfe")
+    result = mc.reference_inventory(tmp_path, ["fixture.txt"], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["findings"] == []
+    (tmp_path / "fixture.txt").write_bytes(b"\xff docs/releases/v0/v0.5/plan.md")
+    assert mc.reference_inventory(tmp_path, ["fixture.txt"], moves)["incomplete"]
+
+
 def test_reference_inventory_unreadable_input_cannot_authorize_move(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     target = tmp_path / "live.json"
     target.write_text("{}", encoding="utf-8")
