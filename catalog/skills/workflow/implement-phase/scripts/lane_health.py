@@ -15,6 +15,12 @@ legacy `<temp>/lanes/<member>-heartbeat.log` (lines `<UTC ISO time> <phase> <sta
 A lane is `ready` when its
 heartbeat state is `ready` or only publication/gate tasks remain open; file mtimes of a dirty worktree count as activity.
 
+Two structured blocked states are machine-read: `blocked:waits-merge:<vX.Y.Z>` (resumable
+once that version is tagged or finished) and `blocked:needs-user:<reason>` (needs the user
+now, no threshold). `beat` refuses a malformed structured state. Older free text is still
+accepted: a version it names is treated like waits-merge, and anything else counts as
+needs-user after the threshold.
+
 `check` also lists idle members, which the stalled list cannot see: `unadmitted` (a signed or
 amended member with no worker lane and no release tag), `resumable` (a blocked lane whose
 named prerequisite version is tagged or finished) and `needs-user` (blocked longer than
@@ -38,6 +44,7 @@ DEFAULT_STALE_MINUTES = 30
 DEFAULT_NEEDS_USER_MINUTES = 60
 VERSION_TOKEN_RE = re.compile(r"v\d+\.\d+\.\d+")
 IDLE_KINDS = ("unadmitted", "resumable", "needs-user")
+WAITS_MERGE, NEEDS_USER = "waits-merge:", "needs-user:"
 READY_STATES = {"ready", "implementation-ready"}
 FINISHED_STATES = {"done", "finished"}
 # Open tasks that wait on publication or the whole-plan gate do not make a lane unfinished.
@@ -281,15 +288,23 @@ def classify_idle(lanes: list[dict], versions: list[str], shipped, now: datetime
         if lane["state"] != "blocked":
             continue
         blocker = lane.get("detail") or lane.get("heartbeat_state") or "unnamed blocker"
-        named = [v for v in VERSION_TOKEN_RE.findall(blocker) if v != lane["member"]]
+        since = parse_time(lane["last_heartbeat"]) if lane.get("last_heartbeat") else None
+        minutes = int((now - since).total_seconds() // 60) if since else lane.get("idle_minutes")
+        if blocker.startswith(NEEDS_USER):
+            waited = f" for {minutes} min" if minutes is not None else ""
+            idle.append({"member": lane["member"], "kind": "needs-user",
+                         "detail": f"{blocker[len(NEEDS_USER):]}{waited}"})
+            continue
+        if blocker.startswith(WAITS_MERGE):
+            named = [blocker[len(WAITS_MERGE):]]
+        else:
+            named = [v for v in VERSION_TOKEN_RE.findall(blocker) if v != lane["member"]]
         if named and all(done(v) for v in named):
             idle.append({"member": lane["member"], "kind": "resumable",
                          "detail": f"{', '.join(named)} released; blocker {blocker} is stale"})
             continue
         if named:
             continue  # waits on an unreleased member, which is not a user action
-        since = parse_time(lane["last_heartbeat"]) if lane.get("last_heartbeat") else None
-        minutes = int((now - since).total_seconds() // 60) if since else lane.get("idle_minutes")
         if minutes is not None and minutes >= needs_user_minutes:
             idle.append({"member": lane["member"], "kind": "needs-user",
                          "detail": f"blocked {minutes} min on {blocker}"})
@@ -451,9 +466,16 @@ def beat(args: argparse.Namespace) -> int:
     lane_dir = record.parent / f"{record.stem}.lanes"
     lane_dir.mkdir(parents=True, exist_ok=True)
     clean = lambda text: re.sub(r"\s+", "-", text.strip()) or "-"  # noqa: E731
+    state = clean(args.state)
+    lowered = state.lower()
+    if lowered.startswith("blocked:" + WAITS_MERGE) and not VERSION_TOKEN_RE.fullmatch(
+            state[len("blocked:" + WAITS_MERGE):]):
+        raise SystemExit("lane_health: blocked:waits-merge needs one version, e.g. blocked:waits-merge:v4.15.5")
+    if lowered.startswith("blocked:" + NEEDS_USER) and len(state) <= len("blocked:" + NEEDS_USER):
+        raise SystemExit("lane_health: blocked:needs-user needs a short reason, e.g. blocked:needs-user:workflow-grant")
     stamp = (parse_time(args.now) if args.now else datetime.now(timezone.utc))
     line = f"{stamp.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} " \
-           f"{clean(args.member)} {clean(args.phase)} {clean(args.state)}\n"
+           f"{clean(args.member)} {clean(args.phase)} {state}\n"
     with open(lane_dir / f"{clean(args.member)}.heartbeat", "a", encoding="utf-8", newline="\n") as fh:
         fh.write(line)
     return 0
@@ -479,7 +501,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             p.add_argument("--member", required=True)
             p.add_argument("--phase", required=True, help="e.g. start, phase-2, wait")
-            p.add_argument("--state", required=True, help="e.g. started, ended, waiting, ready")
+            p.add_argument("--state", required=True,
+                           help="e.g. started, ended, ready, blocked:waits-merge:v4.15.5, blocked:needs-user:<reason>")
     raw = list(sys.argv[1:] if argv is None else argv)
     if not raw or raw[0] not in ("check", "beat", "notice", "-h", "--help"):
         raw.insert(0, "check")

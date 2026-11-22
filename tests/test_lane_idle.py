@@ -176,3 +176,40 @@ def test_report_shows_idle_section_only_when_present():
     data["idle_lanes"] = [{"member": "v1.0.2", "kind": "bogus", "detail": "x"}]
     with pytest.raises(ValueError):
         report.render(data, "full")
+
+
+def test_structured_waits_merge_is_read_directly(lh):
+    lanes = [lane("v1.0.3", "blocked", "waits-merge:v1.0.1")]
+    assert lh.classify_idle(lanes, ["v1.0.3"], {"v1.0.1"}.__contains__, NOW)[0]["kind"] == "resumable"
+    assert lh.classify_idle(lanes, ["v1.0.3"], lambda v: False, NOW) == []
+
+
+def test_structured_needs_user_is_reported_without_waiting(lh):
+    fresh = [lane("v1.0.4", "blocked", "needs-user:workflow-grant", beat="2026-11-18T11:59:00+00:00")]
+    idle = lh.classify_idle(fresh, ["v1.0.4"], lambda v: False, NOW)
+    assert idle == [{"member": "v1.0.4", "kind": "needs-user", "detail": "workflow-grant for 1 min"}]
+
+
+def test_free_text_blocker_needs_user_only_after_threshold(lh):
+    fresh = [lane("v1.0.5", "blocked", "coordinator-deltas", beat="2026-11-18T11:30:00+00:00")]
+    assert lh.classify_idle(fresh, ["v1.0.5"], lambda v: False, NOW) == []
+
+
+@pytest.mark.parametrize("state, ok", [
+    ("blocked:waits-merge:v4.15.5", True), ("blocked:needs-user:workflow-grant", True),
+    ("blocked:coordinator-deltas", True), ("blocked:waits-merge:soon", False),
+    ("blocked:needs-user:", False),
+])
+def test_beat_validates_structured_blocked_states(lh, tmp_path, state, ok):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    (runs / "rec.json").write_text(json.dumps({"members": []}), encoding="utf-8")
+    argv = ["beat", "--record", "rec", "--runs-dir", str(runs), "--member", "v1.0.1",
+            "--phase", "wait", "--state", state]
+    if ok:
+        assert lh.main(argv) == 0
+        assert (runs / "rec.lanes" / "v1.0.1.heartbeat").read_text(encoding="utf-8").split()[-1] == state
+    else:
+        with pytest.raises(SystemExit):
+            lh.main(argv)
+        assert not (runs / "rec.lanes" / "v1.0.1.heartbeat").exists()
