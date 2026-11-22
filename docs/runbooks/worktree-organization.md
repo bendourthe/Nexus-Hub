@@ -70,3 +70,36 @@ The proposal lists files that embed the old absolute path: editor settings (`.vs
 ### Signed runs
 
 A worktree named by a live signed run record finishes in place. When the run reaches its valid terminal result, propose again and move or retire it. No record or signature is edited. A new owner-specific relocation adapter is out of scope.
+
+## Agent Notices
+
+Two copy-ready notices for the agents and people who work in moved worktrees. Fill the bracketed values from the reviewed manifest and its notice file. Never send a notice that claims a move before apply verified it.
+
+### Before a move (proposed)
+
+```text
+Worktree move proposed for <old path>.
+New location after approval: <root>/<repository identity>/<name>
+(find it with: nexus-hub worktree path --repo <main checkout> --name <name> --json).
+Policy: docs/runbooks/worktree-organization.md and the using-git-worktrees skill.
+What to do now:
+1. Commit or save your work. Uncommitted changes keep the worktree in place as an exception.
+2. Close editors, terminals and agents opened in the old path.
+3. Acknowledge as the owner:
+   nexus-hub worktree migrate --ack --manifest <manifest> --expect-sha256 <digest> --item <id> --token <token> --checkpoint-note "<what you saved>"
+Nothing moves without the owner acknowledgment and the user's approval.
+```
+
+### After a move (adopted)
+
+```text
+Worktree moved: <old path> -> <new path>.
+Branch, HEAD, index and files were verified after the move (receipt state: verified).
+Find any worktree's location with: nexus-hub worktree list --repo <main checkout> --json
+(fields path, canonical_destination, in_policy).
+Reopen your editor and shell at the new path. Recreate a virtual environment created inside the old folder.
+Do not recreate the old path. Create new worktrees only with:
+nexus-hub worktree create --repo <main checkout> --branch <branch> --base <commit> --name <name>
+```
+
+A worktree that stayed in place (uncommitted changes, a live signed run, a lock, another repository) keeps its old path until its owner resolves it; `list` shows it with `in_policy: false`.

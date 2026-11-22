@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 112
+**Open items**: 115
 
 ## v4.15.0
 
@@ -3771,3 +3771,53 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 |---|---|---|---|
 | DF-62 | Hook registration delivered after integration | v4.15.5 | Pull request #704 (merged as `d0296ed75`) registers `stuck-turn-notice` on `PostToolUse` and `PostToolUseFailure` in `catalog/hooks/settings.json`; its installer test proves two installs register each entry once. Hosted run `44473547702` passed. |
 | WN-44 | Qwen and Gemini CLI drop PostToolUseFailure | v4.15.5 | T015 fix, pull request #705 (merged as `1b8d33d09`): the Qwen spec maps `PostToolUseFailure` on `^(run_shell_command)$`. Gemini CLI has no such event and reports failures inside `AfterTool`, so its skip is correct. An end-to-end install drove the installed hook with Qwen failure payloads; the third repeat printed one notice. The Windows Qwen and Copilot remainder is WN-49. |
+
+## v4.15.6
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-64: Cross-repository and second-machine worktree campaign not yet run
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: the user limited this campaign to Nexus-Hub ("Nexus-Hub only"); 20 worktrees of other repositories on this machine are `other-repository-deferred` exceptions, and the second machine has not been audited.
+
+**Suggested next step**: after release, run `nexus-hub worktree audit` with a time budget per machine, propose one manifest per repository, and apply under the same approval and owner-acknowledgment steps.
+
+#### DF-65: Full-machine audit did not finish within budget
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: the machine audit found 9,828 repositories (9,778 test fixtures) and a proposal over the whole report ran about an hour without finishing; the campaign used a derived inventory of 5 repositories and 117 worktrees. 35 permission-denied folders and two excluded volumes were not scanned.
+
+**Suggested next step**: exclude temporary and fixture trees during discovery itself, then re-run the full audit and compare against the derived inventory.
+
+#### WN-50: cleanup_merged keeps clean detached worktrees already on develop
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: `cleanup_merged.py --dry-run` printed `KEEP ... detached` for `develop-install-2ef94ca` and `develop-install-8bc588e`, and `head-mismatch` for `check-minor-budget-qualified`, so leftover install-test worktrees accumulate with no supported removal path.
+
+**Suggested next step**: decide (decision record) whether a clean, idle, detached worktree whose HEAD is reachable from the integration branch becomes a removal candidate, and extend the executor with that check.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
