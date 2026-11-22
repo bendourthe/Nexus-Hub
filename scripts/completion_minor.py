@@ -7379,6 +7379,22 @@ def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> 
     return []
 
 
+def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree: str) -> str:
+    """`text` read at `rel` with every relative link replaced by its repository target and
+    the archive tree mapped back to its active tree, so the move's link repairs vanish."""
+    import posixpath
+    from minor_close import rewrite_links, rewrite_mentions
+
+    def mapper(path: str) -> str:
+        if path == archive_tree or path.startswith(archive_tree + "/"):
+            return origin_tree + path[len(archive_tree):]
+        return path
+
+    text, _links = rewrite_links(text, posixpath.dirname(rel), "", mapper)
+    text, _mentions = rewrite_mentions(text, archive_tree, origin_tree, markdown=True)
+    return text
+
+
 def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
     """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
     version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches.

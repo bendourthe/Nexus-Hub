@@ -345,22 +345,6 @@ def archived_plan_origins(rel: str) -> list[str]:
 ARCHIVED_PLAN_HISTORY_LIMIT = 200
 
 
-def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree: str) -> str:
-    """`text` read at `rel` with every relative link replaced by its repository target and
-    the archive tree mapped back to its active tree, so the move's link repairs vanish."""
-    import posixpath
-    from minor_close import rewrite_links, rewrite_mentions
-
-    def mapper(path: str) -> str:
-        if path == archive_tree or path.startswith(archive_tree + "/"):
-            return origin_tree + path[len(archive_tree):]
-        return path
-
-    text, _links = rewrite_links(text, posixpath.dirname(rel), "", mapper)
-    text, _mentions = rewrite_mentions(text, archive_tree, origin_tree, markdown=True)
-    return text
-
-
 class Context(RepoContext):
     def __init__(self, plan_arg: str, budget: Budget) -> None:
         plan = Path(plan_arg).expanduser()
@@ -411,8 +395,8 @@ class Context(RepoContext):
                 continue
             rest = self.rel.split("/", 4)[4]
             archive_tree, origin_tree = self.rel[: -len(rest) - 1], origin[: -len(rest) - 1]
-            current = archive_normalized_plan(self.text, self.rel, archive_tree, origin_tree)
-            before = archive_normalized_plan(approved, origin, archive_tree, origin_tree)
+            current = _minor_module().archive_normalized_plan(self.text, self.rel, archive_tree, origin_tree)
+            before = _minor_module().archive_normalized_plan(approved, origin, archive_tree, origin_tree)
             if plan_hash_text(current) == plan_hash_text(before):
                 return True
         return False
