@@ -371,6 +371,8 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 **Reason**: `scripts/check_plan_completion.py` locates the run record from the repository top level of the starting directory. Once the plan's worktree is removed (which the cleanup step requires), the record is no longer found, so `approval.remote` and `archive.minor` cannot be verified, and the checker has no option to name a record directly.
 
+**Further finding, 2026-11-21**: the record key is a hash of the repository root, the repository and the plan path, and the archive changes two of them (the worktree root and `docs/releases/` to `docs/archives/`). Neither `repo_root` nor `plan` is in the signed payload, so a re-key needs no new signature. The archive's link repair also rewrites relative links inside the plan, so the frozen, signed `plan_sha256` no longer matches: on the Nexus-AI v2.16.2 plan the pre-archive text matches and the archived text (18 bytes longer) does not. Re-keying alone would therefore turn `approval.remote cannot-verify` into `record-tampered`. A fix must also define when an archived plan counts as unchanged, for example by reversing the archive's own link rewrite before hashing.
+
 **Owner**: catalog maintainer. **Severity**: medium - completing cleanup prevents the completion verdict it is meant to enable. **Status**: open.
 
 **Suggested next step**: resolve the record through the main worktree or the plan path when the recorded worktree is gone, or add a signed re-key action; keep `record-tampered` detection intact.
