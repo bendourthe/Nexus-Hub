@@ -16,7 +16,7 @@ from urllib.parse import quote, urlsplit
 CONTRACT = "portable-status-v1"
 EVENTS = ("start", "resume", "request", "checkpoint", "turn-end", "progress")
 RESOURCES = ("SKILL.md", "references/progress-reporting.md", "references/status-formats.md",
-             "references/status-snapshot.json", "scripts/status_report.py")
+             "references/status-snapshot.json", "scripts/status_report.py", "scripts/status_snapshot.py")
 
 
 FILLED, EMPTY = "\u25b0", "\u25b1"
@@ -71,11 +71,24 @@ def timestamp(value: str) -> datetime:
     return result
 
 
-def counts(row: dict) -> tuple[int | None, int | None]:
+_UNKNOWN = re.compile(r"\bunknown\b", re.IGNORECASE)
+NO_TASKS = "no task list"
+_MEASURE = "measure it with scripts/status_snapshot.py; N/A means not started or already released"
+
+
+def measured(value: object, where: str) -> None:
+    """Elapsed and remaining are measured or N/A, never a placeholder."""
+    if isinstance(value, str) and _UNKNOWN.search(value):
+        raise ValueError(f"{where} is 'unknown'; {_MEASURE}")
+
+
+def counts(row: dict, required: bool = False) -> tuple[int | None, int | None]:
     if "done" not in row or "total" not in row:
-        raise ValueError("counts require explicit done and total, including nulls when unknown")
+        raise ValueError("counts require explicit done and total")
     done, total = row["done"], row["total"]
     if done is None and total is None:
+        if required:
+            raise ValueError(f"version {row.get('name')} has no task counts; {_MEASURE}")
         return None, None
     if type(done) is not int or type(total) is not int or not 0 <= done <= total:
         raise ValueError("counts require integers with 0 <= done <= total, or two nulls")
@@ -91,18 +104,21 @@ def validate(data: dict) -> None:
     timestamp(data["observed_at"])
     if type(data.get("active")) is not bool:
         raise ValueError("active must be a boolean")
-    if data.get("last_released") is not None and not isinstance(data["last_released"], str):
-        raise ValueError("last_released must be a string or null (unknown)")
+    if not isinstance(data.get("last_released"), str) or not data["last_released"].strip():
+        raise ValueError("last_released must name a version or say 'none released yet'")
+    measured(data["elapsed"], "total elapsed")
+    measured(data["remaining"], "total remaining")
     release = data.get("next_release")
     if release is not None:
         required = ("version", "remaining", "condition", "confidence", "basis")
         if not isinstance(release, dict) or any(not isinstance(release.get(k), str) or not release[k].strip() for k in required):
             raise ValueError("next_release requires nonempty version, remaining, condition, confidence and basis")
-        if release["confidence"] not in ("low", "medium", "high", "unknown"):
-            raise ValueError("release confidence must be low, medium, high or unknown")
+        if release["confidence"] not in ("low", "medium", "high"):
+            raise ValueError("release confidence must be low, medium or high")
+        measured(release["remaining"], "next release ETA")
     left = data.get("versions_left")
-    if left is not None and (type(left) is not int or left < 0):
-        raise ValueError("versions_left must be a nonnegative integer or null")
+    if type(left) is not int or left < 0:
+        raise ValueError("versions_left must be a nonnegative integer")
     fields = {"rows": ("name", "goals", "state", "elapsed", "remaining", "dependency"),
               "goals": ("goal", "scope", "done_when", "state"),
               "decisions": ("id", "title", "detail"),
@@ -115,7 +131,14 @@ def validate(data: dict) -> None:
             if not isinstance(item, dict) or any(not isinstance(item.get(k), str) or not item[k].strip() for k in required):
                 raise ValueError(f"{key} item requires strings: {', '.join(required)}")
             if key in ("rows", "running"):
-                counts(item)
+                counts(item, required=key == "rows")
+                measured(item["elapsed"], f"{item['name']} elapsed")
+                measured(item["remaining"], f"{item['name']} remaining")
+            if key == "running":
+                # N/A means not started or released; a running item is neither.
+                for field in ("elapsed", "remaining"):
+                    if item[field].strip().upper() == "N/A":
+                        raise ValueError(f"running item {item['name']} {field} is N/A; {_MEASURE}")
             if key == "running" and item.get("url") is not None:
                 url = item["url"]
                 if not isinstance(url, str) or any(c.isspace() or ord(c) < 32 for c in url):
@@ -139,8 +162,8 @@ def validate(data: dict) -> None:
 
 def progress_parts(done: int | None, total: int | None) -> tuple[str, str]:
     """Return the bar-and-percent text and the done/total text."""
-    if done is None:
-        return "unknown", "unknown"
+    if done is None:  # only a running item without tasks, such as a CI job
+        return NO_TASKS, NO_TASKS
     if total == 0:
         return "N/A", "0/0"
     percent = (100 * done + total // 2) // total
@@ -191,7 +214,7 @@ def render(data: dict, mode: str) -> str:
     if mode not in ("compact", "full"):
         raise ValueError("mode must be compact or full")
     done, total = aggregate(data)
-    released = text(data.get("last_released") or "unknown")
+    released = text(data["last_released"])
     bar, tasks = progress_parts(done, total)
     if mode == "compact":
         return _compact(data, bar, tasks, released)
@@ -200,11 +223,9 @@ def render(data: dict, mode: str) -> str:
         rbar, rtasks = progress_parts(*counts(r))
         rows.append([f"**{cell(r['name'])}**", cell(r["goals"]), rbar, rtasks, cell(r["elapsed"]), remaining_with_dependency(r)])
     rows.append(["**Total**", "", f"**{bar}**", f"**{tasks}**", f"**{cell(data['elapsed'])}**", f"**{cell(data['remaining'])}**"])
-    release = data.get("next_release") or {"confidence": "unknown", "basis": "release estimate not supplied"}
     parts = ["## Progress Update", f"### {RELEASE_ICON} Release status", release_table(data, bar, tasks, released),
              f"### {PROGRESS_ICON} Version progress",
              table(("Version", "Goals", "Progress", "Tasks", "Elapsed", "Remaining"), rows),
-             f"Confidence: {cell(release['confidence'])} \u00b7 Basis: {text(release['basis'], 80)} \u00b7 As of {cell(data['observed_at'])}",
              "---", f"### {GOALS_ICON} Goals",
              table(("Goal", "Scope", "Done when", "State"),
                    [[cell(g[k]) for k in ("goal", "scope", "done_when", "state")] for g in data["goals"]]),
@@ -245,10 +266,10 @@ def decision_parts(decision: dict, with_detail: bool) -> list[str]:
 
 def release_table(data: dict, bar: str, tasks: str, released: str) -> str:
     """The four-row release table that opens both the compact and the full report."""
-    release = data.get("next_release") or {"version": "unknown", "remaining": "unknown (release estimate not supplied)"}
-    left = data.get("versions_left")
-    left_label = "versions left unknown" if left is None else f"{left} {'version' if left == 1 else 'versions'} left"
-    progress_text = "progress: unknown" if tasks == "unknown" else f"progress: {bar} ({tasks} tasks)"
+    release = data.get("next_release") or {"version": "none (all released)", "remaining": "N/A"}
+    left = data["versions_left"]
+    left_label = f"{left} {'version' if left == 1 else 'versions'} left"
+    progress_text = f"progress: {bar} ({tasks} tasks)"
     whole = f"{progress_text}{VALUE_SEP}ETA: {cell(data['remaining'])}"
     rows = [("Last release", "", released), ("Next release", "", cell(release["version"])),
             ("Next release ETA", "", cell(release["remaining"])),

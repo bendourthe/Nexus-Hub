@@ -64,6 +64,8 @@ BUDGET_SECONDS = 180.0
 ROLLBACK_SECONDS = 120.0  # a rollback gets its own budget, never the spent one of the move
 LINK_CHECK_TIMEOUT = 600.0
 MAX_TEXT_BYTES = 5_000_000
+REFERENCE_MAX_BYTES = 2 * 1024 * 1024
+REFERENCE_DISPLAY_LIMIT = 100
 MOVE_BATCH_FILES = 32
 MOVE_ARG_UNITS = 30_000  # UTF-16 units, below CreateProcessW's complete command-line limit.
 
@@ -87,6 +89,7 @@ MARKDOWN_SUFFIXES = {".md", ".markdown", ".mdc"}
 # Scripts and tests whose path strings are data the move must follow (see mention_eligible).
 CODE_SUFFIXES = {".py", ".sh", ".ps1", ".psm1", ".js", ".mjs", ".cjs", ".ts", ".json", ".yml", ".yaml",
                  ".toml", ".csv", ".txt"}
+PROGRAM_SUFFIXES = CODE_SUFFIXES - {".json", ".yml", ".yaml", ".toml", ".csv", ".txt"}
 INDEX_NAMES = {"README.md", "INDEX.md", "index.md"}
 
 
@@ -355,6 +358,8 @@ def mention_eligible(old_rel: str, own_archive: str | None = None) -> bool:
     """
     name = posixpath.basename(old_rel)
     suffix = posixpath.splitext(name)[1].lower()
+    if suffix not in MARKDOWN_SUFFIXES and historical_reference(old_rel):
+        return False
     if own_archive and old_rel.startswith(own_archive + "/plans/") and suffix == ".md":
         return True
     if old_rel.startswith(("docs/archives/", "docs/archive/")):
@@ -365,7 +370,192 @@ def mention_eligible(old_rel: str, own_archive: str | None = None) -> bool:
         return True
     if old_rel.startswith("docs/") and name in INDEX_NAMES:
         return True
-    return old_rel.startswith(("scripts/", "tests/")) and suffix in CODE_SUFFIXES
+    return old_rel.startswith(("scripts/", "tests/")) and suffix in PROGRAM_SUFFIXES
+
+
+def safe_reference_path(root: Path, rel: str) -> bool:
+    """Reject symbolic/reparse paths before reading content or planning a replacement."""
+    path = root / rel
+    try:
+        path.resolve(strict=True).relative_to(root.resolve(strict=True))
+        current = path
+        while current != root:
+            attributes = getattr(current.lstat(), "st_file_attributes", 0)
+            if current.is_symlink() or attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400):
+                return False
+            if current.parent == current:
+                return False
+            current = current.parent
+        return path.is_file()
+    except (OSError, ValueError):
+        return False
+
+
+def source_mentions(text: str, old: str, new: str, suffix: str) -> tuple[str, int]:
+    """Keep the established source-literal repair while preserving comment regions."""
+    regions = []
+    if suffix == ".py":
+        import io
+        import tokenize
+
+        offsets, offset = [0], 0
+        for line in text.splitlines(keepends=True):
+            offset += len(line)
+            offsets.append(offset)
+        try:
+            for token in tokenize.generate_tokens(io.StringIO(text).readline):
+                literal = token.string.lstrip("rRuUbBfF")
+                if token.type == tokenize.COMMENT or (token.type == tokenize.STRING and literal.startswith(('"""', "'''"))):
+                    regions.append((offsets[token.start[0] - 1] + token.start[1], offsets[token.end[0] - 1] + token.end[1]))
+        except (tokenize.TokenError, IndentationError, SyntaxError):
+            return text, 0
+    else:
+        # Quoted tokens precede comments, so a quoted # or // is not a comment.
+        pattern = re.compile(r'''(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\#[^\r\n]*|//[^\r\n]*|/\*[\s\S]*?(?:\*/|\Z)|<\#[\s\S]*?(?:\#>|\Z))''')
+        for match in pattern.finditer(text):
+            if match.group().startswith(("#", "//", "/*", "<#", "`")):
+                regions.append(match.span())
+    pieces, count, last = [], 0, 0
+    for start, end in regions:
+        repaired, found = rewrite_mentions(text[last:start], old, new)
+        pieces.extend((repaired, text[start:end]))
+        count += found
+        last = end
+    repaired, found = rewrite_mentions(text[last:], old, new)
+    return "".join([*pieces, repaired]), count + found
+
+
+def historical_reference(rel: str) -> bool:
+    rel = rel.lower()
+    parts = rel.split("/")
+    return ("evidence" in parts or rel.startswith(("docs/archives/", "docs/archive/"))
+            or (rel.startswith("docs/releases/") and any(part in {"development", "analysis", "research", "comparisons"} for part in parts)))
+
+
+def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str]]) -> dict:
+    """Classify tracked operational references without rewriting any input."""
+    import shlex
+
+    root = root.resolve()
+    result = {"scanned": 0, "omitted": 0, "incomplete": False, "blocking": 0, "total_findings": 0, "findings": []}
+    patterns = [(source, destination, _mention_patterns(source)) for source, destination in moves]
+
+    def add(rel, line, category, key="", remedy=""):
+        result["total_findings"] += 1
+        result["blocking"] += category == "operational"
+        result["findings"].append({"path": rel, "line": line, "key": key, "category": category, "remedy": remedy})
+        result["findings"].sort(key=lambda item: (item["path"], item["line"], item["key"], item["category"]))
+        del result["findings"][REFERENCE_DISPLAY_LIMIT:]
+
+    def matches(text):
+        return any(pattern.search(text) for _source, _destination, pair in patterns for pattern in pair)
+
+    def inspect_json(value, rel, text, key="$"):
+        if isinstance(value, dict):
+            for name, item in sorted(value.items()):
+                inspect_json(name, rel, text, key + "{key:" + json.dumps(name) + "}")
+                inspect_json(item, rel, text, key + "[" + json.dumps(name) + "]")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                inspect_json(item, rel, text, f"{key}[{index}]")
+        elif isinstance(value, str) and matches(value):
+            at = text.find(json.dumps(value, ensure_ascii=False))
+            line = text.count("\n", 0, max(0, at)) + 1
+            if historical_reference(rel):
+                add(rel, line, "historical", key)
+                return
+            normalized = posixpath.normpath(value.replace("\\", "/"))
+            mapped = map_moves(normalized, moves)
+            if mapped != normalized:
+                add(rel, line, "operational", key, "Update the live owner input or regenerate its manifest for " + mapped + "; never edit a sealed receipt.")
+            else:
+                add(rel, line, "unverified", key, "Embedded path mention requires owner review; unsupported shape.")
+
+    for rel in sorted(set(files)):
+        path = root / rel
+        if path.suffix.lower() not in CODE_SUFFIXES | MARKDOWN_SUFFIXES | {".html", ".log", ".xml"} and path.name != ".gitattributes":
+            continue
+        result["scanned"] += 1
+        try:
+            if not safe_reference_path(root, rel):
+                raise OSError("unsafe alias")
+            initial = path.stat()
+            with path.open("rb") as handle:
+                opened = os.fstat(handle.fileno())
+                if not safe_reference_path(root, rel) or (opened.st_dev, opened.st_ino) != (initial.st_dev, initial.st_ino):
+                    raise OSError("changed identity")
+                raw = handle.read(REFERENCE_MAX_BYTES + 1)
+                after = os.fstat(handle.fileno())
+            if len(raw) > REFERENCE_MAX_BYTES or (after.st_size, after.st_mtime_ns) != (initial.st_size, initial.st_mtime_ns):
+                raise OSError("size limit or changed input")
+            try:
+                text = raw.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                # A binary file such as a test fixture cannot be a JSON or attribute input, and
+                # it holds no reference when no mention survives a byte-preserving decode. A
+                # possible mention, or an undecodable JSON or attribute file, still fails closed.
+                if path.suffix.lower() == ".json" or path.name == ".gitattributes" or matches(raw.decode("latin-1")):
+                    raise
+                continue
+            if path.suffix.lower() == ".json":
+                try:
+                    value = json.loads(text)
+                except ValueError:
+                    # A sealed historical capture is never an operational input, and some
+                    # captures prefix a console line before the payload. Scan it as text so
+                    # it cannot block an archive; unparseable live JSON still fails closed.
+                    if not historical_reference(rel):
+                        raise
+                    for line, body in enumerate(text.splitlines(), 1):
+                        if matches(body):
+                            add(rel, line, "historical", remedy="Unparseable historical capture; reviewed as text, never rewritten.")
+                else:
+                    inspect_json(value, rel, text)
+            elif path.name == ".gitattributes":
+                for line, body in enumerate(text.splitlines(), 1):
+                    if not body.strip() or body.lstrip().startswith("#"):
+                        continue
+                    fields = shlex.split(body, comments=False)
+                    if not fields:
+                        continue
+                    selector = posixpath.normpath(posixpath.join(posixpath.dirname(rel), fields[0].lstrip("/")))
+                    if matches(selector):
+                        add(rel, line, "operational", "selector", "Update the live attribute selector explicitly for the archive path.")
+            elif matches(text):
+                for line, body in enumerate(text.splitlines(), 1):
+                    if matches(body):
+                        add(rel, line, "historical-or-ambiguous", remedy="Review this mention; comments and captures are not rewritten.")
+        except (OSError, ValueError, UnicodeDecodeError, RecursionError):
+            result["omitted"] += 1
+            result["incomplete"] = True
+            add(rel, 1, "unverified", remedy="Input unreadable, aliased, invalid, changed, or over two MiB; archive is unavailable.")
+    result["display_omitted"] = max(0, result["total_findings"] - len(result["findings"]))
+    return result
+
+
+def reference_preflight(rctx: ck.RepoContext, files: list[str], moves: list[tuple[str, str]]) -> list[Refused]:
+    """Bound potentially blocking inventory I/O in an isolated child process."""
+    worker = ("import json,sys;sys.path.insert(0,sys.argv[1]);import minor_close as mc;"
+              "data=json.load(sys.stdin);print(json.dumps(mc.reference_inventory(mc.Path(sys.argv[2]),data['files'],data['moves']),sort_keys=True))")
+    try:
+        timeout = rctx.budget.remaining()
+        if timeout <= 0:
+            raise OSError("budget exhausted")
+        proc = subprocess.run([sys.executable, "-I", "-c", worker, str(Path(__file__).resolve().parent), str(rctx.root)],
+                              input=json.dumps({"files": files, "moves": moves}), capture_output=True, text=True,
+                              encoding="utf-8", check=False, timeout=timeout, env=ck._env(), **ck.NO_WINDOW)
+        report = json.loads(proc.stdout) if proc.returncode == 0 and len(proc.stdout.encode()) <= REFERENCE_MAX_BYTES else None
+        if not isinstance(report, dict):
+            raise TypeError("unavailable inventory")
+    except (OSError, ValueError, TypeError, subprocess.TimeoutExpired):
+        return [Refused("cannot-verify", "archive reference inventory unavailable")]
+    print("archive-reference-inventory " + json.dumps(report, sort_keys=True), file=sys.stderr)
+    print("notice: newly_broken covers Markdown-link comparison only; reference classification has its own scope.", file=sys.stderr)
+    if report["incomplete"]:
+        return [Refused("cannot-verify", "archive reference inventory incomplete")]
+    if report["blocking"]:
+        return [Refused("archive-reference-unresolved", f"{report['blocking']} supported live reference(s); repair through the owning input or generator")]
+    return []
 
 
 def archive_link_mapper(root: Path, src: str, dst: str) -> Callable[[str], str]:
@@ -453,6 +643,8 @@ def plan_moves_repairs(
             continue
         path = root / read_rel
         try:
+            if not safe_reference_path(root, read_rel):
+                continue
             if path.stat().st_size > MAX_TEXT_BYTES:
                 continue
             with path.open("r", encoding="utf-8", newline="") as handle:
@@ -464,7 +656,7 @@ def plan_moves_repairs(
             text, links = rewrite_links(text, posixpath.dirname(old_rel), posixpath.dirname(new_rel), mapper)
         if mentions_ok:
             for src, dst in moves:
-                text, found = rewrite_mentions(text, src, dst, markdown=links_ok)
+                text, found = rewrite_mentions(text, src, dst, markdown=True) if links_ok else source_mentions(text, src, dst, path.suffix.lower())
                 mentions += found
         if text != original:
             repairs.append(Repair(new_rel, old_rel, original, text, links, mentions))
@@ -1709,6 +1901,12 @@ def _apply_moves(
         rename_map = Path(scratch) / "rename-map.tsv"
         if _link_run(checker, "baseline", "--root", str(rctx.root), "--out", str(before))[0] != 0:
             raise Refused("link-check-failed", "baseline before the move")
+        rc, current = _git(rctx, "ls-files", "-z")
+        if rc != 0:
+            raise Refused("cannot-verify", "tracked files before the move")
+        refusals = reference_preflight(rctx, [rel for rel in current.split("\0") if rel], prefixes)
+        if refusals:
+            raise refusals[0]
         try:
             move_prefixes(rctx, prefixes, moves)
             rc, listing = _git(rctx, "ls-files", "-z")
@@ -1819,6 +2017,11 @@ def cmd_archive(args: argparse.Namespace) -> int:
     def moved(rel: str) -> str:
         return dest + rel[len(tree):] if rel == tree or rel.startswith(tree + "/") else rel
 
+    references = reference_preflight(rctx, files, [(tree, dest)])
+    if references:
+        for refusal in references:
+            print(refusal.line())
+        return EXIT_REFUSED
     preview_head = rctx._git_out("rev-parse", "HEAD")
     mapped_files = [(rel, rel, moved(rel)) for rel in files]
     preview = plan_repairs(rctx.root, mapped_files, tree, dest, own_archive=dest)
@@ -2094,6 +2297,11 @@ def _archive_member(
     if map_moves(plan.rel, prefixes) == plan.rel:
         raise Refused("plan-not-member-owned", plan.rel)
     pairs = [(rel, map_moves(rel, prefixes)) for rel in files if map_moves(rel, prefixes) != rel]
+    references = reference_preflight(rctx, files, prefixes)
+    if references:
+        for refusal in references:
+            print(refusal.line())
+        return EXIT_REFUSED
     preview_head = rctx._git_out("rev-parse", "HEAD")
     preview = plan_moves_repairs(rctx.root, [(rel, rel, map_moves(rel, prefixes)) for rel in files], prefixes)
     touched = sorted({old for old, _new in prefixes} | {r.old_rel for r in preview})
@@ -2176,6 +2384,8 @@ def _archive_member(
 
 
 def cmd_status(args: argparse.Namespace) -> int:
+    if getattr(args, "detail", False):
+        return cm.render_detail(ck, args, status_mode=True)
     rctx = _context(args)
     token = args.minor
     cm.parse_minor(ck, token)
@@ -2183,10 +2393,6 @@ def cmd_status(args: argparse.Namespace) -> int:
     record = state.record
     if state.forced is not None:
         print(state.forced[0])
-        if getattr(args, 'detail', False) and record is not None:
-            gaps, notices = cm.gaps_minor_status(ck, rctx, token, record)
-            for notice in [f'diagnostic gaps.minor {gaps}', *notices]:
-                print(f'notice: {notice}', file=sys.stderr)
         return EXIT_REFUSED
     gaps, notices = cm.gaps_minor_status(ck, rctx, token, record)
     print(f"gaps.minor {gaps}")
@@ -2245,7 +2451,7 @@ def build_parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="print the gaps.minor and archive.minor lines")
     status.add_argument("--minor", required=True)
     status.add_argument("--repo", default=".")
-    status.add_argument("--detail", action="store_true", help="show gap diagnostics even when blocked; never changes the verdict")
+    status.add_argument("--detail", action="store_true", help="bounded local diagnostics without run-record writes")
     status.set_defaults(func=cmd_status)
     return parser
 

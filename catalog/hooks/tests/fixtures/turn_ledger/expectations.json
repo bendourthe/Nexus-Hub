@@ -1,0 +1,84 @@
+{
+  "claude/cross_turn_repeat": {
+    "notices": []
+  },
+  "claude/edit_churn": {
+    "notices": [
+      3
+    ]
+  },
+  "claude/error_storm": {
+    "notices": [
+      5
+    ]
+  },
+  "claude/hostile_filename": {
+    "notices": [
+      3
+    ]
+  },
+  "claude/hostile_quote": {
+    "notices": [
+      2
+    ]
+  },
+  "claude/hostile_secrets": {
+    "notices": [
+      2
+    ]
+  },
+  "claude/long_refactor": {
+    "notices": []
+  },
+  "claude/missing_turn_id": {
+    "notices": []
+  },
+  "claude/repeat_failure": {
+    "notices": [
+      3
+    ]
+  },
+  "claude/tdd_cycle": {
+    "notices": []
+  },
+  "codex/noop_repeat": {
+    "notices": []
+  },
+  "copilot/noop_repeat": {
+    "notices": []
+  },
+  "gemini/edit_churn": {
+    "notices": [
+      3
+    ]
+  },
+  "gemini/repeat_failure": {
+    "notices": [
+      2
+    ]
+  },
+  "gemini/tdd_cycle": {
+    "notices": []
+  },
+  "kimi/error_storm": {
+    "notices": [
+      5
+    ]
+  },
+  "kimi/repeat_failure": {
+    "notices": [
+      2
+    ]
+  },
+  "kimi/tdd_cycle": {
+    "notices": []
+  },
+  "qwen/edit_churn": {
+    "notices": [
+      3
+    ]
+  },
+  "qwen/tdd_cycle": {
+    "notices": []
+  }
+}

@@ -177,21 +177,16 @@ def test_approval_summary_counts_scope_without_promising_repairs():
 
 @pytest.mark.parametrize('verified', [True, False])
 def test_blocked_detail_is_diagnostic_only(monkeypatch, capsys, verified):
-    ctx = SimpleNamespace(notices=[], _git_out=lambda *args: 'head')
-    record = {'approvals': {}} if verified else None
-    verdict = cm.MinorVerdict('BLOCKED: no-progress', ck.EXIT_BLOCKED, record=record)
-    monkeypatch.setattr(cm, 'minor_context', lambda *args: ctx)
-    monkeypatch.setattr(cm, 'check_minor', lambda *args: verdict)
-    monkeypatch.setattr(cm, '_integration_ref', lambda *args: 'develop')
-    monkeypatch.setattr(cm, 'load_ledgers_at', lambda *args: ([], []))
-    monkeypatch.setattr(cm, 'gaps_minor_status', lambda *args: ('cannot-verify', ['unparsed historical ledger']))
+    detail = {'verdict': 'BLOCKED: no-progress', 'exit': ck.EXIT_BLOCKED, 'scanned': 1, 'omitted': 0, 'incomplete': not verified}
+    if verified:
+        detail['findings'] = [{'path': 'docs/known-gaps.md', 'item': 'ledger', 'status': 'unparsed historical ledger'}]
+    monkeypatch.setattr(cm, 'diagnostic_detail', lambda *args: detail)
     args = ck.build_parser().parse_args(['check-minor', 'v2.15', '--detail'])
     assert cm.cmd_check_minor(ck, args) == ck.EXIT_BLOCKED
     out = capsys.readouterr()
-    assert out.out.strip() == 'BLOCKED: no-progress'
+    assert out.out.splitlines()[0] == 'BLOCKED: no-progress'
     assert ('diagnostic gaps.minor cannot-verify' in out.err) == verified
-    assert ('unparsed historical ledger' in out.err) == verified
-    assert 'completed' not in (record or {})
+    assert ('unparsed historical ledger' in out.out) == verified
 
 
 @pytest.mark.parametrize('prompt', [
@@ -213,17 +208,15 @@ def test_exact_approval_pastes_reach_capture(tmp_path, monkeypatch, prompt):
 
 
 def test_close_status_detail_keeps_blocked_exit(monkeypatch, capsys):
-    record = {'approvals': {}}
-    state = cm.MinorState(record=record, forced=('BLOCKED: no-progress', ck.EXIT_BLOCKED))
-    monkeypatch.setattr(minor_close, '_context', lambda *args: object())
-    monkeypatch.setattr(cm, 'load_minor', lambda *args: state)
-    monkeypatch.setattr(cm, 'gaps_minor_status', lambda *args: ('unmet', ['open historical item']))
+    detail = {'verdict': 'BLOCKED: no-progress', 'exit': ck.EXIT_BLOCKED, 'scanned': 1, 'omitted': 0, 'incomplete': False,
+              'findings': [{'path': 'docs/known-gaps.md', 'item': 'v2.15#WN-1', 'status': 'migration-uncovered'}]}
+    monkeypatch.setattr(cm, 'diagnostic_detail', lambda *args: detail)
     args = minor_close.build_parser().parse_args(['status', '--minor', 'v2.15', '--detail'])
     assert minor_close.cmd_status(args) == minor_close.EXIT_REFUSED
     out = capsys.readouterr()
-    assert out.out.strip() == 'BLOCKED: no-progress'
+    assert out.out.splitlines()[0] == 'BLOCKED: no-progress'
     assert 'diagnostic gaps.minor unmet' in out.err
-    assert 'open historical item' in out.err
+    assert 'v2.15#WN-1' in out.out
 
 
 def test_handbook_hash_is_crlf_independent_and_preserves_binary(tmp_path):

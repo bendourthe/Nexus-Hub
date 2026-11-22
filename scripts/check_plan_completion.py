@@ -133,7 +133,9 @@ REQUIRED_SECTIONS = (
 )
 
 PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md$")
-TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d{3,})\b(.*)$", re.MULTILINE)
+# A range such as "T001-T007" in a phase summary line is not a task; the lookahead stops
+# it from being read as a pathless duplicate of its first task.
+TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d{3,})\b(?!-T?\d)(.*)$", re.MULTILINE)
 CHECKBOX_RE = re.compile(r"^(\s*- )\[[ xX]\]", re.MULTILINE)
 STATUS_LINE_RE = re.compile(r"^\*\*Status\*\*:[^\n]*$", re.MULTILINE)
 STATUS_VALUE_RE = re.compile(
@@ -772,6 +774,8 @@ def _write_record(path: Path, record: dict) -> None:
         _minor_module().check_manifest_permission_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_v415_compatibility_write(sys.modules[__name__], active['ctx'], previous, record)
         _minor_module().check_member_paths_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_read_correction_write(sys.modules[__name__], active['ctx'], previous, record)
+        _minor_module().check_implementation_withdrawal_write(sys.modules[__name__], active['ctx'], previous, record)
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
     descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
@@ -803,11 +807,11 @@ class RecordState:
 TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
 
 
-def read_record(ctx: RepoContext, path: Path) -> dict | None:
+def read_record(ctx: RepoContext, path: Path, *, max_bytes: int | None = None) -> dict | None:
     """The raw record at `path`, or None when it sits in a working tree or is unreadable.
 
     Callers treat None for an existing file as `record-tampered`. Unavailable
-    Git provenance raises ObservationUnavailable instead of asserting integrity.
+    Git provenance or an explicit read bound raises ObservationUnavailable instead of asserting integrity.
     """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
@@ -824,15 +828,23 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
             raise _minor_module().ObservationUnavailable("record.provenance")
         if tracked_rc != 1:
             return None
-    return _read_record_json(ctx, path)
+    return _read_record_json(ctx, path, max_bytes=max_bytes)
 
 
-def _read_record_json(ctx: RepoContext, path: Path) -> dict | None:
+def _read_record_json(ctx: RepoContext, path: Path, max_bytes: int | None = None) -> dict | None:
     """Parse fresh bytes after the caller verifies record provenance."""
     try:
-        raw = path.read_bytes()
+        with path.open("rb") as handle:
+            raw = handle.read() if max_bytes is None else handle.read(max_bytes + 1)
+    except OSError as exc:
+        if max_bytes is not None:
+            raise _minor_module().ObservationUnavailable("record.unreadable") from exc
+        return None
+    if max_bytes is not None and len(raw) > max_bytes:
+        raise _minor_module().ObservationUnavailable("record.text-limit")
+    try:
         record = json.loads(raw)
-    except (OSError, ValueError, UnicodeDecodeError):
+    except (ValueError, UnicodeDecodeError):
         return None
     if not isinstance(record, dict):
         return None
@@ -2638,15 +2650,24 @@ def _tag_status(ctx: Context, tag: str) -> str:
 
 def _changelog_status(ctx: Context) -> str:
     changelog = ctx.root / "CHANGELOG.md"
-    if not changelog.is_file():
+    try:
+        before = changelog.stat()
+    except FileNotFoundError:
         return "unmet"
+    except OSError:
+        return "cannot-verify"
+    try:
+        text = changelog.read_text(encoding="utf-8")
+        after = changelog.stat()
+    except (OSError, UnicodeDecodeError):
+        return "cannot-verify"
+    if any(getattr(before, key) != getattr(after, key) for key in ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")):
+        return "cannot-verify"
     bare = ctx.version.lstrip("v")
-    text = changelog.read_text(encoding="utf-8", errors="replace")
-    return (
-        "met"
-        if re.search(rf"^#{{1,2}} \[{re.escape(bare)}\]", text, re.MULTILINE)
-        else "unmet"
-    )
+    heading = re.compile(rf"^#{{1,2}}[ \t]+\[{re.escape(bare)}\](?:\([^()\r\n]+\))?(?:[ \t]+[^\r\n]*)?[ \t]*$")
+    lines = text.splitlines()
+    masked, _ = _minor_module().fence_mask(lines)
+    return "met" if any(not mask and heading.fullmatch(line) for line, mask in zip(lines, masked)) else "unmet"
 
 
 VERSION_SYNC_PATH = "scripts/check_version_sync.py"
@@ -3060,6 +3081,10 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         raise Malformed("--action amend-minor and --amendment require --minor")
     if args.action == "correct-ci-read":
         raise Malformed("--action correct-ci-read requires --minor")
+    if args.action == "correct-read" or getattr(args, "path", None) is not None:
+        raise Malformed("--action correct-read and --path require --minor")
+    if args.action == "withdraw-implementation":
+        raise Malformed("--action withdraw-implementation requires --minor")
     if getattr(args, "member", None) is not None:
         raise Malformed("--member requires --minor with --action answer, supplement-scope or permit-manifest")
     if (args.action in ("add-class", "supplement-scope", "permit-manifest", "permit-outputs")
@@ -3410,6 +3435,8 @@ def uncovered_gap_request(record: dict, request: dict) -> bool:
 
 
 def cmd_record_block(args: argparse.Namespace) -> int:
+    if getattr(args, "items", None) and not _scoped(args):
+        raise Malformed("--item requires minor-scoped approval coverage")
     if _scoped(args):
         return _minor_module().cmd_record_block(sys.modules[__name__], args)
     if args.member:
@@ -3671,8 +3698,8 @@ def build_parser() -> argparse.ArgumentParser:
     check_minor.add_argument("minor", help="a minor scope token such as v0.5")
     check_minor.add_argument("--repo", default=".", help="a path inside the repository")
     check_minor.add_argument("--json", action="store_true")
-    check_minor.add_argument("--detail", action="store_true", help="show gap diagnostics even when blocked; never changes the verdict")
     check_minor.add_argument("--session")
+    check_minor.add_argument("--detail", action="store_true", help="bounded local read-only diagnostics; never writes completion")
     check_minor.set_defaults(func=cmd_check_minor)
     member_check = sub.add_parser("check-member", help="read-only member check using parent minor approval")
     member_check.add_argument("--minor", required=True)
@@ -3736,6 +3763,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--amendment", help="with --minor amend-minor: exact new member grants JSON file")
     render.add_argument("--execution", help="with --minor permit-member-execution-paths: exact write_paths JSON file")
     render.add_argument("--paths", help="with --minor permit-member-paths: exact write_paths JSON file")
+    render.add_argument("--path", help="with --minor correct-read: the one literal recorded read file to release")
     render.add_argument("--conditional-outcome", help="JSON disposition qualifying this member's existing technical blocker")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
@@ -3840,6 +3868,21 @@ def build_parser() -> argparse.ArgumentParser:
     correction.add_argument("--member", required=True, help="the declared eligible member")
     correction.add_argument("--text", help="when given, must equal the captured decision")
     correction.set_defaults(func=lambda args: _minor_module().cmd_record_correct_ci_read(sys.modules[__name__], args))
+    read_fix = record.add_parser("correct-read", help="release one exact literal read file of one unpublished member through a captured decision")
+    read_fix.add_argument("--minor", required=True)
+    read_fix.add_argument("--repo", default=".")
+    read_fix.add_argument("--session", required=True)
+    read_fix.add_argument("--member", required=True)
+    read_fix.add_argument("--path", required=True, help="the literal recorded read file")
+    read_fix.add_argument("--text", help="when given, must equal the captured decision")
+    read_fix.set_defaults(func=lambda args: _minor_module().cmd_record_correct_read(sys.modules[__name__], args))
+    withdraw = record.add_parser("withdraw-implementation", help="release one admitted, unstarted member's implementation claims through a captured decision")
+    withdraw.add_argument("--minor", required=True)
+    withdraw.add_argument("--repo", default=".")
+    withdraw.add_argument("--session", required=True)
+    withdraw.add_argument("--member", required=True)
+    withdraw.add_argument("--text", help="when given, must equal the captured decision")
+    withdraw.set_defaults(func=lambda args: _minor_module().cmd_record_withdraw_implementation(sys.modules[__name__], args))
     block = record.add_parser("block")
     block.add_argument("plan", nargs="?")
     _add_minor_scope(block)
@@ -3848,6 +3891,7 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
+    block.add_argument("--item", dest="items", action="append", help="canonical minor#gap item requiring uncovered migration authority; repeatable")
     block.add_argument("--purpose", help="concrete action displayed for the decision")
     block.add_argument("--why", help="why that action is needed, bound into the challenge")
     block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")

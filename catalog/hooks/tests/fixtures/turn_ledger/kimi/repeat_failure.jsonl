@@ -1,0 +1,3 @@
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"npm test"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"npm test"},"error":"failed"}
+{"session_id":"S1","session_title":"synthetic","client_type":"cli","cwd":"@@PROJECT@@","hook_event_name":"PostToolUseFailure","tool_name":"Shell","tool_input":{"command":"npm test"},"error":"failed"}

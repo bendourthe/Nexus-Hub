@@ -4,7 +4,13 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Detection is a separate contract (v4.14.7).** This file states where a platform reads and where Nexus-Hub writes. Whether a platform is installed at all, and therefore whether anything is written, is decided by [`platform-detection.md`](platform-detection.md). The `install_verify` rows below that carry an `integration` key are detected by that rule rather than by their `detect` folder list, so `nexus-hub verify` and the installer always agree.
 
-**Last verified**: 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group shows a changed discovery path or format, and DRIFT and UNVERIFIED findings stay explicit. It does not imply authenticated platform consumption.
+**Last verified**: 2026-11-19 for v4.15.5. The [release verification](../releases/v4/v4.15/development/v4.15.5-platform-verification.md) re-stamps the contract from the [v4.15.2 verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) of 2026-11-16 (65 first-party URLs, 17 integration groups, no drift). No new vendor verification was performed for 4.15.5.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-18 for v4.15.4. The [release verification](../releases/v4/v4.15/development/v4.15.4-platform-verification.md) re-stamps the contract from the [v4.15.2 verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) of 2026-11-16 (65 first-party URLs, 17 integration groups, no drift). No new vendor verification was performed for 4.15.4.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-17 for v4.15.3. The [release verification](../releases/v4/v4.15/development/v4.15.3-platform-verification.md) re-stamps the contract from the same-day [v4.15.2 verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md), which re-fetched every first-party source of the 17 integration groups; no group shows a changed discovery path or format. No new vendor fetch was made for 4.15.3. It does not imply authenticated platform consumption.
+
+**Prior entry, retained for the record** -- Last verified 2026-11-16 for v4.15.2. The [release verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.1; no group showed a changed discovery path or format.
 
 **Prior entry, retained for the record** -- Last verified 2026-11-15 for v4.15.1. The [release verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md) re-fetched every first-party source of the 17 integration groups reviewed for v4.15.0; no group showed a changed discovery path or format.
 
@@ -819,3 +825,18 @@ If broader per-file distribution to a new platform is needed, add a new subclass
 ## v4.9.0 release verification
 
 The 2026-09-08 [platform sweep](../archives/v4/v4.9/development/qualification/v4.9-platform-verification.md) covers all 14 discovery rows and preserves each UNVERIFIED surface. Release follow-up corrected the Antigravity 2 global workflow destination to `~/.gemini/config/workflows/`, as confirmed by the [official migration table](https://antigravity.google/docs/migration/workflows-to-skills). Existing files in the previous directory are retained; native command-skills remain the primary delivery path. No native host execution is claimed.
+
+## Stuck-turn notice reach (v4.15.5)
+
+Which platforms can run the `stuck-turn-notice` hook, verified 2026-11-16 from fetched vendor hook documents (the Claude Code live payload capture was not run: it needs a paid model call and the lane spend cap is USD 0, so the Claude row rests on the official hooks page alone). A platform with no documented failure signal or file path no-ops safely. The helper is `catalog/hooks/_turn_ledger.py`; per-platform fixtures are under `catalog/hooks/tests/fixtures/turn_ledger/`.
+
+| Platform | Turn identifier | Failure signal | Edit-churn input | Runs |
+|---|---|---|---|---|
+| Claude Code | `prompt_id` (documented) | `PostToolUseFailure`, `error` first line `Exit code N` | `tool_input.file_path` | all three signals |
+| Gemini CLI (enterprise-only after 2026-06-18) | not documented (session window of 20) | `tool_response.error` in `AfterTool` | `tool_input.file_path` (assumed) | all three signals |
+| Qwen Code | `prompt_id` (when in a model turn) | `PostToolUseFailure` with `error`, registered on `^(run_shell_command)$` by a POSIX install; a Windows install drops the Bash-only matcher | `tool_input.file_path` (assumed) | all three signals on a POSIX install; edit churn only on a Windows install |
+| Kimi Code CLI | not documented (session window of 20) | `PostToolUseFailure` with `error` | `tool_input` path field not documented | repeat and storm; churn only if a path field is present |
+| Codex | `turn_id` | none (a non-zero Bash exit arrives as `PostToolUse` with no exit code) | `apply_patch` input not documented | no-op |
+| Copilot | not documented | `postToolUseFailure` exists but the derivation drops it | tool names not documented | no-op |
+
+Observed derivation of the planned registration (`PostToolUse` matcher `Bash|Edit|Write|MultiEdit`, `PostToolUseFailure` matcher `Bash`): Codex keeps `PostToolUse` with `Bash|Edit|Write` and drops `PostToolUseFailure` cleanly; Gemini CLI and Qwen keep `PostToolUse` as `AfterTool` or `PostToolUse` with a tool regex; Gemini CLI drops `PostToolUseFailure` cleanly (it reports failures inside `AfterTool`), and Qwen keeps it as `PostToolUseFailure` with `^(run_shell_command)$` on a POSIX install (mapped 2026-11-19 from the fetched [Qwen hooks page](https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/)) while a Windows install drops it, because the derivation registers only the installing host's shell flavor and the catalog matcher is `Bash` alone; Kimi keeps both events; Copilot keeps `PostToolUse` and drops `PostToolUseFailure`. Kimi's derived matcher names `Bash|Edit|Write`, while the Kimi hooks page shows `Shell`, `WriteFile`, and `StrReplaceFile`; that mismatch predates this plan and is recorded as a known gap.

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.15.2 -->
+<!-- nexus-hub-version: 4.15.5 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -19,7 +19,7 @@ Nexus-Hub/
 ├── catalog/                  # Master templates (distributed to users)
 │   ├── agents/               # 23 agent YAML definitions
 │   ├── checklists/           # Standalone reference checklists (4 files)
-│   ├── commands/             # 22 active command .md files (+ 3 permanent aliases and the temporary /status shim, removed in v4.15.4; the 40 v3.x shims were removed in v3.2.0)
+│   ├── commands/             # 22 active command .md files (+ 3 permanent aliases; the /status shim was removed in v4.15.5 and the 40 v3.x shims in v3.2.0)
 │   ├── context/              # Context template files
 │   ├── hooks/                # Hook scripts + settings.json template
 │   │   └── tests/            # pytest suite for hook scripts
@@ -346,14 +346,14 @@ Two lessons sit behind those gates, both from real defects. `session-summary.ps1
 
 When authoring a sibling, prefer the native equivalent over emulating shell mechanics: `ConvertFrom-Json` instead of a `jq` dependency, `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)` instead of `Set-Content -Encoding utf8` (which emits a BOM on 5.1), and `[Console]::IsInputRedirected` as the equivalent of `[ ! -t 0 ]`. A sibling that works where the bash version silently no-ops (for example on a host with no `jq`) is an acceptable and documented improvement, provided it acts in the safe direction: warn or block MORE, never less.
 
-The hook registration template is `catalog/hooks/settings.json`. Supported events, as actually registered there: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Notification`, `PreCompact`, and `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+The hook registration template is `catalog/hooks/settings.json`. Supported events, as actually registered there: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `PostToolUseFailure` (a failed tool call; per-platform reach: `docs/policy/platform-read-contracts.md`), `UserPromptSubmit`, `Notification`, `PreCompact`, and `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+
+Defer mid-session rewrites of settings or instruction files to session end; each invalidates the prompt cache.
 
 Two of those are easy to misuse, so pick deliberately:
 
 - **`Notification`** fires when the agent needs permission for a tool, or has been idle waiting for input. It is the only event meaning "blocked on the human", which is why v3.15.10's `notify-attention-required` hook rides it.
 - **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/archives/v3/v3.15/development/end-of-task-notification-contract.md`.
-
-*(This list previously named only four events while the template already registered six; corrected in v3.15.10 along with the addition of `Notification`.)*
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Prefer a `run` fixture parametrized over both implementations (see `test_escalation_trigger.py` or `test_provenance_ledger.py`) so every behavioral assertion doubles as a parity assertion. Run with `make test`.
 

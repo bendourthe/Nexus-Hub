@@ -1,0 +1,30 @@
+{
+  "schema": "nexus.review-consumer-cases/v1",
+  "comment": "Hand-written baseline for the legacy (no security projection) path of review-fanout-workflow.js. Expected tiers are stated here, not derived from the code under test.",
+  "legacy": {
+    "reviews": {
+      "correctness": [
+        {"title": "Off-by-one in pagination", "severity": "P1", "file": "src/list.ts", "line": 47, "confidence": 100, "persona": "correctness"}
+      ],
+      "maintainability": [
+        {"title": "Duplicate parser branch", "severity": "P2", "file": "src/parse.ts", "line": 12, "confidence": 75, "persona": "maintainability"},
+        {"title": "Vague helper name", "severity": "P3", "file": "src/util.ts", "line": 90, "confidence": 50, "persona": "maintainability"}
+      ]
+    },
+    "verdicts": {
+      "verify:src/parse.ts:12": {"verdict": "confirmed", "rationale": "real", "adjusted_confidence": 75},
+      "verify:src/util.ts:90": {"verdict": "confirmed", "rationale": "weak", "adjusted_confidence": 50}
+    },
+    "expected": {
+      "headline": ["Off-by-one in pagination", "Duplicate parser branch"],
+      "appendix": ["Vague helper name"],
+      "pending": 0,
+      "securityCoverage": null,
+      "caveats": []
+    }
+  },
+  "agreement_control": {
+    "comment": "A persona finding at the same file, line and title as a pending security item must not merge with it or change its confidence.",
+    "persona_confidence": 75
+  }
+}

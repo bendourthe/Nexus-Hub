@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.2 -->
+<!-- nexus-hub-version: 4.15.5 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,14 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.2
+## What's New in v4.15.5
 
-- A harness pairing evaluator for maintainers, five explicit loop outcomes, and a shared project `AGENTS.md` for supported Claude Code versions (opt-in with `NEXUS_HUB_CLAUDE_MIGRATE=1`).
-- One status layout for every platform, with goals and time estimates taken from completed plans, and a separate forecast for the next release.
-- Nexus-Hub Settings 0.8.8: working effort control on newer Codex and Claude builds, and the Codex button opens beside your current editor.
-- Run records can add files to one admitted member's write list through a captured decision.
+- An opt-in stuck-turn notice (`NEXUS_STUCK_NOTICE=on`) flags a turn that keeps repeating the same failing command or edit, and environment-fact replay (`NEXUS_ENV_FACTS=on`) brings back what earlier sessions learned about the project. Both are off by default.
+- Upgrades now remove unchanged Nexus-Hub copies of commands, skills and agents that left the catalog; an edited copy is kept and reported. The deprecated `/status` command is removed: use `/progress`.
+- `/progress` measures every number from git and the plan files, so its report never shows `unknown`.
 
-[Release details and earlier versions](CHANGELOG.md#4152---2026-11-17)
+[Release details and earlier versions](CHANGELOG.md#4155---2026-11-19)
 
 ## Installation
 
@@ -336,7 +335,7 @@ Check progress, sync the repo, or run the release flow.
 
 #### `/progress`
 
-Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` still forwards here until v4.15.4.
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` was removed in v4.15.5.
 
 ```text
 /progress v4.15

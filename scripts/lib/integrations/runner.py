@@ -543,6 +543,9 @@ def _cmd_install(args: argparse.Namespace) -> int:
     failures = []
     installed: List[tuple] = []
     results: dict = {}
+    # v4.15.5 -- each platform's previous per-file record, read before this run
+    # replaces it, so copies of items removed from the catalog can be retired.
+    previous = {key: manifest.actions_for(key) for key in keys}
     for key in keys:
         try:
             integ = get(key)
@@ -583,6 +586,17 @@ def _cmd_install(args: argparse.Namespace) -> int:
                 manifest.record_actions(key, result.files)
             installed[position] = (key, integ, result)
             results[key] = result
+    # v4.15.5 -- retire copies of commands, skills and agents the catalog no
+    # longer ships, once each platform's final output is known.
+    from scripts.lib.integrations._retired import retire_removed_items
+
+    for key, _integ, result in installed:
+        if result.detected is False:
+            continue
+        retired = retire_removed_items(ctx, key, previous.get(key, []), result)
+        if retired.files:
+            _render_write_result(key, retired, args.quiet)
+
     # v4.13.3 Phase 4 -- the legacy report is built after every write so each
     # printed consent token matches the file's final bytes.
     before = {key: len(result.files) for key, result in results.items()}

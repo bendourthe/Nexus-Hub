@@ -83,6 +83,7 @@
     {"posix": ["select_working_launcher"], "windows": ["Select-WorkingLauncher"], "reason": "Antigravity launcher selection by a bounded --version probe."},
     {"posix": ["install_templates"], "windows": ["Install-Templates"], "reason": "Template and top-level script delivery."},
     {"posix": ["install_cli_launcher"], "windows": ["Install-CliLauncher"], "reason": "CLI launcher and version marker installation."},
+    {"posix": ["nexus_path_profile", "add_nexus_bin_to_profile"], "windows": ["Add-NexusBinToUserPath"], "reason": "Put the CLI launcher directory on PATH: Bash picks the login shell profile and appends one marked block; PowerShell appends to the user PATH in the registry."},
     {"posix": ["install_project_autoseed"], "windows": ["Install-ProjectAutoseed"], "reason": "Project auto-seed hook installation."},
     {"posix": ["install_skill_discovery"], "windows": ["Install-SkillDiscovery"], "reason": "Skill-discovery data and MCP installation."},
     {"posix": ["print_nexus_banner"], "windows": ["Write-NexusBanner"], "reason": "ASCII product banner."},

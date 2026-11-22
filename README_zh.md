@@ -8,14 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.2 更新内容
+## v4.15.5 更新内容
 
-- 新增面向维护者的工具链配对评估器、五种明确的循环结果，以及为受支持的 Claude Code 版本提供的共享项目 `AGENTS.md`（通过 `NEXUS_HUB_CLAUDE_MIGRATE=1` 选择启用）。
-- 所有平台使用统一的状态布局，目标和剩余时间估算来自已完成的计划，并单独预测下一个发布版本。
-- Nexus-Hub Settings 0.8.8：在较新的 Codex 和 Claude 版本上恢复推理强度控制，Codex 按钮会在当前编辑器旁边打开。
-- 运行记录可以通过一次已记录的决定，为某个已准入成员的写入列表追加文件。
+- 可选启用的卡住回合提示（`NEXUS_STUCK_NOTICE=on`）会在某个回合反复执行同一个失败命令或反复做同一处编辑时给出提示；环境事实回放（`NEXUS_ENV_FACTS=on`）会把早先会话了解到的项目信息带回新会话。两者默认关闭。
+- 升级时会删除已离开目录的命令、技能和代理中未被修改过的 Nexus-Hub 副本；被修改过的副本会保留并报告。已弃用的 `/status` 命令已删除，请改用 `/progress`。
+- `/progress` 的每一个数字都从 git 和计划文件中测量得出，因此报告中不会再出现 `unknown`。
 
-[版本详情与早期版本](CHANGELOG.md#4152---2026-11-17)
+[版本详情与早期版本](CHANGELOG.md#4155---2026-11-19)
 
 ## 安装
 
@@ -328,7 +327,7 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 
 #### `/progress`
 
-查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 在 v4.15.4 之前仍会转发到这里。
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 已在 v4.15.5 中移除。
 
 ```text
 /progress v4.15

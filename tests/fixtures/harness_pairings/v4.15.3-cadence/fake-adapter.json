@@ -1,0 +1,56 @@
+{
+  "schema": "nexus.cadence-fake-adapter/1",
+  "comment": "Data for the fake cadence adapter. The adapter code is embedded in tests/skills/test_harness_cadence_protocol.py, which writes one adapter profile per schedule. Outcomes are authored per trial index and are synthetic labels, not evidence.",
+  "task": {
+    "file": "result.txt",
+    "target": "pairing-ok\n",
+    "wrong": "pairing-no\n",
+    "draft_correct": [
+      true,
+      false,
+      false
+    ],
+    "repair_correct": [
+      true,
+      true,
+      false
+    ]
+  },
+  "schedules": {
+    "construction": {
+      "events": [
+        "draft",
+        "check",
+        "repair",
+        "check",
+        "finish"
+      ]
+    },
+    "final-gate": {
+      "events": [
+        "draft",
+        "finish",
+        "check"
+      ]
+    },
+    "prewritten-control": {
+      "events": [
+        "draft_final",
+        "finish"
+      ]
+    },
+    "never-accepted": {
+      "events": [
+        "draft_wrong",
+        "check",
+        "finish"
+      ]
+    },
+    "timeout": {
+      "events": [
+        "sleep"
+      ],
+      "sleep_s": 30
+    }
+  }
+}

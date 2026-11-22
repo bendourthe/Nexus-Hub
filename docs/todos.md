@@ -1,5 +1,13 @@
 # Nexus-Hub Progress Dashboard
 
+**Historical incident prevention, 2026-11-20:** Target v4.22.13 and the three-phase scope confirmed by the maintainer; documentation publication authorized. The [comparison](releases/v4/v4.22/comparisons/v4.22.13-comparison-incident-prevention.md) and [three-phase plan](releases/v4/v4.22/plans/v4.22.13-adoption-incident-prevention.md) extend existing local-evidence learning and review-trapdoor guidance. Seven review lenses completed; three findings corrected and independently rechecked. Implementation: 0/19 tasks and 0/3 phases. Implementation and release remain unstarted; the approved planning package is prepared for protected publication.
+
+- [x] Draft and independently critique the incident-prevention adoption plan.
+
+- [x] Confirm v4.22.13 and the bounded teaching-only phase breakdown for publication.
+
+- [ ] Implement the 19-task plan under separate execution authority.
+
 **Live effort and hover response, 2026-11-16:** The user confirmed 0.8.7 saves defaults successfully on the second machine, then reported delayed hover feedback and unchanged open provider sessions. Settings 0.8.8 previews the selected hover level before saving and uses method-based native integration for newer Codex and Claude builds. Codex open threads use their native next-turn setter; drafts use the native draft setter with advertised model effort mapping. Claude uses native channel flag settings with readback and revision-aware picker adoption. Verification: 493 tests passed with three existing skips; actual installed provider bundles passed syntax and idempotence checks; a real VS Code hover command reached Claude's actual setter through a controlled channel, High then Low. Codex preserved its real open tab and backend during broadcasts. Packaged trusted/untrusted host checks passed with clean Python. Settings 0.8.8 is installed locally, 0.8.7 is hash-backed up, and backed-up provider integrations are prepared for the next normal reload. Authenticated conversations, native visual rendering, second-machine 0.8.8 behavior, integration and release remain open. [Evidence](releases/v4/v4.15/development/settings-portability-repair.md).
 
 **Settings effort follow-up, 2026-11-16:** The second machine's dry run confirmed missing `tomlkit` refused both Codex default writes; the untrusted project override was correctly skipped. Settings 0.8.7 prepares private TOML support after that exact refusal and retries once. It also removes false CLI-discovery warnings for matching saved effort, exposes provider reasons, opens the panel after a failed hover save, and rereads after editor synchronization. Verification: 480 tests passed with three existing skips; packaged trusted and untrusted VS Code hosts passed using a clean Python interpreter without `tomlkit`. The trusted hover action prepared support and confirmed matching internal, Claude and Codex defaults; untrusted settings were preserved. Settings 0.8.7 is installed here with matching package files, and 0.8.6 is hash-backed up. Second-machine verification, active Claude picker synchronization, integration and release remain open. [Evidence](releases/v4/v4.15/development/settings-portability-repair.md).
@@ -56,9 +64,10 @@ The publication-blocking guide test was repaired separately in [PR #653](https:/
 | v4.15.0 | 20/20 | Merged through PR #637 (`46c411454`, 29 checks green) and released as v4.15.0 on 2026-11-12. |
 | v4.15.1 | 10/19 | Three local commits are ready for coordinator work; shared dispositions, comprehensive validation, final handbook evidence, and publication remain open. The `/status` command and progress footer ship as a standalone pull request with the v4.15.1 release instead of a plan fold (maintainer decision, 2026-11-13), because the checker still hard-codes v4.15.0-v4.15.4 plan text. |
 | v4.15.2 | 0/55 | Not admitted; v4.15.0 integration is required. The separately authorized guidance prerequisite is qualified and being published. |
-| v4.15.3 | 0/32 | Not admitted; cadence execution requires the merged v4.15.2 evaluator. Four task IDs repeat in the frozen prose. |
-| v4.15.4 | 10/23 | Phases 1-3 are locally committed; archive and worktree boundary qualification continues. |
-| Total | 40/162 (24.7%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
+| v4.15.3 | 32/32 | Released as v4.15.3 on 2026-11-18 via PRs #689 to #692. Six follow-ups moved to the v4.16 known-gaps ledger (DF-50 to DF-52, MT-11, QG-7, WN-39); QG-6 was resolved by hosted CI. Four task IDs repeat in the frozen prose. |
+| v4.15.4 | 23/23 | Released as v4.15.4 on 2026-11-18 via PRs #694 to #700. |
+| v4.15.5 | 36/36 | Merged through pull requests #702 and #704; hosted CI passed every group. Release pending. |
+| Total | 121/198 (61.1%) | Local task-line progress only; there are 158 distinct task IDs across these plans. |
 
 - [x] Complete the approved [v4.15 instruction audit](releases/v4/v4.15/development/instruction-necessity-audit.md) candidate and remaining minor work; retain [the queue assessment](releases/v4/v4.15/development/v4.15.0-queue-assessment.md), local phase evidence, and native completion checks as the authority for their respective claims.
 - [ ] Merge only the separately authorized v4.16.2 Phase 1 guidance prerequisite, then record the satisfying commit before v4.15.2's dependent phases. The remaining v4.16.2 phases and its release remain outside this run. Complete the v4.15.2 evaluator before v4.15.3 cadence execution.
@@ -566,7 +575,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
 - [x] Complete the [v4.15.3 agent-speed comparison](releases/v4/v4.15/comparisons/v4.15.3-comparison-agent-speed-kv-handoffs-mods-and-local-search.md) (Claude Code mods delta, KV-cache handoffs, AI-built Office clones, DigUp local search).
 - [ ] Operator action A1: remove the three legacy instruction spans and the duplicate skill index from `~/.claude/CLAUDE.md` with `--remove-legacy-instructions=<token>`, then re-run `measure_rendered_context.py`.
-- [ ] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
+- [x] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
 
 ## Queued work - v4.14.5 Codex memory levers
 
@@ -595,6 +604,14 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
 - [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
+
+## Queued work - v4.15.5 `/status` removal
+
+- [x] Remove the deprecated `/status` command in v4.15.5, as the v4.15.4 release notes announce: delete `catalog/commands/status.md`, update `AGENTS.md`, the guide's command list, `progress.md`, `progress-reporting.md` and `tests/skills/test_status_command_contract.py`, and make sure an upgrade removes the installed copy. The removal was first promised for v4.15.4 and was moved by maintainer decision on 2026-11-18.
+
+## Queued work - v4.16 plan task-target validation
+
+- [ ] Reject task lines whose target can never be proved, before a plan is frozen. Plan validation (the closing pass `/plan` already runs) must refuse a task line whose final token is an annotation rather than a repository path, such as `(gitignored)`, and a target that Git ignores. It must still allow a planned output file that does not exist yet. Authoring guidance in `implementation-plan` should tell owner and manual tasks to name the committed record of the session as their target. Source: MileStone v0.2 T005 (2026-11-18), which ended with `app/src/test/resources/fixtures-private/ (gitignored)` and can never be met; its owner accepted it as recorded and declined both the local owner-evidence candidate and a general task-target correction feature. Done when the validator fails on both cases with a clear message, accepts a not-yet-created planned path, and tests cover all three.
 
 ## Queued work - v4.15.4 checker evidence and diagnostics
 
