@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 26
+**Open items**: 25
 
 ## v4.16.0
 
@@ -12,7 +12,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 21 | 0 |
-| Bugs / regressions (BG) | 3 | 0 |
+| Bugs / regressions (BG) | 2 | 1 |
 | Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -363,22 +363,6 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 **Reason**: A forged projection paired with a matching expected context can inject findings, because the projection carries no seal. **Suggested next step**: optional hardening; add `run_fingerprint` to the expected context. **Acceptance**: a projection whose fingerprint does not match the run is rejected. **Proving command**: a negative test with a forged projection.
 
-#### BG-10: Per-plan migration check rejects the minor-scoped label the minor-close tool writes
-
-**Source phase**: 2026-11-21 Nexus-AI v2.16 minor close (observed downstream, not fixed).
-
-**Plan reference**: none; found while closing a consumer project's minor.
-
-**Reason**: `scripts/minor_close.py` writes `**Migrated from**: <minor>#<id>` (for example `v2.16#DF-1`), but `scripts/completion_minor.py::plan_migration_met` builds the label from the patch section (`v2.16.0#DF-1`). Every item migrated by a minor close therefore reads `migration-target-missing`, and `gaps.carried` can never pass for that minor's plans. Nexus-AI v2.16 shows 248 such items.
-
-**Owner**: catalog maintainer. **Severity**: medium - a correct minor close cannot reach `PLAN COMPLETE`. **Status**: open.
-
-**Suggested next step**: accept both the patch-scoped and the minor-scoped label when the minor-scoped one names the item's minor and the item id is unique in that minor; add a test that runs a minor close and then the plan check.
-
-**Acceptance**: a plan whose gaps were migrated by `minor_close.py` reports `gaps.carried` met.
-
-**Proving command**: `python -B -m pytest tests/validators/test_gap_migration_and_archive.py -q`
-
 #### BG-11: A run record cannot be found after its worktree is removed
 
 **Source phase**: 2026-11-21 Nexus-AI v2.16 minor close (observed downstream, not fixed).
@@ -399,6 +383,24 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+#### BG-10: Per-plan migration check rejects the minor-scoped label the minor-close tool writes
+
+**Source phase**: 2026-11-21 Nexus-AI v2.16 minor close (observed downstream, not fixed).
+
+**Plan reference**: none; found while closing a consumer project's minor.
+
+**Reason**: `scripts/minor_close.py` writes `**Migrated from**: <minor>#<id>` (for example `v2.16#DF-1`), but `scripts/completion_minor.py::plan_migration_met` builds the label from the patch section (`v2.16.0#DF-1`). Every item migrated by a minor close therefore reads `migration-target-missing`, and `gaps.carried` can never pass for that minor's plans. Nexus-AI v2.16 shows 248 such items.
+
+**Owner**: catalog maintainer. **Severity**: medium - a correct minor close cannot reach `PLAN COMPLETE`. **Status**: resolved.
+
+**Suggested next step**: accept both the patch-scoped and the minor-scoped label when the minor-scoped one names the item's minor and the item id is unique in that minor; add a test that runs a minor close and then the plan check.
+
+**Acceptance**: a plan whose gaps were migrated by `minor_close.py` reports `gaps.carried` met.
+
+**Proving command**: `python -B -m pytest tests/validators/test_gap_migration_and_archive.py -q`
+
+**Resolution**: `plan_migration_met` in `scripts/completion_minor.py` falls back to the minor form when the patch form is missing and the id occurs once in the source ledger; a repeated id still needs the patch form. Test: `test_plan_check_accepts_minor_close_label_only_for_a_unique_id`.
 
 #### DF-53: Historical ledgers incompatible with fail-closed parsing
 
