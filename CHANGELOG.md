@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **One central place for every git worktree.** `nexus-hub worktree` (`path`, `create`, `list`, `audit`, `migrate`) and its helper `scripts/nexus_worktrees.py` put each linked worktree at `<root>/<repository-identity>/<worktree-name>`. The root is `NEXUS_WORKTREE_ROOT`, then `~/.nexus-hub/config/worktrees.json`, then `~/.worktrees`; the identity is the repository name plus a stable 8-character hash. `audit` is a resumable, read-only machine scan with an explicit coverage ledger. `migrate` moves worktrees only from a reviewed manifest after the user approves it (`--approve`, which agent tool calls cannot run) and each worktree's owner acknowledges it (`--ack`); it preserves dirty, staged, untracked and ignored content, re-checks every item before moving it, verifies branch, HEAD, index and files afterwards, records a receipt, and never removes or unlocks anything. A dirty worktree is proposed as an exception unless `--include-dirty` is given, and the manifest records its hashing budget (`--hash-budget-mib`). Runbook: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md).
+- **A placement guard for `git worktree add` and `git worktree move`.** The always-on `worktree-policy` PreToolUse hook (`worktree-policy.sh`, `worktree-policy.ps1`, `_worktree_policy.py`), registered for `Bash|PowerShell` and in the Antigravity `run_command` group, denies a destination outside the central root, including a relative one after `cd` or `Set-Location`, and denies `migrate --approve` from an agent. It reads only the proposed command and ignores quoted text and heredoc bodies.
+- **Session start reports misplaced worktrees.** In a git repository, session start runs the installed helper's `list` for that repository (local, read-only, 10-second limit) and prints `Worktrees: N outside <root>/<identity>, M prunable` when anything is out of place. It stays silent when everything is in place or the helper is not installed; `NEXUS_WORKTREE_NOTICE=off` turns it off. The instruction templates and the `using-git-worktrees` skill tell the agent to check placement at session start and plan boundaries, propose moves for one user approval, retire merged worktrees through `cleanup_merged.py`, and report what remains.
+
+### Changed
+
+- **During an implementation run, the progress report is the closing message.** All fourteen instruction templates and the session-start status line now say that the report `status_report.py` prints replaces the Completed / Verified / Open / Next summary and any output-style insight boxes, and that its snapshot is built from an up-to-date checkout. A message that asks a new decision uses the full report with the decision in its Decisions section. Running sessions pick this up at their next start or compaction.
+- **`using-git-worktrees`, the implement runbook and the fourteen instruction templates place worktrees at the central root** and create them with `nexus-hub worktree create`.
+
+Capability usage for the new surfaces:
+
+- Activation: nothing is opt-in. The guard, the helper and the session-start notice install with the normal installers.
+- Validation command: `nexus-hub worktree path --repo <checkout> --name <name> --json`, then `nexus-hub worktree list --repo <checkout> --json`.
+- Disable or rollback: remove the `worktree-policy` group from the installed `settings.json` (or the Antigravity `hooks.json` entry); set `NEXUS_WORKTREE_NOTICE=off` for the session-start notice. `NEXUS_HOOK_PROFILE` and `NEXUS_DISABLED_HOOKS` do not disable the guard by design.
+- Authority not granted: the guard never runs the command it reads; `migrate` acts only on a manifest the user approved and items their owners acknowledged, and never removes, unlocks or prunes; the session-start notice only reads.
+- Documentation: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md) and [`using-git-worktrees`](catalog/skills/workflow/using-git-worktrees/SKILL.md).
+
 ### Fixed
 
 - **A slow approval command no longer spends your approval without recording it.** `record permit-member-execution-paths` and `record amend-minor` rechecked their page only after spending the single-use approval code, and the whole command shared one 60-second budget. On a busy machine the recheck ran out of time, so the approval was used up and nothing was written; the next attempt reported `code-used`. Both commands now run the recheck before spending the code, keep the final recheck, and give each expensive stage its own budget.

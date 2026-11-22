@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 116
+**Open items**: 123
 
 ## v4.15.0
 
@@ -3826,6 +3826,76 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: 13 worktrees are bound to live signed v4.15 runs, 1 is locked by its owner and 1 has a missing or prunable git registration. The runs finish only after v4.15.6 ships, so the user chose to close Phase 4 with these 15 recorded as approved deferrals (2026-11-21) instead of holding the release order.
 
 **Suggested next step**: at minor close, run the worktree hygiene step: move each finished run's worktree with a reviewed manifest, ask the owner about the locked one, and inspect the missing registration by hand before any prune.
+
+#### WN-51: Interrupted-item recovery reads state outside the repository lock
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: `recover_item` classifies an interrupted move outside the repository lock, so a concurrent operation could change the state it reads.
+
+**Suggested next step**: take the repository lock around recovery and add a concurrency test.
+
+#### WN-52: Notice files are keyed by manifest file name
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: a dry run rewrites `<state>/notices/<manifest name>.txt`; reusing a manifest name after deleting the manifest overwrites the old notices' tokens.
+
+**Suggested next step**: key notice files by manifest digest and refuse to overwrite a notice file for a different digest.
+
+#### WN-53: Relative gitdir pointers are not normalized
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: with `worktree.useRelativePaths` (Git 2.48 and later) Git writes relative gitdir pointers; the back-pointer and ownership checks assume absolute pointers.
+
+**Suggested next step**: read and normalize relative pointers, with a fixture repository using the setting.
+
+#### WN-54: Destination length is checked for the folder only
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: the migration checks the destination folder's path length, not the deepest path inside the worktree, so a move can exceed the platform limit for a nested file.
+
+**Suggested next step**: measure the deepest path before a move and refuse when it would exceed the platform limit.
+
+#### WN-55: Placement guard does not verify the identity folder
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: the guard checks that a destination sits two levels under the root, not that the identity folder belongs to the repository being changed.
+
+**Suggested next step**: compare the identity folder with the identity mapping when the guard can read it.
+
+#### WN-56: Unquoted heredoc bodies are treated as text
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: an unquoted bash heredoc can run command substitutions, but the guard treats every heredoc body that does not feed a shell as text.
+
+**Suggested next step**: inspect command substitutions inside unquoted heredoc bodies.
+
+#### WN-57: Submodule state is outside the move fingerprint
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: inspection status uses `--ignore-submodules=all`, so submodule state is not part of the fingerprint; submodule worktrees are refused by a separate check.
+
+**Suggested next step**: fingerprint submodule HEADs when submodule worktrees become supported.
 
 ### Resolved
 

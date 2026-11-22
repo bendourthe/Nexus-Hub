@@ -16,6 +16,11 @@
 $ErrorActionPreference = "Continue"
 $script:NexusTag = "[Nexus-Hub: worktree-policy]"
 
+function Write-NexusMessage {
+    param([string]$Message)
+    [Console]::Error.WriteLine("$script:NexusTag $Message")
+}
+
 if (-not [Console]::IsInputRedirected) { exit 0 }
 $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
 $inputText = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
@@ -53,7 +58,7 @@ foreach ($candidate in @("python", "python3", "py")) {
     }
     # 0 allows and 42 is the helper's denial; any other code means this interpreter did not run it.
     if ($rc -eq 0 -or $rc -eq 42) {
-        if ($stderrText) { [Console]::Error.Write($stderrText) }
+        if ($stderrText) { [Console]::Error.Write($stderrText) }  # nexus: hook-msg-exempt relays the helper's own tagged message
         if ($rc -eq 42) { exit 2 }
         exit 0
     }
@@ -61,7 +66,7 @@ foreach ($candidate in @("python", "python3", "py")) {
 
 # No usable interpreter: a worktree add or move cannot be certified, anything else is allowed.
 if ($inputText -match '(?i)worktree\s+(add|move)') {
-    [Console]::Error.WriteLine("$script:NexusTag BLOCKED: no Python interpreter is available to certify a worktree add or move. Use: nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>.")
+    Write-NexusMessage "BLOCKED: no Python interpreter is available to certify a worktree add or move. Use: nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>."
     exit 2
 }
 exit 0

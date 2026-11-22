@@ -16,6 +16,10 @@
 set -uo pipefail
 
 readonly _NEXUS_TAG="[Nexus-Hub: worktree-policy]"
+
+_nexus_msg() {
+  printf '%s %s\n' "$_NEXUS_TAG" "$1" >&2
+}
 # Builtins only up to the interpreter probe, so a stripped PATH still reaches the fallback.
 source_path="${BASH_SOURCE[0]//\\//}"
 here="${source_path%/*}"
@@ -39,7 +43,7 @@ done
 # No usable interpreter: a worktree add or move cannot be certified, anything else is allowed.
 shopt -s nocasematch
 if [[ "$payload" =~ worktree[[:space:]]+(add|move) ]]; then
-  printf '%s BLOCKED: no Python interpreter is available to certify a worktree add or move. Use: nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>.\n' "$_NEXUS_TAG" >&2
+  _nexus_msg "BLOCKED: no Python interpreter is available to certify a worktree add or move. Use: nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>."
   exit 2
 fi
 exit 0
