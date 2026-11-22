@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 25
+**Open items**: 27
 
 ## v4.16.0
 
@@ -12,7 +12,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 21 | 0 |
-| Bugs / regressions (BG) | 2 | 2 |
+| Bugs / regressions (BG) | 4 | 2 |
 | Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -222,6 +222,38 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 **Acceptance**: `check <plan>` on a plan whose minor migrated about 250 items reports `gaps.carried` and `archive.minor` met within the budget.
 
 **Proving command**: manual: run `check_plan_completion.py check <archived v2.16.2 plan>` from the Nexus-AI main checkout and read the two conditions
+
+#### BG-13: A frozen minor member cannot be marked superseded without reading as tampered
+
+**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
+
+**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
+
+**Reason**: `scripts/completion_minor.py::member_identity_ok` accepts a member plan only when its text hashes to the frozen `plan_sha256` or to the signed `archived` copy. Nexus-AI v2.16.0 was never tagged and its work shipped in v2.16.1, so after the minor archive the plan was marked `**Status**: superseded` with a `**Superseded by**` line (Nexus-AI commit `11608045`). The frozen hash matches the archived plan at Nexus-AI `1d31132a`; that two-line edit is the only later change, and it makes `_verified` fail, so `check-minor v2.16` reads `BLOCKED: record-tampered`. There is no signed way to record that a member was superseded.
+
+**Owner**: catalog maintainer. **Severity**: medium - a legitimate status update to a closed member blocks the minor verdict permanently. **Status**: open.
+
+**Suggested next step**: add a signed member disposition (for example `superseded_by` with the post-edit hash, written by a `record` action), or exclude the plan header's `Status` and `Superseded by` lines from the member hash; keep every other edit `record-tampered`.
+
+**Acceptance**: a minor whose member plan is marked superseded through the supported path verifies; any other edit to that plan still reads as `record-tampered`.
+
+**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI controller worktree after moving it to current `develop`
+
+#### BG-14: A minor record's controller failure is reported as `record-tampered`
+
+**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
+
+**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
+
+**Reason**: `scripts/completion_minor.py::_verified` returns False when `require_controller` raises `controller-mismatch`, and `load_minor` turns every False into `BLOCKED: record-tampered`. Run from the main checkout, the Nexus-AI v2.16 record reads as tampered although its HMAC verifies, because its `implementation_controller.repo_root` names the separate `Nexus-AI-controller` worktree. The real cause is therefore hidden, and once that controller worktree is removed (which cleanup is meant to do) the record cannot verify from any checkout. This is the minor-record counterpart of BG-11.
+
+**Owner**: catalog maintainer. **Severity**: medium - the verdict names the wrong cause, and cleanup makes a finished minor unverifiable. **Status**: open.
+
+**Suggested next step**: report the controller refusal by its own name (`controller-mismatch` naming the expected worktree), and resolve a completed minor record from the main checkout when the recorded controller worktree no longer exists, as `record rekey` does for plan records.
+
+**Acceptance**: `check-minor` from the main checkout names the controller problem instead of `record-tampered`, and a completed minor whose controller worktree was removed still verifies.
+
+**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI main checkout and read the verdict
 
 #### WN-34: Pytest runs left five empty lock files in the real user state folder
 
