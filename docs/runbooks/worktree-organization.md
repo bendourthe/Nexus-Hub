@@ -21,6 +21,7 @@ Run these in any terminal where `nexus-hub` is on the path. Every action prints 
 - `nexus-hub worktree path --repo <checkout> --name <name> --json` resolves the destination and writes nothing.
 - `nexus-hub worktree create --repo <checkout> --branch <branch> --base <commit> --name <name>` creates a new branch and its worktree. It is serialized per repository and rechecks the destination under the lock. Running it again for the same branch and name reports `exists`.
 - `nexus-hub worktree list --repo <checkout> --json` shows registered worktrees, their canonical destinations and whether each is in policy.
+- `nexus-hub worktree migrate --dry-run|--approve|--ack|--apply --manifest <file> --expect-sha256 <digest>` runs the reviewed move campaign; `--ack` also takes `--item`, `--token` and `--checkpoint-note` from the notice line. See Migration below. `--approve` belongs to the user and `--ack` to each worktree's owner.
 - `nexus-hub worktree audit --machine --json --output <new-report>` scans every fixed local volume, read-only, and writes a coverage report. `--root <dir>` limits it, `--deep` removes the dependency-folder exclusion hints, `--max-seconds` and `--resume` split a long scan.
 
 Exit codes: 0 complete, 2 refused before any change, 3 partial or could not verify. A refusal prints `{"status": "refused", "code": ...}`. A partial audit is never exit 0, and it leaves a checkpoint that `--resume` continues.
@@ -73,7 +74,16 @@ A worktree named by a live signed run record finishes in place. When the run rea
 
 ## Agent Notices
 
-Two copy-ready notices for the agents and people who work in moved worktrees. Fill the bracketed values from the reviewed manifest and its notice file. Never send a notice that claims a move before apply verified it.
+Two copy-ready notices for the agents and people who work in moved worktrees. Never send a notice that claims a move before apply verified it.
+
+Where the bracketed values come from:
+
+- `<manifest>` and `<digest>`: the manifest file the dry run wrote (at the `--manifest` path it was given) and the `sha256` it printed (the user's approval receipt is `<state>/approvals/<digest>.json`).
+- Only move items get a notice line. An exception item (uncommitted changes, a live signed run, a lock, another repository) has no id line and no token: it stays where it is, nobody acknowledges it, and the next dry run proposes its move once the owner commits or discards the work or the run ends.
+- `<id>` and `<token>`: the line for this worktree in `<state>/notices/<manifest name>.txt`, which the dry run wrote. Match it by the old path; `list` does not show item ids.
+- `<state>` is `NEXUS_WORKTREE_STATE` when set, otherwise `~/.nexus-hub/state/worktrees`.
+- The owner is the person or agent working in that worktree. A worktree nobody is working in is owned by the user, who acknowledges it. An agent never acknowledges a worktree it was not working in.
+- Check for uncommitted work with `git -C <old path> status --porcelain`; any output keeps the worktree in place as an exception.
 
 ### Before a move (proposed)
 
