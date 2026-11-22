@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 24
+**Open items**: 25
 
 ## v4.16.0
 
@@ -12,7 +12,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 21 | 0 |
-| Bugs / regressions (BG) | 1 | 2 |
+| Bugs / regressions (BG) | 2 | 2 |
 | Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -206,6 +206,22 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 **Acceptance**: `marker_integrity` reads N of N on a fresh install of the supported integrations.
 
 **Proving command**: `python -B -m pytest tests/ -k harness_audit -q`
+
+#### BG-12: The 20-second plan-check budget runs out before a large minor's migration proof finishes
+
+**Source phase**: 2026-11-22 Nexus-AI v2.16 re-check after the BG-10 and BG-11 fixes (observed downstream, not fixed).
+
+**Plan reference**: none; found while re-checking a consumer project's archived minor.
+
+**Reason**: `scripts/check_plan_completion.py` gives every plan check a fixed `BUDGET_SECONDS = 20.0` with no override. On the archived Nexus-AI v2.16.2 plan the `gaps.carried` proof over 248 migrated items alone takes 20.7 seconds, so the check reports `INCOMPLETE: gaps.carried archive.minor`, both as `cannot-verify`. Run with a 900-second budget, `gaps.carried` is met in 20.7 seconds and `archive.minor` in 0.4 seconds, with no failing git call. The verdict is honest (unproven, not failed) but can never become `PLAN COMPLETE` for a minor of this size.
+
+**Owner**: catalog maintainer. **Severity**: medium - a correct, fully closed minor cannot reach its completion verdict. **Status**: open.
+
+**Suggested next step**: make the migration proof cheaper (for example, read each ledger at `start_head` once instead of once per item), or scale the budget with the number of migrated items; keep `cannot-verify` when the budget is still exceeded.
+
+**Acceptance**: `check <plan>` on a plan whose minor migrated about 250 items reports `gaps.carried` and `archive.minor` met within the budget.
+
+**Proving command**: manual: run `check_plan_completion.py check <archived v2.16.2 plan>` from the Nexus-AI main checkout and read the two conditions
 
 #### WN-34: Pytest runs left five empty lock files in the real user state folder
 
