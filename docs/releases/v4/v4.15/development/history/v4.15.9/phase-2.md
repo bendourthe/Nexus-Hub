@@ -17,3 +17,22 @@ Started 2026-11-17T23:56Z.
 ## CI impact
 
 No new commands, dependencies, or test paths. The manifest test needs the coordinator's plugin.json update to pass.
+
+## Completion pass (2026-11-21)
+
+- T012: `.claude-plugin/plugin.json` lists `./catalog/agents/log-reader.md` (it is in this plan's declared write paths), and its description now reads 24 agents. The README and AGENTS.md agent counts stay coordinator deltas.
+- T010 effort: the 1.2 evidence is now fetched. Haiku 5.5 accepts effort, but a subagent on a model other than the main conversation's never inherits the session level, so `log-reader` keeps no effort line and its row records `Effort: none` with that reason.
+
+## Plan delta
+
+No delta. Consequence for remaining phases: none.
+
+## Verification (completion pass)
+
+- `pytest tests/validators/test_claude_plugin_manifests.py tests/validators/test_agent_model_pinning.py tests/validators/test_agent_effort_ceiling.py`: 8 passed.
+- `python -B scripts/ci/run.py --profile fast --quiet`: 18 passed, 0 failed.
+- Verification Expectation still not exercised: it needs a fresh live Claude Code session, and this lane runs no live session or spend. Proposed as a QG gap in `v4.15.9-coordinator-deltas.md`; the matching exit-checklist item stays unticked.
+
+## CI impact (completion pass)
+
+No new commands, dependencies, or test paths.
