@@ -6664,7 +6664,8 @@ def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = Non
         if rc:
             return "cannot-verify"
         paths.update(p for p in out.split("\0") if p)
-    writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else [])]
+    writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else []),
+              *_permitted_implementation_writes(ck, record, member)]
     try:
         for path in paths:
             _literal_path(ctx.root, path + "/" if (ctx.root / path).is_dir() else path)
@@ -7019,7 +7020,8 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
     if rc:
         return "cannot-verify"
     try:
-        writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else [])]
+        writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else []),
+                  *_permitted_implementation_writes(ck, record, member)]
         if any(not isinstance(p, str) for p in writes):
             return "cannot-verify"
         archived = _archive_only_paths(rctx, record, member, base, merge) if len(parents) == 2 else set()
@@ -7646,6 +7648,20 @@ def _execution_capture_valid(ck, record, page, accepted, *, capture=False):
     return _v415_capture_valid(ck, view, page, accepted, _EXECUTION_ACTION, verify_capture=capture)
 
 
+def _granted_after_start(implementation: dict, accepted: object) -> bool:
+    """True for a started-member grant: captured strictly after the member's implementation started.
+
+    A dormant grant captured before admission must still be covered by the admitted write paths;
+    a grant captured after start is itself the authority that adds its plan-listed paths.
+    """
+    try:
+        started = dt.datetime.fromisoformat(str(implementation.get("started")))
+        at = dt.datetime.fromisoformat(str(accepted.get("at")))  # type: ignore[union-attr]
+    except (TypeError, ValueError, AttributeError):
+        return False
+    return started.tzinfo is not None and at.tzinfo is not None and at > started
+
+
 def execution_permission_history(ck: ModuleType, record: dict, *, capture: bool = False) -> list[dict]:
     if not _require_execution_protocol(ck, record, MINOR_EXECUTION_PROTOCOL):
         return []
@@ -7682,7 +7698,9 @@ def execution_permission_history(ck: ModuleType, record: dict, *, capture: bool 
                 identity = {name: implementation.get(name) for name in ("worktree", "branch", "base_head")}
                 if identity != page["worker_identity"]:
                     raise ck.MinorConflict("minor-execution-worker-identity-changed")
-                if page["role"] == "implementation" and not set(page["write_paths"]) <= set(implementation.get("write_paths", [])):
+                if (page["role"] == "implementation"
+                        and not set(page["write_paths"]) <= set(implementation.get("write_paths", []))
+                        and not _granted_after_start(implementation, entry["accepted"])):
                     raise ck.MinorConflict("minor-execution-worker-paths-changed")
                 if page["role"] == "coordinator" and _manifest_implementation_sha256(member) != page["implementation_sha256"]:
                     raise ck.MinorConflict("minor-execution-original-claims-changed")
@@ -7841,7 +7859,17 @@ def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, 
             or worker._git_out("symbolic-ref", "--quiet", "--short", "HEAD") != member["source_branch"]):
         raise ck.Malformed("minor-execution-worker-plan-or-branch-unverified")
     if role == "implementation":
-        if member.get("implementation") is not None or worker._git_out("status", "--porcelain"):
+        started = member.get("implementation")
+        if started is not None:
+            # Started-member route: the admitted worker only, clean, at its recorded place.
+            if (not isinstance(started, dict) or not isinstance(started.get("worktree"), str)
+                    or Path(started["worktree"]).resolve() != root
+                    or started.get("branch") != member["source_branch"]):
+                raise ck.Malformed("minor-execution-started-worker-moved")
+            if worker._git_out("status", "--porcelain"):
+                raise ck.Malformed("minor-execution-started-worker-dirty")
+            return {name: started[name] for name in ("worktree", "branch", "base_head")}
+        if worker._git_out("status", "--porcelain"):
             raise ck.Malformed("minor-execution-worker-already-started-or-dirty")
         head = worker._git_out("rev-parse", "HEAD")
         if (not head or _ancestor(rctx, head, integration) != "met"
@@ -7855,6 +7883,27 @@ def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, 
     if status != "met" or _execution_unclaimed_sensitive(worker, integration):
         raise ck.Malformed("minor-execution-original-scope-unverified")
     return {name: implementation[name] for name in ("worktree", "branch", "base_head")}
+
+
+def _plan_declared_write_paths(text: str) -> set[str]:
+    """`write_paths` of the worker claims object in the plan's ownership section; empty when absent."""
+    heading = "## Implementation dependencies and ownership"
+    start = text.find(heading)
+    if start < 0:
+        return set()
+    end = text.find("\n## ", start + len(heading))
+    for line in text[start:end if end >= 0 else len(text)].splitlines():
+        candidate = line.strip().strip("`").strip()
+        if not candidate.startswith("{") or '"depends_on"' not in candidate:
+            continue
+        try:
+            value = _execution_json(candidate)
+        except MinorMalformed:
+            continue
+        paths = value.get("write_paths") if isinstance(value, dict) else None
+        if isinstance(paths, list) and all(isinstance(p, str) for p in paths):
+            return set(paths)
+    return set()
 
 
 def execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str, value: object,
@@ -7882,6 +7931,10 @@ def _execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, re
         plan = next(p for p in scan_plans(rctx.root, 4, 15) if p.version == version)
         if not member_identity_ok(ck, member, plan) or any(not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(p) + r"(?![A-Za-z0-9_./-])", plan.text) for p in paths):
             raise MinorMalformed("minor-execution-path-outside-frozen-plan")
+        if role == "implementation" and member.get("implementation") is not None:
+            declared = _plan_declared_write_paths(plan.text)
+            if any(p not in declared for p in paths):
+                raise MinorMalformed("minor-execution-path-outside-plan-write-paths")
         recipe = _execution_recipe(frozen["plan_path"], frozen["plan_sha256"], plan.text)
     except (StopIteration, MinorMalformed) as exc:
         raise ck.Malformed(str(exc) or "minor-execution-plan-missing") from exc
@@ -8497,6 +8550,13 @@ def _execution_path_allowed(ck, record, member, path, *, role=None, admission=Fa
         rule = (declared_for_member(member) or {}).get("execution")
         role = rule["role"] if rule else "implementation"
     return path in execution_permission_paths(ck, record, member, role, for_admission=admission)
+
+
+def _permitted_implementation_writes(ck, record, member) -> list[str]:
+    """Paths a captured implementation execution permission adds to a started member's write scope."""
+    if ck is None or record is None or member is None:
+        return []
+    return execution_permission_paths(ck, record, member, "implementation")
 
 
 def _member_write_permitted(ck, record, member, path, *, admission=False):
