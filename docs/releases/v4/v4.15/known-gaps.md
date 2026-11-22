@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 115
+**Open items**: 116
 
 ## v4.15.0
 
@@ -3816,6 +3816,16 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: `cleanup_merged.py --dry-run` printed `KEEP ... detached` for `develop-install-2ef94ca` and `develop-install-8bc588e`, and `head-mismatch` for `check-minor-budget-qualified`, so leftover install-test worktrees accumulate with no supported removal path.
 
 **Suggested next step**: decide (decision record) whether a clean, idle, detached worktree whose HEAD is reachable from the integration branch becomes a removal candidate, and extend the executor with that check.
+
+#### DF-66: 15 worktrees deferred out of the v4.15.6 move campaign
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: 13 worktrees are bound to live signed v4.15 runs, 1 is locked by its owner and 1 has a missing or prunable git registration. The runs finish only after v4.15.6 ships, so the user chose to close Phase 4 with these 15 recorded as approved deferrals (2026-11-21) instead of holding the release order.
+
+**Suggested next step**: at minor close, run the worktree hygiene step: move each finished run's worktree with a reviewed manifest, ask the owner about the locked one, and inspect the missing registration by hand before any prune.
 
 ### Resolved
 

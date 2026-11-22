@@ -10,9 +10,9 @@
 | Task | Outcome |
 |---|---|
 | T013 | Complete. The candidate `82b02fec7` passed independent review and the focused suites. The full machine audit was partial, so the user accepted a derived inventory (5 repositories, 117 worktrees). The reviewed manifest `v4156-manifest-3.json` has SHA-256 `b2b4d2537d83...`. |
-| T014 | Notices written, validation open. `docs/runbooks/worktree-organization.md` now has copy-ready pre-move and post-move notices built from verified state; none was delivered. The independent-agent check of the notice has not run. |
+| T014 | Notices written, validation open. `docs/runbooks/worktree-organization.md` now has copy-ready pre-move and post-move notices built from verified state; none was delivered. Validated: two independent read-only agents located the `fix-range-lines` exception worktree from the notice alone and reached the correct action; the gaps they reported were closed in `ead03afc8`. |
 | T015 | Complete for the approved scope. The user approved and acknowledged 50 moves; apply moved and verified all 50 (exit 3, `partial`, 67 unresolved by design). The read-only smoke passed 50 of 50. Removal candidates: the dry run printed `KEEP` for all three, so none was deleted. |
-| T016 | Open. Conservation balances (96 registrations before and after, none lost), but pending items remain: 1 locked, 1 registration-missing, and the live-run and active-run worktrees that move at minor close. |
+| T016 | Done. Conservation balances (96 registrations before and after, none lost), but pending items remain: 1 locked, 1 registration-missing, and the live-run and active-run worktrees that move at minor close. The user chose option A on 2026-11-21: the 15 pending items are approved deferrals recorded as DF-66. |
 
 ## Evidence
 
@@ -38,5 +38,5 @@ None. No pipeline file and no test file changed in this phase.
 
 ## Next steps
 
-- Phase 5: the independent-agent notice validation (T014), the coordinator deltas, the full local gate, then the single push.
-- After release: the cross-repository and second-machine campaign (DF-64).
+- Phase 5: the coordinator deltas, the full local gate, then the single push.
+- After release: the cross-repository and second-machine campaign (DF-64), and the 15 deferred worktrees at minor close (DF-66).
