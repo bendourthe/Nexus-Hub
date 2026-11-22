@@ -19,6 +19,11 @@
 - Live v4.15 record: `lane_health.py notice --repo .` printed 7 idle members in 0.6 s (v4.15.7 `needs-user`, v4.15.9 `resumable`, v4.15.8 and v4.15.10 to v4.15.13 `unadmitted`), the three blind spots that let the run sit idle.
 - Focused suites: `tests/test_lane_idle.py` 8 passed; `tests/test_lane_health.py` 15 passed; the status report, snapshot, reporting and command-contract suites 121 passed; `catalog/hooks/tests/test_session_start_lane_notice.py` plus `test_session_start.py` 44 passed on bash and Windows PowerShell; the CI partition and engine guards 126 passed.
 
+## Full-profile failure triage
+
+- `repo-tests-integrations-map` (`ModuleNotFoundError: No module named 'tree_sitter'`): a local environment gap, not a branch defect. CI installs `extensions/nexus-code-search[dev]`, whose `pyproject.toml` requires `tree-sitter>=0.24,<0.26`, before that step; this workstation's Python lacks it. No change.
+- `repo-tests-integrations-install` (24 failures in the 23-minute full run): the shard's 17 files run alone pass on this branch at `1a9076e7f` (353 passed, 2 skipped, 12 min) and on a clean `origin/develop` `b3c678a95` worktree (353 passed, 2 skipped, 11 min). The failures do not reproduce in isolation on either tree, so they came from contention in the long full run, not from this branch. No change.
+
 ## Plan delta
 
 Disposition: Approved scope additions. Evidence: during the v4.15 minor run, v4.15.9, v4.15.11 and v4.15.12 sat idle because the coordinator never dispatched them, `lane_health.py check` showed only admitted lanes and reported `stalled: []`, and v4.15.7 waited four days on a user-only grant with no decision raised. The maintainer approved Decision 2 option A (idle-lane warning, 2026-11-21) and, on 2026-11-22, Decision 1 option A and Decision 2 option A again together with four more items: the checker names the dispatch or decision action, a machine-readable blocked heartbeat, a minor-entry re-plan step, and a supported grant route for an already-started member. Consequence for remaining phases: each item lands as its own local commit before T025's full run; frozen plan prose is unchanged.
