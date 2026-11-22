@@ -14,6 +14,7 @@
       $env:NEXUS_SESSION_DIGEST = 'off'               skip digest read only
       $env:NEXUS_SESSION_DIGEST_PATH = '<path>'       override digest path (project-relative)
       $env:NEXUS_SESSION_START_MAX_CHARS = '<int>'    cap digest output (default 8000)
+      $env:NEXUS_WORKTREE_NOTICE = 'off'              skip the worktree placement notice
 #>
 
 $ErrorActionPreference = "Continue"
@@ -94,7 +95,55 @@ if ($inRepo) {
     $gitLine = "Git: unavailable"
 }
 Write-NexusMessage $banner @($gitLine)
-Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
+Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; during a run its verbatim report replaces the Completed / Verified / Open / Next summary and any insight boxes; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
+
+# --- Worktree placement notice (v4.15.6) ---
+# Local and read-only: runs the installed nexus_worktrees.py list for the
+# current repository (git only, no network) and prints one line when a linked
+# worktree sits outside <root>/<identity> or is prunable. Silent outside a
+# repository, when the helper is not installed, on any error, and when clean.
+$wtHelper = Join-Path (Join-Path $homeDir "scripts") "nexus_worktrees.py"
+if ($inRepo -and ($env:NEXUS_WORKTREE_NOTICE -ne "off") -and (Test-Path -LiteralPath $wtHelper -PathType Leaf)) {
+    $wtTop = (git rev-parse --show-toplevel 2>$null)
+    if ($wtTop) {
+        foreach ($wtPython in @("python3", "python")) {
+            $wtJson = ""
+            try {
+                $wtPsi = New-Object System.Diagnostics.ProcessStartInfo
+                $wtPsi.FileName = $wtPython
+                $wtPsi.Arguments = '-B "' + $wtHelper + '" list --repo "' + $wtTop + '" --json'
+                $wtPsi.UseShellExecute = $false
+                $wtPsi.CreateNoWindow = $true
+                $wtPsi.RedirectStandardOutput = $true
+                $wtPsi.RedirectStandardError = $true
+                $wtPsi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+                $wtPsi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+                $wtProc = [System.Diagnostics.Process]::Start($wtPsi)
+                $wtOutTask = $wtProc.StandardOutput.ReadToEndAsync()
+                $null = $wtProc.StandardError.ReadToEndAsync()
+                if ($wtProc.WaitForExit(10000)) {
+                    $wtJson = $wtOutTask.Result
+                } else {
+                    try { $wtProc.Kill() } catch { }
+                }
+            } catch { $wtJson = "" }
+            if (-not $wtJson) { continue }
+            try {
+                $wtData = $wtJson | ConvertFrom-Json
+                $wtLinked = @($wtData.worktrees | Where-Object { -not $_.main })
+                $wtOutside = @($wtLinked | Where-Object { $_.in_policy -eq $false }).Count
+                $wtPrunable = @($wtLinked | Where-Object { $_.prunable }).Count
+                if ($wtOutside -or $wtPrunable) {
+                    $wtDest = Join-Path ([string]$wtData.root) ([string]$wtData.identity)
+                    $wtLine = "Worktrees: {0} outside {1}, {2} prunable. Run the worktree hygiene step (using-git-worktrees)." -f $wtOutside, $wtDest, $wtPrunable
+                    Write-NexusMessage (ConvertTo-NexusVisible $wtLine)
+                }
+            } catch { }
+            break
+        }
+    }
+}
+# --- end worktree placement notice ---
 
 # --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
 if ($env:NEXUS_ENV_FACTS -ceq "on") {
