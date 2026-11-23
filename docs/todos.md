@@ -24,6 +24,11 @@
 
 **Integration branch:** `develop`
 
+**Gemini Neon and native side questions plan:** Target v4.22.14 and the [four-phase, 20-task plan](releases/v4/v4.22/plans/v4.22.14-adoption-gemini-neon-and-native-side-questions.md) were approved for documentation publication on 2026-11-23. Six review lenses raised five distinct findings, all corrected. [Comparison](releases/v4/v4.22/comparisons/v4.22.14-comparison-gemini-neon-and-antigravity-side-questions.md). Implementation remains 0/20 tasks and 0/4 phases; no implementation or release authority granted.
+
+- [ ] Obtain separate execution authority before implementing the approved Gemini and native-side-question plan.
+
+
 **Codex split and release ETA, 2026-11-16:** Authorized maintenance in `fix/codex-split-and-release-eta` opens the Codex editor-title action beside the current editor and separates next-release ETA from whole-scope completion in both status formats.
 
 - [x] Qualify native split behavior in an isolated real VS Code/Codex host from text and webview origins; 493 Settings tests pass with three existing skips, 70 reporting tests pass, and the built VSIX matches qualified runtime bytes. [Evidence](releases/v4/v4.15/development/codex-split-release-eta.md).
