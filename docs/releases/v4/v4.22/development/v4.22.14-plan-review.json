@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-23",
+  "plan": "docs/releases/v4/v4.22/plans/v4.22.14-adoption-gemini-neon-and-native-side-questions.md",
+  "lenses": [
+    "coherence",
+    "feasibility",
+    "product",
+    "scope-guardian",
+    "security",
+    "adversarial"
+  ],
+  "skipped": {
+    "design": "No architecture or data-model changes"
+  },
+  "merge_order": [
+    "fingerprint dedup",
+    "cross-lens promotion",
+    "confidence gate"
+  ],
+  "findings": [
+    {
+      "severity": "P1",
+      "lenses": "coherence, feasibility",
+      "title": "Invalid required paths",
+      "confidence": 100,
+      "disposition": "Corrected handbook-refresh and cicd-integration paths",
+      "status": "resolved"
+    },
+    {
+      "severity": "P1",
+      "lenses": "coherence, feasibility",
+      "title": "Fixture checks used before creation",
+      "confidence": 100,
+      "disposition": "T002 creates schema/oracle checks and T003 names their command",
+      "status": "resolved"
+    },
+    {
+      "severity": "P2",
+      "lenses": "coherence",
+      "title": "Broken completion-contract links",
+      "confidence": 100,
+      "disposition": "Corrected both relative Markdown links",
+      "status": "resolved"
+    },
+    {
+      "severity": "P2",
+      "lenses": "feasibility",
+      "title": "Missing generated index claim",
+      "confidence": 100,
+      "disposition": "Added references/model-profiles.md to exclusive writes",
+      "status": "resolved"
+    },
+    {
+      "severity": "P1",
+      "lenses": "product, adversarial",
+      "title": "Conditional behavioral acceptance",
+      "confidence": 100,
+      "disposition": "Required baseline and candidate fresh-agent outputs for all frozen cases",
+      "status": "resolved"
+    }
+  ],
+  "suppressed": [],
+  "targeted_rechecks": {
+    "feasibility": [],
+    "product": []
+  },
+  "verdict": "APPROVED for documentation publication only",
+  "design_interview_frontier": [],
+  "pending_confirmation": [],
+  "plan_sha256": "e967795cd73e9e0f86708ba79f2925aa003b14dd67d9dabc41a8e5e4b38eeb2c",
+  "approval": {
+    "date": "2026-11-23",
+    "scope": "Reviewed v4.22.14 planning package publication; no implementation or release"
+  }
+}
