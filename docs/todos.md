@@ -28,6 +28,14 @@
 
 - [ ] Obtain separate execution authority before implementing the approved Gemini and native-side-question plan.
 
+**Factory scorers, MCP capabilities, and security gates, 2026-11-25:** A seven-source [comparison](releases/v4/v4.22/comparisons/v4.22.15-comparison-factory-scorers-mcp-and-security-gates.md) was split into two plans at the maintainer's direction. [v4.22.15](releases/v4/v4.22/plans/v4.22.15-adoption-security-gates-and-mcp-capabilities.md) (interim mitigation, pentest validation gate, MCP capabilities, MCP skills-extension decision; 4 phases, 19 tasks) has no prerequisites. [v4.22.16](releases/v4/v4.22/plans/v4.22.16-adoption-redraft-rule-and-transcript-scorers.md) (redraft rule, transcript scorers; 4 phases, 19 tasks) waits for v4.21.0 and v4.22.13. Frontend budgets (A6) were cut and go to the v4.22 known gaps. Three review lenses raised 24 findings; four grill decisions recorded. Paid proof runs capped at USD 30 total. Implementation 0/38 tasks; no implementation or release authority granted.
+
+- [ ] Confirm the v4.22.15 and v4.22.16 phase breakdowns for publication.
+
+- [ ] Implement v4.22.15 under separate execution authority.
+
+- [ ] Implement v4.22.16 after v4.21.0 and v4.22.13 merge, under separate execution authority.
+
 
 **Codex split and release ETA, 2026-11-16:** Authorized maintenance in `fix/codex-split-and-release-eta` opens the Codex editor-title action beside the current editor and separates next-release ETA from whole-scope completion in both status formats.
 
