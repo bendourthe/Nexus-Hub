@@ -345,6 +345,19 @@ def archived_plan_origins(rel: str) -> list[str]:
 ARCHIVED_PLAN_HISTORY_LIMIT = 200
 
 
+def approved_plan_text(rctx: RepoContext, rel: str, frozen: object) -> str | None:
+    """The committed text at `rel` whose plan hash is `frozen`, newest first, or None."""
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "log", "--format=%H",
+                        f"-n{ARCHIVED_PLAN_HISTORY_LIMIT}", "--", rel])
+    if rc != 0:
+        return None
+    for commit in out.split():
+        rc, text = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+        if rc == 0 and frozen in (plan_hash_text(text), legacy_plan_hash_text(text)):
+            return text
+    return None
+
+
 class Context(RepoContext):
     def __init__(self, plan_arg: str, budget: Budget) -> None:
         plan = Path(plan_arg).expanduser()
@@ -403,15 +416,7 @@ class Context(RepoContext):
 
     def _approved_text_at(self, origin: str, frozen: object) -> str | None:
         """The committed text at `origin` whose plan hash is `frozen`, newest first, or None."""
-        rc, out = self.run([self.git, "-C", str(self.root), "log", "--format=%H",
-                            f"-n{ARCHIVED_PLAN_HISTORY_LIMIT}", "--", origin])
-        if rc != 0:
-            return None
-        for commit in out.split():
-            rc, text = self.run([self.git, "-C", str(self.root), "show", f"{commit}:{origin}"])
-            if rc == 0 and frozen in (plan_hash_text(text), legacy_plan_hash_text(text)):
-                return text
-        return None
+        return approved_plan_text(self, origin, frozen)
 
     def record_paths(self) -> list[Path]:
         """[the `plan:<path>` key, the pre-v4.13.6 key], in lookup order."""
@@ -2463,7 +2468,8 @@ def _plan_migration_met(ctx: Context, record: dict | None, gaps: Path, heading: 
     # Ids repeat across version sections, so only this plan's own section counts.
     item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"
                  and cm.section_version(i.section) == ctx.version), None)
-    return item is not None and cm.plan_migration_met(ledgers, ledger, item)
+    return item is not None and cm.plan_migration_met(
+        ledgers, ledger, item, proof_cache=ctx.migration_proof_lines)
 
 
 def _has_class(record: dict | None, name: str) -> bool:

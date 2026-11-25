@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 27
+**Open items**: 24
 
 ## v4.16.0
 
@@ -12,7 +12,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 21 | 0 |
-| Bugs / regressions (BG) | 4 | 2 |
+| Bugs / regressions (BG) | 1 | 5 |
 | Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -207,54 +207,6 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 **Proving command**: `python -B -m pytest tests/ -k harness_audit -q`
 
-#### BG-12: The 20-second plan-check budget runs out before a large minor's migration proof finishes
-
-**Source phase**: 2026-11-22 Nexus-AI v2.16 re-check after the BG-10 and BG-11 fixes (observed downstream, not fixed).
-
-**Plan reference**: none; found while re-checking a consumer project's archived minor.
-
-**Reason**: `scripts/check_plan_completion.py` gives every plan check a fixed `BUDGET_SECONDS = 20.0` with no override. On the archived Nexus-AI v2.16.2 plan the `gaps.carried` proof over 248 migrated items alone takes 20.7 seconds, so the check reports `INCOMPLETE: gaps.carried archive.minor`, both as `cannot-verify`. Run with a 900-second budget, `gaps.carried` is met in 20.7 seconds and `archive.minor` in 0.4 seconds, with no failing git call. The verdict is honest (unproven, not failed) but can never become `PLAN COMPLETE` for a minor of this size.
-
-**Owner**: catalog maintainer. **Severity**: medium - a correct, fully closed minor cannot reach its completion verdict. **Status**: open.
-
-**Suggested next step**: make the migration proof cheaper (for example, read each ledger at `start_head` once instead of once per item), or scale the budget with the number of migrated items; keep `cannot-verify` when the budget is still exceeded.
-
-**Acceptance**: `check <plan>` on a plan whose minor migrated about 250 items reports `gaps.carried` and `archive.minor` met within the budget.
-
-**Proving command**: manual: run `check_plan_completion.py check <archived v2.16.2 plan>` from the Nexus-AI main checkout and read the two conditions
-
-#### BG-13: A frozen minor member cannot be marked superseded without reading as tampered
-
-**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
-
-**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
-
-**Reason**: `scripts/completion_minor.py::member_identity_ok` accepts a member plan only when its text hashes to the frozen `plan_sha256` or to the signed `archived` copy. Nexus-AI v2.16.0 was never tagged and its work shipped in v2.16.1, so after the minor archive the plan was marked `**Status**: superseded` with a `**Superseded by**` line (Nexus-AI commit `11608045`). The frozen hash matches the archived plan at Nexus-AI `1d31132a`; that two-line edit is the only later change, and it makes `_verified` fail, so `check-minor v2.16` reads `BLOCKED: record-tampered`. There is no signed way to record that a member was superseded.
-
-**Owner**: catalog maintainer. **Severity**: medium - a legitimate status update to a closed member blocks the minor verdict permanently. **Status**: open.
-
-**Suggested next step**: add a signed member disposition (for example `superseded_by` with the post-edit hash, written by a `record` action), or exclude the plan header's `Status` and `Superseded by` lines from the member hash; keep every other edit `record-tampered`.
-
-**Acceptance**: a minor whose member plan is marked superseded through the supported path verifies; any other edit to that plan still reads as `record-tampered`.
-
-**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI controller worktree after moving it to current `develop`
-
-#### BG-14: A minor record's controller failure is reported as `record-tampered`
-
-**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
-
-**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
-
-**Reason**: `scripts/completion_minor.py::_verified` returns False when `require_controller` raises `controller-mismatch`, and `load_minor` turns every False into `BLOCKED: record-tampered`. Run from the main checkout, the Nexus-AI v2.16 record reads as tampered although its HMAC verifies, because its `implementation_controller.repo_root` names the separate `Nexus-AI-controller` worktree. The real cause is therefore hidden, and once that controller worktree is removed (which cleanup is meant to do) the record cannot verify from any checkout. This is the minor-record counterpart of BG-11.
-
-**Owner**: catalog maintainer. **Severity**: medium - the verdict names the wrong cause, and cleanup makes a finished minor unverifiable. **Status**: open.
-
-**Suggested next step**: report the controller refusal by its own name (`controller-mismatch` naming the expected worktree), and resolve a completed minor record from the main checkout when the recorded controller worktree no longer exists, as `record rekey` does for plan records.
-
-**Acceptance**: `check-minor` from the main checkout names the controller problem instead of `record-tampered`, and a completed minor whose controller worktree was removed still verifies.
-
-**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI main checkout and read the verdict
-
 #### WN-34: Pytest runs left five empty lock files in the real user state folder
 
 **Carried from**: v4.15 ledger, section v4.15.2 (id preserved, text unchanged).
@@ -415,6 +367,60 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+#### BG-14: A minor record's controller failure is reported as `record-tampered`
+
+**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
+
+**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
+
+**Reason**: `scripts/completion_minor.py::_verified` returns False when `require_controller` raises `controller-mismatch`, and `load_minor` turns every False into `BLOCKED: record-tampered`. Run from the main checkout, the Nexus-AI v2.16 record reads as tampered although its HMAC verifies, because its `implementation_controller.repo_root` names the separate `Nexus-AI-controller` worktree. The real cause is therefore hidden, and once that controller worktree is removed (which cleanup is meant to do) the record cannot verify from any checkout. This is the minor-record counterpart of BG-11.
+
+**Owner**: catalog maintainer. **Severity**: medium - the verdict names the wrong cause, and cleanup makes a finished minor unverifiable. **Status**: resolved.
+
+**Suggested next step**: report the controller refusal by its own name (`controller-mismatch` naming the expected worktree), and resolve a completed minor record from the main checkout when the recorded controller worktree no longer exists, as `record rekey` does for plan records.
+
+**Acceptance**: `check-minor` from the main checkout names the controller problem instead of `record-tampered`, and a completed minor whose controller worktree was removed still verifies.
+
+**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI main checkout and read the verdict
+
+**Resolution**: `load_minor` reports `BLOCKED: controller-mismatch (<controller worktree>)` when the signature verifies but the checkout is not the controller, and `_verified` accepts a completed record whose controller worktree no longer exists from any checkout that shares the recorded git directory; a record that is not completed still refuses. Tests: the three BG-14 cases in `tests/validators/test_controller_handoff.py`, on a record created in the main checkout and handed to a controller worktree. Checked against the Nexus-AI v2.16 record: `check-minor v2.16` from the main checkout now names `Nexus-AI-controller`. The removed-worktree case is covered by the tests only, because the controller path is signed.
+
+#### BG-13: A frozen minor member cannot be marked superseded without reading as tampered
+
+**Source phase**: 2026-11-22 investigation of the Nexus-AI v2.16 minor record (observed downstream, not fixed).
+
+**Plan reference**: none; found while investigating a consumer project's `check-minor` verdict.
+
+**Reason**: `scripts/completion_minor.py::member_identity_ok` accepts a member plan only when its text hashes to the frozen `plan_sha256` or to the signed `archived` copy. Nexus-AI v2.16.0 was never tagged and its work shipped in v2.16.1, so after the minor archive the plan was marked `**Status**: superseded` with a `**Superseded by**` line (Nexus-AI commit `11608045`). The frozen hash matches the archived plan at Nexus-AI `1d31132a`; that two-line edit is the only later change, and it makes `_verified` fail, so `check-minor v2.16` reads `BLOCKED: record-tampered`. There is no signed way to record that a member was superseded.
+
+**Owner**: catalog maintainer. **Severity**: medium - a legitimate status update to a closed member blocks the minor verdict permanently. **Status**: resolved.
+
+**Suggested next step**: add a signed member disposition (for example `superseded_by` with the post-edit hash, written by a `record` action), or exclude the plan header's `Status` and `Superseded by` lines from the member hash; keep every other edit `record-tampered`.
+
+**Acceptance**: a minor whose member plan is marked superseded through the supported path verifies; any other edit to that plan still reads as `record-tampered`.
+
+**Proving command**: manual: run `check_plan_completion.py check-minor v2.16` from the Nexus-AI controller worktree after moving it to current `develop`
+
+**Resolution**: `member_identity_verified` in `scripts/completion_minor.py` accepts a member plan whose approved text, found by its frozen hash in the git history of the plan's current path (`approved_plan_text`, shared with the BG-11 lookup), differs from it only in that the header `**Status**:` line became `**Status**: superseded` and at most one `**Superseded by**:` line was inserted directly after it (`superseded_only_change`). It is used where a record is verified (`_verified`) and where a merged member's verdict is read; write paths stay strict. Tests: `test_superseded_only_change` (8 cases), `test_superseded_only_change_ignores_status_lines_after_the_header`, `test_superseded_member_plan_keeps_its_record_verified`. Checked against the Nexus-AI v2.16.0 member: it verifies, and an extra edit or an unknown hash is refused.
+
+#### BG-12: The 20-second plan-check budget runs out before a large minor's migration proof finishes
+
+**Source phase**: 2026-11-22 Nexus-AI v2.16 re-check after the BG-10 and BG-11 fixes (observed downstream, not fixed).
+
+**Plan reference**: none; found while re-checking a consumer project's archived minor.
+
+**Reason**: `scripts/check_plan_completion.py` gives every plan check a fixed `BUDGET_SECONDS = 20.0` with no override. On the archived Nexus-AI v2.16.2 plan the `gaps.carried` proof over 248 migrated items alone takes 20.7 seconds, so the check reports `INCOMPLETE: gaps.carried archive.minor`, both as `cannot-verify`. Run with a 900-second budget, `gaps.carried` is met in 20.7 seconds and `archive.minor` in 0.4 seconds, with no failing git call. The verdict is honest (unproven, not failed) but can never become `PLAN COMPLETE` for a minor of this size.
+
+**Owner**: catalog maintainer. **Severity**: medium - a correct, fully closed minor cannot reach its completion verdict. **Status**: resolved.
+
+**Suggested next step**: make the migration proof cheaper (for example, read each ledger at `start_head` once instead of once per item), or scale the budget with the number of migrated items; keep `cannot-verify` when the budget is still exceeded.
+
+**Acceptance**: `check <plan>` on a plan whose minor migrated about 250 items reports `gaps.carried` and `archive.minor` met within the budget.
+
+**Proving command**: manual: run `check_plan_completion.py check <archived v2.16.2 plan>` from the Nexus-AI main checkout and read the two conditions
+
+**Resolution**: `plan_migration_met` takes an optional `proof_cache`, and every caller (`gaps_carried_status`, `reconciled_v414_carry`, `_plan_migration_met` and `minor_close.register_refusals`) passes the run's existing `migration_proof_lines`, so each ledger body is parsed once per check instead of once per item. The budget is unchanged. Test: `test_plan_migration_met_shares_one_proof_cache`. Checked against the Nexus-AI v2.16 ledger: the 248-item proof falls from 30.1 s to 3.8 s under the profiler with 248 of 248 met, and `check` on the archived v2.16.2 plan (against a copy of its record) reports `PLAN COMPLETE` in 17.3 s.
 
 #### BG-11: A run record cannot be found after its worktree is removed
 

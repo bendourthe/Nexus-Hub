@@ -772,3 +772,43 @@ def test_controller_handoff_uses_the_minor_run_budget() -> None:
     assert "ck.Budget(ck.BUDGET_SECONDS)" not in source
     assert source.count("ck.Budget(MINOR_BUDGET_SECONDS)") == 3
     assert cm.MINOR_BUDGET_SECONDS > ck.BUDGET_SECONDS
+
+@pytest.fixture
+def handed_off(tmp_path, monkeypatch, minor_git_seed):
+    """A record created in the main checkout, then handed to a separate controller worktree."""
+    fixture = Minor(tmp_path, monkeypatch, minor_git_seed)
+    main = fixture.work
+    created = fixture.create()
+    assert created.returncode == 0, created.stdout + created.stderr
+    path = fixture.record_path()
+    ctl = tmp_path / 'ctl'
+    _git(main, 'worktree', 'add', '-q', '-b', 'ctl', str(ctl), 'develop')
+    moved = handoff(fixture, main, ctl)
+    assert moved.returncode == 0, moved.stdout + moved.stderr
+    return fixture, main, ctl, path
+
+
+def test_other_checkout_names_the_controller_instead_of_tampering(handed_off):
+    """BG-14: a verified record read outside its controller names the controller."""
+    fixture, main, ctl, path = handed_off
+    state = cm.load_minor(ck, ck.RepoContext(main, ck.Budget(60)), 'v0.5', SESSION)
+    assert state.forced == (f"BLOCKED: controller-mismatch ({ctl.resolve()})", ck.EXIT_BLOCKED)
+
+
+def test_completed_record_verifies_after_its_controller_worktree_is_removed(handed_off):
+    """BG-14: cleanup removing the controller worktree does not strand a completed record."""
+    fixture, main, ctl, path = handed_off
+    record = fixture.record()
+    record['completed'] = {'at': ck._now(), 'head': record['start_head']}
+    fixture.write_record(record, resign=True)
+    _git(main, 'worktree', 'remove', str(ctl))
+    state = cm.load_minor(ck, ck.RepoContext(main, ck.Budget(60)), 'v0.5', SESSION, accept_completed=True)
+    assert state.forced is None and state.record is not None
+
+
+def test_live_record_still_refuses_after_its_controller_worktree_is_removed(handed_off):
+    """BG-14: only a completed record is released from its removed controller."""
+    fixture, main, ctl, path = handed_off
+    _git(main, 'worktree', 'remove', str(ctl))
+    state = cm.load_minor(ck, ck.RepoContext(main, ck.Budget(60)), 'v0.5', SESSION)
+    assert state.forced == (f"BLOCKED: controller-mismatch ({ctl.resolve()})", ck.EXIT_BLOCKED)

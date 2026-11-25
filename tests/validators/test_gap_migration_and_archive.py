@@ -2189,3 +2189,18 @@ def test_migration_comment_endings_preserve_visible_only_provenance(repo: Close,
     assert status == ("unmet" if hidden else "met"), notices
     if hidden:
         assert "gaps.minor migration v0.5#WN-3 migration-provenance-hidden" in notices
+
+def test_plan_migration_met_shares_one_proof_cache(repo: Close) -> None:
+    """BG-12: a shared proof cache gives the same answer and is reused, not refilled."""
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    assert repo.migrate().returncode == 0
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    item = source.items[0]
+    cache: dict[str, tuple[str, ...]] = {}
+    assert cm.plan_migration_met(ledgers, source, item, proof_cache=cache)
+    assert cache
+    filled = dict(cache)
+    assert cm.plan_migration_met(ledgers, source, item, proof_cache=cache)
+    assert cache == filled
