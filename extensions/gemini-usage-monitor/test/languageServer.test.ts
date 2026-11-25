@@ -8,6 +8,7 @@ import {
   LANGUAGE_SERVER_SERVICE,
   QUOTA_SUMMARY_METHOD,
   discoverEndpoint,
+  endpointFromHostApi,
   isAntigravityHost,
   isHubProcess,
   orderPorts,
@@ -105,6 +106,10 @@ describe("agy hub helpers", () => {
   });
 });
 
+// Fake fixture values; none is a real credential.
+const FROM_IDE = "fixture-ide-value";
+const UNSAFE = "fixture\r\nvalue";
+
 describe("process and port parsers", () => {
   it("parses the Windows discovery JSON, single object or array, tolerating junk", () => {
     expect(parseWindowsProcessJson('{"pid":7,"exe":"C:\\\\x.exe","cmd":"x --csrf_token t","ports":51891}')).toEqual([
@@ -198,5 +203,43 @@ describe("postRpc", () => {
     server!.close();
     server = undefined;
     expect(await postRpc({ port, scheme: "http", csrfToken: "t" }, QUOTA_SUMMARY_METHOD, {})).toBeNull();
+  });
+});
+
+describe("built-in Antigravity extension exports (hub token not on the command line)", () => {
+  let server: http.Server | undefined;
+  let root = "";
+  afterEach(() => {
+    server?.close();
+    server = undefined;
+    if (root) {
+      fs.rmSync(root, { recursive: true, force: true });
+      root = "";
+    }
+  });
+
+  it("accepts only a printable value and a valid port", () => {
+    expect(endpointFromHostApi({ csrfToken: FROM_IDE, port: 54388, client: {} })).toEqual({ port: 54388, scheme: "http", csrfToken: FROM_IDE });
+    expect(endpointFromHostApi(undefined)).toBeNull();
+    expect(endpointFromHostApi({ csrfToken: FROM_IDE })).toBeNull();
+    expect(endpointFromHostApi({ csrfToken: UNSAFE, port: 1 })).toBeNull();
+    expect(endpointFromHostApi({ csrfToken: FROM_IDE, port: 70000 })).toBeNull();
+    expect(endpointFromHostApi({ csrfToken: "", port: 1 })).toBeNull();
+  });
+
+  it("discovers the hub from the exports and sends their value as the CSRF header", async () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-product-"));
+    fs.writeFileSync(path.join(root, "product.json"), JSON.stringify({ nameShort: "Antigravity IDE" }));
+    let seen: string | undefined;
+    server = http.createServer((req, res) => {
+      seen = req.headers["x-codeium-csrf-token"] as string;
+      res.writeHead(seen === FROM_IDE ? 200 : 401, { "Content-Type": "application/json" });
+      res.end("{}");
+    });
+    await new Promise<void>((resolve) => server!.listen(0, "127.0.0.1", resolve));
+    const port = (server.address() as AddressInfo).port;
+
+    expect(await discoverEndpoint(root, { csrfToken: FROM_IDE, port })).toEqual({ ok: true, endpoint: { port, scheme: "http", csrfToken: FROM_IDE } });
+    expect(seen).toBe(FROM_IDE);
   });
 });
