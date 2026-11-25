@@ -175,3 +175,9 @@ export const commands = {
     return Promise.resolve();
   },
 };
+
+export const extensions = {
+  getExtension(): undefined {
+    return undefined;
+  },
+};
