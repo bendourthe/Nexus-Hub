@@ -745,6 +745,35 @@ def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Pa
     return identity
 
 
+def _retired_controller_ok(ck: ModuleType, rctx: RepoContext, record: dict, path: Path) -> bool:
+    """A completed record whose controller worktree no longer exists verifies from any
+    checkout that shares the recorded git directory (BG-14)."""
+    if not record.get("completed"):
+        return False
+    try:
+        identity = controller_identity(ck, rctx, record, path)
+    except ck.MinorConflict:
+        return False
+    return not Path(identity["repo_root"]).exists()
+
+
+def _controller_refusal(ck: ModuleType, rctx: RepoContext, record: dict, path: Path) -> str | None:
+    """`controller-mismatch (<expected worktree>)` when the signature verifies but this
+    checkout is not the record's controller; None otherwise (BG-14)."""
+    try:
+        require_controller(ck, rctx, record, path)
+    except ck.MinorConflict as exc:
+        if str(exc) != "controller-mismatch":
+            return None
+        try:
+            return f"controller-mismatch ({controller_identity(ck, rctx, record, path)['repo_root']})"
+        except ck.MinorConflict:
+            return None
+    except ObservationUnavailable:
+        return None
+    return None
+
+
 def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
                      *, include_linked: bool = False, predicate=None, discovery=None) -> list[Path]:
     """Authenticated common-directory ownership includes the legacy absent-binding form."""
@@ -1023,7 +1052,8 @@ def load_minor(
         _require_amendment_protocol(ck, record, minor_protocol)
         _require_execution_protocol(ck, record, execution_protocol)
     if record is None or not _verified(ck, rctx, token, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
-        state.forced = ck.TAMPERED
+        refusal = _controller_refusal(ck, rctx, record, path) if record is not None else None
+        state.forced = (f"BLOCKED: {refusal}", ck.EXIT_BLOCKED) if refusal else ck.TAMPERED
         return state
     if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
@@ -1256,8 +1286,9 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
     try:
         path = getattr(record, "record_path", rctx.scoped_record_path("minor:" + token))
         require_controller(ck, rctx, record, path)
-    except ck.MinorConflict:
-        return False
+    except ck.MinorConflict as exc:
+        if str(exc) != "controller-mismatch" or not _retired_controller_ok(ck, rctx, record, path):
+            return False
     major, minor = parse_minor(ck, token)
     try:
         by_version = {p.version: p for p in scan_plans(rctx.root, major, minor)}
@@ -1266,7 +1297,7 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
     for member in members:
         plan = by_version.get(str(member.get("version")))
         # Schema 2 is new in v4.13.6, so only the current hash rule applies.
-        if plan is None or not member_identity_ok(ck, member, plan):
+        if plan is None or not member_identity_verified(ck, rctx, member, plan):
             return False
     return True
 
@@ -1432,6 +1463,59 @@ def member_identity_ok(ck: ModuleType, member: dict, plan: Plan) -> bool:
     archived = member.get("archived")
     return (isinstance(archived, dict) and plan.rel == archived.get("plan_path")
             and digest == archived.get("plan_sha256"))
+
+
+_STATUS_LINE_RE = re.compile(r"\*\*Status\*\*:[ \t]*(\S.*)?\Z")
+_SUPERSEDED_BY_RE = re.compile(r"\*\*Superseded by\*\*:[ \t]*\S.*\Z")
+
+
+def superseded_only_change(before: str, after: str) -> bool:
+    """True when `after` is `before` with only its header status marked superseded.
+
+    Allowed: the one `**Status**:` line before the first `## ` heading becomes
+    `**Status**: superseded`, and at most one `**Superseded by**: <text>` line is
+    inserted directly after it. Any other difference is refused (BG-13).
+    """
+    old = before.replace("\r\n", "\n").split("\n")
+    new = after.replace("\r\n", "\n").split("\n")
+
+    def status_index(lines: list[str]) -> int | None:
+        header = []
+        for index, line in enumerate(lines):
+            if line.startswith("## "):
+                break
+            if _STATUS_LINE_RE.match(line):
+                header.append(index)
+        return header[0] if len(header) == 1 else None
+
+    at, now = status_index(old), status_index(new)
+    if at is None or now != at or new[now] != "**Status**: superseded" or old[at] == new[now]:
+        return False
+    expected = old[:at] + [new[now]]
+    if len(new) == len(old) + 1 and _SUPERSEDED_BY_RE.match(new[now + 1]):
+        expected.append(new[now + 1])
+    return new == expected + old[at + 1:]
+
+
+def member_identity_verified(ck: ModuleType, rctx: RepoContext, member: dict, plan: Plan) -> bool:
+    """`member_identity_ok`, or the frozen plan marked superseded after it was frozen.
+
+    The approved text is found by the frozen hash in the history of the plan's
+    current path; only `superseded_only_change` differences are accepted (BG-13).
+    """
+    if member_identity_ok(ck, member, plan):
+        return True
+    frozen = [member.get("plan_sha256")]
+    archived = member.get("archived")
+    if isinstance(archived, dict) and plan.rel == archived.get("plan_path"):
+        frozen.append(archived.get("plan_sha256"))
+    for digest in frozen:
+        if not isinstance(digest, str) or not digest:
+            continue
+        approved = ck.approved_plan_text(rctx, plan.rel, digest)
+        if approved is not None and superseded_only_change(approved, plan.text):
+            return True
+    return False
 
 
 def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict,
@@ -5118,7 +5202,7 @@ def reconciled_v414_carry(
             return False
         if old.sensitive() or now.sensitive():
             return False
-    return plan_migration_met(ledgers, ledger, item)
+    return plan_migration_met(ledgers, ledger, item, proof_cache=rctx.migration_proof_lines)
 
 
 def verify_migration(
@@ -7076,7 +7160,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
                 return None, "cannot-verify", True
             plans = scan_plans(rctx.root, *parse_minor(ck, str(record["minor"])))
             plan = next((p for p in plans if p.version == member["version"]), None)
-            if plan is None or not member_identity_ok(ck, member, plan):
+            if plan is None or not member_identity_verified(ck, rctx, member, plan):
                 return None, "cannot-verify", True
             return ck.Context(str(rctx.root / plan.rel), budget), "met", True
         raw = Path(implementation["worktree"])
@@ -7455,20 +7539,27 @@ def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree:
     return text
 
 
-def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
+def plan_migration_met(
+    ledgers: list[Ledger], ledger: Ledger, item: GapItem, *,
+    proof_cache: dict[str, tuple[str, ...]] | None = None,
+) -> bool:
     """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
     version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches.
     A minor close writes the minor form (`vX.Y#ID`); it is accepted only when one
-    migrated item in the source ledger carries the id, so it still names exactly one item."""
+    migrated item in the source ledger carries the id, so it still names exactly one item.
+    Pass the run's `proof_cache` when checking many items: it holds the parsed visible
+    lines of each ledger body, which is the same for every item (BG-12)."""
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
     label = f"{section_version(item.section)}#{item.gid}"
     reason, _copy = migration_copy_status(
-        ledgers, str(item.target), ledger, item, label=label, allow_carried=True,
+        ledgers, str(item.target), ledger, item, label=label, allow_carried=True, proof_cache=proof_cache,
     )
     migrated_with_id = sum(other.gid == item.gid and other.state == "migrated" for other in ledger.items)
     if reason == "migration-target-missing" and migrated_with_id == 1:
-        reason, _copy = migration_copy_status(ledgers, str(item.target), ledger, item, allow_carried=True)
+        reason, _copy = migration_copy_status(
+            ledgers, str(item.target), ledger, item, allow_carried=True, proof_cache=proof_cache,
+        )
     return reason == "migration-copy-complete"
 
 
@@ -7504,7 +7595,8 @@ def gaps_carried_status(
     for item in ledger.items:
         mine = section_version(item.section) == version
         if last == "met":
-            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(ledgers, ledger, item)):
+            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(
+                    ledgers, ledger, item, proof_cache=rctx.migration_proof_lines)):
                 return "unmet"
         elif mine and item.state != "resolved":
             return "unmet"

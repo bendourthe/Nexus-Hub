@@ -1293,7 +1293,7 @@ def register_refusals(
             out.append(Refused("open-gap", f"{token}#{item.gid}"))
         elif item.state == "migrated" and plan_run:
             # A one-plan run's migration (completion contract, "Single-plan carry and archive").
-            if not cm.plan_migration_met(ledgers, ledger, item):
+            if not cm.plan_migration_met(ledgers, ledger, item, proof_cache=rctx.migration_proof_lines):
                 out.append(Refused("unverified-migration", f"{token}#{item.gid} migration-target-missing"))
         elif item.state == "migrated":
             status, reason = cm.verify_migration(rctx, record, token, ledgers, ledger, item)
