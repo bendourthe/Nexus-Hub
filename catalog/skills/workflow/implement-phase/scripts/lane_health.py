@@ -25,6 +25,12 @@ needs-user after the threshold.
 amended member with no worker lane and no release tag), `resumable` (a blocked lane whose
 named prerequisite version is tagged or finished) and `needs-user` (blocked longer than
 `--needs-user-minutes`, default 60, on anything other than an unreleased member).
+An `unadmitted` member is not idle when the coordinator recorded why it waits: a structured
+heartbeat on the member itself, `beat --member vX.Y.Z --phase queue --state blocked:waits-merge:<vA.B.C>`
+(names an unreleased member whose merge it needs) or `blocked:needs-user:<reason>`. A recorded wait
+on a member that has since been released goes back to `unadmitted` (stale blocker), and free text
+never counts as a reason. `check` also prints lane capacity (cap, occupied, free) and an
+`IDLE LANE DEFECT` line when a lane is free while a member can be dispatched.
 `notice --repo <path>` prints one line for the newest live minor record of that repository
 when it has idle members, and nothing otherwise; the session-start hooks call it.
 """
@@ -33,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -271,9 +278,55 @@ def _vkey(version: str) -> tuple[int, ...]:
     return tuple(int(x) for x in version[1:].split("."))
 
 
+def queued_reasons(data: dict, record: Path) -> dict[str, str]:
+    """Latest heartbeat state of record members that have no worker lane yet (their recorded wait)."""
+    lane_dir = record.parent / f"{record.stem}.lanes"
+    started = find_members(data)
+    reasons: dict[str, str] = {}
+    for version in record_versions(data):
+        if version in started:
+            continue
+        beat = last_heartbeat(lane_dir / f"{version}.heartbeat", version)
+        if beat:
+            reasons[version] = beat[2]
+    return reasons
+
+
+def default_lane_cap() -> int:
+    """Lane cap: NEXUS_IMPLEMENT_LANES override, else min(cores // 2, 6), floor 1."""
+    raw = os.environ.get("NEXUS_IMPLEMENT_LANES", "").strip()
+    if raw.isdigit() and int(raw) >= 1:
+        return int(raw)
+    return max(1, min((os.cpu_count() or 2) // 2, 6))
+
+
+def lane_capacity(lanes: list[dict], cap: int | None = None) -> dict:
+    """Cap, occupied and free lanes. Active, stalled and unknown lanes hold a slot; blocked, ready and finished do not."""
+    limit = cap if cap and cap > 0 else default_lane_cap()
+    held = sum(1 for lane in lanes
+               if lane["state"] in ("active", "stalled", "unknown")
+               or (lane["state"] == "other"
+                   and str(lane.get("heartbeat_state") or "").lower() not in READY_STATES | FINISHED_STATES))
+    return {"cap": limit, "occupied": held, "free": max(0, limit - held)}
+
+
+def idle_lane_defect(capacity: dict, idle: list[dict]) -> str | None:
+    """One line when a lane is free while a member can be dispatched; None otherwise."""
+    ready = [item["member"] for item in idle if item["kind"] in ("resumable", "unadmitted")]
+    if capacity["free"] <= 0 or not ready:
+        return None
+    return (f"IDLE LANE DEFECT: {capacity['free']} of {capacity['cap']} lanes free while "
+            f"{', '.join(ready)} can be dispatched. Dispatch up to {capacity['free']} now, or record why "
+            f"each waits: lane_health.py beat --member <vX.Y.Z> --phase queue --state blocked:waits-merge:<vA.B.C>")
+
+
 def classify_idle(lanes: list[dict], versions: list[str], shipped, now: datetime,
-                  needs_user_minutes: float = DEFAULT_NEEDS_USER_MINUTES) -> list[dict]:
-    """Idle members; `shipped(version)` says whether that version has a release tag."""
+                  needs_user_minutes: float = DEFAULT_NEEDS_USER_MINUTES,
+                  queued: dict[str, str] | None = None) -> list[dict]:
+    """Idle members; `shipped(version)` says whether that version has a release tag.
+
+    `queued` maps a member without a lane to its latest heartbeat state, the coordinator's recorded wait.
+    """
     by_member = {lane["member"]: lane for lane in lanes}
 
     def done(version: str) -> bool:
@@ -282,6 +335,18 @@ def classify_idle(lanes: list[dict], versions: list[str], shipped, now: datetime
     idle: list[dict] = []
     for version in versions:
         if version not in by_member and not shipped(version):
+            reason = (queued or {}).get(version, "")
+            body = reason.split(":", 1)[1] if reason.lower().startswith("blocked:") else ""
+            if body.startswith(NEEDS_USER) and len(body) > len(NEEDS_USER):
+                idle.append({"member": version, "kind": "needs-user", "detail": body[len(NEEDS_USER):]})
+                continue
+            if body.startswith(WAITS_MERGE):
+                named = body[len(WAITS_MERGE):]
+                if VERSION_TOKEN_RE.fullmatch(named) and named != version and not done(named):
+                    continue  # a recorded wait on an unreleased member is a reason, not an idle lane
+                idle.append({"member": version, "kind": "unadmitted",
+                             "detail": f"recorded wait on {named} is stale or invalid; dispatch or re-record"})
+                continue
             idle.append({"member": version, "kind": "unadmitted",
                          "detail": "in the minor record with no worker lane"})
     for lane in lanes:
@@ -352,7 +417,7 @@ def inspect_record(data: dict, record: Path, now: datetime, stale_minutes: float
     lanes = [inspect_lane(v, m, lane_dir, now, threshold, root, legacy_dir)
              for v, m in sorted(find_members(data).items())]
     idle = classify_idle(lanes, record_versions(data), lambda v: tag_exists(root, v), now,
-                         needs_user_minutes)
+                         needs_user_minutes, queued_reasons(data, record))
     return lanes, idle
 
 
@@ -384,6 +449,10 @@ def check(args: argparse.Namespace) -> int:
               "stale_minutes": args.stale_minutes, "lanes": lanes,
               "stalled": [lane["member"] for lane in lanes if lane["state"] == "stalled"],
               "idle": idle_members}
+    capacity = lane_capacity(lanes, args.lanes)
+    report["capacity"] = capacity
+    defect = idle_lane_defect(capacity, idle_members)
+    report["idle_lane_defect"] = defect
     if args.json_only:
         print(json.dumps(report, indent=2))
         return 0
@@ -398,8 +467,11 @@ def check(args: argparse.Namespace) -> int:
     for lane in lanes:
         if lane["state"] == "stalled":
             print(f"\nSTALLED {lane['member']}: {lane['resume']}")
+    print(f"Lanes: {capacity['occupied']} of {capacity['cap']} occupied, {capacity['free']} free")
     for item in idle_members:
         print(f"IDLE {item['member']} {item['kind']}: {item['detail']}")
+    if defect:
+        print(defect)
     print("\n" + json.dumps(report))
     return 0
 
@@ -451,7 +523,8 @@ def notice(args: argparse.Namespace) -> int:
                 continue
             tags = release_tags(repo)
             idle = classify_idle(light_lanes(data, path, now, tags), record_versions(data),
-                                 tags.__contains__, now, args.needs_user_minutes)
+                                 tags.__contains__, now, args.needs_user_minutes,
+                                 queued_reasons(data, path))
             if idle:
                 print(notice_line(data, idle))
             return 0
@@ -496,6 +569,7 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--stale-minutes", type=float, default=DEFAULT_STALE_MINUTES)
             p.add_argument("--json", dest="json_only", action="store_true", help="JSON only")
             p.add_argument("--repo", help="repository for tag lookups (default: the record's root)")
+            p.add_argument("--lanes", type=int, help="lane cap (default NEXUS_IMPLEMENT_LANES or min(cores/2, 6))")
         elif name == "notice":
             p.add_argument("--repo", required=True, help="repository whose live minor record to read")
         else:

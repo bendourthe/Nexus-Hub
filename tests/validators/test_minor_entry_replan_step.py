@@ -47,3 +47,16 @@ def test_replan_records_the_maximum_parallel_lane_set_before_dispatch():
 def test_queue_skill_points_back_to_the_minor_entry_step():
     text = QUEUE_SKILL.read_text(encoding="utf-8")
     assert "minor-entry re-plan" in text and "Phase 0c" in text
+
+
+def test_idle_lane_is_a_defect_with_a_recorded_blocker_form():
+    section = _phase_0c()
+    assert "IDLE LANE DEFECT" in section
+    assert "blocked:waits-merge:" in section
+    assert "ACTION: dispatch-required" in section
+
+
+def test_replan_starts_from_the_claims_that_block_lanes():
+    text = RUNBOOK.read_text(encoding="utf-8")
+    assert "Claims that block parallel lanes" in text
+    assert "Claims that block parallel lanes" in QUEUE_SKILL.read_text(encoding="utf-8")
