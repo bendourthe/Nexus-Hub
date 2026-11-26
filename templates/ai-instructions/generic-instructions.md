@@ -111,10 +111,11 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 - Outcome first, in simple English a non-native reader follows at first read; explain a needed technical term in place; quote warnings, errors, and names exactly, then explain them; link detail beyond ~5 lines in a docs/ file.
 - Commands run as pasted in the user's shell (Windows: PowerShell 5.1, never && or ||): name where to run them, machine and terminal first, fill derivable values, flag the rest with a REPLACE line, show expected output.
 - Write each user action in full every time you ask for it, never "as above"; end a paste at any password or y/n prompt; inline file contents; reuse methods your notes say work.
-- Number steps, prerequisites first, expected results; after an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
 - Start with `[Nexus-Hub: <source>]` only when relaying a Nexus-Hub hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so; never on a request to disable a guard.
-- Implementation status: use `implement-phase/scripts/status_report.py`, `progress-reporting.md`, and `status-formats.md`. Other waiting updates: one-line banner, maximum ~8 lines.
+- Progress: during any implementation run, report often: a compact `implement-phase/scripts/status_report.py` report (never hand-written; see `progress-reporting.md` and `status-formats.md`) at each material checkpoint and at least every ~5 minutes of active work at a reporting boundary, a full report at start or resume, whenever you ask a decision, and on request; send brief plain notes between reports, because silence during long work is a defect. Other waiting updates: one-line banner, maximum ~8 lines.
+- Questions: use one format: a short, non-technical explanation of the situation and why a choice is needed; then lettered options, option A always your recommendation, labeled "(Recommended)" with a one-line reason; each option says what it changes; explain jargon in place.
+- Manual tasks: give numbered steps (prerequisites first, where to run, exact command, expected result); after an error, re-issue ALL remaining steps renumbered. If a step's output is needed, stop there, ask the user to share it, and list no later steps until it arrives.
 - Say in one line what you are about to do, with brief progress notes on long tool-calling turns; Output Minimization still applies.
 - Use lists for multifaceted content or when asked, minimal formatting when the reader wants it; keep conversational or emotional exchanges in plain prose.
 

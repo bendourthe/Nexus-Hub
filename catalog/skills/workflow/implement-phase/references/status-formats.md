@@ -252,4 +252,6 @@ State: waiting owner action
 ````
 
 
+Decision options follow the shared question format in `agent-communication` (style guide section 10.2): the recommended option is always option A, and the explanation above the table is plain and non-technical. The renderer marks the recommended option in the Option column.
+
 Headline priority is owned by [Progress reporting](progress-reporting.md#continuation-reconciliation). Both report formats use the shared continuation disposition and keep every pending source question visible.
