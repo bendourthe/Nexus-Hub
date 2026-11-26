@@ -89,6 +89,8 @@ def test_git_is_one_line_outside_a_repository(start) -> None:
     assert lines[1] == "Git: unavailable"
     assert lines[2].startswith("[Nexus-Hub: session-start] Implementation status:")
     assert "no report on tool narration" in lines[2]
+    assert "option A the recommendation labeled (Recommended)" in lines[2]
+    assert "stop at the first step whose output you need" in lines[2]
     assert "Goals, Decisions and Running headings" in lines[2]
     assert len([line for line in lines if line.strip()]) == 3
 
