@@ -330,7 +330,7 @@ Runs after 9.0, 9A, and 9B are complete and the evidence file has every required
 7. **Merge only when every required check is green and native verification covers the merge.** Use the matching recorded `push-merge` authority for the verified current result; request a manual decision through the completion contract only when scope is uncovered.
 8. **Verify the post-merge behavior.** Confirm the post-merge workflow performed only its intended smoke, publication, or provenance work and did NOT rerun the complete suite. A duplicate post-merge suite is a finding against the reconciliation in 9.0 duty 5.
 9. Quote the required-check results and the merge SHA under `## Publication and integration`.
-10. **Retire the worktree.** Only after the merge is confirmed green and merged:
+10. **Retire the worktree.** Only after the merge is confirmed green and merged, run `nexus-hub worktree prune-merged --repo . --fetch --only <worktree-name>` (dry run), then the same command with `--apply`. The tool performs checks 1 to 5 below, never forces, and keeps a dirty, locked or unmerged worktree with its reason; quote its table under `## Worktree teardown`. Follow the manual steps only where the tool is unavailable:
     1. Verify the branch is **fully merged** into the integration branch: `git branch --merged <base>` lists it, and `git log <base>..<branch>` is empty. An unmerged commit here means work is about to be deleted.
     2. Verify the worktree has **no uncommitted or untracked work**: `git -C <worktree> status --porcelain` is empty. A non-empty result stops the teardown and is reported, never force-removed.
     3. Remove the worktree and delete its directory through `[[using-git-worktrees]]`, which owns the mechanics.

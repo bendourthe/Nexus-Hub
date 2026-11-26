@@ -35,7 +35,7 @@ Subcommands:
                                or user-selected Git remote.
     nexus-hub worktree         Resolve, create, list, audit, and migrate linked Git
                                worktrees under one configured root (path, create,
-                               list, audit, migrate). Logic lives in
+                               list, audit, migrate, prune-merged). Logic lives in
                                scripts/nexus_worktrees.py; no outbound call.
     nexus-hub --help           Usage.
 
@@ -1620,7 +1620,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("usage", add_help=False, help="Inspect usage decisions or record a user-run recovery answer.")
     # `worktree` owns a nested parser in scripts/nexus_worktrees.py, so main() forwards it
     # before this parser runs; registered here only so `nexus-hub --help` lists it.
-    sub.add_parser("worktree", add_help=False, help="Resolve, create, list, audit, and migrate linked worktrees under one configured root.")
+    sub.add_parser("worktree", add_help=False, help="Resolve, create, list, audit, migrate, and prune merged linked worktrees under one configured root.")
     return parser
 
 
