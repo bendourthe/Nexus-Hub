@@ -298,7 +298,13 @@ def run_group(
             )
         )
 
+    from scripts.ci.profiles import AUDIT_SCOPES
     for cmd in applicable:
+        if result.status == "fail" and AUDIT_SCOPES.get(group.name, {}).get("kind") == "npm":
+            outcome = CommandResult(cmd.name, group.name, "skip", reason="Required npm audit failed; signatures were not dispatched")
+            result.commands.append(outcome)
+            _render_command_result(outcome, quiet)
+            continue
         cmd = dataclasses.replace(cmd, timeout=cmd.timeout_on(platform))
         outcome = run_command(cmd, repo_root, secrets, quiet)
         outcome.group = group.name
@@ -366,6 +372,12 @@ def run_profile(
         print(f"scope:   {decision.reason}")
 
     selected_groups = select_groups(profile, only)
+    from scripts.ci.profiles import AUDIT_SCOPES
+    if any(group.name in AUDIT_SCOPES for group in selected_groups):
+        if reports_dir is None:
+            raise ValueError("audit profiles require --reports-dir")
+        from scripts.ci.verify_scenarios import _audit_destination
+        _audit_destination(reports_dir)
     if profile == "report":
         if reports_dir is None:
             result.groups.append(GroupResult(
@@ -378,6 +390,8 @@ def run_profile(
             result.groups.append(reporting.aggregate_inputs(reports_dir, expected_artifacts))
 
     for group in selected_groups:
+        if reports_dir is not None:
+            group = dataclasses.replace(group, commands=tuple(dataclasses.replace(command, env={**command.env, "NEXUS_CI_REPORTS_DIR": str(reports_dir.absolute())}) for command in group.commands))
         group_result = run_group(group, host, decision, repo_root, secrets, quiet)
         result.groups.append(group_result)
         if group.blocking and group_result.status == "fail":
@@ -444,11 +458,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.list:
             _print_listing(args.profile, host, only)
             return 0
-    except KeyError as exc:
+    except (KeyError, ValueError, RuntimeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
-    reports_dir = Path(args.reports_dir).resolve() if args.reports_dir else None
+    reports_dir = Path(args.reports_dir).absolute() if args.reports_dir else None
     if args.expect_artifact and args.profile != "report":
         print("error: --expect-artifact requires --profile report", file=sys.stderr)
         return 2

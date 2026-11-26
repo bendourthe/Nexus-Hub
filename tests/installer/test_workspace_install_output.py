@@ -69,6 +69,7 @@ def _isolated(root: Path) -> tuple[dict[str, str], Path]:
         "APPDATA": str(dirs["a"]),
         "LOCALAPPDATA": str(dirs["l"]),
         "NEXUS_HUB_HOME": str(dirs["h"] / ".nexus-hub"),
+        "NEXUS_HUB_CLAUDE_VERSION": "2.1.281",
         "GIT_CONFIG_GLOBAL": str(dirs["h"] / ".gitconfig"),
         "TEMP": str(dirs["t"]),
         "TMP": str(dirs["t"]),
@@ -89,7 +90,7 @@ def _section(output: str) -> str:
     return output[start:end]
 
 
-def _assert_global_layout(section: str, enterprise_flag: str) -> None:
+def _assert_global_layout(section: str, enterprise_flag: str, workspace: Path) -> None:
     assert "> NOT DETECTED (skipped)" in section, f"no grouped NOT DETECTED section:\n{section}"
     assert f"- Gemini CLI (enterprise-only; re-run with {enterprise_flag})" in section, section
     # The skipped platform no longer prints an inline note under an eager header:
@@ -104,7 +105,10 @@ def _assert_global_layout(section: str, enterprise_flag: str) -> None:
     # Claude renders the checklist, not the bespoke per-step lines.
     assert "Skills catalog installed" not in section, f"bespoke Claude lines remain:\n{section}"
     assert re.search(r"\] Skills: +\S*\.claude[\\/]skills", section), f"no Claude checklist row:\n{section}"
-    assert re.search(r"\] Core Files: +\S*CLAUDE\.md", section), section
+    assert re.search(r"\] Core Files: +\S*AGENTS\.md \(shared project instructions\)", section), section
+    assert (workspace / "AGENTS.md").is_file()
+    assert (workspace / ".claude" / "rules" / "nexus-hub-claude.md").is_file()
+    assert not (workspace / "CLAUDE.md").exists()
 
 
 @pytest.mark.slow
@@ -117,7 +121,7 @@ def test_bash_workspace_install_groups_undetected_platforms(short_root: Path) ->
         cwd=str(_ROOT), env=env, timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, f"rc={proc.returncode}\n{(proc.stderr or '')[-3000:]}"
-    _assert_global_layout(_section(_ANSI.sub("", proc.stdout or "")), "--enterprise")
+    _assert_global_layout(_section(_ANSI.sub("", proc.stdout or "")), "--enterprise", workspace)
 
 
 @pytest.mark.slow
@@ -131,4 +135,4 @@ def test_powershell_workspace_install_groups_undetected_platforms(short_root: Pa
         cwd=str(_ROOT), env=env, timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, f"rc={proc.returncode}\n{(proc.stderr or '')[-3000:]}"
-    _assert_global_layout(_section(proc.stdout or ""), "-Enterprise")
+    _assert_global_layout(_section(proc.stdout or ""), "-Enterprise", workspace)

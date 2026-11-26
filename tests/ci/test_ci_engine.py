@@ -968,23 +968,41 @@ def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
 
     targets = ("tests/e2e", "tests/validators", "tests/verification", "tests/workflows",
                "tests/test_git_attribution.py", "tests/test_removed_autonomy_surface.py",
+               "tests/test_continuation_state.py",
+               "tests/test_reporting_runtime_delivery.py",
                "tests/test_status_report.py", "tests/test_status_snapshot.py",
                "tests/test_lane_health.py", "tests/test_lane_idle.py")
     commands = [command for group in groups_for("full") for command in group.commands
                 if command.name.startswith("repo-tests-governance") and command.runs_on(host)]
     by_name = {command.name: command for command in commands}
     if host == "windows":
-        assert len(commands) == 5
+        assert len(commands) == 17
         rest = by_name["repo-tests-governance-rest (Windows full)"]
         assert list(rest.argv) == [PY, "-m", "pytest", targets[0], "-q", *targets[2:]]
         assert rest.timeout == 2700
-        masks = (profiles.VALIDATORS_SHARD_A_IGNORES, profiles.VALIDATORS_SHARD_B_IGNORES,
-                 profiles.VALIDATORS_SHARD_C_IGNORES, profiles.VALIDATORS_SHARD_D_IGNORES)
-        for name, ignores in zip(("a-c", "co", "d-o", "p-z"), masks):
+        expected = (
+            ("a-c-check-plan", ("tests/validators/test_check_plan_completion.py", "-q",), 1800),
+            ("a-c-c-files", (profiles.FULL_WINDOWS_VALIDATORS_C_FILES[0], "-q", *profiles.FULL_WINDOWS_VALIDATORS_C_FILES[1:],), 1800),
+            ("a-c-rest", ("tests/validators", "-q", *profiles.VALIDATORS_SHARD_A_IGNORES, "--ignore=tests/validators/test_check_plan_completion.py", *(f"--ignore={path}" for path in profiles.FULL_WINDOWS_VALIDATORS_C_FILES),), 1800),
+            ("co-minor-record", ("tests/validators/test_completion_minor_record.py", "-q",), 2400),
+            ("co-minor-verdict", ("tests/validators/test_completion_minor_verdict.py", "-q",), 2400),
+            ("co-rest", ("tests/validators", "-q", *profiles.VALIDATORS_SHARD_B_IGNORES, "--ignore=tests/validators/test_completion_minor_record.py", "--ignore=tests/validators/test_completion_minor_verdict.py",), 2400),
+            ("d-o-gap-migration", ("tests/validators/test_gap_migration_and_archive.py", "-q",), 1800),
+            ("d-o-d-l-files", (profiles.FULL_WINDOWS_VALIDATORS_DL_FILES[0], "-q", *profiles.FULL_WINDOWS_VALIDATORS_DL_FILES[1:],), 1800),
+            ("d-o-m5", ("tests/validators/test_m5_manifest_permission.py", "-q",), 1800),
+            ("d-o-member", ("tests/validators/test_member_archive.py", "-q", "tests/validators/test_member_checkpoint_reconciliation.py",), 1800),
+            ("d-o-minor-execution-files", (profiles.FULL_WINDOWS_VALIDATORS_E_FILES[0], "-q", *profiles.FULL_WINDOWS_VALIDATORS_E_FILES[1:],), 1800),
+            ("d-o-rest", ("tests/validators", "-q", *profiles.VALIDATORS_SHARD_C_IGNORES, "--ignore=tests/validators/test_gap_migration_and_archive.py", "--ignore=tests/validators/test_m5_manifest_permission.py", "--ignore=tests/validators/test_member_archive.py", "--ignore=tests/validators/test_member_checkpoint_reconciliation.py", *(f"--ignore={path}" for path in profiles.FULL_WINDOWS_VALIDATORS_DL_FILES), *(f"--ignore={path}" for path in profiles.FULL_WINDOWS_VALIDATORS_E_FILES),), 1800),
+            ("p-z-parallel", ("tests/validators/test_parallel_member_implementation.py", "-q",), 1800),
+            ("p-z-permit", ("tests/validators/test_permit_member_paths.py", "-q",), 1800),
+            ("p-z-p-r-files", (profiles.FULL_WINDOWS_VALIDATORS_PR_FILES[0], "-q", *profiles.FULL_WINDOWS_VALIDATORS_PR_FILES[1:],), 1800),
+            ("p-z-rest", ("tests/validators", "-q", *profiles.VALIDATORS_SHARD_D_IGNORES, "--ignore=tests/validators/test_parallel_member_implementation.py", "--ignore=tests/validators/test_permit_member_paths.py", *(f"--ignore={path}" for path in profiles.FULL_WINDOWS_VALIDATORS_PR_FILES),), 1800),
+        )
+        for name, argv, timeout in expected:
             command = by_name[f"repo-tests-governance-validators-{name} (Windows full)"]
-            assert list(command.argv) == [PY, "-m", "pytest", "tests/validators", "-q", *ignores]
-            assert command.timeout == (2400 if name == "co" else 1800)
-        assert sum(command.timeout_on(host) for command in commands) == 10500
+            assert list(command.argv) == [PY, "-m", "pytest", *argv]
+            assert command.timeout == timeout
+        assert sum(command.timeout_on(host) for command in commands) == 33300
     else:
         # The former single `repo-tests-governance` command is two shard commands that
         # together keep its roots; test_ci_partition_proof proves the union by collection.
@@ -1006,7 +1024,23 @@ def test_full_governance_scheduling_preserves_scope_and_limits(host, separator):
               "tests/validators/test_cz.py", "tests/validators/test_d.py", "tests/validators/test_o.py",
               "tests/validators/test_p.py", "tests/validators/test_z.py",
               "tests/validators/nested/test_future.py", "tests/e2e/nested/test_future.py",
-              "tests/verification/test_future.py", "tests/workflows/test_future.py"]
+              "tests/verification/test_future.py", "tests/workflows/test_future.py",
+              "tests/validators/nested/test_check_plan_completion.py",
+              "tests/validators/nested/test_completion_minor_record.py",
+              "tests/validators/nested/test_completion_minor_verdict.py",
+              "tests/validators/nested/test_gap_migration_and_archive.py",
+              "tests/validators/nested/test_m5_manifest_permission.py",
+              "tests/validators/nested/test_member_archive.py",
+              "tests/validators/nested/test_member_checkpoint_reconciliation.py",
+              "tests/validators/nested/test_parallel_member_implementation.py",
+              "tests/validators/nested/test_permit_member_paths.py",
+              "tests/validators/test_c_helpers/test_a_future.py",
+              "tests/validators/test_co_helpers/test_completion_minor_record.py",
+              "tests/validators/test_d_helpers/test_m_future.py",
+              "tests/validators/test_m_helpers/test_d_future.py",
+              "tests/validators/test_minor_execution_helpers/test_member_future.py",
+              "tests/validators/test_p_helpers/test_s_future.py",
+              "tests/validators/test_s_helpers/test_p_future.py"]
     assert actual
     for relative in [*actual, *future]:
         assert sum(_profile_selects(command, relative.replace("/", separator), host) for command in commands) == 1, relative

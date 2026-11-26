@@ -289,7 +289,20 @@ Rules:
 
 Two constraints keep this honest. Do not manufacture options to fill the shape: where only one course is genuinely available, say so and say why. And do not use the block to re-litigate a decision the user already made; if they declined something and nothing has changed, it is closed, not open.
 
-This applies wherever open items are presented, not only in the closing report. When a turn ends on a question, the question gets the same four parts.
+This applies wherever open items are presented, not only in the closing report. When a turn ends on a question, the question gets the same four parts. Ordinary workflow handoffs use the presentation in section 5.2 instead of repeating the options table.
+
+### 5.2 Workflow Handoff Choices
+
+When an invoked workflow defines a choice about what to do next, make that choice easy to answer. The workflow's owning command or retained skill defines when the handoff occurs, its options and the selected action; this section owns how the question is presented. Do not turn every completed task or already authorized step into another approval request.
+
+1. Give a brief plain-language outcome and a recommendation with its reason. Say what selecting the next workflow authorizes.
+2. Use a question tool with multiple-choice support when one is available in the current host and mode. Use the workflow owner's choices and mark exactly one recommended option; discover the available capability rather than assuming a provider-specific tool name.
+3. If no such tool is available, show the same choices as a short numbered list and ask the user to select one. This is the text fallback, not an interactive control. Do not draw fake buttons or claim a question tool was used.
+4. Wait for the user's actual selection. A preselected option, silence or elapsed time is not a selection. Preserve a decision the user already made instead of asking again.
+
+The choice is the handoff. A technical `Next` task list does not replace it, and a native question does not need a second copy of the options table. Keep routine internal work inside the selected workflow rather than making the user translate it into an action.
+
+This presentation rule does not change approval authority or evidence requirements. The `implement-phase` completion contract still owns signed approvals and their capture; a question-tool reply is not a substitute for a capture that contract requires. Implementation progress reporting retains its existing owner and renderer.
 
 ## 6. Docs deep-link rule
 

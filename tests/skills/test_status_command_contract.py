@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import copy
 import json
 import re
 from pathlib import Path
@@ -42,10 +43,14 @@ def rendered():
 def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
     module, snapshot = rendered
     output = module.render(snapshot, mode)
-    assert output.startswith("## Progress Update\n\n" + ("### \U0001F680 Release status\n\n" if mode == "full" else "") + "| | |")
+    assert output.startswith("Waiting for you: Capture the installed application result\n\n")
+    assert "## Progress Update\n\n" in output
+    assert output.index("### Required actions") < output.index("### \U0001F3AF Goals")
     assert "3/19" in output and "16%" in output
     assert "| **Last release** | v1.2.0 |" in squash(output)
-    assert "No decisions waiting." in output and "Nothing running." in output
+    assert "Capture the installed application result" in output
+    assert "Expected result: A fresh installed application receipt" in output
+    assert "Paste the resulting receipt path in this conversation" in output
     bars = re.findall(r"([\u25b0\u25b1]+) \d+%", output)
     assert bars and all(len(bar) == 10 for bar in bars)
     assert not re.search(r"[\\](?:[()\[\]])|[$]", output)
@@ -64,13 +69,54 @@ def test_full_includes_all_rows_totals_and_evidence(rendered):
 
 def test_decision_details_only_in_full_report(rendered):
     module, snapshot = rendered
-    snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "A is recommended because it preserves consumers", "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}]
+    snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "A is recommended because it preserves consumers", "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}, {"option": "B", "effect": "Require migration"}], "reply": "Reply A or B"}]
     full = module.render(snapshot, "full")
     compact = module.render(snapshot, "compact")
     assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
     assert "| Option | What it means | Effect |" in squash(full) and "preserves consumers" in full
     assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in compact
     assert "| Option | What it means | Effect |" in squash(compact) and "preserves consumers" not in compact
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+@pytest.mark.parametrize("fresh_ids", [("9",), ("runtime-prerequisite-source-expansion",), ("9", "another-source-decision")])
+def test_fresh_decision_display_restarts_without_reusing_resolved_request_ids(rendered, mode, fresh_ids):
+    """Private descriptive proofs exercise retirement, not genuine approval capture."""
+    module, snapshot = rendered
+    def decision(identity, title):
+        return {"id": identity, "kind": "decision", "title": title, "detail": "A preserves the approved scope",
+                "options": [{"option": "A (recommended)", "effect": "Continue within scope"},
+                            {"option": "B", "effect": "Keep work pending"}], "reply": "Reply A or B"}
+    def observation(requests, resolutions=None):
+        return {"objective": "Finish the complete approved objective", "remaining_tasks": 16,
+                "requests": requests, "resolutions": resolutions or [], "completion": {"verified": False}}
+    old_requests = [decision(str(n), "Previous choice " + str(n)) for n in (1, 2)]
+    old_state = module._STATE.reconcile(observation(old_requests))
+    resolutions = [{"request_id": item["id"], "verified": True, "evidence": "Private reply verified",
+                    "authority_receipt": "private-unit-proof-" + item["id"]} for item in old_requests]
+    fresh = [decision(identity, "Fresh choice " + str(n)) for n, identity in enumerate(fresh_ids, 1)]
+    settled = module._STATE.reconcile(observation(fresh, resolutions), old_state)
+    current = module._STATE.reconcile(observation(fresh), settled)
+    assert current["requests"] == fresh and current["resolved_requests"] == resolutions
+    with pytest.raises(ValueError, match="fulfilled request id cannot be reused"):
+        module._STATE.reconcile(observation([old_requests[0]]), settled)
+    snapshot["decisions"] = []
+    snapshot["continuation"] = old_state
+    old_receipt = module.select_report(snapshot, None, "start")["receipt"]
+    prior_receipt = copy.deepcopy(old_receipt)
+    snapshot["continuation"] = current
+    original_snapshot = copy.deepcopy(snapshot)
+    output = module.render(snapshot, mode)
+    for number, request in enumerate(fresh, 1):
+        assert f"Decision #{number}: {request['title']}" in output
+        assert f"Decision #{request['id']}:" not in output
+    assert "Previous choice" not in output
+    selected = module.select_report(snapshot, old_receipt, "checkpoint")
+    assert selected["mode"] == "full"
+    assert [request["id"] for request in selected["receipt"]["decisions"]] == list(fresh_ids)
+    assert [request["id"] for request in old_receipt["decisions"]] == ["1", "2"]
+    assert snapshot == original_snapshot and old_receipt == prior_receipt
+    assert module.continuation(snapshot)["requests"] == fresh
 
 
 def test_reporting_ownership_and_cadence():
@@ -86,7 +132,7 @@ def test_reporting_ownership_and_cadence():
 
 def test_existing_estimate_policy_is_preserved():
     formats = read(FORMATS)
-    for expected in ("## Estimate rule", "remaining tasks times days per task", "median", "middle half", "active parallel lanes", "N/A (no history yet)"):
+    for expected in ("## Estimate rule", "remaining tasks times days per task", "median", "middle half", "one effective lane", "no parallel discount", "N/A (no history yet)"):
         assert expected in formats
     assert "status_snapshot.py" in read(STATUS_CMD) and "never prints `unknown`" in read(STATUS_CMD)
 

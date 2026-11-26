@@ -135,7 +135,17 @@ One or two sentences: what it is and what it costs.
 
 Each consequence cell is ONE clause. The table is a comparison, not an explanation; an option needing a paragraph has that paragraph above the table or nowhere. Exactly one option cell carries `- recommended`. End each item with a horizontal rule, because stacked tables with no break read as one long grid. Numbered headings let the reader answer "do 2 and 3" instead of quoting text.
 
-Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
+Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open. Ordinary workflow handoffs use section 5.2 instead of repeating the options table.
+
+### 5.2 Workflow Handoff Choices
+
+Follow section 5.2 of the common installed Nexus-Hub communication guide (`~/.nexus-hub/style-guides/agent-communication.md` by default), which owns workflow handoff presentation. The workflow's owning command or retained skill defines when to offer a next workflow, its choices and what the selected action does.
+
+Give a short outcome and recommendation, then use an available multiple-choice question tool in the current host and mode. If none is available, present the same choices as a numbered text list and wait for the user to select one. Mark one recommendation, do not invent interactive controls, and do not treat a preselected option, silence or elapsed time as a reply. A technical `Next` paragraph does not replace the choice; keep internal preparation inside the selected workflow. Continue work the user already requested without asking again.
+
+If the common guide is unavailable, state that its full guidance was not covered and use this minimal question-and-wait procedure. Do not claim to have consulted a missing guide.
+
+Signed approval and capture requirements remain owned by the `implement-phase` completion contract; an ordinary question-tool reply does not replace a required capture. Implementation reporting keeps its existing owner and renderer. The [comparison example](references/response-contract.md#comparison-handoff) shows the ordinary workflow handoff.
 
 This applies wherever open items appear, not only in the closing report. A turn that ends on a question gives the question the same four parts.
 

@@ -39,19 +39,37 @@ SESSION = "usage-gate-session"
 NOTE = "the run stopped for a usage-limit handoff"
 
 STUB_CHECKER = '''
-import json, os, sys
-log = os.environ.get("GATE_STUB_LOG")
-if log:
-    with open(log, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(sys.argv[1:]) + "\\n")
-command = sys.argv[1]
-if command == "check":
-    print("INCOMPLETE: task.T002")
-    sys.exit(1)
-if command == "score":
-    print("3 abc -")
-    sys.exit(0)
-sys.exit(3)
+# Unit-only gate-status API: no key, HMAC, signed authority or native history.
+import json
+from pathlib import Path
+from types import SimpleNamespace
+
+class Malformed(ValueError):
+    pass
+
+def resolve_plan_controller(path, session=None):
+    record = json.loads(Path(path).read_text(encoding="utf-8"))
+    if record.get("schema") != 1 or record.get("session_id") != session:
+        raise Malformed("unit fixture owner mismatch")
+    return SimpleNamespace(root=Path(record["repo_root"])), record
+
+def main():
+    import json, os, sys
+    log = os.environ.get("GATE_STUB_LOG")
+    if log:
+        with open(log, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(sys.argv[1:]) + "\\n")
+    command = sys.argv[1]
+    if command == "check":
+        print("INCOMPLETE: task.T002")
+        sys.exit(1)
+    if command == "score":
+        print("3 abc -")
+        sys.exit(0)
+    sys.exit(3)
+
+if __name__ == "__main__":
+    main()
 '''
 
 PLATFORMS = {

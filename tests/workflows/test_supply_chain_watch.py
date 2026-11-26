@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from scripts.ci import profiles as audit_profiles
+
 yaml = pytest.importorskip("yaml")
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -47,7 +49,7 @@ def test_watch_produces_no_required_check() -> None:
 
 def test_watch_fails_visibly_rather_than_passing_on_no_data() -> None:
     text = WATCH.read_text(encoding="utf-8")
-    assert "pip_audit" in text and 'exit "$status"' in text
+    assert "--only pip-audit --reports-dir reports" in text and "audit_upload_path" in text
     assert "if-no-files-found: warn" in text
 
 
@@ -72,10 +74,10 @@ def test_watch_skips_editable_projects_without_dropping_installed_dependencies()
     audit = next(step["run"] for step in steps if step.get("name") == "Audit against known advisories")
     assert 'for ext in extensions/*/pyproject.toml' in install
     assert 'python -m pip install --quiet -e "${dir}[${extras}]"' in install
-    calls = re.findall(r"(?m)^\s*python -m pip_audit ([^\n]+)", audit)
-    assert len(calls) == 2
-    assert all("--skip-editable" in call for call in calls)
-    assert all("--ignore-vuln" not in call for call in calls)
+    assert audit.strip() == "python -B scripts/ci/run.py --profile full --only pip-audit --reports-dir reports"
+    scenario = (REPO_ROOT / "scripts/ci/verify_scenarios.py").read_text(encoding="utf-8")
+    assert '"--skip-editable", "--progress-spinner", "off", "--format", "json", "--output"' in scenario
+    assert '"--ignore-vuln"' not in scenario
 
 
 def test_release_artifact_job_is_scoped_and_pinned() -> None:
@@ -132,3 +134,83 @@ def test_every_extension_that_pulls_mcp_declares_the_pyjwt_floor() -> None:
             assert floors, f"{pyproject.parent.name}: a group with mcp lacks a pyjwt floor"
             assert _version(floors[0].split(">=", 1)[1]) >= PYJWT_FLOOR, floors[0]
     assert checked >= 4, "expected the four MCP-serving extensions to be checked"
+
+
+
+def _audit_workflow(name):
+    return _load(REPO_ROOT / ".github/workflows" / name)
+
+
+def test_audit_events_names_permissions_and_matrices_are_preserved():
+    npm, pip, codeql = _audit_workflow("npm-audit.yml"), _audit_workflow("supply-chain-watch.yml"), _audit_workflow("codeql.yml")
+    for workflow in (npm, pip):
+        trigger = workflow.get("on", workflow.get(True))
+        assert set(trigger) == {"schedule", "workflow_dispatch"}
+        assert workflow["permissions"] == {"contents": "read"}
+    assert npm["name"] == "npm-audit" and pip["name"] == "Supply-chain watch" and codeql["name"] == "CodeQL Security Scan"
+    assert npm.get("on", npm.get(True))["schedule"] == [{"cron": "17 6 * * 1"}]
+    assert pip.get("on", pip.get(True))["schedule"] == [{"cron": "0 6 * * 1"}]
+    trigger = codeql.get("on", codeql.get(True))
+    assert set(trigger) == {"pull_request", "schedule", "workflow_dispatch"}
+    assert trigger["pull_request"] == {"branches": ["main", "develop"], "paths": ["scripts/**/*.py", "infrastructure/**/*.py", "extensions/**/*.ts", "extensions/**/*.js"]}
+    assert trigger["schedule"] == [{"cron": "0 0 * * 0"}]
+    assert npm["jobs"]["audit"]["strategy"]["matrix"]["extension"] == list(audit_profiles.AUDIT_NPM_PACKAGES)
+    assert codeql["jobs"]["analyze"]["strategy"]["matrix"]["language"] == list(audit_profiles.AUDIT_CODEQL_LANGUAGES)
+    assert codeql["jobs"]["analyze"]["name"] == "Analyze (${{ matrix.language }})"
+    assert codeql["jobs"]["analyze"]["permissions"] == {"security-events": "write"}
+    assert [npm["jobs"]["audit"]["timeout-minutes"], pip["jobs"]["audit"]["timeout-minutes"], codeql["jobs"]["analyze"]["timeout-minutes"]] == [15, 20, 60]
+    assert npm["concurrency"] == {"group": "${{ github.workflow }}", "cancel-in-progress": True}
+    assert pip["concurrency"] == {"group": "${{ github.workflow }}-${{ github.ref }}", "cancel-in-progress": False}
+    assert codeql["concurrency"] == {"group": "${{ github.workflow }}-${{ github.ref }}", "cancel-in-progress": True}
+
+
+def test_native_groups_replace_validation_without_changing_preparation():
+    npm = _audit_workflow("npm-audit.yml")["jobs"]["audit"]
+    steps = npm["steps"]
+    setup = next(s for s in steps if "setup-node@" in s.get("uses", ""))
+    assert setup["with"] == {"node-version": "22", "cache": "npm", "cache-dependency-path": "extensions/${{ matrix.extension }}/package-lock.json"}
+    assert any(s.get("run") == "npm ci --ignore-scripts" for s in steps)
+    native = next(s for s in steps if "--only npm-audit-" in s.get("run", ""))
+    assert native["working-directory"] == "."
+    assert native["run"] == "python -B scripts/ci/run.py --profile full --only npm-audit-${{ matrix.extension }} --reports-dir reports"
+    assert not any(s.get("run") == "npm audit signatures" for s in steps)
+    pip = _audit_workflow("supply-chain-watch.yml")["jobs"]["audit"]
+    install = next(s["run"] for s in pip["steps"] if s.get("name") == "Install the declared dependency set")
+    assert "'setuptools==84.0.0'" in install and "for ext in extensions/*/pyproject.toml" in install
+    assert _audit_workflow("supply-chain-watch.yml")["env"]["PIP_CONSTRAINT"] == "${{ github.workspace }}/scripts/ci/requirements-py311.txt"
+    raw = next(s for s in pip["steps"] if s.get("with", {}).get("name") == "pip-audit-report")
+    assert raw["with"]["retention-days"] == 30
+    assert raw["with"]["path"] == "${{ steps.audit_report.outputs.path }}"
+
+
+def test_codeql_setup_analysis_upload_and_hosted_observations_are_separate():
+    steps = _audit_workflow("codeql.yml")["jobs"]["analyze"]["steps"]
+    refs = [s["uses"] for s in steps if "uses" in s]
+    assert not any("codeql-action/" + name + "@" in ref for name in ("init", "analyze", "autobuild") for ref in refs)
+    for name in ("setup-codeql", "upload-sarif"):
+        assert "github/codeql-action/" + name + "@24c54180a607b1449ed407dd24f251e4e9147c8d" in refs
+    native = next(s for s in steps if s.get("name") == "Perform native CodeQL Analysis")
+    assert native["env"] == {"NEXUS_CI_CODEQL": "${{ steps.codeql.outputs.codeql-path }}"}
+    upload = next(s for s in steps if s.get("id") == "upload")
+    assert upload["with"] == {"sarif_file": "${{ steps.audit_report.outputs.path }}", "category": "/language:${{ matrix.language }}", "wait-for-processing": True}
+    text = (REPO_ROOT / ".github/workflows/codeql.yml").read_text()
+    assert "audit_upload_path" in text and "manifest_sha256" in text and "Source changed before upload" in text
+    assert "ci-codeql-hosted/1" in text and "steps.upload.outputs.sarif-id" in text
+    assert "GITHUB_RUN_ID" in text and "GITHUB_RUN_ATTEMPT" in text and "JOB_DISPLAY_NAME" in text
+    config = yaml.safe_load((REPO_ROOT / "scripts/ci/codeql-config.yml").read_text())
+    assert config == {"queries": [{"uses": "security-and-quality"}], "paths-ignore": [".agents/**", ".cursor/commands/**"]}
+
+
+def test_reports_are_unconditional_pinned_and_do_not_enter_required_gate():
+    for name, job in (("npm-audit.yml", "audit"), ("supply-chain-watch.yml", "audit"), ("codeql.yml", "analyze")):
+        data = _audit_workflow(name)
+        steps = data["jobs"][job]["steps"]
+        summary = next(s for s in steps if s.get("name") == "Publish native profile summary")
+        assert summary["if"] == "always()"
+        uploads = [s for s in steps if s.get("with", {}).get("name", "").startswith("reports-")]
+        assert len(uploads) == 1 and uploads[0]["if"] == "always()"
+        assert uploads[0]["with"]["retention-days"] == 7
+        for step in steps:
+            if "uses" in step:
+                assert re.search(r"@[a-f0-9]{40}$", step["uses"])
+        assert "ci-required" not in data["jobs"]

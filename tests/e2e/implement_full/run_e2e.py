@@ -438,6 +438,7 @@ def run_condition(
         else subprocess.CompletedProcess([], 0, "", "")
     )
     (root / "runner.out").write_text(proc.stdout + "\n--- stderr ---\n" + proc.stderr, encoding="utf-8")
+    check_started = time.monotonic()
     check = subprocess.run(
         [sys.executable, env["E2E_CHECKER"], "check", PLAN_REL],
         cwd=work,
@@ -445,6 +446,10 @@ def run_condition(
         capture_output=True,
         text=True,
         check=False,
+    )
+    check_seconds = round(time.monotonic() - check_started, 3)
+    (root / "final-check.out").write_text(
+        check.stdout + "\n--- stderr ---\n" + check.stderr, encoding="utf-8"
     )
     cycles = sum(1 for line in proc.stderr.splitlines() if line.startswith("cycle "))
     verdict = check.stdout.splitlines()[0] if check.stdout else ""
@@ -456,6 +461,10 @@ def run_condition(
         "runner_stdout": proc.stdout.strip()[-400:],
         "incomplete_cycles": cycles,
         "verdict": verdict,
+        "final_check_exit": check.returncode,
+        "final_check_seconds": check_seconds,
+        "final_check_stdout": check.stdout,
+        "final_check_stderr": check.stderr,
         "complete": verdict.startswith("PLAN COMPLETE"),
         "seconds": round(time.monotonic() - started, 1),
         "runner": runner,

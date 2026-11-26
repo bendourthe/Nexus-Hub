@@ -10,10 +10,24 @@
   "remaining": "~2.2 d (1.6-4.0 d)",
   "estimate_basis": "open tasks x days per task from recent release tags",
   "rows": [
-    {"name": "Phase 1", "goals": "Package profiles", "done": 3, "total": 19, "state": "running", "elapsed": "13 min", "remaining": "~2.2 d (1.6-4.0 d)", "dependency": "none"}
+    {
+      "name": "Phase 1",
+      "goals": "Package profiles",
+      "done": 3,
+      "total": 19,
+      "state": "running",
+      "elapsed": "13 min",
+      "remaining": "~2.2 d (1.6-4.0 d)",
+      "dependency": "none"
+    }
   ],
   "goals": [
-    {"goal": "Ship v1.3", "scope": "run", "done_when": "All 19 tasks verified", "state": "running"}
+    {
+      "goal": "Ship v1.3",
+      "scope": "run",
+      "done_when": "All 19 tasks verified",
+      "state": "running"
+    }
   ],
   "decisions": [],
   "running": [],
@@ -23,5 +37,25 @@
     "condition": "none",
     "confidence": "medium",
     "basis": "open tasks x days per task from recent release tags"
+  },
+  "continuation": {
+    "objective": "Ship v1.3 with all approved packaging and verification work",
+    "requests": [
+      {
+        "id": "installed-capture",
+        "kind": "action",
+        "title": "Capture the installed application result",
+        "prerequisites": [
+          "Use Windows PowerShell 5.1 on the illustrative example computer with C:/ExampleApp/verify-installed.ps1 installed"
+        ],
+        "steps": [
+          "Open Windows PowerShell 5.1 on the example computer in C:/ExampleApp",
+          "Run & 'C:/ExampleApp/verify-installed.ps1' -OutputFile 'C:/ExampleProof/installed.json'",
+          "Paste the resulting receipt path in this conversation"
+        ],
+        "expected_result": "A fresh installed application receipt",
+        "acknowledgment": "Reply with the receipt path after the capture finishes"
+      }
+    ]
   }
 }

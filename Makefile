@@ -101,8 +101,8 @@ build-catalog: ## Legacy generator; refuses unless FORCE=1 (data/ is hand-mainta
 	@python infrastructure/tools/build_templates_catalog.py
 	@echo "Catalogs rebuilt."
 
-dev: ## Install all six extension development extras before local tests
-	@python -m pip install --quiet -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
+dev: ## Install process support and all six extension development extras before local tests
+	@python -m pip install --quiet psutil -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
 
 test: ## Run extension and repo pytest suites after make dev
 	@echo "Running tests..."
