@@ -213,3 +213,57 @@ def test_beat_validates_structured_blocked_states(lh, tmp_path, state, ok):
         with pytest.raises(SystemExit):
             lh.main(argv)
         assert not (runs / "rec.lanes" / "v1.0.1.heartbeat").exists()
+
+
+def test_recorded_wait_on_unreleased_member_is_a_reason_not_idle(lh):
+    queued = {"v1.0.2": "blocked:waits-merge:v1.0.1"}
+    idle = lh.classify_idle([], ["v1.0.1", "v1.0.2"], lambda v: False, NOW, queued=queued)
+    assert [(i["member"], i["kind"]) for i in idle] == [("v1.0.1", "unadmitted")]
+
+
+def test_recorded_wait_on_released_member_is_stale_and_idle(lh):
+    queued = {"v1.0.2": "blocked:waits-merge:v1.0.1"}
+    idle = lh.classify_idle([], ["v1.0.2"], {"v1.0.1"}.__contains__, NOW, queued=queued)
+    assert idle[0]["kind"] == "unadmitted" and "stale" in idle[0]["detail"]
+
+
+def test_free_text_wait_on_unadmitted_member_is_not_a_reason(lh):
+    queued = {"v1.0.2": "blocked:later-maybe"}
+    idle = lh.classify_idle([], ["v1.0.2"], lambda v: False, NOW, queued=queued)
+    assert [(i["member"], i["kind"]) for i in idle] == [("v1.0.2", "unadmitted")]
+
+
+def test_recorded_needs_user_on_unadmitted_member_surfaces_the_decision(lh):
+    queued = {"v1.0.2": "blocked:needs-user:pick-scope"}
+    idle = lh.classify_idle([], ["v1.0.2"], lambda v: False, NOW, queued=queued)
+    assert idle == [{"member": "v1.0.2", "kind": "needs-user", "detail": "pick-scope"}]
+
+
+def test_capacity_counts_only_lanes_that_hold_a_slot(lh):
+    lanes = [
+        lane("v1.0.1", "active"),
+        lane("v1.0.2", "stalled"),
+        lane("v1.0.3", "blocked", "waits-v1.0.1"),
+        lane("v1.0.4", "ready"),
+        lane("v1.0.5", "finished"),
+    ]
+    assert lh.lane_capacity(lanes, 4) == {"cap": 4, "occupied": 2, "free": 2}
+
+
+def test_idle_lane_defect_needs_a_free_lane_and_a_dispatchable_member(lh):
+    idle = [{"member": "v1.0.9", "kind": "unadmitted", "detail": "x"}]
+    line = lh.idle_lane_defect({"cap": 6, "occupied": 2, "free": 4}, idle)
+    assert line.startswith("IDLE LANE DEFECT: 4 of 6 lanes free while v1.0.9 can be dispatched")
+    assert lh.idle_lane_defect({"cap": 6, "occupied": 6, "free": 0}, idle) is None
+    assert lh.idle_lane_defect({"cap": 6, "occupied": 2, "free": 4}, []) is None
+
+
+def test_queued_reasons_reads_the_member_heartbeat_for_laneless_members(lh, tmp_path):
+    record = tmp_path / "rec.json"
+    lanes = tmp_path / "rec.lanes"
+    lanes.mkdir()
+    (lanes / "v1.0.2.heartbeat").write_text(
+        "2026-11-18T10:00:00Z v1.0.2 queue blocked:waits-merge:v1.0.1\n", encoding="utf-8"
+    )
+    data = {"members": [{"version": "v1.0.1"}, {"version": "v1.0.2"}]}
+    assert lh.queued_reasons(data, record) == {"v1.0.2": "blocked:waits-merge:v1.0.1"}

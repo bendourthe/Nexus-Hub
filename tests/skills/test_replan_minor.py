@@ -256,3 +256,23 @@ def test_record_lookup_falls_back_to_prose_without_a_record(rp, tmp_path, monkey
     monkeypatch.setenv("NEXUS_HUB_RUNS_DIR", str(runs))
     claims, note = rp.load_record_claims(plans, None)
     assert claims == {} and "no schema 2 run record" in note
+
+
+def test_claim_blockers_name_directory_claims_and_shared_files_with_a_fix(rp, tmp_path):
+    claims_a = {"depends_on": [], "write_paths": ["docs/history/", "scripts/shared.py"], "read_paths": []}
+    claims_b = {"depends_on": [], "write_paths": ["docs/history/b.md", "scripts/shared.py"], "read_paths": []}
+    write_plan(tmp_path, "v1.0.1", "alpha", [(1, "Edit docs/history/a.md", False)], claims=claims_a)
+    write_plan(tmp_path, "v1.0.2", "beta", [(1, "Edit docs/history/b.md", False)], claims=claims_b)
+    report = run(rp, tmp_path)
+    blockers = {b["path"]: b for b in report["claim_blockers"]}
+    assert blockers["docs/history/"]["plans"] == ["v1.0.1", "v1.0.2"]
+    assert "narrow" in blockers["docs/history/"]["fix"]
+    assert "owns this file" in blockers["scripts/shared.py"]["fix"]
+    text = rp.render_markdown(report)
+    assert "Claims that block parallel lanes" in text and "Dispatch now" in text
+
+
+def test_dispatch_now_lists_the_first_conflict_free_wave(rp, tmp_path):
+    write_plan(tmp_path, "v1.0.1", "alpha", [(1, "Edit scripts/a.py", False)])
+    write_plan(tmp_path, "v1.0.2", "beta", [(1, "Edit scripts/b.py", False)])
+    assert run(rp, tmp_path)["dispatch_now"] == ["v1.0.1", "v1.0.2"]

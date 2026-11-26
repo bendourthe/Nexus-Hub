@@ -290,6 +290,36 @@ def topo_order(nodes: set[str], edges: set[tuple[str, str]]) -> tuple[list[str],
     return order, []
 
 
+def claim_blockers(members: list[dict]) -> list[dict]:
+    """The claims that serialize plans, broadest first, each with the fix that frees parallel lanes.
+
+    A directory claim, or one exact file shared by several writers, is what turns independent plans
+    into a queue. Each entry names the claim, the plans it blocks and the narrowing to apply.
+    """
+    found: dict[str, dict] = {}
+    for i, a in enumerate(members):
+        for b in members[i + 1:]:
+            for writer, other in ((a, b), (b, a)):
+                for x in writer["paths"]["write"]:
+                    if is_coordinator(x):
+                        continue
+                    for y in other["paths"]["write"] + other["paths"]["read"]:
+                        if not overlap(x, y) or is_coordinator(y):
+                            continue
+                        broad = x if x.endswith("/") or not y.endswith("/") else y
+                        entry = found.setdefault(broad, {"path": broad, "plans": set()})
+                        entry["plans"].update({a["version"], b["version"]})
+    out = []
+    for entry in found.values():
+        plans = sorted(entry["plans"], key=vkey)
+        if entry["path"].endswith("/"):
+            fix = "narrow to the exact files each plan edits; claim a directory only when one plan creates and owns it"
+        else:
+            fix = "one plan owns this file; the others propose a delta or run after it"
+        out.append({"path": entry["path"], "plans": plans, "fix": fix})
+    return sorted(out, key=lambda e: (-len(e["plans"]), e["path"]))
+
+
 def conflict_map(members: list[dict], overlaps: list[dict], hard_only: bool = True) -> dict[str, set[str]]:
     conflicts = {m["version"]: set() for m in members}
     for o in overlaps:
@@ -479,6 +509,8 @@ def analyze(folder: Path, lanes: int, similarity: float, include_all: bool, incl
         "narrowable_pairs": sum(1 for o in overlaps if not o["hard"]),
         "unreadable": [{"file": p["file"], "error": p["error"]} for p in unreadable],
         "overlaps": overlaps,
+        "claim_blockers": claim_blockers(members)[:15],
+        "dispatch_now": sorted(proposed_waves[0], key=vkey) if proposed_waves else [],
         "hot_files": sorted(({"path": k, "plans": sorted(v, key=vkey)} for k, v in hot.items() if len(v) > 1),
                             key=lambda h: (-len(h["plans"]), h["path"]))[:15],
         "redundant_tasks": redundant, "boilerplate_pairs_suppressed": suppressed,
@@ -538,6 +570,8 @@ def render_markdown(r: dict) -> str:
         sample = (o["write_write"] + o["write_read"])[:3]
         lines.append(f"- {o['a']} vs {o['b']}{'' if o['hard'] else ' [narrowable]'}: {len(o['write_write'])} write/write, {len(o['write_read'])} write/read. "
                      f"e.g. {'; '.join(sample)}")
+    lines += ["", "## Claims that block parallel lanes (narrow these first)"]
+    lines += [f"- {b['path']} blocks {', '.join(b['plans'])}: {b['fix']}" for b in r["claim_blockers"]] or ["- none"]
     lines += ["", "## Redundancy"]
     lines += [f"- {t['a']} {t['a_task']} ~ {t['b']} {t['b_task']} (similarity {t['similarity']}"
               f"{', target ' + t['shared_target'] if t['shared_target'] else ''}): {t['a_text'][:80]}"
@@ -559,6 +593,7 @@ def render_markdown(r: dict) -> str:
               f"- Current version order: {s['baseline_wave_count']} waves. Best ({s['strategy']}): {s['proposed_wave_count']} waves, peak {s['peak_parallel']} in parallel (assumes narrowable read claims are narrowed).",
               f"- If every claim stays as written: {s['strict_wave_count']} waves."]
     lines += [f"- Wave {i + 1}: {', '.join(sorted(w, key=vkey))}" for i, w in enumerate(s["proposed_waves"])]
+    lines += [f"- Dispatch now (every eligible member, up to the lane cap of {r['lanes']}): {', '.join(r['dispatch_now']) or 'none'}"]
     lines += ["", "## Proposed renumber", f"- {r['renumber_note']}"]
     lines += [f"- {m['from']} -> {m['to']} ({m['slug']}): {m['reason']}" for m in r["proposed_renumber"]]
     lines += ["", "## Limits"] + [f"- {x}" for x in r["limits"]]

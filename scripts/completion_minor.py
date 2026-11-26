@@ -9134,8 +9134,10 @@ def idle_actions(ck: ModuleType, rctx: RepoContext, token: str, record: dict | N
         path = getattr(record, "record_path", None) or record_file(ck, rctx, token)
         now = dt.datetime.now(dt.timezone.utc)
         tags = lane_health.release_tags(rctx.root)
+        queued = lane_health.queued_reasons(record, Path(path)) if hasattr(lane_health, "queued_reasons") else None
         idle = lane_health.classify_idle(lane_health.light_lanes(record, Path(path), now, tags),
-                                         lane_health.record_versions(record), tags.__contains__, now)
+                                         lane_health.record_versions(record), tags.__contains__, now,
+                                         queued=queued)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, ck.MinorConflict):
         return []
     return action_lines(idle)

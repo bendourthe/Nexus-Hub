@@ -310,7 +310,8 @@ def idle_lanes(record: str, runs_dir: Path | None, repo: Path, now: datetime) ->
     tags = lane_health.release_tags(repo)
     lanes = lane_health.light_lanes(data, path, now, tags)
     return lane_health.classify_idle(
-        lanes, lane_health.record_versions(data), tags.__contains__, now
+        lanes, lane_health.record_versions(data), tags.__contains__, now,
+        queued=lane_health.queued_reasons(data, path),
     )
 
 
