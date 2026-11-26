@@ -93,7 +93,7 @@ Never create a worktree inside a path that is tracked by git. The central root i
 
 ### Migration, handoff and cleanup
 
-An existing worktree outside the root moves only through `nexus-hub worktree migrate`, which executes one reviewed manifest and preserves dirty, staged, untracked and ignored content. Move active work only after its agent checkpoints and acknowledges the handoff, and finish a signed run where its record is bound before moving it. Removal of a finished worktree stays with `scripts/cleanup_merged.py`, which owns the merged-history checks; this skill never deletes one. The runbook is `docs/runbooks/worktree-organization.md`.
+An existing worktree outside the root moves only through `nexus-hub worktree migrate`, which executes one reviewed manifest and preserves dirty, staged, untracked and ignored content. Move active work only after its agent checkpoints and acknowledges the handoff, and finish a signed run where its record is bound before moving it. Removal of a finished worktree goes through `nexus-hub worktree prune-merged` (merged by git history) or `scripts/cleanup_merged.py` (merged by pull request, under a recorded approval); this skill never deletes one by hand. The runbook is `docs/runbooks/worktree-organization.md`.
 
 ### Worktree hygiene
 
@@ -101,7 +101,7 @@ Run this at session start in a git repository and at the start and end of every 
 
 1. **Check.** `nexus-hub worktree list --repo . --json`. Every linked worktree with `in_policy: false` is misplaced; `prunable: true` means its folder is gone.
 2. **Move.** For misplaced idle worktrees, run the audit, then `nexus-hub worktree migrate --dry-run` to write one manifest, and ask the user for a single approval of the reviewed set. The user runs `--approve` in their own terminal and each owner runs `--ack` after checkpointing. Never synthesize either; the guard refuses an agent's `--approve`. Then `--apply`, and verify every receipt.
-3. **Retire.** `python ~/.nexus-hub/scripts/cleanup_merged.py --dry-run --integration-branch <branch>`, then `--apply` only under an approval. A `KEEP` line is never overridden by hand.
+3. **Retire.** Run `nexus-hub worktree prune-merged --repo . --fetch --integration-branch <branch>` (dry run, a table of `path | branch | merged | clean | action | reason`), then the same command with `--apply`. It removes a linked worktree and its local branch only when the branch is already in `origin/<branch>` or `origin/main` (ancestor, or squash and rebase content already present), the worktree is clean (no modified, staged, untracked, stashed or non-regenerable ignored files), unlocked, not the current directory of a live process, and idle for 24 hours. It never forces and never touches the primary checkout, so `--apply` for the merged-and-clean set needs no extra approval; a `KEEP` line is never overridden by hand. At the end of a plan's integration merge, run it with `--only <the plan's worktree path or branch>` (the idle window is skipped for a named worktree). `python ~/.nexus-hub/scripts/cleanup_merged.py --dry-run --integration-branch <branch>` remains the pull-request-based pass that removes remote branches and runs under a recorded approval.
 4. **Report.** List what remains and why (uncommitted changes, live signed run, lock, another repository), each with its owner and next step.
 5. **Other repositories and machines.** `nexus-hub worktree audit --machine --json --output <new-report> --max-seconds <n>`, resumed with `--resume`, then one manifest per repository.
 
