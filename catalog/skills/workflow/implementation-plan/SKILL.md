@@ -461,6 +461,7 @@ Before Step 5, run the placement rule in `[[plan-queue-assessment]]` ("Placement
 
 Once the plan's version is placed and the draft is in its version folder, run the minor re-plan analysis from `[[plan-queue-assessment]]` ("Plan-time use by `/compare` and `/plan`") with its bundled `replan_minor.py` on `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans`. The new plan is then checked against the other plans of that minor for overlap, redundancy, dependencies, merge and split candidates, the wave schedule, and renumbering. That skill owns the procedure and the proposal rules; this step only calls it.
 
+- Write the plan parallel-ready: exact-file `write_paths` (a directory only when this plan creates it), a per-plan history or evidence file instead of a shared folder, and a `depends_on` entry only with a concrete file or merge reason. When the report's "Claims that block parallel lanes" names a queued plan, offer the narrowing as a proposal.
 - Show the proposals in Step 5 next to the phases table. Apply nothing until the user approves each one, and never edit the prose of an existing member plan.
 - Record the outcome in `## Queued predecessors` (including "no change proposed").
 - If the minor has no other plans, state that and continue.

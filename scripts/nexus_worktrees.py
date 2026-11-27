@@ -12,6 +12,8 @@ Actions (this module owns the logic; `scripts/nexus_hub_cli.py` forwards to it):
     list     Report a repository's registered worktrees and canonical destinations.
     audit    Read-only machine discovery with an explicit coverage ledger.
     migrate  Dry-run a reviewed manifest, then apply exactly that manifest.
+    prune-merged  Remove merged, clean, idle linked worktrees and their local branches
+             (dry run unless --apply; never forces, never touches the primary checkout).
 
 Layout: `<root>/<repository-identity>/<worktree-name>`. The root comes from the
 `NEXUS_WORKTREE_ROOT` environment variable, then the user's own
@@ -344,6 +346,7 @@ ALLOWED_INSPECTION = {
     "diff",
     "symbolic-ref",
     "show-ref",
+    "stash",
 }
 EXECUTABLE_CONFIG = (
     re.compile(r"^filter\.(?P<name>.+)\.(clean|smudge|process)$", re.I),
@@ -580,6 +583,10 @@ class GitInspector:
             raise PolicyError(
                 "git-command-not-allowed",
                 "only 'worktree list' is an inspection command",
+            )
+        if sub == "stash" and argv[1:2] != ["list"]:
+            raise PolicyError(
+                "git-command-not-allowed", "only 'stash list' is an inspection command"
             )
         if sub == "config" and not set(argv[1:]) & {"--list", "--get", "-z"}:
             raise PolicyError(
@@ -3060,6 +3067,422 @@ def run_migrate(args: argparse.Namespace) -> int:
     )
 
 
+# --------------------------------------------------------------------------- prune merged
+
+PROTECTED_BRANCHES = frozenset({"main", "master", "develop", "HEAD"})
+REGENERABLE_DIRS = frozenset(
+    {
+        "node_modules",
+        "__pycache__",
+        ".venv",
+        "venv",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".tox",
+        "dist",
+        "build",
+        "htmlcov",
+        "coverage",
+        "out",
+    }
+)
+REGENERABLE_FILES = (".pyc", ".pyo", ".vsix")
+SECRET_NAMES = (".env", "id_rsa", "id_ed25519", "credentials", "secrets")
+DEFAULT_IDLE_HOURS = 24.0
+
+
+@dataclass
+class PruneRow:
+    path: str
+    branch: str | None
+    head: str
+    merged: bool
+    merged_by: str
+    clean: bool
+    in_root: bool
+    action: str  # REMOVE | KEEP
+    reason: str
+    klass: str  # merged-clean | merged-dirty | unmerged-clean | unmerged-dirty | other
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "path": self.path,
+            "branch": self.branch,
+            "head": self.head,
+            "merged": self.merged,
+            "merged_by": self.merged_by,
+            "clean": self.clean,
+            "in_central_root": self.in_root,
+            "action": self.action,
+            "reason": self.reason,
+            "class": self.klass,
+        }
+
+
+def _merge_targets(
+    git: GitInspector, scope: dict[str, str], integration: str, remote: str
+) -> list[str]:
+    """Remote-tracking integration and main refs that exist; local ones only without a remote."""
+
+    def exists(ref: str) -> bool:
+        return (
+            git.run(["rev-parse", "--verify", "-q", ref + "^{commit}"], **scope).rc == 0
+        )
+
+    names = list(dict.fromkeys([integration, "main", "master"]))
+    found = [r for r in (f"refs/remotes/{remote}/{n}" for n in names) if exists(r)]
+    if found:
+        return found
+    return [r for r in (f"refs/heads/{n}" for n in names) if exists(r)]
+
+
+def _merged_by(
+    git: GitInspector, scope: dict[str, str], head: str, targets: list[str], cwd: str
+) -> str:
+    """'ancestor', 'content' (a squash or rebase already holds every change), or ''."""
+    for target in targets:
+        if git.run(["merge-base", "--is-ancestor", head, target], **scope).rc == 0:
+            return "ancestor"
+    for target in targets:
+        tree = git.run(["rev-parse", target + "^{tree}"], **scope)
+        merged = git_write(
+            git,
+            ["merge-tree", "--write-tree", "--no-messages", target, head],
+            cwd,
+            neutral=True,
+        )
+        if (
+            merged.rc == 0
+            and tree.rc == 0
+            and merged.out.split("\n", 1)[0].strip() == tree.out.strip()
+        ):
+            return "content"
+    return ""
+
+
+def _ignored_blocker(git: GitInspector, path: str) -> str:
+    """First ignored entry that is not regenerable, or ''. Removing a worktree deletes ignored files."""
+    result = git.run(
+        [
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+            "--directory",
+            "-z",
+        ],
+        cwd=path,
+    )
+    if result.rc != 0:
+        return "unreadable"
+    for entry in result.out.split("\0"):
+        if not entry:
+            continue
+        parts = [p for p in entry.rstrip("/").split("/") if p]
+        name = parts[-1].lower() if parts else ""
+        if any(name == s or name.startswith(s + ".") for s in SECRET_NAMES):
+            return entry
+        if entry.endswith("/"):
+            if any(p in REGENERABLE_DIRS for p in parts):
+                continue
+            return entry
+        if (
+            entry.endswith(REGENERABLE_FILES)
+            or name == ".coverage"
+            or name.startswith(".coverage.")
+            or any(p in REGENERABLE_DIRS for p in parts[:-1])
+        ):
+            continue
+        return entry
+    return ""
+
+
+def _stashed(git: GitInspector, scope: dict[str, str], branch: str | None) -> bool:
+    """A stash entry made on this branch: stashes are repository-wide, so match by branch name."""
+    if not branch:
+        return False
+    stash = git.run(["stash", "list"], **scope)
+    marks = (f"On {branch}:", f"WIP on {branch}:")
+    return any(
+        line.partition(": ")[2].startswith(marks) for line in stash.out.splitlines()
+    )
+
+
+def _link_present(path: str) -> bool:
+    try:
+        with os.scandir(path) as entries:
+            return any(is_reparse(e.path) for e in entries if e.name != ".git")
+    except OSError:
+        return True
+
+
+def _process_in(path: str) -> bool:
+    """This process, or on Linux any process, has its working directory inside path."""
+    try:
+        if is_within(os.getcwd(), path):
+            return True
+    except OSError:
+        pass
+    proc = Path("/proc")
+    if proc.is_dir():
+        for entry in proc.iterdir():
+            if entry.name.isdigit():
+                try:
+                    if is_within(os.readlink(entry / "cwd"), path):
+                        return True
+                except OSError:
+                    continue
+    return False
+
+
+def _last_activity(git: GitInspector, wt: RegisteredWorktree) -> float:
+    """Newest of the worktree's HEAD, index and reflog times and its head commit time."""
+    stamps: list[float] = []
+    gitdir = _git_dir_of(wt.path)
+    if gitdir is not None:
+        for name in ("HEAD", "index", "logs/HEAD"):
+            try:
+                stamps.append((gitdir / name).stat().st_mtime)
+            except OSError:
+                continue
+    commit = git.run(
+        ["rev-list", "--max-count=1", "--format=%ct", wt.head], cwd=wt.path
+    )
+    lines = commit.out.splitlines()
+    if commit.rc == 0 and len(lines) > 1 and lines[1].strip().isdigit():
+        stamps.append(float(lines[1]))
+    return max(stamps) if stamps else float("inf")
+
+
+def evaluate_worktree(
+    git: GitInspector,
+    scope: dict[str, str],
+    wt: RegisteredWorktree,
+    *,
+    primary: bool,
+    targets: list[str],
+    integration: str,
+    in_root: bool,
+    idle_hours: float,
+) -> PruneRow:
+    def row(
+        action: str,
+        reason: str,
+        merged: bool = False,
+        by: str = "",
+        clean: bool = False,
+        klass: str = "other",
+    ) -> PruneRow:
+        return PruneRow(
+            wt.path,
+            wt.branch,
+            wt.head,
+            merged,
+            by,
+            clean,
+            in_root,
+            action,
+            reason,
+            klass,
+        )
+
+    if primary:
+        return row("KEEP", "primary-checkout")
+    if wt.bare:
+        return row("KEEP", "bare")
+    if wt.branch and (wt.branch in PROTECTED_BRANCHES or wt.branch == integration):
+        return row("KEEP", "protected-branch")
+    if wt.prunable or not Path(wt.path).is_dir():
+        return row("KEEP", "prunable")
+    if not wt.head:
+        return row("KEEP", "unreadable")
+    try:
+        state = worktree_state(git, wt.path)
+    except PolicyError:
+        return row("KEEP", "unreadable")
+    by = _merged_by(git, scope, wt.head, targets, wt.path) if targets else ""
+    merged, clean = bool(by), not state["dirty"]
+    klass = f"{'merged' if merged else 'unmerged'}-{'clean' if clean else 'dirty'}"
+
+    def keep(reason: str) -> PruneRow:
+        return row("KEEP", reason, merged, by, clean, klass)
+
+    if wt.locked:
+        return keep("locked")
+    if not merged:
+        return keep("not-merged")
+    if not clean:
+        return keep("dirty")
+    if state["submodules"]:
+        return keep("submodule")
+    if _stashed(git, scope, wt.branch):
+        return keep("stashed")
+    if _ignored_blocker(git, wt.path):
+        return keep("ignored-files")
+    if _link_present(wt.path):
+        return keep("link-present")
+    if _process_in(wt.path):
+        return keep("current-directory")
+    if idle_hours > 0 and time.time() - _last_activity(git, wt) < idle_hours * 3600:
+        return keep("recently-active")
+    return row("REMOVE", "merged-" + by, True, by, True, klass)
+
+
+def _in_use(path: str) -> bool:
+    """A held handle (an open shell or editor) blocks renaming the directory on Windows."""
+    probe = path.rstrip("/\\") + ".nexus-prune-probe"
+    try:
+        os.rename(path, probe)
+    except OSError:
+        return True
+    try:
+        os.rename(probe, path)
+    except OSError:
+        return True
+    return False
+
+
+def apply_removal(
+    git: GitInspector,
+    scope: dict[str, str],
+    wt: RegisteredWorktree,
+    targets: list[str],
+    cwd: str,
+) -> tuple[bool, str]:
+    """Re-verify, then remove one worktree and its merged local branch. Never forces."""
+    live = git.run(["rev-parse", "HEAD"], cwd=wt.path)
+    if live.out.strip() != wt.head or not _merged_by(
+        git, scope, wt.head, targets, wt.path
+    ):
+        return False, "changed-since-check"
+    if worktree_state(git, wt.path)["dirty"]:
+        return False, "dirty"
+    if _in_use(wt.path):
+        return False, "in-use"
+    if git_write(git, ["worktree", "remove", wt.path], cwd, neutral=True).rc != 0:
+        return False, "worktree-remove-refused"
+    if wt.branch:
+        # update-ref -d with the verified value deletes the ref only while it still equals it.
+        ref = f"refs/heads/{wt.branch}"
+        if (
+            git_write(git, ["update-ref", "-d", ref, wt.head], cwd, neutral=True).rc
+            != 0
+        ):
+            return True, "worktree-removed-branch-kept"
+        git_write(
+            git,
+            ["config", "--remove-section", f"branch.{wt.branch}"],
+            cwd,
+            neutral=True,
+        )
+    return True, "removed"
+
+
+def run_prune_merged(args: argparse.Namespace) -> int:
+    git = GitInspector()
+    root = resolve_root()
+    identity, registered = repo_context(git, args.repo, root.path, write=False)
+    if not registered:
+        raise PolicyError(
+            "registry-unreadable",
+            "no registered worktrees were listed",
+            cannot_verify=True,
+        )
+    cwd = registered[0].path
+    scope = {"cwd": cwd}
+    integration = _checked_argument("integration-branch", args.integration_branch)
+    remote = _checked_argument("remote", args.remote)
+    if args.fetch:
+        fetched = git_write(
+            git, ["fetch", "--quiet", "--prune", remote], cwd, neutral=True
+        )
+        if fetched.rc != 0:
+            raise PolicyError(
+                "fetch-failed",
+                f"git fetch {remote} failed; nothing was removed",
+                cannot_verify=True,
+            )
+    targets = _merge_targets(git, scope, integration, remote)
+    only_paths = {key_of(p) for p in (args.only or []) if os.path.exists(p)}
+    only_branches = {b for b in (args.only or []) if not os.path.exists(b)}
+    rows: list[tuple[RegisteredWorktree, PruneRow]] = []
+    for index, wt in enumerate(registered):
+        if (
+            args.only
+            and key_of(wt.path) not in only_paths
+            and wt.branch not in only_branches
+        ):
+            continue
+        r = evaluate_worktree(
+            git,
+            scope,
+            wt,
+            primary=index == 0,
+            targets=targets,
+            integration=integration,
+            in_root=is_within(wt.path, root.path / identity.id),
+            idle_hours=0.0 if args.only else args.idle_hours,
+        )
+        rows.append((wt, r))
+    failed = 0
+    if args.apply:
+        with RepoLock(identity.id):
+            for wt, r in rows:
+                if r.action != "REMOVE":
+                    continue
+                ok, why = apply_removal(git, scope, wt, targets, cwd)
+                r.reason = why
+                if not ok:
+                    r.action = "KEEP"
+                    failed += 1
+            if args.prune_stale:
+                git_write(git, ["worktree", "prune"], cwd, neutral=True)
+    counts: dict[str, int] = {}
+    for _, r in rows:
+        counts[r.klass] = counts.get(r.klass, 0) + 1
+    removable = sum(1 for _, r in rows if r.action == "REMOVE")
+    payload = {
+        "status": "applied" if args.apply else "dry-run",
+        "identity": identity.id,
+        "integration_targets": targets,
+        "counts": counts,
+        "outside_central_root": sum(
+            1 for _, r in rows if not r.in_root and r.reason != "primary-checkout"
+        ),
+        "removed" if args.apply else "would_remove": removable,
+        "worktrees": [r.as_dict() for _, r in rows],
+    }
+    if args.json:
+        _emit(payload, True)
+    else:
+        _print_prune_table(payload, rows, args.apply)
+    return EXIT_PARTIAL if failed else EXIT_OK
+
+
+def _print_prune_table(
+    payload: dict[str, Any],
+    rows: list[tuple[RegisteredWorktree, PruneRow]],
+    apply: bool,
+) -> None:
+    out = sys.stdout
+    out.write("path | branch | merged | clean | action | reason\n")
+    for _, r in rows:
+        action = "REMOVED" if apply and r.action == "REMOVE" else r.action
+        out.write(
+            f"{r.path} | {r.branch or 'detached'} | {'yes' if r.merged else 'no'} | "
+            f"{'yes' if r.clean else 'no'} | {action} | {r.reason}\n"
+        )
+    summary = (
+        ", ".join(f"{k}={v}" for k, v in sorted(payload["counts"].items())) or "none"
+    )
+    if apply:
+        head = f"{payload['removed']} removed"
+    else:
+        head = f"{payload['would_remove']} would be removed (dry run, nothing removed)"
+    out.write(
+        f"summary: {head}; {summary}; outside central root={payload['outside_central_root']}\n"
+    )
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub worktree", description="Centralized worktree policy."
@@ -3112,6 +3535,28 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--note")
     migrate.add_argument("--token")
     migrate.add_argument("--checkpoint-note")
+    prune = sub.add_parser(
+        "prune-merged",
+        help="Remove worktrees (and their local branches) whose branch is merged and clean; dry run unless --apply.",
+    )
+    prune.add_argument("--repo", required=True)
+    prune.add_argument("--apply", action="store_true", help="Remove; without it the command only reports.")
+    prune.add_argument("--integration-branch", default="develop")
+    prune.add_argument("--remote", default="origin")
+    prune.add_argument("--fetch", action="store_true", help="git fetch the remote first (one network call).")
+    prune.add_argument(
+        "--idle-hours",
+        type=float,
+        default=DEFAULT_IDLE_HOURS,
+        help="Keep a worktree touched within this many hours (default 24; ignored with --only).",
+    )
+    prune.add_argument(
+        "--only",
+        action="append",
+        help="Limit to this worktree path or branch (repeatable); the idle window is skipped for a named one.",
+    )
+    prune.add_argument("--prune-stale", action="store_true", help="With --apply, also run `git worktree prune` for folders that are gone.")
+    prune.add_argument("--json", action="store_true")
     audit = sub.add_parser(
         "audit",
         help="Read-only discovery of every linked worktree with explicit coverage.",
@@ -3156,6 +3601,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "create": run_create,
     "list": run_list,
     "migrate": run_migrate,
+    "prune-merged": run_prune_merged,
     "audit": run_audit,
 }
 

@@ -4,32 +4,34 @@ Summary: the approved layouts for the compact status footer and the full status 
 
 ## Compact report
 
+The native permissions section remains untruncated in compact and full reports. Each fixed v4.15 receipt shows capture, permission, enforcement and effect separately. Use complete phrases such as `prepared; release not observed`, `push observed; PR and merge not observed`, and `PR observed; merge not observed`. Show a real async provider UUID with its supported polling route, observed status/time and resumption condition through the existing jobs section. Unknown current status retains the same handle and last verified observation; a pending acknowledgment, provider completion and verified final merge effect are distinct facts. Never shorten away a qualification such as "not deployed" or present a queued dispatch intent as a running job.
+
 The canonical output is produced by [status_report.py](../scripts/status_report.py) from the evidence snapshot documented in [progress-reporting.md](progress-reporting.md). Do not hand-compose a shorter substitute. Cadence belongs to that reference; this file owns presentation.
 
-1. Start with `## Progress Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value reads `progress: <bar> <percent>% (<done>/<total> tasks)   ·   ETA: <whole-scope estimate>`, with three literal spaces on each side of the middle dot (no `&nbsp;`; some renderers collapse the spaces, which is accepted). The bar is 10 `▰`/`▱` segments. This keeps the next-release ETA distinct from the whole-scope estimate.
-2. A zero-task scope reads `N/A`, never 100%. A report never prints `unknown`; the measured values rule below says where each number comes from. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits Elapsed and the Source line; the full report shows Elapsed in the version table and the Source line at the end. The snapshot still accepts `confidence`, `basis` and `observed_at`, but no report line prints them.
-3. Always show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order, each preceded by a `---` rule and followed by bullets. Empty sections keep the heading with `None.`, `No decisions waiting.` or `Nothing running.`. Renderer fonts are host-controlled; do not promise identical pixel sizes.
+1. A waiting report first names `Waiting for you` or `Waiting for <job/dependency>`. Then show `## Progress Update` (no scope suffix; the scope sits in the last table row label). Below it show a table with an empty header row (`| | |`) so only four rows appear, labels bold and values plain: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value reads `progress: <bar> <percent>% (<done>/<total> tasks)   ·   ETA: <whole-scope estimate>`, with three literal spaces on each side of the middle dot (no `&nbsp;`; some renderers collapse the spaces, which is accepted). The bar is 10 `▰`/`▱` segments. This keeps the next-release ETA distinct from the whole-scope estimate.
+2. A zero-task scope reads `N/A`, never 100%. A report never prints `unknown`; the measured values rule below says where each number comes from. Percentages and totals are derived from all rows, never from invented or stale counts. The compact report omits Elapsed and the Source line; the full report shows Elapsed in the version table and the Source line at the end. The snapshot retains `confidence` and `basis`; job observation timestamps and release conditions are visible when needed to explain a wait or conditional estimate.
+3. Show Required actions, Source questions, Process observations and External conditions before Goals when present. Required actions have prerequisites, complete numbered steps, expected result and acknowledgment; source questions are not approvals. Then show `### 🎯 Goals`, `### 🙋 Decisions waiting` and `### 🔄 Running`, in that order. Empty decisions or running sections never substitute for the prominent waiting explanation. Renderer fonts are host-controlled; do not promise identical pixel sizes.
 4. Goals are bullets `goal - done when (state)`. Include the run goal, next known milestone and active lanes where applicable.
-5. Each decision is a `#### 1️⃣ Decision #1: <title>` subheading followed directly by the Option / What it means / Effect table, then the snapshot's optional `reply` line such as `Reply A, B or C`, so the user can answer from the compact report; only the explanation bullet that the full report shows above the table is omitted. A decision with no options prints its title and `Options not supplied`, never a bare reply instruction. A newly requested decision still uses the full report with its explanation.
-6. Running items are bullets `name: state`, with a bar and percent after the name when task counts are known and an optional observed HTTP(S) link on the name. Unknown liveness is stated explicitly, never converted to zero by guesswork.
+5. Each decision is a `#### 1️⃣ Decision #1: <title>` subheading followed directly by the Option / What it means / Effect table, then the snapshot's optional `reply` line such as `Reply A, B or C`, so the user can answer from the compact report; only the explanation bullet that the full report shows above the table is omitted. A decision without complete options and a reply instruction is rejected, rather than hidden behind `Options not supplied` or a bare reply instruction. A newly requested decision still uses the full report with its explanation.
+6. Running items are bullets `name: state`, with a bar and percent after the name when task counts are known and an optional observed HTTP(S) link on the name. Job observations include an exact handle or pipeline URL, observed status/time and resumption condition outside shortened table cells. Unknown liveness retains the existing handle and polling route; it is never guessed complete or restarted.
 7. End with the italic pointer `*Full report: /progress, or ask for "full progress".*`. Natural language ("full progress", and "full status" as a synonym) works on hosts without slash-command support. Missing observations stay visible; they do not justify dropping a section.
 
 ## Full report
 
-Start with `## Progress Update`, then `### 🚀 Release status` directly above the same four-row release table the compact report uses (see Release table), then `### 📊 Version progress` directly above the detailed per-version table. The compact report has no such subheadings. The per-version table with columns Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining and a bold Total row; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Every later section is preceded by a `---` rule and uses an H3 heading, the same level as the compact report: `### 🎯 Goals` (a Goal, Scope, Done when, State table), `### 🙋 Decisions waiting` and `### 🔄 Running` (an Item, Progress, Tasks, State, Elapsed, Remaining table). Each decision is a `#### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Empty sections use `No decisions waiting.` and `Nothing running.`. The report ends with the short italic Source line. Never append a compact report to a full one.
+A waiting report starts with `Waiting for you` or `Waiting for <job/dependency>`. Next show `## Progress Update`, then `### 🚀 Release status` directly above the same four-row release table the compact report uses (see Release table), then `### 📊 Version progress` directly above the detailed per-version table. The compact report has no such subheadings. The per-version table with columns Version (bold), Goals, Progress (`▰`/`▱` bar plus percent), Tasks, Elapsed and Remaining and a bold Total row; a dependency is appended to Remaining, for example `~1.2 d (after v4.15.2)`. Every later section is preceded by a `---` rule and uses an H3 heading, the same level as the compact report: `### 🎯 Goals` (a Goal, Scope, Done when, State table), `### 🙋 Decisions waiting` and `### 🔄 Running` (an Item, Progress, Tasks, State, Elapsed, Remaining table). Each decision is a `#### 1️⃣ Decision #1: <title>` subheading, a bullet with the plain-language detail (recommendation and why), and an Option / What it means / Effect table; `meaning` is optional in the snapshot and prints `-` when absent. Required owner actions, source questions, exact process observations and external conditions precede Goals in both formats. Empty decisions or running sections never conceal the reason work stopped. The report ends with the short italic Source line. Never append a compact report to a full one.
 
-The shared renderer escapes evidence text before inserting it into Markdown, so a plan title cannot introduce a heading, HTML, a link or extra table cells. It writes entities (`&#36;`, `&#91;`, `&#42;`), never backslash escapes: Codex reads `\(`...`\)` and `$...$` as LaTeX math, which run words together. Only table pipes use `\|`. Parentheses pass through unchanged. Font, table border and exact spacing are controlled by each product; identical semantic Markdown is the supported presentation contract.
+The shared renderer escapes evidence text before inserting it into Markdown, so a plan title cannot introduce a heading, HTML, a link or extra table cells. It wraps markup-sensitive tokens in code spans and does not generate HTML entities, preventing hosts from interpreting evidence as math or markup. Only table pipes use `\|`. Parentheses pass through unchanged. Font, table border and exact spacing are controlled by each product; identical semantic Markdown is the supported presentation contract.
 
 ## Release table
 
-Both reports open with the same table: an empty header row (`| | |`), bold labels and plain values, in this order: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value reads `progress: <bar> <percent>% (<done>/<total> tasks)   ·   ETA: <whole-scope estimate>`, with three literal spaces on each side of the middle dot (no `&nbsp;`; some renderers collapse the spaces, which is accepted). With nothing left to release, Next release reads `none (all released)` and its ETA `N/A`. Confidence, Basis, As of and Elapsed are never rows or lines in the report; Elapsed appears only in the version table.
+After the waiting explanation when applicable, both reports show the same table: an empty header row (`| | |`), bold labels and plain values, in this order: Last release, Next release, Next release ETA and `Full <scope> implementation (<N> versions left)`. The last value reads `progress: <bar> <percent>% (<done>/<total> tasks)   ·   ETA: <whole-scope estimate>`, with three literal spaces on each side of the middle dot (no `&nbsp;`; some renderers collapse the spaces, which is accepted). With nothing left to release, Next release reads `none (all released)` and its ETA `N/A`. Confidence and Basis remain snapshot evidence. Elapsed appears in the version table, job observation times remain visible, and a nonempty release condition appears beneath the release table.
 
 ## Rendering rules
 
 These rules are the contract for every agent and platform; the renderer enforces them and the producer of the snapshot must respect them.
 
 - Never emit a bare `$` or a backslash before a parenthesis or bracket. Hosts read backslash-paren pairs and `$...$` as LaTeX math and run the words together. Any whitespace-delimited token that contains `$`, `*`, `_`, `[`, `]`, a backslash, a backtick, `&`, `<` or `>` is written as a code span such as `$38.36` or `my_var`, with edge punctuation left outside, which no client treats as math or markup. The renderer writes no HTML entities, so raw text never shows `&#..;`. Parentheses pass through unchanged and render as plain text. Only a table pipe is written `\|`.
-- Table cells are capped at 48 characters (decision option text at 72, so the choices stay readable). A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
+- Table cells are capped at 48 characters (decision option text at 72, so the choices stay readable), except the next-release ETA cell retains its complete qualification so a partial estimate cannot look like a release deadline. A cell over the cap first loses a trailing parenthetical (`4 h 54 min (first plan commit ...)` becomes `4 h 54 min`), then is cut at a word boundary and ends with `...`; it is never cut mid-word or inside a parenthesis. The producer still shortens State, Elapsed and Remaining text. No cell holds a paragraph or a line break.
 - Tables are padded so source columns align, headers are plain labels, Version cells are bold, progress is a 10-segment `▰`/`▱` bar plus percent (never `#` bars), and the Total row is bold.
 - Every heading, table and list has a blank line before and after it, and sections are separated by a `---` rule.
 - In the full report the Source line is a short italic footer capped at 100 characters; the compact report omits it.
@@ -54,8 +56,8 @@ Remaining time is estimated from measured history (the producer applies this rul
 1. Days per task for each completed plan is the elapsed time between that plan's release tag and the previous release tag, divided by that plan's task count, over the 10 most recent releases that have a plan.
 2. Take the median days per task and the middle half (25th to 75th percentile) across completed plans. History so far, v4.13.1 to v4.15.0: 817 tasks over 49.8 days; median 0.035 d/task, middle half 0.023-0.096.
 3. Per-plan remaining is remaining tasks times days per task, shown as `~median (low-high)`, for example 34 tasks gives `~1.2 d (0.8-3.3 d)`.
-4. The total divides the summed per-plan estimate by the number of active parallel lanes (started plans with open tasks). Show it the same way.
-5. State the basis in one line under the plan table: the rate, the history it came from, the lane count and the CI floor.
+4. The producer has no verified overlap schedule, so use one effective lane and sum the per-plan estimates. A started branch with open tasks does not prove independent work can overlap; blocked or serial members receive no parallel discount. Show the total the same way.
+5. State the basis in one line under the plan table: the rate, the history it came from, the lane count and the CI floor. Without a measured validation/release duration, label the task-rate figure "implementation only; validation/release time additional", keep confidence low and retain the outstanding conditions. Do not infer a remaining duration from a live failed run or its timeout limit.
 6. Refresh the rate as plans release and from the per-phase start and end times workers record.
 7. With fewer than 3 measured releases, use the plan's own pace (elapsed time divided by tasks done). Only a project with no release and no finished task reads `N/A (no history yet)`.
 
@@ -68,6 +70,8 @@ Both examples are the exact renderer output for [status-snapshot.json](status-sn
 ### Full
 
 ````markdown
+Waiting for you: Capture the installed application result
+
 ## Progress Update
 
 ### 🚀 Release status
@@ -79,12 +83,30 @@ Both examples are the exact renderer output for [status-snapshot.json](status-sn
 | **Next release ETA** | ~2.2 d (1.6-4.0 d) |
 | **Full v1.3 implementation** (1 version left) | progress: ▰▱▱▱▱▱▱▱▱▱ 16% (3/19 tasks)   ·   ETA: ~2.2 d (1.6-4.0 d) |
 
+Whole-objective time estimates are conditional on Capture the installed application result (A fresh installed application receipt); they exclude any unbounded waiting time.
+
 ### 📊 Version progress
 
 | Version     | Goals            | Progress           | Tasks    | Elapsed    | Remaining              |
 | ----------- | ---------------- | ------------------ | -------- | ---------- | ---------------------- |
 | **Phase 1** | Package profiles | ▰▱▱▱▱▱▱▱▱▱ 16%     | 3/19     | 13 min     | ~2.2 d (1.6-4.0 d)     |
 | **Total**   |                  | **▰▱▱▱▱▱▱▱▱▱ 16%** | **3/19** | **13 min** | **~2.2 d (1.6-4.0 d)** |
+
+---
+
+### Required actions
+
+#### 1. Capture the installed application result
+
+Prerequisites: Use Windows PowerShell 5.1 on the illustrative example computer with C:/ExampleApp/verify-installed.ps1 installed
+
+1. Open Windows PowerShell 5.1 on the example computer in C:/ExampleApp
+2. Run `&` 'C:/ExampleApp/verify-installed.ps1' -OutputFile 'C:/ExampleProof/installed.json'
+3. Paste the resulting receipt path in this conversation
+
+Expected result: A fresh installed application receipt
+
+Acknowledgment: Reply with the receipt path after the capture finishes
 
 ---
 
@@ -104,7 +126,9 @@ No decisions waiting.
 
 ### 🔄 Running
 
-Nothing running.
+No process is running; the waiting or terminal condition is shown above.
+
+State: waiting owner action
 
 *Source: example/plan.md (illustrative fixture, not live evidence)*
 ````
@@ -112,6 +136,8 @@ Nothing running.
 ### Compact
 
 ````markdown
+Waiting for you: Capture the installed application result
+
 ## Progress Update
 
 | | |
@@ -120,6 +146,24 @@ Nothing running.
 | **Next release** | v1.3.0 |
 | **Next release ETA** | ~2.2 d (1.6-4.0 d) |
 | **Full v1.3 implementation** (1 version left) | progress: ▰▱▱▱▱▱▱▱▱▱ 16% (3/19 tasks)   ·   ETA: ~2.2 d (1.6-4.0 d) |
+
+Whole-objective time estimates are conditional on Capture the installed application result (A fresh installed application receipt); they exclude any unbounded waiting time.
+
+---
+
+### Required actions
+
+#### 1. Capture the installed application result
+
+Prerequisites: Use Windows PowerShell 5.1 on the illustrative example computer with C:/ExampleApp/verify-installed.ps1 installed
+
+1. Open Windows PowerShell 5.1 on the example computer in C:/ExampleApp
+2. Run `&` 'C:/ExampleApp/verify-installed.ps1' -OutputFile 'C:/ExampleProof/installed.json'
+3. Paste the resulting receipt path in this conversation
+
+Expected result: A fresh installed application receipt
+
+Acknowledgment: Reply with the receipt path after the capture finishes
 
 ---
 
@@ -137,7 +181,9 @@ No decisions waiting.
 
 ### 🔄 Running
 
-Nothing running.
+No process is running; the waiting or terminal condition is shown above.
+
+State: waiting owner action
 
 *Full report: /progress, or ask for "full progress".*
 ````
@@ -145,6 +191,8 @@ Nothing running.
 ### Compact with a decision
 
 ````markdown
+Waiting for you: Capture the installed application result
+
 ## Progress Update
 
 | | |
@@ -153,6 +201,24 @@ Nothing running.
 | **Next release** | v1.3.0 |
 | **Next release ETA** | ~2.2 d (1.6-4.0 d) |
 | **Full v1.3 implementation** (1 version left) | progress: ▰▱▱▱▱▱▱▱▱▱ 16% (3/19 tasks)   ·   ETA: ~2.2 d (1.6-4.0 d) |
+
+Whole-objective time estimates are conditional on Capture the installed application result (A fresh installed application receipt); they exclude any unbounded waiting time.
+
+---
+
+### Required actions
+
+#### 1. Capture the installed application result
+
+Prerequisites: Use Windows PowerShell 5.1 on the illustrative example computer with C:/ExampleApp/verify-installed.ps1 installed
+
+1. Open Windows PowerShell 5.1 on the example computer in C:/ExampleApp
+2. Run `&` 'C:/ExampleApp/verify-installed.ps1' -OutputFile 'C:/ExampleProof/installed.json'
+3. Paste the resulting receipt path in this conversation
+
+Expected result: A fresh installed application receipt
+
+Acknowledgment: Reply with the receipt path after the capture finishes
 
 ---
 
@@ -178,7 +244,14 @@ Reply A, B or C
 
 ### 🔄 Running
 
-Nothing running.
+No process is running; the waiting or terminal condition is shown above.
+
+State: waiting owner action
 
 *Full report: /progress, or ask for "full progress".*
 ````
+
+
+Decision options follow the shared question format in `agent-communication` (style guide section 10.2): the recommended option is always option A, and the explanation above the table is plain and non-technical. The renderer marks the recommended option in the Option column.
+
+Headline priority is owned by [Progress reporting](progress-reporting.md#continuation-reconciliation). Both report formats use the shared continuation disposition and keep every pending source question visible.

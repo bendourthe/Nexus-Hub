@@ -27,19 +27,37 @@ CORE = REPO / "scripts" / "completion_gate.py"
 SESSION = "gate-session"
 
 STUB_CHECKER = '''
-import json, os, sys
-log = os.environ.get("GATE_STUB_LOG")
-if log:
-    with open(log, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(sys.argv[1:]) + "\\n")
-command = sys.argv[1]
-if command == "check":
-    print(os.environ.get("GATE_STUB_LINE", "INCOMPLETE: task.T002 gaps.version"))
-    sys.exit(int(os.environ.get("GATE_STUB_RC", "1")))
-if command == "score":
-    print(os.environ.get("GATE_STUB_SCORE", "3 abc -"))
-    sys.exit(0)
-sys.exit(3)
+# Unit-only gate-status API: no key, HMAC, signed authority or native history.
+import json
+from pathlib import Path
+from types import SimpleNamespace
+
+class Malformed(ValueError):
+    pass
+
+def resolve_plan_controller(path, session=None):
+    record = json.loads(Path(path).read_text(encoding="utf-8"))
+    if record.get("schema") != 1 or record.get("session_id") != session:
+        raise Malformed("unit fixture owner mismatch")
+    return SimpleNamespace(root=Path(record["repo_root"])), record
+
+def main():
+    import json, os, sys
+    log = os.environ.get("GATE_STUB_LOG")
+    if log:
+        with open(log, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(sys.argv[1:]) + "\\n")
+    command = sys.argv[1]
+    if command == "check":
+        print(os.environ.get("GATE_STUB_LINE", "INCOMPLETE: task.T002 gaps.version"))
+        sys.exit(int(os.environ.get("GATE_STUB_RC", "1")))
+    if command == "score":
+        print(os.environ.get("GATE_STUB_SCORE", "3 abc -"))
+        sys.exit(0)
+    sys.exit(3)
+
+if __name__ == "__main__":
+    main()
 '''
 
 
@@ -156,12 +174,14 @@ def test_other_session_is_never_touched(run, home: Home) -> None:
     assert result.returncode == 0
     assert result.stdout.strip() == ""
     assert home.calls() == []
+    assert result.stderr.strip() == ""
 
 
 def test_malformed_payload_is_ignored(run) -> None:
     result = run("completion-gate", "not json")
     assert result.returncode == 0
     assert result.stdout.strip() == ""
+    assert result.stderr.strip() == ""
 
 
 def test_no_progress_releases_and_writes_a_blocker(run, home: Home) -> None:
@@ -184,6 +204,23 @@ def test_missing_checker_allows_the_stop(run, home: Home) -> None:
     assert result.returncode == 0
     assert result.stdout.strip() == ""
     assert "allowing stop" in result.stderr
+
+
+def test_missing_pending_owner_bundle_is_visible_without_consuming_state(run, home: Home) -> None:
+    session = "pending-observer-unit-fixture"
+    marker = home.runs / "questions" / (hashlib.sha256(session.encode()).hexdigest() + ".json")
+    marker.parent.mkdir()
+    marker.write_text("{}", encoding="utf-8")  # An untrusted lookup hint, not authority.
+    record = home.runs / "abc.json"
+    before = record.read_bytes(), marker.read_bytes()
+    result = run("completion-gate", claude_stop(session_id=session))
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == ""
+    assert "native helper bundle unavailable (approval_binding)" in result.stderr
+    assert "native run remains unresolved" in result.stderr
+    assert (record.read_bytes(), marker.read_bytes()) == before
+    assert home.calls() == []
+    assert list(home.runs.glob("*.gate.json")) == []
 
 
 @pytest.mark.parametrize("control", [("NEXUS_DISABLED_HOOKS", "completion-gate"), ("NEXUS_HOOK_PROFILE", "minimal")])

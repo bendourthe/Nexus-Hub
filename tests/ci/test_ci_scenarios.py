@@ -242,3 +242,33 @@ def test_bootstrap_missing_prerequisite_has_no_installer_or_archive_side_effect(
     with pytest.raises(RuntimeError, match="requires preinstalled " + missing):
         scenarios.bootstrap(tmp_path, tmp_path, {"PATH": "fixture-tool-path"})
     assert not (tmp_path / "catalog.tar.gz").exists()
+
+
+
+@pytest.mark.parametrize("scenario", ["npm-audit-foreign", "codeql-ruby", "npm-audit-../foreign"])
+def test_audit_scenario_names_are_finite_without_dispatch(monkeypatch, scenario):
+    calls = []
+    monkeypatch.setattr(scenarios, "run", lambda *args, **kwargs: calls.append(args))
+    with pytest.raises(SystemExit) as error:
+        scenarios.main([scenario])
+    assert error.value.code == 2 and calls == []
+
+
+def test_audit_source_root_and_missing_reports_fail_before_dispatch(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(scenarios, "run", lambda *args, **kwargs: calls.append(args))
+    with pytest.raises(RuntimeError, match="exact scenario checkout"):
+        scenarios.main(["pip-audit", "--root", str(tmp_path), "--reports-dir", str(tmp_path / "reports")])
+    monkeypatch.delenv("NEXUS_CI_REPORTS_DIR", raising=False)
+    with pytest.raises(RuntimeError, match="requires --reports-dir"):
+        scenarios.main(["pip-audit"])
+    assert calls == []
+
+
+def test_internal_reports_environment_does_not_change_existing_scenarios(tmp_path, monkeypatch):
+    (tmp_path / "AGENTS.md").write_text("private fixture")
+    calls = []
+    monkeypatch.setenv("NEXUS_CI_REPORTS_DIR", str(tmp_path / "reports"))
+    monkeypatch.setattr(scenarios, "registry", lambda *args: calls.append(args))
+    assert scenarios.main(["registry", "--root", str(tmp_path)]) == 0
+    assert len(calls) == 1

@@ -388,6 +388,14 @@ def execution_display_data(tmp_path, version):
             "display": {}}
 
 
+@pytest.mark.parametrize("version", ["v4.15.5", "v4.15.6"])
+def test_first_permission_page_survives_sorted_pending_storage(tmp_path, version):
+    data = execution_display_data(tmp_path, version)
+    first_page = approval_display.render_page(data)
+    stored = json.loads(json.dumps(data, sort_keys=True))
+    assert approval_display.render_page(stored) == first_page
+
+
 @pytest.mark.parametrize("version", ["v4.15.5", "v4.15.6", "v4.15.7", "v4.15.8"])
 def test_renderer_explains_real_capability_before_exact_reply(tmp_path, version):
     data = execution_display_data(tmp_path, version)

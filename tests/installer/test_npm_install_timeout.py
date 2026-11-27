@@ -12,6 +12,7 @@ Child processes inherit the suite-wide no-window default from tests/conftest.py.
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -97,3 +98,87 @@ def test_powershell_helper_stops_an_overrun_and_keeps_exit_codes() -> None:
     assert result["success"] == 0 and "hello-from-npm" in result["output"]
     assert result["failure"] == 3
     assert elapsed < 45, f"the overrun was not stopped promptly ({elapsed:.1f}s)"
+
+
+
+def test_both_installers_bound_the_runtime_process_probe() -> None:
+    sh = INSTALLER_SH.read_text(encoding="utf-8")
+    ps1 = INSTALLER_PS1.read_text(encoding="utf-8-sig")
+    assert 'run_with_timeout 10 /dev/null "$process_python" -B -c "import psutil; psutil.Process().create_time()"' in sh
+    assert "Invoke-CommandWithTimeout -CommandLine" in ps1
+    block = ps1.split("# Match nexus-hub.cmd's launcher order;", 1)[1].split("# v0.9.7:", 1)[0]
+    assert '-TimeoutSeconds 10' in block and 'import psutil; psutil.Process().create_time()' in block
+
+
+@pytest.mark.parametrize("available,mode,selected", [
+    ("python3 python py", "success", "python3"),
+    ("python3", "missing", "python3"),
+    ("python3", "hang", "python3"),
+    ("", "success", None),
+    ("python py", "success", "python"),
+    ("py", "success", "py"),
+])
+def test_bash_runtime_probe_is_bounded_advisory_and_never_installs(tmp_path: Path, available: str, mode: str, selected: str | None) -> None:
+    # tests/conftest.py owns working Bash selection and Windows PATH repair.
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash is required for the POSIX installer probe control")
+    source = INSTALLER_SH.read_text(encoding="utf-8")
+    helper = _function(source, "run_with_timeout() {")
+    probe = source.split("    # Match the nexus-hub shell launcher's order;", 1)[1].split("    # v0.9.7:", 1)[0]
+    probe = "    # Match the nexus-hub shell launcher's order;" + probe
+    script = tmp_path / "probe.sh"
+    journal = tmp_path / "probe-calls.txt"
+    prelude = r"""set -euo pipefail
+GREEN=green
+YELLOW=yellow
+write_item() { printf '%s\n' "$1"; }
+command() {
+    if [ "${1:-}" = "-v" ]; then
+        case "${2:-}" in
+            python3|python|py)
+                case " $PRIVATE_AVAILABLE " in *" $2 "*) printf '%s\n' "$2"; return 0;; esac
+                return 1;;
+        esac
+    fi
+    builtin command "$@"
+}
+fake_python() {
+    local selected="$1"
+    shift
+    printf '%s|%s\n' "$selected" "$*" >> "$PRIVATE_PROBE_JOURNAL"
+    if [ "$#" -ne 3 ] || [ "$1" != "-B" ] || [ "$2" != "-c" ] || [ "$3" != "import psutil; psutil.Process().create_time()" ]; then
+        printf 'unexpected invocation\n' >> "$PRIVATE_PROBE_JOURNAL"
+        return 97
+    fi
+    case "$PRIVATE_MODE" in
+        success) return 0;;
+        missing) return 1;;
+        hang) sleep 13; return 0;;
+    esac
+}
+python3() { fake_python python3 "$@"; }
+python() { fake_python python "$@"; }
+py() { fake_python py "$@"; }
+pip() { printf 'pip invoked\n' >> "$PRIVATE_PROBE_JOURNAL"; return 98; }
+"""
+    script.write_text(prelude + "\n" + helper + "\nprobe() {\n" + probe + "\n}\nprobe\nprintf 'advisory-completed\\n'\n", encoding="utf-8", newline="\n")
+    env = {key: value for key, value in os.environ.items() if key.upper() in {"SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "COMSPEC", "PATHEXT", "PATH", "PROGRAMFILES"}}
+    env.update(HOME=str(tmp_path), USERPROFILE=str(tmp_path), TEMP=str(tmp_path), TMP=str(tmp_path), TMPDIR=str(tmp_path),
+               PRIVATE_AVAILABLE=available, PRIVATE_MODE=mode, PRIVATE_PROBE_JOURNAL=journal.as_posix())
+    started = time.monotonic()
+    result = subprocess.run([bash, "--noprofile", "--norc", script.as_posix()], env=env, capture_output=True, text=True, timeout=18,
+                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=False)
+    elapsed = time.monotonic() - started
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "advisory-completed" in result.stdout
+    calls = journal.read_text(encoding="utf-8").splitlines() if journal.exists() else []
+    assert calls == ([] if selected is None else [selected + "|-B -c import psutil; psutil.Process().create_time()"])
+    if selected is None:
+        assert "requires a Python CLI launcher and psutil" in result.stdout
+    elif mode == "success":
+        assert "[OK] Process observation support (psutil)" in result.stdout
+    else:
+        assert "requires usable psutil" in result.stdout and "-m pip install psutil" in result.stdout
+    if mode == "hang":
+        assert 8 <= elapsed < 17, f"the psutil probe was not stopped at its10-second bound ({elapsed:.1f}s)"

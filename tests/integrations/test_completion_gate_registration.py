@@ -259,7 +259,7 @@ def _antigravity_write(ctx):
 def test_antigravity_registers_no_stop_gate(install_ctx) -> None:
     _, parent, _ = _antigravity_write(install_ctx)
     text = (parent / "hooks.json").read_text(encoding="utf-8")
-    assert "Stop" not in json.loads(text)["nexus-hub-guardrails"]
+    assert "implementation-state" in json.dumps(json.loads(text)["nexus-hub-guardrails"]["Stop"])
     assert "completion-gate" not in text
 
 
@@ -275,7 +275,8 @@ def test_antigravity_rewrite_retires_a_stale_stop_gate(install_ctx) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     _antigravity_write(install_ctx)
     after = json.loads(path.read_text(encoding="utf-8"))
-    assert "Stop" not in after["nexus-hub-guardrails"]
+    assert "implementation-state" in json.dumps(after["nexus-hub-guardrails"]["Stop"])
+    assert "completion-gate" not in json.dumps(after["nexus-hub-guardrails"]["Stop"])
     assert after["my-hooks"] == USER_SET["my-hooks"]
 
 

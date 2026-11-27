@@ -895,4 +895,4 @@ def test_cursor_receives_the_guard_only_through_the_imported_claude_settings() -
     commands = [h["command"] for g in settings["hooks"]["PreToolUse"] for h in g["hooks"] if "worktree-policy" in h["command"]]
     assert commands == ["bash .claude/hooks/worktree-policy.sh"]
     group = next(g for g in settings["hooks"]["PreToolUse"] if g["hooks"][0]["command"].endswith("worktree-policy.sh"))
-    assert group["matcher"] == "Bash|PowerShell" and settings["hooks"]["PreToolUse"][-1] is group
+    assert group["matcher"] == "Bash|PowerShell" and [g for g in settings["hooks"]["PreToolUse"] if g.get("matcher")][-1] is group

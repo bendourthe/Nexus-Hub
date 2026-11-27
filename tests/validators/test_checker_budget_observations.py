@@ -240,6 +240,8 @@ def test_runner_only_counts_observed_no_progress(monkeypatch, tmp_path, known):
     scope = SimpleNamespace(minor=False, label="fixture", version="", path=lambda: ["path"],
         check=lambda: ["check"], score=lambda: ["score"])
     monkeypatch.setattr(runner, "Scope", lambda target: scope)
+    # Isolate from the developer's installed usage-guard hook in the real home.
+    monkeypatch.setenv("NEXUS_GATE_HOOK_DIR", str(tmp_path / "no-hooks"))
     monkeypatch.setattr(runner, "bypass_configured", lambda row: None)
     monkeypatch.setattr(runner, "resolve_binary", lambda name: "fake-cli")
     monkeypatch.setattr(runner, "check_argv", lambda argv: None)

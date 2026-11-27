@@ -15,6 +15,9 @@ import completion_minor
 import member_declarations
 
 member_declarations.apply_to(completion_minor)
+import git_stub_fastpath
+
+git_stub_fastpath.install()
 checker = scripts / "check_plan_completion.py"
 sys.argv[0] = str(checker)
 runpy.run_path(str(checker), run_name="__main__")

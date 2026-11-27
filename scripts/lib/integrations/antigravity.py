@@ -184,15 +184,16 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         ],
                     },
                 ],
-                # No Stop registration: the v4.13.2 completion gate was removed
-                # from the defaults (2026-10-28). Re-registering a set merges over
-                # this one, so an older install loses its Stop entry on upgrade.
+                # The retired unconditional completion gate stays absent; this
+                # consumer handles only explicitly reconciled implementation facts.
+                "Stop": [{"hooks": [{"command": wrapped_command_for("implementation-state.sh", "Stop")}]}],
             },
         }
 
     _HOOK_SET = "nexus-hub-guardrails"
 
     _CURATED_HOOK_SCRIPTS = (
+        "implementation-state.sh",
         "secret-scan.sh",
         "large-file-guard.sh",
         "git-guardrails.sh",

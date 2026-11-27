@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "Private-path and line-ending projection of actual fresh measurement",
+  "status": "verified",
+  "raw_artifact_sha256": "7b1034209d98f4766acf121701c8f071b50e2e8faf15ee67e11502ab1fbcf431",
+  "published_projection_sha256": "d2325d9a45cc51b640b9026e87fa76654dd0fa927f38be0bc4f3bae9882c7b35",
+  "verification": "Published JSON equals recursively private-root-redacted actual helper JSON; no verdict, row, measurement or assertion changed. Raw captured output remains in the private execution receipt.",
+  "semantic_JSON_matches": true,
+  "limits": "Projection does not establish browser quality; measurement and explicit visual review are separate."
+}
