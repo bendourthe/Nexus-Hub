@@ -8,7 +8,7 @@
       "scripts/installer.ps1": "2ddeb6a4645a22753fda4781c1e37f0381d37a8ba62d64e291d1c18f6ffd8285",
       "scripts/installer.sh": "655feabb16d2d53a94a86a7ea1819e18331082486b65ce01799d8a146f70e6e8",
       "scripts/lib/integrations/runner.py": "ccaace954cc159155e97a31ed44c14a6f55c31daa913d968581afd18c02b0cb8",
-      "scripts/nexus_hub_cli.py": "3475846d349f1a744b20f0efdcc724f8321181e5a3a06fa2b95f5805f6d3f40b",
+      "scripts/nexus_hub_cli.py": "202bc000599bfbe61b9c6bbb093aee440f6f0d7e131bb6462010b4926dba602a",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
       "scripts/lib/integrations/claude.py": "be317356bf253d11c54d731bea38687380b65ce29567b3890053200b8f1e1eb5",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
@@ -36,13 +36,13 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review.md",
-      "evidence_sha256": "2858cb338c457b4d19b381fd4e93dda269d3b3638423443c302f4e889a8e593d"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review-v4156.md",
+      "evidence_sha256": "230e3385f68ad545ea453bde1d3b8848b0bca951c2fefc9cb8834ecbb93106c6"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-build.json",
-      "evidence_sha256": "31c73cbef44fcd67035de305922b864d25e7ba6777a741f054d9b56cd9b07d89"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-build-v4156.json",
+      "evidence_sha256": "a0a15d04856cbcaa6dbc4f170c019d42e1c006c2ea34049b8a4ad338f182de16"
     },
     "rendered": {
       "status": "pass",
