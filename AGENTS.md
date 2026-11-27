@@ -510,7 +510,7 @@ make build-catalog  # Legacy generator: refuses without FORCE=1, because data/ i
 **The repository-native profiles are the canonical gate, and they need no `make`.** CI does not invoke the `Makefile`: `.github/workflows/ci.yml` calls `scripts/ci/run.py`, whose step list in `scripts/ci/profiles.py` is the definitive one. Run the same thing locally, on any host:
 
 ```bash
-python scripts/ci/run.py --profile fast    # ~8s; the pre-commit gate
+python scripts/ci/run.py --profile fast    # about 2 minutes; the pre-commit gate
 python scripts/ci/run.py --profile full    # the complete gate CI's `validate` job runs
 python scripts/ci/run.py --profile fast --list   # show the steps without running them
 ```

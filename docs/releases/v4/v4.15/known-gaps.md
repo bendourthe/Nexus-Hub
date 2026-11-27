@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 131
+**Open items**: 130
 
 ## v4.15.0
 
@@ -3909,7 +3909,7 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
@@ -3966,6 +3966,8 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: T015 closes only after the coordinator corrects the `AGENTS.md` figure, which the plan run had no authority to edit.
 
 **Suggested next step**: apply the coordinator correction, then tick T015.
+
+**Status**: resolved 2026-11-27 in the v4.15.7 release preparation: `AGENTS.md` now gives the fast profile as about 2 minutes, matching local runs of 82 to 154 seconds on 2026-11-27.
 
 #### WN-58: `pre-commit install` refuses where git `core.hooksPath` is set
 
