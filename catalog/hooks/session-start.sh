@@ -10,6 +10,8 @@
 #   NEXUS_SESSION_DIGEST=off                   skip digest read only
 #   NEXUS_SESSION_DIGEST_PATH=<path>           override digest path (project-relative)
 #   NEXUS_SESSION_START_MAX_CHARS=<int>        cap digest output (default 8000)
+#   NEXUS_WORKTREE_NOTICE=off                  skip the worktree placement notice
+#   NEXUS_LANE_NOTICE=off                      skip the idle minor-run lane notice
 set -euo pipefail
 
 _HOOK_NAME="session-start"
@@ -76,6 +78,88 @@ else
   _git_line="Git: unavailable"
 fi
 _nexus_msg "$_banner" "$_git_line"
+_nexus_msg "Implementation status: use implement-phase/scripts/status_report.py; during a run its verbatim report replaces the Completed / Verified / Open / Next summary and any insight boxes; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Questions: plain explanation, then lettered options with option A the recommendation labeled (Recommended). Manual tasks: numbered steps; stop at the first step whose output you need. Keep spaced Status, Goals, Decisions and Running headings."
+
+# --- Worktree placement notice (v4.15.6) ---
+# Local and read-only: runs the installed `nexus_worktrees.py list` for the
+# current repository (git only, no network) and prints one line when a linked
+# worktree sits outside <root>/<identity> or is prunable. Silent outside a
+# repository, when the helper is not installed, on any error, and when clean.
+# NEXUS_WORKTREE_NOTICE=off skips it.
+if [[ "${NEXUS_WORKTREE_NOTICE:-on}" != "off" ]] && [ -f "$HOME_DIR/scripts/nexus_worktrees.py" ] \
+   && command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  _wt_top=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  _wt_sum='import json, pathlib, sys
+d = json.load(sys.stdin)
+w = [x for x in d.get("worktrees", []) if not x.get("main")]
+n = sum(1 for x in w if x.get("in_policy") is False)
+m = sum(1 for x in w if x.get("prunable"))
+if n or m:
+    print("Worktrees: %d outside %s, %d prunable. Run the worktree hygiene step (using-git-worktrees)." % (n, pathlib.Path(d.get("root", "")) / d.get("identity", ""), m))'
+  for _wt_py in python3 python; do
+    command -v "$_wt_py" >/dev/null 2>&1 || continue
+    _wt_cmd=("$_wt_py" -B "$HOME_DIR/scripts/nexus_worktrees.py" list --repo "$_wt_top" --json)
+    if command -v timeout >/dev/null 2>&1; then _wt_cmd=(timeout 10 "${_wt_cmd[@]}"); fi
+    _wt_json=$("${_wt_cmd[@]}" 2>/dev/null) || _wt_json=""
+    [ -n "$_wt_json" ] || continue
+    _wt_line=$(printf '%s' "$_wt_json" | "$_wt_py" -B -c "$_wt_sum" 2>/dev/null || true)
+    _wt_line=${_wt_line%$'\r'}
+    if [ -n "$_wt_line" ]; then _nexus_msg "$(_nexus_esc "$_wt_line")"; fi
+    break
+  done
+fi
+# --- end worktree placement notice ---
+
+# --- Idle minor-run lane notice (v4.15.6) ---
+# Local and read-only: when a live minor run record belongs to this repository,
+# prints one line naming members with no worker, blocked lanes whose
+# prerequisite shipped, and lanes waiting on the user. SessionStart also fires
+# after compaction, which is when a coordinator most often forgets to refill
+# lanes. Silent when lane_health.py is not installed, on any error, and when no
+# member is idle. NEXUS_LANE_NOTICE=off skips it.
+if [[ "${NEXUS_LANE_NOTICE:-on}" != "off" ]] && command -v git >/dev/null 2>&1 \
+   && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  _ln_script=""
+  for _ln_try in "${NEXUS_LANE_HEALTH:-}" \
+      "$HOME_DIR/src/catalog/skills/workflow/implement-phase/scripts/lane_health.py" \
+      "$HOME/.claude/skills/implement-phase/scripts/lane_health.py"; do
+    if [ -n "$_ln_try" ] && [ -f "$_ln_try" ]; then _ln_script=$_ln_try; break; fi
+  done
+  if [ -n "$_ln_script" ]; then
+    _ln_top=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    for _ln_py in python3 python; do
+      command -v "$_ln_py" >/dev/null 2>&1 || continue
+      _ln_cmd=("$_ln_py" -B "$_ln_script" notice --repo "$_ln_top" --runs-dir "$HOME_DIR/runs")
+      if command -v timeout >/dev/null 2>&1; then _ln_cmd=(timeout 10 "${_ln_cmd[@]}"); fi
+      _ln_line=$("${_ln_cmd[@]}" 2>/dev/null) || _ln_line=""
+      _ln_line=${_ln_line%$'\r'}
+      if [ -n "$_ln_line" ]; then _nexus_msg "$(_nexus_esc "$_ln_line")"; fi
+      break
+    done
+  fi
+fi
+# --- end idle minor-run lane notice ---
+
+# --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
+if [[ "${NEXUS_ENV_FACTS:-off}" == "on" ]]; then
+  _tl_src="${BASH_SOURCE[0]//\\//}"
+  case "$_tl_src" in */*) _tl_dir="${_tl_src%/*}" ;; *) _tl_dir="." ;; esac
+  _tl_dir="$(cd "$_tl_dir" 2>/dev/null && { pwd -W 2>/dev/null || pwd; })"
+  _tl_helper="$_tl_dir/_turn_ledger.py"
+  if [ -n "$_tl_dir" ] && [ -f "$_tl_helper" ]; then
+    for _tl_py in python3 python; do
+      command -v "$_tl_py" >/dev/null 2>&1 || continue
+      if "$_tl_py" "$_tl_helper" rotate >/dev/null 2>&1; then
+        _tl_out="$("$_tl_py" "$_tl_helper" facts 2>/dev/null || true)"
+        if [ -n "$_tl_out" ]; then
+          printf '%s\n' "$_tl_out"  # nexus: hook-msg-exempt helper output carries the session-start tag and heading
+        fi
+        break
+      fi
+    done
+  fi
+fi
+# --- end environment-fact replay ---
 
 # --- Surface the last-session digest (memory-persistence subset) ---
 if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then

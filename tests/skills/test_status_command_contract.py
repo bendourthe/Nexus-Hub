@@ -1,169 +1,150 @@
-"""Contract test for the /status command and the progress footer.
-
-The compact footer and the full report are approved layouts. This test fails
-when `status-formats.md` drifts from them, when the footer rule or the decision
-rules leave `progress-reporting.md`, when `/status` stops being read-only, when
-`/update status` stops being a forwarding alias, or when the headline command
-count disagrees with the command files.
-"""
+"""Status command routing and executable portable-report contract."""
 
 from __future__ import annotations
 
-import math
+import importlib.util
+import copy
+import json
 import re
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-IMPL = ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "references"
+IMPL = ROOT / "catalog/skills/workflow/implement-phase/references"
 FORMATS = IMPL / "status-formats.md"
 PROGRESS = IMPL / "progress-reporting.md"
-STATUS_CMD = ROOT / "catalog" / "commands" / "status.md"
-UPDATE_CMD = ROOT / "catalog" / "commands" / "update.md"
-IMPLEMENT_CMD = ROOT / "catalog" / "commands" / "implement.md"
+STATUS_CMD = ROOT / "catalog/commands/progress.md"
+STATUS_SHIM = ROOT / "catalog/commands/status.md"
+UPDATE_CMD = ROOT / "catalog/commands/update.md"
+IMPLEMENT_CMD = ROOT / "catalog/commands/implement.md"
 
-NEW_DECISION_RULE = (
-    "A message that asks the user for a new decision shows the full report, "
-    "never the compact footer."
-)
-RESTART_RULE = (
-    "Decision numbers restart at 1 for each new batch of open decisions; they do "
-    "not continue from decisions already answered, except that a still-open "
-    "decision carried over keeps its number when renumbering would confuse a "
-    "reference to it."
-)
-FOOTER_RULE = "every message that ends carries the compact footer"
-SEP = "&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;"
-BAR_RE = re.compile(r"([▰▱]+)(?:\s+\*{0,2}(\d+)%\*{0,2})")
 
-PLAN_HEADER = "| Version | Goals | Progress | Tasks | Elapsed | Remaining |"
-OPTIONS_HEADER = "| Option | What it means | Effect |"
-RUNNING_HEADER = "| Item | Progress | Tasks | State | Elapsed | Remaining |"
+def squash(output: str) -> str:
+    """Collapse the column padding so assertions read the cell content only."""
+    return re.sub(r"-{3,}", "---", re.sub(r" {2,}", " ", re.sub(r" +\|", " |", output)))
 
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def example_blocks(text: str) -> list[str]:
-    return re.findall(r"```markdown\n(.*?)\n```", text, flags=re.S)
+@pytest.fixture
+def rendered():
+    script = IMPL.parent / "scripts/status_report.py"
+    spec = importlib.util.spec_from_file_location("report_contract", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    snapshot = json.loads(read(IMPL / "status-snapshot.json"))
+    return module, snapshot
 
 
-@pytest.fixture(scope="module")
-def formats() -> str:
-    return read(FORMATS)
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_title_sections_spacing_and_bar_are_executable(rendered, mode):
+    module, snapshot = rendered
+    output = module.render(snapshot, mode)
+    assert output.startswith("Waiting for you: Capture the installed application result\n\n")
+    assert "## Progress Update\n\n" in output
+    assert output.index("### Required actions") < output.index("### \U0001F3AF Goals")
+    assert "3/19" in output and "16%" in output
+    assert "| **Last release** | v1.2.0 |" in squash(output)
+    assert "Capture the installed application result" in output
+    assert "Expected result: A fresh installed application receipt" in output
+    assert "Paste the resulting receipt path in this conversation" in output
+    bars = re.findall(r"([\u25b0\u25b1]+) \d+%", output)
+    assert bars and all(len(bar) == 10 for bar in bars)
+    assert not re.search(r"[\\](?:[()\[\]])|[$]", output)
+    positions = [output.index(f"### {h}") for h in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running")]
+    assert positions == sorted(positions)
 
 
-@pytest.fixture(scope="module")
-def compact(formats: str) -> str:
-    return example_blocks(formats)[0]
+def test_full_includes_all_rows_totals_and_evidence(rendered):
+    module, snapshot = rendered
+    output = module.render(snapshot, "full")
+    assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(output)
+    assert "| Goal | Scope | Done when | State |" in squash(output)
+    assert "| **Total** |" in squash(output)
+    assert "Source:" in output and "Confidence" not in output and "As of" not in output
 
 
-@pytest.fixture(scope="module")
-def full(formats: str) -> str:
-    return example_blocks(formats)[1]
+def test_decision_details_only_in_full_report(rendered):
+    module, snapshot = rendered
+    snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "A is recommended because it preserves consumers", "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}, {"option": "B", "effect": "Require migration"}], "reply": "Reply A or B"}]
+    full = module.render(snapshot, "full")
+    compact = module.render(snapshot, "compact")
+    assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in full
+    assert "| Option | What it means | Effect |" in squash(full) and "preserves consumers" in full
+    assert "#### 1\ufe0f\u20e3 Decision #1: Choose packaging" in compact
+    assert "| Option | What it means | Effect |" in squash(compact) and "preserves consumers" not in compact
 
 
-def test_formats_has_exactly_two_examples(formats: str) -> None:
-    assert len(example_blocks(formats)) == 2
+@pytest.mark.parametrize("mode", ["compact", "full"])
+@pytest.mark.parametrize("fresh_ids", [("9",), ("runtime-prerequisite-source-expansion",), ("9", "another-source-decision")])
+def test_fresh_decision_display_restarts_without_reusing_resolved_request_ids(rendered, mode, fresh_ids):
+    """Private descriptive proofs exercise retirement, not genuine approval capture."""
+    module, snapshot = rendered
+    def decision(identity, title):
+        return {"id": identity, "kind": "decision", "title": title, "detail": "A preserves the approved scope",
+                "options": [{"option": "A (recommended)", "effect": "Continue within scope"},
+                            {"option": "B", "effect": "Keep work pending"}], "reply": "Reply A or B"}
+    def observation(requests, resolutions=None):
+        return {"objective": "Finish the complete approved objective", "remaining_tasks": 16,
+                "requests": requests, "resolutions": resolutions or [], "completion": {"verified": False}}
+    old_requests = [decision(str(n), "Previous choice " + str(n)) for n in (1, 2)]
+    old_state = module._STATE.reconcile(observation(old_requests))
+    resolutions = [{"request_id": item["id"], "verified": True, "evidence": "Private reply verified",
+                    "authority_receipt": "private-unit-proof-" + item["id"]} for item in old_requests]
+    fresh = [decision(identity, "Fresh choice " + str(n)) for n, identity in enumerate(fresh_ids, 1)]
+    settled = module._STATE.reconcile(observation(fresh, resolutions), old_state)
+    current = module._STATE.reconcile(observation(fresh), settled)
+    assert current["requests"] == fresh and current["resolved_requests"] == resolutions
+    with pytest.raises(ValueError, match="fulfilled request id cannot be reused"):
+        module._STATE.reconcile(observation([old_requests[0]]), settled)
+    snapshot["decisions"] = []
+    snapshot["continuation"] = old_state
+    old_receipt = module.select_report(snapshot, None, "start")["receipt"]
+    prior_receipt = copy.deepcopy(old_receipt)
+    snapshot["continuation"] = current
+    original_snapshot = copy.deepcopy(snapshot)
+    output = module.render(snapshot, mode)
+    for number, request in enumerate(fresh, 1):
+        assert f"Decision #{number}: {request['title']}" in output
+        assert f"Decision #{request['id']}:" not in output
+    assert "Previous choice" not in output
+    selected = module.select_report(snapshot, old_receipt, "checkpoint")
+    assert selected["mode"] == "full"
+    assert [request["id"] for request in selected["receipt"]["decisions"]] == list(fresh_ids)
+    assert [request["id"] for request in old_receipt["decisions"]] == ["1", "2"]
+    assert snapshot == original_snapshot and old_receipt == prior_receipt
+    assert module.continuation(snapshot)["requests"] == fresh
 
 
-def test_compact_first_line_layout(compact: str) -> None:
-    line = next(ln for ln in compact.splitlines() if ln.startswith("**Status: v"))
-    assert SEP in line
-    assert "last released v" in line
-    assert re.search(r"\d+ versions left", line)
-    assert "time left:" in line
+def test_reporting_ownership_and_cadence():
+    progress, formats = read(PROGRESS), read(FORMATS)
+    assert "A tool call, tool yield, internal step or ordinary commentary message is not a reporting boundary" in progress
+    assert "after 5 minutes" in progress and "suppress unchanged duplicates" in progress
+    assert "new decision shows the full report" in progress
+    assert "Decision numbers restart at 1" in progress
+    assert "status_report.py" in progress and "status_report.py" in formats
+    assert "every message that ends carries the compact footer" not in progress
+    assert "exact font sizes" in progress
 
 
-def test_compact_labels_pointer_and_exclusions(compact: str) -> None:
-    assert "🙋" in compact and "🔄" in compact
-    assert compact.rstrip().splitlines()[-1] == "*Full report: /status*"
-    assert compact.startswith("---")
-    assert "Decision #" not in compact
-    assert "| Option |" not in compact
-
-
-@pytest.mark.parametrize("which", ["compact", "full"])
-def test_every_bar_has_ten_segments_and_matches_percent(
-    which: str, compact: str, full: str
-) -> None:
-    text = compact if which == "compact" else full
-    bars = BAR_RE.findall(text)
-    assert bars, "no bars found"
-    for bar, percent in bars:
-        assert len(bar) == 10, f"{bar} is not 10 segments"
-        assert bar == "▰" * bar.count("▰") + "▱" * bar.count("▱")
-        assert bar.count("▰") == math.floor(int(percent) / 10), (
-            f"{bar} does not match {percent}%"
-        )
-
-
-def test_full_headings_and_headers(full: str) -> None:
-    for needle in (
-        "## Status Update:",
-        "## 🙋 Waiting on you",
-        "## 🔄 Running now",
-        PLAN_HEADER,
-        OPTIONS_HEADER,
-        RUNNING_HEADER,
-        "### 1️⃣ Decision #1:",
-    ):
-        assert needle in full, needle
-    assert "| Status |" not in full
-
-
-def test_full_spacer_before_each_rule(full: str) -> None:
-    lines = full.splitlines()
-    rules = [i for i, ln in enumerate(lines) if ln == "---"]
-    assert len(rules) == 2
-    for i in rules:
-        assert lines[i - 1] == "" and lines[i - 2] == "&nbsp;", f"rule at line {i}"
-
-
-def test_full_goals_cells_have_one_escaped_pipe(full: str) -> None:
-    rows = [ln for ln in full.splitlines() if ln.startswith("| **v")]
-    assert rows
-    for row in rows:
-        goals = re.split(r"(?<!\\)\|", row)[2]
-        assert goals.count("\\|") == 1, row
-
-
-def test_formats_state_decision_rules_and_bar_rule(formats: str) -> None:
-    assert NEW_DECISION_RULE in formats
-    assert RESTART_RULE in formats
-    assert "floor(percent / 10)" in formats
-    assert "*Full report: /status*" in formats
-    assert "time left: not measured yet" in formats
-    assert "prints as `unknown`" in formats
-
-
-def test_progress_reporting_links_formats_and_states_rules() -> None:
-    text = read(PROGRESS)
-    assert "(status-formats.md)" in text
-    assert FOOTER_RULE in text
-    assert NEW_DECISION_RULE in text
-    assert RESTART_RULE in text
-    assert "`/implement` run is in progress" in text
-
-
-def test_instruction_templates_do_not_carry_the_footer() -> None:
-    for path in (ROOT / "templates" / "ai-instructions").rglob("*"):
-        if path.is_file():
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            assert "status-formats" not in text, path
-            assert "Full report: /status" not in text, path
+def test_existing_estimate_policy_is_preserved():
+    formats = read(FORMATS)
+    for expected in ("## Estimate rule", "remaining tasks times days per task", "median", "middle half", "one effective lane", "no parallel discount", "N/A (no history yet)"):
+        assert expected in formats
+    assert "status_snapshot.py" in read(STATUS_CMD) and "never prints `unknown`" in read(STATUS_CMD)
 
 
 def test_status_command_is_read_only_dispatcher() -> None:
     text = read(STATUS_CMD)
-    head, _, body = text.partition("\n---\n")[0], None, text
-    match = re.match(r"---\ndescription: (.+?)\n---\n", text, flags=re.S)
+    body = text
+    match = re.match(r"---\ndescription: (.+?)\n---\n", text, flags=re.DOTALL)
     assert match, "frontmatter description missing"
     assert re.match(r"[A-Z][a-z]+ ", match.group(1)), "description starts with a verb"
     assert "SKIP" in match.group(1)
-    assert "/status [vX.Y | vX.Y.Z | plan-path | plan-slug]" in body
+    assert "/progress [vX.Y | vX.Y.Z | plan-path | plan-slug]" in body
     assert "progress-reporting.md" in body and "status-formats.md" in body
     lowered = body.lower()
     assert "starts no work" in lowered
@@ -177,14 +158,14 @@ def test_status_command_is_read_only_dispatcher() -> None:
 def test_update_status_is_a_forwarding_alias() -> None:
     text = read(UPDATE_CMD)
     assert "`status`" in text.split("Recognized scopes:")[1].split("\n")[0]
-    assert "status    -> /status" in text
+    assert "status    -> /progress" in text
     section = text.split("## Status scope")[1].split("\n## ")[0].strip().splitlines()
     assert len(section) <= 6
-    assert "status.md" in "\n".join(section)
+    assert "progress.md" in "\n".join(section)
 
 
 def test_implement_names_status_command() -> None:
-    assert "`/status" in read(IMPLEMENT_CMD)
+    assert "`/progress" in read(IMPLEMENT_CMD)
 
 
 def test_command_count_matches_docs() -> None:
@@ -192,6 +173,8 @@ def test_command_count_matches_docs() -> None:
     active = 0
     aliases = 0
     for path in commands.glob("*.md"):
+        if re.search(r"^description: DEPRECATED", read(path), re.M):
+            continue
         h1 = next(
             ln for ln in read(path).splitlines() if ln.startswith("# ")
         )
@@ -206,3 +189,43 @@ def test_command_count_matches_docs() -> None:
     assert f"{active} commands plus {aliases} permanent aliases" in read(
         ROOT / "README.md"
     )
+
+
+def documented_example(heading: str) -> str:
+    body = read(FORMATS).split(f"### {heading}\n\n````markdown\n", 1)[1]
+    return body.split("````\n", 1)[0]
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_documented_examples_equal_renderer_output(rendered, mode):
+    module, snapshot = rendered
+    assert documented_example(mode.capitalize()) == module.render(snapshot, mode)
+
+
+COMPACT_DECISION = {
+    "id": "1", "title": "Keep the Claude Code and Codex split across restarts", "detail": "unused in compact", "reply": "Reply A, B or C",
+    "options": [
+        {"option": "A (recommended)", "meaning": "Experiment, then build the opt-in restore",
+         "effect": "Split survives restarts, if a public API allows it (~2-3 h)"},
+        {"option": "B", "meaning": "Experiment only", "effect": "Written finding, no code"},
+        {"option": "C", "meaning": "Defer", "effect": "Recorded as a v4.15.8 follow-up"},
+    ],
+}
+
+
+def test_documented_compact_decision_example_equals_renderer_output(rendered):
+    module, snapshot = rendered
+    snapshot["decisions"] = [COMPACT_DECISION]
+    assert documented_example("Compact with a decision") == module.render(snapshot, "compact")
+
+
+def test_contract_states_escaping_and_layout_rules():
+    formats = read(FORMATS)
+    for expected in ("## Release table", "## Rendering rules", "Never emit a bare `$`", "capped at 48 characters",
+                     "never `#` bars", "short italic footer", "Decisions waiting", "separated by a `---` rule", "Options not supplied", "No output contains `&nbsp;`", "Verbatim output rule"):
+        assert expected in formats
+
+
+def test_status_shim_is_removed() -> None:
+    """The v4.15.4 notes announced /status removal in v4.15.5; /progress replaces it."""
+    assert not STATUS_SHIM.exists()

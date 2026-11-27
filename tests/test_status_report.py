@@ -1,0 +1,615 @@
+"""Portable reporting uses identical data, layout and cadence on every host."""
+
+import importlib.util
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "catalog/skills/workflow/implement-phase/scripts/status_report.py"
+
+
+def observed_jobs(items):
+    """Explicit inert process observations for report formatting fixtures."""
+    return [{"id": f"fixture-job-{i}", "handle": f"fixture-session-{i}", "status": "running",
+             "observed_at": "2026-11-16T12:00:00Z", "resume_when": "This fixture process returns its result",
+             "evidence": "Inert unit-test process observation", **item} for i, item in enumerate(items, 1)]
+
+
+def observed_decisions(items):
+    """Formatting fixtures explicitly offer continuing and declining."""
+    result = []
+    for item in items:
+        row = dict(item)
+        if row.get("options") and len(row["options"]) == 1:
+            row["options"] = [*row["options"], {"option": "B", "effect": "Decline and preserve current state"}]
+        row.setdefault("reply", "Reply A or B")
+        result.append(row)
+    return result
+
+
+def squash(output: str) -> str:
+    """Collapse the column padding so assertions read the cell content only."""
+    return re.sub(r"-{3,}", "---", re.sub(r" {2,}", " ", re.sub(r" +\|", " |", output)))
+
+
+@pytest.fixture
+def report():
+    spec = importlib.util.spec_from_file_location("portable_status", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture
+def snapshot():
+    return {
+        "run_id": "example-run", "scope": "v1.3", "active": True,
+        "observed_at": "2026-11-16T12:00:00Z", "source": "example/plan.md",
+        "last_released": "v1.2.0", "versions_left": 1,
+        "elapsed": "13 min", "remaining": "~2.2 d (1.6-4.0 d)",
+        "estimate_basis": "open tasks x days per task from recent release tags",
+        "rows": [{"name": "Phase 1", "goals": "Package profiles", "done": 3,
+                  "total": 19, "state": "running", "elapsed": "13 min",
+                  "remaining": "~2.2 d (1.6-4.0 d)", "dependency": "none"}],
+        "goals": [{"goal": "Ship v1.3", "scope": "run",
+                   "done_when": "All 19 tasks verified", "state": "running"}],
+        "decisions": [], "running": [],
+        "continuation": {"objective": "Ship v1.3", "work": [{"id": "package", "title": "Implement approved packaging",
+            "authorized": True, "feasible": True, "evidence": "Inert fixture's approved packaging scope"}]},
+    }
+
+
+def test_compact_footer_layout_and_all_sections(report, snapshot):
+    text = report.render(snapshot, "compact")
+    assert text.startswith("## Progress Update\n\n| | |\n|---|---|\n| **Last release** | v1.2.0 |\n")
+    assert "| **Full v1.3 implementation** (1 version left) | " in text
+    assert "progress: \u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 16% (3/19 tasks)   \u00b7   ETA: ~2.2 d (1.6-4.0 d)" in text
+    for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
+        assert f"\n\n---\n\n### {heading}\n\n" in text
+    assert "\n\nNo decisions waiting.\n\n" in text and "authorized work is available" in text
+    assert "Source:" not in text and text.endswith('*Full report: /progress, or ask for "full progress".*\n')
+    assert "Full report: /progress" in text
+
+
+def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
+                              "options": [{"option": "A", "effect": "e"}]}])
+    snapshot["running"] = observed_jobs([{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "~5 min"},
+                           {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min",
+                            "remaining": "not estimated (no task list)"}])
+    text = report.render(snapshot, "compact")
+    assert "### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A" in text
+    assert "| A" in text and "| B" in text and "Decline and preserve current state" in text
+    assert "Reply A or B\n" in text
+    assert "- d" not in text
+    assert "- PR 1 \u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b1 90%: checks\n- Fix: second pass\n" in text
+    snapshot["decisions"][0]["reply"] = " "
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")
+
+
+def test_full_has_rows_totals_goals_decisions_running_and_sources(report, snapshot):
+    snapshot["rows"].append(dict(snapshot["rows"][0], name="Phase 2", done=0, total=1))
+    text = report.render(snapshot, "full")
+    assert "**3/20**" in text and "15%" in text
+    assert "**Phase 1**" in text and "**Phase 2**" in text and "| **Total** |" in squash(text)
+    assert text.rstrip().endswith("*Source: example/plan.md*")
+    assert text.startswith("## Progress Update\n\n### \U0001F680 Release status\n\n| | |\n|---|---|\n")
+    assert "\n\n### \U0001F4CA Version progress\n\n| Version " in text
+    assert "| Version | Goals | Progress | Tasks | Elapsed | Remaining |" in squash(text)
+    assert "Confidence" not in text and "Basis" not in text and "As of" not in text
+    assert "| **Total**" in text and "\n\n---\n\n### \U0001F3AF Goals" in text
+    version_end = text.index("### \U0001F4CA Version progress")
+    assert text[version_end:].split("\n\n")[2] == "---"
+    for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
+        assert f"\n\n---\n\n### {heading}\n\n" in text
+    assert "&nbsp;\n\n---" not in text
+
+
+def test_full_opens_with_the_same_release_table_as_compact(report, snapshot):
+    full = report.render(snapshot, "full").split("\n\n")
+    compact = report.render(snapshot, "compact").split("\n\n")
+    assert full[0] == compact[0] == "## Progress Update"
+    assert full[1] == "### \U0001F680 Release status" and full[2] == compact[1]
+    assert full[3] == "### \U0001F4CA Version progress" and full[4].startswith("| Version ")
+    assert "Release status" not in "\n".join(compact) and "Version progress" not in "\n".join(compact)
+
+
+def test_cadence_suppresses_narration_and_deduplicates_boundaries(report, snapshot):
+    first = report.select_report(snapshot, None, "start")
+    assert first["mode"] == "full"
+    previous = first["receipt"]
+    assert report.select_report(snapshot, previous, "progress")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+    snapshot["rows"][0]["done"] = 4
+    assert report.select_report(snapshot, previous, "progress")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "turn-end")["mode"] == "compact"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+def test_timer_requests_resume_new_decisions_and_terminal_rules(report, snapshot):
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["observed_at"] = "2026-11-16T12:05:00Z"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "progress")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+    assert report.select_report(snapshot, previous, "resume")["mode"] == "none"
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Choose packaging", "detail": "Affects consumers",
+                              "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}])
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "full"
+    snapshot["active"] = False
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "full"
+    assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+
+
+def required_capture():
+    return {"id": "capture", "kind": "action", "title": "Capture installed proof", "prerequisites": ["Open the installed app"],
+            "steps": ["Run the displayed capture command", "Paste its receipt"], "expected_result": "A fresh receipt",
+            "acknowledgment": "Reply with the receipt path"}
+
+
+def required_decision():
+    return {"id": "approval", "kind": "decision", "title": "Approve the reviewed change",
+            "detail": "This changes the distributed behavior; declining preserves the current version.",
+            "options": [{"option": "A (recommended)", "effect": "Apply the reviewed scope"},
+                        {"option": "B", "effect": "Keep the current scope"}], "reply": "Reply A or B"}
+
+
+def evidenced_external():
+    return {"id": "service", "title": "Required service", "evidence": "The service endpoint refused the connection",
+            "resume_when": "The required endpoint responds", "observed_at": "2026-11-16T12:00:00Z"}
+
+
+@pytest.mark.parametrize("facts,state", [
+    ({"requests": [required_capture()]}, "waiting_owner_action"),
+    ({"requests": [required_decision()]}, "waiting_decision"),
+    ({"jobs": [{"id": "pipeline", "name": "Existing pipeline", "handle": "pipeline-123", "status": "running",
+                 "observed_at": "2026-11-16T12:00:00Z", "resume_when": "The same pipeline returns its result",
+                 "evidence": "Its live handle was observed"}]}, "waiting_job"),
+    ({"external_conditions": [evidenced_external()]}, "blocked_external"),
+    ({"work": [{"id": "local", "title": "Implement the approved local change", "authorized": True,
+                 "feasible": True, "evidence": "Existing approved scope"}]}, "working"),
+])
+def test_inactive_flag_cannot_hide_nonterminal_obligations(report, snapshot, facts, state):
+    snapshot["active"] = False
+    snapshot["continuation"] = {"objective": "Ship v1.3", **facts}
+    result = report.select_report(snapshot, None, "turn-end")
+    assert result["mode"] == "full" and report.continuation(snapshot)["state"] == state
+    assert report.select_report(snapshot, result["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("paused", [False, True])
+def test_waiting_eta_and_wall_clock_rate_drift_do_not_emit_progress(report, snapshot, paused):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "requests": [required_capture()], "paused": paused}
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~1 h", "condition": "after installed proof",
+                                "confidence": "low", "basis": "own pace at the current wall time"}
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["observed_at"] = "2026-11-16T12:30:00Z"
+    snapshot["remaining"] = "~4 h"
+    snapshot["rows"][0]["remaining"] = "~4 h"
+    snapshot["next_release"].update(remaining="~2 h", basis="own pace at a later wall time")
+    snapshot["estimate_basis"] = "updated wall-clock-only own pace"
+    assert report.select_report(snapshot, previous, "resume")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "turn-end")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+    snapshot["last_released"] = "v1.2.1"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+def test_measured_idle_age_alone_does_not_emit_progress(report, snapshot):
+    snapshot["idle_lanes"] = [{"member": "v1.3.1", "kind": "needs-user",
+                               "detail": "blocked 10223 min on coordinator-and-sensitive-deltas"}]
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["observed_at"] = "2026-11-16T12:47:00Z"
+    snapshot["idle_lanes"][0]["detail"] = "blocked 10270 min on coordinator-and-sensitive-deltas"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+
+
+def test_canonical_equivalent_prior_rollforward_and_terminal_raw_shrink_do_not_emit(report, snapshot):
+    old = observed_jobs([{"id": "finished", "name": "Earlier fixture job", "handle": "fixture-old"}])[0]
+    active = observed_jobs([{"id": "current", "name": "Current fixture job", "handle": "fixture-current"}])[0]
+    snapshot["continuation"] = {"objective": "Ship v1.3", "jobs": [old]}
+    prior = report.continuation(snapshot)
+    raw = {"objective": "Ship v1.3", "remaining_tasks": 16,
+           "jobs": [{**old, "status": "succeeded", "result_verified": True}, active]}
+    snapshot.update(previous_continuation=prior, continuation_observation=raw,
+                    continuation=report._STATE.reconcile(raw, prior))
+    original = report.continuation(snapshot)
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["previous_continuation"] = json.loads(json.dumps(original))
+    snapshot["continuation_observation"]["jobs"] = [active]
+    snapshot["continuation"] = report._STATE.reconcile(snapshot["continuation_observation"], original)
+    assert report.continuation(snapshot)["fingerprint"] == original["fingerprint"]
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+
+
+@pytest.mark.parametrize("change", ["member", "kind", "blocker", "blocker-number", "other-age-prose",
+                                  "phase-evidence", "request", "decision", "retirement", "pause", "objective"])
+def test_canonical_and_idle_identity_changes_remain_material(report, snapshot, change):
+    snapshot["idle_lanes"] = [{"member": "v1.3.1", "kind": "needs-user", "detail": "blocked 10223 min on worker-7"}]
+    if change == "other-age-prose":
+        snapshot["idle_lanes"][0]["detail"] = "phase evidence: blocked 10223 min on worker-7"
+    if change == "retirement":
+        snapshot["continuation"]["jobs"] = observed_jobs([{"name": "Existing fixture job"}])
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    if change == "member":
+        snapshot["idle_lanes"][0]["member"] = "v1.3.2"
+    elif change == "kind":
+        snapshot["idle_lanes"][0]["kind"] = "resumable"
+    elif change == "blocker":
+        snapshot["idle_lanes"][0]["detail"] = "blocked 10223 min on approval-not-captured"
+    elif change == "blocker-number":
+        snapshot["idle_lanes"][0]["detail"] = "blocked 10223 min on worker-8"
+    elif change == "other-age-prose":
+        snapshot["idle_lanes"][0]["detail"] = "phase evidence: blocked 10270 min on worker-7"
+    elif change == "phase-evidence":
+        snapshot["continuation"]["work"][0]["evidence"] = "A new committed phase result was verified"
+    elif change in {"request", "decision"}:
+        snapshot["continuation"]["requests"] = [required_capture() if change == "request" else required_decision()]
+    elif change == "retirement":
+        snapshot["continuation"]["jobs"][0].update(status="succeeded", result_verified=True)
+    elif change == "pause":
+        snapshot["continuation"]["paused"] = True
+    else:
+        snapshot["continuation"]["objective"] = "Ship v1.3 with its complete installed proof"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] != "none"
+
+
+@pytest.mark.parametrize("change", ["tasks", "condition", "capability"])
+def test_waiting_real_observation_changes_remain_material(report, snapshot, change):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "external_conditions": [evidenced_external()]}
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    if change == "tasks":
+        snapshot["rows"][0]["done"] += 1
+    elif change == "condition":
+        snapshot["continuation"]["external_conditions"][0]["evidence"] = "The endpoint now responds but rejects the required operation"
+    else:
+        snapshot["continuation"]["native_goal"] = {"status": "blocked", "resume_supported": True, "observed_at": "2026-11-16T12:00:00Z"}
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+def test_controller_frame_new_decision_gets_full_walkthrough_and_retirement_receipt(report, snapshot):
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["continuation"]["requests"] = [required_decision()]
+    assert snapshot["decisions"] == []
+    presented = report.select_report(snapshot, previous, "checkpoint")
+    assert presented["mode"] == "full"
+    assert required_decision()["detail"] in presented["report"]
+    assert [item["id"] for item in presented["receipt"]["decisions"]] == ["approval"]
+    assert report.select_report(snapshot, presented["receipt"], "turn-end")["mode"] == "none"
+    snapshot["continuation"]["resolutions"] = [{"request_id": "approval", "verified": True,
+        "evidence": "Native approval owner consumed the genuine reply", "authority_receipt": "native-receipt-17"}]
+    resumed = report.select_report(snapshot, presented["receipt"], "checkpoint")
+    assert resumed["mode"] == "compact" and resumed["receipt"]["decisions"] == []
+    assert "Decision #" not in resumed["report"]
+    assert report.select_report(snapshot, resumed["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_producer_observation_rejects_tampered_canonical_history(report, snapshot, mode):
+    raw = json.loads(json.dumps(snapshot["continuation"]))
+    canonical = report.continuation(snapshot)
+    snapshot["continuation_observation"] = raw
+    snapshot["continuation"] = canonical
+    snapshot["continuation"]["completed_jobs"] = [{"id": "unsigned-invented-retirement"}]
+    with pytest.raises(ValueError, match="producer.*continuation"):
+        report.render(snapshot, mode)
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_external_wait_makes_whole_eta_conditional_without_a_job_or_release_condition(report, snapshot, mode):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "external_conditions": [evidenced_external()]}
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~1 h", "condition": "none", "confidence": "low", "basis": "Measured task pace"}
+    output = report.render(snapshot, mode)
+    assert output.startswith("Waiting for Required service")
+    assert "Whole-objective time estimates are conditional on Required service" in output
+    assert "The required endpoint responds" in output and "exclude any unbounded waiting time" in output
+    assert "~2.2 d (1.6-4.0 d)" in output and "~1 h" in output
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_unestimated_outstanding_owner_action_is_not_presented_as_goal_completion(report, snapshot, mode):
+    snapshot["active"] = False
+    snapshot["versions_left"] = 0
+    snapshot["rows"][0].update(done=19, total=19, remaining="N/A")
+    snapshot["remaining"] = "N/A"
+    snapshot["continuation"] = {"objective": "Complete all approved delivery proof", "requests": [required_capture()]}
+    output = report.render(snapshot, mode)
+    assert output.startswith("Waiting for you: Capture installed proof")
+    assert "No duration estimate is available for the outstanding obligations" in output
+    assert "N/A does not mean the objective is complete" in output
+    assert "A fresh receipt" in output and "exclude any unbounded waiting time" in output
+    assert "100%" in output and "Verified complete:" not in output
+
+
+def test_receipts_do_not_cross_runs_and_regressions_are_visible(report, snapshot):
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["run_id"] = "different-run"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "full"
+    snapshot["run_id"] = "example-run"
+    snapshot["rows"][0]["done"] = 2
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+@pytest.mark.parametrize("done,total", [(True, 19), (-1, 19), (20, 19), (1, 0), (1, 1.5)])
+def test_rejects_invalid_counts(report, snapshot, done, total):
+    snapshot["rows"][0].update(done=done, total=total)
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")
+
+
+def test_missing_counts_are_rejected_and_zero_is_not_claimed_complete(report, snapshot):
+    snapshot["rows"][0].update(done=None, total=None)
+    with pytest.raises(ValueError, match="no task counts"):
+        report.render(snapshot, "compact")
+    snapshot["rows"][0].update(done=0, total=0)
+    text = report.render(snapshot, "compact")
+    assert "N/A" in text and "100%" not in text
+
+
+def test_untrusted_text_cannot_add_headings_tables_or_links(report, snapshot):
+    snapshot["goals"][0]["goal"] = "x\n### Forged | [click](https://evil.test) <script>"
+    text = report.render(snapshot, "full")
+    assert "\n### Forged" not in text
+    assert "<script>" not in re.sub(r"`[^`]*`", "", text)
+    assert "[click](" not in re.sub(r"`[^`]*`", "", text)
+
+
+def test_cli_is_read_only_and_rejects_bad_input(tmp_path, snapshot):
+    path = tmp_path / "snapshot.json"
+    path.write_text(json.dumps(snapshot), encoding="utf-8")
+    before = path.read_bytes()
+    result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path), "--event", "request"],
+                            capture_output=True, text=True, check=False)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.startswith("## Progress Update\n")
+    assert path.read_bytes() == before and list(tmp_path.iterdir()) == [path]
+    path.write_text('{"scope": "v1.3"}', encoding="utf-8")
+    result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(path)],
+                            capture_output=True, text=True, check=False)
+    assert result.returncode == 2 and "Traceback" not in result.stderr
+
+
+def test_audit_detects_missing_stale_and_shadowed_installations(report, tmp_path):
+    import shutil
+    source = SCRIPT.parent.parent
+    target = tmp_path / "skills"
+    installed = target / "implement-phase"
+    shutil.copytree(source, installed)
+    assert report.audit(source, [target]) == []
+    (installed / "references/status-formats.md").unlink()
+    issues = report.audit(source, [target])
+    assert any("missing" in issue and "status-formats.md" in issue for issue in issues)
+    (installed / "SKILL.md").write_text("old", encoding="utf-8")
+    assert any("stale" in issue for issue in report.audit(source, [target]))
+    assert any("missing" in issue for issue in report.audit(source, [tmp_path / "absent"]))
+
+
+def test_running_links_are_preserved_and_unsafe_schemes_rejected(report, snapshot):
+    snapshot["running"] = observed_jobs([{"name": "PR #12", "state": "checks", "done": 2, "total": 3,
+                            "elapsed": "1 min", "remaining": "~1 min", "url": "https://example.test/pull/12/checks"}])
+    for mode in ("compact", "full"):
+        output = report.render(snapshot, mode)
+        assert "](https://example.test/pull/12/checks)" in output
+        assert "67%" in output and ("2/3" in output or mode == "compact")
+    for url in ("javascript:alert(1)", "file:///secret", "https://name:password@example.test", "https://example.test/\n###spoof"):
+        snapshot["running"][0]["url"] = url
+        with pytest.raises(ValueError):
+            report.render(snapshot, "full")
+
+
+@pytest.mark.parametrize("corruption", ["missing-time", "future-time", "bad-hash"])
+def test_invalid_receipt_recovers_once_with_full_status(report, snapshot, corruption):
+    receipt = report.select_report(snapshot, None, "start")["receipt"]
+    if corruption == "missing-time":
+        del receipt["observed_at"]
+    elif corruption == "future-time":
+        receipt["observed_at"] = "2099-01-01T00:00:00Z"
+    else:
+        receipt["fingerprint"] = "bad"
+    recovered = report.select_report(snapshot, receipt, "turn-end")
+    assert recovered["mode"] == "full"
+    assert report.select_report(snapshot, recovered["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_next_release_eta_is_distinct_from_whole_scope_completion(report, snapshot, mode):
+    snapshot["scope"] = "v4.15"
+    snapshot["last_released"] = "v4.15.1"
+    snapshot["remaining"] = "~2-4 d including integration, releases and minor closure"
+    snapshot["next_release"] = {"version": "v4.15.2", "remaining": "~1-2 h",
+                                "condition": "after checker PR merges and installation passes",
+                                "confidence": "low", "basis": "Remaining validation and one release pipeline"}
+    output = report.render(snapshot, mode)
+    assert "| **Last release** | v4.15.1 |" in output and "| **Next release** | v4.15.2 |" in output
+    assert "| **Next release ETA** | ~1-2 h |" in output
+    assert "| **Full v4.15 implementation** (1 version left) | progress: " in output and "   \u00b7   ETA: ~2-4 d" in output
+    assert "Confidence" not in output and "Remaining validation and one release pipeline" not in output
+    assert "Blocked by" not in output and "| time left:" not in output
+
+
+def test_no_next_release_means_everything_is_released(report, snapshot):
+    output = report.render(snapshot, "compact")
+    assert "| **Next release** | none (all released) |" in output
+    assert "| **Next release ETA** | N/A |" in output
+    assert "unknown" not in output
+
+
+@pytest.mark.parametrize("value", [False, {}, {"version": "v4.15.2"},
+    {"version": "v4.15.2", "remaining": "1h", "condition": "none", "confidence": "certain", "basis": "guess"}])
+def test_incomplete_or_invalid_release_estimates_are_rejected(report, snapshot, value):
+    snapshot["next_release"] = value
+    with pytest.raises(ValueError):
+        report.render(snapshot, "full")
+
+
+HOSTILE = "Wheels (verified; pending) my_var $HOME $5 + #1 a|b *bold* _it_ `code` [x](https://evil.test) back\\slash"
+
+
+def hostile_snapshot(snapshot):
+    snapshot["rows"][0].update(name="v1.3.0.dev1 (wheels)", goals=HOSTILE, state=HOSTILE)
+    snapshot["goals"][0].update(goal=HOSTILE, done_when=HOSTILE)
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": HOSTILE, "detail": HOSTILE,
+                              "options": [{"option": "A (recommended)", "meaning": HOSTILE, "effect": HOSTILE}]}])
+    snapshot["running"] = observed_jobs([{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "~1 min"}])
+    return snapshot
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_output_has_no_math_delimiters_or_backslash_escapes(report, snapshot, mode):
+    output = report.render(hostile_snapshot(snapshot), mode)
+    assert "$" not in re.sub(r"`[^`]*`", "", output)
+    for token in ("\\(", "\\)", "\\[", "\\]", "\\_", "\\+", "\\#", "\\*"):
+        assert token not in output, token
+    assert "(verified; pending)" in output
+    assert "`[x](https://evil.test`)" in output
+    for token in ("`$HOME`", "`$5`", "`my_var`", "`_it_`", "`*bold*`"):
+        assert token in output, token
+    assert "&#" not in output
+
+
+def test_pipes_stay_table_safe(report, snapshot):
+    output = report.render(hostile_snapshot(snapshot), "full")
+    for line in output.splitlines():
+        if line.startswith("| ") and "a\\|b" in line:
+            cells = [c for c in line.split(" | ")]
+            raw_pipes = [i for i, ch in enumerate(line) if ch == "|" and line[i - 1] != "\\"]
+            assert len(raw_pipes) == len(cells) + 1, line
+
+
+ELAPSED = "4 h 54 min (first plan commit 2026-11-16 19:03 UTC to #119 merge 23:57 UTC)"
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_parenthetical_elapsed_and_dollar_amounts_are_plain_text(report, snapshot, mode):
+    snapshot["elapsed"] = ELAPSED
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "1 h", "condition": "none", "confidence": "low",
+                                "basis": "Spend $38.36 of $500 (cap)"}
+    snapshot["source"] = "ledger ($38.36 of $500)"
+    output = report.render(snapshot, mode)
+    assert "$" not in re.sub(r"`[^`]*`", "", output)
+    for token in ("\\(", "\\)", "\\[", "\\]"):
+        assert token not in output
+    assert "&#" not in output
+    if mode == "full":
+        assert "| **4 h 54 min**" in output and "first plan commit" not in output
+        assert "Basis" not in output
+    assert ("*Source: ledger (`$38.36` of `$500`)*" in output) == (mode == "full")
+
+
+def test_cells_are_capped_with_ellipsis_and_tables_are_aligned(report, snapshot):
+    snapshot["rows"][0]["goals"] = "x" * 200
+    snapshot["rows"][0]["remaining"] = "y" * 200
+    output = report.render(snapshot, "full")
+    assert "x" * 200 not in output and "x" * 49 not in output and "x" * 45 + "..." in output
+    assert "y" * 49 not in output
+    assert "y" * 45 + "..." in output
+    table_lines = [l for l in output.splitlines() if l.startswith("| ")]
+    assert all("\n" not in l for l in table_lines)
+    start = next(i for i, l in enumerate(table_lines) if l.startswith("| Version"))
+    version_table = table_lines[start:start + 4]
+    assert len(version_table) == 4 and len({len(l) for l in version_table}) == 1
+
+
+def test_compact_table_has_empty_header_and_exactly_four_rows(report, snapshot):
+    output = report.render(snapshot, "compact")
+    table = [l for l in output.splitlines() if l.startswith("|")]
+    assert table[:2] == ["| | |", "|---|---|"] and len(table) == 6
+    for label in ("As of", "Elapsed", "Basis", "Confidence", "Blocked by", "Versions left"):
+        assert label not in output
+
+
+@pytest.mark.parametrize("value,expected", [
+    (ELAPSED, "4 h 54 min"),
+    ("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda", "alpha beta gamma delta epsilon zeta eta theta..."),
+    ("short (keep me)", "short (keep me)"),
+    ("one two three four five six seven eight nine ten (open paren that is not closed", "one two three four five six seven eight nine..."),
+])
+def test_shorten_never_cuts_mid_word_or_mid_parenthesis(report, value, expected):
+    assert report.shorten(" ".join(value.split()), 48) == expected
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_no_nbsp_or_entities_in_any_output(report, snapshot, mode):
+    plain = report.render(snapshot, mode)
+    hostile = report.render(hostile_snapshot(snapshot), mode)
+    for output in (plain, hostile):
+        assert "&nbsp;" not in output and "&#" not in output and "&amp;" not in output
+
+
+def test_decision_without_options_cannot_hide_an_unusable_owner_request(report, snapshot):
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B"}])
+    with pytest.raises(ValueError, match="two options"):
+        report.render(snapshot, "compact")
+    snapshot["decisions"][0]["options"] = []
+    with pytest.raises(ValueError, match="two options"):
+        report.render(snapshot, "full")
+    snapshot["decisions"][0]["options"] = [{"option": "A"}]
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_whole_scope_value_has_the_specified_format(report, snapshot, mode):
+    snapshot["rows"][0].update(done=190, total=422)
+    snapshot["remaining"] = "2-3 days"
+    row = next(l for l in report.render(snapshot, mode).splitlines() if l.startswith("| **Full v1.3 implementation**"))
+    assert row.endswith("| progress: \u25b0\u25b0\u25b0\u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 45% (190/422 tasks)   \u00b7   ETA: 2-3 days |")
+    assert "&nbsp;" not in row
+
+
+def _set(snapshot, where, value):
+    target = snapshot
+    for key in where[:-1]:
+        target = target[key]
+    target[where[-1]] = value
+
+
+@pytest.mark.parametrize("where", [
+    ("elapsed",), ("remaining",), ("rows", 0, "elapsed"), ("rows", 0, "remaining"),
+    ("next_release", "remaining"), ("running", 0, "elapsed"), ("running", 0, "remaining"),
+])
+@pytest.mark.parametrize("value", ["unknown", "Unknown (fewer than 3 completed plans)"])
+def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, where, value):
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~3 h", "condition": "none",
+                                "confidence": "medium", "basis": "release tags"}
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
+    report.render(snapshot, "full")
+    _set(snapshot, where, value)
+    with pytest.raises(ValueError, match="status_snapshot.py"):
+        report.render(snapshot, "full")
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_no_report_ever_prints_unknown(report, snapshot, mode):
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
+    output = report.render(snapshot, mode)
+    assert "unknown" not in output.lower()
+    if mode == "full":
+        assert "| CI | no task list | no task list | running | 4 min | not estimated (no task list) |" in squash(output)
+
+
+@pytest.mark.parametrize("field,value", [("last_released", None), ("versions_left", None)])
+def test_release_inventory_must_be_measured(report, snapshot, field, value):
+    snapshot[field] = value
+    with pytest.raises(ValueError):
+        report.render(snapshot, "compact")
+
+
+@pytest.mark.parametrize("field", ["elapsed", "remaining"])
+def test_running_item_never_prints_na(report, snapshot, field):
+    """N/A means not started or released; a running item is neither, so it is refused."""
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
+    text = report.render(snapshot, "full")
+    assert "no task list" in text and "| N/A" not in text.split("Running")[-1]
+    snapshot["running"][0][field] = "N/A"
+    with pytest.raises(ValueError, match="N/A"):
+        report.render(snapshot, "full")

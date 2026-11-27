@@ -19,7 +19,7 @@ Security guards: `git-guardrails`, `secret-scan`, `memory-store-guard`, `user-ed
 
 Settings-controlled guards: `git-guardrails` general safety, `secret-scan` and `user-edit-guard` are on by default and disabled only by an exact JSON `false` in `~/.nexus-hub/guardrails.json`. The independent Git bypass-flag guard is off by default and blocks in every host mode when explicitly on. Existing per-hook environment disable controls remain available. This exception does not change native permissions, managed policy or plan-approval requirements.
 
-Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
+Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, `worktree-policy`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
 
 ## Approved-run continuation
 

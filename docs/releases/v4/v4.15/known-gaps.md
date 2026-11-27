@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 119
+**Open items**: 123
 
 ## v4.15.0
 
@@ -536,6 +536,8 @@
 - **Future plan**: v4.15.2-adoption-harness-economics-and-portable-engineering-system
 
 **Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](../../../archives/v4/v4.13/development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.15.2-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.15.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.15.2 pairing evaluator, and the v4.15.0 plan never took the item on; see [`v4.15.2-comparison-harness-economics-delta.md`](comparisons/v4.15.2-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
+
+**Update, 2026-11-16 (v4.15.2)**: the pairing evaluator now exists, and a synthetic `full` against `pointer` receipt shows 408 against 36 estimated tokens on the fixture pair (the real rendered files carry 340 index rows). The default stays unflipped because no live organic skill selection, including guard skills under `metered-live`, has run. Next step: run the pair when an isolation backend and a hard spend limit exist (DF-46). Evidence: [`v4.15.2-claude-agents-evaluation.md`](development/v4.15.2-claude-agents-evaluation.md).
 
 **Original source identity**: `v4.13.3#DF-1`; stable ID `DF-1-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
@@ -3640,6 +3642,260 @@ The code-scanning read-back on 2026-11-04 lists 214 open CodeQL alerts on `refs/
 
 - **Migrated from**: v4.14.0#AR-35 on 2026-11-04 (reason: user-deferred)
 - **Migration evidence**: left open by v4.14.8, the last plan of v4.14
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+
+## v4.15.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None. The three follow-ups found in T111 (references adoption, a root STRATEGY.md, and model-switch qualification) are recorded in the v4.16 ledger as v4.16.0 DF-1 to DF-3, because they are proposals for future plans rather than gaps in this plan's deliverable.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-43 | Profile-layer automatic consumer gap | Phase 2 | Closed by documentation: the rejected decision `2026-10-31-model-adaptive-runtime-platform-scope.md` declines automatic injection. The profile layer stays authoring input (`apply_prompting_edits.py`) and on-demand Tier-3 reading |
+| DF-44 | Model-adaptive routing on non-Claude platforms | Phase 2 | Unavailable by design, not backlog: this plan ships no automatic runtime on any platform, and no adapters are owed to the other platforms |
+| BG-8 | Profile index labels non-Claude models with the claude-code platform | Phase 1 | Absent under the exact historical check on 2026-11-14: 0 of 70 profiled models outside the claude family carry that label. Platform mappings in general are not independently qualified by this result |
+| WN-32 | One skill body measured at 802 lines against the 800-line cap | Phase 3 | Obsolete: a scan of all 340 skill bodies on 2026-11-14 finds a maximum of 796 lines and none above 800 |
+
+## v4.15.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+DF-6 (v4.13.3), the skill-index default flip, stays open under v4.15.0 with this plan's evidence appended there; it gets no new ID.
+
+### Open Items
+
+None. The 14 follow-ups this release recorded (DF-45 to DF-49, MT-9, MT-10, BG-9, and WN-33 to WN-38) are carried unchanged, with their ids, into the [v4.16 ledger](../v4.16/known-gaps.md) under v4.16.0. They are future work that no v4.15 member schedules, and v4.15.2 is published; nothing in this section is resolved.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+
+## v4.15.3
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+
+v4.15.0 BG-1 and WN-2 are inherited by this plan and stay open under v4.15.0; they get no new ID. The lane's convergence findings C-1 to C-6 are recorded in `development/v4.15.3-last-phase-evidence.md` and were not appended to the frozen plan.
+
+### Open Items
+
+None. Six follow-ups still open at release moved to the v4.16 ledger, section v4.16.0, with their ids unchanged: DF-50, DF-51, DF-52, MT-11, QG-7 and WN-39. QG-6 is resolved below.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-6 | The full local suite was not run in the lane | v4.15.3 | Resolved by hosted CI on integration pull request #689 (merged as `d72ea583a`): every required check passed, including `validate`, the sharded `tests` and `tests-hooks` jobs, the Windows test jobs and the aggregate `ci-required`. |
+
+## v4.15.4
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+
+DF-53 to DF-58 are the consumer handoffs the plan parked in its Scope and Dispositions table, proposed in `development/v4.15.4-last-phase-evidence.md`.
+
+### Open Items
+
+None. Seven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0, with their ids unchanged: DF-53, DF-54, DF-55, DF-56, DF-57, DF-58 and WN-41. QG-12 is resolved below.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-12 | Four full-suite groups not completed locally | v4.15.4 | Resolved by hosted CI run `44384963706` on integration pull request #695 (merged as `1b1b295ba`): all 31 jobs passed, including `tests-core`, `tests-validators`, `hook-tests-heavy`, `hook-tests-rest` and `ci-required`. |
+
+## v4.15.5
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 1 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None. Eleven follow-ups still open at release moved to the v4.16 ledger, section v4.16.0: DF-59, DF-60, DF-61, DF-63, WN-42, WN-43 and WN-45 to WN-48 with their ids unchanged, and WN-49, which records what WN-44's fix left open (Windows Qwen installs and Copilot). DF-62 and WN-44 are resolved below.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-62 | Hook registration delivered after integration | v4.15.5 | Pull request #704 (merged as `d0296ed75`) registers `stuck-turn-notice` on `PostToolUse` and `PostToolUseFailure` in `catalog/hooks/settings.json`; its installer test proves two installs register each entry once. Hosted run `44473547702` passed. |
+| WN-44 | Qwen and Gemini CLI drop PostToolUseFailure | v4.15.5 | T015 fix, pull request #705 (merged as `1b8d33d09`): the Qwen spec maps `PostToolUseFailure` on `^(run_shell_command)$`. Gemini CLI has no such event and reports failures inside `AfterTool`, so its skip is correct. An end-to-end install drove the installed hook with Qwen failure payloads; the third repeat printed one notice. The Windows Qwen and Copilot remainder is WN-49. |
+
+## v4.15.6
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 8 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-64: Cross-repository and second-machine worktree campaign not yet run
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: the user limited this campaign to Nexus-Hub ("Nexus-Hub only"); 20 worktrees of other repositories on this machine are `other-repository-deferred` exceptions, and the second machine has not been audited.
+
+**Suggested next step**: after release, run `nexus-hub worktree audit` with a time budget per machine, propose one manifest per repository, and apply under the same approval and owner-acknowledgment steps.
+
+#### DF-65: Full-machine audit did not finish within budget
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: the machine audit found 9,828 repositories (9,778 test fixtures) and a proposal over the whole report ran about an hour without finishing; the campaign used a derived inventory of 5 repositories and 117 worktrees. 35 permission-denied folders and two excluded volumes were not scanned.
+
+**Suggested next step**: exclude temporary and fixture trees during discovery itself, then re-run the full audit and compare against the derived inventory.
+
+#### WN-50: cleanup_merged keeps clean detached worktrees already on develop
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: `cleanup_merged.py --dry-run` printed `KEEP ... detached` for `develop-install-2ef94ca` and `develop-install-8bc588e`, and `head-mismatch` for `check-minor-budget-qualified`, so leftover install-test worktrees accumulate with no supported removal path.
+
+**Suggested next step**: decide (decision record) whether a clean, idle, detached worktree whose HEAD is reachable from the integration branch becomes a removal candidate, and extend the executor with that check.
+
+#### DF-66: 15 worktrees deferred out of the v4.15.6 move campaign
+
+**Source phase**: v4.15.6 Phase 4
+
+**Plan reference**: [Phase 4 machine campaign](development/v4.15.6-worktree-policy-review.md#phase-4-machine-campaign)
+
+**Reason**: 13 worktrees are bound to live signed v4.15 runs, 1 is locked by its owner and 1 has a missing or prunable git registration. The runs finish only after v4.15.6 ships, so the user chose to close Phase 4 with these 15 recorded as approved deferrals (2026-11-21) instead of holding the release order.
+
+**Suggested next step**: at minor close, run the worktree hygiene step: move each finished run's worktree with a reviewed manifest, ask the owner about the locked one, and inspect the missing registration by hand before any prune.
+
+#### WN-51: Interrupted-item recovery reads state outside the repository lock
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: `recover_item` classifies an interrupted move outside the repository lock, so a concurrent operation could change the state it reads.
+
+**Suggested next step**: take the repository lock around recovery and add a concurrency test.
+
+#### WN-52: Notice files are keyed by manifest file name
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: a dry run rewrites `<state>/notices/<manifest name>.txt`; reusing a manifest name after deleting the manifest overwrites the old notices' tokens.
+
+**Suggested next step**: key notice files by manifest digest and refuse to overwrite a notice file for a different digest.
+
+#### WN-53: Relative gitdir pointers are not normalized
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: with `worktree.useRelativePaths` (Git 2.48 and later) Git writes relative gitdir pointers; the back-pointer and ownership checks assume absolute pointers.
+
+**Suggested next step**: read and normalize relative pointers, with a fixture repository using the setting.
+
+#### WN-54: Destination length is checked for the folder only
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: the migration checks the destination folder's path length, not the deepest path inside the worktree, so a move can exceed the platform limit for a nested file.
+
+**Suggested next step**: measure the deepest path before a move and refuse when it would exceed the platform limit.
+
+#### WN-55: Placement guard does not verify the identity folder
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: the guard checks that a destination sits two levels under the root, not that the identity folder belongs to the repository being changed.
+
+**Suggested next step**: compare the identity folder with the identity mapping when the guard can read it.
+
+#### WN-56: Unquoted heredoc bodies are treated as text
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: an unquoted bash heredoc can run command substitutions, but the guard treats every heredoc body that does not feed a shell as text.
+
+**Suggested next step**: inspect command substitutions inside unquoted heredoc bodies.
+
+#### WN-57: Submodule state is outside the move fingerprint
+
+**Source phase**: v4.15.6 Phase 5 (independent review of the migration code)
+
+**Plan reference**: [Review hardening](development/history/v4.15.6/coordinator-deltas.md#review-hardening-after-the-independent-review-of-e6f53fa046286f2e61)
+
+**Reason**: inspection status uses `--ignore-submodules=all`, so submodule state is not part of the fingerprint; submodule worktrees are refused by a separate check.
+
+**Suggested next step**: fingerprint submodule HEADs when submodule worktrees become supported.
 
 ### Resolved
 

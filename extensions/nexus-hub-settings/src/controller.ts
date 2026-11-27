@@ -25,6 +25,7 @@ import {
   errorModel,
   isAllowedSource,
   summarizePreferences,
+  effortApplicationIssues,
 } from "./viewModel";
 
 /**
@@ -113,6 +114,7 @@ function bridgeCard(error: unknown, command: string): ErrorCard {
       exit: "The Nexus-Hub command failed",
       json: "The Nexus-Hub command returned unexpected output",
       argument: "The request was not valid",
+        dependency: "Codex settings support could not be prepared",
     };
     return { title: title[error.kind] ?? "The Nexus-Hub command failed", message: error.message, command: error.command || command, fix: error.fix };
   }
@@ -196,6 +198,7 @@ export class SettingsController {
         return applied;
       }
       const result = await this.deps.syncEditorEffort?.(rows);
+      if (result?.changed.length) { await this.reload(null, false); }
       if (result?.issues.length) { this.model = { ...this.model, notice: { level: "warn", text: "Some editor defaults could not be synchronized.", lines: result.issues } }; }
       return this.model;
   }
@@ -266,6 +269,7 @@ export class SettingsController {
       this.model.codexAvailable = this.deps.codexAvailable?.() ?? false;
       this.model.liveEffort = await this.deps.liveEffort?.();
       this.model.uiEffort = this.deps.uiEffort?.();
+        this.model.applicationIssues = effortApplicationIssues(this.model);
       this.model.hubVersion = this.deps.hubVersion?.();
       this.model.sessionDefaults = this.deps.sessionDefaults?.();
       this.model.usageAlerts = this.deps.usageAlerts?.();
@@ -357,13 +361,17 @@ export class SettingsController {
     lines.push(...pre.skipped.map((s) => `skipped: ${s.reason}`));
     const label = this.model.controls.find((item) => item.id === control)?.label ?? control;
     const exitNote = out.exitCode === 0 ? "" : " Some settings could not be applied.";
-    const refreshed = await this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `${label} saved.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
+    let refreshed = await this.done({ level: out.exitCode === 0 ? "info" : "warn", text: `${label} saved.${exitNote}`, lines: lines.slice(0, MAX_LINES) });
     if (control === "effort" && tool === null && !refreshed.error) {
       const editorSync = await this.deps.syncEditorEffort?.(this.report?.records.filter((row) => row.control === "effort") ?? []);
+      if (editorSync?.changed.length) { refreshed = await this.reload(null, false); }
+      if (refreshed.error) { return refreshed; }
       lines.push(...(editorSync?.changed ?? []), ...(editorSync?.issues ?? []));
+      const issues = [...new Set([...effortApplicationIssues(refreshed), ...(editorSync?.issues ?? []), ...(out.doc.results ?? []).filter(result => ["failed", "refused"].includes(result.status)).map(result => statusLine(result, tool => this.label(tool)))])];
+      lines.push(...issues);
       const summary = summarizePreferences(refreshed);
       const confirmed = summary.effort === value;
-      this.model = { ...refreshed, notice: { level: !confirmed || summary.needsAttention || out.exitCode !== 0 || editorSync?.issues.length ? "warn" : "info", text: confirmed ? `Default effort saved.${exitNote} ${summary.effortStatus}` : "The saved effort could not be confirmed. Refresh and try again.", lines: lines.slice(0, MAX_LINES) } };
+      this.model = { ...refreshed, applicationIssues: issues, notice: { level: !confirmed || issues.length || out.exitCode !== 0 ? "warn" : "info", text: confirmed ? `Default effort saved.${issues.length ? " " + issues[0] : ""}` : "The saved effort could not be confirmed. Refresh and try again.", lines: [...issues, ...lines].slice(0, MAX_LINES) } };
     }
     return this.model;
   }

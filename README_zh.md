@@ -4,17 +4,17 @@
 
 Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规则、钩子、防护机制和最佳实践。安装程序会在你的电脑上配置受支持的平台。代理通过你现有的 IDE、终端或已配置的应用使用这套框架。
 
-**目录：** 340 个技能（23 个类别）、22 个命令（另有 3 个永久别名）、37 个已注册钩子、23 个代理。
+**目录：** 340 个技能（23 个类别）、22 个命令（另有 3 个永久别名）、40 个已注册钩子、23 个代理。
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.0 更新内容
+## v4.15.6 更新内容
 
-- 设置中新增使用额度提醒开关，可按服务商分别开关或一次全部开关；使用额度警告会在 10 秒后自动关闭。
-- Nexus-Hub Settings 会安装到检测到的每个 VS Code、Cursor 和 Antigravity 编辑器中，并只应用一次共享的推理强度和速度默认值，不会覆盖会话中的选择。
-- 修复了 Cursor 和 Gemini 使用额度监视器的问题；逐条审查常驻指令的必要性后，常驻指令更加精简。
+- 所有 git 工作树现在集中放在同一个文件夹中。`nexus-hub worktree` 可以创建、列出、审计工作树，并在你批准后迁移工作树；一个防护钩子会阻止在该文件夹之外执行 `git worktree add`；`nexus-hub worktree prune-merged` 会删除已合并且无改动的工作树（默认只预演，加上 `--apply` 才会真正删除）。
+- 所有平台的指令现在共用同一套进度报告、提问和手动步骤规则；在实施运行期间，进度报告就是最后一条消息。
+- 次版本运行会标出空闲的并行通道，并指明下一步需要派发的任务或需要你做的决定。`nexus-hub upgrade` 在被 Microsoft Defender 拦截的 Windows 电脑上恢复可用，Gemini 用量监视器也能在 Antigravity IDE 1.107 上读取配额。
 
-[版本详情与早期版本](CHANGELOG.md#4150---2026-11-12)
+[版本详情与早期版本](CHANGELOG.md#4156---2026-11-27)
 
 ## 安装
 
@@ -324,6 +324,14 @@ curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.s
 ```
 
 [在训练中查看](guides/website/training.html#update)
+
+#### `/progress`
+
+查看一次运行、一个次版本或单个计划的完整进度报告。它只读取并报告，不做任何更改。旧名称 `/status` 已在 v4.15.5 中移除。
+
+```text
+/progress v4.15
+```
 
 #### `/grill`
 

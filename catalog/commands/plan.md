@@ -68,6 +68,10 @@ Every plan this command generates is challenged before it is presented. The gate
 
 `/plan grill` re-runs this gate on an existing plan. The duties live in `[[implementation-plan]]` Step 4.5, the critique in `[[plan-review]]`, and the interview mechanics in `[[design-interview]]`; this dispatcher states the guarantee and stops there.
 
+## Minor re-plan analysis (guarantee)
+
+After the target version is resolved, `/plan` reads the new plan together with every other plan of that minor through `[[plan-queue-assessment]]` and its bundled `replan_minor.py` (applied in `[[implementation-plan]]` Step 4.7): overlap, redundant tasks, dependencies, merge and split candidates, the wave schedule, and renumbering. Findings are shown as proposals beside the phases table. Nothing is applied without approval, and the prose of an existing member plan is never edited. When `/plan` writes several plans for one minor, each is written parallel-ready: exact-file claims (no directory claim unless that plan creates the directory), its own history and evidence file, an explicit `depends_on` with a concrete file or merge reason for each edge, and shared files (installers, `scripts/ci/profiles.py`, registries) owned by one plan with the others proposing a delta. The analysis then lists any queued plan whose claims block lanes and offers to narrow them. The rule lives in that skill; this dispatcher states the guarantee.
+
 ## Queue-aware planning (guarantee)
 
 Every generated plan records the plans already queued around it. Before decomposition, the enumerated queue is assessed through `[[plan-queue-assessment]]`, and the plan carries a required `## Queued predecessors` section giving a verdict and named evidence per queued plan, or an explicit "No queued predecessors." line. A plan authored against one codebase state is then re-validatable against the later state it actually runs in, rather than being executed as written months after its assumptions stopped holding. The rule lives in that skill; this dispatcher states the guarantee.

@@ -81,6 +81,8 @@ Targeted effort verification on 2026-10-16 supersedes the earlier env-seeding po
 
 **Subagent-model evidence (2026-10-16)**: `CLAUDE_CODE_SUBAGENT_MODEL` accepts aliases or model IDs. [Resolution](https://code.claude.com/docs/en/sub-agents#choose-a-model) is invocation, definition `model` (including `inherit`), environment default, then session model. Environment `inherit` means unset. Explore/Plan require `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`, which overrides definition pins and is deliberately not seeded. [Configured fallback chains](https://code.claude.com/docs/en/model-config#fallback-model-chains) cover some unavailable-model failures; silent session-model inheritance is not promised.
 
+**`instructionFiles` evidence (2026-11-15)**: VERIFIED as a documented lever and deliberately NOT seeded. The ["Project instructions" setting](https://code.claude.com/docs/en/memory#choose-which-instruction-files-load) is stored as `instructionFiles` under `pluginConfigs` in the built-in plugin entry `cc-plugin-agents-md@builtin` (the entry was `agents-md@builtin` before Claude Code v2.1.285, which reads either), with the values `claude-md-or-agents-md` (the default), `claude-md-and-agents-md`, `claude-md`, and `managed-only`. Claude Code reads the entry from `~/.claude/settings.json`, a `--settings` file, or managed settings, and ignores it in project and local settings files, which is why `nexus-hub init` writes it nowhere. The vendor default already matches the behavior Nexus-Hub wants (read `AGENTS.md` when no `CLAUDE.md` exists), so seeding would add a user-owned value for no gain. The capability decision that consumes this lever is recorded in `docs/policy/platform-read-contracts.md` under the 2026-11-15 entry.
+
 **Provenance note worth keeping**: the obvious URL (`docs.claude.com/en/docs/claude-code/settings`) returns a 301 to a different host. The canonical location is `code.claude.com/docs/en/settings`. Recording the redirecting URL would have baked provenance rot into the file on its first day, which is the concrete argument for fetching every URL rather than citing one from memory.
 
 ### codex - VERIFIED
@@ -280,6 +282,30 @@ The current platform discovery pass reuses the genuine October 16 Claude subagen
 ### 2026-10-20 - v4.14.1 release verification
 
 Every lever row was re-fetched from first-party documentation alongside the read-contract pass. All VERIFIED rows MATCH; no key was renamed or removed and no seeded default changes. Antigravity 1.0 remains UI-only (its settings page moved to `docs/settings?tab=ide`). Pi's settings page now shows "Automatic" as the default for `defaultProvider` and `defaultModel`, with the keys unchanged. Nexus-AI's no-lever finding was not re-examined this cycle. This remains an advisory record without a freshness gate.
+
+### 2026-11-27 - v4.15.6 advisory release review
+
+No lever row was re-fetched for 4.15.6; the [release platform verification](../releases/v4/v4.15/development/v4.15.6-platform-verification.md) reuses the v4.15.2 review below. No lever key, seeded default, source record or gating policy changed in this range.
+
+### 2026-11-19 - v4.15.5 advisory release review
+
+No lever row was re-fetched for 4.15.5; the [release platform verification](../releases/v4/v4.15/development/v4.15.5-platform-verification.md) reuses the v4.15.2 review below. No lever key, seeded default, source record or gating policy changed in this range.
+
+### 2026-11-18 - v4.15.4 advisory release review
+
+No lever row was re-fetched for 4.15.4; the [release platform verification](../releases/v4/v4.15/development/v4.15.4-platform-verification.md) reuses the v4.15.2 review below. No lever key, seeded default, source record or gating policy changed in this range.
+
+### 2026-11-17 - v4.15.3 advisory release review
+
+No lever row was re-fetched for 4.15.3; the [release platform verification](../releases/v4/v4.15/development/v4.15.3-platform-verification.md) reuses the same-day v4.15.2 review below. No lever key, seeded default, source record or gating policy changed in this range.
+
+### 2026-11-16 - v4.15.2 advisory release review
+
+Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.2-platform-verification.md): 15 of 17 are unchanged and 2 are additive (Claude `effortLevel` is now mostly saved per model under `modelSettings`, where `maxEffortLevel` `"max"` sets no cap and the seeded `high` stays valid; Pi `defaultThinkingLevel` lists `"off"` to `"max"`). OpenCode `small_model` is documented only as a v1 migration item, and the Hermes `agent.reasoning_effort` and `approvals.mode` keys were not re-read this cycle. No lever key, seeded default, source record or gating policy changed.
+
+### 2026-11-15 - v4.15.1 advisory release review
+
+Every lever row was re-fetched alongside the [release platform verification](../releases/v4/v4.15/development/v4.15.1-platform-verification.md): 16 of 17 are unchanged and 1 is additive (Claude `modelSettings` also takes `maxEffortLevel` and `autoCompactWindow`; the seeded `high` stays valid). The corrected OpenCode row (`model`, `permissions`, `default_agent`) matches the vendor page, closing the v4.15.0 finding. Qwen's `tools.approvalMode` page states default `auto`. No lever key, seeded default, source record or gating policy changed.
 
 ### 2026-11-12 - v4.15.0 advisory release review
 

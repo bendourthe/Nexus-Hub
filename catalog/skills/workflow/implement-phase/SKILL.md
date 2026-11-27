@@ -50,6 +50,7 @@ The runbook defines ten stages; the load-bearing ones:
 Three guarantees, stated here because they change what a reader should expect at the start and end of a plan. The procedure lives in the runbook.
 
 - **A plan runs in its own worktree, not just its own branch.** A branch alone serializes work: a second plan cannot start without switching the single checkout, and switching underneath a running session changes the files it is editing. Mechanics belong to `[[using-git-worktrees]]`; this skill owns only when a worktree is created and how it is named, so the release step can find it. Where worktrees are unavailable, fall back to a branch, say so in one line, and note that parallel plans are off for that session.
+- **An idle lane with an eligible member is a defect the tooling reports.** `lane_health.py check` prints lane capacity and `IDLE LANE DEFECT`; a member that must wait carries a recorded structured blocker (`blocked:waits-merge:<vX.Y.Z>`), and one without it stays in the idle list and in `check-minor`'s `ACTION: dispatch-required`.
 - **Phase 0 automatically dispatches eligible whole plans in a minor run.** [[plan-queue-assessment]] owns compatibility; this skill owns the bounded coordinator loop, native admission, harness-tool dispatch and implementation-ready wait state in the runbook. Workers use the parent minor approval, never standalone `/implement`. If agent tools, verified claims or worktrees are unavailable, report the limitation and run serially.
 - **The final phase reconciles worktree retirement after green merged integration.** Apply the completion contract and cleanup executor, and quote the removal or exact KEEP decision under `## Worktree teardown`. The active-controller and active-worker exception in the completion contract permits deferred cleanup during a minor run; final minor completion still requires its cleanup evidence. Never override KEEP or force-remove a dirty worktree.
 
@@ -59,27 +60,13 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 
 ## Progress reporting
 
-Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. `/status` (and its alias `/update status`) enters those references in read-only mode and never starts this skill's implementation driver.
+Read [references/progress-reporting.md](references/progress-reporting.md) and [references/status-formats.md](references/status-formats.md) at run start or resume. The first owns the footer cadence and the on-demand report, including scope, task percentages, observed worker counts, elapsed time, dependencies, remaining-time ranges and efficiency review; the second owns the layouts. Build every report's snapshot with [scripts/status_snapshot.py](scripts/status_snapshot.py), which measures task counts, elapsed and remaining time from git, so no report shows `unknown`. `/progress` (and its aliases `/update status` and the deprecated `/status`) enters those references in read-only mode and never starts this skill's implementation driver.
 
-## Close every phase with the progress table
+Before ending a turn, use the executable [continuation reconciler](scripts/continuation_state.py) through the controller as specified in [progress-reporting.md](references/progress-reporting.md#continuation-reconciliation). The same state drives compact/full reports and the default typed turn-end adapter; neither a stale native goal marker nor an unchanged status message establishes completion or progress.
 
-A phase boundary ends with a table, before the closing summary, so a reader can
-see where a multi-session plan actually stands without opening the plan file:
+## Shared reporting output
 
-```bash
-python ~/.nexus-hub/scripts/plan_status.py --plan <plan-file>
-```
-
-It prints the plan name, the target version, and every phase with its status and
-task counts. Emit the table whenever a message closes work on a plan, not only
-at the final phase - the point is that progress is visible continuously rather
-than reconstructed at the end.
-
-For the consolidated report, use these generated counts as the source and follow the reporting reference for additional observed fields; emit one table rather than duplicate reports.
-
-The script derives everything from the plan's own headings and checkboxes, so
-the table cannot disagree with the file. Do not hand-write it: a hand-written
-table is a second source of truth that drifts on the first missed tick.
+Use the bundled [scripts/status_report.py](scripts/status_report.py) and the illustrative [references/status-snapshot.json](references/status-snapshot.json) input shape. Resolve their paths from this skill's installed folder on every platform. Obtain task counts from `plan_status.py --plan` and reuse them as snapshot rows; do not print its legacy table alongside the shared report. The reporting reference owns cadence, including phase boundaries, duplicate suppression and resume behavior. The renderer owns exact Markdown output and derives task totals. The communication contract's short waiting banner does not replace an implementation report or cap its required sections.
 
 ## Parallel implementation ownership
 

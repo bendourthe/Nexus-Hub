@@ -25,7 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         7. refactor  - reorganize docs/ and project artifacts to conventions
         8. config    - validate and repair installed platform configs (drift repair)
         9. commit    - generate a structured commit message for the staged changes
-        10. status   - forwarding alias for /status: report implementation progress (read-only)
+        10. status   - forwarding alias for /progress: report implementation progress (read-only)
 
       Reply with a number or a scope name.
 
@@ -36,7 +36,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
-      status    -> /status (forwarding alias; read-only)
+      status    -> /progress (forwarding alias; read-only)
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
       devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
@@ -51,7 +51,7 @@ Pass any remaining arguments through unchanged. Heavy logic stays in the retaine
 
 ## Status scope
 
-`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` forwards to [`/status`](status.md) with the same argument and returns the same report, and does nothing else. No release scope is entered.
+`/update status [vX.Y|vX.Y.Z|plan-path|plan-slug]` forwards to [`/progress`](progress.md) with the same argument and returns the same report, and does nothing else. No release scope is entered.
 
 ## docs scope (feature-level sync, not just counts)
 
@@ -146,7 +146,15 @@ Once the release is on `develop` and its checks are green, retire the branches a
 
     Each line is `REMOVE <item>` or `KEEP <item> <check>`. The checks, and why each exists, are in `docs/decisions/proposed/policy/2026-09-28-verified-merged-and-idle-cleanup.md`. The dry run makes network calls (`git ls-remote` and the user's own authenticated `gh`); offline, every item is kept. A branch merged without a pull request is never a candidate, so it stays and is removed by hand if wanted.
 2. **Apply only under an approval.** Under a run record that carries `cleanup-merged`, run `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --plan <plan> --session <id>` (or `--minor vX.Y`), which also writes the final-pass receipt the completion contract reads. With no record, show the dry-run output and ask for an explicit confirmation before running `--apply`; a reply that does not confirm removes nothing. Quote the apply output. A `KEEP` line is never overridden by hand: the item stays and is reported, and `-D`, `--force`, and `worktree remove --force` are never used.
-3. **Exit 3** (`BLOCKED: cleanup-running` or `BLOCKED: approval-not-covered`) stops the release cleanup and is reported; exit 1 means at least one `KEEP <item> removal-failed <reason>` line, which is reported with its partial state while the release continues.
+3. **Prune merged worktrees by history.** `cleanup_merged.py` keeps every worktree whose branch has no merged pull request with the same head (a detached worktree, a branch merged locally, a branch that moved after its merge), so it leaves most finished worktrees behind. Run the history-based pass beside it, for the repository's linked worktrees only:
+
+    ```bash
+    nexus-hub worktree prune-merged --repo . --fetch --integration-branch develop
+    nexus-hub worktree prune-merged --repo . --integration-branch develop --apply
+    ```
+
+    The first command is the dry run: it prints `path | branch | merged | clean | action | reason` per worktree and a summary line, and removes nothing; quote it. The second removes a worktree and its local branch only when its head is already in `origin/develop` or `origin/main` (as an ancestor, or because a squash or rebase already holds every change), the worktree has no modified, staged, untracked or non-regenerable ignored files, no stash entry made on its branch, is not locked, is not the current directory of a live process, and has been idle for 24 hours. It never forces, never touches the primary checkout, never removes `develop` or `main`, and never deletes a branch whose ref moved since it was checked. This is routine housekeeping covered by the release request, so it needs no separate approval: a dirty or unmerged worktree is reported with its reason and stays. Run the same command at the end of a plan's integration merge with `--only <worktree path or branch>` for the plan's own worktrees, which skips the idle window for the named ones. Exit 3 means at least one removal was refused; the reason is in the table.
+4. **Exit 3** (`BLOCKED: cleanup-running` or `BLOCKED: approval-not-covered`) stops the release cleanup and is reported; exit 1 means at least one `KEEP <item> removal-failed <reason>` line, which is reported with its partial state while the release continues.
 
 Ordering matters here too. Cleaning before the tag means the tagged tree reflects the repository a user will actually clone, and it means stale worktrees never accumulate across releases. Ten shipped releases that each skip this leave ten orphaned checkouts, each pinning objects and each indistinguishable from the real repository at a glance.
 
@@ -214,6 +222,7 @@ Advisory only, exit 0 regardless. Three reports:
 After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.Z` tag so the repo's Releases page (and the "latest release" badge / sidebar) tracks the tag. **Pushing a git tag does NOT create a GitHub Release** -- they are separate objects -- so omitting this step silently leaves the Releases page behind the tags (the exact drift that left the page at v3.5.0 while the v3.6.0 and v3.7.0 tags already existed). This step runs last because it requires the tag to be on the remote first.
 
 - **Body = the finalized CHANGELOG section.** Use the `## [X.Y.Z]` block just written to `CHANGELOG.md` as the release notes, and reuse the tag annotation's one-line summary for the title (`vX.Y.Z - <summary>`).
+- **Captured release6 body.** When the fixed v4.15 `.6-release-notes` supplement applies, run its guarded `prepare-release-notes` operation before first creation and again immediately before using the returned artifact. Require its exact captured body digest and deterministic path, then supply that verified artifact to the ordinary `v4.15.6` release creation under the separate original release class and all normal gates. Preparation requires no existing release and creates no tag, version or GitHub object. A changed body/path or mismatching existing artifact refuses. After publication, its `release-notes` operation verifies the published body read-only; it does not authorize overwriting later owner edits. See the completion contract's "Fixed v4.15 authority supplements".
 - **Prefer `gh`, degrade gracefully (never fail the release).** If the GitHub CLI is present and authenticated (`gh auth status` succeeds), run `gh release create "vX.Y.Z" --title "vX.Y.Z - <summary>" --notes-file <file-holding-the-changelog-section>`. If `gh` is absent or unauthenticated, do NOT fail or roll back -- the tag and push already succeeded, so the Release can be published at any later time. Print the exact commands for the user to run: the `gh release create ...` form, plus a no-`gh` fallback (`curl -X POST -H "Authorization: Bearer <token>" https://api.github.com/repos/<owner>/<repo>/releases -d '{"tag_name":"vX.Y.Z","name":"vX.Y.Z - <summary>","body":"<notes>"}'`).
 - **Idempotent.** If a Release for `vX.Y.Z` already exists, update it in place (`gh release edit "vX.Y.Z" --title ... --notes-file ...`) instead of erroring.
 - **Authorization check.** Verify the matching release authority through the completion contract before creating or editing the GitHub Release. A covered publication proceeds under the original approval without a second prompt; an uncovered action uses the contract's concise manual decision.

@@ -2,21 +2,21 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.0 -->
+<!-- nexus-hub-version: 4.15.6 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
-**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 37 registered hooks, and 23 agents.
+**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 40 registered hooks, and 23 agents.
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.0
+## What's New in v4.15.6
 
-- Usage alert switches in Settings, per provider or all at once, and usage warnings that close after 10 seconds.
-- Nexus-Hub Settings installs into every detected VS Code, Cursor, and Antigravity editor and applies shared effort and speed defaults once, without overwriting session choices.
-- Cursor and Gemini usage monitor fixes, and leaner standing instructions after a rule-by-rule necessity review.
+- Every git worktree now lives in one central folder. `nexus-hub worktree` creates, lists, audits and (after your approval) migrates worktrees, a guard blocks `git worktree add` outside that folder, and `nexus-hub worktree prune-merged` removes merged, clean worktrees (a dry run unless you add `--apply`).
+- Every platform's instructions now share the same progress-report, question and manual-step rules, and during an implementation run the progress report is the closing message.
+- Minor runs flag idle lanes and name the next dispatch or decision. `nexus-hub upgrade` works again on Windows machines where Microsoft Defender blocked it, and the Gemini Usage Monitor reads quotas on Antigravity IDE 1.107.
 
-[Release details and earlier versions](CHANGELOG.md#4150---2026-11-12)
+[Release details and earlier versions](CHANGELOG.md#4156---2026-11-27)
 
 ## Installation
 
@@ -332,6 +332,14 @@ Check progress, sync the repo, or run the release flow.
 ```
 
 [See it in Training](guides/website/training.html#update)
+
+#### `/progress`
+
+Show the full progress report for a run, a minor, or one plan. It only reads and reports. The old name `/status` was removed in v4.15.5.
+
+```text
+/progress v4.15
+```
 
 #### `/grill`
 

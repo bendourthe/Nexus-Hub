@@ -24,6 +24,79 @@ from types import SimpleNamespace
 
 import pytest
 
+
+@pytest.mark.parametrize("heading", ["# [0.2.0]", "## [0.2.0] - 2026-10-31", "# [0.2.0](https://example.invalid/release) (2026-10-31)"])
+def test_changelog_supported_headings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, heading: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_text(heading + "\n", encoding="utf-8")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "met"
+
+
+@pytest.mark.parametrize("body", ["# [0.2.01]\n", "## [0.2.0oops]\n", "### [0.2.0]\n", "```md\n## [0.2.0]\n```\n", "~~~\n# [0.2.0]\n~~~\n", "## [0.2.0](broken\n", "## [0.2.0]suffix\n"])
+def test_changelog_rejects_nonrelease_headings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, body: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_text(body, encoding="utf-8")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "unmet"
+
+
+def test_changelog_invalid_utf8_is_unverifiable(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    (tmp_path / "CHANGELOG.md").write_bytes(b"## [0.2.0]\n\xff")
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) == "cannot-verify"
+
+
+@pytest.mark.parametrize("change", ["replace", "remove"])
+def test_changelog_concurrent_change_is_not_verified(tmp_path: Path, monkeypatch, change: str) -> None:
+    import importlib.util
+    from types import SimpleNamespace
+
+    spec = importlib.util.spec_from_file_location("changelog_checker", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    changelog = tmp_path / "CHANGELOG.md"
+    changelog.write_text("## [0.2.0]\n", encoding="utf-8")
+    original_read = Path.read_text
+
+    def changed_after_read(path, *args, **kwargs):
+        text = original_read(path, *args, **kwargs)
+        if path == changelog:
+            if change == "replace":
+                replacement = tmp_path / "replacement.md"
+                replacement.write_text("## [9.9.9]\n", encoding="utf-8")
+                replacement.replace(changelog)
+            else:
+                changelog.unlink()
+        return text
+
+    monkeypatch.setattr(Path, "read_text", changed_after_read)
+    assert module._changelog_status(SimpleNamespace(root=tmp_path, version="v0.2.0")) != "met"
+
+
+@pytest.mark.parametrize("heading, expected", [("# [0.2.0]", "met"), ("## [0.2.0](https://example.invalid/release) - 2026-10-31", "met"), ("```\n## [0.2.0]\n```", "unmet")])
+def test_changelog_compatibility_through_cli(complete, heading: str, expected: str) -> None:
+    complete.write("CHANGELOG.md", heading + "\n")
+    result = complete.check()
+    assert f"release.changelog {expected}" in result.stdout, result.stdout + result.stderr
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
@@ -1246,6 +1319,18 @@ def test_task_needs_a_commit_touching_its_path(tmp_path: Path) -> None:
     assert "task.T001 met" in result.stdout
 
 
+def test_a_task_range_summary_line_is_not_read_as_a_task(tmp_path: Path) -> None:
+    # A phase-closing summary such as "- [x] T001-T002 complete" names a range, not a
+    # task. Read as a task it became a pathless duplicate of T001 that overrode the
+    # real line and could never be met.
+    summary = "- [x] T001-T002 complete with observed results\n"
+    fx = _build(tmp_path, plan=PLAN + "\n" + summary)
+    result = fx.check()
+    assert "task.T001 met" in result.stdout
+    assert "task.T002 met" in result.stdout
+    assert "task.T001 unmet" not in result.stdout
+
+
 def test_a_task_counts_work_on_a_path_its_branch_later_moved(tmp_path: Path) -> None:
     # A decision record written on a branch and then promoted (moved) leaves no file at
     # the task's path. Without --full-history, git log follows the merge's first parent,
@@ -1980,3 +2065,81 @@ def test_a_git_planted_in_the_working_directory_is_never_resolved(
     monkeypatch.delenv("NoDefaultCurrentDirectoryInExePath", raising=False)
     found = module.absolute_tool("git", None)
     assert found is None or Path(found).resolve().parent != tmp_path.resolve(), found
+
+
+
+# ---------------------------------------------------------------- record rekey (BG-11)
+
+ARCHIVED_REL = "docs/archives/v0/v0.2/plans/v0.2.0-demo.md"
+CROSS_LINK = "See [notes](../../v0.3/notes.md).\n"
+
+
+def _archived_after_cleanup(tmp_path: Path, *, keep_root: bool = False) -> Fixture:
+    """A signed record whose worktree is gone and whose plan the minor's archive moved."""
+    fx = _build(tmp_path, plan=PLAN + CROSS_LINK)
+    if not keep_root:
+        fx.edit_record(repo_root=str(tmp_path / "removed-worktree"))
+    (fx.work / "docs/archives/v0").mkdir(parents=True)
+    _git(fx.work, "mv", "docs/releases/v0/v0.2", "docs/archives/v0/v0.2")
+    archived = fx.work / ARCHIVED_REL
+    text = archived.read_text(encoding="utf-8")
+    assert text.count("](../../v0.3/notes.md)") == 1
+    archived.write_text(text.replace("](../../v0.3/notes.md)", "](../../../../releases/v0/v0.3/notes.md)"), encoding="utf-8")
+    _git(fx.work, "add", "-A")
+    _git(fx.work, "commit", "-q", "-m", "archive the minor")
+    return fx
+
+
+def _records(fx: Fixture) -> list[Path]:
+    return [p for p in fx.runs.glob("*.json") if not p.name.endswith(".gate.json")]
+
+
+def test_rekey_moves_a_removed_worktree_record_onto_the_archived_plan(tmp_path: Path) -> None:
+    fx = _archived_after_cleanup(tmp_path)
+    before = _records(fx)
+    assert len(before) == 1 and fx.run("record", "path", ARCHIVED_REL).returncode == 1
+    original = json.loads(before[0].read_text(encoding="utf-8"))
+
+    dry = fx.run("record", "rekey", ARCHIVED_REL, "--session", SESSION)
+    assert dry.returncode == 0, dry.stdout + dry.stderr
+    assert "DRY RUN" in dry.stdout and _records(fx) == before
+    other = fx.run("record", "rekey", ARCHIVED_REL, "--session", "another-session")
+    assert other.stdout.strip() == "REFUSED: record-missing" and _records(fx) == before
+
+    applied = fx.run("record", "rekey", ARCHIVED_REL, "--session", SESSION, "--apply")
+    assert applied.returncode == 0, applied.stdout + applied.stderr
+    assert applied.stdout.splitlines()[-1] == "REKEYED"
+    found = fx.run("record", "path", ARCHIVED_REL)
+    assert found.returncode == 0, found.stdout
+    after = _records(fx)
+    assert len(after) == 1 and after[0] != before[0] and Path(found.stdout.strip()) == after[0]
+    moved = json.loads(after[0].read_text(encoding="utf-8"))
+    assert moved["plan"] == ARCHIVED_REL
+    assert Path(moved["repo_root"]).resolve() == fx.work.resolve()
+    assert moved["rekeys"][0]["from_plan"] == PLAN_REL
+    assert {k: moved[k] for k in original if k not in ("repo_root", "plan")} == {
+        k: original[k] for k in original if k not in ("repo_root", "plan")
+    }
+    assert "record-tampered" not in fx.run("check", ARCHIVED_REL, "--session", SESSION).stdout
+
+
+def test_rekey_refuses_an_archived_plan_edited_beyond_its_link_repairs(tmp_path: Path) -> None:
+    fx = _archived_after_cleanup(tmp_path)
+    archived = fx.work / ARCHIVED_REL
+    archived.write_text(archived.read_text(encoding="utf-8") + "An extra instruction.\n", encoding="utf-8")
+    _git(fx.work, "commit", "-qam", "edit the archived plan")
+    before = _records(fx)
+    result = fx.run("record", "rekey", ARCHIVED_REL, "--session", SESSION, "--apply")
+    assert result.stdout.strip() == "BLOCKED: record-tampered", result.stdout + result.stderr
+    assert _records(fx) == before
+
+
+def test_rekey_refuses_while_the_recorded_root_still_exists(tmp_path: Path) -> None:
+    fx = _archived_after_cleanup(tmp_path, keep_root=True)
+    result = fx.run("record", "rekey", ARCHIVED_REL, "--session", SESSION, "--apply")
+    assert result.stdout.strip() == "REFUSED: record-root-present", result.stdout + result.stderr
+
+
+def test_rekey_refuses_a_plan_outside_the_archive(complete: Fixture) -> None:
+    result = complete.run("record", "rekey", PLAN_REL, "--session", SESSION)
+    assert result.stdout.strip() == "REFUSED: plan-not-archived", result.stdout + result.stderr

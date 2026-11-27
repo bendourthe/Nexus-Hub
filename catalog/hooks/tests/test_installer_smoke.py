@@ -692,6 +692,9 @@ DEV_ONLY_SCRIPTS = {
     # scripts/lib/installer/ module plus its committed fingerprint set.
     "build_legacy_fingerprints.py",
     "measure_rendered_context.py",
+    # v4.15.2: the serial local harness-pairing evaluator is maintainer tooling;
+    # distribution is deferred until usage evidence shows a downstream need.
+    "evaluate_harness_pairings.py",
     # v4.14.7: the obsolete-layout fingerprint builder also walks git history;
     # users get its committed set under scripts/lib/installer/.
     "build_legacy_layout_fingerprints.py",

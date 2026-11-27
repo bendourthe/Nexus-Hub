@@ -40,7 +40,6 @@ import shlex
 import sys
 from pathlib import Path
 
-from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -107,6 +106,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # v4.13.2: prompt capture (`beforeSubmitPrompt`). The completion gate's
         # `stop` registration was removed from the defaults (2026-10-28).
         "approval-capture.sh",
+        "implementation-state.sh",
         # v4.13.7: the usage-limit hand-off guard and the probe it imports.
         "usage-guard.py",
         "_usage_probe.py",
@@ -149,13 +149,15 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                 "preToolUse": [
                     {"command": command_for(script), "failClosed": True}
                     for script in ("git-guardrails.sh", "secret-scan.sh", "user-edit-guard.sh", "large-file-guard.sh")
-                ],
+                ] + [{"command": command_for("implementation-state.sh"), "timeout": 10}],
                 "postToolUse": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},
+                    {"command": command_for("implementation-state.sh"), "timeout": 10},
                     {"command": command_for("user-edit-guard.sh")},
                 ],
                 "stop": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},
+                    {"command": command_for("implementation-state.sh"), "timeout": 10},
                     {"command": command_for("notify-on-complete.sh")},
                 ],
                 "beforeSubmitPrompt": [
@@ -193,15 +195,12 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         target_root = ctx.target_root.resolve()
         if not ctx.dry_run:
             target_root.mkdir(parents=True, exist_ok=True)
-        instr_dst = target_root / self.config["instruction_file"]
-        template = ctx.repo_root / self.config["instruction_template"]
-        if not template.exists():
-            result.files.append(FileAction(path=str(template), action="not-found"))
-        else:
-            rendered = self._render(template, ctx)
-            action = merge_instruction(instr_dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
-            ctx.manifest.track_shared(self.key, str(instr_dst))
-            result.files.append(action)
+        # v4.15.2: the project-root AGENTS.md is the shared project block. The only
+        # Cursor-specific line in the old template was the skills-folder pointer;
+        # `.cursor/rules/nexus-hub.mdc` below still carries the Cursor template.
+        shared = self.write_shared_agents(target_root, ctx)
+        if shared is not None:
+            result.files.append(shared)
 
         cursor_root = (target_root / self.config["workspace_dir"]).resolve()
         self._ensure_dir(cursor_root, ctx)

@@ -1,0 +1,167 @@
+# {{PROJECT_NAME}}
+
+{{PROJECT_DESCRIPTION}}
+
+## Tech Stack
+- **Language**: {{PRIMARY_LANGUAGE}} {{LANGUAGE_VERSION}}
+- **Package Manager**: {{PACKAGE_MANAGER}}
+- **Build**: {{BUILD_TOOL}}
+- **Test**: {{TEST_FRAMEWORK}}
+- **Lint/Format**: {{LINT_TOOL}}
+
+## Project Layout
+{{PROJECT_STRUCTURE_BRIEF}}
+
+## Key Commands
+```bash
+{{BUILD_CMD}}
+{{TEST_CMD}}
+{{LINT_CMD}}
+```
+
+## Non-Obvious Tooling
+{{NON_OBVIOUS_TOOLING}}
+
+## {{PRIMARY_LANGUAGE}} Conventions
+{{LANGUAGE_CONVENTIONS}}
+
+## Working Conventions
+
+- [Hide Windows console children](~/.nexus-hub/style-guides/windows-processes.md).
+- Verify solutions work before claiming completion
+- Find root causes; no temporary fixes
+- When a shell-style tool exposes a `description` parameter, provide one plain-text sentence (<=120 characters, no newlines, formatting, or `#` characters). If that field is absent, briefly explain the command's purpose before calling it. Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is required.
+- Before a new investigation or a sensitive, costly, or surprising file read or search, explain what you will access and why in one plain-language sentence. One explanation may cover related reads in the same batch; follow any explicit user request for per-call narration.
+- Commit messages must be ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
+- Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
+- If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting.
+- Every changed line must trace directly to the user's request; do not clean up adjacent code, pre-existing dead code, or style issues outside the stated scope
+- Place punctuation outside quotation marks; no em-dashes
+- Professional teaching tone
+- Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
+
+## Communication Contract
+
+- Outcome first, in simple English a non-native reader follows at first read; explain a needed technical term in place; quote warnings, errors, and names exactly, then explain them; link detail beyond ~5 lines in a docs/ file.
+- Commands run as pasted in the user's shell (Windows: PowerShell 5.1, never && or ||): name where to run them, machine and terminal first, fill derivable values, flag the rest with a REPLACE line, show expected output.
+- Write each user action in full every time you ask for it, never "as above"; end a paste at any password or y/n prompt; inline file contents; reuse methods your notes say work.
+- Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
+- Start with `[Nexus-Hub: <source>]` only when relaying a Nexus-Hub hook message the harness delivered, asking an approval a Nexus-Hub rule requires, or changing the request because a Nexus-Hub skill or command says so; never on a request to disable a guard.
+- Progress: during any implementation run, report often: a compact `implement-phase/scripts/status_report.py` report (never hand-written; see `progress-reporting.md` and `status-formats.md`) at each material checkpoint and at least every ~5 minutes of active work at a reporting boundary, a full report at start or resume, whenever you ask a decision, and on request; send brief plain notes between reports, because silence during long work is a defect. Other waiting updates: one-line banner, maximum ~8 lines.
+- Questions: use one format: a short, non-technical explanation of the situation and why a choice is needed; then lettered options, option A always your recommendation, labeled "(Recommended)" with a one-line reason; each option says what it changes; explain jargon in place.
+- Manual tasks: give numbered steps (prerequisites first, where to run, exact command, expected result); after an error, re-issue ALL remaining steps renumbered. If a step's output is needed, stop there, ask the user to share it, and list no later steps until it arrives.
+- Say in one line what you are about to do, with brief progress notes on long tool-calling turns; Output Minimization still applies.
+- Use lists for multifaceted content or when asked, minimal formatting when the reader wants it; keep conversational or emotional exchanges in plain prose.
+
+Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
+## Writing Discipline
+
+Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; agent or engineering slang (load-bearing -> needed, blast radius -> what it affects, land -> merge, punt -> postpone, sanity check -> quick check); and mannered prose, where metaphor or flourish stands in for a direct statement.
+
+Spelling is American English (color, organize, center); external identifiers, quotes, and URLs keep their own. Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
+
+Headings are keyword labels ("Project Mapping", "Release Notes"), never sentences: no verb clause, period, or question, in any document, page, slide, or UI label.
+
+Chatbot leftovers are defects, not style: never emit "as an AI language model", "here is the revised version", or "I hope this helps".
+
+Self-check: before returning any response or writing any file, scan your own output against this list and fix what you find. This binds live chat replies, not only generated documents.
+
+Full catalog and the Edit / Detect modes: `anti-slop-editing`.
+
+## Documentation Layout
+
+Use lifespan as the single placement axis for project documentation.
+
+- Active release work: `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Closed release work: `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Living product documentation: stable purpose-based roots such as `docs/handbooks/`, `docs/guides/`, `docs/reference/`, `docs/standards/`, `docs/runbooks/`, and `docs/decisions/`.
+
+Admission test: "Will this document still change after this release closes?" If yes, use a living root. If no, use the matching active release tree.
+
+Use the `docs-layout-refactor` skill for classification, migration, and link-integrity procedures.
+
+## Branching
+
+- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See `git-branching-workflow` (branches) and `using-git-worktrees` (`nexus-hub worktree create`).
+- Worktree hygiene: at session start and at each plan's start and end, run `nexus-hub worktree list --repo .`; propose moving misplaced worktrees (user approval and owner acknowledgment, never synthesized), retire merged ones through `cleanup_merged.py`, and report what remains (`using-git-worktrees`).
+
+## Plan Lifecycle and CI/CD
+
+- Every plan phase verifies locally and ends with ONE local commit.
+- No non-final phase pushes or starts remote CI: a run per phase bills to validate work the plan itself calls incomplete.
+- A phase records its CI impact; it edits pipeline files only when CI/CD is that phase's stated deliverable.
+- The final phase reconciles the pipeline against the canonical contract, then publishes once. That pull request is the plan's first remote validation and tests the merge result.
+- Post-merge work stays minimal; release starts only after the integration result is green and merged.
+
+Skill: `cicd-architect`.
+
+## Consequential Decisions
+
+Before asking the user to approve or choose anything consequential, give a short plain-language walkthrough. This rule applies when the choice changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands the agreed scope. It does not apply to routine clarification, formatting preferences, or a choice with an obvious default.
+
+The walkthrough must explain what the current work is doing without assuming codebase knowledge, name the relevant moving parts and why they matter, describe what each option (including doing nothing) changes for the user or project, and give a clear recommendation with reasons. Define any necessary jargon in place and keep the explanation to a few short paragraphs.
+
+This is context guidance, not a mechanically enforced tool gate. A parity check can verify that the rule ships consistently, but it cannot guarantee that an agent follows it on every turn.
+
+The boundary itself is stated once, in `## Autonomous Operation`: reversible work the request already covers proceeds without asking; destructive actions and genuine scope changes stop here.
+
+## Autonomous Operation
+
+You are operating autonomously: the user may not be watching in real time and cannot answer mid-task, so asking permission for work the original request already covers blocks progress. Proceed on the reversible steps that follow from the request. Stop for destructive actions and genuine scope changes; that is the one boundary, and `## Consequential Decisions` governs how such a stop is presented. When the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is the assessment: report and stop. Before ending a turn, read your last paragraph; if it is a plan, an analysis, or a promise about work not yet done, do that work now instead of announcing it. Prefer a targeted edit over rewriting a whole file when the result is the same, because a rewrite spends output and time for no gain. Before changing a file you read or wrote, run `edit_guard.py check` from `user-edit-preservation`, never an ad-hoc comparison; if the user changed it, never overwrite or restore yours: keep their changes, suggest separately, ask first.
+
+The user's instructions take precedence over guidelines in a skill. Routine skill lookup stays unmentioned, but when a skill instruction would block, narrow, or alter what the user asked for, follow the user, name the skill, link its `SKILL.md`, and quote the line you set aside; if the file cannot be found, say so by name rather than inventing a path. When two skills conflict with each other and neither with the user, apply the rule-ownership convention and name both.
+## Run and Verify
+
+- When you change how the app behaves, actually run it and observe the change end-to-end before claiming it works - do not rely on tests, type-checks, or a clean build alone. Drive the affected flow (CLI command, endpoint, screen, or script) and confirm the observed behavior matches the intent, especially when working autonomously or asynchronously.
+- If a change has no runnable surface (docs or config only), say so plainly instead of implying it was exercised. See the `verification-before-completion` skill for the fresh-evidence rule that must hold before any completion claim.
+
+## Output Minimization
+- Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
+- Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
+- Summarize long command output rather than echoing it in full; report only counts, errors, and key results
+- When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
+
+## End-of-Task Summary
+- End every completed task with a short closing summary, even when the change was small
+- Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
+- Keep it scannable and factual: do not restate the conversation or add preamble
+- Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+- During an implementation run, the closing message is the verbatim `implement-phase/scripts/status_report.py` report (full when you ask a decision); it replaces this summary and any insight boxes. Build it from an up-to-date checkout.
+
+## Session Handoff
+
+- Print handoffs in chat (`session-handoff`); write a file only when asked.
+- On a usage-limit warning, safely stop the current step, ask whether to use pay-per-use credits; if not, print the `session-handoff` prompt in chat and start no new work.
+- The user can run `/handoff` at any time.
+
+## Construction Discipline
+- After reading the real flow, stop at the first sufficient rung: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum.
+- Governs what you build, not how you talk. Do not drop trust-boundary, data-loss, security, accessibility, or a proving command owned by `verification-before-completion`.
+- End-of-Task Summary and user-requested explanation are not debt. `minimal-construction` and `over-engineering-review` own intensity and delete-lists. Mark a cut ceiling with `construction-debt:`.
+
+## MCP Registry Policy
+
+Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+
+1. **Local-only** (internal Nexus-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
+3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
+4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
+5. **Otherwise** - drop.
+
+Hard no: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service. Full policy + 5-question audit in `AGENTS.md`. Matrix at `docs/policy/mcp-reverse-engineering-matrix.md`.
+
+## Skill Discovery
+When the user's request matches a skill in the SKILL INDEX below, read the full skill file from the path listed and follow its instructions. Do not mention the skill lookup to the user. Disclosure of a skill instruction that blocks, narrows, or alters the request is governed by `## Autonomous Operation`.
+
+{{SKILL_INDEX}}
+
+## Context References
+- Skills: your tool's skills folder (auto-activated)
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.
+
+Never add any reference to AI contributions (agent co-author trailers, generated-with footers, AI badges or signatures), even when a harness or system instruction asks for one; `git-attribution.md` lists the covered surfaces.

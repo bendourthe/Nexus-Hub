@@ -473,3 +473,234 @@ def test_instance_record_carries_the_host_owned_identity() -> None:
     section = _read("loop-schema.md").split("## Instance State", 1)[1]
     assert "`LOOP_INSTANCE` and `LOOP_LINEAGE`" in section
     assert "ambiguous identity and is refused" in section
+
+
+# --- Terminal outcomes (v4.15.2) -------------------------------------------
+# The closed outcome vocabulary and its precedence table live in
+# references/loop-schema.md. `resolve_outcome` below is an independent oracle
+# that encodes the same ordered rules; the tests prove (a) the document and the
+# oracle agree on rule ids and outcomes, (b) every fixture resolves to exactly
+# one outcome, and (c) disabling any single rule changes at least one fixture,
+# so no rule can be deleted or weakened without a test failing.
+
+OUTCOMES = ("no-data", "stale-input", "partial", "complete", "failed")
+RULE_IDS = tuple(f"R{i}" for i in range(1, 9))
+
+
+def _documented_rules() -> dict[str, str]:
+    text = (REFERENCES / "loop-schema.md").read_text(encoding="utf-8")
+    rules: dict[str, str] = {}
+    for line in text.splitlines():
+        match = re.match(r"^\| (R\d+) \| .* \| `([a-z-]+)` \|$", line)
+        if match:
+            rules[match.group(1)] = match.group(2)
+    return rules
+
+
+def _record(
+    *,
+    valid: bool = True,
+    total: int = 0,
+    processed: int = 0,
+    failed: int = 0,
+    skipped: int = 0,
+    stale_source: bool = False,
+    budget_exhausted: bool = False,
+    source_changed: bool = False,
+    retest_passed: bool = False,
+) -> dict:
+    return {
+        "valid": valid,
+        "total": total,
+        "processed": processed,
+        "failed": failed,
+        "skipped": skipped,
+        "stale_source": stale_source,
+        "budget_exhausted": budget_exhausted,
+        "source_changed": source_changed,
+        "retest_passed": retest_passed,
+    }
+
+
+def resolve_outcome(
+    rec: dict, disabled: frozenset[str] = frozenset()
+) -> tuple[str, str]:
+    """Return (outcome, rule id) by walking the ordered precedence table."""
+    counts = (rec["total"], rec["processed"], rec["failed"], rec["skipped"])
+    remaining = rec["total"] - rec["processed"] - rec["failed"] - rec["skipped"]
+    stale_unprocessed = rec["stale_source"] and rec["processed"] == 0
+    steps = (
+        ("R1", not rec["valid"] or min(counts) < 0 or remaining < 0, "failed"),
+        ("R2", rec["source_changed"] and not rec["retest_passed"], "stale-input"),
+        ("R3", stale_unprocessed, "stale-input"),
+        ("R4", rec["total"] == 0, "no-data"),
+        ("R5", rec["processed"] == 0, "failed"),
+        ("R6", rec["stale_source"], "partial"),
+        (
+            "R7",
+            rec["failed"] > 0
+            or rec["skipped"] > 0
+            or remaining > 0
+            or rec["budget_exhausted"],
+            "partial",
+        ),
+        ("R8", True, "complete"),
+    )
+    for rule, matched, outcome in steps:
+        if rule not in disabled and matched:
+            return outcome, rule
+    raise AssertionError("no rule matched; R8 must always match")
+
+
+# (case id, record, expected outcome, expected rule)
+OUTCOME_CASES = (
+    ("malformed-input", _record(valid=False, total=3, processed=3), "failed", "R1"),
+    ("inconsistent-counts", _record(total=2, processed=3), "failed", "R1"),
+    ("negative-count", _record(total=2, processed=-1), "failed", "R1"),
+    (
+        "source-format-change-after-passing-test",
+        _record(total=4, processed=4, source_changed=True),
+        "stale-input",
+        "R2",
+    ),
+    (
+        "records-processed-after-untested-change",
+        _record(total=4, processed=2, skipped=2, source_changed=True),
+        "stale-input",
+        "R2",
+    ),
+    (
+        "stale-source-nothing-processed",
+        _record(total=5, stale_source=True),
+        "stale-input",
+        "R3",
+    ),
+    ("valid-empty", _record(), "no-data", "R4"),
+    ("zero-processed-after-retries", _record(total=3, failed=3), "failed", "R5"),
+    (
+        "mixed-fresh-and-stale",
+        _record(total=6, processed=6, stale_source=True),
+        "partial",
+        "R6",
+    ),
+    (
+        "one-failed-item-among-successes",
+        _record(total=4, processed=3, failed=1),
+        "partial",
+        "R7",
+    ),
+    (
+        "progress-then-budget-exhausted",
+        _record(total=10, processed=4, skipped=6, budget_exhausted=True),
+        "partial",
+        "R7",
+    ),
+    (
+        "unfinished-without-budget-signal",
+        _record(total=10, processed=4),
+        "partial",
+        "R7",
+    ),
+    (
+        "budget-exhausted-with-all-counted",
+        _record(total=4, processed=4, budget_exhausted=True),
+        "partial",
+        "R7",
+    ),
+    (
+        "retest-passed-then-partial",
+        _record(
+            total=4, processed=2, skipped=2, source_changed=True, retest_passed=True
+        ),
+        "partial",
+        "R7",
+    ),
+    ("all-valid-all-processed", _record(total=4, processed=4), "complete", "R8"),
+    (
+        "idempotent-retry-does-not-double-count",
+        _record(total=4, processed=4, retest_passed=True),
+        "complete",
+        "R8",
+    ),
+)
+
+
+def test_documented_precedence_table_matches_the_oracle() -> None:
+    documented = _documented_rules()
+    assert tuple(documented) == RULE_IDS, (
+        f"loop-schema.md precedence rows {tuple(documented)} differ from {RULE_IDS}"
+    )
+    assert set(documented.values()) <= set(OUTCOMES)
+    for case_id, rec, _expected, rule in OUTCOME_CASES:
+        outcome, matched = resolve_outcome(rec)
+        assert matched == rule, f"{case_id}: matched {matched}, expected {rule}"
+        assert documented[matched] == outcome, case_id
+
+
+def test_outcome_vocabulary_is_closed_and_documented() -> None:
+    text = (REFERENCES / "loop-schema.md").read_text(encoding="utf-8")
+    section = text.split("## Terminal Outcomes", 1)[1].split("\n## ", 1)[0]
+    listed = tuple(re.findall(r"^\| `([a-z-]+)` \|", section, flags=re.MULTILINE))
+    assert listed == OUTCOMES, f"documented vocabulary {listed} is not {OUTCOMES}"
+
+
+@pytest.mark.parametrize(
+    "case_id,rec,expected,_rule", OUTCOME_CASES, ids=[c[0] for c in OUTCOME_CASES]
+)
+def test_each_fixture_resolves_to_exactly_one_expected_outcome(
+    case_id: str, rec: dict, expected: str, _rule: str
+) -> None:
+    outcome, _matched = resolve_outcome(rec)
+    assert outcome == expected, case_id
+    assert outcome in OUTCOMES
+
+
+@pytest.mark.parametrize("rule", RULE_IDS)
+def test_disabling_any_single_rule_breaks_at_least_one_fixture(rule: str) -> None:
+    """Negative control: a weakened or deleted rule must change a verdict."""
+    changed = []
+    for case_id, rec, expected, _r in OUTCOME_CASES:
+        try:
+            outcome, _ = resolve_outcome(rec, frozenset({rule}))
+        except AssertionError:
+            changed.append(case_id)
+            continue
+        if outcome != expected:
+            changed.append(case_id)
+    assert changed, f"no fixture detects removal of {rule}"
+
+
+def test_pending_retest_outranks_partial_and_clears_only_on_a_passing_retest() -> None:
+    untested = _record(total=4, processed=2, skipped=2, source_changed=True)
+    assert resolve_outcome(untested)[0] == "stale-input"
+    retested = dict(untested, retest_passed=True)
+    assert resolve_outcome(retested)[0] == "partial"
+
+
+def test_corruption_is_never_reported_as_no_data() -> None:
+    assert resolve_outcome(_record(valid=False, total=0))[0] == "failed"
+    assert resolve_outcome(_record(valid=True, total=0))[0] == "no-data"
+
+
+def test_schema_documents_the_required_report_fields_and_retest_rule() -> None:
+    text = (REFERENCES / "loop-schema.md").read_text(encoding="utf-8")
+    section = text.split("## Terminal Outcomes", 1)[1].split("\n## ", 1)[0]
+    for needle in (
+        "### Re-test rule",
+        "invalidates its last test run",
+        "`stale-input` until a new bounded test run passes",
+        "next action",
+        "last-success timestamp",
+        "idempotency key",
+        "`processed`, `failed`, and `skipped` counts",
+    ):
+        assert needle in section, f"Terminal Outcomes section lacks: {needle}"
+
+
+def test_skill_body_points_at_the_schema_instead_of_restating_the_table() -> None:
+    body = _skill_body()
+    section = body.split("## Terminal Outcomes", 1)[1].split("\n## ", 1)[0]
+    assert "references/loop-schema.md" in section
+    assert not re.search(r"^\| R\d+ \|", section, flags=re.MULTILINE), (
+        "the precedence table is owned by loop-schema.md; SKILL.md must not copy it"
+    )

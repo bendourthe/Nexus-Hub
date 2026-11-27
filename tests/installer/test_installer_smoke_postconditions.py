@@ -91,6 +91,19 @@ def _seed(home: Path, workspace: Path, *, metadata: bool = False) -> None:
             ]
         },
     }
+    worktree_hook = f"worktree-policy{_host_hook_suffix()}"
+    for name in (worktree_hook, "_worktree_policy.py"):
+        (workspace / ".claude" / "hooks" / name).write_text(
+            "# fixture\n", encoding="utf-8"
+        )
+    settings["hooks"]["PreToolUse"].append(
+        {
+            "matcher": "Bash|PowerShell",
+            "hooks": [
+                {"type": "command", "command": f"run .claude/hooks/{worktree_hook}"}
+            ],
+        }
+    )
     (workspace / ".claude" / "settings.json").write_text(
         json.dumps(settings), encoding="utf-8"
     )
@@ -227,6 +240,66 @@ def test_wrong_host_html_hook_registration_is_reported(tmp_path: Path) -> None:
     settings_path.write_text(json.dumps(settings), encoding="utf-8")
 
     assert any("host-correct registration" in finding for finding in collect_findings(home, workspace))
+
+
+def _worktree_settings(workspace: Path) -> tuple[Path, dict]:
+    path = workspace / ".claude" / "settings.json"
+    return path, json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("missing", ["host-hook", "helper"])
+def test_missing_worktree_policy_payload_is_reported(
+    tmp_path: Path, missing: str
+) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    name = (
+        f"worktree-policy{_host_hook_suffix()}"
+        if missing == "host-hook"
+        else "_worktree_policy.py"
+    )
+    (workspace / ".claude" / "hooks" / name).unlink()
+
+    assert any(
+        f"worktree-policy payload is missing: .claude/hooks/{name}" in finding
+        for finding in collect_findings(home, workspace)
+    )
+
+
+def test_duplicate_or_absent_worktree_policy_registration_is_reported(
+    tmp_path: Path,
+) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    path, settings = _worktree_settings(workspace)
+    settings["hooks"]["PreToolUse"].append(settings["hooks"]["PreToolUse"][-1])
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any(
+        "exactly one Bash|PowerShell registration for worktree-policy; found 2" in f
+        for f in collect_findings(home, workspace)
+    )
+    settings["hooks"]["PreToolUse"] = settings["hooks"]["PreToolUse"][:2]
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any("found 0" in f for f in collect_findings(home, workspace))
+
+
+def test_wrong_host_worktree_policy_registration_is_reported(tmp_path: Path) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    path, settings = _worktree_settings(workspace)
+    wrong = ".sh" if _host_hook_suffix() == ".ps1" else ".ps1"
+    settings["hooks"]["PreToolUse"][-1]["hooks"][0]["command"] = (
+        f"run .claude/hooks/worktree-policy{wrong}"
+    )
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any(
+        "host-correct registration: worktree-policy" in f
+        for f in collect_findings(home, workspace)
+    )
+
+
+def test_worktree_helper_is_an_expected_installed_script() -> None:
+    assert "nexus_worktrees.py" in EXPECTED_SCRIPTS
 
 
 @pytest.mark.parametrize("invalid_hooks", [None, []])
@@ -388,3 +461,18 @@ def test_source_payload_requires_exact_nested_files_and_commands(
     assert ("installer smoke: PASS" in output.out) == (problem is None)
     if problem is not None:
         assert "catalog" in output.err
+
+
+def test_org_findings_read_the_shared_agents_md_when_the_recorded_decision_selects_it(tmp_path: Path) -> None:
+    """v4.15.2: a supported Claude project has no project CLAUDE.md by design."""
+    block = f"{NEXUS_START_MARKER}\nbody\n{NEXUS_END_MARKER}\n\n{ORG_START_MARKER}\norg\n{ORG_END_MARKER}\n"
+    (tmp_path / "AGENTS.md").write_text(block, encoding="utf-8")
+    decision = tmp_path / ".nexus-hub" / "claude-instruction-decision.json"
+    decision.parent.mkdir()
+    decision.write_text(json.dumps({"effective_path": "AGENTS.md"}), encoding="utf-8")
+    findings = smoke._org_findings(tmp_path)
+    assert not any("missing or unreadable" in f for f in findings), findings
+    decision.write_text(json.dumps({"effective_path": "CLAUDE.md"}), encoding="utf-8")
+    assert any("CLAUDE.md" in f and "missing or unreadable" in f for f in smoke._org_findings(tmp_path))
+    decision.write_text("{broken", encoding="utf-8")
+    assert any("CLAUDE.md" in f for f in smoke._org_findings(tmp_path)), "unknown decision stays conservative"

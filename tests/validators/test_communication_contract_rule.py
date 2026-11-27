@@ -47,7 +47,7 @@ SUBSTANTIVE, _SHIMS = template_roster(_REPO_ROOT)
 
 
 def test_roster_has_thirteen_substantive_templates():
-    assert len(SUBSTANTIVE) == 13, [p.name for p in SUBSTANTIVE]
+    assert len(SUBSTANTIVE) == 14, [p.name for p in SUBSTANTIVE]
 
 
 @pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
@@ -414,3 +414,113 @@ def test_source_label_rule_has_teeth():
         assert needle not in _read(path).replace(needle, ""), (
             f"predicate for {path.name} matches anything"
         )
+
+
+# --- Progress cadence, question format, manual tasks (v4.15.6) ------------------
+#
+# Every platform must communicate the same way. The roster comes from the templates
+# directory, so a new template fails until it carries all three bullets.
+
+_PROGRESS_MARKER = "- Progress: during any implementation run, report often:"
+_QUESTIONS_MARKER = "- Questions: use one format:"
+_MANUAL_MARKER = "- Manual tasks: give numbered steps"
+
+
+def _bullet(path: Path, marker: str) -> str:
+    matches = [
+        line.strip()
+        for line in _contract_section(path).split(chr(10))
+        if line.startswith(marker)
+    ]
+    assert len(matches) == 1, f"{path.name}: expected one {marker!r} bullet"
+    return matches[0]
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_carries_progress_rule(path: Path):
+    bullet = _bullet(path, _PROGRESS_MARKER)
+    for needle in (
+        "status_report.py",
+        "never hand-written",
+        "at least every ~5 minutes",
+        "a full report at start or resume",
+        "whenever you ask a decision",
+        "silence during long work is a defect",
+    ):
+        assert needle in bullet, f"{path.name}: progress rule lacks {needle!r}"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_carries_question_format(path: Path):
+    bullet = _bullet(path, _QUESTIONS_MARKER)
+    for needle in (
+        "non-technical explanation",
+        "lettered options",
+        "option A always your recommendation",
+        '"(Recommended)"',
+        "one-line reason",
+        "each option says what it changes",
+    ):
+        assert needle in bullet, f"{path.name}: question format lacks {needle!r}"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_carries_manual_task_stop_rule(path: Path):
+    bullet = _bullet(path, _MANUAL_MARKER)
+    for needle in (
+        "prerequisites first",
+        "where to run",
+        "exact command",
+        "expected result",
+        "stop there",
+        "share it",
+        "list no later steps until it arrives",
+    ):
+        assert needle in bullet, f"{path.name}: manual-task rule lacks {needle!r}"
+
+
+@pytest.mark.parametrize(
+    "marker", [_PROGRESS_MARKER, _QUESTIONS_MARKER, _MANUAL_MARKER]
+)
+def test_new_communication_bullets_are_byte_identical_across_the_roster(marker: str):
+    variants = {_bullet(path, marker) for path in SUBSTANTIVE}
+    assert len(variants) == 1, f"bullet {marker!r} diverged: {variants}"
+
+
+def test_style_guide_and_skill_own_the_full_wording():
+    guide = _read(_STYLE_GUIDE)
+    assert "## 10. Progress cadence, question format, and manual tasks" in guide
+    for needle in (
+        "Silence during long work is a defect",
+        "Option A is always the recommended one",
+        "do not list the steps that depend on it until it arrives",
+    ):
+        assert needle in guide, f"style guide lacks {needle!r}"
+    skill = _read(_SKILL)
+    assert "### 10. Report progress, ask in one format" in skill
+    assert "list no later steps until it arrives" in skill
+
+
+def test_progress_reference_matches_the_cadence_and_question_format():
+    ref = (
+        _REPO_ROOT
+        / "catalog"
+        / "skills"
+        / "workflow"
+        / "implement-phase"
+        / "references"
+        / "progress-reporting.md"
+    )
+    text = _read(ref)
+    assert "never go about 5 minutes of active work without a compact report" in text
+    assert "lettered options with A recommended" in text
+
+
+def test_new_communication_rules_have_teeth():
+    for path, needle in (
+        (SUBSTANTIVE[0], _PROGRESS_MARKER),
+        (SUBSTANTIVE[0], _QUESTIONS_MARKER),
+        (SUBSTANTIVE[0], _MANUAL_MARKER),
+        (_STYLE_GUIDE, "Silence during long work is a defect"),
+    ):
+        assert needle not in _read(path).replace(needle, "")

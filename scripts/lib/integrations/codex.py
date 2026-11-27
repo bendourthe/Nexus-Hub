@@ -61,6 +61,11 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
+        # v4.15.2: the workspace root AGENTS.md is the shared project block
+        # (templates/ai-instructions/base-agents.md). The only Codex-specific line
+        # in the old template was the skills-folder pointer; Codex discovers its
+        # skills natively and ~/.codex/AGENTS.md (global scope) keeps base-codex.md.
+        "shared_agents_consumer": True,
         # Skills are flattened one level into the documented shared
         # ~/.agents/skills root (see docs/policy/platform-read-contracts.md).
         # Commands surface as skills ($name) there and as legacy top-level

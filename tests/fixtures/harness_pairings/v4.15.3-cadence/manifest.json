@@ -1,0 +1,147 @@
+{
+  "schema": "harness-pairing-manifest/1",
+  "run_id": "cadence-run-0001",
+  "workload": {
+    "id": "wl-synthetic-echo",
+    "revision": "r1",
+    "hash": "sha256:376a98966f16fbeb440f8dd2d1461c596e5f4bbb04eb1e18358cb29edf9198b3",
+    "evaluator_revision": "e1",
+    "evaluator_hash": "sha256:4418f07f2489c2e584feb95bb055a27646d15a7c70c06a7694242e4b5a2bc3f2",
+    "budget_class": "synthetic-small",
+    "policy": {
+      "min_success_rate": 0.6,
+      "max_latency_s": 30,
+      "max_cost_usd": null,
+      "tie_break": "lowest-instruction-tokens"
+    }
+  },
+  "environment": {
+    "os": "windows",
+    "arch": "amd64",
+    "repo_revision": "40f9b0b1c90ee48d2f2fc679b3bfd228ed2d4d74",
+    "harness_configuration": "defaults",
+    "model_parameters": {
+      "temperature": 0
+    },
+    "cache_policy": "cold",
+    "concurrency": 1,
+    "retry_policy": "none",
+    "pricing": {
+      "basis": "fixture-pricing-2026-11-01",
+      "date": "2026-11-01"
+    }
+  },
+  "pairings": [
+    {
+      "id": "pair-construction",
+      "harness": {
+        "name": "fake-harness",
+        "version": "1.0.0",
+        "adapter": "cadence-construction",
+        "adapter_version": "1"
+      },
+      "model": {
+        "id": "fixture-model",
+        "identity": "fixture-model-2026-11"
+      },
+      "instruction": {
+        "variant": "full",
+        "skill_index_mode": "full",
+        "hash": "sha256:7cb934e61e81e88bbcb9507f604e5123d61751a66f0e157b9f765a24fdcdc9f4",
+        "bytes": 1533,
+        "tokens_estimated": 408
+      },
+      "tool_schema_hash": "sha256:05cd7971b6ae5e5edf41f417e3d90961a638444cf96970acf579139799f44c46",
+      "isolation_mode": "synthetic",
+      "budgets": {
+        "time_s": 30,
+        "turns": 10,
+        "spend_usd": null,
+        "spend_enforcement": "none"
+      }
+    },
+    {
+      "id": "pair-final-gate",
+      "harness": {
+        "name": "fake-harness",
+        "version": "1.0.0",
+        "adapter": "cadence-final-gate",
+        "adapter_version": "1"
+      },
+      "model": {
+        "id": "fixture-model",
+        "identity": "fixture-model-2026-11"
+      },
+      "instruction": {
+        "variant": "full",
+        "skill_index_mode": "full",
+        "hash": "sha256:7cb934e61e81e88bbcb9507f604e5123d61751a66f0e157b9f765a24fdcdc9f4",
+        "bytes": 1533,
+        "tokens_estimated": 408
+      },
+      "tool_schema_hash": "sha256:05cd7971b6ae5e5edf41f417e3d90961a638444cf96970acf579139799f44c46",
+      "isolation_mode": "synthetic",
+      "budgets": {
+        "time_s": 30,
+        "turns": 10,
+        "spend_usd": null,
+        "spend_enforcement": "none"
+      }
+    }
+  ],
+  "repeats": 3,
+  "seed": 20261116,
+  "order_policy": "alternating",
+  "cadence_protocol": {
+    "schema": "nexus.feedback-cadence-protocol/1",
+    "synthetic_label": "synthetic-fixture: outcomes are authored by the fixture and are not evidence about any model, harness or cadence",
+    "schedules": {
+      "pair-construction": "construction",
+      "pair-final-gate": "final-gate"
+    },
+    "final_acceptance": {
+      "owner": "workload evaluator",
+      "identical_across_pairings": true,
+      "evaluator_hash": "sha256:4418f07f2489c2e584feb95bb055a27646d15a7c70c06a7694242e4b5a2bc3f2"
+    },
+    "frozen": {
+      "requirements": "write the word pairing-ok to result.txt",
+      "examples": "tests/fixtures/harness_pairings/workloads/echo",
+      "grader": "workload-owned evaluator, hash bound in workload.evaluator_hash",
+      "effort_settings": "not applicable: synthetic adapters",
+      "memory_skill_state": "none",
+      "paired_order": "alternating, per order_policy",
+      "budgets": {
+        "time_s": 30,
+        "turns": 10,
+        "spend_usd": null,
+        "spend_enforcement": "none"
+      },
+      "repeat_minimum": 3,
+      "repair_policy": {
+        "max_repairs_per_trial": 1,
+        "repair_only_after_feedback": true
+      },
+      "stopping_rules": [
+        "a timeout is a rankable failure and is never retried",
+        "a trial id is immutable and a rerun of a run id is refused",
+        "no live call or paid runner"
+      ]
+    },
+    "retained_per_trial": [
+      "feedback_steps",
+      "initial_accepted",
+      "post_repair_accepted",
+      "feedback_count",
+      "repair_count",
+      "elapsed_s",
+      "failures"
+    ],
+    "claims": {
+      "live_reliability": false,
+      "savings": false,
+      "ranking": false,
+      "default_change": false
+    }
+  }
+}

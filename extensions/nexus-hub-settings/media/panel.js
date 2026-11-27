@@ -66,10 +66,13 @@
       return el("header", {}, [el("div", { class: "brand" }, [el("img", { src: app.getAttribute("data-logo"), alt: "", width: "32", height: "32" }), text("h1", "Nexus Hub")])]);
     }
     function effortDetails() {
+      var errors = (model.applicationIssues || model.uiEffort && model.uiEffort.errors || []).slice();
+      if (!model.applicationIssues && model.liveEffort && model.liveEffort.error) { errors.unshift(model.liveEffort.error); }
       var node = el("details", { class: "settings-details", open: effortDetailsOpen || null }, [
         el("summary", { text: "Details", "data-focus": "details" }),
         text("p", "New sessions use the global effort level. Changing it also updates supported connected sessions. Manual session choices stay until the next global change or Apply to all."),
         compatibility(),
+        errors.length ? el("ul", { class: "connection-errors" }, errors.map(function (error) { return text("li", error); })) : null,
         text("p", "Enabled guardrails apply on the next hook run, including full-access mode. Coverage requires platform hooks."),
         text("p", "Refresh rereads settings and retries synchronization after external changes."),
         refreshButton(),
@@ -132,7 +135,7 @@
       return el("section", {class: "settings-section editor-section", "aria-labelledby": "editor-title"}, [
         el("h2", {id: "editor-title", text: "Extensions"}),
         el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("claude", "Claude Code"), restart("claude", "Claude Code")]), text("p", "Restart idle sessions now. Busy sessions restart after their current turn.", "hint")]),
-        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex in tabs", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "Applies to the Codex button in the editor title bar. The activity bar icon always opens the side pane.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
+        el("div", {class: "extension-group"}, [el("div", {class: "section-heading"}, [providerHeading("codex", "Codex"), restart("codex", "Codex")]), model.codexAvailable ? sessionToggle("codexTabs", "Open Codex beside current editor", !model.sessionDefaults || model.sessionDefaults.codexTabs !== false, "setCodexTabs", "The editor-title Codex button opens a new session in a split editor group. Turn off to use the sidebar. The activity bar icon always opens the side pane.") : text("p", "Not installed in this editor.", "hint"), text("p", "Restart Codex and refresh its open session tabs.", "hint")]),
       ]);
     }
     function usageAlertsSection() {

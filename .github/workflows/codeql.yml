@@ -57,23 +57,92 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
-        with:
-          languages: ${{ matrix.language }}
-          queries: security-and-quality
-          # .agents/ and .cursor/commands/ are installer-written copies of
-          # catalog files; the catalog originals stay scanned, so excluding the
-          # copies only stops the same findings being reported twice.
-          config: |
-            paths-ignore:
-              - .agents/**
-              - .cursor/commands/**
+      - name: Set up provisioned CodeQL CLI
+        id: codeql
+        uses: github/codeql-action/setup-codeql@24c54180a607b1449ed407dd24f251e4e9147c8d # v4, experimental; hosted proof required before merge
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+      - name: Perform native CodeQL Analysis
+        env:
+          NEXUS_CI_CODEQL: ${{ steps.codeql.outputs.codeql-path }}
+        run: python -B scripts/ci/run.py --profile full --only codeql-${{ matrix.language }} --reports-dir reports
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+      - name: Select validated current SARIF
+        id: audit_report
+        env:
+          AUDIT_LANGUAGE: ${{ matrix.language }}
+        run: |
+          python -B - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          from scripts.ci.reporting import audit_upload_path
+          scope = "codeql-" + os.environ["AUDIT_LANGUAGE"]
+          path = audit_upload_path(Path("reports"), scope, Path.cwd())
+          marker = Path("reports/security") / (scope + ".manifest.json")
+          raw = marker.read_bytes()
+          manifest = json.loads(raw)
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD", "HEAD^{tree}"], text=True).splitlines()
+          if actual != [manifest["source"]["head"], manifest["source"]["tree"]]:
+              raise SystemExit("Source changed before upload")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print("path=" + path.as_posix(), file=output)
+              print("invocation_id=" + manifest["invocation_id"], file=output)
+              print("manifest_sha256=" + hashlib.sha256(raw).hexdigest(), file=output)
+          PY
+
+      - name: Upload CodeQL SARIF
+        id: upload
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
         with:
+          sarif_file: ${{ steps.audit_report.outputs.path }}
           category: "/language:${{ matrix.language }}"
+          wait-for-processing: true
+
+      - name: Retain hosted CodeQL observations
+        env:
+          AUDIT_LANGUAGE: ${{ matrix.language }}
+          JOB_DISPLAY_NAME: Analyze (${{ matrix.language }})
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          CODEQL_PATH: ${{ steps.codeql.outputs.codeql-path }}
+          CODEQL_VERSION: ${{ steps.codeql.outputs.codeql-version }}
+          SARIF_ID: ${{ steps.upload.outputs.sarif-id }}
+          SARIF_IDS: ${{ steps.upload.outputs.sarif-ids }}
+          INVOCATION_ID: ${{ steps.audit_report.outputs.invocation_id }}
+          MANIFEST_SHA256: ${{ steps.audit_report.outputs.manifest_sha256 }}
+        run: |
+          python -B - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          language = os.environ["AUDIT_LANGUAGE"]
+          marker = Path("reports/security") / ("codeql-" + language + ".manifest.json")
+          raw = marker.read_bytes()
+          manifest = json.loads(raw)
+          if hashlib.sha256(raw).hexdigest() != os.environ["MANIFEST_SHA256"] or manifest["invocation_id"] != os.environ["INVOCATION_ID"]:
+              raise SystemExit("Invocation changed after upload")
+          value = {"schema": "ci-codeql-hosted/1", "language": language, "source": manifest["source"],
+                   "github": {"run_id": os.environ["GITHUB_RUN_ID"], "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+                              "job_name": os.environ["JOB_DISPLAY_NAME"], "pr_number": os.environ.get("PR_NUMBER", ""),
+                              "head_sha": os.environ.get("PR_HEAD", ""), "base_sha": os.environ.get("PR_BASE", "")},
+                   "setup": {"codeql_path": os.environ["CODEQL_PATH"], "codeql_version": os.environ["CODEQL_VERSION"]},
+                   "upload": {"sarif_id": os.environ["SARIF_ID"], "sarif_ids": os.environ["SARIF_IDS"]},
+                   "invocation": {"invocation_id": manifest["invocation_id"], "manifest_sha256": hashlib.sha256(raw).hexdigest()},
+                   "config_sha256": manifest["config_sha256"],
+                   "workflow_sha256": hashlib.sha256(Path(".github/workflows/codeql.yml").read_bytes()).hexdigest()}
+          destination = Path("reports/hosted")
+          destination.mkdir(exist_ok=True)
+          (destination / ("codeql-" + language + ".json")).write_text(json.dumps(value, indent=2), encoding="utf-8")
+          PY
+
+      - name: Publish native profile summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload native CodeQL reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reports-codeql-${{ matrix.language }}
+          path: reports
+          retention-days: 7
+          if-no-files-found: warn

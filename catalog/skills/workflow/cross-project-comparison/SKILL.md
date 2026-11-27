@@ -192,6 +192,10 @@ A comparison is intrinsically forward-looking: it seeds a *future* adoption, and
 
 **Always CONFIRM the resolved target with the user before writing the report.** Slotting is a judgment call: whether a gap lands in the next patch, the next minor, or a later release depends on roadmap intent the user owns. Present the resolved `vX.Y.Z` and a one-line reason, and adjust to the user's choice.
 
+### Step 6.5b: Minor re-plan analysis on the target
+
+After the target is confirmed, run the minor re-plan analysis from `[[plan-queue-assessment]]` ("Plan-time use by `/compare` and `/plan`") on the target minor's plans folder with its bundled `replan_minor.py`. That skill owns the procedure and the proposal rules; this step only calls it and keeps the result for the report. Show any proposals to the user for approval, never apply them automatically, and never edit an existing plan here. If the minor has no other plans, say so and continue.
+
 ### Step 6.6: Assess queue impact on this comparison
 
 Slotting decides WHERE the comparison lands. It does not ask whether the comparison will still be TRUE by the time that slot is reached. A comparison is a snapshot of the codebase as it stands now; the plans already queued ahead of the adoption target will change that codebase first.
@@ -199,6 +203,8 @@ Slotting decides WHERE the comparison lands. It does not ask whether the compari
 Using the same inventory from Step 6.5, invoke [[plan-queue-assessment]] and record, per queued plan that would complete before the adoption target, whether its completion would change this comparison's findings. Do not restate that skill's classification rule here; it owns it.
 
 The report MUST carry a `## Queued-plan impact` section listing each such plan with its verdict and the named evidence. An empty queue produces an explicit "no queued predecessors" statement rather than an omitted section, because an omitted section is indistinguishable from a skipped check.
+
+Include the Step 6.5b outcome in this section, including "no change proposed".
 
 A finding that a queued plan would invalidate a recommendation does not block the comparison. It is recorded so the adoption plan inherits it, and so a reader in three months knows the finding was considered rather than missed.
 
@@ -217,6 +223,22 @@ Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list
 ### Step 8: Commit and Publish on the Integration Branch
 
 Create no branch. Commit the report on the integration branch and publish it the same day, through a short-lived `publish/<slug>` pull request when that branch requires one, per Step 4d of `[[git-branching-workflow]]`.
+
+### Step 9: Completion Handoff
+
+This skill owns the completed comparison's next-workflow handoff, whether called by `/compare` or used directly. After a completed comparison has eligible adoption recommendations, give a brief outcome and recommend creating a plan so the user can review the work before implementation. Do not delay this handoff solely because a commit or publication is waiting for separate authority; all comparison security and adoption-target confirmation requirements still apply. Explain that creating a plan does not implement it or grant new publication authority. Ask "What would you like to do next?" with these choices:
+
+1. **Create the plan (Recommended)** - prepare a phased plan from this comparison for review.
+2. Review recommendations - let the user change the proposed adoption items before creating a plan.
+3. Stop here - retain the comparison report and start no next workflow.
+
+Use the common installed Nexus-Hub communication guide (`~/.nexus-hub/style-guides/agent-communication.md` by default), section 5.2, when available. This handoff also has a minimal procedure when that guide is unavailable: use an actually available multiple-choice question tool that supports this ordinary choice in the current host and mode, or present the same choices as a numbered text list. Wait for an actual selection; a preselected option, silence or elapsed time is not a reply. If the guide is missing, state that its full presentation guidance was not covered. Do not invent interactive controls or a provider-specific tool name.
+
+Do not replace the choice with an internal `Next` task list such as "refresh the integration queue". The selected workflow handles its routine preparation. If the user already requested or selected planning for this report, honor that request without asking again. If there are no eligible adoption recommendations, explain that result instead of offering an empty plan.
+
+An explicit planning selection is the user's new request for `/plan from-comparison`; enter through the current host's normal user-command route with the actual report path and prioritized adoption items. Do not automatically invoke another user-invoked skill just because the comparison finished. Retain reverse-engineer-first ordering, target confirmation and queue checks. The report's confirmed `Adoption target:` field remains the authority for the generated plan's version directory, co-located with the comparison.
+
+Signed approvals and capture remain governed by the `implement-phase` completion contract; an ordinary question-tool reply does not replace a required capture. Implementation progress reporting retains its existing owner and renderer.
 
 ## Best Practices
 
@@ -240,9 +262,11 @@ Create no branch. Commit the report on the integration branch and publish it the
 - [ ] **Step 5 Security and Reverse-Engineering Assessment is complete** - threat model table, per-item risk scorecard, and per-item RE classification are all present
 - [ ] **Step 5.4 ordering is used to sequence the adoption plan** - skill-native first, then RE builds, then vendor-intrinsic (justified), then drops moved to NOT-recommended
 - [ ] **Step 6.6 recorded a `## Queued-plan impact` section** with a verdict and named evidence per queued predecessor, or an explicit "no queued predecessors" statement
+- [ ] **Step 6.5b ran the minor re-plan analysis** on the target minor (or stated that it has no other plans) and recorded its proposals or "no change proposed"
 - [ ] **Step 6.5 resolved an adoption target and the report header carries an `Adoption target: vX.Y.Z` field** - the confirmed target version, not the authoring cycle, is what the file is placed under and prefixed by
 - [ ] **MCP Registry Policy is cited by name** in the Rationale column for every adoption item that involves an outbound call, new API key, new third-party data processor, or new runtime dependency
 - [ ] Reports missing Step 5 fail this checklist
+- [ ] The completion handoff was offered, an existing request to plan was honored, or the absence of eligible adoption items was explained; no technical `Next` paragraph replaced the choice
 
 ### Iterative Refinement Strategy
 

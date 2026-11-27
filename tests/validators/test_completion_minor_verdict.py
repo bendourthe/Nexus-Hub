@@ -58,6 +58,20 @@ GREEN = [{"name": "ci", "bucket": "pass"}]
 RED = [{"name": "ci", "bucket": "fail"}]
 
 
+def test_minor_close_status_detail_preserves_blocker_and_record_bytes(walk) -> None:
+    walk.forge_minor()
+    blocked = walk.run("record", "block", "--minor", "v0.5", "--session", SESSION, "--category", "no-progress", "--evidence", "fixture status blocker")
+    assert blocked.returncode == 3, blocked.stdout + blocked.stderr
+    record_path = walk.record_path()
+    before = record_path.read_bytes()
+    for _ in range(2):
+        result = walk.close("status", "--minor", "v0.5", "--detail")
+        assert result.returncode == 3, result.stdout + result.stderr
+        assert result.stdout.splitlines()[0] == "BLOCKED: no-progress"
+        assert "detail scanned=" in result.stdout
+        assert record_path.read_bytes() == before
+
+
 class Walk(Close):
     """The two-plan v0.5 fixture (v0.5.2 alpha, v0.5.10 omega) driven through a minor run."""
 

@@ -50,6 +50,456 @@ import check_plan_completion as ck
 import completion_minor as cm
 import minor_close as mc
 
+
+def test_operational_reference_inventory_separates_historical_and_live_paths(tmp_path: Path) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    contents = {
+        "config.json": json.dumps({"input": old + "/source.md", "relative": "./" + old + "/other.md", "inputs": {old + "/source.md": "hash"}, "embedded": "history: " + old + "/capture.md", "other": old + "0/source.md"}),
+        "docs/handbooks/handbooks.json": json.dumps({"inputs": [old + "/source.md"]}),
+        ".gitattributes": '"' + old + '/**" -text\n',
+        "docs/evidence/receipt.json": json.dumps({"input": old + "/source.md"}),
+        "docs/archives/v0/v0.4/receipt.json": json.dumps({"input": old + "/source.md"}),
+        "docs/note.md": "`" + old + "/source.md`\n",
+    }
+    for rel, text in contents.items():
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    before = {rel: (tmp_path / rel).read_bytes() for rel in contents}
+    result = mc.reference_inventory(tmp_path, list(contents), [(old, new)])
+    assert not result["incomplete"]
+    assert result["blocking"] == 5
+    assert {entry["path"] for entry in result["findings"] if entry["category"] == "operational"} == {"config.json", "docs/handbooks/handbooks.json", ".gitattributes"}
+    assert any(entry["category"] == "unverified" for entry in result["findings"])
+    assert all(entry["line"] > 0 for entry in result["findings"])
+    assert {rel: (tmp_path / rel).read_bytes() for rel in contents} == before
+
+
+def test_reference_inventory_oversize_and_display_limits_are_distinct(tmp_path: Path) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    target = tmp_path / "live.json"
+    target.write_text(json.dumps([old + f"/file-{n}.md" for n in range(120)]), encoding="utf-8")
+    result = mc.reference_inventory(tmp_path, ["live.json"], [(old, new)])
+    assert result["blocking"] == result["total_findings"] == 120
+    assert len(result["findings"]) == 100 and result["display_omitted"] == 20
+    assert not result["incomplete"]
+    target.write_bytes(b" " * (2 * 1024 * 1024 + 1))
+    result = mc.reference_inventory(tmp_path, ["live.json"], [(old, new)])
+    assert result["incomplete"] and result["omitted"] == 1
+
+
+def test_archive_source_repair_preserves_python_comments_and_docstrings(tmp_path: Path) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    target = tmp_path / "scripts" / "probe.py"
+    target.parent.mkdir()
+    text = f'# history {old}/source.md\n"""History {old}/source.md"""\nMARK = "#"; LIVE = "{old}/source.md#anchor" # history {old}/source.md\n'
+    target.write_text(text, encoding="utf-8")
+    text = target.read_bytes().decode("utf-8")
+    repairs = mc.plan_moves_repairs(tmp_path, [("scripts/probe.py", "scripts/probe.py", "scripts/probe.py")], [(old, new)])
+    assert len(repairs) == 1
+    assert repairs[0].repaired == text.replace(f'LIVE = "{old}', f'LIVE = "{new}')
+
+
+def test_archive_source_alias_cannot_copy_outside_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    root = tmp_path / "repo"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "probe.py").write_text(f'SECRET = "{old}/secret.md"\n', encoding="utf-8")
+    alias = root / "scripts"
+    root.mkdir()
+    if sys.platform == "win32":
+        made = subprocess.run(["cmd", "/c", "mklink", "/J", str(alias), str(outside)], capture_output=True, check=False, **ck.NO_WINDOW)
+        if made.returncode:
+            pytest.skip("junction unavailable")
+    else:
+        alias.symlink_to(outside, target_is_directory=True)
+    try:
+        original = (outside / "probe.py").read_bytes()
+        real_open = Path.open
+
+        def forbid_outside(self, *args, **kwargs):
+            if self.resolve() == (outside / "probe.py").resolve():
+                raise AssertionError("outside contents must never be opened")
+            return real_open(self, *args, **kwargs)
+
+        with monkeypatch.context() as guard:
+            guard.setattr(Path, "open", forbid_outside)
+            repairs = mc.plan_moves_repairs(root, [("scripts/probe.py", "scripts/probe.py", "scripts/probe.py")], [(old, new)])
+            assert repairs == []
+            result = mc.reference_inventory(root, ["scripts/probe.py"], [(old, new)])
+            assert result["incomplete"]
+        assert (outside / "probe.py").read_bytes() == original
+    finally:
+        if sys.platform == "win32":
+            alias.rmdir()
+        else:
+            alias.unlink()
+
+
+def test_archive_rejects_in_tree_junction_without_path_is_junction(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    if sys.platform != "win32":
+        pytest.skip("native Windows junction")
+    target = tmp_path / "real-programs"
+    target.mkdir()
+    (target / "probe.py").write_text('LIVE = "docs/releases/v0/v0.5/input.md"\n', encoding="utf-8")
+    alias = tmp_path / "scripts"
+    made = subprocess.run(["cmd", "/c", "mklink", "/J", str(alias), str(target)], capture_output=True, check=False, **ck.NO_WINDOW)
+    if made.returncode:
+        pytest.skip("junction unavailable")
+    try:
+        with monkeypatch.context() as guard:
+            guard.delattr(Path, "is_junction", raising=False)
+            assert not mc.safe_reference_path(tmp_path, "scripts/probe.py")
+            result = mc.reference_inventory(tmp_path, ["scripts/probe.py"], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+            assert result["incomplete"] and result["omitted"] == 1
+    finally:
+        alias.rmdir()
+
+
+@pytest.mark.parametrize("raw", [b"\xff", b'{"bad":'])
+def test_reference_inventory_invalid_supported_input_is_incomplete(tmp_path: Path, raw: bytes) -> None:
+    (tmp_path / "live.json").write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, ["live.json"], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert (tmp_path / "live.json").read_bytes() == raw
+
+
+def test_reference_inventory_unparseable_active_historical_capture_is_scanned_as_text(tmp_path: Path) -> None:
+    rel = "docs/releases/v0/v0.4/development/evidence/capture.json"
+    raw = b'PASS detector run\n{"source": "docs/releases/v0/v0.5/plan.md"}\n'
+    (tmp_path / rel).parent.mkdir(parents=True)
+    (tmp_path / rel).write_bytes(raw)
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    result = mc.reference_inventory(tmp_path, [rel], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["blocking"] == 0
+    assert [(f["line"], f["category"]) for f in result["findings"]] == [(2, "historical")]
+    assert (tmp_path / rel).read_bytes() == raw
+    (tmp_path / rel).write_bytes(b"\xff")
+    assert mc.reference_inventory(tmp_path, [rel], moves)["incomplete"]
+
+
+def test_reference_inventory_binary_file_without_a_mention_is_clear(tmp_path: Path) -> None:
+    moves = [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")]
+    (tmp_path / "fixture.txt").write_bytes(b"\xb4YU\x00\xff\xfe")
+    result = mc.reference_inventory(tmp_path, ["fixture.txt"], moves)
+    assert not result["incomplete"] and result["omitted"] == 0 and result["findings"] == []
+    (tmp_path / "fixture.txt").write_bytes(b"\xff docs/releases/v0/v0.5/plan.md")
+    assert mc.reference_inventory(tmp_path, ["fixture.txt"], moves)["incomplete"]
+
+
+@pytest.mark.parametrize("suffix", [".ps1", ".psm1"])
+@pytest.mark.parametrize("encoding", ["utf-8", "utf-8-sig"])
+def test_reference_inventory_supported_script_text_keeps_path_findings(tmp_path: Path, suffix: str, encoding: str) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    rel = "job" + suffix
+    raw = ('$inputPath = "' + old + '/source.md"\n').encode(encoding)
+    (tmp_path / rel).write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, [rel], [(old, new)])
+    assert not result["incomplete"] and result["omitted"] == result["blocking"] == 0
+    assert [(entry["path"], entry["category"]) for entry in result["findings"]] == [(rel, "historical-or-ambiguous")]
+    assert (tmp_path / rel).read_bytes() == raw
+
+
+@pytest.mark.parametrize("rel", ["job.ps1", "job.psm1", "live.json", ".gitattributes"])
+@pytest.mark.parametrize("encoding,bom", [
+    ("utf-16-le", b"\xff\xfe"), ("utf-16-be", b"\xfe\xff"),
+    ("utf-32-le", b"\xff\xfe\x00\x00"), ("utf-32-be", b"\x00\x00\xfe\xff"),
+])
+def test_reference_inventory_wide_text_encoding_fails_closed(tmp_path: Path, rel: str, encoding: str, bom: bytes) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    text = json.dumps({"input": old + "/source.md"}) if rel.endswith(".json") else old + "/source.md -text\n"
+    raw = bom + text.encode(encoding)
+    (tmp_path / rel).write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, [rel], [(old, new)])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert [(entry["path"], entry["category"]) for entry in result["findings"]] == [(rel, "unverified")]
+    assert (tmp_path / rel).read_bytes() == raw
+
+
+@pytest.mark.parametrize("encoding", ["utf-16-le", "utf-16-be", "utf-32-le", "utf-32-be"])
+def test_reference_inventory_nul_separated_script_cannot_look_mention_free(tmp_path: Path, encoding: str) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    raw = ('$inputPath = "' + old + '/source.md"\n').encode(encoding)
+    (tmp_path / "job.ps1").write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, ["job.ps1"], [(old, new)])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert (tmp_path / "job.ps1").read_bytes() == raw
+
+
+@pytest.mark.parametrize("rel", ["job.ps1", "live.json", ".gitattributes"])
+@pytest.mark.parametrize("raw", [b"\xff", b"\xef\xbb\xbf\xff", b"\xff\xfe\x00", b"\x00\x00\xfe\xff\x00"])
+def test_reference_inventory_malformed_operational_encoding_is_incomplete(tmp_path: Path, rel: str, raw: bytes) -> None:
+    (tmp_path / rel).write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, [rel], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert (tmp_path / rel).read_bytes() == raw
+
+
+def test_reference_inventory_valid_utf8_runtime_nul_fixture_is_clear(tmp_path: Path) -> None:
+    raw = b'["a value with control characters", { value: `abcdefghijklmnop\x00q` }]\n'
+    target = tmp_path / "session.test.ts"
+    target.write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, [target.name], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert not result["incomplete"] and result["omitted"] == 0 and result["findings"] == []
+    assert target.read_bytes() == raw
+
+
+@pytest.mark.parametrize("rel", ["job.ps1", "fixture.txt"])
+@pytest.mark.parametrize("encoding", ["utf-16-le", "utf-16-be", "utf-32-le", "utf-32-be"])
+def test_reference_inventory_nonascii_wide_reference_without_bom_is_incomplete(tmp_path: Path, rel: str, encoding: str) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    raw = ('# \u00e9\n$inputPath = "' + old + '/source.md"\n').encode(encoding)
+    target = tmp_path / rel
+    target.write_bytes(raw)
+    result = mc.reference_inventory(tmp_path, [rel], [(old, new)])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert target.read_bytes() == raw
+
+
+@pytest.mark.parametrize("archive_root", ["docs/archives", "docs/archive"])
+@pytest.mark.parametrize("padding", [0, mc.REFERENCE_MAX_BYTES + 1])
+def test_reference_inventory_protected_archive_json_is_metadata_only(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, archive_root: str, padding: int) -> None:
+    rel = archive_root + "/v0/v0.4/receipt.json"
+    target = tmp_path / rel
+    target.parent.mkdir(parents=True)
+    raw = json.dumps({"input": "docs/releases/v0/v0.5/source.md", "padding": "x" * padding}).encode()
+    target.write_bytes(raw)
+    real_open = Path.open
+
+    def forbid_body(self, *args, **kwargs):
+        if self == target:
+            raise AssertionError("protected archive JSON body must not be opened")
+        return real_open(self, *args, **kwargs)
+
+    with monkeypatch.context() as guard:
+        guard.setattr(Path, "open", forbid_body)
+        result = mc.reference_inventory(tmp_path, [rel], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["scanned"] == result["omitted"] == result["total_findings"] == 0
+    assert not result["incomplete"] and result["classified_historical"] == 1
+    assert len(result["not_read"]) == 1 and result["not_read_display_omitted"] == 0
+    assert result["not_read"][0]["path"] == rel and result["not_read"][0]["bytes"] == len(raw)
+    assert "protected archive JSON" in result["not_read"][0]["reason"] and "body not read" in result["not_read"][0]["reason"]
+    assert target.read_bytes() == raw
+
+
+@pytest.mark.parametrize("rel", ["live.json", "docs/releases/v0/v0.4/development/receipt.json", "docs/evidence/receipt.json", "docs/archives-lookalike/receipt.json"])
+def test_reference_inventory_required_json_over_cap_stays_incomplete(tmp_path: Path, rel: str) -> None:
+    target = tmp_path / rel
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(b" " * (mc.REFERENCE_MAX_BYTES + 1))
+    result = mc.reference_inventory(tmp_path, [rel], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert result["classified_historical"] == 0 and result["not_read"] == []
+
+
+def test_reference_inventory_protected_json_hardlink_cannot_hide_live_input(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    live = tmp_path / "live.json"
+    live.write_bytes(b'{"input":"docs/releases/v0/v0.5/source.md"}')
+    rel = "docs/archives/v0/v0.4/receipt.json"
+    target = tmp_path / rel
+    target.parent.mkdir(parents=True)
+    try:
+        os.link(live, target)
+    except OSError as exc:
+        pytest.skip("private hard-link creation unavailable: " + str(exc))
+    assert target.stat().st_nlink > 1
+    real_open = Path.open
+
+    def forbid_body(self, *args, **kwargs):
+        if self in {live, target}:
+            raise AssertionError("aliased protected JSON body must not be opened")
+        return real_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", forbid_body)
+    result = mc.reference_inventory(tmp_path, [rel], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert result["classified_historical"] == 0 and result["not_read"] == []
+
+
+def test_reference_inventory_archive_traversal_cannot_classify_live_json(tmp_path: Path) -> None:
+    (tmp_path / "docs/archives").mkdir(parents=True)
+    (tmp_path / "docs/live.json").write_bytes(b'{"input":"docs/releases/v0/v0.5/source.md"}')
+    result = mc.reference_inventory(tmp_path, ["docs/archives/../live.json"], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+    assert result["classified_historical"] == 0 and result["not_read"] == []
+
+
+def test_reference_inventory_protected_metadata_uses_bounded_honest_counts(tmp_path: Path) -> None:
+    files = [f"docs/archives/v0/v0.4/receipt-{index:03}.json" for index in range(120)]
+    for rel in files:
+        target = tmp_path / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"not parsed historical bytes")
+    (tmp_path / "live.json").write_bytes(b'{"input":"docs/releases/v0/v0.5/source.md"}')
+    result = mc.reference_inventory(tmp_path, [*files, "live.json"], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert not result["incomplete"] and result["scanned"] == 1
+    assert result["classified_historical"] == 120 and result["blocking"] == result["total_findings"] == 1
+    assert [(entry["path"], entry["category"]) for entry in result["findings"]] == [("live.json", "operational")]
+    assert "docs/archives/v0/v0.5/source.md" in result["findings"][0]["remedy"]
+    assert len(result["findings"]) + len(result["not_read"]) == mc.REFERENCE_DISPLAY_LIMIT
+    assert result["not_read_display_omitted"] == 120 - len(result["not_read"])
+
+
+def test_reference_inventory_unreadable_input_cannot_authorize_move(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    target = tmp_path / "live.json"
+    target.write_text("{}", encoding="utf-8")
+    real_open = Path.open
+
+    def unavailable(self, *args, **kwargs):
+        if self == target:
+            raise PermissionError("fixture unavailable")
+        return real_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", unavailable)
+    result = mc.reference_inventory(tmp_path, ["live.json"], [("docs/releases/v0/v0.5", "docs/archives/v0/v0.5")])
+    assert result["incomplete"] and result["omitted"] == 1
+
+
+def test_archive_wide_encoded_script_refuses_before_files_or_record_change(repo) -> None:
+    closed_minor(repo)
+    script = repo.work / "scripts/job.ps1"
+    script.write_bytes(b"\xff\xfe" + f'$inputPath = "{V05}/development/evidence.md"\n'.encode("utf-16-le"))
+    repo.commit("private wide encoded source input")
+    record_path = cm.record_file(ck, repo.rctx(), "v0.5")
+    record_before = (record_path.read_bytes(), record_path.stat().st_mtime_ns)
+    tracked = _git(repo.work, "ls-files").splitlines()
+    before = {rel: ((repo.work / rel).read_bytes(), (repo.work / rel).stat().st_mtime_ns) for rel in tracked}
+    head, index = repo.head(), _git(repo.work, "write-tree")
+    refused = archive(repo, "--apply")
+    assert refused.returncode == 3, refused.stdout + refused.stderr
+    assert "cannot-verify" in refused.stdout and "archive reference inventory incomplete" in refused.stdout
+    assert (repo.work / V05).is_dir() and not (repo.work / "docs/archives/v0/v0.5").exists()
+    assert (record_path.read_bytes(), record_path.stat().st_mtime_ns) == record_before
+    assert {rel: ((repo.work / rel).read_bytes(), (repo.work / rel).stat().st_mtime_ns) for rel in tracked} == before
+    assert repo.head() == head and _git(repo.work, "write-tree") == index
+
+
+@pytest.mark.parametrize("live_oversize", [True, False])
+def test_archive_protected_json_metadata_preserves_transaction_boundaries(repo, live_oversize: bool) -> None:
+    closed_minor(repo)
+    protected = repo.work / "docs/archives/v0/v0.4/receipt.json"
+    protected.parent.mkdir(parents=True)
+    protected.write_bytes(json.dumps({"input": V05 + "/development/evidence.md", "padding": "x" * (mc.REFERENCE_MAX_BYTES + 1)}).encode() + b"\r\n")
+    raw_capture = protected.parent / "capture.log"
+    raw_capture.write_bytes(b"\xef\xbb\xbf" + f"historical {V05}/development/evidence.md\r\n".encode())
+    destination = "docs/archives/v0/v0.5/development/evidence.md"
+    repo.write("live.json", json.dumps({"input": V05 + "/development/evidence.md" if live_oversize else destination,
+        "padding": "x" * (mc.REFERENCE_MAX_BYTES + 1) if live_oversize else ""}))
+    repo.commit("private protected archive metadata inputs")
+    record_path = cm.record_file(ck, repo.rctx(), "v0.5")
+    record_before = (record_path.read_bytes(), record_path.stat().st_mtime_ns)
+    original = json.loads(record_before[0])
+    preserved = {path: (path.read_bytes(), path.stat().st_mtime_ns) for path in (protected, raw_capture)}
+    capture = repo.work / f"{V05}/development/capture.json"
+    capture_before = (capture.read_bytes(), capture.stat().st_mtime_ns)
+    tracked = _git(repo.work, "ls-files").splitlines()
+    before = {rel: ((repo.work / rel).read_bytes(), (repo.work / rel).stat().st_mtime_ns) for rel in tracked}
+    head, index = repo.head(), _git(repo.work, "write-tree")
+    result = archive(repo, "--apply")
+    reports = [json.loads(line.removeprefix("archive-reference-inventory ")) for line in result.stderr.splitlines()
+        if line.startswith("archive-reference-inventory ")]
+    assert reports and all(report["classified_historical"] >= 1 for report in reports)
+    assert all(any(item["path"] == protected.relative_to(repo.work).as_posix() for item in report["not_read"]) for report in reports)
+    assert {path: (path.read_bytes(), path.stat().st_mtime_ns) for path in preserved} == preserved
+    if live_oversize:
+        assert result.returncode == 3 and "archive reference inventory incomplete" in result.stdout, result.stdout + result.stderr
+        assert (repo.work / V05).is_dir() and not (repo.work / "docs/archives/v0/v0.5").exists()
+        assert (record_path.read_bytes(), record_path.stat().st_mtime_ns) == record_before
+        assert {rel: ((repo.work / rel).read_bytes(), (repo.work / rel).stat().st_mtime_ns) for rel in tracked} == before
+        assert repo.head() == head and _git(repo.work, "write-tree") == index
+    else:
+        assert result.returncode == 0 and result.stdout.startswith("ARCHIVED v0.5"), result.stdout + result.stderr
+        assert (repo.work / destination).is_file() and not (repo.work / V05).exists()
+        moved_capture = repo.work / "docs/archives/v0/v0.5/development/capture.json"
+        assert (moved_capture.read_bytes(), moved_capture.stat().st_mtime_ns) == capture_before
+        assert record_path.read_bytes() != record_before[0]
+        state = repo.load(None)
+        assert state.forced is None and state.record is not None
+        assert all(state.record[field] == original[field] for field in ("nonce", "session_id", "approvals"))
+        assert all(member["plan_path"].startswith("docs/archives/v0/v0.5/") for member in state.record["members"])
+        assert _git(repo.work, "status", "--porcelain").strip() == ""
+
+
+def test_archive_reference_preflight_refuses_then_owner_repair_succeeds(repo) -> None:
+    closed_minor(repo)
+    destination = "docs/archives/v0/v0.5/development/evidence.md"
+    repo.write("live.json", json.dumps({"input": f"{V05}/development/evidence.md"}) + "\n")
+    repo.write("docs/archives/v0/v0.4/receipt.md", f"# Receipt\n\n[record](../../../releases/v0/v0.5/development/evidence.md)\n")
+    (repo.work / f"{V05}/development/capture.json").write_bytes(b"\xef\xbb\xbf" + json.dumps({"path": f"{V05}/development/evidence.md"}).encode() + b"\r\n")
+    (repo.work / f"{V05}/development/capture.log").write_bytes(b"\xef\xbb\xbf" + f"captured {V05}/development/evidence.md\r\n".encode())
+    repo.commit("live consumer and historical receipt")
+    raw = {name: (repo.work / f"{V05}/development/{name}").read_bytes() for name in ("capture.json", "capture.log")}
+    receipt = repo.work / "docs/archives/v0/v0.4/receipt.md"
+    receipt_before = receipt.read_bytes()
+    refused = archive(repo, "--apply")
+    assert refused.returncode == 3 and "archive-reference-unresolved" in refused.stdout, refused.stdout + refused.stderr
+    assert (repo.work / V05).is_dir()
+    assert not (repo.work / "docs/archives/v0/v0.5").exists()
+    assert all((repo.work / f"{V05}/development/{name}").read_bytes() == content for name, content in raw.items())
+    repo.write("live.json", json.dumps({"input": destination}) + "\n")
+    repo.commit("consumer-owned input repair")
+    completed = archive(repo, "--apply")
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert (repo.work / json.loads(repo.read("live.json"))["input"]).is_file()
+    assert all((repo.work / f"docs/archives/v0/v0.5/development/{name}").read_bytes() == content for name, content in raw.items())
+    assert receipt.read_bytes() == receipt_before.replace(b"../../../releases/v0/v0.5/", b"../v0.5/")
+    assert "newly_broken covers Markdown-link comparison only" in completed.stderr
+
+
+def test_archive_rescans_after_link_baseline_before_any_move(repo, monkeypatch: pytest.MonkeyPatch) -> None:
+    closed_minor(repo)
+    rctx = repo.rctx()
+    files = _git(repo.work, "ls-files").splitlines()
+    record_path = cm.record_file(ck, rctx, "v0.5")
+    record_before = record_path.read_bytes()
+    real_link = mc._link_run
+    injected = False
+
+    def baseline_change(*args):
+        nonlocal injected
+        result = real_link(*args)
+        if args[1] == "baseline" and not injected:
+            injected = True
+            repo.write("late.json", json.dumps({"input": V05 + "/development/evidence.md"}) + "\n")
+            _git(repo.work, "add", "--", "late.json")
+        return result
+
+    monkeypatch.setattr(mc, "_link_run", baseline_change)
+    with pytest.raises(mc.Refused, match="archive-reference-unresolved"):
+        mc._apply_moves(rctx, [(V05, "docs/archives/v0/v0.5")], files, LINK_CHECKER, "docs: fixture archive")
+    assert injected and (repo.work / V05).is_dir()
+    assert not (repo.work / "docs/archives/v0/v0.5").exists()
+    assert json.loads(repo.read("late.json"))["input"].startswith(V05)
+    assert record_path.read_bytes() == record_before
+
+
+@pytest.mark.parametrize("rel", ["tests/evidence/capture.py", "scripts/EVIDENCE/receipt.sh", "tests/fixtures/receipt.json"])
+def test_raw_captures_win_over_legacy_source_suffixes(tmp_path: Path, rel: str) -> None:
+    old, new = "docs/releases/v0/v0.5", "docs/archives/v0/v0.5"
+    target = tmp_path / rel
+    target.parent.mkdir(parents=True)
+    target.write_bytes(f'VALUE = "{old}/capture.md"\r\n'.encode())
+    before = target.read_bytes()
+    assert mc.plan_moves_repairs(tmp_path, [(rel, rel, rel)], [(old, new)]) == []
+    assert target.read_bytes() == before
+
+
+def test_archive_attribute_owner_repair_preserves_effective_projected_selector(repo) -> None:
+    closed_minor(repo)
+    target = "docs/archives/v0/v0.5/development/evidence.md"
+    repo.write(".gitattributes", f'"{V05}/**" -text\n')
+    repo.commit("live old attribute selector")
+    refused = archive(repo)
+    assert refused.returncode == 3 and "archive-reference-unresolved" in refused.stdout
+    repo.write(".gitattributes", '"docs/archives/v0/v0.5/**" -text\n')
+    repo.commit("owner repairs projected archive selector")
+    before = (repo.work / ".gitattributes").read_bytes()
+    result = archive(repo, "--apply")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _git(repo.work, "check-attr", "text", "--", target) == target + ": text: unset"
+    assert (repo.work / ".gitattributes").read_bytes() == before
+
 V05 = "docs/releases/v0/v0.5"
 V06 = "docs/releases/v0/v0.6"
 GAPS05 = f"{V05}/known-gaps.md"
@@ -476,6 +926,39 @@ def test_consolidated_owner_requires_an_explicit_complete_original_source_block(
     assert cm.verify_migration(repo.rctx(), record, "v0.6", ledgers, earlier, earlier.items[0]) == (
         "met", "in-scope-copy"
     )
+
+
+def test_plan_check_accepts_minor_close_label_only_for_one_migrated_id(repo: Close) -> None:
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    assert repo.migrate().returncode == 0
+    assert "**Migrated from**: v0.5#WN-3" in repo.read(GAPS06)
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    assert cm.plan_migration_met(ledgers, source, source.items[0])
+
+    # An open item reusing the id is not a migration, so `v0.5#WN-3` still names one item.
+    older = "#### WN-3: An older warning\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
+    migrated_text = repo.read(GAPS05)
+    assert "**Open items**: 0\n" in migrated_text
+    duplicated = migrated_text.replace("**Open items**: 0\n", "**Open items**: 1\n")
+    repo.write(GAPS05, duplicated + "\n" + section("v0.5.1", 1, older))
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    migrated = next(item for item in source.items if item.state == "migrated")
+    assert sum(item.gid == "WN-3" for item in source.items) == 2
+    assert cm.plan_migration_met(ledgers, source, migrated)
+
+    # A second migrated item with the id makes `v0.5#WN-3` name two items: only the patch form proves it.
+    twice = "#### WN-3: An older warning - MIGRATED to v0.6.0\n\n- **Source phase**: Phase 1\n- **Reason**: unrelated\n\n"
+    repo.write(GAPS05, migrated_text + "\n" + section("v0.5.1", 0, twice))
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert not source.problems
+    assert sum(item.gid == "WN-3" and item.state == "migrated" for item in source.items) == 2
+    assert not any(cm.plan_migration_met(ledgers, source, item) for item in source.items)
 
 
 def test_verification_follows_explicit_patch_carry_but_reuse_stays_at_minor_start(repo: Close) -> None:
@@ -1376,7 +1859,7 @@ def test_external_repair_replacement_is_refused_before_writing(repo: Close, monk
     monkeypatch.setattr(mc, "_write_atomic", lambda *args: writes.append(args))
     with pytest.raises(mc.RetainState):
         _apply_batch_archive(repo, files)
-    assert replaced == [True] and writes == []
+    assert replaced and all(replaced) and writes == []
     assert todos.read_bytes() == original and repo.head() == head
 
 
@@ -1924,3 +2407,18 @@ def test_migration_comment_endings_preserve_visible_only_provenance(repo: Close,
     assert status == ("unmet" if hidden else "met"), notices
     if hidden:
         assert "gaps.minor migration v0.5#WN-3 migration-provenance-hidden" in notices
+
+def test_plan_migration_met_shares_one_proof_cache(repo: Close) -> None:
+    """BG-12: a shared proof cache gives the same answer and is reused, not refilled."""
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    assert repo.migrate().returncode == 0
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    item = source.items[0]
+    cache: dict[str, tuple[str, ...]] = {}
+    assert cm.plan_migration_met(ledgers, source, item, proof_cache=cache)
+    assert cache
+    filled = dict(cache)
+    assert cm.plan_migration_met(ledgers, source, item, proof_cache=cache)
+    assert cache == filled

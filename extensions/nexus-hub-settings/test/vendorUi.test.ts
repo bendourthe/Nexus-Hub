@@ -4,8 +4,10 @@ import * as path from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { env, stub } from "./vscode-stub";
 import { installNativeUi } from "../src/vendorUi";
-import { installVendorUi } from "../src/vendorUiInstall";
-vi.mock("../src/vendorUiInstall", () => ({ installVendorUi: vi.fn() }));
+import { installVendorUi, installProviderRecovery, installPortableEffort } from "../src/vendorUiInstall";
+import { applyNativeEffort } from "../src/nativeEffort";
+vi.mock("../src/vendorUiInstall", () => ({ installVendorUi: vi.fn(), installProviderRecovery: vi.fn(), installPortableEffort: vi.fn() }));
+vi.mock("../src/nativeEffort", () => ({applyNativeEffort: vi.fn()}));
 let directory: string;
 let original: string | undefined;
 let subscriptions: { dispose(): unknown }[];
@@ -18,6 +20,9 @@ beforeEach(async () => {
   stub.reset(); subscriptions = []; setPlatform("win32");
   original = process.env.NEXUS_HUB_HOME; directory = await fs.mkdtemp(path.join(os.tmpdir(), "nexus-ui-")); process.env.NEXUS_HUB_HOME = directory;
   vi.mocked(installVendorUi).mockReset().mockResolvedValue({ changed: false, receipt: "receipt", menuOnly: false });
+  vi.mocked(installProviderRecovery).mockReset().mockResolvedValue(false);
+  vi.mocked(installPortableEffort).mockReset().mockResolvedValue(false);
+  vi.mocked(applyNativeEffort).mockReset().mockResolvedValue({updated: 1});
   await write("medium");
 });
 afterEach(async () => {
@@ -90,7 +95,21 @@ it("keeps the Codex tab menu on an unverified build without polling a missing ef
   vi.mocked(installVendorUi).mockResolvedValueOnce({ changed: true, receipt: "receipt", menuOnly: true });
   const bridge = (await setup())!;
   await bridge.synchronize();
-  expect(bridge.summary()).toEqual({ reloadRequired: true, errors: ["Codex: Live effort updates are not verified for this version. Open Codex in tabs still applies."] });
+  expect(bridge.summary()).toEqual({ reloadRequired: true, errors: [] });
+  expect(installPortableEffort).toHaveBeenCalledWith("codex", "codex", path.join(directory, "native-ui"));
+  expect(applyNativeEffort).toHaveBeenCalledWith("codex", "medium", "medium:");
+  await write("high"); await bridge.synchronize();
+  expect(applyNativeEffort).toHaveBeenLastCalledWith("codex", "high", "high:");
+});
+
+it("reports a changed Codex toolbar before any effort or Fast preference exists", async () => {
+  await fs.unlink(path.join(directory, "preferences.json"));
+  stub.vendorExtensions.set("openai.chatgpt", { extensionPath: "codex", isActive: true });
+  vi.mocked(installVendorUi).mockResolvedValueOnce({ changed: true, receipt: "receipt", menuOnly: true });
+  const bridge = (await setup())!;
+  expect(bridge.summary().reloadRequired).toBe(true);
+  await bridge.synchronize();
+  expect(bridge.summary().reloadRequired).toBe(true);
 });
 it("does not install adapters in an untrusted workspace or without native vendors", async () => {
   expect(await setup()).toBeUndefined();

@@ -19,6 +19,18 @@ EXAMPLE_BUNDLE = REPO_ROOT / "configs" / "examples" / "org-bundle-example"
 REPRESENTATIVE_PLATFORMS = ("claude", "codex", "cursor", "gemini", "opencode", "aider")
 
 
+@pytest.fixture(autouse=True)
+def _no_real_claude_on_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """v4.15.2: Claude's project instruction path depends on the installed version, so
+    these tests never see the developer's real `claude` binary or its settings."""
+    from scripts.lib.integrations import _detection
+
+    monkeypatch.setattr(_detection, "safe_which", lambda _name, path=None: None)
+    monkeypatch.delenv("NEXUS_HUB_CLAUDE_VERSION", raising=False)
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(Path(__file__).resolve().parent / "_no_claude_config"))
+    monkeypatch.setenv("NEXUS_HUB_CLAUDE_MANAGED_SETTINGS", str(Path(__file__).resolve().parent / "_no_managed.json"))
+
+
 def _connect(home: Path, bundle: Path) -> None:
     connection = home / "org" / "connection.json"
     connection.parent.mkdir(parents=True, exist_ok=True)
@@ -324,3 +336,64 @@ def test_posture_roster_matches_registry_and_unknown_keys_degrade() -> None:
             "No verified platform precedence mechanism is recorded; treat the projection as guidance only.",
         )
     ]
+
+
+# --- Shared AGENTS.md: organization block ownership (v4.15.2, Phase 4) -------
+
+
+def test_organization_block_stays_while_another_consumer_still_owns_it(tmp_path):
+    from scripts.lib.integrations import org_knowledge
+    from scripts.lib.integrations.base import InstallContext
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    target = tmp_path / "AGENTS.md"
+    target.write_text(
+        f"# Mine\n\n{org_knowledge.ORG_START_MARKER}\norg rules\n{org_knowledge.ORG_END_MARKER}\n",
+        encoding="utf-8",
+    )
+    manifest = InstallManifest()
+    manifest.track_org_shared("codex", str(target))
+    manifest.track_org_shared("opencode", str(target))
+    ctx = InstallContext(repo_root=tmp_path, target_root=tmp_path, scope="workspace", manifest=manifest)
+    first = org_knowledge.remove_org_knowledge("codex", ctx)
+    assert [a.action for a in first] == ["kept"]
+    assert org_knowledge.ORG_START_MARKER in target.read_text(encoding="utf-8")
+    second = org_knowledge.remove_org_knowledge("opencode", ctx)
+    assert [a.action for a in second] == ["removed"]
+    assert org_knowledge.ORG_START_MARKER not in target.read_text(encoding="utf-8")
+    assert target.read_text(encoding="utf-8").startswith("# Mine")
+
+
+def test_supported_claude_projects_receive_the_org_block_in_the_shared_agents_md(
+    connected_bundle: tuple[Path, Path], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("NEXUS_HUB_CLAUDE_VERSION", "2.1.281")
+    target = tmp_path / "supported"
+    target.mkdir()
+    manifest = InstallManifest()
+    claude = INTEGRATION_REGISTRY["claude"]
+    claude.install(_ctx(target, manifest, instruction_only=True))
+    agents = target / "AGENTS.md"
+    assert agents.is_file() and not (target / "CLAUDE.md").exists()
+    first = agents.read_text(encoding="utf-8")
+    assert first.count(org.ORG_START_MARKER) == 1 and first.index("NEXUS_HUB_START") < first.index(org.ORG_START_MARKER)
+    claude.install(_ctx(target, manifest, instruction_only=True))
+    assert agents.read_text(encoding="utf-8") == first
+
+
+def test_codex_and_claude_share_one_org_block_and_teardown_keeps_it_for_the_last_consumer(
+    connected_bundle: tuple[Path, Path], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("NEXUS_HUB_CLAUDE_VERSION", "2.1.281")
+    target = tmp_path / "both"
+    target.mkdir()
+    manifest = InstallManifest()
+    claude, codex = INTEGRATION_REGISTRY["claude"], INTEGRATION_REGISTRY["codex"]
+    claude.install(_ctx(target, manifest, instruction_only=True))
+    codex.install(_ctx(target, manifest, instruction_only=True))
+    agents = target / "AGENTS.md"
+    assert agents.read_text(encoding="utf-8").count(org.ORG_START_MARKER) == 1
+    claude.teardown(_ctx(target, manifest, instruction_only=True))
+    assert org.ORG_START_MARKER in agents.read_text(encoding="utf-8")
+    codex.teardown(_ctx(target, manifest, instruction_only=True))
+    assert not agents.exists() or org.ORG_START_MARKER not in agents.read_text(encoding="utf-8")

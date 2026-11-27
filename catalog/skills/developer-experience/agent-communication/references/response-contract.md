@@ -8,7 +8,8 @@ Tier-3 companion to the `agent-communication` skill. The canonical contract is [
 2. [Error recovery: re-issuing the remaining sequence](#error-recovery-re-issuing-the-remaining-sequence)
 3. [Waiting-state interim update](#waiting-state-interim-update)
 4. [End-of-task report](#end-of-task-report)
-5. [Plain-language substitutions](#plain-language-substitutions)
+5. [Comparison handoff](#comparison-handoff)
+6. [Plain-language substitutions](#plain-language-substitutions)
 
 ## Placeholder discipline: three cases
 
@@ -119,6 +120,22 @@ The detail from the wrong version is not lost. It belongs in the completion repo
 > In plain terms: the rules for how the assistant talks to you now exist in one place, and every platform will pick them up on the next install.
 
 Note the Open part. It is present, specific, and names where the risk is tracked. An absent Open section reads as "all clear", which is a claim, not an omission.
+
+## Comparison Handoff
+
+The retained `cross-project-comparison` skill owns the choices for `/compare` and direct skill use. Section 5.2 of the common installed communication guide (`~/.nexus-hub/style-guides/agent-communication.md` by default) owns presentation. This example illustrates the skill's handoff after a completed comparison with eligible recommendations:
+
+> Comparison complete. I recommend creating a plan from the recommended updates so you can review the work before implementation. Creating the plan does not implement the changes or grant new publication authority.
+>
+> What would you like to do next?
+
+Use the available multiple-choice question tool with these labels. If no such tool is available, the numbered text fallback is:
+
+1. **Create the plan (Recommended)** - prepare a plan from this comparison for review.
+2. Review recommendations - adjust the proposed updates first.
+3. Stop here - keep the comparison report without starting a plan.
+
+Wait for the selection. Do not append a technical task list for the user to interpret, duplicate a question tool's choices in a table, or ask again if the user already requested planning.
 
 ## Plain-language substitutions
 

@@ -4,9 +4,9 @@ description: Compare this project to an external source (a Git repo, a web artic
 
 # /compare Command
 
-Compare the current project to an external knowledge source and turn the differences into an actionable plan. `/compare` detects whether the source is a Git repository, a web article, or a local path, analyzes it against this project, writes a structured gap analysis with a prioritized adoption plan, and chains directly into `/plan from-comparison` so the highest-value gaps become a real implementation plan.
+Compare the current project to an external knowledge source and turn the differences into an actionable plan. `/compare` detects whether the source is a Git repository, a web article, or a local path, analyzes it against this project, writes a structured gap analysis with a prioritized adoption plan, and offers `/plan from-comparison` so the user can choose whether to create an implementation plan.
 
-This is a thin dispatcher over the `cross-project-comparison` skill, following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). The substantive comparison logic - source detection, the mandatory pre-ingest source-security scan, the Security and Reverse-Engineering assessment sections, and the adoption-plan synthesis - lives in the skill; this file resolves the source type and delegates.
+This is a thin dispatcher over the `cross-project-comparison` skill, following the command-scope mechanism in the common installed Nexus-Hub style guides (`~/.nexus-hub/style-guides/command-scope-mechanism.md` by default). The comparison procedure, assessments, adoption-plan synthesis and completion handoff live in the retained skill; this file resolves the source type and delegates.
 
 ## Scope resolution (auto-inferred from the source)
 
@@ -41,9 +41,15 @@ The comparison report is written to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/com
 
 `/compare` creates no branch. The report is committed on the integration branch and published the same day, through a short-lived `publish/<slug>` pull request where that branch requires one, per Step 4d of `[[git-branching-workflow]]`.
 
-After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering. When it chains, the report's `Adoption target:` field is the authority for the generated plan's version directory, so the plan lands co-located with the comparison in the same version tree (see `/plan from-comparison`).
+### Completion Handoff
+
+Resolve `cross-project-comparison` through the current host's skill discovery and complete its final handoff step before closing this command. That skill owns when to offer planning, the choices and their selected actions, including direct skill use. A returned comparison report alone does not complete the command's handoff; do not replace that step with a technical `Next` paragraph or automatically start another workflow.
+
+## Minor re-plan analysis (guarantee)
+
+After the adoption target is confirmed, `/compare` reads the target minor's existing plans together through `[[plan-queue-assessment]]` and its bundled `replan_minor.py` (applied in `[[cross-project-comparison]]` Step 6.5b) and reads the result against the comparison's adoption items. Findings are proposals shown to the user for approval and recorded in the report's `## Queued-plan impact` section. Nothing is applied automatically and no existing plan is edited. The rule lives in that skill; this dispatcher states the guarantee.
 
 ## Notes
 
 - This command replaces `/compare-project` (removed in v3.2.0).
-- Keep this dispatcher thin. The comparison procedure lives entirely in the `cross-project-comparison` skill; this file owns only source detection, delegation, and the `/plan from-comparison` hand-off.
+- Keep this dispatcher thin. This file owns source detection and delegation; `cross-project-comparison` owns the comparison procedure and completion handoff, and `agent-communication` owns question presentation.

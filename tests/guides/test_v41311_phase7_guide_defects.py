@@ -34,6 +34,8 @@ GUIDE = WEB / "nexus-hub-guide.html"
 TRAINING = WEB / "training.html"
 OPENING = WEB / "shared" / "opening.css"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
+# One card per catalog command; /status left in v4.15.5, so the count follows the catalog.
+COMMANDS = len(list((ROOT / "catalog" / "commands").glob("*.md")))
 
 
 def _text(path: Path) -> str:
@@ -58,8 +60,8 @@ def test_model_status_reserves_its_width(path: Path) -> None:
 
 def test_card_names_are_h3_headings_in_markup() -> None:
     html = _text(GUIDE)
-    assert len(_card_names()) == 25
-    assert len(re.findall(r'<h3 data-ty="code" data-tone="accent" class="cs-name">/[a-z-]+</h3>', html)) == 25
+    assert len(_card_names()) == COMMANDS
+    assert len(re.findall(r'<h3 data-ty="code" data-tone="accent" class="cs-name">/[a-z-]+</h3>', html)) == COMMANDS
     assert '<span data-ty="code" data-tone="accent" class="cs-name">' not in html
     assert "min-width:92px" not in html, "a fixed key width let long keys push their description"
 
@@ -142,7 +144,7 @@ def test_card_names_are_level_3_headings_with_the_code_look(browser) -> None:
     try:
         cards = page.evaluate(CARDS_JS)
         names = [c["name"] for c in cards]
-        assert names == _card_names() and len(names) == 25
+        assert names == _card_names() and len(names) == COMMANDS
         root = page.locator("#page-cheatsheets")
         for name in names:
             assert root.get_by_role("heading", level=3, name=name, exact=True).count() == 1, name
