@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.5 -->
+<!-- nexus-hub-version: 4.15.6 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.5
+## What's New in v4.15.6
 
-- An opt-in stuck-turn notice (`NEXUS_STUCK_NOTICE=on`) flags a turn that keeps repeating the same failing command or edit, and environment-fact replay (`NEXUS_ENV_FACTS=on`) brings back what earlier sessions learned about the project. Both are off by default.
-- Upgrades now remove unchanged Nexus-Hub copies of commands, skills and agents that left the catalog; an edited copy is kept and reported. The deprecated `/status` command is removed: use `/progress`.
-- `/progress` measures every number from git and the plan files, so its report never shows `unknown`.
+- Every git worktree now lives in one central folder. `nexus-hub worktree` creates, lists, audits and (after your approval) migrates worktrees, a guard blocks `git worktree add` outside that folder, and `nexus-hub worktree prune-merged` removes merged, clean worktrees (a dry run unless you add `--apply`).
+- Every platform's instructions now share the same progress-report, question and manual-step rules, and during an implementation run the progress report is the closing message.
+- Minor runs flag idle lanes and name the next dispatch or decision. `nexus-hub upgrade` works again on Windows machines where Microsoft Defender blocked it, and the Gemini Usage Monitor reads quotas on Antigravity IDE 1.107.
 
-[Release details and earlier versions](CHANGELOG.md#4155---2026-11-19)
+[Release details and earlier versions](CHANGELOG.md#4156---2026-11-27)
 
 ## Installation
 

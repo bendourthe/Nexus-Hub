@@ -8,13 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.5 更新内容
+## v4.15.6 更新内容
 
-- 可选启用的卡住回合提示（`NEXUS_STUCK_NOTICE=on`）会在某个回合反复执行同一个失败命令或反复做同一处编辑时给出提示；环境事实回放（`NEXUS_ENV_FACTS=on`）会把早先会话了解到的项目信息带回新会话。两者默认关闭。
-- 升级时会删除已离开目录的命令、技能和代理中未被修改过的 Nexus-Hub 副本；被修改过的副本会保留并报告。已弃用的 `/status` 命令已删除，请改用 `/progress`。
-- `/progress` 的每一个数字都从 git 和计划文件中测量得出，因此报告中不会再出现 `unknown`。
+- 所有 git 工作树现在集中放在同一个文件夹中。`nexus-hub worktree` 可以创建、列出、审计工作树，并在你批准后迁移工作树；一个防护钩子会阻止在该文件夹之外执行 `git worktree add`；`nexus-hub worktree prune-merged` 会删除已合并且无改动的工作树（默认只预演，加上 `--apply` 才会真正删除）。
+- 所有平台的指令现在共用同一套进度报告、提问和手动步骤规则；在实施运行期间，进度报告就是最后一条消息。
+- 次版本运行会标出空闲的并行通道，并指明下一步需要派发的任务或需要你做的决定。`nexus-hub upgrade` 在被 Microsoft Defender 拦截的 Windows 电脑上恢复可用，Gemini 用量监视器也能在 Antigravity IDE 1.107 上读取配额。
 
-[版本详情与早期版本](CHANGELOG.md#4155---2026-11-19)
+[版本详情与早期版本](CHANGELOG.md#4156---2026-11-27)
 
 ## 安装
 

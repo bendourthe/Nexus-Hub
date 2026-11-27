@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.6] - 2026-11-27
+
 ### Added
 
 - Implementation continuation now reconciles owner actions, decisions, live job handles, external blockers and native state before stopping. Reports expose complete manual steps and preserve the approved objective; a changed reporting obligation receives a fresh correction check without resetting implementation stall thresholds. Exact claimed-operation recovery refuses ambiguous proof, and new policy adoption requires an explicit policy-bound capture. Common reporting scripts and provider copies resolve native helpers through the installed reporting bundle. These source changes remain subject to final qualification and approved installed delivery.
@@ -19,19 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A captured decision can release one member's implementation claims so a publication-order deadlock can be broken.** `record withdraw-implementation --minor vX.Y --repo R --session S --member vX.Y.Z` (render it first with `record render ... --action withdraw-implementation --member vX.Y.Z --question`) removes the recorded implementation admission of one admitted, unstarted member and keeps the removed claims as signed history. Its branch, worktree and commits are not changed; admitting it again is the ordinary `record member-implement-start` at a clean commit already merged into the target branch. It refuses a member that was never admitted, holds a publication start, is finished, or carries a path, read or execution permission entry, and it never edits the record by hand. See [`completion-contract.md`](catalog/skills/workflow/implement-phase/references/completion-contract.md) and [`2026-11-21-withdraw-member-implementation.md`](docs/decisions/implemented/tooling/2026-11-21-withdraw-member-implementation.md).
 - **Merged worktrees are removed automatically.** `nexus-hub worktree prune-merged` lists every linked worktree with its merged and clean state, and with `--apply` removes each one whose branch is in `origin/develop` or `origin/main` and that has no uncommitted, untracked, stashed or locked work, then deletes its local branch. It never forces and never touches the primary checkout or `main`, `master` and `develop`. The implement runbook now calls it right after a plan's integration merge instead of leaving retirement to the rarely approved release cleanup.
 
+- **A started minor member can receive an execution grant.** `record permit-member-execution-paths` (and its `record render`) accepted only unstarted members, so a member admitted without its CI paths could never be granted them. A started member now qualifies when its admitted worktree and branch are unchanged and clean and every requested literal path is in its plan's claims `write_paths`; capture, seal and HMAC are the existing ones. A grant captured after start counts toward the member's merge-time write scope.
+- **A bounded Codex transcript reader and a compare-to-plan choice.** The continuation check reads a Codex transcript within a 512 MiB scan and a 64 MiB record limit, and a finished `/compare` offers the choice to create the plan, review the recommendations, or stop.
+
 ### Changed
 
 - **Every platform communicates the same way.** All fourteen instruction templates and the session-start reminder carry three rules: a compact progress report at each checkpoint and at least every ~5 minutes of active work; one question format (a plain explanation, then lettered options with the recommendation always option A, labeled "(Recommended)"); and numbered manual steps that stop at the first step whose output the agent needs. A validator fails when any template drifts.
 - **During an implementation run, the progress report is the closing message.** All fourteen instruction templates and the session-start status line now say that the report `status_report.py` prints replaces the Completed / Verified / Open / Next summary and any output-style insight boxes, and that its snapshot is built from an up-to-date checkout. A message that asks a new decision uses the full report with the decision in its Decisions section. Running sessions pick this up at their next start or compaction.
 - **`using-git-worktrees`, the implement runbook and the fourteen instruction templates place worktrees at the central root** and create them with `nexus-hub worktree create`.
-
-Capability usage for the new surfaces:
-
-- Activation: nothing is opt-in. The guard, the helper and the session-start notice install with the normal installers.
-- Validation command: `nexus-hub worktree path --repo <checkout> --name <name> --json`, then `nexus-hub worktree list --repo <checkout> --json`.
-- Disable or rollback: remove the `worktree-policy` group from the installed `settings.json` (or the Antigravity `hooks.json` entry); set `NEXUS_WORKTREE_NOTICE=off` for the session-start notice. `NEXUS_HOOK_PROFILE` and `NEXUS_DISABLED_HOOKS` do not disable the guard by design.
-- Authority not granted: the guard never runs the command it reads; `migrate` acts only on a manifest the user approved and items their owners acknowledged, and never removes, unlocks or prunes; the session-start notice only reads.
-- Documentation: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md) and [`using-git-worktrees`](catalog/skills/workflow/using-git-worktrees/SKILL.md).
+- **A minor run re-plans at every start and resume.** Runbook Phase 0c re-assesses all unshipped members together, lists each declared serial route and `depends_on` edge with its concrete file or merge reason, flags a reasonless one as challengeable, and records the maximum parallel lane set before dispatch. `plan-queue-assessment` points back to the step and a validator keeps the text.
 
 ### Fixed
 
@@ -44,6 +42,46 @@ Capability usage for the new surfaces:
 - **A slow approval command no longer spends your approval without recording it.** `record permit-member-execution-paths` and `record amend-minor` rechecked their page only after spending the single-use approval code, and the whole command shared one 60-second budget. On a busy machine the recheck ran out of time, so the approval was used up and nothing was written; the next attempt reported `code-used`. Both commands now run the recheck before spending the code, keep the final recheck, and give each expensive stage its own budget.
 
 - **`nexus-hub upgrade` works on Windows machines where Microsoft Defender blocked it.** The upgrade started PowerShell with `irm <url> | iex` on its command line, which Defender flags as `Trojan:Win32/Commando.B!ml` and refuses at process creation, so the upgrade failed with `PermissionError: [WinError 5] Access is denied`. It now downloads `install.ps1` itself and runs the local copy with `powershell -File`, keeping any recorded `-Profile`, `-Modules` or `-Bundles` selection. If the installer cannot be downloaded or started, the command prints the one-line manual install command instead of a traceback. On v4.15.5 or earlier, upgrade an affected machine by pasting `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` into a PowerShell window. Decision record: `docs/decisions/implemented/tooling/2026-11-20-windows-upgrade-runs-a-downloaded-installer-file.md`.
+
+- **`check-minor` names what an incomplete minor needs.** On an INCOMPLETE verdict it reuses the lane-health idle classifier and appends `ACTION: dispatch-required (...)` for unadmitted and resumable members and `ACTION: decision-required (member: reason)` for lanes waiting on you. The verdict line, exit code and predicate lines are unchanged; JSON output gains an `actions` list. `lane_health.py beat` accepts `blocked:waits-merge:<version>` and `blocked:needs-user:<reason>` and refuses either when malformed.
+
+- **Minor-close and completion checks no longer fail on archive side effects.** Accepting archive link repairs in the frozen plan hash and `record rekey` (BG-11), the minor-close migration label for a unique id (BG-10), a plan-migration proof cache that cuts a 248-item check from about 30 s to 4 s (BG-12), a superseded member plan (BG-13), and a controller mismatch or removed controller worktree (BG-14) are each resolved. The archive reference inventory now scans unparseable historical JSON and mention-free binaries as text instead of stopping the archive.
+
+- **Git is resolved without the current directory.** `trusted_git` walks absolute `PATH` entries outside the current directory, because `shutil.which` on Windows before Python 3.12 searches the current directory first and a planted `git.bat` won on CI. CodeQL alerts in the worktree helper are closed.
+
+### Capability usage
+
+#### Surface: worktree placement guard
+
+- Activation: nothing is opt-in. The placement guard, the helper and the session-start notice install with the normal installers.
+- Validation: `nexus-hub worktree path --repo <checkout> --name <name> --json`, then `nexus-hub worktree list --repo <checkout> --json`.
+- Rollback: remove the `worktree-policy` group from the installed `settings.json` (or the Antigravity `hooks.json` entry). `NEXUS_HOOK_PROFILE` and `NEXUS_DISABLED_HOOKS` do not disable the guard by design.
+- Authority: the guard never runs the command it reads and only denies a `git worktree add` or `git worktree move` destination outside the central root; it grants nothing and changes no worktree.
+- Docs: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md) and [`using-git-worktrees`](catalog/skills/workflow/using-git-worktrees/SKILL.md).
+
+#### Surface: worktree prune-merged
+
+- Activation: you run it; nothing schedules it. `nexus-hub worktree prune-merged --repo <checkout>` only reports (dry run). Add `--apply` to remove. Optional flags: `--fetch` (one `git fetch`), `--only <path-or-branch>` (repeatable), `--idle-hours <n>` (default 24), `--prune-stale`. The implement runbook runs it with `--apply` right after a plan's integration merge.
+- Validation: `nexus-hub worktree prune-merged --repo <checkout> --json` lists every linked worktree with its merged and clean state; after `--apply`, `nexus-hub worktree list --repo <checkout> --json` and `git worktree list` no longer show the removed paths.
+- Rollback: a removal is not reversed by a switch. Review the dry-run list first. Only a worktree whose branch is already in `origin/develop` or `origin/main` is removed, so its commits remain on the remote; make a checkout again with `nexus-hub worktree create`. Not passing `--apply` is the off state.
+- Authority: never forces and never removes the primary checkout or `main`, `master` and `develop`. It skips a worktree with uncommitted, untracked, stashed or locked work or one touched within the idle window. It does not push, delete remote branches, unlock anything or edit a run record.
+- Docs: [`using-git-worktrees`](catalog/skills/workflow/using-git-worktrees/SKILL.md) and the "Plan worktree integration" step of the [implement runbook](catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md).
+
+#### Surface: worktree migrate
+
+- Activation: only from a reviewed manifest. Run `nexus-hub worktree audit`, review the manifest, then `nexus-hub worktree migrate --dry-run --manifest <file> --expect-sha256 <digest>`; you approve with `--approve` in your own terminal, each worktree's owner acknowledges with `--ack`, and `--apply` moves.
+- Validation: the dry run prints the proposed moves and exceptions; after `--apply`, `nexus-hub worktree list --repo <checkout> --json` shows each worktree at its new path and the recorded receipt names the old and new path.
+- Rollback: an unapproved or unapplied manifest changes nothing. A moved worktree is moved back with `git worktree move <new> <old>`; see Interruption and recovery in the runbook.
+- Authority: an agent tool call cannot run `--approve`. `migrate` never removes, unlocks or prunes a worktree and does not touch the primary checkout; a dirty worktree is an exception unless `--include-dirty` is given.
+- Docs: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md).
+
+#### Surface: session-start worktree notice
+
+- Activation: on by default; `NEXUS_WORKTREE_NOTICE=off` turns the session-start notice off for the session.
+- Validation: start a session in a repository that has a misplaced worktree and read the `Worktrees: N outside <root>/<identity>, M prunable` line; the same data comes from `nexus-hub worktree list --repo <checkout> --json`.
+- Rollback: set `NEXUS_WORKTREE_NOTICE=off`, or unset it to restore the notice.
+- Authority: read-only and local with a 10-second limit; it moves, removes and changes nothing.
+- Docs: [`docs/runbooks/worktree-organization.md`](docs/runbooks/worktree-organization.md).
 
 ## [4.15.5] - 2026-11-19
 
