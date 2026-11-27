@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **An intermittent Windows CI timeout in the validators p-z shard.** The v4.15 authority bridge validator files (`tests/validators/test_v415*`) sorted into the p-z shard of `tests-windows-validators-2` and raised it from about 486 s to 1161-1789 s, timing out at its 1800 s bound twice. They now run as their own shard in a new parallel job, `tests-windows-validators-5`, which is wired into the `report` job and the `ci-required` aggregate. Every validator file still runs on Windows exactly once, and no timeout changed.
+
 ## [4.15.6] - 2026-11-27
 
 ### Added
