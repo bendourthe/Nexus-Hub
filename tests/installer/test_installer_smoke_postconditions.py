@@ -91,6 +91,19 @@ def _seed(home: Path, workspace: Path, *, metadata: bool = False) -> None:
             ]
         },
     }
+    worktree_hook = f"worktree-policy{_host_hook_suffix()}"
+    for name in (worktree_hook, "_worktree_policy.py"):
+        (workspace / ".claude" / "hooks" / name).write_text(
+            "# fixture\n", encoding="utf-8"
+        )
+    settings["hooks"]["PreToolUse"].append(
+        {
+            "matcher": "Bash|PowerShell",
+            "hooks": [
+                {"type": "command", "command": f"run .claude/hooks/{worktree_hook}"}
+            ],
+        }
+    )
     (workspace / ".claude" / "settings.json").write_text(
         json.dumps(settings), encoding="utf-8"
     )
@@ -227,6 +240,66 @@ def test_wrong_host_html_hook_registration_is_reported(tmp_path: Path) -> None:
     settings_path.write_text(json.dumps(settings), encoding="utf-8")
 
     assert any("host-correct registration" in finding for finding in collect_findings(home, workspace))
+
+
+def _worktree_settings(workspace: Path) -> tuple[Path, dict]:
+    path = workspace / ".claude" / "settings.json"
+    return path, json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("missing", ["host-hook", "helper"])
+def test_missing_worktree_policy_payload_is_reported(
+    tmp_path: Path, missing: str
+) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    name = (
+        f"worktree-policy{_host_hook_suffix()}"
+        if missing == "host-hook"
+        else "_worktree_policy.py"
+    )
+    (workspace / ".claude" / "hooks" / name).unlink()
+
+    assert any(
+        f"worktree-policy payload is missing: .claude/hooks/{name}" in finding
+        for finding in collect_findings(home, workspace)
+    )
+
+
+def test_duplicate_or_absent_worktree_policy_registration_is_reported(
+    tmp_path: Path,
+) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    path, settings = _worktree_settings(workspace)
+    settings["hooks"]["PreToolUse"].append(settings["hooks"]["PreToolUse"][-1])
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any(
+        "exactly one Bash|PowerShell registration for worktree-policy; found 2" in f
+        for f in collect_findings(home, workspace)
+    )
+    settings["hooks"]["PreToolUse"] = settings["hooks"]["PreToolUse"][:2]
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any("found 0" in f for f in collect_findings(home, workspace))
+
+
+def test_wrong_host_worktree_policy_registration_is_reported(tmp_path: Path) -> None:
+    home, workspace = tmp_path / "home", tmp_path / "workspace"
+    _seed(home, workspace)
+    path, settings = _worktree_settings(workspace)
+    wrong = ".sh" if _host_hook_suffix() == ".ps1" else ".ps1"
+    settings["hooks"]["PreToolUse"][-1]["hooks"][0]["command"] = (
+        f"run .claude/hooks/worktree-policy{wrong}"
+    )
+    path.write_text(json.dumps(settings), encoding="utf-8")
+    assert any(
+        "host-correct registration: worktree-policy" in f
+        for f in collect_findings(home, workspace)
+    )
+
+
+def test_worktree_helper_is_an_expected_installed_script() -> None:
+    assert "nexus_worktrees.py" in EXPECTED_SCRIPTS
 
 
 @pytest.mark.parametrize("invalid_hooks", [None, []])

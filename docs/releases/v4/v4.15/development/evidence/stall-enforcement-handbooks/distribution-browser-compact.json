@@ -1,0 +1,1994 @@
+{
+  "status": "pass",
+  "output_sha256": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65",
+  "rows": [
+    {
+      "view": "reading",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "From installer to adapter",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "RunnerSelect platform",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "From installer to adapter",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 659,
+      "scrollHeight": 659,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": -0.40625,
+        "width": 1024,
+        "height": 659.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "Three delivery shapes",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Category treeSource organization",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Native commandHost invocation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "Three delivery shapes",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 921.625,
+          "height": 117.6875,
+          "area": 108463.7421875
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 512,
+      "scrollHeight": 512,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 63.453125,
+        "width": 1024,
+        "height": 512.5
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "Names remain unambiguous",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Skill nameStable identity",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "Names remain unambiguous",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 456,
+      "scrollHeight": 456,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 182.953125,
+        "width": 1024,
+        "height": 456.546875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "Generated and user-owned files differ",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Claude core settings keep a separate record of defaults Nexu",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Recorded defaultUpgrade only a matching seed",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "Generated and user-owned files differ",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 1155,
+      "scrollHeight": 1155,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": -0.5,
+        "width": 1024,
+        "height": 1155.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "claude-instructions",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "Claude Code project instructions",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "A Claude Code project install records a capability decision ",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Capability decisionRecorded, conservative",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Shared AGENTS.mdSupported versions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed CLAUDE.mdAny unknown case",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "Claude Code project instructions",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 795,
+      "scrollHeight": 795,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": -77.640625,
+        "width": 1024,
+        "height": 795.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30.72,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 14,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 557,
+      "scrollHeight": 557,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 64.21875,
+        "width": 1024,
+        "height": 557.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "From installer to adapter",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "RunnerSelect platform",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "From installer to adapter",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "From installer to adapter",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "RunnerSelect platform",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "From installer to adapter",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "From installer to adapter",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "RunnerSelect platform",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "From installer to adapter",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Three delivery shapes",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Category treeSource organization",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Native commandHost invocation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Three delivery shapes",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 128,
+          "area": 120588
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Three delivery shapes",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Category treeSource organization",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Native commandHost invocation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Three delivery shapes",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 128,
+          "area": 120588
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Three delivery shapes",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Category treeSource organization",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Native commandHost invocation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Three delivery shapes",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 128,
+          "area": 120588
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Names remain unambiguous",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Skill nameStable identity",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Names remain unambiguous",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Names remain unambiguous",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Skill nameStable identity",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Names remain unambiguous",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Names remain unambiguous",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Skill nameStable identity",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Names remain unambiguous",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30,
+          "text": "Generated and user-owned files differ",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Claude core settings keep a separate record of defaults Nexu",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Recorded defaultUpgrade only a matching seed",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Generated and user-owned files differ",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 976,
+          "height": 104,
+          "area": 101504
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30,
+          "text": "Generated and user-owned files differ",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Claude core settings keep a separate record of defaults Nexu",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Recorded defaultUpgrade only a matching seed",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Generated and user-owned files differ",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 976,
+          "height": 104,
+          "area": 101504
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 30,
+          "text": "Generated and user-owned files differ",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Claude core settings keep a separate record of defaults Nexu",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Recorded defaultUpgrade only a matching seed",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Generated and user-owned files differ",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 976,
+          "height": 104,
+          "area": 101504
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "claude-instructions",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Claude Code project instructions",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "A Claude Code project install records a capability decision ",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Capability decisionRecorded, conservative",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Shared AGENTS.mdSupported versions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed CLAUDE.mdAny unknown case",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Claude Code project instructions",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "claude-instructions",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Claude Code project instructions",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "A Claude Code project install records a capability decision ",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Capability decisionRecorded, conservative",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Shared AGENTS.mdSupported versions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed CLAUDE.mdAny unknown case",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Claude Code project instructions",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "claude-instructions",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Claude Code project instructions",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "A Claude Code project install records a capability decision ",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Capability decisionRecorded, conservative",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Shared AGENTS.mdSupported versions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Managed CLAUDE.mdAny unknown case",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Claude Code project instructions",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 297,
+          "area": 127450.125
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 326,
+          "area": 139894.75
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 326,
+          "area": 139894.75
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "typeRole": "heading-1",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "h2"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan",
+          "selector": "p"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output",
+          "selector": "li"
+        },
+        {
+          "role": "body",
+          "typeRole": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability",
+          "selector": "li"
+        },
+        {
+          "role": "label",
+          "typeRole": "caption",
+          "px": 20,
+          "text": "Inspect outcomes, then test behavior",
+          "selector": "figcaption"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 326,
+          "area": 139894.75
+        }
+      ],
+      "clipped": [],
+      "contrast": [],
+      "overlaps": [],
+      "brand": [],
+      "deformed": [],
+      "faded": [],
+      "unroled": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    }
+  ],
+  "errors": [],
+  "qualitative_review": "required separately",
+  "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+  "source_value_guard": {
+    "status": "unchecked",
+    "observations": [],
+    "findings": []
+  },
+  "control_behavior_guard": {
+    "status": "unchecked",
+    "scope": "declared controls only; one representative viewport",
+    "observations": [],
+    "findings": []
+  },
+  "browser": "Chromium 156.0.8078.4",
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "font_px": {
+    "min": 14,
+    "mean": 22.31081081081081,
+    "max": 38.912
+  },
+  "coverage": {
+    "sections": 6,
+    "slides": 6,
+    "measured_states": 24
+  },
+  "fail_count": 0
+}

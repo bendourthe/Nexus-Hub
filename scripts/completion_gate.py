@@ -49,6 +49,7 @@ import hmac
 import importlib.util
 import json
 import os
+import re
 import secrets
 import subprocess
 import sys
@@ -150,9 +151,9 @@ def resolve_format(payload: dict) -> str:
     return "top-level-block"
 
 
-def emit_continue(fmt: str, reason: str) -> int:
+def emit_continue(fmt: str, reason: str, source: str = "completion-gate") -> int:
     """Write the platform's documented refuse-the-stop output; return the exit code."""
-    reason = f"[Nexus-Hub: completion-gate] {reason}"
+    reason = f"[Nexus-Hub: {source}] {reason}"
     if fmt == "exit-2":
         print(reason, file=sys.stderr)
         return 2
@@ -194,7 +195,7 @@ def find_record(session: str) -> tuple[Path, dict] | None:
     if not session or not runs.is_dir():
         return None
     for path in sorted(runs.glob("*.json")):
-        if path.name.endswith(".gate.json"):
+        if path.name.endswith((".gate.json", ".continuation.json")):
             continue
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
@@ -202,6 +203,31 @@ def find_record(session: str) -> tuple[Path, dict] | None:
             continue
         if isinstance(record, dict) and record.get("session_id") == session:
             return path, record
+    # No session marker means there is no sealed cross-session owner request.
+    # Existence is only a lookup hint; native code below still verifies the seal.
+    if not (runs / "questions" / (hashlib.sha256(session.encode()).hexdigest() + ".json")).exists():
+        return None
+    # Cross-session ownership changes only through native resume. A sealed
+    # target marker permits observation of that request, never ordinary work.
+    import approval_binding
+    import check_plan_completion as ck
+    try:
+        secret = ck._secret(create=False)
+        target = approval_binding.resume_target(runs, secret, session) if secret else None
+        if target is not None:
+            key, pending = target
+            path = runs / (key + '.json')
+            from run_plan import _bounded_json
+            record = _bounded_json(path)
+            if not approval_binding.pending_matches_owner(pending, record, session):
+                return None
+            _context, verified = ck.resolve_minor_controller(path, record['session_id'], budget_seconds=3,
+                minor_protocol=ck.MINOR_AMENDMENT_PROTOCOL, execution_protocol=ck.MINOR_EXECUTION_PROTOCOL)
+            if verified == record:
+                return path, verified
+    except (approval_binding.Refusal, ck.Malformed, ck._minor_module().ObservationUnavailable,
+            OSError, ValueError, TypeError, KeyError):
+        return None
     return None
 
 
@@ -379,28 +405,239 @@ def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, 
     return ctx.root, verified
 
 
-def cmd_stop() -> int:
+def _report_fingerprint(disposition: dict, progress: str) -> str:
+    """Identify required reporting obligations without counting them as progress."""
+    data = {"progress": progress,
+        "requests": sorted((item.get("id"), item.get("kind"))
+                           for item in disposition.get("requests", [])),
+        "jobs": sorted((item.get("id"), item.get("handle"), item.get("url"), item.get("status"))
+                       for item in disposition.get("jobs", [])),
+        "conditions": sorted((item.get("id"), item.get("resume_when"))
+                             for item in disposition.get("external_conditions", []))}
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
+
+
+def _reconcile_stop(payload: dict, record_path: Path, record: dict, repo_root: Path,
+                    rc: int, out: str, score: list[str]) -> int:
+    """Default typed-fact consumer; legitimate waits never prompt another loop."""
+    from types import SimpleNamespace
+    import run_plan
+
+    scope = SimpleNamespace(minor=record.get("schema") == 2,
+        label=str(record.get("minor") if record.get("schema") == 2 else record.get("plan", "")), repo_root=repo_root, observer_session=_session(payload))
+    try:
+        import approval_binding
+        import check_plan_completion as ck
+        secret = ck._secret(create=False)
+        if secret:
+            approval_binding.observe_issued_request(record_path.parent, record_path.stem, secret, record,
+                                                   payload.get('last_assistant_message'), observer_session=_session(payload))
+        disposition = run_plan.continuation_for_run(scope, record_path, record, rc, out, claim_refresh=True)
+        if disposition is None:
+            if rc in (0, 4):
+                return 0
+            raise run_plan.RunnerError("no current run-bound observation; reconcile the objective, pending owner requests, jobs and remaining authorized work")
+    except (run_plan.RunnerError, approval_binding.Refusal, OSError, ValueError, KeyError, TypeError) as exc:
+        disposition = {"directive": "continue", "state": "reconciliation_required",
+            "reason": "Reconcile this unfinished run before ending: " + str(exc), "fingerprint": "invalid:" + str(exc)}
+    path = record_path.with_name(record_path.stem + ".continuation.gate.json")
+    try:
+        with ck._minor_os_lock(path.with_suffix('.mutation.lock'), ck.Budget(3)):
+            state = _load_gate_state(path)
+            fingerprint = run_plan.continuation_progress(disposition)
+            report_fingerprint = _report_fingerprint(disposition, fingerprint)
+            same = state.get("fingerprint") == fingerprint
+            progressed = bool(score and (int(score[0]) > int(state.get("met", -1)) or score[1] != state.get("head")))
+            same = same and not progressed
+            refusals = int(state.get("refusals", 0)) + 1 if same else 0
+            next_state = {"fingerprint": fingerprint, "report_fingerprint": report_fingerprint, "refusals": refusals,
+                          "threshold_reported": state.get("threshold_reported", False) if same else False}
+            if 'owner_refresh' in state:
+                next_state['owner_refresh'] = state['owner_refresh']
+            if score:
+                next_state.update(met=int(score[0]), head=score[1])
+            _save_gate_state(path, next_state)
+            if (disposition['directive'] == 'wait' and disposition['state'] in run_plan.continuation_module().STATES
+                    and isinstance(payload.get('last_assistant_message'), str)):
+                reporter = run_plan.reporting_module('status_report')
+                required = [reporter.state_heading(disposition), *reporter.required_parts(disposition)]
+                for number, decision in enumerate(reporter.pending_decisions(disposition), 1):
+                    required.extend(reporter.decision_parts(decision, True, number=number))
+                delivered = payload['last_assistant_message']
+                missing = [part for part in required if part != '---' and part not in delivered]
+                goals = re.search(r'(?m)^#{1,6} [^\n]*\bGoals\b', delivered)
+                buried = goals is not None and any(part.startswith('### ') and delivered.find(part) > goals.start()
+                                                  for part in required if part in delivered)
+                if missing or buried or not delivered.lstrip().startswith(required[0]):
+                    correction = (int(state.get('report_corrections', 0)) + 1
+                                  if same and state.get('report_fingerprint') == report_fingerprint else 1)
+                    next_state['report_corrections'] = correction
+                    _save_gate_state(path, next_state)
+                    if correction <= NO_PROGRESS_REFUSALS:
+                        return emit_continue(resolve_format(payload), 'Correct the waiting report before ending. Open with the waiting banner and show the required actions before Goals. Preserve the objective and measured progress.\n\n' + '\n\n'.join(required), 'implementation-state')
+                    if correction == NO_PROGRESS_REFUSALS + 1:
+                        print('[Nexus-Hub: implementation-state] Waiting report correction limit reached; the outstanding owner request remains recorded. No request or job was invented or retired.', file=sys.stderr)
+                    return 0
+            if disposition["directive"] != "continue":
+                if not same:
+                    print("[Nexus-Hub: implementation-state] " + run_plan.waiting_line(disposition), file=sys.stderr)
+                return 0
+            if refusals >= NO_PROGRESS_REFUSALS:
+                if not state.get("threshold_reported"):
+                    print("[Nexus-Hub: implementation-state] Waiting for controller reconciliation: the same unfinished condition remained unchanged; no job was restarted and no native blocker was cleared.", file=sys.stderr)
+                    next_state["threshold_reported"] = True
+                    _save_gate_state(path, next_state)
+                return 0
+            return emit_continue(resolve_format(payload), disposition["reason"], "implementation-state")
+
+    except ck.MinorConflict:
+        print('[Nexus-Hub: implementation-state] Continuation observations are busy; existing requests and refresh claims remain unresolved.', file=sys.stderr)
+        return 0
+
+
+def _observe_question_event(payload: dict) -> int:
+    """Observe only question events; unrelated tools remain silent and unchanged."""
+    import approval_binding
+    import check_plan_completion as ck
+    parsed = approval_binding._question_payload(payload)
+    session = _session(payload)
+    if parsed is None or not session or os.environ.get('NEXUS_RUNNER_LAUNCH') == '1':
+        return 0
+    found = find_record(session)
+    try:
+        if found is None:
+            pending = ck.precreate_owner_context(session, allow_resume=True)
+            if pending is None:
+                return 0
+            _context, path, record = pending
+        else:
+            path, record = found
+            if record.get('schema') == 1:
+                _context, record = ck.resolve_plan_controller(path, session)
+            elif record.get('schema') == 2:
+                _context, record = ck.resolve_minor_controller(path, record['session_id'], budget_seconds=3,
+                    minor_protocol=ck.MINOR_AMENDMENT_PROTOCOL, execution_protocol=ck.MINOR_EXECUTION_PROTOCOL)
+            else:
+                raise ck.Malformed('unknown native owner schema')
+        secret = ck._secret(create=False)
+        if not secret:
+            return 0
+        native_payload = dict(payload, session_id=session)
+        if payload.get('hook_event_name') in {'PreToolUse', 'preToolUse'}:
+            approval_binding.observe_question_attempt(path.parent, path.stem, secret, record, native_payload)
+        else:
+            approval_binding.observe_question_result(path.parent, path.stem, secret, record, native_payload)
+    except (approval_binding.Refusal, ck.Malformed, ck._minor_module().ObservationUnavailable,
+            OSError, ValueError, KeyError, TypeError):
+        print('[Nexus-Hub: implementation-state] The native question binding could not be verified. Existing approval authority is unchanged; reconcile the capture method before asking again.', file=sys.stderr)
+    return 0
+
+
+def _precreate_stop(payload: dict, session: str) -> int:
+    """Report delivered create obligations without manufacturing a run record."""
+    if not session or not (_runs_dir() / "questions" / (hashlib.sha256(session.encode()).hexdigest() + ".json")).exists():
+        return 0
+    import approval_binding
+    import check_plan_completion as ck
+    import run_plan
+    from types import SimpleNamespace
+    try:
+        resolved = ck.precreate_owner_context(session, allow_resume=True)
+        if resolved is None:
+            return 0
+        ctx, path, metadata = resolved
+        if metadata.get('schema') == 1:
+            return _reconcile_stop(payload, path, metadata, ctx.root,
+                4 if metadata.get('pause') else 1, 'PAUSED' if metadata.get('pause') else 'INCOMPLETE: native resume pending', [])
+        approval_binding.observe_issued_request(path.parent, path.stem, ck._secret(False), metadata,
+            payload.get('last_assistant_message'))
+        scope = SimpleNamespace(minor=False, label=str(ctx.plan), repo_root=ctx.root)
+        previous_path = run_plan.continuation_path(path)
+        previous = run_plan._bounded_json(previous_path) if previous_path.exists() else None
+        facts = run_plan.precreate_owner_observation(scope, path, metadata, previous)
+        if facts is None:
+            return 0
+        disposition = run_plan.continuation_module().reconcile(facts, (previous or {}).get('disposition'))
+        # This unsigned observation contains no native execution authority.
+        frame = {'contract': 'implementation-continuation-v1',
+            'binding': run_plan.continuation_binding(scope, path, metadata),
+            'observation': facts, 'disposition': disposition, 'captured_at': time.time(),
+            'refresh_attempts': (previous or {}).get('refresh_attempts', [])}
+        owner_pending = facts.get('owner_replies') or facts.get('owner_recovery')
+        if owner_pending:
+            fingerprint = hashlib.sha256(approval_binding.canonical(owner_pending)).hexdigest()
+            attempted = fingerprint in frame['refresh_attempts']
+            if not attempted:
+                frame['refresh_attempts'] = [*frame['refresh_attempts'][-63:], fingerprint]
+            run_plan.save_continuation(path, frame)
+            if attempted:
+                return 0
+            return emit_continue(resolve_format(payload), owner_pending[0]['reason'] +
+                ' Reconcile the native record-create owner now. No phase work is authorized before its persisted record verifies.', 'implementation-state')
+        run_plan.save_continuation(path, frame)
+        reporter = run_plan.reporting_module('status_report')
+        required = [reporter.state_heading(disposition), *reporter.required_parts(disposition)]
+        for number, decision in enumerate(reporter.pending_decisions(disposition), 1):
+            required.extend(reporter.decision_parts(decision, True, number=number))
+        message = payload.get('last_assistant_message', '')
+        if isinstance(message, str) and message.lstrip().startswith(required[0]) and all(part == '---' or part in message for part in required):
+            return 0
+        gate_path = path.with_name(path.stem + '.continuation.gate.json')
+        prior = _load_gate_state(gate_path)
+        fingerprint = run_plan.continuation_progress(disposition)
+        report_fingerprint = _report_fingerprint(disposition, fingerprint)
+        corrections = (int(prior.get('report_corrections', 0)) + 1
+                       if prior.get('report_fingerprint') == report_fingerprint else 1)
+        _save_gate_state(gate_path, {'fingerprint': fingerprint, 'report_fingerprint': report_fingerprint,
+                                    'report_corrections': corrections})
+        if corrections > NO_PROGRESS_REFUSALS:
+            return 0
+        return emit_continue(resolve_format(payload), '\n\n'.join(required), 'implementation-state')
+    except (approval_binding.Refusal, ck.Malformed, run_plan.RunnerError, OSError, ValueError, KeyError, TypeError) as exc:
+        return emit_continue(resolve_format(payload), 'Pre-create native context requires reconciliation: ' + str(exc), 'implementation-state')
+
+
+def _cmd_stop(reconcile_only: bool = False) -> int:
     payload = _read_payload()
+    session = _session(payload)
+    if not session:
+        return 0
+    if reconcile_only and payload.get('hook_event_name') in {'PreToolUse', 'preToolUse', 'PostToolUse', 'postToolUse'}:
+        return _observe_question_event(payload)
     _observe_permission(payload)
     session = _session(payload)
     found = find_record(session)
     if found is None:
-        return 0
+        return _precreate_stop(payload, session)
     record_path, record = found
     checker = _checker()
     repo_root = Path(str(record.get("repo_root", "")))
+    if not checker.is_file():
+        print("[Nexus-Hub: completion-gate] checker not installed outside the working tree; allowing stop", file=sys.stderr)
+        return 0
     if record.get('schema') == 2:
         try:
-            repo_root, record = _verified_minor_root(record_path, record, session)
+            repo_root, record = _verified_minor_root(record_path, record, str(record.get("session_id") or ""))
         except ValueError:
             return emit_continue(resolve_format(payload), 'Minor controller verification failed; keep the run unresolved.')
+    elif record.get('schema') == 1:
+        import check_plan_completion as ck
+        try:
+            if Path(ck.__file__).resolve() != checker.resolve():
+                raise ck.Malformed('matching trusted plan checker unavailable')
+            ctx, record = ck.resolve_plan_controller(record_path, session)
+            repo_root = ctx.root
+        except (ck.Malformed, OSError, ValueError, KeyError, TypeError):
+            return emit_continue(resolve_format(payload), 'Plan controller verification failed; keep the run unresolved.')
+    else:
+        return emit_continue(resolve_format(payload), 'Unknown native controller schema; keep the run unresolved.')
     if not checker.is_file() or _is_inside(checker, repo_root):
         print(
             "[Nexus-Hub: completion-gate] checker not installed outside the working tree; allowing stop",
             file=sys.stderr,
         )
         return 0
-    scope = _scope_args(record, repo_root, session)
+    scope = _scope_args(record, repo_root, str(record.get("session_id") or ""))
     if scope is None:
         return 0
     check_args, score_args, block_args = scope
@@ -426,6 +663,13 @@ def cmd_stop() -> int:
             file=sys.stderr,
         )
         return 0
+    if reconcile_only or record_path.with_name(record_path.stem + ".continuation.json").exists():
+        score = _json_score(out)
+        if rc == 1 and score_args:
+            score_rc, score_out = _run_checker(score_args, eval_end, str(repo_root))
+            fields = score_out.split()[:2] if score_rc == 0 else []
+            score = fields if len(fields) == 2 and fields[0].isascii() and fields[0].isdigit() else []
+        return _reconcile_stop(payload, record_path, record, repo_root, rc, out, score)
     if rc in (0, 3, 4):
         return 0
     if rc == 2:
@@ -479,6 +723,17 @@ def cmd_stop() -> int:
     return emit_continue(
         resolve_format(payload), REASON.format(ids=" ".join(ids[:40]) or "unknown")
     )
+
+
+def cmd_stop(reconcile_only: bool = False) -> int:
+    """A missing native sibling is unavailable, never completion or new authority."""
+    try:
+        return _cmd_stop(reconcile_only)
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"check_plan_completion", "approval_binding", "approval_page", "run_plan", "completion_minor", "completion_budget", "repo_host"}:
+            raise
+        print(f"[Nexus-Hub: completion-gate] native helper bundle unavailable ({exc.name}); allowing stop; native run remains unresolved", file=sys.stderr)
+        return 0
 
 
 # --------------------------------------------------------------------------- capture
@@ -551,6 +806,17 @@ def cmd_capture() -> int:
                 pass
             handle.write(json.dumps(entry) + "\n")
         os.chmod(path, 0o600)
+        if '<send_user_message_question_reply>' in prompt:
+            import approval_binding
+            import check_plan_completion as ck
+            secret = ck._secret(create=False)
+            observed = False
+            try:
+                observed = bool(secret and approval_binding.observe_question_reply(_runs_dir(), secret, session, prompt, entry))
+            except (approval_binding.Refusal, ck.Malformed, OSError, ValueError, KeyError, TypeError):
+                pass  # Preserve the genuine whole-prompt capture even when UI interpretation is unavailable.
+            if not observed:
+                print('[Nexus-Hub: implementation-state] The whole owner reply was captured, but its question call, current round or reviewed scope could not be verified. No synthetic approval was created.', file=sys.stderr)
         _prune(prompts)
     except OSError:
         # Capture is best effort: a failed write leaves record create to fail closed.
@@ -565,7 +831,9 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_capture()
     if mode == "stop":
         return cmd_stop()
-    print("usage: completion_gate.py stop|capture", file=sys.stderr)
+    if mode == "reconcile-stop":
+        return cmd_stop(reconcile_only=True)
+    print("usage: completion_gate.py stop|capture|reconcile-stop", file=sys.stderr)
     return 0
 
 

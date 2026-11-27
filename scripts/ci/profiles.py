@@ -474,6 +474,9 @@ TESTS_CORE = Group(
             "tests/integrations/test_completion_gate_registration.py",
             "tests/integrations/test_completion_plugins.py",
             "tests/integrations/test_hooks_supported_gate.py",
+            "tests/integrations/test_implementation_reconciliation.py",
+            "tests/integrations/test_implementation_state_hook.py",
+            "tests/integrations/test_native_owner_continuation.py",
             "tests/integrations/test_install_summary.py",
             "tests/integrations/test_install_workspace.py",
             "tests/integrations/test_legacy_cleanups.py",
@@ -545,6 +548,90 @@ TESTS_CORE = Group(
 # below partition the former `repo-tests-governance` roots: tests/validators here,
 # everything else in TESTS_GOVERNANCE. tests/validators/test_ci_partition_proof.py
 # proves by collection that nothing is dropped or run twice.
+# Fixed Windows full targets; future files stay in their original family remainder.
+FULL_WINDOWS_VALIDATORS_C_FILES = (
+    "tests/validators/test_canonical_tokens.py",
+    "tests/validators/test_capture_demo.py",
+    "tests/validators/test_check_american_spelling.py",
+    "tests/validators/test_check_base_template_parity.py",
+    "tests/validators/test_check_doc_colocation.py",
+    "tests/validators/test_check_docs_conventions.py",
+    "tests/validators/test_check_docs_retention.py",
+    "tests/validators/test_check_incident_notes.py",
+    "tests/validators/test_check_installer_parity.py",
+    "tests/validators/test_check_memory_integration_budget.py",
+    "tests/validators/test_check_memory_provenance.py",
+    "tests/validators/test_check_minor_actions.py",
+    "tests/validators/test_check_model_prompting_freshness.py",
+    "tests/validators/test_check_no_outbound.py",
+    "tests/validators/test_check_platform_contract_freshness.py",
+    "tests/validators/test_check_python_floor.py",
+    "tests/validators/test_check_registry_entries.py",
+    "tests/validators/test_check_release_capability_docs.py",
+    "tests/validators/test_check_release_preconditions.py",
+    "tests/validators/test_check_required_check_coverage.py",
+    "tests/validators/test_check_version_sync.py",
+    "tests/validators/test_checker_budget_observations.py",
+    "tests/validators/test_ci_changes_classifier.py",
+    "tests/validators/test_ci_partition_proof.py",
+    "tests/validators/test_ci_required_gate.py",
+    "tests/validators/test_ci_workflow_contract.py",
+    "tests/validators/test_claude_plugin_manifests.py",
+    "tests/validators/test_cleanup_merged.py",
+)
+FULL_WINDOWS_VALIDATORS_DL_FILES = (
+    "tests/validators/test_declared_member_rules.py",
+    "tests/validators/test_decline_evaluation_flow.py",
+    "tests/validators/test_devlog_index_format.py",
+    "tests/validators/test_docs_layout_prescription.py",
+    "tests/validators/test_egress_redaction_boundaries.py",
+    "tests/validators/test_end_of_task_rule.py",
+    "tests/validators/test_enumerate_plan_queue.py",
+    "tests/validators/test_eval_harness_cli_flags.py",
+    "tests/validators/test_followon_patch_provenance.py",
+    "tests/validators/test_framework_field_shape.py",
+    "tests/validators/test_framework_standards_files.py",
+    "tests/validators/test_generate_release_changelog.py",
+    "tests/validators/test_goal_restatements.py",
+    "tests/validators/test_historical_authority.py",
+    "tests/validators/test_historical_reconciliation.py",
+    "tests/validators/test_historical_scope_supplement.py",
+    "tests/validators/test_import_skills.py",
+    "tests/validators/test_interpreter_resolution.py",
+    "tests/validators/test_invocation_policy.py",
+    "tests/validators/test_legacy_fingerprints.py",
+    "tests/validators/test_legacy_gap_provenance.py",
+    "tests/validators/test_legacy_instruction_block.py",
+    "tests/validators/test_loop_engineering_bundle.py",
+)
+FULL_WINDOWS_VALIDATORS_E_FILES = (
+    "tests/validators/test_minor_entry_replan_step.py",
+    "tests/validators/test_minor_execution_history.py",
+    "tests/validators/test_minor_execution_lifecycle.py",
+    "tests/validators/test_minor_execution_permission.py",
+    "tests/validators/test_minor_execution_started.py",
+)
+FULL_WINDOWS_VALIDATORS_PR_FILES = (
+    "tests/validators/test_patch_migration_identity.py",
+    "tests/validators/test_plan_carry_and_archive.py",
+    "tests/validators/test_plan_renumber_references.py",
+    "tests/validators/test_plan_status.py",
+    "tests/validators/test_plan_worktree_isolation.py",
+    "tests/validators/test_planned_followon_gaps.py",
+    "tests/validators/test_platform_defaults_levers.py",
+    "tests/validators/test_platform_defaults_seeding.py",
+    "tests/validators/test_private_request_paths.py",
+    "tests/validators/test_process_policy.py",
+    "tests/validators/test_record_discovery_batch.py",
+    "tests/validators/test_recorded_followon_gaps.py",
+    "tests/validators/test_registry_consistency.py",
+    "tests/validators/test_release_runs_canonicalize.py",
+    "tests/validators/test_repo_host.py",
+    "tests/validators/test_review_grouping_coverage.py",
+    "tests/validators/test_run_plan.py",
+    "tests/validators/test_run_trigger_evals.py",
+)
+
 TESTS_VALIDATORS = Group(
     name="tests-validators",
     scope_key="tests",
@@ -556,33 +643,118 @@ TESTS_VALIDATORS = Group(
             timeout=2700,
             platforms=("linux", "macos"),
         ),
-        # A Windows full run reached its 3600 s bound at 41%. Keep Linux/macOS
-        # intact; reuse the platform validator quarters.
+        # Isolate current heavy files; retain one original-family catch-all with exact root exclusions.
         _pytest(
-            "repo-tests-governance-validators-a-c (Windows full)",
-            "tests/validators",
-            *VALIDATORS_SHARD_A_IGNORES,
+            "repo-tests-governance-validators-a-c-check-plan (Windows full)",
+            "tests/validators/test_check_plan_completion.py",
             platforms=("windows",),
             timeout=1800,
         ),
         _pytest(
-            "repo-tests-governance-validators-co (Windows full)",
+            "repo-tests-governance-validators-a-c-c-files (Windows full)",
+            *FULL_WINDOWS_VALIDATORS_C_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-a-c-rest (Windows full)",
             "tests/validators",
-            *VALIDATORS_SHARD_B_IGNORES,
+            *VALIDATORS_SHARD_A_IGNORES,
+            "--ignore=tests/validators/test_check_plan_completion.py",
+            *(f"--ignore={path}" for path in FULL_WINDOWS_VALIDATORS_C_FILES),
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-co-minor-record (Windows full)",
+            "tests/validators/test_completion_minor_record.py",
             platforms=("windows",),
             timeout=2400,
         ),
         _pytest(
-            "repo-tests-governance-validators-d-o (Windows full)",
+            "repo-tests-governance-validators-co-minor-verdict (Windows full)",
+            "tests/validators/test_completion_minor_verdict.py",
+            platforms=("windows",),
+            timeout=2400,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-co-rest (Windows full)",
             "tests/validators",
-            *VALIDATORS_SHARD_C_IGNORES,
+            *VALIDATORS_SHARD_B_IGNORES,
+            "--ignore=tests/validators/test_completion_minor_record.py",
+            "--ignore=tests/validators/test_completion_minor_verdict.py",
+            platforms=("windows",),
+            timeout=2400,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o-gap-migration (Windows full)",
+            "tests/validators/test_gap_migration_and_archive.py",
             platforms=("windows",),
             timeout=1800,
         ),
         _pytest(
-            "repo-tests-governance-validators-p-z (Windows full)",
+            "repo-tests-governance-validators-d-o-d-l-files (Windows full)",
+            *FULL_WINDOWS_VALIDATORS_DL_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o-m5 (Windows full)",
+            "tests/validators/test_m5_manifest_permission.py",
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o-member (Windows full)",
+            "tests/validators/test_member_archive.py",
+            "tests/validators/test_member_checkpoint_reconciliation.py",
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o-minor-execution-files (Windows full)",
+            *FULL_WINDOWS_VALIDATORS_E_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-d-o-rest (Windows full)",
+            "tests/validators",
+            *VALIDATORS_SHARD_C_IGNORES,
+            "--ignore=tests/validators/test_gap_migration_and_archive.py",
+            "--ignore=tests/validators/test_m5_manifest_permission.py",
+            "--ignore=tests/validators/test_member_archive.py",
+            "--ignore=tests/validators/test_member_checkpoint_reconciliation.py",
+            *(f"--ignore={path}" for path in FULL_WINDOWS_VALIDATORS_DL_FILES),
+            *(f"--ignore={path}" for path in FULL_WINDOWS_VALIDATORS_E_FILES),
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z-parallel (Windows full)",
+            "tests/validators/test_parallel_member_implementation.py",
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z-permit (Windows full)",
+            "tests/validators/test_permit_member_paths.py",
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z-p-r-files (Windows full)",
+            *FULL_WINDOWS_VALIDATORS_PR_FILES,
+            platforms=("windows",),
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-governance-validators-p-z-rest (Windows full)",
             "tests/validators",
             *VALIDATORS_SHARD_D_IGNORES,
+            "--ignore=tests/validators/test_parallel_member_implementation.py",
+            "--ignore=tests/validators/test_permit_member_paths.py",
+            *(f"--ignore={path}" for path in FULL_WINDOWS_VALIDATORS_PR_FILES),
             platforms=("windows",),
             timeout=1800,
         ),
@@ -601,9 +773,12 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_continuation_state.py",
+            "tests/test_reporting_runtime_delivery.py",
             "tests/test_status_report.py",
             "tests/test_status_snapshot.py",
             "tests/test_lane_health.py",
+            "tests/test_lane_idle.py",
             timeout=2700,
             platforms=("linux", "macos"),
         ),
@@ -614,9 +789,12 @@ TESTS_GOVERNANCE = Group(
             "tests/workflows",
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
+            "tests/test_continuation_state.py",
+            "tests/test_reporting_runtime_delivery.py",
             "tests/test_status_report.py",
             "tests/test_status_snapshot.py",
             "tests/test_lane_health.py",
+            "tests/test_lane_idle.py",
             platforms=("windows",),
             timeout=2700,
         ),
@@ -1007,6 +1185,28 @@ PRE_COMMIT = Group(
 
 # Existing workflow checks, available without a CI provider. Tool-dependent
 # scenarios are explicit so a normal full run does not install Node or Docker.
+# Network/provisioned audits are selected explicitly, never added to an ordinary full run.
+AUDIT_NPM_PACKAGES = ("claude-usage-monitor", "codex-usage-monitor", "cursor-usage-monitor", "gemini-usage-monitor")
+AUDIT_CODEQL_LANGUAGES = ("python", "javascript-typescript")
+AUDIT_SCOPES = {**{f"npm-audit-{name}": {"tool": "npm", "package": name, "kind": "npm"} for name in AUDIT_NPM_PACKAGES},
+                **{f"npm-signatures-{name}": {"tool": "npm", "package": name, "kind": "signatures"} for name in AUDIT_NPM_PACKAGES},
+                "pip-audit": {"tool": "pip-audit", "kind": "pip"},
+                **{f"codeql-{name}": {"tool": "CodeQL", "language": name, "kind": "sarif"} for name in AUDIT_CODEQL_LANGUAGES}}
+
+
+def _audit_command(scope: str, *, advisory: bool = False) -> Command:
+    timeout = {"npm": 600, "signatures": 180, "pip": 1080, "sarif": 3000}[AUDIT_SCOPES[scope]["kind"]]
+    return Command(name=scope, argv=[PY, "-B", "scripts/ci/verify_scenarios.py", scope], timeout=timeout, advisory=advisory)
+
+
+AUDIT_GROUPS = (*[Group(name=f"npm-audit-{name}", explicit_only=True,
+                       commands=(_audit_command(f"npm-audit-{name}"), _audit_command(f"npm-signatures-{name}", advisory=True)))
+                 for name in AUDIT_NPM_PACKAGES],
+                Group(name="pip-audit", explicit_only=True, commands=(_audit_command("pip-audit"),)),
+                *[Group(name=f"codeql-{name}", explicit_only=True, commands=(_audit_command(f"codeql-{name}"),))
+                  for name in AUDIT_CODEQL_LANGUAGES])
+
+
 DOC_COLOCATION = Group(
     name="doc-colocation",
     explicit_only=True,
@@ -1165,6 +1365,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Everything provable on this host.
     "full": (
+        *AUDIT_GROUPS,
         CATALOG_PARSE,
         PRE_COMMIT,
         HYGIENE,

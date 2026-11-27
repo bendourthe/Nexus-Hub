@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.15.5"
+NEXUS_HUB_VERSION="4.15.6"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2894,6 +2894,11 @@ build_and_install_one_extension() {
 
 # --- Template & Script Installation ---
 
+install_reporting_runtime() {
+    local repo_root="$1"
+    safe_folder_copy "$repo_root/catalog/skills/workflow/implement-phase" "$HOME/.nexus-hub/skills/workflow/implement-phase" "[OK] Shared implementation reporting runtime installed"
+}
+
 install_templates() {
     local repo_root="$1"
 
@@ -3127,6 +3132,15 @@ install_templates() {
         safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
     fi
 
+    # Copy the centralized worktree helper (v4.15.6). `nexus-hub worktree` loads it
+    # from beside the CLI core to resolve, create, list, audit, and migrate linked
+    # worktrees under one configured root. Stdlib-only single .py, so no .ps1 sibling.
+    # Lockstep with the same block in scripts/installer.ps1.
+    local worktrees_source="$repo_root/scripts/nexus_worktrees.py"
+    if [ -f "$worktrees_source" ]; then
+        safe_copy "$worktrees_source" "$scripts_dest/nexus_worktrees.py" true "[OK] Worktree policy helper installed at: $scripts_dest/nexus_worktrees.py"
+    fi
+
     # Copy the supply-chain manifest tooling (v3.10.0). generate_manifest.py
     # writes a SHA-256 MANIFEST.sha256 over the distributed catalog tree at
     # release time; verify_install.py powers `nexus-hub verify`, which recomputes
@@ -3355,6 +3369,22 @@ install_templates() {
             write_item "Note: Install platform-defaults seeding deps with: pip install tomlkit PyYAML" "$YELLOW"
             write_item "      (without them, TOML/YAML platform defaults are skipped; JSON platforms are unaffected)" "$YELLOW"
         fi
+    fi
+
+    # Match the nexus-hub shell launcher's order; the optional MCP venv is separate.
+    local process_python="" candidate
+    for candidate in python3 python py; do
+        if command -v "$candidate" >/dev/null 2>&1; then process_python="$candidate"; break; fi
+    done
+    if [ -n "$process_python" ]; then
+        if run_with_timeout 10 /dev/null "$process_python" -B -c "import psutil; psutil.Process().create_time()"; then
+            write_item "[OK] Process observation support (psutil) is available through the CLI launcher." "$GREEN"
+        else
+            write_item "Full-run process observation requires usable psutil; new hosting dispatches will refuse until it is available." "$YELLOW"
+            write_item "Install using this CLI launcher: $process_python -m pip install psutil" "$YELLOW"
+        fi
+    else
+        write_item "Full-run process observation requires a Python CLI launcher and psutil; no packages were installed." "$YELLOW"
     fi
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
@@ -4697,6 +4727,9 @@ migrate_legacy_install
 # existed) but still has devai-hub.claude-usage-monitor installed in VS Code.
 remove_legacy_vscode_extensions
 print_banner
+
+# Install the shared runtime before platform adapters audit reporting delivery.
+install_reporting_runtime "$REPO_ROOT"
 
 # Scope is resolved from --workspace (no interactive scope/platform prompt).
 # Default = global install across all platforms.

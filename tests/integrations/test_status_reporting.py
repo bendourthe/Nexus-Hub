@@ -18,7 +18,7 @@ def test_every_platform_has_reporting_instructions_or_native_skill(repo_root, ke
     template = integration.config.get("instruction_template")
     if template:
         rendered = MarkdownIntegration._resolve_includes(repo_root / template)
-        assert "Implementation status:" in rendered, key
+        assert "- Progress:" in rendered, key
         assert "implement-phase/scripts/status_report.py" in rendered, key
         assert "progress-reporting.md" in rendered and "status-formats.md" in rendered, key
     else:

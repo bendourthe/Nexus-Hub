@@ -39,7 +39,8 @@ export interface ServerProcess {
 
 /** A reachable language server endpoint. The token never leaves this module's callers. */
 export interface ServerEndpoint {
-  pid: number;
+  /** The serving process, when it was found in the process list (absent for a host-API endpoint). */
+  pid?: number;
   port: number;
   scheme: "http" | "https";
   csrfToken: string;
@@ -314,14 +315,50 @@ export function postRpc(
   });
 }
 
+/** The built-in extension that starts the `agy` hub in Antigravity IDE 1.107 and later. */
+export const ANTIGRAVITY_EXTENSION_ID = "google.google-antigravity";
+
 /**
- * Find a reachable endpoint for this install. Each candidate port is tried over
+ * Read the hub endpoint from the built-in Antigravity extension's public exports.
+ *
+ * Antigravity IDE 1.107 and later hand the hub its CSRF token through an
+ * environment variable instead of `--csrf_token`, so the process list no longer
+ * shows it. The built-in extension's `activate()` returns `{ csrfToken, port }`
+ * for the hub it started (served over plain loopback HTTP), which is the supported
+ * way for another extension in the same editor to reach it. Returns null for any
+ * other shape.
+ */
+export function endpointFromHostApi(exports: unknown): ServerEndpoint | null {
+  if (exports == null || typeof exports !== "object") {
+    return null;
+  }
+  const { csrfToken, port } = exports as Record<string, unknown>;
+  // Printable ASCII only: the token is sent as an HTTP header value.
+  if (typeof csrfToken !== "string" || !/^[\x21-\x7e]+$/.test(csrfToken)) {
+    return null;
+  }
+  if (typeof port !== "number" || !Number.isInteger(port) || port < 1 || port > 65535) {
+    return null;
+  }
+  return { port, scheme: "http", csrfToken };
+}
+
+/**
+ * Find a reachable endpoint for this install. The built-in extension's exports
+ * (`hostApi`) are tried first. Otherwise each candidate process port is tried over
  * plain loopback HTTP first, then over HTTPS with Antigravity's CA, and the first
  * one that answers the cheap user-status RPC with 200 wins.
  */
-export async function discoverEndpoint(appRoot: string): Promise<DiscoveryResult> {
+export async function discoverEndpoint(appRoot: string, hostApi?: unknown): Promise<DiscoveryResult> {
   if (!isAntigravityHost(appRoot)) {
     return { ok: false, reason: "not-antigravity" };
+  }
+  const exported = endpointFromHostApi(hostApi);
+  if (exported) {
+    const res = await postRpc(exported, USER_STATUS_METHOD, {});
+    if (res?.status === 200 && res.body != null) {
+      return { ok: true, endpoint: exported };
+    }
   }
   const candidates = selectServers(await listServerProcesses(), appRoot);
   if (candidates.length === 0) {

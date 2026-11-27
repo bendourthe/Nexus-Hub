@@ -284,6 +284,8 @@ pre-commit==4.6.2
     # via -r scripts/ci/requirements.in
 protobuf==7.36.2
     # via onnxruntime
+psutil==7.2.2
+    # via -r scripts/ci/requirements.in
 py-serializable==2.1.0
     # via cyclonedx-python-lib
 pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'

@@ -217,6 +217,16 @@ _BLOCKING_CASES = [
         0,
     ),
     (
+        "worktree-policy",
+        json.dumps({"tool_input": {"command": "git worktree add ../out-of-policy"}}),
+        2,
+    ),
+    (
+        "worktree-policy",
+        json.dumps({"tool_input": {"command": "git worktree list"}}),
+        0,
+    ),
+    (
         "require-powershell-description",
         json.dumps({"tool_input": {"command": "Remove-Item build -Recurse"}}),
         2,
@@ -305,11 +315,12 @@ def test_secret_scan_ps1_does_not_echo_the_secret(
 # --- Runtime-control parity -------------------------------------------------
 
 # Hooks that document the shared disable controls. The essential security blockers
-# (secret-scan, require-*) and compress-output deliberately do NOT honor them. The
+# (secret-scan, require-*, worktree-policy) and compress-output deliberately do NOT honor them. The
 # responsive-layout guard does honor them as its documented per-session escape.
 _CONTROLLED = sorted(
     (SH_STEMS & PS1_STEMS)
     - {"secret-scan", "memory-store-guard", "user-edit-guard", "attribution-guard",
+       "worktree-policy",
        "require-description",
        "require-powershell-description",
        "compress-output", "claude-diff-review", "gemini-diff-review",

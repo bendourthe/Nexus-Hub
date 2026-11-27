@@ -1,0 +1,26 @@
+{
+  "section_ids": [
+    "route",
+    "shapes",
+    "identity",
+    "ownership",
+    "claude-instructions",
+    "verification"
+  ],
+  "slide_ids": [
+    "route",
+    "shapes",
+    "identity",
+    "ownership",
+    "claude-instructions",
+    "verification"
+  ],
+  "expected_labels": [
+    "From installer to adapter",
+    "Three delivery shapes",
+    "Names remain unambiguous",
+    "Generated and user-owned files differ",
+    "Claude Code project instructions",
+    "Inspect outcomes, then test behavior"
+  ]
+}

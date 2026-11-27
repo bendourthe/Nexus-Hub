@@ -14,6 +14,8 @@
       $env:NEXUS_SESSION_DIGEST = 'off'               skip digest read only
       $env:NEXUS_SESSION_DIGEST_PATH = '<path>'       override digest path (project-relative)
       $env:NEXUS_SESSION_START_MAX_CHARS = '<int>'    cap digest output (default 8000)
+      $env:NEXUS_WORKTREE_NOTICE = 'off'              skip the worktree placement notice
+      $env:NEXUS_LANE_NOTICE = 'off'                  skip the idle minor-run lane notice
 #>
 
 $ErrorActionPreference = "Continue"
@@ -94,7 +96,100 @@ if ($inRepo) {
     $gitLine = "Git: unavailable"
 }
 Write-NexusMessage $banner @($gitLine)
-Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Keep spaced Status, Goals, Decisions and Running headings."
+Write-NexusMessage "Implementation status: use implement-phase/scripts/status_report.py; during a run its verbatim report replaces the Completed / Verified / Open / Next summary and any insight boxes; full at start/resume, new decisions and requests; compact at material checkpoints or after 5 minutes at a reporting boundary; no report on tool narration. Questions: plain explanation, then lettered options with option A the recommendation labeled (Recommended). Manual tasks: numbered steps; stop at the first step whose output you need. Keep spaced Status, Goals, Decisions and Running headings."
+
+# --- Worktree placement notice (v4.15.6) ---
+# Local and read-only: runs the installed nexus_worktrees.py list for the
+# current repository (git only, no network) and prints one line when a linked
+# worktree sits outside <root>/<identity> or is prunable. Silent outside a
+# repository, when the helper is not installed, on any error, and when clean.
+$wtHelper = Join-Path (Join-Path $homeDir "scripts") "nexus_worktrees.py"
+if ($inRepo -and ($env:NEXUS_WORKTREE_NOTICE -ne "off") -and (Test-Path -LiteralPath $wtHelper -PathType Leaf)) {
+    $wtTop = (git rev-parse --show-toplevel 2>$null)
+    if ($wtTop) {
+        foreach ($wtPython in @("python3", "python")) {
+            $wtJson = ""
+            try {
+                $wtPsi = New-Object System.Diagnostics.ProcessStartInfo
+                $wtPsi.FileName = $wtPython
+                $wtPsi.Arguments = '-B "' + $wtHelper + '" list --repo "' + $wtTop + '" --json'
+                $wtPsi.UseShellExecute = $false
+                $wtPsi.CreateNoWindow = $true
+                $wtPsi.RedirectStandardOutput = $true
+                $wtPsi.RedirectStandardError = $true
+                $wtPsi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+                $wtPsi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+                $wtProc = [System.Diagnostics.Process]::Start($wtPsi)
+                $wtOutTask = $wtProc.StandardOutput.ReadToEndAsync()
+                $null = $wtProc.StandardError.ReadToEndAsync()
+                if ($wtProc.WaitForExit(10000)) {
+                    $wtJson = $wtOutTask.Result
+                } else {
+                    try { $wtProc.Kill() } catch { }
+                }
+            } catch { $wtJson = "" }
+            if (-not $wtJson) { continue }
+            try {
+                $wtData = $wtJson | ConvertFrom-Json
+                $wtLinked = @($wtData.worktrees | Where-Object { -not $_.main })
+                $wtOutside = @($wtLinked | Where-Object { $_.in_policy -eq $false }).Count
+                $wtPrunable = @($wtLinked | Where-Object { $_.prunable }).Count
+                if ($wtOutside -or $wtPrunable) {
+                    $wtDest = Join-Path ([string]$wtData.root) ([string]$wtData.identity)
+                    $wtLine = "Worktrees: {0} outside {1}, {2} prunable. Run the worktree hygiene step (using-git-worktrees)." -f $wtOutside, $wtDest, $wtPrunable
+                    Write-NexusMessage (ConvertTo-NexusVisible $wtLine)
+                }
+            } catch { }
+            break
+        }
+    }
+}
+# --- end worktree placement notice ---
+
+# --- Idle minor-run lane notice (v4.15.6) ---
+# Local and read-only: when a live minor run record belongs to this repository,
+# prints one line naming members with no worker, blocked lanes whose
+# prerequisite shipped, and lanes waiting on the user. SessionStart also fires
+# after compaction. Silent when lane_health.py is not installed, on any error,
+# and when no member is idle. $env:NEXUS_LANE_NOTICE = 'off' skips it.
+if ($inRepo -and ($env:NEXUS_LANE_NOTICE -ne "off")) {
+    $lnScript = $null
+    foreach ($lnTry in @($env:NEXUS_LANE_HEALTH,
+            (Join-Path $homeDir "src/catalog/skills/workflow/implement-phase/scripts/lane_health.py"),
+            (Join-Path $userHome ".claude/skills/implement-phase/scripts/lane_health.py"))) {
+        if ($lnTry -and (Test-Path -LiteralPath $lnTry -PathType Leaf)) { $lnScript = $lnTry; break }
+    }
+    $lnTop = (git rev-parse --show-toplevel 2>$null)
+    if ($lnScript -and $lnTop) {
+        foreach ($lnPython in @("python3", "python")) {
+            $lnOut = ""
+            try {
+                $lnPsi = New-Object System.Diagnostics.ProcessStartInfo
+                $lnPsi.FileName = $lnPython
+                $lnPsi.Arguments = '-B "' + $lnScript + '" notice --repo "' + $lnTop + '" --runs-dir "' + (Join-Path $homeDir "runs") + '"'
+                $lnPsi.UseShellExecute = $false
+                $lnPsi.CreateNoWindow = $true
+                $lnPsi.RedirectStandardOutput = $true
+                $lnPsi.RedirectStandardError = $true
+                $lnPsi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+                $lnPsi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+                $lnProc = [System.Diagnostics.Process]::Start($lnPsi)
+                $lnOutTask = $lnProc.StandardOutput.ReadToEndAsync()
+                $null = $lnProc.StandardError.ReadToEndAsync()
+                if ($lnProc.WaitForExit(10000)) {
+                    if ($lnProc.ExitCode -ne 0) { continue }
+                    $lnOut = $lnOutTask.Result
+                } else {
+                    try { $lnProc.Kill() } catch { }
+                }
+            } catch { continue }
+            $lnLine = ([string]$lnOut).Trim()
+            if ($lnLine) { Write-NexusMessage (ConvertTo-NexusVisible $lnLine) }
+            break
+        }
+    }
+}
+# --- end idle minor-run lane notice ---
 
 # --- Environment-fact replay (v4.15.5, opt-in: NEXUS_ENV_FACTS=on) ---
 if ($env:NEXUS_ENV_FACTS -ceq "on") {

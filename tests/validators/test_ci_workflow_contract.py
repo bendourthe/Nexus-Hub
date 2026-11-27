@@ -225,9 +225,28 @@ def test_ci_enforces_the_guide_browser_contracts():
 def test_every_only_group_named_by_a_workflow_exists():
     """A typo in `--only` must be an error, not an empty selection."""
     for path in ALL_WORKFLOWS:
-        for match in re.finditer(r"--only\s+([\w,-]+)", path.read_text(encoding="utf-8")):
+        text = path.read_text(encoding="utf-8")
+        for match in re.finditer(r"--only\s+((?:[\w,-]|\$\{\{[^}]*\}\})+)", text):
             for name in match.group(1).split(","):
-                assert profile_group(name).name == name
+                for expanded in _expand_matrix_names(name, load(path)):
+                    assert profile_group(expanded).name == expanded
+
+
+def _expand_matrix_names(name: str, workflow: dict) -> list[str]:
+    """Resolve `${{ matrix.key }}` against every matrix value a job declares."""
+    reference = re.search(r"\$\{\{\s*matrix\.(\w+)\s*\}\}", name)
+    if reference is None:
+        return [name]
+    key = reference.group(1)
+    values = []
+    for job in workflow["jobs"].values():
+        matrix = job.get("strategy", {}).get("matrix", {})
+        if not isinstance(matrix, dict):
+            continue
+        values += [str(value) for value in matrix.get(key, [])]
+        values += [str(entry[key]) for entry in matrix.get("include", []) if key in entry]
+    assert values, f"no matrix.{reference.group(1)} values to expand in {name!r}"
+    return [part for value in values for part in name.replace(reference.group(0), value).split(',')]
 
 
 # ---------------------------------------------------------------------------
