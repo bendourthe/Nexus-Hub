@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 123
+**Open items**: 131
 
 ## v4.15.0
 
@@ -3896,6 +3896,106 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: inspection status uses `--ignore-submodules=all`, so submodule state is not part of the fingerprint; submodule worktrees are refused by a separate check.
 
 **Suggested next step**: fingerprint submodule HEADs when submodule worktrees become supported.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+
+## v4.15.7
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 5 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 2 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-67: The Windows validators job is above its leg target
+
+**Source phase**: v4.15.7 Phase 3
+
+**Plan reference**: [Shard measurements](development/v4.15.7-shard-measurements.md)
+
+**Reason**: `tests-windows-validators` averages 26.6 minutes against the 22-minute leg target, and the gate averages 29.2 minutes over 10 runs after the shard split. CI artifacts hold no per-file timings for these commands, so a rebalance has no data yet.
+
+**Suggested next step**: collect per-file durations on a quiet machine, then rebalance the validator partition behind the partition proof (proposed diff S1 in the v4.15.7 sensitive deltas).
+
+#### DF-68: The pre-push stage is not in the pre-commit configuration
+
+**Source phase**: v4.15.7 Phase 4 (T014, T018)
+
+**Plan reference**: [Last-phase evidence](development/v4.15.7-last-phase-evidence.md#implementation-convergence)
+
+**Reason**: `.pre-commit-config.yaml` needs typed permission to change, so the pre-push stage was proven only in a scratch clone (a clean tree passes in 29 seconds, a committed U+202E file is refused in 22 seconds). `CONTRIBUTING.md` documents the gate, but `pre-commit install --hook-type pre-push` does not yet run the fast profile.
+
+**Suggested next step**: apply the proposed diff S2, which sets the stage explicitly because `default_stages` alone does not keep the commit-stage hooks out of a push.
+
+#### DF-69: Develop-scoped cache seeding and the blobless checkout are not applied
+
+**Source phase**: v4.15.7 Phase 4 (T017)
+
+**Plan reference**: [Cache seeding decision record](../../../decisions/proposed/tooling/2026-11-06-develop-scoped-cache-seeding.md)
+
+**Reason**: the seed job (`post-merge.yml`) and the `filter: blob:none` checkout for the `changes` job (`ci.yml`) need typed permission to change pipeline files. The policy is written (lifecycle contract section 4.1) and the diffs passed 221 policy tests in a scratch clone.
+
+**Suggested next step**: apply the proposed diff S3, then rerun the pipeline reconciliation and tick T018 and T023.
+
+#### DF-70: The 30-minute gate and the 10-pull-request median are not measured
+
+**Source phase**: v4.15.7 Phase 5 (T028)
+
+**Plan reference**: [Last-phase evidence](development/v4.15.7-last-phase-evidence.md#ci-latency-after-measurement)
+
+**Reason**: the first green attempt of this plan's integration run was not measured, and the median over the next 10 full-scope code pull requests cannot be observed before they exist. Indirect evidence: 10 runs after the shard split average 29.2 minutes (median 29.2, maximum 31.2).
+
+**Suggested next step**: owner is the catalog maintainer. Run `python catalog/skills/infrastructure/cicd-architect/scripts/ci_latency_audit.py --repo bendourthe/Nexus-Hub --workflow ci.yml --runs 10 --gate ci-required` after 10 full-scope code pull requests have merged, or on 2026-12-31 if fewer have.
+
+#### DF-71: The `AGENTS.md` figure correction for T015 is not applied
+
+**Source phase**: v4.15.7 Phase 4 (T015)
+
+**Plan reference**: [Last-phase evidence](development/v4.15.7-last-phase-evidence.md#implementation-convergence)
+
+**Reason**: T015 closes only after the coordinator corrects the `AGENTS.md` figure, which the plan run had no authority to edit.
+
+**Suggested next step**: apply the coordinator correction, then tick T015.
+
+#### WN-58: `pre-commit install` refuses where git `core.hooksPath` is set
+
+**Source phase**: v4.15.7 Phase 4
+
+**Plan reference**: [`CONTRIBUTING.md` Optional Pre-push Gate](../../../../CONTRIBUTING.md#optional-pre-push-gate)
+
+**Reason**: the Nexus-Hub attribution guard can set `core.hooksPath`, and `pre-commit install` refuses in that case. The section documents the refusal, but no install path exists for those machines, and a real `git push` refusal by an installed hook was not tested.
+
+**Suggested next step**: decide whether to ship an install helper that works under `core.hooksPath`, and test a real push on a machine without a global `core.hooksPath`.
+
+#### MT-9: Local per-file durations were not collected
+
+**Source phase**: v4.15.7 Phase 2 and Phase 3 (T005, T010)
+
+**Plan reference**: [Shard measurements](development/v4.15.7-shard-measurements.md#evidence)
+
+**Reason**: other sessions were running the full profile on the same workstation, so local timings would not describe a CI runner. Measured CI minutes were used instead.
+
+**Suggested next step**: collect per-file durations on a quiet machine before the S1 rebalance.
+
+#### MT-10: `cicd-architect` has no positive trigger case for the new phrases
+
+**Source phase**: v4.15.7 Phase 1
+
+**Plan reference**: [Last-phase evidence](development/v4.15.7-last-phase-evidence.md#known-gaps-reconciliation)
+
+**Reason**: `catalog/skills/infrastructure/cicd-architect/evals/trigger-cases.json` has no case that expects the skill for the two slow-CI trigger phrases added to its description.
+
+**Suggested next step**: add one positive case per phrase.
 
 ### Resolved
 

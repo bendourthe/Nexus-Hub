@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.7] - 2026-11-27
+
+### Added
+
+- **A read-only CI latency audit in `cicd-architect`.** `catalog/skills/infrastructure/cicd-architect/scripts/ci_latency_audit.py` splits every job of a GitHub Actions workflow into queue, setup and work time, names the critical-path job, and reports the time to the gate job and to the first failed job, for the latest runs or for run IDs you name. It reads only through your own authenticated `gh` (or `--from-json` fixtures), writes nothing, refuses a malformed repository, workflow or run ID, masks token-shaped text, and reads up to five pages of 100 jobs per run. The skill gains Step 1a ("Measure latency before changing anything"), a verification line, and `references/ci-latency.md`. Regression tests and offline fixtures are in `tests/skills/test_ci_latency_audit.py` and `tests/fixtures/ci_latency/`.
+- **`CONTRIBUTING.md` documents an optional pre-push gate.** The section describes running the fast validation profile (`python scripts/ci/run.py --profile fast`) before every push, with its measured cost (about 20 to 35 seconds warm, up to about 3 minutes cold), the agent shell-timeout risk, the `core.hooksPath` refusal of `pre-commit install`, the `git push --no-verify` bypass and the trust boundary. The matching pre-push stage is not yet in `.pre-commit-config.yaml` (recorded as DF-68).
+- **Measurement records for the CI speed work.** `v4.15.7-ci-latency-baseline.md` (the 14-run baseline the audit reproduces within 0.1 minute) and `v4.15.7-shard-measurements.md` (per-leg minutes of the shard split delivered earlier, with the one Windows job still above its 22-minute target) under `docs/releases/v4/v4.15/development/`.
+
+### Changed
+
+- **The CI/CD lifecycle contract covers dependency-cache seeding.** New section 4.1 of `docs/policy/ci-cd-lifecycle-contract.md` says that only a `push` to `develop` may write the shared dependency caches, with read-only permissions, no secret and no repository script, a key that includes every input that changes the cached content, and a cache miss that falls back to a normal install. The event table in the contract and in `cicd-architect` lists develop-only cache seeding as allowed post-merge work. The decision record is `docs/decisions/proposed/tooling/2026-11-06-develop-scoped-cache-seeding.md`, status proposed: no seed job exists yet (DF-69).
+- **`cicd-architect` triggers on latency requests.** Its description gains trigger phrases for slow-CI requests, and its verification checklist asks that a slow-CI change first run the audit and name the critical-path job it shortens.
+
+### Capability usage
+
+#### Surface: CI latency audit
+
+- Activation: you run it; nothing schedules it and nothing calls it. `python ~/.nexus-hub/skills/cicd-architect/scripts/ci_latency_audit.py --repo <owner/name> --workflow ci.yml --runs 20 --gate <aggregate-job>`, or from a checkout `python catalog/skills/infrastructure/cicd-architect/scripts/ci_latency_audit.py ...`. It needs your own authenticated `gh` and covers GitHub Actions only.
+- Validation: `python catalog/skills/infrastructure/cicd-architect/scripts/ci_latency_audit.py --repo bendourthe/Nexus-Hub --workflow ci.yml --runs 5` prints a per-job table and a gate summary and exits 0; `python -B -m pytest -q tests/skills/test_ci_latency_audit.py` runs the offline cases.
+- Rollback: not running the script is the off state. It writes no file and changes no setting, so there is nothing to undo; removing `cicd-architect` Step 1a is a revert of this release's commits.
+- Authority: read-only. It sends no data to anyone except the GitHub API through your own `gh` session, uses no token of its own, never writes to a repository or a workflow, and grants no right to change a pipeline.
+- Docs: [`cicd-architect` Step 1a](catalog/skills/infrastructure/cicd-architect/SKILL.md) and [`references/ci-latency.md`](catalog/skills/infrastructure/cicd-architect/references/ci-latency.md).
+
+#### Surface: optional pre-push gate (documented, not yet enabled)
+
+- Activation: none in this release. The repository's `.pre-commit-config.yaml` has no pre-push stage yet (DF-68), so `pre-commit install --hook-type pre-push` installs nothing that runs the fast profile. Until it lands, run `python scripts/ci/run.py --profile fast` by hand before a push.
+- Validation: `python scripts/ci/run.py --profile fast` is the command the gate will run; it is the first step of the CI `validate` job.
+- Rollback: `pre-commit uninstall --hook-type pre-push`, or `git push --no-verify` for one push.
+- Authority: when enabled it runs the checked-out branch's own fast profile locally. It makes no remote call, changes no pipeline file and does not replace the CI gate.
+- Docs: the "Optional Pre-push Gate" section of [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## [4.15.6] - 2026-11-27
 
 ### Added
