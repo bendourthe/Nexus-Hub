@@ -19,6 +19,24 @@ Nexus-Hub uses a lightweight **`develop` + `main`** workflow:
 - Run `make validate` (and `make test` for hook or validator changes) before opening a PR.
 - Commit messages are ASCII-only with no AI-attribution footers (see [CLAUDE.md](CLAUDE.md)).
 
+### Optional Pre-push Gate
+
+An opt-in `pre-push` stage runs the repository's fast validation profile (`python scripts/ci/run.py --profile fast`, the same command the CI `validate` job starts with) before every push, so a policy failure shows up in seconds instead of after a CI round. It is off until you install it:
+
+```bash
+pip install pre-commit
+pre-commit install --hook-type pre-push
+```
+
+Things to know before relying on it:
+
+- **Cost.** Measured on a Windows workstation: about 20 to 35 seconds when warm and up to about 3 minutes on the first cold run (see `docs/releases/v4/v4.15/development/v4.15.7-ci-latency-baseline.md`). A refused pre-push check in a scratch repository took 22 seconds.
+- **Shell tool timeouts.** An agent shell tool with a shorter timeout (for example 120 seconds) can kill a cold run, and the push then looks hung. Run `python scripts/ci/run.py --profile fast` yourself before pushing, or raise the tool timeout.
+- **Existing hook path.** `pre-commit install` refuses when git's `core.hooksPath` is set, which the Nexus-Hub attribution guard can set. In that case skip the hook and run the fast profile by hand before each push.
+- **Bypass.** `git push --no-verify` skips the stage. Use it only when the fast profile is known to be red for a reason unrelated to your change, and say so in the pull request.
+- **Trust boundary.** The hook runs the checked-out branch's own `scripts/ci/run.py`. After you check out a branch from an untrusted fork, a push runs that branch's code, so review it first or push from a clean branch.
+- **Scope.** The stage runs only the fast profile. It does not run the test suites, so a green push does not replace the CI gate.
+
 ## What You Can Contribute
 
 | Contribution Type | Location | Format |
