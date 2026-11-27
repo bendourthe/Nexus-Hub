@@ -20,6 +20,7 @@ from .test_v415_authority_bridge import (
     ROOT, CODEX_SESSION, binding, bridge_case, capture_supplement, cm, ck,
     resume, run_plan, _isolated_git_config, _no_transport_overrides, _private_native_home,
 )
+from .member_declarations import DECLARED_CHECKER
 from .test_codex_transcript_approval import Transcript
 from .test_completion_minor_record import GH_STUB
 
@@ -322,7 +323,7 @@ def execute(fx, entry, operation, *, session=CODEX_SESSION):
 
 
 def command(fx, entry, operation):
-    return [sys.executable, "-B", str(ROOT / "scripts/check_plan_completion.py"), "record",
+    return [sys.executable, "-B", str(DECLARED_CHECKER), "record",
             "execute-v415-authority", "--minor", "v4.15", "--repo", str(fx.work),
             "--session", CODEX_SESSION, "--receipt", receipt_id(entry), "--operation", operation]
 
@@ -1174,7 +1175,7 @@ def test_preparation_refuses_foreign_hardlink_without_removing_it(bridge_case, m
         fx.record_path().stem + "-" + receipt_id(entry) + "-v4.15.6.md")
     artifact.parent.mkdir(parents=True, exist_ok=True)
     foreign = fx.tmp / "independent-owner-file.md"
-    foreign.write_text(body, encoding="utf-8")
+    foreign.write_bytes(body.encode("utf-8"))
     os.link(foreign, artifact)
     result = execute(fx, entry, "prepare-release-notes")
     assert result.returncode != 0
