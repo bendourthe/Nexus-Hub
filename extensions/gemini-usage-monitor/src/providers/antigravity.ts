@@ -3,6 +3,7 @@ import { UsageMetric, UsageMetricRow, UNTRACKED_METRIC, isTracked } from "../typ
 import { formatResetTime } from "../usageStore";
 import { UsageProvider, UsageModel, ProviderFetchError, ProviderFetchErrorCode, ProviderFetchResult } from "./types";
 import {
+  ANTIGRAVITY_EXTENSION_ID,
   QUOTA_SUMMARY_METHOD,
   USER_STATUS_METHOD,
   ServerEndpoint,
@@ -209,7 +210,14 @@ export class AntigravityUsageProvider implements UsageProvider {
   readonly displayName = "Antigravity";
   private endpoint: ServerEndpoint | undefined;
 
-  constructor(private readonly appRoot: string = vscode.env.appRoot) {}
+  constructor(
+    private readonly appRoot: string = vscode.env.appRoot,
+    /** The built-in Antigravity extension's exports, once it is active; read on every discovery. */
+    private readonly hostApi: () => unknown = () => {
+      const ext = vscode.extensions.getExtension(ANTIGRAVITY_EXTENSION_ID);
+      return ext?.isActive ? ext.exports : undefined;
+    },
+  ) {}
 
   private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): { success: false; error: ProviderFetchError } {
     return { success: false, error: { code, ...extra } };
@@ -235,7 +243,7 @@ export class AntigravityUsageProvider implements UsageProvider {
   ): Promise<{ success: true; raw: { summary: unknown; userStatus: unknown } } | { success: false; error: ProviderFetchError }> {
     for (let attempt = 0; attempt < 2; attempt++) {
       if (!this.endpoint) {
-        const found = await discoverEndpoint(this.appRoot);
+        const found = await discoverEndpoint(this.appRoot, this.hostApi());
         if (!found.ok) {
           return this.fail(found.reason);
         }

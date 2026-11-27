@@ -397,7 +397,13 @@ def test_hermes_plugin_continues_through_the_real_core(tmp_path: Path) -> None:
     shutil.copy(REPO / "scripts" / "completion_gate.py", scripts / "completion_gate.py")
     shutil.copy(REPO / "scripts" / "nexus_process.py", scripts / "nexus_process.py")
     (scripts / "check_plan_completion.py").write_text(
-        "import sys\n"
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        "from types import SimpleNamespace\n"
+        "class Malformed(Exception):\n    pass\n"
+        "def resolve_plan_controller(path, session):\n"
+        "    record = json.loads(Path(path).read_text(encoding='utf-8'))\n"
+        "    return SimpleNamespace(root=Path(record['repo_root'])), record\n"
         "if sys.argv[1] == 'check':\n    print('INCOMPLETE: task.T002'); sys.exit(1)\n"
         "if sys.argv[1] == 'score':\n    print('1 abc -'); sys.exit(0)\n",
         encoding="utf-8",

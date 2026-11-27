@@ -160,7 +160,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.15.5"
+$script:NexusHubVersion = "4.15.6"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -3009,6 +3009,11 @@ function Build-And-Install-One-Extension {
 
 # --- Template & Script Installation ---
 
+function Install-ReportingRuntime {
+    param ($RepoRoot)
+    Safe-Folder-Copy -Source (Join-Path $RepoRoot "catalog\skills\workflow\implement-phase") -Destination (Join-Path $env:USERPROFILE ".nexus-hub\skills\workflow\implement-phase") -CustomMessage "[OK] Shared implementation reporting runtime installed"
+}
+
 function Install-Templates {
     param ($RepoRoot)
     # A "· subsection" under the CROSS-PLATFORM TOOLS section opened in Install-Global.
@@ -3235,6 +3240,15 @@ function Install-Templates {
     Safe-Copy -Source (Join-Path $RepoRoot "scripts\nexus_git_attribution.py") -Destination (Join-Path $scriptsDest "nexus_git_attribution.py") -Confirm:$true -CustomMessage "Portable Git attribution guard installed"
     if (Test-Path $cliSource) {
         Safe-Copy -Source $cliSource -Destination (Join-Path $scriptsDest "nexus_hub_cli.py") -Confirm:$true -CustomMessage "✓ nexus-hub CLI installed at: $scriptsDest\nexus_hub_cli.py"
+    }
+
+    # Copy the centralized worktree helper (v4.15.6). `nexus-hub worktree` loads it
+    # from beside the CLI core to resolve, create, list, audit, and migrate linked
+    # worktrees under one configured root. Stdlib-only single .py, so no .ps1 sibling.
+    # Mirror of the same block in scripts\installer.sh.
+    $worktreesSource = Join-Path $RepoRoot "scripts\nexus_worktrees.py"
+    if (Test-Path $worktreesSource) {
+        Safe-Copy -Source $worktreesSource -Destination (Join-Path $scriptsDest "nexus_worktrees.py") -Confirm:$true -CustomMessage "[OK] Worktree policy helper installed at: $scriptsDest\nexus_worktrees.py"
     }
 
     # Copy the supply-chain manifest tooling (v3.10.0). generate_manifest.py
@@ -3477,6 +3491,26 @@ function Install-Templates {
         else {
             Write-Item -Message "✓ Python dependencies (tomlkit, PyYAML) are available" -Color "DarkGreen"
         }
+    }
+
+    # Match nexus-hub.cmd's launcher order; the optional MCP venv is separate.
+    $processPython = $null
+    foreach ($candidate in @("py", "python", "python3")) {
+        $launcher = Get-Command $candidate -CommandType Application -ErrorAction SilentlyContinue
+        if ($launcher) { $processPython = $launcher.Source; break }
+    }
+    if ($processPython) {
+        $processDepCheck = Invoke-CommandWithTimeout -CommandLine ('"' + $processPython + '" -B -c "import psutil; psutil.Process().create_time()"') -TimeoutSeconds 10
+        if ($processDepCheck.ExitCode -ne 0) {
+            Write-Item -Message "Full-run process observation requires usable psutil; new hosting dispatches will refuse until it is available." -Color "Yellow"
+            Write-Item -Message ('Install using this CLI launcher: & "' + $processPython + '" -m pip install psutil') -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "Process observation support (psutil) is available through the CLI launcher." -Color "DarkGreen"
+        }
+    }
+    else {
+        Write-Item -Message "Full-run process observation requires a Python CLI launcher and psutil; no packages were installed." -Color "Yellow"
     }
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
@@ -4469,6 +4503,9 @@ Invoke-LegacyInstallMigration
 # existed) but still has devai-hub.claude-usage-monitor installed in VS Code.
 Remove-LegacyVSCodeExtensions
 Show-WelcomeBanner
+
+# Install the shared runtime before platform adapters audit reporting delivery.
+Install-ReportingRuntime -RepoRoot $repoRoot
 
 # Scope is resolved from -Workspace (no interactive scope/platform prompt).
 # Default = global install across all platforms.

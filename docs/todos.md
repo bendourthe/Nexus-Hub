@@ -1,5 +1,144 @@
 # Nexus-Hub Progress Dashboard
 
+## Current Maintenance
+
+**Status, 2026-11-26:** Progress remains 310/422 tasks, with eight releases remaining, v4.15.5 latest and v4.15.6 next. The ten ordinary source questions were withdrawn as unnecessary and their repairs applied under the original task. The separate `.github/workflows/ci.yml` change was genuinely approved and applied (`ea065` to `de9c5`); other workflow authority is unchanged.
+
+Old full runs `52168` and `84056` are cancelled/incomplete with zero full-qualification credit; their state files remain intact. Run `84056` was retired as superseded at 21:14 UTC after the updated reader was verified locally: four observed owned processes retired with zero survivors/errors, original source and runtime pins unchanged, and the same full/awake handles reached terminal results. The updated reader still needs fresh full qualification; no full-pass or installed claim is made. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#long-session-transcript-evidence-2026-11-26).
+
+Focused verification collected 129 cases: 128 unique case bodies passed, one skipped and zero remained unexecuted across isolated groups; this is not a whole-module or full-gate pass. Actual Python 3.11 syntax/import verification passed (`31f8978f`); Ruff was unavailable (`No module named ruff`), so lint remains open. The retained plan-test assertion failure (`9cae4b15`) was followed by an independently reviewed strict test-only correction (`966441d2`) and passing four-case replay (`1d933844`), with production bytes unchanged.
+
+- [ ] Qualify the updated reader and helper bundle with a fresh full run; retain genuine live capture, installed/provider, both hosted CodeQL languages and release gates.
+
+- [ ] Obtain concrete review and consent for the 512 MiB live-read policy and changed 21-helper payload before any real read or installation; earlier conditional approval covers only its reviewed bytes.
+
+- [ ] Retain the open, nonblocking synthetic fixture cleanup for `C:/ProgramData/nexus-bounded-transcript-entry-tp5tn8kl`; automatic execution review rejected guarded removal with only `rejected: blocked by policy`, and its process and watcher are quiescent.
+
+## Historical Maintenance Observations
+
+Earlier observations below retain their stage-specific results. Their old `52168` running descriptions and 11 pending source-change rows are historical, superseded by Current Maintenance, and are not current requests for approval.
+
+**Release estimate qualification, 2026-11-26:** The task-rate figure is now explicitly labeled "implementation only; validation/release time additional", with low confidence. The shared renderer retains the complete warning in compact and full output. Two baseline cases reproduced the misleading estimate; the first correction exposed the 48-character truncation, then the corrected source passed all three ETA cases and all 93 existing renderer tests. No remaining duration was inferred from the live failed full run or its timeout limits. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#release-estimate-qualification).
+
+- [x] Preserve the complete implementation-only release estimate warning in compact and full reports; retain actual conditions, task counts, serial numeric bounds and other cell escaping/limits.
+
+The ten ordinary source repairs also passed the 49 requested focused cases and installer parity. The original npm module produced nine passes and one existing Windows skip; a seven-case expectation mismatch made its wrapper report failure, and the original result is retained. The requested seven npm cases all passed without rerunning or weakening assertions. These are source checks, not full qualification, installed enforcement or native acceptance. Progress remains 310/422 tasks with eight releases left. The separate `.github/workflows/ci.yml` source decision was subsequently genuinely approved and applied; original native permissions and limits are unchanged. Historical entries below retain their stage observations. Final source/candidate recipe rebinding, full qualification and installed/native/release gates remain open.
+
+**Ordinary source authority correction, 2026-11-26:** The user's original enforcement, regression-test and verification request already covers the ten ordinary source corrections, which are now applied under that existing authority. The covered portions of all three earlier source-approval prompts were unnecessary and have been withdrawn, not approved; no owner reply or approval/capture event was created or consumed. The separate `.github/workflows/ci.yml` maintenance source change was subsequently genuinely approved and applied. The earlier CI13 grant names other workflows, and native v4.15.7 timing and grants remain separate. [Authority correction](releases/v4/v4.15/development/implementation-stall-enforcement.md#ordinary-source-authority-correction-2026-11-26).
+
+Both five-file applications used exact reviewed private104 postimages and official edit guards with zero accepts. The later corrected 104-input full qualification remains pending, while old full run `52168` is cancelled/incomplete with zero qualification credit. Current Maintenance records the active qualification boundary. Progress remains 310/422 tasks and eight versions. Source edits perform no package installation, native or installed change, publication, spending or release. Earlier entries below retain their original stage observations.
+
+**Verified maintenance milestones, 2026-11-26:** The refreshed private27 ETA bundle passed its six-step compatibility flow. Seven refreshed handbook evidence artifacts are now integrated, with 264 measured browser states, 14 visually inspected printed pages and an actual full two-handbook freshness pass. A single private deck control and the actual private Python 3.11 floor check also passed; neither closes the failed skills group or installed/provider verification. [Milestone evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#qualification-milestones-2026-11-26).
+
+Three genuine source questions remain pending for six prerequisite paths, three hook-test paths and two parity/reconciliation paths, totaling 11 pending source-change rows but 10 additional physical input paths. The private reconciliation correction passed all 25 cases with its 86 assertions unchanged; the parity declaration passed its causal comparison. Both proposals remain unapplied; the reconciliation test is already captured in the 94-file input frame, while its pending write permission remains separate. The known-red old full run 52168 is still live, proposed103 remains on hold, and no corrected full run or proposed104 candidate has been created. Progress remains 310/422 tasks and eight versions; installed changes, native capture, publication, spending and releases remain open.
+
+**Conservative scope ETA, 2026-11-26:** The local snapshot no longer divides remaining work by five historical started branches, which falsely reduced the whole estimate to 17 hours despite a member estimate of 1.2 days and a serial dependency. With no verified overlap schedule, the same historical task rate now gives about 3.5 days (3.2-3.9 days), with the same 310/422 task counts and next-release estimate. The serial regression reproduced a 1.2-day total below its two 1.2-day members, then passed with the conservative total. All 29 snapshot-module tests passed in 231.76 seconds under the reviewed 300-second limit. This is source/private proof, not deployed enforcement. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#conservative-scope-eta).
+
+- [x] Remove the unsupported historical-branch parallel discount; preserve row counts, units, next-release ETA and conditional external waits, and verify the serial regression plus all 29 snapshot tests.
+
+- [x] Refresh private27 compatibility for the three changed delivered ETA files before relying on the updated bundle; actual installed delivery and seven held replacements remain separately unapproved.
+
+**Completion-gate availability, 2026-11-26:** The local integrated core is now `bc91f80a`; its missing-helper/import-order correction leaves coherent controller verification unchanged and reports an unavailable native bundle without implying completion. The two-shell unit comparison reproduced eight expected source failures with eight passing controls, then passed all 16 cases with the candidate core, within 60 seconds per phase. The current integrated four-suite check passed 169 focused cases with seven native cases excluded. These results grant no actual owner acceptance, installed enforcement or final qualification. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#completion-gate-availability).
+
+- [x] Reproduce and correct the local missing-helper/import-order behavior; verify the same unit controls on Bash and Windows PowerShell without changing installed or native state.
+
+- [x] Verify the integrated core with the existing four focused suites: 169 passed and seven native cases excluded, with all 94 source pins preserved during the check.
+
+- [x] Withdraw the unnecessary three-test-path source question (`f5114fee`) and apply the reviewed corrections to `catalog/hooks/tests/test_completion_gate.py`, `catalog/hooks/tests/test_completion_gate_usage_handoff.py` and `catalog/hooks/tests/test_hook_message_source_label.py` under the original task; no new owner approval was created.
+
+The earlier six-path source question (`97ab...`) is also still pending, independently of the three-test-path question. The original private 100-path full attempt (`52168`) remains running on its old immutable candidate and is already known red: the heavy fragment reported 1,135 cases with 39 failures and nine skips; the rest fragment reported 2,562 cases with 123 failures and 73 skips. Known failures include Python launcher/shim environment, stale unit fixtures, the missing silent-adapter inventory entry and the controlled missing-helper source defect now corrected locally. Keep every old failure receipt; do not change the private alias or full runtime until that attempt is terminal and observed cleanup is complete. Frozen plan task marks, original authority and native MINOR COMPLETE remain unchanged.
+
+**Authority bridge and qualification, 2026-11-26:** Repairs are integrated locally on public develop base `90d7b967f` in `fix/v415-integration-20261126`, preserving upstream planning and maintenance partitions. The current four-suite bridge, report, continuation and Stop check passed 169 tests with seven native cases excluded. A separate private native capture/controller/saved-read/report case passed in 335.75 seconds; no actual account, installed or owner grant is implied. Independent review caught and closed a new Stop-helper compatibility regression before publication. Five previously authorized prerequisite files are integrated; six new dependency/setup paths await the explicit source decision. Canonical full qualification, actual hosted CodeQL proof, installed/provider delivery, genuine owner capture and ordered releases remain open. Earlier CI 125-case and combined 130-case results overlap and remain separate component evidence. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#current-integration).
+
+- [x] Preserve prior approved run-wide budgets in the fixed unmeasured T027 disposition without granting spending, changing original caps or completing T027.
+
+- [x] Complete the private exact-bundle compatibility flow with six successful steps and verified observed-process cleanup.
+
+- [x] Restore CI summary coverage, SARIF levels and tool-version evidence from existing artifacts without changing validation verdicts.
+
+- [x] Exercise the private bridge producer, fresh owner continuation, notes capture, native writer, controller, checker and report flow; six tests passed without changing actual authority.
+
+- [x] Verify the current required-action headline and ETA together in compact and full reports, retaining source questions and existing consent.
+
+- [x] Implement and independently review the bounded CI source correction; verify 125 private cases and preserve existing required/advisory behavior.
+
+- [x] Integrate current source and preserve every old profile definition except the explicit audit-group expansion; verify 130 focused cases.
+
+- [x] Verify the private v11 GET replay with the original UUID, retained failure, terminal-cache integrity, a suppressed 601-second unchanged report and resumed dependent work.
+
+- [x] Separate decision display numbers from permanent request IDs; verify all 21 reporting contracts and the actual current snapshot without reusing fulfilled request IDs.
+
+- [x] Install the six approved extension development extras in base Python 3.12 and verify pip check; psutil remains absent and installed helpers are unchanged.
+
+- [x] Withdraw the unnecessary ordinary six-path source question and apply the reviewed prerequisite corrections under the original task; the separate `.github/workflows/ci.yml` change was genuinely approved and applied, without granting native, installed or publication authority.
+
+- [x] Verify private native capture, exact-record authority, timed read, saved HMAC terminal result, same-handle observation and consumer reuse without a second GET or inferred exit.
+
+- [x] Reproduce both Stop-helper interface failures, preserve two-argument compatibility and verify explicit decision numbering in both Stop paths; all four affected suites pass 169 tests on current source.
+
+- [ ] Complete remaining finite-operation controls, current full source qualification and actual hosted proof.
+
+- [ ] Implement and qualify the supported authority bridge, including genuine owner continuation and bounded publication dispatch.
+
+- [ ] Rebind and qualify the final native helper runtime closure; attribution adds two retained support pins to the historical 25-path packet, with active guard state still unverified.
+
+- [ ] Verify both actual hosted CodeQL languages, source identity, upload processing and reports before merging the CI correction, even if CodeQL is not a required check; WN-26 covers retention only.
+
+- [ ] Complete the integrated current-source full gate, separately authorized helper delivery, genuine capture and ordered releases.
+
+**Implementation enforcement, 2026-11-25:** The owner, continuation and reporting repairs are reconciled onto current public develop `3397295f8`, retaining BG-12 through BG-14. A separate archive encoding candidate passed 53 tests, including private native archive refusal, while preserving the valid UTF-8 control-character fixture. The earlier full run on superseded source was cancelled with no pass credit after the encoding defect was confirmed. Protected archive JSON classification is implemented and independently reviewed, with 65 isolated checks and two private archive cases passed. Exact-bundle cleanup passed five owned-child controls and independent static review; the actual bundle smoke and integrated tests remain unexecuted. Final qualification, approved installation, actual provider proof and all remaining releases remain open. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md#current-develop-reconciliation).
+
+- [x] Verify genuine cross-session transfer, prominent manual capture, obsolete-request removal and sibling-checkout reporting on the frozen semantic candidate.
+
+- [x] Reconcile the source repairs with current develop and preserve the upstream BG-12 to BG-14 changes; runtime qualification remains separate.
+
+- [x] Reproduce the archive encoding miss and verify the isolated V2 correction with 53 checks without editing the intentional TypeScript control-character fixture.
+
+- [x] Implement and independently review protected archive JSON classification under the existing T011 contract without raising the live-input cap.
+
+- [ ] Complete integrated tests, exact-bundle compatibility proof and final source qualification.
+
+- [ ] Integrate and independently review safe recovery and single-plan/pre-record continuation; complete final source qualification.
+
+- [ ] Complete approved installed delivery and genuine provider proof before claiming deployed enforcement or native minor completion.
+
+**Implementation stall enforcement, 2026-11-24:** Local repair in `fix/stall-enforcement` reproduces concealed manual actions and unchanged status repeats, then adds a shared executable continuation model, controller reconciliation, portable report validation and a typed default turn-end consumer. Existing authorization, pause, usage and publication boundaries remain separate. [Evidence](releases/v4/v4.15/development/implementation-stall-enforcement.md).
+
+- [x] Reproduce the misleading report and repeated unchanged automatic output with the original renderer.
+
+- [x] Complete independent review and affected controller/report/provider regressions: 356 tests passed, including the controlled controller-to-report-to-resume flow.
+
+- [ ] Publish and install only through the existing approved boundaries; distinguish temporary provider materialization from actual host deployment.
+
+
+**Comparison choice handoff, 2026-11-23:** The maintainer approved a shared correction so completed comparisons recommend a clear next step and offer Create the plan, Review recommendations, or Stop here. The shared instructions use the host's available question control or numbered text choices, while preserving planning, publication and signed-approval boundaries. The source change passed 174 focused tests and independent review. Publication and installed delivery remain pending; actual cross-platform behavior has not been observed. [Evidence](releases/v4/v4.15/development/compare-choice-handoff.md).
+
+- [x] Review the shared rule owners and approve the comparison handoff correction.
+
+- [x] Implement the shared handoff without platform-specific rule copies.
+
+- [x] Verify existing communication and platform projection checks, then independently review the change.
+
+- [ ] Complete qualified delivery and record actual host coverage without claiming unobserved behavior.
+
+**v4.15.9 scope reconciliation, 2026-11-24:** The fixed checkpoint and exact T027 suite passed 114 focused tests, and independent security and code reviews approved the corrected implementation. Earlier comprehensive attempts remain failed. The latest self-contained validator attempt timed out in all four commands; 12 bounded timing cases subsequently passed. The maintainer approved the reviewed Windows partition repair and its larger aggregate allowance; the source patch is applied. Revised collection, complete fresh qualification, compatible delivery and genuine live capture remain open. [Evidence](releases/v4/v4.15/development/v4159-scope-reconciliation.md).
+
+- [x] Verify the native scope blocker and review the bounded repair design.
+
+- [x] Independently verify exact checkpoint provenance, prospective T020 permission and legacy compatibility through focused tests and source review.
+
+- [ ] Complete fresh canonical full-scope qualification under corrected isolation, prove complete command coverage and prepare compatible delivery.
+
+- [ ] Capture the genuine eligible v4.15.9 checkpoint decision after delivery.
+
+**Codex continuation repair, 2026-11-24:** The maintainer approved implementation and verification of native transcript proof and the exact unmeasured disposition for v4.15.9 T027. Existing run ownership, native approvals and spending caps remain unchanged. The reviewed three-file CI repair is applied under the maintainer's new local approval. It replaces four Windows validator commands with 16; individual ceilings remain 30 or 40 minutes, while validator and combined-governance ceilings increase to 8h30 and 9h15. All 17 default groups still require fresh qualification. Publication, backed-up delivery and genuine live continuation proof remain open. [Evidence](releases/v4/v4.15/development/codex-native-continuation-repair.md).
+
+- [x] Implement and independently review native continuation with legacy compatibility and genuine-event rejection coverage.
+
+- [x] Implement the exact T027 unmeasured action without spending authority.
+
+- [ ] Complete fresh full qualification, authorized publication and delivery, then verify a genuinely new native Codex decision.
+
 **Historical incident prevention, 2026-11-20:** Target v4.22.13 and the three-phase scope confirmed by the maintainer; documentation publication authorized. The [comparison](releases/v4/v4.22/comparisons/v4.22.13-comparison-incident-prevention.md) and [three-phase plan](releases/v4/v4.22/plans/v4.22.13-adoption-incident-prevention.md) extend existing local-evidence learning and review-trapdoor guidance. Seven review lenses completed; three findings corrected and independently rechecked. Implementation: 0/19 tasks and 0/3 phases. Implementation and release remain unstarted; the approved planning package is prepared for protected publication.
 
 - [x] Draft and independently critique the incident-prevention adoption plan.
@@ -23,6 +162,19 @@
 - [ ] Publish v4.15.2 through the integration pull request, then close DF-45 to DF-49 and the v4.15.2 warnings as their next steps complete.
 
 **Integration branch:** `develop`
+
+**Gemini Neon and native side questions plan:** Target v4.22.14 and the [four-phase, 20-task plan](releases/v4/v4.22/plans/v4.22.14-adoption-gemini-neon-and-native-side-questions.md) were approved for documentation publication on 2026-11-23. Six review lenses raised five distinct findings, all corrected. [Comparison](releases/v4/v4.22/comparisons/v4.22.14-comparison-gemini-neon-and-antigravity-side-questions.md). Implementation remains 0/20 tasks and 0/4 phases; no implementation or release authority granted.
+
+- [ ] Obtain separate execution authority before implementing the approved Gemini and native-side-question plan.
+
+**Factory scorers, MCP capabilities, and security gates, 2026-11-25:** A seven-source [comparison](releases/v4/v4.22/comparisons/v4.22.15-comparison-factory-scorers-mcp-and-security-gates.md) was split into two plans at the maintainer's direction. [v4.22.15](releases/v4/v4.22/plans/v4.22.15-adoption-security-gates-and-mcp-capabilities.md) (interim mitigation, pentest validation gate, MCP capabilities, MCP skills-extension decision; 4 phases, 19 tasks) has no prerequisites. [v4.22.16](releases/v4/v4.22/plans/v4.22.16-adoption-redraft-rule-and-transcript-scorers.md) (redraft rule, transcript scorers; 4 phases, 19 tasks) waits for v4.21.0 and v4.22.13. Frontend budgets (A6) were cut and go to the v4.22 known gaps. Three review lenses raised 24 findings; four grill decisions recorded. Paid proof runs capped at USD 30 total. Implementation 0/38 tasks; no implementation or release authority granted.
+
+- [x] Confirm the v4.22.15 and v4.22.16 phase breakdowns for publication.
+
+- [ ] Implement v4.22.15 under separate execution authority.
+
+- [ ] Implement v4.22.16 after v4.21.0 and v4.22.13 merge, under separate execution authority.
+
 
 **Codex split and release ETA, 2026-11-16:** Authorized maintenance in `fix/codex-split-and-release-eta` opens the Codex editor-title action beside the current editor and separates next-release ETA from whole-scope completion in both status formats.
 
@@ -110,11 +262,13 @@ The publication-blocking guide test was repaired separately in [PR #653](https:/
 
 **v4.14 complete:** All nine plans are released and archived in the integration tree. [PR #617](https://github.com/bendourthe/Nexus-Hub/pull/617) merged as `2ecc9a55f` after all 31 applicable checks passed, with one optional skip, and post-merge smoke/provenance passed. The exact merged helper is installed with a verified backup. The ordinary installed checker exited 0 with `MINOR COMPLETE v4.14`: all seven original members and 209 tasks are met. Separate native-reader audits met all 47 v4.14.7 and 42 v4.14.8 tasks plus their release/archive checks. Fresh cleanup receipts are written; all four closing/audit/repair worktrees and their three local branches are removed, with local-only data preserved externally. The primary checkout's 34 pending changes and worktrees awaiting individual deletion decisions remain intact. Earlier close checkpoints below are retained history. WN-29 and WN-30 remain v4.15 work; the approved worktree-policy plan remains unimplemented.
 
-**v4.15.6 centralized worktrees:** Confirmed planning scope: five phases and 26 tasks for one configurable placement policy, supported-platform enforcement, complete machine discovery, preservation-first migration/cleanup, and a copy-ready notice for other agents. Seven independent review lenses completed, with affected corrections rechecked; the user confirmed the recommended native-path route and planning publication on 2026-11-06. Implementation is 0/26 tasks and 0/5 phases. Planning publication does not authorize machine relocation or deletion. [Plan](releases/v4/v4.15/plans/v4.15.6-centralized-worktrees-and-machine-migration.md).
+**v4.15.6 centralized worktrees:** Confirmed planning scope: five phases and 26 tasks for one configurable placement policy, supported-platform enforcement, complete machine discovery, preservation-first migration/cleanup, and a copy-ready notice for other agents. Seven independent review lenses completed, with affected corrections rechecked; the user confirmed the recommended native-path route and planning publication on 2026-11-06. Implementation is 25/26 tasks and 4/5 phases complete locally (2026-11-21): helper, guard, migration and recovery, the Nexus-Hub machine campaign (50 of 50 approved moves verified; 67 items deferred under recorded decisions, DF-66), the session-start worktree notice and the progress-report precedence rule. Publication and integration (T026) remain. Planning publication does not authorize machine relocation or deletion. [Plan](releases/v4/v4.15/plans/v4.15.6-centralized-worktrees-and-machine-migration.md).
 
 - [x] Review and confirm the v4.15.6 plan, default root, machine-campaign boundaries, and agent handoff; publication approved on 2026-11-06.
 
-- [ ] Implement, qualify, migrate the machine's worktrees, release, and verify native completion under separately recorded execution authority.
+- [x] Implement, qualify and migrate this machine's Nexus-Hub worktrees under the recorded execution authority.
+
+- [ ] Publish, integrate, release, and verify native completion; then run the cross-repository and second-machine campaign (DF-64).
 
 **v4.14 minor close:** PR #612 merged into develop as `4b6c6105d` after all checks completed, and the local closing branch merged develop as `a64ff0075`. A fresh archive dry run passed, but the native apply exhausted its transaction/rollback path and left 26 identical-content renames; all 26 were reversed with `git mv`, restoring a clean worktree. A private 20-move measurement with the same 9,180-entry index extrapolates to about 316 seconds for the 820 file moves alone, exceeding the helper's 180-second work budget. The separately approved batching repair merged as `2cb37c5b4`, was delivered with a verified backup, and passed installed native qualification. The closing branch merged develop as `5bb30db23`. The real native archive succeeded at `ca0805634`: 821 files moved, 171 link updates, 151 path-mention updates, 38 repaired files, zero newly broken links, and a natively repointed run record. All 847 post-command guard records passed; the full fast profile then passed all 18 checks in 52.6 seconds. Closing publication, cleanup, and native minor completion remain open. [Evidence and repair proposal](archives/v4/v4.14/development/v4.14-minor-close-evidence.md).
 

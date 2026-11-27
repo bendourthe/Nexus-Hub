@@ -62,13 +62,20 @@ jobs:
       - name: Install dependencies (no lifecycle scripts)
         run: npm ci --ignore-scripts
 
-      - name: Audit for known advisories
-        run: npm audit --audit-level=high
+      - name: Audit for known advisories and advisory registry signatures
+        working-directory: .
+        run: python -B scripts/ci/run.py --profile full --only npm-audit-${{ matrix.extension }} --reports-dir reports
 
-      # Verifies that the registry's signatures for the installed versions match,
-      # which catches a tampered or re-published artifact that `npm audit` alone
-      # does not. Tolerated as advisory: signature coverage is still incomplete
-      # across the registry, so a missing signature is not evidence of compromise.
-      - name: Verify registry signatures (advisory)
-        continue-on-error: true
-        run: npm audit signatures
+      - name: Publish native profile summary
+        if: always()
+        working-directory: .
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload native audit reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reports-npm-audit-${{ matrix.extension }}
+          path: reports
+          retention-days: 7
+          if-no-files-found: warn

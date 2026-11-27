@@ -2230,3 +2230,45 @@ def test_close_status_detail_keeps_blocked_exit_with_gaps_notice(monkeypatch: py
     assert out.out.splitlines()[0] == "BLOCKED: no-progress"
     assert "diagnostic gaps.minor unmet" in out.err
     assert "v2.15#WN-1" in out.out
+
+_HEADER = "# Plan\n\n**Version**: v0.5.0\n**Status**: queued\n**Slug**: x\n\n## Phase 1\n\n- [ ] T001 a\n"
+
+
+@pytest.mark.parametrize(("after", "accepted"), [
+    (_HEADER.replace("**Status**: queued", "**Status**: superseded"), True),
+    (_HEADER.replace("**Status**: queued", "**Status**: superseded\n**Superseded by**: v0.5.1"), True),
+    (_HEADER.replace("**Status**: queued", "**Status**: superseded\n**Superseded by**: v0.5.1\n**Superseded by**: v0.5.2"), False),
+    (_HEADER.replace("**Status**: queued\n**Slug**: x", "**Status**: superseded\n**Slug**: x\n**Superseded by**: v0.5.1"), False),
+    (_HEADER.replace("**Status**: queued", "**Status**: superseded").replace("T001 a", "T001 b"), False),
+    (_HEADER.replace("**Status**: queued", "**Status**: done"), False),
+    (_HEADER, False),
+    (_HEADER.replace("**Status**: queued", "**Status**: superseded").replace("\n", "\r\n"), True),
+], ids=["status", "status-and-by", "two-by-lines", "by-line-elsewhere", "body-edit", "other-status", "unchanged", "crlf"])
+def test_superseded_only_change(after: str, accepted: bool) -> None:
+    """BG-13: only the header status becoming superseded, plus one optional by-line, is accepted."""
+    assert cm.superseded_only_change(_HEADER, after) is accepted
+
+
+def test_superseded_only_change_ignores_status_lines_after_the_header() -> None:
+    body_only = "# Plan\n\n## Notes\n\n**Status**: queued\n"
+    assert not cm.superseded_only_change(body_only, body_only.replace("queued", "superseded"))
+
+
+def test_superseded_member_plan_keeps_its_record_verified(minor: Minor) -> None:
+    """BG-13: a committed status-only supersede edit verifies; any further edit reads as tampered."""
+    assert minor.create().returncode == 0
+    member = minor.record()["members"][0]
+    path = minor.work / member["plan_path"]
+    original = path.read_text(encoding="utf-8")
+    lines = original.split("\n")
+    at = next(index for index, line in enumerate(lines) if line.startswith("**Status**:"))
+    lines[at:at + 1] = ["**Status**: superseded", "**Superseded by**: v0.5.9 (fixture)"]
+    superseded = "\n".join(lines)
+    assert superseded != original
+    path.write_text(superseded, encoding="utf-8")
+    minor.commit("mark the member superseded")
+    state = minor.load()
+    assert state.forced is None and state.record is not None
+    path.write_text(superseded.replace("## Phase 1", "## Phase One", 1), encoding="utf-8")
+    minor.commit("edit the member beyond its status")
+    assert minor.load().forced == ck.TAMPERED

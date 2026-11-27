@@ -1,0 +1,93 @@
+{
+  "status": "pass",
+  "scope": "Fresh private geometry, declared behaviors, screenshots and actual JS/no-JS print inspection; unchanged retained distribution HTML",
+  "browser": "Chromium 156.0.8078.4",
+  "output_sha256": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65",
+  "coverage": {
+    "sections": 6,
+    "slides": 6,
+    "measured_states": 264,
+    "viewports": [
+      [
+        2560,
+        1300
+      ],
+      [
+        1920,
+        1080
+      ],
+      [
+        1366,
+        768
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        1600,
+        900
+      ],
+      [
+        1024,
+        850
+      ],
+      [
+        1024,
+        851
+      ],
+      [
+        2560,
+        720
+      ],
+      [
+        760,
+        900
+      ],
+      [
+        761,
+        900
+      ],
+      [
+        1024,
+        640
+      ]
+    ]
+  },
+  "errors": [],
+  "no_js_and_print": "pass; actual two PDFs visually inspected page by page",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "qualitative_review": {
+    "status": "pass",
+    "inspected_screenshots": [
+      "distribution-presentation.png",
+      "distribution-reading-mobile.png"
+    ],
+    "inspected_printed_pages": {
+      "distribution-print-js.pdf": 7,
+      "distribution-print-nojs.pdf": 7
+    },
+    "observations": "Desktop title, paragraph, route figure and navigation fit and remain legible. All six mobile reading sections are legible in a single vertically scrolling column. Every JS/no-JS PDF page retains readable text, route/ownership figures, theme contrast and all six sections; the long ownership paragraph flows across an ordinary page break. No screenshot or print output was reused from the prior attestation.",
+    "scope": "Representative screenshots and full actual printed-page visual inspection; geometry and declared behaviors measured separately."
+  },
+  "outbound_requests": [],
+  "page_errors": [],
+  "declared_source_value_and_custom_control_guards": "unchecked where independent inventory declares none; not claimed as verified",
+  "pdf_sha256": {
+    "distribution-print-js.pdf": "2c3df0f1aa1ff5c43d84397d6de6c922de7970082c8dcc3b3d0e3a4dbe563601",
+    "distribution-print-nojs.pdf": "ea5d6043d76d2b5ea2411e61d3d859e82475d98d2afe56a11cc551dda33c772d"
+  },
+  "evidence_sha256": {
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-browser.json": "d2325d9a45cc51b640b9026e87fa76654dd0fa927f38be0bc4f3bae9882c7b35",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-browser-compact.json": "a0c3d9cfd5948d74cf527aab9d9ed9d2ccf06fb12f52394f0801106acca1c6fe",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-browser-inventory.json": "9a9b6e7d9fd2b2116bded0adb27eef28cbe7a7b71a7e8821531274adcdc8e5a9",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-browser-portable-projection.json": "8b5bbe38b7b296f74ced01d54b4f276da38f927fa2129c36b4c43774e6aa7b28",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-presentation.png": "b7b547337eb71dbc7a0ac2c6bf7ba38839cc5496699cf6b8c0e90605b168f067",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-reading-mobile.png": "cec5743ec5480a876e670aca48c1e654f55d05122a38d0d9f4b942af2ce866d2",
+    "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review.md": "2858cb338c457b4d19b381fd4e93dda269d3b3638423443c302f4e889a8e593d"
+  },
+  "limits": [
+    "Private local HTML/browser evidence only; no actual installed/provider/native-owner proof.",
+    "Existing design and output bytes preserved; screenshots representative, full geometry matrix and all printed pages covered."
+  ]
+}

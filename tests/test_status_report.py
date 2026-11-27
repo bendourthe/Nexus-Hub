@@ -13,6 +13,25 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "catalog/skills/workflow/implement-phase/scripts/status_report.py"
 
 
+def observed_jobs(items):
+    """Explicit inert process observations for report formatting fixtures."""
+    return [{"id": f"fixture-job-{i}", "handle": f"fixture-session-{i}", "status": "running",
+             "observed_at": "2026-11-16T12:00:00Z", "resume_when": "This fixture process returns its result",
+             "evidence": "Inert unit-test process observation", **item} for i, item in enumerate(items, 1)]
+
+
+def observed_decisions(items):
+    """Formatting fixtures explicitly offer continuing and declining."""
+    result = []
+    for item in items:
+        row = dict(item)
+        if row.get("options") and len(row["options"]) == 1:
+            row["options"] = [*row["options"], {"option": "B", "effect": "Decline and preserve current state"}]
+        row.setdefault("reply", "Reply A or B")
+        result.append(row)
+    return result
+
+
 def squash(output: str) -> str:
     """Collapse the column padding so assertions read the cell content only."""
     return re.sub(r"-{3,}", "---", re.sub(r" {2,}", " ", re.sub(r" +\|", " |", output)))
@@ -40,6 +59,8 @@ def snapshot():
         "goals": [{"goal": "Ship v1.3", "scope": "run",
                    "done_when": "All 19 tasks verified", "state": "running"}],
         "decisions": [], "running": [],
+        "continuation": {"objective": "Ship v1.3", "work": [{"id": "package", "title": "Implement approved packaging",
+            "authorized": True, "feasible": True, "evidence": "Inert fixture's approved packaging scope"}]},
     }
 
 
@@ -50,21 +71,21 @@ def test_compact_footer_layout_and_all_sections(report, snapshot):
     assert "progress: \u25b0\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1\u25b1 16% (3/19 tasks)   \u00b7   ETA: ~2.2 d (1.6-4.0 d)" in text
     for heading in ("\U0001F3AF Goals", "\U0001F64B Decisions waiting", "\U0001F504 Running"):
         assert f"\n\n---\n\n### {heading}\n\n" in text
-    assert "\n\nNo decisions waiting.\n\n" in text and "\n\nNothing running.\n\n" in text
+    assert "\n\nNo decisions waiting.\n\n" in text and "authorized work is available" in text
     assert "Source:" not in text and text.endswith('*Full report: /progress, or ask for "full progress".*\n')
     assert "Full report: /progress" in text
 
 
 def test_compact_lists_decisions_and_running_with_counts(report, snapshot):
-    snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
-                              "options": [{"option": "A", "effect": "e"}]}]
-    snapshot["running"] = [{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "~5 min"},
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B",
+                              "options": [{"option": "A", "effect": "e"}]}])
+    snapshot["running"] = observed_jobs([{"name": "PR 1", "state": "checks", "done": 9, "total": 10, "elapsed": "1 min", "remaining": "~5 min"},
                            {"name": "Fix", "state": "second pass", "done": None, "total": None, "elapsed": "1 min",
-                            "remaining": "not estimated (no task list)"}]
+                            "remaining": "not estimated (no task list)"}])
     text = report.render(snapshot, "compact")
-    assert ("### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A\n\n"
-            "| Option | What it means | Effect |\n| ------ | ------------- | ------ |\n| A      | -             | e      |\n\n"
-            "Reply A or B\n") in text
+    assert "### \U0001F64B Decisions waiting\n\n#### 1\ufe0f\u20e3 Decision #1: Pick A" in text
+    assert "| A" in text and "| B" in text and "Decline and preserve current state" in text
+    assert "Reply A or B\n" in text
     assert "- d" not in text
     assert "- PR 1 \u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b0\u25b1 90%: checks\n- Fix: second pass\n" in text
     snapshot["decisions"][0]["reply"] = " "
@@ -107,23 +128,203 @@ def test_cadence_suppresses_narration_and_deduplicates_boundaries(report, snapsh
     assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
     snapshot["rows"][0]["done"] = 4
     assert report.select_report(snapshot, previous, "progress")["mode"] == "none"
-    assert report.select_report(snapshot, previous, "turn-end")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "turn-end")["mode"] == "compact"
     assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
 
 
 def test_timer_requests_resume_new_decisions_and_terminal_rules(report, snapshot):
     previous = report.select_report(snapshot, None, "start")["receipt"]
     snapshot["observed_at"] = "2026-11-16T12:05:00Z"
-    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
     assert report.select_report(snapshot, previous, "progress")["mode"] == "none"
-    for event in ("request", "resume"):
-        assert report.select_report(snapshot, previous, event)["mode"] == "full"
-    snapshot["decisions"] = [{"id": "1", "title": "Choose packaging", "detail": "Affects consumers",
-                              "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}]
+    assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+    assert report.select_report(snapshot, previous, "resume")["mode"] == "none"
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Choose packaging", "detail": "Affects consumers",
+                              "options": [{"option": "A (recommended)", "effect": "Keep compatibility"}]}])
     assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "full"
     snapshot["active"] = False
-    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "full"
     assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+
+
+def required_capture():
+    return {"id": "capture", "kind": "action", "title": "Capture installed proof", "prerequisites": ["Open the installed app"],
+            "steps": ["Run the displayed capture command", "Paste its receipt"], "expected_result": "A fresh receipt",
+            "acknowledgment": "Reply with the receipt path"}
+
+
+def required_decision():
+    return {"id": "approval", "kind": "decision", "title": "Approve the reviewed change",
+            "detail": "This changes the distributed behavior; declining preserves the current version.",
+            "options": [{"option": "A (recommended)", "effect": "Apply the reviewed scope"},
+                        {"option": "B", "effect": "Keep the current scope"}], "reply": "Reply A or B"}
+
+
+def evidenced_external():
+    return {"id": "service", "title": "Required service", "evidence": "The service endpoint refused the connection",
+            "resume_when": "The required endpoint responds", "observed_at": "2026-11-16T12:00:00Z"}
+
+
+@pytest.mark.parametrize("facts,state", [
+    ({"requests": [required_capture()]}, "waiting_owner_action"),
+    ({"requests": [required_decision()]}, "waiting_decision"),
+    ({"jobs": [{"id": "pipeline", "name": "Existing pipeline", "handle": "pipeline-123", "status": "running",
+                 "observed_at": "2026-11-16T12:00:00Z", "resume_when": "The same pipeline returns its result",
+                 "evidence": "Its live handle was observed"}]}, "waiting_job"),
+    ({"external_conditions": [evidenced_external()]}, "blocked_external"),
+    ({"work": [{"id": "local", "title": "Implement the approved local change", "authorized": True,
+                 "feasible": True, "evidence": "Existing approved scope"}]}, "working"),
+])
+def test_inactive_flag_cannot_hide_nonterminal_obligations(report, snapshot, facts, state):
+    snapshot["active"] = False
+    snapshot["continuation"] = {"objective": "Ship v1.3", **facts}
+    result = report.select_report(snapshot, None, "turn-end")
+    assert result["mode"] == "full" and report.continuation(snapshot)["state"] == state
+    assert report.select_report(snapshot, result["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("paused", [False, True])
+def test_waiting_eta_and_wall_clock_rate_drift_do_not_emit_progress(report, snapshot, paused):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "requests": [required_capture()], "paused": paused}
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~1 h", "condition": "after installed proof",
+                                "confidence": "low", "basis": "own pace at the current wall time"}
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["observed_at"] = "2026-11-16T12:30:00Z"
+    snapshot["remaining"] = "~4 h"
+    snapshot["rows"][0]["remaining"] = "~4 h"
+    snapshot["next_release"].update(remaining="~2 h", basis="own pace at a later wall time")
+    snapshot["estimate_basis"] = "updated wall-clock-only own pace"
+    assert report.select_report(snapshot, previous, "resume")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "turn-end")["mode"] == "none"
+    assert report.select_report(snapshot, previous, "request")["mode"] == "full"
+    snapshot["last_released"] = "v1.2.1"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+def test_measured_idle_age_alone_does_not_emit_progress(report, snapshot):
+    snapshot["idle_lanes"] = [{"member": "v1.3.1", "kind": "needs-user",
+                               "detail": "blocked 10223 min on coordinator-and-sensitive-deltas"}]
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["observed_at"] = "2026-11-16T12:47:00Z"
+    snapshot["idle_lanes"][0]["detail"] = "blocked 10270 min on coordinator-and-sensitive-deltas"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+
+
+def test_canonical_equivalent_prior_rollforward_and_terminal_raw_shrink_do_not_emit(report, snapshot):
+    old = observed_jobs([{"id": "finished", "name": "Earlier fixture job", "handle": "fixture-old"}])[0]
+    active = observed_jobs([{"id": "current", "name": "Current fixture job", "handle": "fixture-current"}])[0]
+    snapshot["continuation"] = {"objective": "Ship v1.3", "jobs": [old]}
+    prior = report.continuation(snapshot)
+    raw = {"objective": "Ship v1.3", "remaining_tasks": 16,
+           "jobs": [{**old, "status": "succeeded", "result_verified": True}, active]}
+    snapshot.update(previous_continuation=prior, continuation_observation=raw,
+                    continuation=report._STATE.reconcile(raw, prior))
+    original = report.continuation(snapshot)
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["previous_continuation"] = json.loads(json.dumps(original))
+    snapshot["continuation_observation"]["jobs"] = [active]
+    snapshot["continuation"] = report._STATE.reconcile(snapshot["continuation_observation"], original)
+    assert report.continuation(snapshot)["fingerprint"] == original["fingerprint"]
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "none"
+
+
+@pytest.mark.parametrize("change", ["member", "kind", "blocker", "blocker-number", "other-age-prose",
+                                  "phase-evidence", "request", "decision", "retirement", "pause", "objective"])
+def test_canonical_and_idle_identity_changes_remain_material(report, snapshot, change):
+    snapshot["idle_lanes"] = [{"member": "v1.3.1", "kind": "needs-user", "detail": "blocked 10223 min on worker-7"}]
+    if change == "other-age-prose":
+        snapshot["idle_lanes"][0]["detail"] = "phase evidence: blocked 10223 min on worker-7"
+    if change == "retirement":
+        snapshot["continuation"]["jobs"] = observed_jobs([{"name": "Existing fixture job"}])
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    if change == "member":
+        snapshot["idle_lanes"][0]["member"] = "v1.3.2"
+    elif change == "kind":
+        snapshot["idle_lanes"][0]["kind"] = "resumable"
+    elif change == "blocker":
+        snapshot["idle_lanes"][0]["detail"] = "blocked 10223 min on approval-not-captured"
+    elif change == "blocker-number":
+        snapshot["idle_lanes"][0]["detail"] = "blocked 10223 min on worker-8"
+    elif change == "other-age-prose":
+        snapshot["idle_lanes"][0]["detail"] = "phase evidence: blocked 10270 min on worker-7"
+    elif change == "phase-evidence":
+        snapshot["continuation"]["work"][0]["evidence"] = "A new committed phase result was verified"
+    elif change in {"request", "decision"}:
+        snapshot["continuation"]["requests"] = [required_capture() if change == "request" else required_decision()]
+    elif change == "retirement":
+        snapshot["continuation"]["jobs"][0].update(status="succeeded", result_verified=True)
+    elif change == "pause":
+        snapshot["continuation"]["paused"] = True
+    else:
+        snapshot["continuation"]["objective"] = "Ship v1.3 with its complete installed proof"
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] != "none"
+
+
+@pytest.mark.parametrize("change", ["tasks", "condition", "capability"])
+def test_waiting_real_observation_changes_remain_material(report, snapshot, change):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "external_conditions": [evidenced_external()]}
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    if change == "tasks":
+        snapshot["rows"][0]["done"] += 1
+    elif change == "condition":
+        snapshot["continuation"]["external_conditions"][0]["evidence"] = "The endpoint now responds but rejects the required operation"
+    else:
+        snapshot["continuation"]["native_goal"] = {"status": "blocked", "resume_supported": True, "observed_at": "2026-11-16T12:00:00Z"}
+    assert report.select_report(snapshot, previous, "checkpoint")["mode"] == "compact"
+
+
+def test_controller_frame_new_decision_gets_full_walkthrough_and_retirement_receipt(report, snapshot):
+    previous = report.select_report(snapshot, None, "start")["receipt"]
+    snapshot["continuation"]["requests"] = [required_decision()]
+    assert snapshot["decisions"] == []
+    presented = report.select_report(snapshot, previous, "checkpoint")
+    assert presented["mode"] == "full"
+    assert required_decision()["detail"] in presented["report"]
+    assert [item["id"] for item in presented["receipt"]["decisions"]] == ["approval"]
+    assert report.select_report(snapshot, presented["receipt"], "turn-end")["mode"] == "none"
+    snapshot["continuation"]["resolutions"] = [{"request_id": "approval", "verified": True,
+        "evidence": "Native approval owner consumed the genuine reply", "authority_receipt": "native-receipt-17"}]
+    resumed = report.select_report(snapshot, presented["receipt"], "checkpoint")
+    assert resumed["mode"] == "compact" and resumed["receipt"]["decisions"] == []
+    assert "Decision #" not in resumed["report"]
+    assert report.select_report(snapshot, resumed["receipt"], "turn-end")["mode"] == "none"
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_producer_observation_rejects_tampered_canonical_history(report, snapshot, mode):
+    raw = json.loads(json.dumps(snapshot["continuation"]))
+    canonical = report.continuation(snapshot)
+    snapshot["continuation_observation"] = raw
+    snapshot["continuation"] = canonical
+    snapshot["continuation"]["completed_jobs"] = [{"id": "unsigned-invented-retirement"}]
+    with pytest.raises(ValueError, match="producer.*continuation"):
+        report.render(snapshot, mode)
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_external_wait_makes_whole_eta_conditional_without_a_job_or_release_condition(report, snapshot, mode):
+    snapshot["continuation"] = {"objective": "Ship v1.3", "external_conditions": [evidenced_external()]}
+    snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~1 h", "condition": "none", "confidence": "low", "basis": "Measured task pace"}
+    output = report.render(snapshot, mode)
+    assert output.startswith("Waiting for Required service")
+    assert "Whole-objective time estimates are conditional on Required service" in output
+    assert "The required endpoint responds" in output and "exclude any unbounded waiting time" in output
+    assert "~2.2 d (1.6-4.0 d)" in output and "~1 h" in output
+
+
+@pytest.mark.parametrize("mode", ["compact", "full"])
+def test_unestimated_outstanding_owner_action_is_not_presented_as_goal_completion(report, snapshot, mode):
+    snapshot["active"] = False
+    snapshot["versions_left"] = 0
+    snapshot["rows"][0].update(done=19, total=19, remaining="N/A")
+    snapshot["remaining"] = "N/A"
+    snapshot["continuation"] = {"objective": "Complete all approved delivery proof", "requests": [required_capture()]}
+    output = report.render(snapshot, mode)
+    assert output.startswith("Waiting for you: Capture installed proof")
+    assert "No duration estimate is available for the outstanding obligations" in output
+    assert "N/A does not mean the objective is complete" in output
+    assert "A fresh receipt" in output and "exclude any unbounded waiting time" in output
+    assert "100%" in output and "Verified complete:" not in output
 
 
 def test_receipts_do_not_cross_runs_and_regressions_are_visible(report, snapshot):
@@ -190,8 +391,8 @@ def test_audit_detects_missing_stale_and_shadowed_installations(report, tmp_path
 
 
 def test_running_links_are_preserved_and_unsafe_schemes_rejected(report, snapshot):
-    snapshot["running"] = [{"name": "PR #12", "state": "checks", "done": 2, "total": 3,
-                            "elapsed": "1 min", "remaining": "~1 min", "url": "https://example.test/pull/12/checks"}]
+    snapshot["running"] = observed_jobs([{"name": "PR #12", "state": "checks", "done": 2, "total": 3,
+                            "elapsed": "1 min", "remaining": "~1 min", "url": "https://example.test/pull/12/checks"}])
     for mode in ("compact", "full"):
         output = report.render(snapshot, mode)
         assert "](https://example.test/pull/12/checks)" in output
@@ -253,9 +454,9 @@ HOSTILE = "Wheels (verified; pending) my_var $HOME $5 + #1 a|b *bold* _it_ `code
 def hostile_snapshot(snapshot):
     snapshot["rows"][0].update(name="v1.3.0.dev1 (wheels)", goals=HOSTILE, state=HOSTILE)
     snapshot["goals"][0].update(goal=HOSTILE, done_when=HOSTILE)
-    snapshot["decisions"] = [{"id": "1", "title": HOSTILE, "detail": HOSTILE,
-                              "options": [{"option": "A (recommended)", "meaning": HOSTILE, "effect": HOSTILE}]}]
-    snapshot["running"] = [{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "~1 min"}]
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": HOSTILE, "detail": HOSTILE,
+                              "options": [{"option": "A (recommended)", "meaning": HOSTILE, "effect": HOSTILE}]}])
+    snapshot["running"] = observed_jobs([{"name": HOSTILE, "state": HOSTILE, "done": 1, "total": 2, "elapsed": "1 min", "remaining": "~1 min"}])
     return snapshot
 
 
@@ -341,13 +542,13 @@ def test_no_nbsp_or_entities_in_any_output(report, snapshot, mode):
         assert "&nbsp;" not in output and "&#" not in output and "&amp;" not in output
 
 
-def test_compact_decision_without_options_prints_title_and_notice(report, snapshot):
-    snapshot["decisions"] = [{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B"}]
-    text = report.render(snapshot, "compact")
-    assert "#### 1\ufe0f\u20e3 Decision #1: Pick A\n\nOptions not supplied\n" in text
-    assert "Reply A or B" not in text
+def test_decision_without_options_cannot_hide_an_unusable_owner_request(report, snapshot):
+    snapshot["decisions"] = observed_decisions([{"id": "1", "title": "Pick A", "detail": "d", "reply": "Reply A or B"}])
+    with pytest.raises(ValueError, match="two options"):
+        report.render(snapshot, "compact")
     snapshot["decisions"][0]["options"] = []
-    assert "Options not supplied" in report.render(snapshot, "full")
+    with pytest.raises(ValueError, match="two options"):
+        report.render(snapshot, "full")
     snapshot["decisions"][0]["options"] = [{"option": "A"}]
     with pytest.raises(ValueError):
         report.render(snapshot, "compact")
@@ -377,8 +578,8 @@ def _set(snapshot, where, value):
 def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, where, value):
     snapshot["next_release"] = {"version": "v1.3.0", "remaining": "~3 h", "condition": "none",
                                 "confidence": "medium", "basis": "release tags"}
-    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
-                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
     report.render(snapshot, "full")
     _set(snapshot, where, value)
     with pytest.raises(ValueError, match="status_snapshot.py"):
@@ -387,8 +588,8 @@ def test_unknown_elapsed_or_remaining_is_rejected_everywhere(report, snapshot, w
 
 @pytest.mark.parametrize("mode", ["compact", "full"])
 def test_no_report_ever_prints_unknown(report, snapshot, mode):
-    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
-                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
     output = report.render(snapshot, mode)
     assert "unknown" not in output.lower()
     if mode == "full":
@@ -405,8 +606,8 @@ def test_release_inventory_must_be_measured(report, snapshot, field, value):
 @pytest.mark.parametrize("field", ["elapsed", "remaining"])
 def test_running_item_never_prints_na(report, snapshot, field):
     """N/A means not started or released; a running item is neither, so it is refused."""
-    snapshot["running"] = [{"name": "CI", "state": "running", "done": None, "total": None,
-                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}]
+    snapshot["running"] = observed_jobs([{"name": "CI", "state": "running", "done": None, "total": None,
+                            "elapsed": "4 min", "remaining": "not estimated (no task list)"}])
     text = report.render(snapshot, "full")
     assert "no task list" in text and "| N/A" not in text.split("Running")[-1]
     snapshot["running"][0][field] = "N/A"

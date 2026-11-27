@@ -36,11 +36,7 @@ GOVERNANCE = (
     "tests/validators",
     "tests/verification",
     "tests/workflows",
-    "tests/test_git_attribution.py",
-    "tests/test_removed_autonomy_surface.py",
-    "tests/test_status_report.py",
-    "tests/test_status_snapshot.py",
-    "tests/test_lane_health.py",
+    *(path.relative_to(REPO_ROOT).as_posix() for path in sorted((REPO_ROOT / "tests").glob("test_*.py"))),
 )
 NODE_ID = re.compile(r"^\S+\.py(::\S.*)?$")
 
@@ -116,8 +112,22 @@ def test_linux_hook_shards_partition_the_hook_suite() -> None:
 
 
 def test_governance_shards_partition_the_governance_roots() -> None:
-    """Linux and macOS run two shards; the Windows `full` profile runs its own five."""
+    """Linux and macOS run two shards; Windows uses complementary validator partitions and the remaining governance roots."""
     _prove("full", "tests", "repo-tests-governance", GOVERNANCE)
+
+
+@pytest.mark.parametrize("host", ("linux", "macos", "windows"))
+@pytest.mark.parametrize("relative", (
+    "tests/test_continuation_state.py",
+    "tests/integrations/test_implementation_reconciliation.py",
+    "tests/integrations/test_implementation_state_hook.py",
+))
+def test_full_profile_selects_implementation_regressions_once(host: str, relative: str) -> None:
+    """The executable continuation model and its consumers remain in every host's full run."""
+    commands = [command for group in PROFILES["full"] if group.family == "tests"
+                for command in group.commands if command.runs_on(host)]
+    selected = [command.name for command in commands if relative in command.argv]
+    assert len(selected) == 1, f"{relative} must run exactly once on {host}: {selected}"
 
 
 def test_windows_hook_shards_partition_the_hook_suite() -> None:

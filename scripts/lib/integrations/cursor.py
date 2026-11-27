@@ -106,6 +106,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # v4.13.2: prompt capture (`beforeSubmitPrompt`). The completion gate's
         # `stop` registration was removed from the defaults (2026-10-28).
         "approval-capture.sh",
+        "implementation-state.sh",
         # v4.13.7: the usage-limit hand-off guard and the probe it imports.
         "usage-guard.py",
         "_usage_probe.py",
@@ -148,13 +149,15 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                 "preToolUse": [
                     {"command": command_for(script), "failClosed": True}
                     for script in ("git-guardrails.sh", "secret-scan.sh", "user-edit-guard.sh", "large-file-guard.sh")
-                ],
+                ] + [{"command": command_for("implementation-state.sh"), "timeout": 10}],
                 "postToolUse": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},
+                    {"command": command_for("implementation-state.sh"), "timeout": 10},
                     {"command": command_for("user-edit-guard.sh")},
                 ],
                 "stop": [
                     {"command": command_for("usage-guard.py"), "timeout": 10},
+                    {"command": command_for("implementation-state.sh"), "timeout": 10},
                     {"command": command_for("notify-on-complete.sh")},
                 ],
                 "beforeSubmitPrompt": [

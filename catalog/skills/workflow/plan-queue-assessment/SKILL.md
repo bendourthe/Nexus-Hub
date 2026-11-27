@@ -136,7 +136,7 @@ Ranking produces a recommendation. Acting on it moves files and rewrites referen
 
 ## Minor re-plan analysis
 
-A queue assessment ranks plans one at a time. A minor re-plan analysis reads every member plan of one minor together and asks whether the set itself should change: merged, split, renumbered, or stripped of duplicated work, so that as many plans as possible can run at once. This skill owns that analysis. `/implement vX.Y` runs it before approval today; `/compare` and `/plan` call the same entry point later, so keep the interface stable.
+A queue assessment ranks plans one at a time. A minor re-plan analysis reads every member plan of one minor together and asks whether the set itself should change: merged, split, renumbered, or stripped of duplicated work, so that as many plans as possible can run at once. This skill owns that analysis. `/implement vX.Y` runs it before approval today, and again at every minor-run start and resume as the minor-entry re-plan in `implement-phase-runbook.md` Phase 0c; `/compare` and `/plan` call the same entry point later, so keep the interface stable.
 
 Run the bundled helper against the minor's plans folder. It is read-only, standard-library Python, and writes nothing except the optional JSON file:
 
@@ -152,6 +152,7 @@ What it reports, and the evidence behind each line:
 - **Redundancy.** Open tasks in different plans with near-identical normalized text, or similar text aimed at the same file. Per-phase template tasks (commit, evidence, hygiene, terminal CI) are suppressed and counted, because they repeat by design.
 - **Dependencies.** Edges from each plan's claims `depends_on`, plus prose hints (a version named after "depends on", "requires", "blocked by"). Hints print their source line: read it before treating the edge as real. The critical path is the longest dependency chain by open-task count.
 - **Merge and split candidates.** Merge: heavy shared writes or repeated tasks and a small combined size. Split: a large plan whose phases share no files.
+- **Claims that block parallel lanes.** Each directory claim, or exact file shared by several writers, ranked by how many plans it serializes, with the narrowing that frees them. This is the first proposal set: narrow these before considering a merge or renumber. `dispatch_now` in the JSON (the "Dispatch now" line) lists the members that can start immediately.
 - **Schedule.** Plans grouped into waves under the lane cap, honoring dependencies and hard conflicts, with the best of five ordering strategies compared against the current version order; and a renumbering that makes version order match the best wave order. Pinned plans (any task checked, or in progress) never move.
 
 Wave counts are structural: how many plans can be in flight at once, not measured delivery time. This skill still never claims that re-sequencing makes delivery faster; say "fewer waves" and name the cost.

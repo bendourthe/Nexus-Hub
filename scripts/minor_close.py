@@ -437,7 +437,8 @@ def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str
     import shlex
 
     root = root.resolve()
-    result = {"scanned": 0, "omitted": 0, "incomplete": False, "blocking": 0, "total_findings": 0, "findings": []}
+    result = {"scanned": 0, "omitted": 0, "incomplete": False, "blocking": 0, "total_findings": 0, "findings": [],
+              "classified_historical": 0, "not_read": []}
     patterns = [(source, destination, _mention_patterns(source)) for source, destination in moves]
 
     def add(rel, line, category, key="", remedy=""):
@@ -475,11 +476,26 @@ def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str
         path = root / rel
         if path.suffix.lower() not in CODE_SUFFIXES | MARKDOWN_SUFFIXES | {".html", ".log", ".xml"} and path.name != ".gitattributes":
             continue
-        result["scanned"] += 1
         try:
             if not safe_reference_path(root, rel):
                 raise OSError("unsafe alias")
             initial = path.stat()
+            # Use only the archive roots already protected by historical_reference, not active evidence.
+            if path.suffix.lower() == ".json" and rel.lower().startswith(("docs/archives/", "docs/archive/")):
+                if (not stat.S_ISREG(initial.st_mode) or initial.st_nlink != 1
+                        or path.resolve(strict=True).relative_to(root).as_posix() != rel
+                        or not safe_reference_path(root, rel)):
+                    raise OSError("unsafe protected archive identity")
+                verified = path.lstat()
+                if ((verified.st_dev, verified.st_ino, verified.st_mode, verified.st_nlink, verified.st_size, verified.st_mtime_ns)
+                        != (initial.st_dev, initial.st_ino, initial.st_mode, initial.st_nlink, initial.st_size, initial.st_mtime_ns)):
+                    raise OSError("changed protected archive identity")
+                result["classified_historical"] += 1
+                if len(result["not_read"]) < REFERENCE_DISPLAY_LIMIT:
+                    result["not_read"].append({"path": rel, "bytes": initial.st_size,
+                        "reason": "protected archive JSON; metadata-only classification; body not read"})
+                continue
+            result["scanned"] += 1
             with path.open("rb") as handle:
                 opened = os.fstat(handle.fileno())
                 if not safe_reference_path(root, rel) or (opened.st_dev, opened.st_ino) != (initial.st_dev, initial.st_ino):
@@ -491,12 +507,17 @@ def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str
             try:
                 text = raw.decode("utf-8-sig")
             except UnicodeDecodeError:
-                # A binary file such as a test fixture cannot be a JSON or attribute input, and
-                # it holds no reference when no mention survives a byte-preserving decode. A
-                # possible mention, or an undecodable JSON or attribute file, still fails closed.
-                if path.suffix.lower() == ".json" or path.name == ".gitattributes" or matches(raw.decode("latin-1")):
+                # Undecodable programs and Unicode BOMs are text inputs, not opaque binary
+                # fixtures. Wide encodings separate ASCII path characters with NUL bytes,
+                # so a byte-preserving decode cannot rule out a reference in those inputs.
+                if (path.suffix.lower() in PROGRAM_SUFFIXES | {".json"} or path.name == ".gitattributes"
+                        or raw.startswith((b"\xff\xfe", b"\xfe\xff", b"\x00\x00\xfe\xff"))
+                        or matches(raw.decode("latin-1").replace("\x00", ""))):
                     raise
                 continue
+            # NUL removal only checks possible references; it never decodes or rewrites input.
+            if "\x00" in text and matches(text.replace("\x00", "")):
+                raise ValueError("NUL-separated reference requires owner review")
             if path.suffix.lower() == ".json":
                 try:
                     value = json.loads(text)
@@ -530,6 +551,8 @@ def reference_inventory(root: Path, files: list[str], moves: list[tuple[str, str
             result["incomplete"] = True
             add(rel, 1, "unverified", remedy="Input unreadable, aliased, invalid, changed, or over two MiB; archive is unavailable.")
     result["display_omitted"] = max(0, result["total_findings"] - len(result["findings"]))
+    del result["not_read"][max(0, REFERENCE_DISPLAY_LIMIT - len(result["findings"])):]
+    result["not_read_display_omitted"] = result["classified_historical"] - len(result["not_read"])
     return result
 
 
@@ -893,6 +916,9 @@ def plan_migration(
         if not source_minor < target_minor <= cm.minor_of(target_token):
             raise Refused('migration-target-out-of-scope', to)
         target_token = 'v{}.{}'.format(*target_minor)
+    grant = next((g for g in cm.amendment_gap_grants(record) if g["id"] == pid), None)
+    if grant is not None and grant.get("target_version") not in (None, target_token + ".0"):
+        raise Refused("migration-destination-not-approved", pid)
     claims = [scope for scope in cm.historical_supplements(record) if pid in scope['request']['ids']]
     if claims and (len(claims) != 1 or target_token + '.0' != claims[0]['request']['destination']):
         raise Refused('supplemental-destination-not-approved', pid)
@@ -919,7 +945,12 @@ def plan_migration(
         raise Refused("cannot-verify", "ledger history at the record start")
     if gate != "met":
         raise Refused(why, pid)
-    grant = next((g for g in cm.amendment_gap_grants(record) if g["id"] == pid), None)
+    if why == "t027-unmeasured":
+        terms = record[cm.T027_FIELD]["page"]["gap"]
+        if reason != terms["migration_reason"]:
+            raise Refused("migration-reason-not-approved", pid)
+        if target_token + ".0" != terms["target_version"]:
+            raise Refused("migration-destination-not-approved", pid)
     if grant is not None and reason != grant["reason"]:
         raise Refused("migration-reason-outside-amendment", pid)
     if why == "planned-follow-on" and reason != "user-deferred":
@@ -1258,6 +1289,25 @@ def cmd_carry(args: argparse.Namespace) -> int:
 
 
 _UNCHECKED_TASK_RE = re.compile(r"^- \[ \] T\d+\b", re.MULTILINE)
+
+
+def _has_unaccepted_tasks(rctx: ck.RepoContext, record: dict | None, plan: cm.Plan) -> bool:
+    """Retain unchecked-task refusal except the one authenticated unmeasured task."""
+    unchecked = [match.group(0).rsplit(" ", 1)[-1] for match in _UNCHECKED_TASK_RE.finditer(plan.text)]
+    if not unchecked:
+        return False
+    if len(unchecked) != 1 or record is None:
+        return True
+    try:
+        projected = ck.project(record, plan.version)
+        if projected is None:
+            return True
+        ctx = ck.Context(str(rctx.root / plan.rel), rctx.budget)
+        if ctx.text != plan.text:
+            return True
+        return not cm.t027_task_deferred(ck, ctx, projected, task_id=unchecked[0])
+    except (ck.Malformed, cm.MinorMalformed, OSError, ValueError, AttributeError):
+        return True
 _UNCHECKED_CHECKLIST_RE = re.compile(r"^[ \t]*[-*+] \[ \](?:[ \t]|$)", re.MULTILINE)
 _STATUS_RE = re.compile(r"^\*\*Status\*\*\s*:(.*)$", re.MULTILINE | re.IGNORECASE)
 _ZERO_OPEN_RE = re.compile(r"^\*\*Open items\*\*\s*:\s*0\s*$", re.MULTILINE | re.IGNORECASE)
@@ -1293,7 +1343,7 @@ def register_refusals(
             out.append(Refused("open-gap", f"{token}#{item.gid}"))
         elif item.state == "migrated" and plan_run:
             # A one-plan run's migration (completion contract, "Single-plan carry and archive").
-            if not cm.plan_migration_met(ledgers, ledger, item):
+            if not cm.plan_migration_met(ledgers, ledger, item, proof_cache=rctx.migration_proof_lines):
                 out.append(Refused("unverified-migration", f"{token}#{item.gid} migration-target-missing"))
         elif item.state == "migrated":
             status, reason = cm.verify_migration(rctx, record, token, ledgers, ledger, item)
@@ -1325,7 +1375,7 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
     repo = cm.hosting_repo(ck, rctx, (record or {}).get("repo"))
     out: list[Refused] = []
     for plan in plans:
-        if _UNCHECKED_TASK_RE.search(plan.text):
+        if _has_unaccepted_tasks(rctx, record, plan):
             out.append(Refused("unchecked-task", plan.version))
         if plan.status == "superseded":
             continue
@@ -2100,7 +2150,7 @@ def _member_incomplete_refusals(
     own commit creates them, which must never stand in for unfinished work.
     """
     version = str(member["version"])
-    if _UNCHECKED_TASK_RE.search(plan.text):
+    if _has_unaccepted_tasks(rctx, record, plan):
         return [Refused("member-incomplete", f"{version}:unchecked-task")]
     result = cm.evaluate_member(ck, rctx, record, member, plan, [])
     if result.exhausted or not result.lines:

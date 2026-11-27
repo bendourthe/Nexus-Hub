@@ -69,6 +69,22 @@ def approved_record():
                 {"class": "ci-security-change", "paths": [".github/workflows/ci.yml"]}]}}}
 
 
+def _historical_policy_adoption(runs, record, instruction, policy):
+    """Seed only private historical producer state; never relax the current guard."""
+    event = binding.capture_events(runs, SESSION)[-1]
+    assert event['prompt'] == binding.digest(instruction)
+    policy = binding.validate_policy(policy)
+    context = binding.host_capture_context(event, SESSION)
+    current = binding.current_host_context(runs, record, set())
+    binding._claim_event(runs, SESSION, event)
+    record['approvals'].update(authorization_context=context, autonomy_policy=policy)
+    record['approvals'].setdefault('policy_adoptions', []).append({
+        'origin': 'captured-user-instruction', 'prompt_sha256': event['prompt'],
+        'event_id': event.get('event_id'), 'at': event['at'], 'policy': policy,
+        'current_host_context': current})
+    record['approvals_hmac'] = checker._sign(record, SECRET)
+
+
 def test_same_render_keeps_pending_code_nonce_and_capture(captures, monkeypatch):
     runs, capture = captures
     initial = binding.capture_events(runs, SESSION)[-1]
@@ -165,7 +181,7 @@ def test_policy_adoption_uses_real_capture_not_generated_renderer_text(captures)
     record["approvals"].pop("authorization_context")
     original = {key: record[key] for key in ("nonce", "start_head", "plan_sha256")}
     classes = list(record["approvals"]["classes"])
-    instruction = "Continue the existing approved plan using full access and the reviewed policy."
+    instruction = binding.policy_adoption_declaration(record, {"corrections": "within-approved-scope", "planned_actions": []})
     capture(instruction, permission_mode="bypassPermissions")
     policy = {"corrections": "within-approved-scope", "planned_actions": []}
     binding.adopt_policy(runs, record, instruction, policy)
@@ -181,7 +197,7 @@ def test_policy_adoption_selects_unused_earlier_instruction_and_preserves_author
     runs, capture = captures
     record = approved_record()
     before = json.loads(json.dumps(record))
-    instruction = "Continue the approved full goal, including its scoped CI compatibility repair."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     selected = binding.capture_events(runs, SESSION)[-1]
     capture("Continue the same work.", permission_mode="bypassPermissions")
@@ -202,7 +218,7 @@ def test_policy_adoption_selects_unused_earlier_instruction_and_preserves_author
 @pytest.mark.parametrize("other_record", [False, True])
 def test_policy_adoption_cannot_reuse_consumed_instruction_for_changed_or_other_policy(captures, other_record):
     runs, capture = captures
-    instruction = "Apply the reviewed same-goal policy."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     record = approved_record()
     binding.adopt_policy(runs, record, instruction, {})
@@ -219,7 +235,7 @@ def test_policy_adoption_cannot_reuse_consumed_instruction_for_changed_or_other_
 
 def test_identical_policy_retry_rechecks_latest_mode_before_return(captures):
     runs, capture = captures
-    instruction = "Use this approved policy."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     record = approved_record()
     binding.adopt_policy(runs, record, instruction, {})
@@ -239,7 +255,7 @@ def test_identical_policy_retry_rechecks_latest_mode_before_return(captures):
 ])
 def test_earlier_instruction_does_not_borrow_mode_after_followup(captures, fields):
     runs, capture = captures
-    instruction = "Continue the approved goal."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     selected = binding.capture_events(runs, SESSION)[-1]
     capture("Latest actual host context.", **fields)
@@ -253,7 +269,7 @@ def test_earlier_instruction_does_not_borrow_mode_after_followup(captures, field
 
 def test_policy_lookup_refuses_precreation_ambiguous_or_spoofed_instruction(captures):
     runs, capture = captures
-    instruction = "Apply this scoped approved goal."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     first = binding.capture_events(runs, SESSION)[-1]
     record = approved_record()
@@ -275,7 +291,7 @@ def test_policy_lookup_refuses_precreation_ambiguous_or_spoofed_instruction(capt
 
 def test_policy_lookup_does_not_repurpose_manual_instruction(captures):
     runs, capture = captures
-    instruction = "Now require manual decisions."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="default")
     selected = binding.capture_events(runs, SESSION)[-1]
     capture("Later work.", permission_mode="bypassPermissions")
@@ -289,7 +305,7 @@ def test_policy_lookup_does_not_repurpose_manual_instruction(captures):
 
 def test_policy_lookup_respects_newer_sealed_current_context(captures):
     runs, capture = captures
-    instruction = "Continue this approved goal."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     selected = binding.capture_events(runs, SESSION)[-1]
     observed = {"origin": "host-hook-capture", "session_id": SESSION,
@@ -311,12 +327,13 @@ def test_consumed_historical_adoption_cannot_report_success_after_another_instru
     runs, capture = captures
     record = approved_record()
     first_instruction = "Instruction A: continue this approved goal."
-    second_instruction = "Instruction B: continue this same approved goal."
     first_policy = {}
     second_policy = {} if same_policy else {"corrections": "within-approved-scope"}
+    second_instruction = binding.policy_adoption_declaration(record, second_policy)
     capture(first_instruction, permission_mode="bypassPermissions")
     first_event = binding.capture_events(runs, SESSION)[-1]
-    binding.adopt_policy(runs, record, first_instruction, first_policy)
+    # A pre-declaration signed adoption remains history, not fresh authority.
+    _historical_policy_adoption(runs, record, first_instruction, first_policy)
     capture(second_instruction, permission_mode="bypassPermissions")
     second_event = binding.capture_events(runs, SESSION)[-1]
     binding.adopt_policy(runs, record, second_instruction, second_policy)
@@ -337,7 +354,7 @@ def test_consumed_historical_adoption_cannot_report_success_after_another_instru
 
 def test_consumed_retry_requires_current_policy_not_only_matching_adoption(captures):
     runs, capture = captures
-    instruction = "Continue the approved policy."
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction, permission_mode="bypassPermissions")
     record = approved_record()
     binding.adopt_policy(runs, record, instruction, {})
@@ -353,9 +370,10 @@ def test_consumed_retry_requires_current_policy_not_only_matching_adoption(captu
 @pytest.mark.parametrize("fields", [{}, {"permission_mode": "default"}, {"tool_input": {"permission_mode": "bypassPermissions"}}])
 def test_absent_manual_or_nested_permission_never_grants_policy(captures, fields):
     runs, capture = captures
-    capture("Continue this plan", **fields)
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
+    capture(instruction, **fields)
     with pytest.raises(ValueError, match="permission evidence"):
-        binding.adopt_policy(runs, approved_record(), "Continue this plan", {})
+        binding.adopt_policy(runs, approved_record(), instruction, {})
 
 
 def test_resolution_needs_fresh_successful_actual_output(tmp_path):
@@ -455,7 +473,7 @@ def test_existing_codex_transcript_adapter_corroborates_capture_and_current_mode
     monkeypatch.setattr(Path, 'home', classmethod(lambda cls: home))
     cwd = tmp_path / 'repo'
     cwd.mkdir()
-    instruction = 'Use the reviewed policy for the existing approved run.'
+    instruction = binding.policy_adoption_declaration(approved_record(), {})
     capture(instruction)
     event = binding.capture_events(runs, SESSION)[-1]
     followup = 'Continue the same approved work.'
@@ -494,8 +512,9 @@ def test_policy_adoption_preserves_legacy_signature_algorithm(captures):
     import hmac
     runs, capture = captures
     record = approved_record()
-    capture('Adopt this narrow approved-plan policy', permission_mode='bypassPermissions')
-    binding.adopt_policy(runs, record, 'Adopt this narrow approved-plan policy', {})
+    instruction = binding.policy_adoption_declaration(record, {})
+    capture(instruction, permission_mode='bypassPermissions')
+    binding.adopt_policy(runs, record, instruction, {})
     legacy_fields = ('approvals', 'plan_sha256', 'session_id', 'repo', 'deferrable_gap_types',
                      'start_head', 'nonce', 'created')
     legacy_payload = {key: record.get(key) for key in legacy_fields}

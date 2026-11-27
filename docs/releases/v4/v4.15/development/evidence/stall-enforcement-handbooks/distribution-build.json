@@ -1,0 +1,66 @@
+{
+  "status": "pass",
+  "scope": "distribution only; unchanged retained output",
+  "source_candidate_revision": "90d7b967fb34daa1d084ab98abbbc3e299508aa3",
+  "working_tree": "uncommitted maintenance source; private partial verification copy has no HEAD",
+  "builds": [
+    {
+      "command": [
+        "C:\\ProgramData\\nhq-30c0cbd5\\venv-75e32072\\Scripts\\python.exe",
+        "-B",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Built retained handbook: 244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65\n",
+      "elapsed_seconds": 0.4621860980987549,
+      "owned_cleanup_quiescent": true
+    },
+    {
+      "command": [
+        "C:\\ProgramData\\nhq-30c0cbd5\\venv-75e32072\\Scripts\\python.exe",
+        "-B",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Built retained handbook: 244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65\n",
+      "elapsed_seconds": 0.3272576332092285,
+      "owned_cleanup_quiescent": true
+    }
+  ],
+  "freshness_check": {
+    "command": [
+      "C:\\ProgramData\\nhq-30c0cbd5\\venv-75e32072\\Scripts\\python.exe",
+      "-B",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "docs/handbooks/_sources/distribution/model.json",
+      "--out",
+      "docs/handbooks/distribution.html",
+      "--root",
+      ".",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Verified retained handbook: 244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65\n",
+    "elapsed_seconds": 0.3551945686340332,
+    "owned_cleanup_quiescent": true
+  },
+  "output_sha256": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65",
+  "preserved_artifact_sha256": {
+    "docs/handbooks/distribution.html": "244be8bb60f452da3ff8d1d705bc53afa33e0c9e224aae38a5463727f855ee65",
+    "docs/handbooks/distribution.html.build.json": "057b3e2ff78f57c063db41d28d70d30148e3c34fea9f1bc9b3b52d231bee8f2d"
+  },
+  "reproducible_and_byte_unchanged": true
+}

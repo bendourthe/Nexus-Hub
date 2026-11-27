@@ -1,10 +1,11 @@
-# CI-only Python tools. The generated lock resolves all extras from all six extension pyproject.toml files for Python 3.11 across platforms.
+# CI tools and core runner process support. The generated lock resolves all six extension extras for Python 3.11 across platforms.
 openpyxl
 pdfplumber
 pip
 pip-audit
 playwright
 pre-commit
+psutil
 pypdf
 PyYAML
 pytest

@@ -261,7 +261,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | user-edit-preservation | workflow | "Detect and carry forward user edits before changing any file you read or wrote earlier" | catalog/skills/workflow/user-edit-preservation/SKILL.md |
 | receiving-code-review | code-review | "Act on code review feedback with technical rigor and no performative agreement" | catalog/skills/code-review/receiving-code-review/SKILL.md |
 | review-trapdoors | code-review | "Pre-empt a project's recurring review blockers from a curated trapdoors list before review" | catalog/skills/code-review/review-trapdoors/SKILL.md |
-| using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
+| using-git-worktrees | workflow | "Place isolated worktrees at one central root through the nexus-hub worktree helper" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 | hallmark-design | developer-experience | "Produce and audit UI that avoids the 'AI-generated' look using anti-slop gates" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
 | anti-slop-editing | developer-experience | "Remove named AI-slop prose patterns while preserving voice, or detect slop without rewriting" | catalog/skills/developer-experience/anti-slop-editing/SKILL.md |
 | html-output-conventions | developer-experience | "Decide when an artifact should be HTML over Markdown, using five self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |

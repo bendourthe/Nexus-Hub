@@ -224,6 +224,22 @@ Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list
 
 Create no branch. Commit the report on the integration branch and publish it the same day, through a short-lived `publish/<slug>` pull request when that branch requires one, per Step 4d of `[[git-branching-workflow]]`.
 
+### Step 9: Completion Handoff
+
+This skill owns the completed comparison's next-workflow handoff, whether called by `/compare` or used directly. After a completed comparison has eligible adoption recommendations, give a brief outcome and recommend creating a plan so the user can review the work before implementation. Do not delay this handoff solely because a commit or publication is waiting for separate authority; all comparison security and adoption-target confirmation requirements still apply. Explain that creating a plan does not implement it or grant new publication authority. Ask "What would you like to do next?" with these choices:
+
+1. **Create the plan (Recommended)** - prepare a phased plan from this comparison for review.
+2. Review recommendations - let the user change the proposed adoption items before creating a plan.
+3. Stop here - retain the comparison report and start no next workflow.
+
+Use the common installed Nexus-Hub communication guide (`~/.nexus-hub/style-guides/agent-communication.md` by default), section 5.2, when available. This handoff also has a minimal procedure when that guide is unavailable: use an actually available multiple-choice question tool that supports this ordinary choice in the current host and mode, or present the same choices as a numbered text list. Wait for an actual selection; a preselected option, silence or elapsed time is not a reply. If the guide is missing, state that its full presentation guidance was not covered. Do not invent interactive controls or a provider-specific tool name.
+
+Do not replace the choice with an internal `Next` task list such as "refresh the integration queue". The selected workflow handles its routine preparation. If the user already requested or selected planning for this report, honor that request without asking again. If there are no eligible adoption recommendations, explain that result instead of offering an empty plan.
+
+An explicit planning selection is the user's new request for `/plan from-comparison`; enter through the current host's normal user-command route with the actual report path and prioritized adoption items. Do not automatically invoke another user-invoked skill just because the comparison finished. Retain reverse-engineer-first ordering, target confirmation and queue checks. The report's confirmed `Adoption target:` field remains the authority for the generated plan's version directory, co-located with the comparison.
+
+Signed approvals and capture remain governed by the `implement-phase` completion contract; an ordinary question-tool reply does not replace a required capture. Implementation progress reporting retains its existing owner and renderer.
+
 ## Best Practices
 
 - **Compare function, not form**: A Makefile and a justfile serve the same purpose. A `.cursorrules` file and a `.claude/skills/SKILL.md` file may encode the same knowledge differently. Look past the format to the capability.
@@ -250,6 +266,7 @@ Create no branch. Commit the report on the integration branch and publish it the
 - [ ] **Step 6.5 resolved an adoption target and the report header carries an `Adoption target: vX.Y.Z` field** - the confirmed target version, not the authoring cycle, is what the file is placed under and prefixed by
 - [ ] **MCP Registry Policy is cited by name** in the Rationale column for every adoption item that involves an outbound call, new API key, new third-party data processor, or new runtime dependency
 - [ ] Reports missing Step 5 fail this checklist
+- [ ] The completion handoff was offered, an existing request to plan was honored, or the absence of eligible adoption items was explained; no technical `Next` paragraph replaced the choice
 
 ### Iterative Refinement Strategy
 

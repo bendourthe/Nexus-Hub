@@ -223,3 +223,17 @@ def test_native_guard_arguments_do_not_collide_in_powershell(child, work, tmp_pa
     else:
         assert output["decision"] == "deny", (output, result.stderr)
         assert "BLOCKED" in result.stderr
+
+def test_native_worktree_policy_denies_out_of_root_add_and_allows_the_root(child, work, tmp_path):
+    """The bridge turns CommandLine/Cwd into tool_input.command and cwd for the same policy."""
+    bad = _payload(work, "run_command", CommandLine="git worktree add ../out-of-policy", Cwd=str(work))
+    output, result = _run(child, "PreToolUse", bad, tmp_path, work, hook="worktree-policy")
+    assert output["decision"] == "deny", (output, result.stderr)
+    assert "BLOCKED" in result.stderr and "nexus-hub worktree create" in result.stderr
+    inside = tmp_path / "home" / ".worktrees" / "app-0123abcd" / "wt"
+    good = _payload(work, "run_command", CommandLine=f'git worktree add "{inside}" -b wt', Cwd=str(work))
+    output, result = _run(child, "PreToolUse", good, tmp_path, work, hook="worktree-policy")
+    assert output["decision"] == "allow", (output, result.stderr)
+    other = _payload(work, "run_command", CommandLine="git status", Cwd=str(work))
+    output, _ = _run(child, "PreToolUse", other, tmp_path, work, hook="worktree-policy")
+    assert output["decision"] == "allow"

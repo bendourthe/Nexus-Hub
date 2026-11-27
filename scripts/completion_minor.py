@@ -27,6 +27,7 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
+import copy
 import datetime as dt
 import fnmatch
 import hashlib
@@ -34,6 +35,7 @@ import hmac
 import json
 import os
 import re
+import stat
 import sys
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
@@ -745,6 +747,35 @@ def require_controller(ck: ModuleType, rctx: RepoContext, record: dict, path: Pa
     return identity
 
 
+def _retired_controller_ok(ck: ModuleType, rctx: RepoContext, record: dict, path: Path) -> bool:
+    """A completed record whose controller worktree no longer exists verifies from any
+    checkout that shares the recorded git directory (BG-14)."""
+    if not record.get("completed"):
+        return False
+    try:
+        identity = controller_identity(ck, rctx, record, path)
+    except ck.MinorConflict:
+        return False
+    return not Path(identity["repo_root"]).exists()
+
+
+def _controller_refusal(ck: ModuleType, rctx: RepoContext, record: dict, path: Path) -> str | None:
+    """`controller-mismatch (<expected worktree>)` when the signature verifies but this
+    checkout is not the record's controller; None otherwise (BG-14)."""
+    try:
+        require_controller(ck, rctx, record, path)
+    except ck.MinorConflict as exc:
+        if str(exc) != "controller-mismatch":
+            return None
+        try:
+            return f"controller-mismatch ({controller_identity(ck, rctx, record, path)['repo_root']})"
+        except ck.MinorConflict:
+            return None
+    except ObservationUnavailable:
+        return None
+    return None
+
+
 def minor_candidates(ck: ModuleType, rctx: RepoContext, token: str | None = None,
                      *, include_linked: bool = False, predicate=None, discovery=None) -> list[Path]:
     """Authenticated common-directory ownership includes the legacy absent-binding form."""
@@ -1023,7 +1054,8 @@ def load_minor(
         _require_amendment_protocol(ck, record, minor_protocol)
         _require_execution_protocol(ck, record, execution_protocol)
     if record is None or not _verified(ck, rctx, token, record, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL):
-        state.forced = ck.TAMPERED
+        refusal = _controller_refusal(ck, rctx, record, path) if record is not None else None
+        state.forced = (f"BLOCKED: {refusal}", ck.EXIT_BLOCKED) if refusal else ck.TAMPERED
         return state
     if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
@@ -1083,6 +1115,12 @@ def _require_execution_protocol(ck: ModuleType, record: dict, protocol: int | No
 
 def _sign(ck: ModuleType, record: dict, key: bytes) -> str:
     """Legacy records keep their original sibling API; extensions require explicit participation."""
+    if any(field in record for field in AUTHORITY_BRIDGE_FIELDS) and getattr(ck, "AUTHORITY_BRIDGE_PROTOCOL", None) != AUTHORITY_BRIDGE_PROTOCOL:
+        raise ck.MinorConflict("bridge-consumer-incompatible")
+    if CHECKPOINT_FIELD in record and (getattr(ck, "CHECKPOINT_PROTOCOL", None) != CHECKPOINT_PROTOCOL or getattr(approval_binding, "CHECKPOINT_PROTOCOL", None) != CHECKPOINT_PROTOCOL):
+        raise ck.MinorConflict("checkpoint-consumer-incompatible")
+    if "v415_t027_unmeasured" in record and getattr(ck, "T027_DISPOSITION_PROTOCOL", None) != 1:
+        raise ck.MinorConflict("t027-consumer-incompatible")
     if _require_execution_protocol(ck, record, MINOR_EXECUTION_PROTOCOL):
         return ck._sign(record, key, minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     if _require_amendment_protocol(ck, record, MINOR_AMENDMENT_PROTOCOL):
@@ -1104,8 +1142,8 @@ def _amendment_accepted_valid(ck: ModuleType, page: dict, accepted: object, *, c
             return False
         context = accepted["authorization_context"]
         if (not isinstance(context, dict)
-                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or not approval_binding.capture_context_valid(context)
+                or context["session_id"] != page["owner_session"]
                 or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
                 or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
@@ -1240,6 +1278,8 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
         _require_execution_protocol(ck, record, execution_protocol)
         members = effective_members(ck, record)
         execution_permission_history(ck, record)
+        authority_bridge_history(ck, rctx, record)
+        authority_bridge_operation_history(ck, rctx, record)
     except (ck.MinorConflict, TypeError, ValueError, KeyError):
         return False
     if (
@@ -1251,13 +1291,16 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
         or not members
         or not all(isinstance(m, dict) for m in members)
         or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
+        or (CHECKPOINT_FIELD in record and not checkpoint_entry_valid(ck, rctx, record))
+        or ("v415_t027_unmeasured" in record and not t027_entry_valid(ck, rctx, record))
     ):
         return False
     try:
         path = getattr(record, "record_path", rctx.scoped_record_path("minor:" + token))
         require_controller(ck, rctx, record, path)
-    except ck.MinorConflict:
-        return False
+    except ck.MinorConflict as exc:
+        if str(exc) != "controller-mismatch" or not _retired_controller_ok(ck, rctx, record, path):
+            return False
     major, minor = parse_minor(ck, token)
     try:
         by_version = {p.version: p for p in scan_plans(rctx.root, major, minor)}
@@ -1266,7 +1309,7 @@ def _verified(ck: ModuleType, rctx: RepoContext, token: str, record: dict, *, mi
     for member in members:
         plan = by_version.get(str(member.get("version")))
         # Schema 2 is new in v4.13.6, so only the current hash rule applies.
-        if plan is None or not member_identity_ok(ck, member, plan):
+        if plan is None or not member_identity_verified(ck, rctx, member, plan):
             return False
     return True
 
@@ -1365,7 +1408,30 @@ _DECLARED_MEMBER_ROWS = (
                              ".github/workflows/nexus-hub-settings.yml", ".github/workflows/claude-usage-monitor.yml",
                              ".github/workflows/codex-usage-monitor.yml", ".github/workflows/copilot-usage-monitor.yml",
                              ".github/workflows/cursor-usage-monitor.yml", ".github/workflows/gemini-usage-monitor.yml"]}},
+    {"plan_path": _PLANS + "v4.15.9-adoption-agent-cost-and-delegation.md",
+     "plan_sha256": "b71ab3e55a452c13c29a968c40d34977f817e1e9175e83e57e09295d5aaadf38",
+     "unmeasured_task": {
+         "member": "v4.15.9", "task": "T027", "source_branch": "feat/v4.15.9-adoption-agent-cost-and-delegation",
+         "evidence_path": _EVIDENCE + "v4.15.9-measured-effort-run.md",
+         "title": "T027 effort measurement unmeasured under the no-Claude instruction",
+         "evidence_text": """# v4.15.9 T027 Unmeasured Disposition
+
+The T027 effort trial is unmeasured. No Claude Code sessions will run under the maintainer's no-Claude instruction. No Codex substitute counts as this measurement. No spending is granted. No performance, token, cost, or effort improvement is claimed.
+
+The trial is deferred to a separately approved follow-up protocol. The T027 checkbox remains unchecked. This disposition does not waive any other task, test, integration, release, archive, or cleanup requirement.
+""",
+         "gap_body": """**Source phase**: v4.15.9 Phase 5, T027
+
+**Plan reference**: v4.15.9-adoption-agent-cost-and-delegation.md, T027
+
+**Reason**: The maintainer prohibits Claude Code sessions. The frozen T027 trial is unmeasured; no Codex substitute counts, no spending is granted, and no improvement is claimed.
+
+**Suggested next step**: Obtain separate approval for a follow-up measurement protocol. Preserve this unmeasured result until that protocol has real evidence.
+"""}},
 )
+# Fixed members the authority bridge may act for; declaration data like the rows above.
+BRIDGE_NOTES_VERSION = "v4.15.6"
+BRIDGE_BUDGET_VERSION = "v4.15.9"
 MEMBER_DECLARATIONS = {(row["plan_path"], row["plan_sha256"]): row for row in _DECLARED_MEMBER_ROWS}
 
 
@@ -1432,6 +1498,59 @@ def member_identity_ok(ck: ModuleType, member: dict, plan: Plan) -> bool:
     archived = member.get("archived")
     return (isinstance(archived, dict) and plan.rel == archived.get("plan_path")
             and digest == archived.get("plan_sha256"))
+
+
+_STATUS_LINE_RE = re.compile(r"\*\*Status\*\*:[ \t]*(\S.*)?\Z")
+_SUPERSEDED_BY_RE = re.compile(r"\*\*Superseded by\*\*:[ \t]*\S.*\Z")
+
+
+def superseded_only_change(before: str, after: str) -> bool:
+    """True when `after` is `before` with only its header status marked superseded.
+
+    Allowed: the one `**Status**:` line before the first `## ` heading becomes
+    `**Status**: superseded`, and at most one `**Superseded by**: <text>` line is
+    inserted directly after it. Any other difference is refused (BG-13).
+    """
+    old = before.replace("\r\n", "\n").split("\n")
+    new = after.replace("\r\n", "\n").split("\n")
+
+    def status_index(lines: list[str]) -> int | None:
+        header = []
+        for index, line in enumerate(lines):
+            if line.startswith("## "):
+                break
+            if _STATUS_LINE_RE.match(line):
+                header.append(index)
+        return header[0] if len(header) == 1 else None
+
+    at, now = status_index(old), status_index(new)
+    if at is None or now != at or new[now] != "**Status**: superseded" or old[at] == new[now]:
+        return False
+    expected = old[:at] + [new[now]]
+    if len(new) == len(old) + 1 and _SUPERSEDED_BY_RE.match(new[now + 1]):
+        expected.append(new[now + 1])
+    return new == expected + old[at + 1:]
+
+
+def member_identity_verified(ck: ModuleType, rctx: RepoContext, member: dict, plan: Plan) -> bool:
+    """`member_identity_ok`, or the frozen plan marked superseded after it was frozen.
+
+    The approved text is found by the frozen hash in the history of the plan's
+    current path; only `superseded_only_change` differences are accepted (BG-13).
+    """
+    if member_identity_ok(ck, member, plan):
+        return True
+    frozen = [member.get("plan_sha256")]
+    archived = member.get("archived")
+    if isinstance(archived, dict) and plan.rel == archived.get("plan_path"):
+        frozen.append(archived.get("plan_sha256"))
+    for digest in frozen:
+        if not isinstance(digest, str) or not digest:
+            continue
+        approved = ck.approved_plan_text(rctx, plan.rel, digest)
+        if approved is not None and superseded_only_change(approved, plan.text):
+            return True
+    return False
 
 
 def _v415_original_identity(ck: ModuleType, rctx: RepoContext, parent: dict, member: dict,
@@ -1739,10 +1858,14 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
-    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths", "withdraw-implementation"):
+    if getattr(args, "member", None) is not None and args.action not in ("answer", "supplement-scope", "permit-manifest", "permit-outputs", "correct-ci-read", "correct-read", "permit-member-execution-paths", "permit-member-paths", "withdraw-implementation", "defer-t027-unmeasured", "reconcile-member-checkpoint"):
         raise ck.Malformed("--member requires --action answer, supplement-scope, permit-manifest, permit-outputs, correct-ci-read, correct-read, permit-member-paths or withdraw-implementation")
+    if (getattr(args, "head", None) is not None or getattr(args, "checkpoint_scope", None) is not None) and args.action != CHECKPOINT_ACTION:
+        raise ck.Malformed("--head and --scope require reconcile-member-checkpoint")
     if getattr(args, "path", None) is not None and args.action != "correct-read":
         raise ck.Malformed("--path requires --action correct-read")
+    if getattr(args, "gap", None) is not None and args.action != "defer-t027-unmeasured":
+        raise ck.Malformed("--gap requires --action defer-t027-unmeasured")
     if getattr(args, "execution", None) is not None and args.action != "permit-member-execution-paths":
         raise ck.Malformed("--execution requires --action permit-member-execution-paths")
     if getattr(args, "paths", None) is not None and args.action != "permit-member-paths":
@@ -1779,6 +1902,26 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         if isinstance(record, int):
             return record
         page = amendment_page(ck, rctx, token, record, getattr(args, "amendment", None))
+        display = None
+    elif args.action == CHECKPOINT_ACTION:
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = checkpoint_page(ck, rctx, token, record, args.member, args.head, _member_paths_input(ck, args.checkpoint_scope))
+        display = None
+    elif args.action == AUTHORITY_BRIDGE_ACTION:
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        if token != "v4.15" or not getattr(args, "authority", None) or getattr(args, "member", None) is not None:
+            raise ck.Malformed("the fixed supplement needs only --minor v4.15 and --authority")
+        page = authority_bridge_page(ck, rctx, record, _bridge_input(args.authority))
+        display = None
+    elif args.action == "defer-t027-unmeasured":
+        record = _record_for_add_class(ck, rctx, token, args.session)
+        if isinstance(record, int):
+            return record
+        page = t027_page(ck, rctx, record, token, args.member, args.gap)
         display = None
     elif args.action == "add-class":
         record = _record_for_add_class(ck, rctx, token, args.session)
@@ -1862,9 +2005,13 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             blocker=blocker,
             platform=args.platform,
             allow_short_reply=mode == "question",
+            host_transcript=Path(args.host_transcript) if getattr(args, 'host_transcript', None) else None,
+            allowed_cwds=ck._host_cwds(rctx),
+            recovery_condition=approval_binding.resume_condition(record) if args.action == 'resume' else None,
             check=lambda pending: approval_page.render_page(
                 approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
             ),
+            deadline=rctx.budget.deadline,
         )
     except approval_binding.Refusal as refusal:
         return ck._refused(refusal.reason)
@@ -1872,12 +2019,26 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         print(f"approval page not rendered: {exc}", file=sys.stderr)
         return ck.EXIT_MALFORMED
     data = approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
+    if pending.get('transcript_source') is not None:
+        return ck.emit_approval(data, mode, pending)
     return approval_page.emit(data, mode)
 
 
 def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: dict, session: str,
-             required_session: str | None = None, *, text: str | None = None) -> tuple[dict, str] | int:
+             required_session: str | None = None, *, text: str | None = None,
+             recovery_record: dict | None = None) -> tuple[dict, str] | int:
     try:
+        condition = (approval_binding.resume_condition(recovery_record)
+                     if action == 'resume' and recovery_record is not None else None)
+        if action in {'add-class', _EXECUTION_ACTION, 'resume', AUTHORITY_BRIDGE_ACTION}:
+            recovered = approval_binding.recover_consumed_round(ck._runs_dir(), _round_key(rctx, token),
+                ck._secret(create=False), action=action, live_page=page, session=session,
+                required_session=required_session, pasted_line=text,
+                ancestor_record=recovery_record if action in {'add-class', AUTHORITY_BRIDGE_ACTION} else None,
+                allowed_cwds=ck._host_cwds(rctx), historical_cwds=ck.historical_host_cwds(recovery_record or {}),
+                recovery_condition=condition, deadline=rctx.budget.deadline)
+            if recovered is not None:
+                return recovered
         return approval_binding.consume(
             ck._runs_dir(),
             _round_key(rctx, token),
@@ -1887,9 +2048,100 @@ def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: d
             session=session,
             required_session=required_session,
             pasted_line=text,
+            allowed_cwds=ck._host_cwds(rctx),
+            recovery_condition=condition,
+            deadline=rctx.budget.deadline,
         )
     except approval_binding.Refusal as refusal:
         return ck._refused(refusal.reason)
+
+
+def _exact_execution_owner_result(ck: ModuleType, record: dict, page: dict, round_nonce: str | None = None) -> dict | None:
+    """A verified historical result or exact current authority can satisfy a request."""
+    history = execution_permission_history(ck, record, capture=True)
+    if round_nonce is not None:
+        for entry in history:
+            if (entry['accepted']['round_nonce'] == round_nonce
+                    and approval_binding.canonical(entry['page']) == approval_binding.canonical(page)):
+                return entry
+    for entry in reversed(history):
+        if entry['page']['member'] == page.get('member'):
+            return entry if approval_binding.canonical(entry['page']) == approval_binding.canonical(page) else None
+    return None
+
+
+def _finish_owner_recovery(ck: ModuleType, rctx: RepoContext, token: str, session: str,
+                           action: str, *, name: str | None = None, member: str | None = None) -> None:
+    """Prune only captures whose exact result survives fresh native verification."""
+    secret = ck._secret(create=False)
+    if secret is None:
+        return
+    key = _round_key(rctx, token)
+    pending_rounds = [row for row in approval_binding.used_recovery_rounds(ck._runs_dir(), key, secret)
+                      if row.get('action') == action]
+    if not pending_rounds:
+        return
+    _context, saved = ck.resolve_minor_controller(record_file(ck, rctx, token), session,
+        minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
+    for pending in pending_rounds:
+        page = pending['page']
+        same_owner = pending.get('session') == saved['session_id']
+        ancestral_class = not same_owner and action in {'add-class', _EXECUTION_ACTION, 'resume', AUTHORITY_BRIDGE_ACTION} and approval_binding.continuation_ancestor_valid(
+            ck._runs_dir(), saved, pending.get('session'), saved['session_id'])
+        if (pending.get('action') != action or not (same_owner or ancestral_class)
+                or page.get('record_nonce') != saved['nonce']
+                or not approval_binding.consumed_capture_valid(ck._runs_dir(), pending.get('capture'), pending['rendered_at'])):
+            continue
+        if action == 'add-class':
+            exact = action_page(token, action, saved['nonce'])
+            exact['class'] = name
+            complete = name in _classes(saved) and page == exact
+        elif action == _EXECUTION_ACTION:
+            complete = page.get('member') == member and _exact_execution_owner_result(ck, saved, page, pending['nonce']) is not None
+        elif action == AUTHORITY_BRIDGE_ACTION:
+            complete = any(entry['page'] == page and entry['accepted']['round_nonce'] == pending['nonce']
+                           and entry['accepted']['authorization_context'] == pending['capture']
+                           for entry in authority_bridge_history(ck, rctx, saved))
+        else:
+            resume_sequence = next((index for index, entry in enumerate(saved.get('continuations', []), 1)
+                if entry['to_session'] == pending['session'] and entry['round_nonce'] == pending['nonce']
+                and approval_binding.canonical(entry['page']) == approval_binding.canonical(page)
+                and entry['capture'] == pending['capture']), None)
+            complete = resume_sequence is not None and approval_binding.continuation_ancestor_valid(
+                ck._runs_dir(), saved, pending['session'], saved['session_id'])
+        if complete:
+            approval_binding.retire_used_recovery(ck._runs_dir(), key, secret, pending,
+                resume_sequence=resume_sequence if action == 'resume' else None)
+
+
+def _completed_execution_retry(ck: ModuleType, rctx: RepoContext, record: dict, args: argparse.Namespace,
+                               value: object) -> bool:
+    """A claimed, already-saved operation is a no-op, not fresh execution authority."""
+    if (not isinstance(value, dict) or set(value) != {'write_paths'} or not isinstance(value['write_paths'], list)
+            or not all(isinstance(path, str) for path in value['write_paths'])):
+        return False
+    secret = ck._secret(create=False)
+    if secret is None:
+        return False
+    key = _round_key(rctx, args.minor)
+    current_path = approval_binding.pending_path(ck._runs_dir(), key)
+    current = approval_binding._read_pending(current_path, secret) if current_path.exists() else None
+    history = execution_permission_history(ck, record, capture=True)
+    for pending in approval_binding.used_recovery_rounds(ck._runs_dir(), key, secret):
+        page = pending['page']
+        if (pending.get('action') != _EXECUTION_ACTION or page.get('member') != args.member
+                or sorted(value['write_paths']) != page.get('write_paths')
+                or (current is not None and current['nonce'] != pending['nonce'])
+                or not approval_binding.consumed_capture_valid(ck._runs_dir(), pending.get('capture'), pending['rendered_at'])):
+            continue
+        if (pending.get('session') != record['session_id'] and not approval_binding.continuation_ancestor_valid(
+                ck._runs_dir(), record, pending.get('session'), record['session_id'])):
+            continue
+        if any(entry['accepted']['round_nonce'] == pending['nonce']
+               and approval_binding.canonical(entry['page']) == approval_binding.canonical(page) for entry in history):
+            _finish_owner_recovery(ck, rctx, args.minor, record['session_id'], _EXECUTION_ACTION, member=args.member)
+            return True
+    return False
 
 
 @minor_creator
@@ -1944,6 +2196,7 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
         "pause": None,
         "completed": None,
     }
+    approval_binding.retain_transcript_decision(record, pending)
     record["approvals_hmac"] = _sign(ck, record, ck._secret(create=True) or b"")
     ck._write_record(rctx.scoped_record_path("minor:" + token), record)
     print(f"RECORDED minor {token} nonce={record['nonce']}")
@@ -2007,6 +2260,8 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
                      'prompt_sha256': approval_binding.digest(approval_binding.pasted(pending))})
         record['approvals'].setdefault('supplemental_gap_migrations', []).append(supplement)
         record['approvals_hmac'] = ck._sign(record, ck._secret(create=False) or b'')
+    if approval_binding.retain_transcript_decision(record, pending):
+        record['approvals_hmac'] = _sign(ck, record, ck._secret(create=False) or b'')
     ck._write_record(record_file(ck, rctx, token), record)
     print(f"ANSWERED blocker {args.blocker} minor {token}")
     return 0
@@ -2021,22 +2276,62 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
     if isinstance(record, int):
         return record
     page = action_page(token, action, str(record.get("nonce", "")))
+    if action == 'resume':
+        secret = ck._secret(create=False)
+        key = _round_key(rctx, token)
+        current_path = approval_binding.pending_path(ck._runs_dir(), key)
+        current = approval_binding._read_pending(current_path, secret) if current_path.exists() and secret else None
+        target_session = record['session_id'] if args.session == 'auto' else args.session
+        rows = approval_binding.used_recovery_rounds(ck._runs_dir(), key, secret) if secret else []
+        claimed = next((prior for prior in rows if prior.get('action') == 'resume'
+            and prior['page'] == page and prior['session'] == target_session
+            and approval_binding.consumed_capture_valid(ck._runs_dir(), prior.get('capture'), prior['rendered_at'])), None)
+        # A newer failed resume must never be masked by an older completed resume.
+        if claimed is not None:
+            if ((current is None or current['nonce'] == claimed['nonce'])
+                    and approval_binding.continuation_ancestor_valid(ck._runs_dir(), record, target_session, record['session_id'])
+                    and any(entry['to_session'] == target_session and entry['round_nonce'] == claimed['nonce']
+                        and approval_binding.canonical(entry['page']) == approval_binding.canonical(page)
+                        and entry['capture'] == claimed['capture'] for entry in record.get('continuations', []))):
+                _finish_owner_recovery(ck, rctx, token, record['session_id'], 'resume')
+                print(f"RESUMED minor {token} original capture already persisted; current owner and any later pause are unchanged")
+                return 0
+        elif current is None:
+            completed = approval_binding.completed_resume_pointer(ck._runs_dir(), key, secret) if secret else None
+            if (completed is not None and completed['session'] == target_session
+                    and completed['record_nonce'] == record['nonce']
+                    and approval_binding.continuation_ancestor_valid(ck._runs_dir(), record, target_session, record['session_id'])):
+                entry = next((entry for index, entry in enumerate(record.get('continuations', []), 1)
+                    if index == completed['sequence'] and entry['to_session'] == target_session
+                    and entry['round_nonce'] == completed['round_nonce']
+                    and hashlib.sha256(approval_binding.canonical(entry['page'])).hexdigest() == completed['page_sha256']
+                    and hashlib.sha256(approval_binding.canonical(entry['capture'])).hexdigest() == completed['capture_sha256']), None)
+                if entry is not None:
+                    print(f"RESUMED minor {token} original capture already persisted; current owner and any later pause are unchanged")
+                    return 0
     # A pause lands in the record's own session; a resume is the one-line paste
     # that carries the record into the session where it was captured.
     required = str(record.get("session_id") or "") if action == "pause" else None
-    consumed = _consume(ck, rctx, token, action, page, args.session, required, text=args.text)
+    consumed = _consume(ck, rctx, token, action, page, args.session, required, text=args.text,
+                        recovery_record=record if action == 'resume' else None)
     if isinstance(consumed, int):
         return consumed
     pending, session = consumed
     if action == "pause":
         record["pause"] = {"at": ck._now(), "text_sha256": pending["paste_digests"][0]}
+        if approval_binding.retain_transcript_decision(record, pending):
+            record['approvals_hmac'] = _sign(ck, record, ck._secret(create=False) or b'')
         ck._write_record(record_file(ck, rctx, token), record)
         print(f"PAUSED minor {token}")
         return 0
     record["pause"] = None
+    if not approval_binding.consumed_capture_valid(ck._runs_dir(), pending.get('capture'), pending['rendered_at']):
+        return ck._refused('approval-not-captured')
+    approval_binding.append_continuation(record, pending, session, retain_hook=True)
     record["session_id"] = session  # signed, so the record is re-signed below
     record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     ck._write_record(record_file(ck, rctx, token), record)
+    _finish_owner_recovery(ck, rctx, token, session, 'resume')
     print(f"RESUMED minor {token} session bound")
     return 0
 
@@ -2045,6 +2340,2543 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
 # contract, "Member archive"); every other class is fixed at `record create`.
 ADDABLE_CLASSES = ("archive-member",)
 
+# This reviewed disposition names one unperformed trial, not a general task waiver.
+AUTHORITY_BRIDGE_PROTOCOL = 1
+AUTHORITY_BRIDGE_ACTION = "supplement-v415-authority"
+AUTHORITY_BRIDGE_KINDS = {".6-release-notes", ".6-repo-description", ".9-t027-budget", "maintenance-bootstrap-publication"}
+AUTHORITY_BRIDGE_FIELDS = ("v415_authority_format", "v415_authority_receipts", "v415_publication_operations")
+AUTHORITY_BRIDGE_BRANCH = "fix/v415-integration-20261126"
+AUTHORITY_BRIDGE_HOST_OPERATIONS = frozenset({"push", "pr-create", "repo-description", "green-merge"})
+AUTHORITY_BRIDGE_OPERATIONS = {
+    ".6-release-notes": ("prepare-release-notes", "release-notes"), ".6-repo-description": ("repo-description",),
+    ".9-t027-budget": ("t027-budget",), "maintenance-bootstrap-publication": ("push", "pr-create", "green-merge"),
+}
+_BRIDGE_PAGE_FIELDS = {"action", "scope", "kind", "payload", "payload_sha256", "record_nonce", "record_sha256",
+                       "repo", "push_remote_url", "controller", "owner_session", "head", "member", "identity",
+                       "sequence", "previous_history_sha256", "original_authority_sha256"}
+
+
+def authority_bridge_payload(raw: str) -> dict:
+    """Exactly four bounded declarations, with no arbitrary approval class or override."""
+    if not isinstance(raw, str) or len(raw.encode("utf-8")) > 32768:
+        raise MinorMalformed("bridge-payload-too-large")
+    value = _execution_json(raw)
+    if (not isinstance(value, dict) or set(value) != {"kind", "payload"}
+            or not isinstance(value["kind"], str) or value["kind"] not in AUTHORITY_BRIDGE_KINDS
+            or not isinstance(value["payload"], dict)):
+        raise MinorMalformed("bridge-outside-fixed-kinds")
+    kind, payload = value["kind"], value["payload"]
+    fields = {".6-release-notes": {"notes"}, ".6-repo-description": {"expected", "value"},
+              ".9-t027-budget": {"usd_total", "spawn_total"},
+              "maintenance-bootstrap-publication": {"head", "write_paths", "pr_title", "pr_body"}}[kind]
+    if set(payload) != fields:
+        raise MinorMalformed("bridge-payload-fields")
+    for key in ("notes", "expected", "value", "pr_title", "pr_body"):
+        if key not in payload:
+            continue
+        text = payload[key]
+        if (not isinstance(text, str) or (key not in {"expected", "pr_body"} and not text)
+                or len(text.encode("utf-8")) > (16384 if key in {"notes", "pr_body"} else 1024)
+                or any(ord(char) < 32 and not (key in {"notes", "pr_body"} and char in "\n\t") or ord(char) == 127 for char in text)):
+            raise MinorMalformed("bridge-invalid-text")
+    if kind == ".9-t027-budget" and (type(payload["usd_total"]) not in (int, float)
+            or payload["usd_total"] != 10 or type(payload["spawn_total"]) is not int or payload["spawn_total"] != 6):
+        raise MinorMalformed("bridge-budget-is-only-ten-usd-six-total-spawns")
+    if kind == "maintenance-bootstrap-publication":
+        paths = payload["write_paths"]
+        if (not isinstance(payload["head"], str) or re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", payload["head"]) is None
+                or not isinstance(paths, list) or not 1 <= len(paths) <= 128 or not all(isinstance(path, str) for path in paths)
+                or len({path.casefold() for path in paths}) != len(paths)):
+            raise MinorMalformed("bridge-publication-scope")
+        try:
+            approval_binding.validate_policy({"planned_actions": [{"class": "ask-first:publication", "paths": paths}]})
+        except ValueError as exc:
+            raise MinorMalformed("bridge-publication-paths") from exc
+    return value
+
+
+def _bridge_read_bytes(path: Path, *, expected_identity: tuple[int, int] | None = None, max_bytes: int = 32768) -> bytes:
+    if type(max_bytes) is not int or not 1 <= max_bytes <= 16 * 1024 * 1024:
+        raise MinorMalformed("bridge-input-limit-invalid")
+    if (any(ord(char) < 32 for char in str(path)) or path.resolve() != path.absolute()
+            or any(item.is_symlink() for item in (path, *path.parents))):
+        raise MinorMalformed("bridge-input-must-be-a-bounded-ordinary-file")
+    before = path.lstat()
+    def ordinary(info):
+        return (stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size <= max_bytes
+                and not getattr(info, "st_file_attributes", 0) & 1024)
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+    if not ordinary(before):
+        raise MinorMalformed("bridge-input-must-be-a-bounded-ordinary-file")
+    with path.open("rb") as handle:
+        opened = os.fstat(handle.fileno())
+        if expected_identity is not None and (opened.st_dev, opened.st_ino) != expected_identity:
+            raise MinorMalformed("bridge-input-opened-identity-changed")
+        if not ordinary(opened) or identity(opened) != identity(before):
+            raise MinorMalformed("bridge-input-identity-changed")
+        raw = handle.read(max_bytes + 1)
+        if (len(raw) > max_bytes or identity(os.fstat(handle.fileno())) != identity(opened)
+                or identity(path.lstat()) != identity(opened) or path.resolve() != path.absolute()):
+            raise MinorMalformed("bridge-input-changed-or-too-large")
+    return raw
+
+
+def _bridge_input(filename: str) -> dict:
+    return authority_bridge_payload(_bridge_read_bytes(Path(filename)).decode("utf-8"))
+
+
+def _bridge_member(ck: ModuleType, record: dict, kind: str) -> dict:
+    version = BRIDGE_BUDGET_VERSION if kind == ".9-t027-budget" else BRIDGE_NOTES_VERSION
+    member = next((item for item in effective_members(ck, record) if item.get("version") == version), None)
+    rules = declared_for_member(member) if member else None
+    if (record.get("scope") != "minor" or record.get("minor") != "v4.15"
+            or record.get("repo") != "bendourthe/Nexus-Hub" or rules is None or member.get("target_branch") != "develop"
+            or member.get("release_version") != version or member.get("tag") != version):
+        raise MinorMalformed("bridge-member-outside-fixed-declaration")
+    return member
+
+
+def _bridge_identity(member: dict) -> dict:
+    archived = member.get("archived") or {}
+    return {"version": member["version"], "plan_path": archived.get("from") or member["plan_path"],
+            "plan_sha256": archived.get("original_sha256") or member["plan_sha256"],
+            **{name: member[name] for name in ("source_branch", "target_branch", "release_version", "tag")}}
+
+
+def _bridge_route(ck: ModuleType, ctx: RepoContext, record: dict, member: dict, *, publication: bool = False) -> bool:
+    view = ck.project(record, member["version"])
+    if publication:
+        view = {**view, "approvals": {**view["approvals"], "source_branch": AUTHORITY_BRIDGE_BRANCH}}
+    return ck._approved_remote_status(ctx, view) == "met"
+
+
+def _bridge_publication_actor(ck: ModuleType, ctx: RepoContext, head: str, expected: dict | None = None):
+    """Resolve the separately registered maintenance actor without rebinding its controller."""
+    listing = ctx._git_out("worktree", "list", "--porcelain", "-z")
+    roots = []
+    for block in listing.split("\0\0"):
+        fields = dict(line.split(" ", 1) for line in block.split("\0") if " " in line)
+        if fields.get("branch") == "refs/heads/" + AUTHORITY_BRIDGE_BRANCH and fields.get("HEAD") == head:
+            roots.append(fields.get("worktree"))
+    if len(roots) != 1 or not isinstance(roots[0], str):
+        raise MinorMalformed("bridge-exact-registered-source-required")
+    path = Path(roots[0])
+    if (not path.is_absolute() or path.resolve() != path or any(item.is_symlink() for item in (path, *path.parents))
+            or _common_dir(ctx, path) != _common_dir(ctx, ctx.root)):
+        raise MinorMalformed("bridge-source-controller-repository-mismatch")
+    actor = ck.RepoContext(path, ctx.budget)
+    if (actor._git_out("rev-parse", "HEAD") != head
+            or actor._git_out("symbolic-ref", "--quiet", "--short", "HEAD") != AUTHORITY_BRIDGE_BRANCH
+            or actor._git_out("status", "--porcelain", "--untracked-files=all") or not v415_index_flags_visible(actor)):
+        raise MinorMalformed("bridge-source-not-exact-and-clean")
+    identity = {"worktree": str(path), "git_common_dir": _common_dir(ctx, path),
+                "branch": AUTHORITY_BRIDGE_BRANCH, "head": head, "tree": actor._git_out("rev-parse", head + "^{tree}")}
+    if expected is not None and identity != expected:
+        raise MinorMalformed("bridge-publication-actor-changed")
+    return actor, identity
+
+
+def _bridge_recovery_digest(record: dict) -> str:
+    core = json.loads(approval_binding.canonical(record))
+    for field in ('session_id', 'continuation_format', 'continuations', 'pause', 'implementation_controller', 'approvals_hmac'):
+        core.pop(field, None)
+    core.get('approvals', {}).pop('transcript_decisions', None)
+    return _amendment_digest(core)
+
+
+def authority_bridge_page(ck: ModuleType, ctx: RepoContext, record: dict, value: dict) -> dict:
+    if any(getattr(module, "AUTHORITY_BRIDGE_PROTOCOL", None) != 1 for module in (ck, approval_binding, approval_page)):
+        raise ck.MinorConflict("bridge-consumer-incompatible")
+    value = authority_bridge_payload(approval_binding.canonical(value).decode("utf-8"))
+    kind, payload = value["kind"], value["payload"]
+    member = _bridge_member(ck, record, kind)
+    history = authority_bridge_history(ck, ctx, record)
+    if any(entry["page"]["kind"] == kind and (kind != "maintenance-bootstrap-publication" or entry["page"]["payload"]["head"] == payload["head"]) for entry in history):
+        raise MinorMalformed("bridge-kind-already-captured")
+    if (not isinstance(record, ck.MinorSnapshot) or not _controller_valid(ctx, record)
+            or hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256
+            or not _bridge_route(ck, ctx, record, member, publication=kind == "maintenance-bootstrap-publication")):
+        raise MinorMalformed("bridge-current-controller-or-route-unverified")
+    current = approval_binding.current_host_context(ck._runs_dir(), record, ck._host_cwds(ctx), historical_cwds=ck.historical_host_cwds(record), deadline=ctx.budget.deadline)
+    if not approval_binding.full_access_authorization(record, current):
+        raise MinorMalformed("bridge-current-owner-unverified")
+    bound = dict(payload)
+    if kind == ".6-release-notes":
+        bound.update(version=BRIDGE_NOTES_VERSION, notes_sha256=hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest())
+    elif kind == ".6-repo-description":
+        observed = ck._gh_json(ctx, record["repo"], "repo", "view", "--json", "description")
+        if not isinstance(observed, dict) or (observed.get("description") or "") != payload["expected"]:
+            raise MinorMalformed("bridge-description-precondition-unverified")
+        bound.update(field="description", value_sha256=hashlib.sha256(payload["value"].encode("utf-8")).hexdigest())
+    elif kind == ".9-t027-budget":
+        plan = _t027_blob(ctx, "HEAD", member["plan_path"])
+        task = ck._conditional_blocks(plan).get("T027", "")
+        if ck.plan_hash_text(plan) != member["plan_sha256"] or not task:
+            raise MinorMalformed("bridge-t027-original-method-unverified")
+        bound.update(task="T027", task_sha256=_t027_hash(task), execution_authorized=False,
+                     claude_sessions="prohibited", billing_enforcement="unavailable", codex_substitute=False)
+    else:
+        head = payload["head"]
+        actor, actor_identity = _bridge_publication_actor(ck, ctx, head)
+        branch = AUTHORITY_BRIDGE_BRANCH
+        integration = _integration_ref(ctx, "develop")
+        base = ctx._git_out("rev-parse", integration) if integration else ""
+        if (not base or _ancestor(actor, base, head) != "met"
+                or not _bridge_route(ck, actor, record, member, publication=True)):
+            raise MinorMalformed("bridge-publication-source-not-exact-and-clean")
+        rows = _checkpoint_rows(actor, base, head)
+        if not rows or [row[0] for row in rows] != sorted(payload["write_paths"]):
+            raise MinorMalformed("bridge-publication-manifest-not-exact")
+        bound.update(source_branch=branch, target_branch="develop", remote="origin", base=base, actor=actor_identity,
+                     tree=actor_identity["tree"], contribution=rows,
+                     operations=["push", "pr-create", "green-merge"], dispatch_allowance=1)
+    return {"action": AUTHORITY_BRIDGE_ACTION, "scope": {"kind": "minor", "minor": "v4.15"},
+            "kind": kind, "payload": bound, "payload_sha256": _amendment_digest(bound),
+            "record_nonce": record["nonce"], "record_sha256": record.loaded_sha256, "repo": record["repo"],
+            "push_remote_url": record["approvals"]["push_remote_url"], "owner_session": record["session_id"],
+            "controller": record.get("implementation_controller") or {"repo_root": record["repo_root"]},
+            "head": ctx._git_out("rev-parse", "HEAD"), "member": member["version"], "identity": _bridge_identity(member),
+            "sequence": len(history) + 1, "previous_history_sha256": _amendment_digest(history),
+            "original_authority_sha256": _bridge_recovery_digest(record)}
+
+
+def _bridge_capture_valid(ck: ModuleType, ctx: RepoContext, record: dict, page: dict, accepted: dict) -> bool:
+    # Initial worker admission enriches the same legacy controller identity; it
+    # is not a transfer. All other transitions retain the shared lineage rules.
+    binding = record.get("implementation_controller")
+    capture_record = record
+    try:
+        key = ck.record_key(Path(record["repo_root"]), record["repo"].lower(), "minor:v4.15")
+        _controller_metadata(ck, record, Path(ck._runs_dir()) / (key + ".json"))
+    except (ck.MinorConflict, KeyError, TypeError, ValueError, OSError):
+        return False
+    if (page.get("controller") == {"repo_root": record.get("repo_root")}
+            and isinstance(binding, dict) and set(binding) == {"repo_root", "git_common_dir"}
+            and binding["repo_root"] == record.get("repo_root")
+            and binding["git_common_dir"] == _common_dir(ctx, ctx.root)):
+        capture_record = dict(record)
+        capture_record.pop("implementation_controller")
+    return _v415_capture_valid(ck, capture_record, page, accepted, AUTHORITY_BRIDGE_ACTION, verify_capture=True)
+
+
+def authority_bridge_history(ck: ModuleType, ctx: RepoContext, record: dict) -> list[dict]:
+    present = [field in record for field in AUTHORITY_BRIDGE_FIELDS]
+    if not any(present):
+        return []
+    if (not all(present) or type(record[AUTHORITY_BRIDGE_FIELDS[0]]) is not int or record[AUTHORITY_BRIDGE_FIELDS[0]] != 1
+            or not isinstance(record[AUTHORITY_BRIDGE_FIELDS[1]], list) or not 1 <= len(record[AUTHORITY_BRIDGE_FIELDS[1]]) <= 16
+            or not isinstance(record[AUTHORITY_BRIDGE_FIELDS[2]], list)):
+        raise MinorMalformed("bridge-protocol-invalid")
+    history, seen = [], set()
+    for sequence, entry in enumerate(record[AUTHORITY_BRIDGE_FIELDS[1]], 1):
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            raise MinorMalformed("bridge-receipt-invalid")
+        page = entry["page"]
+        if (not isinstance(page, dict) or set(page) != _BRIDGE_PAGE_FIELDS or page.get("action") != AUTHORITY_BRIDGE_ACTION
+                or not isinstance(entry["accepted"], dict) or not isinstance(page.get("payload"), dict)
+                or not isinstance(page.get("kind"), str) or page["kind"] not in AUTHORITY_BRIDGE_KINDS
+                or page["scope"] != {"kind": "minor", "minor": "v4.15"}
+                or page["record_nonce"] != record.get("nonce") or page["repo"] != record.get("repo")
+                or page["push_remote_url"] != (record.get("approvals") or {}).get("push_remote_url")
+                or type(page["sequence"]) is not int or page["sequence"] != sequence
+                or page["previous_history_sha256"] != _amendment_digest(history)
+                or page["payload_sha256"] != _amendment_digest(page["payload"])
+                or not re.fullmatch(r"[0-9a-f]{64}", str(page["original_authority_sha256"]))
+                or page["identity"] != _bridge_identity(_bridge_member(ck, record, page["kind"]))
+                or page["member"] != page["identity"]["version"]
+                or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(page["head"]))
+                or ck._parse_time(entry["accepted"].get("at")) is None
+                or not _bridge_capture_valid(ck, ctx, record, page, entry["accepted"])
+                or not approval_binding.continuation_ancestor_valid(ck._runs_dir(), record, page["owner_session"], record["session_id"])):
+            raise MinorMalformed("bridge-receipt-provenance-invalid")
+        kind, payload = page["kind"], page["payload"]
+        identity = (kind, payload.get("head") if kind == "maintenance-bootstrap-publication" else None)
+        if identity in seen:
+            raise MinorMalformed("bridge-duplicate-fixed-grant")
+        keys = {".6-release-notes": {"notes"}, ".6-repo-description": {"expected", "value"},
+                ".9-t027-budget": {"usd_total", "spawn_total"},
+                "maintenance-bootstrap-publication": {"head", "write_paths", "pr_title", "pr_body"}}[kind]
+        authority_bridge_payload(approval_binding.canonical({"kind": kind, "payload": {key: payload[key] for key in keys}}).decode("utf-8"))
+        expected_fields = {".6-release-notes": keys | {"version", "notes_sha256"},
+                           ".6-repo-description": keys | {"field", "value_sha256"},
+                           ".9-t027-budget": keys | {"task", "task_sha256", "execution_authorized", "claude_sessions", "billing_enforcement", "codex_substitute"},
+                           "maintenance-bootstrap-publication": keys | {"source_branch", "target_branch", "remote", "base", "tree", "actor", "contribution", "operations", "dispatch_allowance"}}[kind]
+        if set(payload) != expected_fields:
+            raise MinorMalformed("bridge-payload-history-fields")
+        if kind == ".6-release-notes" and (payload["version"] != BRIDGE_NOTES_VERSION or payload["notes_sha256"] != hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest()):
+            raise MinorMalformed("bridge-notes-history-invalid")
+        if kind == ".6-repo-description" and (payload["field"] != "description" or payload["value_sha256"] != hashlib.sha256(payload["value"].encode("utf-8")).hexdigest()):
+            raise MinorMalformed("bridge-description-history-invalid")
+        if kind == ".9-t027-budget" and (payload["task"] != "T027" or payload["execution_authorized"] is not False
+                or payload["claude_sessions"] != "prohibited" or payload["billing_enforcement"] != "unavailable"
+                or payload["codex_substitute"] is not False or not re.fullmatch(r"[0-9a-f]{64}", str(payload["task_sha256"]))):
+            raise MinorMalformed("bridge-budget-history-invalid")
+        if kind == "maintenance-bootstrap-publication" and (payload["source_branch"] != AUTHORITY_BRIDGE_BRANCH
+                or payload["target_branch"] != "develop" or payload["remote"] != "origin"
+                or payload["operations"] != ["push", "pr-create", "green-merge"]
+                or type(payload["dispatch_allowance"]) is not int or payload["dispatch_allowance"] != 1
+                or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(payload["tree"]))
+                or not isinstance(payload["actor"], dict) or set(payload["actor"]) != {"worktree", "git_common_dir", "branch", "head", "tree"}
+                or payload["actor"]["head"] != payload["head"] or payload["actor"]["tree"] != payload["tree"]
+                or payload["actor"]["branch"] != AUTHORITY_BRIDGE_BRANCH
+                or payload["actor"]["git_common_dir"] != _common_dir(ctx, ctx.root)
+                or not isinstance(payload["actor"]["worktree"], str) or not Path(payload["actor"]["worktree"]).is_absolute()
+                or _checkpoint_rows(ctx, payload["base"], payload["head"]) != payload["contribution"]):
+            raise MinorMalformed("bridge-publication-history-invalid")
+        history.append(entry)
+        seen.add(identity)
+    return history
+
+
+def _bridge_accepted(ck: ModuleType, page: dict, pending: dict) -> dict:
+    return {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
+            "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+            "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+            "authorization_context": pending["capture"]}}
+
+
+def _bridge_operation_id(entry: dict, operation: str) -> str:
+    return _amendment_digest({"receipt_id": _amendment_digest(entry), "operation": operation,
+                              "payload_sha256": entry["page"]["payload_sha256"]})
+
+
+def authority_bridge_operation_history(ck: ModuleType, ctx: RepoContext, record: dict) -> dict[str, dict]:
+    """Validate a finite append-only operation ledger, independent of current remote state."""
+    receipts = {_amendment_digest(entry): entry for entry in authority_bridge_history(ck, ctx, record)}
+    rows = record.get("v415_publication_operations", [])
+    if not isinstance(rows, list) or len(rows) > 128:
+        raise MinorMalformed("bridge-operation-history-invalid")
+    prefix, states = [], {}
+    fields = {"sequence", "previous_history_sha256", "receipt_id", "operation_id", "operation", "state", "owner_session",
+              "at", "target", "command", "command_sha256", "evidence"}
+    for sequence, row in enumerate(rows, 1):
+        if not isinstance(row, dict) or set(row) != fields or not isinstance(row.get("receipt_id"), str):
+            raise MinorMalformed("bridge-operation-fields-invalid")
+        entry = receipts.get(row["receipt_id"])
+        operation = row["operation"]
+        if (entry is None or not isinstance(operation, str)
+                or operation not in {".6-release-notes": {"prepare-release-notes", "release-notes"}, ".6-repo-description": {"repo-description"},
+                    ".9-t027-budget": set(), "maintenance-bootstrap-publication": {"push", "pr-create", "green-merge"}}[entry["page"]["kind"]]
+                or type(row["sequence"]) is not int or row["sequence"] != sequence
+                or row["previous_history_sha256"] != _amendment_digest(prefix)
+                or row["operation_id"] != _bridge_operation_id(entry, operation)
+                or row["state"] not in {"ambiguous", "completed"} or ck._parse_time(row["at"]) is None
+                or not isinstance(row["target"], dict) or not isinstance(row["evidence"], dict)
+                or not isinstance(row["command"], list) or not row["command"] or len(row["command"]) > 32
+                or not all(isinstance(arg, str) and arg and "\0" not in arg for arg in row["command"])
+                or row["command_sha256"] != _amendment_digest(row["command"])
+                or len(approval_binding.canonical(row)) > 65536
+                or not approval_binding.continuation_ancestor_valid(ck._runs_dir(), record, row["owner_session"], record["session_id"])):
+            raise MinorMalformed("bridge-operation-provenance-invalid")
+        before = states.get(row["operation_id"])
+        if before is None:
+            if row["state"] != "ambiguous" or row["evidence"] != {"effect_observed": False, "reason": "reserved-before-dispatch"}:
+                raise MinorMalformed("bridge-operation-requires-durable-reservation")
+        elif (before["state"] == "completed" or row["target"] != before["target"] or row["command"] != before["command"]):
+            raise MinorMalformed("bridge-operation-cannot-reset-or-retarget")
+        if before is not None and (type(row["evidence"].get("effect_observed")) is not bool
+                or (row["state"] == "completed") != row["evidence"]["effect_observed"]):
+            raise MinorMalformed("bridge-operation-effect-proof-required")
+        states[row["operation_id"]] = row
+        prefix.append(row)
+    return states
+
+
+def _bridge_save_operation(ck: ModuleType, record: dict, entry: dict, operation: str, state: str,
+                           target: dict, command: list[str], evidence: dict) -> dict:
+    rows = record["v415_publication_operations"]
+    event = {"sequence": len(rows) + 1, "previous_history_sha256": _amendment_digest(rows),
+             "receipt_id": _amendment_digest(entry), "operation_id": _bridge_operation_id(entry, operation),
+             "operation": operation, "state": state, "owner_session": record["session_id"], "at": ck._now(),
+             "target": target, "command": command, "command_sha256": _amendment_digest(command), "evidence": evidence}
+    rows.append(event)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["bridge_operation_append"] = _amendment_digest(event)
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        active.pop("bridge_operation_append", None)
+    return event
+
+
+def _bridge_api(ck: ModuleType, ctx: RepoContext, record: dict, suffix: str):
+    """Fixed native callers construct the endpoint; callers supply no URL or method."""
+    if not ctx.gh or record.get("repo") != "bendourthe/Nexus-Hub":
+        return None
+    rc, raw = ctx.run([ctx.gh, "api", "repos/" + record["repo"] + suffix,
+                       "-H", "Accept: application/vnd.github+json", "-H", "X-GitHub-Api-Version: 2026-03-10"], cwd=ctx.root)
+    if rc or len(raw.encode("utf-8")) > 1_048_576:
+        return None
+    try:
+        return _execution_json(raw)
+    except MinorMalformed:
+        return None
+
+
+def _bridge_prs(ck: ModuleType, ctx: RepoContext, record: dict, payload: dict) -> list[dict]:
+    rows = ck._gh_json(ctx, record["repo"], "pr", "list", "--state", "all", "--head", payload["source_branch"],
+                      "--base", "develop", "--json", "number,url,state,headRefName,headRefOid,baseRefName")
+    if not isinstance(rows, list) or len(rows) > 64:
+        raise ObservationUnavailable("bridge-pr-observation-unavailable")
+    matches = []
+    for row in rows:
+        if (not isinstance(row, dict) or type(row.get("number")) is not int or row["number"] <= 0
+                or row.get("headRefName") != payload["source_branch"] or row.get("baseRefName") != "develop"
+                or row.get("url") != "https://github.com/" + record["repo"] + "/pull/" + str(row["number"])):
+            raise MinorMalformed("bridge-unexpected-pull-request")
+        if row.get("headRefOid") == payload["head"]:
+            matches.append(row)
+        elif row.get("state") != "MERGED" or not any(
+                event.get("operation") == "pr-create" and event.get("state") == "completed"
+                and event.get("evidence", {}).get("proof", {}).get("number") == row["number"]
+                for event in record.get("v415_publication_operations", [])):
+            raise MinorMalformed("bridge-unexpected-pull-request-head")
+    if len(matches) > 1:
+        raise MinorMalformed("bridge-ambiguous-pull-request")
+    return matches
+
+
+def _bridge_server_gate(ck: ModuleType, ctx: RepoContext, record: dict) -> dict:
+    """Observe effective active rules, including ancestors; never assume unseen rules."""
+    protection = _bridge_api(ck, ctx, record, "/branches/develop/protection")
+    applicable = _bridge_api(ck, ctx, record, "/rules/branches/develop")
+    if not isinstance(protection, dict) or not isinstance(applicable, list) or len(applicable) > 64:
+        raise ObservationUnavailable("bridge-effective-server-rules-unverified")
+    checks = protection.get("required_status_checks") or {}
+    if (not isinstance(checks, dict) or checks.get("strict") is not True
+            or not isinstance(protection.get("enforce_admins"), dict) or protection["enforce_admins"].get("enabled") is not True):
+        raise MinorMalformed("bridge-strict-no-bypass-server-gate-required")
+    review = protection.get("required_pull_request_reviews") or {}
+    allowances = review.get("bypass_pull_request_allowances", {}) if isinstance(review, dict) else None
+    if not isinstance(allowances, dict) or any(allowances.get(key) for key in ("users", "teams", "apps")):
+        raise MinorMalformed("bridge-server-bypass-enforcement-unverified")
+    required = {}
+    def require_check(name, app):
+        if (not isinstance(name, str) or not name or (app is not None and (type(app) is not int or app < -1 or app == 0))):
+            raise MinorMalformed("bridge-required-check-app-invalid")
+        previous = required.get(name)
+        if previous not in (None, -1) and app not in (None, -1, previous):
+            raise MinorMalformed("bridge-conflicting-required-check-apps")
+        if name not in required or previous in (None, -1):
+            required[name] = app
+    for name in checks.get("contexts", []):
+        if not isinstance(name, str) or not name:
+            raise MinorMalformed("bridge-required-context-invalid")
+        require_check(name, None)
+    for check in checks.get("checks", []):
+        if (not isinstance(check, dict) or not isinstance(check.get("context"), str) or not check["context"]
+                or (check.get("app_id") is not None and type(check["app_id"]) is not int)):
+            raise MinorMalformed("bridge-required-check-app-invalid")
+        require_check(check["context"], check.get("app_id"))
+    details = {}
+    for rule in applicable:
+        if not isinstance(rule, dict) or type(rule.get("ruleset_id")) is not int or rule["ruleset_id"] <= 0:
+            raise MinorMalformed("bridge-effective-ruleset-unidentified")
+        identity = rule["ruleset_id"]
+        if identity not in details:
+            detail = _bridge_api(ck, ctx, record, "/rulesets/" + str(identity) + "?includes_parents=true")
+            if (not isinstance(detail, dict) or detail.get("id") != identity or detail.get("target") != "branch"
+                    or detail.get("enforcement") != "active" or detail.get("bypass_actors") != []
+                    or not isinstance(detail.get("rules"), list)):
+                raise MinorMalformed("bridge-active-ruleset-no-bypass-unverified")
+            details[identity] = detail
+        if rule.get("type") == "required_status_checks":
+            parameters = rule.get("parameters")
+            if not isinstance(parameters, dict) or type(parameters.get("strict_required_status_checks_policy")) is not bool:
+                raise MinorMalformed("bridge-ruleset-status-policy-unverified")
+            for check in parameters.get("required_status_checks", []):
+                if (not isinstance(check, dict) or not isinstance(check.get("context"), str) or not check["context"]
+                        or (check.get("integration_id") is not None and type(check["integration_id"]) is not int)):
+                    raise MinorMalformed("bridge-ruleset-check-invalid")
+                require_check(check["context"], check.get("integration_id"))
+    manifest = ck._required_contexts(ctx, "develop", record.get("start_head"))
+    if manifest is not None:
+        if not isinstance(manifest, list) or not all(isinstance(name, str) and name for name in manifest):
+            raise MinorMalformed("bridge-required-manifest-invalid")
+        for name in manifest:
+            required.setdefault(name, None)
+    if not required:
+        raise MinorMalformed("bridge-nonempty-required-checks-unverified")
+    return {"required": required, "protection_sha256": _amendment_digest(protection),
+            "applicable_rules_sha256": _amendment_digest(applicable), "ruleset_details_sha256": _amendment_digest(details)}
+
+
+def _bridge_checked_merge(ck: ModuleType, ctx: RepoContext, record: dict, payload: dict, number: int, *, entry: dict | None = None) -> dict:
+    pr = _bridge_api(ck, ctx, record, "/pulls/" + str(number))
+    if (not isinstance(pr, dict) or pr.get("number") != number or pr.get("state") != "open"
+            or pr.get("merged") is not False or pr.get("draft") is not False or pr.get("mergeable") is not True
+            or not isinstance(pr.get("head"), dict) or not isinstance(pr.get("base"), dict)
+            or pr["head"].get("sha") != payload["head"] or pr["head"].get("ref") != payload["source_branch"]
+            or pr["base"].get("ref") != "develop"
+            or any(not isinstance(pr[side].get("repo"), dict) or pr[side]["repo"].get("full_name") != record["repo"] for side in ("head", "base"))):
+        raise MinorMalformed("bridge-exact-open-pull-request-unverified")
+    base, preview = pr["base"].get("sha"), pr.get("merge_commit_sha")
+    if (not isinstance(base, str) or not re.fullmatch(r"[0-9a-f]{40}", base)
+            or not isinstance(preview, str) or not re.fullmatch(r"[0-9a-f]{40}", preview)
+            or _ancestor(ctx, base, payload["head"]) != "met"):
+        raise MinorMalformed("bridge-source-not-up-to-date-or-preview-unavailable")
+    commit = _bridge_api(ck, ctx, record, "/git/commits/" + preview)
+    if (not isinstance(commit, dict) or commit.get("sha") != preview
+            or commit.get("tree", {}).get("sha") != payload["tree"]
+            or [parent.get("sha") for parent in commit.get("parents", [])] != [base, payload["head"]]):
+        raise MinorMalformed("bridge-test-merge-tree-or-parents-mismatch")
+    gate = _bridge_server_gate(ck, ctx, record)
+    checks = _bridge_api(ck, ctx, record, "/commits/" + preview + "/check-runs?per_page=100")
+    statuses = _bridge_api(ck, ctx, record, "/commits/" + preview + "/status")
+    if (not isinstance(checks, dict) or type(checks.get("total_count")) is not int or checks["total_count"] > 100
+            or not isinstance(checks.get("check_runs"), list) or checks["total_count"] != len(checks["check_runs"])
+            or not isinstance(statuses, dict) or statuses.get("sha") != preview or not isinstance(statuses.get("statuses"), list)):
+        raise ObservationUnavailable("bridge-exact-test-merge-checks-unavailable")
+    for name, app in gate["required"].items():
+        runs = [row for row in checks["check_runs"] if isinstance(row, dict) and row.get("name") == name]
+        matching_statuses = [row for row in statuses["statuses"] if isinstance(row, dict) and row.get("context") == name]
+        if (runs and (len(runs) != 1 or runs[0].get("head_sha") != preview or runs[0].get("status") != "completed"
+                or runs[0].get("conclusion") not in {"success", "skipped", "neutral"}
+                or (app not in (None, -1) and runs[0].get("app", {}).get("id") != app))):
+            raise MinorMalformed("bridge-required-check-not-green-on-exact-result")
+        if matching_statuses and (len(matching_statuses) != 1 or matching_statuses[0].get("state") != "success"):
+            raise MinorMalformed("bridge-required-status-not-green")
+        if not runs and (not matching_statuses or app not in (None, -1)):
+            raise MinorMalformed("bridge-required-check-missing-on-exact-result")
+    # Client observations are not atomic base binding. Effective strict/no-bypass
+    # server enforcement remains mandatory when the one merge request executes.
+    again = _bridge_api(ck, ctx, record, "/pulls/" + str(number))
+    if (not isinstance(again, dict) or again.get("head", {}).get("sha") != payload["head"]
+            or again.get("base", {}).get("sha") != base or again.get("merge_commit_sha") != preview):
+        raise MinorMalformed("bridge-target-base-or-test-result-changed")
+    result = {"number": number, "head": payload["head"], "base": base, "tree": payload["tree"],
+            "preview_sha": preview, "server_gate": gate, "checks_sha256": _amendment_digest(checks),
+            "statuses_sha256": _amendment_digest(statuses)}
+    if _BRIDGE_CODEQL_FILES.intersection(payload.get("write_paths", [])):
+        if not isinstance(entry, dict):
+            raise ObservationUnavailable("bridge-codeql-publication-entry-required")
+        result["hosted_codeql"] = _bridge_codeql_hosted_gate(ck, ctx, record, entry, result)
+    return result
+
+
+"""Insertion fragment for completion_minor.py; scratch-only, no transport execution."""
+
+
+def _bridge_codeql_archive_members(raw: bytes, digest: str) -> dict[str, bytes]:
+    """Read a fixed bounded native-report ZIP in memory, never extract or execute."""
+    import io
+    import zipfile
+    if (not isinstance(raw, bytes) or len(raw) > 16 * 1024 * 1024
+            or not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest)
+            or hashlib.sha256(raw).hexdigest() != digest[7:]):
+        raise MinorMalformed("bridge-codeql-archive-digest-or-size")
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            rows = archive.infolist()
+            if not 1 <= len(rows) <= 128:
+                raise MinorMalformed("bridge-codeql-archive-members")
+            members, total, seen = {}, 0, set()
+            for row in rows:
+                name = row.filename
+                parts = name.rstrip("/").split("/")
+                mode = row.external_attr >> 16
+                if (not name or name in seen or "\\" in name or name.startswith("/")
+                        or any(not part or part in {".", ".."} or part[-1] in " ." or ":" in part
+                               or any(ord(char) < 32 or ord(char) == 127 for char in part)
+                               or re.fullmatch(r"(?i)(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?", part) for part in parts)
+                        or stat.S_IFMT(mode) not in {0, stat.S_IFREG, stat.S_IFDIR} or row.flag_bits & 1
+                        or row.file_size > 8 * 1024 * 1024 or row.file_size > max(row.compress_size, 1) * 1000):
+                    raise MinorMalformed("bridge-codeql-archive-member-unsafe")
+                seen.add(name)
+                total += row.file_size
+                if total > 32 * 1024 * 1024:
+                    raise MinorMalformed("bridge-codeql-archive-expanded-size")
+                if not row.is_dir():
+                    with archive.open(row) as stream:
+                        value = stream.read(min(row.file_size + 1, 8 * 1024 * 1024 + 1))
+                    if len(value) != row.file_size:
+                        raise MinorMalformed("bridge-codeql-archive-member-size")
+                    members[name] = value
+            return members
+    except (OSError, ValueError, RuntimeError, zipfile.BadZipFile, NotImplementedError) as exc:
+        raise MinorMalformed("bridge-codeql-archive-unreadable") from exc
+
+
+def _bridge_codeql_language_evidence(ck: ModuleType, ctx: RepoContext, record: dict,
+                                    members: dict[str, bytes], language: str, expected: dict) -> dict:
+    """Bind one actual hosted artifact's fixed fields; local/synthetic manifests alone cannot qualify."""
+    if language not in {"python", "javascript-typescript"}:
+        raise MinorMalformed("bridge-codeql-language")
+    def require(condition, reason):
+        if not condition:
+            raise MinorMalformed("bridge-codeql-" + reason)
+    def document(name):
+        raw = members.get(name)
+        require(isinstance(raw, bytes) and len(raw) <= 1024 * 1024, "document-missing-or-large")
+        try:
+            value = _execution_json(raw.decode("utf-8"))
+        except (UnicodeError, ValueError, TypeError) as exc:
+            raise MinorMalformed("bridge-codeql-document-invalid") from exc
+        require(isinstance(value, dict), "document-object")
+        return value
+    category = "/language:" + language
+    prefix = "security/codeql-" + language
+    current, manifest = document(prefix + ".current.json"), document(prefix + ".manifest.json")
+    hosted = document("hosted/codeql-" + language + ".json")
+    require(current.get("schema") == manifest.get("schema") == "ci-audit-invocation/1"
+            and hosted.get("schema") == "ci-codeql-hosted/1", "manifest-schema")
+    invocation = manifest.get("invocation_id")
+    require(isinstance(invocation, str) and re.fullmatch(r"[0-9a-f]{32}", invocation) is not None, "invocation-identity")
+    source = manifest.get("source")
+    require(isinstance(source, dict) and source.get("worktree_dirty") is False
+            and (source.get("head"), source.get("tree"), source.get("parents"))
+                == (expected["preview_sha"], expected["tree"], [expected["base"], expected["head"]]), "tested-source")
+    source_files = source.get("files")
+    require(isinstance(source_files, list) and all(isinstance(row, dict) and set(row) == {"path", "sha256"} for row in source_files)
+            and all(isinstance(row["path"], str) and re.fullmatch(r"[0-9a-f]{64}", str(row["sha256"])) is not None for row in source_files)
+            and len({row["path"] for row in source_files}) == len(source_files)
+            and {row["path"]: row["sha256"] for row in source_files} == expected["source_files"], "source-file-digests")
+    require(manifest.get("source_sha256") == _amendment_digest(source), "source-digest")
+    analysis = source.get("analysis")
+    require(isinstance(analysis, dict) and set(analysis) == {"schema", "sha256", "files", "clean"}
+            and analysis.get("schema") == "codeql-worktree/1" and analysis.get("clean") is True
+            and type(analysis.get("files")) is int and 0 < analysis["files"] <= 20000
+            and re.fullmatch(r"[0-9a-f]{64}", str(analysis.get("sha256"))) is not None
+            and manifest.get("analysis_after") == analysis, "analyzed-source-drift-or-unclean")
+    fields = ("invocation_id", "source", "source_sha256", "config_sha256", "language", "category", "scope")
+    require(all(current.get(field) == manifest.get(field) for field in fields)
+            and current.get("status") == "running" and current.get("outputs") == [] and current.get("output_valid") is False,
+            "current-invocation")
+    require(manifest.get("scope") == "codeql-" + language and manifest.get("language") == language
+            and manifest.get("category") == category and manifest.get("config_sha256") == expected["source_files"]["scripts/ci/codeql-config.yml"]
+            and manifest.get("status") == "complete" and manifest.get("output_valid") is True
+            and type(manifest.get("scanner_exit_code")) is int and manifest["scanner_exit_code"] == 0,
+            "terminal-manifest")
+    tool = manifest.get("tool", {})
+    require(isinstance(tool, dict) and isinstance(tool.get("bundle"), dict), "tool-object")
+    version = tool.get("version")
+    require(tool.get("name") == "CodeQL" and isinstance(version, str) and 0 < len(version) <= 128
+            and "unavailable" not in version.lower() and tool.get("bundle", {}).get("version") == version
+            and re.fullmatch(r"[0-9a-f]{64}", str(tool.get("bundle", {}).get("executable_sha256"))) is not None,
+            "tool-bundle")
+    packs = tool.get("query_packs")
+    pack_name = "codeql/python-queries" if language == "python" else "codeql/javascript-queries"
+    require(isinstance(packs, list) and len(packs) == 1 and isinstance(packs[0], dict)
+            and packs[0].get("name") == pack_name and isinstance(packs[0].get("version"), str)
+            and 0 < len(packs[0]["version"]) <= 128 and "unavailable" not in packs[0]["version"].lower()
+            and all(re.fullmatch(r"[0-9a-f]{64}", str(packs[0].get(field))) is not None
+                    for field in ("content_sha256", "metadata_sha256")), "query-pack")
+    outputs = manifest.get("outputs")
+    require(isinstance(outputs, list) and len(outputs) == 3 and all(isinstance(row, dict) for row in outputs), "output-grid")
+    by_role = {row.get("role"): row for row in outputs}
+    require(set(by_role) == {"primary", "version", "packs"}, "output-roles")
+    stem = prefix + "." + invocation
+    for role, suffix in (("primary", ".sarif"), ("version", ".version.json"), ("packs", ".packs.txt")):
+        output = by_role[role]
+        raw = members.get(stem + suffix)
+        require(set(output) == {"role", "path", "sha256", "bytes"} and output["path"] == stem + suffix
+                and isinstance(raw, bytes) and type(output["bytes"]) is int and output["bytes"] == len(raw)
+                and output["sha256"] == hashlib.sha256(raw).hexdigest(), "output-binding")
+    require(document(stem + ".version.json").get("version") == version, "actual-version")
+    sarif = document(stem + ".sarif")
+    runs = sarif.get("runs")
+    require(sarif.get("version") == "2.1.0" and isinstance(runs, list) and len(runs) == 1, "sarif-schema")
+    run = runs[0]
+    require(isinstance(run, dict) and isinstance(run.get("tool"), dict) and isinstance(run["tool"].get("driver"), dict) and run["tool"]["driver"].get("name") == "CodeQL"
+            and isinstance(run.get("automationDetails"), dict) and run["automationDetails"].get("id") == category and isinstance(run.get("results"), list), "sarif-category")
+    require(isinstance(hosted.get("setup"), dict), "hosted-setup-object")
+    require(hosted.get("source") == source and hosted.get("invocation") == {"invocation_id": invocation,
+        "manifest_sha256": hashlib.sha256(members[prefix + ".manifest.json"]).hexdigest()}
+        and hosted.get("config_sha256") == manifest["config_sha256"]
+        and hosted.get("workflow_sha256") == expected["source_files"][".github/workflows/codeql.yml"]
+        and hosted.get("setup", {}).get("codeql_version") == version
+        and isinstance(hosted.get("setup", {}).get("codeql_path"), str) and hosted["setup"]["codeql_path"], "hosted-manifest-binding")
+    def positive_id_matches(value, expected_id):
+        return (type(expected_id) is int and expected_id > 0
+                and ((type(value) is int and value == expected_id)
+                     or (isinstance(value, str) and value == str(expected_id))))
+    github = hosted.get("github")
+    require(isinstance(github, dict) and all(positive_id_matches(github.get(field), expected[field]) for field in ("run_id", "run_attempt", "pr_number"))
+            and github.get("head_sha") == expected["head"] and github.get("base_sha") == expected["base"]
+            and github.get("job_name") == "Analyze (" + language + ")", "hosted-run-binding")
+    upload = hosted.get("upload", {})
+    require(isinstance(upload, dict), "upload-object")
+    sarif_id = upload.get("sarif_id")
+    require(isinstance(sarif_id, str) and re.fullmatch(r"[A-Za-z0-9-]{1,128}", sarif_id) is not None, "upload-id")
+    processing = _bridge_api(ck, ctx, record, "/code-scanning/sarifs/" + sarif_id)
+    require(isinstance(processing, dict) and processing.get("processing_status") == "complete", "upload-processing")
+    analyses = _bridge_api(ck, ctx, record, "/code-scanning/analyses?sarif_id=" + sarif_id + "&per_page=100")
+    require(isinstance(analyses, list) and len(analyses) == 1 and isinstance(analyses[0], dict), "analysis-observation")
+    analysis = analyses[0]
+    require(analysis.get("sarif_id") == sarif_id and analysis.get("commit_sha") == expected["preview_sha"]
+            and analysis.get("ref") == "refs/pull/" + str(expected["pr_number"]) + "/merge"
+            and analysis.get("category") == category and analysis.get("error") == ""
+            and isinstance(analysis.get("tool"), dict) and analysis["tool"].get("name") == "CodeQL" and analysis["tool"].get("version") == version,
+            "analysis-identity")
+    require(all(name in members for name in ("summary.json", "summary.md", "metadata/environment.json"))
+            and any(name.startswith("junit/") and name.endswith(".xml") for name in members), "native-report-artifacts")
+    return {"language": language, "invocation_id": invocation, "sarif_id": sarif_id,
+        "manifest_sha256": hashlib.sha256(members[prefix + ".manifest.json"]).hexdigest(),
+        "tool_sha256": _amendment_digest(tool), "source_sha256": manifest["source_sha256"],
+        "processing_sha256": _amendment_digest(processing), "analysis_sha256": _amendment_digest(analysis),
+        "report_sha256": {name: hashlib.sha256(raw).hexdigest() for name, raw in members.items()
+            if name in {"summary.json", "summary.md", "metadata/environment.json"} or name.startswith("junit/")}}
+
+"""Additional insertion fragment; transport remains a separately reviewed prerequisite."""
+
+
+_BRIDGE_CODEQL_FILES = frozenset({".github/workflows/codeql.yml", "scripts/ci/profiles.py", "scripts/ci/verify_scenarios.py",
+    "scripts/ci/run.py", "scripts/ci/reporting.py", "scripts/ci/codeql-config.yml"})
+
+
+def _bridge_codeql_hosted_gate(ck: ModuleType, ctx: RepoContext, record: dict, entry: dict, target: dict) -> dict | None:
+    """Additional fixed merge prerequisite; never authority, a first-PR gate or a new host action."""
+    payload = entry["page"]["payload"]
+    if not _BRIDGE_CODEQL_FILES.intersection(payload["write_paths"]):
+        return None
+    import base64
+    from urllib.parse import quote
+    def require(condition, reason):
+        if not condition:
+            raise ObservationUnavailable("bridge-codeql-" + reason)
+    require(entry["page"].get("kind") == "maintenance-bootstrap-publication"
+            and record.get("repo") == "bendourthe/Nexus-Hub", "publication-binding")
+    actor, _identity = _bridge_publication_actor(ck, ctx, payload["head"], payload["actor"])
+    source_files = {}
+    for path in sorted(_BRIDGE_CODEQL_FILES):
+        # Bind actual Git blob bytes, not Windows checkout newline conversions.
+        oid = actor._git_out("rev-parse", payload["head"] + ":" + path)
+        require(isinstance(oid, str) and re.fullmatch(r"[0-9a-f]{40}", oid) is not None, "source-blob-unavailable")
+        blob = _bridge_api(ck, ctx, record, "/git/blobs/" + oid)
+        require(isinstance(blob, dict) and blob.get("sha") == oid and blob.get("encoding") == "base64"
+                and type(blob.get("size")) is int and 0 <= blob["size"] <= 1024 * 1024
+                and isinstance(blob.get("content"), str) and len(blob["content"]) <= 2 * 1024 * 1024, "source-blob-unverified")
+        try:
+            raw = base64.b64decode("".join(blob["content"].split()), validate=True)
+        except (ValueError, TypeError) as exc:
+            raise ObservationUnavailable("bridge-codeql-source-blob-invalid") from exc
+        require(len(raw) == blob["size"] and hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest() == oid,
+                "source-blob-identity")
+        source_files[path] = hashlib.sha256(raw).hexdigest()
+    listing = _bridge_api(ck, ctx, record, "/actions/workflows/codeql.yml/runs?event=pull_request&branch=" + quote(payload["source_branch"], safe="") + "&per_page=100")
+    require(isinstance(listing, dict) and type(listing.get("total_count")) is int and listing["total_count"] <= 100
+            and isinstance(listing.get("workflow_runs"), list) and len(listing["workflow_runs"]) == listing["total_count"], "run-list-unavailable")
+    candidates = []
+    for run in listing["workflow_runs"]:
+        if not isinstance(run, dict):
+            continue
+        pulls = run.get("pull_requests")
+        if (isinstance(pulls, list) and any(isinstance(pr, dict) and pr.get("number") == target["number"]
+                and pr.get("head", {}).get("sha") == target["head"] and pr.get("base", {}).get("sha") == target["base"] for pr in pulls)):
+            require(type(run.get("id")) is int and run["id"] > 0 and type(run.get("run_number")) is int
+                    and type(run.get("run_attempt")) is int and run["run_attempt"] > 0, "run-identity")
+            candidates.append(run)
+    require(bool(candidates), "hosted-run-missing")
+    candidate = max(candidates, key=lambda row: (row["run_number"], row["id"]))
+    run_id, attempt = candidate["id"], candidate["run_attempt"]
+    run = _bridge_api(ck, ctx, record, "/actions/runs/" + str(run_id) + "/attempts/" + str(attempt))
+    require(isinstance(run, dict) and run.get("id") == run_id and run.get("run_attempt") == attempt
+            and run.get("path") == ".github/workflows/codeql.yml" and run.get("event") == "pull_request"
+            and run.get("status") == "completed" and run.get("conclusion") == "success"
+            and isinstance(run.get("head_repository"), dict) and run["head_repository"].get("full_name") == record["repo"]
+            and run.get("head_sha") in {target["head"], target["preview_sha"]}, "run-not-successful")
+    jobs = _bridge_api(ck, ctx, record, "/actions/runs/" + str(run_id) + "/attempts/" + str(attempt) + "/jobs?per_page=100")
+    require(isinstance(jobs, dict) and type(jobs.get("total_count")) is int and jobs["total_count"] <= 100
+            and isinstance(jobs.get("jobs"), list) and len(jobs["jobs"]) == jobs["total_count"], "jobs-unavailable")
+    artifacts = _bridge_api(ck, ctx, record, "/actions/runs/" + str(run_id) + "/artifacts?per_page=100")
+    require(isinstance(artifacts, dict) and type(artifacts.get("total_count")) is int and artifacts["total_count"] <= 100
+            and isinstance(artifacts.get("artifacts"), list) and len(artifacts["artifacts"]) == artifacts["total_count"], "artifacts-unavailable")
+    expected = {**target, "run_id": run_id, "run_attempt": attempt, "pr_number": target["number"], "source_files": source_files}
+    steps = {"Set up provisioned CodeQL CLI", "Perform native CodeQL Analysis", "Select validated current SARIF",
+        "Upload CodeQL SARIF", "Retain hosted CodeQL observations", "Publish native profile summary", "Upload native CodeQL reports"}
+    languages = []
+    for language in ("python", "javascript-typescript"):
+        matching = [job for job in jobs["jobs"] if isinstance(job, dict) and job.get("name") == "Analyze (" + language + ")"]
+        require(len(matching) == 1, "language-job-missing-or-duplicate")
+        job = matching[0]
+        require(type(job.get("id")) is int and job["id"] > 0 and job.get("run_id") == run_id
+                and job.get("status") == "completed" and job.get("conclusion") == "success"
+                and job.get("head_sha") == run.get("head_sha") and isinstance(job.get("steps"), list), "language-job-unverified")
+        for name in steps:
+            matching_steps = [step for step in job["steps"] if isinstance(step, dict) and step.get("name") == name]
+            require(len(matching_steps) == 1 and matching_steps[0].get("status") == "completed"
+                    and matching_steps[0].get("conclusion") == "success", "language-step-unverified")
+        matching_artifacts = [row for row in artifacts["artifacts"] if isinstance(row, dict) and row.get("name") == "reports-codeql-" + language]
+        require(len(matching_artifacts) == 1, "language-artifact-missing-or-duplicate")
+        artifact = matching_artifacts[0]
+        require(type(artifact.get("id")) is int and artifact["id"] > 0 and artifact.get("expired") is False
+                and type(artifact.get("size_in_bytes")) is int and 0 < artifact["size_in_bytes"] <= 16 * 1024 * 1024
+                and isinstance(artifact.get("digest"), str) and re.fullmatch(r"sha256:[0-9a-f]{64}", artifact["digest"]) is not None
+                and artifact.get("workflow_run", {}).get("id") == run_id
+                and artifact["workflow_run"].get("head_sha") == run.get("head_sha"), "language-artifact-unverified")
+        # No transport implementation is inferred from fixture bytes or a local path.
+        raw = _bridge_codeql_artifact(ck, ctx, record, entry, artifact, run_id, attempt)
+        members = _bridge_codeql_archive_members(raw, artifact["digest"])
+        proof = _bridge_codeql_language_evidence(ck, ctx, record, members, language, expected)
+        languages.append({**proof, "job_id": job["id"], "artifact_id": artifact["id"], "artifact_digest": artifact["digest"]})
+    # Refresh the exact attempt after reads; a newer attempt cannot borrow an old success.
+    latest = _bridge_api(ck, ctx, record, "/actions/runs/" + str(run_id))
+    require(isinstance(latest, dict) and latest.get("id") == run_id and latest.get("run_attempt") == attempt
+            and latest.get("head_sha") == run["head_sha"] and latest.get("status") == "completed" and latest.get("conclusion") == "success", "run-attempt-changed")
+    return {"publication_receipt_sha256": _amendment_digest(entry), "contribution_sha256": _amendment_digest(payload["contribution"]),
+        "head": target["head"], "base": target["base"], "preview_sha": target["preview_sha"], "tree": target["tree"],
+        "run_id": run_id, "run_attempt": attempt, "languages": languages}
+
+
+def _bridge_codeql_terminal_seal(key, record, receipt_id, identity, frame, observation):
+    return hmac.new(key, b"v415-codeql-read-projection\0" + approval_binding.canonical({
+        "nonce": record["nonce"], "receipt_id": receipt_id, "observation_id": identity,
+        "handle": frame["handle"], "process": frame["process"], "exit_code": frame.get("exit_code"),
+        "observation": observation}), hashlib.sha256).hexdigest()
+
+
+def _bridge_codeql_terminal_valid(key, record, receipt_id, identity, frame, prior):
+    cached = prior.get("read_observation")
+    return (isinstance(cached, dict) and set(cached) == {"state", "observed_at", "kind"}
+        and cached.get("state") == "ended" and cached.get("kind") in {"codeql-artifact-bytes-observed", "process-ended-observed"}
+        and isinstance(cached.get("observed_at"), str) and prior.get("result_verified") is True
+        and prior.get("native_bridge") == {"receipt_id": receipt_id, "observation_id": identity}
+        and prior.get("handle") == frame["handle"] and prior.get("process") == frame["process"]
+        and prior.get("exit_code") == frame.get("exit_code")
+        and hmac.compare_digest(str(prior.get("read_observation_hmac", "")),
+            _bridge_codeql_terminal_seal(key, record, receipt_id, identity, frame, cached)))
+
+
+def _bridge_codeql_artifact(ck, ctx, record, entry, artifact, run_id, attempt):
+    """Observe fixed immutable artifact bytes, never a reserved effect or known exit by inference."""
+    import run_plan
+    context = {"artifact_id": artifact["id"], "artifact_digest": artifact["digest"], "artifact_size": artifact["size_in_bytes"],
+        "run_id": run_id, "run_attempt": attempt, "publication_receipt_sha256": _amendment_digest(entry)}
+    identity = _amendment_digest({"purpose": "codeql-artifact-observation", "context": context, "nonce": record["nonce"]})
+    command = [ctx.gh, "api", "--hostname", "github.com", "--method", "GET",
+        "repos/bendourthe/Nexus-Hub/actions/artifacts/" + str(artifact["id"]) + "/zip",
+        "-H", "Accept: application/vnd.github+json", "-H", "X-GitHub-Api-Version: 2026-03-10"]
+    result = run_plan.dispatch_authority_operation(ctx, record.record_path, identity, command,
+        run_nonce=record["nonce"], artifact_read=context)
+    if (result.get("purpose") != "codeql-artifact-observation" or result.get("observation_id") != identity
+            or "operation_id" in result or result.get("read_context") != context or result.get("run_nonce") != record["nonce"]
+            or result.get("command_sha256") != hashlib.sha256(approval_binding.canonical(command)).hexdigest()
+            or result.get("exit_code") not in (None, 0)):
+        raise ObservationUnavailable("bridge-codeql-artifact-observation-binding")
+    lifecycle = run_plan.observe_authority_process(result)
+    if result.get("exit_code") is None and lifecycle["state"] != "ended":
+        from types import SimpleNamespace
+        scope = SimpleNamespace(minor=True, label=record.get("minor"), repo_root=ctx.root)
+        try:
+            previous = run_plan.read_continuation(scope, record.record_path, record)
+            disposition = (previous or {}).get("disposition")
+            if not isinstance(disposition, dict):
+                raise ValueError("terminal observation disposition must be an object")
+            jobs = disposition.get("completed_jobs")
+            if not isinstance(jobs, list) or any(not isinstance(job, dict) for job in jobs):
+                raise ValueError("terminal observations must be a list of job objects")
+            prior = next((job for job in jobs if job.get("id") == "bridge:codeql-read:" + identity), {})
+            key = ck._secret(create=False)
+            retained_terminal = key is not None and _bridge_codeql_terminal_valid(
+                key, record, _amendment_digest(entry), identity, result, prior)
+        except (OSError, ValueError, TypeError, KeyError, run_plan.RunnerError):
+            retained_terminal = False
+        if not retained_terminal:
+            raise ObservationUnavailable("bridge-codeql-artifact-response-pending: " + result["handle"])
+    path = Path(result.get("stdout_path", ""))
+    directory = run_plan.codeql_observation_directory(record.record_path, record["nonce"])
+    captured = result.get("stdout_identity", {})
+    if (path.parent != directory or not path.name.startswith(identity + ".") or not path.name.endswith(".stdout")
+            or type(captured.get("device")) is not int or type(captured.get("inode")) is not int):
+        raise ObservationUnavailable("bridge-codeql-artifact-path-unverified")
+    raw = _bridge_read_bytes(path, expected_identity=(captured["device"], captured["inode"]), max_bytes=16 * 1024 * 1024)
+    if len(raw) != artifact["size_in_bytes"] or hashlib.sha256(raw).hexdigest() != artifact["digest"][7:]:
+        raise ObservationUnavailable("bridge-codeql-artifact-bytes-unverified")
+    # Completeness/CRC/member validation is independent evidence of bytes only.
+    _bridge_codeql_archive_members(raw, artifact["digest"])
+    return raw
+
+
+"""Native read-observation projection insertion fragment; scratch only."""
+
+
+def authority_bridge_read_state(ck: ModuleType, ctx: RepoContext, record: dict, previous_jobs: list[dict] | None = None) -> dict:
+    """Project authenticated fixed read processes; bytes never grant a remote effect."""
+    import run_plan
+    result = {"jobs": [], "external_conditions": [], "condition_resolutions": [], "work": []}
+    directory = run_plan.codeql_observation_directory(record.record_path, record["nonce"])
+    if not directory.exists():
+        return result
+    if directory.resolve() != directory.absolute() or any(path.is_symlink() for path in (directory, *directory.parents)):
+        raise ObservationUnavailable("bridge-codeql-observation-directory-unverified")
+    paths = list(directory.glob("*.json"))
+    if len(paths) > 128:
+        raise ObservationUnavailable("bridge-codeql-observation-count-exceeded")
+    entries = {_amendment_digest(entry): entry for entry in authority_bridge_history(ck, ctx, record)
+               if entry["page"]["kind"] == "maintenance-bootstrap-publication"}
+    key = ck._secret(create=False)
+    if key is None:
+        raise ObservationUnavailable("bridge-codeql-observation-key-unavailable")
+    prior_by_id = {item["id"]: item for item in (previous_jobs or []) if isinstance(item, dict) and isinstance(item.get("id"), str)}
+    groups = {}
+    for path in sorted(paths):
+        frame = _execution_json(_bridge_read_bytes(path).decode("utf-8"))
+        if not isinstance(frame, dict):
+            raise ObservationUnavailable("bridge-codeql-observation-object-required")
+        seal = hmac.new(key, b"v415-codeql-artifact-observation\0" + approval_binding.canonical(
+            {name: child for name, child in frame.items() if name != "observation_hmac"}), hashlib.sha256).hexdigest()
+        context = frame.get("read_context")
+        if (not isinstance(context, dict) or frame.get("purpose") != "codeql-artifact-observation"
+                or "operation_id" in frame or frame.get("run_nonce") != record["nonce"]
+                or not hmac.compare_digest(str(frame.get("observation_hmac", "")), seal)
+                or set(context) != {"artifact_id", "artifact_digest", "artifact_size", "run_id", "run_attempt", "publication_receipt_sha256"}
+                or any(type(context.get(field)) is not int or context[field] <= 0 for field in ("artifact_id", "artifact_size", "run_id", "run_attempt"))
+                or context["artifact_size"] > 16 * 1024 * 1024
+                or re.fullmatch(r"sha256:[0-9a-f]{64}", str(context.get("artifact_digest"))) is None):
+            raise ObservationUnavailable("bridge-codeql-observation-authentication-failed")
+        receipt_id = context["publication_receipt_sha256"]
+        entry = entries.get(receipt_id)
+        if entry is None or not _BRIDGE_CODEQL_FILES.intersection(entry["page"]["payload"]["write_paths"]):
+            raise ObservationUnavailable("bridge-codeql-observation-publication-context-changed")
+        identity = _amendment_digest({"purpose": "codeql-artifact-observation", "context": context, "nonce": record["nonce"]})
+        command = [ctx.gh, "api", "--hostname", "github.com", "--method", "GET",
+            "repos/bendourthe/Nexus-Hub/actions/artifacts/" + str(context["artifact_id"]) + "/zip",
+            "-H", "Accept: application/vnd.github+json", "-H", "X-GitHub-Api-Version: 2026-03-10"]
+        if (path.name != identity + ".json" or frame.get("observation_id") != identity
+                or frame.get("command_sha256") != hashlib.sha256(approval_binding.canonical(command)).hexdigest()):
+            raise ObservationUnavailable("bridge-codeql-observation-command-changed")
+        lifecycle = run_plan.observe_authority_process(frame)
+        prior = prior_by_id.get("bridge:codeql-read:" + identity, {})
+        cached = prior.get("read_observation")
+        retained_terminal = _bridge_codeql_terminal_valid(key, record, receipt_id, identity, frame, prior)
+        if prior.get("status") in {"succeeded", "failed"} and not retained_terminal:
+            raise ObservationUnavailable("bridge-codeql-terminal-observation-unverified")
+        terminal = lifecycle["state"] == "ended" or type(frame.get("exit_code")) is int or retained_terminal
+        verified, diagnostic = False, "Complete immutable artifact bytes are not verified"
+        if terminal:
+            try:
+                # The cache exists and is authenticated above. No dispatcher is called here.
+                captured = frame.get("stdout_identity", {})
+                stdout = Path(frame.get("stdout_path", ""))
+                if (stdout.parent != directory or not stdout.name.startswith(identity + ".") or not stdout.name.endswith(".stdout")
+                        or type(captured.get("device")) is not int or type(captured.get("inode")) is not int
+                        or frame.get("exit_code") not in (None, 0)):
+                    raise MinorMalformed("artifact-result-binding")
+                raw = _bridge_read_bytes(stdout, expected_identity=(captured["device"], captured["inode"]), max_bytes=16 * 1024 * 1024)
+                if len(raw) != context["artifact_size"] or hashlib.sha256(raw).hexdigest() != context["artifact_digest"][7:]:
+                    raise MinorMalformed("artifact-result-bytes")
+                _bridge_codeql_archive_members(raw, context["artifact_digest"])
+                verified = True
+                diagnostic = "Exact captured immutable artifact bytes independently verified; command exit is not inferred"
+            except (OSError, ValueError, TypeError, KeyError, MinorMalformed) as exc:
+                diagnostic = "Original process ended; artifact-byte verification remains unavailable (" + type(exc).__name__ + ")"
+        if terminal:
+            cached = copy.deepcopy(cached) if retained_terminal else {"state": "ended", "observed_at": ck._now(),
+                "kind": "codeql-artifact-bytes-observed" if verified else "process-ended-observed"}
+            diagnostic = "Original process end is independently retained; artifact byte eligibility is rechecked separately; command exit is never inferred"
+        status = "succeeded" if terminal else "running" if lifecycle["state"] == "running" else "observation-timeout"
+        condition_id = "bridge:codeql-artifact:" + identity
+        binding = {"receipt_id": receipt_id, "observation_id": identity}
+        result["jobs"].append({"id": "bridge:codeql-read:" + identity, "name": "Hosted artifact process observation",
+            "status": status, "handle": frame["handle"], "process": frame["process"], "observed_at": cached["observed_at"] if terminal else ck._now(), "observation_attempted_at": ck._now(),
+            "job_created_at": frame["job_created_at"], "exit_code": frame.get("exit_code"),
+            "result_verified": terminal, "result_kind": cached["kind"] if terminal else "codeql-artifact-observation-pending",
+            "read_observation": cached if terminal else None, "read_observation_hmac": _bridge_codeql_terminal_seal(key, record, receipt_id, identity, frame, cached) if terminal else None,
+            "evidence": diagnostic + "; artifact " + str(context["artifact_id"]) + "; expected " + context["artifact_digest"],
+            "resume_when": "Observe this same process and reconcile its bound artifact bytes through the existing guarded publication consumer; no merge allowance or retry follows from this observation.",
+            "native_bridge": binding})
+        if terminal:
+            result["external_conditions"].append({"id": condition_id, "title": "Hosted artifact bytes remain unverified",
+                "observed_at": frame["observed_at"], "evidence": "Artifact " + str(context["artifact_id"]) + "; expected " + context["artifact_digest"] + "; process exit remains separately observed.",
+                "resume_when": "Reconcile the same authenticated read observation or a genuinely observed newer hosted artifact through the existing consumer; never redispatch a merge or silently redownload the uncertain artifact.", "native_bridge": binding})
+            if verified:
+                result["condition_resolutions"].append({"condition_id": condition_id, "verified": True,
+                    "evidence": "Opened file identity, bounded size, exact API archive digest and complete ZIP independently verify these bytes only; no effect or command exit is inferred."})
+        groups.setdefault(receipt_id, []).append((status, verified, identity))
+    operations = authority_bridge_operation_history(ck, ctx, record)
+    for receipt_id, rows in groups.items():
+        if not all(status == "succeeded" and verified for status, verified, _identity in rows):
+            continue
+        entry = entries[receipt_id]
+        if _bridge_operation_id(entry, "green-merge") in operations:
+            continue  # Already reserved effects use their existing reconciliation/jobs, never another allowance.
+        try:
+            _bridge_publication_actor(ck, ctx, entry["page"]["payload"]["head"], entry["page"]["payload"]["actor"])
+            current = approval_binding.current_host_context(ck._runs_dir(), record, ck._host_cwds(ctx), historical_cwds=ck.historical_host_cwds(record), deadline=ctx.budget.deadline)
+            authorized = approval_binding.full_access_authorization(record, current)
+        except (OSError, ValueError, TypeError):
+            authorized = False
+        context_condition = "bridge:codeql-context:" + receipt_id
+        result["external_conditions"].append({"id": context_condition, "title": "Captured publication context requires verification",
+            "observed_at": ck._now(), "evidence": "The exact captured source actor and current full-access owner must both be verified; artifact bytes establish neither authority nor a remote effect.",
+            "resume_when": "The existing native owner and exact registered actor checks verify the same captured publication context; use the supported resume/reconciliation path without another effect dispatch."})
+        if authorized:
+            result["condition_resolutions"].append({"condition_id": context_condition, "verified": True,
+                "evidence": "Current native full-access owner and exact captured source actor were independently rechecked; the original guarded consumer still enforces all hosted predicates and finite allowances."})
+            try:
+                run_plan.require_authority_process_capability()
+            except run_plan.RunnerError:
+                continue  # Cached bytes remain readable; a new hosting dispatch is not feasible.
+            result["work"].append({"id": "bridge:codeql-reconcile:" + receipt_id,
+                "title": "Reconcile the captured publication with verified hosted artifact bytes", "authorized": True, "feasible": True,
+                "evidence": "Current captured publication and source context retain authority for the existing guarded consumer; verified artifact observations " + ", ".join(identity for _status, _verified, identity in rows) + ". Full hosted checks and the original finite merge gate still apply.",
+                "authorization": {"class": "supplement-v415-authority", "request": {"receipt_id": receipt_id, "operation": "green-merge"}}})
+    return result
+
+
+_BRIDGE_ATTRIBUTION_FAILURES = {
+    "No attribution guard active.": "guard-inactive",
+    "Repository overrides the guard.": "repository-overrides-guard",
+    "Attribution guard missing or modified.": "guard-missing-or-modified",
+    "Attribution guard version differs.": "guard-version-differs",
+    "Installed Python is unavailable.": "guard-interpreter-unavailable",
+    "Attribution hook missing or modified:": "hook-missing-or-modified",
+}
+
+
+def _bridge_preflight_path(record: dict, entry: dict, ctx: object = None) -> Path:
+    # A plain record dict (a projection input) carries no path; derive it from the repository context.
+    record_path = getattr(record, "record_path", None) or ctx.scoped_record_path("minor:" + record["minor"])
+    return record_path.parent / "publication-jobs" / (_amendment_digest(entry) + ".attribution.json")
+
+
+def _bridge_attribution_failure(ck: ModuleType, record: dict, entry: dict, actor: dict, cli: Path, code: int, output: str) -> str:
+    # Keep diagnostic facts, never arbitrary command output, credentials or repair authority.
+    condition = next((value for text, value in _BRIDGE_ATTRIBUTION_FAILURES.items() if text in output[:32768]), "preflight-unverified")
+    event = {"receipt_id": _amendment_digest(entry), "actor": actor, "cli_sha256": hashlib.sha256(cli.read_bytes()).hexdigest(),
+             "exit_code": code, "condition": condition, "output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
+             "next_action": "Review the attribution guard condition within authorized repair scope, then retry the same push consumer."}
+    key = ck._secret(create=False)
+    if key is None:
+        raise MinorMalformed("bridge-preflight-diagnostic-key-unavailable")
+    event["hmac"] = hmac.new(key, b"v415-bridge-preflight\0" + approval_binding.canonical(event), hashlib.sha256).hexdigest()
+    path = _bridge_preflight_path(record, entry)
+    if path.parent.resolve() != path.parent.absolute() or any(parent.is_symlink() for parent in path.parents):
+        raise MinorMalformed("bridge-preflight-directory-not-canonical")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ck._restrict(path.parent, directory=True)
+    approval_binding._write_private(path, event)
+    return condition
+
+
+def _bridge_effect_target(ck: ModuleType, ctx: RepoContext, record: dict, entry: dict, operation: str) -> tuple[dict, list[str]]:
+    page, payload = entry["page"], entry["page"]["payload"]
+    repo = record["repo"]
+    if operation in {"prepare-release-notes", "release-notes"}:
+        current = approval_binding.current_host_context(ck._runs_dir(), record, ck._host_cwds(ctx), historical_cwds=ck.historical_host_cwds(record), deadline=ctx.budget.deadline)
+        approval_binding.authorization(ck.project(record, BRIDGE_NOTES_VERSION), "release", {"release_version": BRIDGE_NOTES_VERSION, "tag": BRIDGE_NOTES_VERSION}, current)
+        if operation == "prepare-release-notes":
+            path = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-" + BRIDGE_NOTES_VERSION + ".md")
+            return {"path": str(path), "notes_sha256": payload["notes_sha256"], "version": BRIDGE_NOTES_VERSION}, ["native:prepare-release6-notes", str(path), payload["notes_sha256"]]
+        release = ck._gh_json(ctx, repo, "release", "view", BRIDGE_NOTES_VERSION, "--json", "tagName,isDraft,body")
+        if not isinstance(release, dict) or release.get("tagName") != BRIDGE_NOTES_VERSION or release.get("isDraft") is not False:
+            raise MinorMalformed("bridge-published-release6-required-before-notes-effect")
+        return {"tag": BRIDGE_NOTES_VERSION, "notes_sha256": payload["notes_sha256"]}, ["native:verify-release6-notes", BRIDGE_NOTES_VERSION, payload["notes_sha256"]]
+    if operation == "repo-description":
+        observed = ck._gh_json(ctx, repo, "repo", "view", "--json", "description")
+        if not isinstance(observed, dict) or (observed.get("description") or "") not in {payload["expected"], payload["value"]}:
+            raise MinorMalformed("bridge-description-current-value-changed")
+        return {"field": "description", "expected": payload["expected"], "value_sha256": payload["value_sha256"]}, [ctx.gh, "api", "--method", "PATCH", "repos/" + repo, "--raw-field", "description=" + payload["value"]]
+    actor, _identity = _bridge_publication_actor(ck, ctx, payload["head"], payload["actor"])
+    if operation == "push":
+        cli = Path(__file__).resolve().with_name("nexus_hub_cli.py")
+        if not cli.is_file() or not Path(sys.executable).is_absolute():
+            raise MinorMalformed("bridge-qualified-attribution-cli-unavailable")
+        # Standalone required preflight, before reserving any remote allowance.
+        rc, stdout, stderr = ck._run_with_stderr([sys.executable, "-B", str(cli), "attribution", "check"], actor.budget, cwd=actor.root)
+        output = stdout + "\n" + stderr
+        if rc:
+            condition = _bridge_attribution_failure(ck, record, entry, _identity, cli, rc, output)
+            raise MinorMalformed("bridge-attribution-check-failed-before-reservation: " + condition + "; " + str(_bridge_preflight_path(record, entry)))
+        return {"repo": repo, "push_remote_url": page["push_remote_url"], "branch": payload["source_branch"], "head": payload["head"],
+                "attribution": {"cli_sha256": hashlib.sha256(cli.read_bytes()).hexdigest(), "exit_code": 0,
+                                "output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest()}}, [actor.git, "-C", str(actor.root), "push", "origin", payload["head"] + ":refs/heads/" + payload["source_branch"]]
+    states = authority_bridge_operation_history(ck, ctx, record)
+    previous = "push" if operation == "pr-create" else "pr-create"
+    dependency = states.get(_bridge_operation_id(entry, previous))
+    if dependency is None or dependency["state"] != "completed":
+        raise MinorMalformed("bridge-publication-dependency-not-observed")
+    if operation == "pr-create":
+        if _bridge_observe_effect(ck, ctx, record, entry, "push", dependency["target"]) is None:
+            raise MinorMalformed("bridge-pinned-remote-source-head-no-longer-observed")
+        _bridge_prs(ck, ctx, record, payload)
+        return {"repo": repo, "branch": payload["source_branch"], "head": payload["head"], "base_branch": "develop"}, [ctx.gh, "pr", "create", "--head", payload["source_branch"], "--base", "develop", "--title=" + payload["pr_title"], "--body=" + payload["pr_body"], "--repo", repo]
+    number = dependency["evidence"]["proof"]["number"]
+    target = _bridge_checked_merge(ck, ctx, record, payload, number, entry=entry)
+    # The supported async API's explicit no-bypass option is stronger than a
+    # client-only precheck. Acceptance remains pending, never merge success.
+    command = [ctx.gh, "api", "--method", "PUT", "repos/" + repo + "/pulls/" + str(number) + "/merge-async",
+               "-H", "Accept: application/vnd.github+json", "-H", "X-GitHub-Api-Version: 2026-03-10",
+               "--raw-field", "sha=" + payload["head"], "--raw-field", "merge_method=merge",
+               "--raw-field", "merge_action=direct_merge", "--field", "bypass_rules=false"]
+    return target, command
+
+
+def _bridge_observe_effect(ck: ModuleType, ctx: RepoContext, record: dict, entry: dict, operation: str, target: dict) -> dict | None:
+    payload, repo = entry["page"]["payload"], record["repo"]
+    if operation == "prepare-release-notes":
+        path = Path(target["path"])
+        expected = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-" + BRIDGE_NOTES_VERSION + ".md")
+        if path != expected or target["notes_sha256"] != payload["notes_sha256"]:
+            raise MinorMalformed("bridge-prepared-notes-path-or-body-changed")
+        if path.exists():
+            raw = _bridge_read_bytes(path)
+            if raw != payload["notes"].encode("utf-8"):
+                raise MinorMalformed("bridge-existing-prepared-notes-mismatch")
+            return {"path": str(path), "notes_sha256": hashlib.sha256(raw).hexdigest(), "effect": "prepared", "release_published": False}
+        return None
+    if operation == "release-notes":
+        value = ck._gh_json(ctx, repo, "release", "view", BRIDGE_NOTES_VERSION, "--json", "tagName,isDraft,body")
+        if (isinstance(value, dict) and value.get("tagName") == BRIDGE_NOTES_VERSION and value.get("isDraft") is False
+                and value.get("body") == payload["notes"]):
+            return {"tag": BRIDGE_NOTES_VERSION, "notes_sha256": payload["notes_sha256"]}
+    elif operation == "repo-description":
+        value = ck._gh_json(ctx, repo, "repo", "view", "--json", "description")
+        if isinstance(value, dict) and value.get("description") == payload["value"]:
+            return {"field": "description", "value_sha256": payload["value_sha256"]}
+    elif operation == "push":
+        rc, raw = ctx.run([ctx.git, "-C", str(ctx.root), "ls-remote", "--refs", target["push_remote_url"], "refs/heads/" + target["branch"]])
+        if rc == 0 and raw.strip() == target["head"] + "\trefs/heads/" + target["branch"]:
+            return {"branch": target["branch"], "head": target["head"]}
+    elif operation == "pr-create":
+        rows = _bridge_prs(ck, ctx, record, payload)
+        if rows:
+            return {key: rows[0][key] for key in ("number", "url", "headRefName", "headRefOid", "baseRefName")}
+    else:
+        pr = _bridge_api(ck, ctx, record, "/pulls/" + str(target["number"]))
+        if (not isinstance(pr, dict) or pr.get("merged") is not True or pr.get("number") != target["number"]
+                or pr.get("head", {}).get("sha") != target["head"] or pr.get("base", {}).get("ref") != "develop"):
+            return None
+        merged = pr.get("merge_commit_sha")
+        if not isinstance(merged, str) or re.fullmatch(r"[0-9a-f]{40}", merged) is None:
+            return None
+        commit = _bridge_api(ck, ctx, record, "/git/commits/" + merged)
+        containment = _bridge_api(ck, ctx, record, "/compare/" + merged + "...develop")
+        if (isinstance(commit, dict) and commit.get("sha") == merged and commit.get("tree", {}).get("sha") == target["tree"]
+                and [parent.get("sha") for parent in commit.get("parents", [])] == [target["base"], target["head"]]
+                and isinstance(containment, dict) and containment.get("base_commit", {}).get("sha") == merged
+                and containment.get("merge_base_commit", {}).get("sha") == merged
+                and containment.get("status") in {"identical", "ahead"}):
+            return {"number": target["number"], "merge_sha": merged, "tree": target["tree"], "parents": [target["base"], target["head"]],
+                    "preview_sha": target["preview_sha"], "target_contains_merge": True}
+    return None
+
+
+def _bridge_prepare_notes(ck: ModuleType, ctx: RepoContext, record: dict, entry: dict, target: dict, prior: dict) -> None:
+    """Atomically publish a complete private artifact without clobbering any existing file."""
+    import tempfile
+    path = Path(target["path"])
+    payload = entry["page"]["payload"]
+    if path.parent.resolve() != path.parent.absolute() or any(parent.is_symlink() for parent in path.parents):
+        raise MinorMalformed("bridge-notes-directory-is-not-canonical")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ck._restrict(path.parent, directory=True)
+    stage = prior.get("evidence", {}).get("owned_staging")
+    if stage is not None:
+        if (not isinstance(stage, dict) or set(stage) != {"path", "device", "inode", "size", "sha256"}
+                or not isinstance(stage["path"], str) or Path(stage["path"]).parent != path.parent
+                or not Path(stage["path"]).name.startswith(".release6-notes-")
+                or stage["sha256"] != payload["notes_sha256"]
+                or any(type(stage[key]) is not int for key in ("device", "inode", "size"))):
+            raise MinorMalformed("bridge-owned-notes-stage-invalid")
+        staging = Path(stage["path"])
+        if path.exists() and staging.exists():
+            left, right = path.lstat(), staging.lstat()
+            if ((left.st_dev, left.st_ino) == (right.st_dev, right.st_ino) == (stage["device"], stage["inode"])
+                    and left.st_nlink == right.st_nlink == 2 and left.st_size == right.st_size == stage["size"]
+                    and not path.is_symlink() and not staging.is_symlink()
+                    and not (getattr(left, "st_file_attributes", 0) | getattr(right, "st_file_attributes", 0)) & 1024):
+                with path.open("rb") as handle:
+                    opened = os.fstat(handle.fileno())
+                    raw = handle.read(32769)
+                    final = os.fstat(handle.fileno())
+                if ((opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns)
+                        != (final.st_dev, final.st_ino, final.st_size, final.st_mtime_ns)
+                        or (opened.st_dev, opened.st_ino) != (stage["device"], stage["inode"])
+                        or raw != payload["notes"].encode("utf-8") or hashlib.sha256(raw).hexdigest() != stage["sha256"]):
+                    raise MinorMalformed("bridge-owned-notes-stage-changed")
+                current = staging.lstat()
+                if (current.st_dev, current.st_ino, current.st_nlink) != (stage["device"], stage["inode"], 2):
+                    raise MinorMalformed("bridge-owned-notes-stage-identity-changed")
+                staging.unlink()  # Only the exact retained native staging link.
+    if path.exists() or path.is_symlink():
+        if _bridge_read_bytes(path) != payload["notes"].encode("utf-8"):
+            raise MinorMalformed("bridge-existing-prepared-notes-mismatch")
+        return
+    descriptor, temporary = tempfile.mkstemp(prefix=".release6-notes-", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload["notes"].encode("utf-8"))
+            handle.flush()
+            os.fsync(handle.fileno())
+        ck._restrict(temporary_path, directory=False)
+        info = temporary_path.lstat()
+        _bridge_save_operation(ck, record, entry, "prepare-release-notes", "ambiguous", target, prior["command"],
+            {"effect_observed": False, "reason": "notes-staging-owned", "owned_staging": {
+                "path": str(temporary_path), "device": info.st_dev, "inode": info.st_ino,
+                "size": info.st_size, "sha256": payload["notes_sha256"]}})
+        try:
+            os.link(temporary_path, path)  # Atomic no-clobber; an existing file is never replaced.
+        except FileExistsError:
+            pass
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
+def _bridge_process_result(record: dict, prior: dict, process_result: dict | None) -> dict | None:
+    """Read only the existing exact operation result, including after lost acknowledgment."""
+    if process_result is None and getattr(record, "record_path", None) is not None:
+        result_path = record.record_path.parent / "publication-jobs" / (prior["operation_id"] + ".json")
+        if result_path.exists():
+            process_result = _execution_json(_bridge_read_bytes(result_path).decode("utf-8"))
+    if process_result is not None and (not isinstance(process_result, dict)
+            or process_result.get("operation_id") != prior["operation_id"] or process_result.get("run_nonce") != record["nonce"]
+            or process_result.get("command_sha256") != prior["command_sha256"]):
+        raise MinorMalformed("bridge-host-result-binding-mismatch")
+    return process_result
+
+
+def _bridge_async_result(ck: ModuleType, ctx: RepoContext, record: dict, prior: dict, process_result: dict | None) -> dict:
+    """Retain only actual bounded hosting output and poll its returned correlation once."""
+    response = prior["evidence"].get("host_response")
+    directory = record.record_path.parent / "publication-jobs"
+    process_result = _bridge_process_result(record, prior, process_result)
+    process_ended = False
+    if isinstance(process_result, dict):
+        import run_plan
+        process_ended = run_plan.observe_authority_process(process_result)["state"] == "ended"
+    if response is None and isinstance(process_result, dict) and process_ended:
+        path = Path(process_result.get("stdout_path", ""))
+        if path.parent != directory or not path.name.startswith(prior["operation_id"] + ".") or path.suffix != ".stdout":
+            raise MinorMalformed("bridge-host-response-path-invalid")
+        expected = process_result.get("stdout_identity")
+        before = path.lstat()
+        if (not isinstance(expected, dict) or set(expected) != {"device", "inode"}
+                or any(type(expected[key]) is not int for key in expected)
+                or (before.st_dev, before.st_ino) != (expected["device"], expected["inode"])):
+            raise MinorMalformed("bridge-host-response-identity-changed-or-unavailable")
+        raw = _bridge_read_bytes(path, expected_identity=(expected["device"], expected["inode"]))
+        after = path.lstat()
+        if (after.st_dev, after.st_ino) != (expected["device"], expected["inode"]):
+            raise MinorMalformed("bridge-host-response-identity-changed")
+        digest = hashlib.sha256(raw).hexdigest()
+        if process_result.get("exit_code") is not None and digest != process_result.get("stdout_sha256"):
+            raise MinorMalformed("bridge-host-response-changed")
+        try:
+            body = _execution_json(raw.decode("utf-8"))
+        except (UnicodeDecodeError, MinorMalformed):
+            body = None
+        # A parent can exit while an inherited writer still owns stdout. A partial
+        # or unrecognized document is never cached as a complete hosting response.
+        if (isinstance(body, dict) and body.get("status") in {"pending", "merged", "enqueued", "failed"}
+                and isinstance(body.get("details"), dict)):
+            details = body["details"]
+            complete = (body["status"] != "pending" or (
+                isinstance(details.get("uuid"), str)
+                and re.fullmatch(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", details["uuid"])
+                and details.get("expected_head_sha") == prior["target"]["head"]
+                and details.get("merge_method") == "merge" and details.get("merge_action") == "direct_merge"
+                and details.get("bypass_rules") is False))
+            if complete:
+                response = {"path": str(path), "sha256": digest, "body": body}
+    result = {"process_result": process_result}
+    if response is not None:
+        result["host_response"] = response
+        body = response.get("body")
+        details = body.get("details") if isinstance(body, dict) else None
+        identity = details.get("uuid") if isinstance(details, dict) else None
+        if isinstance(identity, str) and re.fullmatch(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", identity):
+            if (details.get("expected_head_sha") != prior["target"]["head"] or details.get("merge_method") != "merge"
+                    or details.get("merge_action") != "direct_merge" or details.get("bypass_rules") is not False):
+                raise MinorMalformed("bridge-returned-merge-options-mismatch")
+            result["host_correlation"] = identity
+            # No invented job URL, second PUT, or assumption that acceptance is merge.
+            polled = _bridge_api(ck, ctx, record, "/pulls/" + str(prior["target"]["number"]) + "/merge-async/" + identity)
+            result["host_observation"] = polled
+    return result
+
+
+@minor_writer
+def cmd_execute_v415_authority(ck: ModuleType, args: argparse.Namespace) -> int:
+    """One finite dispatch under the existing lease; every later call only reconciles."""
+    ctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, ctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    current = approval_binding.current_host_context(ck._runs_dir(), record, ck._host_cwds(ctx), historical_cwds=ck.historical_host_cwds(record), deadline=ctx.budget.deadline)
+    request = {"receipt_id": args.receipt, "operation": args.operation}
+    authority = authority_bridge_authorization(ck, ctx, record, request, current)
+    if authority["execution_authorized"] is False:
+        return ck._blocked("t027-budget-inactive-no-Claude-and-no-billing-limiter")
+    entry = next(row for row in authority_bridge_history(ck, ctx, record) if _amendment_digest(row) == args.receipt)
+    identity = _bridge_operation_id(entry, args.operation)
+    prior = authority_bridge_operation_history(ck, ctx, record).get(identity)
+    if prior is not None and prior["state"] == "completed":
+        if args.operation in {"prepare-release-notes", "release-notes"}:
+            proof = _bridge_observe_effect(ck, ctx, record, entry, args.operation, prior["target"])
+            if proof is None:
+                return ck._blocked("bridge-prepared-notes-no-longer-verified")
+            print(("NOTES PREPARED " if args.operation == "prepare-release-notes" else "NOTES VERIFIED ") + json.dumps(proof, sort_keys=True))
+            return 0
+        print("OBSERVED completed " + identity)
+        return 0
+    if prior is None:
+        if args.operation in AUTHORITY_BRIDGE_HOST_OPERATIONS:
+            import run_plan
+            try:
+                run_plan.require_authority_process_capability()
+            except run_plan.RunnerError as exc:
+                return ck._blocked(str(exc))
+        target, command = _bridge_effect_target(ck, ctx, record, entry, args.operation)
+        prior = _bridge_save_operation(ck, record, entry, args.operation, "ambiguous", target, command,
+                                       {"effect_observed": False, "reason": "reserved-before-dispatch"})
+        # This process alone holds the winning native reservation. A crash from
+        # this point spends its allowance even when no remote effect occurred.
+        proof = _bridge_observe_effect(ck, ctx, record, entry, args.operation, target)
+        if proof is None:
+            if args.operation == "repo-description":
+                observed = ck._gh_json(ctx, record["repo"], "repo", "view", "--json", "description")
+                if not isinstance(observed, dict) or (observed.get("description") or "") != entry["page"]["payload"]["expected"]:
+                    return ck._blocked("bridge-description-precondition-changed-before-dispatch")
+            if args.operation == "green-merge":
+                checked = _bridge_checked_merge(ck, ctx, record, entry["page"]["payload"], target["number"], entry=entry)
+                if checked != target:
+                    return ck._blocked("bridge-merge-preconditions-changed-before-dispatch")
+            if args.operation == "prepare-release-notes":
+                _bridge_prepare_notes(ck, ctx, record, entry, target, prior)
+                process_result = None
+            elif args.operation == "release-notes":
+                process_result = None  # Published notes are observed, never overwritten.
+            else:
+                if args.operation == "pr-create":
+                    dependency = authority_bridge_operation_history(ck, ctx, record).get(_bridge_operation_id(entry, "push"))
+                    if dependency is None or _bridge_observe_effect(ck, ctx, record, entry, "push", dependency["target"]) is None:
+                        return ck._blocked("bridge-remote-source-changed-before-pr-dispatch")
+                import run_plan
+                process_result = run_plan.dispatch_authority_operation(ctx, record.record_path, identity, command, run_nonce=record["nonce"])
+        else:
+            process_result = None
+    else:
+        # Never dispatch a previously reserved operation, including a failed or
+        # uncertain one, regardless of restart, fresh request data or new owner.
+        target, command = prior["target"], prior["command"]
+        process_result = prior["evidence"].get("process_result")
+        if args.operation == "prepare-release-notes":
+            _bridge_prepare_notes(ck, ctx, record, entry, target, prior)
+    extra = (_bridge_async_result(ck, ctx, record, prior, process_result) if args.operation == "green-merge"
+             else {"process_result": _bridge_process_result(record, prior, process_result)} if args.operation in AUTHORITY_BRIDGE_HOST_OPERATIONS
+             else {"process_result": process_result})
+    proof = _bridge_observe_effect(ck, ctx, record, entry, args.operation, target)
+    if proof is not None:
+        _bridge_save_operation(ck, record, entry, args.operation, "completed", target, command,
+                               {"effect_observed": True, "reason": "matching-remote-effect", "proof": proof, **extra})
+        print("NOTES PREPARED " + json.dumps(proof, sort_keys=True) if args.operation == "prepare-release-notes" else "OBSERVED completed " + identity)
+        return 0
+    evidence = {"effect_observed": False, "reason": "host-outcome-unconfirmed", **extra}
+    # Repeated provider polling belongs in the existing continuation sidecar;
+    # it cannot consume the finite signed operation ledger with clock/progress rows.
+    retained_response = args.operation == "green-merge" and "host_response" in prior["evidence"]
+    if prior["evidence"] != evidence and not retained_response:
+        _bridge_save_operation(ck, record, entry, args.operation, "ambiguous", target, command, evidence)
+    return ck._blocked("bridge-operation-ambiguous-no-redispatch-allowed")
+
+
+def authority_bridge_authorization(ck: ModuleType, ctx: RepoContext, record: dict, request: dict,
+                                   current: dict, member: str | None = None) -> dict:
+    """Read-only exact authority. Currency and finite dispatch allowances are not consumed."""
+    if (not isinstance(request, dict) or set(request) != {"receipt_id", "operation"}
+            or not isinstance(request["receipt_id"], str) or not re.fullmatch(r"[0-9a-f]{64}", request["receipt_id"])
+            or not isinstance(request["operation"], str) or not approval_binding.full_access_authorization(record, current)):
+        raise ValueError("bridge-exact-request-and-current-owner-required")
+    entry = next((item for item in authority_bridge_history(ck, ctx, record) if _amendment_digest(item) == request["receipt_id"]), None)
+    if entry is None or member not in (None, entry["page"]["member"]):
+        raise ValueError("bridge-exact-consumed-receipt-required")
+    page, operation = entry["page"], request["operation"]
+    allowed = AUTHORITY_BRIDGE_OPERATIONS[page["kind"]]
+    if operation not in allowed:
+        raise ValueError("bridge-operation-outside-captured-kind")
+    selected = _bridge_member(ck, record, page["kind"])
+    publication = page["kind"] == "maintenance-bootstrap-publication"
+    if not _bridge_route(ck, ctx, record, selected, publication=publication):
+        raise ValueError("bridge-exact-route-unverified")
+    states = authority_bridge_operation_history(ck, ctx, record)
+    if publication and _bridge_operation_id(entry, operation) not in states:
+        _bridge_publication_actor(ck, ctx, page["payload"]["head"], page["payload"]["actor"])
+    inactive = page["kind"] == ".9-t027-budget"
+    return {"origin": "captured-v415-supplement", "class": AUTHORITY_BRIDGE_ACTION, "request": request,
+            "member": page["member"], "kind": page["kind"], "receipt_id": request["receipt_id"],
+            "capture_verified": True, "permission_verified": True, "execution_authorized": not inactive,
+            "enforcement": "inactive:no-Claude;no-pre-call-billing-limiter" if inactive else "guarded-consumer-required",
+            "effect_observed": False, "counters_consumed": False, "verification_and_spend_limits_unchanged": True}
+
+
+def authority_bridge_jobs(ck: ModuleType, ctx: RepoContext, record: dict, previous: list[dict]) -> list[dict]:
+    """Observe only authenticated returned provider handles, through their fixed GET."""
+    states = authority_bridge_operation_history(ck, ctx, record)
+    receipts = {_amendment_digest(entry): entry for entry in authority_bridge_history(ck, ctx, record)}
+    key = ck._secret(create=False)
+    if key is None:
+        raise MinorMalformed("bridge-job-observation-key-unavailable")
+    jobs = []
+    for row in states.values():
+        if row["operation"] not in AUTHORITY_BRIDGE_HOST_OPERATIONS:
+            continue
+        source_process = _bridge_process_result(record, row, row["evidence"].get("process_result"))
+        if isinstance(source_process, dict) and source_process.get("exit_code") is None:
+            if (source_process.get("operation_id") != row["operation_id"] or source_process.get("run_nonce") != record["nonce"]
+                    or source_process.get("command_sha256") != row["command_sha256"]):
+                raise MinorMalformed("bridge-host-process-binding-invalid")
+            import run_plan
+            lifecycle = run_plan.observe_authority_process(source_process)
+            if lifecycle.get("handle") != source_process.get("handle"):
+                raise MinorMalformed("bridge-host-process-identity-unavailable")
+            if row["operation"] != "green-merge":
+                matched = row["state"] == "completed" and row["evidence"].get("effect_observed") is True
+                active = lifecycle["state"] == "running"
+                ended = lifecycle["state"] == "ended"
+                status = "running" if active else "succeeded" if ended else "observation-timeout"
+                detail = ("The original process identity is proved ended; command exit remains unknown."
+                          if ended else lifecycle["reason"])
+                detail += (" Matching hosting effect is independently verified." if matched
+                           else " Hosting effect remains unverified; reconcile the same native operation read-only.")
+                jobs.append({"id": "bridge:process:" + row["operation_id"], "name": "Hosting process observation",
+                    "handle": source_process["handle"], "process": source_process.get("process"), "status": status,
+                    "observed_at": lifecycle["observed_at"], "job_created_at": source_process.get("job_created_at"),
+                    "resume_when": "Observe this exact process, then reconcile the same native operation read-only for its exact effect; never redispatch.",
+                    "evidence": detail, "result_verified": ended, "exit_code": source_process["exit_code"],
+                    "result_kind": "hosting-effect-observed" if matched else "process-ended-observed" if ended else "process-state-unverified",
+                    "effect_receipt": {"operation_id": row["operation_id"], "proof_sha256": _amendment_digest(row["evidence"]["proof"])} if matched else None,
+                    "native_bridge": {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}})
+                continue
+            response = row["evidence"].get("host_response")
+            response_observed = (isinstance(response, dict) and isinstance(response.get("body"), dict)
+                                 and (row["evidence"].get("host_correlation") is not None or row["evidence"].get("effect_observed") is True
+                                      or response["body"].get("status") == "failed"))
+            status = "succeeded" if response_observed else "running" if lifecycle["state"] == "running" else "observation-timeout"
+            detail = ("Verified complete captured hosting response; original process exit code remains unobserved; merge/effect not verified."
+                      if response_observed else lifecycle["reason"])
+            if not isinstance(source_process.get("handle"), str):
+                raise MinorMalformed("bridge-host-process-handle-unavailable")
+            jobs.append({"id": "bridge:process:" + row["operation_id"], "name": "Hosting response observation",
+                         "handle": source_process["handle"], "process": source_process.get("process"), "status": status,
+                         "observed_at": lifecycle["observed_at"], "job_created_at": source_process.get("job_created_at"),
+                         "resume_when": "Observe this exact process, then reconcile the same native operation to read its complete retained response; never redispatch.",
+                         "evidence": detail, "result_verified": response_observed,
+                         "exit_code": source_process["exit_code"], "result_kind": "hosting-response-observed" if response_observed else "hosting-response-unverified",
+                         "response_status": response["body"].get("status") if response_observed else None,
+                         "response_receipt": {"path": response["path"], "sha256": response["sha256"], "operation_id": row["operation_id"], "command_sha256": row["command_sha256"]} if response_observed else None,
+                         "native_bridge": {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}})
+        if row["operation"] != "green-merge":
+            continue
+        identity = row["evidence"].get("host_correlation")
+        if not isinstance(identity, str) or not re.fullmatch(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", identity):
+            continue  # A reservation or accepted request without a real UUID is no live job.
+        handle = "github-merge:" + identity
+        endpoint = "/pulls/" + str(row["target"]["number"]) + "/merge-async/" + identity
+        prior = next((job for job in previous if job.get("id") == "bridge:" + row["operation_id"] and job.get("handle") == handle
+                      and job.get("native_bridge") == {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}), {})
+        attempted = ck._now()
+        current = _bridge_api(ck, ctx, record, endpoint)
+        provider_status = current.get("status") if isinstance(current, dict) else None
+        if provider_status not in {"pending", "merged", "enqueued", "failed"}:
+            current, provider_status = None, None
+        if provider_status == "pending":
+            details = current.get("details")
+            if (not isinstance(details, dict) or details.get("uuid") != identity
+                    or details.get("expected_head_sha") != row["target"]["head"] or details.get("merge_method") != "merge"
+                    or details.get("merge_action") != "direct_merge" or details.get("bypass_rules") is not False):
+                current, provider_status = None, None
+        proof = _bridge_observe_effect(ck, ctx, record, receipts[row["receipt_id"]], "green-merge", row["target"]) if provider_status == "merged" else None
+        status = "succeeded" if proof is not None else "failed" if provider_status == "failed" else "pending" if provider_status == "pending" else "observation-timeout"
+        def cache_seal(value):
+            return hmac.new(key, b"v415-bridge-job-observation\0" + approval_binding.canonical({"nonce": record["nonce"], "operation_id": row["operation_id"], "handle": handle, "observation": value}), hashlib.sha256).hexdigest()
+        last = {"status": "unverified", "observed_at": row["at"]}
+        cached = prior.get("provider_observation")
+        if (isinstance(cached, dict) and isinstance(prior.get("provider_observation_hmac"), str)
+                and hmac.compare_digest(prior["provider_observation_hmac"], cache_seal(cached))):
+            last = copy.deepcopy(cached)
+        elif isinstance(row["evidence"].get("host_observation"), dict):
+            initial = row["evidence"]["host_observation"]
+            if initial.get("status") in {"pending", "merged", "enqueued", "failed"}:
+                last = {"status": initial["status"], "observed_at": row["at"], "sha256": _amendment_digest(initial)}
+                if initial["status"] == "failed":
+                    last.update(first_failure_sha256=last["sha256"], first_failure_at=row["at"])
+        terminal_failed = last.get("status") == "failed" and bool(last.get("first_failure_sha256"))
+        if current is not None:
+            retained = {name: last[name] for name in ("first_failure_sha256", "first_failure_at", "effect_sha256") if name in last}
+            if terminal_failed and provider_status != "failed":
+                last = dict(last, sha256=_amendment_digest(current))
+                status = "failed"
+            else:
+                last = {"status": provider_status, "observed_at": attempted, "sha256": _amendment_digest(current), **retained}
+            if provider_status == "failed" and "first_failure_sha256" not in last:
+                last.update(first_failure_sha256=last["sha256"], first_failure_at=attempted)
+            if proof is not None:
+                last["effect_sha256"] = _amendment_digest(proof)
+        elif last.get("status") == "failed" and last.get("first_failure_sha256"):
+            status = "failed"  # A final provider result cannot become another live job on an unavailable poll.
+        elif last.get("status") == "merged" and last.get("effect_sha256"):
+            status = "succeeded"
+        if last.get("status") == "failed" and last.get("first_failure_sha256"):
+            last.pop("last_conflicting_status", None)
+            last["terminal_diagnostic"] = {"status": provider_status if current is not None else "unavailable",
+                "sha256": _amendment_digest(current) if current is not None else None, "observed_at": attempted}
+        observed_at = last["observed_at"]
+        detail = ("Provider status " + str(provider_status) if current is not None else "Current provider observation unavailable; last verified provider status " + str(last["status"]))
+        if status == "failed" and last.get("first_failure_sha256"):
+            detail = "Retained verified terminal provider failure; matching final merge tree and parents remain unverified"
+        elif provider_status in {"merged", "enqueued"} and proof is None:
+            detail += "; matching final merge tree and parents are not verified"
+        jobs.append({"id": "bridge:" + row["operation_id"], "name": "Maintenance merge", "handle": handle,
+                     "url": "https://api.github.com/repos/" + record["repo"] + endpoint,
+                     "status": status, "observed_at": observed_at, "observation_attempted_at": attempted,
+                     "resume_when": "Poll the same returned UUID read-only and verify the exact PR merge tree and parents; never submit another merge request.",
+                     "evidence": detail + "; GET repos/" + record["repo"] + endpoint,
+                     "result_verified": status in {"succeeded", "failed"}, "provider_observation": last,
+                     "provider_observation_hmac": cache_seal(last),
+                     "native_bridge": {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}})
+    return jobs
+
+
+def authority_bridge_host_failures(ck: ModuleType, ctx: RepoContext, record: dict,
+                                  observed_jobs: list[dict] | None = None,
+                                  previous_conditions: list[dict] | None = None) -> tuple[list[dict], list[dict]]:
+    """Expose verified failure or uncertainty, never an invented process, retry or task."""
+    conditions, resolutions = [], []
+    provider_jobs = {job["native_bridge"]["operation_id"]: job for job in (observed_jobs or [])
+                     if isinstance(job.get("native_bridge"), dict) and job.get("id") == "bridge:" + str(job["native_bridge"].get("operation_id"))}
+    states = authority_bridge_operation_history(ck, ctx, record)
+    for row in states.values():
+        if row["operation"] not in AUTHORITY_BRIDGE_HOST_OPERATIONS:
+            continue
+        response = row["evidence"].get("host_response")
+        post_failed = (row["operation"] == "green-merge" and isinstance(response, dict)
+                       and isinstance(response.get("body"), dict) and response["body"].get("status") == "failed")
+        provider = provider_jobs.get(row["operation_id"], {})
+        observation = provider.get("provider_observation", {})
+        get_failed = (provider.get("native_bridge") == {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}
+                      and isinstance(observation, dict) and observation.get("first_failure_sha256"))
+        def add_condition(identity, title, evidence, at, resume):
+            conditions.append({"id": identity, "title": title, "observed_at": at, "evidence": evidence,
+                "resume_when": resume, "native_bridge": {"receipt_id": row["receipt_id"], "operation_id": row["operation_id"]}})
+            if row["state"] == "completed":
+                resolutions.append({"condition_id": identity, "verified": True,
+                    "evidence": "The same native operation now retains an independently verified matching effect; proof SHA256 " + _amendment_digest(row["evidence"]["proof"])})
+        if post_failed or get_failed:
+            failure_sha = response["sha256"] if post_failed else observation["first_failure_sha256"]
+            failure_at = row["at"] if post_failed else observation["first_failure_at"]
+            add_condition("bridge:failure:" + row["operation_id"], "Hosting reported failure; merge effect unverified",
+                "Captured failed response SHA256 " + failure_sha + "; operation " + row["operation_id"] + "; this dispatch allowance remains spent.", failure_at,
+                "Reconcile this exact operation read-only for a matching independently verified merge. Any new dispatch requires a separate exact genuine decision; this receipt grants no retry.")
+        uncertain = row["state"] == "completed"
+        if not uncertain and not (post_failed or get_failed) and not (row["operation"] == "green-merge" and row["evidence"].get("host_correlation")):
+            source = _bridge_process_result(record, row, row["evidence"].get("process_result"))
+            if source is None or source.get("exit_code") is not None:
+                uncertain = True
+            else:
+                import run_plan
+                uncertain = run_plan.observe_authority_process(source)["state"] == "ended"
+        if uncertain:
+            add_condition("bridge:effect:" + row["operation_id"], "Hosting effect remains unverified",
+                "Reserved operation " + row["operation_id"] + "; command SHA256 " + row["command_sha256"] + "; no matching native effect proof is available until reconciliation.", row["at"],
+                "Reconcile this exact operation read-only for its matching effect; never redispatch. Any new dispatch requires a separate exact genuine decision.")
+    import run_plan
+    prior_ids = {item["id"] for item in (previous_conditions or []) if isinstance(item, dict) and isinstance(item.get("id"), str)}
+    for entry in authority_bridge_history(ck, ctx, record):
+        operations = [operation for operation in AUTHORITY_BRIDGE_OPERATIONS[entry["page"]["kind"]]
+                      if operation in AUTHORITY_BRIDGE_HOST_OPERATIONS]
+        if not operations:
+            continue
+        reason = None
+        if any(_bridge_operation_id(entry, operation) not in states for operation in operations):
+            try:
+                run_plan.require_authority_process_capability()
+            except run_plan.RunnerError as exc:
+                reason = str(exc)
+        for operation in operations:
+            identity = _bridge_operation_id(entry, operation)
+            condition_id = "bridge:runtime:" + identity
+            if (reason is None or identity in states) and condition_id not in prior_ids:
+                continue
+            conditions.append({"id": condition_id, "title": "Native hosting prerequisite unavailable",
+                "observed_at": ck._now(), "evidence": "Python runtime " + sys.executable + "; prerequisite psutil; "
+                    + (reason or "available or not required for this retained operation") + "; operation " + identity
+                    + "; this prerequisite grants no dispatch or retry.",
+                "resume_when": "Restore the declared observer prerequisite in the qualified native Python runtime within authorized installation scope, then use the same guarded consumer. Existing reserved operations reconcile read-only.",
+                "native_bridge": {"receipt_id": _amendment_digest(entry), "operation_id": identity}})
+            if reason is None or identity in states:
+                resolutions.append({"condition_id": condition_id, "verified": True,
+                    "evidence": "The native prerequisite is available, or this operation is already reserved and must only reconcile; no new permission or dispatch is inferred."})
+    return conditions, resolutions
+
+
+def authority_bridge_projection(ck: ModuleType, record: dict, version: str | None = None) -> list[dict]:
+    """Only verified receipts enter reports; capture, enforcement and effect stay distinct."""
+    key = ck._secret(create=False)
+    if key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key)):
+        raise ck.MinorConflict("bridge-projection-unverified")
+    ctx = getattr(record, "context", None) or ck.RepoContext(Path((record.get("implementation_controller") or {}).get("repo_root") or record["repo_root"]), ck.Budget(20))
+    states = authority_bridge_operation_history(ck, ctx, record)
+    def execution(entry):
+        events = [event for event in states.values() if event["receipt_id"] == _amendment_digest(entry)]
+        if any(event["state"] == "ambiguous" for event in events):
+            return "ambiguous"
+        if entry["page"]["kind"] == "maintenance-bootstrap-publication":
+            observed = {event["operation"] for event in events}
+            if "green-merge" in observed:
+                return "merge observed"
+            if "pr-create" in observed:
+                return "PR observed; merge not observed"
+            if "push" in observed:
+                return "push observed; PR and merge not observed"
+            return "not observed"
+        if any(event["operation"] == "release-notes" for event in events):
+            return "published notes verified"
+        if any(event["operation"] == "prepare-release-notes" for event in events):
+            return "prepared; release not observed"
+        return "completed" if events else "not observed"
+    def enforcement(entry):
+        if entry["page"]["kind"] == ".9-t027-budget":
+            return "inactive:no-Claude;no-pre-call-billing-limiter"
+        if any(operation in AUTHORITY_BRIDGE_HOST_OPERATIONS and _bridge_operation_id(entry, operation) not in states
+               for operation in AUTHORITY_BRIDGE_OPERATIONS[entry["page"]["kind"]]):
+            import run_plan
+            try:
+                run_plan.require_authority_process_capability()
+            except run_plan.RunnerError as exc:
+                return "blocked:runtime:" + str(exc)
+        if entry["page"]["kind"] == "maintenance-bootstrap-publication" and _bridge_operation_id(entry, "push") not in states:
+            path = _bridge_preflight_path(record, entry, ctx)
+            if path.exists():
+                event = _execution_json(_bridge_read_bytes(path).decode("utf-8"))
+                seal = event.pop("hmac", None)
+                if (set(event) != {"receipt_id", "actor", "cli_sha256", "exit_code", "condition", "output_sha256", "next_action"}
+                        or event["receipt_id"] != _amendment_digest(entry) or event["actor"] != entry["page"]["payload"]["actor"]
+                        or event["condition"] not in {*_BRIDGE_ATTRIBUTION_FAILURES.values(), "preflight-unverified"}
+                        or not isinstance(seal, str) or not hmac.compare_digest(seal, hmac.new(key, b"v415-bridge-preflight\0" + approval_binding.canonical(event), hashlib.sha256).hexdigest())):
+                    raise MinorMalformed("bridge-preflight-diagnostic-unverified")
+                return "blocked:attribution:" + event["condition"]
+        return "guarded-consumer-required"
+    return [{"receipt_id": _amendment_digest(entry), "kind": entry["page"]["kind"], "capture": "verified",
+             "permission": "captured", "enforcement": enforcement(entry),
+             "execution": execution(entry)}
+            for entry in authority_bridge_history(ck, ctx, record) if version is None or entry["page"]["member"] == version]
+
+
+@minor_writer
+def cmd_supplement_v415_authority(ck: ModuleType, args: argparse.Namespace) -> int:
+    ctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, ctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    value = _bridge_input(args.authority)
+    for entry in authority_bridge_history(ck, ctx, record):
+        if entry["page"]["kind"] == value["kind"]:
+            if all(entry["page"]["payload"].get(key) == item for key, item in value["payload"].items()):
+                print("ALREADY RECORDED " + value["kind"])
+                return 0
+            if value["kind"] != "maintenance-bootstrap-publication" or entry["page"]["payload"]["head"] == value["payload"]["head"]:
+                raise ck.Malformed("bridge-kind-conflict")
+    current_page = authority_bridge_page(ck, ctx, record, value)
+    page = current_page
+    # Only a sealed already-consumed round may retain its historical snapshot.
+    # Every semantic bound and receipt-chain position must still equal a fresh page.
+    historical_fields = {'record_sha256', 'owner_session', 'controller'}
+    current_bounds = {key: item for key, item in current_page.items() if key not in historical_fields}
+    candidates = [row for row in approval_binding.used_recovery_rounds(ck._runs_dir(), _round_key(ctx, args.minor), ck._secret(create=False))
+                  if row.get('action') == AUTHORITY_BRIDGE_ACTION
+                  and {key: item for key, item in row['page'].items() if key not in historical_fields} == current_bounds
+                  and approval_binding.continuation_ancestor_valid(ck._runs_dir(), record, row.get('session'), record['session_id'])]
+    if len(candidates) > 1:
+        raise ck.MinorConflict('bridge-consumed-recovery-is-ambiguous')
+    if candidates:
+        page = candidates[0]['page']
+    consumed = _consume(ck, ctx, args.minor, AUTHORITY_BRIDGE_ACTION, page, args.session, record["session_id"], text=args.text, recovery_record=record)
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if authority_bridge_page(ck, ctx, record, value) != current_page:
+        return ck._refused("page-changed")
+    entry = _bridge_accepted(ck, page, pending)
+    record.setdefault("v415_authority_format", 1)
+    record.setdefault("v415_authority_receipts", []).append(entry)
+    record.setdefault("v415_publication_operations", [])
+    approval_binding.retain_transcript_decision(record, pending)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    active = ck._MINOR_LEASE.get()
+    active["bridge_append"] = {"entry_sha256": _amendment_digest(entry), "record_sha256": record.loaded_sha256}
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        active.pop("bridge_append", None)
+    _finish_owner_recovery(ck, ctx, args.minor, record['session_id'], AUTHORITY_BRIDGE_ACTION)
+    print("RECORDED " + value["kind"] + " (capture only; no action executed)")
+    return 0
+
+
+def check_authority_bridge_write(ck: ModuleType, ctx: RepoContext, previous: dict, record: dict) -> None:
+    if not any(field in previous or field in record for field in AUTHORITY_BRIDGE_FIELDS):
+        return
+    old = previous.get("v415_authority_receipts", [])
+    new = authority_bridge_history(ck, ctx, record)
+    if (not isinstance(old, list) or new[:len(old)] != old or len(new) not in (len(old), len(old) + 1)):
+        raise ck.MinorConflict("bridge-history-must-be-append-only")
+    if len(new) > len(old):
+        entry = new[-1]
+        active = ck._MINOR_LEASE.get()
+        if (not active or active.get("bridge_append") != {"entry_sha256": _amendment_digest(entry), "record_sha256": active["expected"]}):
+            raise ck.MinorConflict("bridge-append-requires-consumed-lease")
+        before, after = json.loads(approval_binding.canonical(previous)), json.loads(approval_binding.canonical(record))
+        # The existing transport validator proves any single retained Codex decision append.
+        for value in (before, after):
+            for field in (*AUTHORITY_BRIDGE_FIELDS, "approvals_hmac"):
+                value.pop(field, None)
+            value.get("approvals", {}).pop("transcript_decisions", None)
+        if before != after or record["v415_publication_operations"] != previous.get("v415_publication_operations", []):
+            raise ck.MinorConflict("bridge-cannot-change-original-authority-or-operations")
+        old_transport = previous.get("approvals", {}).get("transcript_decisions", [])
+        new_transport = record.get("approvals", {}).get("transcript_decisions", [])
+        if new_transport != old_transport:
+            accepted = entry["accepted"]
+            if (len(new_transport) != len(old_transport) + 1 or new_transport[:-1] != old_transport
+                    or new_transport[-1].get("capture") != accepted["authorization_context"]
+                    or new_transport[-1].get("action") != AUTHORITY_BRIDGE_ACTION
+                    or new_transport[-1].get("page") != entry["page"]
+                    or new_transport[-1].get("round_nonce") != accepted["round_nonce"]
+                    or new_transport[-1].get("rendered_at") != accepted["rendered_at"]):
+                raise ck.MinorConflict("bridge-transport-is-not-the-same-decision")
+    elif previous.get("v415_authority_format") != record.get("v415_authority_format"):
+        raise ck.MinorConflict("bridge-format-changed")
+    authority_bridge_operation_history(ck, ctx, record)
+    old_ops, new_ops = previous.get("v415_publication_operations", []), record["v415_publication_operations"]
+    if new_ops[:len(old_ops)] != old_ops or len(new_ops) not in (len(old_ops), len(old_ops) + 1):
+        raise ck.MinorConflict("bridge-operations-must-be-append-only")
+    if len(new_ops) > len(old_ops):
+        active = ck._MINOR_LEASE.get()
+        if not active or active.get("bridge_operation_append") != _amendment_digest(new_ops[-1]):
+            raise ck.MinorConflict("bridge-operation-needs-its-winning-native-lease")
+        before = {key: value for key, value in previous.items() if key not in {"v415_publication_operations", "approvals_hmac"}}
+        after = {key: value for key, value in record.items() if key not in {"v415_publication_operations", "approvals_hmac"}}
+        if before != after:
+            raise ck.MinorConflict("bridge-operation-cannot-change-other-authority")
+
+
+T027_ACTION = "defer-t027-unmeasured"
+T027_DISPOSITION_PROTOCOL = 1
+T027_FIELD = "v415_t027_unmeasured"
+_T027_DECLARATION = next(row for row in _DECLARED_MEMBER_ROWS if "unmeasured_task" in row)
+T027_MEMBER = _T027_DECLARATION["unmeasured_task"]["member"]
+T027_TASK = _T027_DECLARATION["unmeasured_task"]["task"]
+T027_BRANCH = _T027_DECLARATION["unmeasured_task"]["source_branch"]
+T027_PLAN = _T027_DECLARATION["plan_path"]
+T027_PLAN_HASH = _T027_DECLARATION["plan_sha256"]
+T027_EVIDENCE = _T027_DECLARATION["unmeasured_task"]["evidence_path"]
+T027_LEDGER = "docs/releases/v4/v4.15/known-gaps.md"
+T027_TITLE = _T027_DECLARATION["unmeasured_task"]["title"]
+T027_EVIDENCE_TEXT = _T027_DECLARATION["unmeasured_task"]["evidence_text"]
+T027_GAP_BODY = _T027_DECLARATION["unmeasured_task"]["gap_body"]
+_T027_PAGE_FIELDS = {"action", "scope", "member", "task", "repo", "plan_path", "plan_sha256",
+                     "task_sha256", "record_nonce", "record_sha256", "owner_session", "controller",
+                     "push_remote_url", "source_branch", "target_branch", "integration_head",
+                     "source_commit", "evidence_path", "evidence_sha256", "gap", "spend_caps",
+                     "outcome", "claude_sessions", "paid_use_authorized"}
+
+
+def _t027_text(text: str) -> str:
+    return text.replace("\r\n", "\n").strip() + "\n"
+
+
+def _t027_hash(text: str) -> str:
+    return hashlib.sha256(_t027_text(text).encode("utf-8")).hexdigest()
+
+
+def _t027_member(record: dict) -> dict | None:
+    if record.get("scope") == "member":
+        return record if record.get("version") == T027_MEMBER else None
+    return next((member for member in _all_members(record) if isinstance(member, dict) and member.get("version") == T027_MEMBER), None)
+
+
+def _t027_identity(record: dict, member: dict | None) -> bool:
+    if not member or record.get("minor") != "v4.15" or record.get("repo") != "bendourthe/Nexus-Hub":
+        return False
+    archived = member.get("archived") or {}
+    if not isinstance(archived, dict):
+        return False
+    original_path = archived.get("from") or member.get("plan_path")
+    original_hash = archived.get("original_sha256") or member.get("plan_sha256")
+    approvals = member.get("approvals") or {}
+    if not isinstance(approvals, dict):
+        return False
+    return (original_path == T027_PLAN and original_hash == T027_PLAN_HASH
+            and (member.get("source_branch") or approvals.get("source_branch")) == T027_BRANCH
+            and (member.get("target_branch") or approvals.get("target_branch")) == "develop")
+
+
+def _t027_blob(ctx: RepoContext, commit: str, path: str) -> str:
+    mode = ctx._git_out("ls-tree", commit, "--", path)
+    if not mode.startswith("100644 blob ") or mode.split("\t", 1)[-1] != path:
+        raise MinorMalformed("t027-proof-not-regular")
+    rc, text = ctx.run([ctx.git, "-C", str(ctx.root), "show", f"{commit}:{path}"])
+    if rc != 0 or len(text) > 1_048_576:
+        raise MinorMalformed("t027-proof-unreadable")
+    return text
+
+
+def _t027_gap_item(text: str, gid: str) -> GapItem:
+    items, problems = parse_ledger_full(text)
+    found = [item for item in items if item.gid == gid]
+    if (problems or len(found) != 1 or found[0].state != "open"
+            or section_version(found[0].section) != T027_MEMBER
+            or found[0].title.lstrip(": ") != T027_TITLE or _t027_text(found[0].body) != _t027_text(T027_GAP_BODY)):
+        raise MinorMalformed("t027-gap-not-exact")
+    return found[0]
+
+
+def _t027_committed_inputs(ck: ModuleType, ctx: RepoContext, page: dict) -> None:
+    commit = page["source_commit"]
+    plan = _t027_blob(ctx, commit, T027_PLAN)
+    if ck.plan_hash_text(plan) != T027_PLAN_HASH:
+        raise MinorMalformed("t027-plan-changed")
+    tasks = [(tid, mark.lower() == "x") for mark, tid, _rest in ck.TASK_RE.findall(plan) if tid == "T027"]
+    if tasks != [("T027", False)]:
+        raise MinorMalformed("t027-must-remain-unchecked")
+    block = ck._conditional_blocks(plan).get("T027", "")
+    if not block or _t027_hash(block) != page["task_sha256"]:
+        raise MinorMalformed("t027-task-changed")
+    evidence = _t027_blob(ctx, commit, T027_EVIDENCE)
+    if _t027_text(evidence) != _t027_text(T027_EVIDENCE_TEXT) or _t027_hash(evidence) != page["evidence_sha256"]:
+        raise MinorMalformed("t027-evidence-not-unmeasured")
+    item = _t027_gap_item(_t027_blob(ctx, commit, T027_LEDGER), page["gap"]["id"].split("#")[1])
+    if _t027_hash(item.body) != page["gap"]["body_sha256"]:
+        raise MinorMalformed("t027-gap-changed")
+
+
+def t027_entry_valid(ck: ModuleType, ctx: RepoContext, record: dict) -> bool:
+    """Validate immutable decision provenance without freezing later session/controller state."""
+    try:
+        entry = record[T027_FIELD]
+        if not isinstance(entry, dict) or set(entry) != {"format", "page", "accepted"} or type(entry["format"]) is not int or entry["format"] != 1:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        if (not isinstance(page, dict) or set(page) != _T027_PAGE_FIELDS
+                or page["action"] != T027_ACTION or page["scope"] != {"kind": "minor", "minor": "v4.15"}
+                or page["member"] != T027_MEMBER or page["task"] != "T027"
+                or page["repo"] != "bendourthe/Nexus-Hub" or page["plan_path"] != T027_PLAN
+                or page["plan_sha256"] != T027_PLAN_HASH or page["record_nonce"] != record.get("nonce")
+                or not _t027_identity(record, _t027_member(record))
+                or page["source_branch"] != T027_BRANCH or page["target_branch"] != "develop"
+                or page["evidence_path"] != T027_EVIDENCE or page["outcome"] != "unmeasured"
+                or page["claude_sessions"] != "prohibited" or page["paid_use_authorized"] is not False
+                or not isinstance(page["spend_caps"], dict)
+                or page["spend_caps"] != ((record.get("approvals") or {}).get("spend_caps") or {})
+                or not isinstance(page["controller"], dict) or not page["controller"].get("repo_root")
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
+                or not isinstance(page["push_remote_url"], str) or not page["push_remote_url"]):
+            return False
+        approval_page._caps({"spend_caps": page["spend_caps"]})
+        gap = page["gap"]
+        if (not isinstance(gap, dict) or set(gap) != {"id", "body_sha256", "migration_reason", "target_version"}
+                or not re.fullmatch(r"v4\.15#DF-[1-9]\d*", str(gap["id"]))
+                or gap["body_sha256"] != _t027_hash(T027_GAP_BODY)
+                or gap["migration_reason"] != "user-deferred" or gap["target_version"] != "v4.16.0"):
+            return False
+        for name in ("task_sha256", "record_sha256", "evidence_sha256"):
+            if not re.fullmatch(r"[0-9a-f]{64}", str(page[name])):
+                return False
+        for name in ("source_commit", "integration_head"):
+            if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(page[name])):
+                return False
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        if (not isinstance(accepted, dict) or set(accepted) != fields or type(accepted["allow_short_reply"]) is not bool
+                or ck._parse_time(accepted["at"]) is None):
+            return False
+        key = ck._secret(create=False)
+        if (key is None or accepted["page_sha256"] != _amendment_digest(page)
+                or not re.fullmatch(r"[0-9a-f]{32}", str(accepted["round_nonce"]))
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])):
+            return False
+        allowed = {approval_page.plain_line(T027_ACTION, "v4.15", accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        context = accepted["authorization_context"]
+        if (accepted["text"] not in allowed or not isinstance(context, dict)
+                or context.get("session_id") != page["owner_session"]
+                or context.get("prompt_sha256") != approval_binding.digest(accepted["text"])
+                or not approval_binding.consumed_capture_valid(ck._runs_dir(), context, accepted["rendered_at"])):
+            return False
+        _t027_committed_inputs(ck, ctx, page)
+        return True
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def t027_page(ck: ModuleType, rctx: RepoContext, record: dict, token: str, version: str, gid: str) -> dict:
+    member = _t027_member(record)
+    if token != "v4.15" or version != T027_MEMBER or not _t027_identity(record, member):
+        raise ck.Malformed("t027-wrong-scope")
+    if not isinstance(gid, str) or not re.fullmatch(r"DF-[1-9]\d*", gid):
+        raise ck.Malformed("t027-needs-exact-df-id")
+    if T027_FIELD in record:
+        raise ck.Malformed("t027-already-recorded")
+    if not _controller_valid(rctx, record) or not isinstance(record, ck.MinorSnapshot):
+        raise ck.MinorConflict("t027-controller-unverified")
+    if ck._approved_remote_status(rctx, ck.project(record, version)) != "met":
+        raise ck.Malformed("t027-route-unverified")
+    worker, status, _retired = _worker_context(ck, rctx, record, member, rctx.budget, canonical_merged=False)
+    if worker is None or status != "met":
+        raise ck.Malformed("t027-worker-unverified")
+    commit = worker._git_out("rev-parse", "HEAD")
+    integration = _integration_ref(rctx, "develop")
+    head = rctx._git_out("rev-parse", integration) if integration else ""
+    if not head or _ancestor(worker, head, commit) != "met":
+        raise ck.Malformed("t027-base-not-refreshed")
+    if worker._git_out("status", "--porcelain", "--", T027_PLAN, T027_EVIDENCE, T027_LEDGER):
+        raise ck.Malformed("t027-uncommitted-proof")
+    for path in (T027_PLAN, T027_EVIDENCE, T027_LEDGER):
+        blob = _t027_blob(worker, commit, path)
+        current = worker.root / path
+        if current.is_symlink() or current.resolve() != current or _t027_text(current.read_text(encoding="utf-8")) != _t027_text(blob):
+            raise ck.Malformed("t027-uncommitted-proof")
+    plan = _t027_blob(worker, commit, T027_PLAN)
+    caps = ((record.get("approvals") or {}).get("spend_caps") or {})
+    page = {"action": T027_ACTION, "scope": {"kind": "minor", "minor": token}, "member": version,
+            "task": "T027", "repo": record["repo"], "plan_path": T027_PLAN, "plan_sha256": T027_PLAN_HASH,
+            "task_sha256": _t027_hash(ck._conditional_blocks(plan).get("T027", "")), "record_nonce": record["nonce"],
+            "record_sha256": record.loaded_sha256, "owner_session": record["session_id"],
+            "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "push_remote_url": record["approvals"]["push_remote_url"],
+            "source_branch": member["source_branch"], "target_branch": "develop", "integration_head": head,
+            "source_commit": commit, "evidence_path": T027_EVIDENCE, "evidence_sha256": _t027_hash(T027_EVIDENCE_TEXT),
+            "gap": {"id": "v4.15#" + gid, "body_sha256": _t027_hash(T027_GAP_BODY),
+                    "migration_reason": "user-deferred", "target_version": "v4.16.0"},
+            "spend_caps": caps, "outcome": "unmeasured", "claude_sessions": "prohibited", "paid_use_authorized": False}
+    try:
+        approval_page._caps({"spend_caps": caps})
+    except approval_page.PageError as exc:
+        raise ck.Malformed(str(exc)) from exc
+    _t027_committed_inputs(ck, worker, page)
+    if hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("minor-record-changed")
+    return page
+
+
+@minor_writer
+def cmd_defer_t027(ck: ModuleType, args: argparse.Namespace) -> int:
+    rctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, rctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    if T027_FIELD in record:
+        entry = record[T027_FIELD]
+        if (args.minor == "v4.15" and args.member == T027_MEMBER
+                and entry["page"]["gap"]["id"] == "v4.15#" + args.gap and t027_entry_valid(ck, rctx, record)):
+            print(f"ALREADY RECORDED {T027_MEMBER} T027 unmeasured")
+            return 0
+        raise ck.Malformed("t027-disposition-conflict")
+    page = t027_page(ck, rctx, record, args.minor, args.member, args.gap)
+    consumed = _consume(ck, rctx, args.minor, T027_ACTION, page, args.session, record["session_id"], text=args.text)
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if t027_page(ck, rctx, record, args.minor, args.member, args.gap) != page:
+        return ck._refused("page-changed")
+    entry = {"format": 1, "page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
+             "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+             "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+             "authorization_context": pending.get("capture")}}
+    record[T027_FIELD] = entry
+    retain = getattr(approval_binding, "retain_transcript_decision", None)
+    if callable(retain):
+        retain(record, pending)
+    elif (pending.get("capture") or {}).get("origin") == "codex-host-transcript":
+        raise ck.MinorConflict("transcript-consumer-incompatible")
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    lease = ck._MINOR_LEASE.get()
+    lease["t027_append"] = {"entry_sha256": _amendment_digest(entry), "record_sha256": page["record_sha256"]}
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        lease.pop("t027_append", None)
+    print(f"RECORDED {T027_MEMBER} T027 deferred (unmeasured; no spending)")
+    return 0
+
+
+def check_t027_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
+    old, new = previous.get(T027_FIELD), record.get(T027_FIELD)
+    if T027_FIELD in previous:
+        if new != old or not t027_entry_valid(ck, rctx, record):
+            raise ck.MinorConflict("t027-history-changed")
+        return
+    if T027_FIELD not in record:
+        return
+    lease = ck._MINOR_LEASE.get()
+    if not isinstance(new, dict) or not isinstance(new.get("page"), dict):
+        raise ck.MinorConflict("t027-append-not-captured")
+    grant = {"entry_sha256": _amendment_digest(new), "record_sha256": new["page"].get("record_sha256")}
+    old_core = json.loads(approval_binding.canonical(previous))
+    new_core = json.loads(approval_binding.canonical(record))
+    old_approvals, new_approvals = old_core.get("approvals", {}), new_core.get("approvals", {})
+    old_transport = old_approvals.get("transcript_decisions", [])
+    new_transport = new_approvals.get("transcript_decisions", [])
+    if old_transport != new_transport:
+        validate = getattr(approval_binding, "check_continuation_write", None)
+        if not callable(validate):
+            raise ck.MinorConflict("transcript-consumer-incompatible")
+        validate(ck._runs_dir(), previous, record)
+        accepted = new.get("accepted") or {}
+        if (not isinstance(old_transport, list) or not isinstance(new_transport, list)
+                or len(new_transport) != len(old_transport) + 1 or new_transport[:-1] != old_transport
+                or not isinstance(new_transport[-1], dict)
+                or new_transport[-1].get("capture") != accepted.get("authorization_context")
+                or (accepted.get("authorization_context") or {}).get("origin") != "codex-host-transcript"
+                or new_transport[-1].get("action") != T027_ACTION
+                or new_transport[-1].get("page") != new["page"]
+                or new_transport[-1].get("round_nonce") != accepted.get("round_nonce")
+                or new_transport[-1].get("rendered_at") != accepted.get("rendered_at")):
+            raise ck.MinorConflict("t027-transport-not-the-same-decision")
+        if "transcript_decisions" in old_approvals:
+            new_approvals["transcript_decisions"] = old_transport
+        else:
+            new_approvals.pop("transcript_decisions", None)
+    for value in (old_core, new_core):
+        value.pop(T027_FIELD, None)
+        value.pop("approvals_hmac", None)
+    if (not lease or lease.get("t027_append") != grant or lease["expected"] != grant["record_sha256"]
+            or old_core != new_core or not t027_entry_valid(ck, rctx, record)):
+        raise ck.MinorConflict("t027-append-not-captured")
+
+
+def t027_task_deferred(ck: ModuleType, ctx: RepoContext, record: dict | None, *, task_id: str | None = None) -> bool:
+    if task_id is not None and task_id != T027_TASK:
+        return False
+    if not record or record.get("scope") != "member" or record.get("version") != T027_MEMBER or ctx.version != T027_MEMBER:
+        return False
+    if not ctx.plan_hash_matches(record.get("plan_sha256")):
+        return False
+    if not t027_entry_valid(ck, ctx, record) or any(checked for tid, checked, _path in ctx.tasks if tid == "T027"):
+        return False
+    try:
+        evidence = ctx.version_dir / "development" / Path(T027_EVIDENCE).name
+        if (evidence.is_symlink() or not evidence.is_file()
+                or _t027_text(evidence.read_text(encoding="utf-8")) != _t027_text(T027_EVIDENCE_TEXT)
+                or _t027_text(_t027_blob(ctx, "HEAD", evidence.relative_to(ctx.root).as_posix())) != _t027_text(T027_EVIDENCE_TEXT)
+                or _ancestor(ctx, record[T027_FIELD]["page"]["source_commit"], "HEAD") != "met"):
+            return False
+        gaps = ck._gaps_ledger(ctx, record)
+        if gaps is None or not gaps.is_file():
+            return False
+        gid = record[T027_FIELD]["page"]["gap"]["id"].split("#")[1]
+        text = gaps.read_text(encoding="utf-8")
+        items, problems = parse_ledger_full(text)
+        found = [item for item in items if item.gid == gid]
+        if problems or len(found) != 1:
+            return False
+        if found[0].state == "open":
+            return _t027_gap_item(text, gid).gid == gid
+        ledgers, unreadable = load_ledgers(ctx.root)
+        ledger = next((item for item in ledgers if item.path == gaps.resolve()), None)
+        return (not unreadable and ledger is not None and found[0].state == "migrated"
+                and verify_migration(ctx, record, "v4.15", ledgers, ledger, found[0])[0] == "met")
+    except (OSError, ValueError, MinorMalformed):
+        return False
+
+
+def t027_gap_grant(ck: ModuleType, ctx: RepoContext, record: dict | None, pid: str, current: GapItem | None) -> bool:
+    if not record or T027_FIELD not in record or record[T027_FIELD]["page"]["gap"]["id"] != pid:
+        return False
+    if not t027_entry_valid(ck, ctx, record):
+        return False
+    return (current is not None and current.state in {"open", "migrated"}
+            and MIGRATED_RE.sub("", current.title).lstrip(": ") == T027_TITLE
+            and _t027_text(current.body) == _t027_text(T027_GAP_BODY))
+
+
+def t027_gap_open(ck: ModuleType, ctx: RepoContext, record: dict) -> bool:
+    """Whether gaps.version already counts this exact accepted trial gap."""
+    try:
+        path = ck._gaps_ledger(ctx, record)
+        if path is None:
+            return False
+        gid = record[T027_FIELD]["page"]["gap"]["id"].split("#")[1]
+        _t027_gap_item(path.read_text(encoding="utf-8"), gid)
+        return True
+    except (KeyError, OSError, ValueError, MinorMalformed):
+        return False
+
+
+# Fixed checkpoint adoption: existing bytes are accepted now, never authorized retroactively.
+CHECKPOINT_PROTOCOL = 1
+CHECKPOINT_ACTION = "reconcile-member-checkpoint"
+CHECKPOINT_FIELD = "member_checkpoint_reconciliations"
+_CHECKPOINT_RULE = _T027_DECLARATION
+CHECKPOINT_FUTURE = "catalog/skills/ai-development/model-prompting-research/SKILL.md"
+CHECKPOINT_EXCEPTIONS = frozenset((
+    "docs/handbooks/_sources/distribution/evidence.json", "docs/handbooks/_sources/overview/evidence.json",
+    _EVIDENCE + f"{T027_MEMBER}-coordinator-deltas.md",
+    "tests/integrations/test_copilot_hermes_native.py", "tests/integrations/test_kimi_native.py"))
+_CHECKPOINT_FIELDS = {"action", "scope", "record_nonce", "record_sha256", "repo", "member", "plan_sha256",
+    "owner_session", "controller", "original_sha256", "original_state", "worker", "head", "tree", "base", "integration_tip",
+    "original_start", "original_base", "contribution", "checkpoint_rows", "remaining_uncovered", "prospective"}
+
+
+def _checkpoint_original(member: dict) -> dict:
+    return {"implementation": member.get("implementation"),
+            "plan_path": member.get("plan_path"), "plan_sha256": member.get("plan_sha256"),
+            "source_branch": member.get("source_branch"), "target_branch": member.get("target_branch"),
+            "read_corrections": member.get(_READ_CORRECTION_FIELD, []),
+            "coordinator_paths": member.get("coordinator_paths", []),
+            "initial_authority": member.get("approvals", {})}
+
+
+def _checkpoint_original_valid(ck: ModuleType, ctx: RepoContext, record: dict, member: dict, frozen: dict) -> bool:
+    current = _checkpoint_original(member)
+    if not isinstance(frozen, dict) or set(frozen) != set(current):
+        return False
+    if any(current[key] != frozen[key] for key in ("plan_path", "plan_sha256")):
+        witness = getattr(record, "checkpoint_parent", record) if record.get("scope") == "member" else record
+        archived = member.get("archived")
+        if (not isinstance(archived, dict) or archived.get("from") != frozen["plan_path"]
+                or archived.get("original_sha256") != frozen["plan_sha256"]
+                or frozen["plan_path"] not in ck.archived_plan_origins(str(current["plan_path"]))):
+            return False
+        plans = [plan for plan in scan_plans(ctx.root, *parse_minor(ck, str(record["minor"])))
+                 if plan.version == member.get("version") and plan.rel == current["plan_path"]]
+        if len(plans) != 1:
+            return False
+        close_commit = archived.get("close_commit")
+        if (not isinstance(close_commit, str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", close_commit)
+                or _ancestor(ctx, close_commit, "HEAD") != "met"
+                or ck.plan_hash_text(_t027_blob(ctx, close_commit, plans[0].rel)) != current["plan_sha256"]):
+            return False
+        rc, original_entry = ctx.run([ctx.git, "-C", str(ctx.root), "ls-tree", close_commit, "--", frozen["plan_path"]])
+        if rc or original_entry:
+            return False
+        original = _signed_original_plan(ctx, witness, member, plans[0], ck)
+        archived_context = ck.Context(str(ctx.root / plans[0].rel), ctx.budget)
+        if (original is None or original.rel != frozen["plan_path"]
+                or ck.plan_hash_text(original.text) != frozen["plan_sha256"]
+                or not archived_context.plan_hash_matches(frozen["plan_sha256"])):
+            return False
+        current["plan_path"], current["plan_sha256"] = frozen["plan_path"], frozen["plan_sha256"]
+    for key in ("implementation", "plan_path", "plan_sha256", "source_branch", "target_branch"):
+        if current[key] != frozen[key]:
+            return False
+    for key in ("read_corrections", "coordinator_paths"):
+        if not isinstance(frozen[key], list) or not isinstance(current[key], list) or current[key][:len(frozen[key])] != frozen[key]:
+            return False
+    if not isinstance(frozen["initial_authority"], dict) or not isinstance(current["initial_authority"], dict):
+        return False
+    for key, value in frozen["initial_authority"].items():
+        actual = current["initial_authority"].get(key)
+        if isinstance(value, list):
+            if not isinstance(actual, list) or actual[:len(value)] != value:
+                return False
+        elif actual != value:
+            return False
+    return True
+
+
+class CheckpointMemberView(dict):
+    """Ephemeral view; its authenticated parent is never supplied through serialized state."""
+
+
+def checkpoint_projected_view(parent: dict, member: dict, view: dict) -> dict:
+    if CHECKPOINT_FIELD not in parent or member.get("version") != T027_MEMBER:
+        return view
+    result = CheckpointMemberView(view)
+    result.checkpoint_parent = parent
+    return result
+
+
+def _checkpoint_parent_member(ck: ModuleType, record: dict) -> dict | None:
+    if record.get("scope") != "member":
+        return _t027_member(record)
+    if not isinstance(record, CheckpointMemberView):
+        return None
+    parent = getattr(record, "checkpoint_parent", None)
+    key = ck._secret(create=False)
+    if (not isinstance(parent, dict) or key is None or parent.get("nonce") != record.get("nonce")
+            or not hmac.compare_digest(str(parent.get("approvals_hmac", "")), _sign(ck, parent, key))
+            or parent.get(CHECKPOINT_FIELD) != record.get(CHECKPOINT_FIELD)):
+        return None
+    member = _t027_member(parent)
+    if member != record.get("checkpoint_member"):
+        return None
+    return member
+
+
+def _checkpoint_worker(ck: ModuleType, rctx: RepoContext, record: dict, member: dict):
+    """Authenticate only identity; an existing invalid checkpoint must not hide the worker."""
+    implementation = member.get("implementation")
+    if not _controller_valid(rctx, record) or not isinstance(implementation, dict):
+        raise MinorMalformed("checkpoint-worker-unverified")
+    required = {"base_head", "worktree", "branch", "depends_on", "read_paths", "write_paths", "started"}
+    if set(implementation) != required or implementation["branch"] != member["source_branch"]:
+        raise MinorMalformed("checkpoint-worker-unverified")
+    raw = Path(implementation["worktree"])
+    worker_root = raw.resolve(strict=True)
+    if (not raw.is_absolute() or raw != worker_root or worker_root == rctx.root
+            or any(p.is_symlink() or getattr(p.lstat(), "st_file_attributes", 0) & 0x400 for p in (raw, *raw.parents))
+            or _common_dir(rctx, worker_root) != _common_dir(rctx, rctx.root)):
+        raise MinorMalformed("checkpoint-worker-unverified")
+    rc, listing = rctx.run([rctx.git, "-C", str(rctx.root), "worktree", "list", "--porcelain", "-z"])
+    registered = [block.split("\0")[0][9:] for block in listing.split("\0\0") if block.startswith("worktree ")]
+    if rc or str(worker_root).replace(chr(92), "/").casefold() not in {p.replace(chr(92), "/").casefold() for p in registered}:
+        raise MinorMalformed("checkpoint-worker-unregistered")
+    rc, branch = rctx.run([rctx.git, "-C", str(worker_root), "symbolic-ref", "--quiet", "--short", "HEAD"])
+    if rc or branch.strip() != member["source_branch"]:
+        raise MinorMalformed("checkpoint-worker-branch-changed")
+    claims = {key: implementation[key] for key in ("depends_on", "read_paths", "write_paths")}
+    if _claims(rctx, record["minor"], worker_root, claims, ck=ck, record=record, member=member) != claims:
+        raise MinorMalformed("checkpoint-worker-claims-changed")
+    ctx = ck.Context(str(worker_root / T027_PLAN), rctx.budget)
+    if (ctx.plan_hash() != T027_PLAN_HASH
+            or _ancestor(ctx, record["start_head"], implementation["base_head"]) != "met"):
+        raise MinorMalformed("checkpoint-worker-plan-changed")
+    return ctx
+
+
+def _checkpoint_rows(ctx: RepoContext, base: str, head: str) -> list[list[str]]:
+    rc, raw = ctx.run([ctx.git, "-C", str(ctx.root), "diff", "--raw", "--no-abbrev", "--no-renames", "-z", base, head, "--"])
+    if rc:
+        raise ObservationUnavailable("checkpoint-diff-unavailable")
+    pieces = raw.split("\0")
+    if not pieces or pieces[-1] != "" or len(pieces) % 2 != 1:
+        raise MinorMalformed("checkpoint-diff-invalid")
+    rows, seen = [], set()
+    for i in range(0, len(pieces) - 1, 2):
+        metadata, path = pieces[i:i + 2]
+        fields = metadata.removeprefix(":").split()
+        _literal_path(ctx.root, path)
+        if (not metadata.startswith(":") or len(fields) != 5 or fields[4] not in {"A", "M", "D"}
+                or path.casefold() in seen or path.endswith("/")
+                or any(mode not in {"000000", "100644", "100755"} for mode in fields[:2])
+                or any(not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", blob) for blob in fields[2:4])):
+            raise MinorMalformed("checkpoint-nonregular-contribution")
+        seen.add(path.casefold())
+        rows.append([path, *fields])
+    return sorted(rows)
+
+
+def _checkpoint_base(ctx: RepoContext, member: dict, integration: str) -> str:
+    original = member.get("start_head") or member["implementation"]["base_head"]
+    base = ctx._git_out("merge-base", "HEAD", integration)
+    if (not base or _ancestor(ctx, member["implementation"]["base_head"], base) != "met"
+            or _ancestor(ctx, original, base) != "met" or _ancestor(ctx, base, "HEAD") != "met"):
+        raise MinorMalformed("checkpoint-comparison-base-unverified")
+    return base
+
+
+def _checkpoint_eligible(ctx: RepoContext, path: str, plan: str) -> bool:
+    # The five exceptions relax only plan-literal matching, never normalization or protection.
+    _literal_path(ctx.root, path)
+    if (_sensitive_write(ctx, path, []) or path.startswith("catalog/hooks/") or _coordinator_name(path)
+            or any(_overlap(path, p) for p in _coordinator_paths(ctx, "v4.15", []))):
+        return False
+    if path in CHECKPOINT_EXCEPTIONS:
+        return True
+    return any(_overlap(path, claim) for claim in _plan_declared_write_paths(plan))
+
+
+def checkpoint_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                    version: str, head: str, scope: object) -> dict:
+    try:
+        return _checkpoint_page(ck, rctx, token, record, version, head, scope)
+    except MinorMalformed as exc:
+        raise ck.Malformed(str(exc)) from None
+    except OSError as exc:
+        raise ObservationUnavailable("checkpoint.observation") from exc
+
+
+def _checkpoint_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
+                     version: str, head: str, scope: object) -> dict:
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if (token != "v4.15" or not member or not _t027_identity(record, member) or member.get("archived")
+            or scope != {"write_paths": [CHECKPOINT_FUTURE]} or not isinstance(member.get("implementation"), dict)):
+        raise ck.Malformed("checkpoint-outside-fixed-scope")
+    if CHECKPOINT_FIELD in record and not checkpoint_entry_valid(ck, rctx, record):
+        raise ck.MinorConflict("checkpoint-history-invalid")
+    if not isinstance(record, ck.MinorSnapshot) or hashlib.sha256(record.record_path.read_bytes()).hexdigest() != record.loaded_sha256:
+        raise ck.MinorConflict("checkpoint-record-changed")
+    if ck._approved_remote_status(rctx, ck.project(record, version)) != "met":
+        raise ck.Malformed("checkpoint-route-unverified")
+    state, _merge = _merge_commit(ck, rctx, record["repo"], member["source_branch"])
+    if state != "not-merged":
+        raise ck.Malformed("checkpoint-publication-unverified")
+    worker = _checkpoint_worker(ck, rctx, record, member)
+    if (worker._git_out("rev-parse", "HEAD") != head
+            or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(head))):
+        raise ck.Malformed("checkpoint-head-changed")
+    rc, dirty = worker.run([worker.git, "-C", str(worker.root), "status", "--porcelain", "--untracked-files=all"])
+    if rc or dirty or not v415_index_flags_visible(worker):
+        raise ck.Malformed("checkpoint-worker-not-clean")
+    integration = _integration_ref(rctx, member["target_branch"])
+    tip = rctx._git_out("rev-parse", "--verify", str(integration) + "^{commit}") if integration else ""
+    if not tip:
+        raise ck.Malformed("checkpoint-integration-unavailable")
+    base = _checkpoint_base(worker, member, tip)
+    plan = _t027_blob(worker, head, T027_PLAN)
+    if ck.plan_hash_text(plan) != T027_PLAN_HASH:
+        raise ck.Malformed("checkpoint-plan-changed")
+    contribution = _checkpoint_rows(worker, base, head)
+    claims = [*member["implementation"]["write_paths"],
+              *(member.get("coordinator_paths", []) if member.get("start_head") else []),
+              *_permitted_implementation_writes(ck, record, member)]
+    uncovered = [row for row in contribution if not any(_overlap(row[0], p) for p in claims)]
+    remaining = [row for row in uncovered if row[0] == ".claude-plugin/plugin.json"]
+    rows = [row for row in uncovered if row not in remaining]
+    if (not rows or len(rows) > 40 or sum(row[0] not in CHECKPOINT_EXCEPTIONS for row in rows) > 35
+            or any(not _checkpoint_eligible(worker, row[0], plan) for row in rows)):
+        raise ck.Malformed("checkpoint-uncovered-outside-bounds")
+    if _coordinator_conflict(ck, rctx, record, member, [*(row[0] for row in rows), CHECKPOINT_FUTURE], tip):
+        raise ck.Malformed("checkpoint-active-conflict")
+    return {"action": CHECKPOINT_ACTION, "scope": {"kind": "minor", "minor": token},
+            "record_nonce": record["nonce"], "record_sha256": record.loaded_sha256,
+            "repo": record["repo"], "member": version, "plan_sha256": member["plan_sha256"],
+            "owner_session": record["session_id"], "controller": record.get("implementation_controller") or {"repo_root": record.get("repo_root")},
+            "original_sha256": _amendment_digest(_checkpoint_original(member)), "original_state": _checkpoint_original(member), "worker": str(worker.root), "head": head,
+            "tree": worker._git_out("rev-parse", head + "^{tree}"), "base": base, "integration_tip": tip,
+            "original_start": member.get("start_head"), "original_base": member["implementation"]["base_head"],
+            "contribution": contribution, "checkpoint_rows": rows, "remaining_uncovered": remaining,
+            "prospective": [CHECKPOINT_FUTURE]}
+
+
+def checkpoint_entry_valid(ck: ModuleType, ctx: RepoContext, record: dict) -> bool:
+    if CHECKPOINT_FIELD not in record:
+        return True
+    entries = record[CHECKPOINT_FIELD]
+    if not isinstance(entries, list) or not entries or not all(_checkpoint_entry_valid(ck, ctx, record, entry) for entry in entries):
+        return False
+    identities = [(entry["accepted"]["authorization_context"]["session_id"], entry["accepted"]["authorization_context"]["event_id"]) for entry in entries]
+    return len(set(identities)) == len(identities)
+
+
+def _checkpoint_entry_valid(ck: ModuleType, ctx: RepoContext, record: dict, entry: object) -> bool:
+    try:
+        if not isinstance(entry, dict) or set(entry) != {"page", "accepted"}:
+            return False
+        page, accepted = entry["page"], entry["accepted"]
+        member = _checkpoint_parent_member(ck, record)
+        if (not isinstance(page, dict) or set(page) != _CHECKPOINT_FIELDS or not member
+                or not _t027_identity(record, member) or page["member"] != T027_MEMBER
+                or page["action"] != CHECKPOINT_ACTION or page["scope"] != {"kind": "minor", "minor": "v4.15"}
+                or page["record_nonce"] != record.get("nonce") or page["repo"] != record["repo"]
+                or page["plan_sha256"] != T027_PLAN_HASH or (page["original_sha256"] != _amendment_digest(page["original_state"]) or not _checkpoint_original_valid(ck, ctx, record, member, page["original_state"]))
+                or page["worker"] != member["implementation"]["worktree"]
+                or page["original_base"] != member["implementation"]["base_head"]
+                or page["prospective"] != [CHECKPOINT_FUTURE]):
+            return False
+        for field in ("head", "tree", "base", "integration_tip"):
+            if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", str(page[field])):
+                return False
+        if (not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
+                or _ancestor(ctx, page["base"], page["head"]) != "met"
+                or ctx._git_out("rev-parse", page["head"] + "^{tree}") != page["tree"]
+                or _checkpoint_rows(ctx, page["base"], page["head"]) != page["contribution"]):
+            return False
+        plan = _t027_blob(ctx, page["head"], T027_PLAN)
+        rows = page["checkpoint_rows"]
+        if (ck.plan_hash_text(plan) != T027_PLAN_HASH or not isinstance(rows, list) or not 0 < len(rows) <= 40
+                or sum(row[0] not in CHECKPOINT_EXCEPTIONS for row in rows) > 35
+                or rows != sorted(rows) or len({row[0] for row in rows}) != len(rows)
+                or any(row not in page["contribution"] or not _checkpoint_eligible(ctx, row[0], plan) for row in rows)
+                or any(row[0] != ".claude-plugin/plugin.json" or row not in page["contribution"] for row in page["remaining_uncovered"])):
+            return False
+        fields = {"at", "page_sha256", "round_nonce", "code", "rendered_at", "text", "allow_short_reply", "authorization_context"}
+        if not isinstance(accepted, dict) or set(accepted) != fields or type(accepted["allow_short_reply"]) is not bool or ck._parse_time(accepted["at"]) is None:
+            return False
+        key = ck._secret(create=False)
+        capture = accepted["authorization_context"]
+        if (key is None or accepted["page_sha256"] != _amendment_digest(page)
+                or accepted["code"] != approval_binding.compute_code(key, page, accepted["round_nonce"])
+                or not approval_binding.capture_context_valid(capture, page["owner_session"], approval_binding.digest(accepted["text"]))):
+            return False
+        if capture["origin"] == "codex-host-transcript":
+            proof = capture["transcript_proof"]
+            if (proof["page_sha256"] != accepted["page_sha256"] or proof["round_nonce"] != accepted["round_nonce"]
+                    or proof["action"] != CHECKPOINT_ACTION or proof["rendered_at"] != accepted["rendered_at"]):
+                return False
+        allowed = {approval_page.plain_line(CHECKPOINT_ACTION, "v4.15", accepted["code"])}
+        if accepted["allow_short_reply"]:
+            allowed.update(("Approve", "Yes", "Continue"))
+        return accepted["text"] in allowed and approval_binding.consumed_capture_valid(ck._runs_dir(), capture, accepted["rendered_at"])
+    except (KeyError, TypeError, ValueError, OSError, MinorMalformed, approval_page.PageError):
+        return False
+
+
+def _checkpoint_effective(ck, ctx, record, member, base, head):
+    if not record or CHECKPOINT_FIELD not in record or member.get("version") != T027_MEMBER:
+        return {}, []
+    if ck is None or not checkpoint_entry_valid(ck, ctx, record):
+        raise MinorMalformed("checkpoint-receipt-invalid")
+    page = record[CHECKPOINT_FIELD][-1]["page"]
+    if member.get("version") != page["member"]:
+        return {}, []
+    resolved_head = ctx._git_out("rev-parse", "--verify", head + "^{commit}")
+    if not resolved_head:
+        raise ObservationUnavailable("checkpoint-head-unavailable")
+    if head == "HEAD":
+        if not v415_index_flags_visible(ctx):
+            raise MinorMalformed("checkpoint-index-flags-hidden")
+        if _ancestor(ctx, page["head"], resolved_head) != "met":
+            raise MinorMalformed("checkpoint-head-history-changed")
+        paths = [row[0] for row in page["checkpoint_rows"]]
+        rc, dirty = ctx.run([ctx.git, "-C", str(ctx.root), "status", "--porcelain", "--untracked-files=all", "--", *paths])
+        if rc or dirty:
+            raise MinorMalformed("checkpoint-worktree-contribution-changed")
+    else:
+        # A squash has no source ancestry. Authenticate the publication source independently.
+        pr = ck._gh_json(ctx, record["repo"], "pr", "view", member["source_branch"], "--json",
+                         "state,headRefName,baseRefName,headRefOid,mergeCommit")
+        if (not isinstance(pr, dict) or pr.get("state") != "MERGED"
+                or pr.get("headRefName") != member["source_branch"] or pr.get("baseRefName") != member["target_branch"]
+                or not isinstance(pr.get("mergeCommit"), dict) or pr["mergeCommit"].get("oid") != resolved_head
+                or not isinstance(pr.get("headRefOid"), str)
+                or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", pr["headRefOid"])
+                or _ancestor(ctx, page["head"], pr["headRefOid"]) != "met"):
+            raise ObservationUnavailable("checkpoint-publication-source-unverified")
+    if _ancestor(ctx, page["integration_tip"], base) != "met" and base != page["base"]:
+        raise MinorMalformed("checkpoint-integration-history-changed")
+    if _coordinator_conflict(ck, ctx, record, member, [*(r[0] for r in page["checkpoint_rows"]), *page["prospective"]], base):
+        raise MinorMalformed("checkpoint-active-conflict")
+    actual = {r[0]: r for r in _checkpoint_rows(ctx, base, head)}
+    matched = {}
+    for row in page["checkpoint_rows"]:
+        if actual.get(row[0]) != row:
+            raise MinorMalformed("checkpoint-contribution-changed")
+        matched[row[0]] = row
+    return matched, page["prospective"]
+
+
+def check_checkpoint_write(ck: ModuleType, ctx: RepoContext, previous: dict, record: dict) -> None:
+    if CHECKPOINT_FIELD not in previous and CHECKPOINT_FIELD not in record:
+        return
+    old, new = previous.get(CHECKPOINT_FIELD, []), record.get(CHECKPOINT_FIELD, [])
+    if (not isinstance(old, list) or not isinstance(new, list) or new[:len(old)] != old
+            or len(new) not in (len(old), len(old) + 1) or not checkpoint_entry_valid(ck, ctx, record)):
+        raise ck.MinorConflict("checkpoint-history-changed")
+    if len(old) == len(new):
+        return
+    lease = ck._MINOR_LEASE.get()
+    entry = new[-1]
+    if (not lease or lease.get("checkpoint_append") != _amendment_digest(entry)
+            or entry["page"]["record_sha256"] != lease["expected"]):
+        raise ck.MinorConflict("checkpoint-append-not-captured")
+    path = record_file(ck, ctx, str(record["minor"]))
+    raw = path.read_bytes()
+    snapshot = ck.MinorSnapshot(previous, path, raw, ctx)
+    page = entry["page"]
+    if checkpoint_page(ck, ctx, str(record["minor"]), snapshot, page["member"], page["head"],
+                       {"write_paths": page["prospective"]}) != page:
+        raise ck.MinorConflict("checkpoint-prewrite-state-changed")
+    before, after = json.loads(approval_binding.canonical(previous)), json.loads(approval_binding.canonical(record))
+    a, b = before.get("approvals", {}), after.get("approvals", {})
+    left, right = a.get("transcript_decisions", []), b.get("transcript_decisions", [])
+    if left != right:
+        approval_binding.check_continuation_write(ck._runs_dir(), previous, record)
+        accepted = entry["accepted"]
+        if (len(right) != len(left) + 1 or right[:-1] != left or right[-1]["capture"] != accepted["authorization_context"]
+                or right[-1]["action"] != CHECKPOINT_ACTION or right[-1]["page"] != entry["page"]
+                or right[-1]["round_nonce"] != accepted["round_nonce"] or right[-1]["rendered_at"] != accepted["rendered_at"]):
+            raise ck.MinorConflict("checkpoint-transport-changed")
+        if "transcript_decisions" in a:
+            b["transcript_decisions"] = left
+        else:
+            b.pop("transcript_decisions", None)
+    if CHECKPOINT_FIELD in previous:
+        after[CHECKPOINT_FIELD] = old
+    else:
+        after.pop(CHECKPOINT_FIELD, None)
+    for value in (before, after):
+        value.pop("approvals_hmac", None)
+    if before != after:
+        raise ck.MinorConflict("checkpoint-original-state-changed")
+
+
+@minor_writer
+def cmd_reconcile_checkpoint(ck: ModuleType, args: argparse.Namespace) -> int:
+    ctx = repo_context(ck, args)
+    record = _record_for_add_class(ck, ctx, args.minor, args.session)
+    if isinstance(record, int):
+        return record
+    scope = _member_paths_input(ck, args.checkpoint_scope)
+    page = checkpoint_page(ck, ctx, args.minor, record, args.member, args.head, scope)
+    consumed = _consume(ck, ctx, args.minor, CHECKPOINT_ACTION, page, args.session, record["session_id"], text=args.text)
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if checkpoint_page(ck, ctx, args.minor, record, args.member, args.head, scope) != page:
+        return ck._refused("page-changed")
+    entry = {"page": page, "accepted": {"at": ck._now(), "page_sha256": _amendment_digest(page),
+        "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
+        "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
+        "authorization_context": pending.get("capture")}}
+    record.setdefault(CHECKPOINT_FIELD, []).append(entry)
+    approval_binding.retain_transcript_decision(record, pending)
+    record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
+    lease = ck._MINOR_LEASE.get()
+    lease["checkpoint_append"] = _amendment_digest(entry)
+    try:
+        ck._write_record(record.record_path, record)
+    finally:
+        lease.pop("checkpoint_append", None)
+    print(f"RECONCILED {T027_MEMBER} checkpoint (current adoption; original claims unchanged)")
+    return 0
+
+
+def _exact_execution_owner_result(ck: ModuleType, record: dict, page: dict, round_nonce: str | None = None) -> dict | None:
+    """A verified historical result or exact current authority can satisfy a request."""
+    history = execution_permission_history(ck, record, capture=True)
+    if round_nonce is not None:
+        for entry in history:
+            if (entry['accepted']['round_nonce'] == round_nonce
+                    and approval_binding.canonical(entry['page']) == approval_binding.canonical(page)):
+                return entry
+    for entry in reversed(history):
+        if entry['page']['member'] == page.get('member'):
+            return entry if approval_binding.canonical(entry['page']) == approval_binding.canonical(page) else None
+    return None
+
+
+def continuation_owner_results(ck: ModuleType, record: dict, issued: list[dict]) -> list[dict]:
+    """Project exact persisted owner results; consumption alone is not success.
+
+    The controller verifies the operational record before calling this reader.
+    Recheck its signature here so report overlays cannot manufacture retirement.
+    This reader never writes the record, authorizes work or consumes a capture.
+    """
+    key = ck._secret(create=False)
+    if (key is None or record.get('schema') != 2
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(ck, record, key))):
+        return []
+    results = []
+    for pending in issued:
+        page = pending.get('page', {})
+        same_owner = pending.get('session') == record.get('session_id')
+        ancestral_result = not same_owner and pending.get('action') in {'add-class', _EXECUTION_ACTION, 'resume', AUTHORITY_BRIDGE_ACTION} and approval_binding.continuation_ancestor_valid(
+            ck._runs_dir(), record, pending.get('session'), record.get('session_id'))
+        if (not (same_owner or ancestral_result) or page.get('record_nonce') != record.get('nonce')
+                or page.get('scope', {}).get('minor', record.get('minor')) != record.get('minor')):
+            continue
+        evidence = None
+        if pending.get('action') == 'add-class':
+            for entry in record.get('approvals', {}).get('classes', []):
+                added = entry.get('added') or {}
+                if (entry.get('class') == page.get('class')
+                        and added.get('page_sha256') == hashlib.sha256(approval_binding.canonical(page)).hexdigest()
+                        and approval_binding.consumed_capture_valid(ck._runs_dir(), added.get('authorization_context'), pending['rendered_at'])):
+                    evidence = entry
+                    break
+        elif pending.get('action') == _EXECUTION_ACTION:
+            evidence = _exact_execution_owner_result(ck, record, page, pending['nonce'])
+        elif pending.get('action') == AUTHORITY_BRIDGE_ACTION:
+            ctx = getattr(record, "context", None) or ck.RepoContext(Path((record.get("implementation_controller") or {}).get("repo_root") or record["repo_root"]), ck.Budget(20))
+            evidence = next((entry for entry in authority_bridge_history(ck, ctx, record)
+                if entry["page"] == page and entry["accepted"]["round_nonce"] == pending["nonce"]), None)
+        elif pending.get('action') == 'resume' and approval_binding.continuation_ancestor_valid(
+                ck._runs_dir(), record, pending.get('session'), record.get('session_id')):
+            evidence = next((entry for entry in record.get('continuations', [])
+                if entry['to_session'] == pending.get('session') and entry['round_nonce'] == pending['nonce']
+                and approval_binding.canonical(entry['page']) == approval_binding.canonical(page)
+                and approval_binding.consumed_capture_valid(ck._runs_dir(), entry['capture'], pending['rendered_at'])), None)
+        if evidence is not None:
+            results.append({'request_id': 'native:' + pending['issuance']['key'] + ':' + pending['nonce'],
+                'verified': True, 'evidence': 'The signed native owner result matches the issued scope and genuine consumed capture.',
+                'authority_receipt': hashlib.sha256(approval_binding.canonical(evidence)).hexdigest()})
+    return results
 
 def add_class_page(ck: ModuleType, token: str, record: dict, name: str | None) -> dict:
     """The canonical page that adds one class to a running minor record."""
@@ -2251,10 +5083,12 @@ def cmd_record_add_class(ck: ModuleType, args: argparse.Namespace) -> int:
         return record
     name = args.added_class
     if name in ADDABLE_CLASSES and name in _classes(record):
+        _finish_owner_recovery(ck, rctx, token, record['session_id'], 'add-class', name=name)
         print(f"ALREADY ADDED {name} minor {token}")
         return 0
     page = add_class_page(ck, token, record, name)
-    consumed = _consume(ck, rctx, token, "add-class", page, args.session, str(record.get("session_id") or ""))
+    consumed = _consume(ck, rctx, token, "add-class", page, args.session, str(record.get("session_id") or ""), text=args.text,
+                        recovery_record=record)
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
@@ -2274,6 +5108,7 @@ def cmd_record_add_class(ck: ModuleType, args: argparse.Namespace) -> int:
     # `approvals` is signed, so the added class is a signed update, never an unsigned edit.
     record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     ck._write_record(record_file(ck, rctx, token), record)
+    _finish_owner_recovery(ck, rctx, token, record['session_id'], 'add-class', name=name)
     print(f"ADDED {name} minor {token}")
     return 0
 
@@ -2459,9 +5294,8 @@ def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dic
         allowed = {approval_page.plain_line("supplement-scope", str(record["minor"]), accepted["code"])}
         if accepted["allow_short_reply"]:
             allowed.update(("Approve", "Yes", "Continue"))
-        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture"
-                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+        if (not approval_binding.capture_context_valid(context)
+                                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
             return False
         return (accepted["text"] in allowed and (not verify_capture
@@ -2673,9 +5507,8 @@ def _manifest_permission_valid(ck: ModuleType, rctx: RepoContext, record: dict, 
         allowed = {approval_page.plain_line("permit-manifest", str(record["minor"]), accepted["code"])}
         if accepted["allow_short_reply"]:
             allowed.update(("Approve", "Yes", "Continue"))
-        if (set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture"
-                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
+        if (not approval_binding.capture_context_valid(context)
+                                or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
             return False
         return (accepted["text"] in allowed and (not verify_capture
@@ -2915,8 +5748,8 @@ def _v415_capture_valid(ck: ModuleType, record: dict, page: dict, accepted: obje
                 or type(accepted["allow_short_reply"]) is not bool):
             return False
         context = accepted["authorization_context"]
-        if (not isinstance(context, dict) or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or not isinstance(page["owner_session"], str) or not page["owner_session"]
+        if (not isinstance(context, dict) or not approval_binding.capture_context_valid(context)
+                or not isinstance(page["owner_session"], str) or not page["owner_session"]
                 or context["session_id"] != page["owner_session"] or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
                 or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
@@ -4227,6 +7060,12 @@ def migration_class(record: dict | None) -> tuple[set[str], set[str]]:
         bound.add(grant["id"])
         if grant["named"]:
             named.add(grant["id"])
+    # Native record loading authenticates the singleton; migration_gate rechecks its proof.
+    entry = (record or {}).get(T027_FIELD)
+    if isinstance(entry, dict) and entry.get("format") == 1 and isinstance(entry.get("page"), dict):
+        pid = (entry["page"].get("gap") or {}).get("id")
+        if isinstance(pid, str) and re.fullmatch(r"v4\.15#DF-[1-9]\d*", pid):
+            bound.add(pid)
     return bound, named & bound
 
 
@@ -4950,6 +7789,9 @@ def migration_gate(
     `**Severity**` line during the run cannot lift the naming requirement.
     """
     pid = "v{}.{}#{}".format(*source_minor, gid)
+    if record and T027_FIELD in record and record[T027_FIELD]["page"]["gap"]["id"] == pid:
+        import check_plan_completion as ck
+        return ("met", "t027-unmeasured") if t027_gap_grant(ck, rctx, record, pid, current) else ("unmet", "t027-disposition-unverified")
     bound, named = migration_class(record)
     if pid not in bound:
         if planned_followon(rctx, record, source_minor, current):
@@ -5040,14 +7882,14 @@ def reconciled_v414_carry(
         return False
     path = ck._runs_dir() / (binding["last_key"] + ".json")
     last = ck.read_record(rctx, path)
+    approvals = (last or {}).get("approvals") or {}
+    if not isinstance(approvals, dict) or not isinstance(approvals.get("classes"), list):
+        return False
     key = ck._secret(create=False)
     signature = (last or {}).get("approvals_hmac")
     if (not last or key is None or not isinstance(signature, str)
             or re.fullmatch(r"[0-9a-f]{64}", signature) is None
             or not hmac.compare_digest(signature, _sign(ck, last, key))):
-        return False
-    approvals = (last or {}).get("approvals") or {}
-    if not isinstance(approvals, dict) or not isinstance(approvals.get("classes"), list):
         return False
     blockers = last.get("blockers", [])
     if not isinstance(blockers, list) or any(not isinstance(blocker, dict) or blocker.get("open") for blocker in blockers):
@@ -5118,7 +7960,7 @@ def reconciled_v414_carry(
             return False
         if old.sensitive() or now.sensitive():
             return False
-    return plan_migration_met(ledgers, ledger, item)
+    return plan_migration_met(ledgers, ledger, item, proof_cache=rctx.migration_proof_lines)
 
 
 def verify_migration(
@@ -5145,6 +7987,9 @@ def verify_migration(
     if not target.endswith(".0"):
         return "unmet", "migration-target-not-minor-start"
     pid = source + '#' + item.gid
+    if record and T027_FIELD in record and record[T027_FIELD]["page"]["gap"]["id"] == pid:
+        if target != "v4.16.0":
+            return "unmet", "t027-destination-not-approved"
     claims = [scope for scope in historical_supplements(record) if pid in scope['request']['ids']]
     if claims and (len(claims) != 1 or target != claims[0]['request']['destination']):
         return 'unmet', 'supplemental-destination-not-approved'
@@ -5184,6 +8029,8 @@ def verify_migration(
     if copy_reason != "migration-copy-complete":
         return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
     reasons = [r for m, i, r in copy.provenance() if m == source and i == item.gid]
+    if record and T027_FIELD in record and record[T027_FIELD]["page"]["gap"]["id"] == pid and reasons != ["user-deferred"]:
+        return "unmet", "t027-migration-reason-not-approved"
     if not reasons or reasons[-1] not in MIGRATION_REASONS:
         return "unmet", "migration-reason-invalid"
     explicit = next((g for g in amendment_gap_grants(record) if g["id"] == f"{source}#{item.gid}"), None)
@@ -6246,6 +9093,61 @@ def render_detail(ck: ModuleType, args: argparse.Namespace, *, status_mode: bool
     return ck.EXIT_COMPLETE if status_mode and data["verdict"] == "INCOMPLETE: detail.local-only" else data["exit"]
 
 
+def _lane_health() -> ModuleType | None:
+    """The idle classifier in implement-phase's lane_health.py, or None when it is not installed.
+
+    Reused, never copied: the checker runs from the repository (`scripts/`) or from the
+    installed `~/.nexus-hub/scripts/`, and the skill script sits beside either tree.
+    """
+    import importlib.util
+
+    here = Path(__file__).resolve()
+    relative = Path("catalog/skills/workflow/implement-phase/scripts/lane_health.py")
+    for candidate in (os.environ.get("NEXUS_LANE_HEALTH"), here.parents[1] / relative,
+                      here.parents[1] / "src" / relative,
+                      Path.home() / ".claude/skills/implement-phase/scripts/lane_health.py"):
+        if not candidate or not Path(candidate).is_file():
+            continue
+        spec = importlib.util.spec_from_file_location("nexus_lane_health", candidate)
+        if spec is None or spec.loader is None:
+            continue
+        module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(module)
+        except (OSError, SyntaxError, ImportError):
+            continue
+        if all(hasattr(module, name) for name in ("classify_idle", "light_lanes", "record_versions", "release_tags")):
+            return module
+    return None
+
+
+def action_lines(idle: list[dict]) -> list[str]:
+    """`ACTION:` lines for idle members: one dispatch line, one decision line per needs-user lane."""
+    dispatch = [item["member"] for item in idle if item["kind"] in ("resumable", "unadmitted")]
+    lines = [f"ACTION: dispatch-required ({', '.join(dispatch)})"] if dispatch else []
+    lines += [f"ACTION: decision-required ({item['member']}: {item['detail']})"
+              for item in idle if item["kind"] == "needs-user"]
+    return lines
+
+
+def idle_actions(ck: ModuleType, rctx: RepoContext, token: str, record: dict | None) -> list[str]:
+    """Action lines from the shared idle classifier; empty when it is unavailable or nothing is idle."""
+    lane_health = _lane_health()
+    if lane_health is None or record is None:
+        return []
+    try:
+        path = getattr(record, "record_path", None) or record_file(ck, rctx, token)
+        now = dt.datetime.now(dt.timezone.utc)
+        tags = lane_health.release_tags(rctx.root)
+        queued = lane_health.queued_reasons(record, Path(path)) if hasattr(lane_health, "queued_reasons") else None
+        idle = lane_health.classify_idle(lane_health.light_lanes(record, Path(path), now, tags),
+                                         lane_health.record_versions(record), tags.__contains__, now,
+                                         queued=queued)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, ck.MinorConflict):
+        return []
+    return action_lines(idle)
+
+
 def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     if getattr(args, "detail", False):
         return render_detail(ck, args)
@@ -6253,6 +9155,8 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
     verdict = check_minor(ck, rctx, args.minor, args.session)
     for notice in [*verdict.notices, *rctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
+    # Additive: the verdict line, exit code and predicate lines are unchanged; actions come last.
+    actions = idle_actions(ck, rctx, args.minor, verdict.record) if verdict.line.startswith("INCOMPLETE") else []
     print(verdict.line)
     if args.json:
         head = rctx._git_out("rev-parse", "HEAD") or None
@@ -6266,6 +9170,7 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
                 m.version: {"status": m.status, "gate": m.gate, "predicates": dict(m.lines)} for m in verdict.members
             },
             "minor": dict(verdict.minor),
+            "actions": actions,
         }
         print(json.dumps(body, sort_keys=True))
         return verdict.code
@@ -6276,6 +9181,8 @@ def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
             print(f"{member.version}:{pid} {status}")
     for pid, status in verdict.minor:
         print(f"{pid} {status}")
+    for line in actions:
+        print(line)
     return verdict.code
 
 
@@ -6612,9 +9519,14 @@ def _implementation_paths(ctx: RepoContext, member: dict, base: str | None = Non
         if rc:
             return "cannot-verify"
         paths.update(p for p in out.split("\0") if p)
-    writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else [])]
+    writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else []),
+              *_permitted_implementation_writes(ck, record, member)]
     try:
+        checkpoints, prospective = _checkpoint_effective(ck, ctx, record, member, start, "HEAD")
+        writes.extend(prospective)
         for path in paths:
+            if path in checkpoints:
+                continue
             _literal_path(ctx.root, path + "/" if (ctx.root / path).is_dir() else path)
             permitted = _member_write_permitted(ck, record, member, path, admission=admission)
             if (_sensitive_write(ctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
@@ -6967,13 +9879,18 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
     if rc:
         return "cannot-verify"
     try:
-        writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else [])]
+        writes = [*implementation["write_paths"], *(member.get("coordinator_paths", []) if member.get("start_head") else []),
+                  *_permitted_implementation_writes(ck, record, member)]
         if any(not isinstance(p, str) for p in writes):
             return "cannot-verify"
         archived = _archive_only_paths(rctx, record, member, base, merge) if len(parents) == 2 else set()
         if archived is None:
             return "cannot-verify"
+        checkpoints, prospective = _checkpoint_effective(ck, rctx, record, member, base, merge)
+        writes.extend(prospective)
         for path in (p for p in out.split("\0") if p and p not in archived):
+            if path in checkpoints:
+                continue
             _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
             permitted = _member_write_permitted(ck, record, member, path)
             if (_sensitive_write(rctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
@@ -7016,7 +9933,7 @@ def _worker_context(ck: ModuleType, rctx: RepoContext, record: dict, member: dic
                 return None, "cannot-verify", True
             plans = scan_plans(rctx.root, *parse_minor(ck, str(record["minor"])))
             plan = next((p for p in plans if p.version == member["version"]), None)
-            if plan is None or not member_identity_ok(ck, member, plan):
+            if plan is None or not member_identity_verified(ck, rctx, member, plan):
                 return None, "cannot-verify", True
             return ck.Context(str(rctx.root / plan.rel), budget), "met", True
         raw = Path(implementation["worktree"])
@@ -7379,15 +10296,43 @@ def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> 
     return []
 
 
-def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
+def archive_normalized_plan(text: str, rel: str, archive_tree: str, origin_tree: str) -> str:
+    """`text` read at `rel` with every relative link replaced by its repository target and
+    the archive tree mapped back to its active tree, so the move's link repairs vanish."""
+    import posixpath
+    from minor_close import rewrite_links, rewrite_mentions
+
+    def mapper(path: str) -> str:
+        if path == archive_tree or path.startswith(archive_tree + "/"):
+            return origin_tree + path[len(archive_tree):]
+        return path
+
+    text, _links = rewrite_links(text, posixpath.dirname(rel), "", mapper)
+    text, _mentions = rewrite_mentions(text, archive_tree, origin_tree, markdown=True)
+    return text
+
+
+def plan_migration_met(
+    ledgers: list[Ledger], ledger: Ledger, item: GapItem, *,
+    proof_cache: dict[str, tuple[str, ...]] | None = None,
+) -> bool:
     """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
-    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches."""
+    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches.
+    A minor close writes the minor form (`vX.Y#ID`); it is accepted only when one
+    migrated item in the source ledger carries the id, so it still names exactly one item.
+    Pass the run's `proof_cache` when checking many items: it holds the parsed visible
+    lines of each ledger body, which is the same for every item (BG-12)."""
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
     label = f"{section_version(item.section)}#{item.gid}"
     reason, _copy = migration_copy_status(
-        ledgers, str(item.target), ledger, item, label=label, allow_carried=True,
+        ledgers, str(item.target), ledger, item, label=label, allow_carried=True, proof_cache=proof_cache,
     )
+    migrated_with_id = sum(other.gid == item.gid and other.state == "migrated" for other in ledger.items)
+    if reason == "migration-target-missing" and migrated_with_id == 1:
+        reason, _copy = migration_copy_status(
+            ledgers, str(item.target), ledger, item, allow_carried=True, proof_cache=proof_cache,
+        )
     return reason == "migration-copy-complete"
 
 
@@ -7423,7 +10368,8 @@ def gaps_carried_status(
     for item in ledger.items:
         mine = section_version(item.section) == version
         if last == "met":
-            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(ledgers, ledger, item)):
+            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(
+                    ledgers, ledger, item, proof_cache=rctx.migration_proof_lines)):
                 return "unmet"
         elif mine and item.state != "resolved":
             return "unmet"
@@ -7594,6 +10540,20 @@ def _execution_capture_valid(ck, record, page, accepted, *, capture=False):
     return _v415_capture_valid(ck, view, page, accepted, _EXECUTION_ACTION, verify_capture=capture)
 
 
+def _granted_after_start(implementation: dict, accepted: object) -> bool:
+    """True for a started-member grant: captured strictly after the member's implementation started.
+
+    A dormant grant captured before admission must still be covered by the admitted write paths;
+    a grant captured after start is itself the authority that adds its plan-listed paths.
+    """
+    try:
+        started = dt.datetime.fromisoformat(str(implementation.get("started")))
+        at = dt.datetime.fromisoformat(str(accepted.get("at")))  # type: ignore[union-attr]
+    except (TypeError, ValueError, AttributeError):
+        return False
+    return started.tzinfo is not None and at.tzinfo is not None and at > started
+
+
 def execution_permission_history(ck: ModuleType, record: dict, *, capture: bool = False) -> list[dict]:
     if not _require_execution_protocol(ck, record, MINOR_EXECUTION_PROTOCOL):
         return []
@@ -7630,7 +10590,9 @@ def execution_permission_history(ck: ModuleType, record: dict, *, capture: bool 
                 identity = {name: implementation.get(name) for name in ("worktree", "branch", "base_head")}
                 if identity != page["worker_identity"]:
                     raise ck.MinorConflict("minor-execution-worker-identity-changed")
-                if page["role"] == "implementation" and not set(page["write_paths"]) <= set(implementation.get("write_paths", [])):
+                if (page["role"] == "implementation"
+                        and not set(page["write_paths"]) <= set(implementation.get("write_paths", []))
+                        and not _granted_after_start(implementation, entry["accepted"])):
                     raise ck.MinorConflict("minor-execution-worker-paths-changed")
                 if page["role"] == "coordinator" and _manifest_implementation_sha256(member) != page["implementation_sha256"]:
                     raise ck.MinorConflict("minor-execution-original-claims-changed")
@@ -7766,6 +10728,21 @@ def _execution_unclaimed_sensitive(rctx: RepoContext, integration: str) -> bool:
     return False
 
 
+def _execution_worker_base(ck: ModuleType, rctx: RepoContext, worker: RepoContext, start_head: str, integration: str) -> str:
+    """Observe the worker commit and its integration ancestry without changing it."""
+    rc, output = worker.run([worker.git, "-C", str(worker.root), "rev-parse", "HEAD"])
+    head = output.strip()
+    if rc != 0 or not re.fullmatch(r"[0-9a-f]{40}", head):
+        raise ck.Malformed("minor-execution-worker-head-unverifiable")
+    for older, newer in ((head, integration), (start_head, head)):
+        observed = _ancestor(rctx, older, newer)
+        if observed == "cannot-verify":
+            raise ck.Malformed("minor-execution-worker-base-unverifiable")
+        if observed != "met":
+            raise ck.Malformed("minor-execution-worker-base-not-integrated")
+    return head
+
+
 def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, member: dict, integration: str, role: str) -> dict:
     rc, listing = rctx.run([rctx.git, "-C", str(rctx.root), "worktree", "list", "--porcelain", "-z"])
     roots = []
@@ -7789,12 +10766,19 @@ def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, 
             or worker._git_out("symbolic-ref", "--quiet", "--short", "HEAD") != member["source_branch"]):
         raise ck.Malformed("minor-execution-worker-plan-or-branch-unverified")
     if role == "implementation":
-        if member.get("implementation") is not None or worker._git_out("status", "--porcelain"):
+        started = member.get("implementation")
+        if started is not None:
+            # Started-member route: the admitted worker only, clean, at its recorded place.
+            if (not isinstance(started, dict) or not isinstance(started.get("worktree"), str)
+                    or Path(started["worktree"]).resolve() != root
+                    or started.get("branch") != member["source_branch"]):
+                raise ck.Malformed("minor-execution-started-worker-moved")
+            if worker._git_out("status", "--porcelain"):
+                raise ck.Malformed("minor-execution-started-worker-dirty")
+            return {name: started[name] for name in ("worktree", "branch", "base_head")}
+        if worker._git_out("status", "--porcelain"):
             raise ck.Malformed("minor-execution-worker-already-started-or-dirty")
-        head = worker._git_out("rev-parse", "HEAD")
-        if (not head or _ancestor(rctx, head, integration) != "met"
-                or _ancestor(rctx, str(record["start_head"]), head) != "met"):
-            raise ck.Malformed("minor-execution-worker-base-not-integrated")
+        head = _execution_worker_base(ck, rctx, worker, str(record["start_head"]), integration)
         return {"worktree": str(root), "branch": member["source_branch"], "base_head": head}
     implementation = member.get("implementation")
     if not isinstance(implementation, dict):
@@ -7803,6 +10787,27 @@ def _execution_worker_identity(ck: ModuleType, rctx: RepoContext, record: dict, 
     if status != "met" or _execution_unclaimed_sensitive(worker, integration):
         raise ck.Malformed("minor-execution-original-scope-unverified")
     return {name: implementation[name] for name in ("worktree", "branch", "base_head")}
+
+
+def _plan_declared_write_paths(text: str) -> set[str]:
+    """`write_paths` of the worker claims object in the plan's ownership section; empty when absent."""
+    heading = "## Implementation dependencies and ownership"
+    start = text.find(heading)
+    if start < 0:
+        return set()
+    end = text.find("\n## ", start + len(heading))
+    for line in text[start:end if end >= 0 else len(text)].splitlines():
+        candidate = line.strip().strip("`").strip()
+        if not candidate.startswith("{") or '"depends_on"' not in candidate:
+            continue
+        try:
+            value = _execution_json(candidate)
+        except MinorMalformed:
+            continue
+        paths = value.get("write_paths") if isinstance(value, dict) else None
+        if isinstance(paths, list) and all(isinstance(p, str) for p in paths):
+            return set(paths)
+    return set()
 
 
 def execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict, version: str, value: object,
@@ -7830,6 +10835,10 @@ def _execution_permission_page(ck: ModuleType, rctx: RepoContext, token: str, re
         plan = next(p for p in scan_plans(rctx.root, 4, 15) if p.version == version)
         if not member_identity_ok(ck, member, plan) or any(not re.search(r"(?<![A-Za-z0-9_./-])" + re.escape(p) + r"(?![A-Za-z0-9_./-])", plan.text) for p in paths):
             raise MinorMalformed("minor-execution-path-outside-frozen-plan")
+        if role == "implementation" and member.get("implementation") is not None:
+            declared = _plan_declared_write_paths(plan.text)
+            if any(p not in declared for p in paths):
+                raise MinorMalformed("minor-execution-path-outside-plan-write-paths")
         recipe = _execution_recipe(frozen["plan_path"], frozen["plan_sha256"], plan.text)
     except (StopIteration, MinorMalformed) as exc:
         raise ck.Malformed(str(exc) or "minor-execution-plan-missing") from exc
@@ -7883,6 +10892,10 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
         value = _execution_json(Path(args.execution).read_text(encoding="utf-8"))
     except (OSError, MinorMalformed) as exc:
         raise ck.Malformed("minor-execution-request-unreadable") from exc
+    execution_permission_history(ck, record, capture=True)
+    if _completed_execution_retry(ck, rctx, record, args, value):
+        print(f"PERMITTED {args.member} original execution-path capture already persisted; current execution authorization is unchanged")
+        return 0
     prior = [e["page"] for e in effective_execution_history(ck, record) if e["page"]["member"] == args.member]
     if prior:
         if not (isinstance(value, dict) and set(value) == {"write_paths"}
@@ -7893,6 +10906,7 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
         current, _descriptor, _amendment = _execution_member(ck, record, args.member)
         if (prior[0]["role"] != "implementation" or current.get("implementation") is not None
                 or _execution_worker_unmoved(rctx, current, prior[0]["worker_identity"])):
+            _finish_owner_recovery(ck, rctx, args.minor, record['session_id'], _EXECUTION_ACTION, member=args.member)
             print(f"PERMITTED {args.member} execution paths already captured")
             return 0
         try:
@@ -7902,6 +10916,7 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
         except ck.Malformed as exc:
             if str(exc) != "minor-execution-member-already-permitted":
                 raise
+            _finish_owner_recovery(ck, rctx, args.minor, record['session_id'], _EXECUTION_ACTION, member=args.member)
             print(f"PERMITTED {args.member} execution paths already captured")
             return 0
     else:
@@ -7913,7 +10928,7 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
     if execution_permission_page(ck, rctx, args.minor, record, args.member, value, check_remote=False) != page:
         return ck._refused("page-changed")
     rctx.budget = ck.Budget(MINOR_BUDGET_SECONDS)
-    consumed = _consume(ck, rctx, args.minor, _EXECUTION_ACTION, page, args.session, record["session_id"])
+    consumed = _consume(ck, rctx, args.minor, _EXECUTION_ACTION, page, args.session, record["session_id"], text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed
@@ -7935,6 +10950,7 @@ def cmd_record_permit_member_execution_paths(ck: ModuleType, args: argparse.Name
         ck._write_record(record.record_path, record)
     finally:
         active.pop("minor_execution_append", None)
+    _finish_owner_recovery(ck, rctx, args.minor, record['session_id'], _EXECUTION_ACTION, member=args.member)
     print(f"PERMITTED {args.member} exact execution paths; ordinary admission still required")
     return 0
 
@@ -8041,8 +11057,8 @@ def _read_correction_entry_valid(ck: ModuleType, record: dict, member: dict, ent
         context = accepted["authorization_context"]
         if (not isinstance(accepted["text"], str) or not accepted["text"]
                 or not isinstance(context, dict)
-                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or not approval_binding.capture_context_valid(context)
+                or context["session_id"] != page["owner_session"]
                 or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
                 or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
@@ -8311,8 +11327,8 @@ def _member_paths_entry_valid(ck: ModuleType, record: dict, member: dict, entry:
         context = accepted["authorization_context"]
         if (not isinstance(accepted["text"], str) or not accepted["text"]
                 or not isinstance(context, dict)
-                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or not approval_binding.capture_context_valid(context)
+                or context["session_id"] != page["owner_session"]
                 or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
                 or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
@@ -8499,8 +11515,8 @@ def _withdraw_entry_valid(ck: ModuleType, record: dict, member: dict, entry: obj
         context = accepted["authorization_context"]
         if (not isinstance(accepted["text"], str) or not accepted["text"]
                 or not isinstance(context, dict)
-                or set(context) != {"origin", "session_id", "permission_mode", "prompt_sha256", "event_id", "at"}
-                or context["origin"] != "host-hook-capture" or context["session_id"] != page["owner_session"]
+                or not approval_binding.capture_context_valid(context)
+                or context["session_id"] != page["owner_session"]
                 or context["prompt_sha256"] != approval_binding.digest(accepted["text"])
                 or type(context["at"]) not in (int, float) or type(accepted["rendered_at"]) not in (int, float)
                 or not float("-inf") < accepted["rendered_at"] <= context["at"] < float("inf")):
@@ -8638,6 +11654,13 @@ def _execution_path_allowed(ck, record, member, path, *, role=None, admission=Fa
         rule = (declared_for_member(member) or {}).get("execution")
         role = rule["role"] if rule else "implementation"
     return path in execution_permission_paths(ck, record, member, role, for_admission=admission)
+
+
+def _permitted_implementation_writes(ck, record, member) -> list[str]:
+    """Paths a captured implementation execution permission adds to a started member's write scope."""
+    if ck is None or record is None or member is None:
+        return []
+    return execution_permission_paths(ck, record, member, "implementation")
 
 
 def _member_write_permitted(ck, record, member, path, *, admission=False):

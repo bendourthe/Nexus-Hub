@@ -66,27 +66,43 @@ jobs:
           done
 
       - name: Audit against known advisories
-        # pip-audit exits 1 when a vulnerability is found and non-zero when the
-        # advisory source cannot be reached; both fail the job on purpose. The
-        # JSON report is the structured artifact; the step summary carries the
-        # human-readable table. Skip only local editable Nexus packages, not
-        # their installed third-party dependencies.
-        run: |
-          set -uo pipefail
-          mkdir -p reports
-          python -m pip_audit --skip-editable --progress-spinner off --format json --output reports/pip-audit.json
-          status=$?
-          python -m pip_audit --skip-editable --progress-spinner off --format markdown >> "$GITHUB_STEP_SUMMARY" || true
-          if [ "$status" -ne 0 ]; then
-            echo "pip-audit exited $status: advisories found or the advisory source was unreachable. See reports/pip-audit.json." >&2
-            exit "$status"
-          fi
+        # One lookup, --skip-editable, no ignored vulnerability IDs. Native reports derive from its JSON.
+        run: python -B scripts/ci/run.py --profile full --only pip-audit --reports-dir reports
 
-      - name: Upload the audit report
+      - name: Publish native profile summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload native audit reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
+          name: reports-pip-audit
+          path: reports
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Select current raw audit report
+        id: audit_report
+        if: always()
+        run: |
+          python -B - <<'PY'
+          import os
+          from pathlib import Path
+          from scripts.ci.reporting import audit_upload_path
+          try:
+              path = audit_upload_path(Path("reports"), "pip-audit", Path.cwd(), require_success=False)
+          except (OSError, ValueError, TypeError, KeyError):
+              path = None
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print("path=" + (path.as_posix() if path else ""), file=output)
+          PY
+
+      - name: Upload the audit report
+        if: ${{ always() && steps.audit_report.outputs.path != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
           name: pip-audit-report
-          path: reports/pip-audit.json
+          path: ${{ steps.audit_report.outputs.path }}
           retention-days: 30
           if-no-files-found: warn

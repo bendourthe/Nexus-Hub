@@ -85,7 +85,9 @@ def test_each_block_is_honest_about_the_native_goal(name: str) -> None:
     assert "ask the user to paste the printed goal line again" not in block
     if name == "implement":
         assert "supported host goal action when available" in block
-        assert "explain any user-only action once" in block
+        assert "publish the complete required owner action prominently" in block
+        assert "retain its acknowledgment until fulfilled" in block
+        assert "continue other feasible authorized work" in block
 
 
 def test_final_phase_adds_one_conditional_minor_line_only() -> None:
