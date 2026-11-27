@@ -60,7 +60,7 @@ The canonical order is fixed. A conforming harness MUST NOT offer a transition t
   merge to the protected integration branch
         |
         v
-  minimal post-merge work                <-- smoke, publish, provenance only
+  minimal post-merge work                <-- smoke, publish, provenance, cache seeding only
         |
         v
   /update release                        <-- version, changelog, tag, publish
@@ -126,13 +126,24 @@ Requirements:
 | Ordinary feature-branch push | nothing | any validation workflow |
 | Integration pull request into a protected branch | `fast`, then `full`, then `platform`, then `report` | deployment, publication |
 | Merge queue entry, where supported | the same gate as the pull request | deployment |
-| Protected integration branch update (a merge) | concise smoke, docs publication, provenance | the complete validation suite |
+| Protected integration branch update (a merge) | concise smoke, docs publication, provenance, dependency-cache seeding on `develop` | the complete validation suite |
 | Protected release branch update or release tag | `release` | the complete validation suite |
 | Schedule | drift detection that depends on the outside world | anything reproducible from the tree alone |
 
 The rule behind the table: a suite that already proved the merge result MUST NOT run again on the merge commit. The merge result and the merge commit are the same tree. Rerunning it buys nothing and is billed twice.
 
 Scheduled work is the one exception, because a scheduled run tests the tree against a world that has changed since the merge (new advisories, upstream deprecations, vendor documentation drift).
+
+### 4.1 Dependency-cache seeding after a merge (MUST)
+
+Dependency-cache seeding is merged-state work, so it belongs in the minimal post-merge work and not in the pull-request gate. The cache key depends on the merged lockfile, and a pull request cannot write a cache that other pull requests can restore: GitHub scopes a cache to the branch that saved it, and a pull request may read the base branch's scope but never write it. Only a run on the base branch can seed it.
+
+- Only a `push` event on `develop` MAY write those caches. The seed job is guarded by `github.event_name == 'push' && github.ref == 'refs/heads/develop'`, declares `permissions: contents: read`, uses no secret, and runs no repository script or test.
+- This relies on branch protection rejecting direct pushes to `develop`, an external repository setting that is verified by hand and never mutated automatically (section 9). Without that protection a push event proves nothing about review, and the guard above would let an unreviewed commit write a cache that every later pull request restores.
+- A cache key cannot be overwritten once saved. A key MUST therefore include every input that changes the cached content (for the browser cache: the resolved tool version and a hash of the requirement files), and the seed job and the restoring job MUST use the same key expression.
+- A cache miss MUST fall back to a normal install and never fail a run. The seed job is advisory to the merged state and MUST NOT block a merge or a release.
+
+Decision record: `docs/decisions/proposed/tooling/2026-11-06-develop-scoped-cache-seeding.md`.
 
 ## 5. Required checks and the stable aggregate
 

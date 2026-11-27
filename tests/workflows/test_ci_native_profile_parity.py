@@ -46,6 +46,7 @@ def test_windows_workflow_has_no_second_native_test_list() -> None:
         ("windows-validators-2", "tests-windows-validators-2", "tests/validators", 2),
         ("windows-validators-3", "tests-windows-validators-3", "tests/validators", 1),
         ("windows-validators-4", "tests-windows-validators-4", "tests/validators", 1),
+        ("windows-validators-5", "tests-windows-validators-5", "tests/validators", 1),
     ],
 )
 def test_windows_corpora_run_in_their_own_parallel_jobs(group_name: str, job: str, corpus: str, commands: int) -> None:
@@ -69,9 +70,9 @@ def test_windows_validator_shards_partition_every_test_file() -> None:
 
     groups = [g for g in groups_for("platform")
               if g.name in ("windows-validators", "windows-validators-2", "windows-validators-3",
-                            "windows-validators-4")]
+                            "windows-validators-4", "windows-validators-5")]
     shards = [c for g in groups for c in g.commands if "tests/validators" in c.argv]
-    assert len(shards) == 6
+    assert len(shards) == 7
     assert all(c.timeout == 1800 for c in shards)
     assert all(c.env["NEXUS_TEST_POWERSHELL"] == "powershell" for c in shards)
     assert all(c.runs_on("windows") and not c.runs_on("linux") and not c.runs_on("macos") for c in shards)
@@ -82,6 +83,8 @@ def test_windows_validator_shards_partition_every_test_file() -> None:
     assert files
     future_names = [f"test_{letter}_future.py" for letter in "abcdefghijklmnopqrstuvwxyz"]
     future_names += ["test_co_future.py", "test_completion_future.py", "test_1_future.py", "test__future.py"]
+    future_names += ["test_v4_future.py", "test_v41_future.py", "test_v415_future.py",
+                     "test_v416_future.py", "test_v415authority_future.py", "test_v4159_future.py"]
     future_names += ["test_mi_future.py", "test_minor_future.py", "test_minor_e_future.py",
                      "test_minor_execution_future.py", "test_minore_future.py", "test_minor_x_future.py"]
     for path in files + [Path("future") / name for name in future_names]:

@@ -1,6 +1,6 @@
 ---
 name: cicd-architect
-description: The canonical, provider-neutral CI/CD lifecycle policy - repository-native fast/full/platform/report/release profiles, event separation, runner selection, stable aggregate required checks, structured reports, and existing-pipeline migration. Use whenever the user mentions CI/CD, a build pipeline, GitHub Actions, GitLab CI, Jenkins, a workflow file, required status checks, action minutes, or runner cost, or says any of "optimize CI cost", "our CI is too expensive", "make pipelines run only at the end of a plan", "move CI logic into repository scripts", "why does our CI pipeline run the whole suite twice", "our pipeline duplicates itself", or "our required check is stuck pending". Also the terminal pipeline reconciliation step in a plan's final phase. SKIP - deployment stages (use cd-pipeline-generator), wiring a test suite and its quality gates (use cicd-integration), post-release verification (use shipping-and-launch), and the release commit/tag/publish flow (use /update release).
+description: The canonical, provider-neutral CI/CD lifecycle policy - repository-native fast/full/platform/report/release profiles, event separation, runner selection, stable aggregate required checks, structured reports, and existing-pipeline migration. Use whenever the user mentions CI/CD, a build pipeline, GitHub Actions, GitLab CI, Jenkins, a workflow file, required status checks, action minutes, or runner cost, or says any of "optimize CI cost", "our CI is too expensive", "make pipelines run only at the end of a plan", "move CI logic into repository scripts", "why does our CI pipeline run the whole suite twice", "our required check is stuck pending", "our CI is slow", or "pull requests wait too long for CI". Also the terminal pipeline reconciliation step in a plan's final phase. SKIP - deployment stages (use cd-pipeline-generator), wiring a test suite and its quality gates (use cicd-integration), post-release verification (use shipping-and-launch), and the release commit/tag/publish flow (use /update release).
 summary_l0: "Own the canonical CI/CD lifecycle: repository-native profiles, event separation, and pipeline migration"
 overview_l1: "The single authoritative CI/CD policy in this catalog. It defines one provider-neutral lifecycle - local phase work and local phase commits, then a single final-phase branch publication, then one comprehensive pull-request gate against the integration merge result, then minimal protected-branch post-merge work, then release - and one execution architecture: definitive validation logic lives in the repository as five named profiles (fast, full, platform, report, release) that a developer can run with no CI provider present, while the pipeline file stays a thin trigger and reporting layer. It also owns runner selection for public and private repositories, the always-resolving aggregate required check, structured reporting (summary, JUnit, coverage, SARIF, environment metadata), least-privilege and immutable-reference security controls, cost controls (caching, concurrency, change scoping), and the six-step existing-pipeline comparison that every plan's final phase runs. GitHub Actions is the primary worked example, not a dependency. Trigger phrases: CI/CD pipeline, optimize CI cost, why does CI run twice, required check stuck pending, migrate our CI, audit our pipeline, action minutes, runner cost."
 ---
@@ -71,6 +71,16 @@ Three rules follow, and they are the ones most often broken:
 
 Apply the validation cadence in the canonical contract, section 2.4: focused checks during implementation, then comprehensive validation after all implementation tasks are complete in each plan. Delegate test selection, unchanged-result reuse and correction invalidation to [[cicd-integration]].
 
+### Step 1a: Measure latency before changing anything
+
+When the complaint is wall-clock time, run the read-only audit first. It needs the user's own authenticated `gh` and covers GitHub Actions only.
+
+```bash
+python scripts/ci_latency_audit.py --repo <owner/name> --workflow ci.yml --runs 20 --gate <aggregate-job>
+```
+
+Read the table by critical-path job, not by total minutes. Propose a speed change only after the report names the job on the critical path, and record the before and after with the same command. The rules this step applies are in [`references/ci-latency.md`](references/ci-latency.md).
+
 ### Step 2: Detect the provider
 
 Never assume. Look for, in order:
@@ -121,7 +131,7 @@ This is where most pipeline cost hides. Map every trigger to exactly one class.
 | Ordinary feature-branch push | nothing | any validation workflow |
 | Integration pull request into a protected branch | `fast`, `full`, `platform`, `report` | deployment, publication |
 | Merge queue entry, where supported | the same gate as the pull request | deployment |
-| Protected integration branch update (a merge) | concise smoke, docs publication, provenance | the complete validation suite |
+| Protected integration branch update (a merge) | concise smoke, docs publication, provenance, develop-only cache seeding | the complete validation suite |
 | Protected release branch update or release tag | `release` | the complete validation suite |
 | Schedule | drift detection that depends on the outside world | anything reproducible from the tree alone |
 
@@ -261,6 +271,7 @@ Where a provider supports callable or included pipeline definitions, use them fo
 - [ ] A deliberately failed profile run still produces `reports/summary.md` and valid `reports/metadata/environment.json`
 - [ ] The run summary and uploaded artifacts appear on a failing run, with an explicit retention period set
 - [ ] Step 9 was run and every field concluded with observable evidence, or the difference is recorded as a known gap with an owner and a next step
+- [ ] For a slow-CI request, `python scripts/ci_latency_audit.py` ran first and the proposed change names the critical-path job it shortens
 - [ ] The external repository settings of Step 10 are documented in a runbook, and nothing mutated them automatically
 
 ## Related Skills
