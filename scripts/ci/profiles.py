@@ -317,6 +317,15 @@ VALIDATORS_SHARD_E_IGNORES = (
     "--ignore-glob=*/test_minor_[!e]*",
 )
 VALIDATORS_SHARD_D_IGNORES = ("--ignore-glob=*/test_[!p-z]*",)
+# The Windows p-z shard without the v4.15 authority bridge files, which run as
+# their own shard (test_v415*) in a fifth job.
+VALIDATORS_SHARD_P_IGNORES = (*VALIDATORS_SHARD_D_IGNORES, "--ignore-glob=*/test_v415*")
+VALIDATORS_SHARD_V415_IGNORES = (
+    "--ignore-glob=*/test_[!v]*",
+    "--ignore-glob=*/test_v[!4]*",
+    "--ignore-glob=*/test_v4[!1]*",
+    "--ignore-glob=*/test_v41[!5]*",
+)
 
 
 FULL_WINDOWS_GUIDE_FILES = (
@@ -1056,14 +1065,19 @@ WINDOWS_VALIDATORS = Group(
     ),
 )
 
-# d-l and p-z measured 644 s and 486 s in CI run 43457589235, so the pair fits
-# one job; m-o (1132 s) takes its own job. Before this split the three shared one
-# job at 2261 s, the longest Windows job on the critical path.
+# d-l and p-z measured 644 s and 486 s in CI run 43457589235, so the pair fit
+# one job; m-o (1132 s) took its own job. Before that split the three shared one
+# job at 2261 s, the longest Windows job on the critical path. The v4.15
+# authority bridge tests (operations ~384 s, publication ~597 s, recovery ~690 s
+# locally) then sorted into p-z and raised it to 1161, 1196, 1474 and 1789 s, with
+# two timeouts at 1800 s (runs 46044926745 and 46056844908); d-l took ~890 s. They
+# now run as the test_v415* shard in windows-validators-5, which leaves p-z with
+# headroom under its bound.
 WINDOWS_VALIDATORS_2 = Group(
     name="windows-validators-2",
     commands=(
         _validators_shard("validators d-l (Windows)", VALIDATORS_SHARD_DL_IGNORES),
-        _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_D_IGNORES),
+        _validators_shard("validators p-z (Windows)", VALIDATORS_SHARD_P_IGNORES),
     ),
 )
 
@@ -1078,6 +1092,13 @@ WINDOWS_VALIDATORS_4 = Group(
     name="windows-validators-4",
     commands=(
         _validators_shard("validators m-o (Windows)", VALIDATORS_SHARD_M_IGNORES),
+    ),
+)
+
+WINDOWS_VALIDATORS_5 = Group(
+    name="windows-validators-5",
+    commands=(
+        _validators_shard("validators v415 authority bridge (Windows)", VALIDATORS_SHARD_V415_IGNORES),
     ),
 )
 
@@ -1398,7 +1419,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_HOOKS_REST, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_VALIDATORS_3, WINDOWS_VALIDATORS_4, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_HOOKS_REST, WINDOWS_INSTALLER, WINDOWS_VALIDATORS, WINDOWS_VALIDATORS_2, WINDOWS_VALIDATORS_3, WINDOWS_VALIDATORS_4, WINDOWS_VALIDATORS_5, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

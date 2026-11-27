@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The CI/CD lifecycle contract covers dependency-cache seeding.** New section 4.1 of `docs/policy/ci-cd-lifecycle-contract.md` says that only a `push` to `develop` may write the shared dependency caches, with read-only permissions, no secret and no repository script, a key that includes every input that changes the cached content, and a cache miss that falls back to a normal install. The event table in the contract and in `cicd-architect` lists develop-only cache seeding as allowed post-merge work. The decision record is `docs/decisions/proposed/tooling/2026-11-06-develop-scoped-cache-seeding.md`, status proposed: no seed job exists yet (DF-69).
 - **`cicd-architect` triggers on latency requests.** Its description gains trigger phrases for slow-CI requests, and its verification checklist asks that a slow-CI change first run the audit and name the critical-path job it shortens.
 
+### Fixed
+
+- **An intermittent Windows CI timeout in the validators p-z shard.** The v4.15 authority bridge validator files (`tests/validators/test_v415*`) sorted into the p-z shard of `tests-windows-validators-2` and raised it from about 486 s to 1161-1789 s, timing out at its 1800 s bound twice. They now run as their own shard in a new parallel job, `tests-windows-validators-5`, which is wired into the `report` job and the `ci-required` aggregate. Every validator file still runs on Windows exactly once, and no timeout changed.
+
 ### Capability usage
 
 #### Surface: CI latency audit
