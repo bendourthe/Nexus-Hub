@@ -515,7 +515,10 @@ def audit_payload(raw: bytes, scope: str, source: dict) -> str:
         tool, automation, provenance = run.get("tool"), run.get("automationDetails"), run.get("versionControlProvenance")
         if (not isinstance(tool, dict) or not isinstance(tool.get("driver"), dict) or tool["driver"].get("name") != "CodeQL"
                 or not isinstance(automation, dict) or not isinstance(automation.get("id"), str) or automation["id"].rstrip("/") != category
-                or not isinstance(provenance, list) or not any(isinstance(item, dict) and item.get("revisionId") == source["head"] for item in provenance)):
+                # The CodeQL CLI omits versionControlProvenance (hosted run 45914297627); the manifest source
+                # binding and the unchanged-analysis check carry the revision then. A stated revision must match.
+                or (provenance is not None and (not isinstance(provenance, list)
+                    or not any(isinstance(item, dict) and item.get("revisionId") == source["head"] for item in provenance)))):
             raise ValueError("CodeQL language/category/source provenance mismatch")
     return counts
 
