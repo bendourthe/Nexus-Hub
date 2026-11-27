@@ -20,6 +20,7 @@ from .test_v415_authority_bridge import (
     ROOT, CODEX_SESSION, binding, bridge_case, capture_supplement, cm, ck,
     resume, run_plan, _isolated_git_config, _no_transport_overrides, _private_native_home,
 )
+from . import git_stub_fastpath
 from .member_declarations import DECLARED_CHECKER
 from .test_codex_transcript_approval import Transcript
 from .test_completion_minor_record import GH_STUB
@@ -210,15 +211,16 @@ class PrivateHost:
         gh_program.write_text(_HOST, encoding="utf-8")
         git_program.write_text(_GIT, encoding="utf-8")
         make_stub(directory, "gh", gh_program)
-        make_stub(directory, "git", git_program)
+        git_stub = make_stub(directory, "git", git_program)
         entries = {"BRIDGE_TEST_HOST_FILE": str(self.path), "BRIDGE_TEST_JOURNAL": str(self.journal),
-                   "BRIDGE_TEST_ORIGINAL_GH": original_gh, "BRIDGE_TEST_REAL_GIT": real_git,
+                   "BRIDGE_TEST_ORIGINAL_GH": original_gh, "BRIDGE_TEST_REAL_GIT": real_git, "BRIDGE_TEST_GIT_STUB": str(git_stub),
                    "BRIDGE_TEST_LOCAL_REMOTE": str(fx.remote),
                    "BRIDGE_TEST_SIGNED_REMOTE": fx.record()["approvals"]["push_remote_url"],
                    "PATH": str(directory) + os.pathsep + fx.env["PATH"]}
         for key, value in entries.items():
             monkeypatch.setenv(key, value)
         fx.env.update(entries)
+        git_stub_fastpath.install(monkeypatch.setattr)
         self.real_git = real_git
 
     def save(self):
