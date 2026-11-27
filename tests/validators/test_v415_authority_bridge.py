@@ -1089,7 +1089,7 @@ def test_private_codex_codeql_receipt_controller_saved_read_consumer(bridge_case
     """Real private native capture/record/authority; only hosting and later process observation are simulated."""
     import io
     import zipfile
-    from .test_v415_authority_bridge_operations import PrivateHost, native_job_frame, native_snapshot_reports
+    from .bridge_operations_support import PrivateHost, native_job_frame, native_snapshot_reports
 
     fx, log = bridge_case
     original = copy.deepcopy(fx.record())
