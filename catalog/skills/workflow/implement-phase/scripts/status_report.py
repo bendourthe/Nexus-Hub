@@ -295,6 +295,8 @@ def required_parts(state: dict) -> list[str]:
         parts.extend(["---", "### Process observations"])
         for job in state["jobs"]:
             identity = job.get("handle") or job["url"]
+            if job.get("handle") and job.get("url") and job["url"] not in str(job.get("evidence")):
+                identity = f"{identity} ({job['url']})"
             parts.extend([f"- {text(job['name'])}: {text(identity)}; observed {text(job['status'])} at {text(job['observed_at'])}.",
                           f"  Evidence: {text(job['evidence'])}", f"  Resume when: {text(job['resume_when'])}"])
     if state["external_conditions"]:

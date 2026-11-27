@@ -971,7 +971,7 @@ def test_codeql_read_terminal_cache_shared_previous_and_record_scope(tmp_path, m
     with zipfile.ZipFile(stream, "w") as zipped:
         zipped.writestr("private-proof.txt", b"Complete immutable unit artifact")
     raw = stream.getvalue()
-    ctx = SimpleNamespace(gh="C:/private-unit-gh.exe")
+    ctx = SimpleNamespace(gh="C:/private-unit-gh.exe", budget=ck.Budget(600))
     records, captures = [], []
     for index in (1, 2):
         record = PrivateRecord(nonce="private-run-" + str(index), approvals={"classes": ["original"], "spend_caps": {"usd_total": 10, "spawn_total": 6}})
@@ -1279,7 +1279,7 @@ def test_missing_process_prerequisite_stops_after_authorization_before_reservati
     entry["page"]["payload_sha256"] = cm._amendment_digest(entry["page"]["payload"])
     record = {"nonce": "private-order", "approvals": {"classes": ["original"], "spend_caps": {"usd_total": 10, "spawn_total": 6}}}
     before = copy.deepcopy(record)
-    ctx = SimpleNamespace(root=tmp_path)
+    ctx = SimpleNamespace(root=tmp_path, budget=ck.Budget(600))
     monkeypatch.setattr(cm, "repo_context", lambda *_a: ctx)
     monkeypatch.setattr(cm, "_record_for_add_class", lambda *_a: record)
     monkeypatch.setattr(binding, "current_host_context", lambda *_a, **_kw: {})

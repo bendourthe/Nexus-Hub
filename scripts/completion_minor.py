@@ -1429,6 +1429,9 @@ The trial is deferred to a separately approved follow-up protocol. The T027 chec
 **Suggested next step**: Obtain separate approval for a follow-up measurement protocol. Preserve this unmeasured result until that protocol has real evidence.
 """}},
 )
+# Fixed members the authority bridge may act for; declaration data like the rows above.
+BRIDGE_NOTES_VERSION = "v4.15.6"
+BRIDGE_BUDGET_VERSION = "v4.15.9"
 MEMBER_DECLARATIONS = {(row["plan_path"], row["plan_sha256"]): row for row in _DECLARED_MEMBER_ROWS}
 
 
@@ -2424,7 +2427,7 @@ def _bridge_input(filename: str) -> dict:
 
 
 def _bridge_member(ck: ModuleType, record: dict, kind: str) -> dict:
-    version = "v4.15.9" if kind == ".9-t027-budget" else "v4.15.6"
+    version = BRIDGE_BUDGET_VERSION if kind == ".9-t027-budget" else BRIDGE_NOTES_VERSION
     member = next((item for item in effective_members(ck, record) if item.get("version") == version), None)
     rules = declared_for_member(member) if member else None
     if (record.get("scope") != "minor" or record.get("minor") != "v4.15"
@@ -2500,7 +2503,7 @@ def authority_bridge_page(ck: ModuleType, ctx: RepoContext, record: dict, value:
         raise MinorMalformed("bridge-current-owner-unverified")
     bound = dict(payload)
     if kind == ".6-release-notes":
-        bound.update(version="v4.15.6", notes_sha256=hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest())
+        bound.update(version=BRIDGE_NOTES_VERSION, notes_sha256=hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest())
     elif kind == ".6-repo-description":
         observed = ck._gh_json(ctx, record["repo"], "repo", "view", "--json", "description")
         if not isinstance(observed, dict) or (observed.get("description") or "") != payload["expected"]:
@@ -2601,7 +2604,7 @@ def authority_bridge_history(ck: ModuleType, ctx: RepoContext, record: dict) -> 
                            "maintenance-bootstrap-publication": keys | {"source_branch", "target_branch", "remote", "base", "tree", "actor", "contribution", "operations", "dispatch_allowance"}}[kind]
         if set(payload) != expected_fields:
             raise MinorMalformed("bridge-payload-history-fields")
-        if kind == ".6-release-notes" and (payload["version"] != "v4.15.6" or payload["notes_sha256"] != hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest()):
+        if kind == ".6-release-notes" and (payload["version"] != BRIDGE_NOTES_VERSION or payload["notes_sha256"] != hashlib.sha256(payload["notes"].encode("utf-8")).hexdigest()):
             raise MinorMalformed("bridge-notes-history-invalid")
         if kind == ".6-repo-description" and (payload["field"] != "description" or payload["value_sha256"] != hashlib.sha256(payload["value"].encode("utf-8")).hexdigest()):
             raise MinorMalformed("bridge-description-history-invalid")
@@ -3323,8 +3326,10 @@ _BRIDGE_ATTRIBUTION_FAILURES = {
 }
 
 
-def _bridge_preflight_path(record: dict, entry: dict) -> Path:
-    return record.record_path.parent / "publication-jobs" / (_amendment_digest(entry) + ".attribution.json")
+def _bridge_preflight_path(record: dict, entry: dict, ctx: object = None) -> Path:
+    # A plain record dict (a projection input) carries no path; derive it from the repository context.
+    record_path = getattr(record, "record_path", None) or ctx.scoped_record_path("minor:" + record["minor"])
+    return record_path.parent / "publication-jobs" / (_amendment_digest(entry) + ".attribution.json")
 
 
 def _bridge_attribution_failure(ck: ModuleType, record: dict, entry: dict, actor: dict, cli: Path, code: int, output: str) -> str:
@@ -3351,14 +3356,14 @@ def _bridge_effect_target(ck: ModuleType, ctx: RepoContext, record: dict, entry:
     repo = record["repo"]
     if operation in {"prepare-release-notes", "release-notes"}:
         current = approval_binding.current_host_context(ck._runs_dir(), record, ck._host_cwds(ctx), historical_cwds=ck.historical_host_cwds(record), deadline=ctx.budget.deadline)
-        approval_binding.authorization(ck.project(record, "v4.15.6"), "release", {"release_version": "v4.15.6", "tag": "v4.15.6"}, current)
+        approval_binding.authorization(ck.project(record, BRIDGE_NOTES_VERSION), "release", {"release_version": BRIDGE_NOTES_VERSION, "tag": BRIDGE_NOTES_VERSION}, current)
         if operation == "prepare-release-notes":
-            path = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-v4.15.6.md")
-            return {"path": str(path), "notes_sha256": payload["notes_sha256"], "version": "v4.15.6"}, ["native:prepare-release6-notes", str(path), payload["notes_sha256"]]
-        release = ck._gh_json(ctx, repo, "release", "view", "v4.15.6", "--json", "tagName,isDraft,body")
-        if not isinstance(release, dict) or release.get("tagName") != "v4.15.6" or release.get("isDraft") is not False:
+            path = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-" + BRIDGE_NOTES_VERSION + ".md")
+            return {"path": str(path), "notes_sha256": payload["notes_sha256"], "version": BRIDGE_NOTES_VERSION}, ["native:prepare-release6-notes", str(path), payload["notes_sha256"]]
+        release = ck._gh_json(ctx, repo, "release", "view", BRIDGE_NOTES_VERSION, "--json", "tagName,isDraft,body")
+        if not isinstance(release, dict) or release.get("tagName") != BRIDGE_NOTES_VERSION or release.get("isDraft") is not False:
             raise MinorMalformed("bridge-published-release6-required-before-notes-effect")
-        return {"tag": "v4.15.6", "notes_sha256": payload["notes_sha256"]}, ["native:verify-release6-notes", "v4.15.6", payload["notes_sha256"]]
+        return {"tag": BRIDGE_NOTES_VERSION, "notes_sha256": payload["notes_sha256"]}, ["native:verify-release6-notes", BRIDGE_NOTES_VERSION, payload["notes_sha256"]]
     if operation == "repo-description":
         observed = ck._gh_json(ctx, repo, "repo", "view", "--json", "description")
         if not isinstance(observed, dict) or (observed.get("description") or "") not in {payload["expected"], payload["value"]}:
@@ -3403,7 +3408,7 @@ def _bridge_observe_effect(ck: ModuleType, ctx: RepoContext, record: dict, entry
     payload, repo = entry["page"]["payload"], record["repo"]
     if operation == "prepare-release-notes":
         path = Path(target["path"])
-        expected = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-v4.15.6.md")
+        expected = record.record_path.parent / "release-notes" / (record.record_path.stem + "-" + _amendment_digest(entry) + "-" + BRIDGE_NOTES_VERSION + ".md")
         if path != expected or target["notes_sha256"] != payload["notes_sha256"]:
             raise MinorMalformed("bridge-prepared-notes-path-or-body-changed")
         if path.exists():
@@ -3413,10 +3418,10 @@ def _bridge_observe_effect(ck: ModuleType, ctx: RepoContext, record: dict, entry
             return {"path": str(path), "notes_sha256": hashlib.sha256(raw).hexdigest(), "effect": "prepared", "release_published": False}
         return None
     if operation == "release-notes":
-        value = ck._gh_json(ctx, repo, "release", "view", "v4.15.6", "--json", "tagName,isDraft,body")
-        if (isinstance(value, dict) and value.get("tagName") == "v4.15.6" and value.get("isDraft") is False
+        value = ck._gh_json(ctx, repo, "release", "view", BRIDGE_NOTES_VERSION, "--json", "tagName,isDraft,body")
+        if (isinstance(value, dict) and value.get("tagName") == BRIDGE_NOTES_VERSION and value.get("isDraft") is False
                 and value.get("body") == payload["notes"]):
-            return {"tag": "v4.15.6", "notes_sha256": payload["notes_sha256"]}
+            return {"tag": BRIDGE_NOTES_VERSION, "notes_sha256": payload["notes_sha256"]}
     elif operation == "repo-description":
         value = ck._gh_json(ctx, repo, "repo", "view", "--json", "description")
         if isinstance(value, dict) and value.get("description") == payload["value"]:
@@ -3934,7 +3939,7 @@ def authority_bridge_projection(ck: ModuleType, record: dict, version: str | Non
             except run_plan.RunnerError as exc:
                 return "blocked:runtime:" + str(exc)
         if entry["page"]["kind"] == "maintenance-bootstrap-publication" and _bridge_operation_id(entry, "push") not in states:
-            path = _bridge_preflight_path(record, entry)
+            path = _bridge_preflight_path(record, entry, ctx)
             if path.exists():
                 event = _execution_json(_bridge_read_bytes(path).decode("utf-8"))
                 seal = event.pop("hmac", None)

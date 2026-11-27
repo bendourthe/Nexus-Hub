@@ -1,6 +1,7 @@
 """Typed Stop consumer delivery and raw-byte adapters, using disposable homes only."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -402,6 +403,10 @@ def test_precreate_waiting_report_correction_tracks_pending_round(controller, mo
     monkeypatch.setattr(run_plan, "precreate_owner_observation", lambda *args, **kwargs: observation)
     monkeypatch.setenv("NEXUS_GATE_FORMAT", "top-level-block")
     payload = {"last_assistant_message": "Incomplete private create report"}
+    # The gate only acts for a session that has an issued request marker.
+    marker = gate._runs_dir() / "questions" / (hashlib.sha256(b"fixture-owner").hexdigest() + ".json")
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text("{}", encoding="utf-8")
     for index in range(4):
         assert gate._precreate_stop(payload, "fixture-owner") == 0
         delivered = capsys.readouterr()
