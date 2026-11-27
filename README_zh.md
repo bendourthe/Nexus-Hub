@@ -8,13 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.6 更新内容
+## v4.15.7 更新内容
 
-- 所有 git 工作树现在集中放在同一个文件夹中。`nexus-hub worktree` 可以创建、列出、审计工作树，并在你批准后迁移工作树；一个防护钩子会阻止在该文件夹之外执行 `git worktree add`；`nexus-hub worktree prune-merged` 会删除已合并且无改动的工作树（默认只预演，加上 `--apply` 才会真正删除）。
-- 所有平台的指令现在共用同一套进度报告、提问和手动步骤规则；在实施运行期间，进度报告就是最后一条消息。
-- 次版本运行会标出空闲的并行通道，并指明下一步需要派发的任务或需要你做的决定。`nexus-hub upgrade` 在被 Microsoft Defender 拦截的 Windows 电脑上恢复可用，Gemini 用量监视器也能在 Antigravity IDE 1.107 上读取配额。
+- `cicd-architect` 新增只读的 CI 延迟审计（`ci_latency_audit.py`），可以显示 GitHub Actions 流水线的时间花在排队、准备还是实际运行上，并指出决定完成时间的作业。它使用你自己的 `gh` 登录，不会修改任何内容。
+- `CONTRIBUTING.md` 介绍了一个可选的推送前检查，会在推送前运行快速验证配置。对应的阶段尚未在本仓库的 pre-commit 配置中启用，在此之前请在推送前手动运行快速验证配置。
+- CI 契约现在规定，依赖缓存只能在合并到 `develop` 之后预先写入，`cicd-architect` 技能也遵循同一规则。
 
-[版本详情与早期版本](CHANGELOG.md#4156---2026-11-27)
+[版本详情与早期版本](CHANGELOG.md#4157---2026-11-27)
 
 ## 安装
 
