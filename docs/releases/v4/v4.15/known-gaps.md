@@ -3779,9 +3779,9 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 3 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 8 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
