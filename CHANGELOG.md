@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A required `## Action needed` section whenever something waits on the user, enforced by a Stop hook.** The Communication Contract in all 14 substantive instruction templates now says that when a command, approval, decision, or piece of information is pending, the message carries a `## Action needed` heading and restates the numbered steps (where to run, exact commands, expected output) or the complete decision with its lettered options and recommendation, even if the previous message had the same text, and never writes "from earlier", "above", "previous message", "as before", "the steps I listed", or "scroll up". The older "write each user action in full" clause was merged into it. The new `action-restatement-guard` hook (`.sh` and `.ps1` wrappers over `catalog/hooks/_action_restatement.py`, registered on `Stop`) blocks a final message that asks the user to act and contains one of those back-references, and asks the agent to rewrite it under the heading. It ignores code spans, fails open on any error, and is disabled with `NEXUS_DISABLED_HOOKS=action-restatement-guard` or `NEXUS_HOOK_PROFILE=minimal`. The worked example is in `catalog/style-guides/agent-communication.md` section 3.2 and the `agent-communication` skill. Decision record: `docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md`. The registered hook count is now 41.
+
 ## [4.15.7] - 2026-11-27
 
 ### Added

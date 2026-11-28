@@ -57,7 +57,7 @@ _STDOUT_CONTEXT = frozenset({
 # desktop-notification hooks, and file-writing hooks. Listed so the inventory is
 # explicit; a hook that gains a message fails the structural check anyway.
 _EXPECTED_SILENT = frozenset({
-    "approval-capture", "auto-format-on-write", "commit-msg", "completion-gate",
+    "action-restatement-guard", "approval-capture", "auto-format-on-write", "commit-msg", "completion-gate",
     "compress-output", "implementation-state", "notify-attention-required", "notify-on-complete",
     "rewrite-command", "session-summary", "stuck-turn-notice",
 })
