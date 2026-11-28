@@ -142,7 +142,7 @@ def test_gh_calls_use_get_with_parameters_not_query_strings() -> None:
 def test_gh_in_current_directory_is_refused(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     for name in ("gh.exe", "gh"):
         (tmp_path / name).write_text("", encoding="utf-8")
-        os.chmod(tmp_path / name, 0o755)
+        os.chmod(tmp_path / name, 0o700)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("PATH", str(tmp_path))
     with pytest.raises(audit.AuditError, match="refusing gh inside the working tree"):
