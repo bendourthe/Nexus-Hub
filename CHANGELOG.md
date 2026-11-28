@@ -9,13 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.9] - 2026-11-27
+
 ### Added
 
 - **A required `## Action needed` section whenever something waits on the user, enforced by a Stop hook.** The Communication Contract in all 14 substantive instruction templates now says that when a command, approval, decision, or piece of information is pending, the message carries a `## Action needed` heading and restates the numbered steps (where to run, exact commands, expected output) or the complete decision with its lettered options and recommendation, even if the previous message had the same text, and never writes "from earlier", "above", "previous message", "as before", "the steps I listed", or "scroll up". The older "write each user action in full" clause was merged into it. The new `action-restatement-guard` hook (`.sh` and `.ps1` wrappers over `catalog/hooks/_action_restatement.py`, registered on `Stop`) blocks a final message that asks the user to act and contains one of those back-references, and asks the agent to rewrite it under the heading. It ignores code spans, fails open on any error, and is disabled with `NEXUS_DISABLED_HOOKS=action-restatement-guard` or `NEXUS_HOOK_PROFILE=minimal`. The worked example is in `catalog/style-guides/agent-communication.md` section 3.2 and the `agent-communication` skill. Decision record: `docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md`. The registered hook count is now 41.
+- **`log-reader`, a read-only fast-tier agent.** `catalog/agents/log-reader.md` (tools `Read, Grep, Glob`, model `haiku`) reads test, build or command output and lists each failure with its file, test name and first error line. It never proposes a fix and cannot edit a file, so the main model keeps the diagnosis and the fix while a cheaper model does the reading. It is listed in `.claude-plugin/plugin.json` and in the living classification file `docs/reference/agent-classification.md`, which a validator now reads instead of the archived v4.14 rationale. The catalog now holds 24 agents.
+- **Five delegation disciplines, one owning skill each.** `model-routing` gains the effort escalation ladder, a note that switching models mid-session discards the prompt cache, and a table that names one owner per repeated-failure case; `context-optimization` gains the filter-first rule for bulk data; `context-degradation` gains the reset after two failed corrections; `loop-engineering` gains the pilot-run and throughput-countermeasure rules; `refactoring-expert` gains an implicit-state-machine pass that replaces a cluster of booleans and status strings with one named state. Each rule is stated once, in its owner.
+- **Records for the agent-cost work.** `v4.15.9-last-phase-evidence.md`, `v4.15.9-coordinator-deltas.md` and `v4.15.9-measured-effort-run.md` under `docs/releases/v4/v4.15/development/`. The measured effort run was not executed because it spends real usage and no budget was approved (QG-6), so this release makes no token-saving claim.
+
+### Changed
+
+- **Every opus-pinned catalog agent declares `effort: high`.** A subagent on the session's model otherwise runs at the session's effort, so a Claude session raised to `xhigh` or `max` spread that cost to every helper it spawned. To run one helper higher, ask for the level in that call (a per-invocation effort outranks the field) or set `CLAUDE_CODE_EFFORT_LEVEL`, which outranks both. `tests/validators/test_agent_effort_ceiling.py` fails when an opus agent omits the field or raises it above `high`.
+- **One list of Claude-only agent keys is withheld from every other platform.** `CLAUDE_ONLY_AGENT_KEYS` (`model`, `effort`) in `scripts/lib/integrations/_catalog_adapters.py` replaces four hand-written `model`-only strip tuples, so an agent delivered to Codex, Copilot, Cursor, Gemini, Gemini CLI, Nexus-AI, OpenCode, Qwen or Antigravity 2.0 carries neither key. Kimi drops `effort` and keeps its existing `model` line, which Kimi documents ignoring. A body line that begins `model:` or `effort:` is left alone.
 
 ### Fixed
 
 - **Test runs no longer add their temporary `.nexus-hub\bin` folders to your Windows user PATH.** Tests that ran the real installer under a redirected `USERPROFILE` wrote their temporary bin directory into the account-wide user PATH, which grew past the 8,191-character `cmd.exe` limit and made `nexus-hub upgrade` fail with "Python 3 is required to run nexus-hub but was not found on PATH". `installer.ps1` now skips the user PATH change when `-NoModifyPath` or the new `NEXUS_HUB_NO_MODIFY_PATH=1` is set, and on its own whenever `USERPROFILE` is not the account's real profile folder; `installer.sh` honors `NEXUS_HUB_NO_MODIFY_PATH=1` like `--no-modify-path`. Both test roots (`tests/` and `catalog/hooks/tests/`) export the opt-out for the whole session and fail the run if `HKCU\Environment\Path` changed. Regression tests: `tests/installer/test_path_leak_guard.py`. Existing stray entries are not removed automatically; delete them under Settings > Edit environment variables for your account > Path.
+
+### Capability usage
+
+#### Surface: `action-restatement-guard` Stop hook
+
+- Activation: on by default. The installers register the hook (`catalog/hooks/action-restatement-guard.sh`, with a `.ps1` sibling) on the `Stop` event; a running session picks it up after a restart.
+- Validation: `python -B -m pytest -q catalog/hooks/tests/test_action_restatement_guard.py` runs the cases for both wrappers; in a session, end a message with "run the steps above" and the hook asks for a rewrite under `## Action needed`.
+- Rollback: `NEXUS_DISABLED_HOOKS=action-restatement-guard` turns it off, and `NEXUS_HOOK_PROFILE=minimal` skips every non-essential hook, including this one.
+- Authority: it only asks the agent to rewrite its own final message. It reads the message text locally, sends nothing anywhere, changes no file, fails open on any error, and grants no right to run a command or approve anything.
+- Docs: [`docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md`](docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md) and section 3.2 of [`catalog/style-guides/agent-communication.md`](catalog/style-guides/agent-communication.md).
+
+#### Surface: `NEXUS_HUB_NO_MODIFY_PATH` installer opt-out
+
+- Activation: set `NEXUS_HUB_NO_MODIFY_PATH=1` before running `installer.ps1` or `installer.sh` (the `-NoModifyPath` and `--no-modify-path` flags already existed). `installer.ps1` also skips the change on its own when `USERPROFILE` is not the account's real profile folder.
+- Validation: `python -B -m pytest -q tests/installer/test_path_leak_guard.py`; after an install with the variable set, the user PATH entry for `~/.nexus-hub/bin` is unchanged.
+- Rollback: unset the variable (or omit the flag) and run the installer again, which adds the entry as before.
+- Authority: it only prevents a change to your persistent user PATH. Skills, commands, hooks and rules are installed exactly as without it, and it grants nothing else. Add `~/.nexus-hub/bin` to PATH yourself if you want the `nexus-hub` command to resolve.
+- Docs: the Fixed entry above and [`tests/installer/test_path_leak_guard.py`](tests/installer/test_path_leak_guard.py).
+
+#### Surface: agent effort ceiling and `log-reader`
+
+- Activation: on by default. A normal install copies each agent file, and Claude Code reads `effort: high` and `model` from the file's frontmatter. `log-reader` is delegated to by the main model or named explicitly.
+- Validation: `python -B -m pytest -q tests/validators/test_agent_effort_ceiling.py tests/integrations/test_agent_model_delivery.py`; open `~/.claude/agents/code-reviewer.md` after install and confirm `effort: high`.
+- Rollback: set `CLAUDE_CODE_EFFORT_LEVEL` (it outranks the field), ask for a level in the call, or edit the installed agent file; the next installer run restores the catalog copy unless you own the change. Remove `~/.claude/agents/log-reader.md` to stop delegation to it.
+- Authority: `effort: high` lowers the effort of a helper that would have inherited a higher session level, and never raises it. `log-reader` cannot write, run a command or fetch anything. Neither sends data anywhere.
+- Docs: [`docs/reference/agent-classification.md`](docs/reference/agent-classification.md).
 
 ## [4.15.7] - 2026-11-27
 
