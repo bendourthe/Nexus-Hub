@@ -31,6 +31,7 @@
     "./catalog/agents/doc-updater.md",
     "./catalog/agents/feasibility-reviewer.md",
     "./catalog/agents/harness-optimizer.md",
+    "./catalog/agents/log-reader.md",
     "./catalog/agents/loop-operator.md",
     "./catalog/agents/maintainability-reviewer.md",
     "./catalog/agents/performance-reviewer.md",
