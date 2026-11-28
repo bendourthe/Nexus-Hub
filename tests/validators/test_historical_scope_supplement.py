@@ -148,10 +148,11 @@ def test_real_cli_capture_grants_only_exact_history_and_preserves_release_gates(
     fx, descriptor = scope_case
     before = fx.record()
     assert _historical(fx, descriptor) == "unmet"
-    # The normal subprocess sees the immutable production descriptor, not the
-    # in-process fixture substitution, and cannot approve this unrelated merge.
+    # The normal subprocess does not see the in-process descriptor substitution, so it
+    # derives this merge's files itself (see test_merged_scope_supplement.py) and
+    # renders a round without changing the record.
     production = fx.run("record", "render", "--action", "supplement-scope", *_args(descriptor))
-    assert production.returncode != 0
+    assert production.returncode == 0
     assert fx.record() == before
     before_release = (ck._tag_status(fx.rctx(), VERSION), ck._release_status(fx.rctx(), "acme/demo", VERSION))
     granted = _grant(fx, descriptor, capsys)
@@ -205,8 +206,14 @@ def test_all_reviewed_merge_bounds_and_inventory_are_required(scope_case, monkey
         changed[name] = value
         with monkeypatch.context() as patch:
             patch.setattr(cm, "REVIEWED_HISTORICAL_SCOPE", changed)
-            with pytest.raises((cm.MinorMalformed, cm.ObservationUnavailable), match="."):
-                cm.historical_scope_bounds(fx.rctx(), record, member, descriptor["merge"])
+            if name in ("first_parent", "second_parent", "tree"):
+                with pytest.raises((cm.MinorMalformed, cm.ObservationUnavailable), match="."):
+                    cm.historical_scope_bounds(fx.rctx(), record, member, descriptor["merge"])
+            else:
+                # Not the reviewed repository, minor, member or merge: the fixed rows no longer
+                # apply and the derived route computes this merge's own list.
+                derived = cm.historical_scope_bounds(fx.rctx(), record, member, descriptor["merge"], ck)
+                assert "coordinator_rows" in derived
     rows = descriptor["rows"]
     inventories = [rows[:-1], (*rows, rows[0]), (*rows, ("src/additional.txt", *rows[0][1:]))]
     for changed_rows in inventories:

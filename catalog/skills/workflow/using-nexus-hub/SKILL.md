@@ -92,6 +92,7 @@ Nexus-Hub installs 14 hooks that run automatically around tool calls:
 | After Write/Edit | `lint-on-write.sh` | Auto-lints on save |
 | Session end | `usage-display.sh` | Shows token usage |
 | Session end | `user-command-shell-check.py` | Warns when a PowerShell command block would not parse in Windows PowerShell 5.1 |
+| Session end | `action-restatement-guard.sh` | Blocks a final message that asks the user to act but points back to earlier text; asks for a `## Action needed` rewrite |
 | Session end | `notify-on-complete.sh` | Desktop notification |
 | Session end | `session-summary.sh` | Session summary |
 | Session end | `auto-devlog.sh` | Updates DEVLOG.md |

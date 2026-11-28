@@ -227,13 +227,62 @@ def _real_home_guard_enabled() -> bool:
     return os.environ.get("NEXUS_REAL_HOME_GUARD", "1") != "0"
 
 
+# User PATH guard (BG-PATH-LEAK). The Windows user PATH (HKCU\Environment\Path) is
+# shared by the whole account, so a test that runs a real installer under a
+# redirected home must never persist that home's bin directory there. Past runs
+# left 81 pytest-of-*/nxw*/nhq-* entries and pushed the combined PATH past the
+# 8,191-character cmd.exe limit. The installers skip the PATH write when
+# NEXUS_HUB_NO_MODIFY_PATH=1 (set below for the whole session and every child
+# process) or when USERPROFILE is not the real profile folder; this guard
+# snapshots the registry value and fails the session if it still changed.
+# Keep in step with the copy in tests/conftest.py and catalog/hooks/tests/conftest.py.
+
+
+def _read_user_path() -> str | None:
+    if os.name != "nt":
+        return None
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            return str(winreg.QueryValueEx(key, "Path")[0])
+    except (ImportError, OSError):
+        return None
+
+
+def _check_user_path(session) -> None:
+    before = getattr(session.config, "_nexus_user_path", None)
+    after = _read_user_path()
+    if before is None or after is None or before == after:
+        return
+    old = {e.lower() for e in before.split(";") if e}
+    added = [e for e in after.split(";") if e and e.lower() not in old]
+    lines = [
+        "USER PATH MODIFIED: a test run changed HKCU\\Environment\\Path "
+        f"({len(added)} entry(ies) added; set NEXUS_HUB_NO_MODIFY_PATH=1 for any "
+        "installer launch):"
+    ]
+    lines += [f"  {entry}" for entry in added[:20]]
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    for line in lines:
+        if reporter is not None:
+            reporter.write_line(line, red=True)
+        else:
+            print(line)
+    session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+
+
 def pytest_sessionstart(session):
+    os.environ["NEXUS_HUB_NO_MODIFY_PATH"] = "1"
+    session.config._nexus_user_path = _read_user_path()
     if _real_home_guard_enabled():
         session.config._nexus_real_home = _snapshot_real_home()
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionfinish(session, exitstatus):
+    _check_user_path(session)
     before = getattr(session.config, "_nexus_real_home", None)
     if before is None:
         return

@@ -122,6 +122,20 @@ Never point back to earlier text for something the user must act on: not "run th
 >
 > You should see: `{"query_s": 4.812, "rows": 312}`
 
+**Action needed heading:** when anything waits on the user (a command to run, an approval, a decision, or information), the message carries a `## Action needed` heading, and everything under it is written out in full again, even if the previous message gave the same text. Under the heading put either numbered steps (where to run each one, the exact command, the expected output) or the complete decision with its lettered options and your recommendation. The heading is what the reader scans for in a long session. For a pending action, never use a back-reference such as "from earlier", "above", "previous message", "as before", "the steps I gave", "the steps I listed", "see my earlier", or "scroll up". The `action-restatement-guard` Stop hook blocks a final message that asks the user to act and uses one of these phrases, and asks the agent to rewrite it under this heading.
+
+**Do not write this:**
+
+> Waiting on you: the 3 migration-approval steps from earlier. Reply "done" when step 3 prints approved.
+
+**Write this:**
+
+> ## Action needed
+>
+> 1. On the staging host (SSH session), run `./migrate.sh --dry-run`. You should see: `plan ok`.
+> 2. Run `./migrate.sh --apply`. You should see: `applied 3 changes`.
+> 3. Run `./migrate.sh --status`. You should see: `approved`. Reply "done" when it does.
+
 ### 3.3 Match the user's shell
 
 A command the user runs on their own machine must parse in the shell they will paste it into, not in the shell your own tool uses. On Windows, assume Windows PowerShell 5.1 unless the user has named another shell: it is the default `powershell.exe` on Windows 10 and 11, and users paste into whatever terminal is open, so a shell label does not protect a command. PowerShell 5.1 parses the whole line before running any of it, so one invalid token means no step runs.
@@ -431,6 +445,7 @@ Check a response against this list before sending it.
 - [ ] Formatting matched the reader: lists where the content is multifaceted or where asked, plain prose where minimal formatting was requested or the exchange is conversational.
 - [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
 - [ ] Every action the user must take is written out in full where it is asked for, and again in each later message that still asks for it; nothing says "from my earlier message" or "as above".
+- [ ] A message that waits on the user has a `## Action needed` heading with every step or the full decision restated under it.
 - [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no block meant for them contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
 - [ ] Every step opens with its machine and terminal, no block mixes two machines, and no command that prompts for input has anything after it in the same paste.
 - [ ] No step asks the user to find a file and paste its contents; the content is inline, and the method for another machine is the one the project's notes record as working.
