@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.15.11] - 2026-11-27
+
+### Added
+
+- **A `claude-fable-5-2` prompting profile.** `model-prompting-research/references/models/claude-fable-5-2.md` records 15 claims from the vendor's Claude Fable 5.2 prompting guide, each with its source URL, and the profiles index now lists 71 profiled models. `tests/skills/test_prompting_profile_claude_fable_5_2.py` checks the claims, their sources and the mirror against the index.
+- **A procedure for testing an instruction-file edit before it lands.** `skill-eval-loop/references/instruction-file-evals.md` says to test a behavioral edit to a template, `CLAUDE.md` or `AGENTS.md` against a failing baseline in isolated sessions, to make no edit without a failing positive baseline case, and to compare results case by case. `references/schemas.md` gains the `case_kind` and `instruction_section` fields. `AGENTS.md` now points to the procedure from the template step.
+- **Three case sets for template rules, not yet runnable.** `tests/verification/fixtures/instruction-templates/` holds the clarity, self-coined-terms and obstacles sets (8 cases each) with evaluator manifests and workloads. The shared evaluator has no proven live isolation backend, so each manifest stops at preflight with `isolation-backend-unavailable` (known gap DF-76). No instruction template changed in this release.
+- **A clarity reference for writers.** `writing-editing/references/clarity-faults.md` adds a point-first check, three clarity faults, an overcorrection guard, a repair rule and an annotation procedure for judging real closing summaries. `anti-slop-editing` Detect output now reports "Cliche signatures" and "Clarity faults" as two separate sections.
+- **An opt-in codebase ownership snippet.** `minimal-construction/references/codebase-ownership-mode.md` gives a two-paragraph snippet for a maintainer who wants the agent to consolidate duplicated code and fix related bugs, with the scope exception it needs, the vendor-measured costs, a one-session check, and what it does not grant. It is in no template.
+- **Records for the work.** A decision record, `docs/decisions/implemented/policy/2026-11-17-instruction-file-evals-isolated-first-and-ownership-opt-in.md`, and `v4.15.11-baseline.md`, `v4.15.11-session-history.md`, `v4.15.11-last-phase-evidence.md` and `v4.15.11-coordinator-deltas.md` under `docs/releases/v4/v4.15/development/`. Ten deferred items are recorded as DF-76 to DF-85.
+
+### Changed
+
+- **Eval guidance scores the tool-call path where the process matters.** `ai-output-evaluation` now prefers narrow pass or fail judge questions to a 0.0 to 1.0 score, asks for rewritten variants of each case in other user styles, and scores the tool-call path when safety, cost or a forbidden action is at stake. `skill-eval-loop` states an eval cadence: deterministic checks on every pull request, live-model or judge evals before a release or on a schedule.
+
+### Fixed
+
+- **`writing-editing` loaded too late.** Its description now says to load at the start of any task whose deliverable is non-code text (a README, PR description, commit message, report or release note), before drafting, and it skips explicit requests to remove AI-slop patterns, which belong to `anti-slop-editing`. The trigger gate passes with 0 routing failures.
+
+### Capability usage
+
+#### Surface: opt-in codebase ownership snippet
+
+- Activation: paste the two paragraphs from `catalog/skills/code-cleanup/minimal-construction/references/codebase-ownership-mode.md` into the instruction file (for example `CLAUDE.md` or `AGENTS.md`) of a repository you own. The installer never adds them.
+- Validation: `python -B -m pytest -q tests/skills/test_clarity_and_eval_guidance.py` checks that the reference exists, is linked, and appears in no template. To check the behavior, run the reference's "One-Session Check" once in a throwaway project; the closing summary must list every changed file. That live check is not yet run (DF-77).
+- Rollback: remove the two pasted paragraphs from the instruction file. Nothing else was installed.
+- Authority: the snippet grants no destructive action, no push, no change to branches or releases, and no edit outside the repository, and it relaxes no verification, security or accessibility rule. It only widens scope inside the repository to consolidation and related bug fixes. It sends nothing anywhere.
+- Docs: [`codebase-ownership-mode.md`](catalog/skills/code-cleanup/minimal-construction/references/codebase-ownership-mode.md) and [the decision record](docs/decisions/implemented/policy/2026-11-17-instruction-file-evals-isolated-first-and-ownership-opt-in.md).
+
+No other opt-in surface, installer flag, managed skill or host surface was added or changed in this release.
+
 ## [4.15.9] - 2026-11-27
 
 ### Added

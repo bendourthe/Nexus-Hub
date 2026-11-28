@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.9 -->
+<!-- nexus-hub-version: 4.15.11 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.9
+## What's New in v4.15.11
 
-- A message that waits on you now carries an `## Action needed` section that repeats the full steps or the full decision, never "see above". A new Stop hook, `action-restatement-guard`, asks the agent to rewrite a message that points back; turn it off with `NEXUS_DISABLED_HOOKS=action-restatement-guard`.
-- A new read-only `log-reader` agent (24 agents now) lists each failure in test or build output without proposing a fix. Every Opus-pinned agent now declares `effort: high`, so a high session effort level no longer spreads to helpers. The measured run was not executed, so no token saving is claimed.
-- The Windows installer no longer adds temporary `.nexus-hub\bin` folders from test runs to your user PATH. Set `NEXUS_HUB_NO_MODIFY_PATH=1` to skip the PATH change on any install.
+- A new `claude-fable-5-2` prompting profile records 15 sourced claims from the vendor's Claude Fable 5.2 guide, and `writing-editing` gains a clarity reference (a point-first check and three clarity faults) that loads at the start of any non-code writing task. `anti-slop-editing` now reports clarity faults separately from cliche patterns.
+- A written procedure says to test an edit to an instruction file against a failing baseline in isolated sessions before it lands. Three case sets ship with it, but the shared evaluator cannot run them live yet, so no instruction template changed.
+- An optional ownership snippet, for a repository you own, asks the agent to consolidate duplicated code and list every change. Paste it into your own `CLAUDE.md` or `AGENTS.md` to turn it on and delete it to turn it off; no template contains it.
 
-[Release details and earlier versions](CHANGELOG.md#4159---2026-11-27)
+[Release details and earlier versions](CHANGELOG.md#41511---2026-11-27)
 
 ## Installation
 

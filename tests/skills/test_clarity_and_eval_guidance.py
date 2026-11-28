@@ -292,10 +292,6 @@ def test_the_decision_record_has_its_required_sections():
     assert "## Proposal" not in text
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="the AGENTS.md link is a coordinator delta (v4.15.11 coordinator deltas, T008)",
-)
 def test_agents_md_links_the_instruction_file_procedure():
     agents = (_ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "instruction-file-evals.md" in agents
