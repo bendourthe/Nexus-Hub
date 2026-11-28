@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 137
+**Open items**: 147
 
 ## v4.15.0
 
@@ -4088,6 +4088,138 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: It needs the v4.15.2 evaluator and a measured baseline.
 
 **Suggested next step**: a plan after the evaluator lands, using the Phase 5 measurement as its baseline.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+
+## v4.15.11
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 10 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+The live-run work of v4.15.11 moved here by maintainer decision on 2026-11-22 (no live spend, no evaluator change in this lane). One evaluator fact applies to DF-76 to DF-78: `isolation_backend_proven()` in `scripts/evaluate_harness_pairings.py` still returns `False` on develop at `b3c678a95`, so each of the three case manifests stops at preflight with `isolation-backend-unavailable` (exit 2, observed 2026-11-22 with `--dry-run`).
+
+#### DF-76: Isolated evaluator runs and the isolation canary are deferred (T009)
+
+**Source phase**: v4.15.11 Phase 2
+
+**Plan reference**: Sub-task 2.2 (isolated runs on the shared evaluator and canary) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: Deferred by maintainer decision on 2026-11-22 (no live spend). Even with budget, the merged v4.15.2 evaluator cannot run it. It lacks:
+
+- a proven live isolation backend
+- a per-trial throwaway configuration directory with inherited configuration off
+- environment mapping for the pilot key
+- a canary-workload concept
+- retained final text and tool-call path
+- more than one prompt per workload
+- a `Shared consumers` section in `guides/reference/HARNESS_PAIRING_EVALUATION.md`
+
+The Phase 2 Verification Expectation (canary through the evaluator, then the CLI control) is deferred with it. The canary evaluator's docstring also says it checks only for a non-empty `result.txt`, while its code compares the output with `expected.txt`; the fixture is frozen, so correct the docstring before the first live run.
+
+**Suggested next step**: close the evaluator gaps in a v4.15.2 follow-up owned by the evaluator's maintainer. Then run the canary on the committed manifests in `tests/verification/fixtures/instruction-templates/`, record `## Runner` in `v4.15.11-template-eval-results.md`, and tick T009.
+
+#### DF-77: The ownership opt-in validation session was not run (T019, live half)
+
+**Source phase**: v4.15.11 Phase 4
+
+**Plan reference**: Sub-task 4.1 (ownership opt-in snippet) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: The reference, its links and the routing check are done. The one fresh validation session (two duplicated functions, a third caller, a closing summary that lists every changed file) is a live model session, deferred by maintainer decision on 2026-11-22. T019 stays unchecked.
+
+**Suggested next step**: run the "One-Session Check" in `catalog/skills/code-cleanup/minimal-construction/references/codebase-ownership-mode.md` once in a throwaway repository. Record the result under `## Ownership opt-in` in `v4.15.11-template-eval-results.md`, then tick T019.
+
+#### DF-78: Phase 5 baselines, after runs, budgets and stabilization are deferred (T022, T026, T027, T028)
+
+**Source phase**: v4.15.11 Phase 5
+
+**Plan reference**: Phase 5 (template edits measured against cases) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: Baseline and after runs are live evaluator runs (USD 80 plan budget, deferred at USD 0) and depend on DF-76. T026 (budget raises and fingerprint regeneration) and T028 (Phase 5 tests and commit) have nothing to act on until a template edit ships, so they move with the runs.
+
+**Suggested next step**: after DF-76 closes, follow sub-task 5.1 exactly. Re-check v4.15.0, refresh the baseline arm figures in the three manifests (they bind `base-claude.md` at `4d6316cc0`), and run the baselines under the cap. Then sub-tasks 5.5 to 5.7.
+
+#### DF-79: The clarity rule in Writing Discipline is deferred (T023, comparison item A1)
+
+**Source phase**: v4.15.11 Phase 5
+
+**Plan reference**: Sub-task 5.2 (clarity rule in Writing Discipline) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: The plan's stop rule (`skill-eval-loop/references/instruction-file-evals.md`) forbids a template edit without a failing positive baseline case, and the baseline is deferred (DF-78). The clarity reference in `writing-editing` ships now; only the always-on template rule waits.
+
+**Suggested next step**: edit only if `clarity.json` shows a failing positive case at baseline. Otherwise drop the rule and record that result.
+
+#### DF-80: The self-coined-terms clause and its skill mirror are deferred (T024, comparison item A5)
+
+**Source phase**: v4.15.11 Phase 5
+
+**Plan reference**: Sub-task 5.3 (self-coined terms in the Communication Contract) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: Same stop rule as DF-79. No baseline exists for `self-coined-terms.json`.
+
+**Suggested next step**: edit only on a failing positive baseline case, graded by the cold-reader judge.
+
+#### DF-81: Obstacle handling in Autonomous Operation is deferred (T025, comparison item A4)
+
+**Source phase**: v4.15.11 Phase 5
+
+**Plan reference**: Sub-task 5.4 (ordinary obstacles in Autonomous Operation) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: Same stop rule as DF-79. No baseline exists for `obstacles.json`. Its fixture workspaces (timeout stub, read-only file, do-not-touch file, guard hook) also need evaluator fixture materialization (DF-76).
+
+**Suggested next step**: edit only on a failing positive baseline case, judged on the tool-call path as well as the final text.
+
+#### DF-82: The maintainer-written false-positive control for the clarity set is missing
+
+**Source phase**: v4.15.11 Phase 2
+
+**Plan reference**: Sub-task 2.3 (author and freeze the three case sets) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: `clarity-maintainer-control` needs a paragraph the maintainer wrote and confirms. The slot in `tests/verification/fixtures/instruction-templates/workloads/clarity/inputs/task.txt` is marked PENDING and no text was invented. Until it is filled, `clarity.json` is not frozen, so the clarity baseline cannot start. The maintainer chose to leave it unfrozen and deferred it on 2026-11-22.
+
+**Suggested next step**: the maintainer replaces the PENDING line with their own paragraph. That is the only edit allowed after commit, and the set freezes with it.
+
+#### DF-83: The live Verification Expectations for Phases 1 and 3 were not run
+
+**Source phase**: v4.15.11 Phases 1 and 3
+
+**Plan reference**: Phase 1 (baseline refresh and Fable 5.2 profile) and Phase 3 (clarity reference and eval guidance) of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md)
+
+**Reason**: Phase 1's `/tune-prompting` report session and Phase 3's fresh-agent `anti-slop-editing` Detect run are model sessions, deferred at USD 0. Deterministic substitutes were observed and recorded in the [session history](development/v4.15.11-session-history.md): `verify_model_prompting_profiles.py` reported 71 profiles OK, and `detect_prose_cliches.py` on the clarity reference reported 0 defects.
+
+**Suggested next step**: run both sessions once when live spend is approved, and append their observed results to the session history.
+
+#### DF-84: Unscoped absolutes in the instruction templates are not reworded (comparison item A6)
+
+**Source phase**: v4.15.11 Phase 1 (T001)
+
+**Plan reference**: A6 known-gap proposal in [`development/v4.15.11-baseline.md`](development/v4.15.11-baseline.md)
+
+**Reason**: v4.15.0 merged before this plan, so it could not take the A6 count as input. `base-claude.md` at `4d6316cc0` has 9 lines with "never", "Never" or "MUST"; 6 state no reason for the absolute (lines 34, 50, 52, 126, 205, 207). This was counted once and is not recounted here.
+
+**Suggested next step**: reword each absolute with its scope and reason, following the Fable 5.2 profile claim on scoped never rules, in the plan that owns the next instruction-necessity pass.
+
+#### DF-85: Paired-run inference and receipts for instruction-file evals have no ledger owner (comparison item A8b)
+
+**Source phase**: v4.15.11 planning (cut on 2026-11-11)
+
+**Plan reference**: Scope and construction limit of the [v4.15.11 plan](plans/v4.15.11-adoption-clarity-fable-and-eval-first.md), and the [v4.21.2 plan](../v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md)
+
+**Reason**: A8b was cut from this plan and assigned to the paired-run work of v4.21.2. A grep on 2026-11-22 found no known-gap entry that records the handoff, so nothing tracked it.
+
+**Suggested next step**: v4.21.2 owns it; that plan confirms coverage at its own planning re-check.
 
 ### Resolved
 

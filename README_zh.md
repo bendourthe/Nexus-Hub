@@ -8,13 +8,13 @@ Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.9 更新内容
+## v4.15.11 更新内容
 
-- 需要你处理的消息现在会带有 `## Action needed` 小节，完整重复所需步骤或完整的决定，不再写“见上文”。新增的 Stop 钩子 `action-restatement-guard` 会要求代理重写这类回指消息；可用 `NEXUS_DISABLED_HOOKS=action-restatement-guard` 关闭。
-- 新增只读的 `log-reader` 代理（现共 24 个代理），可逐条列出测试或构建输出中的失败，但不会提出修复方案。所有固定使用 Opus 的代理现在都声明 `effort: high`，因此较高的会话推理强度不会再扩散到辅助代理。对比测量尚未执行，因此本版本不宣称节省了令牌。
-- Windows 安装程序不再把测试运行产生的临时 `.nexus-hub\bin` 文件夹写入你的用户 PATH。任何安装都可以设置 `NEXUS_HUB_NO_MODIFY_PATH=1` 来跳过 PATH 修改。
+- 新增 `claude-fable-5-2` 提示配置文件，收录厂商 Claude Fable 5.2 指南中的 15 条带来源的结论；`writing-editing` 新增清晰度参考（先写要点的检查和三类清晰度问题），在任何非代码写作任务开始时加载。`anti-slop-editing` 现在把清晰度问题与套话模式分开报告。
+- 新增一份书面流程：修改指令文件之前，先在隔离会话中对照会失败的基线进行测试。随流程附带三组用例，但共享评估器目前还不能在线运行它们，因此没有修改任何指令模板。
+- 新增一个可选的所有权片段，适用于你自己拥有的仓库：它要求代理合并重复代码并列出每一处改动。把它粘贴到你自己的 `CLAUDE.md` 或 `AGENTS.md` 即可开启，删除即可关闭；任何模板都不包含它。
 
-[版本详情与早期版本](CHANGELOG.md#4159---2026-11-27)
+[版本详情与早期版本](CHANGELOG.md#41511---2026-11-27)
 
 ## 安装
 

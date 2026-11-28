@@ -103,6 +103,39 @@ The reader must scroll through the session to find the steps. "From earlier" is 
 
 The heading marks the message as waiting on the reader, and the steps are written out again in full even though the same steps were sent before. A pending decision follows the same shape: the heading, the complete question, the lettered options with the recommendation. The `action-restatement-guard` Stop hook blocks a final message that asks the user to act and points back to earlier text.
 
+### Decision
+
+Setup: a choice waits on the reader. Ask it through the host's native question or selection tool when one exists; keep background work running and start no further user-facing action until the answer arrives. Without such a tool, write the compact table and repeat it in every later message until it is answered.
+
+#### Wrong
+
+> ## Action needed
+>
+> **Decision 9**
+>
+> - **A.** Run `member-start` for each remaining plan and wait for the checks, then mark the minor MINOR COMPLETE.
+> - **B (recommended).** Skip v4.14.2 and v4.14.5 and close the minor with the other versions.
+
+The options are a dense list, the terms are internal, and the recommendation is not option A.
+
+#### Right
+
+> ## Action needed
+>
+> **Decision 9: how to finish v4.15**
+>
+> **The issue:** Two parts of the release are done and one is not. We must choose whether to wait for it or ship without it.
+>
+> | Option | What happens | Trade-off |
+> |---|---|---|
+> | **A (recommended)** | Wait for the last part, then ship everything together. | Ships a day later. |
+> | **B** | Ship now and add the last part in the next release. | Users get an incomplete release. |
+> | **C** | Cancel this release. | The finished work waits unused. |
+>
+> Reply with A, B or C.
+
+The issue is plain, option A is the recommendation, each cell says an outcome or a cost in plain words, and the reply instruction ends the message. The `action-restatement-guard` Stop hook blocks a decision that breaks this shape.
+
 ## Waiting-state interim update
 
 ### Wrong

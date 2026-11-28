@@ -1,6 +1,6 @@
 ---
 name: writing-editing
-description: Professional writing and editing principles for clear, concise documentation and prose. Use when asked to write, edit, rewrite, or review documents, README files, reports, blog posts, or any non-code text content.
+description: Professional writing and editing principles for clear, concise prose another person will read. Load at the start of any task whose deliverable is a README, doc, PR description, commit message, report, release note, blog post, or other non-code text, before drafting, and when asked to write, edit, rewrite, or review such text. SKIP - code-only work, and explicit requests to remove AI-slop patterns (use anti-slop-editing).
 summary_l0: "Write and edit professional documentation with clarity, structure, and concision"
 overview_l1: "This skill applies professional editor and technical writer standards to all written output, covering clarity, concision, structure, active voice, logical hierarchy, and smooth transitions. Use it when writing, editing, rewriting, or reviewing documents, README files, reports, blog posts, or any non-code text content. Key capabilities include clarity and concision editing (removing fluff and jargon), active voice transformation, logical hierarchy structuring with headings and bullet points, smooth paragraph transitions, content refinement through iterative rewrites, and tone calibration for different audiences (technical, executive, end-user). The expected output is polished, well-structured prose with clear headings, concise language, active voice, and logical flow appropriate to the target audience. Trigger phrases: write documentation, edit text, rewrite, review document, improve writing, README, blog post, report writing, technical writing, proofread."
 long_description: >
@@ -40,6 +40,18 @@ version: 1.0.0
 - Maintain a professional, helpful, and teaching tone
 - Apply the document style rules in `catalog/rules/documents/document-style.md`: break an inline enumeration into an intro line and bullets, give a trailing "Label: value" fact its own line, and end a highlighted lead-in's formatting at the colon
 
+## Clarity Faults
+
+Run the point-first check and the three clarity faults (hidden actor or action, vague wording, empty statements) from `references/clarity-faults.md`. A clean cliche scan is not a clarity check: cliche signatures and clarity faults are independent. The reference carries an overcorrection guard, so a shorter rewrite that is slower to parse does not count as a repair.
+
+## Rule Ownership
+
+| Concern | Owner |
+|---|---|
+| Clarity faults, the point-first check, and the unclear-rate annotation | `writing-editing` (this skill) |
+| Cliche signatures and chain-of-thought leakage; Detect mode links the clarity reference as a second output section and does not own it | `anti-slop-editing` |
+| Dropped-claim preservation check on an edit | `anti-slop-editing` (v4.22.0) |
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -56,6 +68,8 @@ version: 1.0.0
 - [ ] No em-dashes are used to break sentences (parentheses, commas, or separate sentences instead)
 - [ ] Punctuation sits outside quotation marks (logical punctuation)
 - [ ] Long paragraphs are broken into digestible chunks with logical headings
+- [ ] The point-first check was run and the text serves its one-sentence point (`references/clarity-faults.md`)
+- [ ] No sentence has a hidden actor, a pronoun without a referent, or a noun stack left unrepaired, and no repair made a sentence slower to parse
 
 ## Related Skills
 

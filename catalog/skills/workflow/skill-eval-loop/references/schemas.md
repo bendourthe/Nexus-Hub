@@ -34,6 +34,13 @@ Fields:
 
 Both `turns`/`trigger_turn` and `model` are opt-in: a plain single-turn eval omits them and is unaffected.
 
+Two optional fields serve instruction-file case sets (see `references/instruction-file-evals.md`). Existing fields keep their meaning, and an entry that omits both is unaffected:
+
+- `case_kind` (string, optional) - one of `positive` (the rule should change the output and should fail on the current text), `negative` (the rule must not fire), or `keep-working` (an existing behavior must still hold after the edit). For these entries `should_trigger` is `true` for `positive` and `keep-working`, and `false` for `negative`.
+- `instruction_section` (string, optional) - the heading of the instruction-file section the case tests, for example `## Writing Discipline`.
+
+A case set maps onto a shared-evaluator manifest (`harness-pairing-manifest/1`) as follows: one pairing per instruction-text variant with the model pinned the same in both, `repeats` set to 5, and the prompts and the canary held in the workload folder. `case_kind` and `instruction_section` stay in the case file, and the evaluator does not read them. Grading of each assertion happens after the run, over the final text and the tool-call path the evaluator retains.
+
 ## `iteration-N/eval-XXX/{with_skill,without_skill,raw_memory}/outputs/run_metadata.json`
 
 Captured per-run metadata:

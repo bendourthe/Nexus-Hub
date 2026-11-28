@@ -1,0 +1,4 @@
+This workload stands for one instruction-file case set. The sibling case file lists the cases; each case id is one trial prompt. Write the final answer to result.txt.
+
+Maintainer paragraph for case clarity-maintainer-control:
+PENDING: the maintainer must replace this line with a paragraph they wrote and confirm. It must draw zero clarity findings. Until then the false-positive control cannot run.
