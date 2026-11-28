@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Open items**: 130
+**Open items**: 137
 
 ## v4.15.0
 
@@ -3998,6 +3998,96 @@ None. Eleven follow-ups still open at release moved to the v4.16 ledger, section
 **Reason**: `catalog/skills/infrastructure/cicd-architect/evals/trigger-cases.json` has no case that expects the skill for the two slow-CI trigger phrases added to its description.
 
 **Suggested next step**: add one positive case per phrase.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+
+## v4.15.9
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 3 | 0 |
+
+### Open Items
+
+#### QG-6: The measured effort run was not executed
+
+**Source phase**: v4.15.9 Phase 5 (T027, must-ship)
+
+**Plan reference**: [Measured run record](development/v4.15.9-measured-effort-run.md), sub-task 5.2
+
+**Reason**: The two arms spend real usage (bound USD 10, 6 subagent spawns) and no budget is recorded for this run. T003 has landed, so spend approval is the only blocker. Until it runs, the effort change has no measurement and the release makes no token-saving claim.
+
+**Suggested next step**: the maintainer approves the budget; run arm A (the parent of `0e74c9d99`) and arm B (the `0e74c9d99` definitions) in fresh sessions and record the delta in `v4.15.9-measured-effort-run.md`.
+
+#### QG-7: The live delegation check for `log-reader` was not exercised
+
+**Source phase**: v4.15.9 Phase 2
+
+**Plan reference**: Phase 2 Verification Expectation in the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: It needs a fresh live Claude Code session, and the lane ran none.
+
+**Suggested next step**: after install, run a failing test in a fixture repo, record whether the session delegates to `log-reader`, then invoke it explicitly and compare its list with the main model's reading.
+
+#### QG-8: The live fixture check for the implicit-state-machine pass was not exercised
+
+**Source phase**: v4.15.9 Phase 4
+
+**Plan reference**: Phase 4 Verification Expectation in the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: It needs a fresh model session.
+
+**Suggested next step**: run the pass on a fixture with three booleans and one status string; observe the state list, a scoped checkpoint commit, and passing tests before and after.
+
+#### DF-72: The post-model-release project audit is deferred (T020)
+
+**Source phase**: v4.15.9 Phase 3 (sub-task 3.4)
+
+**Plan reference**: Sub-task 3.4 of the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: v4.15.11 claims `catalog/skills/ai-development/model-prompting-research/SKILL.md` and has not merged.
+
+**Suggested next step**: run the 3.4 prompt after v4.15.11 merges.
+
+#### DF-73: The refactor-first stop rule against bolted-on features is deferred
+
+**Source phase**: v4.15.9 planning
+
+**Plan reference**: Scope, Cut-Line, and Exclusions in the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: It edits every substantive template and should follow v4.15.0's necessity audit.
+
+**Suggested next step**: a follow-up plan after v4.15.0 and v4.15.2; "no new always-on rule, place it in `refactoring-expert`" is a valid outcome.
+
+#### DF-74: The deep-module, narrow-interface pass is deferred
+
+**Source phase**: v4.15.9 planning
+
+**Plan reference**: Scope, Cut-Line, and Exclusions in the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: v4.18.2 makes `code-simplification` the owner of consolidation.
+
+**Suggested next step**: v4.18.2 absorbs it under that owner.
+
+#### DF-75: The effort role split below `high` is deferred (decision D1)
+
+**Source phase**: v4.15.9 planning
+
+**Plan reference**: Decisions, D1 in the [v4.15.9 plan](plans/v4.15.9-adoption-agent-cost-and-delegation.md)
+
+**Reason**: It needs the v4.15.2 evaluator and a measured baseline.
+
+**Suggested next step**: a plan after the evaluator lands, using the Phase 5 measurement as its baseline.
 
 ### Resolved
 

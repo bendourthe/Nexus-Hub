@@ -524,3 +524,89 @@ def test_new_communication_rules_have_teeth():
         (_STYLE_GUIDE, "Silence during long work is a defect"),
     ):
         assert needle not in _read(path).replace(needle, "")
+
+
+# --- Action needed: restate what waits on the user (v4.15.7) -------------------
+#
+# A softer rule ("write each user action in full, never 'as above'") still produced
+# "the 3 migration-approval steps from earlier", which sent the reader scrolling a
+# long session. The contract now requires a `## Action needed` heading with the steps
+# or the full decision restated under it, and the action-restatement-guard Stop hook
+# enforces it. The template carries the rule; the worked example lives in the style
+# guide and the skill.
+
+_ACTION_MARKER = "- Action needed: when anything waits on the user"
+_ACTION_HEADING = "`## Action needed`"
+_BACKREFS = (
+    "from earlier",
+    "above",
+    "previous message",
+    "as before",
+    "the steps I listed",
+    "scroll up",
+)
+_HOOKS = _REPO_ROOT / "catalog" / "hooks"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_requires_the_action_needed_heading_and_bans_backreferences(
+    path: Path,
+):
+    section = _contract_section(path)
+    assert _ACTION_MARKER in section, f"{path.name} lacks the Action needed rule"
+    line = next(x for x in section.splitlines() if x.startswith(_ACTION_MARKER))
+    assert _ACTION_HEADING in line
+    for phrase in _BACKREFS:
+        assert f'"{phrase}"' in line, f"{path.name}: the ban omits {phrase!r}"
+
+
+def test_action_needed_rule_is_byte_identical_across_the_roster():
+    variants = {
+        line.strip()
+        for path in SUBSTANTIVE
+        for line in _read(path).splitlines()
+        if line.startswith(_ACTION_MARKER)
+    }
+    assert len(variants) == 1, f"Action needed bullet diverged: {variants}"
+
+
+def test_style_guide_and_skill_carry_the_action_needed_rule_and_example():
+    for path in (_STYLE_GUIDE, _SKILL):
+        text = _read(path)
+        assert "Action needed heading" in text, path.name
+        assert "action-restatement-guard" in text, path.name
+        assert "## Action needed" in text, path.name
+    guide = _read(_STYLE_GUIDE)
+    assert "the 3 migration-approval steps from earlier" in guide
+    reference = _read(_SKILL.parent / "references" / "response-contract.md")
+    assert "## Action needed: restating what waits on the user" in reference
+
+
+@pytest.mark.parametrize("name", ["session-start.sh", "session-start.ps1"])
+def test_session_start_reminds_about_the_action_needed_heading(name: str):
+    text = _read(_HOOKS / name)
+    assert "(## Action needed)" in text
+    assert "never write 'from earlier' or 'above'" in text
+
+
+def test_action_restatement_guard_is_registered_on_stop_only():
+    import json
+
+    settings = json.loads(_read(_HOOKS / "settings.json"))
+    hits = {
+        event
+        for event, groups in settings["hooks"].items()
+        for group in groups
+        for hook in group["hooks"]
+        if "action-restatement-guard" in hook["command"]
+    }
+    assert hits == {"Stop"}
+
+
+def test_action_needed_rule_has_teeth():
+    for path, needle in (
+        (SUBSTANTIVE[0], _ACTION_MARKER),
+        (_STYLE_GUIDE, "Action needed heading"),
+        (_SKILL, "Action needed heading"),
+    ):
+        assert needle not in _read(path).replace(needle, "")

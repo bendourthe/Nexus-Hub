@@ -2,21 +2,21 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.7 -->
+<!-- nexus-hub-version: 4.15.9 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
-**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 40 registered hooks, and 23 agents.
+**Catalog:** 340 skills across 23 categories, 22 commands plus 3 permanent aliases, 41 registered hooks, and 24 agents.
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.7
+## What's New in v4.15.9
 
-- A read-only CI latency audit in `cicd-architect` (`ci_latency_audit.py`) shows where a GitHub Actions pipeline spends its time (queue, setup or work) and names the job that sets the finish time. It uses your own `gh` login and changes nothing.
-- `CONTRIBUTING.md` describes an optional pre-push check that runs the fast validation profile before a push. The matching stage is not yet enabled in the repository's pre-commit configuration, so run the fast profile by hand until it is.
-- The CI contract now says dependency caches may be seeded only after a merge to `develop`, and the `cicd-architect` skill follows the same rule.
+- A message that waits on you now carries an `## Action needed` section that repeats the full steps or the full decision, never "see above". A new Stop hook, `action-restatement-guard`, asks the agent to rewrite a message that points back; turn it off with `NEXUS_DISABLED_HOOKS=action-restatement-guard`.
+- A new read-only `log-reader` agent (24 agents now) lists each failure in test or build output without proposing a fix. Every Opus-pinned agent now declares `effort: high`, so a high session effort level no longer spreads to helpers. The measured run was not executed, so no token saving is claimed.
+- The Windows installer no longer adds temporary `.nexus-hub\bin` folders from test runs to your user PATH. Set `NEXUS_HUB_NO_MODIFY_PATH=1` to skip the PATH change on any install.
 
-[Release details and earlier versions](CHANGELOG.md#4157---2026-11-27)
+[Release details and earlier versions](CHANGELOG.md#4159---2026-11-27)
 
 ## Installation
 

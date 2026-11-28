@@ -6,10 +6,11 @@ Tier-3 companion to the `agent-communication` skill. The canonical contract is [
 
 1. [Placeholder discipline: three cases](#placeholder-discipline-three-cases)
 2. [Error recovery: re-issuing the remaining sequence](#error-recovery-re-issuing-the-remaining-sequence)
-3. [Waiting-state interim update](#waiting-state-interim-update)
-4. [End-of-task report](#end-of-task-report)
-5. [Comparison handoff](#comparison-handoff)
-6. [Plain-language substitutions](#plain-language-substitutions)
+3. [Action needed: restating what waits on the user](#action-needed-restating-what-waits-on-the-user)
+4. [Waiting-state interim update](#waiting-state-interim-update)
+5. [End-of-task report](#end-of-task-report)
+6. [Comparison handoff](#comparison-handoff)
+7. [Plain-language substitutions](#plain-language-substitutions)
 
 ## Placeholder discipline: three cases
 
@@ -81,6 +82,26 @@ Every remaining step is present, renumbered from 1, with expected results. The u
 ### The renumbering rule
 
 Renumber from 1, not from N. A sequence labeled "4, 5, 6" invites the reader to hunt for steps 1 through 3, which is exactly the scrollback trip the rule exists to prevent. The new sequence is a complete instruction set, not a continuation.
+
+## Action needed: restating what waits on the user
+
+Setup: three approval steps were given earlier in a long session, and the agent now ends a status message while still waiting on them.
+
+### Wrong
+
+> Waiting on you: the 3 migration-approval steps from earlier. Reply "done" when step 3 prints approved.
+
+The reader must scroll through the session to find the steps. "From earlier" is a reference they cannot resolve cheaply.
+
+### Right
+
+> ## Action needed
+>
+> 1. On the staging host (SSH session), run `./migrate.sh --dry-run`. You should see: `plan ok`.
+> 2. Run `./migrate.sh --apply`. You should see: `applied 3 changes`.
+> 3. Run `./migrate.sh --status`. You should see: `approved`. Reply "done" when it does.
+
+The heading marks the message as waiting on the reader, and the steps are written out again in full even though the same steps were sent before. A pending decision follows the same shape: the heading, the complete question, the lettered options with the recommendation. The `action-restatement-guard` Stop hook blocks a final message that asks the user to act and points back to earlier text.
 
 ## Waiting-state interim update
 
