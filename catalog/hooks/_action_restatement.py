@@ -30,6 +30,27 @@ Precision choices (the false-positive policy):
   The ask signals ("reply", "choose", "approve") are common in messages that need no
   restatement, so a missing heading alone would block too many correct messages.
 
+Decision format (v4.15.10). A second check looks only at the text from the last
+``Action needed`` heading to the next heading of the same or higher level, with fenced
+code removed. When that section offers lettered options (two or more of A to D, as list
+lines or table rows), the hook blocks unless ALL of these hold:
+
+1. The options are rows of a Markdown table.
+2. Option A carries a "recommended" marker and no other option does.
+3. The text before the first option or table row (title plus issue) is at most
+   ``MAX_ISSUE_WORDS`` (60) words.
+4. No table line contains inline code or a 7 to 40 character hex string with a digit and
+   a letter a to f (a commit-hash proxy for jargon).
+
+A numbered-steps section has no lettered options and is never a decision. The block
+reason names every failed rule, shows the required shape, and tells the agent to ask
+through the host's native question tool when one exists.
+
+Hosts. The guard runs on Claude Code and on Codex, whose Stop payload documents
+``last_assistant_message`` (https://learn.chatgpt.com/docs/hooks, fetched 2026-11-27).
+Cursor (no message field, unstable transcript) and VS Code Copilot (same) are not
+enforced; see docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md.
+
 The hook fails open: ``stop_hook_active`` set, malformed or oversized stdin, a payload
 from another platform, a missing or unreadable transcript, and any exception all exit 0
 with no output. Only the tail of a large transcript is read.
@@ -95,6 +116,30 @@ REASON = (
 )
 
 
+MAX_ISSUE_WORDS = 60
+ANY_HEADING_RE = re.compile(r"^ {0,3}(#{1,6})\s", re.MULTILINE)
+LIST_OPTION_RE = re.compile(
+    r"^\s*(?:[-*]\s+)?\(?\*{0,2}(?:Option\s+)?([A-D])\*{0,2}(?:\s*\([^)\n]*\))?\*{0,2}[.):](?=\s|\*)",
+    re.MULTILINE,
+)
+TABLE_OPTION_RE = re.compile(
+    r"^\s*\|\s*\*{0,2}(?:Option\s+)?([A-D])\b[^|\n]*\|", re.MULTILINE
+)
+TABLE_LINE_RE = re.compile(r"^\s*\|.*$", re.MULTILINE)
+RECOMMENDED_RE = re.compile(r"\brecommended\b", re.IGNORECASE)
+HASH_RE = re.compile(r"\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b")
+
+DECISION_REASON = (
+    "Your `## Action needed` section presents a decision that breaks the decision format: {problems}. "
+    "If the host has a native question or selection tool, ask the decision through it instead (option A "
+    "labeled Recommended, each option in plain words) and keep working in the background. Otherwise use this "
+    "shape: `**Decision N: title**`, `**The issue:** one or two plain sentences` (title plus issue at most "
+    "{words} words), a table `| Option | What happens | Trade-off |` with rows `| **A (recommended)** | plain "
+    "outcome | plain cost |`, `| **B** | ... | ... |` (2 to 4 rows, A always the recommendation, no code, "
+    "commands, paths or hashes in the cells), then `Reply with A, B or C.` Put technical detail after the table."
+)
+
+
 def hook_disabled() -> bool:
     """True when opted out via NEXUS_DISABLED_HOOKS or the minimal profile."""
     names = {n.strip() for n in os.environ.get("NEXUS_DISABLED_HOOKS", "").split(",")}
@@ -116,8 +161,15 @@ def read_payload(stream: Any) -> dict[str, Any] | None:
     return payload if isinstance(payload, dict) else None
 
 
+def is_codex(payload: dict[str, Any]) -> bool:
+    """True for a Codex Stop payload (``turn_id`` and ``model``, as usage-guard detects)."""
+    return "turn_id" in payload and "model" in payload and "cursor_version" not in payload
+
+
 def is_claude_code(payload: dict[str, Any]) -> bool:
-    """True unless the payload carries another platform's signature."""
+    """True for a host whose Stop payload this guard can read: Claude Code or Codex."""
+    if is_codex(payload):
+        return True
     if any(key in payload for key in FOREIGN_KEYS):
         return False
     return not os.environ.get("QWEN_PROJECT_DIR")
@@ -209,6 +261,73 @@ def find_backreference(text: str) -> str | None:
     return match.group(0).lower() if match else None
 
 
+def action_section(text: str) -> str | None:
+    """Text under the last ``Action needed`` heading (fences removed), or None."""
+    prose = FENCE_RE.sub(" ", text)
+    matches = list(HEADING_RE.finditer(prose))
+    if not matches:
+        return None
+    last = matches[-1]
+    level = last.group(0).count("#")
+    rest = prose[last.end() :]
+    for nxt in ANY_HEADING_RE.finditer(rest):
+        if len(nxt.group(1)) <= level:
+            return rest[: nxt.start()]
+    return rest
+
+
+def _options(section: str) -> tuple[dict[str, str], dict[str, str]]:
+    """(list options, table options): letter -> its text, first occurrence wins."""
+    found = [(m.start(), m.group(1), 0) for m in LIST_OPTION_RE.finditer(section)]
+    found += [(m.start(), m.group(1), 1) for m in TABLE_OPTION_RE.finditer(section)]
+    found.sort()
+    lists: dict[str, str] = {}
+    tables: dict[str, str] = {}
+    for i, (start, letter, kind) in enumerate(found):
+        if kind == 1:
+            end = section.find("\n", start + 1)
+            tables.setdefault(letter, section[start : end if end != -1 else len(section)])
+        else:
+            end = found[i + 1][0] if i + 1 < len(found) else len(section)
+            lists.setdefault(letter, section[start:end])
+    return lists, tables
+
+
+def decision_problems(text: str) -> list[str]:
+    """The decision-format rules this message breaks; empty when fine or not a decision."""
+    section = action_section(text)
+    if section is None:
+        return []
+    lists, tables = _options(section)
+    if len(set(lists) | set(tables)) < 2:
+        return []
+    problems: list[str] = []
+    if len(tables) < 2:
+        problems.append("the options are not rows of a Markdown table")
+    options = {**lists, **tables}
+    marked = sorted(k for k, v in options.items() if RECOMMENDED_RE.search(v))
+    if "A" not in marked:
+        problems.append("option A is not labeled (recommended)")
+    wrong = [k for k in marked if k != "A"]
+    if wrong:
+        problems.append(
+            f"the recommendation is on option {', '.join(wrong)}; option A must be the one you recommend"
+        )
+    first = min(
+        [m.start() for m in LIST_OPTION_RE.finditer(section)]
+        + [m.start() for m in TABLE_LINE_RE.finditer(section)]
+    )
+    words = len(re.findall(r"\S+", section[:first]))
+    if words > MAX_ISSUE_WORDS:
+        problems.append(
+            f"the title and issue run {words} words, over the {MAX_ISSUE_WORDS}-word limit"
+        )
+    cells = "\n".join(m.group(0) for m in TABLE_LINE_RE.finditer(section))
+    if "`" in cells or HASH_RE.search(cells):
+        problems.append("a table cell holds inline code or a commit hash, which is jargon")
+    return problems
+
+
 def evaluate(payload: dict[str, Any]) -> str | None:
     """The block reason for this Stop payload, or None to allow."""
     if payload.get("stop_hook_active") or not is_claude_code(payload):
@@ -216,13 +335,17 @@ def evaluate(payload: dict[str, Any]) -> str | None:
     reply = final_reply(payload)
     if not reply:
         return None
-    prose = _strip_code(reply)
-    if not asks_user_to_act(prose):
-        return None
-    phrase = find_backreference(reply)
-    if phrase is None:
-        return None
-    return f"{NEXUS_TAG} {REASON.format(phrase=phrase)}"
+    reasons: list[str] = []
+    if asks_user_to_act(_strip_code(reply)):
+        phrase = find_backreference(reply)
+        if phrase is not None:
+            reasons.append(REASON.format(phrase=phrase))
+    problems = decision_problems(reply)
+    if problems:
+        reasons.append(
+            DECISION_REASON.format(problems="; ".join(problems), words=MAX_ISSUE_WORDS)
+        )
+    return f"{NEXUS_TAG} {' '.join(reasons)}" if reasons else None
 
 
 def main() -> int:
