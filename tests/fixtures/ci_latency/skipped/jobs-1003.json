@@ -1,0 +1,131 @@
+{
+ "jobs": [
+  {
+   "name": "changes",
+   "conclusion": "success",
+   "created_at": "2026-01-05T10:00:00Z",
+   "started_at": "2026-01-05T10:00:02Z",
+   "completed_at": "2026-01-05T10:00:30Z",
+   "steps": [
+    {
+     "name": "Set up job",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:00:02Z",
+     "completed_at": "2026-01-05T10:00:02Z"
+    },
+    {
+     "name": "Run",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:00:02Z",
+     "completed_at": "2026-01-05T10:00:30Z"
+    }
+   ]
+  },
+  {
+   "name": "windows",
+   "conclusion": "skipped",
+   "created_at": "2026-01-05T10:00:30Z",
+   "started_at": null,
+   "completed_at": null,
+   "steps": []
+  },
+  {
+   "name": "nightly",
+   "conclusion": "cancelled",
+   "created_at": "2026-01-05T10:00:30Z",
+   "started_at": "2026-01-05T10:00:31Z",
+   "completed_at": "2026-01-05T10:00:40Z",
+   "steps": []
+  },
+  {
+   "name": "no-times",
+   "conclusion": "success",
+   "created_at": "2026-01-05T10:00:30Z",
+   "steps": []
+  },
+  {
+   "name": "unit",
+   "conclusion": "failure",
+   "created_at": "2026-01-05T10:00:30Z",
+   "started_at": "2026-01-05T10:00:40Z",
+   "completed_at": "2026-01-05T10:06:00Z",
+   "steps": [
+    {
+     "name": "Set up job",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:00:40Z",
+     "completed_at": "2026-01-05T10:00:40Z"
+    },
+    {
+     "name": "Run",
+     "conclusion": "failure",
+     "started_at": "2026-01-05T10:00:40Z",
+     "completed_at": "2026-01-05T10:06:00Z"
+    }
+   ]
+  },
+  {
+   "name": "tests",
+   "conclusion": "success",
+   "created_at": "2026-01-05T10:00:30Z",
+   "started_at": "2026-01-05T10:01:00Z",
+   "completed_at": "2026-01-05T10:20:00Z",
+   "steps": [
+    {
+     "name": "Set up job",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:01:00Z",
+     "completed_at": "2026-01-05T10:02:00Z"
+    },
+    {
+     "name": "Run",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:02:00Z",
+     "completed_at": "2026-01-05T10:20:00Z"
+    }
+   ]
+  },
+  {
+   "name": "report",
+   "conclusion": "success",
+   "created_at": "2026-01-05T10:20:00Z",
+   "started_at": "2026-01-05T10:20:05Z",
+   "completed_at": "2026-01-05T10:20:20Z",
+   "steps": [
+    {
+     "name": "Set up job",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:20:05Z",
+     "completed_at": "2026-01-05T10:20:05Z"
+    },
+    {
+     "name": "Run",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:20:05Z",
+     "completed_at": "2026-01-05T10:20:20Z"
+    }
+   ]
+  },
+  {
+   "name": "ci-required",
+   "conclusion": "failure",
+   "created_at": "2026-01-05T10:20:20Z",
+   "started_at": "2026-01-05T10:20:22Z",
+   "completed_at": "2026-01-05T10:20:25Z",
+   "steps": [
+    {
+     "name": "Set up job",
+     "conclusion": "success",
+     "started_at": "2026-01-05T10:20:22Z",
+     "completed_at": "2026-01-05T10:20:22Z"
+    },
+    {
+     "name": "Run",
+     "conclusion": "failure",
+     "started_at": "2026-01-05T10:20:22Z",
+     "completed_at": "2026-01-05T10:20:25Z"
+    }
+   ]
+  }
+ ]
+}

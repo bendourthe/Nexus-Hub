@@ -20,6 +20,7 @@ SOURCES = {
     "tests-windows-validators-2": "ci-windows-validators-2-reports",
     "tests-windows-validators-3": "ci-windows-validators-3-reports",
     "tests-windows-validators-4": "ci-windows-validators-4-reports",
+    "tests-windows-validators-5": "ci-windows-validators-5-reports",
     "tests-windows-installer-core": "ci-windows-installer-core-reports",
     "bootstrap": ("ci-bootstrap-reports-ubuntu-latest", "ci-bootstrap-reports-macos-latest"),
     "bootstrap-windows": "ci-bootstrap-windows-reports",

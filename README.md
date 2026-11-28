@@ -2,7 +2,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.15.6 -->
+<!-- nexus-hub-version: 4.15.7 -->
 
 Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hooks, guardrails, and best practices. The installer configures the supported platforms on your machine. Agents use the harness through their existing IDE, terminal, or configured app.
 
@@ -10,13 +10,13 @@ Nexus Hub is a backend harness for AI coding tools: skills, commands, rules, hoo
 
 [Chinese README](README_zh.md) | [Interactive guide and training](https://www.benjamindourthe.com/nexus-hub/index.html) | [Skills](data/SKILL_INDEX.md) | [Command cheatsheet](#command-cheatsheet) | [Platform coverage](docs/policy/platform-read-contracts.md)
 
-## What's New in v4.15.6
+## What's New in v4.15.7
 
-- Every git worktree now lives in one central folder. `nexus-hub worktree` creates, lists, audits and (after your approval) migrates worktrees, a guard blocks `git worktree add` outside that folder, and `nexus-hub worktree prune-merged` removes merged, clean worktrees (a dry run unless you add `--apply`).
-- Every platform's instructions now share the same progress-report, question and manual-step rules, and during an implementation run the progress report is the closing message.
-- Minor runs flag idle lanes and name the next dispatch or decision. `nexus-hub upgrade` works again on Windows machines where Microsoft Defender blocked it, and the Gemini Usage Monitor reads quotas on Antigravity IDE 1.107.
+- A read-only CI latency audit in `cicd-architect` (`ci_latency_audit.py`) shows where a GitHub Actions pipeline spends its time (queue, setup or work) and names the job that sets the finish time. It uses your own `gh` login and changes nothing.
+- `CONTRIBUTING.md` describes an optional pre-push check that runs the fast validation profile before a push. The matching stage is not yet enabled in the repository's pre-commit configuration, so run the fast profile by hand until it is.
+- The CI contract now says dependency caches may be seeded only after a merge to `develop`, and the `cicd-architect` skill follows the same rule.
 
-[Release details and earlier versions](CHANGELOG.md#4156---2026-11-27)
+[Release details and earlier versions](CHANGELOG.md#4157---2026-11-27)
 
 ## Installation
 
