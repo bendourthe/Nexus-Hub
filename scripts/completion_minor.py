@@ -5139,7 +5139,94 @@ def _historical_claims_sha256(member: dict) -> str:
     return hashlib.sha256(approval_binding.canonical(frozen)).hexdigest()
 
 
-def historical_scope_bounds(rctx: RepoContext, record: dict, member: dict, merge: str) -> dict:
+def _is_reviewed_v414_scope(record: dict, member: dict, merge: object) -> bool:
+    expected = REVIEWED_HISTORICAL_SCOPE
+    return (record.get("repo") == expected["repo"] and record.get("minor") == expected["minor"]
+            and member.get("version") == expected["member"] and merge == expected["merge"])
+
+
+def historical_scope_bounds(rctx: RepoContext, record: dict, member: dict, merge: str,
+                            ck: ModuleType | None = None) -> dict:
+    """The reviewed v4.14.2 descriptor keeps its fixed rows; any other merge derives its own."""
+    if _is_reviewed_v414_scope(record, member, merge):
+        return _reviewed_v414_bounds(rctx, record, member, merge)
+    bounds = merged_scope_gap(ck, rctx, record, member, merge)
+    if bounds["blocked"]:
+        raise MinorMalformed("merged-scope-protected-path")
+    bounds.pop("blocked")
+    return bounds
+
+
+def merged_scope_gap(ck: ModuleType | None, rctx: RepoContext, record: dict, member: dict, merge: str) -> dict:
+    """Derive, never accept, the literal files one merged member changed outside its recorded claims.
+
+    The list is `git diff` of the merge against its integration parent, minus every path the
+    historical claim audit already treats as claimed. Unclaimed files that the coordinator owns
+    are returned apart as `coordinator_rows`, so a reader sees what the member did versus what
+    the coordinator added. Files the audit will never accept come back as `blocked`.
+    """
+    if not isinstance(merge, str) or not re.fullmatch(r"[0-9a-f]{40}", merge):
+        raise MinorMalformed("merged-scope-invalid-merge")
+    implementation = member.get("implementation")
+    if not isinstance(implementation, dict):
+        raise MinorMalformed("historical-scope-original-claims-missing")
+    writes = implementation.get("write_paths")
+    coordinator = member.get("coordinator_paths", [])
+    if (not isinstance(writes, list) or not isinstance(coordinator, list)
+            or any(not isinstance(p, str) for p in [*writes, *coordinator])):
+        raise MinorMalformed("historical-scope-original-claims-invalid")
+    start = member.get("start_head") or implementation.get("base_head")
+    parents = rctx._git_out("rev-list", "--parents", "-n", "1", merge).split()
+    if len(parents) != 3 or parents[0] != merge:
+        raise MinorMalformed("merged-scope-not-a-merge-commit")
+    if not isinstance(start, str) or any(_ancestor(rctx, start, p) != "met" for p in parents[1:]):
+        raise MinorMalformed("historical-scope-base-unverified")
+    tree = rctx._git_out("rev-parse", "--verify", merge + "^{tree}")
+    rc, raw = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--raw", "--no-abbrev", "--no-renames", "-z",
+                        parents[1], merge, "--"])
+    pieces = raw.split("\0") if not rc else []
+    if rc or not pieces or pieces[-1] != "" or len(pieces) % 2 != 1:
+        raise ObservationUnavailable("historical-scope-diff-unavailable")
+    archived = _archive_only_paths(rctx, record, member, parents[1], merge)
+    if archived is None:
+        raise ObservationUnavailable("historical-scope-diff-unavailable")
+    checkpoints, prospective = _checkpoint_effective(ck, rctx, record, member, parents[1], merge)
+    claims = [*writes, *(coordinator if member.get("start_head") else []),
+              *_permitted_implementation_writes(ck, record, member), *prospective]
+    reserved = _coordinator_paths(rctx, str(record["minor"]), [])
+    rows: list = []
+    owned: list = []
+    blocked: list = []
+    seen: set[str] = set()
+    for index in range(0, len(pieces) - 1, 2):
+        metadata, path = pieces[index:index + 2]
+        fields = metadata.removeprefix(":").split()
+        if (not metadata.startswith(":") or len(fields) != 5 or fields[4] not in {"A", "M", "D"}
+                or path.casefold() in seen):
+            raise MinorMalformed("historical-scope-diff-invalid")
+        seen.add(path.casefold())
+        if path in archived or path in checkpoints:
+            continue
+        _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
+        permitted = _member_write_permitted(ck, record, member, path)
+        if _sensitive_write(rctx, path, []) and not permitted:
+            blocked.append([path, "sensitive"])
+        elif fields[0] not in {"000000", "100644", "100755"} or fields[1] not in {"000000", "100644", "100755"}:
+            blocked.append([path, "not-a-regular-file"])
+        elif path == _EXECUTION_REGISTRY and not _execution_registration_audit(ck, rctx, record, member, parents[1], merge):
+            blocked.append([path, "execution-registry"])
+        elif any(_overlap(path, claim) for claim in claims):
+            continue
+        elif _coordinator_name(path) or any(_overlap(path, q) for q in reserved):
+            owned.append((path, *fields[:4], fields[4]))
+        else:
+            rows.append((path, *fields[:4], fields[4]))
+    return {"merge": merge, "first_parent": parents[1], "second_parent": parents[2], "tree": tree,
+            "rows": [list(r) for r in sorted(rows)], "coordinator_rows": [list(r) for r in sorted(owned)],
+            "blocked": sorted(blocked)}
+
+
+def _reviewed_v414_bounds(rctx: RepoContext, record: dict, member: dict, merge: str) -> dict:
     """Recompute the complete uncovered contribution for the single reviewed merge."""
     expected = REVIEWED_HISTORICAL_SCOPE
     if (record.get("repo") != expected["repo"] or record.get("minor") != expected["minor"]
@@ -5198,9 +5285,11 @@ def historical_scope_bounds(rctx: RepoContext, record: dict, member: dict, merge
 def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record: dict,
                           version: str | None, merge: str | None) -> dict:
     """Bind the render and consume round to one current, authenticated generation."""
-    member = next((m for m in record["members"] if m.get("version") == version), None)
-    if member is None or token != REVIEWED_HISTORICAL_SCOPE["minor"] or merge != REVIEWED_HISTORICAL_SCOPE["merge"]:
+    member = next((m for m in ordered_members(record) if m.get("version") == version), None)
+    if member is None or token != record.get("minor"):
         raise ck.Malformed("historical-scope-outside-reviewed-repair")
+    if not isinstance(merge, str) or not re.fullmatch(r"[0-9a-f]{40}", merge):
+        raise ck.Malformed("merged-scope-invalid-merge")
     if member.get("historical_scope_supplements"):
         raise ck.Malformed("historical-scope-already-supplemented")
     if not isinstance(record, ck.MinorSnapshot):
@@ -5211,7 +5300,12 @@ def supplement_scope_page(ck: ModuleType, rctx: RepoContext, token: str, record:
     status, actual_merge = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
     if status != "merged" or actual_merge != merge:
         raise ck.Malformed("historical-scope-publication-unverified")
-    bounds = historical_scope_bounds(rctx, record, member, merge)
+    try:
+        bounds = historical_scope_bounds(rctx, record, member, merge, ck)
+    except MinorMalformed as exc:
+        raise ck.Malformed(str(exc)) from None
+    if not bounds["rows"] and not bounds.get("coordinator_rows"):
+        raise ck.Malformed("merged-scope-nothing-to-supplement")
     controller = record.get("implementation_controller") or {"repo_root": record.get("repo_root")}
     return {"action": "supplement-scope", "scope": {"kind": "minor", "minor": token},
             "record_nonce": record["nonce"], "repo": record["repo"], "controller": controller,
@@ -5257,7 +5351,7 @@ def _historical_scope_entry_valid(ck: ModuleType, rctx: RepoContext, record: dic
                 or not _historical_plan_hash_valid(ck, rctx, record, member, page["plan_sha256"])
                 or page["claims_sha256"] != _historical_claims_sha256(member)
                 or approval_binding.canonical(page["merge_bounds"])
-                   != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge))):
+                   != approval_binding.canonical(historical_scope_bounds(rctx, record, member, merge, ck))):
             return False
         if (not isinstance(page["owner_session"], str) or not page["owner_session"]
                 or not re.fullmatch(r"[0-9a-f]{64}", str(page["record_sha256"]))
@@ -5310,7 +5404,7 @@ def _historical_scope_paths(ck: ModuleType | None, rctx: RepoContext, record: di
     if entries == []:
         return set()
     if (ck is None or not isinstance(record, dict) or not isinstance(entries, list) or len(entries) != 1
-            or approval_binding.canonical(next((m for m in record.get("members", [])
+            or approval_binding.canonical(next((m for m in _member_list(record)
                                                 if m.get("version") == member.get("version")), None))
                != approval_binding.canonical(member)):
         return None
@@ -5318,13 +5412,14 @@ def _historical_scope_paths(ck: ModuleType | None, rctx: RepoContext, record: di
     if (key is None or not hmac.compare_digest(str(record.get("approvals_hmac", "")), _sign(ck, record, key))
             or not _historical_scope_entry_valid(ck, rctx, record, member, merge, entries[0])):
         return None
-    return {row[0] for row in entries[0]["page"]["merge_bounds"]["rows"]}
+    bounds = entries[0]["page"]["merge_bounds"]
+    return {row[0] for row in [*bounds["rows"], *bounds.get("coordinator_rows", [])]}
 
 
 def check_historical_scope_write(ck: ModuleType, rctx: RepoContext, previous: dict, record: dict) -> None:
     """Every native writer preserves accepted entries, including a removed member."""
-    before = previous.get("members", [])
-    after = record.get("members", [])
+    before = [m for key in ("members", "minor_amendment_members") for m in previous.get(key, [])]
+    after = [m for key in ("members", "minor_amendment_members") for m in record.get(key, [])]
     if not any(isinstance(m, dict) and "historical_scope_supplements" in m for m in [*before, *after]):
         return
     if (not all(isinstance(m, dict) for m in [*before, *after])
@@ -5355,14 +5450,14 @@ def check_historical_scope_write(ck: ModuleType, rctx: RepoContext, previous: di
     def original(value: dict) -> dict:
         copied = json.loads(json.dumps(value))
         copied.pop("approvals_hmac", None)
-        for item in copied["members"]:
+        for item in _member_list(copied):
             item.pop("historical_scope_supplements", None)
         return copied
     if approval_binding.canonical(original(previous)) != approval_binding.canonical(original(record)):
         raise ck.MinorConflict("historical-scope-unrelated-record-change")
     if (entry.get("page", {}).get("record_sha256") != active["expected"]
             or not _historical_scope_entry_valid(ck, rctx, record, new[version],
-                                                  REVIEWED_HISTORICAL_SCOPE["merge"], entry, verify_capture=True)):
+                                                  entry["page"]["merge_bounds"]["merge"], entry, verify_capture=True)):
         raise ck.MinorConflict("historical-scope-invalid-entry")
 
 
@@ -5385,7 +5480,7 @@ def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int
              "round_nonce": pending["nonce"], "code": pending["code"], "rendered_at": pending["rendered_at"],
              "text": approval_binding.pasted(pending), "allow_short_reply": pending.get("allow_short_reply", False),
              "authorization_context": pending.get("capture")}}
-    member = next(m for m in record["members"] if m["version"] == args.member)
+    member = next(m for m in ordered_members(record) if m["version"] == args.member)
     member.setdefault("historical_scope_supplements", []).append(entry)
     record["approvals_hmac"] = _sign(ck, record, ck._secret(create=False) or b"")
     active = ck._MINOR_LEASE.get()
@@ -5398,6 +5493,52 @@ def cmd_record_supplement_scope(ck: ModuleType, args: argparse.Namespace) -> int
         active.pop("historical_scope_append", None)
     print(f"SUPPLEMENTED historical scope {args.member}")
     return 0
+
+
+def cmd_record_scope_gap(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Read-only preview of exactly what `supplement-scope` would ask the maintainer to approve."""
+    rctx = repo_context(ck, args)
+    state = load_minor(ck, rctx, args.minor, None, minor_protocol=MINOR_AMENDMENT_PROTOCOL,
+                       execution_protocol=MINOR_EXECUTION_PROTOCOL)
+    record = state.record
+    if record is None:
+        print("no live minor run record for this scope", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    member = next((m for m in ordered_members(record) if m.get("version") == args.member), None)
+    if member is None:
+        print("REFUSED merged-scope-unknown-member")
+        return 1
+    status, actual = _merge_commit(ck, rctx, str(record["repo"]), str(member["source_branch"]))
+    print(f"scope-gap minor {args.minor} member {args.member} merge {args.merge}")
+    print(f"pull-request-merge {status} {actual or '-'}")
+    try:
+        if _is_reviewed_v414_scope(record, member, args.merge):
+            print("reviewed-descriptor v4.14.2 (fixed rows; use supplement-scope as documented)")
+        bounds = merged_scope_gap(ck, rctx, record, member, args.merge)
+    except (MinorMalformed, ObservationUnavailable) as exc:
+        print(f"REFUSED {exc}")
+        return 1
+    print(f"integration-parent {bounds['first_parent']}")
+    print(f"tree {bounds['tree']}")
+    print(f"claim-audit {_historical_claim_status(rctx, member, args.merge, record, ck)}")
+    for title, key in (("member contribution", "rows"), ("coordinator contribution", "coordinator_rows")):
+        print(f"{title} ({len(bounds[key])})")
+        for path, mode_before, mode_after, blob_before, blob_after, kind in bounds[key]:
+            print(f"  {kind} {path} {mode_before}:{blob_before} -> {mode_after}:{blob_after}")
+    print(f"never supplementable ({len(bounds['blocked'])})")
+    for path, reason in bounds["blocked"]:
+        print(f"  {reason} {path}")
+    problems = []
+    if status != "merged" or actual != args.merge:
+        problems.append("merge-is-not-the-recorded-pull-request-merge")
+    if bounds["blocked"]:
+        problems.append("merged-scope-protected-path")
+    if not bounds["rows"] and not bounds["coordinator_rows"]:
+        problems.append("merged-scope-nothing-to-supplement")
+    if member.get("historical_scope_supplements"):
+        problems.append("historical-scope-already-supplemented")
+    print("VERDICT " + ("supplementable" if not problems else "refused: " + ", ".join(problems)))
+    return 0 if not problems else 1
 
 M5_MANIFEST_PERMISSION = {"repo": "bendourthe/Nexus-Hub", "minor": "v4.14", "member": "v4.14.5", "path": "MANIFEST.sha256"}
 
@@ -9893,7 +10034,7 @@ def _historical_claim_status(rctx: RepoContext, member: dict, merge: str, record
                 continue
             _literal_path(rctx.root, path + "/" if (rctx.root / path).is_dir() else path)
             permitted = _member_write_permitted(ck, record, member, path)
-            if (_sensitive_write(rctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", [])):
+            if (_sensitive_write(rctx, path, []) and not permitted) or (_coordinator_name(path) and path not in member.get("coordinator_paths", []) and path not in supplements):
                 return "unmet"
             if path == _EXECUTION_REGISTRY and not _execution_registration_audit(ck, rctx, record, member, base, merge):
                 return "unmet"

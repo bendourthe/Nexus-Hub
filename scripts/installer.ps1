@@ -98,6 +98,10 @@ Options:
   -NoModifyPath Do not add ~\.nexus-hub\bin to your user PATH. By default the
                 installer adds it once so 'nexus-hub upgrade' works in any new
                 terminal; with this switch it only prints the line to add.
+                Setting NEXUS_HUB_NO_MODIFY_PATH=1 has the same effect. The
+                installer also skips the change on its own when USERPROFILE
+                is not the account's real profile folder (a sandboxed or
+                test home), because the user PATH is shared by the account.
   -Workspace <path>  Install into a single project directory instead of the
                 default global (all-projects) scope.
   -Platforms <list>  Install only the given comma-separated integration keys
@@ -160,7 +164,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.15.7"
+$script:NexusHubVersion = "4.15.9"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -3570,12 +3574,27 @@ function Install-CliLauncher {
     # PATH wiring (v4.15.4): add the bin directory to the user PATH unless
     # -NoModifyPath is given. See docs/decisions/implemented/tooling/
     # 2026-11-18-cli-bin-directory-on-path.md.
+    # The user PATH lives in HKCU, shared by the whole account, while this
+    # install root follows $env:USERPROFILE. A redirected (sandboxed or test)
+    # home must never write its bin directory there, so the change is skipped
+    # on -NoModifyPath, on NEXUS_HUB_NO_MODIFY_PATH=1, or when USERPROFILE is
+    # not the account's real profile folder.
+    $skipPathReason = $null
+    if ($NoModifyPath) { $skipPathReason = '-NoModifyPath' }
+    elseif ($env:NEXUS_HUB_NO_MODIFY_PATH -eq '1') { $skipPathReason = 'NEXUS_HUB_NO_MODIFY_PATH=1' }
+    else {
+        try {
+            $realProfile = [IO.Path]::GetFullPath([Environment]::GetFolderPath('UserProfile')).TrimEnd('\')
+            $thisProfile = [IO.Path]::GetFullPath($env:USERPROFILE).TrimEnd('\')
+            if ($realProfile -and ($realProfile -ine $thisProfile)) { $skipPathReason = 'USERPROFILE is not the account profile (sandboxed home)' }
+        } catch { $skipPathReason = $null }
+    }
     $pathEntries = @($env:PATH -split ';' | ForEach-Object { $_.Trim().TrimEnd('\') })
     if ($pathEntries -contains $binDest.TrimEnd('\')) {
         Write-Item -Message "✓ $binDest is already on your PATH -- run: nexus-hub --version" -Color "DarkGreen"
     }
-    elseif ($NoModifyPath) {
-        Write-Item -Message "-NoModifyPath: your PATH was not changed. To use the 'nexus-hub' command, add its bin directory to your PATH." -Color "Yellow"
+    elseif ($skipPathReason) {
+        Write-Item -Message "${skipPathReason}: your PATH was not changed. To use the 'nexus-hub' command, add its bin directory to your PATH." -Color "Yellow"
         Write-Item -Message "  Run this once in PowerShell (appends to your user PATH), then reopen your terminal:" -Color "White"
         Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
         Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"

@@ -79,6 +79,8 @@ The expected-output block is the most-skipped and most useful part. Where a comm
 
 Every action the user must take (a command, a file to send, a value to find, a choice) is written out in full in the message that asks for it, and again in every later message that still asks for it. Never refer back: no "run the command from my earlier message", no "as above". On a long turn the earlier text is buried under tool calls, and a reference the reader cannot resolve is an instruction they cannot follow.
 
+**Action needed heading.** When anything waits on the user (a command, an approval, a decision, or information), put a `## Action needed` heading in that message and restate everything under it in full, even if the previous message had the same text: numbered steps with where to run, exact commands, and expected output, or the complete decision with lettered options and your recommendation. Never write "from earlier", "above", "previous message", "as before", "the steps I gave", "the steps I listed", "see my earlier", or "scroll up" for a pending action. The `action-restatement-guard` Stop hook blocks a final message that does.
+
 ### 3.3 Match the user's shell
 
 A command for the user's own machine parses in the shell they will paste it into, never in your tool's dialect. On Windows that is Windows PowerShell 5.1 unless the user named another shell. Never chain with `&&` or `||` (PowerShell 7+ only; 5.1 rejects the whole line before running any of it). Use one command per line, separate numbered steps, or `A; if ($?) { B }`. No heredocs, `VAR=x cmd`, `export`, Bash `$(...)`, backslash continuation, or `/tmp` paths; use `$env:NAME`. A command for a remote Linux host stays POSIX and names that host. When the shell is uncertain, one command per line with no chaining runs everywhere. Before sending, scan each user-facing block for `&&`, `||`, `<<`, a leading `VAR=`, and `export`. The full rule and example are in the style guide's section 3.3.
@@ -215,6 +217,7 @@ The style guide's section 10 owns the full wording.
 - [ ] No unflagged angle brackets, square brackets, or ALL-CAPS template tokens sit inside a command block.
 - [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
 - [ ] Every action the user must take is written out in full where it is asked for (and again in each later message that still asks for it); nothing says "from my earlier message" or "as above".
+- [ ] A message that waits on the user has a `## Action needed` heading with every step or the full decision restated under it.
 - [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no user-facing block contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
 - [ ] Every step opens with its machine and terminal, no block mixes two machines, and no prompting command has anything after it in the same paste.
 - [ ] No step asks the user to find a file and paste its contents, and any method for another machine is the one the project's notes record as working.

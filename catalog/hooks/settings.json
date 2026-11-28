@@ -367,6 +367,11 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/action-restatement-guard.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/usage-display.sh"
           },
           {
