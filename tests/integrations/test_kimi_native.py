@@ -70,7 +70,10 @@ def _config(root: Path) -> Path:
 
 
 def test_every_catalog_agent_is_copied_byte_for_byte(kimi, install_ctx, kimi_root):
-    """Kimi reads the catalog's frontmatter natively, so no transform may occur."""
+    """Kimi reads the catalog's frontmatter natively; only the undocumented
+    ``effort`` key is removed, and every other byte is kept."""
+    import re
+
     kimi._install_agents(kimi_root, install_ctx)
     src_dir = install_ctx.repo_root / "catalog" / "agents"
     sources = sorted(src_dir.glob("*.md"))
@@ -78,7 +81,15 @@ def test_every_catalog_agent_is_copied_byte_for_byte(kimi, install_ctx, kimi_roo
     for src in sources:
         dst = kimi_root / "agents" / src.name
         assert dst.exists(), f"{src.name} was not delivered"
-        assert dst.read_bytes() == src.read_bytes(), f"{src.name} was modified"
+        expected = re.sub(
+            rb"^effort:[^\r\n]*\r?\n",
+            b"",
+            src.read_bytes(),
+            count=1,
+            flags=re.MULTILINE,
+        )
+        assert dst.read_bytes() == expected, f"{src.name} was modified"
+        assert b"\neffort:" not in dst.read_bytes().split(b"---", 2)[1], src.name
 
 
 def test_delivered_agents_keep_the_md_extension_and_name(kimi, install_ctx, kimi_root):

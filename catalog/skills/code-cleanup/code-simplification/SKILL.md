@@ -173,7 +173,7 @@ When a domain's logic is already copied across modules and you consolidate it, a
 
 - [[dead-code-eliminator]] -- systematic dead code removal at codebase scale
 - [[minimal-construction]] -- pre-write ladder (should this exist, stdlib, native, one line); this skill does not restate that ladder
-- [[refactoring-expert]] -- behavior-preserving refactoring using Fowler's catalog
+- [[refactoring-expert]] -- behavior-preserving refactoring using Fowler's catalog; its implicit-state-machine pass turns scattered flags into an explicit state type
 - [[python-cleanup]] -- Python-specific style and pattern cleanup
 - [[javascript-cleanup]] -- JavaScript/TypeScript-specific cleanup
 - [[code-smell-detector]] -- identify structural code quality issues before simplification

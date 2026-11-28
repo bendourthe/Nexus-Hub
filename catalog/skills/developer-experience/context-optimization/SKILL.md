@@ -114,6 +114,10 @@ npm install > /dev/null 2>&1 && echo "Install succeeded"
 
 ---
 
+### Filter first for bulk data
+
+Before an agent reads a large log, export, or dataset, it writes a deterministic filter script: regexes, URL matching, and dedupe, with no model call. The script prints the row count before and after filtering. If too much remains, tighten the filter. Only then read what is left, preferably on a cheaper tier or through the `log-reader` agent.
+
 ## Gemini, Codex, and Copilot: Prompt-Level Output Minimization
 
 These platforms do not have a hook system equivalent to Claude Code's, so output compression must be instructed at the prompt level. Add the following to your `GEMINI.md`, `AGENTS.md`, or `copilot-instructions.md`:
@@ -146,6 +150,7 @@ These instructions reduce the amount of command output the AI includes in its re
 - [ ] For Gemini/Codex/Copilot: an Output Minimization section was added to the relevant instruction file
 - [ ] Build, test, and package-manager commands use `--quiet`/`-q`/`--silent` where the tool supports it
 - [ ] Long-running commands summarize counts and errors rather than dumping the full log
+- [ ] Bulk data was reduced by a deterministic filter script that printed its row counts before and after, and the model read only the remainder
 
 ## Related Skills
 

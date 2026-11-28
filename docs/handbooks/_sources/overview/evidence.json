@@ -7,7 +7,7 @@
       "docs/handbooks/_sources/overview/design.css": "e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921",
       "scripts/validate_skills.py": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a",
       "scripts/check_registry_entries.py": "e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55",
-      "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
+      "scripts/lib/integrations/_catalog_adapters.py": "d1ddd0148b512c9140e9e0e556ba623739364493be589e29533cf19eea12548b",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "0c01305b9ee976bb4c5beb994189cac5fb9816d56e1c4d98b65afa721485b17c",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",

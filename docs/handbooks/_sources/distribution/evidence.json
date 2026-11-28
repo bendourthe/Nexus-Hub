@@ -5,13 +5,13 @@
       "docs/handbooks/_sources/distribution/model.json": "b22c3f8320226ac65a3051f82d9a9c957cf403843679c83e11803eac31662ef3",
       "docs/handbooks/_sources/distribution/source.md": "d948449425359d46ca258b6a896c2af9f3f7ad984c043766c5cc8a1dd6a5b898",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "363ae8cb71c88799c7a123fc83086db2a613fa80ba87154f9b10398b522f9029",
-      "scripts/installer.sh": "2fdb4958a3c49000aaf7bcf6fc43aec679c878bb631186e57f2d22e5d25c2abd",
+      "scripts/installer.ps1": "61c850a1a55d222669cc22e537e24ab4bfedf52452b2ffcd2710e8fda95a3add",
+      "scripts/installer.sh": "9c8522917d0fb4ab2bff4ecd29133dcc540a036f6e3aec8b31b66e3052008ba8",
       "scripts/lib/integrations/runner.py": "ccaace954cc159155e97a31ed44c14a6f55c31daa913d968581afd18c02b0cb8",
       "scripts/nexus_hub_cli.py": "202bc000599bfbe61b9c6bbb093aee440f6f0d7e131bb6462010b4926dba602a",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
       "scripts/lib/integrations/claude.py": "be317356bf253d11c54d731bea38687380b65ce29567b3890053200b8f1e1eb5",
-      "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
+      "scripts/lib/integrations/_catalog_adapters.py": "d1ddd0148b512c9140e9e0e556ba623739364493be589e29533cf19eea12548b",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "0c01305b9ee976bb4c5beb994189cac5fb9816d56e1c4d98b65afa721485b17c",
@@ -26,7 +26,7 @@
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "9fe46d95b27cbfc0208b07717e7bb474ac563f39e1e20a8080fced7aa76e0a32",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "acf58d23b6714c95500b79b4e87289a1e4b6f4ade21b4ad60729838becc6d6a7",
+      "scripts/lib/integrations/cursor.py": "27de3922433e9095a34148d348ce30a58f00c247d1c3af55408131e7759e817f",
       "scripts/lib/integrations/aider.py": "821c49d0cf5207397b837ddccc827fe2ca25146d1c7051ced63da556e5a1fc33",
       "configs/platform-defaults.json": "453a8c2cf30bba598b6e3e25592fa6f041142928df7b2a9960ba95b88f42cf86",
       "scripts/nexus_process.py": "4f41e8a9a069a19e688f840eb1277a8d5b47d3d0a81367a55d36a2307d7aac8b"
@@ -36,8 +36,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review-v4157-release.md",
-      "evidence_sha256": "2da5c77fda2386aebd235926ac1ca7f3f326c45be9943b8feedef844f13fd92a"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/v4.15.9-handbooks/distribution-claim-review-v4159-version.md",
+      "evidence_sha256": "a7e812f82136317fec8fc97b84df6057faa062eb51ecc1b1a553eba01b55ee53"
     },
     "build": {
       "status": "pass",

@@ -983,9 +983,11 @@ class SkillsIntegration(IntegrationBase):
             # default one.
             surface = {"commands_subdir": "command", "agents_subdir": "agent"}.get(cfg_key)
             dropped = tuple(self.config.get("agents_drop_frontmatter", ()))
-            # Catalog model aliases belong to Claude, not other providers.
+            # Catalog model aliases and effort ceilings belong to Claude only.
             if self.key != "claude":
-                dropped += ("model",)
+                from ._catalog_adapters import CLAUDE_ONLY_AGENT_KEYS
+
+                dropped += CLAUDE_ONLY_AGENT_KEYS
             if cfg_key == "agents_subdir" and dropped:
                 # Local import breaks the base <-> _catalog_adapters import cycle.
                 from ._catalog_adapters import agents_dropping_keys

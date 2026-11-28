@@ -176,6 +176,10 @@ Choosing isolation as the mitigation is this skill's call; the subagent isolatio
 4. Finally, integrate the results"
 ```
 
+### Two failed corrections reset
+
+After two failed corrections on the same task, stop correcting. Start a fresh session with a rewritten prompt that carries what the two failures taught: what was tried, why it failed, and the constraint the next attempt must respect. A third correction into the same context usually repeats the second, because the failed attempts are now part of what the model reads. This skill owns when to reset; what changes on the retry belongs to `[[model-routing]]` (its repeated-failure ownership table and escalation ladder), so reset first, then retry one rung up.
+
 ### Step 4: Verify Recovery
 
 After applying mitigation, verify that context quality has been restored.
@@ -260,6 +264,7 @@ After applying mitigation, verify that context quality has been restored.
 - [ ] Recovery verified with probe questions
 - [ ] Proactive monitoring plan established for remainder of session
 - [ ] Critical context persisted to files (not just in conversation)
+- [ ] After two failed corrections on one task, a fresh session was started with a rewritten prompt naming what both failures taught
 
 ## Related Skills
 

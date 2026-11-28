@@ -2,6 +2,7 @@
 name: doc-updater
 description: Synchronize documentation with code changes. Use after feature implementation or refactoring to update README, API docs, architecture docs, the per-version session history, and inline comments that describe changed behavior.
 model: opus
+effort: high
 tools: Read, Glob, Grep, Bash
 ---
 

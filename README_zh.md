@@ -4,17 +4,17 @@
 
 Nexus Hub 是面向 AI 编码工具的后端框架：包含技能、命令、规则、钩子、防护机制和最佳实践。安装程序会在你的电脑上配置受支持的平台。代理通过你现有的 IDE、终端或已配置的应用使用这套框架。
 
-**目录：** 340 个技能（23 个类别）、22 个命令（另有 3 个永久别名）、40 个已注册钩子、23 个代理。
+**目录：** 340 个技能（23 个类别）、22 个命令（另有 3 个永久别名）、41 个已注册钩子、24 个代理。
 
 [English](README.md) | 中文 | [交互式指南与训练](https://www.benjamindourthe.com/nexus-hub/index.html) | [技能](data/SKILL_INDEX.md) | [命令速查表](#命令速查表) | [平台覆盖](docs/policy/platform-read-contracts.md)
 
-## v4.15.7 更新内容
+## v4.15.9 更新内容
 
-- `cicd-architect` 新增只读的 CI 延迟审计（`ci_latency_audit.py`），可以显示 GitHub Actions 流水线的时间花在排队、准备还是实际运行上，并指出决定完成时间的作业。它使用你自己的 `gh` 登录，不会修改任何内容。
-- `CONTRIBUTING.md` 介绍了一个可选的推送前检查，会在推送前运行快速验证配置。对应的阶段尚未在本仓库的 pre-commit 配置中启用，在此之前请在推送前手动运行快速验证配置。
-- CI 契约现在规定，依赖缓存只能在合并到 `develop` 之后预先写入，`cicd-architect` 技能也遵循同一规则。
+- 需要你处理的消息现在会带有 `## Action needed` 小节，完整重复所需步骤或完整的决定，不再写“见上文”。新增的 Stop 钩子 `action-restatement-guard` 会要求代理重写这类回指消息；可用 `NEXUS_DISABLED_HOOKS=action-restatement-guard` 关闭。
+- 新增只读的 `log-reader` 代理（现共 24 个代理），可逐条列出测试或构建输出中的失败，但不会提出修复方案。所有固定使用 Opus 的代理现在都声明 `effort: high`，因此较高的会话推理强度不会再扩散到辅助代理。对比测量尚未执行，因此本版本不宣称节省了令牌。
+- Windows 安装程序不再把测试运行产生的临时 `.nexus-hub\bin` 文件夹写入你的用户 PATH。任何安装都可以设置 `NEXUS_HUB_NO_MODIFY_PATH=1` 来跳过 PATH 修改。
 
-[版本详情与早期版本](CHANGELOG.md#4157---2026-11-27)
+[版本详情与早期版本](CHANGELOG.md#4159---2026-11-27)
 
 ## 安装
 

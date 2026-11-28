@@ -36,6 +36,7 @@ from typing import Optional
 from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
+    CLAUDE_ONLY_AGENT_KEYS,
     _drop_frontmatter_keys,
     _split_frontmatter,
     catalog_skill_names,
@@ -280,7 +281,7 @@ class CopilotIntegration(MarkdownIntegration):
             return [FileAction(path=str(src_dir), action="not-found")]
         actions: list[FileAction] = []
         for md in sorted(src_dir.glob("*.md")):
-            content = _drop_frontmatter_keys(md.read_bytes(), ("model",))
+            content = _drop_frontmatter_keys(md.read_bytes(), CLAUDE_ONLY_AGENT_KEYS)
             reason = self.agent_skip_reason(content.decode("utf-8"))
             if reason is not None:
                 ctx.manifest.log(self.key, f"skip agent ({reason}): {md.name}")
