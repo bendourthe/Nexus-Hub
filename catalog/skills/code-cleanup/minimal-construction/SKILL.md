@@ -9,7 +9,7 @@ overview_l1: "Walk a seven-rung pre-write ladder after reading the real flow: sk
 
 Build at the first sufficient rung. Read the real flow first. This skill decides what new code is allowed to exist. It does not collapse existing code, hunt dead code, rewrite prose, or replace security, verification, or communication owners.
 
-Trigger routing cases live in `evals/trigger-cases.json`. Construction-eval assertions live in `evals/evals.json`. Deferred-ceiling harvest lives in `references/construction-debt.md`.
+Trigger routing cases live in `evals/trigger-cases.json`. Construction-eval assertions live in `evals/evals.json`. Deferred-ceiling harvest lives in `references/construction-debt.md`. The opt-in ownership snippet lives in `references/codebase-ownership-mode.md`.
 
 ## When to Use This Skill
 
@@ -49,6 +49,7 @@ Use when:
 | Task-scope restraint for extras and unrequested tests (with `/test` governing when invoked) | `minimal-construction` step 6 | `/test` cites the decision; do not restate the rule |
 | SQALE / interest quantification | `technical-debt-analyzer` | Point at it |
 | In-code named ceilings with an upgrade trigger | `construction-debt:` harvest | Generic marker; see `references/construction-debt.md` |
+| A maintainer's opt-in exception to the trace-to-request rule (consolidate duplicates, fix related bugs, list every change) | `minimal-construction`, in `references/codebase-ownership-mode.md` | Off by default; never put it in a template or restate it |
 
 ## Instructions
 

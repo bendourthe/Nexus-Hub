@@ -1,12 +1,13 @@
 {
   "schema_version": "1.2.0",
   "meta": {
-    "last_verified": "2026-11-04",
+    "last_verified": "2026-11-17",
     "platform": "claude-code",
     "roster_source": "manual",
     "roster": [
       "claude-fable-5",
       "claude-fable-5-1",
+      "claude-fable-5-2",
       "claude-haiku-4-5",
       "claude-haiku-4-5-20251001",
       "claude-haiku-5-5",
@@ -23,7 +24,7 @@
       "claude-sonnet-5",
       "claude-sonnet-5-5"
     ],
-    "roster_hash": "16252acb7c3779ffb3990dfb54f34767e398c450b150e0acd47f7508441e6848",
+    "roster_hash": "9f872e78bc2923222a071ec2f43b3cd0dbc28796a58ed5fc628ed7d0cfe34f57",
     "platforms": [
       {
         "platform": "cursor",
@@ -4406,6 +4407,132 @@
           "source_url": "https://aistudio.google.com/docs/robotics-overview",
           "confidence": "high",
           "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-fable-5-2": {
+      "platform": "claude-code",
+      "last_verified": "2026-11-17",
+      "claims": [
+        {
+          "claim": "Effort defaults to high on the Claude API for Claude Fable 5.2. Start at high and run evals at medium and xhigh as well; rerun the sweep instead of carrying over a setting tuned on Claude Fable 5.1 or Claude Opus 5.5. Most of the capability gain arrives at high, and above high the gains are uneven.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#calibrate-effort",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"Start at high, the default for Claude Fable 5.2 on the Claude API.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "An instruction to answer directly without deliberating does not stop the model from thinking at medium and above, and the guide says to remove such lines and lower the effort level instead. At high and above the model thinks before almost every reply, including a greeting. Effort has little effect on reply length, so use prompting for length and tone.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#calibrate-effort",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"Remove such lines and lower the effort level\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "On long multistep tasks the model sometimes ends a turn early: it lists what remains, offers to continue, or stops at an ordinary obstacle such as a timeout, more often at low and medium effort. The vendor supplies a Finishing work system prompt block that tells it to diagnose ordinary obstacles and work through them, and to leave deliberate blockers such as a file marked not to be touched alone and report them.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#finish-the-whole-task",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"Diagnose them first, and when they are not real blockers, work through them with the access you have\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Measured cost of the Finishing work text: on replayed agentic coding sessions at medium effort, about half as many sessions ended with unfinished work that could have been continued, and output tokens rose by about 30 percent. It removed most endings that ask permission but not endings that list what remains and then stop. Keep a separate confirmation step for risky or irreversible actions.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#finish-the-whole-task",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"about half as many sessions ended with unfinished work that could have been continued.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Approval rules must name the exact actions to double-check, and a continue reply should say what to do. In simulated tasks with nobody to approve, a rule listing sending messages to people outside the conversation made the model hold back about half of its routine requests to colleagues and other teams.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#approvals",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"hold back about half of its routine requests to colleagues and other teams.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "The model attends to who owns the code. With no ownership statement, or code presented as someone else, it tends to add to existing structure even when that duplicates code. With a sentence saying it is the owner and long-term maintainer, it consolidated duplicated code in about 75 percent of small-task runs versus under 10 percent without it, and sometimes made related fixes unasked.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#say-who-owns-the-code",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"You are the owner and long-term maintainer of this codebase, and its design is up to you.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Measured cost of the ownership sentence: output tokens rose by about 70 to 80 percent, the model made unrequested changes (many of them new tests and documentation), and in some runs it changed how an existing feature behaves. Its closing summary often left out small changes, so review the reported diff as well as the summary. Leave the sentence out where the user owns the code and wants minimal change. Nexus-Hub ships it only as an opt-in snippet, see catalog/skills/code-cleanup/minimal-construction/references/codebase-ownership-mode.md.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#say-who-owns-the-code",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"A closing PR summary from Claude Fable 5.2 often left out small changes\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "A scope rule does not cancel the ownership sentence. With No drive-by refactors, renames or cleanups earlier in the same prompt, the model still consolidated duplicated code in more than half of runs.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#say-who-owns-the-code",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"the model still consolidated duplicated code in more than half of runs\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Long agentic turns can look silent. Updates between tool calls come back as progress-update thinking blocks whose text is empty at the default thinking display of omitted, so a client that renders only text blocks looks silent. Setting the display to updates or summarized returns them. A turn-scoped reminder after several silent steps roughly halved the longest silent stretch without a noticeable token or time increase.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#keep-users-informed-during-long-turns",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"the reminder roughly halved the longest silent stretch\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Progress-update prompt texts and measured effect: an opening line plus brief updates plus a standalone closing recap produced a message before the first tool call in every coding run at about 20 percent more output tokens per task; a one-line update every few tool calls cut most long silent stretches on workflow automation tasks. The vendor recommends the model where nobody needs frequent updates.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#signal-intent",
+          "confidence": "medium",
+          "scope": "model-specific",
+          "note": "Quote: \"output tokens per task increased by roughly 20 percent as a result.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Subagent cost guidance: delegation depends on the harness and prompts, subagents can be a large share of session cost, and at xhigh and max the model used subagents to review its own work. If it delegates too much, a tool description that states what a subagent adds to session cost, when delegation pays off, and how to brief one roughly halved the number of subagents at high effort versus a shorter description.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#set-expectations-for-subagents",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"a longer description focused on this roughly halved the number of subagents\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Caution builds up from memory, notes, and instruction files, and the model follows them closely and asks for needless approval. Remove outdated notes such as never retry, name the routine steps that need no approval, narrow stop at the first error conditions, and scope absolute never rules with an exception, since the model treats never as absolute.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#keep-caution-from-piling-up",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"The model treats an instruction that contains never as absolute.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Older harness practices to reconsider: standing delegate-to-subagent lines, a token budget shown in the prompt (removing a large one lowered cost with equal performance at high and xhigh), harness code that edits earlier turns and so invalidates preserved thinking, the treat that answer as done lines from the Opus 5.5 guide (they cut follow-up thinking and made the model far less likely to flag its own earlier mistakes), think-less lines, hard style limits such as 20 words per sentence that make prose choppy, and accumulated cautions.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#review-instructions-written-for-earlier-models",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"some instructions and interventions designed for earlier models raised cost, caused side effects, or no longer had an effect\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "For final reports and handoffs the vendor suggests a Communicating clearly block aimed at a low-context reader: self-contained messages, key points in the first few sentences, plain full sentences, no term made up during the work, and mostly ASD-STE100 Simplified Technical English. In testing it made final reports less dense and reduced semicolons; remove hard style limits first.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#make-reports-easy-to-follow",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"Write for an intelligent but low-context reader.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
+        },
+        {
+          "claim": "Safeguard refusals return stop_reason refusal with a stop_details category: cyber, bio, frontier_llm, reasoning_extraction, general_harms, or null. The reasoning_extraction category covers requests that ask the model to reproduce its internal reasoning in the response text, so remove prompt, skill, or tool lines that ask it to write out its reasoning and read the summarized thinking blocks instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#safeguard-refusals",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Quote: \"the request asks the model to reproduce its internal reasoning in the response text.\" Verified 2026-11-17 against the vendor page fetched that day.",
+          "evidence_scope": "model"
         }
       ]
     }

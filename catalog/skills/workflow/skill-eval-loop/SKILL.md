@@ -214,6 +214,10 @@ Do NOT run more than 5 iterations without a measurable pass-rate trajectory. If 
 
 **Starter set.** Seed the first eval prompts from real failures, known gaps, or bug reports rather than invented examples, and start with at least 2 to 3. A starter set says whether the skill handles the cases that prompted it; it is too small to measure a trigger rate.
 
+## Eval cadence
+
+Run deterministic checks on every pull request. Run live-model or judge evals before a release or on a schedule, because they cost money and vary between runs. A live-model result is evidence for the release decision, not a gate on each change.
+
 ## Persistence discipline (crash-safe long runs)
 
 An eval loop can run for many iterations across hours, and a long run is exactly the situation where context compaction, a crashed CLI, or a killed shell silently discards in-memory state. The defense is to treat the filesystem - not the conversation - as the source of truth for every measured result. The cost is one extra read per write; the payoff is that any interruption resumes from the last completed experiment instead of restarting the loop and re-spending tokens.
@@ -395,6 +399,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `references/description-optimizer.md` - the two-way and three-way split rules, the `reported_optimistic` label, the candidate-generation prompt template, and the selection rule for `best_description`.
 - `references/trigger-testing.md` - the three trigger-testing techniques (premature-action detection, multi-turn conversation triggering, cheap-model fragility), what each catches, how to author an eval that exercises it, and how to read the new output fields.
 - `references/headroom-estimation.md` - the perfect-information oracle procedure for estimating a proposed gate's ceiling before implementation.
+- `references/instruction-file-evals.md` - how to test a behavioral edit to an instruction file (CLAUDE.md, AGENTS.md, a rules file, a template) before it lands: case-set rules, the baseline-first stop rule, per-case classes, and the mapping onto a shared-evaluator manifest.
 
 ## Bundled sub-agent prompts
 

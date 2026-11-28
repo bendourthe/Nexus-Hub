@@ -6,7 +6,7 @@ Companion to the "Chain-of-Thought Leakage" family in `SKILL.md`. That section d
 
 > Could a reader at HEAD, with no transcript, resolve every reference?
 
-Run it literally. For each referring expression in the draft (a pronoun, a citation, a comparative, a temporal marker), ask what the reader would have to know to resolve it. If the answer is "the conversation where this was written" or "the previous version of this file", it is leakage.
+For the general repair of an unclear reference, see `writing-editing/references/clarity-faults.md`; this file covers the authoring-session cause. Run it literally. For each referring expression in the draft (a pronoun, a citation, a comparative, a temporal marker), ask what the reader would have to know to resolve it. If the answer is "the conversation where this was written" or "the previous version of this file", it is leakage.
 
 The test has one important limit: it asks whether a reference is *resolvable*, not whether it is *interesting*. A changelog entry saying "renamed `foo` to `bar`" is resolvable by anyone (both names are given) and belongs in a changelog. "Renamed it to the clearer name" is not.
 

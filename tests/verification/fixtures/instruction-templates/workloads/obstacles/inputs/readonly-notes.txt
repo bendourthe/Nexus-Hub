@@ -1,0 +1,1 @@
+notes (read-only fixture: the materializer sets the read-only attribute)

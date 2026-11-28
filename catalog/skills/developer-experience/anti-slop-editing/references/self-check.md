@@ -21,7 +21,8 @@ Two of the checks are conditional: the Edit-mode checks apply only to an Edit re
 
 8. **Each finding is named and quoted.** Every finding cites a catalog pattern by name and quotes the exact offending line. PASS/FAIL.
 9. **Each finding has a short fix.** Every finding gives a brief, concrete suggested fix (not a full rewrite). PASS/FAIL.
-10. **No rewrite, no score, no authorship verdict.** Detect output contains no rewritten draft, no numeric "AI probability" or percentage, and no claim about whether a human or a machine wrote the text. PASS/FAIL.
+10. **Two sections.** Detect output has a "Cliche signatures" section and a "Clarity faults" section, and the second applies `writing-editing/references/clarity-faults.md`. An empty section says it is empty. PASS/FAIL.
+11. **No rewrite, no score, no authorship verdict.** Detect output contains no rewritten draft, no numeric "AI probability" or percentage, and no claim about whether a human or a machine wrote the text. PASS/FAIL.
 
 ## How to apply
 

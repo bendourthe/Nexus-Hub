@@ -610,3 +610,63 @@ def test_action_needed_rule_has_teeth():
         (_SKILL, "Action needed heading"),
     ):
         assert needle not in _read(path).replace(needle, "")
+
+
+# --- Decision format and question box (v4.15.10) --------------------------------
+#
+# A decision put to the user must be compact and plain: a native question box when the
+# host has one, else a short issue and an Option / What happens / Trade-off table with
+# option A the recommendation. The roster comes from the templates directory, so a new
+# template fails until it carries the rule.
+
+_DECISION_PHRASES = (
+    "native question or selection tool",
+    "keep background work running",
+    "no further user-facing action until it is answered",
+    "`Option | What happens | Trade-off`",
+    '"(recommended)"',
+    "no jargon",
+    "Repeat a still-unanswered decision in full",
+    "state exactly what to type",
+)
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_every_template_carries_the_decision_format_rule(path: Path):
+    section = _contract_section(path)
+    line = next(x for x in section.splitlines() if x.startswith(_ACTION_MARKER))
+    for phrase in _DECISION_PHRASES:
+        assert phrase in line, f"{path.name}: the Action needed rule omits {phrase!r}"
+
+
+def test_decision_rule_names_no_platform_product():
+    """Lockstep wording stays platform-agnostic; no tool name is invented."""
+    for path in SUBSTANTIVE:
+        line = next(
+            x
+            for x in _contract_section(path).splitlines()
+            if x.startswith(_ACTION_MARKER)
+        )
+        for name in ("AskUserQuestion", "request_user_input", "ask_question"):
+            assert name not in line, f"{path.name} names {name}"
+
+
+def test_guide_skill_and_reference_carry_the_decision_shape():
+    for path in (_STYLE_GUIDE, _SKILL):
+        text = _read(path)
+        assert "Decision shape" in text, path.name
+        assert "native question or selection tool" in text, path.name
+        assert "repeated in full under `## Action needed` in every later message" in text
+    guide = _read(_STYLE_GUIDE)
+    assert "**A (recommended)**" in guide
+    assert "member-start" in guide, "the failing example must stay as the counter-example"
+    reference = _read(_SKILL.parent / "references" / "response-contract.md")
+    assert "### Decision" in reference
+    assert "| **A (recommended)** |" in reference
+
+
+@pytest.mark.parametrize("name", ["session-start.sh", "session-start.ps1"])
+def test_session_start_reminds_about_the_native_question_tool_and_table(name: str):
+    text = _read(_HOOKS / name)
+    assert "native question tool" in text
+    assert "(Option | What happens | Trade-off)" in text

@@ -1,0 +1,1 @@
+This workload stands for one instruction-file case set. The sibling case file lists the cases; each case id is one trial prompt. Write the final answer to result.txt.

@@ -798,6 +798,15 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
     - [ ] DF-72: run the post-model-release audit (3.4, T020) after v4.15.11 merges.
 - [ ] Hand the deep-module pass to the v4.18.2 de-slop repair plan under `code-simplification`, and the refactor-first template rule to a follow-up plan after v4.15.0 and v4.15.2.
 
+## Queued work - v4.15.11 clarity, Fable 5.2 profile and eval-first template edits
+
+- [x] Implement the [v4.15.11 plan](releases/v4/v4.15/plans/v4.15.11-adoption-clarity-fable-and-eval-first.md): the `claude-fable-5-2` profile, the instruction-file eval procedure with three case sets, the clarity reference with the `anti-slop-editing` Detect split, four eval-guidance fixes, and the opt-in ownership snippet. 26 of 38 tasks are done (the plan text is frozen at 25 ticked; T008 was applied by the release commit). The non-live scope ships in release v4.15.11. The live-run work moved to known gaps by maintainer decision on 2026-11-22; IDs are in `releases/v4/v4.15/known-gaps.md`, section v4.15.11.
+    - [ ] DF-76: close the evaluator gaps (live isolation backend, throwaway configuration directory, canary concept, retained final text) and run the canary (T009).
+    - [ ] DF-77: run the ownership opt-in one-session check (T019, live half).
+    - [ ] DF-78 to DF-81: Phase 5 baselines, after runs and the three template rules (T022 to T028), each only on a failing positive baseline case.
+    - [ ] DF-82: the maintainer writes the clarity false-positive control paragraph so the clarity set can freeze.
+    - [ ] DF-83 to DF-85: the live sessions for Phases 1 and 3, the unscoped absolutes in `base-claude.md` (6 lines), and the A8b handoff to v4.21.2.
+
 ## Queued work - v4.15.10 approval modes
 
 - [ ] Implement the [v4.15.10 plan](releases/v4/v4.15/plans/v4.15.10-approval-modes.md) as its own v4.15 member. Restored to its approved text on 2026-11-13 (maintainer decision): the minor run freezes each member's approved plan text and has no native step to revise it, so the 2026-11-12 fold into v4.15.4 Phases 4b-4d and v4.15.8 Phases 3b-3d is held, not in effect.

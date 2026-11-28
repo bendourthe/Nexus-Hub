@@ -1,0 +1,166 @@
+[
+ {
+  "id": "clarity-diff-summary",
+  "query": "Summarize what this diff changes for a reviewer who has not seen the code.\n\ndiff --git a/billing/retry.py b/billing/retry.py\n-    result = charge(card, amount)\n+    result = charge_with_retry(card, amount, attempts=3, backoff=2.0)\n \ndiff --git a/billing/errors.py b/billing/errors.py\n+class RetryExhausted(Exception):\n+    pass\n",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "At most one nominalized action (for example 'performs validation of') appears in the summary"
+   },
+   {
+    "text": "At most one 'this' or 'it' appears whose referent is not in the same or the previous sentence"
+   },
+   {
+    "text": "The summary contains no stack of three or more nouns"
+   },
+   {
+    "text": "The summary contains no relative clause of eight or more words that drops 'that'"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-meeting-notes",
+  "query": "A teammate who missed the meeting needs to know why the team removed the cache layer. Write the message from these notes: cache hit rate was 4 percent; invalidation bugs caused two stale-price incidents; the team measured p95 latency with and without it and saw no change; removal deletes 600 lines.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "At most one nominalized action appears in the message"
+   },
+   {
+    "text": "At most one 'this' or 'it' appears whose referent is not in the same or the previous sentence"
+   },
+   {
+    "text": "The message contains no stack of three or more nouns"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-release-note",
+  "query": "Write a release note paragraph for this change: the importer now validates the schema before loading, skips rows with empty ids, and reports a count of skipped rows at the end.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "At most one nominalized action appears in the paragraph"
+   },
+   {
+    "text": "At most one 'this' or 'it' appears whose referent is not in the same or the previous sentence"
+   },
+   {
+    "text": "The paragraph contains no relative clause of eight or more words that drops 'that'"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-config-explainer",
+  "query": "Explain to a new developer what the config keys retry.max, retry.backoff, and retry.jitter do, based on this code: delay = backoff ** attempt; delay += random() * jitter; stop when attempt == max.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The explanation contains no stack of three or more nouns"
+   },
+   {
+    "text": "At most one 'this' or 'it' appears whose referent is not in the same or the previous sentence"
+   },
+   {
+    "text": "Each key is named with the thing it controls, with the actor as the subject of the sentence"
+   }
+  ],
+  "tags": [
+   "positive"
+  ],
+  "case_kind": "positive",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-maintainer-control",
+  "query": "Read the maintainer paragraph given in task.txt and say whether it needs a clarity edit. If it does, give the edited text; if it does not, say so.",
+  "should_trigger": false,
+  "assertions": [
+   {
+    "text": "The response reports zero clarity faults in the paragraph"
+   },
+   {
+    "text": "The response does not rewrite the paragraph"
+   }
+  ],
+  "tags": [
+   "negative",
+   "false-positive-control",
+   "pending-maintainer-confirmation"
+  ],
+  "case_kind": "negative",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-short-answer",
+  "query": "What is 12 times 12? One short reason is enough.",
+  "should_trigger": false,
+  "assertions": [
+   {
+    "text": "The answer gives the result in its first sentence"
+   },
+   {
+    "text": "The answer adds no restructuring or editing commentary"
+   }
+  ],
+  "tags": [
+   "negative"
+  ],
+  "case_kind": "negative",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-overcorrection",
+  "query": "Rewrite this paragraph more clearly without changing its meaning: 'The deployment script reads the target environment from the file that the operator edits before each release, validates every key against the schema that ships with the tool, and then applies the changes in the order that the dependency graph requires, stopping at the first failure that it cannot repair.'",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The rewrite contains no noun stack or dropped 'that' that the original did not have"
+   },
+   {
+    "text": "The rewrite keeps every claim of the original"
+   },
+   {
+    "text": "The rewrite is not harder to parse than the original, for example by replacing the original with several clipped fragments"
+   }
+  ],
+  "tags": [
+   "keep-working"
+  ],
+  "case_kind": "keep-working",
+  "instruction_section": "## Writing Discipline"
+ },
+ {
+  "id": "clarity-cliche-still-held",
+  "query": "Write two sentences announcing that the nightly build now runs the linter.",
+  "should_trigger": true,
+  "assertions": [
+   {
+    "text": "The text contains no em dash"
+   },
+   {
+    "text": "The text contains no throat-clearing opener and no 'not just X but Y' contrast"
+   }
+  ],
+  "tags": [
+   "keep-working"
+  ],
+  "case_kind": "keep-working",
+  "instruction_section": "## Writing Discipline"
+ }
+]

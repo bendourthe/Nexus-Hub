@@ -82,7 +82,7 @@ The skill is invoked in one of two modes. The default (no mode stated) is Edit.
 | Mode | Intent | Output |
 |---|---|---|
 | Edit (default) | Rewrite the draft with the minimum effective edit that removes slop and preserves voice. | The edited draft, followed by a "What changed" list: each pattern removed and the one-line reason. |
-| Detect | Find and name the slop without changing the draft. | A findings list: for each hit, the pattern name, the quoted offending line, and a short suggested fix. No rewrite, no score, no AI-authorship verdict. |
+| Detect | Find and name the slop without changing the draft. | A findings list in two sections. "Cliche signatures": for each hit, the pattern name, the quoted offending line, and a short suggested fix. "Clarity faults": the hits found by applying `writing-editing/references/clarity-faults.md`, each quoted with its fault and a short fix. No rewrite, no score, no AI-authorship verdict. |
 
 Detect mode has a hard rule: it never rewrites the draft, never assigns a numeric "AI probability" score, and never claims to know whether a human or a machine wrote the text. It reports checkable, named evidence only. "This line uses a binary contrast" is checkable; "this is 80% AI-written" is a guess, and guesses are out of scope.
 
@@ -97,7 +97,7 @@ Follow these steps in order for every request.
 5. **Consult the word and phrase lists** in `references/slop-wordlist.md` for banned words, often-empty adverbs, and empty phrases. Apply them with judgment, not as a hard lint: cut a word when it adds nothing, keep it when it carries real emphasis, contrast, uncertainty, or the writer's spoken rhythm.
 6. **Act on the mode.**
     - Edit: make the minimum effective edit. Fix the flagged lines, leave strong human sentences untouched, and do not reach for a "better" word where the writer's word already works. Then assemble the "What changed" list.
-    - Detect: produce the findings list (pattern name, quoted line, short fix) and stop. Do not rewrite.
+    - Detect: produce the findings list in two sections, "Cliche signatures" (pattern name, quoted line, short fix) and "Clarity faults" (the faults named in `writing-editing/references/clarity-faults.md`, each quoted with a short fix), and stop. An empty section is reported as empty, because a clean cliche scan is not a clarity check. Do not rewrite.
 7. **Self-check before returning.** Grade the output against the rubric in `references/self-check.md`. If any check fails, fix it and re-grade. Repeat until every check passes. This happens inside this one agent; do not spawn a separate evaluator.
 8. **Return the result** in the mode's output shape.
 
@@ -271,7 +271,7 @@ The acceptance test for the whole family:
 
 > Could a reader at HEAD, with no transcript, resolve every reference?
 
-Apply it to each referring expression. If resolving one requires the authoring conversation or the previous version of the file, it is leakage.
+The clarity reference `writing-editing/references/clarity-faults.md` owns the repair for an unclear reference in general; this family covers the authoring-session cause. Apply the test to each referring expression. If resolving one requires the authoring conversation or the previous version of the file, it is leakage.
 
 ### Dead decision citations
 
@@ -353,7 +353,15 @@ These four quality surfaces are distinct and do not replace each other:
 - [ ] `python scripts/detect_prose_cliches.py <file>` was run (first in Detect mode, after editing in Edit mode) and its `defect` count on the returned draft is zero.
 - [ ] Every chatbot leftover in the draft is gone in Edit mode, or named as a defect (not a flagged style) in Detect mode.
 - [ ] Each `Robotic rhythm` finding cites the rule number and the run that tripped its threshold, so the same finding is reproducible by the offline detector.
+- [ ] In Detect mode the findings appear under both headings, "Cliche signatures" and "Clarity faults", and an empty section says it is empty.
 - [ ] The output was graded against `references/self-check.md` and every check passes.
+
+## Rule Ownership
+
+| Concern | Owner |
+|---|---|
+| Cliche signatures, chain-of-thought leakage, voice preservation | `anti-slop-editing` (this skill) |
+| Clarity faults and their repair; this skill links the reference and does not own it | [[writing-editing]] (`references/clarity-faults.md`) |
 
 ## Related Skills
 
