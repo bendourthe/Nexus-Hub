@@ -97,6 +97,14 @@ Human-review bandwidth is also a budget. A loop that produces more PRs, findings
 
 Two human-cost risks attack long-running loops directly: **cognitive surrender** (the operator stops judging loop output because the green checks feel authoritative) and **comprehension debt** (the gap between what the loop shipped and what the operator understands widens each cycle). Both are named with mitigations in [[verification-before-completion]]; close comprehension debt deliberately with [[session-teach-back]].
 
+### Pilot before the full batch
+
+Pilot a batch on three items first. Read those three results, iterate the prompt until they are right, then run the rest. Watch the first runs of anything new (a new loop, a new prompt, a new data source) before trusting it unattended; a defect in the prompt repeats on every item, so the pilot is the cheapest place to find it.
+
+### Throughput countermeasure
+
+When a loop is measured by throughput (PRs merged, tasks closed, findings filed), also measure reverts or rework for the same window. A throughput metric alone rewards shipping work that is later undone; the countermeasure makes that cost visible in the same report.
+
 ## Scheduled-Triage Recipe
 
 This is the full automation-to-ship loop: a scheduled run that triages incoming work, fixes what it can in isolation, and routes the rest to a human. It is a recipe to adapt, not a runnable script. Every step uses a primitive Nexus-Hub already owns or a host command it references; the recipe introduces no new outbound call, dependency, credential, or third-party processor.
@@ -248,6 +256,8 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 ## Verification
 
 - [ ] The selected loop definition declares every schema field from [references/loop-schema.md](references/loop-schema.md).
+- [ ] A new batch ran a three-item pilot whose results were read before the remaining items ran.
+- [ ] A loop measured by throughput also reports reverts or rework for the same window.
 - [ ] The loop has a hard `iteration_cap` before the first run, plus a token or cost budget and a wall-clock timeout, and stops on whichever binds first.
 - [ ] Each background run declares a quiet window or progress signal, and a run whose signal has not advanced within it is stopped as hung through the normal stop path.
 - [ ] Completion gates record a workspace fingerprint with the verdict and skip an unchanged fail instead of re-running.

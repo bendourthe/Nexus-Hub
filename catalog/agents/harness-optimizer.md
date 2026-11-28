@@ -2,6 +2,7 @@
 name: harness-optimizer
 description: Test harness analysis and improvement. Use when the test suite is slow, flaky, poorly structured, or missing coverage for critical paths. Produces a concrete improvement plan and implements quick wins.
 model: opus
+effort: high
 tools: Read, Glob, Grep, Bash
 ---
 
