@@ -1405,6 +1405,44 @@ def test_minor_answer_can_clear_a_blocker_added_after_signed_completion(minor: M
     assert state.record is not None and state.forced is None
 
 
+def _completed_with_blocker(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record = minor.record()
+    record['completed'] = {'at': ck._now(), 'head': record['start_head']}
+    minor.write_record(record, resign=True)
+    _answer_blocker(minor)
+
+
+def test_minor_answer_from_another_session_clears_a_completed_record_blocker(minor: Minor) -> None:
+    """BG-15: a completed record's blocker stays answerable after its owning session is gone."""
+    _completed_with_blocker(minor)
+    before = minor.record()
+    minor.paste('session-two', '--action', 'answer', '--blocker', '0')
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', 'session-two', '--blocker', '0')
+    assert result.returncode == 0, result.stdout + result.stderr
+    after = minor.record()
+    assert after['blockers'][0]['open'] is False
+    assert after['session_id'] == SESSION
+    assert after['completed'] == before['completed']
+    assert after['approvals'] == before['approvals']
+    assert after['approvals_hmac'] == before['approvals_hmac']
+    state = cm.load_minor(ck, minor.rctx(), 'v0.5', SESSION, accept_completed=True)
+    assert state.record is not None and state.forced is None
+
+
+def test_minor_answer_for_a_completed_record_still_needs_the_answering_sessions_own_paste(minor: Minor) -> None:
+    """BG-15: a line captured in a session other than the one the page was rendered for is refused."""
+    _completed_with_blocker(minor)
+    rendered = minor.render('session-two', '--action', 'answer', '--blocker', '0')
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    minor.capture('session-three', '/implement v0.5', rendered.stdout.splitlines()[0])
+    before = minor.record_path().read_bytes()
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', 'session-three', '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert 'reason: session-mismatch' in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
 # --------------------------------------------------------------------------- schema-1 compatibility
 
 

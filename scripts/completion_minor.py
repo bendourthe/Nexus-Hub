@@ -2207,10 +2207,13 @@ def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: st
     """The verified record an answer, pause or resume applies to.
 
     A resume may adopt a record bound to another session (the cross-session
-    resume); a pause applies only in the record's own session.
+    resume); a pause applies only in the record's own session. A completed
+    record cannot be resumed, so its blocker answer may come from any session.
     """
     state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer", minor_protocol=MINOR_AMENDMENT_PROTOCOL, execution_protocol=MINOR_EXECUTION_PROTOCOL)
     record = state.record or (state.other_session if action == "resume" else None)
+    if record is None and action == "answer" and (state.other_session or {}).get("completed"):
+        record = state.other_session
     if record is not None:
         return record
     if state.forced and state.forced[1] == ck.EXIT_BLOCKED:
@@ -2240,7 +2243,10 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
             supplement = historical_scope_request(ck, rctx, record, selected['request'])
         except (OSError, ValueError, TypeError, KeyError):
             return ck._blocked('supplemental-scope-invalid')
-    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""), text=args.text)
+    # `completed` is signed and ends the record's authority, so an answer grants
+    # nothing new; the paste must still be captured in the answering session.
+    owner = None if record.get("completed") else str(record.get("session_id") or "")
+    consumed = _consume(ck, rctx, token, "answer", page, args.session, owner, text=args.text)
     if isinstance(consumed, int):
         return consumed
     pending, _session = consumed

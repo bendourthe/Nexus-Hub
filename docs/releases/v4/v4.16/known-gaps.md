@@ -12,7 +12,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 21 | 0 |
-| Bugs / regressions (BG) | 1 | 5 |
+| Bugs / regressions (BG) | 1 | 6 |
 | Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 3 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -367,6 +367,24 @@ The injection experiment labels model benefit and live prompt-cache behavior UNE
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+
+#### BG-15: A blocker on a completed minor record cannot be closed once its owning session is gone
+
+**Source phase**: 2026-11-27 attempt to close the Nexus-AI v2.16 minor record (observed downstream, not fixed).
+
+**Plan reference**: none; found while closing a consumer project's minor record.
+
+**Reason**: `record block` deliberately accepts a completed minor record, and the turn-end gate used that to add a `no-progress` blocker to the Nexus-AI v2.16 record 36 minutes after its signed completion. Every way to close a blocker (`record answer`, `record resolve`) requires the record's owning session, and the only way to change the owner, `record resume`, refuses a completed record (`minor run record already complete ignored`). Once the owning session is gone, `check-minor` reads `BLOCKED: no-progress` and no command can change it.
+
+**Owner**: catalog maintainer. **Severity**: medium - a finished minor is stuck behind a blocker nobody can answer, and the only way out is a hand edit of the record. **Status**: resolved.
+
+**Suggested next step**: let a completed minor record's blocker be answered from any session, keeping the genuine capture in the answering session.
+
+**Acceptance**: a session that does not own a completed minor record can render and answer its blocker with its own captured paste, without changing the owner, completion or approvals; a live record still refuses.
+
+**Proving command**: `python -m pytest -q tests/validators/test_completion_minor_record.py -k answer`
+
+**Resolution**: `_record_for_action` in `scripts/completion_minor.py` returns another session's record for an answer when that record is completed, and `cmd_record_answer` drops the owner-session requirement for a completed record. The round stays bound to the session it was rendered for, and the paste must be captured there; the owner, `completed`, approvals and signature are unchanged. Tests: `test_minor_answer_from_another_session_clears_a_completed_record_blocker` and `test_minor_answer_for_a_completed_record_still_needs_the_answering_sessions_own_paste`; the existing `test_minor_answer_refuses_an_exact_paste_from_another_session` keeps a live record refusing. Checked on a copy of the Nexus-AI v2.16 record: a non-owner session rendered and answered blocker 8. That record still reads `INCOMPLETE` afterwards for a separate reason: Nexus-AI `develop` was rewritten after the v2.16.0 merge (same trees and dates, new hashes), so the v2.16.0 conditional outcome's merge commit is no longer on `develop`, and the checker correctly refuses that ancestry.
 
 #### BG-14: A minor record's controller failure is reported as `record-tampered`
 
