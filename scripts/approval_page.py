@@ -1333,8 +1333,11 @@ def _action_page(data: dict, paste: PasteSet) -> str:
         page = data.get("page") or {}
         bounds = page.get("merge_bounds") or {}
         rows = bounds.get("rows")
-        if not isinstance(rows, list) or not rows or any(not isinstance(row, list) or len(row) != 6
-                or any(not isinstance(value, str) for value in row) for row in rows):
+        owned = bounds.get("coordinator_rows", [])
+        generalized = "coordinator_rows" in bounds
+        if (not isinstance(rows, list) or not isinstance(owned, list) or not (rows or (generalized and owned))
+                or any(not isinstance(row, list) or len(row) != 6 or any(not isinstance(value, str) for value in row)
+                       for row in [*rows, *owned])):
             raise PageError("historical scope requires exact file and blob bounds")
         out = _section("Historical scope", [
             "This acknowledges only the displayed files in the already merged contribution for " + quoted(page.get("member")) + ".",
@@ -1345,7 +1348,19 @@ def _action_page(data: dict, paste: PasteSet) -> str:
             "Original claims and baselines stay unchanged. Future writes, release, archive, spending and retry budgets require their existing approvals.",
             "Decline leaves this historical contribution outside the original file claims and keeps the member unreleased.",
         ])
-        out += _section("Exact files", ["- " + quoted(row[0]) + ": " + row[5] + "; " + row[1] + " " + row[3] + " -> " + row[2] + " " + row[4] for row in rows])
+
+        def listed(group: list) -> list:
+            return ["- " + quoted(row[0]) + ": " + row[5] + "; " + row[1] + " " + row[3] + " -> " + row[2] + " " + row[4] for row in group]
+
+        if generalized:
+            out += _section("Derived from the merge", [
+                "Every file below is computed by the tool from the merge against its integration parent, minus the paths already claimed. Nothing here was typed in or supplied by the agent.",
+                "Member contribution: " + str(len(rows)) + " files. Coordinator contribution: " + str(len(owned)) + " files.",
+            ])
+            out += _section("Member contribution", listed(rows) or ["None."])
+            out += _section("Coordinator contribution", ["Files the coordinator owns that were added to the member branch. They are acknowledged only as coordinator work."] + listed(owned) if owned else ["None."])
+        else:
+            out += _section("Exact files", listed(rows))
         out += _section("To approve, paste this line", ["Paste this line as your whole message, with nothing added.", "", chr(96) * 3 + "text", paste.lines[0], chr(96) * 3])
         return "\n".join(out).rstrip() + "\n"
     if action == "add-class":

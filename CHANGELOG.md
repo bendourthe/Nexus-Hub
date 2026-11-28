@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A reviewed route to reconcile a merged member's unclaimed files.** `record supplement-scope` now also covers any already merged member of a minor run, including amended members, not only the v4.14.2 merge. The tool derives the exact literal file list from the merge against its integration parent, minus the paths the claim audit already treats as claimed, and the review page shows the member contribution and the coordinator contribution as two separate lists. Sensitive, non-regular and unaudited execution-registry files are refused, and the capture, nonce, session and replay rules are unchanged. The new read-only `record scope-gap --minor --member --merge` prints exactly what a supplement would ask the maintainer to approve and writes nothing. Activation: render and consume the round with `record render --action supplement-scope` then `record supplement-scope`. Validation: `record scope-gap`, then `python -B -m pytest tests/validators/test_merged_scope_supplement.py`. Rollback: none needed before use, because only a genuinely captured decision appends an entry and the preview writes nothing. Authority boundary: a supplement grants no future writes, release, archive, spending or retry allowance and does not admit finished work. Documentation: the "Historical scope supplement" section of the completion contract.
+
 ## [4.15.7] - 2026-11-27
 
 ### Added
