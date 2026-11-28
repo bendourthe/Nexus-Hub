@@ -136,6 +136,33 @@ Never point back to earlier text for something the user must act on: not "run th
 > 2. Run `./migrate.sh --apply`. You should see: `applied 3 changes`.
 > 3. Run `./migrate.sh --status`. You should see: `approved`. Reply "done" when it does.
 
+**Decision shape:** a decision has a bold title, a one- or two-sentence plain issue (at most 60 words with the title), and a table with the columns `Option`, `What happens` and `Trade-off` and 2 to 4 rows. Option A is always your recommendation and its label says "(recommended)". The issue and the cells use plain words: no command names, file paths, record fields, commit hashes, inline code or internal check names. Technical detail, if needed, goes after the table, and the message ends with the reply instruction. When the host offers a native question or selection tool (Claude Code's AskUserQuestion is the one the repository records from vendor documentation; the others are found by inspecting the tools the session exposes, never by guessing a name), ask every decision through it instead, with option A labeled "(Recommended)" and each option described in plain words. The agent keeps background work (agents, CI watches) running while the box is open and starts no further user-facing action until the answer arrives, so a user who steps away finds the question still waiting. Text-only hosts cannot keep a box open, so a decision that is still unanswered is repeated in full under `## Action needed` in every later message. The table is the fallback when no native tool exists. When the answer must be typed (for example an approval line that must be the user's whole message), show the box or table first and state in it exactly what to type. The `action-restatement-guard` Stop hook blocks a decision in the Action needed section that is not a table, has the recommendation anywhere but option A, runs over the word budget, or puts inline code or a commit hash in a cell, on Claude Code and on Codex (the platforms whose Stop payload carries the final message). Manual steps keep the numbered-steps rule.
+
+**Do not write this** (options as a dense list, command names and internal terms, and the recommendation on B):
+
+> ## Action needed
+>
+> **Decision 9**
+>
+> - **A.** Run `member-start` for each remaining plan and wait for the checks, then mark the minor MINOR COMPLETE.
+> - **B (recommended).** Skip v4.14.2 and v4.14.5 and close the minor with the other versions.
+
+**Write this:**
+
+> ## Action needed
+>
+> **Decision 9: how to finish v4.15**
+>
+> **The issue:** Two parts of the release are done and one is not. We must choose whether to wait for it or ship without it.
+>
+> | Option | What happens | Trade-off |
+> |---|---|---|
+> | **A (recommended)** | Wait for the last part, then ship everything together. | Ships a day later. |
+> | **B** | Ship now and add the last part in the next release. | Users get an incomplete release. |
+> | **C** | Cancel this release. | The finished work waits unused. |
+>
+> Reply with A, B or C.
+
 ### 3.3 Match the user's shell
 
 A command the user runs on their own machine must parse in the shell they will paste it into, not in the shell your own tool uses. On Windows, assume Windows PowerShell 5.1 unless the user has named another shell: it is the default `powershell.exe` on Windows 10 and 11, and users paste into whatever terminal is open, so a shell label does not protect a command. PowerShell 5.1 parses the whole line before running any of it, so one invalid token means no step runs.
@@ -407,7 +434,7 @@ Worked example:
 > - **B**: use the port in `installer.cfg`. The app would need a restart and any saved client links would break.
 > - **C**: leave both and stop. Nothing changes until you decide.
 
-If only one course is available, say so instead of inventing options. This format applies to every question, including the decision blocks in section 5.1, where the recommended option is lettered A.
+Inside an `## Action needed` section, or when the host has no native question tool, show the options as the table in section 3.2. If only one course is available, say so instead of inventing options. This format applies to every question, including the decision blocks in section 5.1, where the recommended option is lettered A.
 
 ### 10.3 Manual tasks and stop points
 
@@ -446,6 +473,7 @@ Check a response against this list before sending it.
 - [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
 - [ ] Every action the user must take is written out in full where it is asked for, and again in each later message that still asks for it; nothing says "from my earlier message" or "as above".
 - [ ] A message that waits on the user has a `## Action needed` heading with every step or the full decision restated under it.
+- [ ] A decision is asked through the host's native question tool when one exists (option A "(Recommended)", plain words), or shown as a title, a short plain issue and an `Option | What happens | Trade-off` table with A "(recommended)", no jargon in the cells, and the reply instruction last; an unanswered decision is repeated in full in every later message.
 - [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no block meant for them contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
 - [ ] Every step opens with its machine and terminal, no block mixes two machines, and no command that prompts for input has anything after it in the same paste.
 - [ ] No step asks the user to find a file and paste its contents; the content is inline, and the method for another machine is the one the project's notes record as working.

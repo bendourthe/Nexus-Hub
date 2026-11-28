@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **A decision put to the user is a compact table, or a native question box, with option A the recommendation.** The `Action needed` bullet in all 14 substantive instruction templates now says: ask a decision through the host's native question or selection tool when one exists (option A labeled Recommended, plain words, background work keeps running, no further user-facing action until answered); otherwise show a bold title, a one- or two-sentence plain issue and an `Option | What happens | Trade-off` table of 2 to 4 rows with A labeled recommended and no jargon, then the reply instruction; repeat a still-unanswered decision in full in every later message. The `action-restatement-guard` Stop hook now also blocks a lettered decision in the `Action needed` section when the options are not table rows, the recommendation is not on A, the title and issue run over 60 words, or a table cell holds inline code or a commit hash. It now runs on Codex as well as Claude Code (Codex documents `last_assistant_message` on `Stop`); Cursor, Copilot, Gemini CLI, Qwen Code, Kimi and Antigravity give the hook no readable final message and stay rule-only. The five lockstep template ceilings in `docs/policy/doc-budgets.json` rose by the measured 110 words, with a justification entry. Per-platform coverage matrix: [`docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md`](docs/decisions/implemented/tooling/2026-11-27-action-restatement-guard.md).
+
 ## [4.15.9] - 2026-11-27
 
 ### Added

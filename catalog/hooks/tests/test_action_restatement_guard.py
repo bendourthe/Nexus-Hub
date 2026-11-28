@@ -244,3 +244,176 @@ def test_large_transcript_is_read_by_tail_only(run, tmp_path: Path) -> None:
         "\n".join([filler] * 600 + [json.dumps(final)]) + "\n", encoding="utf-8"
     )
     _blocked(run(_stop(path)))
+
+
+# --- Decision format (v4.15.10) -------------------------------------------------
+
+DECISION_9_FAILING = (
+    "## Action needed\n\n"
+    "**Decision 9: how to finish v4.15**\n\n"
+    "- **A.** Run `member-start` for each remaining plan and wait for the checks, then mark the minor MINOR COMPLETE.\n"
+    "- **B (recommended).** Skip v4.14.2 and v4.14.5 and close the minor with the other versions.\n"
+    "- **C.** Cancel the release.\n"
+)
+DECISION_TABLE = (
+    "## Action needed\n\n"
+    "**Decision 9: how to finish v4.15**\n\n"
+    "**The issue:** Two parts of the release are done and one is not. We must choose whether to wait for it or ship without it.\n\n"
+    "| Option | What happens | Trade-off |\n"
+    "|---|---|---|\n"
+    "| **A (recommended)** | Wait for the last part, then ship everything together. | Ships a day later. |\n"
+    "| **B** | Ship now and add the last part in the next release. | Users get an incomplete release. |\n"
+    "| **C** | Cancel this release. | The finished work waits unused. |\n\n"
+    "Reply with A, B or C.\n"
+)
+
+
+def _reply(run, tmp_path: Path, text: str, **extra: object) -> subprocess.CompletedProcess:
+    return run(_stop(_transcript(tmp_path, text), **extra))
+
+
+def test_blocks_the_bullet_decision_with_the_recommendation_on_b(
+    run, tmp_path: Path
+) -> None:
+    reason = _blocked(_reply(run, tmp_path, DECISION_9_FAILING))["reason"]
+    assert "not rows of a Markdown table" in reason
+    assert "the recommendation is on option B" in reason
+    assert "option A is not labeled (recommended)" in reason
+    assert "native question or selection tool" in reason
+    assert "| Option | What happens | Trade-off |" in reason
+
+
+def test_allows_the_approved_decision_table(run, tmp_path: Path) -> None:
+    proc = _reply(run, tmp_path, DECISION_TABLE)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_blocks_a_table_whose_recommendation_is_on_b(run, tmp_path: Path) -> None:
+    text = DECISION_TABLE.replace("**A (recommended)**", "**A**").replace(
+        "| **B** |", "| **B (recommended)** |"
+    )
+    reason = _blocked(_reply(run, tmp_path, text))["reason"]
+    assert "the recommendation is on option B" in reason
+    assert "not rows of a Markdown table" not in reason
+
+
+def test_blocks_a_table_with_no_recommendation(run, tmp_path: Path) -> None:
+    text = DECISION_TABLE.replace(" (recommended)", "")
+    assert "option A is not labeled" in _blocked(_reply(run, tmp_path, text))["reason"]
+
+
+def test_blocks_inline_code_in_a_table_cell(run, tmp_path: Path) -> None:
+    text = DECISION_TABLE.replace(
+        "Ships a day later.", "Runs `member-start` first."
+    )
+    assert "inline code or a commit hash" in _blocked(_reply(run, tmp_path, text))["reason"]
+
+
+def test_blocks_a_commit_hash_in_a_table_cell(run, tmp_path: Path) -> None:
+    text = DECISION_TABLE.replace("Ships a day later.", "Rolls back to 73efff30b.")
+    assert "inline code or a commit hash" in _blocked(_reply(run, tmp_path, text))["reason"]
+
+
+def test_blocks_an_issue_over_the_word_budget(run, tmp_path: Path) -> None:
+    long_issue = " ".join(["word"] * 61)
+    text = DECISION_TABLE.replace(
+        "Two parts of the release are done and one is not.", long_issue
+    )
+    assert "-word limit" in _blocked(_reply(run, tmp_path, text))["reason"]
+
+
+def test_allows_an_issue_at_the_word_budget(run, tmp_path: Path) -> None:
+    # Title line is 8 words; "**The issue:**" is 2; pad the rest to exactly 60.
+    pad = " ".join(["word"] * (60 - 10))
+    text = DECISION_TABLE.replace(
+        "Two parts of the release are done and one is not. We must choose whether to wait for it or ship without it.",
+        pad,
+    )
+    proc = _reply(run, tmp_path, text)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_numbered_steps_only_action_needed_is_not_a_decision(
+    run, tmp_path: Path
+) -> None:
+    proc = _reply(run, tmp_path, RESTATED)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_lettered_options_outside_action_needed_are_not_checked(
+    run, tmp_path: Path
+) -> None:
+    text = "Notes:\n\n- **A.** one\n- **B (recommended).** two\n\n" + RESTATED
+    proc = _reply(run, tmp_path, text)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_decision_in_a_fence_is_ignored(run, tmp_path: Path) -> None:
+    text = "## Action needed\n\nRun this.\n\n```text\n- **A.** x\n- **B (recommended).** y\n```\n"
+    proc = _reply(run, tmp_path, text)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_decision_checks_stop_at_the_next_heading(run, tmp_path: Path) -> None:
+    text = DECISION_TABLE + "\n## Details\n\n- **A.** x\n- **B (recommended).** y\n"
+    proc = _reply(run, tmp_path, text)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_decision_check_respects_stop_hook_active_and_opt_out(
+    run, tmp_path: Path
+) -> None:
+    proc = _reply(run, tmp_path, DECISION_9_FAILING, stop_hook_active=True)
+    assert proc.returncode == 0 and proc.stdout == ""
+    proc = run(
+        _stop(_transcript(tmp_path, DECISION_9_FAILING)),
+        {"NEXUS_DISABLED_HOOKS": "action-restatement-guard"},
+    )
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_codex_stop_payload_is_enforced(run) -> None:
+    """Codex documents last_assistant_message on Stop (learn.chatgpt.com/docs/hooks)."""
+    payload = json.dumps(
+        {
+            "session_id": "s",
+            "transcript_path": None,
+            "cwd": "/w",
+            "hook_event_name": "Stop",
+            "model": "gpt-5-codex",
+            "permission_mode": "default",
+            "turn_id": "turn-1",
+            "stop_hook_active": False,
+            "last_assistant_message": DECISION_9_FAILING,
+        }
+    )
+    assert "not rows of a Markdown table" in _blocked(run(payload))["reason"]
+
+
+def test_codex_stop_payload_with_a_clean_decision_is_allowed(run) -> None:
+    payload = json.dumps(
+        {
+            "hook_event_name": "Stop",
+            "model": "gpt-5-codex",
+            "turn_id": "turn-1",
+            "stop_hook_active": False,
+            "last_assistant_message": DECISION_TABLE,
+        }
+    )
+    proc = run(payload)
+    assert proc.returncode == 0 and proc.stdout == ""
+
+
+def test_cursor_payload_stays_unenforced(run) -> None:
+    payload = json.dumps(
+        {
+            "hook_event_name": "stop",
+            "cursor_version": "2.4.0",
+            "model": "auto",
+            "status": "completed",
+            "loop_count": 0,
+            "last_assistant_message": DECISION_9_FAILING,
+        }
+    )
+    proc = run(payload)
+    assert proc.returncode == 0 and proc.stdout == ""
