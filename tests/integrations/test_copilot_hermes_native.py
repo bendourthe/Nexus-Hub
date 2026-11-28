@@ -28,6 +28,7 @@ import pytest
 from scripts.lib.integrations import _cascade_hook_compat as hook_compat
 from scripts.lib.integrations import _copilot_native as copilot_native
 from scripts.lib.integrations import _owned as owned_files
+from scripts.lib.integrations._catalog_adapters import CLAUDE_ONLY_AGENT_KEYS
 from scripts.lib.integrations import get
 from scripts.lib.integrations.base import InstallContext
 from scripts.lib.integrations.copilot import (
@@ -37,7 +38,9 @@ from scripts.lib.integrations.copilot import (
 
 
 @pytest.fixture(autouse=True)
-def _isolated_nexus_state(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+def _isolated_nexus_state(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Keep the instruction-merge lock and backup state out of the real profile.
 
     A reinstall finds an existing instruction file and takes a per-target lock under
@@ -82,15 +85,21 @@ def _catalog_agents(ctx: InstallContext) -> list[Path]:
 # ----- 8.1 Copilot global agents ------------------------------------------
 
 
-def test_every_catalog_agent_preserves_prompt_and_native_metadata(copilot, install_ctx, copilot_home):
-    """Preserve prompts and metadata while removing Claude-only model aliases."""
+def test_every_catalog_agent_preserves_prompt_and_native_metadata(
+    copilot, install_ctx, copilot_home
+):
+    """Preserve prompts and metadata while removing Claude-only agent keys."""
     copilot._install_global_agents(copilot_home, install_ctx)
     dst_dir = copilot_home / "agents"
     for src in _catalog_agents(install_ctx):
         dst = dst_dir / f"{src.stem}.agent.md"
         assert dst.exists(), f"{src.name} was not delivered"
         source = src.read_text(encoding="utf-8")
-        expected = re.sub(r"^model:.*\n", "", source, count=1, flags=re.MULTILINE)
+        expected = source
+        for key in CLAUDE_ONLY_AGENT_KEYS:
+            expected = re.sub(
+                rf"^{key}:.*\n", "", expected, count=1, flags=re.MULTILINE
+            )
         assert dst.read_text(encoding="utf-8") == expected, src.name
 
 
@@ -159,9 +168,11 @@ def test_owned_agent_is_repaired_and_reinstall_is_idempotent(
 
 def test_dry_run_writes_no_agents(copilot, install_ctx, copilot_home):
     copilot._install_global_agents(copilot_home, replace(install_ctx, dry_run=True))
-    assert not list((copilot_home / "agents").glob("*")) if (
-        copilot_home / "agents"
-    ).exists() else True
+    assert (
+        not list((copilot_home / "agents").glob("*"))
+        if (copilot_home / "agents").exists()
+        else True
+    )
 
 
 # ----- 8.1 detection gate --------------------------------------------------
@@ -296,7 +307,9 @@ def test_github_hooks_and_agents_are_written(copilot, install_ctx):
         if "rewrite-command" in entry["bash"]
     )
     scripts = github / "hooks" / "nexus-hub-scripts"
-    bash_digest = hashlib.sha256((scripts / "rewrite-command.sh").read_bytes()).hexdigest()
+    bash_digest = hashlib.sha256(
+        (scripts / "rewrite-command.sh").read_bytes()
+    ).hexdigest()
     powershell_digest = hashlib.sha256(
         (scripts / "rewrite-command.ps1").read_bytes()
     ).hexdigest()
@@ -306,15 +319,12 @@ def test_github_hooks_and_agents_are_written(copilot, install_ctx):
     )
     assert (
         "--handler rewrite-command.sh "
-        f"--handler-sha256 {powershell_digest} -- powershell"
-        in rewrite["powershell"]
+        f"--handler-sha256 {powershell_digest} -- powershell" in rewrite["powershell"]
     )
     assert "rewrite-command.ps1" in rewrite["powershell"]
 
 
-def test_copilot_reinstall_refreshes_owned_hook_bytes_and_digest(
-    copilot, install_ctx
-):
+def test_copilot_reinstall_refreshes_owned_hook_bytes_and_digest(copilot, install_ctx):
     copilot.install_workspace(install_ctx)
     src_hooks = install_ctx.repo_root / "catalog" / "hooks"
     scripts = install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
@@ -326,16 +336,21 @@ def test_copilot_reinstall_refreshes_owned_hook_bytes_and_digest(
     result = copilot.install_workspace(install_ctx)
 
     assert rewrite.read_bytes() == (src_hooks / rewrite.name).read_bytes()
-    assert compat.read_bytes() == (
-        install_ctx.repo_root
-        / "scripts"
-        / "lib"
-        / "integrations"
-        / "_cascade_hook_compat.py"
-    ).read_bytes()
-    assert {action.action for action in result.files if action.path in {str(rewrite), str(compat)}} == {
-        "updated"
-    }
+    assert (
+        compat.read_bytes()
+        == (
+            install_ctx.repo_root
+            / "scripts"
+            / "lib"
+            / "integrations"
+            / "_cascade_hook_compat.py"
+        ).read_bytes()
+    )
+    assert {
+        action.action
+        for action in result.files
+        if action.path in {str(rewrite), str(compat)}
+    } == {"updated"}
     digest = hashlib.sha256(rewrite.read_bytes()).hexdigest()
     hook_file = install_ctx.target_root / ".github" / "hooks" / "nexus-hub.json"
     payload = json.loads(hook_file.read_text(encoding="utf-8"))
@@ -378,13 +393,14 @@ def test_copilot_reinstall_replaces_owned_hard_link_without_touching_external(
     result = copilot.install_workspace(install_ctx)
 
     assert external.read_bytes() == sentinel
-    assert rewrite.read_bytes() == (
-        install_ctx.repo_root / "catalog" / "hooks" / rewrite.name
-    ).read_bytes()
+    assert (
+        rewrite.read_bytes()
+        == (install_ctx.repo_root / "catalog" / "hooks" / rewrite.name).read_bytes()
+    )
     assert not rewrite.samefile(external)
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "updated"
-    ]
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["updated"]
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
@@ -413,12 +429,13 @@ def test_copilot_reinstall_replaces_owned_symlink_without_touching_external(
 
     assert external.read_bytes() == sentinel
     assert not rewrite.is_symlink()
-    assert rewrite.read_bytes() == (
-        install_ctx.repo_root / "catalog" / "hooks" / rewrite.name
-    ).read_bytes()
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "updated"
-    ]
+    assert (
+        rewrite.read_bytes()
+        == (install_ctx.repo_root / "catalog" / "hooks" / rewrite.name).read_bytes()
+    )
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["updated"]
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
@@ -426,9 +443,7 @@ def test_copilot_reinstall_refuses_parent_symlink_without_touching_external(
     copilot, install_ctx
 ):
     copilot.install_workspace(install_ctx)
-    scripts = (
-        install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
-    )
+    scripts = install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
     rewrite = scripts / "rewrite-command.sh"
     external = install_ctx.target_root / "external-parent-symlink"
     sentinel = b"external parent-symlink bytes must survive\n"
@@ -445,9 +460,9 @@ def test_copilot_reinstall_refuses_parent_symlink_without_touching_external(
     assert sorted(path.name for path in external.iterdir()) == [rewrite.name]
     assert (external / rewrite.name).read_bytes() == sentinel
     assert scripts.is_symlink()
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "kept"
-    ]
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["kept"]
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
@@ -456,9 +471,7 @@ def test_copilot_reinstall_refuses_parent_junction_without_touching_external(
     copilot, install_ctx
 ):
     copilot.install_workspace(install_ctx)
-    scripts = (
-        install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
-    )
+    scripts = install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
     rewrite = scripts / "rewrite-command.sh"
     external = install_ctx.target_root / "external-parent-junction"
     sentinel = b"external parent-junction bytes must survive\n"
@@ -511,12 +524,13 @@ def test_copilot_reinstall_owned_leaf_symlink_branch_is_deterministic(
 
     result = copilot.install_workspace(install_ctx)
 
-    assert rewrite.read_bytes() == (
-        install_ctx.repo_root / "catalog" / "hooks" / rewrite.name
-    ).read_bytes()
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "updated"
-    ]
+    assert (
+        rewrite.read_bytes()
+        == (install_ctx.repo_root / "catalog" / "hooks" / rewrite.name).read_bytes()
+    )
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["updated"]
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
@@ -547,9 +561,9 @@ def test_copilot_reinstall_refuses_owned_junction_without_touching_contents(
     result = copilot.install_workspace(install_ctx)
 
     assert sentinel.read_bytes() == b"external junction bytes must survive\n"
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "kept"
-    ]
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["kept"]
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
@@ -562,7 +576,9 @@ def test_owned_junction_detection_supports_python_without_path_is_junction(monke
     assertion host-independent.
     """
     mount_point_tag = getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", 0xA0000003)
-    monkeypatch.setattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", mount_point_tag, raising=False)
+    monkeypatch.setattr(
+        stat, "IO_REPARSE_TAG_MOUNT_POINT", mount_point_tag, raising=False
+    )
 
     class LegacyWindowsStat:
         st_reparse_tag = mount_point_tag
@@ -588,9 +604,9 @@ def test_copilot_reinstall_preserves_untracked_user_hook(copilot, install_ctx):
     result = copilot.install_workspace(install_ctx)
 
     assert rewrite.read_text(encoding="utf-8") == "# user-authored hook\n"
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "kept"
-    ]
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["kept"]
     assert str(rewrite) not in install_ctx.manifest.files_for("copilot")
 
 
@@ -613,9 +629,9 @@ def test_copilot_install_does_not_claim_untracked_catalog_identical_hook(
     result = copilot.install_workspace(install_ctx)
 
     assert rewrite.read_bytes() == catalog_bytes
-    assert [action.action for action in result.files if action.path == str(rewrite)] == [
-        "kept"
-    ]
+    assert [
+        action.action for action in result.files if action.path == str(rewrite)
+    ] == ["kept"]
     assert str(rewrite) not in install_ctx.manifest.files_for("copilot")
 
 
@@ -702,7 +718,9 @@ def test_copilot_permission_authority_accepts_only_generated_child_shapes(tmp_pa
     for name in ("rewrite-command.sh", "rewrite-command.ps1"):
         _write_hook_file(hooks / name)
 
-    bash_digest = hashlib.sha256((hooks / "rewrite-command.sh").read_bytes()).hexdigest()
+    bash_digest = hashlib.sha256(
+        (hooks / "rewrite-command.sh").read_bytes()
+    ).hexdigest()
     powershell_digest = hashlib.sha256(
         (hooks / "rewrite-command.ps1").read_bytes()
     ).hexdigest()
@@ -844,9 +862,7 @@ def test_copilot_permission_authority_rejects_ambiguous_child_shapes(tmp_path):
         )
 
 
-def test_copilot_permission_authority_rejects_symlinked_child(
-    tmp_path, monkeypatch
-):
+def test_copilot_permission_authority_rejects_symlinked_child(tmp_path, monkeypatch):
     hooks = tmp_path / "nexus-hub-scripts"
     hooks.mkdir()
     compat = hooks / "copilot-hook-compat.py"
@@ -890,9 +906,7 @@ def test_copilot_permission_authority_rejects_hard_linked_child(tmp_path):
     )
 
 
-def test_copilot_canonical_authoritative_child_may_allow(
-    tmp_path, monkeypatch, capsys
-):
+def test_copilot_canonical_authoritative_child_may_allow(tmp_path, monkeypatch, capsys):
     hooks = tmp_path / "nexus-hub-scripts"
     hooks.mkdir()
     compat = hooks / "copilot-hook-compat.py"
@@ -902,9 +916,9 @@ def test_copilot_canonical_authoritative_child_may_allow(
         child,
         "#!/usr/bin/env bash\n"
         "cat >/dev/null\n"
-        "printf '%s' '{\"hookSpecificOutput\":{\"permissionDecision\":\"allow\","
-        "\"permissionDecisionReason\":\"validated child\","
-        "\"updatedInput\":{\"command\":\"git status\"}}}'\n",
+        'printf \'%s\' \'{"hookSpecificOutput":{"permissionDecision":"allow",'
+        '"permissionDecisionReason":"validated child",'
+        '"updatedInput":{"command":"git status"}}}\'\n',
     )
     digest = hashlib.sha256(child.read_bytes()).hexdigest()
     monkeypatch.setattr(hook_compat, "__file__", str(compat))
@@ -912,9 +926,7 @@ def test_copilot_canonical_authoritative_child_may_allow(
         sys,
         "stdin",
         io.StringIO(
-            json.dumps(
-                {"toolName": "bash", "toolArgs": '{"command":"git status"}'}
-            )
+            json.dumps({"toolName": "bash", "toolArgs": '{"command":"git status"}'})
         ),
     )
 
@@ -1045,9 +1057,7 @@ def test_copilot_hook_bridge_cannot_be_tricked_into_allowing_exit_two():
     output, wrapper_exit = hook_compat.translate_child_result(
         "copilot",
         "PreToolUse",
-        stdout=json.dumps(
-            {"hookSpecificOutput": {"permissionDecision": "allow"}}
-        ),
+        stdout=json.dumps({"hookSpecificOutput": {"permissionDecision": "allow"}}),
         stderr="catalog guard blocked the operation",
         returncode=2,
     )
@@ -1061,9 +1071,7 @@ def test_copilot_hook_bridge_reasonless_structured_deny_gets_safe_reason():
     output, wrapper_exit = hook_compat.translate_child_result(
         "copilot",
         "PreToolUse",
-        stdout=json.dumps(
-            {"hookSpecificOutput": {"permissionDecision": "deny"}}
-        ),
+        stdout=json.dumps({"hookSpecificOutput": {"permissionDecision": "deny"}}),
         stderr="",
         returncode=0,
     )
@@ -1126,9 +1134,7 @@ def test_copilot_hook_bridge_end_to_end_cannot_be_tricked_by_exit_two(
     }
 
 
-def test_copilot_hook_bridge_fails_closed_when_child_cannot_start(
-    monkeypatch, capsys
-):
+def test_copilot_hook_bridge_fails_closed_when_child_cannot_start(monkeypatch, capsys):
     payload = {
         "toolName": "bash",
         "toolArgs": '{"command":"git reset --hard"}',
@@ -1151,7 +1157,9 @@ def test_user_authored_copilot_hook_file_is_preserved(copilot, install_ctx):
     hook_file.parent.mkdir(parents=True)
     hook_file.write_text('{"version":1,"hooks":{"preToolUse":[]}}', encoding="utf-8")
     copilot.install_workspace(install_ctx)
-    assert json.loads(hook_file.read_text(encoding="utf-8"))["hooks"] == {"preToolUse": []}
+    assert json.loads(hook_file.read_text(encoding="utf-8"))["hooks"] == {
+        "preToolUse": []
+    }
 
 
 def test_global_install_writes_personal_instruction_and_hooks(
@@ -1231,7 +1239,9 @@ def test_hermes_skills_are_exactly_one_level_deep(hermes, install_ctx):
     direct = [p for p in skills_root.iterdir() if p.is_dir()]
     assert direct, "no skills were delivered"
     for child in direct:
-        assert (child / "SKILL.md").is_file(), f"{child.name} has no SKILL.md at depth 1"
+        assert (
+            child / "SKILL.md"
+        ).is_file(), f"{child.name} has no SKILL.md at depth 1"
 
 
 def test_no_hermes_skill_md_sits_two_levels_deep(hermes, install_ctx):
@@ -1259,9 +1269,7 @@ def test_hermes_skill_dirs_are_discoverable_names(hermes, install_ctx):
 def test_hermes_commands_also_surface_as_skills(hermes, install_ctx):
     """Skills are Hermes's only action surface, so commands must appear there."""
     hermes.install_workspace(install_ctx)
-    names = {
-        p.name for p in (install_ctx.target_root / ".hermes" / "skills").iterdir()
-    }
+    names = {p.name for p in (install_ctx.target_root / ".hermes" / "skills").iterdir()}
     assert "implement" in names or "plan" in names
 
 
@@ -1476,8 +1484,11 @@ def test_global_install_refuses_redirected_copilot_root_before_any_write(
 
     try:
         scoped_ctx = replace(
-            install_ctx, target_root=copilot_home.parent, scope="global",
-            explicit_target=True, dry_run=True,
+            install_ctx,
+            target_root=copilot_home.parent,
+            scope="global",
+            explicit_target=True,
+            dry_run=True,
         )
         result = copilot.install_global(scoped_ctx)
 
@@ -1547,8 +1558,12 @@ def test_global_prompts_redirect_is_refused(
             "scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: user_dir
         )
         ctx = replace(
-            install_ctx, target_root=tmp_path / "profile", scope="global",
-            explicit_target=True, instruction_only=True, dry_run=True,
+            install_ctx,
+            target_root=tmp_path / "profile",
+            scope="global",
+            explicit_target=True,
+            instruction_only=True,
+            dry_run=True,
         )
         result = copilot.install_global(ctx)
 
@@ -1623,14 +1638,20 @@ def test_bash_command_is_unchanged_when_no_git_bash_is_present(monkeypatch):
     monkeypatch.setattr(hook_compat, "_windows_host", lambda: True)
     monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", ())
 
-    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]
+    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == [
+        "bash",
+        "child.sh",
+    ]
 
 
 def test_posix_bash_command_is_left_to_path(monkeypatch):
     """POSIX has no WSL stub problem, so PATH resolution is correct there."""
     monkeypatch.setattr(hook_compat, "_windows_host", lambda: False)
 
-    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]
+    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == [
+        "bash",
+        "child.sh",
+    ]
 
 
 def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
@@ -1670,9 +1691,9 @@ def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
         child,
         "#!/usr/bin/env bash\n"
         "cat >/dev/null\n"
-        "printf '%s' '{\"hookSpecificOutput\":{\"permissionDecision\":\"allow\","
-        "\"permissionDecisionReason\":\"validated child\","
-        "\"updatedInput\":{\"command\":\"git status\"}}}'\n",
+        'printf \'%s\' \'{"hookSpecificOutput":{"permissionDecision":"allow",'
+        '"permissionDecisionReason":"validated child",'
+        '"updatedInput":{"command":"git status"}}}\'\n',
     )
     digest = hashlib.sha256(child.read_bytes()).hexdigest()
 
@@ -1683,7 +1704,9 @@ def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
         sys,
         "stdin",
-        io.StringIO(json.dumps({"toolName": "bash", "toolArgs": '{"command":"git status"}'})),
+        io.StringIO(
+            json.dumps({"toolName": "bash", "toolArgs": '{"command":"git status"}'})
+        ),
     )
 
     wrapper_exit = hook_compat.main(
@@ -1712,6 +1735,7 @@ def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
 
 # WN-5-v4133: Agent Host reads manual command skills, while Local keeps prompts.
 
+
 @pytest.fixture
 def command_skill_ctx(install_ctx, copilot_home, tmp_path, monkeypatch):
     repo = tmp_path / "command-source"
@@ -1726,12 +1750,24 @@ def command_skill_ctx(install_ctx, copilot_home, tmp_path, monkeypatch):
     template.parent.mkdir(parents=True)
     template.write_text("# Harness\n", encoding="utf-8")
     copilot_home.mkdir(parents=True)
-    monkeypatch.setattr("scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: None)
-    monkeypatch.setattr("scripts.lib.integrations.copilot._copilot_home", lambda *_: copilot_home)
-    return replace(install_ctx, repo_root=repo, target_root=copilot_home.parent, scope="global", explicit_target=True)
+    monkeypatch.setattr(
+        "scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: None
+    )
+    monkeypatch.setattr(
+        "scripts.lib.integrations.copilot._copilot_home", lambda *_: copilot_home
+    )
+    return replace(
+        install_ctx,
+        repo_root=repo,
+        target_root=copilot_home.parent,
+        scope="global",
+        explicit_target=True,
+    )
 
 
-def test_global_command_skills_are_manual_only(copilot, command_skill_ctx, copilot_home):
+def test_global_command_skills_are_manual_only(
+    copilot, command_skill_ctx, copilot_home
+):
     result = copilot.install_global(command_skill_ctx)
     for name in ("keep", "drop"):
         path = copilot_home / "skills" / name / "SKILL.md"
@@ -1741,19 +1777,38 @@ def test_global_command_skills_are_manual_only(copilot, command_skill_ctx, copil
         assert f"Run the /{name} command." in text
         assert f"# {name}\n\nRun this action.\n" in text
         assert str(path) in command_skill_ctx.manifest.files_for("copilot")
-        assert any(action.path == str(path) and action.action == "created" for action in result.files)
+        assert any(
+            action.path == str(path) and action.action == "created"
+            for action in result.files
+        )
 
 
 @pytest.mark.parametrize("selected", [[], ["keep"]])
-def test_global_command_skills_follow_selection(copilot, command_skill_ctx, copilot_home, selected):
-    ctx = replace(command_skill_ctx, selection={"resolved": {"commands": selected, "skills": [], "agents": []}})
+def test_global_command_skills_follow_selection(
+    copilot, command_skill_ctx, copilot_home, selected
+):
+    ctx = replace(
+        command_skill_ctx,
+        selection={"resolved": {"commands": selected, "skills": [], "agents": []}},
+    )
     copilot.install_global(ctx)
-    delivered = {path.parent.name for path in (copilot_home / "skills").glob("*/SKILL.md")}
+    delivered = {
+        path.parent.name for path in (copilot_home / "skills").glob("*/SKILL.md")
+    }
     assert delivered == set(selected)
 
 
-def test_global_command_skill_does_not_shadow_catalog_skill(copilot, command_skill_ctx, copilot_home):
-    collision = command_skill_ctx.repo_root / "catalog" / "skills" / "workflow" / "keep" / "SKILL.md"
+def test_global_command_skill_does_not_shadow_catalog_skill(
+    copilot, command_skill_ctx, copilot_home
+):
+    collision = (
+        command_skill_ctx.repo_root
+        / "catalog"
+        / "skills"
+        / "workflow"
+        / "keep"
+        / "SKILL.md"
+    )
     collision.parent.mkdir(parents=True)
     collision.write_text("catalog skill\n", encoding="utf-8")
     copilot.install_global(command_skill_ctx)
@@ -1761,7 +1816,9 @@ def test_global_command_skill_does_not_shadow_catalog_skill(copilot, command_ski
     assert (copilot_home / "skills" / "drop" / "SKILL.md").is_file()
 
 
-def test_global_command_skill_preserves_unowned_personal_bytes(copilot, command_skill_ctx, copilot_home):
+def test_global_command_skill_preserves_unowned_personal_bytes(
+    copilot, command_skill_ctx, copilot_home
+):
     path = copilot_home / "skills" / "keep" / "SKILL.md"
     path.parent.mkdir(parents=True)
     personal = b"Personal workflow\r\nKeep every byte.\r\n"
@@ -1769,21 +1826,31 @@ def test_global_command_skill_preserves_unowned_personal_bytes(copilot, command_
     result = copilot.install_global(command_skill_ctx)
     assert path.read_bytes() == personal
     assert str(path) not in command_skill_ctx.manifest.files_for("copilot")
-    assert any(action.path == str(path) and action.action == "kept" for action in result.files)
+    assert any(
+        action.path == str(path) and action.action == "kept" for action in result.files
+    )
     copilot.install_global(command_skill_ctx)
     assert path.read_bytes() == personal
 
 
-def test_global_command_skill_refreshes_owned_bytes_idempotently(copilot, command_skill_ctx, copilot_home):
+def test_global_command_skill_refreshes_owned_bytes_idempotently(
+    copilot, command_skill_ctx, copilot_home
+):
     copilot.install_global(command_skill_ctx)
     path = copilot_home / "skills" / "keep" / "SKILL.md"
     expected = path.read_bytes()
     path.write_bytes(b"stale owned wrapper\n")
     refreshed = copilot.install_global(command_skill_ctx)
     assert path.read_bytes() == expected
-    assert any(action.path == str(path) and action.action == "updated" for action in refreshed.files)
+    assert any(
+        action.path == str(path) and action.action == "updated"
+        for action in refreshed.files
+    )
     repeated = copilot.install_global(command_skill_ctx)
-    assert any(action.path == str(path) and action.action == "unchanged" for action in repeated.files)
+    assert any(
+        action.path == str(path) and action.action == "unchanged"
+        for action in repeated.files
+    )
 
 
 def test_global_command_skills_keep_local_prompt_compatibility(
@@ -1791,7 +1858,9 @@ def test_global_command_skills_keep_local_prompt_compatibility(
 ):
     user = tmp_path / "vscode-user"
     user.mkdir()
-    monkeypatch.setattr("scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: user)
+    monkeypatch.setattr(
+        "scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: user
+    )
     copilot.install_global(command_skill_ctx)
     for name in ("keep", "drop"):
         assert (copilot_home / "skills" / name / "SKILL.md").is_file()
@@ -1835,7 +1904,9 @@ def test_global_command_skills_refuse_redirected_skills_root(
             pytest.skip(f"directory links unavailable: {exc}")
         junction = subprocess.run(
             ["cmd", "/c", "mklink", "/J", str(root), str(external)],
-            text=True, capture_output=True, check=False,
+            text=True,
+            capture_output=True,
+            check=False,
         )
         if junction.returncode:
             pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
@@ -1843,8 +1914,14 @@ def test_global_command_skills_refuse_redirected_skills_root(
         result = copilot.install_global(command_skill_ctx)
         assert list(external.iterdir()) == [sentinel]
         assert sentinel.read_bytes() == b"keep personal content\n"
-        assert any("refuse-link-like-ancestor" in (action.reason or "") for action in result.files)
-        assert not any(str(external) in path for path in command_skill_ctx.manifest.files_for("copilot"))
+        assert any(
+            "refuse-link-like-ancestor" in (action.reason or "")
+            for action in result.files
+        )
+        assert not any(
+            str(external) in path
+            for path in command_skill_ctx.manifest.files_for("copilot")
+        )
     finally:
         if owned_files._is_junction(root):
             root.rmdir()

@@ -63,7 +63,7 @@ from pathlib import Path
 
 import tomllib
 
-from ._catalog_adapters import _split_frontmatter
+from ._catalog_adapters import _drop_frontmatter_keys, _split_frontmatter
 from ._hooks_common import (
     command_for,
     script_basename,
@@ -179,6 +179,11 @@ def agent_is_loadable(source_name: str, markdown: str) -> str | None:
     return None
 
 
+# Claude-only agent keys Kimi does not document. ``model`` is absent on purpose:
+# Kimi documents ignoring it, and the verbatim copy predates this list.
+KIMI_DROPPED_AGENT_KEYS: tuple[str, ...] = ("effort",)
+
+
 def agents_to_kimi(
     ctx,
     key: str,
@@ -187,7 +192,7 @@ def agents_to_kimi(
     *,
     managed_root: Path | None = None,
 ) -> list[FileAction]:
-    """Copy ``catalog/agents/*.md`` to Kimi's agents directory, unchanged.
+    """Copy ``catalog/agents/*.md`` to Kimi's agents directory, minus ``effort``.
 
     Kimi reads the catalog's Claude-Code-style frontmatter natively, so this is a
     validated copy rather than a transform. The write goes through
@@ -195,13 +200,17 @@ def agents_to_kimi(
     manifest-driven repair: a file Nexus-Hub owns must be refreshed when it
     drifts, while one the user wrote must be left exactly as it is. ``_copy_file``
     cannot tell those apart -- it keeps any existing destination.
+
+    ``effort`` is removed: Kimi's agent reference documents no effort field
+    (decision and source in docs/reference/agent-classification.md). ``model``
+    stays because Kimi documents that it ignores Claude Code's ``model``.
     """
     if not src_agents_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_agents_dir}")
         return [FileAction(path=str(src_agents_dir), action="not-found")]
     actions: list[FileAction] = []
     for md in sorted(src_agents_dir.glob("*.md")):
-        content = md.read_bytes()
+        content = _drop_frontmatter_keys(md.read_bytes(), KIMI_DROPPED_AGENT_KEYS)
         reason = agent_is_loadable(md.stem, content.decode("utf-8"))
         if reason is not None:
             ctx.manifest.log(key, f"skip agent ({reason}): {md.name}")

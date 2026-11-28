@@ -69,10 +69,21 @@ The class decided at iteration 2 guides the iteration-3 fix; option D is offered
 | Wrong approach | any, below `frontier` | Upshift the tier, re-plan the failing sub-task, or ask the user. Never raise effort alone: more effort mostly adds verification and does not change the approach. |
 | Wrong approach | `frontier` | Re-plan the failing sub-task or ask the user. |
 
+### Effort escalation ladder
+
+When output is not good enough, climb in this order and stop at the first rung that fixes it:
+
+1. Make the work self-verifiable: add tests, a build step, or a script that checks the result.
+2. Raise effort one level.
+3. Move up one tier, starting at a lower effort than was used on the smaller tier.
+
+For a batch with automated checks, running at `low` and re-running only the failures at `high` is a valid cost pattern. Source: https://claude.dev/blog/which-claude-model-should-you-build-with/
+
 ## Rule ownership
 
 | Concern | Owner | Non-owners do |
 |---|---|---|
+| The escalation ladder order (self-verify, raise effort, move up a tier) and the low-then-rerun-failures batch pattern | `model-routing` (this file, escalation ladder section) | Link to it; never restate the order |
 | Edge-case density, unattended, and failure-class definitions; failure-class escalation routing; the verification-effort computation and its `high` cap | `model-routing` (this file, Step 7, `model-map.py`) | Reference `[[model-routing]]`; never restate a definition |
 | Effort-level guidance: what effort buys, the decision table, one long task vs a loop, when `max` pays | `prompt-engineering` (`references/effort-level-strategy.md`) | Point at it for level choice |
 | Whether an effort change keeps the prompt cache | `prompt-engineering` (`references/step-8-optimize-cost-and-latency.md`) | Link to it; never restate the rule |

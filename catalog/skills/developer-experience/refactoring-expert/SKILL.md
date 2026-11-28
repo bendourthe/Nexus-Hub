@@ -378,6 +378,16 @@ def calculate_shipping(weight_kg: float) -> float:
 - [ ] [Any remaining improvements]
 ```
 
+### Implicit-state-machine pass
+
+Use this pass when a workflow is driven by scattered booleans, flags, and status strings, and no single place says which combinations are legal.
+
+1. Make a scoped checkpoint commit of only the files in scope. Never use `git add -A`. In Windows PowerShell 5.1, chain commands with `;` or `if ($?)`, not `&&`.
+2. Run the test suite and record the result. If no suite exists, stop and write characterization tests first (see Step 2).
+3. List the real states and the transitions between them, from what the code does today.
+4. Replace the scattered flags with one explicit state type and one transition function. Keep observable behavior the same.
+5. Run the suite again and compare with step 2. Hand the before and after to `[[behavior-preservation-checker]]`.
+
 ## Best Practices
 
 - **Test first** - Never refactor without tests
@@ -447,6 +457,7 @@ class NewDataStore(DataStore):
 - [ ] No new code smells or lint warnings were introduced: `<the lint command>`
 - [ ] The public API and observable behavior are unchanged from before the refactor
 - [ ] When a change needed room, the refactor step's green test run is recorded before the change step begins
+- [ ] An implicit-state-machine pass started from a scoped checkpoint commit, listed the states and transitions, and shows a passing suite before and after
 
 ## Related Skills
 

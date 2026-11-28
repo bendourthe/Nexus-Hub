@@ -2,6 +2,7 @@
 name: loop-operator
 description: Autonomous iterative task execution. Use for long-running tasks that require multiple rounds of implement-test-fix cycles. Runs until the acceptance condition is met or the maximum iteration count is reached.
 model: opus
+effort: high
 tools: Read, Glob, Grep, Bash, Write, Edit
 ---
 

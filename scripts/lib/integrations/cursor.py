@@ -317,12 +317,12 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # Subagents retain their prompts but omit Claude-only model aliases.
         agents_subdir = self.config.get("agents_subdir")
         if agents_subdir:
-            from ._catalog_adapters import agents_dropping_keys
+            from ._catalog_adapters import CLAUDE_ONLY_AGENT_KEYS, agents_dropping_keys
 
             actions.extend(
                 agents_dropping_keys(
                     ctx, self.key, ctx.repo_root / "catalog" / "agents",
-                    cursor_root / agents_subdir, ("model",),
+                    cursor_root / agents_subdir, CLAUDE_ONLY_AGENT_KEYS,
                 )
             )
         if self.config.get("hooks_supported"):

@@ -313,6 +313,13 @@ def flat_md_selected(ctx, key: str, src_dir: Path, dst_dir: Path, surface: str) 
     return actions
 
 
+# Agent frontmatter keys only Claude reads. Every non-Claude agent delivery path
+# strips these, so a Claude model alias or effort ceiling never reaches a platform
+# that rejects or misreads it. Membership and reasons:
+# docs/reference/agent-classification.md.
+CLAUDE_ONLY_AGENT_KEYS: tuple[str, ...] = ("model", "effort")
+
+
 def _drop_frontmatter_keys(raw: bytes, keys: tuple[str, ...]) -> bytes:
     """Remove top-level ``key:`` lines for ``keys`` from a leading YAML frontmatter block.
 
