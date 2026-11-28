@@ -3450,7 +3450,7 @@ install_cli_launcher() {
     esac
     local rc status
     rc="$(nexus_path_profile)"
-    if [ "${NO_MODIFY_PATH:-0}" = "1" ]; then
+    if [ "${NO_MODIFY_PATH:-0}" = "1" ] || [ "${NEXUS_HUB_NO_MODIFY_PATH:-0}" = "1" ]; then
         write_item "--no-modify-path: your shell profile was not changed. To use the 'nexus-hub' command, add its bin directory to your PATH." "$YELLOW"
         write_item "  Add this line to $rc, then restart your shell:" "$RESET"
         write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
@@ -4079,7 +4079,8 @@ Options:
                  installer appends one marked block to your shell profile
                  (~/.zshrc, ~/.bashrc, ~/.bash_profile on macOS bash, or
                  ~/.profile) so 'nexus-hub upgrade' works in new shells; with
-                 this flag it only prints the line to add.
+                 this flag it only prints the line to add. Setting
+                 NEXUS_HUB_NO_MODIFY_PATH=1 has the same effect.
   --branch <name>  Install the catalog from a pushed branch instead of the
                  current checkout. Shallow-clones the repo at <name> into a
                  deterministic cache directory (~/.nexus-hub/branches/<name>/),

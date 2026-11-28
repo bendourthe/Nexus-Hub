@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Test runs no longer add their temporary `.nexus-hub\bin` folders to your Windows user PATH.** Tests that ran the real installer under a redirected `USERPROFILE` wrote their temporary bin directory into the account-wide user PATH, which grew past the 8,191-character `cmd.exe` limit and made `nexus-hub upgrade` fail with "Python 3 is required to run nexus-hub but was not found on PATH". `installer.ps1` now skips the user PATH change when `-NoModifyPath` or the new `NEXUS_HUB_NO_MODIFY_PATH=1` is set, and on its own whenever `USERPROFILE` is not the account's real profile folder; `installer.sh` honors `NEXUS_HUB_NO_MODIFY_PATH=1` like `--no-modify-path`. Both test roots (`tests/` and `catalog/hooks/tests/`) export the opt-out for the whole session and fail the run if `HKCU\Environment\Path` changed. Regression tests: `tests/installer/test_path_leak_guard.py`. Existing stray entries are not removed automatically; delete them under Settings > Edit environment variables for your account > Path.
+
 ## [4.15.7] - 2026-11-27
 
 ### Added

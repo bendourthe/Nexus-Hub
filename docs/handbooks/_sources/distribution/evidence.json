@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "b22c3f8320226ac65a3051f82d9a9c957cf403843679c83e11803eac31662ef3",
       "docs/handbooks/_sources/distribution/source.md": "d948449425359d46ca258b6a896c2af9f3f7ad984c043766c5cc8a1dd6a5b898",
       "docs/handbooks/_sources/distribution/design.css": "077e21b3579305d70ee117d6c2ccf4f5dd0a1222232a4a4e905272b75669efb5",
-      "scripts/installer.ps1": "363ae8cb71c88799c7a123fc83086db2a613fa80ba87154f9b10398b522f9029",
-      "scripts/installer.sh": "2fdb4958a3c49000aaf7bcf6fc43aec679c878bb631186e57f2d22e5d25c2abd",
+      "scripts/installer.ps1": "f968664975c71f68cb82770726faf158494e3a51f5ea252b44beb1715ca0522a",
+      "scripts/installer.sh": "644af99ea11392f7c65e90998b643e676f6c6d70cbca9930b3e2ae62dc51a7c4",
       "scripts/lib/integrations/runner.py": "ccaace954cc159155e97a31ed44c14a6f55c31daa913d968581afd18c02b0cb8",
       "scripts/nexus_hub_cli.py": "202bc000599bfbe61b9c6bbb093aee440f6f0d7e131bb6462010b4926dba602a",
       "catalog/hooks/usage-guard.py": "2ba753a44b1e19f1e2e919eeef0cac329f9a080dc79268abc0a965433e2f468c",
@@ -36,8 +36,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review-v4157-release.md",
-      "evidence_sha256": "2da5c77fda2386aebd235926ac1ca7f3f326c45be9943b8feedef844f13fd92a"
+      "evidence": "docs/releases/v4/v4.15/development/evidence/stall-enforcement-handbooks/distribution-claim-review-installer-path-optout.md",
+      "evidence_sha256": "8fc8e3176b6d05b810b8e4a44c71c4b7f7702a1fa8e7acb23a017d8af96721f3"
     },
     "build": {
       "status": "pass",
